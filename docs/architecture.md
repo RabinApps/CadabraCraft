@@ -18,6 +18,10 @@ Writes from the app use temp-file-then-rename (`src-tauri/src/commands/mod.rs`),
 - Unit: Vitest in each package. Rust: `cargo test`.
 - E2E: Playwright (`apps/desktop/e2e`) drives the real React/TipTap UI in Chromium with the Tauri `invoke` bridge replaced by an in-memory fake. It does not cover the Rust side or the native window; add Tauri WebDriver tests in M1+.
 
+- Native E2E (opt-in): `apps/desktop/e2e-native` drives the real Tauri binary through `tauri-driver` with `selenium-webdriver` (Vitest runner, files named `*.native.ts`, own config). Run `cargo install tauri-driver --locked`, `pnpm --filter @cadabracraft/desktop build:native`, then `test:native`. Not part of `pnpm test`. Smoke flow: create book, edit, save, reload, reopen, with assertions on the files Rust wrote.
+  - **Limitation: tauri-driver supports only Linux (WebKitWebDriver) and Windows (msedgedriver). macOS has no WKWebView WebDriver, so this suite cannot run on a Mac; it skips itself there with a message.** It is written for Linux/Windows CI and has not been executed against a real driver yet. Native file dialogs cannot be automated, so the test wraps `__TAURI_INTERNALS__.invoke` to answer only `plugin:dialog|open`; all other commands reach Rust.
+  - Rejected: WebdriverIO (heavier dependency tree, same protocol); `tauri-plugin-webdriver`/third-party macOS drivers (unofficial, extra code in the app); Playwright attaching to WKWebView (not supported). On macOS, use `/drive-app` (dev-only MCP bridge) instead.
+
 ### Decision: print PDF engine = Typst
 Spike: `packages/export-pdf/scripts/spike.ts` renders the same chapter at 6x9 with mirrored margins, running headers and page numbers using both engines.
 
@@ -68,7 +72,7 @@ Formatting buttons (undo/redo, bold, italic, underline, small caps, link, H1-H3,
 - Rejected: storing the numbering style in the template (it is a convention, not a design choice); embedding kind-specific layout in the document JSON (the schema has no alignment and must not grow for this).
 
 ### Not done yet in M1
-Full-project undo of tree edits, real-client sync testing (M3), and Tauri-WebDriver e2e covering the Rust side.
+Full-project undo of tree edits, real-client sync testing (M3), and running the Tauri-WebDriver smoke suite on Linux/Windows CI (written, see Testing; not runnable on macOS).
 
 ## Marketing website (`apps/website`)
 Next.js (App Router) with `output: 'export'`, Tailwind v4 and the tokens from `docs/design.md`, deployed to GitHub Pages at cadabracraft.com by `.github/workflows/pages.yml` (custom domain via `public/CNAME`, so no `basePath`). Fonts are self-hosted at build time by `next/font`; the shipped site makes no third-party requests and has no analytics. The site is a standalone app and imports nothing from `packages/*`.
