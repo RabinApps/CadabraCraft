@@ -7,6 +7,7 @@ import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
 import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
+import { useRegisterCommands } from "../app/commands";
 import { useProject } from "../app/store";
 
 interface Item {
@@ -90,6 +91,11 @@ export function Toolbar({ editor }: { editor: Editor }) {
       { id: "footnote", label: t`Footnote`, icon: Superscript, run: () => c().insertContent({ type: "footnote", content: [{ type: "text", text: t`Note` }] }).run() },
     ],
   ];
+
+  // The same actions as menu commands (Insert and Format), available while the toolbar is shown. Undo and redo stay the system's.
+  useRegisterCommands(Object.fromEntries(
+    groups.flat().filter((b) => b.id !== "undo" && b.id !== "redo").map((b) => [`editor.${b.id}`, { run: b.run, enabled: !b.disabled, ...(b.active === undefined ? {} : { checked: b.active }) }]),
+  ));
 
   return (
     <>

@@ -241,3 +241,12 @@ CI lessons (from the macOS failure in run 40399041624):
 - **A failure on one OS cancels the others.** The matrix uses the default `fail-fast`, so the Windows job was cancelled and its result is unknown. A green macOS run says nothing about Windows. Open follow-up: consider `fail-fast: false` in `ci.yml`.
 - **Windows-only branches can be tested on any OS** by stubbing `process.platform` with `Object.defineProperty` and restoring it afterwards (`packages/project-fs/test/paths.test.ts`).
 - **macOS has no `timeout` command.** Use `pnpm` directly or a background run with a log file.
+
+## Menu bar
+
+- **A native menu driven by a command registry, not a hand-wired menu per screen.** `menuModel.ts` builds the whole menu as plain data from which commands are registered and usable; components register commands while they can act (`useRegisterCommands`) and the menu greys out the rest. The structure is fixed so the menu does not jump between contexts. Rejected: building a different menu per screen (items appear and vanish, shortcuts differ by screen) and an in-page HTML menu bar (not native on macOS, no system shortcuts, duplicates the OS).
+- **Tauri's menu API from the webview (`@tauri-apps/api/menu`), no Rust menu code and no new dependency.** The menu is rebuilt only when labels or items change; availability and ticks are updated in place (`nativeMenu.ts`), because a rebuild on every keystroke flickers. Rejected: defining the menu in Rust (a second copy of every label and translation, and an event round trip for each action).
+- **Menu actions are inert while a dialog is open** (`modalOpen`), so a shortcut cannot change the page behind an export or details dialog.
+- **Undo, Redo, Cut, Copy, Paste stay the system's predefined items;** book-level undo is a separate pair that names the edit. Rejected: routing text undo through the menu (breaks IME and the editor's history).
+- **Native item clicks are not driven by tests.** Accessibility access is not granted, so the end-to-end scenario runs commands through a dev-only `window.__cadabraMenu.run` and checks what the menu was told to show. Unit tests cover the model and the native adapter against a fake menu API. A real click on a native item is only checked by hand.
+

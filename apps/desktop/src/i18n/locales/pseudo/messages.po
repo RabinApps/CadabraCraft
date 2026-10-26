@@ -137,10 +137,16 @@ msgstr ""
 msgid "A project already exists in this folder"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "About CadabraCraft"
+msgstr ""
+
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "About the author"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Acknowledgments"
 msgstr ""
@@ -194,6 +200,7 @@ msgstr ""
 msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Also by"
 msgstr ""
@@ -233,6 +240,10 @@ msgstr ""
 msgid "Back matter"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Back Matter"
+msgstr ""
+
 #: src/app/Settings.tsx
 msgid "Backups"
 msgstr ""
@@ -245,10 +256,15 @@ msgstr ""
 msgid "Block quote"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Block Quote"
+msgstr ""
+
 #: src/app/Templates.tsx
 msgid "Body font"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Bold"
 msgstr ""
@@ -262,6 +278,10 @@ msgstr ""
 msgid "Book details"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Book Details…"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Book history"
 msgstr ""
@@ -270,12 +290,20 @@ msgstr ""
 msgid "Book progress"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Bring All to Front"
+msgstr ""
+
 #: src/app/ExportDialog.tsx
 msgid "Building EPUB…"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Bulleted list"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Bulleted List"
 msgstr ""
 
 #. placeholder {0}: w.conflict_copy
@@ -318,9 +346,11 @@ msgid "Chapter"
 msgstr ""
 
 #. placeholder {0}: chapters.length + 1
+#. placeholder {0}: manifest!.chapters.length + 1
 #. placeholder {0}: manifest.chapters.length + 1
 #: src/app/App.tsx
 #: src/app/Sidebar.tsx
+#: src/app/useAppMenu.ts
 msgid "Chapter {0}"
 msgstr ""
 
@@ -382,6 +412,19 @@ msgstr ""
 msgid "Choose…"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Clear Menu"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Close Project"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Close Window"
+msgstr ""
+
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Colophon"
 msgstr ""
@@ -390,10 +433,15 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Copy"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Copy report"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Copyright page"
 msgstr ""
@@ -456,8 +504,13 @@ msgstr ""
 msgid "Crop marks"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Custom page"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Cut"
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -465,6 +518,7 @@ msgstr ""
 msgid "Dark"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Dedication"
 msgstr ""
@@ -478,6 +532,10 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Details Panel"
+msgstr ""
+
 #: src/app/SponsorDialog.tsx
 msgid "Don't show again"
 msgstr ""
@@ -488,6 +546,10 @@ msgstr ""
 
 #: src/app/Home.tsx
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Edit"
 msgstr ""
 
 #: src/app/Details.tsx
@@ -506,6 +568,11 @@ msgstr ""
 msgid "Enjoying CadabraCraft?"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Enter Full Screen"
+msgstr ""
+
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Epigraph"
 msgstr ""
@@ -514,12 +581,17 @@ msgstr ""
 msgid "EPUB 3"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "EPUB…"
+msgstr ""
+
 #: src/app/App.tsx
 msgid "Exit focus mode"
 msgstr ""
 
 #: src/app/AppHeader.tsx
 #: src/app/ExportDialog.tsx
+#: src/app/menuModel.ts
 msgid "Export"
 msgstr ""
 
@@ -553,11 +625,16 @@ msgid "Exporting…"
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
+#: src/app/menuModel.ts
 msgid "File"
 msgstr ""
 
 #: src/app/AppHeader.tsx
 msgid "Focus mode"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Focus Mode"
 msgstr ""
 
 #: src/app/Home.tsx
@@ -572,15 +649,18 @@ msgstr ""
 msgid "Follow the system or pick one."
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Footnote"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Foreword"
 msgstr ""
 
 #: src/app/ExportDialog.tsx
+#: src/app/menuModel.ts
 msgid "Format"
 msgstr ""
 
@@ -592,6 +672,10 @@ msgstr ""
 #: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Front matter"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Front Matter"
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -606,16 +690,31 @@ msgstr ""
 msgid "Give the book an author."
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 1"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 2"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 3"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Help"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Hide CadabraCraft"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Hide Others"
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -650,12 +749,20 @@ msgstr ""
 msgid "Image not found: {0}"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Image…"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Import"
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
 msgid "Import a manuscript"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Import Manuscript…"
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
@@ -682,6 +789,7 @@ msgstr ""
 msgid "Include the cover"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Insert"
 msgstr ""
@@ -699,6 +807,7 @@ msgstr ""
 msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Italic"
 msgstr ""
@@ -738,6 +847,10 @@ msgstr ""
 msgid "Link"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Link…"
+msgstr ""
+
 #: src/app/Home.tsx
 msgid "Location"
 msgstr ""
@@ -756,6 +869,10 @@ msgstr ""
 
 #: src/app/Settings.tsx
 msgid "Medium"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Minimize"
 msgstr ""
 
 #. placeholder {0}: c.file
@@ -819,8 +936,16 @@ msgstr ""
 msgid "New book folder"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "New Chapter"
+msgstr ""
+
 #: src/app/Home.tsx
 msgid "New project"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "New Project…"
 msgstr ""
 
 #: src/editor/ReadingFooter.tsx
@@ -829,6 +954,10 @@ msgstr ""
 
 #: src/editor/ReadingFooter.tsx
 msgid "Next page"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Next Page"
 msgstr ""
 
 #: src/app/store.ts
@@ -846,6 +975,10 @@ msgstr ""
 
 #: src/lib/exportChecks.ts
 msgid "No problems found"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "No Recent Projects"
 msgstr ""
 
 #: src/app/PrintPreview.tsx
@@ -883,8 +1016,20 @@ msgstr ""
 msgid "Numbered list"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Numbered List"
+msgstr ""
+
 #: src/app/Home.tsx
 msgid "Open folder"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Open Project…"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Open Recent"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -911,6 +1056,10 @@ msgstr ""
 msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Paste"
+msgstr ""
+
 #: src/app/ExportDialog.tsx
 msgid "PDF/A (archival)"
 msgstr ""
@@ -923,6 +1072,7 @@ msgstr ""
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Preface"
 msgstr ""
@@ -935,8 +1085,16 @@ msgstr ""
 msgid "Previous page"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Previous Page"
+msgstr ""
+
 #: src/app/ExportDialog.tsx
 msgid "Print PDF"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Print PDF…"
 msgstr ""
 
 #: src/app/ExportDialog.tsx
@@ -944,12 +1102,25 @@ msgstr ""
 msgid "Print preview"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Print Preview…"
+msgstr ""
+
 #. placeholder {0}: parsed.fromVersion
 #: src/app/store.ts
 msgid "Project upgraded from format {0}; backup saved to {backup}"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Quit"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Quit CadabraCraft"
+msgstr ""
+
 #: src/app/AppHeader.tsx
+#: src/app/menuModel.ts
 msgid "Read"
 msgstr ""
 
@@ -978,12 +1149,22 @@ msgstr ""
 msgid "Redid: {0}"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Redo"
 msgstr ""
 
+#. placeholder {0}: ctx.redoLabel
+#: src/app/menuModel.ts
+msgid "Redo {0}"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Redo book change"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Redo Chapter Change"
 msgstr ""
 
 #. placeholder {0}: lastRedo.label
@@ -1025,6 +1206,7 @@ msgid "Right-hand page"
 msgstr ""
 
 #: src/app/AppHeader.tsx
+#: src/app/menuModel.ts
 msgid "Save"
 msgstr ""
 
@@ -1050,12 +1232,24 @@ msgstr ""
 msgid "Scene break"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Scene Break"
+msgstr ""
+
 #: src/app/Details.tsx
 msgid "Section"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Select All"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Select the text you want to link first."
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Services"
 msgstr ""
 
 #: src/app/AppHeader.tsx
@@ -1068,8 +1262,16 @@ msgstr ""
 msgid "Settings sections"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Settings…"
+msgstr ""
+
 #: src/app/Settings.tsx
 msgid "Shortcuts"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Show All"
 msgstr ""
 
 #: src/app/AppHeader.tsx
@@ -1088,6 +1290,10 @@ msgstr ""
 msgid "Small caps"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Small Caps"
+msgstr ""
+
 #: src/editor/ReadingSettings.tsx
 msgid "Smaller text"
 msgstr ""
@@ -1098,6 +1304,10 @@ msgstr ""
 
 #: src/app/SponsorDialog.tsx
 msgid "Sponsor"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Sponsor CadabraCraft…"
 msgstr ""
 
 #: src/app/Home.tsx
@@ -1226,6 +1436,7 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Title page"
 msgstr ""
@@ -1263,6 +1474,7 @@ msgstr ""
 msgid "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Underline"
 msgstr ""
@@ -1272,12 +1484,22 @@ msgstr ""
 msgid "Undid: {0}"
 msgstr ""
 
+#: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Undo"
 msgstr ""
 
+#. placeholder {0}: ctx.undoLabel
+#: src/app/menuModel.ts
+msgid "Undo {0}"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Undo book change"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Undo Chapter Change"
 msgstr ""
 
 #. placeholder {0}: lastUndo.label
@@ -1324,6 +1546,10 @@ msgstr ""
 msgid "Used while writing and reading."
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "View"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Warning"
 msgstr ""
@@ -1336,11 +1562,16 @@ msgstr ""
 msgid "Wide page"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Window"
+msgstr ""
+
 #: src/app/Details.tsx
 msgid "Words"
 msgstr ""
 
 #: src/app/AppHeader.tsx
+#: src/app/menuModel.ts
 msgid "Write"
 msgstr ""
 
@@ -1358,4 +1589,8 @@ msgstr ""
 
 #: src/app/useSaveOnClose.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Zoom"
 msgstr ""

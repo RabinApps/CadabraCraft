@@ -59,6 +59,18 @@ const exportVia = async (format) => {
   await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
 };
 const status = async () => (await app.snapshot()).status.join(" ");
+// The native menu cannot be clicked from outside, so dev builds publish what it was told to show and a way to run its commands.
+const menuState = async () => {
+  const m = JSON.parse(await app.js(`JSON.stringify(window.__cadabraMenu ? { error: window.__cadabraMenu.error, model: window.__cadabraMenu.model } : null)`));
+  assert(m, "the app did not publish its menu");
+  assert(m.error === null, `the system refused the menu: ${m.error}`);
+  const items = new Map();
+  const walk = (entries) => { for (const e of entries) { if (e.kind === "command") items.set(e.arg === undefined ? e.id : `${e.id}:${e.arg}`, e); else if (e.kind === "submenu") walk(e.items); } };
+  walk(m.model);
+  return { tops: m.model.filter((e) => e.kind === "submenu").map((e) => e.text), items };
+};
+const runMenu = async (id, arg) => { const ran = await app.js(`window.__cadabraMenu.run(${JSON.stringify(id)}, ${JSON.stringify(arg)})`); if (ran !== true) { const why = await app.js(`JSON.stringify({ dialogs: [...document.querySelectorAll("[role=dialog]")].map((d) => d.textContent.slice(0, 80)), headings: [...document.querySelectorAll("h1,h2")].map((h) => h.textContent) })`); assert(false, `menu command ${id} did not run: ${why}`); } await app.sleep(900); };
+
 
 try {
   await step("start screen shows New project, Open folder, Import", async () => {
@@ -71,6 +83,15 @@ try {
     const { buttons } = await app.snapshot();
     for (const b of ["New project", "Open folder", "Import…"]) assert(buttons.includes(b), `missing ${b}`);
     await shot("01-start");
+  });
+
+  await step("menu on the start screen: start actions and Settings work, book actions are greyed out", async () => {
+    const { tops, items } = await menuState();
+    assert(tops.join(",") === "CadabraCraft,File,Edit,Insert,Format,View,Window,Help", `menu bar: ${tops}`);
+    for (const id of ["app.settings", "file.new", "file.open", "file.import", "help.sponsor"]) assert(items.get(id)?.enabled === true, `${id} should be available`);
+    for (const id of ["file.save", "file.bookDetails", "file.exportEpub", "file.close", "insert.chapter", "view.read", "editor.bold", "go.next"]) assert(items.get(id)?.enabled === false, `${id} should be greyed out`);
+    assert(items.get("app.settings").accelerator === "CmdOrCtrl+,", "Settings has no shortcut");
+    return `${tops.length} menus; Settings under CadabraCraft`;
   });
 
   await step("create a project through the real dialogs and Rust commands", async () => {
@@ -93,6 +114,16 @@ try {
     await app.click("Scene break"); await app.click("Footnote");
     const html = await app.js(`document.querySelector('.ProseMirror').innerHTML`);
     for (const needle of ["Typed by an agent.", "<strong>Bold part.</strong>", "scene-break", 'class="footnote"']) assert(html.includes(needle), `editor lacks ${needle}`);
+  });
+
+  await step("menu in a book: book actions and formatting are available, the current mode is ticked", async () => {
+    const { items } = await menuState();
+    for (const id of ["file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.printPreview", "file.close", "insert.chapter", "view.read", "view.focus", "editor.bold", "editor.sceneBreak"]) {
+      assert(items.get(id)?.enabled === true, `${id} should be available in a book`);
+    }
+    assert(items.get("view.write").checked === true && items.get("view.read").checked === false, "Write should be ticked");
+    assert(items.get("file.openRecent:" + book)?.text === "Scenario Book", "the open book is not in Open Recent");
+    return "book actions available; Write ticked; the book is listed in Open Recent";
   });
 
   await step("autosave writes the typed text to disk without pressing Save", async () => {
@@ -228,6 +259,43 @@ try {
       if (e.code === "ENOENT") return "exported (poppler not installed, not inspected)";
       throw e;
     }
+  });
+
+  await step("menu commands act on the real app: Read, New Chapter and its Undo, Book Details, Settings, Close Project, Open Recent, New Project", async () => {
+    const chapters = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8")).chapters.length;
+    const editable = () => app.js(`document.querySelector(".ProseMirror")?.getAttribute("contenteditable")`);
+    const before = chapters();
+    await runMenu("view.read");
+    assert((await editable()) === "false", "Read did not switch to reading mode");
+    let m = await menuState();
+    assert(m.items.get("view.read").checked === true && m.items.get("editor.bold").enabled === false, "in Read the formatting items should be greyed out and Read ticked");
+    await runMenu("view.write");
+    assert((await editable()) === "true", "Write did not switch back");
+    await runMenu("insert.chapter");
+    assert(chapters() === before + 1, "New Chapter did not add a chapter");
+    m = await menuState();
+    assert(/^Undo Add /.test(m.items.get("edit.bookUndo").text) && m.items.get("edit.bookUndo").enabled, `Undo should name the edit: ${m.items.get("edit.bookUndo").text}`);
+    await runMenu("edit.bookUndo");
+    assert(chapters() === before, "Undo did not remove the chapter");
+    await runMenu("file.bookDetails");
+    assert((await app.snapshot()).dialogs.some((d) => d.includes("Book details")), "Book Details did not open");
+    await app.js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await app.sleep(600);
+    await app.click("Cancel").catch(() => {}); await app.sleep(400);
+    await runMenu("app.settings");
+    assert((await app.snapshot()).headings.includes("Settings"), "Settings did not open");
+    await app.click("Back").catch(() => {}); await app.sleep(800);
+    await runMenu("file.close");
+    assert((await app.snapshot()).buttons.includes("New project"), "Close Project did not return to the start screen");
+    m = await menuState();
+    assert(m.items.get("file.save").enabled === false && m.items.get("file.openRecent:" + book)?.enabled === true, "after closing, book actions should be greyed out and the book still in Open Recent");
+    await runMenu("file.openRecent", book); await app.sleep(1500);
+    assert((await app.snapshot()).headings.includes("Scenario Book"), "Open Recent did not reopen the book");
+    await runMenu("file.new"); await app.sleep(1200);
+    assert((await app.snapshot()).dialogs.some((d) => d.includes("New book")), "New Project from inside a book did not show the dialog");
+    await app.click("Cancel"); await app.sleep(500);
+    await runMenu("file.openRecent", book); await app.sleep(1500);
+    assert((await app.snapshot()).headings.includes("Scenario Book"), "could not reopen the book");
+    return "Read/Write, New Chapter and Undo, Book Details, Settings, Close Project, Open Recent and New Project all acted on the real window";
   });
 
   await step("commands refuse a root that is not an existing project", async () => {

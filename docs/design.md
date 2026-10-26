@@ -80,6 +80,20 @@ The frames are drawn in the main checkout's `cadabracraft.pen` and their names a
 
 Designed but not in the first M1 build (see `docs/m1-ui-plan.md`), now built: project trash restore, recent-projects list, details panel and focus mode (see Implementation notes).
 
+## Menu bar
+
+The native application menu (not drawn in the pen: it is the operating system's, so there is no frame and no tokens). Source: `app/menuModel.ts` (structure as plain data), `app/nativeMenu.ts` (turns it into the native menu), `app/useAppMenu.ts` (registers what each command does).
+
+- **Menus.** CadabraCraft (macOS only: About, Settings…, Services, Hide, Quit), File, Edit, Insert, Format, View, Window, Help. On Windows and Linux, Settings… and Quit sit at the end of File.
+- **File:** New Project…, Open Project…, Open Recent (up to 8, Clear Menu), Import Manuscript…, Save, Book Details…, Export (EPUB…, Print PDF…, Print Preview…), Close Project.
+- **Edit:** the system Undo, Redo, Cut, Copy, Paste, Select All (act on the text), then book-level Undo and Redo that name the edit ("Undo Add Chapter 2").
+- **Insert:** New Chapter, Front Matter and Back Matter presets, Scene Break, Image…, Footnote, Link…. **Format:** Bold, Italic, Underline, Small Caps, Heading 1 to 3, Block Quote, lists.
+- **View:** Write and Read (the current mode is ticked), Focus Mode, Details Panel, Previous and Next Page, Full Screen. **Help:** Sponsor CadabraCraft….
+- **The structure never changes; availability does.** A command exists only while its screen is showing (book commands in a book's main view, formatting while the editor is shown, Focus Mode in Write). Anything else is greyed out, never hidden. Items act on the page only when no dialog is open.
+- **Shortcuts** are native accelerators (`CmdOrCtrl+N`, `+O`, `+S`, `+E`, `+Shift+E`, `+Shift+I`, `+Shift+N`, `+Shift+F`, `+Shift+W`, `+,`, `+[`, `+]`). Bold, italic and Undo keep the editor's own shortcuts.
+- **Strings** are translated like the rest of the UI (Lingui, `en` and `pseudo`).
+- Dev builds publish the model and a command runner at `window.__cadabraMenu` for `scripts/automation/scenario.mjs`, which cannot click native menu items.
+
 ## Implementation notes
 - Stack decision: Tailwind CSS v4 (`@theme` tokens above) plus Radix UI primitives. Not MUI (Material look, emotion runtime, second theming system). Log it with `/record-decision` before adding dependencies.
 - The pen shows no per-chapter actions; the app puts rename, move and trash in a "Chapter actions" menu (Radix DropdownMenu) on each chapter row, which stays usable on touch.

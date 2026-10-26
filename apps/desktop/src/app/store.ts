@@ -137,6 +137,8 @@ interface State {
     externalChange: (path: string) => Promise<void>;
     setDraft: (doc: ChapterDoc) => void;
     openProject: (root: string) => Promise<void>;
+    /** Saves unsaved typing, then leaves the open book (back to the start screen). Nothing on disk changes. */
+    closeProject: () => Promise<void>;
     createProject: (root: string, title: string, author: string) => Promise<void>;
     /** Opens any page (front matter, chapter or back matter) in the editor. */
     selectChapter: (id: string) => Promise<void>;
@@ -409,6 +411,10 @@ export const useProject = create<State>((set, get) => {
         const first = parsed.manifest.chapters[0] ?? readingOrder(parsed.manifest)[0];
         if (first) await load(first.id);
         await bridge.watchProject(root);
+      },
+      async closeProject() {
+        await flush();
+        set({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", history: NO_HISTORY, trash: [], importReport: null });
       },
       async createProject(root, title, author) {
         const manifest = createManifest({ title, author, language: i18n.locale === "pseudo" ? "en" : i18n.locale, identifier: `urn:uuid:${crypto.randomUUID()}` });

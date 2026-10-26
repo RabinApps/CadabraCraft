@@ -151,6 +151,18 @@ describe("project store", () => {
     expect(strFromU8(files["OEBPS/content.opf"]!)).toContain('properties="cover-image"');
     expect(strFromU8(files["OEBPS/content.opf"]!)).toMatch(/<spine><itemref idref="epub-cover"\/><itemref idref="ch-1"\/>/);
   });
+  it("closes the book after saving what was typed, leaving the files alone", async () => {
+    a().setDraft(text("last words"));
+    await a().closeProject();
+    expect(s().manifest).toBeNull();
+    expect(s().root).toBeNull();
+    expect(s().currentDoc).toBeNull();
+    expect(s().draft).toBeNull();
+    expect(disk.get("manuscript/001-chapter-one.json")).toContain("last words"); // flushed before closing
+    expect(disk.get("cadabra.json")).toBeDefined();
+    await a().openProject("/p"); // and it opens again
+    expect(s().manifest!.title).toBe("Book");
+  });
   it("reopens a project from disk", async () => {
     const json = disk.get("cadabra.json")!;
     useProject.setState({ manifest: null, currentId: null });
