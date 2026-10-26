@@ -3,17 +3,19 @@ import { cx } from "./cx";
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
+  /** Keep the label for screen readers only, when the row already shows the name. */
+  hideLabel?: boolean;
   hint?: string;
   children: ReactNode;
 }
 
 /** Native select with the same label and field styling as `Field`. */
-export function Select({ label, hint, className, id, children, ...rest }: SelectProps) {
+export function Select({ label, hideLabel, hint, className, id, children, ...rest }: SelectProps) {
   const auto = useId();
   const selectId = id ?? auto;
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={selectId} className="text-xs font-semibold text-ink-muted">{label}</label>
+      <label htmlFor={selectId} className={cx("text-xs font-semibold text-ink-muted", hideLabel && "sr-only")}>{label}</label>
       <select
         id={selectId}
         aria-describedby={hint ? `${selectId}-hint` : undefined}

@@ -1,7 +1,9 @@
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
+import { getTemplate, hasTemplate, DEFAULT_TEMPLATE_ID } from "@cadabracraft/templates";
 import { readingMinutes } from "../lib/readingTime";
+import { Button } from "../ui/Button";
 
 interface Props {
   manifest: Manifest;
@@ -9,6 +11,8 @@ interface Props {
   pageTitle: string | null;
   section: "front" | "chapter" | "back" | null;
   words: number;
+  /** Opens the Templates page. */
+  onChangeTemplate: () => void;
 }
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -21,7 +25,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 /** Read-only facts from the manifest and the open page; nothing here is stored. */
-export function Details({ manifest, pageTitle, section, words }: Props) {
+export function Details({ manifest, pageTitle, section, words, onChangeTemplate }: Props) {
   const { t } = useLingui();
   const minutes = readingMinutes(words);
   const sectionLabel = section === "front" ? t`Front matter` : section === "back" ? t`Back matter` : t`Chapter`;
@@ -42,9 +46,10 @@ export function Details({ manifest, pageTitle, section, words }: Props) {
           <Row label={t`Title`} value={manifest.title} />
           <Row label={t`Author`} value={manifest.author || "-"} />
           <Row label={t`Language`} value={manifest.language} />
-          <Row label={t`Template`} value={manifest.template} />
+          <Row label={t`Template`} value={getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).name} />
           <Row label={t`Chapters`} value={String(manifest.chapters.length)} />
         </dl>
+        <Button className="mt-3 w-full" onClick={onChangeTemplate}>{t`Change template`}</Button>
       </section>
     </div>
   );

@@ -74,6 +74,15 @@ function retargetEntry(e: HistoryEntry, from: string, to: string): HistoryEntry 
 
 export type PdfStage = "preparing" | "rendering" | "saving";
 
+/** A page of the book in reading order, with its chapter document. */
+export interface BookPage {
+  id: string;
+  title: string;
+  doc: ChapterDoc;
+  section: "front" | "chapter" | "back";
+  kind?: MatterKind;
+}
+
 interface State {
   root: string | null;
   manifest: Manifest | null;
@@ -88,8 +97,8 @@ interface State {
   reloadCount: number;
   /** Result of the last import, shown in a dialog until dismissed. */
   importReport: ImportReport | null;
-  /** Set while a PDF export runs. */
-  pdfStage: PdfStage | null;
+  /** Set while an EPUB or PDF export runs. */
+  exportStage: PdfStage | null;
   /** Restorable pages in the project trash, newest first (filled by `refreshTrash`). */
   trash: TrashItem[];
   /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
@@ -118,6 +127,10 @@ interface State {
     rename: (id: string, title: string) => Promise<void>;
     move: (id: string, delta: number) => Promise<void>;
     remove: (id: string) => Promise<void>;
+    /** Every page in reading order with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
+    readPages: () => Promise<BookPage[]>;
+    /** Sets the book's template (cadabra.json). A no-op when it is already set. */
+    setTemplate: (id: string) => Promise<void>;
     exportEpub: () => Promise<void>;
     /** Builds exports/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
     exportPdf: (options: PdfExportOptions) => Promise<void>;
@@ -245,7 +258,7 @@ export const useProject = create<State>((set, get) => {
   };
 
   return {
-    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, pdfStage: null, trash: [], history: NO_HISTORY,
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, trash: [], history: NO_HISTORY,
     actions: {
       flush,
       undo: () => travel("undo"),
@@ -374,14 +387,31 @@ export const useProject = create<State>((set, get) => {
           if (fallback) await load(fallback.id);
         }
       },
-      async exportEpub() {
+      async readPages() {
         await flush();
-        const { root, manifest } = need();
-        const chapters = await loadChapters();
-        const assets = await loadAssets(chapters);
-        const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, css: getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).epub.css });
-        await bridge.writeBytes(root, "exports/book.epub", Array.from(bytes));
-        set({ notice: t`Exported exports/book.epub` });
+        return loadChapters();
+      },
+      async setTemplate(id) {
+        const { manifest } = need();
+        if (manifest.template === id) return;
+        await saveManifest({ ...manifest, template: id });
+      },
+      async exportEpub() {
+        if (get().exportStage) throw new Error(t`An export is already running`);
+        set({ exportStage: "preparing" });
+        try {
+          await flush();
+          const { root, manifest } = need();
+          const chapters = await loadChapters();
+          const assets = await loadAssets(chapters);
+          set({ exportStage: "rendering" });
+          const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, css: getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).epub.css });
+          set({ exportStage: "saving" });
+          await bridge.writeBytes(root, "exports/book.epub", Array.from(bytes));
+          set({ notice: t`Exported exports/book.epub` });
+        } finally {
+          set({ exportStage: null });
+        }
       },
       async importBook(sourcePath, root, title, author) {
         await flush();
@@ -391,8 +421,8 @@ export const useProject = create<State>((set, get) => {
       },
       dismissImportReport: () => set({ importReport: null }),
       async exportPdf(options) {
-        if (get().pdfStage) throw new Error(t`A PDF export is already running`);
-        set({ pdfStage: "preparing" });
+        if (get().exportStage) throw new Error(t`A PDF export is already running`);
+        set({ exportStage: "preparing" });
         try {
           await flush();
           const { root, manifest } = need();
@@ -400,7 +430,7 @@ export const useProject = create<State>((set, get) => {
           const template = getTemplate(templateId);
           const chapters = await loadChapters();
           const assets = await loadAssets(chapters);
-          set({ pdfStage: "rendering" });
+          set({ exportStage: "rendering" });
           const runner = createTauriRunner(bridge, options.typstPath);
           const { pdf } = await renderPdf(
             { title: manifest.title, author: manifest.author, language: manifest.language },
@@ -408,14 +438,14 @@ export const useProject = create<State>((set, get) => {
             { template, trimSize: options.trimSize, mirrored: true, pageNumbers: true, pdfA: options.pdfA, assets: Object.fromEntries(assets) },
             runner,
           );
-          set({ pdfStage: "saving" });
+          set({ exportStage: "saving" });
           await bridge.writeBytes(root, "exports/book.pdf", Array.from(pdf));
           if (manifest.template !== templateId) await saveManifest({ ...need().manifest, template: templateId });
           set({ notice: t`Exported exports/book.pdf` });
         } catch (e) {
           throw describePdfError(e);
         } finally {
-          set({ pdfStage: null });
+          set({ exportStage: null });
         }
       },
       async importImage() {

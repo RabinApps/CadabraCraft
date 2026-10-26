@@ -31,6 +31,15 @@ blockquote{margin:1.2em 0;padding:.6em 1em;border-left:.25em solid #888;backgrou
 hr.scene-break{border:0;text-align:center;margin:1.5em 0;height:1em}hr.scene-break:after{content:"\\2042"}
 ${BASE}`;
 
+export const POETRY_CSS = `body{font-family:serif;line-height:1.6}
+h1{font-size:1.6em;text-align:center;font-weight:normal;margin:3.5em 0 2.5em}
+h2{font-size:1.1em;text-align:center;font-style:italic;font-weight:normal;margin:2em 0 1em}
+h3{font-size:1em;font-style:italic;text-align:center;font-weight:normal;margin:1.5em 0 .75em}
+p{margin:0 0 .7em;text-indent:0}
+blockquote{margin:1em 2em;font-style:italic}blockquote p{margin-bottom:.4em}
+hr.scene-break{border:0;text-align:center;margin:2em 0;height:1em}hr.scene-break:after{content:"*   *   *";letter-spacing:.2em}
+${BASE}`;
+
 export const MODERN_CSS = `body{font-family:sans-serif;line-height:1.5}
 h1{font-size:1.9em;font-weight:600;text-align:left;margin:3em 0 1.2em;letter-spacing:-.01em}
 h2{font-size:1.25em;font-weight:600;margin:2em 0 .6em}

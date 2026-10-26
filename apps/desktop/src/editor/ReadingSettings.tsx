@@ -2,6 +2,7 @@ import * as M from "@radix-ui/react-dropdown-menu";
 import { ALargeSmall, Check, Minus, Plus } from "lucide-react";
 import { useLingui } from "@lingui/react/macro";
 import { sizes, useReading, type Width } from "../app/reading";
+import { useTheme, type Theme } from "../app/theme";
 import { IconButton } from "../ui/Button";
 
 const item = "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";
@@ -10,6 +11,7 @@ const item = "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm
 export function ReadingSettings() {
   const { t } = useLingui();
   const { size, width, set } = useReading();
+  const { theme, setTheme } = useTheme();
   const keep = (f: () => void) => (e: Event) => { e.preventDefault(); f(); };
   return (
     <M.Root>
@@ -29,6 +31,16 @@ export function ReadingSettings() {
               {w === "narrow" ? t`Narrow page` : t`Wide page`}
             </M.CheckboxItem>
           ))}
+          <M.Separator className="my-1 h-px bg-border" />
+          <M.Label className="px-2.5 py-1.5 text-xs font-semibold text-ink-muted">{t`Theme`}</M.Label>
+          <M.RadioGroup value={theme} onValueChange={(v) => setTheme(v as Theme)}>
+            {([["system", t`System`], ["light", t`Light`], ["dark", t`Dark`]] as const).map(([v, l]) => (
+              <M.RadioItem key={v} value={v} className={item} onSelect={(e) => e.preventDefault()}>
+                <span className="flex size-3.5 items-center justify-center"><M.ItemIndicator><Check size={14} aria-hidden /></M.ItemIndicator></span>
+                {l}
+              </M.RadioItem>
+            ))}
+          </M.RadioGroup>
         </M.Content>
       </M.Portal>
     </M.Root>

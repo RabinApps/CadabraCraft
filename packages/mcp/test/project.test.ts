@@ -109,7 +109,7 @@ describe("templates", () => {
   it("lists the built-in templates", async () => {
     s = await connect();
     const t = await s.ok("cadabra_list_templates");
-    expect(t.templates.map((x: { id: string }) => x.id).sort()).toEqual(["modern", "nonfiction", "novel"]);
+    expect(t.templates.map((x: { id: string }) => x.id).sort()).toEqual(["modern", "nonfiction", "novel", "poetry"]);
     expect(t.templates[0]).toMatchObject({ id: expect.any(String), name: expect.any(String), description: expect.any(String), defaultTrimSize: expect.any(String) });
   });
   it("set_template changes the manifest, is idempotent and refuses unknown ids", async () => {

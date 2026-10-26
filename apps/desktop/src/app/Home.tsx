@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { BookOpen, BookPlus, FileUp, FolderOpen, HardDrive, Plus, WandSparkles, X } from "lucide-react";
+import { BookOpen, BookPlus, FileUp, FolderOpen, HardDrive, Plus, Settings, WandSparkles, X } from "lucide-react";
 import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
-import { LanguagePicker } from "../ui/LanguagePicker";
-import { ThemeToggle } from "../ui/ThemeToggle";
 import { ImportDialog } from "./ImportDialogs";
 import { useRecents } from "./recents";
 
 interface Props {
   error: string;
+  onSettings: () => void;
   onOpen: () => void;
   onOpenRecent: (root: string) => Promise<void>;
   pickFolder: () => Promise<string | null>;
@@ -19,7 +18,7 @@ interface Props {
   onImport: (source: string, root: string, title: string, author: string) => Promise<void>;
 }
 
-export function Home({ error, onOpen, onOpenRecent, pickFolder, onCreate, pickImportSource, onImport }: Props) {
+export function Home({ error, onSettings, onOpen, onOpenRecent, pickFolder, onCreate, pickImportSource, onImport }: Props) {
   const { t } = useLingui();
   const [creating, setCreating] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -34,7 +33,7 @@ export function Home({ error, onOpen, onOpenRecent, pickFolder, onCreate, pickIm
           <span className="flex size-8 items-center justify-center rounded-md bg-accent text-accent-ink"><WandSparkles size={18} aria-hidden /></span>
           <span className="font-book text-xl font-semibold">CadabraCraft</span>
         </div>
-        <div className="flex items-center gap-2"><LanguagePicker /><ThemeToggle /></div>
+        <IconButton icon={Settings} label={t`Settings`} onClick={onSettings} />
       </header>
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-4 px-4 pb-24 text-center">
         <span className="flex size-16 items-center justify-center rounded-full bg-accent-soft text-accent"><BookPlus size={28} aria-hidden /></span>

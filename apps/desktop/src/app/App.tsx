@@ -3,7 +3,7 @@ import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { readingOrder, sectionOf } from "@cadabracraft/format";
-import { BookOpen, Download, FileText, Menu, Minimize2, Maximize2, PanelRight, PenLine, Plus, Save } from "lucide-react";
+import { BookOpen, Download, FileText, Menu, Minimize2, Maximize2, PanelRight, PenLine, Plus, Save, Settings as SettingsIcon } from "lucide-react";
 import { Editor } from "../editor/Editor";
 import { ReadingFooter } from "../editor/ReadingFooter";
 import { ReadingSettings } from "../editor/ReadingSettings";
@@ -12,19 +12,24 @@ import { bridge } from "../lib/bridge";
 import { Badge } from "../ui/Badge";
 import { Button, IconButton } from "../ui/Button";
 import { overlayClass, panelClass } from "../ui/Dialog";
-import { LanguagePicker } from "../ui/LanguagePicker";
 import { Segmented } from "../ui/Segmented";
-import { ThemeToggle } from "../ui/ThemeToggle";
 import { cx } from "../ui/cx";
 import { Details } from "./Details";
-import { ExportPdfDialog } from "./ExportPdfDialog";
+import { ExportDialog, type ExportFormat } from "./ExportDialog";
 import { Home } from "./Home";
+import { HeaderMenu } from "./HeaderMenu";
 import { ImportReportDialog } from "./ImportDialogs";
+import { PrintPreview } from "./PrintPreview";
+import { Settings } from "./Settings";
 import { Sidebar } from "./Sidebar";
+import { Templates } from "./Templates";
 import { useLayout } from "./layout";
 import { useReading } from "./reading";
 import { useRecents } from "./recents";
 import { useProject } from "./store";
+
+/** Full-page views. "book" is the editor (or Home when no project is open). */
+type View = "book" | "settings" | "templates" | "print";
 
 export function App() {
   const { t } = useLingui();
@@ -37,7 +42,10 @@ export function App() {
   useEffect(() => { if (root && title !== undefined) addRecent(root, title); }, [root, title, addRecent]);
   const [drawer, setDrawer] = useState(false);
   const [mode, setMode] = useState<"write" | "read">("write");
-  const [pdfOpen, setPdfOpen] = useState(false);
+  const [view, setView] = useState<View>("book");
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>("epub");
+  const openExport = (format: ExportFormat) => { setExportFormat(format); setExportOpen(true); };
   const reading = useReading();
   const { focus: focusPref, details, set: setLayout } = useLayout();
   const reader = mode === "read";
@@ -84,11 +92,23 @@ export function App() {
   const [error, setError] = useState("");
   const run = (f: () => Promise<void>) => () => { setError(""); f().catch((e) => setError(String(e instanceof Error ? e.message : e))); };
 
+  const backToBook = () => setView("book");
+  if (view === "settings") return <Settings onBack={backToBook} />;
+  if (manifest && view === "templates") return <Templates onBack={backToBook} />;
+  if (manifest && view === "print") {
+    return (
+      <>
+        <PrintPreview onBack={backToBook} onExport={openExport} />
+        <ExportDialog open={exportOpen} onOpenChange={setExportOpen} format={exportFormat} onFormatChange={setExportFormat} />
+      </>
+    );
+  }
   if (!manifest) {
     return (
       <>
       <Home
         error={error}
+        onSettings={() => setView("settings")}
         pickFolder={bridge.pickFolder}
         pickImportSource={bridge.pickImportSource}
         onImport={actions.importBook}
@@ -125,11 +145,17 @@ export function App() {
           {reader && <ReadingSettings />}
           {!reader && <IconButton icon={Maximize2} label={t`Focus mode`} onClick={() => setLayout({ focus: true })} />}
           {!reader && <IconButton icon={PanelRight} label={t`Details`} active={details} className="max-xl:hidden" onClick={() => setLayout({ details: !details })} />}
-          <LanguagePicker />
-          <ThemeToggle />
-          {!reader && <Button icon={Save} className="max-sm:px-3" onClick={run(async () => { const d = useProject.getState().draft; if (d) await actions.saveCurrent(d); })}><span className="max-sm:sr-only">{t`Save`}</span></Button>}
-          <Button icon={FileText} className="max-sm:px-3" onClick={run(async () => { await actions.flush(); setPdfOpen(true); })}><span className="max-sm:sr-only">{t`Export PDF…`}</span></Button>
-          <Button variant="primary" icon={Download} className="max-sm:px-3" onClick={run(actions.exportEpub)}><span className="max-sm:sr-only">{t`Export EPUB`}</span></Button>
+          {!reader && <Button icon={Save} className="max-sm:hidden" onClick={run(async () => { const d = useProject.getState().draft; if (d) await actions.saveCurrent(d); })}>{t`Save`}</Button>}
+          <Button variant="primary" icon={Download} className="max-sm:hidden" onClick={run(async () => { await actions.flush(); openExport("epub"); })}>{t`Export`}</Button>
+          <IconButton icon={SettingsIcon} label={t`Settings`} className="max-sm:hidden" onClick={() => setView("settings")} />
+          <HeaderMenu
+            label={t`More actions`}
+            items={[
+              ...(reader ? [] : [{ label: t`Save`, icon: Save, onSelect: run(async () => { const d = useProject.getState().draft; if (d) await actions.saveCurrent(d); }) }]),
+              { label: t`Export`, icon: Download, onSelect: run(async () => { await actions.flush(); openExport("epub"); }) },
+              { label: t`Settings`, icon: SettingsIcon, onSelect: () => setView("settings") },
+            ]}
+          />
         </div>
       </header>}
       <div className="flex min-h-0 flex-1">
@@ -157,11 +183,11 @@ export function App() {
         </main>
         {!focus && !reader && details && (
           <aside aria-label={t`Details`} className="hidden w-[280px] shrink-0 overflow-y-auto border-s border-border bg-surface xl:block">
-            <Details manifest={manifest} pageTitle={pages[index]?.title ?? null} section={section} words={words} />
+            <Details manifest={manifest} pageTitle={pages[index]?.title ?? null} section={section} words={words} onChangeTemplate={() => setView("templates")} />
           </aside>
         )}
       </div>
-      <ExportPdfDialog open={pdfOpen} onOpenChange={setPdfOpen} />
+      <ExportDialog open={exportOpen} onOpenChange={setExportOpen} format={exportFormat} onFormatChange={setExportFormat} onPreview={() => { setExportOpen(false); setView("print"); }} />
       <D.Root open={drawer} onOpenChange={setDrawer}>
         <D.Portal>
           <D.Overlay className={cx(overlayClass, "lg:hidden")} />

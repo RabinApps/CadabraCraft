@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { getTemplate, hasTemplate, listTemplates, TemplateError, validateTemplate, type Template } from "./index";
+import { GALLERY_TEMPLATE_IDS, getTemplate, hasTemplate, listTemplates, TemplateError, validateTemplate, type Template } from "./index";
 
 describe("template registry", () => {
-  it("ships novel, nonfiction and modern", () => {
-    expect(listTemplates().map((t) => t.id)).toEqual(["novel", "nonfiction", "modern"]);
+  it("ships novel, nonfiction, modern and poetry", () => {
+    expect(listTemplates().map((t) => t.id)).toEqual(["novel", "nonfiction", "modern", "poetry"]);
   });
   it("every template is well-formed", () => {
     for (const t of listTemplates()) expect(validateTemplate(t), t.id).toEqual([]);
   });
   it("getTemplate returns by id and errors on unknown ids", () => {
-    expect(getTemplate("novel").name).toBe("Novel");
+    expect(getTemplate("novel").name).toBe("Classic Novel");
     expect(() => getTemplate("nope")).toThrow(TemplateError);
-    expect(() => getTemplate("nope")).toThrow(/novel, nonfiction, modern/);
+    expect(() => getTemplate("nope")).toThrow(/novel, nonfiction, modern, poetry/);
     expect(hasTemplate("modern")).toBe(true);
     expect(hasTemplate("")).toBe(false);
   });
@@ -41,5 +41,14 @@ describe("template registry", () => {
     expect(errs).toMatch(/bodyFonts/);
     expect(errs).toMatch(/label/);
     expect(errs).toMatch(/remote/);
+  });
+});
+
+describe("gallery", () => {
+  it("offers the three designed looks, and every gallery id is a registered template", () => {
+    expect(GALLERY_TEMPLATE_IDS).toEqual(["novel", "modern", "poetry"]);
+    for (const id of GALLERY_TEMPLATE_IDS) expect(hasTemplate(id)).toBe(true);
+    expect(getTemplate("poetry").name).toBe("Poetry");
+    expect(getTemplate("poetry").epub.css).toContain("text-align:center");
   });
 });

@@ -2,10 +2,11 @@ import { useLingui } from "@lingui/react/macro";
 import { useLocale } from "../i18n/i18n";
 import { ENABLED_LOCALES, LOCALES, PSEUDO_LOCALE } from "../i18n/locales";
 
-const options = [
+export const languageOptions = [
   ...LOCALES.filter((l) => ENABLED_LOCALES.includes(l.code)).map((l) => ({ code: l.code, name: l.nativeName })),
   ...(import.meta.env.DEV ? [{ code: PSEUDO_LOCALE, name: "Pseudo (dev)" }] : []),
 ];
+const options = languageOptions;
 
 /** Language names are shown in their own language so a user can always find theirs. Hidden until a second language ships. */
 export function LanguagePicker() {

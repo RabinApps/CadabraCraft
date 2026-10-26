@@ -1,4 +1,4 @@
-import { MODERN_CSS, NONFICTION_CSS, NOVEL_CSS } from "./css";
+import { MODERN_CSS, NONFICTION_CSS, NOVEL_CSS, POETRY_CSS } from "./css";
 import type { PrintHeadingStyle, Template } from "./types";
 
 const h = (o: Partial<PrintHeadingStyle>): PrintHeadingStyle => ({
@@ -9,8 +9,8 @@ const SERIF = ["Libertinus Serif"];
 
 export const novel: Template = {
   id: "novel",
-  name: "Novel",
-  description: "Clean literary layout: indented paragraphs, no paragraph spacing, centered chapter titles, chapters start on right-hand pages.",
+  name: "Classic Novel",
+  description: "Serif, indented paragraphs",
   print: {
     bodyFonts: SERIF,
     headingFonts: [],
@@ -63,8 +63,8 @@ export const nonfiction: Template = {
 
 export const modern: Template = {
   id: "modern",
-  name: "Modern",
-  description: "Minimal sans-serif layout: ragged-right text, light headings, generous whitespace.",
+  name: "Modern Memoir",
+  description: "Open leading, sans chapter heads",
   print: {
     // First installed family wins and is reported; none installed means the export is refused.
     bodyFonts: ["Inter", "Helvetica Neue", "Helvetica", "Arial"],
@@ -89,4 +89,34 @@ export const modern: Template = {
   epub: { css: MODERN_CSS },
 };
 
-export const BUILTIN_TEMPLATES: readonly Template[] = [novel, nonfiction, modern];
+export const poetry: Template = {
+  id: "poetry",
+  name: "Poetry",
+  description: "Centered, generous margins",
+  print: {
+    bodyFonts: SERIF,
+    headingFonts: [],
+    fontSizePt: 11,
+    leadingEm: 0.95,
+    justify: false,
+    hyphenate: false,
+    paragraph: { style: "spaced", indentEm: 0, spacingEm: 0.7 },
+    headings: {
+      1: h({ sizeEm: 1.6, align: "center", spaceBelowEm: 2.5 }),
+      2: h({ sizeEm: 1.1, align: "center", italic: true, spaceAboveEm: 2, spaceBelowEm: 1 }),
+      3: h({ sizeEm: 1, align: "center", italic: true, spaceAboveEm: 1.5, spaceBelowEm: 0.75 }),
+    },
+    chapterOpening: { startOn: "recto", sinkEm: 10, label: null },
+    blockQuote: { indentEm: 2, sizeEm: 0.95, italic: true, ruleLeft: false, spaceEm: 1 },
+    sceneBreak: { glyph: "*   *   *", spaceEm: 1.2 },
+    runningText: { sizePt: 9, smallCaps: false, italic: true },
+    footnoteSizeEm: 0.85,
+    defaults: { trimSize: "5.5x8.5", marginsIn: { top: 1.1, bottom: 1.2, inside: 1.1, outside: 1 } },
+  },
+  epub: { css: POETRY_CSS },
+};
+
+export const BUILTIN_TEMPLATES: readonly Template[] = [novel, nonfiction, modern, poetry];
+
+/** Templates the Templates gallery offers, in order. `nonfiction` stays valid for books that already use it. */
+export const GALLERY_TEMPLATE_IDS: readonly string[] = ["novel", "modern", "poetry"];

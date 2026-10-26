@@ -173,6 +173,18 @@ Visual check: `build:sample` leaves the `.typ` and its images in `out/`; `cd out
 Decide CLI sidecar vs embedding the Typst crate in the app (the CLI must be bundled or installed; nothing downloads it). Hyphenation and `lang` coverage for non-English books, RTL page binding and CJK fonts are untested. Front matter (title page, copyright, TOC) is not part of this step.
 
 
+## M2 UI: Settings, templates, export dialog, print preview
+
+Screens follow `docs/design.md` (Settings, Templates, Export, Print preview). Decisions:
+- **Views are state, not routes.** `App.tsx` switches between `book`, `settings`, `templates` and `print` with local state, as it already does for write and read modes. Rejected: a router (one window, no deep links to need one).
+- **Preferences stay in `localStorage`.** Manuscript font, writing width and typewriter scrolling live in `app/editorPrefs.ts` (`cadabracraft.settings`), next to the existing theme, locale, reading and layout keys. They are app preferences, never in project files. Rejected: a Tauri store plugin (a new dependency for four values).
+- **EPUB checks are structural only.** The Export dialog lists chapters with no title and an empty book. EPUBCheck (Java) is not run in the app; `/validate-epub` and CI still do that. The design's "EPUBCheck passed" line is labelled "No problems found" for this reason. The manifest has no cover field, so "cover image not set" is not shown.
+- **Export progress has no percentage.** `buildEpub` is synchronous, so the dialog shows the stage text and an indeterminate track. Rejected: a fake percentage.
+- **Print preview is an approximation, not a render.** It draws trim-sized pages with the template's margins, face and size and a rough text flow (`app/PrintPreview.tsx`). The page count is an estimate from word count (`lib/printPreview.ts`). Rejected: rendering the Typst output into the preview (needs PDF rasterisation, so a new dependency such as pdf.js, which needs approval first). Bleed and crop marks are shown in the preview only; the PDF does not include them yet.
+- **Templates use the design's names; ids do not change.** `novel` is shown as "Classic Novel" and `modern` as "Modern Memoir", so existing `cadabra.json` files keep working. `poetry` is new. `nonfiction` stays registered and appears in the gallery only for books that already use it. Drop cap and ornament have no template data and are not shown.
+- **One Export dialog.** "Export book" offers EPUB 3 and Print PDF. The editor header has a single "Export" button; phones put Save, Export and Settings in an overflow menu.
+- **Theme has one preference.** Settings (Appearance) and the reading popover's Theme control share `app/theme.ts`. Locale stays in `i18n`; the language select moved from the header to Settings.
+
 ## Headless MCP server
 
 See [mcp.md](mcp.md). Decisions:

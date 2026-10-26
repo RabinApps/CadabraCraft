@@ -27,12 +27,20 @@ msgstr ""
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr ""
 
+#: src/app/PrintPreview.tsx
+msgid "{estimate, plural, one {About # page} other {About # pages}}"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgstr ""
 
 #: src/app/Details.tsx
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr ""
+
+#: src/lib/exportChecks.ts
+msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr ""
 
 #: src/app/App.tsx
@@ -43,15 +51,22 @@ msgstr ""
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/PrintPreview.tsx
+msgid "3 mm"
+msgstr ""
+
+#: src/app/ExportDialog.tsx
+#: src/app/PrintPreview.tsx
 msgid "5 × 8 in"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
+#: src/app/PrintPreview.tsx
 msgid "5.5 × 8.5 in"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
+#: src/app/PrintPreview.tsx
 msgid "6 × 9 in"
 msgstr ""
 
@@ -112,6 +127,18 @@ msgstr ""
 msgid "Also by"
 msgstr ""
 
+#: src/app/store.ts
+msgid "An export is already running"
+msgstr ""
+
+#: src/app/Templates.tsx
+msgid "Any page"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Appearance"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Apply"
 msgstr ""
@@ -122,14 +149,32 @@ msgstr ""
 msgid "Author"
 msgstr ""
 
+#: src/app/PrintPreview.tsx
+#: src/app/Settings.tsx
+#: src/app/Templates.tsx
+msgid "Back"
+msgstr ""
+
 #: src/app/App.tsx
 #: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Back matter"
 msgstr ""
 
+#: src/app/Settings.tsx
+msgid "Backups"
+msgstr ""
+
+#: src/app/PrintPreview.tsx
+msgid "Bleed"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Block quote"
+msgstr ""
+
+#: src/app/Templates.tsx
+msgid "Body font"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -148,6 +193,10 @@ msgstr ""
 msgid "Book progress"
 msgstr ""
 
+#: src/app/ExportDialog.tsx
+msgid "Building EPUB…"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Bulleted list"
 msgstr ""
@@ -161,7 +210,7 @@ msgstr ""
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 #: src/editor/Toolbar.tsx
@@ -171,6 +220,10 @@ msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Caption"
+msgstr ""
+
+#: src/app/Details.tsx
+msgid "Change template"
 msgstr ""
 
 #: src/app/Details.tsx
@@ -199,6 +252,10 @@ msgstr ""
 msgid "Chapter One"
 msgstr ""
 
+#: src/app/Templates.tsx
+msgid "Chapter opener"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Chapter title"
 msgstr ""
@@ -209,12 +266,20 @@ msgstr ""
 msgid "Chapters"
 msgstr ""
 
+#: src/app/ExportDialog.tsx
+msgid "Checks"
+msgstr ""
+
 #: src/app/importBook.ts
 msgid "Choose a .docx, .md or .markdown file."
 msgstr ""
 
 #: src/app/App.tsx
 msgid "Choose a chapter to start."
+msgstr ""
+
+#: src/app/Templates.tsx
+msgid "Choose a look for your book"
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
@@ -263,16 +328,25 @@ msgstr ""
 msgid "Creates a new book from a Word (.docx) or Markdown file. The original file is never changed."
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 msgid "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
+msgstr ""
+
+#: src/app/ExportDialog.tsx
+msgid "Creates an EPUB 3 e-book in the exports folder."
+msgstr ""
+
+#: src/app/PrintPreview.tsx
+msgid "Crop marks"
 msgstr ""
 
 #: src/app/Sidebar.tsx
 msgid "Custom page"
 msgstr ""
 
-#: src/ui/ThemeToggle.tsx
-msgid "Dark theme"
+#: src/app/Settings.tsx
+#: src/editor/ReadingSettings.tsx
+msgid "Dark"
 msgstr ""
 
 #: src/app/Sidebar.tsx
@@ -295,7 +369,11 @@ msgstr ""
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/Settings.tsx
+msgid "Editor"
+msgstr ""
+
+#: src/app/ExportDialog.tsx
 msgid "Embeds everything needed to open the file in the future."
 msgstr ""
 
@@ -303,20 +381,29 @@ msgstr ""
 msgid "Epigraph"
 msgstr ""
 
+#: src/app/ExportDialog.tsx
+msgid "EPUB 3"
+msgstr ""
+
 #: src/app/App.tsx
 msgid "Exit focus mode"
 msgstr ""
 
 #: src/app/App.tsx
+#: src/app/ExportDialog.tsx
+msgid "Export"
+msgstr ""
+
+#: src/app/ExportDialog.tsx
+msgid "Export book"
+msgstr ""
+
+#: src/app/PrintPreview.tsx
 msgid "Export EPUB"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/PrintPreview.tsx
 msgid "Export PDF"
-msgstr ""
-
-#: src/app/App.tsx
-msgid "Export PDF…"
 msgstr ""
 
 #: src/app/store.ts
@@ -327,7 +414,7 @@ msgstr ""
 msgid "Exported exports/book.pdf"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 msgid "Exporting…"
 msgstr ""
 
@@ -347,12 +434,20 @@ msgstr ""
 msgid "Folder not found. Remove it from the list or move it back."
 msgstr ""
 
+#: src/app/Settings.tsx
+msgid "Follow the system or pick one."
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Footnote"
 msgstr ""
 
 #: src/app/Sidebar.tsx
 msgid "Foreword"
+msgstr ""
+
+#: src/app/ExportDialog.tsx
+msgid "Format"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -365,6 +460,10 @@ msgstr ""
 msgid "Front matter"
 msgstr ""
 
+#: src/app/Settings.tsx
+msgid "General"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Heading 1"
 msgstr ""
@@ -375,6 +474,10 @@ msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Heading 3"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "How wide the page is in the editor."
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -420,8 +523,16 @@ msgstr ""
 msgid "Importing…"
 msgstr ""
 
+#: src/app/Templates.tsx
+msgid "In use"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Insert"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Interface language"
 msgstr ""
 
 #: src/app/Sidebar.tsx
@@ -432,21 +543,34 @@ msgstr ""
 msgid "Italic"
 msgstr ""
 
+#: src/app/Settings.tsx
+msgid "Keep the line you are writing centered."
+msgstr ""
+
 #: src/app/Details.tsx
 #: src/ui/LanguagePicker.tsx
 msgid "Language"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Language of menus and dialogs."
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
 msgid "Larger text"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 msgid "Leave empty to use the typst found on this computer."
 msgstr ""
 
-#: src/ui/ThemeToggle.tsx
-msgid "Light theme"
+#: src/app/Settings.tsx
+#: src/editor/ReadingSettings.tsx
+msgid "Light"
+msgstr ""
+
+#: src/app/Templates.tsx
+msgid "Line spacing"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -455,6 +579,18 @@ msgstr ""
 
 #: src/app/Home.tsx
 msgid "Location"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Manuscript font"
+msgstr ""
+
+#: src/app/Templates.tsx
+msgid "Margins (in/out)"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Medium"
 msgstr ""
 
 #. placeholder {0}: c.file
@@ -469,6 +605,10 @@ msgstr ""
 
 #: src/app/store.ts
 msgid "Missing image file {src}"
+msgstr ""
+
+#: src/app/App.tsx
+msgid "More actions"
 msgstr ""
 
 #. placeholder {0}: deleting?.title ?? ""
@@ -496,6 +636,10 @@ msgstr ""
 
 #: src/app/Sidebar.tsx
 msgid "Move up"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Narrow"
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -535,6 +679,18 @@ msgstr ""
 msgid "No folder chosen"
 msgstr ""
 
+#: src/lib/exportChecks.ts
+msgid "No problems found"
+msgstr ""
+
+#: src/app/PrintPreview.tsx
+msgid "No text yet"
+msgstr ""
+
+#: src/app/PrintPreview.tsx
+msgid "None"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
@@ -556,6 +712,10 @@ msgstr ""
 msgid "Optional. Shown below the image."
 msgstr ""
 
+#: src/app/PrintPreview.tsx
+msgid "Page setup"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Page title"
 msgstr ""
@@ -564,11 +724,15 @@ msgstr ""
 msgid "Page width"
 msgstr ""
 
+#: src/app/PrintPreview.tsx
+msgid "Pages"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 msgid "PDF/A (archival)"
 msgstr ""
 
@@ -586,6 +750,15 @@ msgstr ""
 
 #: src/editor/ReadingFooter.tsx
 msgid "Previous page"
+msgstr ""
+
+#: src/app/ExportDialog.tsx
+msgid "Print PDF"
+msgstr ""
+
+#: src/app/ExportDialog.tsx
+#: src/app/PrintPreview.tsx
+msgid "Print preview"
 msgstr ""
 
 #. placeholder {0}: parsed.fromVersion
@@ -609,7 +782,7 @@ msgstr ""
 msgid "Reading time"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 msgid "Reading your chapters…"
 msgstr ""
 
@@ -660,6 +833,10 @@ msgstr ""
 msgid "Restore {0}"
 msgstr ""
 
+#: src/app/Templates.tsx
+msgid "Right-hand page"
+msgstr ""
+
 #: src/app/App.tsx
 msgid "Save"
 msgstr ""
@@ -669,10 +846,15 @@ msgstr ""
 msgid "Saved"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
+msgid "Saving exports/book.epub…"
+msgstr ""
+
+#: src/app/ExportDialog.tsx
 msgid "Saving exports/book.pdf…"
 msgstr ""
 
+#: src/app/Templates.tsx
 #: src/editor/Toolbar.tsx
 msgid "Scene break"
 msgstr ""
@@ -686,7 +868,29 @@ msgid "Select the text you want to link first."
 msgstr ""
 
 #: src/app/App.tsx
+#: src/app/Home.tsx
+#: src/app/Settings.tsx
+msgid "Settings"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Settings sections"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Shortcuts"
+msgstr ""
+
+#: src/app/App.tsx
 msgid "Show chapters"
+msgstr ""
+
+#: src/app/PrintPreview.tsx
+msgid "Show margins"
+msgstr ""
+
+#: src/app/PrintPreview.tsx
+msgid "Shown in this preview only. The PDF does not include bleed or crop marks yet."
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -705,13 +909,18 @@ msgstr ""
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr ""
 
-#: src/ui/ThemeToggle.tsx
-msgid "System theme"
+#: src/app/Settings.tsx
+#: src/editor/ReadingSettings.tsx
+msgid "System"
 msgstr ""
 
 #: src/app/Details.tsx
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 msgid "Template"
+msgstr ""
+
+#: src/app/Templates.tsx
+msgid "Templates"
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -738,7 +947,8 @@ msgstr ""
 msgid "The trash is empty."
 msgstr ""
 
-#: src/ui/ThemeToggle.tsx
+#: src/app/Settings.tsx
+#: src/editor/ReadingSettings.tsx
 msgid "Theme"
 msgstr ""
 
@@ -755,6 +965,7 @@ msgid "This .docx file has no document body. It may be damaged or not a Word doc
 msgstr ""
 
 #: src/app/App.tsx
+#: src/lib/exportChecks.ts
 msgid "This book has no chapters yet."
 msgstr ""
 
@@ -800,12 +1011,18 @@ msgstr ""
 msgid "Trash"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
+#: src/app/PrintPreview.tsx
+#: src/app/Templates.tsx
 msgid "Trim size"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Typewriter scrolling"
 msgstr ""
 
 #. placeholder {0}: e.stderr.trim()
@@ -814,7 +1031,7 @@ msgid "Typst could not build the PDF:\n"
 "{0}"
 msgstr ""
 
-#: src/app/ExportPdfDialog.tsx
+#: src/app/ExportDialog.tsx
 msgid "Typst location (optional)"
 msgstr ""
 
@@ -862,8 +1079,20 @@ msgstr ""
 msgid "Use http, https or mailto."
 msgstr ""
 
+#: src/app/Templates.tsx
+msgid "Use template"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Used while writing and reading."
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Warning"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Wide"
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -884,4 +1113,8 @@ msgstr ""
 
 #: src/app/Home.tsx
 msgid "Write your first book"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Writing column width"
 msgstr ""

@@ -45,7 +45,7 @@ beforeEach(async () => {
   typst.fonts = ["Libertinus Serif", "New Computer Modern"];
   typst.failWith = null;
   typst.compiles = [];
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, pdfStage: null });
+  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, exportStage: null });
   await a().createProject("/p", "Book", "Me");
 });
 
@@ -67,7 +67,7 @@ describe("exportPdf", () => {
     expect(c.source).toMatch(/5\.5in/); // trim size reached the generated source
     expect(bytesOnDisk.get("exports/book.pdf")).toEqual([0x25, 0x50, 0x44, 0x46]);
     expect(s().notice).toBe("Exported exports/book.pdf");
-    expect(s().pdfStage).toBeNull();
+    expect(s().exportStage).toBeNull();
     expect(s().draft).toBeNull();
   });
   it("saves a changed template in the manifest, and leaves it alone when unchanged", async () => {
@@ -104,7 +104,7 @@ describe("exportPdf", () => {
     expect(e.code).toBe("typst-missing");
     expect(e.message).toContain("brew install typst");
     expect(bytesOnDisk.size).toBe(0);
-    expect(s().pdfStage).toBeNull();
+    expect(s().exportStage).toBeNull();
   });
   it("names a missing font and does not compile", async () => {
     typst.fonts = ["Something Else"];

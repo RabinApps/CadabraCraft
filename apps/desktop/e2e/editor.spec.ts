@@ -143,7 +143,7 @@ test("keyboard: chapter controls are reachable with Tab", async ({ page }) => {
 
 test("export writes a valid EPUB zip with mimetype first", async ({ page }) => {
   await newProject(page);
-  await page.getByRole("button", { name: "Export EPUB" }).click();
+  await exportBook(page, "EPUB 3");
   await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
   const head = await page.evaluate(() => {
     const b = (window as any).__disk["exports/book.epub"] as number[];
@@ -177,7 +177,7 @@ test.describe("images", () => {
     expect(JSON.parse(saved).content.find((n: any) => n.type === "image").attrs).toMatchObject({ src: "assets/pic.png", alt: "A single pixel", title: "Figure one" });
     expect(saved).not.toContain("blob:");
 
-    await page.getByRole("button", { name: "Export EPUB" }).click();
+    await exportBook(page, "EPUB 3");
     await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
     const zipText = await page.evaluate(() => String.fromCharCode(...((window as any).__disk["exports/book.epub"] as number[])));
     expect(zipText).toContain("OEBPS/assets/pic.png");
@@ -241,7 +241,7 @@ test.describe("formatting toolbar", () => {
     await expect(ed(page).locator("hr.scene-break")).toHaveCount(1);
     await tb(page, "Footnote").click();
     await expect(ed(page).locator("span.footnote")).toHaveCount(1);
-    await page.getByRole("button", { name: "Export EPUB" }).click();
+    await exportBook(page, "EPUB 3");
     await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
     const saved = await page.evaluate(() => (window as any).__disk["manuscript/001-chapter-one.json"]);
     expect(saved).toContain("sceneBreak");
@@ -275,7 +275,8 @@ test.describe("formatting toolbar", () => {
 
 test("dark theme is applied and remembered", async ({ page }) => {
   await newProject(page);
-  await page.getByRole("radio", { name: "Dark theme" }).click();
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("radio", { name: "Dark" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -333,11 +334,11 @@ test("language picker switches the UI to the pseudo-locale and remembers it", as
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-  await page.getByLabel("Language").selectOption("pseudo");
-  await expect(page.getByRole("button", { name: "New project" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Write your first book");
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByLabel("Interface language").selectOption("pseudo");
+  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Settings");
   await page.reload();
-  await expect(page.getByRole("button", { name: "New project" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Settings");
   expect(await page.evaluate(() => localStorage.getItem("cadabracraft.locale"))).toBe("pseudo");
 });
 
@@ -346,12 +347,13 @@ test("Export PDF sends the chosen options to Typst and writes exports/book.pdf",
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
   await page.keyboard.type("Typeset me");
-  await page.getByRole("button", { name: "Export PDF…" }).click();
-  const dialog = page.getByRole("dialog", { name: "Export PDF" });
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("dialog", { name: "Export book" }).getByRole("radio", { name: "Print PDF" }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
   await dialog.getByLabel("Trim size").selectOption("5x8");
   await dialog.getByLabel("Template").selectOption("nonfiction");
   await dialog.getByLabel("PDF/A (archival)").check();
-  await dialog.getByRole("button", { name: "Export PDF", exact: true }).click();
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
   await expect(dialog).toHaveCount(0);
   await expect(page.getByRole("status")).toHaveText("Exported exports/book.pdf");
 
@@ -368,9 +370,10 @@ test("Export PDF sends the chosen options to Typst and writes exports/book.pdf",
 test("Export PDF explains when Typst is missing and offers a location field", async ({ page }) => {
   await newProject(page);
   await page.evaluate(() => { (window as any).__typstError = { kind: "not_found", message: 'The "typst" program was not found. Install Typst (brew install typst).' }; });
-  await page.getByRole("button", { name: "Export PDF…" }).click();
-  const dialog = page.getByRole("dialog", { name: "Export PDF" });
-  await dialog.getByRole("button", { name: "Export PDF", exact: true }).click();
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("dialog", { name: "Export book" }).getByRole("radio", { name: "Print PDF" }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("brew install typst");
   await expect(dialog.getByLabel("Typst location (optional)")).toBeVisible();
   expect(await page.evaluate(() => (window as any).__disk["exports/book.pdf"])).toBeUndefined();
@@ -379,11 +382,12 @@ test("Export PDF explains when Typst is missing and offers a location field", as
 test("Export PDF shows Typst's compile error", async ({ page }) => {
   await newProject(page);
   await page.evaluate(() => { (window as any).__compileError = { kind: "compile", message: "main.typ:4:2: error: boom" }; });
-  await page.getByRole("button", { name: "Export PDF…" }).click();
-  const dialog = page.getByRole("dialog", { name: "Export PDF" });
-  await dialog.getByRole("button", { name: "Export PDF", exact: true }).click();
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("dialog", { name: "Export book" }).getByRole("radio", { name: "Print PDF" }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("main.typ:4:2: error: boom");
-  await expect(dialog.getByRole("button", { name: "Export PDF", exact: true })).toBeEnabled();
+  await expect(dialog.getByRole("button", { name: "Export", exact: true })).toBeEnabled();
 });
 
 async function addPage(page: Page, name: string) {
@@ -463,15 +467,16 @@ test("EPUB and PDF exports include the matter pages", async ({ page }) => {
   await newProject(page);
   await addPage(page, "Title page");
   await addPage(page, "Acknowledgments");
-  await page.getByRole("button", { name: "Export EPUB" }).click();
+  await exportBook(page, "EPUB 3");
   await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
   const names = await page.evaluate(() => {
     const b = (window as any).__disk["exports/book.epub"] as number[];
     return String.fromCharCode(...b).match(/OEBPS\/(fm|bm|ch)-\d+\.xhtml/g);
   });
   expect([...new Set(names)].sort()).toEqual(["OEBPS/bm-1.xhtml", "OEBPS/ch-1.xhtml", "OEBPS/fm-1.xhtml"]);
-  await page.getByRole("button", { name: "Export PDF…" }).click();
-  await page.getByRole("dialog", { name: "Export PDF" }).getByRole("button", { name: "Export PDF", exact: true }).click();
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("dialog", { name: "Export book" }).getByRole("radio", { name: "Print PDF" }).click();
+  await page.getByRole("dialog", { name: "Export book" }).getByRole("button", { name: "Export", exact: true }).click();
   await expect(page.getByRole("status")).toHaveText("Exported exports/book.pdf");
   const source: string = await page.evaluate(() => (window as any).__typstCalls[0].source);
   expect(source).toContain("#title-page[");
@@ -540,7 +545,7 @@ test("focus mode hides the chrome, exits with Escape and is remembered", async (
   await expect(page.getByRole("navigation", { name: "Chapters" })).toBeVisible();
   await page.getByRole("button", { name: "Focus mode" }).click();
   await expect(page.getByRole("navigation", { name: "Chapters" })).toBeHidden();
-  await expect(page.getByRole("button", { name: "Export EPUB" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Export", exact: true })).toBeHidden();
   await page.reload();
   await page.getByRole("button", { name: "Open folder" }).click();
   await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeVisible();
@@ -618,4 +623,41 @@ test("details panel is not shown on a tablet", async ({ page }) => {
   await page.setViewportSize({ width: 820, height: 1180 });
   await newProject(page);
   await expect(page.getByRole("complementary", { name: "Details" })).toBeHidden();
+});
+
+async function exportBook(page: Page, format: "EPUB 3" | "Print PDF") {
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: format }).click();
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+}
+
+test("settings change the writing width and remember it", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("radio", { name: "Wide" }).click();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("cadabracraft.settings") ?? "{}").writingWidth)).toBe("wide");
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(page.locator(".ProseMirror")).toBeVisible();
+});
+
+test("templates page sets the book's template from the details panel", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Change template" }).click();
+  await expect(page.getByRole("heading", { name: "Choose a look for your book" })).toBeVisible();
+  await page.getByRole("button", { name: /^Poetry/ }).click();
+  await page.getByRole("button", { name: "Use template" }).click();
+  await expect(page.getByRole("navigation", { name: "Chapters" })).toBeVisible();
+  const manifest = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
+  expect(manifest.template).toBe("poetry");
+});
+
+test("print preview opens from the export dialog and returns to the book", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("dialog", { name: "Export book" }).getByRole("button", { name: "Print preview" }).click();
+  await expect(page.getByRole("heading", { name: "Print preview" })).toBeVisible();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(page.locator(".ProseMirror")).toBeVisible();
 });

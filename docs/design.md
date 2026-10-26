@@ -13,7 +13,7 @@ Source of truth: [`cadabracraft.pen`](../cadabracraft.pen) (open with Pencil; th
 ## Theming
 Every screen is drawn in light and dark. Tokens are Pencil variables with a `mode` axis; in code they become CSS variables switched by `data-theme` (`light | dark`, resolved in `theme.ts` from the System / Light / Dark preference).
 
-The System / Light / Dark preference is set only on Settings (Appearance). Home, Editor and Reading top bars link to Settings with a gear icon instead of a theme toggle. Reading mode's popover keeps its own Theme control for the reading style (see Known gaps).
+The System / Light / Dark preference is set only on Settings (Appearance). Home, Editor and Reading top bars link to Settings with a gear icon instead of a theme toggle. Reading mode's popover has a Theme control on the same preference, so changing either one changes both.
 
 | Token | Light | Dark | Use |
 | --- | --- | --- | --- |
@@ -59,9 +59,9 @@ Frame names follow `Name / size / mode` (size is desktop, tablet or mobile; mode
 | Banners and toasts | `Banners and toasts / mode` | M1 | conflict copy, export success, save error |
 | Project trash | `Project trash / mode` | M1 design, restore deferred | restore needs a new Rust command |
 | Reading mode | `Reading / size / mode` | M1 | read-only chapter, prev/next, text size, width, theme (settings popover on desktop); top bar gear links to Settings |
-| Templates | `Templates (M2) / mode` | M2 | desktop only |
-| Print preview | `Print preview (M2) / mode` | M2 | spread, page setup |
-| Export dialog | `Export (M2-M3) / mode` | M2-M3 | EPUB and PDF, validation results |
+| Templates | `Templates (M2) / mode` | M2 | desktop only; gallery of Classic Novel, Modern Memoir and Poetry with the chosen template's values, reached from the details panel ("Change template"). Drop cap and ornament have no template data and are not shown |
+| Print preview | `Print preview (M2) / mode` | M2 | spread, page setup. Approximate: trim-sized pages with the template's type and margins and a rough text flow, page count estimated from words. Bleed and crop marks are preview only. Reached from the Export dialog |
+| Export dialog | `Export (M2-M3) / mode` | M2-M3 | "Export book" dialog: EPUB 3 or Print PDF. EPUB checks are structural (no EPUBCheck in the app); progress shows the stage without a percentage. The editor header has one Export button |
 | Settings | `Settings (M2+) / size / mode` | M2+ | Desktop (1280x800) and tablet (820x1180) use the Nav (Appearance, General, Editor, Backups, Shortcuts) and a content column; mobile (390x844) has no nav, back arrow in the top bar and the same sections stacked. Sections: Appearance (theme segmented control), General (interface language select, placeholder until i18n is scoped), Editor (manuscript font, writing column width, typewriter scrolling). Preferences save immediately, so there is no primary action. Backups and Shortcuts are nav items without content yet. |
 
 Designed but not in the first M1 build (see `docs/m1-ui-plan.md`), now built: project trash restore, recent-projects list, details panel and focus mode (see Implementation notes).
@@ -75,4 +75,5 @@ Designed but not in the first M1 build (see `docs/m1-ui-plan.md`), now built: pr
 - Focus mode (no pen frame yet): hides top bar, sidebar, details panel, toolbar and status bar; a floating "Exit focus mode" button and Escape leave it. Applies to Write mode only and is persisted with the same preference.
 - Styling lives in `apps/desktop` only; `packages/*` stay unstyled.
 - Respect `prefers-reduced-motion`; all icon-only buttons need `aria-label`; text contrast target is 4.5:1.
-- Known gaps in the mockups: no focus-mode frame, no loading skeletons, no keyboard-open mobile frame, Settings has no Backups or Shortcuts content, the Settings language select is a placeholder (no i18n yet), the Editor mobile frames have no Settings entry (their overflow menu may hold it; undecided), Reading mode's popover Theme control is kept separate from the app theme (unclear whether it should move to Settings), and Settings has no word-count toggle (the pen shows no such control).
+- M2 screens are built (Settings, Templates, Export book dialog, Print preview); decisions and deviations are in [architecture.md](architecture.md) under "M2 UI". Phones put Save, Export and Settings in an overflow menu, and the reading popover's Theme control shares the Settings theme.
+- Known gaps in the mockups: no focus-mode frame, no loading skeletons, no keyboard-open mobile frame, Settings has no Backups or Shortcuts content, the Settings language select is a placeholder (no i18n yet), Settings has no word-count toggle (the pen shows no such control), the print preview is not a Typst render, bleed and crop marks are not in the PDF, drop cap and ornament have no template data, EPUBCheck does not run in the app, and there is no cover image field.
