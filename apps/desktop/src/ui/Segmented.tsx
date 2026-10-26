@@ -8,6 +8,8 @@ interface Item<T extends string> {
   icon?: LucideIcon;
   /** Hide the text and keep it as the accessible name. */
   iconOnly?: boolean;
+  /** Hide the text below the sm breakpoint only. */
+  collapse?: boolean;
 }
 
 interface Props<T extends string> {
@@ -26,7 +28,7 @@ export function Segmented<T extends string>({ value, onChange, items, label }: P
       aria-label={label}
       className="inline-flex gap-0.5 rounded-[10px] border border-border bg-bg p-[3px]"
     >
-      {items.map(({ value: v, label: l, icon: Icon, iconOnly }) => (
+      {items.map(({ value: v, label: l, icon: Icon, iconOnly, collapse }) => (
         <TG.Item
           key={v}
           value={v}
@@ -35,7 +37,7 @@ export function Segmented<T extends string>({ value, onChange, items, label }: P
           className={cx("inline-flex items-center gap-1.5 rounded-[7px] px-3 py-1.5 text-[13px] font-semibold text-ink-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent data-[state=on]:bg-accent-soft data-[state=on]:text-accent", iconOnly && "px-2.5")}
         >
           {Icon && <Icon size={14} aria-hidden />}
-          {!iconOnly && l}
+          {!iconOnly && <span className={cx(collapse && "max-sm:hidden")}>{l}</span>}
         </TG.Item>
       ))}
     </TG.Root>

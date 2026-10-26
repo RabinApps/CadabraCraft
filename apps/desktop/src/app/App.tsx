@@ -1,21 +1,28 @@
 import { useEffect, useState } from "react";
 import * as D from "@radix-ui/react-dialog";
-import { Download, Menu, Save } from "lucide-react";
+import { BookOpen, Download, Menu, PenLine, Save } from "lucide-react";
 import { Editor } from "../editor/Editor";
+import { ReadingFooter } from "../editor/ReadingFooter";
+import { ReadingSettings } from "../editor/ReadingSettings";
+import { countWords } from "../lib/wordcount";
 import { bridge } from "../lib/bridge";
 import { Badge } from "../ui/Badge";
 import { Button, IconButton } from "../ui/Button";
 import { overlayClass, panelClass } from "../ui/Dialog";
+import { Segmented } from "../ui/Segmented";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { cx } from "../ui/cx";
 import { Home } from "./Home";
 import { Sidebar } from "./Sidebar";
+import { useReading } from "./reading";
 import { useProject } from "./store";
 
 export function App() {
   const { manifest, currentId, currentDoc, draft, notice, reloadCount, actions } = useProject();
   const open = manifest !== null;
   const [drawer, setDrawer] = useState(false);
+  const [mode, setMode] = useState<"write" | "read">("write");
+  const reading = useReading();
   useEffect(() => {
     if (!open) return;
     const un = bridge.onProjectChanged((p) => void actions.externalChange(p));
@@ -40,6 +47,11 @@ export function App() {
       />
     );
   }
+  const chapters = manifest.chapters;
+  const index = chapters.findIndex((c) => c.id === currentId);
+  const reader = mode === "read";
+  // Switching saves any unsaved typing first (selectChapter flushes the draft), so reading shows what was typed.
+  const toRead = run(async () => { if (currentId) await actions.selectChapter(currentId); setMode("read"); });
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-surface px-2 py-2 md:px-4">
@@ -47,9 +59,16 @@ export function App() {
         <h1 className="min-w-0 truncate font-book text-base font-semibold">{manifest.title}</h1>
         <Badge tone={draft ? "warn" : "success"}>{draft ? "Unsaved" : "Saved"}</Badge>
         <span role="status" className="min-w-0 flex-1 truncate text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:empty:hidden">{notice}</span>
+        <Segmented
+          label="Write or read"
+          value={mode}
+          onChange={(m) => (m === "read" ? toRead() : setMode("write"))}
+          items={[{ value: "write", label: "Write", icon: PenLine, collapse: true }, { value: "read", label: "Read", icon: BookOpen, collapse: true }]}
+        />
         <div className="ml-auto flex items-center gap-2">
+          {reader && <ReadingSettings />}
           <ThemeToggle />
-          <Button icon={Save} className="max-sm:px-3" onClick={run(async () => { const d = useProject.getState().draft; if (d) await actions.saveCurrent(d); })}><span className="max-sm:sr-only">Save</span></Button>
+          {!reader && <Button icon={Save} className="max-sm:px-3" onClick={run(async () => { const d = useProject.getState().draft; if (d) await actions.saveCurrent(d); })}><span className="max-sm:sr-only">Save</span></Button>}
           <Button variant="primary" icon={Download} className="max-sm:px-3" onClick={run(actions.exportEpub)}><span className="max-sm:sr-only">Export EPUB</span></Button>
         </div>
       </header>
@@ -57,13 +76,19 @@ export function App() {
         <aside className="hidden w-[264px] shrink-0 overflow-y-auto bg-sidebar lg:block">
           <Sidebar />
         </aside>
-        <main className="min-w-0 flex-1 overflow-y-auto">
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           {error && <p role="alert" className="m-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
-          <div className="mx-auto max-w-[780px] md:p-8">
-            <div className="prose-manuscript p-4 md:rounded-md md:border md:border-border md:bg-paper md:px-14 md:py-12">
-              {currentDoc && currentId && <Editor key={`${currentId}:${reloadCount}`} initial={currentDoc} onChange={actions.setDraft} />}
-            </div>
-          </div>
+          {currentDoc && currentId && (reader
+            ? <Editor key={`${currentId}:read:${reloadCount}`} initial={currentDoc} reading={reading} />
+            : <Editor key={`${currentId}:${reloadCount}`} initial={currentDoc} onChange={actions.setDraft} />)}
+          {reader ? (
+            <ReadingFooter index={index} chapters={chapters} onSelect={(id) => void actions.selectChapter(id)} />
+          ) : (
+            <footer className="hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex">
+              <span>{countWords(draft ?? currentDoc).toLocaleString()} words in this chapter</span>
+              <span>Chapter {index + 1} of {chapters.length}</span>
+            </footer>
+          )}
         </main>
       </div>
       <D.Root open={drawer} onOpenChange={setDrawer}>

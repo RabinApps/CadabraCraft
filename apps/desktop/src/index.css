@@ -59,3 +59,7 @@ body {
 .prose-manuscript .ProseMirror hr.scene-break::after { content: "* * *"; color: var(--ink-muted); }
 .prose-manuscript .ProseMirror .small-caps { font-variant: small-caps; }
 .prose-manuscript .ProseMirror .footnote { color: var(--accent); border-bottom: 1px dotted var(--accent); }
+
+/* Reading mode: larger, user-adjustable type on the plain paper background. */
+.prose-reading .ProseMirror { font-size: var(--reading-size, 1.3125rem); line-height: 1.75; }
+.prose-reading .ProseMirror h1 { font-size: 2.75rem; }
