@@ -6,6 +6,11 @@ import { IMAGE_EXTENSIONS } from "@cadabracraft/shared";
 export interface FileRead { contents: string; hash: string }
 export interface WriteResult { hash: string; conflict_copy: string | null }
 
+const binary = async (p: Promise<ArrayBuffer | number[]>): Promise<Uint8Array> => {
+  const r = await p;
+  return r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
+};
+
 /** Thin wrapper over the Tauri commands in src-tauri/src/commands. All paths are relative to the project root. */
 export const bridge = {
   pickFolder: async (): Promise<string | null> => {
@@ -24,6 +29,17 @@ export const bridge = {
     const r = await invoke<ArrayBuffer | number[]>("read_asset", { root, path });
     return r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
   },
+  /** Native file picker for a document to import; returns its absolute path (read-only, never stored in a project). */
+  pickImportSource: async (): Promise<string | null> => {
+    const r = await open({ multiple: false, directory: false, filters: [{ name: "Documents", extensions: ["docx", "md", "markdown"] }] });
+    return typeof r === "string" ? r : null;
+  },
+  /** Bytes of the picked document (docx/md/markdown/txt, at most 200 MB). */
+  readImportSource: (path: string) => binary(invoke<ArrayBuffer | number[]>("read_import_source", { path })),
+  /** Bytes of an image a Markdown file references, resolved inside that file's folder (rejects `..`, absolute paths, symlink escapes). */
+  readImportImage: (sourceFile: string, reference: string) => binary(invoke<ArrayBuffer | number[]>("read_import_image", { sourceFile, reference })),
+  /** Stores image bytes from an imported document in `assets/`; resolves to the path actually used (`assets/<name>`). */
+  importAssetBytes: (root: string, name: string, bytes: Uint8Array) => invoke<string>("import_asset_bytes", { root, name, bytes: Array.from(bytes) }),
   createProject: (root: string, manifestJson: string) => invoke<void>("create_project", { root, manifestJson }),
   readFile: (root: string, path: string) => invoke<FileRead | null>("read_project_file", { root, path }),
   writeFile: (root: string, path: string, contents: string, baseHash: string | null) =>

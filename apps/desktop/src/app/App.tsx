@@ -16,6 +16,7 @@ import { Segmented } from "../ui/Segmented";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { cx } from "../ui/cx";
 import { Home } from "./Home";
+import { ImportReportDialog } from "./ImportDialogs";
 import { Sidebar } from "./Sidebar";
 import { useReading } from "./reading";
 import { useProject } from "./store";
@@ -50,12 +51,17 @@ export function App() {
 
   if (!manifest) {
     return (
+      <>
       <Home
         error={error}
         pickFolder={bridge.pickFolder}
+        pickImportSource={bridge.pickImportSource}
+        onImport={actions.importBook}
         onCreate={(root, title, author) => run(() => actions.createProject(root, title, author))()}
         onOpen={run(async () => { const root = await bridge.pickFolder(); if (root) await actions.openProject(root); })}
       />
+      <ImportReportDialog />
+      </>
     );
   }
   const chapters = manifest.chapters;
@@ -120,6 +126,7 @@ export function App() {
           </D.Content>
         </D.Portal>
       </D.Root>
+      <ImportReportDialog />
     </div>
   );
 }

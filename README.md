@@ -6,7 +6,7 @@ Open-source desktop app for writing and formatting books. Write in a rich-text e
 - **Cloud sync is your choice:** point the folder at Google Drive, Dropbox or iCloud Drive.
 - **Open source:** the app, file format and exporters live in this repo.
 
-Status: **M0 done, M1 mostly built.** You can create or open a project folder, edit chapters (add, rename, reorder, delete to a project trash), save atomically, get conflict copies when files change outside the app, and export EPUB3 (passes EPUBCheck). Typst is chosen for print PDF (M2). See [docs/architecture.md](docs/architecture.md). M2-M4 are not started.
+Status: **M0 done, M1 mostly built.** You can create or open a project folder, edit chapters (add, rename, reorder, delete to a project trash), save atomically, get conflict copies when files change outside the app, and export EPUB3 (passes EPUBCheck). You can import a Word (.docx) or Markdown manuscript into a new project from the start screen (with a report of anything that could not be kept). Typst is chosen for print PDF (M2). See [docs/architecture.md](docs/architecture.md). M2-M4 are not started.
 
 ## Stack
 Tauri 2 (Rust), React 19, TypeScript, Vite, TipTap 3, Tailwind CSS v4, Radix UI, Vitest, Playwright, pnpm workspaces.
@@ -22,7 +22,7 @@ packages/
   export-pdf/        Print PDF via Typst (trim sizes, fonts, footnotes, images)
   format/            Manifest validation, migrations, chapter-tree edits, file naming
   templates/         Novel, nonfiction and modern templates as data
-  import-docx/       Markdown and DOCX import with warnings (not yet wired into the app)
+  import-docx/       Markdown and DOCX import with warnings (wired into the start screen)
 fixtures/            Sample manuscripts and golden outputs
 docs/                Architecture notes, file format outline, roadmap
 ```

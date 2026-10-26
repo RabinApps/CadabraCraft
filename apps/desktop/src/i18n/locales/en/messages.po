@@ -23,6 +23,14 @@ msgstr "{0} changed outside the app; the other version was kept as {1}"
 msgid "{0} was updated from outside the app"
 msgstr "{0} was updated from outside the app"
 
+#: src/app/ImportDialogs.tsx
+msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
+msgstr "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
+
+#: src/app/ImportDialogs.tsx
+msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
+msgstr "{imageCount, plural, one {# image added.} other {# images added.}}"
+
 #: src/app/App.tsx
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
@@ -49,11 +57,19 @@ msgstr "Add link"
 msgid "Address"
 msgstr "Address"
 
+#. placeholder {0}: opts.root
+#. placeholder {1}: written.chapters
+#. placeholder {2}: written.images
+#: src/app/importBook.ts
+msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
+msgstr "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
+
 #: src/editor/Toolbar.tsx
 msgid "Apply"
 msgstr "Apply"
 
 #: src/app/Home.tsx
+#: src/app/ImportDialogs.tsx
 msgid "Author"
 msgstr "Author"
 
@@ -83,6 +99,7 @@ msgid "cadabra.json was changed outside the app and could not be read; saving wi
 msgstr "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 
 #: src/app/Home.tsx
+#: src/app/ImportDialogs.tsx
 #: src/editor/Toolbar.tsx
 #: src/ui/Dialog.tsx
 msgid "Cancel"
@@ -123,13 +140,30 @@ msgstr "Chapter title"
 msgid "Chapters"
 msgstr "Chapters"
 
+#: src/app/importBook.ts
+msgid "Choose a .docx, .md or .markdown file."
+msgstr "Choose a .docx, .md or .markdown file."
+
 #: src/app/App.tsx
 msgid "Choose a chapter to start."
 msgstr "Choose a chapter to start."
 
+#: src/app/ImportDialogs.tsx
+msgid "Choose file…"
+msgstr "Choose file…"
+
 #: src/app/Home.tsx
+#: src/app/ImportDialogs.tsx
 msgid "Choose…"
 msgstr "Choose…"
+
+#: src/app/ImportDialogs.tsx
+msgid "Copied"
+msgstr "Copied"
+
+#: src/app/ImportDialogs.tsx
+msgid "Copy report"
+msgstr "Copy report"
 
 #. placeholder {0}: e instanceof Error ? e.message : String(e)
 #: src/app/store.ts
@@ -140,6 +174,10 @@ msgstr "Could not add the image: {0}"
 msgid "Create book"
 msgstr "Create book"
 
+#: src/app/ImportDialogs.tsx
+msgid "Creates a new book from a Word (.docx) or Markdown file. The original file is never changed."
+msgstr "Creates a new book from a Word (.docx) or Markdown file. The original file is never changed."
+
 #: src/ui/ThemeToggle.tsx
 msgid "Dark theme"
 msgstr "Dark theme"
@@ -147,6 +185,10 @@ msgstr "Dark theme"
 #: src/editor/Toolbar.tsx
 msgid "Description (alt text)"
 msgstr "Description (alt text)"
+
+#: src/app/ImportDialogs.tsx
+msgid "Done"
+msgstr "Done"
 
 #: src/app/Home.tsx
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
@@ -159,6 +201,10 @@ msgstr "Export EPUB"
 #: src/app/store.ts
 msgid "Exported exports/book.epub"
 msgstr "Exported exports/book.epub"
+
+#: src/app/ImportDialogs.tsx
+msgid "File"
+msgstr "File"
 
 #: src/app/Home.tsx
 msgid "Folder"
@@ -188,9 +234,44 @@ msgstr "Heading 3"
 msgid "Image"
 msgstr "Image"
 
+#. placeholder {0}: a.sourcePath
+#: src/app/importBook.ts
+msgid "Image {0} could not be imported: {why}"
+msgstr "Image {0} could not be imported: {why}"
+
+#. placeholder {0}: img.name
+#. placeholder {1}: e instanceof Error ? e.message : String(e)
+#: src/app/importBook.ts
+msgid "Image {0} could not be stored: {1}"
+msgstr "Image {0} could not be stored: {1}"
+
 #: src/editor/Toolbar.tsx
 msgid "Image file"
 msgstr "Image file"
+
+#: src/app/ImportDialogs.tsx
+msgid "Import"
+msgstr "Import"
+
+#: src/app/ImportDialogs.tsx
+msgid "Import a manuscript"
+msgstr "Import a manuscript"
+
+#: src/app/ImportDialogs.tsx
+msgid "Import report"
+msgstr "Import report"
+
+#: src/app/ImportDialogs.tsx
+msgid "Import warnings"
+msgstr "Import warnings"
+
+#: src/app/Home.tsx
+msgid "Import…"
+msgstr "Import…"
+
+#: src/app/ImportDialogs.tsx
+msgid "Importing…"
+msgstr "Importing…"
 
 #: src/editor/Toolbar.tsx
 msgid "Insert"
@@ -258,6 +339,10 @@ msgstr "Narrow page"
 msgid "New book"
 msgstr "New book"
 
+#: src/app/ImportDialogs.tsx
+msgid "New book folder"
+msgstr "New book folder"
+
 #: src/app/Home.tsx
 msgid "New project"
 msgstr "New project"
@@ -270,13 +355,23 @@ msgstr "Next chapter"
 msgid "No cadabra.json in that folder"
 msgstr "No cadabra.json in that folder"
 
+#: src/app/ImportDialogs.tsx
+msgid "No file chosen"
+msgstr "No file chosen"
+
 #: src/app/Home.tsx
+#: src/app/ImportDialogs.tsx
 msgid "No folder chosen"
 msgstr "No folder chosen"
 
+#: src/app/ImportDialogs.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
 msgstr "Note"
+
+#: src/app/ImportDialogs.tsx
+msgid "Nothing was lost or changed."
+msgstr "Nothing was lost or changed."
 
 #: src/editor/Toolbar.tsx
 msgid "Numbered list"
@@ -293,6 +388,10 @@ msgstr "Optional. Shown below the image."
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
 msgstr "Page width"
+
+#: src/app/ImportDialogs.tsx
+msgid "Pick or create an empty folder. The imported book is stored there."
+msgstr "Pick or create an empty folder. The imported book is stored there."
 
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
@@ -352,6 +451,10 @@ msgstr "Small caps"
 msgid "Smaller text"
 msgstr "Smaller text"
 
+#: src/app/ImportDialogs.tsx
+msgid "Some content or formatting could not be kept. Review these before you continue."
+msgstr "Some content or formatting could not be kept. Review these before you continue."
+
 #: src/app/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr "Start a new folder, or open one you already have. Everything stays on this computer."
@@ -376,11 +479,48 @@ msgstr "The book is stored in this folder. Nothing leaves your computer."
 msgid "Theme"
 msgstr "Theme"
 
+#: src/app/importBook.ts
+msgid "There is no text to import in this file."
+msgstr "There is no text to import in this file."
+
+#: src/app/ImportDialogs.tsx
+msgid "These are routine adjustments; nothing was lost."
+msgstr "These are routine adjustments; nothing was lost."
+
+#: src/app/importBook.ts
+msgid "This .docx file has no document body. It may be damaged or not a Word document."
+msgstr "This .docx file has no document body. It may be damaged or not a Word document."
+
 #: src/app/App.tsx
 msgid "This book has no chapters yet."
 msgstr "This book has no chapters yet."
 
+#: src/app/importBook.ts
+msgid "This document contains too many parts to import safely."
+msgstr "This document contains too many parts to import safely."
+
+#: src/app/importBook.ts
+msgid "This document is nested too deeply to import."
+msgstr "This document is nested too deeply to import."
+
+#: src/app/importBook.ts
+msgid "This document is too large to import safely."
+msgstr "This document is too large to import safely."
+
+#: src/app/importBook.ts
+msgid "This document's contents could not be read. It may be damaged."
+msgstr "This document's contents could not be read. It may be damaged."
+
+#: src/app/importBook.ts
+msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
+msgstr "This does not look like a valid .docx file (it could not be opened as a Word document)."
+
+#: src/app/importBook.ts
+msgid "This file is too large to import."
+msgstr "This file is too large to import."
+
 #: src/app/Home.tsx
+#: src/app/ImportDialogs.tsx
 msgid "Title"
 msgstr "Title"
 
@@ -393,6 +533,7 @@ msgid "Undo"
 msgstr "Undo"
 
 #: src/app/Home.tsx
+#: src/app/ImportDialogs.tsx
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -403,6 +544,10 @@ msgstr "Unsaved"
 #: src/editor/Toolbar.tsx
 msgid "Use http, https or mailto."
 msgstr "Use http, https or mailto."
+
+#: src/app/ImportDialogs.tsx
+msgid "Warning"
+msgstr "Warning"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Wide page"

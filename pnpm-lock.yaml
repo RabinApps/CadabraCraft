@@ -29,6 +29,9 @@ importers:
       '@cadabracraft/format':
         specifier: workspace:*
         version: link:../../packages/format
+      '@cadabracraft/import-docx':
+        specifier: workspace:*
+        version: link:../../packages/import-docx
       '@cadabracraft/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -123,6 +126,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^6.1.2
         version: 6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@8.0.9)(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)))(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       vite:
         specifier: ^8.3.5
         version: 8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)

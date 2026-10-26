@@ -1,0 +1,154 @@
+import { t } from "@lingui/core/macro";
+import { i18n } from "@lingui/core";
+import { addChapter, createManifest, serializeManifest } from "@cadabracraft/format";
+import { ImportError, importDocx, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
+import type { ChapterDoc } from "@cadabracraft/shared";
+import { bridge } from "../lib/bridge";
+
+export interface ImportReport {
+  /** Source file name (no folder), for display. */
+  fileName: string;
+  title: string;
+  chapterCount: number;
+  /** Images stored in the project's assets/. */
+  imageCount: number;
+  /** Importer warnings plus `image-not-imported` for images that could not be read or stored. */
+  warnings: ImportWarning[];
+}
+
+export interface WarningGroup {
+  code: string;
+  severity: ImportWarning["severity"];
+  /** Total occurrences (a warning may stand for several). */
+  count: number;
+  /** First message, as a description of the group. */
+  message: string;
+  /** Up to three short examples. */
+  examples: string[];
+}
+
+export const baseName = (path: string): string => path.split(/[\\/]/).pop() ?? path;
+const stem = (name: string): string => name.replace(/\.[^.]*$/, "");
+
+/** Groups warnings by code: counts occurrences and keeps a few examples (located warnings show their line). */
+export function groupWarnings(warnings: ImportWarning[]): WarningGroup[] {
+  const groups = new Map<string, WarningGroup>();
+  for (const w of warnings) {
+    let g = groups.get(w.code);
+    if (!g) groups.set(w.code, (g = { code: w.code, severity: w.severity, count: 0, message: w.message, examples: [] }));
+    if (w.severity === "warning") g.severity = "warning";
+    g.count += w.count ?? 1;
+    const ex = [...(w.examples ?? []), ...(w.examples?.length ? [] : [w.line ? `${w.message} (line ${w.line})` : w.message])];
+    for (const e of ex) if (g.examples.length < 3 && !g.examples.includes(e)) g.examples.push(e);
+  }
+  // Warnings (content lost) before info (benign), then most frequent first.
+  return [...groups.values()].sort((a, b) => Number(b.severity === "warning") - Number(a.severity === "warning") || b.count - a.count);
+}
+
+/** Plain-text report, for pasting into a bug report. */
+export function formatReport(r: ImportReport): string {
+  const lines = [`Import of ${r.fileName}: ${r.chapterCount} chapter(s), ${r.imageCount} image(s)`];
+  for (const g of groupWarnings(r.warnings)) {
+    lines.push(`- [${g.severity}] ${g.code} x${g.count}: ${g.message}`);
+    for (const e of g.examples) lines.push(`    ${e}`);
+  }
+  if (!r.warnings.length) lines.push("No warnings.");
+  return lines.join("\n");
+}
+
+function describeImportError(e: ImportError): string {
+  switch (e.code) {
+    case "invalid-zip": return t`This does not look like a valid .docx file (it could not be opened as a Word document).`;
+    case "archive-too-large": return t`This document is too large to import safely.`;
+    case "too-many-entries": return t`This document contains too many parts to import safely.`;
+    case "missing-document": return t`This .docx file has no document body. It may be damaged or not a Word document.`;
+    case "invalid-xml": return t`This document's contents could not be read. It may be damaged.`;
+    case "input-too-large": return t`This file is too large to import.`;
+    case "too-deeply-nested": return t`This document is nested too deeply to import.`;
+  }
+}
+
+/** Replaces image sources per `map` (null removes the image and leaves its alt text), without mutating the input. */
+export function remapImages(doc: ChapterDoc, map: Map<string, string | null>): ChapterDoc {
+  const walk = (n: unknown): unknown => {
+    if (!n || typeof n !== "object") return n;
+    const node = n as { type?: string; attrs?: { src?: string; alt?: string | null }; content?: unknown[] };
+    if (node.type === "image" && node.attrs?.src && map.has(node.attrs.src)) {
+      const to = map.get(node.attrs.src);
+      if (to) return { ...node, attrs: { ...node.attrs, src: to } };
+      const alt = node.attrs.alt;
+      return { type: "paragraph", content: alt ? [{ type: "text", text: `[Image: ${alt}]` }] : [] };
+    }
+    return node.content ? { ...node, content: node.content.map(walk) } : node;
+  };
+  return walk(doc) as ChapterDoc;
+}
+
+const decode = (s: string): string => { try { return decodeURIComponent(s); } catch { return s; } };
+
+/** Markdown references may be percent-encoded and carry `?query`/`#fragment`; try them as written first. */
+const imageCandidates = (ref: string): string[] => [...new Set([ref, decode(ref.replace(/[?#].*$/, ""))])];
+
+/** Parses, loads images, and only then writes. Nothing is created when parsing fails; a later failure says what was written. */
+export async function runImport(opts: { sourcePath: string; root: string; title: string; author: string }): Promise<ImportReport> {
+  const fileName = baseName(opts.sourcePath);
+  const ext = /\.([^.]+)$/.exec(fileName)?.[1]?.toLowerCase() ?? "";
+  if (!["docx", "md", "markdown", "txt"].includes(ext)) throw new Error(t`Choose a .docx, .md or .markdown file.`);
+
+  // 1. Read and parse. The source file is only ever read.
+  const bytes = await bridge.readImportSource(opts.sourcePath);
+  let result: ImportResult;
+  try {
+    result = ext === "docx" ? importDocx(bytes) : importMarkdown(new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, ""));
+  } catch (e) {
+    if (e instanceof ImportError) throw new Error(describeImportError(e));
+    throw e;
+  }
+  if (result.chapters.length === 0) throw new Error(t`There is no text to import in this file.`);
+
+  // 2. Load images into memory (still no writes). A missing or refused image is a warning, not a failure.
+  const warnings = [...result.warnings];
+  const images: { target: string; name: string; bytes: Uint8Array }[] = [];
+  for (const a of result.assets) {
+    let data = a.bytes ?? null;
+    let why = "";
+    if (!data) {
+      for (const candidate of imageCandidates(a.sourcePath)) {
+        try { data = await bridge.readImportImage(opts.sourcePath, candidate); break; } catch (e) { why = e instanceof Error ? e.message : String(e); }
+      }
+    }
+    if (data) images.push({ target: a.targetPath, name: baseName(a.targetPath), bytes: data });
+    else warnings.push({ code: "image-not-imported", severity: "warning", message: t`Image ${a.sourcePath} could not be imported: ${why}`, examples: [a.sourcePath] });
+  }
+
+  // 3. Write. The manifest is written last with the chapter list, so an interrupted import never lists missing files.
+  const written = { images: 0, chapters: 0 };
+  const wrote = () => t`Already written to ${opts.root}: ${written.chapters} chapter files and ${written.images} images; the book's chapter list was not saved.`;
+  try {
+    let manifest = createManifest({ title: opts.title, author: opts.author, language: i18n.locale === "pseudo" ? "en" : i18n.locale, identifier: `urn:uuid:${crypto.randomUUID()}` });
+    await bridge.createProject(opts.root, serializeManifest(manifest));
+    const map = new Map<string, string | null>();
+    for (const a of result.assets) map.set(a.targetPath, null);
+    for (const img of images) {
+      try {
+        map.set(img.target, await bridge.importAssetBytes(opts.root, img.name, img.bytes));
+        written.images++;
+      } catch (e) {
+        warnings.push({ code: "image-not-imported", severity: "warning", message: t`Image ${img.name} could not be stored: ${e instanceof Error ? e.message : String(e)}`, examples: [img.name] });
+      }
+    }
+    for (const c of result.chapters) {
+      const next = addChapter(manifest, c.title);
+      manifest = next.manifest;
+      await bridge.writeFile(opts.root, next.entry.file, JSON.stringify(remapImages(c.doc, map), null, 2), null);
+      written.chapters++;
+    }
+    await bridge.writeFile(opts.root, "cadabra.json", serializeManifest(manifest), null);
+  } catch (e) {
+    throw new Error(`${e instanceof Error ? e.message : String(e)} ${wrote()}`);
+  }
+  return { fileName, title: opts.title, chapterCount: result.chapters.length, imageCount: written.images, warnings };
+}
+
+/** Default book title for a picked file: its name without the extension. */
+export const titleFromFile = (path: string): string => stem(baseName(path)).replace(/[_-]+/g, " ").trim();

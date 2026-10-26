@@ -133,13 +133,13 @@ pub const IMAGE_EXTENSIONS: [&str; 6] = ["png", "jpg", "jpeg", "gif", "webp", "s
 /// Largest image accepted, in bytes.
 pub const MAX_IMAGE_BYTES: u64 = 25 * 1024 * 1024;
 
-fn image_ext(name: &str) -> Option<String> {
+pub(crate) fn image_ext(name: &str) -> Option<String> {
     let ext = Path::new(name).extension()?.to_str()?.to_ascii_lowercase();
     IMAGE_EXTENSIONS.contains(&ext.as_str()).then_some(ext)
 }
 
 /// Cheap signature check so a renamed non-image is refused. SVG must at least look like SVG text.
-fn looks_like(ext: &str, b: &[u8]) -> bool {
+pub(crate) fn looks_like(ext: &str, b: &[u8]) -> bool {
     match ext {
         "png" => b.starts_with(&[0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a]),
         "jpg" | "jpeg" => b.starts_with(&[0xff, 0xd8, 0xff]),
@@ -169,7 +169,7 @@ pub fn sanitize_asset_stem(stem: &str) -> String {
 /// Never overwrites a different file: an identical existing file is reused, otherwise `-2`, `-3`... is appended.
 pub fn import_image(root: &Path, source: &Path) -> Result<String, String> {
     let file_name = source.file_name().and_then(|n| n.to_str()).ok_or("invalid file name")?;
-    let ext = image_ext(file_name).ok_or_else(|| format!("unsupported image type: {file_name}"))?;
+    image_ext(file_name).ok_or_else(|| format!("unsupported image type: {file_name}"))?;
     let meta = fs::metadata(source).map_err(|e| e.to_string())?;
     if !meta.is_file() {
         return Err(format!("{file_name} is not a file"));
@@ -178,14 +178,21 @@ pub fn import_image(root: &Path, source: &Path) -> Result<String, String> {
         return Err(format!("{file_name} is larger than {} MB", MAX_IMAGE_BYTES / 1024 / 1024));
     }
     let bytes = fs::read(source).map_err(|e| e.to_string())?;
+    store_image(root, file_name, &bytes)
+}
+
+/// Validates image bytes (allowlisted extension, size, signature) and stores them in `assets/` under a sanitized,
+/// de-duplicated name. Shared by the file picker import and the document importer, so both follow the same rules.
+pub fn store_image(root: &Path, file_name: &str, bytes: &[u8]) -> Result<String, String> {
+    let ext = image_ext(file_name).ok_or_else(|| format!("unsupported image type: {file_name}"))?;
     if bytes.len() as u64 > MAX_IMAGE_BYTES {
         return Err(format!("{file_name} is larger than {} MB", MAX_IMAGE_BYTES / 1024 / 1024));
     }
-    if !looks_like(&ext, &bytes) {
+    if !looks_like(&ext, bytes) {
         return Err(format!("{file_name} is not a valid {ext} image"));
     }
     let stem = sanitize_asset_stem(file_name.rsplit_once('.').map_or(file_name, |(s, _)| s));
-    let hash = hash_bytes(&bytes);
+    let hash = hash_bytes(bytes);
     for n in 1u32.. {
         let name = if n == 1 { format!("{stem}.{ext}") } else { format!("{stem}-{n}.{ext}") };
         let rel = format!("assets/{name}");
@@ -194,7 +201,7 @@ pub fn import_image(root: &Path, source: &Path) -> Result<String, String> {
             Ok(existing) if hash_bytes(&existing) == hash => return Ok(rel),
             Ok(_) => continue,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                atomic_write(&path, &bytes)?;
+                atomic_write(&path, bytes)?;
                 return Ok(rel);
             }
             Err(e) => return Err(e.to_string()),
@@ -359,6 +366,20 @@ mod tests {
         f.set_len(MAX_IMAGE_BYTES + 1).unwrap();
         assert!(import_image(proj.path(), &big).unwrap_err().contains("larger"));
         assert!(!proj.path().join("assets").exists());
+    }
+
+    #[test]
+    fn store_image_sanitizes_dedupes_and_validates_bytes() {
+        let proj = tmp();
+        assert_eq!(store_image(proj.path(), "../Fig 1.PNG", &PNG).unwrap(), "assets/Fig-1.png");
+        assert_eq!(store_image(proj.path(), "Fig 1.png", &PNG).unwrap(), "assets/Fig-1.png");
+        let mut other = PNG.to_vec();
+        other.push(1);
+        assert_eq!(store_image(proj.path(), "Fig 1.png", &other).unwrap(), "assets/Fig-1-2.png");
+        assert!(store_image(proj.path(), "x.exe", &PNG).unwrap_err().contains("unsupported"));
+        assert!(store_image(proj.path(), "x.png", b"nope").unwrap_err().contains("not a valid"));
+        let big = vec![0u8; MAX_IMAGE_BYTES as usize + 1];
+        assert!(store_image(proj.path(), "big.png", &big).unwrap_err().contains("larger"));
     }
 
     #[test]

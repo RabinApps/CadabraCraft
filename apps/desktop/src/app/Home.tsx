@@ -1,22 +1,26 @@
 import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { BookPlus, FolderOpen, HardDrive, Plus, WandSparkles } from "lucide-react";
+import { BookPlus, FileUp, FolderOpen, HardDrive, Plus, WandSparkles } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { LanguagePicker } from "../ui/LanguagePicker";
 import { ThemeToggle } from "../ui/ThemeToggle";
+import { ImportDialog } from "./ImportDialogs";
 
 interface Props {
   error: string;
   onOpen: () => void;
   pickFolder: () => Promise<string | null>;
   onCreate: (root: string, title: string, author: string) => void;
+  pickImportSource: () => Promise<string | null>;
+  onImport: (source: string, root: string, title: string, author: string) => Promise<void>;
 }
 
-export function Home({ error, onOpen, pickFolder, onCreate }: Props) {
+export function Home({ error, onOpen, pickFolder, onCreate, pickImportSource, onImport }: Props) {
   const { t } = useLingui();
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-ink">
       <header className="flex items-center justify-between px-4 py-3.5 md:px-12">
@@ -33,6 +37,7 @@ export function Home({ error, onOpen, pickFolder, onCreate }: Props) {
         <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row">
           <Button variant="primary" icon={Plus} onClick={() => setCreating(true)}>{t`New project`}</Button>
           <Button icon={FolderOpen} onClick={onOpen}>{t`Open folder`}</Button>
+          <Button icon={FileUp} onClick={() => setImporting(true)}>{t`Import…`}</Button>
         </div>
         {error && <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
         <p className="mt-6 flex max-w-sm items-start gap-2.5 text-start text-[13px] leading-relaxed text-ink-muted">
@@ -41,6 +46,7 @@ export function Home({ error, onOpen, pickFolder, onCreate }: Props) {
         </p>
       </main>
       <NewProjectDialog open={creating} onOpenChange={setCreating} pickFolder={pickFolder} onCreate={onCreate} />
+      <ImportDialog open={importing} onOpenChange={setImporting} pickSource={pickImportSource} pickFolder={pickFolder} onImport={onImport} />
     </div>
   );
 }

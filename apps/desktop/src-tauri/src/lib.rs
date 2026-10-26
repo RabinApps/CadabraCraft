@@ -1,5 +1,6 @@
 mod commands;
 mod fs_watch;
+mod import_src;
 mod project;
 
 pub fn run() {
@@ -15,6 +16,9 @@ pub fn run() {
             commands::write_project_bytes,
             commands::import_asset,
             commands::read_asset,
+            commands::read_import_source,
+            commands::read_import_image,
+            commands::import_asset_bytes,
             commands::watch_project
         ])
         .run(tauri::generate_context!())

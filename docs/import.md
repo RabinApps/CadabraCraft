@@ -84,6 +84,20 @@ Markdown warnings carry a 1-based `line`. At most 25 located warnings per code a
 | `page-break`, `section-break` | docx (info) | ignored |
 | `unsupported-element` | docx | unknown body element skipped |
 
+## In the app
+
+Start screen, **Import…**: choose a `.docx`, `.md` or `.markdown` file, a title and author (title defaults to the file name), and a destination folder (the native folder dialog can create one). Import always creates a NEW project in that folder and never modifies the source file.
+
+Order of work (`apps/desktop/src/app/importBook.ts`):
+1. Read the source through the read-only `read_import_source` command (extensions docx/md/markdown/txt, regular file, at most 200 MB) and run `importDocx` / `importMarkdown` in the webview. An `ImportError`, an unreadable file or an empty result stops here with a message in the dialog; nothing has been created.
+2. Load images into memory. DOCX bytes come from the archive. Markdown references are read with `read_import_image(sourceFile, reference)`, resolved against the source file's folder; it rejects absolute paths, `..`, backslashes, symlinks that resolve outside that folder, non-image extensions, files over 25 MB and content that is not the claimed type. The raw reference is tried first, then its percent-decoded form without `?query`/`#fragment`.
+3. Only now write: `create_project` with an empty chapter list, images via `import_asset_bytes` (same sanitizing, de-duplication, allowlist and 25 MB rules as the image picker; it returns the final `assets/<name>`, and chapter docs are rewritten to it), one chapter file per chapter named with `chapterFileName`, then the manifest with the chapter list last. If a write fails, the error lists how many chapter files and images were already written and that the chapter list was not saved; chapters are never listed before their files exist.
+4. An image that cannot be read or stored becomes an `image-not-imported` warning (app level, not an importer code) and its image block is replaced by `[Image: alt]` text, so the book never contains a dead image reference.
+
+The project then opens and an **Import report** dialog shows chapter and image counts and the warnings grouped by code (occurrence count, up to three examples, warnings before notes). It is a scrollable region and has a **Copy report** button for bug reports. The dialog is dismissed with Done or Escape.
+
+Not yet: importing from inside an open project (there is no project menu yet), and a re-import/merge into an existing book.
+
 ## Limits
 
 DOCX archives: declared uncompressed size summed over all entries must stay under `maxDecompressedBytes` (200 MB), entries under `maxEntries`. Only the parts we read are inflated. A forged smaller declared size is not trusted: fflate truncates to the declared size, and the actual size is re-checked. XML nesting beyond the parser limit gives `invalid-xml`; the parser also bounds entity expansion.

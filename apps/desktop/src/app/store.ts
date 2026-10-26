@@ -5,6 +5,7 @@ import { addChapter, createManifest, moveChapter, parseManifest, removeChapter, 
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../lib/bridge";
+import { runImport, type ImportReport } from "./importBook";
 
 const emptyDoc = (title: string): ChapterDoc => ({
   type: "doc",
@@ -23,6 +24,8 @@ interface State {
   draft: ChapterDoc | null;
   /** Bumped when the current chapter is reloaded from disk so the editor remounts with the new content. */
   reloadCount: number;
+  /** Result of the last import, shown in a dialog until dismissed. */
+  importReport: ImportReport | null;
   actions: {
     /** Saves unsaved typing, if any, without reloading the chapter. */
     flush: () => Promise<void>;
@@ -39,6 +42,9 @@ interface State {
     exportEpub: () => Promise<void>;
     /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
     importImage: () => Promise<string | null>;
+    /** Imports a .docx/.md file into a NEW project in `root` (the source is only read), opens it and sets `importReport`. Throws, having created nothing, when the file cannot be imported. */
+    importBook: (sourcePath: string, root: string, title: string, author: string) => Promise<void>;
+    dismissImportReport: () => void;
   };
 }
 
@@ -70,7 +76,7 @@ export const useProject = create<State>((set, get) => {
   };
 
   return {
-    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0,
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null,
     actions: {
       flush,
       async externalChange(path) {
@@ -171,6 +177,13 @@ export const useProject = create<State>((set, get) => {
         await bridge.writeBytes(root, "exports/book.epub", Array.from(bytes));
         set({ notice: t`Exported exports/book.epub` });
       },
+      async importBook(sourcePath, root, title, author) {
+        await flush();
+        const report = await runImport({ sourcePath, root, title, author });
+        await get().actions.openProject(root);
+        set({ importReport: report });
+      },
+      dismissImportReport: () => set({ importReport: null }),
       async importImage() {
         const { root } = need();
         const picked = await bridge.pickImage();

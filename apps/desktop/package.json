@@ -17,6 +17,7 @@
     "@cadabracraft/editor-schema": "workspace:*",
     "@cadabracraft/export-epub": "workspace:*",
     "@cadabracraft/format": "workspace:*",
+    "@cadabracraft/import-docx": "workspace:*",
     "@cadabracraft/shared": "workspace:*",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/newsreader": "^5.3.0",
@@ -50,6 +51,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "fflate": "^0.8.3",
     "vite": "^8.3.5"
   }
 }
