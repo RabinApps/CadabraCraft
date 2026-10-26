@@ -4,7 +4,7 @@
 - UI (designed in `cadabracraft.pen`, see [design.md](design.md)):
   - M1: apply the design system (Tailwind v4 + Radix), restyle Home, editor, reading mode, dialogs and toasts.
   - M2: templates gallery, print preview, export dialog with validation results.
-  - M2+: settings screens (editor, backups, shortcuts), focus mode, command palette, find and replace, outline navigator.
+  - M2+: settings screens (editor, backups, shortcuts), focus mode, command palette, find and replace, outline navigator. The Settings design (desktop, tablet, mobile; Appearance, General, Editor sections; gear entry points) is in `cadabracraft.pen`; the code is not built yet.
   - M3: front/back matter and metadata editor, cover picker.
   - M4: .docx import wizard.
 - i18n follow-ups (infrastructure is in; see the Internationalization section of [architecture.md](architecture.md)):

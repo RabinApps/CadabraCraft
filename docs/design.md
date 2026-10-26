@@ -2,7 +2,7 @@
 
 Source of truth: [`cadabracraft.pen`](../cadabracraft.pen) (open with Pencil; the file is encrypted, so edit it only through Pencil or its MCP tools). This document records the tokens and rules so code can follow them without opening the file.
 
-**Keeping this in sync:** this file must always match the pen file. After any pen change run `/sync-design` (`.claude/skills/sync-design`); a project hook reminds Claude after every Pencil edit. Last synced against the pen: 2026-10-25 (tokens, fonts, radii, frame sizes and names verified).
+**Keeping this in sync:** this file must always match the pen file. After any pen change run `/sync-design` (`.claude/skills/sync-design`); a project hook reminds Claude after every Pencil edit. Last synced against the pen: 2026-10-26 (tokens, fonts, radii, frame sizes and names verified; Settings desktop, tablet and mobile in light and dark; theme toggles moved off Home, Editor and Reading).
 
 ## Principles
 - Writing comes first: the manuscript is the dominant region on every screen; chrome stays quiet.
@@ -12,6 +12,8 @@ Source of truth: [`cadabracraft.pen`](../cadabracraft.pen) (open with Pencil; th
 
 ## Theming
 Every screen is drawn in light and dark. Tokens are Pencil variables with a `mode` axis; in code they become CSS variables switched by `data-theme` (`light | dark`, resolved in `theme.ts` from the System / Light / Dark preference).
+
+The System / Light / Dark preference is set only on Settings (Appearance). Home, Editor and Reading top bars link to Settings with a gear icon instead of a theme toggle. Reading mode's popover keeps its own Theme control for the reading style (see Known gaps).
 
 | Token | Light | Dark | Use |
 | --- | --- | --- | --- |
@@ -56,11 +58,11 @@ Frame names follow `Name / size / mode` (size is desktop, tablet or mobile; mode
 | Link dialog, delete confirm | `Link dialog / mode`, `Delete chapter confirm / mode` | M1 | replace `prompt()` / `confirm()` |
 | Banners and toasts | `Banners and toasts / mode` | M1 | conflict copy, export success, save error |
 | Project trash | `Project trash / mode` | M1 design, restore deferred | restore needs a new Rust command |
-| Reading mode | `Reading / size / mode` | M1 | read-only chapter, prev/next, text size, width, theme (settings popover on desktop) |
+| Reading mode | `Reading / size / mode` | M1 | read-only chapter, prev/next, text size, width, theme (settings popover on desktop); top bar gear links to Settings |
 | Templates | `Templates (M2) / mode` | M2 | desktop only |
 | Print preview | `Print preview (M2) / mode` | M2 | spread, page setup |
 | Export dialog | `Export (M2-M3) / mode` | M2-M3 | EPUB and PDF, validation results |
-| Settings | `Settings (M2+) / mode` | M2+ | Appearance section only |
+| Settings | `Settings (M2+) / size / mode` | M2+ | Desktop (1280x800) and tablet (820x1180) use the Nav (Appearance, General, Editor, Backups, Shortcuts) and a content column; mobile (390x844) has no nav, back arrow in the top bar and the same sections stacked. Sections: Appearance (theme segmented control), General (interface language select, placeholder until i18n is scoped), Editor (manuscript font, writing column width, typewriter scrolling). Preferences save immediately, so there is no primary action. Backups and Shortcuts are nav items without content yet. |
 
 Designed but not in the first M1 build (see `docs/m1-ui-plan.md`): recent-projects list, project trash restore, details panel, focus mode.
 
@@ -71,4 +73,4 @@ Designed but not in the first M1 build (see `docs/m1-ui-plan.md`): recent-projec
 - Implemented in the app: tokens and theme switch, Home, responsive shell with chapter sidebar/drawer/sheet, formatting toolbar (docked at the bottom on phones), link dialog, Export PDF dialog (trim size, template, PDF/A, progress and error states; a plain form in the `Export (M2-M3)` frame's style), word count in the status bar, and Read mode (settings menu instead of the popover shown in the pen).
 - Styling lives in `apps/desktop` only; `packages/*` stay unstyled.
 - Respect `prefers-reduced-motion`; all icon-only buttons need `aria-label`; text contrast target is 4.5:1.
-- Known gaps in the mockups: no focus-mode frame, no loading skeletons, no keyboard-open mobile frame, Settings has one section only.
+- Known gaps in the mockups: no focus-mode frame, no loading skeletons, no keyboard-open mobile frame, Settings has no Backups or Shortcuts content, the Settings language select is a placeholder (no i18n yet), the Editor mobile frames have no Settings entry (their overflow menu may hold it; undecided), Reading mode's popover Theme control is kept separate from the app theme (unclear whether it should move to Settings), and Settings has no word-count toggle (the pen shows no such control).
