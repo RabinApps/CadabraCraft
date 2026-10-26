@@ -466,6 +466,7 @@ test("keyboard: the Add page menu opens and selects with the keyboard", async ({
   await page.getByRole("button", { name: "Add page" }).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByRole("menu")).toBeVisible();
+  await expect(page.getByRole("menuitem").first()).toBeFocused();
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Enter");
   await expect(page.locator(".ProseMirror h1")).toHaveText("E2E Book");
