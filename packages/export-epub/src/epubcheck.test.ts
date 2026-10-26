@@ -3,11 +3,12 @@ import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { listTemplates } from "@cadabracraft/templates";
 import { buildEpub } from "./index";
 import { matterBook } from "./matterBook";
 
-const jar = new URL("../../../tools/epubcheck-5.4.0/epubcheck.jar", import.meta.url).pathname;
+const jar = fileURLToPath(new URL("../../../tools/epubcheck-5.4.0/epubcheck.jar", import.meta.url));
 const doc = JSON.parse(readFileSync(new URL("../../../fixtures/manuscripts/sample-chapter.json", import.meta.url), "utf8"));
 
 // Run scripts/fetch-epubcheck.sh first. CI always fetches it; set REQUIRE_EPUBCHECK=1 to fail instead of skip.

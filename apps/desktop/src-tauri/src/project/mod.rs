@@ -114,6 +114,9 @@ pub fn create_project(root: &Path, manifest_json: &str) -> Result<()> {
 pub fn read_file(root: &Path, rel: &str) -> Result<Option<FileRead>> {
     let path = resolve(root, rel)?;
     let too_large = || ProjectError::TooLarge { path: rel.to_string(), max_mb: MAX_READ_BYTES / 1024 / 1024 };
+    if path.is_dir() {
+        return Err(ProjectError::NotAFile { path: rel.to_string() }); // Windows refuses to open a directory with a different error
+    }
     let mut file = match fs::File::open(&path) {
         Ok(f) => f,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {

@@ -4,10 +4,11 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { strToU8, zipSync } from "fflate";
 import { createServer, type ServerOptions } from "../src/server";
 
-export const REPO = new URL("../../../", import.meta.url).pathname.replace(/\/$/, "");
+export const REPO = fileURLToPath(new URL("../../../", import.meta.url)).replace(/[\\/]$/, "");
 export const FIXTURES = join(REPO, "fixtures/manuscripts");
 export const fullBook = (): { title: string; author: string; language: string; chapters: { id: string; title: string; doc: unknown }[] } =>
   JSON.parse(readFileSync(join(FIXTURES, "full-book.json"), "utf8"));

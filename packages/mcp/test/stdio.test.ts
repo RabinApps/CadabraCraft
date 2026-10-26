@@ -3,10 +3,11 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it } from "vitest";
 import { tmpRoot } from "./helpers";
 
-const pkg = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
+const pkg = fileURLToPath(new URL("..", import.meta.url)).replace(/[\\/]$/, "");
 const cli = join(pkg, "dist/cli.js");
 
 beforeAll(() => {
