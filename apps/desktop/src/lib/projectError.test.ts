@@ -7,6 +7,7 @@ describe("projectErrorMessage", () => {
     [{ kind: "path_escape", path: "out" }, /out.*symbolic link/],
     [{ kind: "not_found", path: "a.json" }, /a\.json/],
     [{ kind: "already_exists" }, /already exists/],
+    [{ kind: "not_a_project", path: "/tmp/x" }, /\/tmp\/x is not a CadabraCraft project folder/],
     [{ kind: "not_utf8", path: "a.json" }, /a\.json/],
     [{ kind: "icloud_pending", path: "a.json" }, /iCloud/],
     [{ kind: "too_large", path: "big.docx", max_mb: 200 }, /big\.docx.*200 MB/],

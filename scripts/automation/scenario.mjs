@@ -226,6 +226,29 @@ try {
     }
   });
 
+  await step("commands refuse a root that is not an existing project", async () => {
+    const outcome = (cmd, args) => app.js(`window.__TAURI__.core.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)}).then((r) => "resolved:" + JSON.stringify(r), (e) => "rejected:" + JSON.stringify(e))`);
+    const notProject = join(out, "not-a-project");
+    mkdirSync(notProject, { recursive: true });
+    for (const [cmd, args] of [
+      ["read_project_file", { root: "/", path: "etc/hosts" }],
+      ["read_project_file", { root: "relative/book", path: "cadabra.json" }],
+      ["write_project_file", { root: notProject, path: "manuscript/x.json", contents: "{}", baseHash: null }],
+      ["write_project_bytes", { root: notProject, path: "exports/x.pdf", bytes: [1] }],
+      ["read_asset", { root: notProject, path: "assets/x.png" }],
+      ["list_project_trash", { root: notProject }],
+    ]) {
+      const r = await outcome(cmd, args);
+      assert(r.startsWith("rejected:") && r.includes("not_a_project"), `${cmd} on ${args.root}: ${r}`);
+    }
+    assert(!existsSync(join(notProject, "manuscript")) && !existsSync(join(notProject, "exports")), "a refused command still wrote into the folder");
+    const opening = await outcome("read_project_file", { root: notProject, path: "cadabra.json" });
+    assert(opening === "resolved:null", `opening a folder without a manifest should read as empty, got ${opening}`);
+    const real = await outcome("read_project_file", { root: book, path: "cadabra.json" });
+    assert(real.startsWith("resolved:") && real.includes("Scenario Book"), "the real project was refused");
+    return "6 commands refused with not_a_project, nothing written; the real project still opens";
+  });
+
   await step("import Markdown into a new project; source untouched; warnings reported", async () => {
     await app.js("location.reload()").catch(() => {}); await app.sleep(3000);
     await app.queueDialogs([join(src, "book.md"), imported]);
@@ -238,6 +261,19 @@ try {
     assert(readFileSync(join(src, "book.md"), "utf8") === mdBefore, "source file was modified");
     assert(existsSync(join(imported, "manuscript/002-second.json")), "chapter files missing");
     await shot("04-import-report");
+  });
+
+  await step("closing the window right after typing saves the text first", async () => {
+    await app.click("Done"); await app.sleep(800); // the import report would otherwise hold the focus
+    await app.js(`(() => { const ed = document.querySelector('.ProseMirror'); ed.focus(); const s = getSelection(); s.selectAllChildren(ed); s.collapseToEnd(); document.execCommand('insertText', false, ' Typed just before closing.'); })()`);
+    const dir = join(imported, "manuscript");
+    const holds = () => readdirSync(dir).some((f) => readFileSync(join(dir, f), "utf8").includes("Typed just before closing."));
+    assert(!holds(), "autosave already ran, so this would not test the close path");
+    // Closing is asynchronous in the app (it waits for the save), so the call may not return before the window is gone.
+    await app.js(`window.__TAURI__.window.getCurrentWindow().close()`).catch(() => {});
+    for (let i = 0; i < 10 && !holds(); i++) await app.sleep(500);
+    assert(holds(), "the text typed within the autosave delay was lost when the window closed");
+    return "chapter file has the text typed less than a second before closing";
   });
 } catch {
   process.exitCode = 1;

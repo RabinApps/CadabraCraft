@@ -16,10 +16,8 @@
   - Add e2e for `he` RTL layout once its catalog exists; run `/validate-epub` with a Hebrew sample (EPUBCheck was not available in this worktree).
 - Engineering follow-ups from the code review:
   - Port `.docx` import (`packages/import-docx`) to Rust (`zip` + `quick-xml`) to stop the double XML pass and synchronous unzip; needs approval for the new crates and a contract-fixture set for the doc output.
-  - Wait for the final save on window close with Tauri `onCloseRequested` (needs a window permission in `src-tauri/capabilities`); today `beforeunload` is best effort.
-  - Convert `typst_compile` to raw-bytes IPC.
-  - Restrict `root` to opened projects and set a real CSP (`tauri.conf.json` has `"csp": null`).
-  - Run `/drive-app` against the native IPC changes (raw-bytes `write_project_bytes`, async commands, autosave).
+  - ~~Wait for the final save on window close; convert `typst_compile` to raw-bytes IPC; restrict `root` and set a real CSP; run `/drive-app` on the native IPC~~ done, see architecture.md "Safety follow-ups".
+  - Run the native pickers (`pickFolder`, `pickImage`, `pickImportSource`) in Rust and remember what the author picked, so `create_project`, `import_asset` and `read_import_source` only accept those paths (today the webview can name any absolute folder or file for them).
 - Website follow-ups (marketing/SEO pass):
   - Export a 1200x630 OG image and real light/dark editor screenshots from the pen's `Website / ...` frames into `apps/website/public/og` and `public/screens`; `src/lib/seo.ts` already points at `/og/cadabracraft-og.png`.
   - Verify every competitor fact in `apps/website/src/data/competitors.ts` against its source and update `checkedOn`; several fields say "See vendor" until confirmed.

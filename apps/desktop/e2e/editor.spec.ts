@@ -38,7 +38,11 @@ async function fakeTauri(page: Page) {
             if ((window as any).__typstError) throw (window as any).__typstError;
             return ["Libertinus Serif", "New Computer Modern"];
           case "typst_compile":
-            ((window as any).__typstCalls ??= []).push(a);
+            {
+              // The body is one binary frame: u32 LE header length, header JSON (typstPath, source, pdfA, files), file bytes.
+              const n = new DataView(a.buffer, a.byteOffset).getUint32(0, true);
+              ((window as any).__typstCalls ??= []).push(JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n))));
+            }
             if ((window as any).__compileError) throw (window as any).__compileError;
             return new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]).buffer;
           case "backup_manifest": return "backup";

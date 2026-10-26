@@ -22,7 +22,7 @@ describe("createTauriRunner", () => {
     expect(await r.listFonts()).toEqual(["A"]);
     expect(typstListFonts).toHaveBeenCalledWith(null);
     await r.compile("src", new Map([["assets/x.png", new Uint8Array([5, 6])]]), { pdfA: true });
-    expect(typstCompile).toHaveBeenCalledWith(null, "src", [["assets/x.png", [5, 6]]], true);
+    expect(typstCompile).toHaveBeenCalledWith(null, "src", [["assets/x.png", new Uint8Array([5, 6])]], true);
   });
   it("converts rejections", async () => {
     const r = createTauriRunner({ typstCompile: async () => { throw { kind: "timeout", seconds: 1 }; }, typstListFonts: async () => { throw { kind: "not_found", message: "m" }; } });

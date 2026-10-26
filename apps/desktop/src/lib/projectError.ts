@@ -7,6 +7,7 @@ export type ProjectError =
   | { kind: "path_escape"; path: string }
   | { kind: "not_found"; path: string }
   | { kind: "already_exists" }
+  | { kind: "not_a_project"; path: string }
   | { kind: "not_utf8"; path: string }
   | { kind: "icloud_pending"; path: string }
   | { kind: "too_large"; path: string; max_mb: number }
@@ -24,7 +25,7 @@ export type ProjectError =
   | { kind: "io"; message: string };
 
 const KINDS = new Set<string>([
-  "unsafe_path", "path_escape", "not_found", "already_exists", "not_utf8", "icloud_pending", "too_large", "not_a_file", "unsupported_image",
+  "unsafe_path", "path_escape", "not_found", "already_exists", "not_a_project", "not_utf8", "icloud_pending", "too_large", "not_a_file", "unsupported_image",
   "invalid_image", "unsupported_document", "not_image_asset", "not_trash_path", "cannot_restore", "image_ref_not_allowed", "image_ref_not_found",
   "image_ref_outside", "invalid_file_name", "io",
 ]);
@@ -44,6 +45,7 @@ export function projectErrorMessage(e: ProjectError): string {
     case "path_escape": return t`${e.path} leaves the project folder through a symbolic link`;
     case "not_found": return t`${e.path} does not exist`;
     case "already_exists": return t`A project already exists in this folder`;
+    case "not_a_project": return t`${e.path} is not a CadabraCraft project folder`;
     case "not_utf8": return t`${e.path} is not valid UTF-8 text`;
     case "icloud_pending": return t`${e.path} is still downloading from iCloud; try again in a moment`;
     case "too_large": return t`${e.path} is larger than ${e.max_mb} MB`;
