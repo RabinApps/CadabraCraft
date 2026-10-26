@@ -2,6 +2,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { check, type Update } from "@tauri-apps/plugin-updater";
 import { IMAGE_EXTENSIONS } from "@cadabracraft/shared";
 import { packCompileRequest } from "./compileFrame";
 
@@ -66,6 +68,10 @@ export const bridge = {
   importAssetBytes: (root: string, name: string, bytes: Uint8Array) => invoke<string>("import_asset_bytes", { root, name, bytes: Array.from(bytes) }),
   /** Opens a web address in the author's default browser (the opener plugin only allows the sponsor page, see capabilities/default.json). */
   openUrl: (url: string) => openUrl(url),
+  /** Asks the update endpoint (GitHub Releases) for a newer version; `null` when this is the latest. The only request the app makes on its own. */
+  checkForUpdate: (): Promise<Update | null> => check(),
+  /** Restarts the app once an update has been installed. */
+  relaunch: () => relaunch(),
   createProject: (root: string, manifestJson: string) => invoke<void>("create_project", { root, manifestJson }),
   readFile: (root: string, path: string) => invoke<FileRead | null>("read_project_file", { root, path }),
   writeFile: (root: string, path: string, contents: string, baseHash: string | null) =>

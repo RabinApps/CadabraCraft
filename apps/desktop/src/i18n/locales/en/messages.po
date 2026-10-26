@@ -319,6 +319,10 @@ msgstr "cadabra.json was changed outside the app and could not be read; saving w
 msgid "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 msgstr "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 
+#: src/app/useAppMenu.ts
+msgid "CadabraCraft is up to date."
+msgstr "CadabraCraft is up to date."
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/ExportDialog.tsx
 #: src/app/Home.tsx
@@ -382,6 +386,14 @@ msgstr "Chapter title"
 #: src/app/Sidebar.tsx
 msgid "Chapters"
 msgstr "Chapters"
+
+#: src/app/Settings.tsx
+msgid "Check for updates on launch"
+msgstr "Check for updates on launch"
+
+#: src/app/menuModel.ts
+msgid "Check for Updates…"
+msgstr "Check for Updates…"
 
 #: src/app/ExportDialog.tsx
 msgid "Checks"
@@ -455,6 +467,10 @@ msgstr "Could not add the cover: {0}"
 #: src/app/store.ts
 msgid "Could not add the image: {0}"
 msgstr "Could not add the image: {0}"
+
+#: src/app/UpdateDialog.tsx
+msgid "Could not install the update: {error}"
+msgstr "Could not install the update: {error}"
 
 #. placeholder {0}: errText(e)
 #: src/app/SponsorDialog.tsx
@@ -794,6 +810,14 @@ msgstr "Include the cover"
 msgid "Insert"
 msgstr "Insert"
 
+#: src/app/UpdateDialog.tsx
+msgid "Install now"
+msgstr "Install now"
+
+#: src/app/UpdateDialog.tsx
+msgid "Installing…"
+msgstr "Installing…"
+
 #: src/app/Settings.tsx
 msgid "Interface language"
 msgstr "Interface language"
@@ -830,6 +854,10 @@ msgstr "Language of menus and dialogs."
 msgid "Larger text"
 msgstr "Larger text"
 
+#: src/app/UpdateDialog.tsx
+msgid "Later"
+msgstr "Later"
+
 #: src/app/ExportDialog.tsx
 msgid "Leave empty to use the typst found on this computer."
 msgstr "Leave empty to use the typst found on this computer."
@@ -854,6 +882,10 @@ msgstr "Link…"
 #: src/app/Home.tsx
 msgid "Location"
 msgstr "Location"
+
+#: src/app/Settings.tsx
+msgid "Looks for a new version when the app starts. Nothing else is sent."
+msgstr "Looks for a new version when the app starts. Nothing else is sent."
 
 #: src/app/Settings.tsx
 msgid "Manuscript font"
@@ -1366,6 +1398,14 @@ msgstr "The identifier cannot be empty."
 msgid "The image {0} is outside the document's folder"
 msgstr "The image {0} is outside the document's folder"
 
+#: src/app/UpdateDialog.tsx
+msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
+msgstr "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
+
+#: src/app/UpdateDialog.tsx
+msgid "The only thing sent is the update check. Nothing about your books is sent."
+msgstr "The only thing sent is the update check. Nothing about your books is sent."
+
 #: src/app/store.ts
 msgid "the page is no longer in the trash"
 msgstr "the page is no longer in the trash"
@@ -1535,6 +1575,10 @@ msgstr "Unsupported image type: {0}"
 msgid "Untitled"
 msgstr "Untitled"
 
+#: src/app/UpdateDialog.tsx
+msgid "Update available"
+msgstr "Update available"
+
 #: src/editor/Toolbar.tsx
 msgid "Use http, https or mailto."
 msgstr "Use http, https or mailto."
@@ -1546,6 +1590,11 @@ msgstr "Use template"
 #: src/app/Settings.tsx
 msgid "Used while writing and reading."
 msgstr "Used while writing and reading."
+
+#. placeholder {0}: update.version
+#: src/app/UpdateDialog.tsx
+msgid "Version {0} is available"
+msgstr "Version {0} is available"
 
 #: src/app/menuModel.ts
 msgid "View"
@@ -1587,6 +1636,11 @@ msgstr "Write your first book"
 #: src/app/Settings.tsx
 msgid "Writing column width"
 msgstr "Writing column width"
+
+#. placeholder {0}: update.currentVersion
+#: src/app/UpdateDialog.tsx
+msgid "You have {0}. Your books and settings stay as they are."
+msgstr "You have {0}. Your books and settings stay as they are."
 
 #: src/app/useSaveOnClose.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."

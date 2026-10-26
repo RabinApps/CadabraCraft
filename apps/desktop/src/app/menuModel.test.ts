@@ -18,7 +18,7 @@ const submenu = (entries: MenuEntry[], text: string) => (entries.find((e) => e.k
 /** The commands a book in the editor registers, so the "everything available" case is real. */
 const BOOK: Commands = Object.fromEntries(
   ["app.settings", "file.new", "file.open", "file.import", "file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.printPreview", "file.close", "insert.chapter", "go.previous", "go.next",
-    "view.write", "view.read", "view.focus", "view.details", "editor.bold", "editor.sceneBreak", "help.sponsor"].map((id) => [id, { run }]),
+    "view.write", "view.read", "view.focus", "view.details", "editor.bold", "editor.sceneBreak", "help.updates", "help.sponsor"].map((id) => [id, { run }]),
 );
 
 describe("menu structure", () => {
