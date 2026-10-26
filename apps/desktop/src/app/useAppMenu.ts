@@ -96,5 +96,5 @@ export function useAppMenu(h: AppMenuHooks): void {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [registry, recents, undoLabel, redoLabel, i18n.locale],
   );
-  useEffect(() => { void showNativeMenu(model, (id, arg) => { runCommand(id, arg); }); }, [model]);
+  useEffect(() => { void showNativeMenu(model, (id, arg) => runCommand(id, arg)); }, [model]);
 }

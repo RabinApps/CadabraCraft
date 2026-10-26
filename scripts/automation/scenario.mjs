@@ -69,7 +69,7 @@ const menuState = async () => {
   walk(m.model);
   return { tops: m.model.filter((e) => e.kind === "submenu").map((e) => e.text), items };
 };
-const runMenu = async (id, arg) => { const ran = await app.js(`window.__cadabraMenu.run(${JSON.stringify(id)}, ${JSON.stringify(arg)})`); assert(ran === true, `menu command ${id} did not run`); await app.sleep(900); };
+const runMenu = async (id, arg) => { const ran = await app.js(`window.__cadabraMenu.run(${JSON.stringify(id)}, ${JSON.stringify(arg)})`); if (ran !== true) { const why = await app.js(`JSON.stringify({ dialogs: [...document.querySelectorAll("[role=dialog]")].map((d) => d.textContent.slice(0, 80)), headings: [...document.querySelectorAll("h1,h2")].map((h) => h.textContent) })`); assert(false, `menu command ${id} did not run: ${why}`); } await app.sleep(900); };
 
 
 try {

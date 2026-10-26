@@ -53,7 +53,7 @@ interface Live {
  * setEnabled / setChecked calls); a change in labels or items replaces the whole menu. Calls are queued so a slow rebuild
  * never overlaps the next one.
  */
-export function createNativeMenu(api: MenuApi, run: (id: string, arg?: string) => void) {
+export function createNativeMenu(api: MenuApi, run: (id: string, arg?: string) => boolean | void) {
   let structure = "";
   let live = new Map<string, Live>();
   let latest: MenuEntry[] = [];
@@ -131,7 +131,7 @@ let unavailable = "no native menu";
 let shared: Promise<ReturnType<typeof createNativeMenu> | null> | null = null;
 
 /** Shows `entries` as the application menu, creating the native menu on first use. Does nothing outside the desktop app. */
-export function showNativeMenu(entries: MenuEntry[], run: (id: string, arg?: string) => void): Promise<void> {
+export function showNativeMenu(entries: MenuEntry[], run: (id: string, arg?: string) => boolean | void): Promise<void> {
   shared ??= tauriMenuApi().then((api) => createNativeMenu(api, run), (e: unknown) => { unavailable = e instanceof Error ? e.message : String(e); return null; });
   return shared.then(async (m) => {
     await m?.apply(entries);

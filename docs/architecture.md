@@ -227,3 +227,12 @@ See [mcp.md](mcp.md). Decisions:
 - **`write_project_bytes` takes raw bytes** with `root` and `path` in percent-encoded headers, not a JSON `number[]`. The old JSON form is still accepted.
 - **One word counter and one chapter check.** `countWords` lives in `packages/shared`; `isChapterDoc` in `packages/editor-schema` replaces unchecked `as ChapterDoc` casts. Corrupt chapter files are reported and never overwritten.
 - **Autosave 2 s after the last keystroke** (`AUTOSAVE_MS`), plus a flush on `beforeunload` and `pagehide` (best effort; the native close is covered in "Safety follow-ups"). This fixes a data-loss gap where only Save, chapter switch or export wrote to disk. Saves run one at a time.
+
+## Menu bar
+
+- **A native menu driven by a command registry, not a hand-wired menu per screen.** `menuModel.ts` builds the whole menu as plain data from which commands are registered and usable; components register commands while they can act (`useRegisterCommands`) and the menu greys out the rest. The structure is fixed so the menu does not jump between contexts. Rejected: building a different menu per screen (items appear and vanish, shortcuts differ by screen) and an in-page HTML menu bar (not native on macOS, no system shortcuts, duplicates the OS).
+- **Tauri's menu API from the webview (`@tauri-apps/api/menu`), no Rust menu code and no new dependency.** The menu is rebuilt only when labels or items change; availability and ticks are updated in place (`nativeMenu.ts`), because a rebuild on every keystroke flickers. Rejected: defining the menu in Rust (a second copy of every label and translation, and an event round trip for each action).
+- **Menu actions are inert while a dialog is open** (`modalOpen`), so a shortcut cannot change the page behind an export or details dialog.
+- **Undo, Redo, Cut, Copy, Paste stay the system's predefined items;** book-level undo is a separate pair that names the edit. Rejected: routing text undo through the menu (breaks IME and the editor's history).
+- **Native item clicks are not driven by tests.** Accessibility access is not granted, so the end-to-end scenario runs commands through a dev-only `window.__cadabraMenu.run` and checks what the menu was told to show. Unit tests cover the model and the native adapter against a fake menu API. A real click on a native item is only checked by hand.
+
