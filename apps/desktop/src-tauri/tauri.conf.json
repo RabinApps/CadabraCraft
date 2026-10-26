@@ -13,5 +13,5 @@
     "windows": [{ "title": "CadabraCraft", "width": 1000, "height": 800 }],
     "security": { "csp": null }
   },
-  "bundle": { "active": true, "targets": "all", "icon": ["icons/icon.png"] }
+  "bundle": { "active": true, "targets": "all", "icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"] }
 }

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="100" y1="100" x2="924" y2="924" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2F73E6"/>
+      <stop offset="1" stop-color="#1A4BB0"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185.4" fill="url(#bg)"/>
+  <g transform="translate(100 100) scale(1.609375)">
+    <g transform="translate(0 32)">
+      <path d="M256 178 Q196 150 116 162 V356 Q196 344 256 374 Z" fill="#FFFFFF"/>
+      <path d="M256 178 Q316 150 396 162 V356 Q316 344 256 374 Z" fill="#FFFFFF"/>
+      <path d="M150 214 H222 M150 240 H222 M150 266 H208" stroke="#1F5FD1" stroke-width="9" stroke-linecap="round" opacity=".35"/>
+      <path d="M290 214 H362 M290 240 H362 M304 266 H362" stroke="#1F5FD1" stroke-width="9" stroke-linecap="round" opacity=".35"/>
+      <path d="M256 170 V380" stroke="#1F5FD1" stroke-width="8" stroke-linecap="round" opacity=".55"/>
+      <path d="M256 74 Q262 114 302 120 Q262 126 256 166 Q250 126 210 120 Q250 114 256 74 Z" fill="#FFFFFF"/>
+      <path d="M356 92 Q358 106 372 108 Q358 110 356 124 Q354 110 340 108 Q354 106 356 92 Z" fill="#FFFFFF" opacity=".85"/>
+    </g>
+  </g>
+</svg>
