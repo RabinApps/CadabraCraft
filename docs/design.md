@@ -65,6 +65,17 @@ Frame names follow `Name / size / mode` (size is desktop, tablet or mobile; mode
 | Book details | `Book details (M3) / mode` | M3 | 760x640 frame, 680px dialog, desktop only (on narrower screens it becomes a full-height sheet, not drawn). Left column: cover preview (200px wide, title and author placeholder when no image), "Choose image…" button, remove icon button, hint (PNG, JPEG or WebP, up to 25 MB, copied into `assets/`). Right column: Title, Author, Language and ISBN (side by side), Identifier with a hint. Footer: Cancel and "Save details". Built: opened from the editor header's Book details button (overflow menu on phones) and the details panel's Edit details button; below `sm` the two columns stack. The Export dialog (print PDF) gains an "Include the cover" checkbox when the book has one (not drawn in the pen) |
 | Settings | `Settings (M2+) / size / mode` | M2+ | Desktop (1280x800) and tablet (820x1180) use the Nav (Appearance, General, Editor, Backups, Shortcuts) and a content column; mobile (390x844) has no nav, back arrow in the top bar and the same sections stacked. Sections: Appearance (theme segmented control), General (interface language select, placeholder until i18n is scoped), Editor (manuscript font, writing column width, typewriter scrolling). Preferences save immediately, so there is no primary action. Backups and Shortcuts are nav items without content yet. |
 
+### Website (apps/website)
+The marketing site is drawn in the same pen file, on a separate area starting at y=17800, in frames named `Website / Name / size / mode`. It uses the app tokens above unchanged (Newsreader headings, Inter UI) and the app's button components.
+
+| Page | Pen frames | Notes |
+| --- | --- | --- |
+| Home | `Website / Home / desktop / light`, `... / dark`, `Website / Home / mobile / light`, `... / dark` | nav, hero with CTAs, product shot, benefits, compare strip, FAQ, sponsor band, footer |
+| Compare | `Website / Compare page / desktop / light`, `... / dark` | template for `/compare/<name>/`: header with last-checked date, facts table, "choose X if" columns, sponsor band |
+| Support | `Website / Support / desktop / light`, `... / dark` | three ways to give (GitHub Sponsors, Buy me a coffee, PayPal) and what funding pays for |
+
+The frames are drawn in the main checkout's `cadabracraft.pen` and their names and sizes have not yet been verified with `/sync-design`; run it when the pen change is committed. Not drawn yet: Compare index, Features, Download, tablet widths. The site collapses the desktop layouts to the mobile Home pattern below 768px.
+
 Designed but not in the first M1 build (see `docs/m1-ui-plan.md`), now built: project trash restore, recent-projects list, details panel and focus mode (see Implementation notes).
 
 ## Implementation notes
