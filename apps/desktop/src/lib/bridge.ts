@@ -50,5 +50,13 @@ export const bridge = {
   /** Calls back with the project-relative path of each file changed outside the app. Returns an unsubscribe function. */
   onProjectChanged: (cb: (path: string) => void) => listen<string>("project-changed", (e) => cb(e.payload)).then((un) => un),
   trashFile: (root: string, path: string) => invoke<string>("trash_project_file", { root, path }),
+  /** Where typst is and its version; rejects with `{ kind: "not_found", message }` (install advice) when missing. `typstPath` is a user-configured location. */
+  typstFind: (typstPath: string | null) => invoke<{ path: string; version: string }>("typst_find", { typstPath }),
+  typstListFonts: (typstPath: string | null) => invoke<string[]>("typst_list_fonts", { typstPath }),
+  /** Compiles Typst source plus asset files (name, bytes) to PDF bytes. */
+  typstCompile: async (typstPath: string | null, source: string, files: [string, number[]][], pdfA: boolean): Promise<Uint8Array> => {
+    const r = await invoke<ArrayBuffer | number[]>("typst_compile", { typstPath, source, files, pdfA });
+    return r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
+  },
 };
 export type Bridge = typeof bridge;

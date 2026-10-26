@@ -3,14 +3,29 @@ import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
 import { addChapter, createManifest, moveChapter, parseManifest, removeChapter, renameChapter, serializeManifest, type Manifest } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
+import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc } from "@cadabracraft/shared";
+import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate } from "@cadabracraft/templates";
 import { bridge } from "../lib/bridge";
 import { runImport, type ImportReport } from "./importBook";
+import { describePdfError } from "../lib/pdfErrors";
+import { createTauriRunner } from "../lib/typstRunner";
 
 const emptyDoc = (title: string): ChapterDoc => ({
   type: "doc",
   content: [{ type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] }, { type: "paragraph" }],
 });
+
+export interface PdfExportOptions {
+  trimSize: TrimSize;
+  pdfA: boolean;
+  /** Template id; saved in the manifest when it differs from the current one. */
+  template: string;
+  /** User-configured location of the typst program (an app preference, never stored in the project). */
+  typstPath?: string;
+}
+
+export type PdfStage = "preparing" | "rendering" | "saving";
 
 interface State {
   root: string | null;
@@ -26,6 +41,8 @@ interface State {
   reloadCount: number;
   /** Result of the last import, shown in a dialog until dismissed. */
   importReport: ImportReport | null;
+  /** Set while a PDF export runs. */
+  pdfStage: PdfStage | null;
   actions: {
     /** Saves unsaved typing, if any, without reloading the chapter. */
     flush: () => Promise<void>;
@@ -40,6 +57,8 @@ interface State {
     move: (id: string, delta: number) => Promise<void>;
     remove: (id: string) => Promise<void>;
     exportEpub: () => Promise<void>;
+    /** Builds exports/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
+    exportPdf: (options: PdfExportOptions) => Promise<void>;
     /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
     importImage: () => Promise<string | null>;
     /** Imports a .docx/.md file into a NEW project in `root` (the source is only read), opens it and sets `importReport`. Throws, having created nothing, when the file cannot be imported. */
@@ -75,8 +94,34 @@ export const useProject = create<State>((set, get) => {
     set({ currentId: id, currentDoc: doc, draft: null, hashes: r ? { ...get().hashes, [entry.file]: r.hash } : get().hashes });
   };
 
+  /** Every chapter in manifest order, read from disk. */
+  const loadChapters = async () => {
+    const { root, manifest } = need();
+    const chapters = [];
+    for (const c of manifest.chapters) {
+      const r = await bridge.readFile(root, c.file);
+      if (!r) throw new Error(t`Missing chapter file ${c.file}`);
+      chapters.push({ id: c.id, title: c.title, doc: JSON.parse(r.contents) as ChapterDoc });
+    }
+    return chapters;
+  };
+  /** Bytes of every image the chapters use. */
+  const loadAssets = async (chapters: { doc: ChapterDoc }[]) => {
+    const { root } = need();
+    const assets = new Map<string, Uint8Array>();
+    for (const src of chapters.flatMap((c) => collectImageSources(c.doc))) {
+      if (assets.has(src)) continue;
+      try {
+        assets.set(src, await bridge.readAsset(root, src));
+      } catch {
+        throw new Error(t`Missing image file ${src}`);
+      }
+    }
+    return assets;
+  };
+
   return {
-    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null,
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, pdfStage: null,
     actions: {
       flush,
       async externalChange(path) {
@@ -158,21 +203,8 @@ export const useProject = create<State>((set, get) => {
       async exportEpub() {
         await flush();
         const { root, manifest } = need();
-        const chapters = [];
-        for (const c of manifest.chapters) {
-          const r = await bridge.readFile(root, c.file);
-          if (!r) throw new Error(t`Missing chapter file ${c.file}`);
-          chapters.push({ id: c.id, title: c.title, doc: JSON.parse(r.contents) as ChapterDoc });
-        }
-        const assets = new Map<string, Uint8Array>();
-        for (const src of chapters.flatMap((c) => collectImageSources(c.doc))) {
-          if (assets.has(src)) continue;
-          try {
-            assets.set(src, await bridge.readAsset(root, src));
-          } catch {
-            throw new Error(t`Missing image file ${src}`);
-          }
-        }
+        const chapters = await loadChapters();
+        const assets = await loadAssets(chapters);
         const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets });
         await bridge.writeBytes(root, "exports/book.epub", Array.from(bytes));
         set({ notice: t`Exported exports/book.epub` });
@@ -184,6 +216,34 @@ export const useProject = create<State>((set, get) => {
         set({ importReport: report });
       },
       dismissImportReport: () => set({ importReport: null }),
+      async exportPdf(options) {
+        if (get().pdfStage) throw new Error(t`A PDF export is already running`);
+        set({ pdfStage: "preparing" });
+        try {
+          await flush();
+          const { root, manifest } = need();
+          const templateId = hasTemplate(options.template) ? options.template : DEFAULT_TEMPLATE_ID;
+          const template = getTemplate(templateId);
+          const chapters = await loadChapters();
+          const assets = await loadAssets(chapters);
+          set({ pdfStage: "rendering" });
+          const runner = createTauriRunner(bridge, options.typstPath);
+          const { pdf } = await renderPdf(
+            { title: manifest.title, author: manifest.author, language: manifest.language },
+            chapters,
+            { template, trimSize: options.trimSize, mirrored: true, pageNumbers: true, pdfA: options.pdfA, assets: Object.fromEntries(assets) },
+            runner,
+          );
+          set({ pdfStage: "saving" });
+          await bridge.writeBytes(root, "exports/book.pdf", Array.from(pdf));
+          if (manifest.template !== templateId) await saveManifest({ ...need().manifest, template: templateId });
+          set({ notice: t`Exported exports/book.pdf` });
+        } catch (e) {
+          throw describePdfError(e);
+        } finally {
+          set({ pdfStage: null });
+        }
+      },
       async importImage() {
         const { root } = need();
         const picked = await bridge.pickImage();

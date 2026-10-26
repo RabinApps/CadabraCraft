@@ -35,6 +35,22 @@ msgstr ""
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
+msgid "5 × 8 in"
+msgstr ""
+
+#: src/app/ExportPdfDialog.tsx
+msgid "5.5 × 8.5 in"
+msgstr ""
+
+#: src/app/ExportPdfDialog.tsx
+msgid "6 × 9 in"
+msgstr ""
+
+#: src/app/store.ts
+msgid "A PDF export is already running"
+msgstr ""
+
 #. placeholder {0}: c.title
 #: src/app/Sidebar.tsx
 msgid "Actions for {0}"
@@ -98,6 +114,7 @@ msgstr ""
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 #: src/editor/Toolbar.tsx
@@ -178,6 +195,10 @@ msgstr ""
 msgid "Creates a new book from a Word (.docx) or Markdown file. The original file is never changed."
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
+msgstr ""
+
 #: src/ui/ThemeToggle.tsx
 msgid "Dark theme"
 msgstr ""
@@ -194,12 +215,32 @@ msgstr ""
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Embeds everything needed to open the file in the future."
+msgstr ""
+
 #: src/app/App.tsx
 msgid "Export EPUB"
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Export PDF"
+msgstr ""
+
+#: src/app/App.tsx
+msgid "Export PDF…"
+msgstr ""
+
 #: src/app/store.ts
 msgid "Exported exports/book.epub"
+msgstr ""
+
+#: src/app/store.ts
+msgid "Exported exports/book.pdf"
+msgstr ""
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Exporting…"
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
@@ -293,6 +334,10 @@ msgstr ""
 msgid "Larger text"
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Leave empty to use the typst found on this computer."
+msgstr ""
+
 #: src/ui/ThemeToggle.tsx
 msgid "Light theme"
 msgstr ""
@@ -308,6 +353,11 @@ msgstr ""
 #. placeholder {0}: c.file
 #: src/app/store.ts
 msgid "Missing chapter file {0}"
+msgstr ""
+
+#. placeholder {0}: e.srcs.join(", ")
+#: src/lib/pdfErrors.ts
+msgid "Missing image file {0}"
 msgstr ""
 
 #: src/app/store.ts
@@ -389,6 +439,10 @@ msgstr ""
 msgid "Page width"
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
+msgid "PDF/A (archival)"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Pick or create an empty folder. The imported book is stored there."
 msgstr ""
@@ -414,6 +468,10 @@ msgstr ""
 msgid "Reading settings"
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Reading your chapters…"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Redo"
 msgstr ""
@@ -429,6 +487,10 @@ msgstr ""
 #: src/app/App.tsx
 #: src/app/store.ts
 msgid "Saved"
+msgstr ""
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Saving exports/book.pdf…"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -463,6 +525,10 @@ msgstr ""
 msgid "System theme"
 msgstr ""
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Template"
+msgstr ""
+
 #: src/editor/ReadingSettings.tsx
 msgid "Text size"
 msgstr ""
@@ -473,6 +539,10 @@ msgstr ""
 
 #: src/app/Home.tsx
 msgid "The book is stored in this folder. Nothing leaves your computer."
+msgstr ""
+
+#: src/lib/pdfErrors.ts
+msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
 msgstr ""
 
 #: src/ui/ThemeToggle.tsx
@@ -522,6 +592,29 @@ msgstr ""
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 msgid "Title"
+msgstr ""
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Trim size"
+msgstr ""
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Typesetting the book with Typst…"
+msgstr ""
+
+#. placeholder {0}: e.stderr.trim()
+#: src/lib/pdfErrors.ts
+msgid "Typst could not build the PDF:\n"
+"{0}"
+msgstr ""
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Typst location (optional)"
+msgstr ""
+
+#. placeholder {0}: e.seconds
+#: src/lib/pdfErrors.ts
+msgid "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
 msgstr ""
 
 #: src/editor/Toolbar.tsx

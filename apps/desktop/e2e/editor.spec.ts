@@ -33,6 +33,13 @@ async function fakeTauri(page: Page) {
           case "read_asset":
             if (!Array.isArray(disk[a.path])) throw `missing ${a.path}`;
             return disk[a.path];
+          case "typst_list_fonts":
+            if ((window as any).__typstError) throw (window as any).__typstError;
+            return ["Libertinus Serif", "New Computer Modern"];
+          case "typst_compile":
+            ((window as any).__typstCalls ??= []).push(a);
+            if ((window as any).__compileError) throw (window as any).__compileError;
+            return new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]).buffer;
           case "backup_manifest": return "backup";
           case "trash_project_file": disk[`.cadabra/trash/${a.path}`] = disk[a.path]!; delete disk[a.path]; persist(); return "t";
         }
@@ -319,4 +326,49 @@ test("language picker switches the UI to the pseudo-locale and remembers it", as
   await page.reload();
   await expect(page.getByRole("button", { name: "New project" })).toHaveCount(0);
   expect(await page.evaluate(() => localStorage.getItem("cadabracraft.locale"))).toBe("pseudo");
+});
+
+test("Export PDF sends the chosen options to Typst and writes exports/book.pdf", async ({ page }) => {
+  await newProject(page);
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.type("Typeset me");
+  await page.getByRole("button", { name: "Export PDF…" }).click();
+  const dialog = page.getByRole("dialog", { name: "Export PDF" });
+  await dialog.getByLabel("Trim size").selectOption("5x8");
+  await dialog.getByLabel("Template").selectOption("nonfiction");
+  await dialog.getByLabel("PDF/A (archival)").check();
+  await dialog.getByRole("button", { name: "Export PDF", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("status")).toHaveText("Exported exports/book.pdf");
+
+  const call = await page.evaluate(() => (window as any).__typstCalls[0]);
+  expect(call.pdfA).toBe(true);
+  expect(call.source).toContain("Typeset me"); // unsaved typing was flushed first
+  expect(call.source).toMatch(/#set page\(width: 5in, height: 8in/); // 5x8 trim
+  const pdf = await page.evaluate(() => (window as any).__disk["exports/book.pdf"]);
+  expect(pdf).toEqual([0x25, 0x50, 0x44, 0x46, 0x2d]);
+  const manifest = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
+  expect(manifest.template).toBe("nonfiction");
+});
+
+test("Export PDF explains when Typst is missing and offers a location field", async ({ page }) => {
+  await newProject(page);
+  await page.evaluate(() => { (window as any).__typstError = { kind: "not_found", message: 'The "typst" program was not found. Install Typst (brew install typst).' }; });
+  await page.getByRole("button", { name: "Export PDF…" }).click();
+  const dialog = page.getByRole("dialog", { name: "Export PDF" });
+  await dialog.getByRole("button", { name: "Export PDF", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText("brew install typst");
+  await expect(dialog.getByLabel("Typst location (optional)")).toBeVisible();
+  expect(await page.evaluate(() => (window as any).__disk["exports/book.pdf"])).toBeUndefined();
+});
+
+test("Export PDF shows Typst's compile error", async ({ page }) => {
+  await newProject(page);
+  await page.evaluate(() => { (window as any).__compileError = { kind: "compile", message: "main.typ:4:2: error: boom" }; });
+  await page.getByRole("button", { name: "Export PDF…" }).click();
+  const dialog = page.getByRole("dialog", { name: "Export PDF" });
+  await dialog.getByRole("button", { name: "Export PDF", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText("main.typ:4:2: error: boom");
+  await expect(dialog.getByRole("button", { name: "Export PDF", exact: true })).toBeEnabled();
 });

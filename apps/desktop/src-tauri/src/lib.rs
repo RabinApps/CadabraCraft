@@ -2,6 +2,7 @@ mod commands;
 mod fs_watch;
 mod import_src;
 mod project;
+mod typst;
 
 pub fn run() {
     tauri::Builder::default()
@@ -19,7 +20,10 @@ pub fn run() {
             commands::read_import_source,
             commands::read_import_image,
             commands::import_asset_bytes,
-            commands::watch_project
+            commands::watch_project,
+            typst::typst_find,
+            typst::typst_list_fonts,
+            typst::typst_compile
         ])
         .run(tauri::generate_context!())
         .expect("error while running CadabraCraft");

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
-import { BookOpen, Download, Menu, PenLine, Plus, Save } from "lucide-react";
+import { BookOpen, Download, FileText, Menu, PenLine, Plus, Save } from "lucide-react";
 import { Editor } from "../editor/Editor";
 import { ReadingFooter } from "../editor/ReadingFooter";
 import { ReadingSettings } from "../editor/ReadingSettings";
@@ -15,6 +15,7 @@ import { LanguagePicker } from "../ui/LanguagePicker";
 import { Segmented } from "../ui/Segmented";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { cx } from "../ui/cx";
+import { ExportPdfDialog } from "./ExportPdfDialog";
 import { Home } from "./Home";
 import { ImportReportDialog } from "./ImportDialogs";
 import { Sidebar } from "./Sidebar";
@@ -27,6 +28,7 @@ export function App() {
   const open = manifest !== null;
   const [drawer, setDrawer] = useState(false);
   const [mode, setMode] = useState<"write" | "read">("write");
+  const [pdfOpen, setPdfOpen] = useState(false);
   const reading = useReading();
   const [words, setWords] = useState(0);
   useEffect(() => {
@@ -87,6 +89,7 @@ export function App() {
           <LanguagePicker />
           <ThemeToggle />
           {!reader && <Button icon={Save} className="max-sm:px-3" onClick={run(async () => { const d = useProject.getState().draft; if (d) await actions.saveCurrent(d); })}><span className="max-sm:sr-only">{t`Save`}</span></Button>}
+          <Button icon={FileText} className="max-sm:px-3" onClick={run(async () => { await actions.flush(); setPdfOpen(true); })}><span className="max-sm:sr-only">{t`Export PDF…`}</span></Button>
           <Button variant="primary" icon={Download} className="max-sm:px-3" onClick={run(actions.exportEpub)}><span className="max-sm:sr-only">{t`Export EPUB`}</span></Button>
         </div>
       </header>
@@ -114,6 +117,7 @@ export function App() {
           )}
         </main>
       </div>
+      <ExportPdfDialog open={pdfOpen} onOpenChange={setPdfOpen} />
       <D.Root open={drawer} onOpenChange={setDrawer}>
         <D.Portal>
           <D.Overlay className={cx(overlayClass, "lg:hidden")} />

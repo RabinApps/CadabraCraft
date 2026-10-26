@@ -48,10 +48,6 @@ export interface PdfOptions {
   assets?: Record<string, Uint8Array>;
   /** Emit PDF/A-2b (archival). */
   pdfA?: boolean;
-  /** Extra directories searched for fonts (passed as `--font-path`). */
-  fontPaths?: string[];
-  /** Path to the typst binary; default is `typst` on PATH. */
-  typstPath?: string;
 }
 
 export interface FontChoice {
@@ -70,5 +66,4 @@ export interface RenderResult {
   pdf: Uint8Array;
   /** Font families the export used. */
   fonts: FontChoice;
-  warnings: string[];
 }
