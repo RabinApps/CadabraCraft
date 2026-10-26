@@ -1,0 +1,26 @@
+{
+  "description": "looks_like(ext, bytes): signature check for an allowlisted extension. `hex` is the file content.",
+  "cases": [
+    { "name": "png ok", "ext": "png", "hex": "89504e470d0a1a0a00000001", "expected": true },
+    { "name": "png exactly the signature", "ext": "png", "hex": "89504e470d0a1a0a", "expected": true },
+    { "name": "png truncated signature", "ext": "png", "hex": "89504e470d0a1a", "expected": false },
+    { "name": "png wrong byte", "ext": "png", "hex": "89504e470d0a1a0b00", "expected": false },
+    { "name": "png empty", "ext": "png", "hex": "", "expected": false },
+    { "name": "jpg ok", "ext": "jpg", "hex": "ffd8ffe0", "expected": true },
+    { "name": "jpeg ok", "ext": "jpeg", "hex": "ffd8ffe001", "expected": true },
+    { "name": "jpg two bytes only", "ext": "jpg", "hex": "ffd8", "expected": false },
+    { "name": "jpg png content", "ext": "jpg", "hex": "89504e470d0a1a0a", "expected": false },
+    { "name": "gif87a", "ext": "gif", "hex": "474946383761", "expected": true },
+    { "name": "gif89a", "ext": "gif", "hex": "4749463839612e2e", "expected": true },
+    { "name": "gif bad version", "ext": "gif", "hex": "474946383861", "expected": false },
+    { "name": "webp ok", "ext": "webp", "hex": "52494646000000005745425056503820", "expected": true },
+    { "name": "webp exactly 12 bytes (needs more than 12)", "ext": "webp", "hex": "524946460000000057454250", "expected": false },
+    { "name": "webp riff but wave", "ext": "webp", "hex": "5249464600000000574156452020", "expected": false },
+    { "name": "svg with prolog", "ext": "svg", "hex": "3c3f786d6c2076657273696f6e3d22312e30223f3e3c73766720786d6c6e733d22687474703a2f2f7777772e77332e6f72672f323030302f737667222f3e", "expected": true },
+    { "name": "svg bare", "ext": "svg", "hex": "3c7376672f3e", "expected": true },
+    { "name": "svg text without svg tag", "ext": "svg", "hex": "68656c6c6f", "expected": false },
+    { "name": "svg invalid utf-8", "ext": "svg", "hex": "3c737667ff", "expected": false },
+    { "name": "svg empty", "ext": "svg", "hex": "", "expected": false },
+    { "name": "unknown extension", "ext": "bmp", "hex": "424d", "expected": false }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "description": "store_image / storeImage into one fresh project's assets/, steps applied in order. `hex` is content. `expected` is the returned project-relative path; `error` is a substring of the failure message (nothing is written on error). Identical bytes reuse the existing path, different bytes get -2, -3, ... and never overwrite.",
+  "sequences": [
+    {
+      "name": "dedupe and suffix",
+      "steps": [
+        { "file": "a.png", "hex": "89504e470d0a1a0a00000001", "expected": "assets/a.png" },
+        { "file": "a.png", "hex": "89504e470d0a1a0a00000001", "expected": "assets/a.png" },
+        { "file": "a.png", "hex": "89504e470d0a1a0a0000000109", "expected": "assets/a-2.png" },
+        { "file": "a.png", "hex": "89504e470d0a1a0a000000010a", "expected": "assets/a-3.png" },
+        { "file": "a.png", "hex": "89504e470d0a1a0a0000000109", "expected": "assets/a-2.png" },
+        { "file": "a.png", "hex": "89504e470d0a1a0a00000001", "expected": "assets/a.png" }
+      ]
+    },
+    {
+      "name": "sanitised names and lower-cased extension",
+      "steps": [
+        { "file": "../Fig 1.PNG", "hex": "89504e470d0a1a0a00000001", "expected": "assets/Fig-1.png" },
+        { "file": "Fig 1.png", "hex": "89504e470d0a1a0a00000001", "expected": "assets/Fig-1.png" },
+        { "file": "Fig 1.png", "hex": "89504e470d0a1a0a0000000101", "expected": "assets/Fig-1-2.png" },
+        { "file": "My Cover (final)!.PNG", "hex": "89504e470d0a1a0a00000001", "expected": "assets/My-Cover-final.png" },
+        { "file": "???.gif", "hex": "47494638396100", "expected": "assets/image.gif" }
+      ]
+    },
+    {
+      "name": "same stem different extensions do not collide",
+      "steps": [
+        { "file": "x.png", "hex": "89504e470d0a1a0a00000001", "expected": "assets/x.png" },
+        { "file": "x.jpg", "hex": "ffd8ffe0", "expected": "assets/x.jpg" },
+        { "file": "x.jpeg", "hex": "ffd8ffe0", "expected": "assets/x.jpeg" }
+      ]
+    },
+    {
+      "name": "refusals write nothing",
+      "steps": [
+        { "file": "x.exe", "hex": "89504e470d0a1a0a00000001", "error": "unsupported image type" },
+        { "file": "noext", "hex": "89504e470d0a1a0a00000001", "error": "unsupported image type" },
+        { "file": "x.png", "hex": "6e6f7420616e20696d616765", "error": "not a valid png image" },
+        { "file": "x.svg", "hex": "6e6f7065", "error": "not a valid svg image" }
+      ]
+    }
+  ]
+}

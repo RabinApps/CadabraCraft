@@ -224,6 +224,9 @@ pub fn read_asset(root: &Path, rel: &str) -> Result<Vec<u8>, String> {
 }
 
 #[cfg(test)]
+mod contract_tests;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 

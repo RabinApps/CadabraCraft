@@ -149,3 +149,12 @@ Visual check: `build:sample` leaves the `.typ` and its images in `out/`; `cd out
 
 ### Follow-ups
 Decide CLI sidecar vs embedding the Typst crate in the app (the CLI must be bundled or installed; nothing downloads it). Hyphenation and `lang` coverage for non-English books, RTL page binding and CJK fonts are untested. Front matter (title page, copyright, TOC) is not part of this step.
+
+
+## Headless MCP server
+
+See [mcp.md](mcp.md). Decisions:
+- **A second implementation of the project-folder rules in TypeScript (`packages/project-fs`) instead of calling the Rust code.** The MCP server must run without the Tauri app or a Rust toolchain. The two implementations are kept honest by shared test vectors in `fixtures/contract/*.json`, run by both `cargo test` and Vitest. Rejected: a Rust CLI sidecar (new binary to build and ship, and the exporters are TypeScript anyway) and extracting the rules into WASM (heavier build for ~300 lines).
+- **Stricter than Rust where an agent is the caller:** a workspace root guard that follows symlinks, symlink containment inside a project, and never-overwrite naming for conflict copies, trash and backups. Chapter replacement keeps the previous text in `.cadabra/backups/`.
+- **One bundled `dist/cli.js` (esbuild)** because workspace packages are TypeScript source (`main: src/index.ts`). Rejected: tsc emit per package (needs build order and `exports` maps for every package) and running through tsx at runtime (slow start, a dev dependency in the client config).
+- **No app-lifecycle tools** (launching or driving the desktop app); that is handled separately.

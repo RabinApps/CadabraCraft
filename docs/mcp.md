@@ -1,0 +1,121 @@
+# MCP server (headless)
+
+`packages/mcp` (`@cadabracraft/mcp`) is a stdio [Model Context Protocol](https://modelcontextprotocol.io) server that lets an AI agent create, edit, import and export CadabraCraft books without the desktop app. It reuses the same packages as the app (`format`, `editor-schema`, `import-docx`, `export-epub`, `export-pdf`, `templates`) and `packages/project-fs`, a Node port of the project-folder rules in `apps/desktop/src-tauri/src/project`. No network access, no accounts, no telemetry.
+
+## Build and run
+```bash
+pnpm install
+pnpm --filter @cadabracraft/mcp build          # bundles src/cli.ts + all dependencies into packages/mcp/dist/cli.js
+CADABRA_MCP_ROOT=/path/to/workspace node packages/mcp/dist/cli.js
+node packages/mcp/dist/cli.js /path/to/workspace   # the first argument wins over the env var
+```
+`dist/` is gitignored; rebuild after changing the package. The bundle is self-contained (workspace packages are TypeScript source, so they are inlined), needs only Node 24, and talks MCP on stdin/stdout (diagnostics go to stderr). Without a usable root it prints the usage to stderr and exits with status 1.
+
+### Client configuration (`.mcp.json`)
+```json
+{
+  "mcpServers": {
+    "cadabracraft": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/cadabracraft/packages/mcp/dist/cli.js"],
+      "env": {
+        "CADABRA_MCP_ROOT": "/ABSOLUTE/PATH/TO/my-books",
+        "CADABRA_REPO": "/ABSOLUTE/PATH/TO/cadabracraft"
+      }
+    }
+  }
+}
+```
+
+| Variable | Meaning |
+|---|---|
+| `CADABRA_MCP_ROOT` | Workspace root (required unless passed as the first argument). Every path a tool receives must resolve inside it. |
+| `CADABRA_REPO` | Optional checkout of this repo: `docs/` for the resources and `tools/epubcheck-5.4.0/epubcheck.jar` for EPUBCheck. Docs are also found relative to the package. |
+| `EPUBCHECK_JAR` | Optional explicit EPUBCheck jar. Needs `java` on PATH. |
+| `TYPST_BIN` | Optional typst binary for PDF export (else PATH, then `/opt/homebrew/bin`, `/usr/local/bin`). |
+
+PDF export needs [Typst](https://typst.app); `cadabra_inspect_pdf` uses poppler (`pdfinfo`, `pdffonts`, `pdftotext`) when installed and says `poppler_missing` otherwise.
+
+## Tools
+Every tool returns two text blocks (a one-line summary and the JSON result) plus `structuredContent` with the same JSON. A failure is a tool error (`isError: true`) whose JSON is `{ "error": { "code", "message", "details"? } }`. Paths are relative to the workspace root (an absolute path is accepted only when it is inside it). "Project" arguments are a folder holding `cadabra.json`.
+
+| Tool | Arguments | What it does | Hints |
+|---|---|---|---|
+| `cadabra_project_create` | `path, title, author, language?, template?` | New project folder (layout + manifest, no chapters). Refuses an existing project. | write |
+| `cadabra_project_info` | `path` | Manifest, entries in reading order with word counts (`missing`/`error` flagged per entry), totals, `assets/` images. | read-only |
+| `cadabra_project_validate` | `path` | Manifest via `@cadabracraft/format`; every chapter parsed and checked with the real editor schema (`Node.fromJSON(...).check()`, heading levels 1-3); referenced images exist in `assets/` and are valid. Returns `{ valid, errors, warnings, issues[] }`, never fails for content problems. | read-only |
+| `cadabra_chapter_add` | `path, title` | Appends a chapter: file written first (heading + empty paragraph), then the manifest. | write |
+| `cadabra_chapter_rename` | `path, chapterId, title` | Title only; the file keeps its name. | write, idempotent |
+| `cadabra_chapter_move` | `path, chapterId, delta` | Moves by `delta` positions (clamped). | write |
+| `cadabra_chapter_remove` | `path, chapterId` | Manifest saved first, then the file moves to `.cadabra/trash/`. Returns `trashedTo`. | destructive (recoverable) |
+| `cadabra_chapter_read` | `path, chapterId` | TipTap JSON, plain text, word count, `hash` (use as `baseHash`). Works for front/back matter too. | read-only |
+| `cadabra_chapter_write_markdown` | `path, chapterId, markdown, baseHash?` | Replaces the chapter via `importMarkdown` (see [import.md](import.md)). Several top-level headings are merged (`multiple-chapters-merged`). Images are kept only for existing `assets/<file>`; others become alt text with `image-not-imported`. Returns the importer's warnings. | destructive, idempotent |
+| `cadabra_chapter_write_json` | `path, chapterId, doc, baseHash?` | Replaces the chapter with TipTap JSON, validated against the editor schema first (image sources must be `assets/<file>`). | destructive, idempotent |
+| `cadabra_import_file` | `source, destination, title?, author?` | Imports `.md`/`.markdown`/`.txt`/`.docx` into a NEW project. Same order as the app: parse, load images, then write images, chapters, and the manifest last. Returns `{ root, manifest, chapterCount, imageCount, warnings }` with warnings grouped by code (count, up to three examples). | write |
+| `cadabra_export_epub` | `path` | `exports/book.epub` with the project template's CSS and its images. Runs EPUBCheck when the jar and java exist: `epubcheck: { ran, passed, messages[] }`. | write exports/, idempotent |
+| `cadabra_export_pdf` | `path, trimSize?, template?, pdfA?` | `exports/book.pdf` via Typst (`5x8`, `5.5x8.5`, `6x9`; template/trim apply to this export only). | write exports/, idempotent |
+| `cadabra_inspect_pdf` | `path` | Page count, page size, fonts (embedded?), first-page text from `exports/book.pdf` via poppler; `poppler: "missing"` plus a `poppler_missing` note when absent. | read-only |
+| `cadabra_inspect_epub` | `path` | Zip entries, OPF title/author/language/identifier, chapter count of `exports/book.epub`. | read-only |
+| `cadabra_list_templates` | none | Built-in templates (`id, name, description, defaultTrimSize`). | read-only |
+| `cadabra_set_template` | `path, template` | Sets `template` in the manifest. | write, idempotent |
+
+Resources: `cadabra://docs/file-format` (docs/file-format.md) and `cadabra://docs/import` (docs/import.md).
+
+`baseHash` is the `hash` from `cadabra_chapter_read` (or from the last write). If the file on disk no longer matches it, the on-disk version is first kept as `<name>.conflict-YYYYMMDD-HHMM.json` (a numeric suffix is added instead of overwriting an existing copy) and the call reports `conflictCopy`.
+
+Tools that read-modify-write one project (chapter edits, template, exports) are serialised per project, so parallel calls cannot lose each other's edits.
+
+## Safety model
+- **Confined to the workspace root.** Every `path`, `source` and `destination` is resolved against the root with `..` and symlinks followed (also for paths that do not exist yet, and dangling links). Anything that ends up outside is refused with `path_escape`; NUL bytes are refused too. Inside a project, a symlinked folder that leaves the project (for example `exports -> /elsewhere`) is refused as well. This is stricter than the Rust layer, which only checks paths lexically.
+- **Nothing is permanently deleted.** Removed chapters go to `.cadabra/trash/<stamp>-<path with / as __>`; before a chapter's content is replaced the previous version is copied to `.cadabra/backups/<stamp>-<path with / as __>` (or kept as a `.conflict-` copy); trash, backup and conflict names never overwrite earlier ones. Replacing an export file in `exports/` is the only overwrite (exports are generated and safe to delete).
+- **Writes are atomic** (temp file in the same folder, fsync, rename), the manifest is written after the files it lists, and chapters are saved to the manifest before their files are trashed.
+- **Exports only under `exports/`.** Imports create a new folder (nonexistent or empty), never touch the source, and read Markdown images only from the source file's folder (no absolute paths, `..`, backslashes, symlink escapes, non-images, >25 MiB, wrong magic bytes).
+- **Images** are limited to png/jpg/jpeg/gif/webp/svg, 25 MiB, checked by signature, named `A-Za-z0-9_-`, de-duplicated by sha256 and never overwritten.
+- No network calls; external programs (`java`, `typst`, poppler) run with argument arrays, never through a shell.
+- Not covered: the server trusts the process user's permissions inside the root, does not lock files against the desktop app editing the same project (use `baseHash`), and iCloud/Drive placeholder files are reported as `icloud_placeholder` rather than read.
+
+## Error codes
+Stable `error.code` values:
+
+| Code | Meaning |
+|---|---|
+| `invalid_input` | An argument is malformed (bad language tag, schema validation by the SDK reports this kind of failure without a code). |
+| `path_escape` | The path leaves the workspace or project (via `..`, absolute path, symlink, NUL). |
+| `unsafe_path` | A project-relative path is not allowed (empty, backslash, `..`). |
+| `workspace_invalid` | The configured root is not a usable directory. |
+| `not_found` | A file or folder does not exist (also: nothing exported yet). |
+| `not_a_file` | A directory (or other non-file) was given where a file is needed. |
+| `not_a_project` | The folder has no `cadabra.json`. |
+| `project_exists` | `cadabra.json` already exists there. |
+| `destination_not_empty` | Import destination exists and is not an empty folder. |
+| `source_invalid` | Import source is not an allowed type, not a regular file, or too large. |
+| `too_large` | A file exceeds its size limit. |
+| `invalid_manifest` | `cadabra.json` fails validation or is a newer format version. |
+| `invalid_file` | A project file is not valid UTF-8. |
+| `chapter_not_found` | No chapter with that id (rename/move/remove only look at the chapter list). |
+| `chapter_missing` | The manifest lists a file that does not exist. |
+| `chapter_json_invalid` | A chapter file is not valid JSON. |
+| `invalid_chapter_doc` | A document fails the editor schema, uses heading levels outside 1-3, or has non-`assets/` image sources. |
+| `empty_input` | Nothing importable (empty Markdown or document). |
+| `empty_book` | Export of a book without chapters. |
+| `import_failed` | The importer rejected the file (`details.importCode`: `invalid-zip`, `archive-too-large`, ...). |
+| `import_write_failed` | Writing the new project failed part-way; the message says what was written (the chapter list is saved last, so no dangling references). |
+| `template_unknown` | Unknown template id. |
+| `unsupported_image`, `invalid_image` | Image has a disallowed extension, or its bytes do not match it. |
+| `asset_missing` | A chapter references an image that is not in `assets/`. |
+| `icloud_placeholder` | A cloud placeholder that is not downloaded yet. |
+| `typst_missing` | `typst` not found (install it or set `TYPST_BIN`). |
+| `font_missing` | A font the template needs is not installed. |
+| `compile_error` | Typst failed to compile the book (message carries its output). |
+| `timeout` | Typst exceeded its time limit. |
+| `pdf_error`, `epub_error` | Other export or inspection failure. |
+| `io_error` | Other file system failure. |
+| `internal_error` | Unexpected failure inside the server (the server keeps running). |
+
+## Testing
+`pnpm --filter @cadabracraft/mcp test` drives every tool through the SDK's in-memory transport and spawns the built `dist/cli.js` over stdio (the test builds it first). EPUBCheck and real-Typst tests skip when the jar / typst or poppler are missing; `REQUIRE_EPUBCHECK=1` and `REQUIRE_TYPST=1` make them fail instead. The shared rules with the Rust layer are pinned by `fixtures/contract/*.json`, consumed by `packages/project-fs/test/contract.test.ts` and `apps/desktop/src-tauri/src/project/contract_tests.rs`.
+
+## Known differences from the Rust layer
+- Conflict copies, trash entries and manifest backups never overwrite an earlier file (Rust would overwrite one made in the same minute).
+- Conflict names use the extension of the last path segment; Rust splits the whole relative path at its last dot (`v1.0/noext` becomes `v1.conflict-STAMP.0/noext`). See `fixtures/contract/conflict-name.json`.
+- Symlinks inside a project that point outside it are refused (Rust checks lexically only).
