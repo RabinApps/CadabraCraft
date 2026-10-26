@@ -1,0 +1,68 @@
+/* Tokens mirror cadabracraft.pen (see docs/design.md). Keep in sync with /sync-design. */
+:root {
+  --bg: #f4f6fa;
+  --sidebar: #eaeef5;
+  --surface: #ffffff;
+  --raised: #ffffff;
+  --paper: #fffefb;
+  --ink: #14202f;
+  --ink-muted: #5a6679;
+  --border: #d8dee9;
+  --accent: #1f5fd1;
+  --accent-ink: #ffffff;
+  --accent-soft: #dce8fb;
+  --success: #1f7a4d;
+  --success-soft: #ddf1e6;
+  --warn: #8f5200;
+  --warn-soft: #fbebd0;
+  --danger: #b3261e;
+  --danger-soft: #faddda;
+  --scrim: #14202f66;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f141c;
+  --sidebar: #131a24;
+  --surface: #17202c;
+  --raised: #1f2937;
+  --paper: #161d28;
+  --ink: #e8edf5;
+  --ink-muted: #9aa7ba;
+  --border: #2b3646;
+  --accent: #6ea2ff;
+  --accent-ink: #08142b;
+  --accent-soft: #1e3560;
+  --success: #5cd08e;
+  --success-soft: #1e3a2b;
+  --warn: #f0b45a;
+  --warn-soft: #41311a;
+  --danger: #ff8f86;
+  --danger-soft: #4a2321;
+  --scrim: #000000a0;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --bg: #0f141c;
+    --sidebar: #131a24;
+    --surface: #17202c;
+    --raised: #1f2937;
+    --paper: #161d28;
+    --ink: #e8edf5;
+    --ink-muted: #9aa7ba;
+    --border: #2b3646;
+    --accent: #6ea2ff;
+    --accent-ink: #08142b;
+    --accent-soft: #1e3560;
+    --success: #5cd08e;
+    --success-soft: #1e3a2b;
+    --warn: #f0b45a;
+    --warn-soft: #41311a;
+    --danger: #ff8f86;
+    --danger-soft: #4a2321;
+    --scrim: #000000a0;
+    color-scheme: dark;
+  }
+}

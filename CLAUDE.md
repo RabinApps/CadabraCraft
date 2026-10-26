@@ -10,6 +10,7 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 - `packages/*` must not import from `apps/desktop`. Use `workspace:*` for internal deps.
 - Record architecture decisions (with rejected alternatives) in `docs/architecture.md`.
 - Ask before downloading tools or binaries.
+- `cadabracraft.pen` is the UI source of truth and `docs/design.md` must always match it. After any change to the pen file, run `/sync-design` in the same turn (a hook reminds you). The pen file is encrypted: use only the Pencil MCP, never Read/Grep it.
 
 ## Gotchas
 - pnpm 11 fails installs on unapproved build scripts; approve in `allowBuilds` in `pnpm-workspace.yaml`.
@@ -18,4 +19,4 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 - Tauri is on 2.x on purpose (3.x is alpha).
 
 ## Skills
-`/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision` (in `.claude/skills`).
+`/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision`, `/sync-design` (in `.claude/skills`).

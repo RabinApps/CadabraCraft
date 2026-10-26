@@ -30,17 +30,25 @@ async function fakeTauri(page: Page) {
   });
 }
 
-const prompts = ["E2E Book", "Tester"];
 async function newProject(page: Page) {
-  page.on("dialog", (d) => (d.type() === "prompt" ? d.accept(prompts.shift() ?? "x") : d.accept()));
   await page.goto("/");
-  await page.getByRole("button", { name: "New project…" }).click();
-  await expect(page.getByRole("navigation", { name: "Chapters" })).toBeVisible();
+  await page.getByRole("button", { name: "New project" }).click();
+  const dialog = page.getByRole("dialog", { name: "New book" });
+  await dialog.getByLabel("Title").fill("E2E Book");
+  await dialog.getByLabel("Author").fill("Tester");
+  await dialog.getByRole("button", { name: "Choose…" }).click();
+  await expect(dialog.getByLabel("Folder")).toHaveValue("/proj");
+  await dialog.getByRole("button", { name: "Create book" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
 }
 const titles = (page: Page) => page.getByRole("navigation", { name: "Chapters" }).locator("li > button[aria-current]").allTextContents();
 
+async function chapterAction(page: Page, chapter: string, item: string) {
+  await page.getByRole("button", { name: `Actions for ${chapter}` }).click();
+  await page.getByRole("menuitem", { name: item }).click();
+}
+
 test.beforeEach(async ({ page }) => {
-  prompts.splice(0, prompts.length, "E2E Book", "Tester");
   await fakeTauri(page);
 });
 
@@ -60,7 +68,7 @@ test("typed text is saved as TipTap JSON and survives a reload via Open", async 
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");
   await page.reload();
-  await page.getByRole("button", { name: "Open project…" }).click();
+  await page.getByRole("button", { name: "Open folder" }).click();
   await expect(page.locator(".ProseMirror")).toContainText("Hello from Playwright");
 });
 
@@ -69,7 +77,7 @@ test("switching chapters keeps unsaved typing", async ({ page }) => {
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
   await page.keyboard.type("first chapter text");
-  await page.getByRole("button", { name: "+ Add chapter" }).click();
+  await page.getByRole("button", { name: "Add chapter" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
   await page.getByRole("button", { name: "Chapter One", exact: true }).click();
   await expect(page.locator(".ProseMirror")).toContainText("first chapter text");
@@ -77,17 +85,18 @@ test("switching chapters keeps unsaved typing", async ({ page }) => {
 
 test("rename, reorder and delete chapters", async ({ page }) => {
   await newProject(page);
-  await page.getByRole("button", { name: "+ Add chapter" }).click();
-  await page.getByRole("button", { name: "Rename Chapter 2" }).click();
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await chapterAction(page, "Chapter 2", "Rename");
   await page.getByLabel("Chapter title").fill("Second");
   await page.keyboard.press("Enter");
   await expect(page.getByRole("button", { name: "Second", exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "Move Second up" }).click();
+  await chapterAction(page, "Second", "Move up");
   const order = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title));
   expect(order).toEqual(["Second", "Chapter One"]);
 
-  await page.getByRole("button", { name: "Delete Second" }).click();
+  await chapterAction(page, "Second", "Move to trash");
+  await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
   await expect(page.getByRole("button", { name: "Second", exact: true })).toHaveCount(0);
   const trashed = await page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")));
   expect(trashed).toHaveLength(1);
@@ -97,7 +106,7 @@ test("keyboard: chapter controls are reachable with Tab", async ({ page }) => {
   await newProject(page);
   await page.getByRole("button", { name: "Chapter One", exact: true }).focus();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("button", { name: "Rename Chapter One" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Actions for Chapter One" })).toBeFocused();
 });
 
 test("export writes a valid EPUB zip with mimetype first", async ({ page }) => {
@@ -182,4 +191,24 @@ test.describe("formatting toolbar", () => {
     await tb(page, "Redo").click();
     await expect(ed(page)).toContainText("oops");
   });
+});
+
+test("dark theme is applied and remembered", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("radio", { name: "Dark theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});
+
+test("phone layout reaches chapters through the sheet", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await newProject(page);
+  await expect(page.getByRole("navigation", { name: "Chapters" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Show chapters" }).click();
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await page.getByRole("button", { name: "Chapter One", exact: true }).click();
+  await expect(page.getByRole("navigation", { name: "Chapters" })).toHaveCount(0);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
 });
