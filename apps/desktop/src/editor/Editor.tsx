@@ -21,9 +21,11 @@ interface Props {
   onChange?: (doc: ChapterDoc) => void;
   /** Read-only reading mode: no toolbar, larger type, no page card. */
   reading?: { size: number; width: Width };
+  /** Focus mode: hide the formatting toolbar (shortcuts still work). */
+  focus?: boolean;
 }
 
-export function Editor({ initial, language, onChange, reading }: Props) {
+export function Editor({ initial, language, onChange, reading, focus }: Props) {
   const editor = useEditor({
     extensions,
     editorProps: { attributes: { lang: language, dir: dirFor(language) } },
@@ -44,7 +46,7 @@ export function Editor({ initial, language, onChange, reading }: Props) {
   }
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <Toolbar editor={editor} />
+      {!focus && <Toolbar editor={editor} />}
       <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first">
         <div className="mx-auto max-w-[780px] md:p-8">
           <div className="prose-manuscript p-4 md:rounded-md md:border md:border-border md:bg-paper md:px-14 md:py-12">

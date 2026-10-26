@@ -31,6 +31,10 @@ msgstr ""
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgstr ""
 
+#: src/app/Details.tsx
+msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr ""
+
 #: src/app/App.tsx
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr ""
@@ -104,12 +108,14 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
+#: src/app/Details.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 msgid "Author"
 msgstr ""
 
 #: src/app/App.tsx
+#: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Back matter"
 msgstr ""
@@ -120,6 +126,10 @@ msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Bold"
+msgstr ""
+
+#: src/app/Details.tsx
+msgid "Book"
 msgstr ""
 
 #: src/editor/ReadingFooter.tsx
@@ -151,6 +161,10 @@ msgstr ""
 msgid "Caption"
 msgstr ""
 
+#: src/app/Details.tsx
+msgid "Chapter"
+msgstr ""
+
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: manifest.chapters.length + 1
 #: src/app/App.tsx
@@ -178,6 +192,7 @@ msgid "Chapter title"
 msgstr ""
 
 #: src/app/App.tsx
+#: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Chapters"
 msgstr ""
@@ -248,6 +263,10 @@ msgstr ""
 msgid "Description (alt text)"
 msgstr ""
 
+#: src/app/App.tsx
+msgid "Details"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Done"
 msgstr ""
@@ -262,6 +281,10 @@ msgstr ""
 
 #: src/app/Sidebar.tsx
 msgid "Epigraph"
+msgstr ""
+
+#: src/app/App.tsx
+msgid "Exit focus mode"
 msgstr ""
 
 #: src/app/App.tsx
@@ -292,6 +315,10 @@ msgstr ""
 msgid "File"
 msgstr ""
 
+#: src/app/App.tsx
+msgid "Focus mode"
+msgstr ""
+
 #: src/app/Home.tsx
 msgid "Folder"
 msgstr ""
@@ -313,6 +340,7 @@ msgid "Formatting"
 msgstr ""
 
 #: src/app/App.tsx
+#: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Front matter"
 msgstr ""
@@ -384,6 +412,7 @@ msgstr ""
 msgid "Italic"
 msgstr ""
 
+#: src/app/Details.tsx
 #: src/ui/LanguagePicker.tsx
 msgid "Language"
 msgstr ""
@@ -546,6 +575,10 @@ msgstr ""
 msgid "Reading settings"
 msgstr ""
 
+#: src/app/Details.tsx
+msgid "Reading time"
+msgstr ""
+
 #: src/app/ExportPdfDialog.tsx
 msgid "Reading your chapters…"
 msgstr ""
@@ -593,6 +626,10 @@ msgstr ""
 msgid "Scene break"
 msgstr ""
 
+#: src/app/Details.tsx
+msgid "Section"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Select the text you want to link first."
 msgstr ""
@@ -621,6 +658,7 @@ msgstr ""
 msgid "System theme"
 msgstr ""
 
+#: src/app/Details.tsx
 #: src/app/ExportPdfDialog.tsx
 msgid "Template"
 msgstr ""
@@ -689,6 +727,11 @@ msgstr ""
 msgid "This file is too large to import."
 msgstr ""
 
+#: src/app/Details.tsx
+msgid "This page"
+msgstr ""
+
+#: src/app/Details.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 msgid "Title"
@@ -756,6 +799,10 @@ msgstr ""
 
 #: src/editor/ReadingSettings.tsx
 msgid "Wide page"
+msgstr ""
+
+#: src/app/Details.tsx
+msgid "Words"
 msgstr ""
 
 #: src/app/App.tsx

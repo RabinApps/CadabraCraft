@@ -1,0 +1,51 @@
+import { useLingui } from "@lingui/react/macro";
+import { plural } from "@lingui/core/macro";
+import type { Manifest } from "@cadabracraft/format";
+import { readingMinutes } from "../lib/readingTime";
+
+interface Props {
+  manifest: Manifest;
+  /** Title of the open page, if any. */
+  pageTitle: string | null;
+  section: "front" | "chapter" | "back" | null;
+  words: number;
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 py-1.5 text-sm">
+      <dt className="text-ink-muted">{label}</dt>
+      <dd className="min-w-0 truncate text-end font-medium" title={value}>{value}</dd>
+    </div>
+  );
+}
+
+/** Read-only facts from the manifest and the open page; nothing here is stored. */
+export function Details({ manifest, pageTitle, section, words }: Props) {
+  const { t } = useLingui();
+  const minutes = readingMinutes(words);
+  const sectionLabel = section === "front" ? t`Front matter` : section === "back" ? t`Back matter` : t`Chapter`;
+  return (
+    <div className="flex flex-col gap-6 p-4">
+      <section aria-labelledby="details-page">
+        <h2 id="details-page" className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{t`This page`}</h2>
+        <dl>
+          <Row label={t`Title`} value={pageTitle ?? "-"} />
+          <Row label={t`Section`} value={section ? sectionLabel : "-"} />
+          <Row label={t`Words`} value={String(words)} />
+          <Row label={t`Reading time`} value={plural(minutes, { one: "# minute", other: "# minutes" })} />
+        </dl>
+      </section>
+      <section aria-labelledby="details-book">
+        <h2 id="details-book" className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{t`Book`}</h2>
+        <dl>
+          <Row label={t`Title`} value={manifest.title} />
+          <Row label={t`Author`} value={manifest.author || "-"} />
+          <Row label={t`Language`} value={manifest.language} />
+          <Row label={t`Template`} value={manifest.template} />
+          <Row label={t`Chapters`} value={String(manifest.chapters.length)} />
+        </dl>
+      </section>
+    </div>
+  );
+}

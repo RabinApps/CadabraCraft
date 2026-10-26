@@ -31,6 +31,10 @@ msgstr "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgstr "{imageCount, plural, one {# image added.} other {# images added.}}"
 
+#: src/app/Details.tsx
+msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr "{minutes, plural, one {# minute} other {# minutes}}"
+
 #: src/app/App.tsx
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
@@ -104,12 +108,14 @@ msgstr "Also by"
 msgid "Apply"
 msgstr "Apply"
 
+#: src/app/Details.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 msgid "Author"
 msgstr "Author"
 
 #: src/app/App.tsx
+#: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Back matter"
 msgstr "Back matter"
@@ -121,6 +127,10 @@ msgstr "Block quote"
 #: src/editor/Toolbar.tsx
 msgid "Bold"
 msgstr "Bold"
+
+#: src/app/Details.tsx
+msgid "Book"
+msgstr "Book"
 
 #: src/editor/ReadingFooter.tsx
 msgid "Book progress"
@@ -151,6 +161,10 @@ msgstr "Cancel"
 msgid "Caption"
 msgstr "Caption"
 
+#: src/app/Details.tsx
+msgid "Chapter"
+msgstr "Chapter"
+
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: manifest.chapters.length + 1
 #: src/app/App.tsx
@@ -178,6 +192,7 @@ msgid "Chapter title"
 msgstr "Chapter title"
 
 #: src/app/App.tsx
+#: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Chapters"
 msgstr "Chapters"
@@ -248,6 +263,10 @@ msgstr "Dedication"
 msgid "Description (alt text)"
 msgstr "Description (alt text)"
 
+#: src/app/App.tsx
+msgid "Details"
+msgstr "Details"
+
 #: src/app/ImportDialogs.tsx
 msgid "Done"
 msgstr "Done"
@@ -263,6 +282,10 @@ msgstr "Embeds everything needed to open the file in the future."
 #: src/app/Sidebar.tsx
 msgid "Epigraph"
 msgstr "Epigraph"
+
+#: src/app/App.tsx
+msgid "Exit focus mode"
+msgstr "Exit focus mode"
 
 #: src/app/App.tsx
 msgid "Export EPUB"
@@ -292,6 +315,10 @@ msgstr "Exporting…"
 msgid "File"
 msgstr "File"
 
+#: src/app/App.tsx
+msgid "Focus mode"
+msgstr "Focus mode"
+
 #: src/app/Home.tsx
 msgid "Folder"
 msgstr "Folder"
@@ -313,6 +340,7 @@ msgid "Formatting"
 msgstr "Formatting"
 
 #: src/app/App.tsx
+#: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Front matter"
 msgstr "Front matter"
@@ -384,6 +412,7 @@ msgstr "It moves to the project trash inside your book folder. Nothing is perman
 msgid "Italic"
 msgstr "Italic"
 
+#: src/app/Details.tsx
 #: src/ui/LanguagePicker.tsx
 msgid "Language"
 msgstr "Language"
@@ -546,6 +575,10 @@ msgstr "Read aloud by screen readers. Leave empty only for decoration."
 msgid "Reading settings"
 msgstr "Reading settings"
 
+#: src/app/Details.tsx
+msgid "Reading time"
+msgstr "Reading time"
+
 #: src/app/ExportPdfDialog.tsx
 msgid "Reading your chapters…"
 msgstr "Reading your chapters…"
@@ -593,6 +626,10 @@ msgstr "Saving exports/book.pdf…"
 msgid "Scene break"
 msgstr "Scene break"
 
+#: src/app/Details.tsx
+msgid "Section"
+msgstr "Section"
+
 #: src/editor/Toolbar.tsx
 msgid "Select the text you want to link first."
 msgstr "Select the text you want to link first."
@@ -621,6 +658,7 @@ msgstr "Start a new folder, or open one you already have. Everything stays on th
 msgid "System theme"
 msgstr "System theme"
 
+#: src/app/Details.tsx
 #: src/app/ExportPdfDialog.tsx
 msgid "Template"
 msgstr "Template"
@@ -689,6 +727,11 @@ msgstr "This does not look like a valid .docx file (it could not be opened as a 
 msgid "This file is too large to import."
 msgstr "This file is too large to import."
 
+#: src/app/Details.tsx
+msgid "This page"
+msgstr "This page"
+
+#: src/app/Details.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 msgid "Title"
@@ -758,6 +801,10 @@ msgstr "Warning"
 #: src/editor/ReadingSettings.tsx
 msgid "Wide page"
 msgstr "Wide page"
+
+#: src/app/Details.tsx
+msgid "Words"
+msgstr "Words"
 
 #: src/app/App.tsx
 msgid "Write"
