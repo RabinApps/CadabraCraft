@@ -36,6 +36,11 @@ msgstr ""
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
+msgid "{0} is not a CadabraCraft project folder"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
 msgid "{0} is not a file"
 msgstr ""
 
@@ -1310,4 +1315,8 @@ msgstr ""
 
 #: src/app/Settings.tsx
 msgid "Writing column width"
+msgstr ""
+
+#: src/app/useSaveOnClose.ts
+msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
 msgstr ""

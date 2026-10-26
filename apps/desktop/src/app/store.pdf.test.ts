@@ -7,7 +7,7 @@ const assets = new Map<string, Uint8Array>();
 const typst = {
   fonts: ["Libertinus Serif", "New Computer Modern"],
   failWith: null as unknown,
-  compiles: [] as { path: string | null; source: string; files: [string, number[]][]; pdfA: boolean }[],
+  compiles: [] as { path: string | null; source: string; files: [string, Uint8Array][]; pdfA: boolean }[],
 };
 const h = (s: string) => `h:${s.length}:${s.slice(0, 40)}`;
 vi.mock("../lib/bridge", () => ({
@@ -23,7 +23,7 @@ vi.mock("../lib/bridge", () => ({
       if (typst.failWith) throw typst.failWith;
       return typst.fonts;
     },
-    typstCompile: async (path: string | null, source: string, files: [string, number[]][], pdfA: boolean) => {
+    typstCompile: async (path: string | null, source: string, files: [string, Uint8Array][], pdfA: boolean) => {
       typst.compiles.push({ path, source, files, pdfA });
       if (typst.failWith) throw typst.failWith;
       return new Uint8Array([0x25, 0x50, 0x44, 0x46]);
@@ -119,7 +119,7 @@ describe("exportPdf", () => {
     disk.set("manuscript/001-chapter-one.json", JSON.stringify({ type: "doc", content: [{ type: "image", attrs: { src: "assets/pic.png" } }] }));
     await a().exportPdf(options);
     expect(typst.compiles[0]!.files).toHaveLength(1);
-    expect(typst.compiles[0]!.files[0]![1]).toEqual([9, 8, 7]);
+    expect([...typst.compiles[0]!.files[0]![1]]).toEqual([9, 8, 7]);
   });
   it("reports typst missing with install advice and writes nothing", async () => {
     typst.failWith = { kind: "not_found", message: 'The "typst" program was not found. Install Typst (brew install typst).' };

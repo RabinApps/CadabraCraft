@@ -27,11 +27,14 @@ describe("binary commands", () => {
     expect(await bridge.readAsset("/p", "assets/a.png")).toEqual(Uint8Array.of(9, 8));
     expect(invoke).toHaveBeenCalledWith("read_asset", { root: "/p", path: "assets/a.png" });
   });
-  it("typstCompile converts the raw response and leaves its request format alone", async () => {
-    invoke.mockResolvedValueOnce([0x25, 0x50]);
-    const files: [string, number[]][] = [["assets/x.png", [1, 2]]];
-    expect(await bridge.typstCompile(null, "src", files, true)).toEqual(Uint8Array.of(0x25, 0x50));
-    expect(invoke).toHaveBeenCalledWith("typst_compile", { typstPath: null, source: "src", files, pdfA: true });
+  it("typstCompile sends one binary body and converts the raw response", async () => {
+    invoke.mockResolvedValueOnce(Uint8Array.of(0x25, 0x50).buffer);
+    expect(await bridge.typstCompile(null, "src", [["assets/x.png", Uint8Array.of(1, 2)]], true)).toEqual(Uint8Array.of(0x25, 0x50));
+    const [cmd, body, ...rest] = invoke.mock.calls[0]!;
+    expect(cmd).toBe("typst_compile");
+    expect(body).toBeInstanceOf(Uint8Array);
+    expect([...(body as Uint8Array).subarray(-2)]).toEqual([1, 2]); // the file's bytes are in the body as bytes
+    expect(rest).toEqual([]);
   });
 });
 

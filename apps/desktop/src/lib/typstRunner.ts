@@ -39,7 +39,7 @@ export function createTauriRunner(bridge: Pick<Bridge, "typstListFonts" | "typst
     },
     async compile(source, files, { pdfA }) {
       try {
-        return await bridge.typstCompile(path, source, [...files].map(([name, bytes]) => [name, Array.from(bytes)]), pdfA);
+        return await bridge.typstCompile(path, source, [...files], pdfA);
       } catch (e) {
         throw mapTypstError(e);
       }

@@ -36,6 +36,11 @@ msgstr "{0} is not a .docx, .md, .markdown or .txt file"
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
+msgid "{0} is not a CadabraCraft project folder"
+msgstr "{0} is not a CadabraCraft project folder"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
 msgid "{0} is not a file"
 msgstr "{0} is not a file"
 
@@ -1312,3 +1317,7 @@ msgstr "Write your first book"
 #: src/app/Settings.tsx
 msgid "Writing column width"
 msgstr "Writing column width"
+
+#: src/app/useSaveOnClose.ts
+msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
+msgstr "Your last changes could not be saved ({message}). Close the window again to leave without them."

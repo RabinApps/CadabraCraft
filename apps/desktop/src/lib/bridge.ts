@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import { IMAGE_EXTENSIONS } from "@cadabracraft/shared";
+import { packCompileRequest } from "./compileFrame";
 
 export interface FileRead { contents: string; hash: string }
 export interface TrashEntry { path: string; original: string; trashed_at: string }
@@ -81,8 +82,8 @@ export const bridge = {
   /** Where typst is and its version; rejects with `{ kind: "not_found", message }` (install advice) when missing. `typstPath` is a user-configured location. */
   typstFind: (typstPath: string | null) => invoke<{ path: string; version: string }>("typst_find", { typstPath }),
   typstListFonts: (typstPath: string | null) => invoke<string[]>("typst_list_fonts", { typstPath }),
-  /** Compiles Typst source plus asset files (name, bytes) to PDF bytes. */
-  typstCompile: (typstPath: string | null, source: string, files: [string, number[]][], pdfA: boolean): Promise<Uint8Array> =>
-    binary(invoke<RawBytes>("typst_compile", { typstPath, source, files, pdfA })),
+  /** Compiles Typst source plus asset files (name, bytes) to PDF bytes. The request travels as one binary body (see `packCompileRequest`). */
+  typstCompile: (typstPath: string | null, source: string, files: readonly (readonly [string, Uint8Array])[], pdfA: boolean): Promise<Uint8Array> =>
+    binary(invoke<RawBytes>("typst_compile", packCompileRequest({ typstPath, source, files, pdfA }))),
 };
 export type Bridge = typeof bridge;

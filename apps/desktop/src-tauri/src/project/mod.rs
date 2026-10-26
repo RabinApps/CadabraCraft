@@ -98,6 +98,25 @@ fn stamp() -> String {
     chrono::Utc::now().format("%Y%m%d-%H%M").to_string()
 }
 
+/// A project root must be an absolute path: the webview never gets to name a folder relative to wherever the app runs.
+pub fn require_absolute(root: &Path) -> Result<PathBuf> {
+    if root.is_absolute() {
+        Ok(root.to_path_buf())
+    } else {
+        Err(ProjectError::NotAProject { path: root.to_string_lossy().into_owned() })
+    }
+}
+
+/// Every command except creating a project works only inside an existing project: an absolute folder that holds a real
+/// `cadabra.json` file (not a link). This keeps a bad `root` from reading or writing arbitrary folders.
+pub fn require_project(root: &Path) -> Result<PathBuf> {
+    let root = require_absolute(root)?;
+    match fs::symlink_metadata(root.join(MANIFEST)) {
+        Ok(md) if md.is_file() => Ok(root),
+        _ => Err(ProjectError::NotAProject { path: root.to_string_lossy().into_owned() }),
+    }
+}
+
 /// Creates the folder layout and writes the manifest. Refuses to touch an existing project.
 pub fn create_project(root: &Path, manifest_json: &str) -> Result<()> {
     if root.join(MANIFEST).exists() {
@@ -653,6 +672,35 @@ mod tests {
         for bad in ["manuscript/x.json", "assets/../cadabra.json", "assets/notes.txt", "../a.png", "/etc/a.png", "assets/missing.png"] {
             assert!(read_asset(proj.path(), bad).is_err(), "{bad}");
         }
+    }
+
+    #[test]
+    fn require_project_accepts_only_absolute_folders_with_a_manifest() {
+        let d = tmp();
+        let root = d.path().join("book");
+        fs::create_dir_all(&root).unwrap();
+        let not = |p: &Path| ProjectError::NotAProject { path: p.to_string_lossy().into_owned() };
+        assert_eq!(require_project(&root), Err(not(&root))); // no manifest yet
+        assert_eq!(require_project(Path::new("relative/book")), Err(not(Path::new("relative/book"))));
+        assert_eq!(require_project(Path::new("")), Err(not(Path::new(""))));
+        fs::create_dir_all(root.join(MANIFEST)).unwrap(); // a folder named cadabra.json is not a manifest
+        assert_eq!(require_project(&root), Err(not(&root)));
+        fs::remove_dir(root.join(MANIFEST)).unwrap();
+        fs::write(root.join(MANIFEST), "{}").unwrap();
+        assert_eq!(require_project(&root), Ok(root.clone()));
+        assert_eq!(require_absolute(&root), Ok(root.clone()));
+        assert_eq!(require_absolute(Path::new("book")), Err(not(Path::new("book"))));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn require_project_refuses_a_manifest_that_is_a_link() {
+        let d = tmp();
+        let (root, other) = (d.path().join("book"), d.path().join("other.json"));
+        fs::create_dir_all(&root).unwrap();
+        fs::write(&other, "{}").unwrap();
+        std::os::unix::fs::symlink(&other, root.join(MANIFEST)).unwrap();
+        assert!(matches!(require_project(&root), Err(ProjectError::NotAProject { .. })));
     }
 
     #[test]

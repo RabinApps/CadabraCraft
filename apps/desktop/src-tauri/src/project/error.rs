@@ -17,6 +17,8 @@ pub enum ProjectError {
     NotFound { path: String },
     /// `create_project` on a folder that already holds a project.
     AlreadyExists,
+    /// A project root that is not an absolute path, or a folder without a `cadabra.json` file.
+    NotAProject { path: String },
     NotUtf8 { path: String },
     /// A cloud placeholder (`.name.icloud`) that has not finished downloading.
     IcloudPending { path: String },
@@ -48,6 +50,7 @@ impl fmt::Display for ProjectError {
             PathEscape { path } => write!(f, "{path} leaves the project folder through a symbolic link"),
             NotFound { path } => write!(f, "{path} does not exist"),
             AlreadyExists => write!(f, "a project already exists in this folder"),
+            NotAProject { path } => write!(f, "{path} is not a CadabraCraft project folder"),
             NotUtf8 { path } => write!(f, "{path} is not valid UTF-8"),
             IcloudPending { path } => write!(f, "{path} is still downloading from iCloud; try again in a moment"),
             TooLarge { path, max_mb } => write!(f, "{path} is larger than {max_mb} MB"),
@@ -92,6 +95,7 @@ mod tests {
         assert_eq!(j(ProjectError::UnsafePath { path: "../x".into() }), r#"{"kind":"unsafe_path","path":"../x"}"#);
         assert_eq!(j(ProjectError::TooLarge { path: "a.png".into(), max_mb: 25 }), r#"{"kind":"too_large","path":"a.png","max_mb":25}"#);
         assert_eq!(j(ProjectError::AlreadyExists), r#"{"kind":"already_exists"}"#);
+        assert_eq!(j(ProjectError::NotAProject { path: "/x".into() }), r#"{"kind":"not_a_project","path":"/x"}"#);
         assert_eq!(j(ProjectError::IcloudPending { path: "a".into() }), r#"{"kind":"icloud_pending","path":"a"}"#);
         assert_eq!(j(ProjectError::ImageRefOutside { reference: "r".into() }), r#"{"kind":"image_ref_outside","reference":"r"}"#);
     }

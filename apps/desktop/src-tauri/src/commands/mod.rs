@@ -7,39 +7,45 @@ use tauri::ipc::{InvokeBody, Request, Response};
 
 #[tauri::command]
 pub async fn create_project(root: String, manifest_json: String) -> Result<(), ProjectError> {
-    blocking(move || project::create_project(&PathBuf::from(root), &manifest_json)).await
+    blocking(move || project::create_project(&project::require_absolute(&PathBuf::from(root))?, &manifest_json)).await
 }
 
 #[tauri::command]
 pub async fn read_project_file(root: String, path: String) -> Result<Option<FileRead>, ProjectError> {
-    blocking(move || project::read_file(&PathBuf::from(root), &path)).await
+    blocking(move || {
+        let root = PathBuf::from(root);
+        // Opening a folder reads its manifest; a folder without one is "not a project yet", not an error.
+        let root = if path == project::MANIFEST { project::require_absolute(&root)? } else { project::require_project(&root)? };
+        project::read_file(&root, &path)
+    })
+    .await
 }
 
 #[tauri::command]
 pub async fn write_project_file(root: String, path: String, contents: String, base_hash: Option<String>) -> Result<WriteResult, ProjectError> {
-    blocking(move || project::write_file(&PathBuf::from(root), &path, &contents, base_hash.as_deref())).await
+    blocking(move || project::write_file(&project::require_project(&PathBuf::from(root))?, &path, &contents, base_hash.as_deref())).await
 }
 
 #[tauri::command]
 pub async fn backup_manifest(root: String) -> Result<String, ProjectError> {
-    blocking(move || project::backup_manifest(&PathBuf::from(root))).await
+    blocking(move || project::backup_manifest(&project::require_project(&PathBuf::from(root))?)).await
 }
 
 #[tauri::command]
 pub async fn trash_project_file(root: String, path: String) -> Result<String, ProjectError> {
-    blocking(move || project::trash_file(&PathBuf::from(root), &path)).await
+    blocking(move || project::trash_file(&project::require_project(&PathBuf::from(root))?, &path)).await
 }
 
 /// Pages in the project trash that can be restored, newest first.
 #[tauri::command]
 pub async fn list_project_trash(root: String) -> Result<Vec<TrashEntry>, ProjectError> {
-    blocking(move || project::list_trash(&PathBuf::from(root))).await
+    blocking(move || project::list_trash(&project::require_project(&PathBuf::from(root))?)).await
 }
 
 /// Moves a trashed page back into the project (never overwriting) and returns its new relative path.
 #[tauri::command]
 pub async fn restore_project_trash(root: String, path: String) -> Result<String, ProjectError> {
-    blocking(move || project::restore_trash(&PathBuf::from(root), &path)).await
+    blocking(move || project::restore_trash(&project::require_project(&PathBuf::from(root))?, &path)).await
 }
 
 /// Decodes `%XX` escapes (UTF-8). Header values are ASCII, so the caller sends paths with `encodeURIComponent`.
@@ -89,18 +95,19 @@ fn parse_write_bytes(body: &InvokeBody, headers: &tauri::http::HeaderMap) -> Res
 #[tauri::command]
 pub async fn write_project_bytes(request: Request<'_>) -> Result<(), ProjectError> {
     let (root, path, bytes) = parse_write_bytes(request.body(), request.headers())?;
-    blocking(move || project::write_bytes(&PathBuf::from(root), &path, &bytes)).await
+    blocking(move || project::write_bytes(&project::require_project(&PathBuf::from(root))?, &path, &bytes)).await
 }
 
 #[tauri::command]
 pub fn watch_project(app: tauri::AppHandle, state: tauri::State<crate::fs_watch::WatchState>, root: String) -> Result<(), String> {
-    crate::fs_watch::start(app, PathBuf::from(root), &state)
+    let root = project::require_project(&PathBuf::from(root)).map_err(|e| e.to_string())?;
+    crate::fs_watch::start(app, root, &state)
 }
 
 /// Copies an image the user picked into `assets/`; returns `assets/<name>`.
 #[tauri::command]
 pub async fn import_asset(root: String, source: String) -> Result<String, ProjectError> {
-    blocking(move || project::import_image(&PathBuf::from(root), &PathBuf::from(source))).await
+    blocking(move || project::import_image(&project::require_project(&PathBuf::from(root))?, &PathBuf::from(source))).await
 }
 
 /// Bytes of a document the user picked for import (.docx/.md/.markdown/.txt, at most 200 MB). Read-only.
@@ -118,13 +125,13 @@ pub async fn read_import_image(source_file: String, reference: String) -> Result
 /// Stores image bytes (from an imported document) in `assets/`; returns the actual `assets/<name>` used.
 #[tauri::command]
 pub async fn import_asset_bytes(root: String, name: String, bytes: Vec<u8>) -> Result<String, ProjectError> {
-    blocking(move || project::store_image(&PathBuf::from(root), &name, &bytes)).await
+    blocking(move || project::store_image(&project::require_project(&PathBuf::from(root))?, &name, &bytes)).await
 }
 
 /// Raw bytes of `assets/<image>` for display (sent as binary, not a JSON array).
 #[tauri::command]
 pub async fn read_asset(root: String, path: String) -> Result<Response, ProjectError> {
-    blocking(move || project::read_asset(&PathBuf::from(root), &path)).await.map(Response::new)
+    blocking(move || project::read_asset(&project::require_project(&PathBuf::from(root))?, &path)).await.map(Response::new)
 }
 
 #[cfg(test)]
