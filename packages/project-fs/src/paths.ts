@@ -66,14 +66,17 @@ export function resolveSafe(root: string, rel: string): string {
   return abs;
 }
 
+/** Last component of an OS path: `\\` is a separator on Windows only (on POSIX it is a legal file-name character). */
+const lastComponent = (p: string): string => p.split(process.platform === "win32" ? /[\\/]/ : "/").filter(Boolean).pop() ?? "";
+
 const asciiLower = (s: string): string => s.replace(/[A-Z]/g, (c) => c.toLowerCase());
 
 /** Extension of the last path component, lower-cased (ASCII only), like Rust `Path::extension`: dotfiles have none. */
 export function fileExtension(name: string): string | null {
-  const base = name.split("/").filter(Boolean).pop() ?? "";
+  const base = lastComponent(name);
   const i = base.lastIndexOf(".");
   if (base === ".." || i <= 0) return null;
   return asciiLower(base.slice(i + 1));
 }
 
-export const fileBaseName = (p: string): string => p.split("/").filter(Boolean).pop() ?? "";
+export const fileBaseName = lastComponent;
