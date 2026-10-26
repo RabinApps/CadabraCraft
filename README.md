@@ -19,9 +19,10 @@ packages/
   shared/            Shared types (chapter JSON, metadata)
   editor-schema/     TipTap schema for the v1 node set
   export-epub/       Chapter JSON -> EPUB3
-  export-pdf/        Print PDF (currently the Typst vs Paged.js spike)
+  export-pdf/        Print PDF via Typst (trim sizes, fonts, footnotes, images)
   format/            Manifest validation, migrations, chapter-tree edits, file naming
-  templates, import-docx/   Stubs for later milestones
+  templates/         Novel, nonfiction and modern templates as data
+  import-docx/       Markdown and DOCX import with warnings (not yet wired into the app)
 fixtures/            Sample manuscripts and golden outputs
 docs/                Architecture notes, file format outline, roadmap
 ```
