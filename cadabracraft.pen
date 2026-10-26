@@ -22802,6 +22802,886 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "sYDeg",
+      "x": 700,
+      "y": 15080,
+      "name": "Book details (M3) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 640,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "d7PFG",
+          "name": "Dialog",
+          "width": 680,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 20,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "fCnRJ",
+              "name": "Header",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "m4xVs",
+                  "name": "Heading",
+                  "fill": "$ink",
+                  "content": "Book details",
+                  "fontFamily": "$font-book",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "MPBBx",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "Close",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "x"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "gtmYt",
+              "name": "Body",
+              "width": "fill_container",
+              "gap": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "zkrTS",
+                  "name": "Cover",
+                  "width": 200,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kYPjz",
+                      "name": "Cover label",
+                      "fill": "$ink-muted",
+                      "content": "Cover",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "foQIG",
+                      "name": "Cover preview",
+                      "width": "fill_container",
+                      "height": 300,
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 10,
+                      "padding": 16,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "S1LoQ",
+                          "name": "Image icon",
+                          "width": 32,
+                          "height": 32,
+                          "icon": "image",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mtDSn",
+                          "name": "Cover title",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The Salt Orchard",
+                          "textAlign": "center",
+                          "fontFamily": "$font-book",
+                          "fontSize": 20,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "OIZno",
+                          "name": "Cover author",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Mara Quill",
+                          "textAlign": "center",
+                          "fontFamily": "$font-book",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "TZRsu",
+                      "name": "Cover actions",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "id": "q6bqhD",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Choose image",
+                          "width": "fill_container",
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "descendants": {
+                            "I6qeCj": {
+                              "icon": "image-plus"
+                            },
+                            "l83V3": {
+                              "content": "Choose image…"
+                            }
+                          }
+                        },
+                        {
+                          "id": "pU8qv",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "Remove cover",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "trash-2"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "jBCIt",
+                      "name": "Cover hint",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 x 2400 px, works best.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "xyQPs",
+                  "name": "Fields",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "D9yYbT",
+                      "name": "Title",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "eulAe",
+                          "name": "Title label",
+                          "fill": "$ink-muted",
+                          "content": "Title",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "NjPX4",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Title input",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "The Salt Orchard"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Ldp6O",
+                      "name": "Author",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "IOT9J",
+                          "name": "Author label",
+                          "fill": "$ink-muted",
+                          "content": "Author",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "kbaLw",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Author input",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "Mara Quill"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fvjMp",
+                      "name": "Language and ISBN",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "AEsuU",
+                          "name": "Language",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "evwyp",
+                              "name": "Language label",
+                              "fill": "$ink-muted",
+                              "content": "Language",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "id": "JhOMH",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "Language input",
+                              "width": "fill_container",
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "English (en)"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "vRZKD",
+                          "name": "ISBN",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "i5W98",
+                              "name": "ISBN label",
+                              "fill": "$ink-muted",
+                              "content": "ISBN",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "id": "dB0H6",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "ISBN input",
+                              "width": "fill_container",
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "978-3-16-148410-0"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Yj2dX",
+                      "name": "Identifier",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "v14PGF",
+                          "name": "Identifier label",
+                          "fill": "$ink-muted",
+                          "content": "Identifier",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "cSg4Z",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Identifier input",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "urn:uuid:3f2c9a7e-5b1d-4c68-9a0e-7d41b2c8e5f1"
+                            }
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "id": "K2I1gG",
+                          "name": "Identifier hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Unique id stored in the EPUB. Change it only if a store or library asked you to.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "aborT",
+              "name": "Actions",
+              "width": "fill_container",
+              "gap": 10,
+              "justifyContent": "end",
+              "children": [
+                {
+                  "id": "OYyBg",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Cancel",
+                  "descendants": {
+                    "I6qeCj": {
+                      "enabled": false
+                    },
+                    "l83V3": {
+                      "content": "Cancel"
+                    }
+                  }
+                },
+                {
+                  "id": "SBWNA",
+                  "type": "ref",
+                  "ref": "RHvJO",
+                  "name": "Save",
+                  "descendants": {
+                    "FuxJL": {
+                      "icon": "check"
+                    },
+                    "gNKXH": {
+                      "content": "Save details"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "H31p3",
+      "x": 1540,
+      "y": 15080,
+      "name": "Book details (M3) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 640,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "swxzb",
+          "name": "Dialog",
+          "width": 680,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 20,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "t8vlK",
+              "name": "Header",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "U36Ez",
+                  "name": "Heading",
+                  "fill": "$ink",
+                  "content": "Book details",
+                  "fontFamily": "$font-book",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "z9n4P",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "Close",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "x"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ZdvTU",
+              "name": "Body",
+              "width": "fill_container",
+              "gap": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "t9Qmm",
+                  "name": "Cover",
+                  "width": 200,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IFFX1",
+                      "name": "Cover label",
+                      "fill": "$ink-muted",
+                      "content": "Cover",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Ssok3",
+                      "name": "Cover preview",
+                      "width": "fill_container",
+                      "height": 300,
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 10,
+                      "padding": 16,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "fw3yu",
+                          "name": "Image icon",
+                          "width": 32,
+                          "height": 32,
+                          "icon": "image",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        },
+                        {
+                          "type": "text",
+                          "id": "kKUrH",
+                          "name": "Cover title",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The Salt Orchard",
+                          "textAlign": "center",
+                          "fontFamily": "$font-book",
+                          "fontSize": 20,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "dE56c",
+                          "name": "Cover author",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Mara Quill",
+                          "textAlign": "center",
+                          "fontFamily": "$font-book",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xZrfM",
+                      "name": "Cover actions",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "id": "L4JX8",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Choose image",
+                          "width": "fill_container",
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "descendants": {
+                            "I6qeCj": {
+                              "icon": "image-plus"
+                            },
+                            "l83V3": {
+                              "content": "Choose image…"
+                            }
+                          }
+                        },
+                        {
+                          "id": "rdRAR",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "Remove cover",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "trash-2"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "XqYVo",
+                      "name": "Cover hint",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 x 2400 px, works best.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IVtwv",
+                  "name": "Fields",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "my4QD",
+                      "name": "Title",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Y0PgFU",
+                          "name": "Title label",
+                          "fill": "$ink-muted",
+                          "content": "Title",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "MQm6d",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Title input",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "The Salt Orchard"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fYNhr",
+                      "name": "Author",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "seqwW",
+                          "name": "Author label",
+                          "fill": "$ink-muted",
+                          "content": "Author",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "amslB",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Author input",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "Mara Quill"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uob5E",
+                      "name": "Language and ISBN",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "W9AiKA",
+                          "name": "Language",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "k3Amz",
+                              "name": "Language label",
+                              "fill": "$ink-muted",
+                              "content": "Language",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "id": "P7UIu9",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "Language input",
+                              "width": "fill_container",
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "English (en)"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zQBMY",
+                          "name": "ISBN",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "pWE4Z",
+                              "name": "ISBN label",
+                              "fill": "$ink-muted",
+                              "content": "ISBN",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "id": "K64Is",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "ISBN input",
+                              "width": "fill_container",
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "978-3-16-148410-0"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aV5X4",
+                      "name": "Identifier",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "tnwKk",
+                          "name": "Identifier label",
+                          "fill": "$ink-muted",
+                          "content": "Identifier",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "kTPJL",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Identifier input",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "urn:uuid:3f2c9a7e-5b1d-4c68-9a0e-7d41b2c8e5f1"
+                            }
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "id": "V1hsxT",
+                          "name": "Identifier hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Unique id stored in the EPUB. Change it only if a store or library asked you to.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fZQ8c",
+              "name": "Actions",
+              "width": "fill_container",
+              "gap": 10,
+              "justifyContent": "end",
+              "children": [
+                {
+                  "id": "SPgBV",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Cancel",
+                  "descendants": {
+                    "I6qeCj": {
+                      "enabled": false
+                    },
+                    "l83V3": {
+                      "content": "Cancel"
+                    }
+                  }
+                },
+                {
+                  "id": "ZuYDX",
+                  "type": "ref",
+                  "ref": "RHvJO",
+                  "name": "Save",
+                  "descendants": {
+                    "FuxJL": {
+                      "icon": "check"
+                    },
+                    "gNKXH": {
+                      "content": "Save details"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "themes": {

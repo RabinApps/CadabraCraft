@@ -266,13 +266,13 @@ describe("project store", () => {
       await a().openProject("/p");
       expect(s().currentId).toBe("fm-1");
     });
-    it("upgrades a v1 project on open: backs up first, then saves as v2", async () => {
+    it("upgrades a v1 project on open: backs up first, then saves as v3", async () => {
       const v1 = { ...manifestOnDisk(), formatVersion: 1 };
       disk.set("cadabra.json", JSON.stringify(v1));
       useProject.setState({ manifest: null, currentId: null, currentDoc: null, hashes: {} });
       await a().openProject("/p");
       expect(s().notice).toMatch(/upgraded from format 1/);
-      expect(manifestOnDisk().formatVersion).toBe(2);
+      expect(manifestOnDisk().formatVersion).toBe(3);
     });
   });
 });

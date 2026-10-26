@@ -90,7 +90,7 @@ test("creating a project shows a first chapter in the editor", async ({ page }) 
   expect(await titles(page)).toEqual(["Chapter One"]);
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
   const manifest = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
-  expect(manifest).toMatchObject({ formatVersion: 2, title: "E2E Book", author: "Tester" });
+  expect(manifest).toMatchObject({ formatVersion: 3, title: "E2E Book", author: "Tester" });
 });
 
 test("typed text is saved as TipTap JSON and survives a reload via Open", async ({ page }) => {

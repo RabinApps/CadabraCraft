@@ -119,7 +119,7 @@ try {
     await pickItem("About the author"); await app.sleep(1500);
     assert((await editorH1()) === "About the Author", "about-the-author page did not open");
     const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
-    assert(manifest.formatVersion === 2, "manifest is not format 2");
+    assert(manifest.formatVersion === 3, "manifest is not format 3");
     assert(manifest.frontMatter[0]?.kind === "title-page" && manifest.backMatter[0]?.kind === "about-the-author", "kinds missing in the manifest");
     assert(existsSync(join(book, "front-matter/01-title-page.json")) && existsSync(join(book, "back-matter/01-about-the-author.json")), "matter files not written by Rust");
     assert(readFileSync(join(book, "front-matter/01-title-page.json"), "utf8").includes("Agent"), "title page lacks the author");

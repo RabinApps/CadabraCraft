@@ -2,7 +2,7 @@
 
 Source of truth: [`cadabracraft.pen`](../cadabracraft.pen) (open with Pencil; the file is encrypted, so edit it only through Pencil or its MCP tools). This document records the tokens and rules so code can follow them without opening the file.
 
-**Keeping this in sync:** this file must always match the pen file. After any pen change run `/sync-design` (`.claude/skills/sync-design`); a project hook reminds Claude after every Pencil edit. Last synced against the pen: 2026-10-26 (tokens, fonts, radii, frame sizes and names verified; Settings desktop, tablet and mobile in light and dark; theme toggles moved off Home, Editor and Reading).
+**Keeping this in sync:** this file must always match the pen file. After any pen change run `/sync-design` (`.claude/skills/sync-design`); a project hook reminds Claude after every Pencil edit. Last synced against the pen: 2026-10-26 (tokens, fonts, radii, frame sizes and names verified; Settings desktop, tablet and mobile in light and dark; theme toggles moved off Home, Editor and Reading; Book details dialog added).
 
 ## Principles
 - Writing comes first: the manuscript is the dominant region on every screen; chrome stays quiet.
@@ -62,6 +62,7 @@ Frame names follow `Name / size / mode` (size is desktop, tablet or mobile; mode
 | Templates | `Templates (M2) / mode` | M2 | desktop only; gallery of Classic Novel, Modern Memoir and Poetry with the chosen template's values, reached from the details panel ("Change template"). Drop cap and ornament have no template data and are not shown |
 | Print preview | `Print preview (M2) / mode` | M2 | spread, page setup. Approximate: trim-sized pages with the template's type and margins and a rough text flow, page count estimated from words. Bleed and crop marks are preview only. Reached from the Export dialog |
 | Export dialog | `Export (M2-M3) / mode` | M2-M3 | "Export book" dialog: EPUB 3 or Print PDF. EPUB checks are structural (no EPUBCheck in the app); progress shows the stage without a percentage. The editor header has one Export button |
+| Book details | `Book details (M3) / mode` | M3 | 760x640 frame, 680px dialog, desktop only (on narrower screens it becomes a full-height sheet, not drawn). Left column: cover preview (200px wide, title and author placeholder when no image), "Choose image…" button, remove icon button, hint (PNG, JPEG or WebP, up to 25 MB, copied into `assets/`). Right column: Title, Author, Language and ISBN (side by side), Identifier with a hint. Footer: Cancel and "Save details". Opened from the editor's Book menu and the details panel |
 | Settings | `Settings (M2+) / size / mode` | M2+ | Desktop (1280x800) and tablet (820x1180) use the Nav (Appearance, General, Editor, Backups, Shortcuts) and a content column; mobile (390x844) has no nav, back arrow in the top bar and the same sections stacked. Sections: Appearance (theme segmented control), General (interface language select, placeholder until i18n is scoped), Editor (manuscript font, writing column width, typewriter scrolling). Preferences save immediately, so there is no primary action. Backups and Shortcuts are nav items without content yet. |
 
 Designed but not in the first M1 build (see `docs/m1-ui-plan.md`), now built: project trash restore, recent-projects list, details panel and focus mode (see Implementation notes).
