@@ -27,6 +27,22 @@ msgstr "{0} was updated from outside the app"
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 
+#: src/app/ExportPdfDialog.tsx
+msgid "5 × 8 in"
+msgstr "5 × 8 in"
+
+#: src/app/ExportPdfDialog.tsx
+msgid "5.5 × 8.5 in"
+msgstr "5.5 × 8.5 in"
+
+#: src/app/ExportPdfDialog.tsx
+msgid "6 × 9 in"
+msgstr "6 × 9 in"
+
+#: src/app/store.ts
+msgid "A PDF export is already running"
+msgstr "A PDF export is already running"
+
 #. placeholder {0}: c.title
 #: src/app/Sidebar.tsx
 msgid "Actions for {0}"
@@ -82,6 +98,7 @@ msgstr "cadabra.json changed outside the app; your previous copy was kept as {0}
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 msgstr "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 
+#: src/app/ExportPdfDialog.tsx
 #: src/app/Home.tsx
 #: src/editor/Toolbar.tsx
 #: src/ui/Dialog.tsx
@@ -140,6 +157,10 @@ msgstr "Could not add the image: {0}"
 msgid "Create book"
 msgstr "Create book"
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
+msgstr "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
+
 #: src/ui/ThemeToggle.tsx
 msgid "Dark theme"
 msgstr "Dark theme"
@@ -152,13 +173,33 @@ msgstr "Description (alt text)"
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Embeds everything needed to open the file in the future."
+msgstr "Embeds everything needed to open the file in the future."
+
 #: src/app/App.tsx
 msgid "Export EPUB"
 msgstr "Export EPUB"
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Export PDF"
+msgstr "Export PDF"
+
+#: src/app/App.tsx
+msgid "Export PDF…"
+msgstr "Export PDF…"
+
 #: src/app/store.ts
 msgid "Exported exports/book.epub"
 msgstr "Exported exports/book.epub"
+
+#: src/app/store.ts
+msgid "Exported exports/book.pdf"
+msgstr "Exported exports/book.pdf"
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Exporting…"
+msgstr "Exporting…"
 
 #: src/app/Home.tsx
 msgid "Folder"
@@ -212,6 +253,10 @@ msgstr "Language"
 msgid "Larger text"
 msgstr "Larger text"
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Leave empty to use the typst found on this computer."
+msgstr "Leave empty to use the typst found on this computer."
+
 #: src/ui/ThemeToggle.tsx
 msgid "Light theme"
 msgstr "Light theme"
@@ -228,6 +273,11 @@ msgstr "Location"
 #: src/app/store.ts
 msgid "Missing chapter file {0}"
 msgstr "Missing chapter file {0}"
+
+#. placeholder {0}: e.srcs.join(", ")
+#: src/lib/pdfErrors.ts
+msgid "Missing image file {0}"
+msgstr "Missing image file {0}"
 
 #: src/app/store.ts
 msgid "Missing image file {src}"
@@ -294,6 +344,10 @@ msgstr "Optional. Shown below the image."
 msgid "Page width"
 msgstr "Page width"
 
+#: src/app/ExportPdfDialog.tsx
+msgid "PDF/A (archival)"
+msgstr "PDF/A (archival)"
+
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
 msgstr "Previous chapter"
@@ -315,6 +369,10 @@ msgstr "Read aloud by screen readers. Leave empty only for decoration."
 msgid "Reading settings"
 msgstr "Reading settings"
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Reading your chapters…"
+msgstr "Reading your chapters…"
+
 #: src/editor/Toolbar.tsx
 msgid "Redo"
 msgstr "Redo"
@@ -331,6 +389,10 @@ msgstr "Save"
 #: src/app/store.ts
 msgid "Saved"
 msgstr "Saved"
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Saving exports/book.pdf…"
+msgstr "Saving exports/book.pdf…"
 
 #: src/editor/Toolbar.tsx
 msgid "Scene break"
@@ -360,6 +422,10 @@ msgstr "Start a new folder, or open one you already have. Everything stays on th
 msgid "System theme"
 msgstr "System theme"
 
+#: src/app/ExportPdfDialog.tsx
+msgid "Template"
+msgstr "Template"
+
 #: src/editor/ReadingSettings.tsx
 msgid "Text size"
 msgstr "Text size"
@@ -372,6 +438,10 @@ msgstr "That address can't be used as a link."
 msgid "The book is stored in this folder. Nothing leaves your computer."
 msgstr "The book is stored in this folder. Nothing leaves your computer."
 
+#: src/lib/pdfErrors.ts
+msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
+msgstr "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
+
 #: src/ui/ThemeToggle.tsx
 msgid "Theme"
 msgstr "Theme"
@@ -383,6 +453,30 @@ msgstr "This book has no chapters yet."
 #: src/app/Home.tsx
 msgid "Title"
 msgstr "Title"
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Trim size"
+msgstr "Trim size"
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Typesetting the book with Typst…"
+msgstr "Typesetting the book with Typst…"
+
+#. placeholder {0}: e.stderr.trim()
+#: src/lib/pdfErrors.ts
+msgid "Typst could not build the PDF:\n"
+"{0}"
+msgstr "Typst could not build the PDF:\n"
+"{0}"
+
+#: src/app/ExportPdfDialog.tsx
+msgid "Typst location (optional)"
+msgstr "Typst location (optional)"
+
+#. placeholder {0}: e.seconds
+#: src/lib/pdfErrors.ts
+msgid "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
+msgstr "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
 
 #: src/editor/Toolbar.tsx
 msgid "Underline"

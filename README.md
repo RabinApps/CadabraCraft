@@ -6,7 +6,7 @@ Open-source desktop app for writing and formatting books. Write in a rich-text e
 - **Cloud sync is your choice:** point the folder at Google Drive, Dropbox or iCloud Drive.
 - **Open source:** the app, file format and exporters live in this repo.
 
-Status: **M0 done, M1 mostly built.** You can create or open a project folder, edit chapters (add, rename, reorder, delete to a project trash), save atomically, get conflict copies when files change outside the app, and export EPUB3 (passes EPUBCheck). Typst is chosen for print PDF (M2). See [docs/architecture.md](docs/architecture.md). M2-M4 are not started.
+Status: **M0 done, M1 mostly built.** You can create or open a project folder, edit chapters (add, rename, reorder, delete to a project trash), save atomically, get conflict copies when files change outside the app, and export EPUB3 (passes EPUBCheck). Print PDF export ("Export PDF…": trim size, template, PDF/A) runs your installed Typst; the DOCX/Markdown importer is not wired in yet. See [docs/architecture.md](docs/architecture.md). M2 is partly built (print PDF); M3-M4 are not started.
 
 ## Stack
 Tauri 2 (Rust), React 19, TypeScript, Vite, TipTap 3, Tailwind CSS v4, Radix UI, Vitest, Playwright, pnpm workspaces.
@@ -29,7 +29,7 @@ docs/                Architecture notes, file format outline, roadmap
 Packages never import from `apps/desktop`.
 
 ## Prerequisites
-Node 24, pnpm 11, Rust (stable), Java 17 (EPUBCheck), and for the PDF spike Typst (`brew install typst`) plus Playwright's Chromium.
+Node 24, pnpm 11, Rust (stable), Java 17 (EPUBCheck), Typst for PDF export (`brew install typst`; the app finds it on PATH, `TYPST_BIN`, `/opt/homebrew/bin` or `/usr/local/bin`, or a path you enter in the export dialog), poppler for the PDF integration tests, plus Playwright's Chromium.
 
 ## Develop
 ```bash
@@ -45,6 +45,7 @@ pnpm test                     # Vitest in every package
 cd apps/desktop && pnpm exec playwright install chromium && pnpm test:e2e
 cd apps/desktop/src-tauri && cargo test
 ```
+PDF tests skip when Typst or poppler is missing; set `REQUIRE_TYPST=1` to make them fail instead (the Rust compile tests honor it too).
 
 ## Validate an EPUB
 ```bash

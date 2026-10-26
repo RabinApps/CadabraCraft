@@ -26,12 +26,18 @@ importers:
       '@cadabracraft/export-epub':
         specifier: workspace:*
         version: link:../../packages/export-epub
+      '@cadabracraft/export-pdf':
+        specifier: workspace:*
+        version: link:../../packages/export-pdf
       '@cadabracraft/format':
         specifier: workspace:*
         version: link:../../packages/format
       '@cadabracraft/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@cadabracraft/templates':
+        specifier: workspace:*
+        version: link:../../packages/templates
       '@fontsource-variable/inter':
         specifier: ^5.3.0
         version: 5.3.0

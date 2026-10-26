@@ -9,8 +9,11 @@ import type { DocNode } from "@cadabracraft/shared";
 import { FontNotAvailableError, MissingAssetError, TypstNotFoundError } from "./errors";
 import { loadFullBook } from "./fixtures";
 import { HOSTILE } from "./hostile";
-import { findTypst, listFonts, renderPdf } from "./render";
-import type { PdfChapter } from "./types";
+import { createNodeRunner, findTypst } from "./node";
+import { renderPdf as render } from "./render";
+import type { PdfBook, PdfChapter, PdfOptions } from "./types";
+
+const renderPdf = (b: PdfBook, c: PdfChapter[], o: PdfOptions = {}) => render(b, c, o, createNodeRunner());
 
 const required = process.env.REQUIRE_TYPST === "1";
 const has = (cmd: string, args: string[]): boolean => spawnSync(cmd, args, { stdio: "ignore" }).status === 0;
@@ -77,6 +80,7 @@ typstSuite("renderPdf with typst", () => {
     for (const [trimSize, [w, h]] of Object.entries(expected)) {
       const { pdf } = await renderPdf(book, chapters.slice(0, 1), { trimSize: trimSize as keyof typeof expected, assets });
       expect(Buffer.from(pdf).subarray(0, 5).toString()).toBe("%PDF-");
+      expect(Buffer.from(pdf).subarray(-1024).toString("latin1")).toContain("%%EOF");
       const boxes = mediaBoxes(pdf);
       expect(boxes.length).toBeGreaterThan(0);
       for (const b of boxes) expect(b, trimSize).toEqual([0, 0, w, h]);
@@ -105,7 +109,7 @@ typstSuite("renderPdf with typst", () => {
   }, T);
 
   it("lists bundled fonts", async () => {
-    expect(await listFonts(findTypst())).toContain("Libertinus Serif");
+    expect(await createNodeRunner().listFonts()).toContain("Libertinus Serif");
   });
 
   it("fails when image data is missing", async () => {
