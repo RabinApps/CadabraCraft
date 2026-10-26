@@ -41,7 +41,18 @@ async function fakeTauri(page: Page) {
             if ((window as any).__compileError) throw (window as any).__compileError;
             return new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]).buffer;
           case "backup_manifest": return "backup";
-          case "trash_project_file": disk[`.cadabra/trash/${a.path}`] = disk[a.path]!; delete disk[a.path]; persist(); return "t";
+          // Same naming as the Rust command: .cadabra/trash/<stamp>-<path with / as __>.
+          case "trash_project_file": {
+            const to = `.cadabra/trash/20260101-1200-${a.path.replaceAll("/", "__")}`;
+            disk[to] = disk[a.path]!; delete disk[a.path]; persist(); return to;
+          }
+          case "list_project_trash":
+            return Object.keys(disk).filter((k) => /^\.cadabra\/trash\/\d{8}-\d{4}-/.test(k)).map((k) => ({ path: k, original: k.slice(29).replaceAll("__", "/"), trashed_at: "20260101-1200" }));
+          case "restore_project_trash": {
+            let to = a.path.slice(29).replaceAll("__", "/");
+            for (let n = 2; to in disk; n++) to = a.path.slice(29).replaceAll("__", "/").replace(/\.json$/, `-${n}.json`);
+            disk[to] = disk[a.path]!; delete disk[a.path]; persist(); return to;
+          }
         }
         throw new Error(`unexpected command ${cmd}`);
       },
@@ -432,7 +443,7 @@ test("rename, reorder and delete front and back matter", async ({ page }) => {
   await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
   await expect(sidebar(page).getByRole("button", { name: "Dedication", exact: true })).toHaveCount(0);
   const trashed = await page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")));
-  expect(trashed).toEqual([".cadabra/trash/front-matter/01-dedication.json"]);
+  expect(trashed).toEqual([".cadabra/trash/20260101-1200-front-matter__01-dedication.json"]);
   expect((await manifestOf(page)).chapters).toHaveLength(1); // chapters untouched
 });
 
@@ -463,4 +474,40 @@ test("EPUB and PDF exports include the matter pages", async ({ page }) => {
   const source: string = await page.evaluate(() => (window as any).__typstCalls[0].source);
   expect(source).toContain("#title-page[");
   expect(source).toContain('#chapter-start("Acknowledgments", none)');
+});
+
+test("restoring a page from the trash puts it back at the end and opens it", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await chapterAction(page, "Chapter 2", "Move to trash");
+  await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
+  await expect(page.getByRole("button", { name: "Chapter 2", exact: true })).toHaveCount(0);
+  // A new chapter takes the freed file name, so the restored page must not overwrite it.
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.type("new one");
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByRole("status")).toHaveText("Saved");
+
+  await page.getByRole("button", { name: "Trash", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Trash" });
+  await expect(dialog.getByText("Chapter 2")).toBeVisible();
+  await dialog.getByRole("button", { name: "Restore Chapter 2" }).click();
+  await expect(dialog).toHaveCount(0);
+
+  const manifest = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
+  expect(manifest.chapters.map((c: any) => c.title)).toEqual(["Chapter One", "Chapter 2", "Chapter 2"]);
+  const files: string[] = manifest.chapters.map((c: any) => c.file);
+  expect(new Set(files).size).toBe(3);
+  const disk = await page.evaluate(() => (window as any).__disk as Record<string, string>);
+  expect(disk[files[1]!]).toContain("new one");
+  expect(Object.keys(disk).filter((k) => k.startsWith(".cadabra/trash/"))).toEqual([]);
+  await expect(page.getByRole("button", { name: "Chapter 2", exact: true })).toHaveCount(2);
+  expect(await titles(page)).toEqual(["Chapter 2"]);
+
+  await page.getByRole("button", { name: "Trash", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Trash" }).getByText("The trash is empty.")).toBeVisible();
 });

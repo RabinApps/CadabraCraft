@@ -116,3 +116,25 @@ export function removeMatter(m: Manifest, id: string): { manifest: Manifest; rem
   const removed = m[section].find((e) => e.id === id)!;
   return { manifest: { ...m, [section]: m[section].filter((e) => e.id !== id) }, removed };
 }
+
+/** Where a restored file goes, from its folder. Null for files outside manuscript, front-matter and back-matter. */
+function sectionOfFile(file: string): MatterSection | "chapters" | null {
+  const dir = file.split("/")[0];
+  return dir === "manuscript" ? "chapters" : dir === "front-matter" ? "frontMatter" : dir === "back-matter" ? "backMatter" : null;
+}
+
+/**
+ * Puts a restored file back in the manifest: at the end of the section its folder says (chapters, front matter or back
+ * matter), under a fresh id. Matter pages come back as "custom" because the kind is not stored in the file.
+ */
+export function restoreEntry(m: Manifest, file: string, title: string): { manifest: Manifest; entry: ManuscriptEntry } {
+  const section = sectionOfFile(file);
+  if (!section) throw new Error(`cannot restore ${file}`);
+  const used = allEntries(m);
+  if (used.some((e) => e.file === file)) throw new Error(`${file} is already in the book`);
+  const prefix = section === "chapters" ? "ch" : section === "frontMatter" ? "fm" : "bm";
+  let n = m[section].length + 1;
+  while (used.some((e) => e.id === `${prefix}-${n}`)) n++;
+  const entry: ManuscriptEntry = { id: `${prefix}-${n}`, file, title, ...(section === "chapters" ? {} : { kind: "custom" as MatterKind }) };
+  return { manifest: { ...m, [section]: [...m[section], entry] }, entry };
+}

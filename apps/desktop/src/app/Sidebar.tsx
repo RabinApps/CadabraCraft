@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowDown, ArrowUp, Ellipsis, FilePlus, GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Ellipsis, FilePlus, GripVertical, Pencil, Plus, Trash2, Undo2 } from "lucide-react";
 import { canAddMatter, type ManuscriptEntry } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
-import { Confirm } from "../ui/Dialog";
+import { Confirm, Modal } from "../ui/Dialog";
 import { Button, IconButton } from "../ui/Button";
 import { cx } from "../ui/cx";
 import { useProject } from "./store";
@@ -100,11 +100,48 @@ function EntryList({ entries, heading, titleLabel, currentId, editing, setEditin
   );
 }
 
+/** Pages moved to the project trash, each with a Restore button. */
+function TrashDialog({ open, onOpenChange, onNavigate }: { open: boolean; onOpenChange: (o: boolean) => void; onNavigate?: () => void }) {
+  const { t } = useLingui();
+  const { trash, actions } = useProject();
+  const [error, setError] = useState("");
+  const message = (e: unknown) => String(e instanceof Error ? e.message : e);
+  useEffect(() => {
+    if (!open) return;
+    setError("");
+    actions.refreshTrash().catch((e) => setError(message(e)));
+  }, [open, actions]);
+  return (
+    <Modal open={open} onOpenChange={onOpenChange} title={t`Trash`} description={t`Pages you moved to the trash. Restoring puts a page back at the end of its section.`}>
+      {error && <p role="alert" className="mb-2 text-sm text-danger">{error}</p>}
+      {trash.length === 0 ? (
+        <p className="text-sm text-ink-muted">{t`The trash is empty.`}</p>
+      ) : (
+        <ul className="m-0 flex max-h-72 list-none flex-col gap-1 overflow-y-auto p-0">
+          {trash.map((x) => (
+            <li key={x.path} className="flex items-center gap-2">
+              <span className="min-w-0 flex-1 truncate text-sm text-ink">{x.title}</span>
+              <Button
+                icon={Undo2}
+                aria-label={t`Restore ${x.title}`}
+                onClick={() => { setError(""); void actions.restoreTrash(x.path).then(() => { onOpenChange(false); onNavigate?.(); }, (e) => setError(message(e))); }}
+              >
+                {t`Restore`}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Modal>
+  );
+}
+
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { t } = useLingui();
   const { manifest, currentId, actions } = useProject();
   const [editing, setEditing] = useState<Editing>(null);
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
+  const [trashOpen, setTrashOpen] = useState(false);
   const kinds = useKindLabels();
   if (!manifest) return null;
   const shared = { currentId, editing, setEditing, setDeleting, onNavigate };
@@ -139,6 +176,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </M.Content>
         </M.Portal>
       </M.Root>
+      <Button variant="ghost" icon={Trash2} className="justify-start" onClick={() => setTrashOpen(true)}>{t`Trash`}</Button>
+      <TrashDialog open={trashOpen} onOpenChange={setTrashOpen} onNavigate={onNavigate} />
       <Confirm
         open={deleting !== null}
         onOpenChange={(o) => { if (!o) setDeleting(null); }}

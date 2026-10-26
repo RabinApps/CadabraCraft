@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addChapter, createManifest, moveChapter, removeChapter, renameChapter, validateManifest } from "./index";
+import { addChapter, restoreEntry, createManifest, moveChapter, removeChapter, renameChapter, validateManifest } from "./index";
 
 const empty = () => createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" });
 const three = () => {
@@ -39,5 +39,21 @@ describe("chapter tree edits", () => {
     expect(ids(m)).toEqual(["ch-1", "ch-2", "ch-3"]);
     expect(() => renameChapter(m, "nope", "x")).toThrow();
     expect(() => removeChapter(m, "nope")).toThrow();
+  });
+});
+
+describe("restoreEntry", () => {
+  it("appends to the section the folder names, with a fresh id", () => {
+    const m = three();
+    const c = restoreEntry(m, "manuscript/009-old.json", "Old");
+    expect(c.manifest.chapters.map((e) => e.id)).toEqual(["ch-1", "ch-2", "ch-3", "ch-4"]);
+    const b = restoreEntry(m, "back-matter/01-colophon.json", "Colophon");
+    expect(b.manifest.backMatter).toEqual([{ id: "bm-1", file: "back-matter/01-colophon.json", title: "Colophon", kind: "custom" }]);
+    expect(validateManifest(JSON.parse(JSON.stringify(b.manifest)))).toBeTruthy();
+  });
+  it("refuses a file already in the book or outside the page folders", () => {
+    const m = three();
+    expect(() => restoreEntry(m, m.chapters[0]!.file, "x")).toThrow();
+    expect(() => restoreEntry(m, "assets/a.json", "x")).toThrow();
   });
 });
