@@ -1,6 +1,6 @@
 import { zipSync, strToU8 } from "fflate";
 import { imageMediaType, isAssetPath, isBackMatterKind, isFrontMatterKind, textDirection, type BookMetadata, type ChapterDoc, type MatterKind, type Section } from "@cadabracraft/shared";
-import { contentsHeading, landmarksHeading, startOfContentLabel } from "./strings";
+import { contentsHeading, coverLabel, landmarksHeading, startOfContentLabel } from "./strings";
 import { chapterToXhtmlBody, collectImageSources, esc } from "./xhtml";
 
 const CSS = `body{font-family:serif;line-height:1.4}
@@ -61,7 +61,11 @@ export interface BuildOptions {
   assets?: ReadonlyMap<string, Uint8Array>;
   /** Stylesheet to use instead of the built-in default, e.g. a template's `epub.css`. */
   css?: string;
+  /** The cover image: `path` is the project-relative `assets/<name>` (png, jpg or webp) and `bytes` its contents. Adds a cover page first in the reading order, the `cover-image` manifest property and a cover landmark. */
+  cover?: { path: string; bytes: Uint8Array };
 }
+
+const COVER_PAGE = "epub-cover";
 
 /** Builds an EPUB3 package as bytes. Output is deterministic for a given input. Throws if a referenced image is not an allowed `assets/` image or its bytes are missing. */
 export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: BuildOptions = {}): Uint8Array {
@@ -79,7 +83,12 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
   );
   files["OEBPS/style.css"] = strToU8(options.css ?? CSS);
   // Images keep their relative `assets/<name>` path inside OEBPS, so chapter srcs need no rewriting.
-  const imagePaths = [...new Set(chapters.flatMap((c) => collectImageSources(c.doc)))];
+  const cover = options.cover;
+  const coverType = cover ? (isAssetPath(cover.path) ? imageMediaType(cover.path) : null) : null;
+  if (cover && (!coverType || coverType === "image/gif" || coverType === "image/svg+xml")) throw new Error(`Unsupported cover image: ${cover.path}`);
+  if (cover) files[`OEBPS/${cover.path}`] = cover.bytes;
+  // A chapter may use the cover file too; it is one file and one manifest item.
+  const imagePaths = [...new Set(chapters.flatMap((c) => collectImageSources(c.doc)))].filter((src) => src !== cover?.path);
   const imageItems = imagePaths.map((src, i) => {
     const type = isAssetPath(src) ? imageMediaType(src) : null;
     if (!type) throw new Error(`Unsupported image source in chapter: ${src}`);
@@ -88,6 +97,12 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
     files[`OEBPS/${src}`] = bytes;
     return `<item id="img-asset-${i + 1}" href="${esc(src)}" media-type="${type}"/>`;
   });
+  if (cover) {
+    const alt = `${coverLabel(meta.language)}: ${meta.title}`;
+    files[`OEBPS/${COVER_PAGE}.xhtml`] = strToU8(
+      page(alt, `<section epub:type="cover"><img src="${esc(cover.path)}" alt="${esc(alt)}" style="max-width:100%;max-height:100%"/></section>`, ' epub:type="cover" class="cover" style="margin:0;text-align:center"'),
+    );
+  }
   for (const c of chapters) {
     const { type, cls } = semantics(c);
     files[`OEBPS/${c.id}.xhtml`] = strToU8(page(c.title, chapterToXhtmlBody(c.doc), ` epub:type="${type}" class="${cls}"`));
@@ -99,19 +114,21 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
   const start = chapters.find((c) => (c.section ?? "chapter") === "chapter") ?? (listed.length ? listed : chapters)[0];
   const contents = contentsHeading(meta.language);
   const landmarks = `<nav epub:type="landmarks" hidden="hidden"><h2>${esc(landmarksHeading(meta.language))}</h2><ol>${
+    cover ? `<li><a epub:type="cover" href="${COVER_PAGE}.xhtml">${esc(coverLabel(meta.language))}</a></li>` : ""
+  }${
     start ? `<li><a epub:type="bodymatter" href="${start.id}.xhtml">${esc(startOfContentLabel(meta.language))}</a></li>` : ""
   }<li><a epub:type="toc" href="nav.xhtml#toc">${esc(contents)}</a></li></ol></nav>`;
   files["OEBPS/nav.xhtml"] = strToU8(
     page(meta.title, `<nav epub:type="toc" id="toc"><h1>${esc(contents)}</h1><ol>${toc}</ol></nav>${landmarks}`),
   );
 
-  const manifest = chapters
-    .map((c) => `<item id="${c.id}" href="${c.id}.xhtml" media-type="application/xhtml+xml"/>`)
+  const manifest = (cover ? [`<item id="${COVER_PAGE}" href="${COVER_PAGE}.xhtml" media-type="application/xhtml+xml"/>`] : []).concat(chapters
+    .map((c) => `<item id="${c.id}" href="${c.id}.xhtml" media-type="application/xhtml+xml"/>`))
     .join("");
   // The navigation document is a non-linear spine item: the landmarks link to it, and EPUB requires link targets to be in the spine.
-  const spine = [...chapters.map((c) => `<itemref idref="${c.id}"/>`), '<itemref idref="nav" linear="no"/>'].join("");
+  const spine = [...(cover ? [`<itemref idref="${COVER_PAGE}"/>`] : []), ...chapters.map((c) => `<itemref idref="${c.id}"/>`), '<itemref idref="nav" linear="no"/>'].join("");
   files["OEBPS/content.opf"] = strToU8(
-    `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier><dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language><meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta></metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,
+    `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier><dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language><meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta>${cover ? '<meta name="cover" content="epub-cover-image"/>' : ""}</metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}${cover ? `<item id="epub-cover-image" href="${esc(cover.path)}" media-type="${coverType}" properties="cover-image"/>` : ""}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,
   );
 
   return zipSync(files as never, { mtime: new Date(Date.UTC(2020, 0, 1)) });

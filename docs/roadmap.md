@@ -5,7 +5,7 @@
   - M1: apply the design system (Tailwind v4 + Radix), restyle Home, editor, reading mode, dialogs and toasts.
   - M2 (built, see architecture.md "M2 UI"): follow-ups are a Typst-rendered print preview, bleed and crop marks in the PDF, EPUBCheck from the app, and a cover image field.
   - M2+: backups and shortcuts settings (disabled nav items for now), focus mode, command palette, find and replace, outline navigator. Settings itself is built (M2); its Backups and Shortcuts sections are not.
-  - M3: front/back matter and metadata editor, cover picker.
+  - M3: front/back matter (built in M1), metadata editor and cover picker (built, see architecture.md "Book cover"). Still open: real-client sync testing, and the cover in the print preview.
   - M4: .docx import wizard.
 - i18n follow-ups (infrastructure is in; see the Internationalization section of [architecture.md](architecture.md)):
   - Translate the catalogs (he, ar, it, ja, ru, fr, de, es), get native-speaker review, then add each code to `ENABLED_LOCALES`.

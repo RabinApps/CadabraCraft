@@ -140,6 +140,17 @@ describe("project store", () => {
     await a().exportEpub();
     expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
   });
+  it("puts the cover in the EPUB and refuses to export when its file is missing", async () => {
+    await a().updateDetails({ ...s().manifest!, isbn: "", cover: "assets/front.png" });
+    await expect(a().exportEpub()).rejects.toThrow(/cover image assets\/front\.png could not be read/);
+    expect(disk.has("exports/book.epub")).toBe(false);
+    assets.set("assets/front.png", new Uint8Array([1, 2, 3]));
+    await a().exportEpub();
+    const files = unzipSync(written["exports/book.epub"]!);
+    expect(files["OEBPS/assets/front.png"]).toBeDefined();
+    expect(strFromU8(files["OEBPS/content.opf"]!)).toContain('properties="cover-image"');
+    expect(strFromU8(files["OEBPS/content.opf"]!)).toMatch(/<spine><itemref idref="epub-cover"\/><itemref idref="ch-1"\/>/);
+  });
   it("reopens a project from disk", async () => {
     const json = disk.get("cadabra.json")!;
     useProject.setState({ manifest: null, currentId: null });

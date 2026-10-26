@@ -54,6 +54,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const templates = listTemplates();
   const [trimSize, setTrimSize] = useState<TrimSize>("6x9");
   const [pdfA, setPdfA] = useState(false);
+  const [withCover, setWithCover] = useState(true);
   const [template, setTemplate] = useState<string | null>(null);
   const [typstPath, setTypstPath] = useState(readTypstPath);
   const [error, setError] = useState<PdfUiError | null>(null);
@@ -77,7 +78,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
         await exportEpub();
       } else {
         saveTypstPath(typstPath.trim());
-        await exportPdf({ trimSize, pdfA, template: current, typstPath: typstPath.trim() || undefined });
+        await exportPdf({ trimSize, pdfA, cover: withCover, template: current, typstPath: typstPath.trim() || undefined });
       }
       change(false);
     } catch (e) {
@@ -111,6 +112,9 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
               {templates.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
             </Select>
             <Checkbox label={t`PDF/A (archival)`} hint={t`Embeds everything needed to open the file in the future.`} checked={pdfA} disabled={running} onChange={(e) => setPdfA(e.target.checked)} />
+            {manifest?.cover && (
+              <Checkbox label={t`Include the cover`} hint={t`Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file.`} checked={withCover} disabled={running} onChange={(e) => setWithCover(e.target.checked)} />
+            )}
             {(error?.code === "typst-missing" || typstPath) && (
               <Field label={t`Typst location (optional)`} value={typstPath} disabled={running} placeholder="/opt/homebrew/bin/typst" onChange={(e) => setTypstPath(e.target.value)} hint={t`Leave empty to use the typst found on this computer.`} />
             )}

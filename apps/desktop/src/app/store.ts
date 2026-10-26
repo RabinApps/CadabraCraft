@@ -27,6 +27,8 @@ export interface PdfExportOptions {
   pdfA: boolean;
   /** Template id; saved in the manifest when it differs from the current one. */
   template: string;
+  /** Put the book's cover (if it has one) first, as a full-page image. Default true. */
+  cover?: boolean;
   /** User-configured location of the typst program (an app preference, never stored in the project). */
   typstPath?: string;
 }
@@ -314,6 +316,17 @@ export const useProject = create<State>((set, get) => {
     return assets;
   };
 
+  /** Bytes of the cover image, or undefined when the book has none. A cover that cannot be read stops the export instead of leaving it out. */
+  const loadCover = async (): Promise<{ path: string; bytes: Uint8Array } | undefined> => {
+    const { root, manifest } = need();
+    if (!manifest.cover) return undefined;
+    try {
+      return { path: manifest.cover, bytes: await bridge.readAsset(root, manifest.cover) };
+    } catch {
+      throw new Error(t`The cover image ${manifest.cover} could not be read. Choose it again in Book details, or remove the cover.`);
+    }
+  };
+
   return {
     root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, trash: [], history: NO_HISTORY,
     actions: {
@@ -508,8 +521,9 @@ export const useProject = create<State>((set, get) => {
           const { root, manifest } = need();
           const chapters = await loadChapters();
           const assets = await loadAssets(chapters);
+          const cover = await loadCover();
           set({ exportStage: "rendering" });
-          const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, css: getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).epub.css });
+          const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, cover, css: getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).epub.css });
           set({ exportStage: "saving" });
           await bridge.writeBytes(root, "exports/book.epub", bytes);
           set({ notice: t`Exported exports/book.epub` });
@@ -534,12 +548,14 @@ export const useProject = create<State>((set, get) => {
           const template = getTemplate(templateId);
           const chapters = await loadChapters();
           const assets = await loadAssets(chapters);
+          const cover = options.cover === false ? undefined : await loadCover();
+          if (cover) assets.set(cover.path, cover.bytes);
           set({ exportStage: "rendering" });
           const runner = createTauriRunner(bridge, options.typstPath);
           const { pdf } = await renderPdf(
             { title: manifest.title, author: manifest.author, language: manifest.language },
             chapters,
-            { template, trimSize: options.trimSize, mirrored: true, pageNumbers: true, pdfA: options.pdfA, assets: Object.fromEntries(assets) },
+            { template, trimSize: options.trimSize, mirrored: true, pageNumbers: true, pdfA: options.pdfA, assets: Object.fromEntries(assets), ...(cover ? { cover: cover.path } : {}) },
             runner,
           );
           set({ exportStage: "saving" });

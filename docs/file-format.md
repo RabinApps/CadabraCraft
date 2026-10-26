@@ -34,6 +34,7 @@ MyBook/
 - `id` values are unique across all three lists. `file` is a relative path using `/`, inside the project, with no `..`, no leading `/`, and no drive letters.
 - `identifier` is a UUID URN or an ISBN. `language` is a BCP 47 tag.
 - `cover` (added in formatVersion 3) is `null` or the relative path of the cover image, always `assets/<name>` with a png, jpg, jpeg or webp extension (same naming rules as other assets). The file is a copy inside the project, never a link to the original. Removing the cover sets `null` and leaves the file in `assets/`.
+- Exports: EPUB gets a cover page first in the reading order (`epub:type="cover"`, left out of the contents list), the image as the `cover-image` manifest item, a `cover` landmark and the EPUB 2 `<meta name="cover">`. Print PDF puts the image on a full-bleed first page with no header or number, then a blank page behind it, so the book starts on page 3 and its numbering and left/right pages are as without a cover (the Export dialog can leave the cover out). An export stops with a message when the cover file cannot be read.
 
 ## Front and back matter
 - Entries in `frontMatter` and `backMatter` have the same shape as chapters plus an optional `kind` (added in formatVersion 2). Chapters never have a `kind`.

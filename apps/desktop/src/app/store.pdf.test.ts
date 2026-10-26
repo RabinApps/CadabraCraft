@@ -55,6 +55,29 @@ const fail = async (): Promise<PdfUiError> => {
   return e as PdfUiError;
 };
 
+describe("exportPdf with a cover", () => {
+  const setCover = () => a().updateDetails({ ...s().manifest!, isbn: "", cover: "assets/front.png" });
+  const source = () => typst.compiles.at(-1)!.source;
+  it("sends the cover image to Typst as the first page", async () => {
+    assets.set("assets/front.png", new Uint8Array([1, 2, 3]));
+    await setCover();
+    await a().exportPdf(options);
+    expect(source()).toContain("#page(margin: 0pt, header: none, footer: none)");
+    expect(typst.compiles.at(-1)!.files.map(([p]) => p)).toContain("assets/img-1.png");
+  });
+  it("leaves it out when asked, without needing the file", async () => {
+    await setCover();
+    await a().exportPdf({ ...options, cover: false });
+    expect(source()).not.toContain("margin: 0pt, header: none");
+  });
+  it("stops with a message when the cover file is missing", async () => {
+    await setCover();
+    const e = await fail();
+    expect(e.message).toMatch(/cover image assets\/front\.png could not be read/);
+    expect(typst.compiles).toHaveLength(0);
+  });
+});
+
 describe("exportPdf", () => {
   it("flushes the draft, compiles with the chosen options and writes exports/book.pdf", async () => {
     a().setDraft({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "typed but not saved" }] }] });
