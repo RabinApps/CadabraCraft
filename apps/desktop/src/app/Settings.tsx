@@ -9,6 +9,7 @@ import { Select } from "../ui/Select";
 import { languageOptions } from "../ui/LanguagePicker";
 import { Switch } from "../ui/Switch";
 import { useTheme, type Theme } from "./theme";
+import { useUpdates } from "./updates";
 import { useSettings, type ManuscriptFont, type WritingWidth } from "./editorPrefs";
 
 const sections = ["appearance", "general", "editor"] as const;
@@ -39,6 +40,8 @@ export function Settings({ onBack }: { onBack: () => void }) {
   const { t } = useLingui();
   const { theme, setTheme } = useTheme();
   const { manuscriptFont, writingWidth, typewriterScroll, set } = useSettings();
+  const checkOnLaunch = useUpdates((s) => s.checkOnLaunch);
+  const setCheckOnLaunch = useUpdates((s) => s.setCheckOnLaunch);
   const { locale, setLocale } = useLocale();
   const navLabels: Record<(typeof sections)[number], string> = { appearance: t`Appearance`, general: t`General`, editor: t`Editor` };
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" });
@@ -86,6 +89,11 @@ export function Settings({ onBack }: { onBack: () => void }) {
                     </Select>
                   </div>
                 }
+              />
+              <Row
+                title={t`Check for updates on launch`}
+                hint={t`Looks for a new version when the app starts. Nothing else is sent.`}
+                control={<Switch label={t`Check for updates on launch`} checked={checkOnLaunch} onChange={(v) => setCheckOnLaunch(v)} />}
               />
             </Section>
             <Section id="editor" title={navLabels.editor}>

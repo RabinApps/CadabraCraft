@@ -164,7 +164,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
 
   const windowMenu = sub(t`Window`, [pre("Minimize", t`Minimize`), pre("Maximize", t`Zoom`), ...(ctx.mac ? [sep, pre("BringAllToFront", t`Bring All to Front`)] : []), sep, pre("CloseWindow", t`Close Window`)]);
 
-  const help = sub(t`Help`, [cmd("help.sponsor", t`Sponsor CadabraCraft…`)]);
+  const help = sub(t`Help`, [cmd("help.updates", t`Check for Updates…`), sep, cmd("help.sponsor", t`Sponsor CadabraCraft…`)]);
 
   return [...(ctx.mac ? [app] : []), file, edit, insert, format, view, windowMenu, help];
 }

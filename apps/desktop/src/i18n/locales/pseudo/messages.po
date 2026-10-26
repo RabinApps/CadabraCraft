@@ -319,6 +319,10 @@ msgstr ""
 msgid "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 msgstr ""
 
+#: src/app/useAppMenu.ts
+msgid "CadabraCraft is up to date."
+msgstr ""
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/ExportDialog.tsx
 #: src/app/Home.tsx
@@ -381,6 +385,14 @@ msgstr ""
 #: src/app/Details.tsx
 #: src/app/Sidebar.tsx
 msgid "Chapters"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Check for updates on launch"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Check for Updates…"
 msgstr ""
 
 #: src/app/ExportDialog.tsx
@@ -454,6 +466,10 @@ msgstr ""
 #. placeholder {0}: errText(e)
 #: src/app/store.ts
 msgid "Could not add the image: {0}"
+msgstr ""
+
+#: src/app/UpdateDialog.tsx
+msgid "Could not install the update: {error}"
 msgstr ""
 
 #. placeholder {0}: errText(e)
@@ -794,6 +810,14 @@ msgstr ""
 msgid "Insert"
 msgstr ""
 
+#: src/app/UpdateDialog.tsx
+msgid "Install now"
+msgstr ""
+
+#: src/app/UpdateDialog.tsx
+msgid "Installing…"
+msgstr ""
+
 #: src/app/Settings.tsx
 msgid "Interface language"
 msgstr ""
@@ -830,6 +854,10 @@ msgstr ""
 msgid "Larger text"
 msgstr ""
 
+#: src/app/UpdateDialog.tsx
+msgid "Later"
+msgstr ""
+
 #: src/app/ExportDialog.tsx
 msgid "Leave empty to use the typst found on this computer."
 msgstr ""
@@ -853,6 +881,10 @@ msgstr ""
 
 #: src/app/Home.tsx
 msgid "Location"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Looks for a new version when the app starts. Nothing else is sent."
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -1366,6 +1398,14 @@ msgstr ""
 msgid "The image {0} is outside the document's folder"
 msgstr ""
 
+#: src/app/UpdateDialog.tsx
+msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
+msgstr ""
+
+#: src/app/UpdateDialog.tsx
+msgid "The only thing sent is the update check. Nothing about your books is sent."
+msgstr ""
+
 #: src/app/store.ts
 msgid "the page is no longer in the trash"
 msgstr ""
@@ -1534,6 +1574,10 @@ msgstr ""
 msgid "Untitled"
 msgstr ""
 
+#: src/app/UpdateDialog.tsx
+msgid "Update available"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Use http, https or mailto."
 msgstr ""
@@ -1544,6 +1588,11 @@ msgstr ""
 
 #: src/app/Settings.tsx
 msgid "Used while writing and reading."
+msgstr ""
+
+#. placeholder {0}: update.version
+#: src/app/UpdateDialog.tsx
+msgid "Version {0} is available"
 msgstr ""
 
 #: src/app/menuModel.ts
@@ -1587,8 +1636,17 @@ msgstr ""
 msgid "Writing column width"
 msgstr ""
 
+#. placeholder {0}: update.currentVersion
+#: src/app/UpdateDialog.tsx
+msgid "You have {0}. Your books and settings stay as they are."
+msgstr ""
+
 #: src/app/useSaveOnClose.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
+msgstr ""
+
+#: src/app/useAppMenu.ts
+msgid "Your package manager updates this copy of CadabraCraft."
 msgstr ""
 
 #: src/app/menuModel.ts

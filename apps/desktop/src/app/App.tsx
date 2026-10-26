@@ -20,6 +20,8 @@ import { ImportReportDialog } from "./ImportDialogs";
 import { PrintPreview } from "./PrintPreview";
 import { Settings } from "./Settings";
 import { SponsorDialog } from "./SponsorDialog";
+import { UpdateDialog } from "./UpdateDialog";
+import { useUpdates } from "./updates";
 import { Sidebar } from "./Sidebar";
 import { Templates } from "./Templates";
 import { useLayout } from "./layout";
@@ -69,6 +71,9 @@ export function App() {
     return () => void un.then((f) => f());
   }, [open, actions]);
   useEffect(() => {
+    if (import.meta.env.PROD) void useUpdates.getState().check(false);
+  }, []);
+  useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     const close = () => { if (mq.matches) setDrawer(false); };
     mq.addEventListener("change", close);
@@ -78,7 +83,14 @@ export function App() {
   const run = (f: () => Promise<void>) => () => { setError(""); f().catch((e) => setError(errText(e))); };
   useAppMenu({ view, setView, mode, setMode, openExport, openDetails: () => setDetailsOpen(true), fail: setError });
   const backToBook = () => setView("book");
-  if (view === "settings") return <Settings onBack={backToBook} />;
+  if (view === "settings") {
+    return (
+      <>
+        <Settings onBack={backToBook} />
+        <UpdateDialog />
+      </>
+    );
+  }
   if (manifest && view === "templates") return <Templates onBack={backToBook} />;
   if (manifest && view === "print") {
     return (
@@ -86,6 +98,7 @@ export function App() {
         <PrintPreview onBack={backToBook} onExport={openExport} />
         <ExportDialog open={exportOpen} onOpenChange={setExportOpen} format={exportFormat} onFormatChange={setExportFormat} />
         <SponsorDialog />
+        <UpdateDialog />
       </>
     );
   }
@@ -159,6 +172,7 @@ export function App() {
       </D.Root>
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
       <SponsorDialog />
+      <UpdateDialog />
       <ImportReportDialog />
     </div>
   );

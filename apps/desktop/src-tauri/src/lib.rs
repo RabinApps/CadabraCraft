@@ -26,7 +26,8 @@ macro_rules! app_handlers {
             commands::watch_project,
             typst::typst_find,
             typst::typst_list_fonts,
-            typst::typst_compile
+            typst::typst_compile,
+            commands::updates_supported
             $(, $extra)*
         ]
     };
@@ -36,7 +37,9 @@ pub fn run() {
     let builder = tauri::Builder::default()
         .manage(fs_watch::WatchState::default())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_opener::init());
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init());
 
     // Dev-only: lets an AI agent drive the real window. Debug builds with the feature only, and bound to
     // loopback because the plugin's default (all interfaces) would expose unauthenticated script execution.

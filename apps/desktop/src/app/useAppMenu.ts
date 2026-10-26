@@ -10,6 +10,7 @@ import { useLayout } from "./layout";
 import { buildMenuModel } from "./menuModel";
 import { showNativeMenu } from "./nativeMenu";
 import { useRecents } from "./recents";
+import { useUpdates } from "./updates";
 import { SPONSOR_URL } from "./sponsor";
 import { useProject } from "./store";
 
@@ -34,6 +35,15 @@ const isMac = (): boolean => typeof navigator !== "undefined" && /Mac/i.test(nav
  * Registers what the File, Edit, Insert, View and Help menus can do in the current context, and shows the native menu.
  * A book command is only registered while a book is open and its main view is showing, so everywhere else its item is greyed out.
  */
+/** Manual check from the Help menu: says so when the app is current, and reports a failure. */
+async function checkForUpdatesNow(h: { fail: (message: string) => void }) {
+  await useUpdates.getState().check(true);
+  const { status } = useUpdates.getState();
+  if (status.kind === "current") useProject.setState({ notice: t`CadabraCraft is up to date.` });
+  if (status.kind === "unsupported") useProject.setState({ notice: t`Your package manager updates this copy of CadabraCraft.` });
+  if (status.kind === "error") h.fail(status.message);
+}
+
 export function useAppMenu(h: AppMenuHooks): void {
   const manifest = useProject((s) => s.manifest);
   const currentId = useProject((s) => s.currentId);
@@ -62,6 +72,7 @@ export function useAppMenu(h: AppMenuHooks): void {
     "file.openRecent": { run: (root) => { if (root) void leave().then(() => actions.openProject(root)).catch((e) => h.fail(errText(e))); } },
     "file.clearRecents": { run: clearRecents, enabled: recents.length > 0 },
     "help.sponsor": { run: guard(() => bridge.openUrl(SPONSOR_URL)) },
+    "help.updates": { run: () => void checkForUpdatesNow(h) },
   };
   if (inBook) {
     Object.assign(commands, {

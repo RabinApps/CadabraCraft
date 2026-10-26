@@ -16346,6 +16346,83 @@
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "g0ahC",
+                              "name": "Divider",
+                              "width": "fill_container",
+                              "height": 1,
+                              "fill": "$border"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "f7iJo1",
+                              "name": "Check for updates on launch",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "DezpH",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "KSWR1",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Check for updates on launch",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "HXlsG",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Looks for a new version when the app starts. Nothing else is sent.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "mH4Mn",
+                                  "name": "Toggle",
+                                  "width": 40,
+                                  "height": 22,
+                                  "fill": "$accent",
+                                  "cornerRadius": 11,
+                                  "padding": 3,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "jIsMn",
+                                      "name": "Knob",
+                                      "fill": "$surface",
+                                      "width": 16,
+                                      "height": 16
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -19356,6 +19433,83 @@
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Lms9R",
+                              "name": "Divider",
+                              "width": "fill_container",
+                              "height": 1,
+                              "fill": "$border"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "j87RpZ",
+                              "name": "Check for updates on launch",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "jPFnJ",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "d88HKl",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Check for updates on launch",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "FCDWE",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Looks for a new version when the app starts. Nothing else is sent.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "D5zvsS",
+                                  "name": "Toggle",
+                                  "width": 40,
+                                  "height": 22,
+                                  "fill": "$accent",
+                                  "cornerRadius": 11,
+                                  "padding": 3,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "lsxt5",
+                                      "name": "Knob",
+                                      "fill": "$surface",
+                                      "width": 16,
+                                      "height": 16
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -20191,6 +20345,83 @@
                                       "fontFamily": "$font-ui",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "FACwr",
+                              "name": "Divider",
+                              "width": "fill_container",
+                              "height": 1,
+                              "fill": "$border"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "w4sc9",
+                              "name": "Check for updates on launch",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "LMU7A",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "E2rLXt",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Check for updates on launch",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "nvlzq",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Looks for a new version when the app starts. Nothing else is sent.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "z0L7K",
+                                  "name": "Toggle",
+                                  "width": 40,
+                                  "height": 22,
+                                  "fill": "$accent",
+                                  "cornerRadius": 11,
+                                  "padding": 3,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "bTVFy",
+                                      "name": "Knob",
+                                      "fill": "$surface",
+                                      "width": 16,
+                                      "height": 16
                                     }
                                   ]
                                 }
@@ -21034,6 +21265,83 @@
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "bUf59",
+                              "name": "Divider",
+                              "width": "fill_container",
+                              "height": 1,
+                              "fill": "$border"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "RUzLt",
+                              "name": "Check for updates on launch",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "g91SWA",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ixlT6",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Check for updates on launch",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "aga6J",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Looks for a new version when the app starts. Nothing else is sent.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "S90Guk",
+                                  "name": "Toggle",
+                                  "width": 40,
+                                  "height": 22,
+                                  "fill": "$accent",
+                                  "cornerRadius": 11,
+                                  "padding": 3,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "G1Z1E",
+                                      "name": "Knob",
+                                      "fill": "$surface",
+                                      "width": 16,
+                                      "height": 16
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -21739,6 +22047,83 @@
                                   "fontFamily": "$font-ui",
                                   "fontSize": 12,
                                   "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mcPk1",
+                          "name": "Divider",
+                          "width": "fill_container",
+                          "height": 1,
+                          "fill": "$border"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "SqBUe",
+                          "name": "Check for updates on launch",
+                          "width": "fill_container",
+                          "gap": 16,
+                          "padding": [
+                            14,
+                            20
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "h4ugl",
+                              "name": "Text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "A50gI",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Check for updates on launch",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "xu5Yh",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Looks for a new version when the app starts. Nothing else is sent.",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "B1cao",
+                              "name": "Toggle",
+                              "width": 40,
+                              "height": 22,
+                              "fill": "$accent",
+                              "cornerRadius": 11,
+                              "padding": 3,
+                              "justifyContent": "end",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "a67j0",
+                                  "name": "Knob",
+                                  "fill": "$surface",
+                                  "width": 16,
+                                  "height": 16
                                 }
                               ]
                             }
@@ -22451,6 +22836,83 @@
                                   "fontFamily": "$font-ui",
                                   "fontSize": 12,
                                   "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "NcMWf",
+                          "name": "Divider",
+                          "width": "fill_container",
+                          "height": 1,
+                          "fill": "$border"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ySXsV",
+                          "name": "Check for updates on launch",
+                          "width": "fill_container",
+                          "gap": 16,
+                          "padding": [
+                            14,
+                            20
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "p9lvKe",
+                              "name": "Text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "NElU2",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Check for updates on launch",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "uv5qT",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Looks for a new version when the app starts. Nothing else is sent.",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "qdpQt",
+                              "name": "Toggle",
+                              "width": 40,
+                              "height": 22,
+                              "fill": "$accent",
+                              "cornerRadius": 11,
+                              "padding": 3,
+                              "justifyContent": "end",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "AksHV",
+                                  "name": "Knob",
+                                  "fill": "$surface",
+                                  "width": 16,
+                                  "height": 16
                                 }
                               ]
                             }
@@ -31334,6 +31796,330 @@
                     },
                     "gNKXH": {
                       "content": "Sponsor"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "vuqw7",
+      "x": 0,
+      "y": 23082,
+      "name": "Update available dialog (Release) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 640,
+      "height": 520,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "sho6O",
+          "name": "Dialog",
+          "width": 460,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "t8ycA",
+              "name": "Heading row",
+              "width": "fill_container",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "A8I0F",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Version 0.1.1 is available",
+                  "fontFamily": "$font-book",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "PF5OL",
+              "name": "Current version",
+              "width": "fill_container",
+              "fill": "$accent-soft",
+              "cornerRadius": "$radius",
+              "gap": 8,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "pAcGR",
+                  "name": "check",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "circle-arrow-up",
+                  "library": "lucide",
+                  "fill": "$accent"
+                },
+                {
+                  "type": "text",
+                  "id": "mEC1V",
+                  "name": "Exported",
+                  "fill": "$accent",
+                  "content": "You have 0.1.0. Your books and settings stay as they are.",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "v3Sd3C",
+              "name": "Body",
+              "fill": "$ink",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version.",
+              "lineHeight": 1.55,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "Qsd5e",
+              "name": "Privacy note",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "The only thing sent is the update check. Nothing about your books is sent.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "hHucE",
+              "name": "Actions",
+              "width": "fill_container",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "k3gSG3",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Later",
+                  "descendants": {
+                    "l83V3": {
+                      "content": "Later"
+                    }
+                  }
+                },
+                {
+                  "id": "CgaGI",
+                  "type": "ref",
+                  "ref": "RHvJO",
+                  "name": "Install now",
+                  "descendants": {
+                    "FuxJL": {
+                      "icon": "download"
+                    },
+                    "gNKXH": {
+                      "content": "Install now"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "mQbRM",
+      "x": 720,
+      "y": 23082,
+      "name": "Update available dialog (Release) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 640,
+      "height": 520,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "EsFdY",
+          "name": "Dialog",
+          "width": 460,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "LXsKy",
+              "name": "Heading row",
+              "width": "fill_container",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ODwik",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Version 0.1.1 is available",
+                  "fontFamily": "$font-book",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "I8tCVe",
+              "name": "Current version",
+              "width": "fill_container",
+              "fill": "$accent-soft",
+              "cornerRadius": "$radius",
+              "gap": 8,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "gxc3V",
+                  "name": "check",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "circle-arrow-up",
+                  "library": "lucide",
+                  "fill": "$accent"
+                },
+                {
+                  "type": "text",
+                  "id": "Idjrq",
+                  "name": "Exported",
+                  "fill": "$accent",
+                  "content": "You have 0.1.0. Your books and settings stay as they are.",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "XDHkD",
+              "name": "Body",
+              "fill": "$ink",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version.",
+              "lineHeight": 1.55,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "m9zEYZ",
+              "name": "Privacy note",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "The only thing sent is the update check. Nothing about your books is sent.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "n0lwH",
+              "name": "Actions",
+              "width": "fill_container",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "YkwMI",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Later",
+                  "descendants": {
+                    "l83V3": {
+                      "content": "Later"
+                    }
+                  }
+                },
+                {
+                  "id": "XhrTt",
+                  "type": "ref",
+                  "ref": "RHvJO",
+                  "name": "Install now",
+                  "descendants": {
+                    "FuxJL": {
+                      "icon": "download"
+                    },
+                    "gNKXH": {
+                      "content": "Install now"
                     }
                   }
                 }
