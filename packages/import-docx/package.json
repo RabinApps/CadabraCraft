@@ -8,5 +8,18 @@
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.json"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@cadabracraft/shared": "workspace:*",
+    "fast-xml-parser": "^5.11.2",
+    "fflate": "^0.8.3",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@cadabracraft/editor-schema": "workspace:*",
+    "@tiptap/core": "^3.32.0",
+    "@tiptap/pm": "^3.32.0",
+    "@types/mdast": "^4.0.4"
+  }
 }

@@ -1,0 +1,96 @@
+# Import (Markdown and .docx)
+
+Library: `packages/import-docx` (`@cadabracraft/import-docx`). Pure functions: no disk, no network. The importer never touches the source file; the app decides what to write.
+
+```ts
+importMarkdown(text: string, opts?: ImportOptions): ImportResult
+importDocx(bytes: Uint8Array, opts?: ImportOptions): ImportResult
+
+ImportResult = { chapters: { title, doc: ChapterDoc }[], warnings: ImportWarning[], assets: ImportAsset[] }
+```
+
+- `chapters[].doc` is TipTap JSON valid in `@cadabracraft/editor-schema` (tests run `Node.fromJSON(schema, doc).check()` on every output). The chapter heading stays in the doc, as in `fixtures/manuscripts`.
+- `assets`: `{ sourcePath, targetPath, mediaType?, bytes? }`. Image nodes use `targetPath` (`assets/<name>`, unique, sanitized). DOCX assets carry `bytes`; Markdown assets do not (the app copies `sourcePath`, resolved relative to the .md file, and must reject absolute paths or `..` escaping the source folder).
+- `ImportOptions`: `splitHeadingLevel` (1-3, default 1), `untitledTitle` ("Untitled"), `maxInputChars` (Markdown, 50M), `maxDecompressedBytes` (200 MB), `maxEntries` (10,000), `maxNestingDepth` (32).
+- Hard failures throw `ImportError` with a `code`: `invalid-zip`, `archive-too-large`, `too-many-entries`, `missing-document`, `invalid-xml`, `input-too-large`, `too-deeply-nested`.
+- Chapters split on headings of `splitHeadingLevel`. Content before the first one goes into a chapter titled "Untitled" (`untitled-content`). No such heading at all: one "Untitled" chapter (`no-headings`). Nothing importable: zero chapters (`empty-input`).
+
+## Markdown mappings
+
+| Source | Result |
+|---|---|
+| `#`..`###` | heading 1-3 (`####`+ clamped to 3, `heading-clamped`) |
+| paragraph, `*em*`, `**strong**` | paragraph, italic, bold |
+| `[t](http/https/mailto)` | link mark. Other schemes and relative paths: plain text, `unsafe-link` |
+| `> quote` | blockquote |
+| `-`/`1.` lists, nested | bulletList/orderedList (start number kept) |
+| `***`, `---`, `___` | sceneBreak |
+| `[^1]` + definition | inline footnote node (definition flattened to text) |
+| `![alt](path)` | image block, path recorded in `assets`. Remote and non-image targets: `[Image: alt]` text, `remote-image` / `unsupported-image` |
+| hard break | splits paragraph (`line-break`, info) |
+| table | one paragraph per row, ` | ` separated (`table`) |
+| code block / inline code | plain paragraphs per line / plain text (`code-block`, `inline-code` info) |
+| raw HTML | literal text (`html`) |
+| `~~x~~` | text kept (`strikethrough`) |
+| `- [x]` | text prefix `[x] ` / `[ ] ` (`task-list`) |
+
+Markdown warnings carry a 1-based `line`. At most 25 located warnings per code are kept, then one summary with `count`.
+
+## DOCX mappings
+
+| Word | Result |
+|---|---|
+| Heading 1-3 (also styles based on them) | heading 1-3; Heading 4-9 clamped to 3 (`heading-clamped`) |
+| Normal, Body Text, List Paragraph, ... | paragraph |
+| Quote, Block Quote, Intense Quote | blockquote (consecutive paragraphs merge) |
+| List Bullet/Number (n), numbering (`numPr`, format from numbering.xml) | nested bullet/ordered lists |
+| bold, italic, underline, small caps (direct or character style `Strong`/`Emphasis`) | marks |
+| hyperlink, `HYPERLINK` fields | link mark (http/https/mailto only) |
+| footnotes (endnotes too) | inline footnote node (flattened to text) |
+| centered paragraph `* * *` or `#` | sceneBreak. Uncentered `* * *` stays a paragraph |
+| page / section breaks | ignored (`page-break`, `section-break`, info) |
+| manual line break | splits paragraph (`line-break`, info) |
+| images (PNG, JPEG, GIF, WebP, SVG) | image block, bytes in `assets`, alt from `descr` |
+| tracked changes | insertions accepted, deletions dropped (`tracked-changes`) |
+
+## Warnings catalogue
+
+`warning` means content or formatting was lost or changed; `info` means a benign normalisation. DOCX warnings are aggregated: `count` plus up to 5 `examples`.
+
+| Code | Format | Meaning |
+|---|---|---|
+| `empty-input`, `no-headings`, `untitled-content` | both | chapter splitting outcomes |
+| `heading-clamped` | both | heading deeper than 3 |
+| `unsafe-link` | both | link scheme not allowed (text kept) |
+| `internal-link` | docx (info) | link to a bookmark, kept as text |
+| `line-break` | both (info) | break split into paragraphs |
+| `table` | both | table flattened to row paragraphs |
+| `strikethrough`, `unsupported-formatting` | md / docx | strike, superscript, subscript dropped, text kept |
+| `code-block`, `inline-code`, `html`, `task-list` | md | see table above |
+| `remote-image`, `unsupported-image` | md | image not imported |
+| `footnote-undefined`, `footnote-unreferenced`, `footnote-nested`, `footnote-complex` | md | footnote problems |
+| `nesting-too-deep` | md | list/quote deeper than `maxNestingDepth` flattened |
+| `unsupported-node` | md | unknown mdast node kept as text |
+| `style-fallback` | docx (info) | custom paragraph style imported as Normal (examples = style names) |
+| `text-box`, `unsupported-drawing`, `embedded-object` | docx | skipped; text-box text shown as example |
+| `comments`, `header-footer` | docx | not imported |
+| `tracked-changes` | docx | insertions kept, deletions dropped |
+| `equation` | docx | math text kept without layout |
+| `field` | docx (info) | field replaced by its current text |
+| `hidden-text` | docx (info) | hidden runs skipped |
+| `endnote` | docx (info) | endnotes become footnotes |
+| `missing-image`, `unsupported-image-format`, `note-image` | docx | image skipped |
+| `footnote-missing`, `note-table` | docx | note problems |
+| `page-break`, `section-break` | docx (info) | ignored |
+| `unsupported-element` | docx | unknown body element skipped |
+
+## Limits
+
+DOCX archives: declared uncompressed size summed over all entries must stay under `maxDecompressedBytes` (200 MB), entries under `maxEntries`. Only the parts we read are inflated. A forged smaller declared size is not trusted: fflate truncates to the declared size, and the actual size is re-checked. XML nesting beyond the parser limit gives `invalid-xml`; the parser also bounds entity expansion.
+
+## Decisions
+
+- **Markdown parser: `unified` + `remark-parse` + `remark-gfm` (MIT).** Gives an mdast with line positions (needed for located warnings), GFM footnotes, tables, strikethrough and task lists as distinct nodes so each can be reported. Rejected: `markdown-it` (footnotes need a plugin, tokens are flatter and make nested-structure conversion and position tracking more manual; has HTML-first design).
+- **DOCX: fflate + `fast-xml-parser` (MIT), direct OOXML.** Total control over what is reported and a pure in-memory byte API with size guards. Rejected: `mammoth` (BSD-2) converts to HTML and deliberately ignores unsupported features, so we could not report counts of dropped constructs, has no small caps, and would force an HTML-to-TipTap second hop; it also reads the zip with its own JSZip pipeline without the size caps we want.
+- Marks are emitted in the editor schema's rank order (`link, bold, italic, underline, smallCaps`); a test compares against the real schema.
+- Hard/soft line breaks become separate paragraphs because the shared `DocNode` contract has no hard-break node.
