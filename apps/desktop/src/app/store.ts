@@ -3,7 +3,8 @@ import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
 import {
   addBackMatter, addChapter, addFrontMatter, createManifest, moveChapter, moveMatter, parseManifest, readingOrder, removeChapter, removeMatter,
-  renameChapter, renameMatter, restoreEntry, sectionOf, serializeManifest, starterDoc, starterTitle, type Manifest, type ManuscriptEntry,
+  renameChapter, renameMatter, restoreEntry, retargetFile, sameTree, sectionOf, serializeManifest, starterDoc, starterTitle, treeOf, withTree,
+  type Manifest, type ManuscriptEntry, type Tree,
 } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
@@ -45,6 +46,32 @@ function titleOfDoc(doc: unknown, file: string): string {
   return found?.slice(0, 80) || (file.split("/").pop() ?? file).replace(/\.json$/, "").replace(/^\d+-/, "");
 }
 
+/**
+ * One undoable chapter-tree edit: the tree before and after, and the page file it created or removed (if any).
+ * Plain data. While the file is in the trash, `trashPath` says where, so undo and redo can move it back.
+ */
+export interface HistoryEntry {
+  label: string;
+  before: Tree;
+  after: Tree;
+  /** `added`: the edit made the page exist (add, add page, restore); otherwise it moved the page to the trash. */
+  file?: { path: string; added: boolean };
+  trashPath?: string;
+}
+
+export interface History {
+  undo: HistoryEntry[];
+  redo: HistoryEntry[];
+}
+
+const NO_HISTORY: History = { undo: [], redo: [] };
+const HISTORY_LIMIT = 100;
+
+/** Rewrites every mention of page file `from` as `to` (a restored page that had to take another name). */
+function retargetEntry(e: HistoryEntry, from: string, to: string): HistoryEntry {
+  return { ...e, before: retargetFile(e.before, from, to), after: retargetFile(e.after, from, to), ...(e.file?.path === from ? { file: { ...e.file, path: to } } : {}) };
+}
+
 export type PdfStage = "preparing" | "rendering" | "saving";
 
 interface State {
@@ -65,7 +92,12 @@ interface State {
   pdfStage: PdfStage | null;
   /** Restorable pages in the project trash, newest first (filled by `refreshTrash`). */
   trash: TrashItem[];
+  /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
+  history: History;
   actions: {
+    /** Reverts the latest chapter-tree edit (add, rename, move, trash, add page, restore). Added pages go to the trash, trashed pages come back from it. Resolves to false when there is nothing to undo or it failed (see `notice`). */
+    undo: () => Promise<boolean>;
+    redo: () => Promise<boolean>;
     /** Reloads `trash` from the project folder. */
     refreshTrash: () => Promise<void>;
     /** Moves a trashed page back, adds it to the end of its section and opens it. Never overwrites an existing page (a taken file name gets a `-2` suffix). */
@@ -110,6 +142,66 @@ export const useProject = create<State>((set, get) => {
     const w = await bridge.writeFile(root, "cadabra.json", serializeManifest(manifest), base);
     set({ manifest, hashes: { ...get().hashes, "cadabra.json": w.hash }, notice: w.conflict_copy ? t`cadabra.json changed outside the app; your previous copy was kept as ${w.conflict_copy}` : get().notice });
   };
+  /** Remembers a finished tree edit. A new edit drops the redo stack. */
+  const record = (entry: Omit<HistoryEntry, "before" | "after">, before: Manifest, after: Manifest) => {
+    const tree = { before: treeOf(before), after: treeOf(after) };
+    if (sameTree(tree.before, tree.after)) return; // e.g. moving the first page up
+    set({ history: { undo: [...get().history.undo, { ...entry, ...tree }].slice(-HISTORY_LIMIT), redo: [] } });
+  };
+  let historyBusy = false;
+  /** Undoes (`from` = "undo") or redoes (`from` = "redo") the latest entry of that stack. */
+  const travel = async (from: "undo" | "redo"): Promise<boolean> => {
+    if (historyBusy) return false;
+    historyBusy = true;
+    try {
+      await flush();
+      const entry = get().history[from].at(-1);
+      if (!entry) return false;
+      const { root } = need();
+      const undoing = from === "undo";
+      let target = undoing ? entry.before : entry.after;
+      const present = entry.file ? entry.file.added !== undoing : false; // should the page file exist when we are done?
+      let file = entry.file?.path;
+      let trashPath = entry.trashPath;
+      // Files first when bringing one back, manifest first when sending one away: the manifest never names a missing file.
+      if (file && present) {
+        if (!trashPath) throw new Error(t`the page is no longer in the trash`);
+        const back = await bridge.restoreTrash(root, trashPath); // comes back as -2 when its name was taken since
+        if (back !== file) target = retargetFile(target, file, back);
+        file = back;
+        trashPath = undefined;
+      }
+      await saveManifest(withTree(need().manifest, target));
+      if (file && !present) trashPath = await bridge.trashFile(root, file); // never a hard delete
+      const was = entry.file?.path;
+      const fix = (e: HistoryEntry) => (was && file && was !== file ? retargetEntry(e, was, file) : e);
+      const { history } = get();
+      const { trashPath: _old, ...rest } = fix(entry);
+      const moved: HistoryEntry = trashPath ? { ...rest, trashPath } : rest;
+      const kept = history[from].slice(0, -1).map(fix);
+      const other = (undoing ? history.redo : history.undo).map(fix);
+      set({ history: undoing ? { undo: kept, redo: [...other, moved] } : { undo: [...other, moved], redo: kept } });
+      // Show a page that came back; otherwise keep the open page unless it no longer exists.
+      const next = need().manifest;
+      const shown = file && present ? readingOrder(next).find((e) => e.file === file) : undefined;
+      const cur = get().currentId;
+      if (shown) await load(shown.id);
+      else if (cur && !entryOf(next, cur)) {
+        set({ currentId: null, currentDoc: null });
+        const fallback = next.chapters[0] ?? readingOrder(next)[0];
+        if (fallback) await load(fallback.id);
+      }
+      set({ notice: undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}` });
+      if (get().trash.length) void get().actions.refreshTrash().catch(() => {});
+      return true;
+    } catch (e) {
+      const why = e instanceof Error ? e.message : String(e);
+      set({ notice: from === "undo" ? t`Could not undo: ${why}` : t`Could not redo: ${why}` });
+      return false;
+    } finally {
+      historyBusy = false;
+    }
+  };
   /** Saves unsaved edits so switching chapters never loses typing. */
   const flush = async () => {
     const d = get().draft;
@@ -153,9 +245,11 @@ export const useProject = create<State>((set, get) => {
   };
 
   return {
-    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, pdfStage: null, trash: [],
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, pdfStage: null, trash: [], history: NO_HISTORY,
     actions: {
       flush,
+      undo: () => travel("undo"),
+      redo: () => travel("redo"),
       async refreshTrash() {
         const { root } = need();
         const entries = await bridge.listTrash(root);
@@ -178,6 +272,7 @@ export const useProject = create<State>((set, get) => {
         const { manifest: next, entry } = restoreEntry(manifest, file, titleOfDoc(doc, file));
         if (r) set({ hashes: { ...get().hashes, [file]: r.hash } });
         await saveManifest(next);
+        record({ label: t`Restore ${entry.title}`, file: { path: file, added: true } }, manifest, next);
         set({ trash: get().trash.filter((x) => x.path !== path) });
         await load(entry.id);
       },
@@ -188,7 +283,7 @@ export const useProject = create<State>((set, get) => {
         if (!r || r.hash === hashes[path]) return; // gone, unreadable, or our own write
         if (path === "cadabra.json") {
           try {
-            set({ manifest: parseManifest(r.contents).manifest, hashes: { ...get().hashes, [path]: r.hash }, notice: t`Chapter list updated from outside the app` });
+            set({ manifest: parseManifest(r.contents).manifest, hashes: { ...get().hashes, [path]: r.hash }, history: NO_HISTORY, notice: t`Chapter list updated from outside the app` });
           } catch {
             set({ notice: t`cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version` });
           }
@@ -207,7 +302,7 @@ export const useProject = create<State>((set, get) => {
         const r = await bridge.readFile(root, "cadabra.json");
         if (!r) throw new Error(t`No cadabra.json in that folder`);
         const parsed = parseManifest(r.contents);
-        set({ root, manifest: parsed.manifest, hashes: { "cadabra.json": r.hash }, currentId: null, currentDoc: null, notice: "" });
+        set({ root, manifest: parsed.manifest, hashes: { "cadabra.json": r.hash }, currentId: null, currentDoc: null, notice: "", history: NO_HISTORY, trash: [] });
         if (parsed.migrated) {
           const backup = await bridge.backupManifest(root);
           await saveManifest(parsed.manifest);
@@ -222,6 +317,7 @@ export const useProject = create<State>((set, get) => {
         await bridge.createProject(root, serializeManifest(manifest));
         await get().actions.openProject(root);
         await get().actions.add(t`Chapter One`);
+        set({ history: NO_HISTORY }); // the first chapter is part of creating the book
       },
       selectChapter: load,
       async saveCurrent(doc) {
@@ -238,6 +334,7 @@ export const useProject = create<State>((set, get) => {
         const w = await bridge.writeFile(root, entry.file, JSON.stringify(emptyDoc(title), null, 2), null);
         set({ hashes: { ...get().hashes, [entry.file]: w.hash } });
         await saveManifest(next);
+        record({ label: t`Add ${title}`, file: { path: entry.file, added: true } }, manifest, next);
         await load(entry.id);
       },
       async addMatter(section, kind, title) {
@@ -249,22 +346,28 @@ export const useProject = create<State>((set, get) => {
         const w = await bridge.writeFile(root, entry.file, JSON.stringify(doc, null, 2), null);
         set({ hashes: { ...get().hashes, [entry.file]: w.hash } });
         await saveManifest(next);
+        record({ label: t`Add ${name}`, file: { path: entry.file, added: true } }, manifest, next);
         await load(entry.id);
       },
       async rename(id, title) {
         const m = need().manifest;
-        await saveManifest(sectionOf(m, id) === "chapter" ? renameChapter(m, id, title) : renameMatter(m, id, title));
+        const next = sectionOf(m, id) === "chapter" ? renameChapter(m, id, title) : renameMatter(m, id, title);
+        await saveManifest(next);
+        record({ label: t`Rename ${entryOf(m, id)?.title ?? ""}` }, m, next);
       },
       async move(id, delta) {
         const m = need().manifest;
-        await saveManifest(sectionOf(m, id) === "chapter" ? moveChapter(m, id, delta) : moveMatter(m, id, delta));
+        const next = sectionOf(m, id) === "chapter" ? moveChapter(m, id, delta) : moveMatter(m, id, delta);
+        await saveManifest(next);
+        record({ label: t`Move ${entryOf(m, id)?.title ?? ""}` }, m, next);
       },
       async remove(id) {
         const { root, manifest } = need();
         const currentId = get().currentId;
         const { manifest: next, removed } = sectionOf(manifest, id) === "chapter" ? removeChapter(manifest, id) : removeMatter(manifest, id);
         await saveManifest(next);
-        await bridge.trashFile(root, removed.file); // moved to .cadabra/trash, never permanently deleted
+        const trashPath = await bridge.trashFile(root, removed.file); // moved to .cadabra/trash, never permanently deleted
+        record({ label: t`Move ${removed.title} to trash`, file: { path: removed.file, added: false }, trashPath }, manifest, next);
         if (currentId === id) {
           set({ currentId: null, currentDoc: null });
           const fallback = next.chapters[0] ?? readingOrder(next)[0];

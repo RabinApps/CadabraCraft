@@ -43,7 +43,9 @@ async function fakeTauri(page: Page) {
           case "backup_manifest": return "backup";
           // Same naming as the Rust command: .cadabra/trash/<stamp>-<path with / as __>.
           case "trash_project_file": {
-            const to = `.cadabra/trash/20260101-1200-${a.path.replaceAll("/", "__")}`;
+            const base = `.cadabra/trash/20260101-1200-${a.path.replaceAll("/", "__")}`;
+            let to = base; // like the Rust command, never overwrite an earlier trashed file
+            for (let n = 2; to in disk; n++) to = base.replace(/\.json$/, `-${n}.json`);
             disk[to] = disk[a.path]!; delete disk[a.path]; persist(); return to;
           }
           case "list_project_trash":
@@ -561,6 +563,55 @@ test("details panel shows page and book facts on desktop and can be hidden", asy
   await expect(panel.getByText("Words").locator("xpath=following-sibling::dd")).not.toHaveText("0");
   await page.getByRole("button", { name: "Details" }).click();
   await expect(panel).toBeHidden();
+});
+
+test("book undo and redo: sidebar buttons and shortcut, trash round trip, separate from editor undo", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await newProject(page);
+  const nav = page.getByRole("navigation", { name: "Chapters" });
+  const undo = nav.getByRole("button", { name: /^Undo/ });
+  const redo = nav.getByRole("button", { name: /^Redo/ });
+  await expect(undo).toBeDisabled();
+  await expect(redo).toBeDisabled();
+  const chapters = () => page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title));
+  const trashCount = () => page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")).length);
+
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await expect(undo).toHaveAccessibleName("Undo: Add Chapter 2");
+  // Removing then undoing brings the page back from the trash.
+  await chapterAction(page, "Chapter 2", "Move to trash");
+  await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
+  expect(await chapters()).toEqual(["Chapter One"]);
+  expect(await trashCount()).toBe(1);
+  await undo.click();
+  expect(await chapters()).toEqual(["Chapter One", "Chapter 2"]);
+  expect(await trashCount()).toBe(0);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await expect(redo).toBeEnabled();
+  await redo.click();
+  expect(await chapters()).toEqual(["Chapter One"]);
+  expect(await trashCount()).toBe(1);
+
+  // Keyboard: Mod+Alt+Z undoes the book edit; Mod+Z in the editor only undoes typing.
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.type(" typed");
+  await page.keyboard.press("ControlOrMeta+z");
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+  expect(await chapters()).toEqual(["Chapter One"]); // editor undo did not touch the tree
+  await page.keyboard.press("ControlOrMeta+Alt+z");
+  await expect(page.getByRole("button", { name: "Chapter 2", exact: true })).toBeVisible();
+  expect(await chapters()).toEqual(["Chapter One", "Chapter 2"]);
+  await page.keyboard.press("ControlOrMeta+Alt+Shift+z");
+  await expect(page.getByRole("button", { name: "Chapter 2", exact: true })).toHaveCount(0);
+  expect(await trashCount()).toBe(1);
+
+  // Undoing an add trashes, never deletes.
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await expect(redo).toBeDisabled();
+  await undo.click();
+  await expect.poll(trashCount).toBe(2);
 });
 
 test("details panel is not shown on a tablet", async ({ page }) => {

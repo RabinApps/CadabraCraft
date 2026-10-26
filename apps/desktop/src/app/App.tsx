@@ -52,6 +52,17 @@ export function App() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [focus, setLayout]);
+  useEffect(() => {
+    if (!open) return;
+    // Book-level undo/redo (chapter list edits): Mod+Alt+Z / Mod+Alt+Shift+Z. Mod+Z, Mod+Shift+Z and Mod+Y stay with the editor's text undo.
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || !e.altKey || e.code !== "KeyZ" || document.querySelector("[role=dialog]")) return;
+      e.preventDefault();
+      void (e.shiftKey ? actions.redo() : actions.undo());
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, actions]);
   const [words, setWords] = useState(0);
   useEffect(() => {
     // Count immediately for a freshly loaded chapter, but debounce while typing so large chapters stay responsive.

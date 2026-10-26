@@ -72,6 +72,14 @@ msgstr ""
 msgid "Actions for {0}"
 msgstr ""
 
+#: src/app/store.ts
+msgid "Add {name}"
+msgstr ""
+
+#: src/app/store.ts
+msgid "Add {title}"
+msgstr ""
+
 #: src/app/App.tsx
 #: src/app/Sidebar.tsx
 msgid "Add chapter"
@@ -130,6 +138,10 @@ msgstr ""
 
 #: src/app/Details.tsx
 msgid "Book"
+msgstr ""
+
+#: src/app/Sidebar.tsx
+msgid "Book history"
 msgstr ""
 
 #: src/editor/ReadingFooter.tsx
@@ -233,6 +245,14 @@ msgstr ""
 #. placeholder {0}: e instanceof Error ? e.message : String(e)
 #: src/app/store.ts
 msgid "Could not add the image: {0}"
+msgstr ""
+
+#: src/app/store.ts
+msgid "Could not redo: {why}"
+msgstr ""
+
+#: src/app/store.ts
+msgid "Could not undo: {why}"
 msgstr ""
 
 #: src/app/Home.tsx
@@ -456,6 +476,16 @@ msgstr ""
 msgid "Move “{0}” to trash?"
 msgstr ""
 
+#. placeholder {0}: entryOf(m, id)?.title ?? ""
+#: src/app/store.ts
+msgid "Move {0}"
+msgstr ""
+
+#. placeholder {0}: removed.title
+#: src/app/store.ts
+msgid "Move {0} to trash"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Move down"
 msgstr ""
@@ -587,8 +617,22 @@ msgstr ""
 msgid "Recent projects"
 msgstr ""
 
+#. placeholder {0}: entry.label
+#: src/app/store.ts
+msgid "Redid: {0}"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Redo"
+msgstr ""
+
+#: src/app/Sidebar.tsx
+msgid "Redo book change"
+msgstr ""
+
+#. placeholder {0}: lastRedo.label
+#: src/app/Sidebar.tsx
+msgid "Redo: {0}"
 msgstr ""
 
 #. placeholder {0}: r.title || r.root
@@ -600,12 +644,19 @@ msgstr ""
 msgid "Rename"
 msgstr ""
 
+#. placeholder {0}: entryOf(m, id)?.title ?? ""
+#: src/app/store.ts
+msgid "Rename {0}"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Restore"
 msgstr ""
 
+#. placeholder {0}: entry.title
 #. placeholder {0}: x.title
 #: src/app/Sidebar.tsx
+#: src/app/store.ts
 msgid "Restore {0}"
 msgstr ""
 
@@ -677,6 +728,10 @@ msgstr ""
 
 #: src/lib/pdfErrors.ts
 msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
+msgstr ""
+
+#: src/app/store.ts
+msgid "the page is no longer in the trash"
 msgstr ""
 
 #: src/app/Sidebar.tsx
@@ -772,8 +827,22 @@ msgstr ""
 msgid "Underline"
 msgstr ""
 
+#. placeholder {0}: entry.label
+#: src/app/store.ts
+msgid "Undid: {0}"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Undo"
+msgstr ""
+
+#: src/app/Sidebar.tsx
+msgid "Undo book change"
+msgstr ""
+
+#. placeholder {0}: lastUndo.label
+#: src/app/Sidebar.tsx
+msgid "Undo: {0}"
 msgstr ""
 
 #: src/app/Home.tsx

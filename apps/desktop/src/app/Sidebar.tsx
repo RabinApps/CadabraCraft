@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowDown, ArrowUp, Ellipsis, FilePlus, GripVertical, Pencil, Plus, Trash2, Undo2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Ellipsis, FilePlus, GripVertical, Pencil, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
 import { canAddMatter, type ManuscriptEntry } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
 import { Confirm, Modal } from "../ui/Dialog";
@@ -138,7 +138,10 @@ function TrashDialog({ open, onOpenChange, onNavigate }: { open: boolean; onOpen
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { t } = useLingui();
-  const { manifest, currentId, actions } = useProject();
+  const { manifest, currentId, history, actions } = useProject();
+  const lastUndo = history.undo.at(-1);
+  const lastRedo = history.redo.at(-1);
+  const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
   const [editing, setEditing] = useState<Editing>(null);
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
@@ -177,6 +180,22 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </M.Portal>
       </M.Root>
       <Button variant="ghost" icon={Trash2} className="justify-start" onClick={() => setTrashOpen(true)}>{t`Trash`}</Button>
+      <div role="group" aria-label={t`Book history`} className="flex items-center gap-1">
+        <IconButton
+          icon={Undo2}
+          label={lastUndo ? t`Undo: ${lastUndo.label}` : t`Undo book change`}
+          title={`${lastUndo ? t`Undo: ${lastUndo.label}` : t`Undo book change`} (${isMac ? "⌘⌥Z" : "Ctrl+Alt+Z"})`}
+          disabled={!lastUndo}
+          onClick={() => void actions.undo()}
+        />
+        <IconButton
+          icon={Redo2}
+          label={lastRedo ? t`Redo: ${lastRedo.label}` : t`Redo book change`}
+          title={`${lastRedo ? t`Redo: ${lastRedo.label}` : t`Redo book change`} (${isMac ? "⌘⌥⇧Z" : "Ctrl+Alt+Shift+Z"})`}
+          disabled={!lastRedo}
+          onClick={() => void actions.redo()}
+        />
+      </div>
       <TrashDialog open={trashOpen} onOpenChange={setTrashOpen} onNavigate={onNavigate} />
       <Confirm
         open={deleting !== null}
