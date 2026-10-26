@@ -17,6 +17,20 @@ export const SmallCaps = Mark.create({
   renderHTML: ({ HTMLAttributes }) => ["span", mergeAttributes(HTMLAttributes, { class: "small-caps" }), 0],
 });
 
+export const Superscript = Mark.create({
+  name: "superscript",
+  excludes: "subscript",
+  parseHTML: () => [{ tag: "sup" }],
+  renderHTML: ({ HTMLAttributes }) => ["sup", HTMLAttributes, 0],
+});
+
+export const Subscript = Mark.create({
+  name: "subscript",
+  excludes: "superscript",
+  parseHTML: () => [{ tag: "sub" }],
+  renderHTML: ({ HTMLAttributes }) => ["sub", HTMLAttributes, 0],
+});
+
 /** Inline footnote; its text lives in the node content. */
 export const Footnote = Node.create({
   name: "footnote",
@@ -74,12 +88,13 @@ export const CaptionedImage = Image.extend({
   },
 });
 
-/** The fixed v1 schema. Headings limited to levels 1-3. Strike, code and rules are disabled. StarterKit 3 bundles underline and link. */
+/**
+ * The fixed schema. Headings limited to levels 1-3. Code blocks and rules are disabled.
+ * StarterKit 3 bundles underline, link, strike and inline code; superscript and subscript are our own marks.
+ */
 export const extensions = [
   StarterKit.configure({
     heading: { levels: [1, 2, 3] },
-    strike: false,
-    code: false,
     codeBlock: false,
     horizontalRule: false,
     link: { openOnClick: false },
@@ -87,6 +102,8 @@ export const extensions = [
   CaptionedImage,
   SceneBreak,
   SmallCaps,
+  Superscript,
+  Subscript,
   Footnote,
 ];
 

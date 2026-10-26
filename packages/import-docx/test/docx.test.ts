@@ -137,9 +137,10 @@ describe("importDocx", () => {
     expect(w(r, "comments")).toBeDefined();
     expect(w(r, "equation")).toMatchObject({ examples: ["x=1"] });
     expect(w(r, "header-footer")).toMatchObject({ examples: ["Running head"] });
-    expect(w(r, "unsupported-formatting")).toBeDefined();
+    expect(w(r, "unsupported-formatting")).toBeUndefined();
     const text = JSON.stringify(r.chapters[0]!.doc);
     for (const s of ["cell1 | b", "added", "x=1", "struck"]) expect(text).toContain(s);
+    expect(text).toContain('"marks":[{"type":"strike"}]');
     expect(text).not.toContain("removed");
     expectValid(r);
   });

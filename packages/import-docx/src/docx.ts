@@ -274,10 +274,9 @@ function rest(rPr: XNode, ctx: DCtx): Mark[] {
   if (u && attr(u, "val") !== "none" && attr(u, "val") !== "0") m.push({ type: "underline" });
   const sc = child(rPr, "smallCaps");
   if (sc && on(sc)) m.push({ type: "smallCaps" });
-  for (const [tag, what] of [["strike", "strikethrough"], ["dstrike", "strikethrough"]] as const)
-    if (on(child(rPr, tag))) ctx.warn.tally("unsupported-formatting", "info", "Formatting that has no equivalent here was dropped (text kept): " + "strikethrough, superscript/subscript.", what);
+  if (on(child(rPr, "strike")) || on(child(rPr, "dstrike"))) m.push({ type: "strike" });
   const va = attr(child(rPr, "vertAlign") ?? {}, "val");
-  if (va === "superscript" || va === "subscript") ctx.warn.tally("unsupported-formatting", "info", "Formatting that has no equivalent here was dropped (text kept): strikethrough, superscript/subscript.", va);
+  if (va === "superscript" || va === "subscript") m.push({ type: va });
   return m;
 }
 

@@ -50,6 +50,7 @@
 #show enum: set par(first-line-indent: 0pt)
 #set list(indent: 0.8em, body-indent: 0.6em)
 #set enum(indent: 0.8em, body-indent: 0.6em)
+#show raw: set text(size: 0.9em)
 #show footnote.entry: set text(size: 0.85em)
 #show footnote.entry: set par(first-line-indent: 0pt, justify: false)
 #show figure: set block(above: 1.2em, below: 1.2em)
@@ -121,5 +122,7 @@ One
 #smallcaps[Two ]#link("https://example.com/?a=1&b=2")[link]
   ],
 )
+
+#strike[struck] #raw("a<b") H#sub[2]O x#super[2]
 
 #mark("chapter-end")

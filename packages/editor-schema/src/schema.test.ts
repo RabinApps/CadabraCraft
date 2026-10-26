@@ -15,12 +15,15 @@ describe("v1 editor schema", () => {
   });
   it("defines every v1 node and mark", () => {
     for (const n of ["paragraph", "heading", "blockquote", "bulletList", "orderedList", "image", "sceneBreak", "footnote"]) expect(schema.nodes[n], n).toBeDefined();
-    for (const m of ["bold", "italic", "underline", "smallCaps", "link"]) expect(schema.marks[m], m).toBeDefined();
+    for (const m of ["bold", "italic", "underline", "smallCaps", "strike", "code", "superscript", "subscript", "link"]) expect(schema.marks[m], m).toBeDefined();
   });
   it("leaves out unsupported features", () => {
-    expect(schema.marks.strike).toBeUndefined();
-    expect(schema.marks.code).toBeUndefined();
     expect(schema.nodes.codeBlock).toBeUndefined();
+  });
+  it("keeps superscript and subscript mutually exclusive", () => {
+    const doc = (marks: { type: string }[]) => ({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x", marks }] }] });
+    expect(() => Node.fromJSON(schema, doc([{ type: "strike" }, { type: "superscript" }])).check()).not.toThrow();
+    expect(() => Node.fromJSON(schema, doc([{ type: "superscript" }, { type: "subscript" }])).check()).toThrow();
   });
   it("restricts headings to levels 1-3", () => {
     const h = (level: number) => ({ type: "doc", content: [{ type: "heading", attrs: { level }, content: [{ type: "text", text: "x" }] }] });

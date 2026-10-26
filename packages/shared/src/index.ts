@@ -4,7 +4,7 @@ export * from "./matter";
 
 /** TipTap/ProseMirror JSON, the on-disk chapter format and the editor/exporter contract. */
 export interface Mark {
-  type: "bold" | "italic" | "underline" | "smallCaps" | "link";
+  type: "bold" | "italic" | "underline" | "smallCaps" | "strike" | "code" | "superscript" | "subscript" | "link";
   attrs?: { href?: string };
 }
 

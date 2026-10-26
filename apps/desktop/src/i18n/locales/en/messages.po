@@ -448,6 +448,11 @@ msgid "Close Window"
 msgstr "Close Window"
 
 #: src/app/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Code"
+msgstr "Code"
+
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Colophon"
 msgstr "Colophon"
@@ -1385,6 +1390,21 @@ msgstr "Start a new chapter at"
 #: src/app/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr "Start a new folder, or open one you already have. Everything stays on this computer."
+
+#: src/app/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Strikethrough"
+msgstr "Strikethrough"
+
+#: src/app/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Subscript"
+msgstr "Subscript"
+
+#: src/app/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Superscript"
+msgstr "Superscript"
 
 #: src/app/Settings.tsx
 #: src/editor/ReadingSettings.tsx

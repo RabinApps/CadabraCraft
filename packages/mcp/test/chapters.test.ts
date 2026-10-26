@@ -158,7 +158,7 @@ describe("chapter_write_json", () => {
     const before = readFileSync(file, "utf8");
     const bad: unknown[] = [
       { type: "doc", content: [{ type: "bogusNode" }] },
-      { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x", marks: [{ type: "strike" }] }] }] },
+      { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x", marks: [{ type: "bogusMark" }] }] }] },
       { type: "doc", content: [{ type: "heading", attrs: { level: 4 }, content: [{ type: "text", text: "x" }] }] },
       { type: "doc", content: [{ type: "text", text: "loose text" }] },
       { type: "paragraph" },

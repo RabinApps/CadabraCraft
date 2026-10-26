@@ -13,7 +13,7 @@ const sample: ChapterDoc = JSON.parse(
   readFileSync(new URL("../../../fixtures/manuscripts/sample-chapter.json", import.meta.url), "utf8"),
 );
 const ch = (...content: DocNode[]): PdfChapter[] => [{ id: "c", title: "C", doc: { type: "doc", content } }];
-const text = (t: string, marks?: { type: "bold" | "italic" | "underline" | "smallCaps" | "link"; attrs?: { href?: string } }[]): DocNode => ({
+const text = (t: string, marks?: { type: "bold" | "italic" | "underline" | "smallCaps" | "strike" | "code" | "superscript" | "subscript" | "link"; attrs?: { href?: string } }[]): DocNode => ({
   type: "text", text: t, ...(marks ? { marks } : {}),
 });
 const para = (...c: DocNode[]): DocNode => ({ type: "paragraph", content: c });
@@ -80,6 +80,18 @@ describe("buildTypst content", () => {
   });
 });
 
+describe("strike, code, superscript, subscript", () => {
+  const src = (...c: DocNode[]) => buildTypst(book, ch(para(...c)));
+  it("emits Typst calls", () => {
+    const out = src(text("a", [{ type: "strike" }]), text("b", [{ type: "superscript" }]), text("c", [{ type: "subscript" }]));
+    for (const s of ["#strike[a]", "#super[b]", "#sub[c]"]) expect(out).toContain(s);
+  });
+  it("passes inline code through a raw string so markup characters stay literal", () => {
+    const out = src(text('#let x = "y" *z*', [{ type: "code" }]));
+    expect(out).toContain('#raw("#let x = \\"y\\" *z*")');
+  });
+});
+
 describe("escaping inside documents", () => {
   it("never leaks hostile text as markup", () => {
     const out = buildTypst(book, ch(...HOSTILE.map((h) => para(text(h)))));
@@ -126,7 +138,7 @@ describe("unsupported input", () => {
     expect(() => buildTypst(book, ch(para({ type: "hardBreak" } as unknown as DocNode)))).toThrow(/hardBreak/);
   });
   it("throws on unknown marks", () => {
-    expect(() => buildTypst(book, ch(para(text("x", [{ type: "strike" } as never]))))).toThrow(/strike/);
+    expect(() => buildTypst(book, ch(para(text("x", [{ type: "bogus" } as never]))))).toThrow(/bogus/);
   });
   it("throws on nested footnotes and unsupported image types", () => {
     const fn = (...c: DocNode[]): DocNode => ({ type: "footnote", content: c });

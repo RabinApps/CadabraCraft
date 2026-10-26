@@ -20,6 +20,15 @@
         { "type": "text", "text": "Two ", "marks": [{ "type": "smallCaps" }] },
         { "type": "text", "text": "link", "marks": [{ "type": "link", "attrs": { "href": "https://example.com/?a=1&b=2" } }] }
       ] }] }
+    ] },
+    { "type": "paragraph", "content": [
+      { "type": "text", "text": "struck", "marks": [{ "type": "strike" }] },
+      { "type": "text", "text": " " },
+      { "type": "text", "text": "a<b", "marks": [{ "type": "code" }] },
+      { "type": "text", "text": " H" },
+      { "type": "text", "text": "2", "marks": [{ "type": "subscript" }] },
+      { "type": "text", "text": "O x" },
+      { "type": "text", "text": "2", "marks": [{ "type": "superscript" }] }
     ] }
   ]
 }

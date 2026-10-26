@@ -53,7 +53,7 @@ export class Warnings {
 }
 
 /** Marks in the editor schema's rank order (ProseMirror requires sorted mark sets). A test checks this against the real schema. */
-export const MARK_ORDER: Mark["type"][] = ["link", "bold", "italic", "underline", "smallCaps"];
+export const MARK_ORDER: Mark["type"][] = ["link", "bold", "code", "italic", "strike", "underline", "smallCaps", "superscript", "subscript"];
 
 export function sortMarks(marks: Mark[]): Mark[] | undefined {
   const seen = new Set<string>();
@@ -64,6 +64,9 @@ export function sortMarks(marks: Mark[]): Mark[] | undefined {
     out.push(m);
   }
   if (out.length === 0) return undefined;
+  // Inline code excludes every other mark in the schema, so it wins over whatever surrounds it.
+  const code = out.find((m) => m.type === "code");
+  if (code) return [code];
   return out.sort((a, b) => MARK_ORDER.indexOf(a.type) - MARK_ORDER.indexOf(b.type));
 }
 

@@ -45,7 +45,7 @@ MyBook/
 - Exports: EPUB marks each page with `epub:type` (`titlepage`, `copyright-page`, `dedication`, `epigraph`, `foreword`, `preface`, `acknowledgments`, `colophon`, `frontmatter`, `bodymatter`, `backmatter`); its contents list leaves out the title page, copyright, dedication, epigraph and colophon. PDF: title and copyright pages carry no header or number, front matter is numbered i, ii, iii..., arabic numbering restarts at 1 on a right-hand page at the first chapter, and back matter continues it.
 
 ## Chapter files
-Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 schema in `@cadabracraft/editor-schema`. Never HTML. Image nodes reference `assets/...` by relative path.
+Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 schema in `@cadabracraft/editor-schema`. Never HTML. Image nodes reference `assets/...` by relative path. Marks: bold, italic, underline, small caps, strike, code, superscript, subscript, link. Adding nodes or marks does not bump `formatVersion` (chapters are not migrated); an older app refuses a chapter that uses one it does not know.
 
 ## Assets
 - Images live in `assets/` (one level, no subfolders) and are referenced from chapters as `assets/<name>`, relative, never absolute and never a URL.

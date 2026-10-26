@@ -8,6 +8,10 @@ const MARK_TAGS: Record<Mark["type"], (m: Mark) => [string, string]> = {
   italic: () => ["<em>", "</em>"],
   underline: () => ['<span class="underline">', "</span>"],
   smallCaps: () => ['<span class="small-caps">', "</span>"],
+  strike: () => ["<s>", "</s>"],
+  code: () => ["<code>", "</code>"],
+  superscript: () => ["<sup>", "</sup>"],
+  subscript: () => ["<sub>", "</sub>"],
   link: (m) => [`<a href="${esc(m.attrs?.href ?? "")}">`, "</a>"],
 };
 
@@ -21,7 +25,9 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
       if (n.type === "text") {
         let out = esc(n.text);
         for (const m of [...(n.marks ?? [])].reverse()) {
-          const [open, close] = MARK_TAGS[m.type](m);
+          const tags = MARK_TAGS[m.type] as ((m: Mark) => [string, string]) | undefined;
+          if (!tags) throw new Error(`Unsupported mark type in chapter: ${String(m.type)}`);
+          const [open, close] = tags(m);
           out = open + out + close;
         }
         return out;

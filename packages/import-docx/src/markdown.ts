@@ -94,12 +94,10 @@ function inlines(nodes: PhrasingContent[], ctx: Ctx, marks: Mark[], inNote = fal
         out.push(...inlines(n.children, ctx, [...marks, { type: "bold" }], inNote));
         break;
       case "delete":
-        ctx.warn.at("strikethrough", "warning", "Strikethrough is not supported; the text was kept without it.", lineOf(n));
-        out.push(...inlines(n.children, ctx, marks, inNote));
+        out.push(...inlines(n.children, ctx, [...marks, { type: "strike" }], inNote));
         break;
       case "inlineCode": {
-        ctx.warn.at("inline-code", "info", "Inline code is not supported; imported as plain text.", lineOf(n));
-        const t = textNode(n.value, marks);
+        const t = textNode(n.value, [...marks, { type: "code" }]);
         if (t) out.push(t);
         break;
       }

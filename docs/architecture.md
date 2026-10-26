@@ -77,6 +77,11 @@ Content hashes are used instead of modification times because sync clients rewri
 ### Editor toolbar
 Formatting buttons (undo/redo, bold, italic, underline, small caps, link, H1-H3, quote, lists, scene break, footnote) live in `apps/desktop/src/editor/Toolbar.tsx`, expose `aria-pressed` state, and are tested in Playwright. Links are limited to http, https and mailto (`normalizeLinkUrl`). The Image button picks a file with the native dialog, imports it into `assets/` and inserts an image node (alt text, caption in `title`); see Images below.
 
+### Strike, inline code, superscript and subscript
+The schema also has the `strike`, `code`, `superscript` and `subscript` marks. Strike and code come from StarterKit (they were switched off before); superscript and subscript are small custom marks in `packages/editor-schema` that exclude each other. Inline code excludes every other mark (StarterKit's rule), so importers keep only `code` when it overlaps other marks. The marks are in the Format menu, not the toolbar, to keep the toolbar short. EPUB writes `<s>`, `<code>`, `<sup>`, `<sub>`; PDF writes `#strike`, `#raw("...")` (a string, so markup characters stay literal), `#super`, `#sub`. An unknown mark throws in both exporters. No format version bump: chapter JSON is not migrated, so old books still open, but an older app refuses a chapter that uses these marks.
+- **Rejected: `@tiptap/extension-superscript` and `-subscript`.** Two more dependencies for a few lines of mark spec each.
+- **Rejected: bumping `formatVersion`.** Migrations only touch the manifest, so the bump would lock older apps out of whole books without protecting any data.
+
 ### Desktop UI stack
 **Decision:** Tailwind CSS v4 with Radix UI primitives (dialog, dropdown menu, toggle group) and lucide icons, in `apps/desktop` only. Design tokens are CSS variables in `src/styles/tokens.css`, mirroring `cadabracraft.pen` and `docs/design.md`; `data-theme` (`system | light | dark`, stored in `localStorage`) switches them. Inter and Newsreader are bundled via `@fontsource-variable/*`, so there are no runtime font requests.
 **Why:** tokens map one to one onto Tailwind `@theme`; build-time only (no runtime, no network); Radix gives accessible dialogs and menus without imposing a look; small bundle for the webview.

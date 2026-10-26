@@ -44,7 +44,7 @@ function kindLabel(kind: MatterKind): string {
 /** Menu items with a tick: the mode switch, the layout toggles and the text formats that apply at the cursor. */
 const TOGGLES = new Set([
   "view.write", "view.read", "view.focus", "view.details",
-  "editor.bold", "editor.italic", "editor.underline", "editor.smallCaps", "editor.h1", "editor.h2", "editor.h3", "editor.quote", "editor.bullets", "editor.numbers",
+  "editor.bold", "editor.italic", "editor.underline", "editor.smallCaps", "editor.strike", "editor.code", "editor.superscript", "editor.subscript", "editor.h1", "editor.h2", "editor.h3", "editor.quote", "editor.bullets", "editor.numbers",
 ]);
 
 export const FRONT_PRESET_IDS = FRONT.map((k) => `insert.front.${k}`);
@@ -139,6 +139,10 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("editor.italic", t`Italic`),
     cmd("editor.underline", t`Underline`),
     cmd("editor.smallCaps", t`Small Caps`),
+    cmd("editor.strike", t`Strikethrough`),
+    cmd("editor.code", t`Code`),
+    cmd("editor.superscript", t`Superscript`),
+    cmd("editor.subscript", t`Subscript`),
     sep,
     cmd("editor.h1", t`Heading 1`),
     cmd("editor.h2", t`Heading 2`),

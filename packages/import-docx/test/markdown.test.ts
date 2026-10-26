@@ -109,10 +109,23 @@ describe("importMarkdown", () => {
       "- [ ] todo",
     ].join("\n");
     const r = importMarkdown(md);
-    expect(codes(r)).toEqual(expect.arrayContaining(["table", "code-block", "html", "strikethrough", "inline-code", "task-list"]));
+    expect(codes(r)).toEqual(expect.arrayContaining(["table", "code-block", "html", "task-list"]));
+    expect(codes(r)).not.toContain("strikethrough");
+    expect(codes(r)).not.toContain("inline-code");
     const text = JSON.stringify(r.chapters[0]!.doc);
     for (const s of ["a | b", "1 | 2", "let x = 1;", "raw", "gone", "code", "[x] done", "[ ] todo"]) expect(text).toContain(s);
     expect(r.warnings.find((w) => w.code === "table")?.line).toBe(3);
+    expectValid(r);
+  });
+
+  it("maps strikethrough and inline code to marks; code beats surrounding marks", () => {
+    const r = importMarkdown("# T\n\n~~gone~~ and `code` and **bold `both`**");
+    const para = r.chapters[0]!.doc.content.find((n) => n.type === "paragraph");
+    const kids = para && "content" in para ? (para.content ?? []) : [];
+    const marksOf = (t: string) => kids.find((n) => n.type === "text" && n.text === t && "marks" in n && n.marks)?.["marks" as never];
+    expect(marksOf("gone")).toEqual([{ type: "strike" }]);
+    expect(marksOf("code")).toEqual([{ type: "code" }]);
+    expect(marksOf("both")).toEqual([{ type: "code" }]);
     expectValid(r);
   });
 

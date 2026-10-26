@@ -29,9 +29,10 @@ ImportResult = { chapters: { title, doc: ChapterDoc }[], warnings: ImportWarning
 | `![alt](path)` | image block, path recorded in `assets`. Remote and non-image targets: `[Image: alt]` text, `remote-image` / `unsupported-image` |
 | hard break | splits paragraph (`line-break`, info) |
 | table | one paragraph per row, ` | ` separated (`table`) |
-| code block / inline code | plain paragraphs per line / plain text (`code-block`, `inline-code` info) |
+| code block | plain paragraphs per line (`code-block`) |
+| inline code | `code` mark (replaces any other marks on that text) |
 | raw HTML | literal text (`html`) |
-| `~~x~~` | text kept (`strikethrough`) |
+| `~~x~~` | `strike` mark |
 | `- [x]` | text prefix `[x] ` / `[ ] ` (`task-list`) |
 
 Markdown warnings carry a 1-based `line`. At most 25 located warnings per code are kept, then one summary with `count`.
@@ -44,7 +45,7 @@ Markdown warnings carry a 1-based `line`. At most 25 located warnings per code a
 | Normal, Body Text, List Paragraph, ... | paragraph |
 | Quote, Block Quote, Intense Quote | blockquote (consecutive paragraphs merge) |
 | List Bullet/Number (n), numbering (`numPr`, format from numbering.xml) | nested bullet/ordered lists |
-| bold, italic, underline, small caps (direct or character style `Strong`/`Emphasis`) | marks |
+| bold, italic, underline, small caps (direct or character style `Strong`/`Emphasis`), strikethrough, superscript, subscript | marks |
 | hyperlink, `HYPERLINK` fields | link mark (http/https/mailto only) |
 | footnotes (endnotes too) | inline footnote node (flattened to text) |
 | centered paragraph `* * *` or `#` | sceneBreak. Uncentered `* * *` stays a paragraph |
@@ -65,8 +66,7 @@ Markdown warnings carry a 1-based `line`. At most 25 located warnings per code a
 | `internal-link` | docx (info) | link to a bookmark, kept as text |
 | `line-break` | both (info) | break split into paragraphs |
 | `table` | both | table flattened to row paragraphs |
-| `strikethrough`, `unsupported-formatting` | md / docx | strike, superscript, subscript dropped, text kept |
-| `code-block`, `inline-code`, `html`, `task-list` | md | see table above |
+| `code-block`, `html`, `task-list` | md | see table above |
 | `remote-image`, `unsupported-image` | md | image not imported |
 | `footnote-undefined`, `footnote-unreferenced`, `footnote-nested`, `footnote-complex` | md | footnote problems |
 | `nesting-too-deep` | md | list/quote deeper than `maxNestingDepth` flattened |
@@ -106,5 +106,5 @@ DOCX archives: declared uncompressed size summed over all entries must stay unde
 
 - **Markdown parser: `unified` + `remark-parse` + `remark-gfm` (MIT).** Gives an mdast with line positions (needed for located warnings), GFM footnotes, tables, strikethrough and task lists as distinct nodes so each can be reported. Rejected: `markdown-it` (footnotes need a plugin, tokens are flatter and make nested-structure conversion and position tracking more manual; has HTML-first design).
 - **DOCX: fflate + `fast-xml-parser` (MIT), direct OOXML.** Total control over what is reported and a pure in-memory byte API with size guards. Rejected: `mammoth` (BSD-2) converts to HTML and deliberately ignores unsupported features, so we could not report counts of dropped constructs, has no small caps, and would force an HTML-to-TipTap second hop; it also reads the zip with its own JSZip pipeline without the size caps we want.
-- Marks are emitted in the editor schema's rank order (`link, bold, italic, underline, smallCaps`); a test compares against the real schema.
+- Marks are emitted in the editor schema's rank order (`link, bold, code, italic, strike, underline, smallCaps, superscript, subscript`; `code` excludes all other marks, so it replaces them); a test compares against the real schema.
 - Hard/soft line breaks become separate paragraphs because the shared `DocNode` contract has no hard-break node.

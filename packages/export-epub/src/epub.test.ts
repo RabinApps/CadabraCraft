@@ -19,6 +19,14 @@ describe("chapterToXhtmlBody", () => {
     expect(html).toContain('<hr class="scene-break"/>');
     expect(html).toContain("a=1&amp;b=2");
   });
+  it("renders strike, code, superscript and subscript", () => {
+    const html = chapterToXhtmlBody(doc);
+    for (const s of ["<s>struck</s>", "<code>a&lt;b</code>", "H<sub>2</sub>O", "x<sup>2</sup>"]) expect(html).toContain(s);
+  });
+  it("rejects unknown marks with a clear error", () => {
+    const bad = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x", marks: [{ type: "bogus" }] }] }] } as never;
+    expect(() => chapterToXhtmlBody(bad)).toThrow(/Unsupported mark/);
+  });
   it("rejects unknown nodes instead of dropping them", () => {
     expect(() => chapterToXhtmlBody({ type: "doc", content: [{ type: "footnote" } as never, { type: "bogus" } as never] })).toThrow(/Unsupported/);
   });

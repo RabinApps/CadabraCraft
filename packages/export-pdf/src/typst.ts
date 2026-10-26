@@ -75,6 +75,11 @@ function wrapMark(content: string, m: Mark): string {
     case "italic": return `#emph[${content}]`;
     case "underline": return `#underline[${content}]`;
     case "smallCaps": return `#smallcaps[${content}]`;
+    case "strike": return `#strike[${content}]`;
+    case "superscript": return `#super[${content}]`;
+    case "subscript": return `#sub[${content}]`;
+    // Inline code is emitted as a raw string by `inline`, which has the unescaped text.
+    case "code": return content;
     case "link": {
       const href = m.attrs?.href?.trim() ?? "";
       // Anything but http(s)/mailto keeps its text and loses the link.
@@ -97,8 +102,9 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx, lineStart: boolean, inFo
         out += escapeMarkup(n.text, { lineStart: atStart, afterCall });
         afterCall = false;
       } else {
-        let s = escapeMarkup(n.text, { lineStart: true });
-        let called = false;
+        const isCode = marks.some((m) => m.type === "code");
+        let s = isCode ? `#raw(${typstString(n.text)})` : escapeMarkup(n.text, { lineStart: true });
+        let called = isCode;
         for (const m of marks) {
           const w = wrapMark(s, m);
           called ||= w !== s;
@@ -277,6 +283,7 @@ ${headingRule(3, p.headings[3], fonts.heading)}
 #show enum: set par(first-line-indent: 0pt)
 #set list(indent: 0.8em, body-indent: 0.6em)
 #set enum(indent: 0.8em, body-indent: 0.6em)
+#show raw: set text(size: 0.9em)
 #show footnote.entry: set text(size: ${em(p.footnoteSizeEm)})
 #show footnote.entry: set par(first-line-indent: 0pt, justify: false)
 #show figure: set block(above: 1.2em, below: 1.2em)
