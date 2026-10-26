@@ -13,7 +13,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 - M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
 - M2+: backups and shortcuts settings (disabled nav items for now), command palette, find and replace, outline navigator.
-- M4: .docx import wizard.
+- Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
 
 ### Internationalization
 Infrastructure is in; see the Internationalization section of [architecture.md](architecture.md).
@@ -34,6 +34,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Draw the Compare index, Features, Download and tablet widths in the pen; link the LICENSE once the licensing question is settled; add a real download link once a GitHub Release exists.
 
 ## Done
+- M4: import wizard (source step, then a preview of the detected chapters with split level, rename and skip), see import.md.
 - M1: apply the design system (Tailwind v4 + Radix), restyle Home, editor, reading mode, dialogs and toasts.
 - M2: Settings page (its Backups and Shortcuts sections are not built), templates gallery, Export dialog, approximate print preview (see architecture.md, "M2 UI").
 - M2+: focus mode.

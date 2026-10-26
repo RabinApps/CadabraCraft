@@ -40,7 +40,7 @@ CadabraCraft is a desktop app for writing and formatting books. Write in a rich-
 | M1 | File format and editor | Done (native WebDriver suite written, not yet run on Linux or Windows CI) |
 | M2 | Templates, Settings, Export dialog, print preview | Built |
 | M3 | Book details, cover, sponsor dialog | Done (real-client sync checklist is manual and not yet run, see [docs/sync-testing.md](docs/sync-testing.md)) |
-| M4 | `.docx` import wizard | Not started |
+| M4 | `.docx` import wizard | Done |
 
 Ideas outside the current milestone live in [docs/roadmap.md](docs/roadmap.md).
 

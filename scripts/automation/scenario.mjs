@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { connect } from "./client.mjs";
+import { tinyDocx } from "../../apps/desktop/e2e/fixtures.ts";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const args = process.argv.slice(2);
@@ -42,6 +43,10 @@ app ??= await connect();
 const book = join(out, "book"), imported = join(out, "imported"), src = join(out, "src");
 for (const d of [book, imported, src]) mkdirSync(d, { recursive: true });
 writeFileSync(join(src, "book.md"), "# First\n\nHello *world*[^1].\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# Second\n\nMore.\n\n[^1]: Note.\n");
+writeFileSync(join(src, "book.docx"), tinyDocx({ image: true }));
+const docxBefore = readFileSync(join(src, "book.docx"));
+const importedDocx = join(out, "imported-docx");
+mkdirSync(importedDocx, { recursive: true });
 const mdBefore = readFileSync(join(src, "book.md"), "utf8");
 const png = join(repo, "fixtures/assets/pixel.png");
 const shot = (n) => app.screenshot(join(out, `${n}.png`));
@@ -327,12 +332,40 @@ try {
     await app.click("Import…"); await app.sleep(800);
     await app.click("Choose file…"); await app.sleep(500);
     await app.click("Choose…"); await app.sleep(500);
+    await app.click("Next"); await app.sleep(1000);
     await app.click("Import"); await app.sleep(4000);
     const s = await app.snapshot();
     assert(s.dialogs.some((d) => d.includes("Imported 2 chapters") && d.includes("table")), "report missing or wrong");
     assert(readFileSync(join(src, "book.md"), "utf8") === mdBefore, "source file was modified");
     assert(existsSync(join(imported, "manuscript/002-second.json")), "chapter files missing");
     await shot("04-import-report");
+  });
+
+  await step("import a real .docx through the wizard: preview, rename, skip; source untouched", async () => {
+    await app.click("Done").catch(() => {}); await app.sleep(500);
+    await app.js("location.reload()").catch(() => {}); await app.sleep(3000);
+    await app.queueDialogs([join(src, "book.docx"), importedDocx]);
+    await app.click("Import…"); await app.sleep(800);
+    await app.click("Choose file…"); await app.sleep(500);
+    await app.click("Choose…"); await app.sleep(500);
+    await app.click("Next"); await app.sleep(1500);
+    const prev = await app.snapshot();
+    assert(JSON.stringify(prev).includes("Title of chapter 2"), "preview step with chapter rows not shown");
+    assert(!existsSync(join(importedDocx, "cadabra.json")), "something was written before Import");
+    await shot("05-import-preview");
+    await dlg(`const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set; const i = d.querySelector('input[aria-label="Title of chapter 1"]'); set.call(i, "Prologue"); i.dispatchEvent(new Event("input", { bubbles: true })); return "renamed";`);
+    await dlg(`d.querySelector('input[aria-label="Include chapter 2"]').click(); return "skipped";`);
+    await app.sleep(300);
+    await app.click("Import"); await app.sleep(4000);
+    const s = await app.snapshot();
+    assert(s.dialogs.some((d) => d.includes("Imported 1 chapter")), "report missing or wrong chapter count");
+    assert(readFileSync(join(src, "book.docx")).equals(docxBefore), "source .docx was modified");
+    const files = readdirSync(join(importedDocx, "manuscript"));
+    assert(files.length === 1, `expected 1 chapter file, got ${files.join(",")}`);
+    assert(readFileSync(join(importedDocx, "manuscript", files[0]), "utf8").includes("First chapter text"), "chapter text missing");
+    assert(readFileSync(join(importedDocx, "cadabra.json"), "utf8").includes("Prologue"), "rename not in manifest");
+    assert(!readFileSync(join(importedDocx, "cadabra.json"), "utf8").includes("Dusk"), "skipped chapter listed");
+    await shot("06-import-docx-report");
   });
 
   await step("sponsor dialog: appears after an export, Sponsor is the only address the opener may open", async () => {

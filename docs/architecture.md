@@ -275,6 +275,10 @@ CI lessons (from the macOS failure in run 40399041624):
 - **Release workflow (`.github/workflows/release.yml`).** A `v*` tag runs the same checks as CI (`ci.yml` is reusable), verifies the tag against the version files, then builds macOS (universal), Windows (NSIS, WebView2 embedded) and Linux (AppImage) with `tauri-apps/tauri-action`. The release is created as a draft with `latest.json` attached; publishing it is the step that makes the update visible. `tauri.release.conf.json` turns on updater artifacts only for release builds, so local builds never need the signing key. `workflow_dispatch` builds without a release and uploads the bundles as artifacts.
 - **Not signed yet:** the workflow has no Apple Developer ID or Azure Trusted Signing step. Add the secrets and the signing environment (`APPLE_*`, the Windows `signCommand`) before a public release.
 
+## Import wizard (M4)
+- **Parse in the dialog, write once.** `importBook.ts` is split into `loadImport` (read bytes), `parseImport(source, splitHeadingLevel)` (pure), `applyChapterEdits` (rename, skip, drop images only skipped chapters used) and `writeImport` (images, then chapter files, manifest last, unchanged from before). The wizard keeps the source bytes in state and re-parses when the author changes the split level; nothing touches disk before Import, so Back and Cancel are free. `runImport` composes the pieces for `store.importBook` and tests.
+- Rejected: parsing in Rust (see the `.docx` port item in the roadmap; the preview needs the same TipTap JSON the importer already returns), writing a temporary project for the preview (leaves files behind on Cancel), merge and reorder in the preview (deferred to the roadmap).
+
 ## Marketing website (`apps/website`)
 Next.js (App Router) with `output: 'export'`, Tailwind v4 and the tokens from `docs/design.md`, deployed to GitHub Pages at cadabracraft.com by `.github/workflows/pages.yml` (custom domain via `public/CNAME`, so no `basePath`). Fonts are self-hosted at build time by `next/font`; the shipped site makes no third-party requests and has no analytics. The site is a standalone app and imports nothing from `packages/*`.
 

@@ -7,6 +7,11 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: pseudo\n"
 
+#. placeholder {0}: countWords(c.doc)
+#: src/app/ImportDialogs.tsx
+msgid "{0, plural, one {# word} other {# words}}"
+msgstr ""
+
 #. placeholder {0}: entry.title
 #: src/app/store.ts
 msgid "{0} changed outside the app; saving will keep both versions"
@@ -88,6 +93,10 @@ msgstr ""
 
 #: src/app/ImportDialogs.tsx
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
+msgstr ""
+
+#: src/app/ImportDialogs.tsx
+msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr ""
 
 #: src/app/Details.tsx
@@ -228,6 +237,7 @@ msgstr ""
 msgid "Author"
 msgstr ""
 
+#: src/app/ImportDialogs.tsx
 #: src/app/PrintPreview.tsx
 #: src/app/Settings.tsx
 #: src/app/Templates.tsx
@@ -383,6 +393,7 @@ msgstr ""
 
 #: src/app/App.tsx
 #: src/app/Details.tsx
+#: src/app/ImportDialogs.tsx
 #: src/app/Sidebar.tsx
 msgid "Chapters"
 msgstr ""
@@ -706,16 +717,19 @@ msgstr ""
 msgid "Give the book an author."
 msgstr ""
 
+#: src/app/ImportDialogs.tsx
 #: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 1"
 msgstr ""
 
+#: src/app/ImportDialogs.tsx
 #: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 2"
 msgstr ""
 
+#: src/app/ImportDialogs.tsx
 #: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 3"
@@ -801,6 +815,11 @@ msgstr ""
 msgid "In use"
 msgstr ""
 
+#. placeholder {0}: i + 1
+#: src/app/ImportDialogs.tsx
+msgid "Include chapter {0}"
+msgstr ""
+
 #: src/app/ExportDialog.tsx
 msgid "Include the cover"
 msgstr ""
@@ -834,6 +853,10 @@ msgstr ""
 #: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Italic"
+msgstr ""
+
+#: src/app/importBook.ts
+msgid "Keep at least one chapter."
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -978,6 +1001,10 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "New Project…"
+msgstr ""
+
+#: src/app/ImportDialogs.tsx
+msgid "Next"
 msgstr ""
 
 #: src/editor/ReadingFooter.tsx
@@ -1172,6 +1199,10 @@ msgstr ""
 msgid "Reading your chapters…"
 msgstr ""
 
+#: src/app/ImportDialogs.tsx
+msgid "Reading…"
+msgstr ""
+
 #: src/app/Home.tsx
 msgid "Recent projects"
 msgstr ""
@@ -1330,6 +1361,11 @@ msgstr ""
 msgid "Smaller text"
 msgstr ""
 
+#. placeholder {0}: lost.map((g) => g.code).join(", ")
+#: src/app/ImportDialogs.tsx
+msgid "Some content could not be kept: {0}. A full report follows the import."
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Some content or formatting could not be kept. Review these before you continue."
 msgstr ""
@@ -1340,6 +1376,10 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "Sponsor CadabraCraft…"
+msgstr ""
+
+#: src/app/ImportDialogs.tsx
+msgid "Start a new chapter at"
 msgstr ""
 
 #: src/app/Home.tsx
@@ -1474,6 +1514,11 @@ msgstr ""
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 msgid "Title"
+msgstr ""
+
+#. placeholder {0}: i + 1
+#: src/app/ImportDialogs.tsx
+msgid "Title of chapter {0}"
 msgstr ""
 
 #: src/app/menuModel.ts
