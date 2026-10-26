@@ -567,7 +567,7 @@ test("details panel shows page and book facts on desktop and can be hidden", asy
   await page.keyboard.press("ControlOrMeta+End");
   await page.keyboard.type("alpha beta gamma");
   await expect(panel.getByText("Words").locator("xpath=following-sibling::dd")).not.toHaveText("0");
-  await page.getByRole("button", { name: "Details" }).click();
+  await page.getByRole("button", { name: "Details", exact: true }).click();
   await expect(panel).toBeHidden();
 });
 
@@ -661,4 +661,29 @@ test("print preview opens from the export dialog and returns to the book", async
   await expect(page.getByRole("heading", { name: "Print preview" })).toBeVisible();
   await page.getByRole("button", { name: "Back", exact: true }).click();
   await expect(page.locator(".ProseMirror")).toBeVisible();
+});
+
+test("Book details: edit the title, pick a cover, save, then remove the cover", async ({ page }) => {
+  await newProject(page);
+  const manifest = () => page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
+  await page.getByRole("button", { name: "Book details" }).click();
+  const dialog = page.getByRole("dialog", { name: "Book details" });
+  await dialog.getByLabel("Title").fill("Renamed Book");
+  await dialog.getByLabel("ISBN").fill("978-3-16-148410-0");
+  await dialog.getByRole("button", { name: "Choose image…" }).click();
+  await expect(dialog.getByRole("img", { name: "Cover preview" })).toBeVisible();
+  await dialog.getByRole("button", { name: "Save details" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("heading", { level: 1, name: "Renamed Book" })).toBeVisible();
+  expect(await manifest()).toMatchObject({ title: "Renamed Book", isbn: "978-3-16-148410-0", cover: "assets/pic.png" });
+
+  await page.getByRole("button", { name: "Book details" }).click();
+  await dialog.getByLabel("Title").fill("");
+  await dialog.getByRole("button", { name: "Save details" }).click();
+  await expect(dialog.getByRole("alert")).toHaveText("Give the book a title.");
+  await dialog.getByLabel("Title").fill("Renamed Book");
+  await dialog.getByRole("button", { name: "Remove cover" }).click();
+  await dialog.getByRole("button", { name: "Save details" }).click();
+  await expect(dialog).toBeHidden();
+  expect((await manifest()).cover).toBeNull();
 });

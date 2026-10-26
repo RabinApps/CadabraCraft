@@ -275,4 +275,53 @@ describe("project store", () => {
       expect(manifestOnDisk().formatVersion).toBe(3);
     });
   });
+  describe("book details and cover", () => {
+    const onDisk = () => JSON.parse(disk.get("cadabra.json")!);
+    const form = () => { const m = s().manifest!; return { title: m.title, author: m.author, language: m.language, isbn: m.isbn ?? "", identifier: m.identifier, cover: m.cover }; };
+    it("saves edited details, trims text and turns an empty ISBN into null", async () => {
+      await a().updateDetails({ ...form(), title: "  New Title ", author: "Ann", language: "fr", isbn: " 978-3-16-148410-0 " });
+      expect(onDisk()).toMatchObject({ title: "New Title", author: "Ann", language: "fr", isbn: "978-3-16-148410-0", cover: null });
+      await a().updateDetails({ ...form(), isbn: "  " });
+      expect(onDisk().isbn).toBeNull();
+    });
+    it("rejects an empty title or a cover outside assets/ and writes nothing", async () => {
+      const before = disk.get("cadabra.json");
+      await expect(a().updateDetails({ ...form(), title: " " })).rejects.toThrow(/title/);
+      await expect(a().updateDetails({ ...form(), cover: "/Users/me/cover.png" })).rejects.toThrow(/cover/);
+      await expect(a().updateDetails({ ...form(), cover: "assets/cover.gif" })).rejects.toThrow(/cover/);
+      expect(disk.get("cadabra.json")).toBe(before);
+    });
+    it("does not rewrite the manifest when nothing changed", async () => {
+      const before = disk.get("cadabra.json");
+      await a().updateDetails(form());
+      expect(disk.get("cadabra.json")).toBe(before);
+    });
+    it("copies a picked cover into assets/ and stores a relative path", async () => {
+      picked = "/pics/front.JPG";
+      const path = await a().importCover();
+      expect(path).toBe("assets/front.JPG");
+      expect(s().manifest!.cover).toBeNull(); // picking alone does not change the book
+      await a().updateDetails({ ...form(), cover: "assets/front.jpg" });
+      expect(onDisk().cover).toBe("assets/front.jpg");
+    });
+    it("refuses a gif or svg cover and an import failure, setting a notice", async () => {
+      picked = "/pics/anim.gif";
+      expect(await a().importCover()).toBeNull();
+      expect(s().notice).toMatch(/PNG, JPEG or WebP/);
+      picked = "/pics/c.png";
+      importError = "too big";
+      expect(await a().importCover()).toBeNull();
+      expect(s().notice).toMatch(/too big/);
+      picked = null;
+      importError = null;
+      expect(await a().importCover()).toBeNull();
+    });
+    it("removing the cover keeps the file in assets/", async () => {
+      picked = "/pics/c.png";
+      await a().updateDetails({ ...form(), cover: (await a().importCover())! });
+      await a().updateDetails({ ...form(), cover: null });
+      expect(onDisk().cover).toBeNull();
+      expect(assets.has("assets/c.png")).toBe(true);
+    });
+  });
 });

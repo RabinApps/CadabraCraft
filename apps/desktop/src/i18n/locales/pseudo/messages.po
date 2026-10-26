@@ -121,6 +121,10 @@ msgid "6 × 9 in"
 msgstr ""
 
 #: src/app/store.ts
+msgid "A cover must be a PNG, JPEG or WebP image."
+msgstr ""
+
+#: src/app/store.ts
 msgid "A PDF export is already running"
 msgstr ""
 
@@ -197,6 +201,7 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
@@ -239,6 +244,11 @@ msgstr ""
 msgid "Book"
 msgstr ""
 
+#: src/app/AppHeader.tsx
+#: src/app/BookDetailsDialog.tsx
+msgid "Book details"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Book history"
 msgstr ""
@@ -264,6 +274,7 @@ msgstr ""
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
 #: src/app/ExportDialog.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
@@ -345,6 +356,10 @@ msgstr ""
 msgid "Choose file…"
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
+msgid "Choose image…"
+msgstr ""
+
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
 msgid "Choose…"
@@ -368,6 +383,11 @@ msgstr ""
 
 #. placeholder {0}: errText(e)
 #: src/app/store.ts
+msgid "Could not add the cover: {0}"
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/app/store.ts
 msgid "Could not add the image: {0}"
 msgstr ""
 
@@ -382,6 +402,15 @@ msgstr ""
 
 #: src/app/store.ts
 msgid "Could not undo: {why}"
+msgstr ""
+
+#: src/app/BookDetailsDialog.tsx
+#: src/app/Details.tsx
+msgid "Cover"
+msgstr ""
+
+#: src/app/BookDetailsDialog.tsx
+msgid "Cover preview"
 msgstr ""
 
 #: src/app/Home.tsx
@@ -432,6 +461,10 @@ msgstr ""
 
 #: src/app/Home.tsx
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
+msgstr ""
+
+#: src/app/Details.tsx
+msgid "Edit details"
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -529,6 +562,14 @@ msgstr ""
 msgid "General"
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
+msgid "Give the book a title."
+msgstr ""
+
+#: src/app/BookDetailsDialog.tsx
+msgid "Give the book an author."
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Heading 1"
 msgstr ""
@@ -543,6 +584,10 @@ msgstr ""
 
 #: src/app/Settings.tsx
 msgid "How wide the page is in the editor."
+msgstr ""
+
+#: src/app/BookDetailsDialog.tsx
+msgid "Identifier"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -605,6 +650,11 @@ msgstr ""
 msgid "Interface language"
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
+#: src/app/Details.tsx
+msgid "ISBN"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
 msgstr ""
@@ -617,6 +667,7 @@ msgstr ""
 msgid "Keep the line you are writing centered."
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/ui/LanguagePicker.tsx
 msgid "Language"
@@ -820,6 +871,10 @@ msgstr ""
 msgid "Pick or create an empty folder. The imported book is stored there."
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
+msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Preface"
 msgstr ""
@@ -893,6 +948,10 @@ msgstr ""
 msgid "Remove {0} from recent projects"
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
+msgid "Remove cover"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "Rename"
 msgstr ""
@@ -919,6 +978,10 @@ msgstr ""
 
 #: src/app/AppHeader.tsx
 msgid "Save"
+msgstr ""
+
+#: src/app/BookDetailsDialog.tsx
+msgid "Save details"
 msgstr ""
 
 #: src/app/AppHeader.tsx
@@ -1019,8 +1082,16 @@ msgstr ""
 msgid "The book is stored in this folder. Nothing leaves your computer."
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
+msgid "The cover image could not be read."
+msgstr ""
+
 #: src/lib/pdfErrors.ts
 msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
+msgstr ""
+
+#: src/app/BookDetailsDialog.tsx
+msgid "The identifier cannot be empty."
 msgstr ""
 
 #. placeholder {0}: e.reference
@@ -1091,6 +1162,7 @@ msgstr ""
 msgid "This page"
 msgstr ""
 
+#: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
@@ -1154,6 +1226,10 @@ msgstr ""
 #. placeholder {0}: lastUndo.label
 #: src/app/Sidebar.tsx
 msgid "Undo: {0}"
+msgstr ""
+
+#: src/app/BookDetailsDialog.tsx
+msgid "Unique id stored in the EPUB. Change it only if a store or library asked you to."
 msgstr ""
 
 #: src/app/Home.tsx

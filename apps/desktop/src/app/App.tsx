@@ -12,6 +12,7 @@ import { Button, IconButton } from "../ui/Button";
 import { overlayClass, panelClass } from "../ui/Dialog";
 import { cx } from "../ui/cx";
 import { Details } from "./Details";
+import { BookDetailsDialog } from "./BookDetailsDialog";
 import { ExportDialog, type ExportFormat } from "./ExportDialog";
 import { Home } from "./Home";
 import { AppHeader } from "./AppHeader";
@@ -47,6 +48,7 @@ export function App() {
   const [drawer, setDrawer] = useState(false);
   const [mode, setMode] = useState<"write" | "read">("write");
   const [view, setView] = useState<View>("book");
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("epub");
   const openExport = (format: ExportFormat) => { setExportFormat(format); setExportOpen(true); };
@@ -108,7 +110,7 @@ export function App() {
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       {focus && <IconButton icon={Minimize2} label={t`Exit focus mode`} className="fixed end-3 top-3 z-10 bg-surface/80 backdrop-blur" onClick={() => setLayout({ focus: false })} />}
-      {!focus && <AppHeader mode={mode} onMode={setMode} onShowChapters={() => setDrawer(true)} onExport={() => openExport("epub")} onSettings={() => setView("settings")} run={run} />}
+      {!focus && <AppHeader mode={mode} onMode={setMode} onShowChapters={() => setDrawer(true)} onExport={() => openExport("epub")} onSettings={() => setView("settings")} onDetails={() => setDetailsOpen(true)} run={run} />}
       <div className="flex min-h-0 flex-1">
         <aside className={cx("hidden w-[264px] shrink-0 overflow-y-auto bg-sidebar", focus ? "" : "lg:block")}>
           <Sidebar />
@@ -134,7 +136,7 @@ export function App() {
         </main>
         {!focus && !reader && details && (
           <aside aria-label={t`Details`} className="hidden w-[280px] shrink-0 overflow-y-auto border-s border-border bg-surface xl:block">
-            <Details manifest={manifest} pageTitle={pages[index]?.title ?? null} section={section} words={words} onChangeTemplate={() => setView("templates")} />
+            <Details manifest={manifest} pageTitle={pages[index]?.title ?? null} section={section} words={words} onChangeTemplate={() => setView("templates")} onEditDetails={() => setDetailsOpen(true)} />
           </aside>
         )}
       </div>
@@ -151,6 +153,7 @@ export function App() {
           </D.Content>
         </D.Portal>
       </D.Root>
+      <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
       <ImportReportDialog />
     </div>
   );

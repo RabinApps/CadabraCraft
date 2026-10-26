@@ -3,7 +3,7 @@ import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
 import {
   addBackMatter, addChapter, addFrontMatter, createManifest, moveChapter, moveMatter, parseManifest, readingOrder, removeChapter, removeMatter,
-  renameChapter, renameMatter, restoreEntry, retargetFile, sameTree, sectionOf, serializeManifest, starterDoc, starterTitle, treeOf, withTree,
+  renameChapter, renameMatter, restoreEntry, retargetFile, sameTree, sectionOf, serializeManifest, validateManifest, starterDoc, starterTitle, treeOf, withTree,
   type Manifest, type ManuscriptEntry, type Tree,
 } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
@@ -78,6 +78,19 @@ function retargetEntry(e: HistoryEntry, from: string, to: string): HistoryEntry 
   return { ...e, before: retargetFile(e.before, from, to), after: retargetFile(e.after, from, to), ...(e.file?.path === from ? { file: { ...e.file, path: to } } : {}) };
 }
 
+/** The book fields the Book details dialog edits. */
+export interface BookDetails {
+  title: string;
+  author: string;
+  language: string;
+  isbn: string;
+  identifier: string;
+  cover: string | null;
+}
+
+/** Cover images the exporters can place: png, jpg, jpeg and webp (not gif or svg). */
+export const COVER_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
+
 export type PdfStage = "preparing" | "rendering" | "saving";
 
 /** A page of the book in reading order, with its chapter document. */
@@ -137,6 +150,10 @@ interface State {
     readPages: () => Promise<BookPage[]>;
     /** Sets the book's template (cadabra.json). A no-op when it is already set. */
     setTemplate: (id: string) => Promise<void>;
+    /** Saves the book details (cadabra.json). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
+    updateDetails: (details: BookDetails) => Promise<void>;
+    /** Asks for a cover image (png, jpg or webp), copies it into assets/ and returns `assets/<name>`. Null if cancelled or refused (refusals set `notice`). Does not change the manifest. */
+    importCover: () => Promise<string | null>;
     exportEpub: () => Promise<void>;
     /** Builds exports/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
     exportPdf: (options: PdfExportOptions) => Promise<void>;
@@ -450,6 +467,38 @@ export const useProject = create<State>((set, get) => {
         const { manifest } = need();
         if (manifest.template === id) return;
         await saveManifest({ ...manifest, template: id });
+      },
+      async updateDetails(d) {
+        const { manifest } = need();
+        const next: Manifest = {
+          ...manifest,
+          title: d.title.trim(),
+          author: d.author.trim(),
+          language: d.language.trim(),
+          identifier: d.identifier.trim(),
+          isbn: d.isbn.trim() || null,
+          cover: d.cover,
+        };
+        // validateManifest owns the rules; it names the field, which is enough for the dialog to show.
+        validateManifest(next);
+        if (JSON.stringify(next) === JSON.stringify(manifest)) return;
+        await saveManifest(next);
+      },
+      async importCover() {
+        const { root } = need();
+        const picked = await bridge.pickImage();
+        if (!picked) return null;
+        const ext = picked.split(".").pop()?.toLowerCase() ?? "";
+        if (!COVER_EXTENSIONS.includes(ext)) {
+          set({ notice: t`A cover must be a PNG, JPEG or WebP image.` });
+          return null;
+        }
+        try {
+          return await bridge.importAsset(root, picked);
+        } catch (e) {
+          set({ notice: t`Could not add the cover: ${errText(e)}` });
+          return null;
+        }
       },
       async exportEpub() {
         if (get().exportStage) throw new Error(t`An export is already running`);

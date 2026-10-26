@@ -9,19 +9,21 @@ interface ModalProps {
   title: string;
   description?: string;
   children?: ReactNode;
+  /** Two-column forms (about 680px) instead of the 460px default. */
+  wide?: boolean;
 }
 
 export const overlayClass = "fixed inset-0 z-40 bg-scrim";
 export const panelClass = "fixed z-50 border border-border bg-raised text-ink shadow-2xl focus:outline-none";
 
-export function Modal({ open, onOpenChange, title, description, children }: ModalProps) {
+export function Modal({ open, onOpenChange, title, description, children, wide }: ModalProps) {
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
         <D.Overlay className={overlayClass} />
         <D.Content
           {...(description ? {} : { "aria-describedby": undefined })}
-          className={`${panelClass} left-1/2 top-1/2 w-[min(92vw,460px)] -translate-x-1/2 -translate-y-1/2 rounded-lg p-6`}
+          className={`${panelClass} left-1/2 top-1/2 ${wide ? "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto" : "w-[min(92vw,460px)]"} -translate-x-1/2 -translate-y-1/2 rounded-lg p-6`}
         >
           <D.Title className="font-book text-xl font-semibold">{title}</D.Title>
           {description ? <D.Description className="mt-2 text-sm text-ink-muted">{description}</D.Description> : null}
