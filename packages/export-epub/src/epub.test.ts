@@ -90,3 +90,12 @@ describe("images", () => {
     for (const bad of ["https://example.com/a.png", "assets/../cadabra.json", "assets/a.txt", "a.png", ""]) expect(() => build(bad), bad).toThrow(/Unsupported image/);
   });
 });
+
+describe("custom stylesheet", () => {
+  it("uses the supplied css instead of the default", () => {
+    const css = "body{color:#123456}";
+    const f = unzipSync(buildEpub(meta, [{ id: "ch1", title: "One", doc }], { css }));
+    expect(strFromU8(f["OEBPS/style.css"]!)).toBe(css);
+    expect(strFromU8(unzipSync(buildEpub(meta, [{ id: "ch1", title: "One", doc }]))["OEBPS/style.css"]!)).not.toBe(css);
+  });
+});

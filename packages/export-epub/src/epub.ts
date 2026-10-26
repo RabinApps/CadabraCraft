@@ -27,6 +27,8 @@ function isoNoMs(d: Date): string {
 export interface BuildOptions {
   /** Bytes of every image the chapters reference, keyed by the project-relative path stored in the chapter (`assets/a.png`). */
   assets?: ReadonlyMap<string, Uint8Array>;
+  /** Stylesheet to use instead of the built-in default, e.g. a template's `epub.css`. */
+  css?: string;
 }
 
 /** Builds an EPUB3 package as bytes. Output is deterministic for a given input. Throws if a referenced image is not an allowed `assets/` image or its bytes are missing. */
@@ -43,7 +45,7 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
   files["META-INF/container.xml"] = strToU8(
     `${xmlHead}<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`,
   );
-  files["OEBPS/style.css"] = strToU8(CSS);
+  files["OEBPS/style.css"] = strToU8(options.css ?? CSS);
   // Images keep their relative `assets/<name>` path inside OEBPS, so chapter srcs need no rewriting.
   const imagePaths = [...new Set(chapters.flatMap((c) => collectImageSources(c.doc)))];
   const imageItems = imagePaths.map((src, i) => {

@@ -205,7 +205,7 @@ export const useProject = create<State>((set, get) => {
         const { root, manifest } = need();
         const chapters = await loadChapters();
         const assets = await loadAssets(chapters);
-        const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets });
+        const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, css: getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).epub.css });
         await bridge.writeBytes(root, "exports/book.epub", Array.from(bytes));
         set({ notice: t`Exported exports/book.epub` });
       },
