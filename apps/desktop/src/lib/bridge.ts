@@ -70,6 +70,8 @@ export const bridge = {
   openUrl: (url: string) => openUrl(url),
   /** Asks the update endpoint (GitHub Releases) for a newer version; `null` when this is the latest. The only request the app makes on its own. */
   checkForUpdate: (): Promise<Update | null> => check(),
+  /** False for a Linux package that is not an AppImage: the updater cannot replace it, so no update is offered. */
+  updatesSupported: () => invoke<boolean>("updates_supported"),
   /** Restarts the app once an update has been installed. */
   relaunch: () => relaunch(),
   createProject: (root: string, manifestJson: string) => invoke<void>("create_project", { root, manifestJson }),

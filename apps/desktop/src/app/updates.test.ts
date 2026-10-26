@@ -4,6 +4,7 @@ const KEY = "cadabracraft.updates";
 
 const bridge = vi.hoisted(() => ({
   checkForUpdate: vi.fn(),
+  updatesSupported: vi.fn(),
   relaunch: vi.fn(),
 }));
 vi.mock("../lib/bridge", () => ({ bridge }));
@@ -25,6 +26,7 @@ const found = () => ({ version: "0.1.1", currentVersion: "0.1.0", downloadAndIns
 beforeEach(() => {
   vi.unstubAllGlobals();
   bridge.checkForUpdate.mockReset();
+  bridge.updatesSupported.mockReset().mockResolvedValue(true);
   bridge.relaunch.mockReset();
 });
 
@@ -114,5 +116,16 @@ describe("installing", () => {
     store.getState().later();
     expect(store.getState().dialogOpen).toBe(false);
     expect(update.downloadAndInstall).not.toHaveBeenCalled();
+  });
+});
+
+describe("platform support", () => {
+  it("an unsupported package is never checked and says so", async () => {
+    const { store } = await fresh(null);
+    bridge.updatesSupported.mockResolvedValue(false);
+    await store.getState().check(true);
+    expect(bridge.checkForUpdate).not.toHaveBeenCalled();
+    expect(store.getState().status.kind).toBe("unsupported");
+    expect(store.getState().dialogOpen).toBe(false);
   });
 });

@@ -1646,6 +1646,10 @@ msgstr "You have {0}. Your books and settings stay as they are."
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
 msgstr "Your last changes could not be saved ({message}). Close the window again to leave without them."
 
+#: src/app/useAppMenu.ts
+msgid "Your package manager updates this copy of CadabraCraft."
+msgstr "Your package manager updates this copy of CadabraCraft."
+
 #: src/app/menuModel.ts
 msgid "Zoom"
 msgstr "Zoom"

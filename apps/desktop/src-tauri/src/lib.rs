@@ -26,7 +26,8 @@ macro_rules! app_handlers {
             commands::watch_project,
             typst::typst_find,
             typst::typst_list_fonts,
-            typst::typst_compile
+            typst::typst_compile,
+            commands::updates_supported
             $(, $extra)*
         ]
     };

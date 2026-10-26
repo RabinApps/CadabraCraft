@@ -40,6 +40,7 @@ async function checkForUpdatesNow(h: { fail: (message: string) => void }) {
   await useUpdates.getState().check(true);
   const { status } = useUpdates.getState();
   if (status.kind === "current") useProject.setState({ notice: t`CadabraCraft is up to date.` });
+  if (status.kind === "unsupported") useProject.setState({ notice: t`Your package manager updates this copy of CadabraCraft.` });
   if (status.kind === "error") h.fail(status.message);
 }
 

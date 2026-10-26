@@ -19,6 +19,8 @@ export type UpdateStatus =
   | { kind: "current" }
   | { kind: "available"; update: Update }
   | { kind: "installing" }
+  /** This copy is updated by its package manager (a Linux package other than an AppImage). */
+  | { kind: "unsupported" }
   | { kind: "error"; message: string };
 
 interface Updates {
@@ -49,6 +51,10 @@ export const useUpdates = create<Updates>((set, get) => ({
     if (busy === "checking" || busy === "installing") return;
     set({ status: { kind: "checking" } });
     try {
+      if (!(await bridge.updatesSupported())) {
+        set({ status: { kind: "unsupported" } });
+        return;
+      }
       const update = await bridge.checkForUpdate();
       if (update) {
         set({ status: { kind: "available", update }, dialogOpen: true });
