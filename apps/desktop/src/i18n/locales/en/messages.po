@@ -35,6 +35,10 @@ msgstr "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 
+#: src/app/App.tsx
+msgid "{words, plural, one {# word on this page} other {# words on this page}}"
+msgstr "{words, plural, one {# word on this page} other {# words on this page}}"
+
 #: src/app/ExportPdfDialog.tsx
 msgid "5 × 8 in"
 msgstr "5 × 8 in"
@@ -50,6 +54,14 @@ msgstr "6 × 9 in"
 #: src/app/store.ts
 msgid "A PDF export is already running"
 msgstr "A PDF export is already running"
+
+#: src/app/Sidebar.tsx
+msgid "About the author"
+msgstr "About the author"
+
+#: src/app/Sidebar.tsx
+msgid "Acknowledgments"
+msgstr "Acknowledgments"
 
 #. placeholder {0}: c.title
 #: src/app/Sidebar.tsx
@@ -69,6 +81,10 @@ msgstr "Add image"
 msgid "Add link"
 msgstr "Add link"
 
+#: src/app/Sidebar.tsx
+msgid "Add page"
+msgstr "Add page"
+
 #: src/editor/Toolbar.tsx
 msgid "Address"
 msgstr "Address"
@@ -80,6 +96,10 @@ msgstr "Address"
 msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 msgstr "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 
+#: src/app/Sidebar.tsx
+msgid "Also by"
+msgstr "Also by"
+
 #: src/editor/Toolbar.tsx
 msgid "Apply"
 msgstr "Apply"
@@ -88,6 +108,11 @@ msgstr "Apply"
 #: src/app/ImportDialogs.tsx
 msgid "Author"
 msgstr "Author"
+
+#: src/app/App.tsx
+#: src/app/Sidebar.tsx
+msgid "Back matter"
+msgstr "Back matter"
 
 #: src/editor/Toolbar.tsx
 msgid "Block quote"
@@ -133,12 +158,12 @@ msgstr "Caption"
 msgid "Chapter {0}"
 msgstr "Chapter {0}"
 
-#. placeholder {0}: index + 1
-#. placeholder {1}: chapters.length
+#. placeholder {0}: chapterIds.length
+#. placeholder {0}: chapters.length
 #: src/app/App.tsx
 #: src/editor/ReadingFooter.tsx
-msgid "Chapter {0} of {1}"
-msgstr "Chapter {0} of {1}"
+msgid "Chapter {chapterNo} of {0}"
+msgstr "Chapter {chapterNo} of {0}"
 
 #: src/app/store.ts
 msgid "Chapter list updated from outside the app"
@@ -174,6 +199,10 @@ msgstr "Choose file…"
 msgid "Choose…"
 msgstr "Choose…"
 
+#: src/app/Sidebar.tsx
+msgid "Colophon"
+msgstr "Colophon"
+
 #: src/app/ImportDialogs.tsx
 msgid "Copied"
 msgstr "Copied"
@@ -181,6 +210,10 @@ msgstr "Copied"
 #: src/app/ImportDialogs.tsx
 msgid "Copy report"
 msgstr "Copy report"
+
+#: src/app/Sidebar.tsx
+msgid "Copyright page"
+msgstr "Copyright page"
 
 #. placeholder {0}: e instanceof Error ? e.message : String(e)
 #: src/app/store.ts
@@ -199,9 +232,17 @@ msgstr "Creates a new book from a Word (.docx) or Markdown file. The original fi
 msgid "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
 msgstr "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
 
+#: src/app/Sidebar.tsx
+msgid "Custom page"
+msgstr "Custom page"
+
 #: src/ui/ThemeToggle.tsx
 msgid "Dark theme"
 msgstr "Dark theme"
+
+#: src/app/Sidebar.tsx
+msgid "Dedication"
+msgstr "Dedication"
 
 #: src/editor/Toolbar.tsx
 msgid "Description (alt text)"
@@ -218,6 +259,10 @@ msgstr "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or
 #: src/app/ExportPdfDialog.tsx
 msgid "Embeds everything needed to open the file in the future."
 msgstr "Embeds everything needed to open the file in the future."
+
+#: src/app/Sidebar.tsx
+msgid "Epigraph"
+msgstr "Epigraph"
 
 #: src/app/App.tsx
 msgid "Export EPUB"
@@ -255,9 +300,18 @@ msgstr "Folder"
 msgid "Footnote"
 msgstr "Footnote"
 
+#: src/app/Sidebar.tsx
+msgid "Foreword"
+msgstr "Foreword"
+
 #: src/editor/Toolbar.tsx
 msgid "Formatting"
 msgstr "Formatting"
+
+#: src/app/App.tsx
+#: src/app/Sidebar.tsx
+msgid "Front matter"
+msgstr "Front matter"
 
 #: src/editor/Toolbar.tsx
 msgid "Heading 1"
@@ -401,6 +455,10 @@ msgstr "New project"
 msgid "Next chapter"
 msgstr "Next chapter"
 
+#: src/editor/ReadingFooter.tsx
+msgid "Next page"
+msgstr "Next page"
+
 #: src/app/store.ts
 msgid "No cadabra.json in that folder"
 msgstr "No cadabra.json in that folder"
@@ -435,6 +493,10 @@ msgstr "Open folder"
 msgid "Optional. Shown below the image."
 msgstr "Optional. Shown below the image."
 
+#: src/app/Sidebar.tsx
+msgid "Page title"
+msgstr "Page title"
+
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
 msgstr "Page width"
@@ -447,9 +509,17 @@ msgstr "PDF/A (archival)"
 msgid "Pick or create an empty folder. The imported book is stored there."
 msgstr "Pick or create an empty folder. The imported book is stored there."
 
+#: src/app/Sidebar.tsx
+msgid "Preface"
+msgstr "Preface"
+
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
 msgstr "Previous chapter"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Previous page"
+msgstr "Previous page"
 
 #. placeholder {0}: parsed.fromVersion
 #: src/app/store.ts
@@ -593,6 +663,10 @@ msgstr "This file is too large to import."
 #: src/app/ImportDialogs.tsx
 msgid "Title"
 msgstr "Title"
+
+#: src/app/Sidebar.tsx
+msgid "Title page"
+msgstr "Title page"
 
 #: src/app/ExportPdfDialog.tsx
 msgid "Trim size"

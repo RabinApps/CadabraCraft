@@ -1,10 +1,13 @@
 import { create } from "zustand";
 import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
-import { addChapter, createManifest, moveChapter, parseManifest, removeChapter, renameChapter, serializeManifest, type Manifest } from "@cadabracraft/format";
+import {
+  addBackMatter, addChapter, addFrontMatter, createManifest, moveChapter, moveMatter, parseManifest, readingOrder, removeChapter, removeMatter,
+  renameChapter, renameMatter, sectionOf, serializeManifest, starterDoc, starterTitle, type Manifest, type ManuscriptEntry,
+} from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
-import type { ChapterDoc } from "@cadabracraft/shared";
+import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate } from "@cadabracraft/templates";
 import { bridge } from "../lib/bridge";
 import { runImport, type ImportReport } from "./importBook";
@@ -50,9 +53,13 @@ interface State {
     setDraft: (doc: ChapterDoc) => void;
     openProject: (root: string) => Promise<void>;
     createProject: (root: string, title: string, author: string) => Promise<void>;
+    /** Opens any page (front matter, chapter or back matter) in the editor. */
     selectChapter: (id: string) => Promise<void>;
     saveCurrent: (doc: ChapterDoc) => Promise<void>;
     add: (title: string) => Promise<void>;
+    /** Adds a front or back matter page of `kind` with generated starter content and opens it. Throws when a limited kind (title page, copyright) already exists. */
+    addMatter: (section: "front" | "back", kind: MatterKind, title?: string) => Promise<void>;
+    /** Rename, move and remove work on chapters, front matter and back matter alike (`id` decides). */
     rename: (id: string, title: string) => Promise<void>;
     move: (id: string, delta: number) => Promise<void>;
     remove: (id: string) => Promise<void>;
@@ -73,6 +80,7 @@ export const useProject = create<State>((set, get) => {
     if (!root || !manifest) throw new Error("no project open");
     return { root, manifest };
   };
+  const entryOf = (manifest: Manifest, id: string): ManuscriptEntry | undefined => readingOrder(manifest).find((e) => e.id === id);
   const saveManifest = async (manifest: Manifest) => {
     const { root } = need();
     const base = get().hashes["cadabra.json"] ?? null;
@@ -87,23 +95,24 @@ export const useProject = create<State>((set, get) => {
   const load = async (id: string) => {
     await flush();
     const { root, manifest } = need();
-    const entry = manifest.chapters.find((c) => c.id === id);
+    const entry = entryOf(manifest, id);
     if (!entry) return;
     const r = await bridge.readFile(root, entry.file);
     const doc = r ? (JSON.parse(r.contents) as ChapterDoc) : emptyDoc(entry.title);
     set({ currentId: id, currentDoc: doc, draft: null, hashes: r ? { ...get().hashes, [entry.file]: r.hash } : get().hashes });
   };
 
-  /** Every chapter in manifest order, read from disk. */
+  /** Every page in reading order (front matter, chapters, back matter), read from disk. */
   const loadChapters = async () => {
     const { root, manifest } = need();
-    const chapters = [];
-    for (const c of manifest.chapters) {
+    const pages = [];
+    const sectionFor = (e: ManuscriptEntry) => sectionOf(manifest, e.id) ?? "chapter";
+    for (const c of readingOrder(manifest)) {
       const r = await bridge.readFile(root, c.file);
       if (!r) throw new Error(t`Missing chapter file ${c.file}`);
-      chapters.push({ id: c.id, title: c.title, doc: JSON.parse(r.contents) as ChapterDoc });
+      pages.push({ id: c.id, title: c.title, doc: JSON.parse(r.contents) as ChapterDoc, section: sectionFor(c), ...(c.kind ? { kind: c.kind } : {}) });
     }
-    return chapters;
+    return pages;
   };
   /** Bytes of every image the chapters use. */
   const loadAssets = async (chapters: { doc: ChapterDoc }[]) => {
@@ -137,7 +146,7 @@ export const useProject = create<State>((set, get) => {
           }
           return;
         }
-        const entry = manifest.chapters.find((c) => c.file === path);
+        const entry = readingOrder(manifest).find((c) => c.file === path);
         if (!entry || entry.id !== get().currentId) return; // other chapters load fresh when opened
         if (get().draft) {
           set({ notice: t`${entry.title} changed outside the app; saving will keep both versions` });
@@ -156,7 +165,7 @@ export const useProject = create<State>((set, get) => {
           await saveManifest(parsed.manifest);
           set({ notice: t`Project upgraded from format ${parsed.fromVersion}; backup saved to ${backup}` });
         }
-        const first = parsed.manifest.chapters[0];
+        const first = parsed.manifest.chapters[0] ?? readingOrder(parsed.manifest)[0];
         if (first) await load(first.id);
         await bridge.watchProject(root);
       },
@@ -169,7 +178,7 @@ export const useProject = create<State>((set, get) => {
       selectChapter: load,
       async saveCurrent(doc) {
         const { root, manifest } = need();
-        const entry = manifest.chapters.find((c) => c.id === get().currentId);
+        const entry = entryOf(manifest, get().currentId ?? "");
         if (!entry) return;
         const w = await bridge.writeFile(root, entry.file, JSON.stringify(doc, null, 2), get().hashes[entry.file] ?? null);
         set({ hashes: { ...get().hashes, [entry.file]: w.hash }, notice: w.conflict_copy ? t`${entry.title} changed outside the app; the other version was kept as ${w.conflict_copy}` : t`Saved` });
@@ -183,21 +192,35 @@ export const useProject = create<State>((set, get) => {
         await saveManifest(next);
         await load(entry.id);
       },
+      async addMatter(section, kind, title) {
+        await flush();
+        const { root, manifest } = need();
+        const name = title ?? starterTitle(kind, manifest.language);
+        const { manifest: next, entry } = (section === "front" ? addFrontMatter : addBackMatter)(manifest, kind, name);
+        const doc = starterDoc(kind, { title: manifest.title, author: manifest.author, language: manifest.language, isbn: manifest.isbn, year: new Date().getFullYear() });
+        const w = await bridge.writeFile(root, entry.file, JSON.stringify(doc, null, 2), null);
+        set({ hashes: { ...get().hashes, [entry.file]: w.hash } });
+        await saveManifest(next);
+        await load(entry.id);
+      },
       async rename(id, title) {
-        await saveManifest(renameChapter(need().manifest, id, title));
+        const m = need().manifest;
+        await saveManifest(sectionOf(m, id) === "chapter" ? renameChapter(m, id, title) : renameMatter(m, id, title));
       },
       async move(id, delta) {
-        await saveManifest(moveChapter(need().manifest, id, delta));
+        const m = need().manifest;
+        await saveManifest(sectionOf(m, id) === "chapter" ? moveChapter(m, id, delta) : moveMatter(m, id, delta));
       },
       async remove(id) {
         const { root, manifest } = need();
         const currentId = get().currentId;
-        const { manifest: next, removed } = removeChapter(manifest, id);
+        const { manifest: next, removed } = sectionOf(manifest, id) === "chapter" ? removeChapter(manifest, id) : removeMatter(manifest, id);
         await saveManifest(next);
         await bridge.trashFile(root, removed.file); // moved to .cadabra/trash, never permanently deleted
         if (currentId === id) {
           set({ currentId: null, currentDoc: null });
-          if (next.chapters[0]) await load(next.chapters[0].id);
+          const fallback = next.chapters[0] ?? readingOrder(next)[0];
+          if (fallback) await load(fallback.id);
         }
       },
       async exportEpub() {

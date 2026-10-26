@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
+import { readingOrder, sectionOf } from "@cadabracraft/format";
 import { BookOpen, Download, FileText, Menu, PenLine, Plus, Save } from "lucide-react";
 import { Editor } from "../editor/Editor";
 import { ReadingFooter } from "../editor/ReadingFooter";
@@ -67,7 +68,10 @@ export function App() {
     );
   }
   const chapters = manifest.chapters;
-  const index = chapters.findIndex((c) => c.id === currentId);
+  const pages = readingOrder(manifest);
+  const index = pages.findIndex((c) => c.id === currentId);
+  const section = currentId ? sectionOf(manifest, currentId) : null;
+  const chapterNo = chapters.findIndex((c) => c.id === currentId) + 1;
   const reader = mode === "read";
   // Saving first means reading shows what was typed.
   const toRead = run(async () => { await actions.flush(); setMode("read"); });
@@ -103,16 +107,16 @@ export function App() {
             ? <Editor key={`${currentId}:read:${reloadCount}`} initial={currentDoc} language={manifest.language} reading={reading} />
             : <Editor key={`${currentId}:${reloadCount}`} initial={currentDoc} language={manifest.language} onChange={actions.setDraft} />) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
-              <p className="text-sm text-ink-muted">{chapters.length ? t`Choose a chapter to start.` : t`This book has no chapters yet.`}</p>
+              <p className="text-sm text-ink-muted">{pages.length ? t`Choose a chapter to start.` : t`This book has no chapters yet.`}</p>
               <Button variant="primary" icon={Plus} onClick={() => void actions.add(t`Chapter ${chapters.length + 1}`)}>{t`Add chapter`}</Button>
             </div>
           )}
           {index < 0 ? null : reader ? (
-            <ReadingFooter index={index} chapters={chapters} onSelect={(id) => void actions.selectChapter(id)} />
+            <ReadingFooter index={index} pages={pages} chapterIds={chapters.map((c) => c.id)} onSelect={(id) => void actions.selectChapter(id)} />
           ) : (
             <footer className="hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex">
-              <span>{plural(words, { one: "# word in this chapter", other: "# words in this chapter" })}</span>
-              <span>{t`Chapter ${index + 1} of ${chapters.length}`}</span>
+              <span>{section === "chapter" ? plural(words, { one: "# word in this chapter", other: "# words in this chapter" }) : plural(words, { one: "# word on this page", other: "# words on this page" })}</span>
+              <span>{section === "front" ? t`Front matter` : section === "back" ? t`Back matter` : t`Chapter ${chapterNo} of ${chapters.length}`}</span>
             </footer>
           )}
         </main>

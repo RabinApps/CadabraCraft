@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { strFromU8, unzipSync } from "fflate";
 
 // In-memory stand-in for the Rust project layer, including its conflict-copy rule.
 const disk = new Map<string, string>();
 const assets = new Map<string, Uint8Array>();
+const written: Record<string, number[]> = {};
 let picked: string | null = "/pics/cover.png";
 let importError: string | null = null;
 const h = (s: string) => `h:${s.length}:${s.slice(0, 40)}`;
@@ -16,7 +18,7 @@ vi.mock("../lib/bridge", () => ({
       disk.set(p, c);
       return { hash: h(c), conflict_copy };
     },
-    writeBytes: async (_r: string, p: string, b: number[]) => { disk.set(p, `bytes:${b.length}`); },
+    writeBytes: async (_r: string, p: string, b: number[]) => { disk.set(p, `bytes:${b.length}`); written[p] = b; },
     backupManifest: async () => "backup",
     pickImage: async () => picked,
     importAsset: async (_r: string, src: string) => {
@@ -148,6 +150,97 @@ describe("project store", () => {
       await a().externalChange("cadabra.json");
       expect(s().manifest!.chapters[0]!.title).toBe("Renamed elsewhere");
       expect(s().notice).toMatch(/could not be read/);
+    });
+  });
+
+  describe("front and back matter", () => {
+    const manifestOnDisk = () => JSON.parse(disk.get("cadabra.json")!);
+    it("adds a title page with generated content, writes its file and opens it", async () => {
+      await a().addMatter("front", "title-page");
+      const entry = s().manifest!.frontMatter[0]!;
+      expect(entry).toMatchObject({ id: "fm-1", kind: "title-page", title: "Title Page", file: "front-matter/01-title-page.json" });
+      expect(s().currentId).toBe("fm-1");
+      const doc = JSON.parse(disk.get("front-matter/01-title-page.json")!);
+      expect(JSON.stringify(doc)).toContain("Book");
+      expect(JSON.stringify(doc)).toContain("Me");
+      expect(manifestOnDisk().frontMatter[0].kind).toBe("title-page");
+      expect(JSON.stringify(s().currentDoc)).toContain("Me");
+    });
+    it("fills the copyright page from the manifest, including the ISBN when set", async () => {
+      useProject.setState({ manifest: { ...s().manifest!, isbn: "978-3-16-148410-0" } });
+      await a().addMatter("front", "copyright");
+      const text = disk.get("front-matter/01-copyright.json")!;
+      expect(text).toContain(`© ${new Date().getFullYear()} Me`);
+      expect(text).toContain("All rights reserved.");
+      expect(text).toContain("ISBN 978-3-16-148410-0");
+    });
+    it("refuses a second title page", async () => {
+      await a().addMatter("front", "title-page");
+      await expect(a().addMatter("front", "title-page")).rejects.toThrow(/title-page/);
+      expect(s().manifest!.frontMatter).toHaveLength(1);
+    });
+    it("adds back matter and edits it with the same actions as chapters", async () => {
+      await a().addMatter("back", "acknowledgments");
+      await a().addMatter("back", "about-the-author");
+      expect(s().manifest!.backMatter.map((e) => e.id)).toEqual(["bm-1", "bm-2"]);
+      await a().rename("bm-2", "About Me");
+      await a().move("bm-2", -1);
+      expect(s().manifest!.backMatter.map((e) => e.title)).toEqual(["About Me", "Acknowledgments"]);
+      expect(manifestOnDisk().backMatter[0].title).toBe("About Me");
+      expect(s().manifest!.chapters.map((c) => c.id)).toEqual(["ch-1"]);
+    });
+    it("saves typing into the matter page and flushes it when switching", async () => {
+      await a().addMatter("front", "dedication");
+      a().setDraft(text("For Ada"));
+      await a().selectChapter("ch-1");
+      expect(disk.get("front-matter/01-dedication.json")).toContain("For Ada");
+      expect(s().currentId).toBe("ch-1");
+    });
+    it("moves a matter page to the trash, never deleting it, and falls back to a chapter", async () => {
+      await a().addMatter("front", "foreword");
+      a().setDraft(text("precious foreword"));
+      await a().flush();
+      await a().remove("fm-1");
+      expect(s().manifest!.frontMatter).toEqual([]);
+      expect(disk.has("front-matter/01-foreword.json")).toBe(false);
+      expect([...disk.keys()].some((k) => k.startsWith(".cadabra/trash/front-matter/") && disk.get(k)!.includes("precious foreword"))).toBe(true);
+      expect(s().currentId).toBe("ch-1");
+    });
+    it("reloads the open matter page after an outside change and keeps conflicting edits", async () => {
+      await a().addMatter("front", "dedication");
+      disk.set("front-matter/01-dedication.json", JSON.stringify(text("from sync")));
+      await a().externalChange("front-matter/01-dedication.json");
+      expect(JSON.stringify(s().currentDoc)).toContain("from sync");
+      a().setDraft(text("mine"));
+      disk.set("front-matter/01-dedication.json", JSON.stringify(text("again")));
+      await a().externalChange("front-matter/01-dedication.json");
+      expect(s().notice).toMatch(/keep both versions/);
+    });
+    it("exports front matter, chapters and back matter in reading order", async () => {
+      await a().addMatter("front", "title-page");
+      await a().addMatter("back", "about-the-author");
+      await a().exportEpub();
+      expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
+      const files = unzipSync(Uint8Array.from(written["exports/book.epub"]!));
+      const opf = strFromU8(files["OEBPS/content.opf"]!);
+      expect([...opf.matchAll(/<itemref idref="([^"]+)"/g)].map((m) => m[1])).toEqual(["fm-1", "ch-1", "bm-1", "nav"]);
+      expect(strFromU8(files["OEBPS/fm-1.xhtml"]!)).toContain('epub:type="frontmatter titlepage"');
+      expect(strFromU8(files["OEBPS/bm-1.xhtml"]!)).toContain('epub:type="backmatter"');
+    });
+    it("opens a book whose first reading entry is front matter without a chapter", async () => {
+      await a().addMatter("front", "dedication");
+      await a().remove("ch-1");
+      useProject.setState({ manifest: null, currentId: null, currentDoc: null });
+      await a().openProject("/p");
+      expect(s().currentId).toBe("fm-1");
+    });
+    it("upgrades a v1 project on open: backs up first, then saves as v2", async () => {
+      const v1 = { ...manifestOnDisk(), formatVersion: 1 };
+      disk.set("cadabra.json", JSON.stringify(v1));
+      useProject.setState({ manifest: null, currentId: null, currentDoc: null, hashes: {} });
+      await a().openProject("/p");
+      expect(s().notice).toMatch(/upgraded from format 1/);
+      expect(manifestOnDisk().formatVersion).toBe(2);
     });
   });
 });
