@@ -33,3 +33,17 @@ Spike: `packages/export-pdf/scripts/spike.ts` renders the same chapter at 6x9 wi
 Chosen: **Typst**. Rejected: Paged.js, because of footnotes, font control and packaging size.
 Follow-ups for M2: confirm Typst font-missing behavior surfaces as an error we can show, decide CLI sidecar vs embedding the crate, and replace the spike converter with a tested one.
 Spike caveat: output was checked via `pdffonts`/`pdftotext` and page size, not visually proofed.
+
+## M1 (in progress)
+
+### Layering
+- `packages/format` (TypeScript, pure): manifest validation, migrations, chapter-tree edits, file naming. No disk access.
+- `src-tauri/src/project` (Rust): safe file IO only. Paths are validated relative to the project root; writes are temp file + rename; a write carrying a stale base hash first keeps the on-disk version as a `.conflict-YYYYMMDD-HHMM` copy; iCloud placeholders read as an error, never an empty chapter; "delete" moves to `.cadabra/trash/`.
+- `src-tauri/src/fs_watch.rs`: debounced (400 ms) watcher emitting `project-changed` for files changed outside the app, ignoring `.cadabra/`, `exports/` and temp files.
+- `apps/desktop/src/app/store.ts` (Zustand): project state, unsaved draft, and reaction to external changes (reload if clean, warn if there are unsaved edits, ignore echoes of our own writes via content hash).
+
+### Rejected: hashing with mtime
+Content hashes are used instead of modification times because sync clients rewrite mtimes.
+
+### Not done yet in M1
+Full-project undo of tree edits, real-client sync testing (M3), and Tauri-WebDriver e2e covering the Rust side.

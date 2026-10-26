@@ -6,7 +6,7 @@ Open-source desktop app for writing and formatting books. Write in a rich-text e
 - **Cloud sync is your choice:** point the folder at Google Drive, Dropbox or iCloud Drive.
 - **Open source:** the app, file format and exporters live in this repo.
 
-Status: **M0 spike complete.** One chapter goes TipTap JSON -> EPUB3 (passes EPUBCheck), and Typst is chosen for print PDF. See [docs/architecture.md](docs/architecture.md). The full scope is in the implementation plan; milestones M1-M4 are not started.
+Status: **M0 done, M1 mostly built.** You can create or open a project folder, edit chapters (add, rename, reorder, delete to a project trash), save atomically, get conflict copies when files change outside the app, and export EPUB3 (passes EPUBCheck). Typst is chosen for print PDF (M2). See [docs/architecture.md](docs/architecture.md). M2-M4 are not started.
 
 ## Stack
 Tauri 2 (Rust), React 19, TypeScript, Vite, TipTap 3, Vitest, Playwright, pnpm workspaces.
@@ -19,7 +19,8 @@ packages/
   editor-schema/     TipTap schema for the v1 node set
   export-epub/       Chapter JSON -> EPUB3
   export-pdf/        Print PDF (currently the Typst vs Paged.js spike)
-  format, templates, import-docx/   Stubs for later milestones
+  format/            Manifest validation, migrations, chapter-tree edits, file naming
+  templates, import-docx/   Stubs for later milestones
 fixtures/            Sample manuscripts and golden outputs
 docs/                Architecture notes, file format outline, roadmap
 ```
@@ -53,7 +54,7 @@ The EPUBCheck unit test skips when the jar is missing; set `REQUIRE_EPUBCHECK=1`
 
 ## Notes
 - E2E tests fake the Tauri bridge in memory; they do not cover the Rust side or native window.
-- The M0 desktop app reads and writes only under `~/Documents/CadabraCraft-spike`. Real project folders arrive in M1.
+- Projects use the folder layout in [docs/file-format.md](docs/file-format.md). Deleting a chapter moves it to `.cadabra/trash/`; the app never permanently deletes.
 - Licensing (AGPL-3.0 vs MPL-2.0) is undecided, so there is no LICENSE file yet.
 
 ## Contributing
