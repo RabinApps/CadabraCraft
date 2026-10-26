@@ -28,6 +28,20 @@
   --radius-lg: 14px;
 }
 
+/* Scripts the bundled Inter and Newsreader subsets do not cover fall back to system fonts, per language.
+   Bundled Hebrew/Arabic/CJK webfonts are deferred until catalogs ship (see docs/architecture.md). */
+:lang(he), :lang(ar) {
+  --font-ui: "Inter Variable", "Arial Hebrew", "Geeza Pro", "Segoe UI", system-ui, sans-serif;
+  --font-book: "Newsreader Variable", "Arial Hebrew", "Geeza Pro", "Times New Roman", serif;
+}
+:lang(ja) {
+  --font-ui: "Inter Variable", "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", system-ui, sans-serif;
+  --font-book: "Newsreader Variable", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+}
+:lang(ru) {
+  --font-book: "Newsreader Variable", "Times New Roman", Georgia, serif; /* Newsreader has no Cyrillic subset */
+}
+
 html,
 body {
   background: var(--bg);
@@ -50,8 +64,11 @@ body {
 .prose-manuscript .ProseMirror h2 { font-size: 1.6rem; font-weight: 600; line-height: 1.2; margin: 1.5rem 0 0.75rem; }
 .prose-manuscript .ProseMirror h3 { font-size: 1.3rem; font-weight: 600; line-height: 1.25; margin: 1.25rem 0 0.5rem; }
 .prose-manuscript .ProseMirror p { margin: 0 0 1em; }
-.prose-manuscript .ProseMirror blockquote { margin: 1em 0; padding-left: 1rem; border-left: 3px solid var(--border); color: var(--ink-muted); }
-.prose-manuscript .ProseMirror ul, .prose-manuscript .ProseMirror ol { margin: 0 0 1em; padding-left: 1.5rem; }
+/* Mixed-direction books: each block takes its direction from its first strong character. */
+.prose-manuscript .ProseMirror > p, .prose-manuscript .ProseMirror > h1, .prose-manuscript .ProseMirror > h2,
+.prose-manuscript .ProseMirror > h3, .prose-manuscript .ProseMirror > blockquote > p { unicode-bidi: plaintext; text-align: start; }
+.prose-manuscript .ProseMirror blockquote { margin: 1em 0; padding-inline-start: 1rem; border-inline-start: 3px solid var(--border); color: var(--ink-muted); }
+.prose-manuscript .ProseMirror ul, .prose-manuscript .ProseMirror ol { margin: 0 0 1em; padding-inline-start: 1.5rem; }
 .prose-manuscript .ProseMirror ul { list-style: disc; }
 .prose-manuscript .ProseMirror ol { list-style: decimal; }
 .prose-manuscript .ProseMirror a { color: var(--accent); text-decoration: underline; }

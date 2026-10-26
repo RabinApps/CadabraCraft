@@ -1,12 +1,17 @@
-/** "001-chapter-one.json" style file name for a chapter at a 1-based position. */
+/**
+ * "001-chapter-one.json" style file name for a chapter at a 1-based position.
+ * Letters and digits from any script are kept (Hebrew, Arabic, CJK, Cyrillic...); only Latin accents are folded away.
+ */
 export function chapterFileName(position: number, title: string): string {
-  const slug = title
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 48) || "untitled";
+  const slug = Array.from(
+    title
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .normalize("NFC")
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\p{M}]+/gu, "-")
+      .replace(/^-+|-+$/g, ""),
+  ).slice(0, 48).join("").replace(/-+$/, "") || "untitled";
   return `${String(position).padStart(3, "0")}-${slug}.json`;
 }
 

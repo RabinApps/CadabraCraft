@@ -61,3 +61,32 @@ Full-project undo of tree edits, real-client sync testing (M3), and Tauri-WebDri
 Next.js (App Router) with `output: 'export'`, Tailwind v4 and the tokens from `docs/design.md`, deployed to GitHub Pages at cadabracraft.com by `.github/workflows/pages.yml` (custom domain via `public/CNAME`, so no `basePath`). Fonts are self-hosted at build time by `next/font`; the shipped site makes no third-party requests and has no analytics. The site is a standalone app and imports nothing from `packages/*`.
 
 Rejected: Astro (Next.js was requested), plain HTML (no shared components or theming), publishing from `docs/` (mixes site output with project docs).
+
+## Internationalization (UI)
+
+### Decision: Lingui 6 (ICU MessageFormat, compiled PO catalogs)
+Target locales: en, he, ar, it, ja, ru, fr, de, es. Only `en` ships first, but RTL, plurals, fonts and a pseudo-locale are wired from the start so adding a language is a catalog drop-in.
+
+| | Lingui 6 | react-i18next | react-intl (FormatJS) |
+|---|---|---|---|
+| Message format | ICU (CLDR plurals: ru 3 forms, ar 6) | Own key/suffix format unless an ICU plugin is added | ICU |
+| Runtime size | About 1.5 kB core, catalogs compiled at build | About 17 kB | About 14 kB |
+| Extraction | `lingui extract` reads JSX/macros | Separate tooling | Separate tooling |
+| Build step | Babel macro plugin | None | None |
+| Runtime network | None | None | None |
+| License | MIT | MIT | BSD-3-Clause |
+
+Chosen: **Lingui**. Rejected: react-i18next (own plural format, larger runtime, manual typed keys; stays the fallback if the macro build breaks), react-intl (no extraction ergonomics or catalog loading), Intlayer and Tolgee (external platform, against the no-network rule).
+
+Spike (passed): macros work in the Vite 8 build, in Vitest, and in `lingui extract`. Setup notes: Vite 8 with plugin-react 6 has no built-in Babel, so `@rolldown/plugin-babel` runs `@lingui/babel-plugin-lingui-macro` before `react()` in both `vite.config.ts` and `vitest.config.ts`; Lingui 6 rejects `format: "po"` and needs `@lingui/format-po` passed as `formatter()`.
+
+### Two languages, kept apart
+- UI language is an app preference in `localStorage` (like the theme). It is never written to project files.
+- Book language is `manifest.language` (BCP 47). It drives editor `lang`/`dir`, spellcheck and EPUB metadata. Direction is derived from the language (he, ar, fa, ur are RTL), so no format change.
+- Content written into user files at creation (default chapter titles, author fallback) uses the book language, not the UI language.
+
+### Rust
+Rust returns error codes with params, not English sentences; the UI translates them. There are no native menus today; if added, build them from JS with the same catalogs.
+
+### Follow-ups / caveats
+Only English strings exist; he/ar/ja layout and fonts are unverified until catalogs land. Lingui and the Babel pipeline add a build step and about 100 dev dependencies (mostly Babel). Non-English catalogs need native-speaker review before a locale is enabled in the picker.

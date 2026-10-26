@@ -3,18 +3,22 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import { extensions } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { sizes, widths, type Width } from "../app/reading";
+import { dirFor } from "../i18n/locales";
 import { Toolbar } from "./Toolbar";
 
 interface Props {
   initial: ChapterDoc;
+  /** BCP 47 tag from `manifest.language`; sets spellcheck language and base direction. */
+  language: string;
   onChange?: (doc: ChapterDoc) => void;
   /** Read-only reading mode: no toolbar, larger type, no page card. */
   reading?: { size: number; width: Width };
 }
 
-export function Editor({ initial, onChange, reading }: Props) {
+export function Editor({ initial, language, onChange, reading }: Props) {
   const editor = useEditor({
     extensions,
+    editorProps: { attributes: { lang: language, dir: dirFor(language) } },
     content: initial,
     editable: !reading,
     onUpdate: ({ editor }) => onChange?.(editor.getJSON() as ChapterDoc),

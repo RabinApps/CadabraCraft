@@ -1,0 +1,380 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-10-26 00:13-0700\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+
+#. placeholder {0}: entry.title
+#: src/app/store.ts
+msgid "{0} changed outside the app; saving will keep both versions"
+msgstr "{0} changed outside the app; saving will keep both versions"
+
+#. placeholder {0}: entry.title
+#. placeholder {1}: w.conflict_copy
+#: src/app/store.ts
+msgid "{0} changed outside the app; the other version was kept as {1}"
+msgstr "{0} changed outside the app; the other version was kept as {1}"
+
+#. placeholder {0}: entry.title
+#: src/app/store.ts
+msgid "{0} was updated from outside the app"
+msgstr "{0} was updated from outside the app"
+
+#: src/app/App.tsx
+msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
+msgstr "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
+
+#. placeholder {0}: c.title
+#: src/app/Sidebar.tsx
+msgid "Actions for {0}"
+msgstr "Actions for {0}"
+
+#: src/app/App.tsx
+#: src/app/Sidebar.tsx
+msgid "Add chapter"
+msgstr "Add chapter"
+
+#: src/editor/Toolbar.tsx
+msgid "Add link"
+msgstr "Add link"
+
+#: src/editor/Toolbar.tsx
+msgid "Address"
+msgstr "Address"
+
+#: src/editor/Toolbar.tsx
+msgid "Apply"
+msgstr "Apply"
+
+#: src/app/Home.tsx
+msgid "Author"
+msgstr "Author"
+
+#: src/editor/Toolbar.tsx
+msgid "Block quote"
+msgstr "Block quote"
+
+#: src/editor/Toolbar.tsx
+msgid "Bold"
+msgstr "Bold"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Book progress"
+msgstr "Book progress"
+
+#: src/editor/Toolbar.tsx
+msgid "Bulleted list"
+msgstr "Bulleted list"
+
+#. placeholder {0}: w.conflict_copy
+#: src/app/store.ts
+msgid "cadabra.json changed outside the app; your previous copy was kept as {0}"
+msgstr "cadabra.json changed outside the app; your previous copy was kept as {0}"
+
+#: src/app/store.ts
+msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
+msgstr "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
+
+#: src/app/Home.tsx
+#: src/editor/Toolbar.tsx
+#: src/ui/Dialog.tsx
+msgid "Cancel"
+msgstr "Cancel"
+
+#. placeholder {0}: chapters.length + 1
+#. placeholder {0}: manifest.chapters.length + 1
+#: src/app/App.tsx
+#: src/app/Sidebar.tsx
+msgid "Chapter {0}"
+msgstr "Chapter {0}"
+
+#. placeholder {0}: index + 1
+#. placeholder {1}: chapters.length
+#: src/app/App.tsx
+#: src/editor/ReadingFooter.tsx
+msgid "Chapter {0} of {1}"
+msgstr "Chapter {0} of {1}"
+
+#: src/app/store.ts
+msgid "Chapter list updated from outside the app"
+msgstr "Chapter list updated from outside the app"
+
+#: src/app/store.ts
+msgid "Chapter One"
+msgstr "Chapter One"
+
+#: src/app/Sidebar.tsx
+msgid "Chapter title"
+msgstr "Chapter title"
+
+#: src/app/App.tsx
+#: src/app/Sidebar.tsx
+msgid "Chapters"
+msgstr "Chapters"
+
+#: src/app/App.tsx
+msgid "Choose a chapter to start."
+msgstr "Choose a chapter to start."
+
+#: src/app/Home.tsx
+msgid "Choose…"
+msgstr "Choose…"
+
+#: src/app/Home.tsx
+msgid "Create book"
+msgstr "Create book"
+
+#: src/ui/ThemeToggle.tsx
+msgid "Dark theme"
+msgstr "Dark theme"
+
+#: src/app/Home.tsx
+msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
+msgstr "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
+
+#: src/app/App.tsx
+msgid "Export EPUB"
+msgstr "Export EPUB"
+
+#: src/app/store.ts
+msgid "Exported exports/book.epub"
+msgstr "Exported exports/book.epub"
+
+#: src/app/Home.tsx
+msgid "Folder"
+msgstr "Folder"
+
+#: src/editor/Toolbar.tsx
+msgid "Footnote"
+msgstr "Footnote"
+
+#: src/editor/Toolbar.tsx
+msgid "Formatting"
+msgstr "Formatting"
+
+#: src/editor/Toolbar.tsx
+msgid "Heading 1"
+msgstr "Heading 1"
+
+#: src/editor/Toolbar.tsx
+msgid "Heading 2"
+msgstr "Heading 2"
+
+#: src/editor/Toolbar.tsx
+msgid "Heading 3"
+msgstr "Heading 3"
+
+#: src/app/Sidebar.tsx
+msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
+msgstr "It moves to the project trash inside your book folder. Nothing is permanently deleted."
+
+#: src/editor/Toolbar.tsx
+msgid "Italic"
+msgstr "Italic"
+
+#: src/ui/LanguagePicker.tsx
+msgid "Language"
+msgstr "Language"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Larger text"
+msgstr "Larger text"
+
+#: src/ui/ThemeToggle.tsx
+msgid "Light theme"
+msgstr "Light theme"
+
+#: src/editor/Toolbar.tsx
+msgid "Link"
+msgstr "Link"
+
+#: src/app/Home.tsx
+msgid "Location"
+msgstr "Location"
+
+#. placeholder {0}: c.file
+#: src/app/store.ts
+msgid "Missing chapter file {0}"
+msgstr "Missing chapter file {0}"
+
+#. placeholder {0}: deleting?.title ?? ""
+#: src/app/Sidebar.tsx
+msgid "Move “{0}” to trash?"
+msgstr "Move “{0}” to trash?"
+
+#: src/app/Sidebar.tsx
+msgid "Move down"
+msgstr "Move down"
+
+#: src/app/Sidebar.tsx
+msgid "Move to trash"
+msgstr "Move to trash"
+
+#: src/app/Sidebar.tsx
+msgid "Move up"
+msgstr "Move up"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Narrow page"
+msgstr "Narrow page"
+
+#: src/app/Home.tsx
+msgid "New book"
+msgstr "New book"
+
+#: src/app/Home.tsx
+msgid "New project"
+msgstr "New project"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Next chapter"
+msgstr "Next chapter"
+
+#: src/app/store.ts
+msgid "No cadabra.json in that folder"
+msgstr "No cadabra.json in that folder"
+
+#: src/app/Home.tsx
+msgid "No folder chosen"
+msgstr "No folder chosen"
+
+#: src/editor/Toolbar.tsx
+msgid "Note"
+msgstr "Note"
+
+#: src/editor/Toolbar.tsx
+msgid "Numbered list"
+msgstr "Numbered list"
+
+#: src/app/Home.tsx
+msgid "Open folder"
+msgstr "Open folder"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Page width"
+msgstr "Page width"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Previous chapter"
+msgstr "Previous chapter"
+
+#. placeholder {0}: parsed.fromVersion
+#: src/app/store.ts
+msgid "Project upgraded from format {0}; backup saved to {backup}"
+msgstr "Project upgraded from format {0}; backup saved to {backup}"
+
+#: src/app/App.tsx
+msgid "Read"
+msgstr "Read"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Reading settings"
+msgstr "Reading settings"
+
+#: src/editor/Toolbar.tsx
+msgid "Redo"
+msgstr "Redo"
+
+#: src/app/Sidebar.tsx
+msgid "Rename"
+msgstr "Rename"
+
+#: src/app/App.tsx
+msgid "Save"
+msgstr "Save"
+
+#: src/app/App.tsx
+#: src/app/store.ts
+msgid "Saved"
+msgstr "Saved"
+
+#: src/editor/Toolbar.tsx
+msgid "Scene break"
+msgstr "Scene break"
+
+#: src/editor/Toolbar.tsx
+msgid "Select the text you want to link first."
+msgstr "Select the text you want to link first."
+
+#: src/app/App.tsx
+msgid "Show chapters"
+msgstr "Show chapters"
+
+#: src/editor/Toolbar.tsx
+msgid "Small caps"
+msgstr "Small caps"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Smaller text"
+msgstr "Smaller text"
+
+#: src/app/Home.tsx
+msgid "Start a new folder, or open one you already have. Everything stays on this computer."
+msgstr "Start a new folder, or open one you already have. Everything stays on this computer."
+
+#: src/ui/ThemeToggle.tsx
+msgid "System theme"
+msgstr "System theme"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Text size"
+msgstr "Text size"
+
+#: src/editor/Toolbar.tsx
+msgid "That address can't be used as a link."
+msgstr "That address can't be used as a link."
+
+#: src/app/Home.tsx
+msgid "The book is stored in this folder. Nothing leaves your computer."
+msgstr "The book is stored in this folder. Nothing leaves your computer."
+
+#: src/ui/ThemeToggle.tsx
+msgid "Theme"
+msgstr "Theme"
+
+#: src/app/App.tsx
+msgid "This book has no chapters yet."
+msgstr "This book has no chapters yet."
+
+#: src/app/Home.tsx
+msgid "Title"
+msgstr "Title"
+
+#: src/editor/Toolbar.tsx
+msgid "Underline"
+msgstr "Underline"
+
+#: src/editor/Toolbar.tsx
+msgid "Undo"
+msgstr "Undo"
+
+#: src/app/Home.tsx
+msgid "Unknown"
+msgstr "Unknown"
+
+#: src/app/App.tsx
+msgid "Unsaved"
+msgstr "Unsaved"
+
+#: src/editor/Toolbar.tsx
+msgid "Use http, https or mailto."
+msgstr "Use http, https or mailto."
+
+#: src/editor/ReadingSettings.tsx
+msgid "Wide page"
+msgstr "Wide page"
+
+#: src/app/App.tsx
+msgid "Write"
+msgstr "Write"
+
+#: src/app/App.tsx
+msgid "Write or read"
+msgstr "Write or read"
+
+#: src/app/Home.tsx
+msgid "Write your first book"
+msgstr "Write your first book"

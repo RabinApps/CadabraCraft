@@ -12,6 +12,13 @@
       } catch (e) {
         document.documentElement.dataset.theme = "light";
       }
+      try {
+        var l = localStorage.getItem("cadabracraft.locale");
+        if (l) {
+          document.documentElement.lang = l === "pseudo" ? "en" : l;
+          document.documentElement.dir = /^(he|ar|fa|ur)/.test(l) ? "rtl" : "ltr";
+        }
+      } catch (e) {}
     </script>
   </head>
   <body>
