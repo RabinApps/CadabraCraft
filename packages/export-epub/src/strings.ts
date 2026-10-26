@@ -19,3 +19,39 @@ export function contentsHeading(language: string): string {
   if (!s) throw new Error(`export-epub: no "Contents" translation for language "${language}"; add one in strings.ts`);
   return s;
 }
+
+const LANDMARKS: Record<string, string> = {
+  en: "Landmarks",
+  he: "ציוני דרך",
+  ar: "معالم",
+  it: "Punti di riferimento",
+  ja: "ランドマーク",
+  ru: "Ориентиры",
+  fr: "Repères",
+  de: "Orientierungspunkte",
+  es: "Puntos de referencia",
+};
+
+const START_OF_CONTENT: Record<string, string> = {
+  en: "Start of content",
+  he: "תחילת התוכן",
+  ar: "بداية المحتوى",
+  it: "Inizio del contenuto",
+  ja: "本文の開始",
+  ru: "Начало содержимого",
+  fr: "Début du contenu",
+  de: "Beginn des Inhalts",
+  es: "Inicio del contenido",
+};
+
+function pick(table: Record<string, string>, what: string, language: string): string {
+  const s = table[primaryLanguage(language)];
+  if (!s) throw new Error(`export-epub: no "${what}" translation for language "${language}"; add one in strings.ts`);
+  return s;
+}
+
+/** Heading of the (hidden) landmarks navigation. Throws for languages without a translation. */
+export const landmarksHeading = (language: string): string => pick(LANDMARKS, "Landmarks", language);
+
+/** Label of the "start of content" landmark. Throws for languages without a translation. */
+export const startOfContentLabel = (language: string): string => pick(START_OF_CONTENT, "Start of content", language);

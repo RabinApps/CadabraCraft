@@ -5,7 +5,11 @@ img{max-width:100%;height:auto}figure{margin:1.5em 0;text-align:center;page-brea
 figcaption{font-size:.85em;margin-top:.4em}
 ul,ol{margin:.6em 0;padding-left:1.6em}li>p{text-indent:0}
 aside ol{font-size:.85em}
-h1,h2,h3{page-break-after:avoid;break-after:avoid}`;
+h1,h2,h3{page-break-after:avoid;break-after:avoid}
+body.title-page,body.dedication,body.epigraph{text-align:center}
+body.title-page h1{margin:30% 0 .5em}body.title-page p,body.dedication p,body.epigraph p,body.copyright p{text-indent:0}
+body.dedication,body.epigraph{margin-top:25%}body.dedication p{font-style:italic}
+body.copyright{font-size:.85em}body.copyright p{margin:0 0 .4em}`;
 
 export const NOVEL_CSS = `body{font-family:serif;line-height:1.4}
 h1{font-size:1.6em;text-align:center;font-weight:normal;margin:3em 0 2em}
@@ -17,8 +21,9 @@ hr.scene-break{border:0;text-align:center;margin:1.5em 0;height:1em}hr.scene-bre
 ${BASE}`;
 
 export const NONFICTION_CSS = `body{font-family:serif;line-height:1.45;counter-reset:chapter}
-h1{font-size:1.8em;font-weight:bold;text-align:left;margin:2.5em 0 1em;padding-bottom:.3em;border-bottom:.08em solid currentColor;counter-increment:chapter}
-h1:before{content:"Chapter " counter(chapter);display:block;font-size:.5em;font-weight:normal;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4em}
+h1{font-size:1.8em;font-weight:bold;text-align:left;margin:2.5em 0 1em;padding-bottom:.3em;border-bottom:.08em solid currentColor}
+body.chapter h1{counter-increment:chapter}
+body.chapter h1:before{content:"Chapter " counter(chapter);display:block;font-size:.5em;font-weight:normal;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4em}
 h2{font-size:1.3em;font-weight:bold;margin:2em 0 .6em}
 h3{font-size:1.05em;font-weight:bold;font-style:italic;margin:1.5em 0 .5em}
 p{margin:0 0 .9em;text-indent:0}

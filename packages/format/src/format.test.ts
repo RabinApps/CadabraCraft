@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   CURRENT_FORMAT_VERSION, FormatError, chapterFileName, conflictFileName, createManifest, isSafeRelativePath,
   parseManifest, readingOrder, serializeManifest, validateManifest, type Migration,
@@ -38,9 +39,41 @@ describe("manifest", () => {
   });
 });
 
+describe("migration v1 -> v2 (front/back matter kinds)", () => {
+  const v1Json = readFileSync(new URL("./fixtures/v1-cadabra.json", import.meta.url), "utf8");
+  it("opens a real v1 manifest, upgrades it and loses nothing", () => {
+    const v1 = JSON.parse(v1Json);
+    expect(v1.formatVersion).toBe(1);
+    const r = parseManifest(v1Json);
+    expect(CURRENT_FORMAT_VERSION).toBe(2);
+    expect(r.migrated).toBe(true);
+    expect(r.fromVersion).toBe(1);
+    expect(r.manifest.formatVersion).toBe(2);
+    const { formatVersion: _a, ...before } = v1;
+    const { formatVersion: _b, ...after } = r.manifest;
+    expect(after).toEqual(before); // defaults: no kind added, every field and entry kept
+    expect(r.manifest.frontMatter[0]).not.toHaveProperty("kind");
+    expect(readingOrder(r.manifest).map((e) => e.id)).toEqual(["title-page", "ch-1", "ch-2", "about"]);
+  });
+  it("serializes as v2 and reopens without migrating again", () => {
+    const again = parseManifest(serializeManifest(parseManifest(v1Json).manifest));
+    expect(again.migrated).toBe(false);
+    expect(again.manifest.formatVersion).toBe(2);
+  });
+  it("validates kinds: unknown kinds, wrong section and kinds on chapters are rejected", () => {
+    const m = base();
+    expect(() => validateManifest({ ...m, frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "bogus" }] })).toThrow(/kind/);
+    expect(() => validateManifest({ ...m, frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "colophon" }] })).toThrow(/kind/);
+    expect(() => validateManifest({ ...m, backMatter: [{ id: "b", file: "back-matter/a.json", title: "A", kind: "title-page" }] })).toThrow(/kind/);
+    expect(() => validateManifest({ ...m, chapters: [{ ...m.chapters[0]!, kind: "custom" }] })).toThrow(/kind/);
+    const ok = validateManifest({ ...m, frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "custom" }], backMatter: [{ id: "b", file: "back-matter/a.json", title: "A", kind: "custom" }] });
+    expect(ok.frontMatter[0]!.kind).toBe("custom");
+  });
+});
+
 describe("migrations", () => {
-  // Stand-in for a future v1 -> v2 bump: the framework must upgrade in order and flag `migrated`.
-  const v1: Record<string, unknown> = { ...base() };
+  // Stand-in for a future bump: the framework must upgrade in order and flag `migrated`.
+  const v1: Record<string, unknown> = { ...base(), formatVersion: 1 };
   const up: Migration[] = [{ from: 1, up: (r) => ({ ...r, template: "modern" }) }];
   it("applies migrations and reports migrated", () => {
     const r = parseManifest(JSON.stringify(v1), up, 2);
