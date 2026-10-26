@@ -296,6 +296,10 @@ msgstr ""
 msgid "Folder"
 msgstr ""
 
+#: src/app/Home.tsx
+msgid "Folder not found. Remove it from the list or move it back."
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Footnote"
 msgstr ""
@@ -546,8 +550,17 @@ msgstr ""
 msgid "Reading your chapters…"
 msgstr ""
 
+#: src/app/Home.tsx
+msgid "Recent projects"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Redo"
+msgstr ""
+
+#. placeholder {0}: r.title || r.root
+#: src/app/Home.tsx
+msgid "Remove {0} from recent projects"
 msgstr ""
 
 #: src/app/Sidebar.tsx
@@ -727,6 +740,10 @@ msgstr ""
 
 #: src/app/App.tsx
 msgid "Unsaved"
+msgstr ""
+
+#: src/app/Home.tsx
+msgid "Untitled"
 msgstr ""
 
 #: src/editor/Toolbar.tsx

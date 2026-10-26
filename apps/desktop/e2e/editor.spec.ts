@@ -22,7 +22,7 @@ async function fakeTauri(page: Page) {
           case "plugin:event|unlisten": return null;
           case "watch_project": return null;
           case "create_project": disk["cadabra.json"] = a.manifestJson; persist(); return null;
-          case "read_project_file": return typeof disk[a.path] === "string" ? { contents: disk[a.path], hash: h(disk[a.path] as string) } : null;
+          case "read_project_file": if (a.root === "/gone") return null; return typeof disk[a.path] === "string" ? { contents: disk[a.path], hash: h(disk[a.path] as string) } : null;
           case "write_project_file": disk[a.path] = a.contents; persist(); return { hash: h(a.contents), conflict_copy: null };
           case "write_project_bytes": disk[a.path] = a.bytes; persist(); return null;
           case "import_asset":
@@ -510,4 +510,25 @@ test("restoring a page from the trash puts it back at the end and opens it", asy
 
   await page.getByRole("button", { name: "Trash", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Trash" }).getByText("The trash is empty.")).toBeVisible();
+});
+
+test("recent projects: listed after opening, reopenable, removable, and missing folders are flagged", async ({ page }) => {
+  await newProject(page);
+  await page.reload();
+  const recent = page.getByRole("region", { name: "Recent projects" });
+  await expect(recent.getByText("E2E Book")).toBeVisible();
+  // Never written into the project file.
+  expect(await page.evaluate(() => (window as any).__disk["cadabra.json"])).not.toContain("/proj");
+  await recent.getByRole("button", { name: /E2E Book/ }).first().click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+
+  await page.evaluate(() => localStorage.setItem("cadabracraft.recents", JSON.stringify([
+    { root: "/gone", title: "Moved Book", openedAt: 2 }, { root: "/proj", title: "E2E Book", openedAt: 1 },
+  ])));
+  await page.reload();
+  await recent.getByRole("button", { name: /Moved Book/ }).first().click();
+  await expect(recent.getByText("Folder not found.")).toBeVisible();
+  await page.getByRole("button", { name: "Remove Moved Book from recent projects" }).click();
+  await expect(recent.getByText("Moved Book")).toHaveCount(0);
+  await expect(recent.getByText("E2E Book")).toBeVisible();
 });

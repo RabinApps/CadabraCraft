@@ -4,7 +4,7 @@ Design: `cadabracraft.pen`, tokens in `docs/design.md` (keep in sync with `/sync
 
 ## Scope
 In: design tokens and dark mode, responsive shell, restyled Home/sidebar/toolbar/editor, Radix dialogs replacing `prompt()`/`confirm()`/`alert()`, status badge, word counts, read-only reading mode, theme switch.
-Out (roadmap): recent-projects list, details panel, focus mode, anything needing new Rust commands.
+Out (roadmap): details panel, focus mode, anything needing new Rust commands.
 
 ## Steps
 1. **Deps and tooling**

@@ -21,12 +21,18 @@ import { Home } from "./Home";
 import { ImportReportDialog } from "./ImportDialogs";
 import { Sidebar } from "./Sidebar";
 import { useReading } from "./reading";
+import { useRecents } from "./recents";
 import { useProject } from "./store";
 
 export function App() {
   const { t } = useLingui();
   const { manifest, currentId, currentDoc, draft, notice, reloadCount, actions } = useProject();
   const open = manifest !== null;
+  const root = useProject((s) => s.root);
+  const title = manifest?.title;
+  const addRecent = useRecents((s) => s.add);
+  // Any successful open, create or import lands here.
+  useEffect(() => { if (root && title !== undefined) addRecent(root, title); }, [root, title, addRecent]);
   const [drawer, setDrawer] = useState(false);
   const [mode, setMode] = useState<"write" | "read">("write");
   const [pdfOpen, setPdfOpen] = useState(false);
@@ -61,6 +67,7 @@ export function App() {
         pickImportSource={bridge.pickImportSource}
         onImport={actions.importBook}
         onCreate={(root, title, author) => run(() => actions.createProject(root, title, author))()}
+        onOpenRecent={(r) => { setError(""); return actions.openProject(r).catch((e) => { setError(String(e instanceof Error ? e.message : e)); throw e; }); }}
         onOpen={run(async () => { const root = await bridge.pickFolder(); if (root) await actions.openProject(root); })}
       />
       <ImportReportDialog />
