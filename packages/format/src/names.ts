@@ -1,0 +1,18 @@
+/** "001-chapter-one.json" style file name for a chapter at a 1-based position. */
+export function chapterFileName(position: number, title: string): string {
+  const slug = title
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48) || "untitled";
+  return `${String(position).padStart(3, "0")}-${slug}.json`;
+}
+
+/** "001-chapter-one.conflict-20261025-1744.json" for a kept conflicting version. */
+export function conflictFileName(file: string, at: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  const stamp = `${at.getUTCFullYear()}${p(at.getUTCMonth() + 1)}${p(at.getUTCDate())}-${p(at.getUTCHours())}${p(at.getUTCMinutes())}`;
+  return file.replace(/\.json$/, `.conflict-${stamp}.json`);
+}
