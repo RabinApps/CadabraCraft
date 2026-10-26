@@ -84,6 +84,24 @@ pub fn read_file(root: &Path, rel: &str) -> Result<Option<FileRead>, String> {
     }
 }
 
+/// `<dir>/<stem>.conflict-YYYYMMDD-HHMM[-N].<ext>` for the first name not already taken, so a second conflict in the
+/// same minute never overwrites the first kept copy. Only the file name is split at its last dot, never the directory.
+fn free_conflict_name(root: &Path, rel: &str) -> Result<String, String> {
+    let (dir, name) = rel.rsplit_once('/').unwrap_or(("", rel));
+    let (stem, ext) = name.rsplit_once('.').unwrap_or((name, ""));
+    let ext = if ext.is_empty() { String::new() } else { format!(".{ext}") };
+    let stamp = stamp();
+    for n in 1u32.. {
+        let suffix = if n == 1 { String::new() } else { format!("-{n}") };
+        let file = format!("{stem}.conflict-{stamp}{suffix}{ext}");
+        let copy = if dir.is_empty() { file } else { format!("{dir}/{file}") };
+        if !resolve(root, &copy)?.exists() {
+            return Ok(copy);
+        }
+    }
+    unreachable!()
+}
+
 /// Writes a project file. If `base_hash` is given and the file on disk no longer matches it (it changed outside
 /// the app, e.g. through sync), the on-disk version is kept as `<name>.conflict-YYYYMMDD-HHMM.<ext>` first.
 pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str>) -> Result<WriteResult, String> {
@@ -91,8 +109,7 @@ pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str
     let mut conflict_copy = None;
     if let (Some(base), Ok(existing)) = (base_hash, fs::read(&path)) {
         if hash_bytes(&existing) != base {
-            let (stem, ext) = rel.rsplit_once('.').unwrap_or((rel, ""));
-            let copy = format!("{stem}.conflict-{}{}{ext}", stamp(), if ext.is_empty() { "" } else { "." });
+            let copy = free_conflict_name(root, rel)?;
             atomic_write(&resolve(root, &copy)?, &existing)?;
             conflict_copy = Some(copy);
         }
@@ -289,6 +306,19 @@ mod tests {
         let w2 = write_file(d.path(), "manuscript/x.json", "v2", Some(&w1.hash)).unwrap();
         assert_eq!(w2.conflict_copy, None);
         assert_eq!(fs::read_to_string(d.path().join("manuscript/x.json")).unwrap(), "v2");
+    }
+
+    #[test]
+    fn second_conflict_in_the_same_minute_keeps_the_first_copy() {
+        let d = tmp();
+        write_file(d.path(), "manuscript/x.json", "v1", None).unwrap();
+        fs::write(d.path().join("manuscript/x.json"), "external one").unwrap();
+        let a = write_file(d.path(), "manuscript/x.json", "mine one", Some("stale")).unwrap().conflict_copy.unwrap();
+        fs::write(d.path().join("manuscript/x.json"), "external two").unwrap();
+        let b = write_file(d.path(), "manuscript/x.json", "mine two", Some("stale")).unwrap().conflict_copy.unwrap();
+        assert_ne!(a, b);
+        assert_eq!(fs::read_to_string(d.path().join(&a)).unwrap(), "external one");
+        assert_eq!(fs::read_to_string(d.path().join(&b)).unwrap(), "external two");
     }
 
     #[test]

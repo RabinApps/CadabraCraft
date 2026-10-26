@@ -116,6 +116,6 @@ Stable `error.code` values:
 `pnpm --filter @cadabracraft/mcp test` drives every tool through the SDK's in-memory transport and spawns the built `dist/cli.js` over stdio (the test builds it first). EPUBCheck and real-Typst tests skip when the jar / typst or poppler are missing; `REQUIRE_EPUBCHECK=1` and `REQUIRE_TYPST=1` make them fail instead. The shared rules with the Rust layer are pinned by `fixtures/contract/*.json`, consumed by `packages/project-fs/test/contract.test.ts` and `apps/desktop/src-tauri/src/project/contract_tests.rs`.
 
 ## Known differences from the Rust layer
-- Conflict copies, trash entries and manifest backups never overwrite an earlier file (Rust would overwrite one made in the same minute).
-- Conflict names use the extension of the last path segment; Rust splits the whole relative path at its last dot (`v1.0/noext` becomes `v1.conflict-STAMP.0/noext`). See `fixtures/contract/conflict-name.json`.
+- Conflict copies never overwrite an earlier copy in either layer (both add `-2`, `-3`). Trash entries and manifest backups made in the same minute are not overwritten in TS; Rust still overwrites those.
+- Conflict names split only the file name at its last dot in both layers (fixed in Rust; pinned by `fixtures/contract/conflict-name.json`).
 - Symlinks inside a project that point outside it are refused (Rust checks lexically only).

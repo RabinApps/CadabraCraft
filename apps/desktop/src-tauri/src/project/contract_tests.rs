@@ -76,15 +76,7 @@ fn contract_conflict_names() {
         let r = write_file(d.path(), rel, "mine", Some(&"0".repeat(64))).unwrap();
         let copy = mask_stamp(&r.conflict_copy.expect("conflict copy"));
         assert_eq!(fs::read_to_string(d.path().join(rel)).unwrap(), "mine");
-        match c.get("rustExpected") {
-            // Known divergence (reported, not changed): Rust's name differs from the contract's. If this assertion starts
-            // failing, the Rust side was fixed: drop `rustExpected` from the vector.
-            Some(rust) => {
-                assert_eq!(copy, s(rust), "{rel}: documented Rust behaviour changed");
-                assert_ne!(copy, s(&c["expected"]), "{rel}: Rust now matches the contract; remove rustExpected");
-            }
-            None => assert_eq!(copy, s(&c["expected"]), "{rel}"),
-        }
+        assert_eq!(copy, s(&c["expected"]), "{rel}");
     }
 }
 

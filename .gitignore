@@ -1,7 +1,7 @@
 node_modules/
 target/
 dist/
-tools/
+/tools/
 out/
 .cadabra/
 .DS_Store
@@ -11,3 +11,4 @@ playwright-report/
 
 # Third-party skill installed locally; upstream (ramziddin/solid-skills) has no LICENSE file, so do not commit it
 .claude/skills/solid/
+.mcp-workspace/

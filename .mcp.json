@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "cadabracraft": {
+      "command": "node",
+      "args": ["packages/mcp/dist/cli.js", "${CADABRA_MCP_ROOT:-.mcp-workspace}"],
+      "env": { "CADABRA_REPO": "." }
+    }
+  }
+}

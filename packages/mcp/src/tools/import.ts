@@ -1,0 +1,146 @@
+// import_file: the same order of work as apps/desktop/src/app/importBook.ts (parse everything, load images, then write
+// images, chapters and the manifest LAST), without the webview. The source is only ever read.
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
+import { addChapter, createManifest, serializeManifest } from "@cadabracraft/format";
+import { ImportError, importDocx, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
+import { MANIFEST, ProjectFsError, createProject, fileBaseName, readRelativeImage, readSource, resolveInWorkspace, storeImage, writeProjectFile } from "@cadabracraft/project-fs";
+import { remapImages } from "../doc";
+import { ToolError } from "../errors";
+import { type ToolDef, defineTool } from "../tooling";
+
+export interface WarningGroup {
+  code: string;
+  severity: ImportWarning["severity"];
+  /** Total occurrences (a warning may stand for several). */
+  count: number;
+  /** First message, as a description of the group. */
+  message: string;
+  /** Up to three short examples. */
+  examples: string[];
+}
+
+/** Groups warnings by code: counts occurrences and keeps a few examples. Warnings (content lost) come before info. */
+export function groupWarnings(warnings: ImportWarning[]): WarningGroup[] {
+  const groups = new Map<string, WarningGroup>();
+  for (const w of warnings) {
+    let g = groups.get(w.code);
+    if (!g) groups.set(w.code, (g = { code: w.code, severity: w.severity, count: 0, message: w.message, examples: [] }));
+    if (w.severity === "warning") g.severity = "warning";
+    g.count += w.count ?? 1;
+    const ex = [...(w.examples ?? []), ...(w.examples?.length ? [] : [w.line ? `${w.message} (line ${w.line})` : w.message])];
+    for (const e of ex) if (g.examples.length < 3 && !g.examples.includes(e)) g.examples.push(e);
+  }
+  return [...groups.values()].sort((a, b) => Number(b.severity === "warning") - Number(a.severity === "warning") || b.count - a.count);
+}
+
+const decode = (s: string): string => {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+};
+
+/** Markdown references may be percent-encoded and carry `?query`/`#fragment`; try them as written first. */
+const imageCandidates = (ref: string): string[] => [...new Set([ref, decode(ref.replace(/[?#].*$/, ""))])];
+
+const titleFromFile = (path: string): string => fileBaseName(path).replace(/\.[^.]*$/, "").replace(/[_-]+/g, " ").trim() || "Untitled";
+
+function checkDestination(dest: string): void {
+  if (!existsSync(dest)) return;
+  const notEmpty = () => new ToolError("destination_not_empty", `destination must not exist or be an empty folder: ${dest}`);
+  if (!statSync(dest).isDirectory()) throw notEmpty();
+  if (readdirSync(dest).length > 0) throw notEmpty();
+}
+
+export const importFile = defineTool({
+  name: "cadabra_import_file",
+  title: "Import manuscript",
+  description: "Import a Markdown (.md/.markdown/.txt) or Word (.docx) manuscript into a NEW project folder. Chapters split on top-level headings; images are copied into assets/. The source is never modified; the destination must not exist or be an empty folder. Returns a grouped warning report of anything that could not be kept (see cadabra://docs/import).",
+  input: {
+    source: z.string().min(1).describe("Manuscript file, relative to the workspace root or an absolute path inside it."),
+    destination: z.string().min(1).describe("New project folder (nonexistent or empty)."),
+    title: z.string().min(1).optional().describe("Book title; defaults to the file name."),
+    author: z.string().min(1).optional().describe('Author; defaults to "Anonymous".'),
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+  run: ({ source, destination, title, author }, ctx) => {
+    const sourcePath = resolveInWorkspace(ctx.ws, source);
+    const dest = resolveInWorkspace(ctx.ws, destination);
+    checkDestination(dest);
+
+    // 1. Read and parse. Nothing is created when this fails.
+    let bytes: Uint8Array;
+    try {
+      bytes = readSource(sourcePath);
+    } catch (e) {
+      if (e instanceof ProjectFsError && e.code !== "not_found") throw new ToolError("source_invalid", e.message);
+      throw e;
+    }
+    const isDocx = /\.docx$/i.test(sourcePath);
+    let result: ImportResult;
+    try {
+      result = isDocx ? importDocx(bytes) : importMarkdown(new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, ""));
+    } catch (e) {
+      if (e instanceof ImportError) throw new ToolError("import_failed", `${e.message} (${e.code})`, { importCode: e.code });
+      throw e;
+    }
+    if (result.chapters.length === 0) throw new ToolError("empty_input", "there is no text to import in this file", { warnings: groupWarnings(result.warnings) });
+
+    // 2. Load images into memory (still no writes). An unreadable or refused image is a warning, not a failure.
+    const warnings: ImportWarning[] = [...result.warnings];
+    const images: { target: string; name: string; bytes: Uint8Array }[] = [];
+    for (const a of result.assets) {
+      let data = a.bytes ?? null;
+      let why = "";
+      if (!data) {
+        for (const candidate of imageCandidates(a.sourcePath)) {
+          try {
+            data = readRelativeImage(sourcePath, candidate);
+            break;
+          } catch (e) {
+            why = e instanceof Error ? e.message : String(e);
+          }
+        }
+      }
+      if (data) images.push({ target: a.targetPath, name: fileBaseName(a.targetPath), bytes: data });
+      else warnings.push({ code: "image-not-imported", severity: "warning", message: `Image ${a.sourcePath} could not be imported: ${why}`, examples: [a.sourcePath] });
+    }
+
+    // 3. Write. The manifest goes last with the chapter list, so an interrupted import never lists missing files.
+    const written = { images: 0, chapters: 0 };
+    let manifest = createManifest({ title: title ?? titleFromFile(sourcePath), author: author ?? "Anonymous", language: "en", identifier: `urn:uuid:${randomUUID()}` });
+    try {
+      createProject(dest, serializeManifest(manifest));
+      const map = new Map<string, string | null>();
+      for (const a of result.assets) map.set(a.targetPath, null);
+      for (const img of images) {
+        try {
+          map.set(img.target, storeImage(dest, img.name, img.bytes));
+          written.images++;
+        } catch (e) {
+          warnings.push({ code: "image-not-imported", severity: "warning", message: `Image ${img.name} could not be stored: ${e instanceof Error ? e.message : String(e)}`, examples: [img.name] });
+        }
+      }
+      for (const c of result.chapters) {
+        const next = addChapter(manifest, c.title);
+        manifest = next.manifest;
+        writeProjectFile(dest, next.entry.file, JSON.stringify(remapImages(c.doc, map), null, 2));
+        written.chapters++;
+      }
+      writeProjectFile(dest, MANIFEST, serializeManifest(manifest));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      throw new ToolError("import_write_failed", `${msg} Already written to ${dest}: ${written.chapters} chapter files and ${written.images} images; the book's chapter list was not saved.`, { written, destination: dest });
+    }
+    const groups = groupWarnings(warnings);
+    return {
+      summary: `Imported ${result.chapters.length} chapter(s) and ${written.images} image(s) into ${dest}; ${groups.length} warning group(s)`,
+      data: { root: dest, manifest, chapterCount: result.chapters.length, imageCount: written.images, warnings: groups },
+    };
+  },
+});
+
+export const importTools: ToolDef[] = [importFile];
