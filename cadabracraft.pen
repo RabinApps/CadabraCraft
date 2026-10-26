@@ -484,20 +484,167 @@
                   "name": "Mark",
                   "width": 32,
                   "height": 32,
-                  "fill": "$accent",
-                  "cornerRadius": 8,
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": 225,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#2F73E6",
+                        "position": 0
+                      },
+                      {
+                        "color": "#1A4BB0",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "cornerRadius": 7,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon",
-                      "id": "KIX5f",
-                      "name": "Mark icon",
-                      "width": 18,
-                      "height": 18,
-                      "icon": "wand-sparkles",
-                      "library": "lucide",
-                      "fill": "$accent-ink"
+                      "type": "path",
+                      "id": "R3lxIH",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left page",
+                      "geometry": "M256 210q-60-28-140-16v194q80-12 140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "a2NNM0",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right page",
+                      "geometry": "M256 210q60-28 140-16v194q-80-12-140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "m7GPUe",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left lines",
+                      "opacity": 0.35,
+                      "geometry": "M150 246h72m-72 26h72m-72 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "r6KtjE",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right lines",
+                      "opacity": 0.35,
+                      "geometry": "M290 246h72m-72 26h72m-58 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "HnCGO",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Spine",
+                      "opacity": 0.55,
+                      "geometry": "M256 202v210",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 8,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "qnnrn",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Sparkle",
+                      "geometry": "M256 106q6 40 46 46-40 6-46 46-6-40-46-46 40-6 46-46z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "Dr345",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Small sparkle",
+                      "opacity": 0.85,
+                      "geometry": "M356 124q2 14 16 16-14 2-16 16-2-14-16-16 14-2 16-16z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
                     }
                   ]
                 },
@@ -973,20 +1120,167 @@
                   "name": "Mark",
                   "width": 32,
                   "height": 32,
-                  "fill": "$accent",
-                  "cornerRadius": 8,
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": 225,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#2F73E6",
+                        "position": 0
+                      },
+                      {
+                        "color": "#1A4BB0",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "cornerRadius": 7,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon",
-                      "id": "IJcqY",
-                      "name": "Mark icon",
-                      "width": 18,
-                      "height": 18,
-                      "icon": "wand-sparkles",
-                      "library": "lucide",
-                      "fill": "$accent-ink"
+                      "type": "path",
+                      "id": "eNJNF",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left page",
+                      "geometry": "M256 210q-60-28-140-16v194q80-12 140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "FRlMz",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right page",
+                      "geometry": "M256 210q60-28 140-16v194q-80-12-140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "MinM5",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left lines",
+                      "opacity": 0.35,
+                      "geometry": "M150 246h72m-72 26h72m-72 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "JKiZ6",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right lines",
+                      "opacity": 0.35,
+                      "geometry": "M290 246h72m-72 26h72m-58 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "TYjT3",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Spine",
+                      "opacity": 0.55,
+                      "geometry": "M256 202v210",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 8,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "mbGL4",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Sparkle",
+                      "geometry": "M256 106q6 40 46 46-40 6-46 46-6-40-46-46 40-6 46-46z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "VqWij",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Small sparkle",
+                      "opacity": 0.85,
+                      "geometry": "M356 124q2 14 16 16-14 2-16 16-2-14-16-16 14-2 16-16z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
                     }
                   ]
                 },
@@ -1471,20 +1765,167 @@
                   "name": "Mark",
                   "width": 32,
                   "height": 32,
-                  "fill": "$accent",
-                  "cornerRadius": 8,
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": 225,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#2F73E6",
+                        "position": 0
+                      },
+                      {
+                        "color": "#1A4BB0",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "cornerRadius": 7,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon",
-                      "id": "JsULp",
-                      "name": "Mark icon",
-                      "width": 18,
-                      "height": 18,
-                      "icon": "wand-sparkles",
-                      "library": "lucide",
-                      "fill": "$accent-ink"
+                      "type": "path",
+                      "id": "ZzUNs",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left page",
+                      "geometry": "M256 210q-60-28-140-16v194q80-12 140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "vXgm0",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right page",
+                      "geometry": "M256 210q60-28 140-16v194q-80-12-140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "WV1Yk",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left lines",
+                      "opacity": 0.35,
+                      "geometry": "M150 246h72m-72 26h72m-72 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "M6R50w",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right lines",
+                      "opacity": 0.35,
+                      "geometry": "M290 246h72m-72 26h72m-58 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "V5j3EZ",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Spine",
+                      "opacity": 0.55,
+                      "geometry": "M256 202v210",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 8,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "vZqvd",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Sparkle",
+                      "geometry": "M256 106q6 40 46 46-40 6-46 46-6-40-46-46 40-6 46-46z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "tW4WA",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Small sparkle",
+                      "opacity": 0.85,
+                      "geometry": "M356 124q2 14 16 16-14 2-16 16-2-14-16-16 14-2 16-16z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
                     }
                   ]
                 },
@@ -1957,20 +2398,167 @@
                   "name": "Mark",
                   "width": 32,
                   "height": 32,
-                  "fill": "$accent",
-                  "cornerRadius": 8,
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": 225,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#2F73E6",
+                        "position": 0
+                      },
+                      {
+                        "color": "#1A4BB0",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "cornerRadius": 7,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon",
-                      "id": "MqN89",
-                      "name": "Mark icon",
-                      "width": 18,
-                      "height": 18,
-                      "icon": "wand-sparkles",
-                      "library": "lucide",
-                      "fill": "$accent-ink"
+                      "type": "path",
+                      "id": "Y7HJ7h",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left page",
+                      "geometry": "M256 210q-60-28-140-16v194q80-12 140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "g3eA4e",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right page",
+                      "geometry": "M256 210q60-28 140-16v194q-80-12-140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "pzCK7",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left lines",
+                      "opacity": 0.35,
+                      "geometry": "M150 246h72m-72 26h72m-72 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "rSJ9q",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right lines",
+                      "opacity": 0.35,
+                      "geometry": "M290 246h72m-72 26h72m-58 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "N4TtD",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Spine",
+                      "opacity": 0.55,
+                      "geometry": "M256 202v210",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 8,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "mE53O",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Sparkle",
+                      "geometry": "M256 106q6 40 46 46-40 6-46 46-6-40-46-46 40-6 46-46z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "Fdbsi",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Small sparkle",
+                      "opacity": 0.85,
+                      "geometry": "M356 124q2 14 16 16-14 2-16 16-2-14-16-16 14-2 16-16z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
                     }
                   ]
                 },
@@ -2446,20 +3034,167 @@
                   "name": "Mark",
                   "width": 32,
                   "height": 32,
-                  "fill": "$accent",
-                  "cornerRadius": 8,
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": 225,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#2F73E6",
+                        "position": 0
+                      },
+                      {
+                        "color": "#1A4BB0",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "cornerRadius": 7,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon",
-                      "id": "kjGrp",
-                      "name": "Mark icon",
-                      "width": 18,
-                      "height": 18,
-                      "icon": "wand-sparkles",
-                      "library": "lucide",
-                      "fill": "$accent-ink"
+                      "type": "path",
+                      "id": "VL3km",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left page",
+                      "geometry": "M256 210q-60-28-140-16v194q80-12 140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "IviB7",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right page",
+                      "geometry": "M256 210q60-28 140-16v194q-80-12-140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "YaQ7y",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left lines",
+                      "opacity": 0.35,
+                      "geometry": "M150 246h72m-72 26h72m-72 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "cOjkU",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right lines",
+                      "opacity": 0.35,
+                      "geometry": "M290 246h72m-72 26h72m-58 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "YMbDR",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Spine",
+                      "opacity": 0.55,
+                      "geometry": "M256 202v210",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 8,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "h1Dc8",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Sparkle",
+                      "geometry": "M256 106q6 40 46 46-40 6-46 46-6-40-46-46 40-6 46-46z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "Usvey",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Small sparkle",
+                      "opacity": 0.85,
+                      "geometry": "M356 124q2 14 16 16-14 2-16 16-2-14-16-16 14-2 16-16z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
                     }
                   ]
                 },
@@ -2944,20 +3679,167 @@
                   "name": "Mark",
                   "width": 32,
                   "height": 32,
-                  "fill": "$accent",
-                  "cornerRadius": 8,
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": 225,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#2F73E6",
+                        "position": 0
+                      },
+                      {
+                        "color": "#1A4BB0",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "cornerRadius": 7,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon",
-                      "id": "yeMmR",
-                      "name": "Mark icon",
-                      "width": 18,
-                      "height": 18,
-                      "icon": "wand-sparkles",
-                      "library": "lucide",
-                      "fill": "$accent-ink"
+                      "type": "path",
+                      "id": "uzWLK",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left page",
+                      "geometry": "M256 210q-60-28-140-16v194q80-12 140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "MMt6Q",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right page",
+                      "geometry": "M256 210q60-28 140-16v194q-80-12-140 18z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "sQ0X5",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Left lines",
+                      "opacity": 0.35,
+                      "geometry": "M150 246h72m-72 26h72m-72 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "GnnhE",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Right lines",
+                      "opacity": 0.35,
+                      "geometry": "M290 246h72m-72 26h72m-58 26h58",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 9,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "AgGwM",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Spine",
+                      "opacity": 0.55,
+                      "geometry": "M256 202v210",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#1F5FD1",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": "#1F5FD1",
+                      "strokeWidth": 8,
+                      "strokeLinecap": "round"
+                    },
+                    {
+                      "type": "path",
+                      "id": "bcLav",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Sparkle",
+                      "geometry": "M256 106q6 40 46 46-40 6-46 46-6-40-46-46 40-6 46-46z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
+                    },
+                    {
+                      "type": "path",
+                      "id": "Z9PQY",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Small sparkle",
+                      "opacity": 0.85,
+                      "geometry": "M356 124q2 14 16 16-14 2-16 16-2-14-16-16 14-2 16-16z",
+                      "viewBox": [
+                        0,
+                        0,
+                        512,
+                        512
+                      ],
+                      "fill": "#FFFFFF",
+                      "width": 32,
+                      "height": 32
                     }
                   ]
                 },
