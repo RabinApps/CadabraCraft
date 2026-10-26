@@ -37,20 +37,8 @@ export const features = [
   },
 ] as const;
 
-export const benefits = [
-  {
-    title: "Local-first",
-    body: "Your book is a folder of plain, documented files. No account, no server, nothing leaves your machine.",
-  },
-  {
-    title: "Publish-ready output",
-    body: "Validated EPUB3 and print PDF with novel, nonfiction and modern templates.",
-  },
-  {
-    title: "A calm editor",
-    body: "Chapters, front and back matter, focus mode, and Word or Markdown import.",
-  },
-] as const;
+const highlights = ["Local-first", "Print-ready PDF", "A calm editor"];
+export const benefits = features.filter((f) => highlights.includes(f.title));
 
 export const faq = [
   {

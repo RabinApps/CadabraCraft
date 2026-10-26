@@ -74,7 +74,7 @@ The marketing site is drawn in the same pen file, on a separate area starting at
 | Compare | `Website / Compare page / desktop / light`, `... / dark` | template for `/compare/<name>/`: header with last-checked date, facts table, "choose X if" columns, sponsor band |
 | Support | `Website / Support / desktop / light`, `... / dark` | three ways to give (GitHub Sponsors, Buy me a coffee, PayPal) and what funding pays for |
 
-Not drawn yet: Compare index, Features, Download, tablet widths. The site collapses the desktop layouts to the mobile Home pattern below 768px.
+The frames are drawn in the main checkout's `cadabracraft.pen` and their names and sizes have not yet been verified with `/sync-design`; run it when the pen change is committed. Not drawn yet: Compare index, Features, Download, tablet widths. The site collapses the desktop layouts to the mobile Home pattern below 768px.
 
 Designed but not in the first M1 build (see `docs/m1-ui-plan.md`), now built: project trash restore, recent-projects list, details panel and focus mode (see Implementation notes).
 

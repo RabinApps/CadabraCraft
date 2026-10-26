@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import { btnPrimary, btnSecondary, RELEASES, REPO } from "@/lib/site";
 
 export const metadata = pageMetadata(
-  "Download CadabraCraft",
+  "Download",
   "CadabraCraft is a free desktop app for writing and formatting books. Downloads will appear on GitHub Releases.",
   "/download/",
 );

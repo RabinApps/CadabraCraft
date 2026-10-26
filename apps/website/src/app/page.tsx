@@ -20,11 +20,11 @@ export default function Home() {
           EPUB3 and print-ready PDF. Everything lives in plain files on your computer.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <a href="/download/" className={btnPrimary}>
-            Download for free
-          </a>
-          <a href={REPO} className={btnSecondary}>
+          <a href={REPO} className={btnPrimary}>
             View on GitHub
+          </a>
+          <a href="/support/" className={btnSecondary}>
+            Support the project
           </a>
         </div>
         <p className="mt-3 text-xs text-ink-muted">Early development. Downloads will appear on GitHub Releases.</p>

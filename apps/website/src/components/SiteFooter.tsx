@@ -31,7 +31,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="mx-auto max-w-6xl px-4 pb-8 text-xs text-ink-muted sm:px-6">
-        © {new Date().getFullYear()} RabinApps. Vellum, Atticus, Scrivener and Reedsy are trademarks of their
+        © RabinApps. Vellum, Atticus, Scrivener and Reedsy are trademarks of their
         owners; they are named only for comparison.
       </div>
     </footer>

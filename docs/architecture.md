@@ -96,6 +96,11 @@ Next.js (App Router) with `output: 'export'`, Tailwind v4 and the tokens from `d
 
 Rejected: Astro (Next.js was requested), plain HTML (no shared components or theming), publishing from `docs/` (mixes site output with project docs).
 
+### Multi-page marketing and SEO
+The site is several static routes (home, features, compare, support, download) built from plain TSX plus typed data files (`src/data/*`), with per-page metadata through `src/lib/seo.ts`, `sitemap.ts`, `robots.ts` and JSON-LD. Compare pages come from one `[slug]` route over `src/data/competitors.ts`; every fact there is sourced or marked "Not verified", and pages state the date it was compiled. Structured data is `WebSite`, not `SoftwareApplication`, until a release exists.
+
+Rejected: MDX (a new dependency for content that is mostly structured data), analytics or tag managers (the no-tracking rule), a headless CMS (backend and accounts), hand-written comparison pages (drift between pages and no shared table).
+
 ## Internationalization (UI)
 
 ### Decision: Lingui 6 (ICU MessageFormat, compiled PO catalogs)

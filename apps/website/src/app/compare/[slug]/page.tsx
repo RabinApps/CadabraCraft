@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }) 
   const c = getCompetitor((await params).slug);
   if (!c) return {};
   return pageMetadata(
-    `CadabraCraft vs ${c.name}: free, open-source alternative compared`,
+    `CadabraCraft vs ${c.name}`,
     `Fair comparison of CadabraCraft and ${c.name}: price, platforms, local files, EPUB3 and print PDF. Facts checked ${c.checkedOn}.`,
     `/compare/${c.slug}/`,
   );
@@ -42,7 +42,9 @@ export default async function ComparePage({ params }: { params: Promise<Params> 
         <p className="mt-4 text-lg text-ink-muted">
           {c.tagline} A fair comparison for authors choosing a book formatter: facts only, with sources.
         </p>
-        <p className="mt-2 text-xs text-ink-muted">Last checked: {c.checkedOn}</p>
+        <p className="mt-2 text-xs text-ink-muted">
+          Compiled from vendor sites and public reviews on {c.checkedOn}. Confirm details with the vendor.
+        </p>
 
         <div className="mt-10">
           <ComparisonTable c={c} />
@@ -66,7 +68,7 @@ export default async function ComparePage({ params }: { params: Promise<Params> 
         </div>
 
         <section className="mt-12 text-sm text-ink-muted">
-          <h2 className="font-semibold text-ink">Sources</h2>
+          <h2 className="font-semibold text-ink">Vendor sites</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             {sources.map((s) => (
               <li key={s}>

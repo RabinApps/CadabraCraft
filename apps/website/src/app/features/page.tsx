@@ -3,7 +3,7 @@ import { features } from "@/data/content";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
-  "Features: book writing and formatting software",
+  "Book writing and formatting features",
   "Local-first editor, EPUB3 and print PDF export, templates, Word and Markdown import. Free and open source.",
   "/features/",
 );

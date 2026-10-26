@@ -2,7 +2,7 @@ import { SponsorButtons } from "@/components/SponsorButtons";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
-  "Support CadabraCraft",
+  "Support the project",
   "CadabraCraft is free and open source. Sponsor it through GitHub Sponsors, Buy Me a Coffee or PayPal.",
   "/support/",
 );

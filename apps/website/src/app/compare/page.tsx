@@ -3,7 +3,7 @@ import { competitors } from "@/data/competitors";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
-  "Compare CadabraCraft with Vellum, Atticus, Scrivener and Reedsy Studio",
+  "Compare book formatting software",
   "Fair, dated, side-by-side comparisons of CadabraCraft, a free open-source book formatter, with popular alternatives.",
   "/compare/",
 );
