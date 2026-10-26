@@ -3,7 +3,7 @@ import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
 import {
   addBackMatter, addChapter, addFrontMatter, createManifest, moveChapter, moveMatter, parseManifest, readingOrder, removeChapter, removeMatter,
-  renameChapter, renameMatter, sectionOf, serializeManifest, starterDoc, starterTitle, type Manifest, type ManuscriptEntry,
+  renameChapter, renameMatter, restoreEntry, sectionOf, serializeManifest, starterDoc, starterTitle, type Manifest, type ManuscriptEntry,
 } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
@@ -28,6 +28,23 @@ export interface PdfExportOptions {
   typstPath?: string;
 }
 
+/** A page in the project trash, with a title for the list. */
+export interface TrashItem {
+  path: string;
+  original: string;
+  title: string;
+  /** `YYYYMMDD-HHMM` (UTC). */
+  trashedAt: string;
+}
+
+/** The first heading's text, else the first text found, else the file name without its number prefix and extension. */
+function titleOfDoc(doc: unknown, file: string): string {
+  const texts = (n: any): string => (typeof n?.text === "string" ? n.text : Array.isArray(n?.content) ? n.content.map(texts).join("") : "");
+  const nodes: any[] = (doc as any)?.content ?? [];
+  const found = [nodes.find((n) => n?.type === "heading"), ...nodes].map((n) => texts(n).trim()).find((x) => x);
+  return found?.slice(0, 80) || (file.split("/").pop() ?? file).replace(/\.json$/, "").replace(/^\d+-/, "");
+}
+
 export type PdfStage = "preparing" | "rendering" | "saving";
 
 interface State {
@@ -46,7 +63,13 @@ interface State {
   importReport: ImportReport | null;
   /** Set while a PDF export runs. */
   pdfStage: PdfStage | null;
+  /** Restorable pages in the project trash, newest first (filled by `refreshTrash`). */
+  trash: TrashItem[];
   actions: {
+    /** Reloads `trash` from the project folder. */
+    refreshTrash: () => Promise<void>;
+    /** Moves a trashed page back, adds it to the end of its section and opens it. Never overwrites an existing page (a taken file name gets a `-2` suffix). */
+    restoreTrash: (path: string) => Promise<void>;
     /** Saves unsaved typing, if any, without reloading the chapter. */
     flush: () => Promise<void>;
     externalChange: (path: string) => Promise<void>;
@@ -130,9 +153,34 @@ export const useProject = create<State>((set, get) => {
   };
 
   return {
-    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, pdfStage: null,
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, pdfStage: null, trash: [],
     actions: {
       flush,
+      async refreshTrash() {
+        const { root } = need();
+        const entries = await bridge.listTrash(root);
+        const trash: TrashItem[] = [];
+        for (const e of entries) {
+          const r = await bridge.readFile(root, e.path).catch(() => null);
+          let doc: unknown = null;
+          try { doc = r ? JSON.parse(r.contents) : null; } catch { /* unreadable page: the title falls back to the file name */ }
+          trash.push({ path: e.path, original: e.original, title: titleOfDoc(doc, e.original), trashedAt: e.trashed_at });
+        }
+        if (get().root === root) set({ trash });
+      },
+      async restoreTrash(path) {
+        await flush();
+        const { root, manifest } = need();
+        const file = await bridge.restoreTrash(root, path);
+        const r = await bridge.readFile(root, file);
+        let doc: unknown = null;
+        try { doc = r ? JSON.parse(r.contents) : null; } catch { /* keep the file; the title falls back to its name */ }
+        const { manifest: next, entry } = restoreEntry(manifest, file, titleOfDoc(doc, file));
+        if (r) set({ hashes: { ...get().hashes, [file]: r.hash } });
+        await saveManifest(next);
+        set({ trash: get().trash.filter((x) => x.path !== path) });
+        await load(entry.id);
+      },
       async externalChange(path) {
         const { root, manifest, hashes } = get();
         if (!root || !manifest) return;

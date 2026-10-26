@@ -1,4 +1,4 @@
-use crate::project::{self, FileRead, WriteResult};
+use crate::project::{self, FileRead, TrashEntry, WriteResult};
 use std::path::PathBuf;
 
 #[tauri::command]
@@ -24,6 +24,18 @@ pub fn backup_manifest(root: String) -> Result<String, String> {
 #[tauri::command]
 pub fn trash_project_file(root: String, path: String) -> Result<String, String> {
     project::trash_file(&PathBuf::from(root), &path)
+}
+
+/// Pages in the project trash that can be restored, newest first.
+#[tauri::command]
+pub fn list_project_trash(root: String) -> Result<Vec<TrashEntry>, String> {
+    project::list_trash(&PathBuf::from(root))
+}
+
+/// Moves a trashed page back into the project (never overwriting) and returns its new relative path.
+#[tauri::command]
+pub fn restore_project_trash(root: String, path: String) -> Result<String, String> {
+    project::restore_trash(&PathBuf::from(root), &path)
 }
 
 #[tauri::command]

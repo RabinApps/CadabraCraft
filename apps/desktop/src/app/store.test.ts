@@ -29,7 +29,14 @@ vi.mock("../lib/bridge", () => ({
     },
     readAsset: async (_r: string, p: string) => { const b = assets.get(p); if (!b) throw new Error("missing"); return b; },
     watchProject: async () => {},
-    trashFile: async (_r: string, p: string) => { const c = disk.get(p)!; disk.delete(p); disk.set(`.cadabra/trash/${p}`, c); return "trash"; },
+    trashFile: async (_r: string, p: string) => { const c = disk.get(p)!; const to = `.cadabra/trash/20260101-1200-${p.replaceAll("/", "__")}`; disk.delete(p); disk.set(to, c); return to; },
+    listTrash: async () => [...disk.keys()].filter((k) => k.startsWith(".cadabra/trash/")).map((k) => ({ path: k, original: k.slice(29).replaceAll("__", "/"), trashed_at: "20260101-1200" })),
+    restoreTrash: async (_r: string, p: string) => {
+      const orig = p.slice(29).replaceAll("__", "/");
+      let to = orig;
+      for (let n = 2; disk.has(to); n++) to = orig.replace(/\.json$/, `-${n}.json`);
+      disk.set(to, disk.get(p)!); disk.delete(p); return to;
+    },
   },
 }));
 
@@ -73,6 +80,31 @@ describe("project store", () => {
     await a().remove("ch-2");
     expect(s().manifest!.chapters.map((c) => c.id)).toEqual(["ch-1"]);
     expect([...disk.keys()].some((k) => k.startsWith(".cadabra/trash/") && disk.get(k)!.includes("precious"))).toBe(true);
+  });
+  it("restores a trashed chapter to the end, never overwriting a chapter that took its file name", async () => {
+    await a().add("Two");
+    a().setDraft({ type: "doc", content: [{ type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Two" }] }, ...text("precious").content] });
+    await a().flush();
+    await a().remove("ch-2");
+    await a().add("Two"); // reuses manuscript/002-two.json
+    await a().refreshTrash();
+    expect(s().trash.map((x) => x.title)).toEqual(["Two"]);
+    await a().restoreTrash(s().trash[0]!.path);
+    const chapters = s().manifest!.chapters;
+    expect(chapters.map((c) => c.title)).toEqual(["Chapter One", "Two", "Two"]);
+    expect(new Set(chapters.map((c) => c.file)).size).toBe(3);
+    expect(disk.get(chapters[2]!.file)).toContain("precious");
+    expect(JSON.parse(disk.get("cadabra.json")!).chapters).toHaveLength(3);
+    expect(s().trash).toEqual([]);
+    expect(s().currentId).toBe(chapters[2]!.id);
+  });
+  it("restores a trashed matter page into its own section", async () => {
+    await a().addMatter("back", "colophon");
+    await a().remove("bm-1");
+    await a().refreshTrash();
+    await a().restoreTrash(s().trash[0]!.path);
+    expect(s().manifest!.backMatter.map((e) => e.file)).toEqual(["back-matter/01-colophon.json"]);
+    expect(s().manifest!.chapters).toHaveLength(1);
   });
   it("keeps both versions when a chapter changed outside the app", async () => {
     disk.set("manuscript/001-chapter-one.json", "edited by sync");
@@ -203,7 +235,7 @@ describe("project store", () => {
       await a().remove("fm-1");
       expect(s().manifest!.frontMatter).toEqual([]);
       expect(disk.has("front-matter/01-foreword.json")).toBe(false);
-      expect([...disk.keys()].some((k) => k.startsWith(".cadabra/trash/front-matter/") && disk.get(k)!.includes("precious foreword"))).toBe(true);
+      expect([...disk.keys()].some((k) => k.startsWith(".cadabra/trash/20260101-1200-front-matter__") && disk.get(k)!.includes("precious foreword"))).toBe(true);
       expect(s().currentId).toBe("ch-1");
     });
     it("reloads the open matter page after an outside change and keeps conflicting edits", async () => {

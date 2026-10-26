@@ -131,16 +131,110 @@ pub fn backup_manifest(root: &Path) -> Result<String, String> {
     Ok(rel)
 }
 
-/// "Deletes" a file by moving it to `.cadabra/trash/`. Nothing is permanently removed by the app.
+/// `<dir>/<stem>-N.<ext>` for the first N >= 2 not taken (or `rel` itself when free). Only the file name is split.
+fn free_name(root: &Path, rel: &str) -> Result<String, String> {
+    if !resolve(root, rel)?.exists() {
+        return Ok(rel.to_string());
+    }
+    let slash = rel.rfind('/').map_or(0, |i| i + 1);
+    let (stem, ext) = match rel.rfind('.') {
+        Some(d) if d > slash => (&rel[..d], &rel[d..]),
+        _ => (rel, ""),
+    };
+    for n in 2u32.. {
+        let cand = format!("{stem}-{n}{ext}");
+        if !resolve(root, &cand)?.exists() {
+            return Ok(cand);
+        }
+    }
+    unreachable!()
+}
+
+/// "Deletes" a file by moving it to `.cadabra/trash/`. Nothing is permanently removed by the app, and an earlier
+/// trashed file with the same name (same minute) is never overwritten.
 pub fn trash_file(root: &Path, rel: &str) -> Result<String, String> {
     let from = resolve(root, rel)?;
     if !from.exists() {
         return Err(format!("{rel} does not exist"));
     }
     let name = rel.replace('/', "__");
-    let to_rel = format!(".cadabra/trash/{}-{name}", stamp());
+    let to_rel = free_name(root, &format!(".cadabra/trash/{}-{name}", stamp()))?;
     let to = resolve(root, &to_rel)?;
     fs::create_dir_all(to.parent().ok_or("no parent")?).map_err(|e| e.to_string())?;
+    fs::rename(from, to).map_err(|e| e.to_string())?;
+    Ok(to_rel)
+}
+
+const TRASH_DIR: &str = ".cadabra/trash";
+/// Folders a trashed page can be restored into.
+const RESTORE_DIRS: [&str; 3] = ["manuscript", "front-matter", "back-matter"];
+
+/// A file in the project trash that can be restored.
+#[derive(Serialize, Debug, PartialEq)]
+pub struct TrashEntry {
+    /// Project-relative path of the trashed file (`.cadabra/trash/<stamp>-<path with / as __>`).
+    pub path: String,
+    /// Project-relative path it came from.
+    pub original: String,
+    /// `YYYYMMDD-HHMM` (UTC) it was trashed at.
+    pub trashed_at: String,
+}
+
+/// Splits `<stamp>-<flattened>[-N].json` into the stamp and the original path. None for anything that is not a trashed
+/// page (other file types, or paths outside manuscript/front-matter/back-matter).
+fn parse_trash_name(name: &str) -> Option<(String, String)> {
+    let b = name.as_bytes();
+    let stamp_ok = b.len() > 14
+        && b[..8].iter().all(u8::is_ascii_digit)
+        && b[8] == b'-'
+        && b[9..13].iter().all(u8::is_ascii_digit)
+        && b[13] == b'-';
+    if !stamp_ok || !name.ends_with(".json") {
+        return None;
+    }
+    let original = name[14..].replace("__", "/");
+    let (dir, file) = original.split_once('/')?;
+    (RESTORE_DIRS.contains(&dir) && !file.is_empty() && !file.contains('/')).then(|| (name[..13].to_string(), original))
+}
+
+/// Lists restorable pages in `.cadabra/trash/`, newest first.
+pub fn list_trash(root: &Path) -> Result<Vec<TrashEntry>, String> {
+    let dir = resolve(root, TRASH_DIR)?;
+    let read = match fs::read_dir(&dir) {
+        Ok(r) => r,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(vec![]),
+        Err(e) => return Err(e.to_string()),
+    };
+    let mut out = vec![];
+    for item in read {
+        let item = item.map_err(|e| e.to_string())?;
+        if !item.file_type().map_err(|e| e.to_string())?.is_file() {
+            continue;
+        }
+        let Some(name) = item.file_name().to_str().map(str::to_string) else { continue };
+        if let Some((trashed_at, original)) = parse_trash_name(&name) {
+            out.push(TrashEntry { path: format!("{TRASH_DIR}/{name}"), original, trashed_at });
+        }
+    }
+    out.sort_by(|a, b| b.trashed_at.cmp(&a.trashed_at).then(a.path.cmp(&b.path)));
+    Ok(out)
+}
+
+/// Moves a trashed page back to where it came from and returns its project-relative path. If that path is taken (a
+/// chapter was added or restored since) the page comes back as `<stem>-2.json`, `-3`... and nothing is overwritten.
+pub fn restore_trash(root: &Path, trash_rel: &str) -> Result<String, String> {
+    let name = trash_rel
+        .strip_prefix(".cadabra/trash/")
+        .ok_or_else(|| format!("not a trash path: {trash_rel}"))?;
+    let (_, original) = parse_trash_name(name).ok_or_else(|| format!("cannot restore {trash_rel}"))?;
+    let from = resolve(root, trash_rel)?;
+    if !from.is_file() {
+        return Err(format!("{trash_rel} does not exist"));
+    }
+    let to_rel = free_name(root, &original)?;
+    let to = resolve(root, &to_rel)?;
+    fs::create_dir_all(to.parent().ok_or("no parent")?).map_err(|e| e.to_string())?;
+    // Same-volume rename is atomic: the page is either still in the trash or fully back, never half-written.
     fs::rename(from, to).map_err(|e| e.to_string())?;
     Ok(to_rel)
 }
@@ -249,6 +343,57 @@ mod tests {
 
     fn tmp() -> tempfile::TempDir {
         tempfile::tempdir().unwrap()
+    }
+
+    #[test]
+    fn trash_then_restore_round_trips_and_lists_newest_first() {
+        let d = tmp();
+        write_file(d.path(), "manuscript/001-a.json", "A", None).unwrap();
+        let t = trash_file(d.path(), "manuscript/001-a.json").unwrap();
+        assert!(!d.path().join("manuscript/001-a.json").exists());
+        let list = list_trash(d.path()).unwrap();
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].path, t);
+        assert_eq!(list[0].original, "manuscript/001-a.json");
+        assert_eq!(restore_trash(d.path(), &t).unwrap(), "manuscript/001-a.json");
+        assert_eq!(fs::read_to_string(d.path().join("manuscript/001-a.json")).unwrap(), "A");
+        assert!(list_trash(d.path()).unwrap().is_empty());
+    }
+
+    #[test]
+    fn restore_never_overwrites_an_existing_page() {
+        let d = tmp();
+        write_file(d.path(), "front-matter/01-x.json", "old", None).unwrap();
+        let t = trash_file(d.path(), "front-matter/01-x.json").unwrap();
+        write_file(d.path(), "front-matter/01-x.json", "new", None).unwrap();
+        assert_eq!(restore_trash(d.path(), &t).unwrap(), "front-matter/01-x-2.json");
+        assert_eq!(fs::read_to_string(d.path().join("front-matter/01-x.json")).unwrap(), "new");
+        assert_eq!(fs::read_to_string(d.path().join("front-matter/01-x-2.json")).unwrap(), "old");
+    }
+
+    #[test]
+    fn trashing_twice_in_a_minute_keeps_both() {
+        let d = tmp();
+        write_file(d.path(), "manuscript/a.json", "one", None).unwrap();
+        let t1 = trash_file(d.path(), "manuscript/a.json").unwrap();
+        write_file(d.path(), "manuscript/a.json", "two", None).unwrap();
+        let t2 = trash_file(d.path(), "manuscript/a.json").unwrap();
+        assert_ne!(t1, t2);
+        assert_eq!(fs::read_to_string(d.path().join(&t1)).unwrap(), "one");
+        assert_eq!(list_trash(d.path()).unwrap().len(), 2);
+    }
+
+    #[test]
+    fn restore_refuses_unsafe_or_foreign_paths() {
+        let d = tmp();
+        for bad in ["manuscript/a.json", ".cadabra/trash/../../cadabra.json", ".cadabra/trash/x.json", ".cadabra/trash/20260101-1200-assets__a.json", ".cadabra/trash/20260101-1200-manuscript__a.json"] {
+            assert!(restore_trash(d.path(), bad).is_err(), "{bad}");
+        }
+        // Non-page files in the trash are not listed.
+        fs::create_dir_all(d.path().join(".cadabra/trash")).unwrap();
+        fs::write(d.path().join(".cadabra/trash/notes.txt"), "x").unwrap();
+        fs::write(d.path().join(".cadabra/trash/20260101-1200-assets__a.json"), "x").unwrap();
+        assert!(list_trash(d.path()).unwrap().is_empty());
     }
 
     #[test]

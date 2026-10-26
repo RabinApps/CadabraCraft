@@ -4,6 +4,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { IMAGE_EXTENSIONS } from "@cadabracraft/shared";
 
 export interface FileRead { contents: string; hash: string }
+export interface TrashEntry { path: string; original: string; trashed_at: string }
 export interface WriteResult { hash: string; conflict_copy: string | null }
 
 const binary = async (p: Promise<ArrayBuffer | number[]>): Promise<Uint8Array> => {
@@ -71,6 +72,10 @@ export const bridge = {
   /** Calls back with the project-relative path of each file changed outside the app. Returns an unsubscribe function. */
   onProjectChanged: (cb: (path: string) => void) => listen<string>("project-changed", (e) => cb(e.payload)).then((un) => un),
   trashFile: (root: string, path: string) => invoke<string>("trash_project_file", { root, path }),
+  /** Restorable pages in the project trash, newest first. */
+  listTrash: (root: string) => invoke<TrashEntry[]>("list_project_trash", { root }),
+  /** Moves a trashed page back (never overwriting; a taken name gets `-2`...). Resolves to the project-relative path it now has. */
+  restoreTrash: (root: string, path: string) => invoke<string>("restore_project_trash", { root, path }),
   /** Where typst is and its version; rejects with `{ kind: "not_found", message }` (install advice) when missing. `typstPath` is a user-configured location. */
   typstFind: (typstPath: string | null) => invoke<{ path: string; version: string }>("typst_find", { typstPath }),
   typstListFonts: (typstPath: string | null) => invoke<string[]>("typst_list_fonts", { typstPath }),

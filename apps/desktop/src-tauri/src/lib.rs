@@ -15,6 +15,8 @@ macro_rules! app_handlers {
             commands::write_project_file,
             commands::backup_manifest,
             commands::trash_project_file,
+            commands::list_project_trash,
+            commands::restore_project_trash,
             commands::write_project_bytes,
             commands::import_asset,
             commands::read_asset,

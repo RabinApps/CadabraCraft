@@ -38,7 +38,7 @@ Spike caveat: output was checked via `pdffonts`/`pdftotext` and page size, not v
 
 ### Layering
 - `packages/format` (TypeScript, pure): manifest validation, migrations, chapter-tree edits, file naming. No disk access.
-- `src-tauri/src/project` (Rust): safe file IO only. Paths are validated relative to the project root; writes are temp file + rename; a write carrying a stale base hash first keeps the on-disk version as a `.conflict-YYYYMMDD-HHMM` copy; iCloud placeholders read as an error, never an empty chapter; "delete" moves to `.cadabra/trash/`.
+- `src-tauri/src/project` (Rust): safe file IO only. Paths are validated relative to the project root; writes are temp file + rename; a write carrying a stale base hash first keeps the on-disk version as a `.conflict-YYYYMMDD-HHMM` copy; iCloud placeholders read as an error, never an empty chapter; "delete" moves to `.cadabra/trash/<stamp>-<path with / as __>` (never overwriting an earlier trashed file), and "restore" (`list_project_trash`, `restore_project_trash`) moves a page back to its original path, or to `<name>-2.json`, `-3`... when that path is taken; the store then re-adds it to the end of its section (matter pages come back as kind `custom`).
 - `src-tauri/src/fs_watch.rs`: debounced (400 ms) watcher emitting `project-changed` for files changed outside the app, ignoring `.cadabra/`, `exports/` and temp files.
 - `apps/desktop/src/app/store.ts` (Zustand): project state, unsaved draft, and reaction to external changes (reload if clean, warn if there are unsaved edits, ignore echoes of our own writes via content hash).
 

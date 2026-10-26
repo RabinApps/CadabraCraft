@@ -501,6 +501,10 @@ msgstr "Page title"
 msgid "Page width"
 msgstr "Page width"
 
+#: src/app/Sidebar.tsx
+msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
+msgstr "Pages you moved to the trash. Restoring puts a page back at the end of its section."
+
 #: src/app/ExportPdfDialog.tsx
 msgid "PDF/A (archival)"
 msgstr "PDF/A (archival)"
@@ -549,6 +553,15 @@ msgstr "Redo"
 #: src/app/Sidebar.tsx
 msgid "Rename"
 msgstr "Rename"
+
+#: src/app/Sidebar.tsx
+msgid "Restore"
+msgstr "Restore"
+
+#. placeholder {0}: x.title
+#: src/app/Sidebar.tsx
+msgid "Restore {0}"
+msgstr "Restore {0}"
 
 #: src/app/App.tsx
 msgid "Save"
@@ -615,6 +628,10 @@ msgstr "The book is stored in this folder. Nothing leaves your computer."
 msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
 msgstr "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
 
+#: src/app/Sidebar.tsx
+msgid "The trash is empty."
+msgstr "The trash is empty."
+
 #: src/ui/ThemeToggle.tsx
 msgid "Theme"
 msgstr "Theme"
@@ -667,6 +684,10 @@ msgstr "Title"
 #: src/app/Sidebar.tsx
 msgid "Title page"
 msgstr "Title page"
+
+#: src/app/Sidebar.tsx
+msgid "Trash"
+msgstr "Trash"
 
 #: src/app/ExportPdfDialog.tsx
 msgid "Trim size"
