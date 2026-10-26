@@ -1,10 +1,11 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { ArrowLeft, BookOpen, Printer } from "lucide-react";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, type Template } from "@cadabracraft/templates";
-import { countWords } from "../lib/wordcount";
+import { countWords } from "@cadabracraft/shared";
+import { errText } from "../lib/projectError";
 import { estimatePages, plainBlocks, wordsPerPage, type Margins } from "../lib/printPreview";
 import { Button, IconButton } from "../ui/Button";
 import { Select } from "../ui/Select";
@@ -83,15 +84,16 @@ export function PrintPreview({ onBack, onExport }: Props) {
   const template = getTemplate(manifest && hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID);
   const [trim, setTrim] = useState<TrimSize>(template.print.defaults.trimSize);
   useEffect(() => {
-    readPages().then(setPages, (e: unknown) => setError(e instanceof Error ? e.message : String(e)));
+    readPages().then(setPages, (e: unknown) => setError(errText(e)));
   }, [readPages]);
+  // Counting walks every page's document; only redo it when the pages are read again, not on each option change.
+  const words = useMemo(() => (pages ?? []).reduce((sum, p) => sum + countWords(p.doc), 0), [pages]);
 
   if (!manifest) return null;
   const size = TRIM_SIZES[trim];
   const margins = template.print.defaults.marginsIn;
   const scale = PAGE_PX / size.w; // px per inch
   const heightPx = PAGE_PX * (size.h / size.w);
-  const words = (pages ?? []).reduce((sum, p) => sum + countWords(p.doc), 0);
   const perPage = wordsPerPage(size, margins, template.print.fontSizePt);
   const estimate = estimatePages(words, manifest.chapters.length, perPage);
   const first = (pages ?? []).find((p) => p.section === "chapter") ?? pages?.[0];

@@ -6,7 +6,10 @@ import {
   IMAGE_TYPES,
   SCENE_BREAK_TEXT,
   Warnings,
+  type Item,
   extOf,
+  flattenItems,
+  isSep,
   listItemOf,
   mergeInline,
   paragraphOf,
@@ -16,11 +19,15 @@ import {
   textNode,
 } from "./common";
 import { ImportError, type ImportOptions, type ImportResult } from "./types";
+import { errMsg } from "@cadabracraft/shared";
 
 // ---------- XML helpers (fast-xml-parser, preserveOrder, namespace prefixes removed) ----------
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type X = { [k: string]: any };
+/** One element in fast-xml-parser's `preserveOrder` output: `{ <tag>: XNode[], ":@": attributes }` or a text node `{ "#text": string }`. */
+interface XNode {
+  ":@"?: Record<string, string | undefined>;
+  [tag: string]: XNode[] | string | Record<string, string | undefined> | undefined;
+}
 
 const xml = new XMLParser({
   preserveOrder: true,
@@ -34,37 +41,37 @@ const xml = new XMLParser({
   ignorePiTags: true,
 });
 
-function parseXml(bytes: Uint8Array, name: string): X[] {
+function parseXml(bytes: Uint8Array, name: string): XNode[] {
   const s = strFromU8(bytes).replace(/^﻿/, "");
   const ok = XMLValidator.validate(s);
   if (ok !== true) throw new ImportError("invalid-xml", `${name} is not well-formed XML (${ok.err.msg}).`);
   try {
-    return xml.parse(s) as X[];
+    return xml.parse(s) as XNode[];
   } catch (e) {
-    throw new ImportError("invalid-xml", `${name} could not be parsed (${e instanceof Error ? e.message : String(e)}).`);
+    throw new ImportError("invalid-xml", `${name} could not be parsed (${errMsg(e)}).`);
   }
 }
 
-const tagOf = (n: X): string | undefined => {
+const tagOf = (n: XNode): string | undefined => {
   for (const k in n) if (k !== ":@") return k;
   return undefined;
 };
-const kids = (n: X): X[] => {
+const kids = (n: XNode): XNode[] => {
   const t = tagOf(n);
   const v = t ? n[t] : undefined;
   return Array.isArray(v) ? v : [];
 };
-const attr = (n: X, name: string): string | undefined => n[":@"]?.[`@_${name}`];
-const child = (n: X, name: string): X | undefined => kids(n).find((k) => tagOf(k) === name);
-const childrenNamed = (n: X, name: string): X[] => kids(n).filter((k) => tagOf(k) === name);
-const on = (n: X | undefined): boolean => {
+const attr = (n: XNode, name: string): string | undefined => n[":@"]?.[`@_${name}`];
+const child = (n: XNode, name: string): XNode | undefined => kids(n).find((k) => tagOf(k) === name);
+const childrenNamed = (n: XNode, name: string): XNode[] => kids(n).filter((k) => tagOf(k) === name);
+const on = (n: XNode | undefined): boolean => {
   if (!n) return false;
   const v = attr(n, "val");
   return !(v === "0" || v === "false" || v === "off" || v === "none");
 };
 
 const MAX_XML_DEPTH = 100;
-function descendants(n: X, name: string, out: X[] = [], depth = 0): X[] {
+function descendants(n: XNode, name: string, out: XNode[] = [], depth = 0): XNode[] {
   if (depth > MAX_XML_DEPTH) return out;
   for (const k of kids(n)) {
     if (tagOf(k) === name) out.push(k);
@@ -74,7 +81,7 @@ function descendants(n: X, name: string, out: X[] = [], depth = 0): X[] {
 }
 
 /** Visible text of an element (w:t and m:t), ignoring deleted text. */
-function rawText(n: X, depth = 0): string {
+function rawText(n: XNode, depth = 0): string {
   if (depth > MAX_XML_DEPTH) return "";
   let s = "";
   for (const k of kids(n)) {
@@ -113,7 +120,7 @@ interface StyleInfo {
   smallCaps: boolean;
 }
 
-function parseStyles(root: X[] | undefined): Map<string, StyleInfo> {
+function parseStyles(root: XNode[] | undefined): Map<string, StyleInfo> {
   const map = new Map<string, StyleInfo>();
   const styles = root?.find((n) => tagOf(n) === "styles");
   if (!styles) return map;
@@ -142,7 +149,7 @@ interface Numbering {
   abstracts: Map<string, Map<number, string>>;
 }
 
-function parseNumbering(root: X[] | undefined): Numbering {
+function parseNumbering(root: XNode[] | undefined): Numbering {
   const out: Numbering = { nums: new Map(), abstracts: new Map() };
   const n = root?.find((x) => tagOf(x) === "numbering");
   if (!n) return out;
@@ -168,7 +175,7 @@ interface DCtx {
   styles: Map<string, StyleInfo>;
   numbering: Numbering;
   files: Record<string, Uint8Array>;
-  notes: Map<string, { el: X; kind: "footnote" | "endnote" }>;
+  notes: Map<string, { el: XNode; kind: "footnote" | "endnote" }>;
   commentRefs: number;
 }
 
@@ -227,9 +234,6 @@ function numberingFor(numId: string, ilvl: number, ctx: DCtx): boolean | null {
 
 // ---------- runs and paragraphs ----------
 
-type Item = DocNode | { sep: "break" } | { sep: "block"; node: DocNode };
-const isSep = (i: Item): i is { sep: "break" } | { sep: "block"; node: DocNode } => "sep" in i;
-
 interface Field {
   instr: string;
   phase: "instr" | "result";
@@ -242,7 +246,7 @@ interface PState {
   inNote: boolean;
 }
 
-function runMarks(rPr: X | undefined, ctx: DCtx): Mark[] {
+function runMarks(rPr: XNode | undefined, ctx: DCtx): Mark[] {
   const marks: Mark[] = [];
   if (!rPr) return marks;
   const rs = attr(child(rPr, "rStyle") ?? {}, "val");
@@ -262,7 +266,7 @@ function runMarks(rPr: X | undefined, ctx: DCtx): Mark[] {
   return marks.concat(rest(rPr, ctx));
 }
 
-function rest(rPr: X, ctx: DCtx): Mark[] {
+function rest(rPr: XNode, ctx: DCtx): Mark[] {
   const m: Mark[] = [];
   const i = child(rPr, "i");
   if (i && on(i)) m.push({ type: "italic" });
@@ -297,7 +301,7 @@ function linkMark(href: string | undefined, st: PState, label: string): Mark | u
   return undefined;
 }
 
-function processRun(r: X, link: Mark | undefined, st: PState): void {
+function processRun(r: XNode, link: Mark | undefined, st: PState): void {
   const ctx = st.ctx;
   const rPr = child(r, "rPr");
   if (rPr && on(child(rPr, "vanish"))) {
@@ -308,7 +312,7 @@ function processRun(r: X, link: Mark | undefined, st: PState): void {
   runChildren(kids(r), marks, link, st);
 }
 
-function runChildren(list: X[], marks: Mark[], link: Mark | undefined, st: PState): void {
+function runChildren(list: XNode[], marks: Mark[], link: Mark | undefined, st: PState): void {
   const ctx = st.ctx;
   for (const c of list) {
     const t = tagOf(c);
@@ -403,7 +407,7 @@ function imageFromRel(rid: string | undefined, alt: string | undefined, st: PSta
   st.items.push({ sep: "block", node: { type: "image", attrs: { src: a.targetPath, alt: alt || null, title: null } } });
 }
 
-function drawing(d: X, st: PState): void {
+function drawing(d: XNode, st: PState): void {
   const blips = descendants(d, "blip");
   const tx = descendants(d, "txbxContent");
   const docPr = descendants(d, "docPr")[0];
@@ -415,7 +419,7 @@ function drawing(d: X, st: PState): void {
   }
 }
 
-function pict(p: X, st: PState): void {
+function pict(p: XNode, st: PState): void {
   const tx = descendants(p, "txbxContent");
   const imgs = descendants(p, "imagedata");
   if (tx.length) st.ctx.warn.tally("text-box", "warning", "Text boxes are not supported; their text was not imported.", rawText(tx[0]!));
@@ -423,7 +427,7 @@ function pict(p: X, st: PState): void {
   if (!tx.length && !imgs.length) st.ctx.warn.tally("unsupported-drawing", "warning", "Drawings, shapes, charts and diagrams are not supported and were skipped.");
 }
 
-function noteRef(c: X, kind: "footnote" | "endnote", st: PState): void {
+function noteRef(c: XNode, kind: "footnote" | "endnote", st: PState): void {
   const ctx = st.ctx;
   const id = attr(c, "id");
   if (st.inNote) {
@@ -439,7 +443,7 @@ function noteRef(c: X, kind: "footnote" | "endnote", st: PState): void {
   st.items.push(noteNode(note.el, ctx));
 }
 
-function noteNode(el: X, ctx: DCtx): DocNode {
+function noteNode(el: XNode, ctx: DCtx): DocNode {
   const parts: DocNode[] = [];
   for (const p of childrenNamed(el, "p")) {
     const sub: PState = { ctx, items: [], fields: [], inNote: true };
@@ -459,7 +463,7 @@ function noteNode(el: X, ctx: DCtx): DocNode {
   return content.length ? { type: "footnote", content } : { type: "footnote" };
 }
 
-function paragraphChildren(list: X[], link: Mark | undefined, st: PState): void {
+function paragraphChildren(list: XNode[], link: Mark | undefined, st: PState): void {
   const ctx = st.ctx;
   for (const c of list) {
     const t = tagOf(c);
@@ -602,7 +606,7 @@ class BodyBuilder {
     this.flushQuote();
   }
 
-  paragraph(p: X): void {
+  paragraph(p: XNode): void {
     const ctx = this.ctx;
     const pPr = child(p, "pPr");
     const st: PState = { ctx, items: [], fields: [], inNote: false };
@@ -657,7 +661,7 @@ class BodyBuilder {
         ctx.warn.tally("heading-clamped", "warning", "Headings deeper than level 3 were changed to level 3.", `Heading ${level}: ${text}`);
         level = 3;
       }
-      const flat = mergeInline(st.items.map((i) => (isSep(i) ? (i.sep === "break" ? ({ type: "text", text: " " } as DocNode) : null) : i)).filter((x): x is DocNode => x !== null));
+      const flat = flattenItems(st.items);
       if (plainText(flat).trim() !== "" || flat.some((n) => n.type === "footnote")) this.out.push({ type: "heading", attrs: { level }, content: flat });
       for (const i of st.items) if (isSep(i) && i.sep === "block") this.out.push(i.node);
       return;
@@ -681,7 +685,7 @@ class BodyBuilder {
     this.out.push(...blocks);
   }
 
-  table(t: X): void {
+  table(t: XNode): void {
     const ctx = this.ctx;
     const rows = childrenNamed(t, "tr");
     ctx.warn.tally("table", "warning", "Tables are not supported; each row was imported as a paragraph with cells separated by |.", rawText(t));
@@ -693,7 +697,7 @@ class BodyBuilder {
     }
   }
 
-  walk(list: X[], depth = 0): void {
+  walk(list: XNode[], depth = 0): void {
     if (depth > MAX_XML_DEPTH) return;
     for (const n of list) {
       switch (tagOf(n)) {
@@ -738,8 +742,8 @@ class BodyBuilder {
 
 const WANTED = /^(\[Content_Types\]\.xml|_rels\/\.rels|word\/(document|styles|numbering|footnotes|endnotes|comments)\.xml|word\/_rels\/document\.xml\.rels|word\/(header|footer)\d*\.xml|word\/media\/.+)$/;
 
-/** Import a .docx file held in memory. Pure: no disk or network access; image bytes are returned in `assets`. */
-export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportResult {
+/** Unzips the wanted parts of a .docx, enforcing the entry-count and decompressed-size limits. */
+function readArchive(bytes: Uint8Array, opts: ImportOptions): Record<string, Uint8Array> {
   const maxTotal = opts.maxDecompressedBytes ?? 200 * 1024 * 1024;
   const maxEntries = opts.maxEntries ?? 10_000;
   if (bytes.length < 22 || bytes[0] !== 0x50 || bytes[1] !== 0x4b) {
@@ -759,13 +763,36 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
     });
   } catch (e) {
     if (e instanceof ImportError) throw e;
-    throw new ImportError("invalid-zip", `The file is not a readable .docx archive (${e instanceof Error ? e.message : String(e)}).`);
+    throw new ImportError("invalid-zip", `The file is not a readable .docx archive (${errMsg(e)}).`);
   }
   let actual = 0;
   for (const k in files) {
     actual += files[k]!.length;
     if (actual > maxTotal) throw new ImportError("archive-too-large", `The archive expands to more than ${Math.round(maxTotal / 1048576)} MB.`);
   }
+  return files;
+}
+
+/** Footnotes and endnotes by `<kind>:<id>`, skipping separators and continuation notices. */
+function collectNotes(files: Record<string, Uint8Array>): DCtx["notes"] {
+  const notes = new Map<string, { el: XNode; kind: "footnote" | "endnote" }>();
+  for (const [part, tag, kind] of [["word/footnotes.xml", "footnotes", "footnote"], ["word/endnotes.xml", "endnotes", "endnote"]] as const) {
+    const b = files[part];
+    if (!b) continue;
+    const root = parseXml(b, part).find((n) => tagOf(n) === tag);
+    if (!root) continue;
+    for (const el of childrenNamed(root, kind)) {
+      const id = attr(el, "id");
+      const ty = attr(el, "type");
+      if (id !== undefined && (ty === undefined || ty === "normal")) notes.set(`${kind}:${id}`, { el, kind });
+    }
+  }
+  return notes;
+}
+
+/** Import a .docx file held in memory. Pure: no disk or network access; image bytes are returned in `assets`. */
+export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportResult {
+  const files = readArchive(bytes, opts);
 
   const warn = new Warnings();
   const topRels = parseRels(files["_rels/.rels"], "_rels/.rels");
@@ -778,18 +805,7 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
   const body = child(docXml.find((n) => tagOf(n) === "document") ?? {}, "body");
   if (!body) throw new ImportError("missing-document", "word/document.xml has no document body.");
 
-  const notes = new Map<string, { el: X; kind: "footnote" | "endnote" }>();
-  for (const [part, tag, kind] of [["word/footnotes.xml", "footnotes", "footnote"], ["word/endnotes.xml", "endnotes", "endnote"]] as const) {
-    const b = files[part];
-    if (!b) continue;
-    const root = parseXml(b, part).find((n) => tagOf(n) === tag);
-    if (!root) continue;
-    for (const el of childrenNamed(root, kind)) {
-      const id = attr(el, "id");
-      const ty = attr(el, "type");
-      if (id !== undefined && (ty === undefined || ty === "normal")) notes.set(`${kind}:${id}`, { el, kind });
-    }
-  }
+  const notes = collectNotes(files);
 
   const ctx: DCtx = {
     warn,
@@ -824,7 +840,6 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
     for (const t of hf) warn.tally("header-footer", "warning", "Headers and footers are not imported.", t);
   }
 
-  const top = builder.out.length ? builder.out : [];
-  const chapters = splitChapters(top, opts, warn);
+  const chapters = splitChapters(builder.out, opts, warn);
   return { chapters, warnings: warn.list(), assets: ctx.assets.assets };
 }

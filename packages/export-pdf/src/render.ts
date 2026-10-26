@@ -2,6 +2,7 @@ import { MissingAssetError, PdfExportError, TypstCompileError } from "./errors";
 import type { TypstRunner } from "./runner";
 import type { PdfBook, PdfChapter, PdfOptions, RenderResult } from "./types";
 import { buildTypstDocument, resolveFonts } from "./typst";
+import { errMsg } from "@cadabracraft/shared";
 
 export type RenderPdfOptions = PdfOptions;
 
@@ -23,7 +24,7 @@ export async function renderPdf(book: PdfBook, chapters: PdfChapter[], options: 
   try {
     pdf = await runner.compile(doc.source, files, { pdfA: options.pdfA === true });
   } catch (e) {
-    throw e instanceof PdfExportError ? e : new TypstCompileError(e instanceof Error ? e.message : String(e));
+    throw e instanceof PdfExportError ? e : new TypstCompileError(errMsg(e));
   }
   return { pdf, fonts };
 }

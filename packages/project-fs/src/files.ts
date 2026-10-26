@@ -58,6 +58,13 @@ function withSuffix(rel: string, n: number): string {
   return dot > slash ? `${rel.slice(0, dot)}-${n}${rel.slice(dot)}` : `${rel}-${n}`;
 }
 
+/** First relative path of the form `candidate(n)` (n = 1, 2, ...) that does not exist under `root` yet. */
+function firstFree(root: string, candidate: (n: number) => string): string {
+  let n = 1;
+  while (existsSync(resolveSafe(root, candidate(n)))) n++;
+  return candidate(n);
+}
+
 /**
  * `<stem>.conflict-<stamp>.<ext>` next to `rel` (`n` > 1 adds `-n` after the stamp). The extension is that of the last
  * path segment only; the Rust layer splits the whole path at its last dot (see fixtures/contract/conflict-name.json).
@@ -122,9 +129,7 @@ export function writeProjectFile(root: string, rel: string, contents: string, ba
     }
     if (existing && hashBytes(existing) !== baseHash) {
       const s = stamp(at);
-      let n = 1;
-      while (existsSync(resolveSafe(root, conflictPath(normalized, s, n)))) n++;
-      conflictCopy = conflictPath(normalized, s, n);
+      conflictCopy = firstFree(root, (n) => conflictPath(normalized, s, n));
       atomicWrite(resolveSafe(root, conflictCopy), existing);
     }
   }
@@ -147,9 +152,7 @@ export function backupManifest(root: string, at: Date = new Date()): string {
     throw fsError(e);
   }
   const base = `.cadabra/backups/cadabra-${stamp(at)}.json`;
-  let n = 1;
-  while (existsSync(resolveSafe(root, withSuffix(base, n)))) n++;
-  const rel = withSuffix(base, n);
+  const rel = firstFree(root, (n) => withSuffix(base, n));
   atomicWrite(resolveSafe(root, rel), bytes);
   return rel;
 }
@@ -168,9 +171,7 @@ export function backupFile(root: string, rel: string, at: Date = new Date()): st
     throw fsError(e);
   }
   const base = `.cadabra/backups/${stamp(at)}-${normalized.replaceAll("/", "__")}`;
-  let n = 1;
-  while (existsSync(resolveSafe(root, withSuffix(base, n)))) n++;
-  const toRel = withSuffix(base, n);
+  const toRel = firstFree(root, (n) => withSuffix(base, n));
   atomicWrite(resolveSafe(root, toRel), bytes);
   return toRel;
 }
@@ -181,9 +182,7 @@ export function trashFile(root: string, rel: string, at: Date = new Date()): str
   const from = resolveSafe(root, normalized);
   if (!existsSync(from)) throw new ProjectFsError("not_found", `${rel} does not exist`);
   const base = `.cadabra/trash/${stamp(at)}-${normalized.replaceAll("/", "__")}`;
-  let n = 1;
-  while (existsSync(resolveSafe(root, withSuffix(base, n)))) n++;
-  const toRel = withSuffix(base, n);
+  const toRel = firstFree(root, (n) => withSuffix(base, n));
   const to = resolveSafe(root, toRel);
   try {
     mkdirSync(dirname(to), { recursive: true });

@@ -1,5 +1,6 @@
 import { PdfExportError, TypstCompileError, TypstNotFoundError, TypstTimeoutError, type TypstRunner } from "@cadabracraft/export-pdf";
 import type { Bridge } from "./bridge";
+import { errText } from "./projectError";
 
 /** Error shapes the Rust side sends (`TypstError` in src-tauri/src/typst.rs). */
 type RustError =
@@ -22,7 +23,7 @@ export function mapTypstError(e: unknown): Error {
       default: return new PdfExportError(r.message);
     }
   }
-  return new PdfExportError(e instanceof Error ? e.message : String(e));
+  return new PdfExportError(errText(e));
 }
 
 /** A `TypstRunner` over the Tauri commands (the webview cannot spawn processes itself). */

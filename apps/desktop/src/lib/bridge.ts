@@ -7,10 +7,13 @@ export interface FileRead { contents: string; hash: string }
 export interface TrashEntry { path: string; original: string; trashed_at: string }
 export interface WriteResult { hash: string; conflict_copy: string | null }
 
-const binary = async (p: Promise<ArrayBuffer | number[]>): Promise<Uint8Array> => {
-  const r = await p;
-  return r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
-};
+/** What `invoke` hands back for binary commands: an ArrayBuffer for raw responses, a number array for JSON ones. */
+export type RawBytes = ArrayBuffer | ArrayLike<number>;
+
+/** The one place that turns an `invoke` byte result into a `Uint8Array`. */
+export const toBytes = (r: RawBytes): Uint8Array => (r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r));
+
+const binary = async (p: Promise<RawBytes>): Promise<Uint8Array> => toBytes(await p);
 
 /**
  * Dev-automation only: an agent can queue answers for the next native dialogs (see src-tauri/src/automation.rs).
@@ -45,10 +48,7 @@ export const bridge = {
   /** Copies the picked image into the project's `assets/`; resolves to the project-relative path (`assets/<name>`). */
   importAsset: (root: string, source: string) => invoke<string>("import_asset", { root, source }),
   /** Bytes of `assets/<image>`, for display and export. */
-  readAsset: async (root: string, path: string): Promise<Uint8Array> => {
-    const r = await invoke<ArrayBuffer | number[]>("read_asset", { root, path });
-    return r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
-  },
+  readAsset: (root: string, path: string): Promise<Uint8Array> => binary(invoke<RawBytes>("read_asset", { root, path })),
   /** Native file picker for a document to import; returns its absolute path (read-only, never stored in a project). */
   pickImportSource: async (): Promise<string | null> => {
     const queued = await queuedDialog();
@@ -57,16 +57,18 @@ export const bridge = {
     return typeof r === "string" ? r : null;
   },
   /** Bytes of the picked document (docx/md/markdown/txt, at most 200 MB). */
-  readImportSource: (path: string) => binary(invoke<ArrayBuffer | number[]>("read_import_source", { path })),
+  readImportSource: (path: string) => binary(invoke<RawBytes>("read_import_source", { path })),
   /** Bytes of an image a Markdown file references, resolved inside that file's folder (rejects `..`, absolute paths, symlink escapes). */
-  readImportImage: (sourceFile: string, reference: string) => binary(invoke<ArrayBuffer | number[]>("read_import_image", { sourceFile, reference })),
+  readImportImage: (sourceFile: string, reference: string) => binary(invoke<RawBytes>("read_import_image", { sourceFile, reference })),
   /** Stores image bytes from an imported document in `assets/`; resolves to the path actually used (`assets/<name>`). */
   importAssetBytes: (root: string, name: string, bytes: Uint8Array) => invoke<string>("import_asset_bytes", { root, name, bytes: Array.from(bytes) }),
   createProject: (root: string, manifestJson: string) => invoke<void>("create_project", { root, manifestJson }),
   readFile: (root: string, path: string) => invoke<FileRead | null>("read_project_file", { root, path }),
   writeFile: (root: string, path: string, contents: string, baseHash: string | null) =>
     invoke<WriteResult>("write_project_file", { root, path, contents, baseHash }),
-  writeBytes: (root: string, path: string, bytes: number[]) => invoke<void>("write_project_bytes", { root, path, bytes }),
+  /** Writes raw bytes (sent as the binary request body; `root` and `path` travel as percent-encoded headers). */
+  writeBytes: (root: string, path: string, bytes: Uint8Array) =>
+    invoke<void>("write_project_bytes", bytes, { headers: { root: encodeURIComponent(root), path: encodeURIComponent(path) } }),
   backupManifest: (root: string) => invoke<string>("backup_manifest", { root }),
   watchProject: (root: string) => invoke<void>("watch_project", { root }),
   /** Calls back with the project-relative path of each file changed outside the app. Returns an unsubscribe function. */
@@ -80,9 +82,7 @@ export const bridge = {
   typstFind: (typstPath: string | null) => invoke<{ path: string; version: string }>("typst_find", { typstPath }),
   typstListFonts: (typstPath: string | null) => invoke<string[]>("typst_list_fonts", { typstPath }),
   /** Compiles Typst source plus asset files (name, bytes) to PDF bytes. */
-  typstCompile: async (typstPath: string | null, source: string, files: [string, number[]][], pdfA: boolean): Promise<Uint8Array> => {
-    const r = await invoke<ArrayBuffer | number[]>("typst_compile", { typstPath, source, files, pdfA });
-    return r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
-  },
+  typstCompile: (typstPath: string | null, source: string, files: [string, number[]][], pdfA: boolean): Promise<Uint8Array> =>
+    binary(invoke<RawBytes>("typst_compile", { typstPath, source, files, pdfA })),
 };
 export type Bridge = typeof bridge;

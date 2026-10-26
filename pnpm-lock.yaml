@@ -316,7 +316,11 @@ importers:
         specifier: ^0.28.2
         version: 0.28.2
 
-  packages/project-fs: {}
+  packages/project-fs:
+    dependencies:
+      '@cadabracraft/shared':
+        specifier: workspace:*
+        version: link:../shared
 
   packages/shared: {}
 

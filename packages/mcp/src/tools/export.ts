@@ -14,6 +14,7 @@ import { poppler, runEpubcheck, typstPath } from "../external";
 import { projectRoot } from "../project";
 import { type ToolDef, defineTool, withLock } from "../tooling";
 import { PATH } from "./project";
+import { errMsg } from "@cadabracraft/shared";
 
 const EPUB = "exports/book.epub";
 const PDF = "exports/book.pdf";
@@ -31,7 +32,7 @@ export const exportEpub = defineTool({
       try {
         bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css });
       } catch (e) {
-        throw new ToolError("epub_error", e instanceof Error ? e.message : String(e));
+        throw new ToolError("epub_error", errMsg(e));
       }
       writeBytes(root, EPUB, bytes);
       const epubcheck = await runEpubcheck(ctx, join(root, EPUB));
@@ -108,7 +109,7 @@ export const inspectPdf = defineTool({
       };
     } catch (e) {
       if (e instanceof ToolError || e instanceof ProjectFsError) throw e;
-      throw new ToolError("pdf_error", `poppler could not read ${PDF}: ${(e as Error).message.split("\n")[0]}`);
+      throw new ToolError("pdf_error", `poppler could not read ${PDF}: ${errMsg(e).split("\n")[0]}`);
     }
   },
 });
@@ -141,7 +142,7 @@ export const inspectEpub = defineTool({
         },
       });
     } catch (e) {
-      throw new ToolError("epub_error", `${EPUB} is not a valid zip file: ${(e as Error).message}`);
+      throw new ToolError("epub_error", `${EPUB} is not a valid zip file: ${errMsg(e)}`);
     }
     const dec = new TextDecoder();
     const container = zip["META-INF/container.xml"];

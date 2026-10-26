@@ -4,7 +4,7 @@
 //   --launch  start `pnpm tauri:automate` first (waits for the bridge) and stop it afterwards
 //   --out     where to put the scratch books and screenshots (default: a new temp dir)
 import { spawn, execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -50,6 +50,14 @@ const openMenu = (label) => app.js(`(() => { const b = [...document.querySelecto
   if (!b) throw new Error("no button: ${label}"); b.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerType: "mouse" })); return "opened"; })()`);
 const pickItem = (label) => app.js(`(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim() === ${JSON.stringify(label)});
   if (!i) throw new Error("no menu item: ${label}"); i.click(); return "picked"; })()`);
+// The Export dialog (M2): the header button opens it, a Format control picks EPUB or PDF, the dialog's submit button runs it.
+const dlg = (body) => app.js(`(() => { const d = document.querySelector('[role="dialog"]'); if (!d) throw new Error("no dialog"); ${body} })()`);
+const exportVia = async (format) => {
+  await app.click("Export"); await app.sleep(800);
+  await dlg(`const o = [...d.querySelectorAll("button,[role=radio]")].find((e) => e.textContent.trim() === ${JSON.stringify(format)}); if (!o) throw new Error("no format: ${format}"); o.click(); return "picked";`);
+  await app.sleep(300);
+  await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
+};
 const status = async () => (await app.snapshot()).status.join(" ");
 
 try {
@@ -83,6 +91,14 @@ try {
     for (const needle of ["Typed by an agent.", "<strong>Bold part.</strong>", "scene-break", 'class="footnote"']) assert(html.includes(needle), `editor lacks ${needle}`);
   });
 
+  await step("autosave writes the typed text to disk without pressing Save", async () => {
+    await app.sleep(3500); // AUTOSAVE_MS is 2 s
+    const dir = join(book, "manuscript");
+    const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+    assert(files.some((f) => readFileSync(join(dir, f), "utf8").includes("Typed by an agent.")), "typed text not on disk after the autosave delay");
+    return "chapter file contains the typed text";
+  });
+
   await step("image: queued picker, import into assets/, rendered from the real read_asset", async () => {
     await app.queueDialogs([png]);
     await app.click("Image"); await app.sleep(1000);
@@ -112,7 +128,8 @@ try {
   });
 
   await step("EPUB export passes EPUBCheck and contains the matter pages", async () => {
-    await app.click("Export EPUB"); await app.sleep(3000);
+    await exportVia("EPUB 3");
+    for (let i = 0; i < 15 && !(await status()).includes("exports/book.epub"); i++) await app.sleep(1000);
     assert((await status()).includes("exports/book.epub"), "no export notice");
     const listing = execFileSync("unzip", ["-l", join(book, "exports/book.epub")], { encoding: "utf8" });
     assert(listing.includes("OEBPS/fm-1.xhtml") && listing.includes("OEBPS/bm-1.xhtml"), "EPUB lacks the matter pages");
@@ -126,8 +143,7 @@ try {
   });
 
   await step("PDF export produces a 6x9 PDF with embedded fonts", async () => {
-    await app.click("Export PDF…"); await app.sleep(800);
-    await app.click("Export PDF"); await app.sleep(1000);
+    await exportVia("Print PDF"); await app.sleep(1000);
     for (let i = 0; i < 40 && !(await status()).includes("exports/book.pdf"); i++) await app.sleep(1000);
     assert((await status()).includes("exports/book.pdf"), "PDF export did not finish (is Typst installed?)");
     const pdf = join(book, "exports/book.pdf");

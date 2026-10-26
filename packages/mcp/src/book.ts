@@ -3,6 +3,7 @@ import { readingOrder, type Manifest } from "@cadabracraft/format";
 import { ProjectFsError, imageExt, looksLike, readAsset } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, hasTemplate } from "@cadabracraft/templates";
 import { isAssetPath, type ChapterDoc } from "@cadabracraft/shared";
+import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { imageSources, schemaProblem } from "./doc";
 import { ToolError } from "./errors";
 import { loadProject, readChapterFile } from "./project";
@@ -25,9 +26,8 @@ export function loadBook(ctx: Ctx, path: string): Book {
   if (entries.length === 0) throw new ToolError("empty_book", "the book has no chapters; add one with cadabra_chapter_add");
   const chapters = entries.map((e) => {
     const { doc } = readChapterFile(root, e);
-    const problem = schemaProblem(doc);
-    if (problem) throw new ToolError("invalid_chapter_doc", `${e.file} is not valid in the editor schema: ${problem}`);
-    return { id: e.id, title: e.title, doc: doc as ChapterDoc };
+    if (!isChapterDoc(doc)) throw new ToolError("invalid_chapter_doc", `${e.file} is not valid in the editor schema: ${schemaProblem(doc)}`);
+    return { id: e.id, title: e.title, doc };
   });
   const assets = new Map<string, Uint8Array>();
   for (const src of chapters.flatMap((c) => imageSources(c.doc))) {

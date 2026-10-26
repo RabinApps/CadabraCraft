@@ -6,6 +6,7 @@ import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { ImportDialog } from "./ImportDialogs";
 import { useRecents } from "./recents";
+import { errText } from "../lib/projectError";
 
 interface Props {
   error: string;
@@ -105,7 +106,7 @@ function NewProjectDialog({ open, onOpenChange, pickFolder, onCreate }: Pick<Pro
           <span className="text-xs font-semibold text-ink-muted">{t`Location`}</span>
           <div className="flex gap-2">
             <input aria-label={t`Folder`} readOnly value={root ?? ""} placeholder={t`No folder chosen`} className="min-w-0 flex-1 rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink-muted placeholder:text-ink-muted" />
-            <Button icon={FolderOpen} onClick={() => { setPickError(""); pickFolder().then((r) => r && setRoot(r)).catch((e) => setPickError(String(e instanceof Error ? e.message : e))); }}>{t`Choose…`}</Button>
+            <Button icon={FolderOpen} onClick={() => { setPickError(""); pickFolder().then((r) => r && setRoot(r)).catch((e) => setPickError(errText(e))); }}>{t`Choose…`}</Button>
           </div>
           <p className="text-xs text-ink-muted">{t`The book is stored in this folder. Nothing leaves your computer.`}</p>
           {pickError && <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{pickError}</p>}

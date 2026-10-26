@@ -3,6 +3,7 @@ import { FontNotAvailableError, MissingAssetError, PdfExportError, TypstCompileE
 import { ImportError } from "@cadabracraft/import-docx";
 import { ProjectFsError } from "@cadabracraft/project-fs";
 import { TemplateError } from "@cadabracraft/templates";
+import { errMsg } from "@cadabracraft/shared";
 
 /** Stable machine-readable error codes returned in `{ error: { code, message } }`. Documented in docs/mcp.md. */
 export type ErrorCode =
@@ -84,5 +85,5 @@ export function toToolError(e: unknown): ToolError {
   if (e instanceof PdfExportError) return new ToolError("pdf_error", e.message);
   const err = e as NodeJS.ErrnoException | undefined;
   if (err?.code === "ENOENT") return new ToolError("not_found", err.message);
-  return new ToolError("internal_error", e instanceof Error ? e.message : String(e));
+  return new ToolError("internal_error", errMsg(e));
 }

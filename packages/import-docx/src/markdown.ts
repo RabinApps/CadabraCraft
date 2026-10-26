@@ -7,7 +7,10 @@ import {
   AssetRegistry,
   IMAGE_TYPES,
   Warnings,
+  type Item,
   extOf,
+  flattenItems,
+  isSep,
   listItemOf,
   mergeInline,
   paragraphOf,
@@ -16,9 +19,6 @@ import {
   textNode,
 } from "./common";
 import { ImportError, type ImportOptions, type ImportResult } from "./types";
-
-type Item = DocNode | { sep: "break" } | { sep: "block"; node: DocNode };
-const isSep = (i: Item): i is { sep: "break" } | { sep: "block"; node: DocNode } => "sep" in i;
 
 const parser = unified().use(remarkParse).use(remarkGfm);
 
@@ -222,7 +222,7 @@ function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[] {
           level = 3;
         }
         const items = inlines(n.children, ctx, []);
-        const flat = mergeInline(items.map((i) => (isSep(i) ? (i.sep === "break" ? ({ type: "text", text: " " } as DocNode) : null) : i)).filter((x): x is DocNode => x !== null));
+        const flat = flattenItems(items);
         out.push(flat.length ? { type: "heading", attrs: { level }, content: flat } : { type: "heading", attrs: { level } });
         for (const i of items) if (isSep(i) && i.sep === "block") out.push(i.node);
         break;

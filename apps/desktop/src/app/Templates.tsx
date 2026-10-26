@@ -6,6 +6,7 @@ import { DEFAULT_TEMPLATE_ID, GALLERY_TEMPLATE_IDS, getTemplate, hasTemplate, ty
 import { Button, IconButton } from "../ui/Button";
 import { cx } from "../ui/cx";
 import { useProject } from "./store";
+import { errText } from "../lib/projectError";
 
 const PREVIEW_LINES = [0, 1, 2, 3, 4, 5, 6, 7];
 
@@ -41,7 +42,7 @@ export function Templates({ onBack }: { onBack: () => void }) {
       await setTemplate(selected);
       onBack();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errText(e));
     }
   };
   const rows: [string, string][] = [

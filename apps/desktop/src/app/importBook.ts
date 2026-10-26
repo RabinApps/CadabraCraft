@@ -4,6 +4,7 @@ import { addChapter, createManifest, serializeManifest } from "@cadabracraft/for
 import { ImportError, importDocx, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../lib/bridge";
+import { errText } from "../lib/projectError";
 
 export interface ImportReport {
   /** Source file name (no folder), for display. */
@@ -114,7 +115,7 @@ export async function runImport(opts: { sourcePath: string; root: string; title:
     let why = "";
     if (!data) {
       for (const candidate of imageCandidates(a.sourcePath)) {
-        try { data = await bridge.readImportImage(opts.sourcePath, candidate); break; } catch (e) { why = e instanceof Error ? e.message : String(e); }
+        try { data = await bridge.readImportImage(opts.sourcePath, candidate); break; } catch (e) { why = errText(e); }
       }
     }
     if (data) images.push({ target: a.targetPath, name: baseName(a.targetPath), bytes: data });
@@ -134,7 +135,7 @@ export async function runImport(opts: { sourcePath: string; root: string; title:
         map.set(img.target, await bridge.importAssetBytes(opts.root, img.name, img.bytes));
         written.images++;
       } catch (e) {
-        warnings.push({ code: "image-not-imported", severity: "warning", message: t`Image ${img.name} could not be stored: ${e instanceof Error ? e.message : String(e)}`, examples: [img.name] });
+        warnings.push({ code: "image-not-imported", severity: "warning", message: t`Image ${img.name} could not be stored: ${errText(e)}`, examples: [img.name] });
       }
     }
     for (const c of result.chapters) {
@@ -145,7 +146,7 @@ export async function runImport(opts: { sourcePath: string; root: string; title:
     }
     await bridge.writeFile(opts.root, "cadabra.json", serializeManifest(manifest), null);
   } catch (e) {
-    throw new Error(`${e instanceof Error ? e.message : String(e)} ${wrote()}`);
+    throw new Error(`${errText(e)} ${wrote()}`);
   }
   return { fileName, title: opts.title, chapterCount: result.chapters.length, imageCount: written.images, warnings };
 }

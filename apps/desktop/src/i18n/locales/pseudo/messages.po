@@ -18,6 +18,48 @@ msgstr ""
 msgid "{0} changed outside the app; the other version was kept as {1}"
 msgstr ""
 
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} does not exist"
+msgstr ""
+
+#. placeholder {0}: e.path
+#. placeholder {1}: e.max_mb
+#: src/lib/projectError.ts
+msgid "{0} is larger than {1} MB"
+msgstr ""
+
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "{0} is not a .docx, .md, .markdown or .txt file"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} is not a file"
+msgstr ""
+
+#. placeholder {0}: e.name
+#. placeholder {1}: e.ext
+#: src/lib/projectError.ts
+msgid "{0} is not a valid {1} image"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} is not valid UTF-8 text"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} is still downloading from iCloud; try again in a moment"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} leaves the project folder through a symbolic link"
+msgstr ""
+
 #. placeholder {0}: entry.title
 #: src/app/store.ts
 msgid "{0} was updated from outside the app"
@@ -29,6 +71,14 @@ msgstr ""
 
 #: src/app/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
+msgstr ""
+
+#: src/app/store.ts
+msgid "{file} is not a valid chapter, so it was not opened. The file was left untouched."
+msgstr ""
+
+#: src/app/store.ts
+msgid "{file} is not valid JSON, so it was not opened. The file was left untouched."
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
@@ -72,6 +122,10 @@ msgstr ""
 
 #: src/app/store.ts
 msgid "A PDF export is already running"
+msgstr ""
+
+#: src/lib/projectError.ts
+msgid "A project already exists in this folder"
 msgstr ""
 
 #: src/app/Sidebar.tsx
@@ -218,6 +272,11 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Cannot restore {0}"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Caption"
 msgstr ""
@@ -307,13 +366,18 @@ msgstr ""
 msgid "Copyright page"
 msgstr ""
 
-#. placeholder {0}: e instanceof Error ? e.message : String(e)
+#. placeholder {0}: errText(e)
 #: src/app/store.ts
 msgid "Could not add the image: {0}"
 msgstr ""
 
 #: src/app/store.ts
 msgid "Could not redo: {why}"
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/app/store.ts
+msgid "Could not save: {0}"
 msgstr ""
 
 #: src/app/store.ts
@@ -358,6 +422,7 @@ msgid "Description (alt text)"
 msgstr ""
 
 #: src/app/App.tsx
+#: src/app/AppHeader.tsx
 msgid "Details"
 msgstr ""
 
@@ -389,7 +454,7 @@ msgstr ""
 msgid "Exit focus mode"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 #: src/app/ExportDialog.tsx
 msgid "Export"
 msgstr ""
@@ -422,7 +487,7 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 msgid "Focus mode"
 msgstr ""
 
@@ -490,13 +555,18 @@ msgid "Image {0} could not be imported: {why}"
 msgstr ""
 
 #. placeholder {0}: img.name
-#. placeholder {1}: e instanceof Error ? e.message : String(e)
+#. placeholder {1}: errText(e)
 #: src/app/importBook.ts
 msgid "Image {0} could not be stored: {1}"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Image file"
+msgstr ""
+
+#. placeholder {0}: e.reference
+#: src/lib/projectError.ts
+msgid "Image not found: {0}"
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
@@ -607,7 +677,7 @@ msgstr ""
 msgid "Missing image file {src}"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 msgid "More actions"
 msgstr ""
 
@@ -691,6 +761,16 @@ msgstr ""
 msgid "None"
 msgstr ""
 
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Not a page in the trash: {0}"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Not an image in the assets folder: {0}"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
@@ -766,7 +846,7 @@ msgstr ""
 msgid "Project upgraded from format {0}; backup saved to {backup}"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 msgid "Read"
 msgstr ""
 
@@ -837,11 +917,11 @@ msgstr ""
 msgid "Right-hand page"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 msgid "Save"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 #: src/app/store.ts
 msgid "Saved"
 msgstr ""
@@ -867,7 +947,7 @@ msgstr ""
 msgid "Select the text you want to link first."
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 #: src/app/Home.tsx
 #: src/app/Settings.tsx
 msgid "Settings"
@@ -881,7 +961,7 @@ msgstr ""
 msgid "Shortcuts"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 msgid "Show chapters"
 msgstr ""
 
@@ -931,12 +1011,21 @@ msgstr ""
 msgid "That address can't be used as a link."
 msgstr ""
 
+#: src/lib/projectError.ts
+msgid "That file name is not valid"
+msgstr ""
+
 #: src/app/Home.tsx
 msgid "The book is stored in this folder. Nothing leaves your computer."
 msgstr ""
 
 #: src/lib/pdfErrors.ts
 msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
+msgstr ""
+
+#. placeholder {0}: e.reference
+#: src/lib/projectError.ts
+msgid "The image {0} is outside the document's folder"
 msgstr ""
 
 #: src/app/store.ts
@@ -991,6 +1080,11 @@ msgstr ""
 
 #: src/app/importBook.ts
 msgid "This file is too large to import."
+msgstr ""
+
+#. placeholder {0}: e.reference
+#: src/lib/projectError.ts
+msgid "This image path is not allowed: {0}"
 msgstr ""
 
 #: src/app/Details.tsx
@@ -1067,8 +1161,18 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: src/app/App.tsx
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Unsafe project path: {0}"
+msgstr ""
+
+#: src/app/AppHeader.tsx
 msgid "Unsaved"
+msgstr ""
+
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "Unsupported image type: {0}"
 msgstr ""
 
 #: src/app/Home.tsx
@@ -1103,11 +1207,11 @@ msgstr ""
 msgid "Words"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 msgid "Write"
 msgstr ""
 
-#: src/app/App.tsx
+#: src/app/AppHeader.tsx
 msgid "Write or read"
 msgstr ""
 

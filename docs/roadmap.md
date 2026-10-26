@@ -9,8 +9,14 @@
   - M4: .docx import wizard.
 - i18n follow-ups (infrastructure is in; see the Internationalization section of [architecture.md](architecture.md)):
   - Translate the catalogs (he, ar, it, ja, ru, fr, de, es), get native-speaker review, then add each code to `ENABLED_LOCALES`.
-  - Rust errors in `src-tauri/src/project` still return English strings; switch to error codes with params and translate in the UI.
+  - ~~Rust project errors return English strings~~ done: `ProjectError` codes with params, translated in `lib/projectError.ts`. `watch_project` still returns a plain string.
   - Toolbar button glyphs ("Sc", "H1", "• List", "Fn") are Latin text; replace with icons.
   - Language picker and book-language field in the New book dialog need a design in `cadabracraft.pen` (then `/sync-design`); Settings shows the picker even while only English is enabled.
   - Bundle Hebrew/Arabic (and Noto Sans JP if system CJK looks poor) fonts; currently system fallbacks via `:lang()` in `index.css`.
   - Add e2e for `he` RTL layout once its catalog exists; run `/validate-epub` with a Hebrew sample (EPUBCheck was not available in this worktree).
+- Engineering follow-ups from the code review:
+  - Port `.docx` import (`packages/import-docx`) to Rust (`zip` + `quick-xml`) to stop the double XML pass and synchronous unzip; needs approval for the new crates and a contract-fixture set for the doc output.
+  - Wait for the final save on window close with Tauri `onCloseRequested` (needs a window permission in `src-tauri/capabilities`); today `beforeunload` is best effort.
+  - Convert `typst_compile` to raw-bytes IPC.
+  - Restrict `root` to opened projects and set a real CSP (`tauri.conf.json` has `"csp": null`).
+  - Run `/drive-app` against the native IPC changes (raw-bytes `write_project_bytes`, async commands, autosave).

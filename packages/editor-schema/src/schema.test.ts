@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { getSchema } from "@tiptap/core";
 import { Node } from "@tiptap/pm/model";
-import { extensions } from "./index";
+import { assertChapterDoc, chapterDocProblem, extensions, isChapterDoc } from "./index";
 
 const schema = getSchema(extensions);
 const sample = JSON.parse(
@@ -58,5 +58,18 @@ describe("images", () => {
   it("exposes a resolver hook that can be cleared", () => {
     setAssetUrlResolver(async (s) => `blob:${s}`);
     setAssetUrlResolver(null);
+  });
+});
+
+describe("chapter document validation", () => {
+  const ok = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "hi" }] }] };
+  it("accepts a valid chapter and narrows it", () => {
+    expect(isChapterDoc(ok)).toBe(true);
+    expect(() => assertChapterDoc(ok)).not.toThrow();
+  });
+  it("rejects unknown nodes, bad headings and non-documents", () => {
+    expect(isChapterDoc({ type: "doc", content: [{ type: "mystery" }] })).toBe(false);
+    expect(chapterDocProblem({ type: "doc", content: [{ type: "heading", attrs: { level: 4 }, content: [{ type: "text", text: "x" }] }] })).toMatch(/level 4/);
+    expect(() => assertChapterDoc(null)).toThrow(/invalid chapter document/);
   });
 });

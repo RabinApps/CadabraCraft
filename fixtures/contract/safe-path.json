@@ -1,37 +1,219 @@
 {
-  "description": "Project-relative path rules. `resolve` mirrors Rust project::resolve (and TS resolveRelative): non-empty, no backslash, only normal components. Interior `.` and repeated `/` are normalised away (as Path::components does); a leading `./`, `..`, or a leading `/` is refused. `normalized` is the path relative to the root after joining.",
+  "description": "Project-relative path rules. `resolve` mirrors Rust project::resolve (and TS resolveRelative): non-empty, no backslash, only normal components. Interior `.` and repeated `/` are normalised away (as Path::components does); a leading `./`, `..`, or a leading `/` is refused. `normalized` is the path relative to the root after joining. A NUL byte is refused. `symlinks` checks containment: resolve() must refuse a path that reaches outside the project root through a symbolic link.",
   "resolve": [
-    { "rel": "manuscript/001-a.json", "ok": true, "normalized": "manuscript/001-a.json" },
-    { "rel": "cadabra.json", "ok": true, "normalized": "cadabra.json" },
-    { "rel": "a/b/c.txt", "ok": true, "normalized": "a/b/c.txt" },
-    { "rel": "a//b", "ok": true, "normalized": "a/b" },
-    { "rel": "a/./b", "ok": true, "normalized": "a/b" },
-    { "rel": "a/", "ok": true, "normalized": "a" },
-    { "rel": "..a/b..", "ok": true, "normalized": "..a/b.." },
-    { "rel": "", "ok": false },
-    { "rel": ".", "ok": false },
-    { "rel": "./x", "ok": false },
-    { "rel": "../x", "ok": false },
-    { "rel": "..", "ok": false },
-    { "rel": "a/../b", "ok": false },
-    { "rel": "a/../../b", "ok": false },
-    { "rel": "/etc/passwd", "ok": false },
-    { "rel": "/", "ok": false },
-    { "rel": "a\\b", "ok": false },
-    { "rel": "..\\x", "ok": false }
+    {
+      "rel": "manuscript/001-a.json",
+      "ok": true,
+      "normalized": "manuscript/001-a.json"
+    },
+    {
+      "rel": "cadabra.json",
+      "ok": true,
+      "normalized": "cadabra.json"
+    },
+    {
+      "rel": "a/b/c.txt",
+      "ok": true,
+      "normalized": "a/b/c.txt"
+    },
+    {
+      "rel": "a//b",
+      "ok": true,
+      "normalized": "a/b"
+    },
+    {
+      "rel": "a/./b",
+      "ok": true,
+      "normalized": "a/b"
+    },
+    {
+      "rel": "a/",
+      "ok": true,
+      "normalized": "a"
+    },
+    {
+      "rel": "..a/b..",
+      "ok": true,
+      "normalized": "..a/b.."
+    },
+    {
+      "rel": "",
+      "ok": false
+    },
+    {
+      "rel": ".",
+      "ok": false
+    },
+    {
+      "rel": "./x",
+      "ok": false
+    },
+    {
+      "rel": "../x",
+      "ok": false
+    },
+    {
+      "rel": "..",
+      "ok": false
+    },
+    {
+      "rel": "a/../b",
+      "ok": false
+    },
+    {
+      "rel": "a/../../b",
+      "ok": false
+    },
+    {
+      "rel": "/etc/passwd",
+      "ok": false
+    },
+    {
+      "rel": "/",
+      "ok": false
+    },
+    {
+      "rel": "a\\b",
+      "ok": false
+    },
+    {
+      "rel": "..\\x",
+      "ok": false
+    },
+    {
+      "rel": "a\u0000b",
+      "ok": false
+    },
+    {
+      "rel": "manuscript/a.json\u0000.png",
+      "ok": false
+    },
+    {
+      "rel": "a/.icloud",
+      "ok": true,
+      "normalized": "a/.icloud"
+    },
+    {
+      "rel": ".x.json.icloud",
+      "ok": true,
+      "normalized": ".x.json.icloud"
+    },
+    {
+      "rel": "a__b.json",
+      "ok": true,
+      "normalized": "a__b.json"
+    }
   ],
   "imageReference": {
     "description": "Markdown image references that must be refused before touching the disk (read_relative_image / readRelativeImage). `error` is a substring of the message.",
     "reject": [
-      { "reference": "../secret.png", "error": "not allowed" },
-      { "reference": "a/../../secret.png", "error": "not allowed" },
-      { "reference": "", "error": "not allowed" },
-      { "reference": "..\\secret.png", "error": "not allowed" },
-      { "reference": "a\\b.png", "error": "not allowed" },
-      { "reference": "a\u0000b.png", "error": "not allowed" },
-      { "reference": "/etc/hosts.png", "error": "not allowed" },
-      { "reference": "notes.txt", "error": "unsupported image type" },
-      { "reference": "img/readme", "error": "unsupported image type" }
+      {
+        "reference": "../secret.png",
+        "error": "not allowed"
+      },
+      {
+        "reference": "a/../../secret.png",
+        "error": "not allowed"
+      },
+      {
+        "reference": "",
+        "error": "not allowed"
+      },
+      {
+        "reference": "..\\secret.png",
+        "error": "not allowed"
+      },
+      {
+        "reference": "a\\b.png",
+        "error": "not allowed"
+      },
+      {
+        "reference": "a\u0000b.png",
+        "error": "not allowed"
+      },
+      {
+        "reference": "/etc/hosts.png",
+        "error": "not allowed"
+      },
+      {
+        "reference": "notes.txt",
+        "error": "unsupported image type"
+      },
+      {
+        "reference": "img/readme",
+        "error": "unsupported image type"
+      }
+    ]
+  },
+  "symlinks": {
+    "description": "Run in a fresh temp dir D. Create `files` (relative to D, with parents), then `links` ({at,to}, both relative to D; `to` is where the link points, it may not exist). The project root is D/project. A case is ok when the path resolves inside the real project root; refused cases are Rust ProjectError::PathEscape / TS ProjectFsError path_escape (resolveSafe).",
+    "files": [
+      "outside/secret.txt",
+      "project/real/a.json"
+    ],
+    "links": [
+      {
+        "at": "project/out",
+        "to": "outside"
+      },
+      {
+        "at": "project/in",
+        "to": "project/real"
+      },
+      {
+        "at": "project/dangling",
+        "to": "outside/missing"
+      },
+      {
+        "at": "project/loop",
+        "to": "project/loop"
+      },
+      {
+        "at": "project/real/up",
+        "to": "outside"
+      }
+    ],
+    "cases": [
+      {
+        "rel": "real/a.json",
+        "ok": true
+      },
+      {
+        "rel": "in/a.json",
+        "ok": true
+      },
+      {
+        "rel": "in/new.json",
+        "ok": true
+      },
+      {
+        "rel": "fresh/new.json",
+        "ok": true
+      },
+      {
+        "rel": "out",
+        "ok": false
+      },
+      {
+        "rel": "out/secret.txt",
+        "ok": false
+      },
+      {
+        "rel": "out/new.json",
+        "ok": false
+      },
+      {
+        "rel": "real/up/secret.txt",
+        "ok": false
+      },
+      {
+        "rel": "dangling",
+        "ok": false
+      },
+      {
+        "rel": "loop",
+        "ok": false
+      }
     ]
   }
 }

@@ -1,31 +1,15 @@
-import { getSchema } from "@tiptap/core";
-import { Node } from "@tiptap/pm/model";
-import { extensions } from "@cadabracraft/editor-schema";
+import { assertChapterDoc, chapterDocProblem } from "@cadabracraft/editor-schema";
 import { collectImageSources } from "@cadabracraft/export-epub";
 import { isAssetPath, type ChapterDoc } from "@cadabracraft/shared";
 
-const schema = getSchema(extensions);
-
 /** Why `doc` is not a valid chapter in the real editor schema (the one the app and exporters use), or null if it is valid. */
-export function schemaProblem(doc: unknown): string | null {
-  if (!doc || typeof doc !== "object" || (doc as { type?: unknown }).type !== "doc") return 'a chapter document must be an object with type "doc"';
-  try {
-    Node.fromJSON(schema, doc).check();
-  } catch (e) {
-    return e instanceof Error ? e.message : String(e);
-  }
-  // The schema's heading `levels` option only limits the editor's commands; the node spec itself accepts any level.
-  let bad: unknown = null;
-  const walk = (n: N) => {
-    if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
-    for (const c of n.content ?? []) walk(c);
-  };
-  walk(doc as N);
-  return bad === null ? null : `heading level ${String(bad)} is not allowed (levels 1-3 only)`;
-}
+export const schemaProblem = chapterDocProblem;
 
 /** Image `src` values used by a (schema-valid) chapter, in document order, without duplicates. */
-export const imageSources = (doc: unknown): string[] => collectImageSources(doc as ChapterDoc);
+export function imageSources(doc: unknown): string[] {
+  assertChapterDoc(doc);
+  return collectImageSources(doc);
+}
 
 /** Image sources that are not project-relative `assets/<file>` paths. */
 export const badImageSources = (doc: unknown): string[] => imageSources(doc).filter((s) => !isAssetPath(s));

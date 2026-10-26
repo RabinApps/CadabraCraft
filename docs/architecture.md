@@ -192,3 +192,13 @@ See [mcp.md](mcp.md). Decisions:
 - **Stricter than Rust where an agent is the caller:** a workspace root guard that follows symlinks, symlink containment inside a project, and never-overwrite naming for conflict copies, trash and backups. Chapter replacement keeps the previous text in `.cadabra/backups/`.
 - **One bundled `dist/cli.js` (esbuild)** because workspace packages are TypeScript source (`main: src/index.ts`). Rejected: tsc emit per package (needs build order and `exports` maps for every package) and running through tsx at runtime (slow start, a dev dependency in the client config).
 - **No app-lifecycle tools** (launching or driving the desktop app); that is handled separately.
+
+## Code review refactors (Rust scope, errors, autosave)
+
+- **Rust stays the thin, safe IO layer; exporters and importers stay TypeScript.** The editor schema is the contract and is TypeScript, the MCP server must run on plain Node, and a Rust port needs a second schema plus contract fixtures and pays IPC serialisation on every call. Rejected: a Rust core with a CLI sidecar for MCP (a toolchain or per-platform binaries) and porting the EPUB, Typst or Markdown paths (cheap next to the cost and risk). Deferred: `.docx` import is the only parser with a real performance case (see the roadmap).
+- **File commands are `async` on the blocking pool.** Synchronous Tauri commands run on the main thread, so a 200 MB import froze the window. Rejected: leaving them sync and capping sizes.
+- **`ProjectError` is a serde-tagged enum, `{ "kind": "snake_case", ...params }`,** the same shape as `TypstError`, translated in the UI (`lib/projectError.ts`). `Display` keeps an English fallback. Rejected: a numeric code plus a string-param array (opaque) and English sentences (cannot be translated or matched).
+- **Path safety in Rust matches TS `resolveSafe`:** NUL is rejected and symlinks that resolve outside the project fail with `path_escape`, shared fixtures cover both. Reads are capped at 32 MB. Rejected: lexical checks only.
+- **`write_project_bytes` takes raw bytes** with `root` and `path` in percent-encoded headers, not a JSON `number[]`. The old JSON form is still accepted.
+- **One word counter and one chapter check.** `countWords` lives in `packages/shared`; `isChapterDoc` in `packages/editor-schema` replaces unchecked `as ChapterDoc` casts. Corrupt chapter files are reported and never overwritten.
+- **Autosave 2 s after the last keystroke** (`AUTOSAVE_MS`), plus a flush on `beforeunload` and `pagehide`. This fixes a data-loss gap where only Save, chapter switch or export wrote to disk. Saves run one at a time.

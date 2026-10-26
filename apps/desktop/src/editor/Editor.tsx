@@ -1,12 +1,10 @@
 import type { CSSProperties } from "react";
 import { EditorContent, useEditor, type Editor as TipTapEditor } from "@tiptap/react";
-import { extensions, setAssetUrlResolver } from "@cadabracraft/editor-schema";
+import { extensions } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { sizes, widths, type Width } from "../app/reading";
 import { manuscriptFonts, useSettings, writingWidths } from "../app/editorPrefs";
 import { dirFor } from "../i18n/locales";
-import { assetUrl } from "../lib/assets";
-import { useProject } from "../app/store";
 import { Toolbar } from "./Toolbar";
 
 /** Typewriter scrolling: keeps the caret line near the middle of the scrolling column. */
@@ -17,12 +15,6 @@ function centerCaret(editor: TipTapEditor) {
   const box = scroller.getBoundingClientRect();
   scroller.scrollTop += caret.top - (box.top + box.height / 2);
 }
-
-// Chapter JSON keeps `assets/...` paths; the webview shows them through blob URLs read via the Tauri bridge.
-setAssetUrlResolver((src) => {
-  const root = useProject.getState().root;
-  return root ? assetUrl(root, src) : Promise.reject(new Error("no project open"));
-});
 
 interface Props {
   initial: ChapterDoc;

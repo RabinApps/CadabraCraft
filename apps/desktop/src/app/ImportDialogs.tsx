@@ -9,6 +9,7 @@ import { Modal, overlayClass, panelClass } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { baseName, formatReport, groupWarnings, titleFromFile } from "./importBook";
 import { useProject } from "./store";
+import { errText } from "../lib/projectError";
 
 interface ImportProps {
   open: boolean;
@@ -35,7 +36,7 @@ export function ImportDialog({ open, onOpenChange, pickSource, pickFolder, onImp
   };
   const pick = (f: () => Promise<string | null>, then: (p: string) => void) => {
     setError("");
-    f().then((p) => p && then(p)).catch((e) => setError(String(e instanceof Error ? e.message : e)));
+    f().then((p) => p && then(p)).catch((e) => setError(errText(e)));
   };
   return (
     <Modal open={open} onOpenChange={change} title={t`Import a manuscript`} description={t`Creates a new book from a Word (.docx) or Markdown file. The original file is never changed.`}>
@@ -48,7 +49,7 @@ export function ImportDialog({ open, onOpenChange, pickSource, pickFolder, onImp
           setError("");
           onImport(source, root, title.trim(), author.trim() || t`Unknown`)
             .then(() => { setBusy(false); change(false); })
-            .catch((err) => { setBusy(false); setError(String(err instanceof Error ? err.message : err)); });
+            .catch((err) => { setBusy(false); setError(errText(err)); });
         }}
       >
         <PickRow label={t`File`} value={source ? baseName(source) : ""} placeholder={t`No file chosen`} button={t`Choose file…`} icon={FileUp} onPick={() => pick(pickSource, (p) => { setSource(p); setTitle((cur) => cur || titleFromFile(p)); })} />

@@ -7,6 +7,7 @@ import {
   type Manifest, type ManuscriptEntry, type Tree,
 } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
+import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate } from "@cadabracraft/templates";
@@ -14,6 +15,7 @@ import { bridge } from "../lib/bridge";
 import { runImport, type ImportReport } from "./importBook";
 import { describePdfError } from "../lib/pdfErrors";
 import { createTauriRunner } from "../lib/typstRunner";
+import { errText } from "../lib/projectError";
 
 const emptyDoc = (title: string): ChapterDoc => ({
   type: "doc",
@@ -40,9 +42,13 @@ export interface TrashItem {
 
 /** The first heading's text, else the first text found, else the file name without its number prefix and extension. */
 function titleOfDoc(doc: unknown, file: string): string {
-  const texts = (n: any): string => (typeof n?.text === "string" ? n.text : Array.isArray(n?.content) ? n.content.map(texts).join("") : "");
-  const nodes: any[] = (doc as any)?.content ?? [];
-  const found = [nodes.find((n) => n?.type === "heading"), ...nodes].map((n) => texts(n).trim()).find((x) => x);
+  const texts = (n: unknown): string => {
+    const { text, content } = (n ?? {}) as { text?: unknown; content?: unknown };
+    return typeof text === "string" ? text : Array.isArray(content) ? content.map(texts).join("") : "";
+  };
+  const raw = (doc as { content?: unknown } | null)?.content;
+  const nodes: unknown[] = Array.isArray(raw) ? raw : [];
+  const found = [nodes.find((n) => (n as { type?: unknown } | null)?.type === "heading"), ...nodes].map((n) => texts(n).trim()).find((x) => x);
   return found?.slice(0, 80) || (file.split("/").pop() ?? file).replace(/\.json$/, "").replace(/^\d+-/, "");
 }
 
@@ -142,6 +148,21 @@ interface State {
   };
 }
 
+/** How long typing may sit unsaved before it is written to disk. */
+export const AUTOSAVE_MS = 2000;
+
+/** Parses a chapter file's text and checks it against the editor schema. Throws (a message for the author) for corrupt files; the file is never touched. */
+function parseChapter(contents: string, file: string): ChapterDoc {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(contents);
+  } catch {
+    throw new Error(t`${file} is not valid JSON, so it was not opened. The file was left untouched.`);
+  }
+  if (!isChapterDoc(raw)) throw new Error(t`${file} is not a valid chapter, so it was not opened. The file was left untouched.`);
+  return raw;
+}
+
 export const useProject = create<State>((set, get) => {
   const need = () => {
     const { root, manifest } = get();
@@ -208,25 +229,44 @@ export const useProject = create<State>((set, get) => {
       if (get().trash.length) void get().actions.refreshTrash().catch(() => {});
       return true;
     } catch (e) {
-      const why = e instanceof Error ? e.message : String(e);
+      const why = errText(e);
       set({ notice: from === "undo" ? t`Could not undo: ${why}` : t`Could not redo: ${why}` });
       return false;
     } finally {
       historyBusy = false;
     }
   };
-  /** Saves unsaved edits so switching chapters never loses typing. */
-  const flush = async () => {
+  const flushNow = async () => {
     const d = get().draft;
-    if (d) { await get().actions.saveCurrent(d); set({ draft: null, currentDoc: d }); }
+    if (!d) return;
+    await get().actions.saveCurrent(d);
+    // Typing that arrived while the write was running stays a draft (and is saved by the next flush).
+    set(get().draft === d ? { draft: null, currentDoc: d } : { currentDoc: d });
   };
+  /** Flushes run one after another so two saves of the same chapter never overlap. */
+  let flushTail: Promise<void> | null = null;
+  /** Saves unsaved edits so switching chapters never loses typing. Starts the write synchronously when idle (it is also called as the window closes). */
+  const flush = (): Promise<void> => {
+    const run = flushTail ? flushTail.then(flushNow) : flushNow();
+    const tail: Promise<void> = run.then(() => {}, () => {}).then(() => { if (flushTail === tail) flushTail = null; });
+    flushTail = tail;
+    return run;
+  };
+  let autosave: ReturnType<typeof setTimeout> | undefined;
   const load = async (id: string) => {
     await flush();
     const { root, manifest } = need();
     const entry = entryOf(manifest, id);
     if (!entry) return;
     const r = await bridge.readFile(root, entry.file);
-    const doc = r ? (JSON.parse(r.contents) as ChapterDoc) : emptyDoc(entry.title);
+    let doc: ChapterDoc;
+    try {
+      doc = r ? parseChapter(r.contents, entry.file) : emptyDoc(entry.title);
+    } catch (e) {
+      // Show no editor for a corrupt page, so nothing can be typed over it and saved.
+      set({ currentId: null, currentDoc: null, draft: null, notice: errText(e) });
+      return;
+    }
     set({ currentId: id, currentDoc: doc, draft: null, hashes: r ? { ...get().hashes, [entry.file]: r.hash } : get().hashes });
   };
 
@@ -238,7 +278,7 @@ export const useProject = create<State>((set, get) => {
     for (const c of readingOrder(manifest)) {
       const r = await bridge.readFile(root, c.file);
       if (!r) throw new Error(t`Missing chapter file ${c.file}`);
-      pages.push({ id: c.id, title: c.title, doc: JSON.parse(r.contents) as ChapterDoc, section: sectionFor(c), ...(c.kind ? { kind: c.kind } : {}) });
+      pages.push({ id: c.id, title: c.title, doc: parseChapter(r.contents, c.file), section: sectionFor(c), ...(c.kind ? { kind: c.kind } : {}) });
     }
     return pages;
   };
@@ -308,10 +348,25 @@ export const useProject = create<State>((set, get) => {
           set({ notice: t`${entry.title} changed outside the app; saving will keep both versions` });
           return;
         }
-        set({ currentDoc: JSON.parse(r.contents) as ChapterDoc, hashes: { ...get().hashes, [path]: r.hash }, reloadCount: get().reloadCount + 1, notice: t`${entry.title} was updated from outside the app` });
+        let doc: ChapterDoc;
+        try {
+          doc = parseChapter(r.contents, path);
+        } catch (e) {
+          // Keep what is open and its old hash, so a later save keeps the unreadable version as a conflict copy instead of replacing it silently.
+          set({ notice: errText(e) });
+          return;
+        }
+        set({ currentDoc: doc, hashes: { ...get().hashes, [path]: r.hash }, reloadCount: get().reloadCount + 1, notice: t`${entry.title} was updated from outside the app` });
       },
-      setDraft: (doc) => set({ draft: doc }),
+      setDraft(doc) {
+        set({ draft: doc });
+        clearTimeout(autosave);
+        autosave = setTimeout(() => {
+          flush().catch((e) => set({ notice: t`Could not save: ${errText(e)}` }));
+        }, AUTOSAVE_MS);
+      },
       async openProject(root) {
+        await flush(); // typing in the book being left
         const r = await bridge.readFile(root, "cadabra.json");
         if (!r) throw new Error(t`No cadabra.json in that folder`);
         const parsed = parseManifest(r.contents);
@@ -407,7 +462,7 @@ export const useProject = create<State>((set, get) => {
           set({ exportStage: "rendering" });
           const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, css: getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).epub.css });
           set({ exportStage: "saving" });
-          await bridge.writeBytes(root, "exports/book.epub", Array.from(bytes));
+          await bridge.writeBytes(root, "exports/book.epub", bytes);
           set({ notice: t`Exported exports/book.epub` });
         } finally {
           set({ exportStage: null });
@@ -439,7 +494,7 @@ export const useProject = create<State>((set, get) => {
             runner,
           );
           set({ exportStage: "saving" });
-          await bridge.writeBytes(root, "exports/book.pdf", Array.from(pdf));
+          await bridge.writeBytes(root, "exports/book.pdf", pdf);
           if (manifest.template !== templateId) await saveManifest({ ...need().manifest, template: templateId });
           set({ notice: t`Exported exports/book.pdf` });
         } catch (e) {
@@ -455,7 +510,7 @@ export const useProject = create<State>((set, get) => {
         try {
           return await bridge.importAsset(root, picked);
         } catch (e) {
-          set({ notice: t`Could not add the image: ${e instanceof Error ? e.message : String(e)}` });
+          set({ notice: t`Could not add the image: ${errText(e)}` });
           return null;
         }
       },

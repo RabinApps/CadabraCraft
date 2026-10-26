@@ -99,6 +99,20 @@ export function plainText(nodes: DocNode[] | undefined): string {
   return s;
 }
 
+/** Inline content plus the two separators importers use: a manual line break and a block lifted out of a paragraph. */
+export type Item = DocNode | { sep: "break" } | { sep: "block"; node: DocNode };
+export const isSep = (i: Item): i is Extract<Item, { sep: string }> => "sep" in i;
+
+/** Items as one run of inline nodes: line breaks become a space, lifted blocks are dropped. Adjacent text is merged. */
+export function flattenItems(items: Item[]): DocNode[] {
+  const nodes: DocNode[] = [];
+  for (const i of items) {
+    if (!isSep(i)) nodes.push(i);
+    else if (i.sep === "break") nodes.push({ type: "text", text: " " });
+  }
+  return mergeInline(nodes);
+}
+
 export function paragraphOf(content: DocNode[]): DocNode {
   const c = mergeInline(content);
   return c.length ? { type: "paragraph", content: c } : { type: "paragraph" };

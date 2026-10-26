@@ -13,6 +13,7 @@ import { Segmented } from "../ui/Segmented";
 import { Select } from "../ui/Select";
 import { cx } from "../ui/cx";
 import { useProject } from "./store";
+import { errText } from "../lib/projectError";
 
 export type ExportFormat = "epub" | "pdf";
 
@@ -80,7 +81,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
       }
       change(false);
     } catch (e) {
-      setError(e instanceof PdfUiError ? e : new PdfUiError("other", e instanceof Error ? e.message : String(e)));
+      setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
     }
   };
   return (

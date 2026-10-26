@@ -2,6 +2,7 @@ import { realpathSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { ProjectFsError } from "./errors";
 import { isInside, resolveReal } from "./paths";
+import { errMsg } from "@cadabracraft/shared";
 
 /** The folder an MCP server may touch. `root` is a real path (symlinks resolved). */
 export interface Workspace {
@@ -16,7 +17,7 @@ export function openWorkspace(root: string): Workspace {
     if (!statSync(real).isDirectory()) throw new Error("not a directory");
     return { root: real };
   } catch (e) {
-    throw new ProjectFsError("workspace_invalid", `workspace root is not a usable directory: ${root} (${(e as Error).message})`);
+    throw new ProjectFsError("workspace_invalid", `workspace root is not a usable directory: ${root} (${errMsg(e)})`);
   }
 }
 

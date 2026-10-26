@@ -6,6 +6,7 @@ import { chapterTools } from "./tools/chapters";
 import { exportTools } from "./tools/export";
 import { importTools } from "./tools/import";
 import { projectTools } from "./tools/project";
+import { errMsg } from "@cadabracraft/shared";
 
 export interface ServerOptions {
   /** Workspace root: every path a caller supplies must resolve inside it. */
@@ -33,7 +34,7 @@ export function createServer(opts: ServerOptions): McpServer {
   try {
     ws = openWorkspace(opts.root);
   } catch (e) {
-    throw new Error(`Invalid workspace root: ${(e as Error).message}`);
+    throw new Error(`Invalid workspace root: ${errMsg(e)}`);
   }
   const ctx: Ctx = { ws, repo: opts.repo ?? null, epubcheckJar: opts.epubcheckJar, typstBin: opts.typstBin, popplerDir: opts.popplerDir };
   const server = new McpServer({ name: "cadabracraft", version: "0.0.0" }, { instructions: INSTRUCTIONS });

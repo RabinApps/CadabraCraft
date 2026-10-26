@@ -9,6 +9,7 @@ import { MANIFEST, ProjectFsError, createProject, fileBaseName, readRelativeImag
 import { remapImages } from "../doc";
 import { ToolError } from "../errors";
 import { type ToolDef, defineTool } from "../tooling";
+import { errMsg } from "@cadabracraft/shared";
 
 export interface WarningGroup {
   code: string;
@@ -39,6 +40,7 @@ const decode = (s: string): string => {
   try {
     return decodeURIComponent(s);
   } catch {
+    // Malformed percent-escape: keep the text as written.
     return s;
   }
 };
@@ -101,7 +103,7 @@ export const importFile = defineTool({
             data = readRelativeImage(sourcePath, candidate);
             break;
           } catch (e) {
-            why = e instanceof Error ? e.message : String(e);
+            why = errMsg(e);
           }
         }
       }
@@ -121,7 +123,7 @@ export const importFile = defineTool({
           map.set(img.target, storeImage(dest, img.name, img.bytes));
           written.images++;
         } catch (e) {
-          warnings.push({ code: "image-not-imported", severity: "warning", message: `Image ${img.name} could not be stored: ${e instanceof Error ? e.message : String(e)}`, examples: [img.name] });
+          warnings.push({ code: "image-not-imported", severity: "warning", message: `Image ${img.name} could not be stored: ${errMsg(e)}`, examples: [img.name] });
         }
       }
       for (const c of result.chapters) {
@@ -132,7 +134,7 @@ export const importFile = defineTool({
       }
       writeProjectFile(dest, MANIFEST, serializeManifest(manifest));
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg = errMsg(e);
       throw new ToolError("import_write_failed", `${msg} Already written to ${dest}: ${written.chapters} chapter files and ${written.images} images; the book's chapter list was not saved.`, { written, destination: dest });
     }
     const groups = groupWarnings(warnings);

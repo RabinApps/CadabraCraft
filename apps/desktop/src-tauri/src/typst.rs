@@ -187,8 +187,16 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
 
 // ---- Tauri commands (blocking work runs off the UI thread) --------------------------------------------------
 
-async fn blocking<T: Send + 'static>(f: impl FnOnce() -> Result<T, TypstError> + Send + 'static) -> Result<T, TypstError> {
-    tauri::async_runtime::spawn_blocking(f).await.map_err(other)?
+impl From<tauri::Error> for TypstError {
+    fn from(e: tauri::Error) -> Self {
+        other(e)
+    }
+}
+
+/// Runs blocking work on Tauri's blocking thread pool so it never stalls the UI thread or async runtime. A failed join
+/// (panic in `f`) becomes the error type via `From<tauri::Error>`. Shared by every file/process command.
+pub async fn blocking<T: Send + 'static, E: From<tauri::Error> + Send + 'static>(f: impl FnOnce() -> Result<T, E> + Send + 'static) -> Result<T, E> {
+    tauri::async_runtime::spawn_blocking(f).await?
 }
 
 /// Locates typst and reports its version; `NotFound` carries install advice.

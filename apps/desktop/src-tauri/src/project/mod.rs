@@ -1,13 +1,21 @@
 //! Reads and writes a CadabraCraft project folder. All paths are relative to the project root.
 //! Manifest parsing and migration live in `@cadabracraft/format` (TypeScript); this layer only does safe file IO.
+mod error;
+pub use error::ProjectError;
+
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
+
+type Result<T> = std::result::Result<T, ProjectError>;
 
 pub const MANIFEST: &str = "cadabra.json";
 const DIRS: [&str; 6] = ["manuscript", "front-matter", "back-matter", "assets", "exports", ".cadabra"];
+/// Largest text file `read_file` returns, in bytes. Chapters and the manifest are far smaller; this stops a huge or
+/// hostile file from being pulled into memory and sent over IPC.
+pub const MAX_READ_BYTES: u64 = 32 * 1024 * 1024;
 
 /// Result of reading a file: its text and a hash used later to detect external edits.
 #[derive(Serialize, Debug, PartialEq)]
@@ -27,25 +35,63 @@ pub fn hash_bytes(b: &[u8]) -> String {
     Sha256::digest(b).iter().map(|x| format!("{x:02x}")).collect()
 }
 
-/// Joins `rel` onto `root`, refusing absolute paths, `..`, and anything that would leave the project.
-pub fn resolve(root: &Path, rel: &str) -> Result<PathBuf, String> {
-    let p = Path::new(rel);
-    let ok = !rel.is_empty() && !rel.contains('\\') && p.components().all(|c| matches!(c, Component::Normal(_)));
-    if !ok {
-        return Err(format!("unsafe project path: {rel}"));
-    }
-    Ok(root.join(p))
+fn is_missing(e: &std::io::Error) -> bool {
+    matches!(e.kind(), std::io::ErrorKind::NotFound | std::io::ErrorKind::NotADirectory)
 }
 
-/// Write to a temp file in the same directory, then rename, so a crash or sync never leaves a half-written file.
-pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), String> {
-    let dir = path.parent().ok_or("no parent dir")?;
-    fs::create_dir_all(dir).map_err(|e| e.to_string())?;
-    let tmp = dir.join(format!(".{}.tmp", path.file_name().and_then(|n| n.to_str()).unwrap_or("file")));
-    let mut f = fs::File::create(&tmp).map_err(|e| e.to_string())?;
-    f.write_all(bytes).map_err(|e| e.to_string())?;
-    f.sync_all().map_err(|e| e.to_string())?;
-    fs::rename(&tmp, path).map_err(|e| e.to_string())
+/// Fails when `abs` (which lies lexically under `root`) would reach outside the real `root` through a symbolic link.
+/// The deepest part of the path that exists is resolved; the rest does not exist yet, so cannot be a link. A dangling
+/// link is refused, because writing through it would create its target elsewhere.
+fn ensure_contained(root: &Path, abs: &Path, rel: &str) -> Result<()> {
+    let Ok(real_root) = fs::canonicalize(root) else { return Ok(()) }; // no root yet, so no links to follow
+    let escape = || ProjectError::PathEscape { path: rel.to_string() };
+    let mut cur = abs;
+    loop {
+        match fs::symlink_metadata(cur) {
+            Ok(_) => {
+                let real = fs::canonicalize(cur).map_err(|_| escape())?; // dangling link or loop
+                return if real.starts_with(&real_root) { Ok(()) } else { Err(escape()) };
+            }
+            Err(e) if is_missing(&e) => match cur.parent() {
+                Some(p) => cur = p,
+                None => return Ok(()),
+            },
+            Err(e) => return Err(e.into()),
+        }
+    }
+}
+
+/// Joins `rel` onto `root`, refusing empty, absolute and `..` paths, backslashes, NUL bytes, and anything that would
+/// leave the project through a symbolic link.
+pub fn resolve(root: &Path, rel: &str) -> Result<PathBuf> {
+    let p = Path::new(rel);
+    let ok = !rel.is_empty() && !rel.contains('\\') && !rel.contains('\0') && p.components().all(|c| matches!(c, Component::Normal(_)));
+    if !ok {
+        return Err(ProjectError::UnsafePath { path: rel.to_string() });
+    }
+    let abs = root.join(p);
+    ensure_contained(root, &abs, rel)?;
+    Ok(abs)
+}
+
+/// Write to a uniquely named temp file in the same directory, then rename, so a crash or sync never leaves a half-written
+/// file. The temp file is removed if anything fails, and concurrent writers never share a temp name.
+pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<()> {
+    let dir = path.parent().ok_or(ProjectError::InvalidFileName)?;
+    fs::create_dir_all(dir)?;
+    // `.<random>.tmp`: dot-prefixed and `.tmp`-suffixed, which the file watcher ignores.
+    let mut tmp = tempfile::Builder::new().prefix(".").suffix(".tmp").tempfile_in(dir)?;
+    tmp.write_all(bytes)?;
+    tmp.as_file().sync_all()?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        // tempfile creates 0600; keep the existing file's mode, or the usual 0644 for a new one.
+        let mode = fs::metadata(path).map(|m| m.permissions().mode() & 0o7777).unwrap_or(0o644);
+        fs::set_permissions(tmp.path(), fs::Permissions::from_mode(mode))?;
+    }
+    tmp.persist(path).map_err(|e| ProjectError::from(e.error))?; // on failure `e.file` drops and deletes the temp file
+    Ok(())
 }
 
 fn stamp() -> String {
@@ -53,58 +99,71 @@ fn stamp() -> String {
 }
 
 /// Creates the folder layout and writes the manifest. Refuses to touch an existing project.
-pub fn create_project(root: &Path, manifest_json: &str) -> Result<(), String> {
+pub fn create_project(root: &Path, manifest_json: &str) -> Result<()> {
     if root.join(MANIFEST).exists() {
-        return Err("a project already exists in this folder".into());
+        return Err(ProjectError::AlreadyExists);
     }
     for d in DIRS {
-        fs::create_dir_all(root.join(d)).map_err(|e| e.to_string())?;
+        fs::create_dir_all(root.join(d))?;
     }
-    atomic_write(&root.join(MANIFEST), manifest_json.as_bytes())
+    atomic_write(&resolve(root, MANIFEST)?, manifest_json.as_bytes())
 }
 
-/// Reads a project file. Returns None if it does not exist. A cloud placeholder that is not downloaded yet
-/// is an error, never an empty file.
-pub fn read_file(root: &Path, rel: &str) -> Result<Option<FileRead>, String> {
+/// Reads a project file (at most `MAX_READ_BYTES`). Returns None if it does not exist. A cloud placeholder that is not
+/// downloaded yet is an error, never an empty file.
+pub fn read_file(root: &Path, rel: &str) -> Result<Option<FileRead>> {
     let path = resolve(root, rel)?;
-    match fs::read(&path) {
-        Ok(bytes) => {
-            let hash = hash_bytes(&bytes);
-            let contents = String::from_utf8(bytes).map_err(|_| format!("{rel} is not valid UTF-8"))?;
-            Ok(Some(FileRead { contents, hash }))
-        }
+    let too_large = || ProjectError::TooLarge { path: rel.to_string(), max_mb: MAX_READ_BYTES / 1024 / 1024 };
+    let mut file = match fs::File::open(&path) {
+        Ok(f) => f,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
             let name = path.file_name().and_then(|n| n.to_str()).unwrap_or_default();
             if path.with_file_name(format!(".{name}.icloud")).exists() {
-                return Err(format!("{rel} is still downloading from iCloud; try again in a moment"));
+                return Err(ProjectError::IcloudPending { path: rel.to_string() });
             }
-            Ok(None)
+            return Ok(None);
         }
-        Err(e) => Err(e.to_string()),
+        Err(e) => return Err(e.into()),
+    };
+    let meta = file.metadata()?;
+    if !meta.is_file() {
+        return Err(ProjectError::NotAFile { path: rel.to_string() });
     }
+    if meta.len() > MAX_READ_BYTES {
+        return Err(too_large());
+    }
+    let mut bytes = Vec::with_capacity(meta.len() as usize);
+    (&mut file).take(MAX_READ_BYTES + 1).read_to_end(&mut bytes)?; // the file may have grown since `metadata`
+    if bytes.len() as u64 > MAX_READ_BYTES {
+        return Err(too_large());
+    }
+    let hash = hash_bytes(&bytes);
+    let contents = String::from_utf8(bytes).map_err(|_| ProjectError::NotUtf8 { path: rel.to_string() })?;
+    Ok(Some(FileRead { contents, hash }))
 }
 
 /// `<dir>/<stem>.conflict-YYYYMMDD-HHMM[-N].<ext>` for the first name not already taken, so a second conflict in the
 /// same minute never overwrites the first kept copy. Only the file name is split at its last dot, never the directory.
-fn free_conflict_name(root: &Path, rel: &str) -> Result<String, String> {
+fn free_conflict_name(root: &Path, rel: &str) -> Result<String> {
     let (dir, name) = rel.rsplit_once('/').unwrap_or(("", rel));
     let (stem, ext) = name.rsplit_once('.').unwrap_or((name, ""));
     let ext = if ext.is_empty() { String::new() } else { format!(".{ext}") };
     let stamp = stamp();
-    for n in 1u32.. {
+    let mut n = 1u32;
+    loop {
         let suffix = if n == 1 { String::new() } else { format!("-{n}") };
         let file = format!("{stem}.conflict-{stamp}{suffix}{ext}");
         let copy = if dir.is_empty() { file } else { format!("{dir}/{file}") };
         if !resolve(root, &copy)?.exists() {
             return Ok(copy);
         }
+        n += 1;
     }
-    unreachable!()
 }
 
 /// Writes a project file. If `base_hash` is given and the file on disk no longer matches it (it changed outside
 /// the app, e.g. through sync), the on-disk version is kept as `<name>.conflict-YYYYMMDD-HHMM.<ext>` first.
-pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str>) -> Result<WriteResult, String> {
+pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str>) -> Result<WriteResult> {
     let path = resolve(root, rel)?;
     let mut conflict_copy = None;
     if let (Some(base), Ok(existing)) = (base_hash, fs::read(&path)) {
@@ -119,20 +178,20 @@ pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str
 }
 
 /// Writes binary output (EPUB/PDF) under the project, atomically.
-pub fn write_bytes(root: &Path, rel: &str, bytes: &[u8]) -> Result<(), String> {
+pub fn write_bytes(root: &Path, rel: &str, bytes: &[u8]) -> Result<()> {
     atomic_write(&resolve(root, rel)?, bytes)
 }
 
 /// Copies the manifest into `.cadabra/backups/` before a migration rewrites it. Returns the backup's relative path.
-pub fn backup_manifest(root: &Path) -> Result<String, String> {
+pub fn backup_manifest(root: &Path) -> Result<String> {
     let rel = format!(".cadabra/backups/cadabra-{}.json", stamp());
-    let bytes = fs::read(root.join(MANIFEST)).map_err(|e| e.to_string())?;
+    let bytes = fs::read(resolve(root, MANIFEST)?)?;
     atomic_write(&resolve(root, &rel)?, &bytes)?;
     Ok(rel)
 }
 
 /// `<dir>/<stem>-N.<ext>` for the first N >= 2 not taken (or `rel` itself when free). Only the file name is split.
-fn free_name(root: &Path, rel: &str) -> Result<String, String> {
+fn free_name(root: &Path, rel: &str) -> Result<String> {
     if !resolve(root, rel)?.exists() {
         return Ok(rel.to_string());
     }
@@ -141,27 +200,28 @@ fn free_name(root: &Path, rel: &str) -> Result<String, String> {
         Some(d) if d > slash => (&rel[..d], &rel[d..]),
         _ => (rel, ""),
     };
-    for n in 2u32.. {
+    let mut n = 2u32;
+    loop {
         let cand = format!("{stem}-{n}{ext}");
         if !resolve(root, &cand)?.exists() {
             return Ok(cand);
         }
+        n += 1;
     }
-    unreachable!()
 }
 
 /// "Deletes" a file by moving it to `.cadabra/trash/`. Nothing is permanently removed by the app, and an earlier
 /// trashed file with the same name (same minute) is never overwritten.
-pub fn trash_file(root: &Path, rel: &str) -> Result<String, String> {
+pub fn trash_file(root: &Path, rel: &str) -> Result<String> {
     let from = resolve(root, rel)?;
     if !from.exists() {
-        return Err(format!("{rel} does not exist"));
+        return Err(ProjectError::NotFound { path: rel.to_string() });
     }
     let name = rel.replace('/', "__");
     let to_rel = free_name(root, &format!(".cadabra/trash/{}-{name}", stamp()))?;
     let to = resolve(root, &to_rel)?;
-    fs::create_dir_all(to.parent().ok_or("no parent")?).map_err(|e| e.to_string())?;
-    fs::rename(from, to).map_err(|e| e.to_string())?;
+    fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?)?;
+    fs::rename(from, to)?;
     Ok(to_rel)
 }
 
@@ -182,6 +242,10 @@ pub struct TrashEntry {
 
 /// Splits `<stamp>-<flattened>[-N].json` into the stamp and the original path. None for anything that is not a trashed
 /// page (other file types, or paths outside manuscript/front-matter/back-matter).
+///
+/// Flattening turns `/` into `__`, which is ambiguous when a file name itself contains `__`. Pages live directly in
+/// their folder, so only the first `__` (after the folder name) is a separator and the rest is the file name:
+/// `manuscript__a__b.json` restores to `manuscript/a__b.json`.
 fn parse_trash_name(name: &str) -> Option<(String, String)> {
     let b = name.as_bytes();
     let stamp_ok = b.len() > 14
@@ -192,23 +256,22 @@ fn parse_trash_name(name: &str) -> Option<(String, String)> {
     if !stamp_ok || !name.ends_with(".json") {
         return None;
     }
-    let original = name[14..].replace("__", "/");
-    let (dir, file) = original.split_once('/')?;
-    (RESTORE_DIRS.contains(&dir) && !file.is_empty() && !file.contains('/')).then(|| (name[..13].to_string(), original))
+    let (dir, file) = name[14..].split_once("__")?;
+    (RESTORE_DIRS.contains(&dir) && !file.is_empty() && !file.contains('/')).then(|| (name[..13].to_string(), format!("{dir}/{file}")))
 }
 
 /// Lists restorable pages in `.cadabra/trash/`, newest first.
-pub fn list_trash(root: &Path) -> Result<Vec<TrashEntry>, String> {
+pub fn list_trash(root: &Path) -> Result<Vec<TrashEntry>> {
     let dir = resolve(root, TRASH_DIR)?;
     let read = match fs::read_dir(&dir) {
         Ok(r) => r,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(vec![]),
-        Err(e) => return Err(e.to_string()),
+        Err(e) => return Err(e.into()),
     };
     let mut out = vec![];
     for item in read {
-        let item = item.map_err(|e| e.to_string())?;
-        if !item.file_type().map_err(|e| e.to_string())?.is_file() {
+        let item = item?;
+        if !item.file_type()?.is_file() {
             continue;
         }
         let Some(name) = item.file_name().to_str().map(str::to_string) else { continue };
@@ -222,20 +285,18 @@ pub fn list_trash(root: &Path) -> Result<Vec<TrashEntry>, String> {
 
 /// Moves a trashed page back to where it came from and returns its project-relative path. If that path is taken (a
 /// chapter was added or restored since) the page comes back as `<stem>-2.json`, `-3`... and nothing is overwritten.
-pub fn restore_trash(root: &Path, trash_rel: &str) -> Result<String, String> {
-    let name = trash_rel
-        .strip_prefix(".cadabra/trash/")
-        .ok_or_else(|| format!("not a trash path: {trash_rel}"))?;
-    let (_, original) = parse_trash_name(name).ok_or_else(|| format!("cannot restore {trash_rel}"))?;
+pub fn restore_trash(root: &Path, trash_rel: &str) -> Result<String> {
+    let name = trash_rel.strip_prefix(".cadabra/trash/").ok_or_else(|| ProjectError::NotTrashPath { path: trash_rel.to_string() })?;
+    let (_, original) = parse_trash_name(name).ok_or_else(|| ProjectError::CannotRestore { path: trash_rel.to_string() })?;
     let from = resolve(root, trash_rel)?;
     if !from.is_file() {
-        return Err(format!("{trash_rel} does not exist"));
+        return Err(ProjectError::NotFound { path: trash_rel.to_string() });
     }
     let to_rel = free_name(root, &original)?;
     let to = resolve(root, &to_rel)?;
-    fs::create_dir_all(to.parent().ok_or("no parent")?).map_err(|e| e.to_string())?;
+    fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?)?;
     // Same-volume rename is atomic: the page is either still in the trash or fully back, never half-written.
-    fs::rename(from, to).map_err(|e| e.to_string())?;
+    fs::rename(from, to)?;
     Ok(to_rel)
 }
 
@@ -243,6 +304,10 @@ pub fn restore_trash(root: &Path, trash_rel: &str) -> Result<String, String> {
 pub const IMAGE_EXTENSIONS: [&str; 6] = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
 /// Largest image accepted, in bytes.
 pub const MAX_IMAGE_BYTES: u64 = 25 * 1024 * 1024;
+
+pub(crate) fn image_too_large(name: &str) -> ProjectError {
+    ProjectError::TooLarge { path: name.to_string(), max_mb: MAX_IMAGE_BYTES / 1024 / 1024 }
+}
 
 pub(crate) fn image_ext(name: &str) -> Option<String> {
     let ext = Path::new(name).extension()?.to_str()?.to_ascii_lowercase();
@@ -278,60 +343,60 @@ pub fn sanitize_asset_stem(stem: &str) -> String {
 
 /// Copies an image the user picked (absolute path) into `assets/` and returns its project-relative path.
 /// Never overwrites a different file: an identical existing file is reused, otherwise `-2`, `-3`... is appended.
-pub fn import_image(root: &Path, source: &Path) -> Result<String, String> {
-    let file_name = source.file_name().and_then(|n| n.to_str()).ok_or("invalid file name")?;
-    image_ext(file_name).ok_or_else(|| format!("unsupported image type: {file_name}"))?;
-    let meta = fs::metadata(source).map_err(|e| e.to_string())?;
+pub fn import_image(root: &Path, source: &Path) -> Result<String> {
+    let file_name = source.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
+    image_ext(file_name).ok_or_else(|| ProjectError::UnsupportedImage { name: file_name.to_string() })?;
+    let meta = fs::metadata(source)?;
     if !meta.is_file() {
-        return Err(format!("{file_name} is not a file"));
+        return Err(ProjectError::NotAFile { path: file_name.to_string() });
     }
     if meta.len() > MAX_IMAGE_BYTES {
-        return Err(format!("{file_name} is larger than {} MB", MAX_IMAGE_BYTES / 1024 / 1024));
+        return Err(image_too_large(file_name));
     }
-    let bytes = fs::read(source).map_err(|e| e.to_string())?;
+    let bytes = fs::read(source)?;
     store_image(root, file_name, &bytes)
 }
 
 /// Validates image bytes (allowlisted extension, size, signature) and stores them in `assets/` under a sanitized,
 /// de-duplicated name. Shared by the file picker import and the document importer, so both follow the same rules.
-pub fn store_image(root: &Path, file_name: &str, bytes: &[u8]) -> Result<String, String> {
-    let ext = image_ext(file_name).ok_or_else(|| format!("unsupported image type: {file_name}"))?;
+pub fn store_image(root: &Path, file_name: &str, bytes: &[u8]) -> Result<String> {
+    let ext = image_ext(file_name).ok_or_else(|| ProjectError::UnsupportedImage { name: file_name.to_string() })?;
     if bytes.len() as u64 > MAX_IMAGE_BYTES {
-        return Err(format!("{file_name} is larger than {} MB", MAX_IMAGE_BYTES / 1024 / 1024));
+        return Err(image_too_large(file_name));
     }
     if !looks_like(&ext, bytes) {
-        return Err(format!("{file_name} is not a valid {ext} image"));
+        return Err(ProjectError::InvalidImage { name: file_name.to_string(), ext });
     }
     let stem = sanitize_asset_stem(file_name.rsplit_once('.').map_or(file_name, |(s, _)| s));
     let hash = hash_bytes(bytes);
-    for n in 1u32.. {
+    let mut n = 1u32;
+    loop {
         let name = if n == 1 { format!("{stem}.{ext}") } else { format!("{stem}-{n}.{ext}") };
         let rel = format!("assets/{name}");
         let path = resolve(root, &rel)?;
         match fs::read(&path) {
             Ok(existing) if hash_bytes(&existing) == hash => return Ok(rel),
-            Ok(_) => continue,
+            Ok(_) => n += 1,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
                 atomic_write(&path, bytes)?;
                 return Ok(rel);
             }
-            Err(e) => return Err(e.to_string()),
+            Err(e) => return Err(e.into()),
         }
     }
-    unreachable!()
 }
 
 /// Reads an asset's bytes for display. Only `assets/<image>` paths are served.
-pub fn read_asset(root: &Path, rel: &str) -> Result<Vec<u8>, String> {
+pub fn read_asset(root: &Path, rel: &str) -> Result<Vec<u8>> {
     if !rel.starts_with("assets/") || image_ext(rel).is_none() {
-        return Err(format!("not an image asset: {rel}"));
+        return Err(ProjectError::NotImageAsset { path: rel.to_string() });
     }
     let path = resolve(root, rel)?;
-    let meta = fs::metadata(&path).map_err(|e| format!("{rel}: {e}"))?;
+    let meta = fs::metadata(&path)?;
     if meta.len() > MAX_IMAGE_BYTES {
-        return Err(format!("{rel} is too large"));
+        return Err(image_too_large(rel));
     }
-    fs::read(&path).map_err(|e| format!("{rel}: {e}"))
+    Ok(fs::read(&path)?)
 }
 
 #[cfg(test)]
@@ -441,7 +506,7 @@ mod tests {
         let d = tmp();
         fs::create_dir_all(d.path().join("manuscript")).unwrap();
         fs::write(d.path().join("manuscript/.x.json.icloud"), b"").unwrap();
-        assert!(read_file(d.path(), "manuscript/x.json").unwrap_err().contains("iCloud"));
+        assert!(read_file(d.path(), "manuscript/x.json").unwrap_err().to_string().contains("iCloud"));
     }
 
     #[test]
@@ -532,17 +597,17 @@ mod tests {
     #[test]
     fn import_rejects_bad_extension_content_size_and_non_files() {
         let (proj, out) = (tmp(), tmp());
-        assert!(import_image(proj.path(), &src(&out, "x.exe", &PNG)).unwrap_err().contains("unsupported"));
+        assert!(import_image(proj.path(), &src(&out, "x.exe", &PNG)).unwrap_err().to_string().contains("unsupported"));
         assert!(import_image(proj.path(), &src(&out, "noext", &PNG)).is_err());
-        assert!(import_image(proj.path(), &src(&out, "fake.png", b"not an image")).unwrap_err().contains("not a valid"));
+        assert!(import_image(proj.path(), &src(&out, "fake.png", b"not an image")).unwrap_err().to_string().contains("not a valid"));
         assert!(import_image(proj.path(), &out.path().join("missing.png")).is_err());
         let dir = out.path().join("d.png");
         fs::create_dir(&dir).unwrap();
-        assert!(import_image(proj.path(), &dir).unwrap_err().contains("not a file"));
+        assert!(import_image(proj.path(), &dir).unwrap_err().to_string().contains("not a file"));
         let big = out.path().join("big.png");
         let f = fs::File::create(&big).unwrap();
         f.set_len(MAX_IMAGE_BYTES + 1).unwrap();
-        assert!(import_image(proj.path(), &big).unwrap_err().contains("larger"));
+        assert!(import_image(proj.path(), &big).unwrap_err().to_string().contains("larger"));
         assert!(!proj.path().join("assets").exists());
     }
 
@@ -554,10 +619,10 @@ mod tests {
         let mut other = PNG.to_vec();
         other.push(1);
         assert_eq!(store_image(proj.path(), "Fig 1.png", &other).unwrap(), "assets/Fig-1-2.png");
-        assert!(store_image(proj.path(), "x.exe", &PNG).unwrap_err().contains("unsupported"));
-        assert!(store_image(proj.path(), "x.png", b"nope").unwrap_err().contains("not a valid"));
+        assert!(store_image(proj.path(), "x.exe", &PNG).unwrap_err().to_string().contains("unsupported"));
+        assert!(store_image(proj.path(), "x.png", b"nope").unwrap_err().to_string().contains("not a valid"));
         let big = vec![0u8; MAX_IMAGE_BYTES as usize + 1];
-        assert!(store_image(proj.path(), "big.png", &big).unwrap_err().contains("larger"));
+        assert!(store_image(proj.path(), "big.png", &big).unwrap_err().to_string().contains("larger"));
     }
 
     #[test]
@@ -585,5 +650,132 @@ mod tests {
         for bad in ["manuscript/x.json", "assets/../cadabra.json", "assets/notes.txt", "../a.png", "/etc/a.png", "assets/missing.png"] {
             assert!(read_asset(proj.path(), bad).is_err(), "{bad}");
         }
+    }
+
+    #[test]
+    fn resolve_rejects_nul_and_returns_typed_errors() {
+        let r = Path::new("/p");
+        assert_eq!(resolve(r, "a\0b"), Err(ProjectError::UnsafePath { path: "a\0b".into() }));
+        assert_eq!(resolve(r, "../x"), Err(ProjectError::UnsafePath { path: "../x".into() }));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn resolve_refuses_symlink_escapes_for_every_operation() {
+        let d = tmp();
+        let (proj, outside) = (d.path().join("project"), d.path().join("outside"));
+        fs::create_dir_all(proj.join("manuscript")).unwrap();
+        fs::create_dir_all(&outside).unwrap();
+        fs::write(outside.join("secret.json"), "secret").unwrap();
+        std::os::unix::fs::symlink(&outside, proj.join("exports")).unwrap();
+        std::os::unix::fs::symlink(outside.join("secret.json"), proj.join("manuscript/leak.json")).unwrap();
+        let esc = |e: ProjectError| matches!(e, ProjectError::PathEscape { .. });
+        assert!(esc(read_file(&proj, "manuscript/leak.json").unwrap_err()));
+        assert!(esc(write_file(&proj, "exports/book.json", "x", None).unwrap_err()));
+        assert!(esc(write_bytes(&proj, "exports/book.epub", b"x").unwrap_err()));
+        assert!(esc(write_file(&proj, "manuscript/leak.json", "overwrite", None).unwrap_err()));
+        assert!(!outside.join("book.json").exists() && !outside.join("book.epub").exists());
+        assert_eq!(fs::read_to_string(outside.join("secret.json")).unwrap(), "secret");
+        // A link that stays inside the project is fine.
+        std::os::unix::fs::symlink(proj.join("manuscript"), proj.join("front-matter")).unwrap();
+        write_file(&proj, "front-matter/a.json", "ok", None).unwrap();
+        assert_eq!(fs::read_to_string(proj.join("manuscript/a.json")).unwrap(), "ok");
+    }
+
+    #[test]
+    fn read_file_caps_size_and_rejects_directories() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("manuscript/dir.json")).unwrap();
+        assert!(matches!(read_file(d.path(), "manuscript/dir.json").unwrap_err(), ProjectError::NotAFile { .. }));
+        let big = d.path().join("manuscript/big.json");
+        fs::File::create(&big).unwrap().set_len(MAX_READ_BYTES + 1).unwrap();
+        assert_eq!(read_file(d.path(), "manuscript/big.json").unwrap_err(), ProjectError::TooLarge { path: "manuscript/big.json".into(), max_mb: 32 });
+        fs::File::create(&big).unwrap().set_len(MAX_READ_BYTES).unwrap(); // exactly at the cap is allowed
+        assert_eq!(read_file(d.path(), "manuscript/big.json").unwrap().unwrap().contents.len() as u64, MAX_READ_BYTES);
+    }
+
+    #[test]
+    fn non_utf8_is_a_typed_error() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("manuscript")).unwrap();
+        fs::write(d.path().join("manuscript/x.json"), [0xff, 0xfe]).unwrap();
+        assert_eq!(read_file(d.path(), "manuscript/x.json").unwrap_err(), ProjectError::NotUtf8 { path: "manuscript/x.json".into() });
+    }
+
+    #[test]
+    fn icloud_placeholder_has_its_own_code() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("manuscript")).unwrap();
+        fs::write(d.path().join("manuscript/.x.json.icloud"), b"").unwrap();
+        assert_eq!(read_file(d.path(), "manuscript/x.json").unwrap_err(), ProjectError::IcloudPending { path: "manuscript/x.json".into() });
+        // The placeholder itself is a normal dotfile path and resolves fine.
+        assert!(resolve(d.path(), "manuscript/.x.json.icloud").is_ok());
+    }
+
+    #[test]
+    fn create_twice_reports_already_exists() {
+        let d = tmp();
+        create_project(d.path(), "{}").unwrap();
+        assert_eq!(create_project(d.path(), "{}").unwrap_err(), ProjectError::AlreadyExists);
+    }
+
+    #[test]
+    fn atomic_write_uses_unique_temp_names_and_never_touches_foreign_temp_files() {
+        let d = tmp();
+        let p = d.path().join("a.json");
+        fs::write(d.path().join(".a.json.tmp"), "someone else's").unwrap();
+        atomic_write(&p, b"mine").unwrap();
+        assert_eq!(fs::read(&p).unwrap(), b"mine");
+        assert_eq!(fs::read_to_string(d.path().join(".a.json.tmp")).unwrap(), "someone else's");
+    }
+
+    #[test]
+    fn atomic_write_cleans_up_its_temp_file_on_failure() {
+        let d = tmp();
+        let target = d.path().join("taken");
+        fs::create_dir(&target).unwrap(); // renaming a file over a directory fails
+        assert!(atomic_write(&target, b"x").is_err());
+        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 1, "only the directory is left");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn atomic_write_keeps_the_mode_of_an_existing_file_and_defaults_to_0644() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        let p = d.path().join("a.json");
+        atomic_write(&p, b"1").unwrap();
+        assert_eq!(fs::metadata(&p).unwrap().permissions().mode() & 0o777, 0o644);
+        fs::set_permissions(&p, fs::Permissions::from_mode(0o600)).unwrap();
+        atomic_write(&p, b"2").unwrap();
+        assert_eq!(fs::metadata(&p).unwrap().permissions().mode() & 0o777, 0o600);
+    }
+
+    #[test]
+    fn trash_names_with_double_underscores_round_trip() {
+        let d = tmp();
+        write_file(d.path(), "manuscript/a__b.json", "x", None).unwrap();
+        let t = trash_file(d.path(), "manuscript/a__b.json").unwrap();
+        assert_eq!(list_trash(d.path()).unwrap()[0].original, "manuscript/a__b.json");
+        assert_eq!(restore_trash(d.path(), &t).unwrap(), "manuscript/a__b.json");
+        assert_eq!(parse_trash_name("20260101-1200-manuscript__a__b__c.json").unwrap().1, "manuscript/a__b__c.json");
+        assert_eq!(parse_trash_name("20260101-1200-assets__a__b.json"), None);
+    }
+
+    #[test]
+    fn trash_and_restore_report_typed_errors() {
+        let d = tmp();
+        assert_eq!(trash_file(d.path(), "manuscript/nope.json").unwrap_err(), ProjectError::NotFound { path: "manuscript/nope.json".into() });
+        assert!(matches!(restore_trash(d.path(), "manuscript/a.json").unwrap_err(), ProjectError::NotTrashPath { .. }));
+        assert!(matches!(restore_trash(d.path(), ".cadabra/trash/x.json").unwrap_err(), ProjectError::CannotRestore { .. }));
+    }
+
+    #[test]
+    fn image_errors_are_typed() {
+        let proj = tmp();
+        assert_eq!(store_image(proj.path(), "x.exe", &PNG).unwrap_err(), ProjectError::UnsupportedImage { name: "x.exe".into() });
+        assert_eq!(store_image(proj.path(), "x.png", b"no").unwrap_err(), ProjectError::InvalidImage { name: "x.png".into(), ext: "png".into() });
+        assert_eq!(read_asset(proj.path(), "manuscript/x.json").unwrap_err(), ProjectError::NotImageAsset { path: "manuscript/x.json".into() });
+        assert_eq!(store_image(proj.path(), "big.png", &vec![0u8; MAX_IMAGE_BYTES as usize + 1]).unwrap_err(), ProjectError::TooLarge { path: "big.png".into(), max_mb: 25 });
     }
 }

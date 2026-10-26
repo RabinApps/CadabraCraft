@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countWords } from "./wordcount";
+import { countWords } from "@cadabracraft/shared";
 
 const p = (...content: object[]) => ({ type: "paragraph", content });
 const t = (text: string) => ({ type: "text", text });

@@ -14,7 +14,7 @@ async function fakeTauri(page: Page) {
     (window as any).__disk = disk;
     (window as any).__TAURI_INTERNALS__ = {
       transformCallback: () => 0,
-      invoke: async (cmd: string, a: any) => {
+      invoke: async (cmd: string, a: any, opts?: any) => {
         switch (cmd) {
           // The image picker passes extension filters; the folder picker does not.
           case "plugin:dialog|open": return a?.options?.filters ? "/pics/pic.png" : "/proj";
@@ -24,7 +24,8 @@ async function fakeTauri(page: Page) {
           case "create_project": disk["cadabra.json"] = a.manifestJson; persist(); return null;
           case "read_project_file": if (a.root === "/gone") return null; return typeof disk[a.path] === "string" ? { contents: disk[a.path], hash: h(disk[a.path] as string) } : null;
           case "write_project_file": disk[a.path] = a.contents; persist(); return { hash: h(a.contents), conflict_copy: null };
-          case "write_project_bytes": disk[a.path] = a.bytes; persist(); return null;
+          // Raw bytes as the body, root and path in percent-encoded headers (like the Rust command).
+          case "write_project_bytes": disk[decodeURIComponent(opts.headers.path)] = Array.from(a as Uint8Array); persist(); return null;
           case "import_asset":
             if ((window as any).__importError) throw (window as any).__importError;
             disk["assets/pic.png"] = Array.from(atob(PIXEL), (c) => c.charCodeAt(0));

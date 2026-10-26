@@ -8,5 +8,7 @@
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.json"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@cadabracraft/shared": "workspace:*"
+  }
 }

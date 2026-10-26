@@ -153,6 +153,7 @@ function projectAssetOk(root: string, ref: string): boolean {
   try {
     return looksLike(ext, readAsset(root, ref));
   } catch {
+    // Unreadable or missing asset counts as "not a usable image".
     return false;
   }
 }

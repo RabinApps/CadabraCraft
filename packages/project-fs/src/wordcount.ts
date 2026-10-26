@@ -1,23 +1,2 @@
-// Same rules as apps/desktop/src/lib/wordcount.ts (copied: packages never import from the app).
-interface Node {
-  type?: string;
-  text?: string;
-  content?: Node[];
-}
-
-function collect(node: Node, out: string[]) {
-  if (typeof node.text === "string") out.push(node.text);
-  // Every non-text node (blocks, footnotes, breaks) separates words; marks only wrap text nodes.
-  const split = node.type !== undefined && node.type !== "text";
-  if (split) out.push(" ");
-  for (const child of node.content ?? []) collect(child, out);
-  if (split) out.push(" ");
-}
-
-/** Counts whitespace-separated words in TipTap JSON, including headings and footnote text. */
-export function countWords(doc: unknown): number {
-  if (!doc || typeof doc !== "object") return 0;
-  const out: string[] = [];
-  collect(doc as Node, out);
-  return out.join("").split(/\s+/).filter(Boolean).length;
-}
+// Re-exported so existing imports keep working; the implementation lives in @cadabracraft/shared.
+export { countWords } from "@cadabracraft/shared";

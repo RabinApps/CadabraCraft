@@ -1,9 +1,9 @@
 // Consumes fixtures/contract/*.json, the same vectors apps/desktop/src-tauri/src/project/contract_tests.rs runs.
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { conflictPath, imageExt, looksLike, readRelativeImage, resolveRelative, sanitizeAssetStem, storeImage, writeProjectFile } from "../src/index";
+import { ProjectFsError, conflictPath, imageExt, looksLike, readRelativeImage, resolveRelative, resolveSafe, sanitizeAssetStem, storeImage, writeProjectFile } from "../src/index";
 
 const vec = (name: string) => JSON.parse(readFileSync(new URL(`../../../fixtures/contract/${name}.json`, import.meta.url), "utf8"));
 const hex = (h: string) => Uint8Array.from(h.match(/../g) ?? [], (b) => parseInt(b, 16));
@@ -22,6 +22,38 @@ describe("contract: safe paths", () => {
     it(`image reference ${JSON.stringify(c.reference)} refused`, () => {
       const d = tmp();
       expect(() => readRelativeImage(join(d, "book.md"), c.reference)).toThrow(c.error);
+    });
+  }
+});
+
+describe("contract: symlinks", () => {
+  const sym = vec("safe-path").symlinks as {
+    files: string[];
+    links: { at: string; to: string }[];
+    cases: { rel: string; ok: boolean }[];
+  };
+  // D is a fresh temp dir; the project root is D/project. Links are created relative to D (`to` need not exist).
+  const build = () => {
+    const d = tmp();
+    for (const f of sym.files) {
+      mkdirSync(dirname(join(d, f)), { recursive: true });
+      writeFileSync(join(d, f), "x");
+    }
+    for (const l of sym.links) {
+      mkdirSync(dirname(join(d, l.at)), { recursive: true });
+      symlinkSync(join(d, l.to), join(d, l.at));
+    }
+    return join(d, "project");
+  };
+  for (const c of sym.cases) {
+    it(`resolveSafe ${JSON.stringify(c.rel)} -> ${c.ok ? "ok" : "path_escape"}`, () => {
+      const root = build();
+      if (c.ok) expect(() => resolveSafe(root, c.rel)).not.toThrow();
+      else {
+        const err = (() => { try { resolveSafe(root, c.rel); } catch (e) { return e; } })();
+        expect(err).toBeInstanceOf(ProjectFsError);
+        expect((err as ProjectFsError).code).toBe("path_escape");
+      }
     });
   }
 });

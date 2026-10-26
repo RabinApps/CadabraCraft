@@ -31,3 +31,5 @@ export interface BookMetadata {
   identifier: string;
   modified: Date;
 }
+export * from "./errors";
+export * from "./wordcount";

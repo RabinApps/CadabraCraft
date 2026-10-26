@@ -5,6 +5,7 @@ import { parseManifest, readingOrder, serializeManifest, type Manifest, type Man
 import { MANIFEST, backupManifest, readProjectFile, resolveInWorkspace, writeProjectFile, type WriteResult } from "@cadabracraft/project-fs";
 import { ToolError } from "./errors";
 import type { Ctx } from "./tooling";
+import { errMsg } from "@cadabracraft/shared";
 
 export type Section = "frontMatter" | "chapters" | "backMatter";
 
@@ -63,7 +64,7 @@ export function readChapterFile(root: string, entry: ManuscriptEntry): { doc: un
   try {
     return { doc: JSON.parse(r.contents), hash: r.hash, raw: r.contents };
   } catch (e) {
-    throw new ToolError("chapter_json_invalid", `${entry.file} is not valid JSON: ${(e as Error).message}`);
+    throw new ToolError("chapter_json_invalid", `${entry.file} is not valid JSON: ${errMsg(e)}`);
   }
 }
 

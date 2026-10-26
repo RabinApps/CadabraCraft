@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Fake bridge: an in-memory project plus a fake Typst behind the same bridge methods the app uses.
 const disk = new Map<string, string>();
-const bytesOnDisk = new Map<string, number[]>();
+const bytesOnDisk = new Map<string, Uint8Array>();
 const assets = new Map<string, Uint8Array>();
 const typst = {
   fonts: ["Libertinus Serif", "New Computer Modern"],
@@ -15,7 +15,7 @@ vi.mock("../lib/bridge", () => ({
     createProject: async (_r: string, m: string) => { disk.set("cadabra.json", m); },
     readFile: async (_r: string, p: string) => (disk.has(p) ? { contents: disk.get(p)!, hash: h(disk.get(p)!) } : null),
     writeFile: async (_r: string, p: string, c: string) => { disk.set(p, c); return { hash: h(c), conflict_copy: null }; },
-    writeBytes: async (_r: string, p: string, b: number[]) => { bytesOnDisk.set(p, b); },
+    writeBytes: async (_r: string, p: string, b: Uint8Array) => { bytesOnDisk.set(p, b); },
     backupManifest: async () => "backup",
     readAsset: async (_r: string, p: string) => { const b = assets.get(p); if (!b) throw new Error("missing"); return b; },
     watchProject: async () => {},
@@ -65,7 +65,7 @@ describe("exportPdf", () => {
     expect(c.path).toBe("/opt/typst");
     expect(c.source).toContain("typed but not saved");
     expect(c.source).toMatch(/5\.5in/); // trim size reached the generated source
-    expect(bytesOnDisk.get("exports/book.pdf")).toEqual([0x25, 0x50, 0x44, 0x46]);
+    expect(bytesOnDisk.get("exports/book.pdf")).toEqual(new Uint8Array([0x25, 0x50, 0x44, 0x46]));
     expect(s().notice).toBe("Exported exports/book.pdf");
     expect(s().exportStage).toBeNull();
     expect(s().draft).toBeNull();

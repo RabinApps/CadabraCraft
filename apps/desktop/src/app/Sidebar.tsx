@@ -8,6 +8,7 @@ import { Confirm, Modal } from "../ui/Dialog";
 import { Button, IconButton } from "../ui/Button";
 import { cx } from "../ui/cx";
 import { useProject } from "./store";
+import { errText } from "../lib/projectError";
 
 const menuItem = "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";
 
@@ -49,7 +50,7 @@ interface ListProps {
 /** One section of the book (front matter, chapters or back matter): the same row, rename, reorder and trash actions in each. */
 function EntryList({ entries, heading, titleLabel, currentId, editing, setEditing, setDeleting, onNavigate }: ListProps) {
   const { t } = useLingui();
-  const { actions } = useProject();
+  const actions = useProject((s) => s.actions);
   const last = entries.length - 1;
   return (
     <section aria-label={heading} className="flex flex-col gap-0.5">
@@ -103,13 +104,13 @@ function EntryList({ entries, heading, titleLabel, currentId, editing, setEditin
 /** Pages moved to the project trash, each with a Restore button. */
 function TrashDialog({ open, onOpenChange, onNavigate }: { open: boolean; onOpenChange: (o: boolean) => void; onNavigate?: () => void }) {
   const { t } = useLingui();
-  const { trash, actions } = useProject();
+  const trash = useProject((s) => s.trash);
+  const actions = useProject((s) => s.actions);
   const [error, setError] = useState("");
-  const message = (e: unknown) => String(e instanceof Error ? e.message : e);
   useEffect(() => {
     if (!open) return;
     setError("");
-    actions.refreshTrash().catch((e) => setError(message(e)));
+    actions.refreshTrash().catch((e) => setError(errText(e)));
   }, [open, actions]);
   return (
     <Modal open={open} onOpenChange={onOpenChange} title={t`Trash`} description={t`Pages you moved to the trash. Restoring puts a page back at the end of its section.`}>
@@ -124,7 +125,7 @@ function TrashDialog({ open, onOpenChange, onNavigate }: { open: boolean; onOpen
               <Button
                 icon={Undo2}
                 aria-label={t`Restore ${x.title}`}
-                onClick={() => { setError(""); void actions.restoreTrash(x.path).then(() => { onOpenChange(false); onNavigate?.(); }, (e) => setError(message(e))); }}
+                onClick={() => { setError(""); void actions.restoreTrash(x.path).then(() => { onOpenChange(false); onNavigate?.(); }, (e) => setError(errText(e))); }}
               >
                 {t`Restore`}
               </Button>
@@ -138,7 +139,10 @@ function TrashDialog({ open, onOpenChange, onNavigate }: { open: boolean; onOpen
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { t } = useLingui();
-  const { manifest, currentId, history, actions } = useProject();
+  const manifest = useProject((s) => s.manifest);
+  const currentId = useProject((s) => s.currentId);
+  const history = useProject((s) => s.history);
+  const actions = useProject((s) => s.actions);
   const lastUndo = history.undo.at(-1);
   const lastRedo = history.redo.at(-1);
   const isMac = /Mac|iPhone|iPad/.test(navigator.platform);

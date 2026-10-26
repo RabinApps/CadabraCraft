@@ -1,4 +1,5 @@
 import { CURRENT_FORMAT_VERSION, FormatError, validateManifest, type Manifest } from "./manifest";
+import { errMsg } from "@cadabracraft/shared";
 
 /** A migration upgrades a raw manifest object from `from` to `from + 1`. */
 export type Migration = { from: number; up: (raw: Record<string, unknown>) => Record<string, unknown> };
@@ -21,7 +22,7 @@ export function parseManifest(json: string, migrations: Migration[] = MIGRATIONS
   try {
     raw = JSON.parse(json);
   } catch (e) {
-    throw new FormatError(`manifest: invalid JSON (${(e as Error).message})`);
+    throw new FormatError(`manifest: invalid JSON (${errMsg(e)})`);
   }
   let obj = (raw ?? {}) as Record<string, unknown>;
   const fromVersion = obj.formatVersion;

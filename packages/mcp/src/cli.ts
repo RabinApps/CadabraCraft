@@ -2,6 +2,7 @@
 // protocol messages may go to stdout; diagnostics go to stderr.
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createServer } from "./server";
+import { errMsg } from "@cadabracraft/shared";
 
 const fail = (msg: string): never => {
   process.stderr.write(`cadabracraft-mcp: ${msg}\nUsage: cadabracraft-mcp <workspace-root>   (or set CADABRA_MCP_ROOT)\n`);
@@ -16,5 +17,5 @@ try {
   const server = createServer({ root, repo: process.env.CADABRA_REPO || null });
   await server.connect(new StdioServerTransport());
 } catch (e) {
-  fail(e instanceof Error ? e.message : String(e));
+  fail(errMsg(e));
 }

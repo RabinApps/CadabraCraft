@@ -1,11 +1,12 @@
 // Node-only: runs the `typst` CLI with child_process. Not importable from the webview; import from "@cadabracraft/export-pdf/node".
 import { execFile } from "node:child_process";
-import { accessSync, constants, mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { accessSync, constants, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { PdfExportError, TypstCompileError, TypstNotFoundError, TypstTimeoutError } from "./errors";
 import { assertNoUnknownFont, assertSafeFilePath, COMPILE_TIMEOUT_MS, type TypstRunner } from "./runner";
+import { errMsg } from "@cadabracraft/shared";
 
 const run = promisify(execFile);
 
@@ -49,7 +50,7 @@ export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
         const { stdout } = await run(typst, ["fonts", ...fontArgs(opts.fontPaths)], { maxBuffer: 16 * 1024 * 1024 });
         return stdout.split("\n").map((l) => l.trim()).filter(Boolean);
       } catch (e) {
-        throw new PdfExportError(`Could not list fonts with typst: ${(e as Error).message}`);
+        throw new PdfExportError(`Could not list fonts with typst: ${errMsg(e)}`);
       }
     },
     async compile(source, files, { pdfA }) {
@@ -79,10 +80,13 @@ export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
         } catch (e) {
           const err = e as { stderr?: string; killed?: boolean; signal?: string };
           if (err.killed && err.signal) throw new TypstTimeoutError(timeout / 1000);
-          throw new TypstCompileError(String(err.stderr || (e as Error).message));
+          throw new TypstCompileError(String(err.stderr || errMsg(e)));
         }
         assertNoUnknownFont(stderr);
-        return new Uint8Array(readFileSync(join(dir, "out.pdf")));
+        const out = join(dir, "out.pdf");
+        // typst can exit 0 without writing the file (e.g. an empty document); do not surface a raw ENOENT.
+        if (!existsSync(out)) throw new TypstCompileError("typst finished without producing a PDF");
+        return new Uint8Array(readFileSync(out));
       } finally {
         if (!opts.keepTemp) rmSync(dir, { recursive: true, force: true });
       }

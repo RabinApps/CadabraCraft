@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { FontNotAvailableError, MissingAssetError, TypstCompileError, TypstNotFoundError, TypstTimeoutError } from "@cadabracraft/export-pdf";
+import { errText } from "./projectError";
 
 export type PdfErrorCode = "typst-missing" | "font" | "compile" | "timeout" | "asset" | "other";
 
@@ -23,5 +24,5 @@ export function describePdfError(e: unknown): PdfUiError {
   if (e instanceof TypstCompileError) return new PdfUiError("compile", t`Typst could not build the PDF:\n${e.stderr.trim()}`, cause);
   if (e instanceof TypstTimeoutError) return new PdfUiError("timeout", t`Typst took longer than ${e.seconds} seconds and was stopped. Try again, or export fewer chapters.`, cause);
   if (e instanceof MissingAssetError) return new PdfUiError("asset", t`Missing image file ${e.srcs.join(", ")}`, cause);
-  return new PdfUiError("other", e instanceof Error ? e.message : String(e), cause);
+  return new PdfUiError("other", errText(e), cause);
 }

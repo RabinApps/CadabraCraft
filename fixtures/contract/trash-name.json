@@ -1,0 +1,46 @@
+{
+  "description": "Trash file names `<YYYYMMDD-HHMM>-<project path with / as __>.json` (TS trashProjectFile / Rust trash_file write them; Rust parse_trash_name reads them). Only the first `__` (after the folder) separates folder from file, so file names may contain `__`. `original` is null when the name is not a restorable page. Rust-only reader today.",
+  "parse": [
+    {
+      "name": "20260101-1200-manuscript__001-a.json",
+      "original": "manuscript/001-a.json",
+      "trashedAt": "20260101-1200"
+    },
+    {
+      "name": "20260101-1200-manuscript__a__b.json",
+      "original": "manuscript/a__b.json",
+      "trashedAt": "20260101-1200"
+    },
+    {
+      "name": "20260101-1200-front-matter__x____y.json",
+      "original": "front-matter/x____y.json",
+      "trashedAt": "20260101-1200"
+    },
+    {
+      "name": "20260101-1200-back-matter__a-2.json",
+      "original": "back-matter/a-2.json",
+      "trashedAt": "20260101-1200"
+    },
+    {
+      "name": "20260101-1200-assets__a.json",
+      "original": null
+    },
+    {
+      "name": "20260101-1200-manuscript.json",
+      "original": null
+    },
+    {
+      "name": "20260101-1200-manuscript__a.txt",
+      "original": null
+    },
+    {
+      "name": "2026-1200-manuscript__a.json",
+      "original": null
+    }
+  ],
+  "roundTrip": [
+    "manuscript/a__b.json",
+    "manuscript/001-a.json",
+    "front-matter/x__.json"
+  ]
+}

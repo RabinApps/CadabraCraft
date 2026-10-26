@@ -1,7 +1,9 @@
 //! Read-only access to files the user picked for import. Nothing here writes next to the source file.
-use crate::project::{image_ext, looks_like, MAX_IMAGE_BYTES};
+use crate::project::{image_ext, image_too_large, looks_like, ProjectError, MAX_IMAGE_BYTES};
 use std::fs;
 use std::path::{Component, Path, PathBuf};
+
+type Result<T> = std::result::Result<T, ProjectError>;
 
 /// Document types the importer understands.
 pub const IMPORT_EXTENSIONS: [&str; 4] = ["docx", "md", "markdown", "txt"];
@@ -9,29 +11,30 @@ pub const IMPORT_EXTENSIONS: [&str; 4] = ["docx", "md", "markdown", "txt"];
 pub const MAX_IMPORT_BYTES: u64 = 200 * 1024 * 1024;
 
 /// Reads a document the user picked (absolute path). Only allowlisted extensions, regular files, capped size.
-pub fn read_source(path: &Path) -> Result<Vec<u8>, String> {
-    let name = path.file_name().and_then(|n| n.to_str()).ok_or("invalid file name")?;
+pub fn read_source(path: &Path) -> Result<Vec<u8>> {
+    let name = path.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
     let ext = path.extension().and_then(|e| e.to_str()).map(str::to_ascii_lowercase).unwrap_or_default();
     if !IMPORT_EXTENSIONS.contains(&ext.as_str()) {
-        return Err(format!("{name} is not a .docx, .md, .markdown or .txt file"));
+        return Err(ProjectError::UnsupportedDocument { name: name.to_string() });
     }
-    let meta = fs::metadata(path).map_err(|e| format!("{name}: {e}"))?;
+    let too_large = || ProjectError::TooLarge { path: name.to_string(), max_mb: MAX_IMPORT_BYTES / 1024 / 1024 };
+    let meta = fs::metadata(path)?;
     if !meta.is_file() {
-        return Err(format!("{name} is not a file"));
+        return Err(ProjectError::NotAFile { path: name.to_string() });
     }
     if meta.len() > MAX_IMPORT_BYTES {
-        return Err(format!("{name} is larger than {} MB", MAX_IMPORT_BYTES / 1024 / 1024));
+        return Err(too_large());
     }
-    let bytes = fs::read(path).map_err(|e| format!("{name}: {e}"))?;
+    let bytes = fs::read(path)?;
     if bytes.len() as u64 > MAX_IMPORT_BYTES {
-        return Err(format!("{name} is larger than {} MB", MAX_IMPORT_BYTES / 1024 / 1024));
+        return Err(too_large());
     }
     Ok(bytes)
 }
 
 /// Reads an image a Markdown file references, relative to that file's folder. Refuses absolute paths, `..`,
 /// symlinks that lead outside the folder, non-image extensions, oversized files and content that is not the claimed type.
-pub fn read_relative_image(source_file: &Path, reference: &str) -> Result<Vec<u8>, String> {
+pub fn read_relative_image(source_file: &Path, reference: &str) -> Result<Vec<u8>> {
     let shown: String = reference.chars().take(80).collect();
     let rel = Path::new(reference);
     let safe = !reference.is_empty()
@@ -39,25 +42,25 @@ pub fn read_relative_image(source_file: &Path, reference: &str) -> Result<Vec<u8
         && !reference.contains('\0')
         && rel.components().all(|c| matches!(c, Component::Normal(_) | Component::CurDir));
     if !safe {
-        return Err(format!("image path is not allowed: {shown}"));
+        return Err(ProjectError::ImageRefNotAllowed { reference: shown });
     }
-    let ext = image_ext(reference).ok_or_else(|| format!("unsupported image type: {shown}"))?;
-    let base: PathBuf = source_file.parent().ok_or("source file has no folder")?.to_path_buf();
-    let base = fs::canonicalize(&base).map_err(|e| e.to_string())?;
-    let full = fs::canonicalize(base.join(rel)).map_err(|_| format!("image not found: {shown}"))?;
+    let ext = image_ext(reference).ok_or_else(|| ProjectError::UnsupportedImage { name: shown.clone() })?;
+    let base: PathBuf = source_file.parent().ok_or(ProjectError::InvalidFileName)?.to_path_buf();
+    let base = fs::canonicalize(&base)?;
+    let full = fs::canonicalize(base.join(rel)).map_err(|_| ProjectError::ImageRefNotFound { reference: shown.clone() })?;
     if !full.starts_with(&base) {
-        return Err(format!("image is outside the document folder: {shown}"));
+        return Err(ProjectError::ImageRefOutside { reference: shown });
     }
-    let meta = fs::metadata(&full).map_err(|e| e.to_string())?;
+    let meta = fs::metadata(&full)?;
     if !meta.is_file() {
-        return Err(format!("{shown} is not a file"));
+        return Err(ProjectError::NotAFile { path: shown });
     }
     if meta.len() > MAX_IMAGE_BYTES {
-        return Err(format!("{shown} is larger than {} MB", MAX_IMAGE_BYTES / 1024 / 1024));
+        return Err(image_too_large(&shown));
     }
-    let bytes = fs::read(&full).map_err(|e| e.to_string())?;
+    let bytes = fs::read(&full)?;
     if !looks_like(&ext, &bytes) {
-        return Err(format!("{shown} is not a valid {ext} image"));
+        return Err(ProjectError::InvalidImage { name: shown, ext });
     }
     Ok(bytes)
 }
@@ -86,11 +89,11 @@ mod tests {
         fs::create_dir(d.path().join("dir.md")).unwrap();
         assert!(read_source(&d.path().join("a.exe")).is_err());
         assert!(read_source(&d.path().join("noext")).is_err());
-        assert!(read_source(&d.path().join("dir.md")).unwrap_err().contains("not a file"));
+        assert!(read_source(&d.path().join("dir.md")).unwrap_err().to_string().contains("not a file"));
         assert!(read_source(&d.path().join("missing.md")).is_err());
         let big = d.path().join("big.docx");
         fs::File::create(&big).unwrap().set_len(MAX_IMPORT_BYTES + 1).unwrap();
-        assert!(read_source(&big).unwrap_err().contains("larger"));
+        assert!(read_source(&big).unwrap_err().to_string().contains("larger"));
     }
 
     #[test]
@@ -130,8 +133,20 @@ mod tests {
         std::os::unix::fs::symlink(outer, outer.join("sub/up")).unwrap();
         std::os::unix::fs::symlink(outer.join("sub/real.png"), outer.join("sub/inner.png")).unwrap();
         let md = outer.join("sub/book.md");
-        assert!(read_relative_image(&md, "link.png").unwrap_err().contains("outside"));
-        assert!(read_relative_image(&md, "up/secret.png").unwrap_err().contains("outside"));
+        assert!(read_relative_image(&md, "link.png").unwrap_err().to_string().contains("outside"));
+        assert!(read_relative_image(&md, "up/secret.png").unwrap_err().to_string().contains("outside"));
         assert_eq!(read_relative_image(&md, "inner.png").unwrap(), PNG);
+    }
+
+    #[test]
+    fn errors_are_typed() {
+        let d = tempfile::tempdir().unwrap();
+        fs::write(d.path().join("a.exe"), b"x").unwrap();
+        assert_eq!(read_source(&d.path().join("a.exe")).unwrap_err(), ProjectError::UnsupportedDocument { name: "a.exe".into() });
+        let md = d.path().join("book.md");
+        assert_eq!(read_relative_image(&md, "../x.png").unwrap_err(), ProjectError::ImageRefNotAllowed { reference: "../x.png".into() });
+        assert_eq!(read_relative_image(&md, "a\0b.png").unwrap_err(), ProjectError::ImageRefNotAllowed { reference: "a\0b.png".into() });
+        assert_eq!(read_relative_image(&md, "gone.png").unwrap_err(), ProjectError::ImageRefNotFound { reference: "gone.png".into() });
+        assert_eq!(read_relative_image(&md, "n.txt").unwrap_err(), ProjectError::UnsupportedImage { name: "n.txt".into() });
     }
 }

@@ -33,6 +33,7 @@ export async function runEpubcheck(ctx: Ctx, file: string): Promise<EpubcheckRes
   try {
     await run("java", ["-version"], { timeout: 20_000 });
   } catch {
+    // Any failure to run `java -version` means EPUBCheck cannot run; report it as a skipped check, not an error.
     return { ran: false, messages: [], reason: "java was not found or does not work" };
   }
   let out = "";
@@ -59,6 +60,7 @@ export function typstPath(ctx: Ctx): string | undefined {
   try {
     return findTypst();
   } catch {
+    // Not on PATH or TYPST_BIN: try the usual Homebrew locations (the MCP host often has a minimal PATH).
     return HOMEBREW_DIRS.map((d) => join(d, "typst")).find((p) => existsSync(p));
   }
 }

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createManifest, parseManifest, readingOrder, serializeManifest } from "@cadabracraft/format";
 import { MANIFEST, ProjectFsError, countWords, createProject, imageExt, looksLike, readAsset, readProjectFile, resolveInWorkspace } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
-import { isAssetPath } from "@cadabracraft/shared";
+import { isAssetPath, errMsg } from "@cadabracraft/shared";
 import { imageSources, schemaProblem } from "../doc";
 import { ToolError } from "../errors";
 import { loadProject, projectRoot, readChapterFile, saveManifest, sectionOf } from "../project";
@@ -17,6 +17,7 @@ const validLanguage = (l: string): boolean => {
   try {
     return Intl.getCanonicalLocales(l).length === 1;
   } catch {
+    // Intl throws RangeError for a malformed tag.
     return false;
   }
 };
@@ -63,7 +64,7 @@ export const projectInfo = defineTool({
         return { ...base, words };
       } catch (e) {
         const err = e instanceof ToolError ? e : null;
-        return { ...base, words: 0, ...(err?.code === "chapter_missing" ? { missing: true } : { error: (e as Error).message }) };
+        return { ...base, words: 0, ...(err?.code === "chapter_missing" ? { missing: true } : { error: errMsg(e) }) };
       }
     });
     const chapters = manifest.chapters.length;
@@ -97,7 +98,7 @@ export const projectValidate = defineTool({
       const raw = readProjectFile(root, MANIFEST);
       manifest = parseManifest(raw?.contents ?? "").manifest;
     } catch (e) {
-      add("error", "manifest_invalid", "manifest", (e as Error).message);
+      add("error", "manifest_invalid", "manifest", errMsg(e));
       return report(issues);
     }
     if (!hasTemplate(manifest.template)) add("error", "template_unknown", "manifest", `unknown template "${manifest.template}"`);
@@ -108,7 +109,7 @@ export const projectValidate = defineTool({
         doc = readChapterFile(root, e).doc;
       } catch (err) {
         const code = err instanceof ToolError && err.code === "chapter_missing" ? "chapter_missing" : err instanceof ToolError ? err.code : "chapter_unreadable";
-        add("error", code, e.id, (err as Error).message);
+        add("error", code, e.id, errMsg(err));
         continue;
       }
       const problem = schemaProblem(doc);

@@ -4,7 +4,7 @@ import { strFromU8, unzipSync } from "fflate";
 // In-memory stand-in for the Rust project layer, including its conflict-copy rule.
 const disk = new Map<string, string>();
 const assets = new Map<string, Uint8Array>();
-const written: Record<string, number[]> = {};
+const written: Record<string, Uint8Array> = {};
 let picked: string | null = "/pics/cover.png";
 let importError: string | null = null;
 const h = (s: string) => `h:${s.length}:${s.slice(0, 40)}`;
@@ -18,7 +18,7 @@ vi.mock("../lib/bridge", () => ({
       disk.set(p, c);
       return { hash: h(c), conflict_copy };
     },
-    writeBytes: async (_r: string, p: string, b: number[]) => { disk.set(p, `bytes:${b.length}`); written[p] = b; },
+    writeBytes: async (_r: string, p: string, b: Uint8Array) => { disk.set(p, `bytes:${b.length}`); written[p] = b; },
     backupManifest: async () => "backup",
     pickImage: async () => picked,
     importAsset: async (_r: string, src: string) => {
@@ -253,7 +253,7 @@ describe("project store", () => {
       await a().addMatter("back", "about-the-author");
       await a().exportEpub();
       expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
-      const files = unzipSync(Uint8Array.from(written["exports/book.epub"]!));
+      const files = unzipSync(written["exports/book.epub"]!);
       const opf = strFromU8(files["OEBPS/content.opf"]!);
       expect([...opf.matchAll(/<itemref idref="([^"]+)"/g)].map((m) => m[1])).toEqual(["fm-1", "ch-1", "bm-1", "nav"]);
       expect(strFromU8(files["OEBPS/fm-1.xhtml"]!)).toContain('epub:type="frontmatter titlepage"');

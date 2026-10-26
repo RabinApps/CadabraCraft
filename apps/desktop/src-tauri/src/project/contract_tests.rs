@@ -36,7 +36,7 @@ fn contract_image_references_are_refused() {
     let md = d.path().join("book.md");
     for c in vectors("safe-path")["imageReference"]["reject"].as_array().unwrap() {
         let reference = s(&c["reference"]);
-        let err = crate::import_src::read_relative_image(&md, reference).unwrap_err();
+        let err = crate::import_src::read_relative_image(&md, reference).unwrap_err().to_string();
         assert!(err.contains(s(&c["error"])), "{reference:?}: {err}");
     }
 }
@@ -90,7 +90,7 @@ fn contract_asset_collisions() {
             let hex_in = s(&step["hex"]);
             let got = store_image(d.path(), name, &hex(hex_in));
             if let Some(err) = step.get("error") {
-                let e = got.unwrap_err();
+                let e = got.unwrap_err().to_string();
                 assert!(e.contains(s(err)), "{}: {name}: {e}", s(&seq["name"]));
                 continue;
             }
@@ -101,5 +101,55 @@ fn contract_asset_collisions() {
         }
         let on_disk = fs::read_dir(d.path().join("assets")).map(|r| r.count()).unwrap_or(0);
         assert_eq!(on_disk, seen.len(), "{}", s(&seq["name"]));
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn contract_symlink_containment() {
+    let v = &vectors("safe-path")["symlinks"];
+    let d = tempfile::tempdir().unwrap();
+    for f in v["files"].as_array().unwrap() {
+        let p = d.path().join(s(f));
+        fs::create_dir_all(p.parent().unwrap()).unwrap();
+        fs::write(p, "x").unwrap();
+    }
+    for l in v["links"].as_array().unwrap() {
+        let at = d.path().join(s(&l["at"]));
+        fs::create_dir_all(at.parent().unwrap()).unwrap();
+        std::os::unix::fs::symlink(d.path().join(s(&l["to"])), at).unwrap();
+    }
+    let root = d.path().join("project");
+    for c in v["cases"].as_array().unwrap() {
+        let rel = s(&c["rel"]);
+        let got = resolve(&root, rel);
+        if c["ok"].as_bool().unwrap() {
+            assert!(got.is_ok(), "{rel:?}: {got:?}");
+        } else {
+            assert!(matches!(got, Err(ProjectError::PathEscape { .. })), "{rel:?} must be refused as an escape: {got:?}");
+        }
+    }
+}
+
+#[test]
+fn contract_trash_names() {
+    let v = vectors("trash-name");
+    for c in v["parse"].as_array().unwrap() {
+        let name = s(&c["name"]);
+        let got = parse_trash_name(name);
+        match c["original"].as_str() {
+            Some(orig) => assert_eq!(got, Some((s(&c["trashedAt"]).to_string(), orig.to_string())), "{name}"),
+            None => assert_eq!(got, None, "{name}"),
+        }
+    }
+    for rel in v["roundTrip"].as_array().unwrap() {
+        let rel = s(rel);
+        let d = tempfile::tempdir().unwrap();
+        write_file(d.path(), rel, "x", None).unwrap();
+        let t = trash_file(d.path(), rel).unwrap();
+        let listed = list_trash(d.path()).unwrap();
+        assert_eq!(listed.len(), 1, "{rel}");
+        assert_eq!(listed[0].original, rel);
+        assert_eq!(restore_trash(d.path(), &t).unwrap(), rel);
     }
 }
