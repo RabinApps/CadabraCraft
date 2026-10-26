@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { CURRENT_FORMAT_VERSION } from "@cadabracraft/format";
 import { type Session, connect, fullBook, seedBook } from "./helpers";
 
 let s: Session;
@@ -10,7 +11,7 @@ describe("project_create / project_info", () => {
   it("creates the layout and a valid manifest, then reports an empty book", async () => {
     s = await connect();
     const created = await s.ok("cadabra_project_create", { path: "My Book", title: "My Book", author: "A. Writer" });
-    expect(created.manifest).toMatchObject({ formatVersion: 1, title: "My Book", author: "A. Writer", language: "en", template: "novel", chapters: [] });
+    expect(created.manifest).toMatchObject({ formatVersion: CURRENT_FORMAT_VERSION, title: "My Book", author: "A. Writer", language: "en", template: "novel", chapters: [] });
     expect(created.manifest.identifier).toMatch(/^urn:uuid:[0-9a-f-]{36}$/);
     for (const d of ["manuscript", "front-matter", "back-matter", "assets", "exports", ".cadabra"]) expect(existsSync(join(s.root, "My Book", d)), d).toBe(true);
     const info = await s.ok("cadabra_project_info", { path: "My Book" });
