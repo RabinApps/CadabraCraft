@@ -20,3 +20,7 @@
   - Convert `typst_compile` to raw-bytes IPC.
   - Restrict `root` to opened projects and set a real CSP (`tauri.conf.json` has `"csp": null`).
   - Run `/drive-app` against the native IPC changes (raw-bytes `write_project_bytes`, async commands, autosave).
+- Website follow-ups (marketing/SEO pass):
+  - Export a 1200x630 OG image and real light/dark editor screenshots from the pen's `Website / ...` frames into `apps/website/public/og` and `public/screens`; `src/lib/seo.ts` already points at `/og/cadabracraft-og.png`.
+  - Verify every competitor fact in `apps/website/src/data/competitors.ts` against its source and update `checkedOn`; several fields say "See vendor" until confirmed.
+  - Draw the Compare index, Features, Download and tablet widths in the pen; link the LICENSE once the licensing question is settled; add a real download link once a GitHub Release exists.
