@@ -89,7 +89,7 @@ Formatting buttons (undo/redo, bold, italic, underline, small caps, link, H1-H3,
 **Caveats:** the print preview does not draw the cover. Print PDFs for a printer usually want the cover as a separate file, so the dialog offers "Include the cover" (on by default).
 
 ### Not done yet in M1
-Real-client sync testing (M3) and running the Tauri-WebDriver smoke suite on Linux/Windows CI (written, see Testing; not runnable on macOS).
+Real-client sync testing (a manual checklist is in [sync-testing.md](sync-testing.md); it needs real iCloud, Drive and Dropbox accounts and has not been run) and running the Tauri-WebDriver smoke suite on Linux/Windows CI (written, see Testing; not runnable on macOS).
 
 ## Marketing website (`apps/website`)
 Next.js (App Router) with `output: 'export'`, Tailwind v4 and the tokens from `docs/design.md`, deployed to GitHub Pages at cadabracraft.com by `.github/workflows/pages.yml` (custom domain via `public/CNAME`, so no `basePath`). Fonts are self-hosted at build time by `next/font`; the shipped site makes no third-party requests and has no analytics. The site is a standalone app and imports nothing from `packages/*`.

@@ -175,6 +175,10 @@ msgstr ""
 msgid "Add page"
 msgstr ""
 
+#: src/app/PrintPreview.tsx
+msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Address"
 msgstr ""
@@ -415,6 +419,7 @@ msgstr ""
 
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
+#: src/app/PrintPreview.tsx
 msgid "Cover"
 msgstr ""
 

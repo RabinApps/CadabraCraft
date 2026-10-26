@@ -691,3 +691,27 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   await expect(dialog).toBeHidden();
   expect((await manifest()).cover).toBeNull();
 });
+
+test("print preview shows the cover, and the PDF dialog offers to include it only when there is one", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const exportDialog = page.getByRole("dialog", { name: "Export book" });
+  await exportDialog.getByRole("radio", { name: "Print PDF" }).click();
+  await expect(exportDialog.getByLabel("Include the cover")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "Book details" }).click();
+  const details = page.getByRole("dialog", { name: "Book details" });
+  await details.getByRole("button", { name: "Choose image…" }).click();
+  await expect(details.getByRole("img", { name: "Cover preview" })).toBeVisible();
+  await details.getByRole("button", { name: "Save details" }).click();
+  await expect(details).toBeHidden();
+
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await exportDialog.getByRole("radio", { name: "Print PDF" }).click();
+  await expect(exportDialog.getByLabel("Include the cover")).toBeChecked();
+  await exportDialog.getByRole("button", { name: "Print preview" }).click();
+  await expect(page.getByRole("heading", { name: "Print preview" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Cover", exact: true })).toBeVisible();
+  await expect(page.getByText("Added as the first page, with a blank page behind it")).toBeVisible();
+});
