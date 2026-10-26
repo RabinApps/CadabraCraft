@@ -58,6 +58,18 @@ describe("names", () => {
     expect(chapterFileName(12, "Café: Déjà vu!")).toBe("012-cafe-deja-vu.json");
     expect(chapterFileName(3, "???")).toBe("003-untitled.json");
   });
+  it("keeps letters from non-Latin scripts", () => {
+    expect(chapterFileName(1, "פרק ראשון")).toBe("001-פרק-ראשון.json");
+    expect(chapterFileName(2, "الفصل الأول")).toBe("002-الفصل-الأول.json");
+    expect(chapterFileName(3, "第一章：はじまり")).toBe("003-第一章-はじまり.json");
+    expect(chapterFileName(4, "Глава первая")).toBe("004-глава-первая.json");
+    expect(chapterFileName(5, "が")).toBe("005-が.json"); // voiced kana stays composed
+  });
+  it("never cuts a character in half or leaves a trailing dash when truncating", () => {
+    const name = chapterFileName(1, "😀".repeat(3) + "あ".repeat(60));
+    expect(name).toMatch(/^001-あ{48}\.json$/);
+    expect(chapterFileName(1, `${"a".repeat(47)} b`)).toBe(`001-${"a".repeat(47)}.json`);
+  });
   it("builds conflict file names", () => {
     expect(conflictFileName("manuscript/001-a.json", new Date(Date.UTC(2026, 9, 25, 17, 44)))).toBe("manuscript/001-a.conflict-20261025-1744.json");
   });

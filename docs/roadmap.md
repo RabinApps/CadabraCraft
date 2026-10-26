@@ -7,3 +7,10 @@
   - M2+: settings screens (editor, backups, shortcuts), focus mode, command palette, find and replace, outline navigator.
   - M3: front/back matter and metadata editor, cover picker.
   - M4: .docx import wizard.
+- i18n follow-ups (infrastructure is in; see the Internationalization section of [architecture.md](architecture.md)):
+  - Translate the catalogs (he, ar, it, ja, ru, fr, de, es), get native-speaker review, then add each code to `ENABLED_LOCALES`.
+  - Rust errors in `src-tauri/src/project` still return English strings; switch to error codes with params and translate in the UI.
+  - Toolbar button glyphs ("Sc", "H1", "• List", "Fn") are Latin text; replace with icons.
+  - Language picker and book-language field in the New book dialog need a design in `cadabracraft.pen` (then `/sync-design`); the picker is hidden while only English is enabled.
+  - Bundle Hebrew/Arabic (and Noto Sans JP if system CJK looks poor) fonts; currently system fallbacks via `:lang()` in `index.css`.
+  - Add e2e for `he` RTL layout once its catalog exists; run `/validate-epub` with a Hebrew sample (EPUBCheck was not available in this worktree).

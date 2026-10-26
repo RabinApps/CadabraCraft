@@ -5,6 +5,8 @@ import { expect, test, type Page } from "@playwright/test";
 // Backend behaviour is covered by the Rust tests in src-tauri/src/project.
 async function fakeTauri(page: Page) {
   await page.addInitScript(() => {
+    // UI language is an app preference; specs assert English text unless a test picks another locale first.
+    if (!localStorage.getItem("cadabracraft.locale")) localStorage.setItem("cadabracraft.locale", "en");
     const disk: Record<string, string | number[]> = JSON.parse(sessionStorage.getItem("disk") ?? "{}");
     const persist = () => sessionStorage.setItem("disk", JSON.stringify(disk));
     const h = (s: string) => `${s.length}:${s.slice(0, 50)}`;
@@ -211,4 +213,16 @@ test("phone layout reaches chapters through the sheet", async ({ page }) => {
   await page.getByRole("button", { name: "Chapter One", exact: true }).click();
   await expect(page.getByRole("navigation", { name: "Chapters" })).toHaveCount(0);
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+});
+
+test("language picker switches the UI to the pseudo-locale and remembers it", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+  await page.getByLabel("Language").selectOption("pseudo");
+  await expect(page.getByRole("button", { name: "New project" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Write your first book");
+  await page.reload();
+  await expect(page.getByRole("button", { name: "New project" })).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("cadabracraft.locale"))).toBe("pseudo");
 });

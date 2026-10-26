@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { t } from "@lingui/core/macro";
+import { i18n } from "@lingui/core";
 import { addChapter, createManifest, moveChapter, parseManifest, removeChapter, renameChapter, serializeManifest, type Manifest } from "@cadabracraft/format";
 import { buildEpub } from "@cadabracraft/export-epub";
 import type { ChapterDoc } from "@cadabracraft/shared";
@@ -46,7 +48,7 @@ export const useProject = create<State>((set, get) => {
     const { root } = need();
     const base = get().hashes["cadabra.json"] ?? null;
     const w = await bridge.writeFile(root, "cadabra.json", serializeManifest(manifest), base);
-    set({ manifest, hashes: { ...get().hashes, "cadabra.json": w.hash }, notice: w.conflict_copy ? `cadabra.json changed outside the app; your previous copy was kept as ${w.conflict_copy}` : get().notice });
+    set({ manifest, hashes: { ...get().hashes, "cadabra.json": w.hash }, notice: w.conflict_copy ? t`cadabra.json changed outside the app; your previous copy was kept as ${w.conflict_copy}` : get().notice });
   };
   /** Saves unsaved edits so switching chapters never loses typing. */
   const flush = async () => {
@@ -73,40 +75,40 @@ export const useProject = create<State>((set, get) => {
         if (!r || r.hash === hashes[path]) return; // gone, unreadable, or our own write
         if (path === "cadabra.json") {
           try {
-            set({ manifest: parseManifest(r.contents).manifest, hashes: { ...get().hashes, [path]: r.hash }, notice: "Chapter list updated from outside the app" });
+            set({ manifest: parseManifest(r.contents).manifest, hashes: { ...get().hashes, [path]: r.hash }, notice: t`Chapter list updated from outside the app` });
           } catch {
-            set({ notice: "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version" });
+            set({ notice: t`cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version` });
           }
           return;
         }
         const entry = manifest.chapters.find((c) => c.file === path);
         if (!entry || entry.id !== get().currentId) return; // other chapters load fresh when opened
         if (get().draft) {
-          set({ notice: `${entry.title} changed outside the app; saving will keep both versions` });
+          set({ notice: t`${entry.title} changed outside the app; saving will keep both versions` });
           return;
         }
-        set({ currentDoc: JSON.parse(r.contents) as ChapterDoc, hashes: { ...get().hashes, [path]: r.hash }, reloadCount: get().reloadCount + 1, notice: `${entry.title} was updated from outside the app` });
+        set({ currentDoc: JSON.parse(r.contents) as ChapterDoc, hashes: { ...get().hashes, [path]: r.hash }, reloadCount: get().reloadCount + 1, notice: t`${entry.title} was updated from outside the app` });
       },
       setDraft: (doc) => set({ draft: doc }),
       async openProject(root) {
         const r = await bridge.readFile(root, "cadabra.json");
-        if (!r) throw new Error("No cadabra.json in that folder");
+        if (!r) throw new Error(t`No cadabra.json in that folder`);
         const parsed = parseManifest(r.contents);
         set({ root, manifest: parsed.manifest, hashes: { "cadabra.json": r.hash }, currentId: null, currentDoc: null, notice: "" });
         if (parsed.migrated) {
           const backup = await bridge.backupManifest(root);
           await saveManifest(parsed.manifest);
-          set({ notice: `Project upgraded from format ${parsed.fromVersion}; backup saved to ${backup}` });
+          set({ notice: t`Project upgraded from format ${parsed.fromVersion}; backup saved to ${backup}` });
         }
         const first = parsed.manifest.chapters[0];
         if (first) await load(first.id);
         await bridge.watchProject(root);
       },
       async createProject(root, title, author) {
-        const manifest = createManifest({ title, author, identifier: `urn:uuid:${crypto.randomUUID()}` });
+        const manifest = createManifest({ title, author, language: i18n.locale === "pseudo" ? "en" : i18n.locale, identifier: `urn:uuid:${crypto.randomUUID()}` });
         await bridge.createProject(root, serializeManifest(manifest));
         await get().actions.openProject(root);
-        await get().actions.add("Chapter One");
+        await get().actions.add(t`Chapter One`);
       },
       selectChapter: load,
       async saveCurrent(doc) {
@@ -114,7 +116,7 @@ export const useProject = create<State>((set, get) => {
         const entry = manifest.chapters.find((c) => c.id === get().currentId);
         if (!entry) return;
         const w = await bridge.writeFile(root, entry.file, JSON.stringify(doc, null, 2), get().hashes[entry.file] ?? null);
-        set({ hashes: { ...get().hashes, [entry.file]: w.hash }, notice: w.conflict_copy ? `${entry.title} changed outside the app; the other version was kept as ${w.conflict_copy}` : "Saved" });
+        set({ hashes: { ...get().hashes, [entry.file]: w.hash }, notice: w.conflict_copy ? t`${entry.title} changed outside the app; the other version was kept as ${w.conflict_copy}` : t`Saved` });
       },
       async add(title) {
         await flush();
@@ -148,12 +150,12 @@ export const useProject = create<State>((set, get) => {
         const chapters = [];
         for (const c of manifest.chapters) {
           const r = await bridge.readFile(root, c.file);
-          if (!r) throw new Error(`Missing chapter file ${c.file}`);
+          if (!r) throw new Error(t`Missing chapter file ${c.file}`);
           chapters.push({ id: c.id, title: c.title, doc: JSON.parse(r.contents) as ChapterDoc });
         }
         const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters);
         await bridge.writeBytes(root, "exports/book.epub", Array.from(bytes));
-        set({ notice: "Exported exports/book.epub" });
+        set({ notice: t`Exported exports/book.epub` });
       },
     },
   };

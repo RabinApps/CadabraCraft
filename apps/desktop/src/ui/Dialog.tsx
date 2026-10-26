@@ -1,4 +1,5 @@
 import * as D from "@radix-ui/react-dialog";
+import { useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { Button } from "./Button";
 import { cx } from "./cx";
@@ -45,10 +46,11 @@ interface ConfirmProps {
 }
 
 export function Confirm({ open, onOpenChange, title, description, confirmLabel, danger, onConfirm }: ConfirmProps) {
+  const { t } = useLingui();
   return (
     <Modal open={open} onOpenChange={onOpenChange} title={title} description={description}>
       <div className="flex justify-end gap-2.5">
-        <Button onClick={() => onOpenChange(false)}>Cancel</Button>
+        <Button onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>
         <Button variant={danger ? "danger" : "primary"} onClick={() => { onOpenChange(false); onConfirm(); }}>{confirmLabel}</Button>
       </div>
     </Modal>
