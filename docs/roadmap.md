@@ -11,7 +11,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 
 ### Editor and app UI
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
-- M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF, EPUBCheck from the app, and a cover image field.
+- M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
 - M2+: backups and shortcuts settings (disabled nav items for now), command palette, find and replace, outline navigator.
 - M4: .docx import wizard.
 
