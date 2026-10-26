@@ -28,7 +28,7 @@ vi.mock("../lib/bridge", () => ({
 }));
 
 import { useProject } from "./store";
-import { groupWarnings } from "./importBook";
+import { applyChapterEdits, groupWarnings, parseImport } from "./importBook";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
@@ -125,5 +125,29 @@ describe("importBook", () => {
     await a().importBook("/src/b.md", "/new", "B", "Me");
     a().dismissImportReport();
     expect(s().importReport).toBeNull();
+  });
+});
+
+describe("wizard preview", () => {
+  const md = (text: string) => ({ ext: "md", bytes: enc(text) });
+  const text = "# One\n\nA\n\n## Sub\n\nB\n\n# Two\n\nC\n";
+
+  it("re-splits at another heading level", () => {
+    expect(parseImport(md(text), 1).chapters.map((c) => c.title)).toEqual(["One", "Two"]);
+    expect(parseImport(md(text), 2).chapters.map((c) => c.title)).toContain("Sub");
+  });
+
+  it("drops skipped chapters, renames, and refuses an empty selection", () => {
+    const r = parseImport(md(text), 1);
+    const out = applyChapterEdits(r, [{ title: " Renamed ", include: true }, { title: "Two", include: false }]);
+    expect(out.chapters.map((c) => c.title)).toEqual(["Renamed"]);
+    expect(() => applyChapterEdits(r, r.chapters.map((c) => ({ title: c.title, include: false })))).toThrow();
+    expect(applyChapterEdits(r, [{ title: "  ", include: true }, { title: "Two", include: true }]).chapters[0]!.title).toBe("One");
+  });
+
+  it("keeps only images used by kept chapters", () => {
+    const r = parseImport(md("# One\n\n![a](img/pixel.png)\n\n# Two\n\nC\n"), 1);
+    expect(r.assets).toHaveLength(1);
+    expect(applyChapterEdits(r, [{ title: "One", include: false }, { title: "Two", include: true }]).assets).toHaveLength(0);
   });
 });

@@ -12,7 +12,7 @@ import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate } from "@cadabracraft/templates";
 import { bridge } from "../lib/bridge";
-import { runImport, type ImportReport } from "./importBook";
+import { runImport, type ImportChoices, type ImportReport } from "./importBook";
 import { describePdfError } from "../lib/pdfErrors";
 import { createTauriRunner } from "../lib/typstRunner";
 import { errText } from "../lib/projectError";
@@ -164,7 +164,7 @@ interface State {
     /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
     importImage: () => Promise<string | null>;
     /** Imports a .docx/.md file into a NEW project in `root` (the source is only read), opens it and sets `importReport`. Throws, having created nothing, when the file cannot be imported. */
-    importBook: (sourcePath: string, root: string, title: string, author: string) => Promise<void>;
+    importBook: (sourcePath: string, root: string, title: string, author: string, opts?: ImportChoices) => Promise<void>;
     dismissImportReport: () => void;
   };
 }
@@ -537,9 +537,9 @@ export const useProject = create<State>((set, get) => {
           set({ exportStage: null });
         }
       },
-      async importBook(sourcePath, root, title, author) {
+      async importBook(sourcePath, root, title, author, opts) {
         await flush();
-        const report = await runImport({ sourcePath, root, title, author });
+        const report = await runImport({ sourcePath, root, title, author, ...opts });
         await get().actions.openProject(root);
         set({ importReport: report });
       },

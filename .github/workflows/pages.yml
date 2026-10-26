@@ -16,6 +16,16 @@ jobs:
     runs-on: kinhin-container
     steps:
       - uses: actions/checkout@v7
+      - name: Linux pnpm deps
+        if: runner.os == 'Linux'
+        run: |
+          SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          # The standalone pnpm binary needs libatomic, which the container image lacks.
+          for i in 1 2 3 4 5; do
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with: { node-version: 24, cache: pnpm }

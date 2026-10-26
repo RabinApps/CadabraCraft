@@ -5,6 +5,7 @@ import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { useStartDialogs } from "./commands";
+import type { ImportChoices } from "./importBook";
 import { ImportDialog } from "./ImportDialogs";
 import { useRecents } from "./recents";
 import { errText } from "../lib/projectError";
@@ -17,7 +18,7 @@ interface Props {
   pickFolder: () => Promise<string | null>;
   onCreate: (root: string, title: string, author: string) => void;
   pickImportSource: () => Promise<string | null>;
-  onImport: (source: string, root: string, title: string, author: string) => Promise<void>;
+  onImport: (source: string, root: string, title: string, author: string, opts?: ImportChoices) => Promise<void>;
 }
 
 export function Home({ error, onSettings, onOpen, onOpenRecent, pickFolder, onCreate, pickImportSource, onImport }: Props) {

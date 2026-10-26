@@ -90,22 +90,63 @@ const decode = (s: string): string => { try { return decodeURIComponent(s); } ca
 /** Markdown references may be percent-encoded and carry `?query`/`#fragment`; try them as written first. */
 const imageCandidates = (ref: string): string[] => [...new Set([ref, decode(ref.replace(/[?#].*$/, ""))])];
 
-/** Parses, loads images, and only then writes. Nothing is created when parsing fails; a later failure says what was written. */
-export async function runImport(opts: { sourcePath: string; root: string; title: string; author: string }): Promise<ImportReport> {
-  const fileName = baseName(opts.sourcePath);
-  const ext = /\.([^.]+)$/.exec(fileName)?.[1]?.toLowerCase() ?? "";
-  if (!["docx", "md", "markdown", "txt"].includes(ext)) throw new Error(t`Choose a .docx, .md or .markdown file.`);
+export interface LoadedSource { ext: string; bytes: Uint8Array }
+export interface ChapterEdit { title: string; include: boolean }
+/** What the wizard preview step chose. */
+export interface ImportChoices { splitHeadingLevel?: 1 | 2 | 3; edits?: ChapterEdit[] }
 
-  // 1. Read and parse. The source file is only ever read.
-  const bytes = await bridge.readImportSource(opts.sourcePath);
+/** Reads the source (read-only). Nothing is parsed yet. */
+export async function loadImport(sourcePath: string): Promise<LoadedSource> {
+  const ext = /\.([^.]+)$/.exec(baseName(sourcePath))?.[1]?.toLowerCase() ?? "";
+  if (!["docx", "md", "markdown", "txt"].includes(ext)) throw new Error(t`Choose a .docx, .md or .markdown file.`);
+  return { ext, bytes: await bridge.readImportSource(sourcePath) };
+}
+
+/** Parses a loaded source; pure, so the wizard can re-run it when the split level changes. */
+export function parseImport(src: LoadedSource, splitHeadingLevel: 1 | 2 | 3 = 1): ImportResult {
   let result: ImportResult;
   try {
-    result = ext === "docx" ? importDocx(bytes) : importMarkdown(new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, ""));
+    result = src.ext === "docx"
+      ? importDocx(src.bytes, { splitHeadingLevel })
+      : importMarkdown(new TextDecoder("utf-8").decode(src.bytes).replace(/^\uFEFF/, ""), { splitHeadingLevel });
   } catch (e) {
     if (e instanceof ImportError) throw new Error(describeImportError(e));
     throw e;
   }
   if (result.chapters.length === 0) throw new Error(t`There is no text to import in this file.`);
+  return result;
+}
+
+/** Image sources used by a doc. */
+function imageSources(doc: unknown, into = new Set<string>()): Set<string> {
+  const n = doc as { type?: string; attrs?: { src?: string }; content?: unknown[] } | null;
+  if (n?.type === "image" && n.attrs?.src) into.add(n.attrs.src);
+  n?.content?.forEach((c) => imageSources(c, into));
+  return into;
+}
+
+/** Applies the author's preview edits: skipped chapters are dropped (with the images only they used), blank titles keep the original. */
+export function applyChapterEdits(result: ImportResult, edits: ChapterEdit[]): ImportResult {
+  const chapters = result.chapters.flatMap((c, i) => {
+    const e = edits[i];
+    return e && !e.include ? [] : [{ ...c, title: e?.title.trim() || c.title }];
+  });
+  if (chapters.length === 0) throw new Error(t`Keep at least one chapter.`);
+  const used = new Set<string>();
+  for (const c of chapters) imageSources(c.doc, used);
+  return { ...result, chapters, assets: result.assets.filter((a) => used.has(a.targetPath)) };
+}
+
+/** Parses and writes in one go (no preview). */
+export async function runImport(opts: { sourcePath: string; root: string; title: string; author: string } & ImportChoices): Promise<ImportReport> {
+  const result = parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
+  return writeImport({ ...opts, result: opts.edits ? applyChapterEdits(result, opts.edits) : result });
+}
+
+/** Loads images, and only then writes. Nothing is created when an image or the parse failed earlier; a later failure says what was written. */
+export async function writeImport(opts: { sourcePath: string; root: string; title: string; author: string; result: ImportResult }): Promise<ImportReport> {
+  const fileName = baseName(opts.sourcePath);
+  const { result } = opts;
 
   // 2. Load images into memory (still no writes). A missing or refused image is a warning, not a failure.
   const warnings = [...result.warnings];

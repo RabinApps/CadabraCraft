@@ -58,13 +58,16 @@ async function startImport(page: Page) {
   await expect(dialog.getByLabel("File")).not.toHaveValue("");
   await dialog.getByRole("button", { name: "Choose…" }).click();
   await expect(dialog.getByLabel("New book folder")).toHaveValue("/newbook");
+  await dialog.getByRole("button", { name: "Next" }).click();
   return dialog;
 }
 
 test("importing Markdown creates a new project with chapters, shows the report, and leaves the source untouched", async ({ page }) => {
   await fakeTauri(page, "md");
   const dialog = await startImport(page);
+  await dialog.getByRole("button", { name: "Back" }).click();
   await expect(dialog.getByLabel("Title")).toHaveValue("My Book"); // from the file name
+  await dialog.getByRole("button", { name: "Next" }).click();
   await dialog.getByRole("button", { name: "Import", exact: true }).click();
 
   const report = page.getByRole("dialog", { name: "Import report" });
@@ -109,9 +112,21 @@ test("importing a DOCX works the same way", async ({ page }) => {
 test("an unreadable file shows the error in the dialog and creates no project", async ({ page }) => {
   await fakeTauri(page, "broken");
   const dialog = await startImport(page);
-  await dialog.getByRole("button", { name: "Import", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("does not look like a valid .docx");
   await expect(dialog).toBeVisible();
   const created = await page.evaluate(() => Object.keys((window as any).__disk).length);
   expect(created).toBe(0);
+});
+
+test("the preview step lets the author rename and skip chapters before anything is written", async ({ page }) => {
+  await fakeTauri(page, "md");
+  const dialog = await startImport(page);
+  await expect(dialog.getByLabel("Title of chapter 1")).toHaveValue("Alpha");
+  expect(await page.evaluate(() => Object.keys((window as any).__disk).length)).toBe(0); // nothing written yet
+  await dialog.getByLabel("Title of chapter 1").fill("Prologue");
+  await dialog.getByLabel("Include chapter 2").uncheck();
+  await dialog.getByRole("button", { name: "Import", exact: true }).click();
+  await page.getByRole("dialog", { name: "Import report" }).getByRole("button", { name: "Done" }).click();
+  await expect(chapterNav(page).getByRole("button", { name: "Prologue", exact: true })).toBeVisible();
+  await expect(chapterNav(page).getByRole("button", { name: "Beta", exact: true })).toHaveCount(0);
 });
