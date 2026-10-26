@@ -38,8 +38,9 @@ function write(list: Recent[]) {
 }
 
 /** Recently opened projects. App preference only: absolute paths live here, never in project files. */
-export const useRecents = create<{ recents: Recent[]; add: (root: string, title: string) => void; remove: (root: string) => void }>((set, get) => ({
+export const useRecents = create<{ recents: Recent[]; add: (root: string, title: string) => void; remove: (root: string) => void; clear: () => void }>((set, get) => ({
   recents: read(),
   add: (root, title) => { const next = addRecent(get().recents, { root, title, openedAt: Date.now() }); write(next); set({ recents: next }); },
   remove: (root) => { const next = removeRecent(get().recents, root); write(next); set({ recents: next }); },
+  clear: () => { write([]); set({ recents: [] }); },
 }));

@@ -26,6 +26,7 @@ import { useLayout } from "./layout";
 import { useReading } from "./reading";
 import { useRecents } from "./recents";
 import { useProject } from "./store";
+import { useAppMenu } from "./useAppMenu";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useSaveOnClose } from "./useSaveOnClose";
 import { useWordCount } from "./useWordCount";
@@ -75,6 +76,7 @@ export function App() {
   }, []);
   const [error, setError] = useState("");
   const run = (f: () => Promise<void>) => () => { setError(""); f().catch((e) => setError(errText(e))); };
+  useAppMenu({ view, setView, mode, setMode, openExport, openDetails: () => setDetailsOpen(true), fail: setError });
   const backToBook = () => setView("book");
   if (view === "settings") return <Settings onBack={backToBook} />;
   if (manifest && view === "templates") return <Templates onBack={backToBook} />;

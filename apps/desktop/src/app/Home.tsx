@@ -4,6 +4,7 @@ import { BookOpen, BookPlus, FileUp, FolderOpen, HardDrive, Plus, Settings, X } 
 import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
+import { useStartDialogs } from "./commands";
 import { ImportDialog } from "./ImportDialogs";
 import { useRecents } from "./recents";
 import { errText } from "../lib/projectError";
@@ -21,8 +22,8 @@ interface Props {
 
 export function Home({ error, onSettings, onOpen, onOpenRecent, pickFolder, onCreate, pickImportSource, onImport }: Props) {
   const { t } = useLingui();
-  const [creating, setCreating] = useState(false);
-  const [importing, setImporting] = useState(false);
+  // Shared with the File menu, which can open these from inside a book too.
+  const { creating, importing, setCreating, setImporting } = useStartDialogs();
   const { recents, remove } = useRecents();
   // Folders that failed to open (moved, renamed or deleted). The entry stays so the user removes it deliberately.
   const [missing, setMissing] = useState<ReadonlySet<string>>(new Set());
