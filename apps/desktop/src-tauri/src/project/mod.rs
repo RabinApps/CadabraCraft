@@ -61,11 +61,12 @@ fn ensure_contained(root: &Path, abs: &Path, rel: &str) -> Result<()> {
     }
 }
 
-/// Joins `rel` onto `root`, refusing empty, absolute and `..` paths, backslashes, NUL bytes, and anything that would
-/// leave the project through a symbolic link.
+/// Joins `rel` onto `root`, refusing empty, absolute and `..` paths, backslashes, colons, NUL bytes, and anything that
+/// would leave the project through a symbolic link. Colons are refused on every OS so a project behaves the same
+/// everywhere: on Windows `C:` is a drive prefix and `name:stream` is an NTFS alternate data stream.
 pub fn resolve(root: &Path, rel: &str) -> Result<PathBuf> {
     let p = Path::new(rel);
-    let ok = !rel.is_empty() && !rel.contains('\\') && !rel.contains('\0') && p.components().all(|c| matches!(c, Component::Normal(_)));
+    let ok = !rel.is_empty() && !rel.contains(['\\', ':', '\0']) && p.components().all(|c| matches!(c, Component::Normal(_)));
     if !ok {
         return Err(ProjectError::UnsafePath { path: rel.to_string() });
     }
@@ -496,7 +497,7 @@ mod tests {
     #[test]
     fn resolve_rejects_escapes() {
         let r = Path::new("/p");
-        for bad in ["../x", "/etc/passwd", "a/../../b", "", "a\\b", "./x"] {
+        for bad in ["../x", "/etc/passwd", "a/../../b", "", "a\\b", "./x", "C:/x", "a.json:stream"] {
             assert!(resolve(r, bad).is_err(), "{bad}");
         }
         assert_eq!(resolve(r, "manuscript/001-a.json").unwrap(), Path::new("/p/manuscript/001-a.json"));

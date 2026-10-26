@@ -1,5 +1,5 @@
 {
-  "description": "Project-relative path rules. `resolve` mirrors Rust project::resolve (and TS resolveRelative): non-empty, no backslash, only normal components. Interior `.` and repeated `/` are normalised away (as Path::components does); a leading `./`, `..`, or a leading `/` is refused. `normalized` is the path relative to the root after joining. A NUL byte is refused. `symlinks` checks containment: resolve() must refuse a path that reaches outside the project root through a symbolic link.",
+  "description": "Project-relative path rules. `resolve` mirrors Rust project::resolve (and TS resolveRelative): non-empty, no backslash, no colon (a drive prefix on Windows, an alternate data stream on NTFS; refused on every platform so a project behaves the same everywhere), only normal components.Interior `.` and repeated `/` are normalised away (as Path::components does); a leading `./`, `..`, or a leading `/` is refused. `normalized` is the path relative to the root after joining. A NUL byte is refused. `symlinks` checks containment: resolve() must refuse a path that reaches outside the project root through a symbolic link.",
   "resolve": [
     {
       "rel": "manuscript/001-a.json",
@@ -78,6 +78,18 @@
     },
     {
       "rel": "..\\x",
+      "ok": false
+    },
+    {
+      "rel": "C:/Windows/system.ini",
+      "ok": false
+    },
+    {
+      "rel": "C:relative.json",
+      "ok": false
+    },
+    {
+      "rel": "manuscript/001-a.json:stream",
       "ok": false
     },
     {

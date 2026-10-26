@@ -63,7 +63,7 @@ describe("export_epub / inspect_epub", () => {
     // independent run of the real tool on the written file
     const out = execFileSync("java", ["-jar", jar!, join(s.root, path, "exports/book.epub")], { encoding: "utf8" });
     expect(out).toContain("No errors or warnings detected");
-  });
+  }, 60_000); // runs java twice (server and test), each a cold JVM on CI
 
   it("reports EPUBCheck as not run when the jar is absent", async () => {
     s = await connect({ epubcheckJar: null, repo: "/nonexistent-repo" });

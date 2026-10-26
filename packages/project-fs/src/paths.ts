@@ -3,13 +3,15 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "nod
 import { ProjectFsError } from "./errors";
 
 /**
- * Validates a project-relative path the way Rust `project::resolve` does: non-empty, no backslash, only normal
+ * Validates a project-relative path the way Rust `project::resolve` does: non-empty, no backslash, no colon, only normal
  * components. Interior `.` and repeated `/` are dropped (as `Path::components` does); a leading `./`, `..` and a leading
  * `/` are refused. NUL is refused too (Rust fails on it later, at the syscall). Returns the normalised `a/b` form.
+ * A colon is refused on every platform: on Windows it starts a drive prefix (`C:`) or names an NTFS alternate data
+ * stream, and on macOS and Linux a project copied to Windows would otherwise behave differently. See fixtures/contract.
  */
 export function normalizeRelative(rel: string): string {
   const bad = () => new ProjectFsError("unsafe_path", `unsafe project path: ${rel}`);
-  if (!rel || rel.includes("\\") || rel.includes("\0")) throw bad();
+  if (!rel || rel.includes("\\") || rel.includes(":") || rel.includes("\0")) throw bad();
   const parts = rel.split("/");
   if (parts[0] === "" || parts[0] === ".") throw bad();
   const out: string[] = [];

@@ -227,3 +227,17 @@ See [mcp.md](mcp.md). Decisions:
 - **`write_project_bytes` takes raw bytes** with `root` and `path` in percent-encoded headers, not a JSON `number[]`. The old JSON form is still accepted.
 - **One word counter and one chapter check.** `countWords` lives in `packages/shared`; `isChapterDoc` in `packages/editor-schema` replaces unchecked `as ChapterDoc` casts. Corrupt chapter files are reported and never overwritten.
 - **Autosave 2 s after the last keystroke** (`AUTOSAVE_MS`), plus a flush on `beforeunload` and `pagehide` (best effort; the native close is covered in "Safety follow-ups"). This fixes a data-loss gap where only Save, chapter switch or export wrote to disk. Saves run one at a time.
+
+## Cross-platform paths and CI (macOS, Windows, Linux)
+
+Decisions:
+- **Project paths refuse `\` and `:` on every OS.** Project files move between machines, so a path must mean the same thing everywhere. On Windows `C:` is a drive prefix and `name:stream` is an NTFS alternate data stream, so a colon in a project path could write outside the project or hide data. Rejected: refusing colons only on Windows (a book made on a Mac would then carry names Windows cannot open) and allowing them and relying on `join` (Node's `join` does not treat a drive prefix as an escape, so the check has to be ours). The rule lives in `normalizeRelative` (TS) and `resolve` (Rust), pinned by `fixtures/contract/safe-path.json`.
+- **OS paths and project paths are different things.** `fileBaseName` and `fileExtension` take OS paths from the file dialog or an import, so they treat `\` as a separator on Windows only (`process.platform`). Project paths never use `\`. Do not reuse the OS helpers to validate project paths.
+- **Node file URLs go through `fileURLToPath`, never `.pathname`.** On Windows `new URL(...).pathname` gives `/C:/...`, which `readFileSync` and `spawn` cannot open. Rejected: stripping the leading slash by hand (wrong for UNC paths and for `%20` escapes).
+
+CI lessons (from the macOS failure in run 40399041624):
+- **A JVM start can take over 5 s on CI.** Two EPUBCheck tests on the self-hosted macOS runner took 5.2 s and 5.3 s and failed under vitest's 5 s default, while the same file's later tests passed with a 60 s timeout. Every test that spawns `java` now has an explicit `60_000` timeout (`export-epub` and `mcp`).
+- **`pnpm -r test` stops at the first failing package.** The failing run never reached `mcp`, `format`, `import-docx` or `desktop`. To see every failure locally, run `pnpm -r --no-bail test`.
+- **A failure on one OS cancels the others.** The matrix uses the default `fail-fast`, so the Windows job was cancelled and its result is unknown. A green macOS run says nothing about Windows. Open follow-up: consider `fail-fast: false` in `ci.yml`.
+- **Windows-only branches can be tested on any OS** by stubbing `process.platform` with `Object.defineProperty` and restoring it afterwards (`packages/project-fs/test/paths.test.ts`).
+- **macOS has no `timeout` command.** Use `pnpm` directly or a background run with a log file.
