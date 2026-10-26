@@ -62,6 +62,10 @@ const status = async () => (await app.snapshot()).status.join(" ");
 
 try {
   await step("start screen shows New project, Open folder, Import", async () => {
+    // The sponsor dialog after an export would cover the page in every export step; it has its own Playwright tests.
+    await app.js("location.reload()").catch(() => {});
+    await app.sleep(3000);
+    await app.js(`localStorage.setItem("cadabracraft.sponsor", "hidden")`); // read when the page loads, so load it again
     await app.js("location.reload()").catch(() => {});
     await app.sleep(3000);
     const { buttons } = await app.snapshot();
@@ -263,8 +267,28 @@ try {
     await shot("04-import-report");
   });
 
+  await step("sponsor dialog: appears after an export, Sponsor is the only address the opener may open", async () => {
+    await app.js(`localStorage.removeItem("cadabracraft.sponsor")`);
+    await app.js("location.reload()").catch(() => {}); await app.sleep(3000);
+    await app.queueDialogs([imported]);
+    await app.click("Open folder"); await app.sleep(2500);
+    await exportVia("EPUB 3");
+    for (let i = 0; i < 20 && !(await app.snapshot()).dialogs.some((d) => d.includes("Enjoying CadabraCraft?")); i++) await app.sleep(500);
+    const dialogs = (await app.snapshot()).dialogs;
+    assert(dialogs.some((d) => d.includes("Enjoying CadabraCraft?") && d.includes("Exported exports/book.epub")), `no sponsor dialog: ${JSON.stringify(dialogs)}`);
+    const { buttons } = await app.snapshot();
+    for (const b of ["Don't show again", "Maybe later", "Sponsor"]) assert(buttons.includes(b), `missing ${b}`);
+    await shot("06-sponsor");
+    // The capability allows exactly the sponsor page: any other address must be refused before a browser opens.
+    const refused = await app.js(`window.__TAURI__.core.invoke("plugin:opener|open_url", { url: "https://example.com/" }).then(() => "opened", (e) => "refused:" + String(e))`);
+    assert(String(refused).startsWith("refused:"), `the opener opened a page outside its scope: ${refused}`);
+    await app.click("Maybe later"); await app.sleep(600);
+    assert(!(await app.snapshot()).dialogs.some((d) => d.includes("Enjoying CadabraCraft?")), "Maybe later did not close the dialog");
+    return `dialog shown after the export; example.com refused (${String(refused).slice(0, 60)})`;
+  });
+
   await step("closing the window right after typing saves the text first", async () => {
-    await app.click("Done"); await app.sleep(800); // the import report would otherwise hold the focus
+    await app.click("Done").catch(() => {}); await app.sleep(800); // the import report, when still open, would hold the focus
     await app.js(`(() => { const ed = document.querySelector('.ProseMirror'); ed.focus(); const s = getSelection(); s.selectAllChildren(ed); s.collapseToEnd(); document.execCommand('insertText', false, ' Typed just before closing.'); })()`);
     const dir = join(imported, "manuscript");
     const holds = () => readdirSync(dir).some((f) => readFileSync(join(dir, f), "utf8").includes("Typed just before closing."));

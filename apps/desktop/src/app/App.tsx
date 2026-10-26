@@ -19,6 +19,7 @@ import { AppHeader } from "./AppHeader";
 import { ImportReportDialog } from "./ImportDialogs";
 import { PrintPreview } from "./PrintPreview";
 import { Settings } from "./Settings";
+import { SponsorDialog } from "./SponsorDialog";
 import { Sidebar } from "./Sidebar";
 import { Templates } from "./Templates";
 import { useLayout } from "./layout";
@@ -82,6 +83,7 @@ export function App() {
       <>
         <PrintPreview onBack={backToBook} onExport={openExport} />
         <ExportDialog open={exportOpen} onOpenChange={setExportOpen} format={exportFormat} onFormatChange={setExportFormat} />
+        <SponsorDialog />
       </>
     );
   }
@@ -154,6 +156,7 @@ export function App() {
         </D.Portal>
       </D.Root>
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
+      <SponsorDialog />
       <ImportReportDialog />
     </div>
   );

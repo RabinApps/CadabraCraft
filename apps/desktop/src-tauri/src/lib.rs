@@ -35,7 +35,8 @@ macro_rules! app_handlers {
 pub fn run() {
     let builder = tauri::Builder::default()
         .manage(fs_watch::WatchState::default())
-        .plugin(tauri_plugin_dialog::init());
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init());
 
     // Dev-only: lets an AI agent drive the real window. Debug builds with the feature only, and bound to
     // loopback because the plugin's default (all interfaces) would expose unauthenticated script execution.
