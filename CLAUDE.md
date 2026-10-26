@@ -4,7 +4,7 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 
 ## Rules
 - Work milestone by milestone; no features outside the current one (ideas go in `docs/roadmap.md`).
-- No backend, accounts, telemetry, AI features, or network calls in v1.
+- No backend, accounts, telemetry, AI features, or network calls in v1, except the update check against GitHub Releases (see docs/architecture.md, "Updates and releases").
 - Never overwrite user files without a backup; writes are temp file + rename. Never store absolute paths in project files.
 - Store TipTap JSON on disk, never HTML. The schema in `packages/editor-schema` is the editor/exporter contract; exporters must throw on unknown nodes, never drop them.
 - `packages/*` must not import from `apps/desktop`. Use `workspace:*` for internal deps.

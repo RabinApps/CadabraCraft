@@ -250,3 +250,10 @@ CI lessons (from the macOS failure in run 40399041624):
 - **Undo, Redo, Cut, Copy, Paste stay the system's predefined items;** book-level undo is a separate pair that names the edit. Rejected: routing text undo through the menu (breaks IME and the editor's history).
 - **Native item clicks are not driven by tests.** Accessibility access is not granted, so the end-to-end scenario runs commands through a dev-only `window.__cadabraMenu.run` and checks what the menu was told to show. Unit tests cover the model and the native adapter against a fake menu API. A real click on a native item is only checked by hand.
 
+
+## Updates and releases
+
+- **Updates through `tauri-plugin-updater` and `tauri-plugin-process`.** The updater fetches `latest.json` from the latest GitHub Release, verifies the minisign signature against the public key in `tauri.conf.json` (`plugins.updater.pubkey`), and installs it. The HTTP request runs in Rust, so the webview CSP is unchanged. Rejected: a hand-written GitHub API check and download (more code and no signature check), `electron-updater` (wrong runtime), and package-manager-only distribution (no in-app path).
+- **The update check is the one network call allowed in v1.** It is one request to `github.com/RabinApps/cadabracraft/releases/latest/download/latest.json`, made on launch when the Settings toggle is on (default on) or on "Check for updates". No telemetry, no account, no other traffic. CLAUDE.md's network rule is amended to name this exception.
+- **Updater key is separate from OS signing.** The minisign key signs update payloads and its private half stays out of the repo (CI secret `TAURI_SIGNING_PRIVATE_KEY`). OS signing (Developer ID and notarization on macOS, Azure Trusted Signing on Windows) is handled in CI at release time.
+- **One version source.** `apps/desktop/src-tauri/tauri.conf.json` holds the version. `scripts/set-version.mjs <semver>` writes it to `Cargo.toml` and `apps/desktop/package.json`; `--check [vX.Y.Z]` fails when the three disagree or the tag does not match.
