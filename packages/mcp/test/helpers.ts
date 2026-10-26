@@ -3,7 +3,7 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { strToU8, zipSync } from "fflate";
 import { createServer, type ServerOptions } from "../src/server";
@@ -78,7 +78,7 @@ export function snapshot(dir: string): string[] {
       const p = join(d, n);
       const st = statSync(p);
       if (st.isDirectory()) walk(p);
-      else out.push(`${relative(dir, p)}:${st.size}:${readFileSync(p).toString("hex").slice(0, 64)}`);
+      else out.push(`${relative(dir, p).split(sep).join("/")}:${st.size}:${readFileSync(p).toString("hex").slice(0, 64)}`);
     }
   };
   walk(dir);
