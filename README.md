@@ -14,6 +14,7 @@ Tauri 2 (Rust), React 19, TypeScript, Vite, TipTap 3, Vitest, Playwright, pnpm w
 ## Layout
 ```
 apps/desktop/        Tauri app (src/ React UI, src-tauri/ Rust, e2e/ Playwright)
+apps/website/        Marketing site (Next.js static export, GitHub Pages at cadabracraft.com)
 packages/
   shared/            Shared types (chapter JSON, metadata)
   editor-schema/     TipTap schema for the v1 node set
