@@ -4,7 +4,7 @@ jobs:
   js:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [kinhin-container, kinhin-xcode, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
       REQUIRE_EPUBCHECK: "1"
@@ -27,7 +27,7 @@ jobs:
   rust:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [kinhin-container, kinhin-xcode, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
