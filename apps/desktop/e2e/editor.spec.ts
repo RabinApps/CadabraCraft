@@ -30,17 +30,25 @@ async function fakeTauri(page: Page) {
   });
 }
 
-const prompts = ["E2E Book", "Tester"];
 async function newProject(page: Page) {
-  page.on("dialog", (d) => (d.type() === "prompt" ? d.accept(prompts.shift() ?? "x") : d.accept()));
   await page.goto("/");
-  await page.getByRole("button", { name: "New project…" }).click();
-  await expect(page.getByRole("navigation", { name: "Chapters" })).toBeVisible();
+  await page.getByRole("button", { name: "New project" }).click();
+  const dialog = page.getByRole("dialog", { name: "New book" });
+  await dialog.getByLabel("Title").fill("E2E Book");
+  await dialog.getByLabel("Author").fill("Tester");
+  await dialog.getByRole("button", { name: "Choose…" }).click();
+  await expect(dialog.getByLabel("Folder")).toHaveValue("/proj");
+  await dialog.getByRole("button", { name: "Create book" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
 }
-const titles = (page: Page) => page.getByRole("navigation", { name: "Chapters" }).locator("li > button[aria-current]").allTextContents();
+const titles = (page: Page) => page.getByRole("navigation", { name: "Chapters" }).locator("li > button[aria-current='true']").allTextContents();
+
+async function chapterAction(page: Page, chapter: string, item: string) {
+  await page.getByRole("button", { name: `Actions for ${chapter}` }).click();
+  await page.getByRole("menuitem", { name: item }).click();
+}
 
 test.beforeEach(async ({ page }) => {
-  prompts.splice(0, prompts.length, "E2E Book", "Tester");
   await fakeTauri(page);
 });
 
@@ -60,7 +68,7 @@ test("typed text is saved as TipTap JSON and survives a reload via Open", async 
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");
   await page.reload();
-  await page.getByRole("button", { name: "Open project…" }).click();
+  await page.getByRole("button", { name: "Open folder" }).click();
   await expect(page.locator(".ProseMirror")).toContainText("Hello from Playwright");
 });
 
@@ -69,7 +77,7 @@ test("switching chapters keeps unsaved typing", async ({ page }) => {
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
   await page.keyboard.type("first chapter text");
-  await page.getByRole("button", { name: "+ Add chapter" }).click();
+  await page.getByRole("button", { name: "Add chapter" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
   await page.getByRole("button", { name: "Chapter One", exact: true }).click();
   await expect(page.locator(".ProseMirror")).toContainText("first chapter text");
@@ -77,17 +85,18 @@ test("switching chapters keeps unsaved typing", async ({ page }) => {
 
 test("rename, reorder and delete chapters", async ({ page }) => {
   await newProject(page);
-  await page.getByRole("button", { name: "+ Add chapter" }).click();
-  await page.getByRole("button", { name: "Rename Chapter 2" }).click();
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await chapterAction(page, "Chapter 2", "Rename");
   await page.getByLabel("Chapter title").fill("Second");
   await page.keyboard.press("Enter");
   await expect(page.getByRole("button", { name: "Second", exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "Move Second up" }).click();
+  await chapterAction(page, "Second", "Move up");
   const order = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title));
   expect(order).toEqual(["Second", "Chapter One"]);
 
-  await page.getByRole("button", { name: "Delete Second" }).click();
+  await chapterAction(page, "Second", "Move to trash");
+  await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
   await expect(page.getByRole("button", { name: "Second", exact: true })).toHaveCount(0);
   const trashed = await page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")));
   expect(trashed).toHaveLength(1);
@@ -97,7 +106,7 @@ test("keyboard: chapter controls are reachable with Tab", async ({ page }) => {
   await newProject(page);
   await page.getByRole("button", { name: "Chapter One", exact: true }).focus();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("button", { name: "Rename Chapter One" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Actions for Chapter One" })).toBeFocused();
 });
 
 test("export writes a valid EPUB zip with mimetype first", async ({ page }) => {
@@ -162,14 +171,16 @@ test.describe("formatting toolbar", () => {
   });
 
   test("links accept https and refuse javascript:", async ({ page }) => {
-    const answers = ["javascript:alert(1)", "example.com"];
-    page.removeAllListeners("dialog");
-    page.on("dialog", (d) => (d.type() === "prompt" ? d.accept(answers.shift()!) : d.accept()));
     await typeLine(page, "click me");
     await selectLine(page);
-    await tb(page, "Link").click(); // refused: alert dialog
-    await expect(ed(page).locator("a")).toHaveCount(0);
     await tb(page, "Link").click();
+    const dialog = page.getByRole("dialog", { name: "Add link" });
+    await dialog.getByLabel("Address").fill("javascript:alert(1)");
+    await dialog.getByRole("button", { name: "Apply" }).click();
+    await expect(dialog.getByRole("alert")).toBeVisible(); // refused, dialog stays open
+    await expect(ed(page).locator("a")).toHaveCount(0);
+    await dialog.getByLabel("Address").fill("example.com");
+    await dialog.getByRole("button", { name: "Apply" }).click();
     await expect(ed(page).locator("a")).toHaveAttribute("href", "https://example.com/");
     await tb(page, "Link").click(); // toggles off
     await expect(ed(page).locator("a")).toHaveCount(0);
@@ -182,4 +193,60 @@ test.describe("formatting toolbar", () => {
     await tb(page, "Redo").click();
     await expect(ed(page)).toContainText("oops");
   });
+});
+
+test("dark theme is applied and remembered", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("radio", { name: "Dark theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});
+
+test("phone layout reaches chapters through the sheet", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await newProject(page);
+  await expect(page.getByRole("navigation", { name: "Chapters" })).toHaveCount(0);
+  const toolbar = await page.getByRole("toolbar", { name: "Formatting" }).boundingBox();
+  const editorBox = await page.locator(".ProseMirror").boundingBox();
+  expect(toolbar!.y).toBeGreaterThan(editorBox!.y); // docked below the page on phones
+  await page.getByRole("button", { name: "Show chapters" }).click();
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await page.getByRole("button", { name: "Chapter One", exact: true }).click();
+  await expect(page.getByRole("navigation", { name: "Chapters" })).toHaveCount(0);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+});
+
+test("word count follows typing", async ({ page }) => {
+  await newProject(page);
+  await expect(page.getByText("2 words in this chapter")).toBeVisible(); // the "Chapter One" heading
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.type("one two three");
+  await expect(page.getByText("5 words in this chapter")).toBeVisible();
+});
+
+test("reading mode is read-only, shows unsaved typing and moves between chapters", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await page.getByRole("button", { name: "Chapter One", exact: true }).click();
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.type("Hello reading");
+  await page.getByRole("radio", { name: "Read" }).click();
+  await expect(page.locator(".ProseMirror")).toContainText("Hello reading");
+  await expect(page.locator(".ProseMirror")).toHaveAttribute("contenteditable", "false");
+  await expect(page.getByRole("toolbar", { name: "Formatting" })).toHaveCount(0);
+  await expect(page.getByText("Chapter 1 of 2")).toBeVisible();
+  await page.getByRole("button", { name: "Next chapter" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await expect(page.getByText("Chapter 2 of 2")).toBeVisible();
+  await page.getByRole("button", { name: "Reading settings" }).click();
+  await page.getByRole("menuitem", { name: "Larger text" }).click();
+  await page.keyboard.press("Escape");
+  await page.getByRole("radio", { name: "Write" }).click();
+  await expect(page.getByRole("toolbar", { name: "Formatting" })).toBeVisible();
+  const saved = await page.evaluate(() => Object.values((window as any).__disk).filter((v) => typeof v === "string").join("\n"));
+  expect(saved).toContain("Hello reading");
 });

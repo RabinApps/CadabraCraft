@@ -9,11 +9,12 @@ Open-source desktop app for writing and formatting books. Write in a rich-text e
 Status: **M0 done, M1 mostly built.** You can create or open a project folder, edit chapters (add, rename, reorder, delete to a project trash), save atomically, get conflict copies when files change outside the app, and export EPUB3 (passes EPUBCheck). Typst is chosen for print PDF (M2). See [docs/architecture.md](docs/architecture.md). M2-M4 are not started.
 
 ## Stack
-Tauri 2 (Rust), React 19, TypeScript, Vite, TipTap 3, Vitest, Playwright, pnpm workspaces.
+Tauri 2 (Rust), React 19, TypeScript, Vite, TipTap 3, Tailwind CSS v4, Radix UI, Vitest, Playwright, pnpm workspaces.
 
 ## Layout
 ```
 apps/desktop/        Tauri app (src/ React UI, src-tauri/ Rust, e2e/ Playwright)
+apps/website/        Marketing site (Next.js static export, GitHub Pages at cadabracraft.com)
 packages/
   shared/            Shared types (chapter JSON, metadata)
   editor-schema/     TipTap schema for the v1 node set

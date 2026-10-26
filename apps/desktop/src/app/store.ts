@@ -22,6 +22,8 @@ interface State {
   /** Bumped when the current chapter is reloaded from disk so the editor remounts with the new content. */
   reloadCount: number;
   actions: {
+    /** Saves unsaved typing, if any, without reloading the chapter. */
+    flush: () => Promise<void>;
     externalChange: (path: string) => Promise<void>;
     setDraft: (doc: ChapterDoc) => void;
     openProject: (root: string) => Promise<void>;
@@ -51,7 +53,7 @@ export const useProject = create<State>((set, get) => {
   /** Saves unsaved edits so switching chapters never loses typing. */
   const flush = async () => {
     const d = get().draft;
-    if (d) { await get().actions.saveCurrent(d); set({ draft: null }); }
+    if (d) { await get().actions.saveCurrent(d); set({ draft: null, currentDoc: d }); }
   };
   const load = async (id: string) => {
     await flush();
@@ -66,6 +68,7 @@ export const useProject = create<State>((set, get) => {
   return {
     root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0,
     actions: {
+      flush,
       async externalChange(path) {
         const { root, manifest, hashes } = get();
         if (!root || !manifest) return;

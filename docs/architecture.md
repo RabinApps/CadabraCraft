@@ -48,5 +48,16 @@ Content hashes are used instead of modification times because sync clients rewri
 ### Editor toolbar
 Formatting buttons (undo/redo, bold, italic, underline, small caps, link, H1-H3, quote, lists, scene break, footnote) live in `apps/desktop/src/editor/Toolbar.tsx`, expose `aria-pressed` state, and are tested in Playwright. Links are limited to http, https and mailto (`normalizeLinkUrl`). Image insertion is deferred until assets import exists.
 
+### Desktop UI stack
+**Decision:** Tailwind CSS v4 with Radix UI primitives (dialog, dropdown menu, toggle group) and lucide icons, in `apps/desktop` only. Design tokens are CSS variables in `src/styles/tokens.css`, mirroring `cadabracraft.pen` and `docs/design.md`; `data-theme` (`system | light | dark`, stored in `localStorage`) switches them. Inter and Newsreader are bundled via `@fontsource-variable/*`, so there are no runtime font requests.
+**Why:** tokens map one to one onto Tailwind `@theme`; build-time only (no runtime, no network); Radix gives accessible dialogs and menus without imposing a look; small bundle for the webview.
+**Rejected:** MUI (Material look, emotion runtime, a second theming system to keep in sync with the design), CSS modules (more hand-written responsive and dark-mode code), Chakra and Mantine (runtime theming, same drawbacks as MUI).
+**Caveats:** the e2e suite fakes the Tauri bridge, so native dialogs (`pickFolder`) and the real window are not covered. Reading mode keeps text size and page width in `localStorage` only (app preference, never in project files). Unsaved typing is saved when switching to Read, like switching chapters.
+
 ### Not done yet in M1
 Full-project undo of tree edits, real-client sync testing (M3), and Tauri-WebDriver e2e covering the Rust side.
+
+## Marketing website (`apps/website`)
+Next.js (App Router) with `output: 'export'`, Tailwind v4 and the tokens from `docs/design.md`, deployed to GitHub Pages at cadabracraft.com by `.github/workflows/pages.yml` (custom domain via `public/CNAME`, so no `basePath`). Fonts are self-hosted at build time by `next/font`; the shipped site makes no third-party requests and has no analytics. The site is a standalone app and imports nothing from `packages/*`.
+
+Rejected: Astro (Next.js was requested), plain HTML (no shared components or theming), publishing from `docs/` (mixes site output with project docs).
