@@ -94,7 +94,7 @@ The native application menu (not drawn in the pen: it is the operating system's,
 - **The structure never changes; availability does.** A command exists only while its screen is showing (book commands in a book's main view, formatting while the editor is shown, Focus Mode in Write). Anything else is greyed out, never hidden. Items act on the page only when no dialog is open.
 - **Shortcuts** are native accelerators (`CmdOrCtrl+N`, `+O`, `+S`, `+E`, `+Shift+E`, `+Shift+I`, `+Shift+N`, `+Shift+F`, `+Shift+W`, `+,`, `+[`, `+]`). Bold, italic and Undo keep the editor's own shortcuts.
 - **Strings** are translated like the rest of the UI (Lingui, `en` and `pseudo`).
-- Dev builds publish the model and a command runner at `window.__cadabraMenu` for `scripts/automation/scenario.mjs`, which cannot click native menu items.
+- Dev builds publish the model and a command runner at `window.__cadabraMenu` for `scripts/automation/scenario.ts`, which cannot click native menu items.
 
 ## Implementation notes
 - Stack decision: Tailwind CSS v4 (`@theme` tokens above) plus Radix UI primitives. Not MUI (Material look, emotion runtime, second theming system). Log it with `/record-decision` before adding dependencies.

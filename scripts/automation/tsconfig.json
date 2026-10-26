@@ -1,0 +1,1 @@
+{ "extends": "../../tsconfig.base.json", "compilerOptions": { "lib": ["ES2023", "DOM"], "allowImportingTsExtensions": true, "erasableSyntaxOnly": true }, "include": ["*.ts", "../../apps/desktop/e2e/fixtures.ts"] }

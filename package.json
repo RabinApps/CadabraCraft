@@ -4,10 +4,11 @@
   "packageManager": "pnpm@11.10.0",
   "scripts": {
     "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm -r typecheck && pnpm typecheck:scripts",
+    "typecheck:scripts": "tsc -p scripts/automation/tsconfig.json",
     "dev": "pnpm --filter @cadabracraft/desktop dev",
     "tauri": "pnpm --filter @cadabracraft/desktop tauri",
-    "automation:scenario": "node scripts/automation/scenario.mjs --launch"
+    "automation:scenario": "node scripts/automation/scenario.ts --launch"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

@@ -288,3 +288,8 @@ Rejected: Astro (Next.js was requested), plain HTML (no shared components or the
 The site is several static routes (home, features, compare, support, download) built from plain TSX plus typed data files (`src/data/*`), with per-page metadata through `src/lib/seo.ts`, `sitemap.ts`, `robots.ts` and JSON-LD. Compare pages come from one `[slug]` route over `src/data/competitors.ts`; every fact there is sourced or marked "Not verified", and pages state the date it was compiled. Structured data is `WebSite`, not `SoftwareApplication`, until a release exists.
 
 Rejected: MDX (a new dependency for content that is mostly structured data), analytics or tag managers (the no-tracking rule), a headless CMS (backend and accounts), hand-written comparison pages (drift between pages and no shared table).
+
+## Tests and harnesses are TypeScript
+Every test and test harness is TypeScript: Vitest and Playwright suites, the native smoke test, and the click-through in `scripts/automation/` (run by `pnpm automation:scenario`, typechecked by `pnpm typecheck:scripts`). The `.ts` files run directly on Node 24 (built-in type stripping), so the scripts avoid type-only syntax that needs a transform (enums, parameter properties, `<T>` casts; `erasableSyntaxOnly` enforces it).
+
+Rejected: keeping `.mjs` scripts (no typechecking, and the scenario already imported a `.ts` fixture); adding `tsx` or `ts-node` (a new tool to download, and Node already does the job).

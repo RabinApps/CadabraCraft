@@ -8,21 +8,21 @@ An AI agent (or a script) can operate the real CadabraCraft window in developmen
 ## Quick start
 ```bash
 pnpm automation:scenario                      # launches the app, runs the whole click-through, stops the app
-node scripts/automation/scenario.mjs --launch --out /tmp/run1   # keep the artifacts somewhere you choose
+node scripts/automation/scenario.ts --launch --out /tmp/run1   # keep the artifacts somewhere you choose
 ```
 The scenario creates a project, types, applies formatting, inserts an image, exports EPUB (then runs EPUBCheck), exports a 6x9 PDF (then checks page size), and imports Markdown into a new project, asserting at each step. It writes `results.json` and screenshots to the output folder.
 
 For ad-hoc driving, start the app with `pnpm --filter @cadabracraft/desktop tauri:automate`, then:
 ```bash
-node scripts/automation/cli.mjs snapshot                 # buttons, fields, headings, dialogs, editor text
-node scripts/automation/cli.mjs screenshot /tmp/a.png
-node scripts/automation/cli.mjs queue-dialog /path/to/folder
-node scripts/automation/cli.mjs click "New project"
-node scripts/automation/cli.mjs fill 0 "My Book"
-node scripts/automation/cli.mjs js "document.title"
-node scripts/automation/cli.mjs invoke read_project_file '{"root":"/path","path":"cadabra.json"}'
+node scripts/automation/cli.ts snapshot                 # buttons, fields, headings, dialogs, editor text
+node scripts/automation/cli.ts screenshot /tmp/a.png
+node scripts/automation/cli.ts queue-dialog /path/to/folder
+node scripts/automation/cli.ts click "New project"
+node scripts/automation/cli.ts fill 0 "My Book"
+node scripts/automation/cli.ts js "document.title"
+node scripts/automation/cli.ts invoke read_project_file '{"root":"/path","path":"cadabra.json"}'
 ```
-`scripts/automation/client.mjs` exports the same operations for scripts (`connect()` then `click`, `fill`, `snapshot`, `screenshot`, `queueDialogs`, `invoke`, `js`).
+`scripts/automation/client.ts` exports the same operations for scripts (`connect()` then `click`, `fill`, `snapshot`, `screenshot`, `queueDialogs`, `invoke`, `js`).
 
 ## Using the plugin's own MCP server
 The plugin authors publish an MCP server (`@hypothesi/tauri-mcp-server`) with higher-level tools (`webview_dom_snapshot`, `webview_interact`, `webview_screenshot`, ...). It is optional: our client above speaks the same bridge with no third-party code. To use it, add it to your own MCP config (not committed) after reviewing the package:

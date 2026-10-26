@@ -1,44 +1,45 @@
 #!/usr/bin/env node
 // End-to-end click-through of the REAL desktop app (create, edit, image, EPUB, PDF, import) with assertions.
-// Usage: node scripts/automation/scenario.mjs [--launch] [--out <dir>]
+// Usage: node scripts/automation/scenario.ts [--launch] [--out <dir>]
 //   --launch  start `pnpm tauri:automate` first (waits for the bridge) and stop it afterwards
 //   --out     where to put the scratch books and screenshots (default: a new temp dir)
-import { spawn, execFileSync } from "node:child_process";
+import { spawn, execFileSync, type ChildProcess } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { connect } from "./client.mjs";
+import { connect, type App } from "./client.ts";
 import { tinyDocx } from "../../apps/desktop/e2e/fixtures.ts";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const args = process.argv.slice(2);
-const out = args.includes("--out") ? resolve(args[args.indexOf("--out") + 1]) : mkdtempSync(join(tmpdir(), "cadabra-scenario-"));
+const out = args.includes("--out") ? resolve(args[args.indexOf("--out") + 1] ?? ".") : mkdtempSync(join(tmpdir(), "cadabra-scenario-"));
 mkdirSync(out, { recursive: true });
 
-const results = [];
-const step = async (name, fn) => {
+const results: { name: string; ok: boolean; detail?: string | void }[] = [];
+const step = async (name: string, fn: () => Promise<string | void>) => {
   try {
     const detail = await fn();
     results.push({ name, ok: true, detail });
     console.log(`PASS ${name}${detail ? ` - ${detail}` : ""}`);
   } catch (e) {
-    results.push({ name, ok: false, detail: e.message });
-    console.log(`FAIL ${name} - ${e.message}`);
+    const message = e instanceof Error ? e.message : String(e);
+    results.push({ name, ok: false, detail: message });
+    console.log(`FAIL ${name} - ${message}`);
     throw e;
   }
 };
-const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
+const assert: (cond: unknown, msg: string) => asserts cond = (cond, msg) => { if (!cond) throw new Error(msg); };
 
-let app;
-let child;
+let launched: App | undefined;
+let child: ChildProcess | undefined;
 if (args.includes("--launch")) {
   child = spawn("pnpm", ["--filter", "@cadabracraft/desktop", "tauri:automate"], { cwd: repo, stdio: "ignore", detached: true });
   for (let i = 0; i < 90; i++) {
-    try { app = await connect({ timeoutMs: 30000 }); break; } catch { await new Promise((r) => setTimeout(r, 2000)); }
+    try { launched = await connect({ timeoutMs: 30000 }); break; } catch { await new Promise((r) => setTimeout(r, 2000)); }
   }
 }
-app ??= await connect();
+const app: App = launched ?? await connect();
 
 const book = join(out, "book"), imported = join(out, "imported"), src = join(out, "src");
 for (const d of [book, imported, src]) mkdirSync(d, { recursive: true });
@@ -49,15 +50,15 @@ const importedDocx = join(out, "imported-docx");
 mkdirSync(importedDocx, { recursive: true });
 const mdBefore = readFileSync(join(src, "book.md"), "utf8");
 const png = join(repo, "fixtures/assets/pixel.png");
-const shot = (n) => app.screenshot(join(out, `${n}.png`));
+const shot = (n: string) => app.screenshot(join(out, `${n}.png`));
 // Radix menus open on pointerdown, so a plain click() is not enough for the trigger; items react to click().
-const openMenu = (label) => app.js(`(() => { const b = [...document.querySelectorAll("button")].find((b) => (b.textContent.trim() || b.getAttribute("aria-label")) === ${JSON.stringify(label)});
+const openMenu = (label: string) => app.js(`(() => { const b = [...document.querySelectorAll("button")].find((b) => (b.textContent.trim() || b.getAttribute("aria-label")) === ${JSON.stringify(label)});
   if (!b) throw new Error("no button: ${label}"); b.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerType: "mouse" })); return "opened"; })()`);
-const pickItem = (label) => app.js(`(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim() === ${JSON.stringify(label)});
+const pickItem = (label: string) => app.js(`(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim() === ${JSON.stringify(label)});
   if (!i) throw new Error("no menu item: ${label}"); i.click(); return "picked"; })()`);
 // The Export dialog (M2): the header button opens it, a Format control picks EPUB or PDF, the dialog's submit button runs it.
-const dlg = (body) => app.js(`(() => { const d = document.querySelector('[role="dialog"]'); if (!d) throw new Error("no dialog"); ${body} })()`);
-const exportVia = async (format) => {
+const dlg = (body: string) => app.js(`(() => { const d = document.querySelector('[role="dialog"]'); if (!d) throw new Error("no dialog"); ${body} })()`);
+const exportVia = async (format: string) => {
   await app.click("Export"); await app.sleep(800);
   await dlg(`const o = [...d.querySelectorAll("button,[role=radio]")].find((e) => e.textContent.trim() === ${JSON.stringify(format)}); if (!o) throw new Error("no format: ${format}"); o.click(); return "picked";`);
   await app.sleep(300);
@@ -69,12 +70,13 @@ const menuState = async () => {
   const m = JSON.parse(await app.js(`JSON.stringify(window.__cadabraMenu ? { error: window.__cadabraMenu.error, model: window.__cadabraMenu.model } : null)`));
   assert(m, "the app did not publish its menu");
   assert(m.error === null, `the system refused the menu: ${m.error}`);
-  const items = new Map();
-  const walk = (entries) => { for (const e of entries) { if (e.kind === "command") items.set(e.arg === undefined ? e.id : `${e.id}:${e.arg}`, e); else if (e.kind === "submenu") walk(e.items); } };
+  type MenuEntry = { kind: string; id: string; arg?: string; text: string; enabled: boolean; checked?: boolean; accelerator?: string; items: MenuEntry[] };
+  const items = new Map<string, MenuEntry>();
+  const walk = (entries: MenuEntry[]) => { for (const e of entries) { if (e.kind === "command") items.set(e.arg === undefined ? e.id : `${e.id}:${e.arg}`, e); else if (e.kind === "submenu") walk(e.items); } };
   walk(m.model);
-  return { tops: m.model.filter((e) => e.kind === "submenu").map((e) => e.text), items };
+  return { tops: (m.model as MenuEntry[]).filter((e) => e.kind === "submenu").map((e) => e.text), items };
 };
-const runMenu = async (id, arg) => { const ran = await app.js(`window.__cadabraMenu.run(${JSON.stringify(id)}, ${JSON.stringify(arg)})`); if (ran !== true) { const why = await app.js(`JSON.stringify({ dialogs: [...document.querySelectorAll("[role=dialog]")].map((d) => d.textContent.slice(0, 80)), headings: [...document.querySelectorAll("h1,h2")].map((h) => h.textContent) })`); assert(false, `menu command ${id} did not run: ${why}`); } await app.sleep(900); };
+const runMenu = async (id: string, arg?: string) => { const ran = await app.js(`window.__cadabraMenu.run(${JSON.stringify(id)}, ${JSON.stringify(arg)})`); if (ran !== true) { const why = await app.js(`JSON.stringify({ dialogs: [...document.querySelectorAll("[role=dialog]")].map((d) => d.textContent.slice(0, 80)), headings: [...document.querySelectorAll("h1,h2")].map((h) => h.textContent) })`); assert(false, `menu command ${id} did not run: ${why}`); } await app.sleep(900); };
 
 
 try {
@@ -95,7 +97,7 @@ try {
     assert(tops.join(",") === "CadabraCraft,File,Edit,Insert,Format,View,Window,Help", `menu bar: ${tops}`);
     for (const id of ["app.settings", "file.new", "file.open", "file.import", "help.sponsor"]) assert(items.get(id)?.enabled === true, `${id} should be available`);
     for (const id of ["file.save", "file.bookDetails", "file.exportEpub", "file.close", "insert.chapter", "view.read", "editor.bold", "go.next"]) assert(items.get(id)?.enabled === false, `${id} should be greyed out`);
-    assert(items.get("app.settings").accelerator === "CmdOrCtrl+,", "Settings has no shortcut");
+    assert(items.get("app.settings")?.accelerator === "CmdOrCtrl+,", "Settings has no shortcut");
     return `${tops.length} menus; Settings under CadabraCraft`;
   });
 
@@ -126,7 +128,7 @@ try {
     for (const id of ["file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.printPreview", "file.close", "insert.chapter", "view.read", "view.focus", "editor.bold", "editor.sceneBreak"]) {
       assert(items.get(id)?.enabled === true, `${id} should be available in a book`);
     }
-    assert(items.get("view.write").checked === true && items.get("view.read").checked === false, "Write should be ticked");
+    assert(items.get("view.write")?.checked === true && items.get("view.read")?.checked === false, "Write should be ticked");
     assert(items.get("file.openRecent:" + book)?.text === "Scenario Book", "the open book is not in Open Recent");
     return "book actions available; Write ticked; the book is listed in Open Recent";
   });
@@ -191,12 +193,12 @@ try {
       const info = execFileSync("pdfinfo", [pdf], { encoding: "utf8" });
       assert(/Page size:\s+432 x 648/.test(info), "wrong page size");
       const pages = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }).split("\f");
-      assert(pages[0].includes("Scenario Book") && pages[0].includes("Agent"), "title page is not first");
+      assert(pages[0]?.includes("Scenario Book") && pages[0]?.includes("Agent"), "title page is not first");
       assert(pages.some((p) => p.includes("About the Author")), "back matter missing from the PDF");
       assert(pages.findIndex((p) => p.includes("Typed by an agent")) < pages.findIndex((p) => p.includes("About the Author")), "back matter is not after the chapters");
       return "432x648 pt (6x9 in), title page first, about-the-author last";
     } catch (e) {
-      if (e.code === "ENOENT") return "exported (poppler not installed, not inspected)";
+      if ((e as NodeJS.ErrnoException).code === "ENOENT") return "exported (poppler not installed, not inspected)";
       throw e;
     }
   });
@@ -237,9 +239,9 @@ try {
   });
 
   await step("PDF export includes the cover as a blank-backed first page, and can leave it out", async () => {
-    const pagesOf = (pdf) => execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }).split("\f").slice(0, -1);
+    const pagesOf = (pdf: string) => execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }).split("\f").slice(0, -1);
     const pdf = join(book, "exports/book.pdf");
-    const exportPdf = async (include) => {
+    const exportPdf = async (include: boolean) => {
       await app.click("Export"); await app.sleep(800);
       await dlg(`const o = [...d.querySelectorAll("button,[role=radio]")].find((e) => e.textContent.trim() === "Print PDF"); o.click(); return "picked";`);
       await app.sleep(400);
@@ -253,15 +255,15 @@ try {
     try {
       await exportPdf(true);
       const withCover = pagesOf(pdf);
-      assert(withCover[0].trim() === "" && withCover[1].trim() === "", "first two pages (cover and its back) are not text-free");
-      assert(withCover[2].includes("Scenario Book") && withCover[2].includes("Agent"), "title page is not on page 3");
+      assert(withCover[0]?.trim() === "" && withCover[1]?.trim() === "", "first two pages (cover and its back) are not text-free");
+      assert(withCover[2]?.includes("Scenario Book") && withCover[2]?.includes("Agent"), "title page is not on page 3");
       await exportPdf(false);
       const plain = pagesOf(pdf);
-      assert(plain[0].includes("Scenario Book"), "without the cover the title page is not first");
+      assert(plain[0]?.includes("Scenario Book"), "without the cover the title page is not first");
       assert(withCover.length === plain.length + 2 && JSON.stringify(withCover.slice(2)) === JSON.stringify(plain), "later pages differ with a cover");
       return `with cover ${withCover.length} pages, without ${plain.length}; pages after the cover are identical`;
     } catch (e) {
-      if (e.code === "ENOENT") return "exported (poppler not installed, not inspected)";
+      if ((e as NodeJS.ErrnoException).code === "ENOENT") return "exported (poppler not installed, not inspected)";
       throw e;
     }
   });
@@ -273,13 +275,13 @@ try {
     await runMenu("view.read");
     assert((await editable()) === "false", "Read did not switch to reading mode");
     let m = await menuState();
-    assert(m.items.get("view.read").checked === true && m.items.get("editor.bold").enabled === false, "in Read the formatting items should be greyed out and Read ticked");
+    assert(m.items.get("view.read")?.checked === true && m.items.get("editor.bold")?.enabled === false, "in Read the formatting items should be greyed out and Read ticked");
     await runMenu("view.write");
     assert((await editable()) === "true", "Write did not switch back");
     await runMenu("insert.chapter");
     assert(chapters() === before + 1, "New Chapter did not add a chapter");
     m = await menuState();
-    assert(/^Undo Add /.test(m.items.get("edit.bookUndo").text) && m.items.get("edit.bookUndo").enabled, `Undo should name the edit: ${m.items.get("edit.bookUndo").text}`);
+    assert(/^Undo Add /.test(m.items.get("edit.bookUndo")?.text ?? "") && m.items.get("edit.bookUndo")?.enabled, `Undo should name the edit: ${m.items.get("edit.bookUndo")?.text}`);
     await runMenu("edit.bookUndo");
     assert(chapters() === before, "Undo did not remove the chapter");
     await runMenu("file.bookDetails");
@@ -292,7 +294,7 @@ try {
     await runMenu("file.close");
     assert((await app.snapshot()).buttons.includes("New project"), "Close Project did not return to the start screen");
     m = await menuState();
-    assert(m.items.get("file.save").enabled === false && m.items.get("file.openRecent:" + book)?.enabled === true, "after closing, book actions should be greyed out and the book still in Open Recent");
+    assert(m.items.get("file.save")?.enabled === false && m.items.get("file.openRecent:" + book)?.enabled === true, "after closing, book actions should be greyed out and the book still in Open Recent");
     await runMenu("file.openRecent", book); await app.sleep(1500);
     assert((await app.snapshot()).headings.includes("Scenario Book"), "Open Recent did not reopen the book");
     await runMenu("file.new"); await app.sleep(1200);
@@ -304,7 +306,7 @@ try {
   });
 
   await step("commands refuse a root that is not an existing project", async () => {
-    const outcome = (cmd, args) => app.js(`window.__TAURI__.core.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)}).then((r) => "resolved:" + JSON.stringify(r), (e) => "rejected:" + JSON.stringify(e))`);
+    const outcome = (cmd: string, args: unknown) => app.js(`window.__TAURI__.core.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)}).then((r) => "resolved:" + JSON.stringify(r), (e) => "rejected:" + JSON.stringify(e))`);
     const notProject = join(out, "not-a-project");
     mkdirSync(notProject, { recursive: true });
     for (const [cmd, args] of [
@@ -314,7 +316,7 @@ try {
       ["write_project_bytes", { root: notProject, path: "exports/x.pdf", bytes: [1] }],
       ["read_asset", { root: notProject, path: "assets/x.png" }],
       ["list_project_trash", { root: notProject }],
-    ]) {
+    ] as [string, { root: string }][]) {
       const r = await outcome(cmd, args);
       assert(r.startsWith("rejected:") && r.includes("not_a_project"), `${cmd} on ${args.root}: ${r}`);
     }
@@ -362,7 +364,7 @@ try {
     assert(readFileSync(join(src, "book.docx")).equals(docxBefore), "source .docx was modified");
     const files = readdirSync(join(importedDocx, "manuscript"));
     assert(files.length === 1, `expected 1 chapter file, got ${files.join(",")}`);
-    assert(readFileSync(join(importedDocx, "manuscript", files[0]), "utf8").includes("First chapter text"), "chapter text missing");
+    assert(readFileSync(join(importedDocx, "manuscript", files[0] ?? ""), "utf8").includes("First chapter text"), "chapter text missing");
     assert(readFileSync(join(importedDocx, "cadabra.json"), "utf8").includes("Prologue"), "rename not in manifest");
     assert(!readFileSync(join(importedDocx, "cadabra.json"), "utf8").includes("Dusk"), "skipped chapter listed");
     await shot("06-import-docx-report");
@@ -406,5 +408,5 @@ try {
   writeFileSync(join(out, "results.json"), JSON.stringify(results, null, 2));
   console.log(`\n${results.filter((r) => r.ok).length}/${results.length} steps passed. Artifacts: ${out}`);
   app.close();
-  if (child) try { process.kill(-child.pid); } catch {}
+  if (child) try { process.kill(-child.pid!); } catch {}
 }
