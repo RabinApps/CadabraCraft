@@ -87,7 +87,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
           <span className="text-xs font-semibold text-ink-muted">{t`Cover`}</span>
           <div className="mx-auto w-[160px] sm:w-full"><CoverPreview cover={form.cover} title={form.title} author={form.author} /></div>
           <div className="flex gap-2">
-            <Button className="flex-1 px-3" icon={ImagePlus} onClick={() => void choose()}>{t`Choose image…`}</Button>
+            <Button className="flex-1 gap-1.5 whitespace-nowrap px-2" icon={ImagePlus} onClick={() => void choose()}>{t`Choose image…`}</Button>
             <IconButton icon={Trash2} label={t`Remove cover`} disabled={!form.cover} onClick={() => set({ cover: null })} />
           </div>
           <p className="text-xs leading-relaxed text-ink-muted">{t`PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best.`}</p>

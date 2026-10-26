@@ -161,6 +161,71 @@ try {
     }
   });
 
+  await step("Book details: set ISBN and a cover through the real picker, saved to cadabra.json", async () => {
+    await app.click("Book details"); await app.sleep(800);
+    assert((await app.snapshot()).dialogs.some((d) => d.includes("Book details")), "dialog did not open");
+    await app.js(`(() => { const d = document.querySelector('[role="dialog"]'); const i = [...d.querySelectorAll("input")].find((e) => e.id && d.querySelector("label[for=\\"" + e.id + "\\"]")?.textContent === "ISBN"); if (!i) throw new Error("no ISBN field");
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(i, "978-3-16-148410-0"); i.dispatchEvent(new Event("input", { bubbles: true })); return "filled"; })()`);
+    await app.queueDialogs([png]);
+    await dlg(`[...d.querySelectorAll("button")].find((b) => b.textContent.trim() === "Choose image…").click(); return "choosing";`);
+    await app.sleep(1500);
+    const shown = await dlg(`const i = d.querySelector('img[alt="Cover preview"]'); return !!i && i.complete && i.naturalWidth > 0;`);
+    assert(shown === true, "cover preview did not render from the real read_asset");
+    await shot("05-book-details");
+    await dlg(`[...d.querySelectorAll("button")].find((b) => b.textContent.trim() === "Save details").click(); return "saved";`);
+    await app.sleep(1500);
+    assert(!(await app.snapshot()).dialogs.some((d) => d.includes("Book details")), "dialog did not close");
+    const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
+    assert(manifest.cover === "assets/pixel.png" && manifest.isbn === "978-3-16-148410-0", `manifest wrong: cover=${manifest.cover} isbn=${manifest.isbn}`);
+    assert(manifest.title === "Scenario Book" && manifest.chapters.length === 1, "other fields changed");
+    return "cover assets/pixel.png, ISBN saved";
+  });
+
+  await step("EPUB export with a cover: cover page first, cover-image item, EPUBCheck clean", async () => {
+    await exportVia("EPUB 3");
+    await app.sleep(1500);
+    for (let i = 0; i < 15 && !(await status()).includes("exports/book.epub"); i++) await app.sleep(1000);
+    const epub = join(book, "exports/book.epub");
+    const opf = execFileSync("unzip", ["-p", epub, "OEBPS/content.opf"], { encoding: "utf8" });
+    assert(opf.includes('properties="cover-image"') && /<spine><itemref idref="epub-cover"\/>/.test(opf), "cover missing from the package");
+    assert(execFileSync("unzip", ["-l", epub], { encoding: "utf8" }).includes("OEBPS/assets/pixel.png"), "cover image not in the EPUB");
+    const jar = join(repo, "tools/epubcheck-5.4.0/epubcheck.jar");
+    if (!existsSync(jar)) return "exported with cover (EPUBCheck jar not installed, validation skipped)";
+    const o = execFileSync("java", ["-jar", jar, epub], { encoding: "utf8" });
+    assert(o.includes("No errors or warnings detected"), o.slice(-300));
+    return "EPUBCheck: 0 errors, 0 warnings";
+  });
+
+  await step("PDF export includes the cover as a blank-backed first page, and can leave it out", async () => {
+    const pagesOf = (pdf) => execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }).split("\f").slice(0, -1);
+    const pdf = join(book, "exports/book.pdf");
+    const exportPdf = async (include) => {
+      await app.click("Export"); await app.sleep(800);
+      await dlg(`const o = [...d.querySelectorAll("button,[role=radio]")].find((e) => e.textContent.trim() === "Print PDF"); o.click(); return "picked";`);
+      await app.sleep(400);
+      assert(await dlg(`return !!d.querySelector('input[type="checkbox"]') && d.textContent.includes("Include the cover");`), "no Include the cover option");
+      await dlg(`const c = [...d.querySelectorAll('input[type="checkbox"]')].find((i) => i.closest("label,div")?.textContent.includes("Include the cover")); if (c.checked !== ${include}) c.click(); return c.checked;`);
+      await app.sleep(300);
+      await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
+      await app.sleep(1500);
+      for (let i = 0; i < 40 && (await app.snapshot()).dialogs.length; i++) await app.sleep(1000);
+    };
+    try {
+      await exportPdf(true);
+      const withCover = pagesOf(pdf);
+      assert(withCover[0].trim() === "" && withCover[1].trim() === "", "first two pages (cover and its back) are not text-free");
+      assert(withCover[2].includes("Scenario Book") && withCover[2].includes("Agent"), "title page is not on page 3");
+      await exportPdf(false);
+      const plain = pagesOf(pdf);
+      assert(plain[0].includes("Scenario Book"), "without the cover the title page is not first");
+      assert(withCover.length === plain.length + 2 && JSON.stringify(withCover.slice(2)) === JSON.stringify(plain), "later pages differ with a cover");
+      return `with cover ${withCover.length} pages, without ${plain.length}; pages after the cover are identical`;
+    } catch (e) {
+      if (e.code === "ENOENT") return "exported (poppler not installed, not inspected)";
+      throw e;
+    }
+  });
+
   await step("import Markdown into a new project; source untouched; warnings reported", async () => {
     await app.js("location.reload()").catch(() => {}); await app.sleep(3000);
     await app.queueDialogs([join(src, "book.md"), imported]);
