@@ -14,6 +14,7 @@
     "fflate": "^0.8.3"
   },
   "devDependencies": {
+    "@cadabracraft/templates": "workspace:*",
     "tsx": "^4.23.15"
   }
 }

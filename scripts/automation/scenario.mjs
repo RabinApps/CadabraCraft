@@ -45,6 +45,11 @@ writeFileSync(join(src, "book.md"), "# First\n\nHello *world*[^1].\n\n| a | b |\
 const mdBefore = readFileSync(join(src, "book.md"), "utf8");
 const png = join(repo, "fixtures/assets/pixel.png");
 const shot = (n) => app.screenshot(join(out, `${n}.png`));
+// Radix menus open on pointerdown, so a plain click() is not enough for the trigger; items react to click().
+const openMenu = (label) => app.js(`(() => { const b = [...document.querySelectorAll("button")].find((b) => (b.textContent.trim() || b.getAttribute("aria-label")) === ${JSON.stringify(label)});
+  if (!b) throw new Error("no button: ${label}"); b.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerType: "mouse" })); return "opened"; })()`);
+const pickItem = (label) => app.js(`(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim() === ${JSON.stringify(label)});
+  if (!i) throw new Error("no menu item: ${label}"); i.click(); return "picked"; })()`);
 const status = async () => (await app.snapshot()).status.join(" ");
 
 try {
@@ -89,9 +94,30 @@ try {
     await shot("03-image");
   });
 
-  await step("EPUB export passes EPUBCheck", async () => {
+  await step("add a title page and a back-matter page through the Add page menu", async () => {
+    await openMenu("Add page"); await app.sleep(400);
+    await pickItem("Title page"); await app.sleep(1500);
+    const editorH1 = () => app.js(`document.querySelector(".ProseMirror h1")?.textContent ?? ""`);
+    assert((await editorH1()) === "Scenario Book" && (await app.js(`document.querySelector(".ProseMirror").textContent`)).includes("Agent"), "title page did not open in the editor");
+    await openMenu("Add page"); await app.sleep(400);
+    await pickItem("About the author"); await app.sleep(1500);
+    assert((await editorH1()) === "About the Author", "about-the-author page did not open");
+    const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
+    assert(manifest.formatVersion === 2, "manifest is not format 2");
+    assert(manifest.frontMatter[0]?.kind === "title-page" && manifest.backMatter[0]?.kind === "about-the-author", "kinds missing in the manifest");
+    assert(existsSync(join(book, "front-matter/01-title-page.json")) && existsSync(join(book, "back-matter/01-about-the-author.json")), "matter files not written by Rust");
+    assert(readFileSync(join(book, "front-matter/01-title-page.json"), "utf8").includes("Agent"), "title page lacks the author");
+    await shot("03b-matter");
+    return "front-matter/01-title-page.json, back-matter/01-about-the-author.json";
+  });
+
+  await step("EPUB export passes EPUBCheck and contains the matter pages", async () => {
     await app.click("Export EPUB"); await app.sleep(3000);
     assert((await status()).includes("exports/book.epub"), "no export notice");
+    const listing = execFileSync("unzip", ["-l", join(book, "exports/book.epub")], { encoding: "utf8" });
+    assert(listing.includes("OEBPS/fm-1.xhtml") && listing.includes("OEBPS/bm-1.xhtml"), "EPUB lacks the matter pages");
+    const titleXhtml = execFileSync("unzip", ["-p", join(book, "exports/book.epub"), "OEBPS/fm-1.xhtml"], { encoding: "utf8" });
+    assert(titleXhtml.includes('epub:type="frontmatter titlepage"'), "title page lacks epub:type");
     const jar = join(repo, "tools/epubcheck-5.4.0/epubcheck.jar");
     if (!existsSync(jar)) return "exported (EPUBCheck jar not installed, validation skipped)";
     const o = execFileSync("java", ["-jar", jar, join(book, "exports/book.epub")], { encoding: "utf8" });
@@ -108,7 +134,11 @@ try {
     try {
       const info = execFileSync("pdfinfo", [pdf], { encoding: "utf8" });
       assert(/Page size:\s+432 x 648/.test(info), "wrong page size");
-      return "432x648 pt (6x9 in)";
+      const pages = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }).split("\f");
+      assert(pages[0].includes("Scenario Book") && pages[0].includes("Agent"), "title page is not first");
+      assert(pages.some((p) => p.includes("About the Author")), "back matter missing from the PDF");
+      assert(pages.findIndex((p) => p.includes("Typed by an agent")) < pages.findIndex((p) => p.includes("About the Author")), "back matter is not after the chapters");
+      return "432x648 pt (6x9 in), title page first, about-the-author last";
     } catch (e) {
       if (e.code === "ENOENT") return "exported (poppler not installed, not inspected)";
       throw e;

@@ -2,8 +2,8 @@
  * "001-chapter-one.json" style file name for a chapter at a 1-based position.
  * Letters and digits from any script are kept (Hebrew, Arabic, CJK, Cyrillic...); only Latin accents are folded away.
  */
-export function chapterFileName(position: number, title: string): string {
-  const slug = Array.from(
+function slugify(title: string): string {
+  return Array.from(
     title
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -12,7 +12,15 @@ export function chapterFileName(position: number, title: string): string {
       .replace(/[^\p{L}\p{N}\p{M}]+/gu, "-")
       .replace(/^-+|-+$/g, ""),
   ).slice(0, 48).join("").replace(/-+$/, "") || "untitled";
-  return `${String(position).padStart(3, "0")}-${slug}.json`;
+}
+
+export function chapterFileName(position: number, title: string): string {
+  return `${String(position).padStart(3, "0")}-${slugify(title)}.json`;
+}
+
+/** "01-dedication.json" style file name (no folder) for a front or back matter page at a 1-based position. */
+export function matterFileName(position: number, title: string): string {
+  return `${String(position).padStart(2, "0")}-${slugify(title)}.json`;
 }
 
 /** "001-chapter-one.conflict-20261025-1744.json" for a kept conflicting version. */

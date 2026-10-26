@@ -191,6 +191,9 @@ importers:
         specifier: ^0.8.3
         version: 0.8.3
     devDependencies:
+      '@cadabracraft/templates':
+        specifier: workspace:*
+        version: link:../templates
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
@@ -208,7 +211,21 @@ importers:
         specifier: ^4.23.15
         version: 4.23.15
 
-  packages/format: {}
+  packages/format:
+    dependencies:
+      '@cadabracraft/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@cadabracraft/editor-schema':
+        specifier: workspace:*
+        version: link:../editor-schema
+      '@tiptap/core':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/pm@3.32.0)
+      '@tiptap/pm':
+        specifier: ^3.32.0
+        version: 3.32.0
 
   packages/import-docx:
     dependencies:

@@ -1,4 +1,4 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { isBackMatterKind, isFrontMatterKind, type DocNode, type Mark, type MatterKind, type Section } from "@cadabracraft/shared";
 import { DEFAULT_TEMPLATE_ID, getTemplate, type PrintHeadingStyle, type Template } from "@cadabracraft/templates";
 import { escapeMarkup, typstString } from "./escape";
 import { FontNotAvailableError, MissingAssetError, PdfExportError } from "./errors";
@@ -200,7 +200,7 @@ function headingRule(level: 1 | 2 | 3, s: PrintHeadingStyle, headingFont: string
 })`;
 }
 
-function preamble(book: PdfBook, t: Template, options: PdfOptions, fonts: FontChoice, margins: PdfMargins): string {
+function preamble(book: PdfBook, t: Template, options: PdfOptions, fonts: FontChoice, margins: PdfMargins, hasFront: boolean): string {
   const p = t.print;
   const trim = TRIM_SIZES[options.trimSize ?? p.defaults.trimSize];
   if (!trim) throw new PdfExportError(`Unknown trim size "${String(options.trimSize)}"`);
@@ -232,14 +232,14 @@ function preamble(book: PdfBook, t: Template, options: PdfOptions, fonts: FontCh
   const header = headers
     ? `header: context {
     let pg = here().page()
-    if is-blank(pg) or pg in chapter-pages() { return }
+    if is-blank(pg) or pg in chapter-pages() or pg in no-header-pages() { return }
     ${runStyle}
     if calc.odd(pg) { align(right, ${run('state("chapter-title").get()')}) } else { align(left, ${run("book-title")}) }
   }`
     : "header: none";
   const footer = pageNumbers
     ? `footer: context {
-    if is-blank(here().page()) { return }
+    if is-blank(here().page()) or here().page() in no-folio-pages() { return }
     ${runStyle}
     align(center, counter(page).display())
   }`
@@ -252,7 +252,11 @@ function preamble(book: PdfBook, t: Template, options: PdfOptions, fonts: FontCh
 #let chapter-pages() = query(<chapter-start>).map(m => m.location().page())
 #let chapter-end-pages() = query(<chapter-end>).map(m => m.location().page())
 #let is-blank(pg) = (pg + 1) in chapter-pages() and not (pg in chapter-end-pages()) and not (pg in chapter-pages())
-#set page(width: ${inch(trim.w)}, height: ${inch(trim.h)}, margin: ${marginArg},
+// Pages between a pair of start/end marks (title and copyright pages show no header or number; dedications show no header).
+#let marked-pages(a, b) = query(label(a)).map(m => m.location().page()).zip(query(label(b)).map(m => m.location().page())).map(((x, y)) => range(x, y + 1)).flatten()
+#let no-folio-pages() = marked-pages("folio-off-start", "folio-off-end")
+#let no-header-pages() = no-folio-pages() + marked-pages("header-off-start", "header-off-end")
+#set page(width: ${inch(trim.w)}, height: ${inch(trim.h)}, margin: ${marginArg},${hasFront ? ' numbering: "i",' : ""}
   ${header},
   ${footer})
 #set text(font: ${typstString(fonts.body)}, size: ${num(size)}pt, hyphenate: ${p.hyphenate}${lang})
@@ -291,11 +295,92 @@ ${headingRule(3, p.headings[3], fonts.heading)}
 ${
     label === null
       ? ""
-      : `  align(${p.headings[1].align}, text(size: 0.85em, tracking: 0.12em, upper(${typstString(label)}.replace("{n}", str(n)))))
-  v(0.8em)
+      : `  if n != none {
+    align(${p.headings[1].align}, text(size: 0.85em, tracking: 0.12em, upper(${typstString(label)}.replace("{n}", str(n)))))
+    v(0.8em)
+  }
 `
   }}
+// Front and back matter pages with their own layout. The marks sit inside the aligned block so they stay on the page they describe.
+#let matter-marks(start, end, body) = {
+  mark("chapter-start")
+  mark(start)
+  body
+  mark(end)
+  mark("chapter-end")
+}
+#let title-page(body) = {
+  pagebreak(weak: true)
+  align(center + horizon, matter-marks("folio-off-start", "folio-off-end", {
+    show heading: it => block(width: 100%, below: 1em, text(font: ${typstString(fonts.heading)}, size: if it.level == 1 { 1.9em } else { 1.1em }, weight: "bold", it.body))
+    set par(first-line-indent: 0pt, justify: false)
+    set text(size: 1.25em)
+    body
+  }))
+}
+#let copyright-page(body) = {
+  pagebreak(weak: true)
+  align(bottom, block(width: 100%, matter-marks("folio-off-start", "folio-off-end", {
+    set text(size: 0.85em)
+    set par(first-line-indent: 0pt, justify: false, spacing: 0.7em)
+    body
+  })))
+}
+#let centered-page(body) = {
+  pagebreak(weak: true)
+  align(center + horizon, block(width: 78%, matter-marks("header-off-start", "header-off-end", {
+    set par(first-line-indent: 0pt, justify: false)
+    body
+  })))
+}
 `;
+}
+
+function sectionOf(c: PdfChapter): Section {
+  const section = c.section ?? "chapter";
+  const ok = c.kind === undefined ? true : section === "front" ? isFrontMatterKind(c.kind) : section === "back" && isBackMatterKind(c.kind);
+  if (!ok) throw new PdfExportError(`Page "${c.id}": kind "${String(c.kind)}" is not allowed in the ${section} section`);
+  return section;
+}
+
+/** Pages that always open on a right-hand page, and the kinds after which the next page must (so the verso stays blank). */
+const ALWAYS_RECTO: readonly (MatterKind | undefined)[] = ["title-page", "dedication", "epigraph"];
+const BLANK_VERSO_AFTER: readonly (MatterKind | undefined)[] = ["dedication", "epigraph"];
+
+/**
+ * The pages in order. Front matter is numbered in lowercase roman (title and copyright pages show no number), arabic numbering
+ * restarts at 1 on a right-hand page at the first page after the front matter, and back matter continues the arabic count.
+ */
+function bodyOf(pages: PdfChapter[], ctx: Ctx): string {
+  const out: string[] = [];
+  let chapterNo = 0;
+  let sawFront = false;
+  let restarted = false;
+  let prev: MatterKind | undefined;
+  for (const page of pages) {
+    const section = sectionOf(page);
+    const kind = section === "chapter" ? undefined : (page.kind ?? "custom");
+    if (section === "front") sawFront = true;
+    const restart = sawFront && section !== "front" && !restarted;
+    if (restart) {
+      restarted = true;
+      out.push('#pagebreak(weak: true, to: "odd")\n#set page(numbering: "1")\n#counter(page).update(1)\n');
+    } else if (ALWAYS_RECTO.includes(kind) || BLANK_VERSO_AFTER.includes(prev)) {
+      out.push('#pagebreak(weak: true, to: "odd")\n');
+    }
+    prev = kind;
+    const content = blocks(page.doc.content, ctx);
+    const title = typstString(page.title);
+    switch (kind) {
+      case "title-page": out.push(`#title-page[\n${content}\n]\n`); break;
+      case "copyright": out.push(`#copyright-page[\n${content}\n]\n`); break;
+      case "dedication":
+      case "epigraph": out.push(`#centered-page[\n${content}\n]\n`); break;
+      case undefined: out.push(`#chapter-start(${title}, ${++chapterNo})\n\n${content}\n\n#mark("chapter-end")\n`); break;
+      default: out.push(`#chapter-start(${title}, none)\n\n${content}\n\n#mark("chapter-end")\n`);
+    }
+  }
+  return out.join("\n");
 }
 
 /** Typst document plus the image paths it expects (relative to the compile directory). */
@@ -315,13 +400,8 @@ export function buildTypstDocument(
     maxImageIn: Math.max(1, trim.h - margins.top - margins.bottom - 1),
     assets: options.assets,
   };
-  const head = preamble(book, t, options, resolved, margins);
-  const body = chapters
-    .map((ch, i) => {
-      const content = blocks(ch.doc.content, ctx);
-      return `#chapter-start(${typstString(ch.title)}, ${i + 1})\n\n${content}\n\n#mark("chapter-end")\n`;
-    })
-    .join("\n");
+  const head = preamble(book, t, options, resolved, margins, chapters.some((c) => (c.section ?? "chapter") === "front"));
+  const body = bodyOf(chapters, ctx);
   return { source: `${head}\n${body}`, images: ctx.images, fonts: resolved };
 }
 

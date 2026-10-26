@@ -4,7 +4,10 @@ import { CURRENT_FORMAT_VERSION, FormatError, validateManifest, type Manifest } 
 export type Migration = { from: number; up: (raw: Record<string, unknown>) => Record<string, unknown> };
 
 // Add entries here when formatVersion is bumped; each needs a test opening a file of the previous version.
-export const MIGRATIONS: Migration[] = [];
+export const MIGRATIONS: Migration[] = [
+  // v1 -> v2: front/back matter entries may carry a `kind`. Existing entries keep no kind; nothing else changes.
+  { from: 1, up: (raw) => ({ ...raw }) },
+];
 
 export interface MigrationResult {
   manifest: Manifest;

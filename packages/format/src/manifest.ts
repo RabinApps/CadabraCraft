@@ -1,10 +1,14 @@
-export const CURRENT_FORMAT_VERSION = 1;
+import { isBackMatterKind, isFrontMatterKind, type MatterKind } from "@cadabracraft/shared";
+
+export const CURRENT_FORMAT_VERSION = 2;
 
 export interface ManuscriptEntry {
   id: string;
   /** Relative path inside the project, using "/". */
   file: string;
   title: string;
+  /** Front and back matter pages only (formatVersion 2): what the page is, for starter content and export semantics. */
+  kind?: MatterKind;
 }
 
 export interface Manifest {
@@ -53,13 +57,19 @@ const str = (v: unknown, name: string): string => {
   return v;
 };
 
-function entries(v: unknown, name: string): ManuscriptEntry[] {
+function entries(v: unknown, name: string, section: "front" | "chapter" | "back"): ManuscriptEntry[] {
   if (!Array.isArray(v)) throw new FormatError(`manifest: "${name}" must be an array`);
   return v.map((e, i) => {
     const o = (e ?? {}) as Record<string, unknown>;
     const file = str(o.file, `${name}[${i}].file`);
     if (!isSafeRelativePath(file)) throw new FormatError(`manifest: unsafe path "${file}" in ${name}[${i}]`);
-    return { id: str(o.id, `${name}[${i}].id`), file, title: str(o.title, `${name}[${i}].title`) };
+    const entry: ManuscriptEntry = { id: str(o.id, `${name}[${i}].id`), file, title: str(o.title, `${name}[${i}].title`) };
+    if (o.kind !== undefined) {
+      const ok = section === "front" ? isFrontMatterKind(o.kind) : section === "back" && isBackMatterKind(o.kind);
+      if (!ok) throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
+      entry.kind = o.kind as MatterKind;
+    }
+    return entry;
   });
 }
 
@@ -75,9 +85,9 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     identifier: str(o.identifier, "identifier"),
     template: str(o.template, "template"),
     isbn: o.isbn == null ? null : str(o.isbn, "isbn"),
-    frontMatter: entries(o.frontMatter, "frontMatter"),
-    chapters: entries(o.chapters, "chapters"),
-    backMatter: entries(o.backMatter, "backMatter"),
+    frontMatter: entries(o.frontMatter, "frontMatter", "front"),
+    chapters: entries(o.chapters, "chapters", "chapter"),
+    backMatter: entries(o.backMatter, "backMatter", "back"),
   };
   const seen = new Set<string>();
   for (const e of readingOrder(m)) {

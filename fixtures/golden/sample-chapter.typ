@@ -5,15 +5,19 @@
 #let chapter-pages() = query(<chapter-start>).map(m => m.location().page())
 #let chapter-end-pages() = query(<chapter-end>).map(m => m.location().page())
 #let is-blank(pg) = (pg + 1) in chapter-pages() and not (pg in chapter-end-pages()) and not (pg in chapter-pages())
+// Pages between a pair of start/end marks (title and copyright pages show no header or number; dedications show no header).
+#let marked-pages(a, b) = query(label(a)).map(m => m.location().page()).zip(query(label(b)).map(m => m.location().page())).map(((x, y)) => range(x, y + 1)).flatten()
+#let no-folio-pages() = marked-pages("folio-off-start", "folio-off-end")
+#let no-header-pages() = no-folio-pages() + marked-pages("header-off-start", "header-off-end")
 #set page(width: 5.5in, height: 8.5in, margin: (top: 0.8in, bottom: 0.9in, inside: 0.9in, outside: 0.65in),
   header: context {
     let pg = here().page()
-    if is-blank(pg) or pg in chapter-pages() { return }
+    if is-blank(pg) or pg in chapter-pages() or pg in no-header-pages() { return }
     set text(size: 9pt)
     if calc.odd(pg) { align(right, smallcaps(state("chapter-title").get())) } else { align(left, smallcaps(book-title)) }
   },
   footer: context {
-    if is-blank(here().page()) { return }
+    if is-blank(here().page()) or here().page() in no-folio-pages() { return }
     set text(size: 9pt)
     align(center, counter(page).display())
   })
@@ -61,6 +65,38 @@
   state("chapter-title").update(title)
   counter(footnote).update(0)
   v(8em)
+}
+// Front and back matter pages with their own layout. The marks sit inside the aligned block so they stay on the page they describe.
+#let matter-marks(start, end, body) = {
+  mark("chapter-start")
+  mark(start)
+  body
+  mark(end)
+  mark("chapter-end")
+}
+#let title-page(body) = {
+  pagebreak(weak: true)
+  align(center + horizon, matter-marks("folio-off-start", "folio-off-end", {
+    show heading: it => block(width: 100%, below: 1em, text(font: "Libertinus Serif", size: if it.level == 1 { 1.9em } else { 1.1em }, weight: "bold", it.body))
+    set par(first-line-indent: 0pt, justify: false)
+    set text(size: 1.25em)
+    body
+  }))
+}
+#let copyright-page(body) = {
+  pagebreak(weak: true)
+  align(bottom, block(width: 100%, matter-marks("folio-off-start", "folio-off-end", {
+    set text(size: 0.85em)
+    set par(first-line-indent: 0pt, justify: false, spacing: 0.7em)
+    body
+  })))
+}
+#let centered-page(body) = {
+  pagebreak(weak: true)
+  align(center + horizon, block(width: 78%, matter-marks("header-off-start", "header-off-end", {
+    set par(first-line-indent: 0pt, justify: false)
+    body
+  })))
 }
 
 #chapter-start("Chapter One", 1)

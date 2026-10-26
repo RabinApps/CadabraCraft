@@ -67,6 +67,7 @@ Designed but not in the first M1 build (see `docs/m1-ui-plan.md`): recent-projec
 ## Implementation notes
 - Stack decision: Tailwind CSS v4 (`@theme` tokens above) plus Radix UI primitives. Not MUI (Material look, emotion runtime, second theming system). Log it with `/record-decision` before adding dependencies.
 - The pen shows no per-chapter actions; the app puts rename, move and trash in a "Chapter actions" menu (Radix DropdownMenu) on each chapter row, which stays usable on touch.
+- Front and back matter (not drawn in the pen): the sidebar shows "Front matter" and "Back matter" sections only when they have pages, with the same row and actions menu as chapters, and an "Add page" menu (Radix DropdownMenu) offering the presets, disabling title page and copyright once present.
 - Implemented in the app: tokens and theme switch, Home, responsive shell with chapter sidebar/drawer/sheet, formatting toolbar (docked at the bottom on phones), link dialog, Export PDF dialog (trim size, template, PDF/A, progress and error states; a plain form in the `Export (M2-M3)` frame's style), word count in the status bar, and Read mode (settings menu instead of the popover shown in the pen).
 - Styling lives in `apps/desktop` only; `packages/*` stay unstyled.
 - Respect `prefers-reduced-motion`; all icon-only buttons need `aria-label`; text contrast target is 4.5:1.

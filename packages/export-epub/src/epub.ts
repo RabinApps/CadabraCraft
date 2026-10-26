@@ -1,6 +1,6 @@
 import { zipSync, strToU8 } from "fflate";
-import { imageMediaType, isAssetPath, textDirection, type BookMetadata, type ChapterDoc } from "@cadabracraft/shared";
-import { contentsHeading } from "./strings";
+import { imageMediaType, isAssetPath, isBackMatterKind, isFrontMatterKind, textDirection, type BookMetadata, type ChapterDoc, type MatterKind, type Section } from "@cadabracraft/shared";
+import { contentsHeading, landmarksHeading, startOfContentLabel } from "./strings";
 import { chapterToXhtmlBody, collectImageSources, esc } from "./xhtml";
 
 const CSS = `body{font-family:serif;line-height:1.4}
@@ -10,7 +10,9 @@ blockquote{margin:1em 2em;font-style:italic}
 hr.scene-break{border:0;text-align:center;margin:1.5em 0}hr.scene-break:after{content:"* * *"}
 .small-caps{font-variant:small-caps}.underline{text-decoration:underline}
 a.noteref{font-size:.75em;vertical-align:super}
-img{max-width:100%}`;
+img{max-width:100%}
+body.title-page,body.dedication,body.epigraph{text-align:center}body.copyright p,body.title-page p,body.dedication p,body.epigraph p{text-indent:0}
+body.dedication,body.epigraph{margin-top:25%}body.dedication p{font-style:italic}body.copyright{font-size:.85em}`;
 
 const xmlHead = '<?xml version="1.0" encoding="UTF-8"?>\n';
 
@@ -18,7 +20,37 @@ export interface EpubChapter {
   id: string;
   title: string;
   doc: ChapterDoc;
+  /** Where the page sits in the book; default "chapter". Pass pages in reading order: front matter, chapters, back matter. */
+  section?: Section;
+  /** Front/back matter pages only. */
+  kind?: MatterKind;
 }
+
+const FRONT_TYPES: Partial<Record<MatterKind, string>> = {
+  "title-page": "titlepage", copyright: "copyright-page", dedication: "dedication", epigraph: "epigraph", foreword: "foreword", preface: "preface",
+};
+const BACK_TYPES: Partial<Record<MatterKind, string>> = { acknowledgments: "acknowledgments", colophon: "colophon" };
+/** Pages the table of contents leaves out: they are not places a reader navigates to. */
+const UNLISTED: readonly MatterKind[] = ["title-page", "copyright", "dedication", "epigraph", "colophon"];
+
+function checkSection(c: EpubChapter): Section {
+  const section = c.section ?? "chapter";
+  const ok = c.kind === undefined ? true : section === "front" ? isFrontMatterKind(c.kind) : section === "back" && isBackMatterKind(c.kind);
+  if (!ok) throw new Error(`Page "${c.id}": kind "${String(c.kind)}" is not allowed in the ${section} section`);
+  return section;
+}
+
+/** `epub:type` for the page body and the class stylesheets can use. */
+function semantics(c: EpubChapter): { type: string; cls: string } {
+  const section = checkSection(c);
+  if (section === "chapter") return { type: "bodymatter chapter", cls: "chapter" };
+  const kind = c.kind ?? "custom";
+  const map = section === "front" ? FRONT_TYPES : BACK_TYPES;
+  const extra = map[kind];
+  return { type: `${section === "front" ? "frontmatter" : "backmatter"}${extra ? ` ${extra}` : ""}`, cls: kind };
+}
+
+const listedInToc = (c: EpubChapter): boolean => c.kind === undefined || !UNLISTED.includes(c.kind);
 
 function isoNoMs(d: Date): string {
   return d.toISOString().replace(/\.\d{3}Z$/, "Z");
@@ -36,8 +68,8 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
   const lang = esc(meta.language);
   const rtl = textDirection(meta.language) === "rtl";
   const dir = rtl ? ' dir="rtl"' : "";
-  const page = (title: string, body: string) =>
-    `${xmlHead}<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="${lang}" xml:lang="${lang}"${dir}><head><meta charset="utf-8"/><title>${esc(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head><body>${body}</body></html>`;
+  const page = (title: string, body: string, bodyAttrs = "") =>
+    `${xmlHead}<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="${lang}" xml:lang="${lang}"${dir}><head><meta charset="utf-8"/><title>${esc(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head><body${bodyAttrs}>${body}</body></html>`;
 
   const files: Record<string, Uint8Array | [Uint8Array, { level: 0 }]> = {};
   // mimetype must be first and stored uncompressed.
@@ -56,17 +88,28 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
     files[`OEBPS/${src}`] = bytes;
     return `<item id="img-asset-${i + 1}" href="${esc(src)}" media-type="${type}"/>`;
   });
-  for (const c of chapters) files[`OEBPS/${c.id}.xhtml`] = strToU8(page(c.title, chapterToXhtmlBody(c.doc)));
+  for (const c of chapters) {
+    const { type, cls } = semantics(c);
+    files[`OEBPS/${c.id}.xhtml`] = strToU8(page(c.title, chapterToXhtmlBody(c.doc), ` epub:type="${type}" class="${cls}"`));
+  }
 
-  const toc = chapters.map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`).join("");
+  // The contents lists chapters and reading sections; if that leaves nothing (only a title page, say) it lists every page.
+  const listed = chapters.filter(listedInToc);
+  const toc = (listed.length ? listed : chapters).map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`).join("");
+  const start = chapters.find((c) => (c.section ?? "chapter") === "chapter") ?? (listed.length ? listed : chapters)[0];
+  const contents = contentsHeading(meta.language);
+  const landmarks = `<nav epub:type="landmarks" hidden="hidden"><h2>${esc(landmarksHeading(meta.language))}</h2><ol>${
+    start ? `<li><a epub:type="bodymatter" href="${start.id}.xhtml">${esc(startOfContentLabel(meta.language))}</a></li>` : ""
+  }<li><a epub:type="toc" href="nav.xhtml#toc">${esc(contents)}</a></li></ol></nav>`;
   files["OEBPS/nav.xhtml"] = strToU8(
-    page(meta.title, `<nav epub:type="toc" id="toc"><h1>${esc(contentsHeading(meta.language))}</h1><ol>${toc}</ol></nav>`),
+    page(meta.title, `<nav epub:type="toc" id="toc"><h1>${esc(contents)}</h1><ol>${toc}</ol></nav>${landmarks}`),
   );
 
   const manifest = chapters
     .map((c) => `<item id="${c.id}" href="${c.id}.xhtml" media-type="application/xhtml+xml"/>`)
     .join("");
-  const spine = chapters.map((c) => `<itemref idref="${c.id}"/>`).join("");
+  // The navigation document is a non-linear spine item: the landmarks link to it, and EPUB requires link targets to be in the spine.
+  const spine = [...chapters.map((c) => `<itemref idref="${c.id}"/>`), '<itemref idref="nav" linear="no"/>'].join("");
   files["OEBPS/content.opf"] = strToU8(
     `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier><dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language><meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta></metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,
   );

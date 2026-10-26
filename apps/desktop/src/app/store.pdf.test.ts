@@ -78,6 +78,19 @@ describe("exportPdf", () => {
     await a().exportPdf(options);
     expect(disk.get("cadabra.json")).toBe(before);
   });
+  it("includes front and back matter in reading order with their layouts and numbering", async () => {
+    await a().addMatter("front", "title-page");
+    await a().addMatter("front", "dedication");
+    await a().addMatter("back", "about-the-author");
+    await a().exportPdf(options);
+    const src = typst.compiles[0]!.source;
+    expect(src).toContain("#title-page[");
+    expect(src).toContain("#centered-page[");
+    expect(src).toContain('numbering: "i"');
+    expect(src).toContain('#chapter-start("About the Author", none)');
+    expect(src.indexOf("#title-page[")).toBeLessThan(src.indexOf('#chapter-start("Chapter One", 1)'));
+    expect(src.indexOf('#chapter-start("Chapter One", 1)')).toBeLessThan(src.indexOf('#chapter-start("About the Author", none)'));
+  });
   it("sends image files to the compiler", async () => {
     assets.set("assets/pic.png", new Uint8Array([9, 8, 7]));
     disk.set("manuscript/001-chapter-one.json", JSON.stringify({ type: "doc", content: [{ type: "image", attrs: { src: "assets/pic.png" } }] }));

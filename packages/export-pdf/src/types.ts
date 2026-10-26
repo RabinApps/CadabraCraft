@@ -1,4 +1,4 @@
-import type { BookMetadata, ChapterDoc } from "@cadabracraft/shared";
+import type { BookMetadata, ChapterDoc, MatterKind, Section } from "@cadabracraft/shared";
 import type { Template, TrimSizeId } from "@cadabracraft/templates";
 
 export type TrimSize = TrimSizeId;
@@ -16,6 +16,10 @@ export interface PdfChapter {
   id: string;
   title: string;
   doc: ChapterDoc;
+  /** Where the page sits in the book; default "chapter". Pass pages in reading order: front matter, chapters, back matter. */
+  section?: Section;
+  /** Front/back matter pages only. */
+  kind?: MatterKind;
 }
 
 /** Margins in inches. `inside` is the gutter side when `mirrored`, else the left margin. */
