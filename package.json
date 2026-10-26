@@ -6,7 +6,8 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "dev": "pnpm --filter @cadabracraft/desktop dev",
-    "tauri": "pnpm --filter @cadabracraft/desktop tauri"
+    "tauri": "pnpm --filter @cadabracraft/desktop tauri",
+    "automation:scenario": "node scripts/automation/scenario.mjs --launch"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

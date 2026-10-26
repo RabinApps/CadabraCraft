@@ -55,6 +55,12 @@ java -jar tools/epubcheck-5.4.0/epubcheck.jar out/sample.epub
 ```
 The EPUBCheck unit test skips when the jar is missing; set `REQUIRE_EPUBCHECK=1` to make it fail instead (CI does).
 
+## Drive the real app (agents and scripts)
+```bash
+pnpm automation:scenario      # launches the app with the dev-only bridge and clicks through the main flows
+```
+See [docs/agent-testing.md](docs/agent-testing.md). Release builds never include the bridge.
+
 ## Notes
 - E2E tests fake the Tauri bridge in memory; they do not cover the Rust side or native window.
 - Projects use the folder layout in [docs/file-format.md](docs/file-format.md). Deleting a chapter moves it to `.cadabra/trash/`; the app never permanently deletes.
