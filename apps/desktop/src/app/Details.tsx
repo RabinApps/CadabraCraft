@@ -2,6 +2,7 @@ import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { getTemplate, hasTemplate, DEFAULT_TEMPLATE_ID } from "@cadabracraft/templates";
+import { Pencil } from "lucide-react";
 import { readingMinutes } from "../lib/readingTime";
 import { Button } from "../ui/Button";
 
@@ -13,6 +14,8 @@ interface Props {
   words: number;
   /** Opens the Templates page. */
   onChangeTemplate: () => void;
+  /** Opens the Book details dialog. */
+  onEditDetails: () => void;
 }
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -25,7 +28,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 /** Read-only facts from the manifest and the open page; nothing here is stored. */
-export function Details({ manifest, pageTitle, section, words, onChangeTemplate }: Props) {
+export function Details({ manifest, pageTitle, section, words, onChangeTemplate, onEditDetails }: Props) {
   const { t } = useLingui();
   const minutes = readingMinutes(words);
   const sectionLabel = section === "front" ? t`Front matter` : section === "back" ? t`Back matter` : t`Chapter`;
@@ -47,9 +50,12 @@ export function Details({ manifest, pageTitle, section, words, onChangeTemplate 
           <Row label={t`Author`} value={manifest.author || "-"} />
           <Row label={t`Language`} value={manifest.language} />
           <Row label={t`Template`} value={getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).name} />
+          <Row label={t`ISBN`} value={manifest.isbn ?? "-"} />
+          <Row label={t`Cover`} value={manifest.cover ? manifest.cover.replace("assets/", "") : "-"} />
           <Row label={t`Chapters`} value={String(manifest.chapters.length)} />
         </dl>
-        <Button className="mt-3 w-full" onClick={onChangeTemplate}>{t`Change template`}</Button>
+        <Button className="mt-3 w-full" icon={Pencil} onClick={onEditDetails}>{t`Edit details`}</Button>
+        <Button className="mt-2 w-full" onClick={onChangeTemplate}>{t`Change template`}</Button>
       </section>
     </div>
   );

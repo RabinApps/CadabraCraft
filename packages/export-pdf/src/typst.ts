@@ -383,6 +383,19 @@ function bodyOf(pages: PdfChapter[], ctx: Ctx): string {
   return out.join("\n");
 }
 
+/**
+ * The cover as a full-bleed first page (no margins, header or number). Chapters and title pages open on right-hand pages, so the cover's
+ * back (the inside front cover) stays blank and the book starts on page 3. The counter is set to 0 on that blank page so that page 3 is
+ * numbered 1: pages are numbered, and sit on the left or right, exactly as in a book without a cover.
+ */
+function coverPage(src: string, ctx: Ctx): string {
+  if (ctx.assets && !(src in ctx.assets)) throw new MissingAssetError([src]);
+  const ext = /\.([A-Za-z0-9]+)$/.exec(src)?.[1]?.toLowerCase() ?? "";
+  if (!["png", "jpg", "jpeg", "webp"].includes(ext)) throw new PdfExportError(`Unsupported cover image "${src}" (use png, jpg or webp)`);
+  const path = imagePath(src, ctx);
+  return `#page(margin: 0pt, header: none, footer: none)[#image(${typstString(path)}, width: 100%, height: 100%, fit: "cover", alt: "Cover")]\n#page(header: none, footer: none)[#counter(page).update(0)]\n\n`;
+}
+
 /** Typst document plus the image paths it expects (relative to the compile directory). */
 export function buildTypstDocument(
   book: PdfBook,
@@ -401,8 +414,9 @@ export function buildTypstDocument(
     assets: options.assets,
   };
   const head = preamble(book, t, options, resolved, margins, chapters.some((c) => (c.section ?? "chapter") === "front"));
+  const cover = options.cover === undefined ? "" : coverPage(options.cover, ctx);
   const body = bodyOf(chapters, ctx);
-  return { source: `${head}\n${body}`, images: ctx.images, fonts: resolved };
+  return { source: `${head}\n${cover}${body}`, images: ctx.images, fonts: resolved };
 }
 
 /** Pure: chapter JSON -> Typst source. No I/O, no font availability check (see `renderPdf`). */

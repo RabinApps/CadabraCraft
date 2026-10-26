@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 2)
+# CadabraCraft project file format (formatVersion 3)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -23,6 +23,7 @@ MyBook/
   "identifier": "urn:uuid:...",
   "template": "novel",
   "isbn": null,
+  "cover": "assets/cover.jpg",
   "frontMatter": [{ "id": "fm-1", "file": "front-matter/01-title-page.json", "title": "Title Page", "kind": "title-page" }],
   "chapters":    [{ "id": "ch-1", "file": "manuscript/001-chapter-one.json", "title": "Chapter One" }],
   "backMatter":  [{ "id": "bm-1", "file": "back-matter/01-about-the-author.json", "title": "About the Author", "kind": "about-the-author" }]
@@ -32,6 +33,8 @@ MyBook/
 - Reading order is the order of the `frontMatter`, `chapters` and `backMatter` arrays, never filenames.
 - `id` values are unique across all three lists. `file` is a relative path using `/`, inside the project, with no `..`, no leading `/`, and no drive letters.
 - `identifier` is a UUID URN or an ISBN. `language` is a BCP 47 tag.
+- `cover` (added in formatVersion 3) is `null` or the relative path of the cover image, always `assets/<name>` with a png, jpg, jpeg or webp extension (same naming rules as other assets). The file is a copy inside the project, never a link to the original. Removing the cover sets `null` and leaves the file in `assets/`.
+- Exports: EPUB gets a cover page first in the reading order (`epub:type="cover"`, left out of the contents list), the image as the `cover-image` manifest item, a `cover` landmark and the EPUB 2 `<meta name="cover">`. Print PDF puts the image on a full-bleed first page with no header or number, then a blank page behind it, so the book starts on page 3 and its numbering and left/right pages are as without a cover (the Export dialog can leave the cover out). An export stops with a message when the cover file cannot be read.
 
 ## Front and back matter
 - Entries in `frontMatter` and `backMatter` have the same shape as chapters plus an optional `kind` (added in formatVersion 2). Chapters never have a `kind`.
@@ -57,6 +60,7 @@ Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 sc
 - Files that are not downloaded yet (iCloud, Drive placeholders) are treated as unavailable, never as empty chapters.
 
 ## Versioning
+- Version 2 -> 3: adds `cover` (`null` when absent). The migration sets `cover: null` and changes nothing else.
 - Version 1 -> 2: front and back matter entries may carry `kind`. The migration changes nothing else; older entries keep no kind.
 
 Any change to this layout bumps `formatVersion`, adds a migration in `packages/format`, and adds a test that opens a file from the previous version.

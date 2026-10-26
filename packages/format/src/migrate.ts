@@ -8,6 +8,8 @@ export type Migration = { from: number; up: (raw: Record<string, unknown>) => Re
 export const MIGRATIONS: Migration[] = [
   // v1 -> v2: front/back matter entries may carry a `kind`. Existing entries keep no kind; nothing else changes.
   { from: 1, up: (raw) => ({ ...raw }) },
+  // v2 -> v3: adds `cover` (null when absent). Nothing else changes.
+  { from: 2, up: (raw) => ({ ...raw, cover: null }) },
 ];
 
 export interface MigrationResult {

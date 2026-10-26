@@ -42,6 +42,14 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
     }
   }, 60_000);
 
+  it("validates a book with a cover, left-to-right, right-to-left and with front matter only", () => {
+    const png = new Uint8Array(readFileSync(new URL("../../../fixtures/assets/pixel.png", import.meta.url)));
+    const withCover = (language: string, path: string) => buildEpub(metaOf(language), matterBook(), { cover: { path, bytes: png } });
+    expect(check("cover-en.epub", withCover("en", "assets/cover.png"))).toContain("No errors or warnings detected");
+    expect(check("cover-he.epub", withCover("he", "assets/cover.png"))).toContain("No errors or warnings detected");
+    expect(check("cover-only.epub", buildEpub(metaOf("en"), matterBook().slice(0, 1), { cover: { path: "assets/cover.png", bytes: png } }))).toContain("No errors or warnings detected");
+  }, 60_000);
+
   it("validates matter-only and right-to-left books", () => {
     expect(check("front-only.epub", buildEpub(metaOf("en"), matterBook().slice(0, 1)))).toContain("No errors or warnings detected");
     expect(check("he.epub", buildEpub(metaOf("he"), matterBook()))).toContain("No errors or warnings detected");

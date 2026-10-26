@@ -44,6 +44,18 @@ const START_OF_CONTENT: Record<string, string> = {
   es: "Inicio del contenido",
 };
 
+const COVER: Record<string, string> = {
+  en: "Cover",
+  he: "כריכה",
+  ar: "الغلاف",
+  it: "Copertina",
+  ja: "表紙",
+  ru: "Обложка",
+  fr: "Couverture",
+  de: "Umschlag",
+  es: "Portada",
+};
+
 function pick(table: Record<string, string>, what: string, language: string): string {
   const s = table[primaryLanguage(language)];
   if (!s) throw new Error(`export-epub: no "${what}" translation for language "${language}"; add one in strings.ts`);
@@ -55,3 +67,6 @@ export const landmarksHeading = (language: string): string => pick(LANDMARKS, "L
 
 /** Label of the "start of content" landmark. Throws for languages without a translation. */
 export const startOfContentLabel = (language: string): string => pick(START_OF_CONTENT, "Start of content", language);
+
+/** Label of the "cover" landmark and alt text prefix of the cover page. Throws for languages without a translation. */
+export const coverLabel = (language: string): string => pick(COVER, "Cover", language);

@@ -50,6 +50,8 @@ export interface PdfOptions {
   chapterStart?: "recto" | "any";
   /** Image bytes keyed by the image node's `src`. */
   assets?: Record<string, Uint8Array>;
+  /** Key in `assets` of the cover image (png, jpg or webp). It becomes a full-bleed first page with no header or number, and page numbering restarts at 1 after it. */
+  cover?: string;
   /** Emit PDF/A-2b (archival). */
   pdfA?: boolean;
 }

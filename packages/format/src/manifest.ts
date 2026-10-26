@@ -1,6 +1,6 @@
 import { isBackMatterKind, isFrontMatterKind, type MatterKind } from "@cadabracraft/shared";
 
-export const CURRENT_FORMAT_VERSION = 2;
+export const CURRENT_FORMAT_VERSION = 3;
 
 export interface ManuscriptEntry {
   id: string;
@@ -19,6 +19,8 @@ export interface Manifest {
   identifier: string;
   template: string;
   isbn: string | null;
+  /** Relative `assets/<name>` path of the cover image, or null (formatVersion 3). */
+  cover: string | null;
   frontMatter: ManuscriptEntry[];
   chapters: ManuscriptEntry[];
   backMatter: ManuscriptEntry[];
@@ -41,6 +43,7 @@ export function createManifest(init: { title: string; author: string; language?:
     identifier: init.identifier,
     template: init.template ?? "novel",
     isbn: null,
+    cover: null,
     frontMatter: [],
     chapters: [],
     backMatter: [],
@@ -52,10 +55,18 @@ export function readingOrder(m: Manifest): ManuscriptEntry[] {
   return [...m.frontMatter, ...m.chapters, ...m.backMatter];
 }
 
+const COVER_PATH = /^assets\/[A-Za-z0-9_-]+\.(png|jpe?g|webp)$/;
+
 const str = (v: unknown, name: string): string => {
   if (typeof v !== "string" || v === "") throw new FormatError(`manifest: "${name}" must be a non-empty string`);
   return v;
 };
+
+function cover(v: unknown): string {
+  const p = str(v, "cover");
+  if (!COVER_PATH.test(p)) throw new FormatError(`manifest: cover must be assets/<name> with a png, jpg or webp extension, got "${p}"`);
+  return p;
+}
 
 function entries(v: unknown, name: string, section: "front" | "chapter" | "back"): ManuscriptEntry[] {
   if (!Array.isArray(v)) throw new FormatError(`manifest: "${name}" must be an array`);
@@ -85,6 +96,7 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     identifier: str(o.identifier, "identifier"),
     template: str(o.template, "template"),
     isbn: o.isbn == null ? null : str(o.isbn, "isbn"),
+    cover: o.cover == null ? null : cover(o.cover),
     frontMatter: entries(o.frontMatter, "frontMatter", "front"),
     chapters: entries(o.chapters, "chapters", "chapter"),
     backMatter: entries(o.backMatter, "backMatter", "back"),
