@@ -45,5 +45,8 @@ Spike caveat: output was checked via `pdffonts`/`pdftotext` and page size, not v
 ### Rejected: hashing with mtime
 Content hashes are used instead of modification times because sync clients rewrite mtimes.
 
+### Editor toolbar
+Formatting buttons (undo/redo, bold, italic, underline, small caps, link, H1-H3, quote, lists, scene break, footnote) live in `apps/desktop/src/editor/Toolbar.tsx`, expose `aria-pressed` state, and are tested in Playwright. Links are limited to http, https and mailto (`normalizeLinkUrl`). Image insertion is deferred until assets import exists.
+
 ### Not done yet in M1
 Full-project undo of tree edits, real-client sync testing (M3), and Tauri-WebDriver e2e covering the Rust side.

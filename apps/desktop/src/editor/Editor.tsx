@@ -1,6 +1,7 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import { extensions } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
+import { Toolbar } from "./Toolbar";
 
 interface Props {
   initial: ChapterDoc;
@@ -13,5 +14,11 @@ export function Editor({ initial, onChange }: Props) {
     content: initial,
     onUpdate: ({ editor }) => onChange(editor.getJSON() as ChapterDoc),
   });
-  return <EditorContent editor={editor} />;
+  if (!editor) return null;
+  return (
+    <>
+      <Toolbar editor={editor} />
+      <EditorContent editor={editor} />
+    </>
+  );
 }

@@ -29,3 +29,16 @@ describe("v1 editor schema", () => {
     expect(schema.nodes.heading!.spec.attrs).toHaveProperty("level");
   });
 });
+
+import { normalizeLinkUrl } from "./index";
+
+describe("normalizeLinkUrl", () => {
+  it("accepts http, https, mailto and bare domains", () => {
+    expect(normalizeLinkUrl("https://example.com/a?b=1")).toBe("https://example.com/a?b=1");
+    expect(normalizeLinkUrl("example.com")).toBe("https://example.com/");
+    expect(normalizeLinkUrl("mailto:a@b.co")).toBe("mailto:a@b.co");
+  });
+  it.each(["javascript:alert(1)", "data:text/html,x", "file:///etc/passwd", "", "  ", "two words.com"])("refuses %j", (v) => {
+    expect(normalizeLinkUrl(v)).toBeNull();
+  });
+});

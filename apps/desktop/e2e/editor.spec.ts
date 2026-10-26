@@ -110,3 +110,76 @@ test("export writes a valid EPUB zip with mimetype first", async ({ page }) => {
   });
   expect(head).toBe("PK\u0003\u0004mimetype");
 });
+
+test.describe("formatting toolbar", () => {
+  const ed = (page: Page) => page.locator(".ProseMirror");
+  const tb = (page: Page, name: string) => page.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name, exact: true });
+  async function typeLine(page: Page, text: string) {
+    // The new chapter ends with an empty paragraph; click it rather than rely on platform-specific End shortcuts.
+    await ed(page).locator("p").last().click();
+    await page.keyboard.type(text);
+  }
+  // Triple-click selects the paragraph; Shift+Home is platform-specific in Chromium.
+  const selectLine = async (page: Page) => { await ed(page).locator("p").last().click({ clickCount: 3 }); };
+
+  test.beforeEach(async ({ page }) => { await newProject(page); });
+
+  test("bold, italic, underline and small caps wrap the selection", async ({ page }) => {
+    await typeLine(page, "styled");
+    for (const [name, sel] of [["Bold", "strong"], ["Italic", "em"], ["Underline", "u"], ["Small caps", "span.small-caps"]] as const) {
+      await selectLine(page);
+      await tb(page, name).click();
+      await expect(tb(page, name)).toHaveAttribute("aria-pressed", "true");
+      await expect(ed(page).locator(sel)).toHaveText("styled");
+    }
+  });
+
+  test("headings, quote and lists change the block type", async ({ page }) => {
+    await typeLine(page, "block");
+    await tb(page, "Heading 2").click();
+    await expect(ed(page).locator("h2")).toHaveText("block");
+    await tb(page, "Heading 2").click();
+    await tb(page, "Block quote").click();
+    await expect(ed(page).locator("blockquote")).toContainText("block");
+    await tb(page, "Block quote").click();
+    await tb(page, "Bulleted list").click();
+    await expect(ed(page).locator("ul li")).toContainText("block");
+    await tb(page, "Numbered list").click();
+    await expect(ed(page).locator("ol li")).toContainText("block");
+  });
+
+  test("scene break and footnote insert, and export contains them", async ({ page }) => {
+    await typeLine(page, "text");
+    await tb(page, "Scene break").click();
+    await expect(ed(page).locator("hr.scene-break")).toHaveCount(1);
+    await tb(page, "Footnote").click();
+    await expect(ed(page).locator("span.footnote")).toHaveCount(1);
+    await page.getByRole("button", { name: "Export EPUB" }).click();
+    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    const saved = await page.evaluate(() => (window as any).__disk["manuscript/001-chapter-one.json"]);
+    expect(saved).toContain("sceneBreak");
+    expect(saved).toContain("footnote");
+  });
+
+  test("links accept https and refuse javascript:", async ({ page }) => {
+    const answers = ["javascript:alert(1)", "example.com"];
+    page.removeAllListeners("dialog");
+    page.on("dialog", (d) => (d.type() === "prompt" ? d.accept(answers.shift()!) : d.accept()));
+    await typeLine(page, "click me");
+    await selectLine(page);
+    await tb(page, "Link").click(); // refused: alert dialog
+    await expect(ed(page).locator("a")).toHaveCount(0);
+    await tb(page, "Link").click();
+    await expect(ed(page).locator("a")).toHaveAttribute("href", "https://example.com/");
+    await tb(page, "Link").click(); // toggles off
+    await expect(ed(page).locator("a")).toHaveCount(0);
+  });
+
+  test("undo and redo are available from the toolbar", async ({ page }) => {
+    await typeLine(page, "oops");
+    await tb(page, "Undo").click();
+    await expect(ed(page)).not.toContainText("oops");
+    await tb(page, "Redo").click();
+    await expect(ed(page)).toContainText("oops");
+  });
+});

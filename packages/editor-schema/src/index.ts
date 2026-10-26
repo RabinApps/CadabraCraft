@@ -40,3 +40,16 @@ export const extensions = [
   SmallCaps,
   Footnote,
 ];
+
+/** Returns a safe link href (http, https or mailto; bare domains get https://), or null if it should be refused. */
+export function normalizeLinkUrl(input: string): string | null {
+  const v = input.trim();
+  if (!v || /\s/.test(v)) return null;
+  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : `https://${v}`;
+  try {
+    const u = new URL(withScheme);
+    return ["http:", "https:", "mailto:"].includes(u.protocol) ? u.href : null;
+  } catch {
+    return null;
+  }
+}
