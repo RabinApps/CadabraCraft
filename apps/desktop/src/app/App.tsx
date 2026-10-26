@@ -3,7 +3,7 @@ import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { readingOrder, sectionOf } from "@cadabracraft/format";
-import { BookOpen, Download, FileText, Menu, PenLine, Plus, Save } from "lucide-react";
+import { BookOpen, Download, FileText, Menu, Minimize2, Maximize2, PanelRight, PenLine, Plus, Save } from "lucide-react";
 import { Editor } from "../editor/Editor";
 import { ReadingFooter } from "../editor/ReadingFooter";
 import { ReadingSettings } from "../editor/ReadingSettings";
@@ -16,10 +16,12 @@ import { LanguagePicker } from "../ui/LanguagePicker";
 import { Segmented } from "../ui/Segmented";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { cx } from "../ui/cx";
+import { Details } from "./Details";
 import { ExportPdfDialog } from "./ExportPdfDialog";
 import { Home } from "./Home";
 import { ImportReportDialog } from "./ImportDialogs";
 import { Sidebar } from "./Sidebar";
+import { useLayout } from "./layout";
 import { useReading } from "./reading";
 import { useProject } from "./store";
 
@@ -31,6 +33,19 @@ export function App() {
   const [mode, setMode] = useState<"write" | "read">("write");
   const [pdfOpen, setPdfOpen] = useState(false);
   const reading = useReading();
+  const { focus: focusPref, details, set: setLayout } = useLayout();
+  const reader = mode === "read";
+  // Focus mode is for writing; reading mode already has its own bare layout.
+  const focus = focusPref && !reader && open;
+  useEffect(() => {
+    if (!focus) return;
+    const onKey = (e: KeyboardEvent) => {
+      // Escape closes an open dialog or menu first. (The editor marks Escape as handled, so defaultPrevented is no signal.)
+      if (e.key === "Escape" && !document.querySelector("[role=dialog], [role=menu]")) setLayout({ focus: false });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [focus, setLayout]);
   const [words, setWords] = useState(0);
   useEffect(() => {
     // Count immediately for a freshly loaded chapter, but debounce while typing so large chapters stay responsive.
@@ -72,12 +87,12 @@ export function App() {
   const index = pages.findIndex((c) => c.id === currentId);
   const section = currentId ? sectionOf(manifest, currentId) : null;
   const chapterNo = chapters.findIndex((c) => c.id === currentId) + 1;
-  const reader = mode === "read";
   // Saving first means reading shows what was typed.
   const toRead = run(async () => { await actions.flush(); setMode("read"); });
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-surface px-2 py-2 md:px-4">
+      {focus && <IconButton icon={Minimize2} label={t`Exit focus mode`} className="fixed end-3 top-3 z-10 bg-surface/80 backdrop-blur" onClick={() => setLayout({ focus: false })} />}
+      {!focus && <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-surface px-2 py-2 md:px-4">
         <IconButton icon={Menu} label={t`Show chapters`} className="lg:hidden" onClick={() => setDrawer(true)} />
         <h1 className="min-w-0 truncate font-book text-base font-semibold">{manifest.title}</h1>
         <Badge tone={draft ? "warn" : "success"}>{draft ? t`Unsaved` : t`Saved`}</Badge>
@@ -90,22 +105,24 @@ export function App() {
         />
         <div className="ms-auto flex items-center gap-2">
           {reader && <ReadingSettings />}
+          {!reader && <IconButton icon={Maximize2} label={t`Focus mode`} onClick={() => setLayout({ focus: true })} />}
+          {!reader && <IconButton icon={PanelRight} label={t`Details`} active={details} className="max-xl:hidden" onClick={() => setLayout({ details: !details })} />}
           <LanguagePicker />
           <ThemeToggle />
           {!reader && <Button icon={Save} className="max-sm:px-3" onClick={run(async () => { const d = useProject.getState().draft; if (d) await actions.saveCurrent(d); })}><span className="max-sm:sr-only">{t`Save`}</span></Button>}
           <Button icon={FileText} className="max-sm:px-3" onClick={run(async () => { await actions.flush(); setPdfOpen(true); })}><span className="max-sm:sr-only">{t`Export PDF…`}</span></Button>
           <Button variant="primary" icon={Download} className="max-sm:px-3" onClick={run(actions.exportEpub)}><span className="max-sm:sr-only">{t`Export EPUB`}</span></Button>
         </div>
-      </header>
+      </header>}
       <div className="flex min-h-0 flex-1">
-        <aside className="hidden w-[264px] shrink-0 overflow-y-auto bg-sidebar lg:block">
+        <aside className={cx("hidden w-[264px] shrink-0 overflow-y-auto bg-sidebar", focus ? "" : "lg:block")}>
           <Sidebar />
         </aside>
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           {error && <p role="alert" className="m-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
           {currentDoc && currentId ? (reader
             ? <Editor key={`${currentId}:read:${reloadCount}`} initial={currentDoc} language={manifest.language} reading={reading} />
-            : <Editor key={`${currentId}:${reloadCount}`} initial={currentDoc} language={manifest.language} onChange={actions.setDraft} />) : (
+            : <Editor key={`${currentId}:${reloadCount}`} initial={currentDoc} language={manifest.language} onChange={actions.setDraft} focus={focus} />) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
               <p className="text-sm text-ink-muted">{pages.length ? t`Choose a chapter to start.` : t`This book has no chapters yet.`}</p>
               <Button variant="primary" icon={Plus} onClick={() => void actions.add(t`Chapter ${chapters.length + 1}`)}>{t`Add chapter`}</Button>
@@ -114,12 +131,17 @@ export function App() {
           {index < 0 ? null : reader ? (
             <ReadingFooter index={index} pages={pages} chapterIds={chapters.map((c) => c.id)} onSelect={(id) => void actions.selectChapter(id)} />
           ) : (
-            <footer className="hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex">
+            <footer className={cx("hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex", focus && "md:hidden")}>
               <span>{section === "chapter" ? plural(words, { one: "# word in this chapter", other: "# words in this chapter" }) : plural(words, { one: "# word on this page", other: "# words on this page" })}</span>
               <span>{section === "front" ? t`Front matter` : section === "back" ? t`Back matter` : t`Chapter ${chapterNo} of ${chapters.length}`}</span>
             </footer>
           )}
         </main>
+        {!focus && !reader && details && (
+          <aside aria-label={t`Details`} className="hidden w-[280px] shrink-0 overflow-y-auto border-s border-border bg-surface xl:block">
+            <Details manifest={manifest} pageTitle={pages[index]?.title ?? null} section={section} words={words} />
+          </aside>
+        )}
       </div>
       <ExportPdfDialog open={pdfOpen} onOpenChange={setPdfOpen} />
       <D.Root open={drawer} onOpenChange={setDrawer}>
