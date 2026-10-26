@@ -41,6 +41,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const applyLink = () => {
     const url = normalizeLinkUrl(href);
     if (!url) { setLinkError("That address can't be used as a link."); return; }
+    if (editor.state.selection.empty) { setLinkError("Select the text you want to link first."); return; }
     setLinkOpen(false);
     c().extendMarkRange("link").setLink({ href: url }).run();
   };

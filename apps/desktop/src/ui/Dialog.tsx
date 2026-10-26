@@ -1,7 +1,6 @@
 import * as D from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
 import { Button } from "./Button";
-import { cx } from "./cx";
 
 interface ModalProps {
   open: boolean;
@@ -9,21 +8,19 @@ interface ModalProps {
   title: string;
   description?: string;
   children?: ReactNode;
-  /** Positioning/size classes for the panel; defaults to a centered dialog. */
-  className?: string;
 }
 
 export const overlayClass = "fixed inset-0 z-40 bg-scrim";
 export const panelClass = "fixed z-50 border border-border bg-raised text-ink shadow-2xl focus:outline-none";
 
-export function Modal({ open, onOpenChange, title, description, children, className }: ModalProps) {
+export function Modal({ open, onOpenChange, title, description, children }: ModalProps) {
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
         <D.Overlay className={overlayClass} />
         <D.Content
           {...(description ? {} : { "aria-describedby": undefined })}
-          className={cx(panelClass, "left-1/2 top-1/2 w-[min(92vw,460px)] -translate-x-1/2 -translate-y-1/2 rounded-lg p-6", className)}
+          className={`${panelClass} left-1/2 top-1/2 w-[min(92vw,460px)] -translate-x-1/2 -translate-y-1/2 rounded-lg p-6`}
         >
           <D.Title className="font-book text-xl font-semibold">{title}</D.Title>
           {description ? <D.Description className="mt-2 text-sm text-ink-muted">{description}</D.Description> : null}

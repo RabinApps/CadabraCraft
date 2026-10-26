@@ -4,15 +4,13 @@ interface Node {
   content?: Node[];
 }
 
-/** Types whose neighbours are separate words even without whitespace in the text. */
-const breaks = new Set(["footnote", "hardBreak", "sceneBreak"]);
-
 function collect(node: Node, out: string[]) {
   if (typeof node.text === "string") out.push(node.text);
+  // Every non-text node (blocks, footnotes, breaks) separates words; marks only wrap text nodes.
   const split = node.type !== undefined && node.type !== "text";
   if (split) out.push(" ");
   for (const child of node.content ?? []) collect(child, out);
-  if (split || (node.type && breaks.has(node.type))) out.push(" ");
+  if (split) out.push(" ");
 }
 
 /** Counts whitespace-separated words in TipTap JSON, including headings and footnote text. */

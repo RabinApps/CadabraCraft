@@ -35,7 +35,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               ) : (
                 <button
                   type="button"
-                  aria-current={c.id === currentId}
+                  aria-current={current ? "true" : undefined}
                   className={cx("min-w-0 flex-1 truncate rounded-md px-2 py-2.5 text-left text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent md:py-2", current && "font-semibold")}
                   onClick={() => { void actions.selectChapter(c.id); onNavigate?.(); }}
                 >

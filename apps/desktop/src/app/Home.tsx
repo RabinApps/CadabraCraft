@@ -46,17 +46,22 @@ function NewProjectDialog({ open, onOpenChange, pickFolder, onCreate }: Pick<Pro
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [root, setRoot] = useState<string | null>(null);
+  const [pickError, setPickError] = useState("");
   const ready = title.trim() !== "" && root !== null;
+  const change = (o: boolean) => {
+    if (!o) { setTitle(""); setAuthor(""); setRoot(null); setPickError(""); }
+    onOpenChange(o);
+  };
   return (
-    <Modal open={open} onOpenChange={onOpenChange} title="New book">
+    <Modal open={open} onOpenChange={change} title="New book">
       <form
         className="flex flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault();
           if (!ready) return;
-          onOpenChange(false);
-          onCreate(root, title.trim(), author.trim() || "Unknown");
-          setTitle(""); setAuthor(""); setRoot(null);
+          const [t, a, r] = [title.trim(), author.trim() || "Unknown", root];
+          change(false);
+          onCreate(r, t, a);
         }}
       >
         <Field label="Title" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
@@ -65,12 +70,13 @@ function NewProjectDialog({ open, onOpenChange, pickFolder, onCreate }: Pick<Pro
           <span className="text-xs font-semibold text-ink-muted">Location</span>
           <div className="flex gap-2">
             <input aria-label="Folder" readOnly value={root ?? ""} placeholder="No folder chosen" className="min-w-0 flex-1 rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink-muted placeholder:text-ink-muted" />
-            <Button icon={FolderOpen} onClick={() => void pickFolder().then((r) => r && setRoot(r))}>Choose…</Button>
+            <Button icon={FolderOpen} onClick={() => { setPickError(""); pickFolder().then((r) => r && setRoot(r)).catch((e) => setPickError(String(e instanceof Error ? e.message : e))); }}>Choose…</Button>
           </div>
           <p className="text-xs text-ink-muted">The book is stored in this folder. Nothing leaves your computer.</p>
+          {pickError && <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{pickError}</p>}
         </div>
         <div className="flex justify-end gap-2.5">
-          <Button onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={() => change(false)}>Cancel</Button>
           <Button type="submit" variant="primary" icon={BookPlus} disabled={!ready}>Create book</Button>
         </div>
       </form>

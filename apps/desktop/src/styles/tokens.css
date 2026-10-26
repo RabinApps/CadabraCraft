@@ -42,27 +42,3 @@
   --scrim: #000000a0;
   color-scheme: dark;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root[data-theme="system"] {
-    --bg: #0f141c;
-    --sidebar: #131a24;
-    --surface: #17202c;
-    --raised: #1f2937;
-    --paper: #161d28;
-    --ink: #e8edf5;
-    --ink-muted: #9aa7ba;
-    --border: #2b3646;
-    --accent: #6ea2ff;
-    --accent-ink: #08142b;
-    --accent-soft: #1e3560;
-    --success: #5cd08e;
-    --success-soft: #1e3a2b;
-    --warn: #f0b45a;
-    --warn-soft: #41311a;
-    --danger: #ff8f86;
-    --danger-soft: #4a2321;
-    --scrim: #000000a0;
-    color-scheme: dark;
-  }
-}

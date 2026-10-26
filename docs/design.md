@@ -11,7 +11,7 @@ Source of truth: [`cadabracraft.pen`](../cadabracraft.pen) (open with Pencil; th
 - One primary action per screen. Destructive actions are confirmed and say they are reversible.
 
 ## Theming
-Every screen is drawn in light and dark. Tokens are Pencil variables with a `mode` axis; in code they become CSS variables switched by `data-theme` (`system | light | dark`).
+Every screen is drawn in light and dark. Tokens are Pencil variables with a `mode` axis; in code they become CSS variables switched by `data-theme` (`light | dark`, resolved in `theme.ts` from the System / Light / Dark preference).
 
 | Token | Light | Dark | Use |
 | --- | --- | --- | --- |

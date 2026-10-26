@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as D from "@radix-ui/react-dialog";
-import { BookOpen, Download, Menu, PenLine, Save } from "lucide-react";
+import { BookOpen, Download, Menu, PenLine, Plus, Save } from "lucide-react";
 import { Editor } from "../editor/Editor";
 import { ReadingFooter } from "../editor/ReadingFooter";
 import { ReadingSettings } from "../editor/ReadingSettings";
@@ -23,6 +23,13 @@ export function App() {
   const [drawer, setDrawer] = useState(false);
   const [mode, setMode] = useState<"write" | "read">("write");
   const reading = useReading();
+  const [words, setWords] = useState(0);
+  useEffect(() => {
+    // Count immediately for a freshly loaded chapter, but debounce while typing so large chapters stay responsive.
+    if (!draft) { setWords(countWords(currentDoc)); return; }
+    const t = setTimeout(() => setWords(countWords(draft)), 250);
+    return () => clearTimeout(t);
+  }, [draft, currentDoc]);
   useEffect(() => {
     if (!open) return;
     const un = bridge.onProjectChanged((p) => void actions.externalChange(p));
@@ -50,8 +57,8 @@ export function App() {
   const chapters = manifest.chapters;
   const index = chapters.findIndex((c) => c.id === currentId);
   const reader = mode === "read";
-  // Switching saves any unsaved typing first (selectChapter flushes the draft), so reading shows what was typed.
-  const toRead = run(async () => { if (currentId) await actions.selectChapter(currentId); setMode("read"); });
+  // Saving first means reading shows what was typed.
+  const toRead = run(async () => { await actions.flush(); setMode("read"); });
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-surface px-2 py-2 md:px-4">
@@ -78,14 +85,19 @@ export function App() {
         </aside>
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           {error && <p role="alert" className="m-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
-          {currentDoc && currentId && (reader
+          {currentDoc && currentId ? (reader
             ? <Editor key={`${currentId}:read:${reloadCount}`} initial={currentDoc} reading={reading} />
-            : <Editor key={`${currentId}:${reloadCount}`} initial={currentDoc} onChange={actions.setDraft} />)}
-          {reader ? (
+            : <Editor key={`${currentId}:${reloadCount}`} initial={currentDoc} onChange={actions.setDraft} />) : (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+              <p className="text-sm text-ink-muted">{chapters.length ? "Choose a chapter to start." : "This book has no chapters yet."}</p>
+              <Button variant="primary" icon={Plus} onClick={() => void actions.add(`Chapter ${chapters.length + 1}`)}>Add chapter</Button>
+            </div>
+          )}
+          {index < 0 ? null : reader ? (
             <ReadingFooter index={index} chapters={chapters} onSelect={(id) => void actions.selectChapter(id)} />
           ) : (
             <footer className="hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex">
-              <span>{countWords(draft ?? currentDoc).toLocaleString()} words in this chapter</span>
+              <span>{words.toLocaleString()} words in this chapter</span>
               <span>Chapter {index + 1} of {chapters.length}</span>
             </footer>
           )}

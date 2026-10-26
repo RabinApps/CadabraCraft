@@ -15,9 +15,14 @@ export function readTheme(): Theme {
   }
 }
 
+const dark = () => window.matchMedia("(prefers-color-scheme: dark)");
+
+/** CSS only knows light and dark, so "system" is resolved here (and re-resolved when the OS setting changes). */
 export function applyTheme(t: Theme) {
-  document.documentElement.dataset.theme = t;
+  document.documentElement.dataset.theme = t === "system" ? (dark().matches ? "dark" : "light") : t;
 }
+
+dark().addEventListener("change", () => { if (useTheme.getState().theme === "system") applyTheme("system"); });
 
 export const useTheme = create<{ theme: Theme; setTheme: (t: Theme) => void }>((set) => ({
   theme: readTheme(),

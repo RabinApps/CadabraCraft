@@ -41,7 +41,7 @@ async function newProject(page: Page) {
   await dialog.getByRole("button", { name: "Create book" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
 }
-const titles = (page: Page) => page.getByRole("navigation", { name: "Chapters" }).locator("li > button[aria-current]").allTextContents();
+const titles = (page: Page) => page.getByRole("navigation", { name: "Chapters" }).locator("li > button[aria-current='true']").allTextContents();
 
 async function chapterAction(page: Page, chapter: string, item: string) {
   await page.getByRole("button", { name: `Actions for ${chapter}` }).click();
