@@ -11,7 +11,8 @@
     "i18n:extract": "lingui extract --clean",
     "i18n:check": "lingui extract --clean && git diff --exit-code src/i18n/locales",
     "test": "vitest run --passWithNoTests",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "tauri:automate": "tauri dev --features dev-automation --config src-tauri/tauri.automation.conf.json"
   },
   "dependencies": {
     "@cadabracraft/editor-schema": "workspace:*",

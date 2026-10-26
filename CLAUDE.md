@@ -19,4 +19,6 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 - Tauri is on 2.x on purpose (3.x is alpha).
 
 ## Skills
+Style skills (e.g. `solid`) are guidance only: this repo's conventions and the surrounding code win. In particular, keep the existing functional TypeScript style (pure functions, plain data) and do not introduce value-object classes or the 10-line/2-field limits.
+
 `/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision`, `/sync-design` (in `.claude/skills`).

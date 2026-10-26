@@ -11,14 +11,33 @@ const binary = async (p: Promise<ArrayBuffer | number[]>): Promise<Uint8Array> =
   return r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
 };
 
+/**
+ * Dev-automation only: an agent can queue answers for the next native dialogs (see src-tauri/src/automation.rs).
+ * Returns undefined when nothing is queued, in production builds, or when the command doesn't exist, so the real
+ * dialog opens. Returns null when the queued answer is "cancel".
+ */
+const queuedDialog = async (): Promise<string | null | undefined> => {
+  if (!import.meta.env.DEV) return undefined;
+  try {
+    const r = await invoke<{ answer: string | null } | null>("automation_take_dialog");
+    return r ? r.answer : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 /** Thin wrapper over the Tauri commands in src-tauri/src/commands. All paths are relative to the project root. */
 export const bridge = {
   pickFolder: async (): Promise<string | null> => {
+    const queued = await queuedDialog();
+    if (queued !== undefined) return queued;
     const r = await open({ directory: true, multiple: false });
     return typeof r === "string" ? r : null;
   },
   /** Native file picker for one image; returns its absolute path (only ever passed to `importAsset`, never stored). */
   pickImage: async (): Promise<string | null> => {
+    const queued = await queuedDialog();
+    if (queued !== undefined) return queued;
     const r = await open({ multiple: false, directory: false, filters: [{ name: "Images", extensions: IMAGE_EXTENSIONS }] });
     return typeof r === "string" ? r : null;
   },
@@ -31,6 +50,8 @@ export const bridge = {
   },
   /** Native file picker for a document to import; returns its absolute path (read-only, never stored in a project). */
   pickImportSource: async (): Promise<string | null> => {
+    const queued = await queuedDialog();
+    if (queued !== undefined) return queued;
     const r = await open({ multiple: false, directory: false, filters: [{ name: "Documents", extensions: ["docx", "md", "markdown"] }] });
     return typeof r === "string" ? r : null;
   },

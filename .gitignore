@@ -8,3 +8,6 @@ out/
 test-results/
 playwright-report/
 **/src-tauri/gen/
+
+# Third-party skill installed locally; upstream (ramziddin/solid-skills) has no LICENSE file, so do not commit it
+.claude/skills/solid/
