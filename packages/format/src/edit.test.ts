@@ -1,5 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { addChapter, restoreEntry, createManifest, moveChapter, removeChapter, renameChapter, validateManifest } from "./index";
+import { addChapter, restoreEntry, createManifest, moveChapter, removeChapter, renameChapter, retargetFile, sameTree, treeOf, validateManifest, withTree } from "./index";
+
+describe("history snapshots", () => {
+  const base = () => createManifest({ title: "T", author: "A", identifier: "urn:uuid:1" });
+  it("restores only the tree, keeping other manifest fields", () => {
+    const one = addChapter(base(), "One").manifest;
+    const before = treeOf(one);
+    const two = addChapter(one, "Two").manifest;
+    const back = withTree({ ...two, template: "modern" }, before);
+    expect(back.chapters.map((c) => c.title)).toEqual(["One"]);
+    expect(back.template).toBe("modern");
+    expect(sameTree(treeOf(back), before)).toBe(true);
+    expect(sameTree(treeOf(two), before)).toBe(false);
+  });
+  it("retargets the entry for a file that came back under another name, without mutating", () => {
+    const m = addChapter(base(), "One").manifest;
+    const file = m.chapters[0]!.file;
+    const t = retargetFile(treeOf(m), file, "manuscript/x-2.json");
+    expect(t.chapters[0]!.file).toBe("manuscript/x-2.json");
+    expect(m.chapters[0]!.file).toBe(file);
+  });
+});
 
 const empty = () => createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" });
 const three = () => {

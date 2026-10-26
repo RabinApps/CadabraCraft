@@ -138,3 +138,24 @@ export function restoreEntry(m: Manifest, file: string, title: string): { manife
   const entry: ManuscriptEntry = { id: `${prefix}-${n}`, file, title, ...(section === "chapters" ? {} : { kind: "custom" as MatterKind }) };
   return { manifest: { ...m, [section]: [...m[section], entry] }, entry };
 }
+
+// ---- history snapshots -----------------------------------------------------------------------------
+
+/** The part of the manifest that chapter-tree edits change. Undo restores this and nothing else (title, template... stay). */
+export interface Tree {
+  frontMatter: ManuscriptEntry[];
+  chapters: ManuscriptEntry[];
+  backMatter: ManuscriptEntry[];
+}
+
+export const treeOf = (m: Manifest): Tree => ({ frontMatter: m.frontMatter, chapters: m.chapters, backMatter: m.backMatter });
+
+export const withTree = (m: Manifest, tree: Tree): Manifest => ({ ...m, ...tree });
+
+export const sameTree = (a: Tree, b: Tree): boolean => JSON.stringify(a) === JSON.stringify(b);
+
+/** Points the entry whose file is `from` at `to` (a restored file that had to take another name). */
+export function retargetFile(tree: Tree, from: string, to: string): Tree {
+  const fix = (list: ManuscriptEntry[]) => list.map((e) => (e.file === from ? { ...e, file: to } : e));
+  return { frontMatter: fix(tree.frontMatter), chapters: fix(tree.chapters), backMatter: fix(tree.backMatter) };
+}

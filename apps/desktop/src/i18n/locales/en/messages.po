@@ -72,6 +72,14 @@ msgstr "Acknowledgments"
 msgid "Actions for {0}"
 msgstr "Actions for {0}"
 
+#: src/app/store.ts
+msgid "Add {name}"
+msgstr "Add {name}"
+
+#: src/app/store.ts
+msgid "Add {title}"
+msgstr "Add {title}"
+
 #: src/app/App.tsx
 #: src/app/Sidebar.tsx
 msgid "Add chapter"
@@ -131,6 +139,10 @@ msgstr "Bold"
 #: src/app/Details.tsx
 msgid "Book"
 msgstr "Book"
+
+#: src/app/Sidebar.tsx
+msgid "Book history"
+msgstr "Book history"
 
 #: src/editor/ReadingFooter.tsx
 msgid "Book progress"
@@ -234,6 +246,14 @@ msgstr "Copyright page"
 #: src/app/store.ts
 msgid "Could not add the image: {0}"
 msgstr "Could not add the image: {0}"
+
+#: src/app/store.ts
+msgid "Could not redo: {why}"
+msgstr "Could not redo: {why}"
+
+#: src/app/store.ts
+msgid "Could not undo: {why}"
+msgstr "Could not undo: {why}"
 
 #: src/app/Home.tsx
 msgid "Create book"
@@ -456,6 +476,16 @@ msgstr "Missing image file {src}"
 msgid "Move “{0}” to trash?"
 msgstr "Move “{0}” to trash?"
 
+#. placeholder {0}: entryOf(m, id)?.title ?? ""
+#: src/app/store.ts
+msgid "Move {0}"
+msgstr "Move {0}"
+
+#. placeholder {0}: removed.title
+#: src/app/store.ts
+msgid "Move {0} to trash"
+msgstr "Move {0} to trash"
+
 #: src/app/Sidebar.tsx
 msgid "Move down"
 msgstr "Move down"
@@ -587,9 +617,23 @@ msgstr "Reading your chapters…"
 msgid "Recent projects"
 msgstr "Recent projects"
 
+#. placeholder {0}: entry.label
+#: src/app/store.ts
+msgid "Redid: {0}"
+msgstr "Redid: {0}"
+
 #: src/editor/Toolbar.tsx
 msgid "Redo"
 msgstr "Redo"
+
+#: src/app/Sidebar.tsx
+msgid "Redo book change"
+msgstr "Redo book change"
+
+#. placeholder {0}: lastRedo.label
+#: src/app/Sidebar.tsx
+msgid "Redo: {0}"
+msgstr "Redo: {0}"
 
 #. placeholder {0}: r.title || r.root
 #: src/app/Home.tsx
@@ -600,12 +644,19 @@ msgstr "Remove {0} from recent projects"
 msgid "Rename"
 msgstr "Rename"
 
+#. placeholder {0}: entryOf(m, id)?.title ?? ""
+#: src/app/store.ts
+msgid "Rename {0}"
+msgstr "Rename {0}"
+
 #: src/app/Sidebar.tsx
 msgid "Restore"
 msgstr "Restore"
 
+#. placeholder {0}: entry.title
 #. placeholder {0}: x.title
 #: src/app/Sidebar.tsx
+#: src/app/store.ts
 msgid "Restore {0}"
 msgstr "Restore {0}"
 
@@ -678,6 +729,10 @@ msgstr "The book is stored in this folder. Nothing leaves your computer."
 #: src/lib/pdfErrors.ts
 msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
 msgstr "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
+
+#: src/app/store.ts
+msgid "the page is no longer in the trash"
+msgstr "the page is no longer in the trash"
 
 #: src/app/Sidebar.tsx
 msgid "The trash is empty."
@@ -773,9 +828,23 @@ msgstr "Typst took longer than {0} seconds and was stopped. Try again, or export
 msgid "Underline"
 msgstr "Underline"
 
+#. placeholder {0}: entry.label
+#: src/app/store.ts
+msgid "Undid: {0}"
+msgstr "Undid: {0}"
+
 #: src/editor/Toolbar.tsx
 msgid "Undo"
 msgstr "Undo"
+
+#: src/app/Sidebar.tsx
+msgid "Undo book change"
+msgstr "Undo book change"
+
+#. placeholder {0}: lastUndo.label
+#: src/app/Sidebar.tsx
+msgid "Undo: {0}"
+msgstr "Undo: {0}"
 
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
