@@ -175,6 +175,10 @@ msgstr "Add link"
 msgid "Add page"
 msgstr "Add page"
 
+#: src/app/PrintPreview.tsx
+msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
+msgstr "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
+
 #: src/editor/Toolbar.tsx
 msgid "Address"
 msgstr "Address"
@@ -282,6 +286,10 @@ msgstr "cadabra.json changed outside the app; your previous copy was kept as {0}
 #: src/app/store.ts
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 msgstr "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
+
+#: src/app/SponsorDialog.tsx
+msgid "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
+msgstr "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 
 #: src/app/BookDetailsDialog.tsx
 #: src/app/ExportDialog.tsx
@@ -400,6 +408,11 @@ msgstr "Could not add the cover: {0}"
 msgid "Could not add the image: {0}"
 msgstr "Could not add the image: {0}"
 
+#. placeholder {0}: errText(e)
+#: src/app/SponsorDialog.tsx
+msgid "Could not open {SPONSOR_URL}: {0}"
+msgstr "Could not open {SPONSOR_URL}: {0}"
+
 #: src/app/store.ts
 msgid "Could not redo: {why}"
 msgstr "Could not redo: {why}"
@@ -415,6 +428,7 @@ msgstr "Could not undo: {why}"
 
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
+#: src/app/PrintPreview.tsx
 msgid "Cover"
 msgstr "Cover"
 
@@ -464,6 +478,10 @@ msgstr "Description (alt text)"
 msgid "Details"
 msgstr "Details"
 
+#: src/app/SponsorDialog.tsx
+msgid "Don't show again"
+msgstr "Don't show again"
+
 #: src/app/ImportDialogs.tsx
 msgid "Done"
 msgstr "Done"
@@ -483,6 +501,10 @@ msgstr "Editor"
 #: src/app/ExportDialog.tsx
 msgid "Embeds everything needed to open the file in the future."
 msgstr "Embeds everything needed to open the file in the future."
+
+#: src/app/SponsorDialog.tsx
+msgid "Enjoying CadabraCraft?"
+msgstr "Enjoying CadabraCraft?"
 
 #: src/app/Sidebar.tsx
 msgid "Epigraph"
@@ -512,6 +534,11 @@ msgstr "Export EPUB"
 #: src/app/PrintPreview.tsx
 msgid "Export PDF"
 msgstr "Export PDF"
+
+#. placeholder {0}: exported ?? ""
+#: src/app/SponsorDialog.tsx
+msgid "Exported {0}"
+msgstr "Exported {0}"
 
 #: src/app/store.ts
 msgid "Exported exports/book.epub"
@@ -723,6 +750,10 @@ msgstr "Manuscript font"
 msgid "Margins (in/out)"
 msgstr "Margins (in/out)"
 
+#: src/app/SponsorDialog.tsx
+msgid "Maybe later"
+msgstr "Maybe later"
+
 #: src/app/Settings.tsx
 msgid "Medium"
 msgstr "Medium"
@@ -839,6 +870,10 @@ msgstr "Not an image in the assets folder: {0}"
 #: src/editor/Toolbar.tsx
 msgid "Note"
 msgstr "Note"
+
+#: src/app/SponsorDialog.tsx
+msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
+msgstr "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 
 #: src/app/ImportDialogs.tsx
 msgid "Nothing was lost or changed."
@@ -1060,6 +1095,10 @@ msgstr "Smaller text"
 #: src/app/ImportDialogs.tsx
 msgid "Some content or formatting could not be kept. Review these before you continue."
 msgstr "Some content or formatting could not be kept. Review these before you continue."
+
+#: src/app/SponsorDialog.tsx
+msgid "Sponsor"
+msgstr "Sponsor"
 
 #: src/app/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."

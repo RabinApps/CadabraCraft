@@ -12,6 +12,7 @@ import { Field } from "../ui/Input";
 import { Segmented } from "../ui/Segmented";
 import { Select } from "../ui/Select";
 import { cx } from "../ui/cx";
+import { useSponsor } from "./sponsor";
 import { useProject } from "./store";
 import { errText } from "../lib/projectError";
 
@@ -81,6 +82,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
         await exportPdf({ trimSize, pdfA, cover: withCover, template: current, typstPath: typstPath.trim() || undefined });
       }
       change(false);
+      useSponsor.getState().offer(format === "epub" ? "exports/book.epub" : "exports/book.pdf");
     } catch (e) {
       setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
     }

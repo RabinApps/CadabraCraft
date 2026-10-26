@@ -8,6 +8,8 @@ async function fakeTauri(page: Page) {
     const PIXEL = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
     // UI language is an app preference; specs assert English text unless a test picks another locale first.
     if (!localStorage.getItem("cadabracraft.locale")) localStorage.setItem("cadabracraft.locale", "en");
+    // The sponsor dialog after an export is off unless a test turns it on (it would cover the page in every export test).
+    if (!sessionStorage.getItem("sponsorTest")) localStorage.setItem("cadabracraft.sponsor", "hidden");
     const disk: Record<string, string | number[]> = JSON.parse(sessionStorage.getItem("disk") ?? "{}");
     const persist = () => sessionStorage.setItem("disk", JSON.stringify(disk));
     const h = (s: string) => `${s.length}:${s.slice(0, 50)}`;
@@ -18,6 +20,7 @@ async function fakeTauri(page: Page) {
         switch (cmd) {
           // The image picker passes extension filters; the folder picker does not.
           case "plugin:dialog|open": return a?.options?.filters ? "/pics/pic.png" : "/proj";
+          case "plugin:opener|open_url": ((window as any).__opened ??= []).push(a.url); return null;
           case "plugin:event|listen": return 1;
           case "plugin:event|unlisten": return null;
           case "watch_project": return null;
@@ -690,4 +693,105 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   await dialog.getByRole("button", { name: "Save details" }).click();
   await expect(dialog).toBeHidden();
   expect((await manifest()).cover).toBeNull();
+});
+
+test("print preview shows the cover, and the PDF dialog offers to include it only when there is one", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const exportDialog = page.getByRole("dialog", { name: "Export book" });
+  await exportDialog.getByRole("radio", { name: "Print PDF" }).click();
+  await expect(exportDialog.getByLabel("Include the cover")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "Book details" }).click();
+  const details = page.getByRole("dialog", { name: "Book details" });
+  await details.getByRole("button", { name: "Choose image…" }).click();
+  await expect(details.getByRole("img", { name: "Cover preview" })).toBeVisible();
+  await details.getByRole("button", { name: "Save details" }).click();
+  await expect(details).toBeHidden();
+
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await exportDialog.getByRole("radio", { name: "Print PDF" }).click();
+  await expect(exportDialog.getByLabel("Include the cover")).toBeChecked();
+  await exportDialog.getByRole("button", { name: "Print preview" }).click();
+  await expect(page.getByRole("heading", { name: "Print preview" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Cover", exact: true })).toBeVisible();
+  await expect(page.getByText("Added as the first page, with a blank page behind it")).toBeVisible();
+});
+
+test.describe("sponsor dialog after an export", () => {
+  test.beforeEach(async ({ page }) => {
+    // Registered after the fake backend's script, so it runs after it and turns the dialog back on.
+    await page.addInitScript(() => {
+      if (sessionStorage.getItem("sponsorTest")) return; // only on the first load, so a reload keeps what the author chose
+      sessionStorage.setItem("sponsorTest", "1");
+      localStorage.removeItem("cadabracraft.sponsor");
+    });
+  });
+  const exportEpub = async (page: Page) => {
+    await page.getByRole("button", { name: "Export", exact: true }).click();
+    await page.getByRole("dialog", { name: "Export book" }).getByRole("button", { name: "Export", exact: true }).click();
+  };
+  const sponsor = (page: Page) => page.getByRole("dialog", { name: "Enjoying CadabraCraft?" });
+
+  test("appears after a successful export with the file name and three choices", async ({ page }) => {
+    await newProject(page);
+    await exportEpub(page);
+    await expect(sponsor(page)).toBeVisible();
+    await expect(sponsor(page).getByText("Exported exports/book.epub")).toBeVisible();
+    for (const name of ["Don't show again", "Maybe later", "Sponsor"]) await expect(sponsor(page).getByRole("button", { name })).toBeVisible();
+  });
+
+  test("Maybe later hides it for the rest of the session only", async ({ page }) => {
+    await newProject(page);
+    await exportEpub(page);
+    await sponsor(page).getByRole("button", { name: "Maybe later" }).click();
+    await expect(sponsor(page)).toHaveCount(0);
+    await exportEpub(page);
+    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    await expect(sponsor(page)).toHaveCount(0);
+    expect(await page.evaluate(() => localStorage.getItem("cadabracraft.sponsor"))).toBeNull();
+  });
+
+  test("closing it with Escape asks again after the next export", async ({ page }) => {
+    await newProject(page);
+    await exportEpub(page);
+    await page.keyboard.press("Escape");
+    await expect(sponsor(page)).toHaveCount(0);
+    await exportEpub(page);
+    await expect(sponsor(page)).toBeVisible();
+  });
+
+  test("Don't show again is remembered across restarts", async ({ page }) => {
+    await newProject(page);
+    await exportEpub(page);
+    await sponsor(page).getByRole("button", { name: "Don't show again" }).click();
+    await expect(sponsor(page)).toHaveCount(0);
+    expect(await page.evaluate(() => localStorage.getItem("cadabracraft.sponsor"))).toBe("hidden");
+    await page.reload();
+    await page.getByRole("button", { name: "Open folder" }).click();
+    await expect(page.locator(".ProseMirror")).toBeVisible();
+    await exportEpub(page);
+    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    await expect(sponsor(page)).toHaveCount(0);
+  });
+
+  test("Sponsor opens only the sponsor page in the browser and closes the dialog", async ({ page }) => {
+    await newProject(page);
+    await exportEpub(page);
+    await sponsor(page).getByRole("button", { name: "Sponsor", exact: true }).click();
+    await expect(sponsor(page)).toHaveCount(0);
+    expect(await page.evaluate(() => (window as any).__opened)).toEqual(["https://github.com/sponsors/RabinApps"]);
+  });
+
+  test("does not appear when the export fails", async ({ page }) => {
+    await newProject(page);
+    await page.getByRole("button", { name: "Export", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Export book" });
+    await dialog.getByRole("radio", { name: "Print PDF" }).click();
+    await page.evaluate(() => { (window as any).__compileError = { kind: "compile", message: "main.typ:1:1: error: boom" }; });
+    await dialog.getByRole("button", { name: "Export", exact: true }).click();
+    await expect(dialog.getByRole("alert")).toBeVisible();
+    await expect(sponsor(page)).toHaveCount(0);
+  });
 });

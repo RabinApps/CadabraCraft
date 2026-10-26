@@ -5,6 +5,7 @@ import { ArrowLeft, BookOpen, Printer } from "lucide-react";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, type Template } from "@cadabracraft/templates";
 import { countWords } from "@cadabracraft/shared";
+import { assetUrl } from "../lib/assets";
 import { errText } from "../lib/projectError";
 import { estimatePages, plainBlocks, wordsPerPage, type Margins } from "../lib/printPreview";
 import { Button, IconButton } from "../ui/Button";
@@ -66,6 +67,25 @@ function Page({ lines, title, template, margins, scale, heightPx, side, showMarg
   );
 }
 
+/** The book's cover as it opens the PDF: a thumbnail the size of a trim-sized page. Nothing is shown when the image cannot be read. */
+function CoverThumb({ root, cover }: { root: string; cover: string }) {
+  const { t } = useLingui();
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    setUrl(null);
+    assetUrl(root, cover).then((u) => { if (live) setUrl(u); }, () => {});
+    return () => { live = false; };
+  }, [root, cover]);
+  if (!url) return null;
+  return (
+    <figure className="flex flex-col items-center gap-1.5">
+      <img src={url} alt={t`Cover`} className="h-[112px] w-[84px] rounded-sm border border-border object-cover" />
+      <figcaption className="text-xs text-ink-muted">{t`Cover`}</figcaption>
+    </figure>
+  );
+}
+
 interface Props {
   onBack: () => void;
   onExport: (format: ExportFormat) => void;
@@ -75,6 +95,7 @@ interface Props {
 export function PrintPreview({ onBack, onExport }: Props) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
+  const root = useProject((s) => s.root);
   const readPages = useProject((s) => s.actions.readPages);
   const [pages, setPages] = useState<BookPage[] | null>(null);
   const [error, setError] = useState("");
@@ -117,6 +138,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
       {error && <p role="alert" className="m-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <aside className="hidden w-[140px] shrink-0 flex-col items-center gap-3 overflow-y-auto bg-sidebar p-4 md:flex">
+          {root && manifest.cover && <CoverThumb root={root} cover={manifest.cover} />}
           {(pages ?? []).slice(0, 6).map((p, i) => (
             <div key={p.id} className="flex flex-col items-center gap-1.5" aria-hidden>
               <div className="flex h-[112px] w-[84px] flex-col gap-1.5 rounded-sm border border-border bg-paper p-3">
@@ -146,6 +168,12 @@ export function PrintPreview({ onBack, onExport }: Props) {
             <span className="text-xs font-semibold text-ink-muted">{t`Pages`}</span>
             <span className="text-sm font-medium">{estimate === 0 ? t`No text yet` : plural(estimate, { one: "About # page", other: "About # pages" })}</span>
           </div>
+          {manifest.cover && (
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-semibold text-ink-muted">{t`Cover`}</span>
+              <span className="text-sm">{t`Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them.`}</span>
+            </div>
+          )}
           <div className="flex items-center justify-between gap-3 text-sm">
             <span>{t`Show margins`}</span>
             <Switch label={t`Show margins`} checked={showMargins} onChange={setShowMargins} />

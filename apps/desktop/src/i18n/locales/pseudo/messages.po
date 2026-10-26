@@ -175,6 +175,10 @@ msgstr ""
 msgid "Add page"
 msgstr ""
 
+#: src/app/PrintPreview.tsx
+msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Address"
 msgstr ""
@@ -281,6 +285,10 @@ msgstr ""
 
 #: src/app/store.ts
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
+msgstr ""
+
+#: src/app/SponsorDialog.tsx
+msgid "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 msgstr ""
 
 #: src/app/BookDetailsDialog.tsx
@@ -400,6 +408,11 @@ msgstr ""
 msgid "Could not add the image: {0}"
 msgstr ""
 
+#. placeholder {0}: errText(e)
+#: src/app/SponsorDialog.tsx
+msgid "Could not open {SPONSOR_URL}: {0}"
+msgstr ""
+
 #: src/app/store.ts
 msgid "Could not redo: {why}"
 msgstr ""
@@ -415,6 +428,7 @@ msgstr ""
 
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
+#: src/app/PrintPreview.tsx
 msgid "Cover"
 msgstr ""
 
@@ -464,6 +478,10 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
+#: src/app/SponsorDialog.tsx
+msgid "Don't show again"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Done"
 msgstr ""
@@ -482,6 +500,10 @@ msgstr ""
 
 #: src/app/ExportDialog.tsx
 msgid "Embeds everything needed to open the file in the future."
+msgstr ""
+
+#: src/app/SponsorDialog.tsx
+msgid "Enjoying CadabraCraft?"
 msgstr ""
 
 #: src/app/Sidebar.tsx
@@ -511,6 +533,11 @@ msgstr ""
 
 #: src/app/PrintPreview.tsx
 msgid "Export PDF"
+msgstr ""
+
+#. placeholder {0}: exported ?? ""
+#: src/app/SponsorDialog.tsx
+msgid "Exported {0}"
 msgstr ""
 
 #: src/app/store.ts
@@ -723,6 +750,10 @@ msgstr ""
 msgid "Margins (in/out)"
 msgstr ""
 
+#: src/app/SponsorDialog.tsx
+msgid "Maybe later"
+msgstr ""
+
 #: src/app/Settings.tsx
 msgid "Medium"
 msgstr ""
@@ -838,6 +869,10 @@ msgstr ""
 #: src/app/ImportDialogs.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
+msgstr ""
+
+#: src/app/SponsorDialog.tsx
+msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
@@ -1059,6 +1094,10 @@ msgstr ""
 
 #: src/app/ImportDialogs.tsx
 msgid "Some content or formatting could not be kept. Review these before you continue."
+msgstr ""
+
+#: src/app/SponsorDialog.tsx
+msgid "Sponsor"
 msgstr ""
 
 #: src/app/Home.tsx

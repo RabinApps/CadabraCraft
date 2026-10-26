@@ -30224,6 +30224,1124 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "zsTlV",
+      "x": 3000,
+      "y": 15080,
+      "name": "Export PDF (M3) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Gx0BT",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "eSd20",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Export book",
+              "fontFamily": "$font-book",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "oOFXt",
+              "name": "Description",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "WLWMs",
+              "name": "Segmented",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "h392BP",
+                  "name": "EPUB 3",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "JhMB4",
+                      "name": "EPUB 3",
+                      "fill": "$ink-muted",
+                      "content": "EPUB 3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mxXXd",
+                  "name": "Print PDF",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "E9lqp",
+                      "name": "Print PDF",
+                      "fill": "$accent",
+                      "content": "Print PDF",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Etxty",
+              "name": "Trim size",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "mjuFu",
+                  "name": "Trim size label",
+                  "fill": "$ink-muted",
+                  "content": "Trim size",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "BtTxb",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Trim size select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "6 × 9 in"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "otcQA",
+              "name": "Template",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "q59sE",
+                  "name": "Template label",
+                  "fill": "$ink-muted",
+                  "content": "Template",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "Q1pIWx",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Template select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "Classic Novel"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "AYkHX",
+              "name": "PDF/A (archival)",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "m9Npc",
+                  "name": "Checkbox",
+                  "width": 18,
+                  "height": 18,
+                  "fill": "$surface",
+                  "cornerRadius": 4,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center"
+                },
+                {
+                  "type": "frame",
+                  "id": "rGInc",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MiFLM",
+                      "name": "PDF/A (archival) label",
+                      "fill": "$ink",
+                      "content": "PDF/A (archival)",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "V2WoOh",
+                      "name": "PDF/A (archival) hint",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Embeds everything needed to open the file in the future.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "RptsY",
+              "name": "Include the cover",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "B5KsL",
+                  "name": "Checkbox",
+                  "width": 18,
+                  "height": 18,
+                  "fill": "$accent",
+                  "cornerRadius": 4,
+                  "stroke": "$border",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "sGNjE",
+                      "name": "check",
+                      "width": 12,
+                      "height": 12,
+                      "icon": "check",
+                      "library": "lucide",
+                      "fill": "$accent-ink"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BN1Ex",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "wjBwO",
+                      "name": "Include the cover label",
+                      "fill": "$ink",
+                      "content": "Include the cover",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "oZvVd",
+                      "name": "Include the cover hint",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mZLk4",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "OTojR",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Print preview",
+                  "descendants": {
+                    "I6qeCj": {
+                      "icon": "printer"
+                    },
+                    "l83V3": {
+                      "content": "Print preview"
+                    }
+                  }
+                },
+                {
+                  "type": "frame",
+                  "id": "GgwFN",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "ohJ7c",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "k9N20H",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Export",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "file-text"
+                        },
+                        "gNKXH": {
+                          "content": "Export"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "gxj14",
+      "x": 5870,
+      "y": 15080,
+      "name": "Export PDF (M3) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Iq0dU",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "saOsw",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Export book",
+              "fontFamily": "$font-book",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "v3Fhnm",
+              "name": "Description",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "H2bhE",
+              "name": "Segmented",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bMWNI",
+                  "name": "EPUB 3",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "l2VYY5",
+                      "name": "EPUB 3",
+                      "fill": "$ink-muted",
+                      "content": "EPUB 3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "jZo6t",
+                  "name": "Print PDF",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "G39rGt",
+                      "name": "Print PDF",
+                      "fill": "$accent",
+                      "content": "Print PDF",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GBQb8",
+              "name": "Trim size",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "L9VHiN",
+                  "name": "Trim size label",
+                  "fill": "$ink-muted",
+                  "content": "Trim size",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "OwRmn",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Trim size select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "6 × 9 in"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "l4ugpc",
+              "name": "Template",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "lVUbR",
+                  "name": "Template label",
+                  "fill": "$ink-muted",
+                  "content": "Template",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "E0qv5",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Template select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "Classic Novel"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "x3Rl2",
+              "name": "PDF/A (archival)",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Gzxa6",
+                  "name": "Checkbox",
+                  "width": 18,
+                  "height": 18,
+                  "fill": "$surface",
+                  "cornerRadius": 4,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center"
+                },
+                {
+                  "type": "frame",
+                  "id": "qsHyp",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XFQNF",
+                      "name": "PDF/A (archival) label",
+                      "fill": "$ink",
+                      "content": "PDF/A (archival)",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Frj3Y",
+                      "name": "PDF/A (archival) hint",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Embeds everything needed to open the file in the future.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "PLzzx",
+              "name": "Include the cover",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "vsOpE",
+                  "name": "Checkbox",
+                  "width": 18,
+                  "height": 18,
+                  "fill": "$accent",
+                  "cornerRadius": 4,
+                  "stroke": "$border",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "a9Uwg",
+                      "name": "check",
+                      "width": 12,
+                      "height": 12,
+                      "icon": "check",
+                      "library": "lucide",
+                      "fill": "$accent-ink"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "OqLFV",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "aGOSJ",
+                      "name": "Include the cover label",
+                      "fill": "$ink",
+                      "content": "Include the cover",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LMyDD",
+                      "name": "Include the cover hint",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "zHUnI",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "PxuUq",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Print preview",
+                  "descendants": {
+                    "I6qeCj": {
+                      "icon": "printer"
+                    },
+                    "l83V3": {
+                      "content": "Print preview"
+                    }
+                  }
+                },
+                {
+                  "type": "frame",
+                  "id": "BpwE1",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "FoEhk",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "e31DxL",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Export",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "file-text"
+                        },
+                        "gNKXH": {
+                          "content": "Export"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "KBQQz",
+      "x": 3000,
+      "y": 15820,
+      "name": "Sponsor dialog (M3) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 640,
+      "height": 520,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "B8w2L",
+          "name": "Dialog",
+          "width": 460,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "rMGpg",
+              "name": "Heading row",
+              "width": "fill_container",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "lPftn",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Enjoying CadabraCraft?",
+                  "fontFamily": "$font-book",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kZwhu",
+              "name": "Export done",
+              "width": "fill_container",
+              "fill": "$success-soft",
+              "cornerRadius": "$radius",
+              "gap": 8,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "ENaZk",
+                  "name": "check",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "circle-check",
+                  "library": "lucide",
+                  "fill": "$success"
+                },
+                {
+                  "type": "text",
+                  "id": "O19ii",
+                  "name": "Exported",
+                  "fill": "$success",
+                  "content": "Exported exports/book.epub",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "K0ds6",
+              "name": "Body",
+              "fill": "$ink",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it.",
+              "lineHeight": 1.55,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "EYPf9",
+              "name": "Privacy note",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "R25ZO",
+              "name": "Actions",
+              "width": "fill_container",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "f0eE5",
+                  "type": "ref",
+                  "ref": "FV6WE",
+                  "name": "Don't show again",
+                  "descendants": {
+                    "GD0DK": {
+                      "enabled": false
+                    },
+                    "FYP6F": {
+                      "content": "Don't show again",
+                      "fill": "$ink-muted"
+                    }
+                  }
+                },
+                {
+                  "type": "frame",
+                  "id": "JoqTR",
+                  "name": "Spacer",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "id": "wCPp0",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Maybe later",
+                  "descendants": {
+                    "I6qeCj": {
+                      "enabled": false
+                    },
+                    "l83V3": {
+                      "content": "Maybe later"
+                    }
+                  }
+                },
+                {
+                  "id": "pzeIB",
+                  "type": "ref",
+                  "ref": "RHvJO",
+                  "name": "Sponsor",
+                  "descendants": {
+                    "FuxJL": {
+                      "icon": "heart"
+                    },
+                    "gNKXH": {
+                      "content": "Sponsor"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "YjnEc",
+      "x": 3720,
+      "y": 15820,
+      "name": "Sponsor dialog (M3) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 640,
+      "height": 520,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "UQPQw",
+          "name": "Dialog",
+          "width": 460,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "yVOIB",
+              "name": "Heading row",
+              "width": "fill_container",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sNfT4",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Enjoying CadabraCraft?",
+                  "fontFamily": "$font-book",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "aupWG",
+              "name": "Export done",
+              "width": "fill_container",
+              "fill": "$success-soft",
+              "cornerRadius": "$radius",
+              "gap": 8,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "s2tHRC",
+                  "name": "check",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "circle-check",
+                  "library": "lucide",
+                  "fill": "$success"
+                },
+                {
+                  "type": "text",
+                  "id": "pJxWF",
+                  "name": "Exported",
+                  "fill": "$success",
+                  "content": "Exported exports/book.epub",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "PzmF7",
+              "name": "Body",
+              "fill": "$ink",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it.",
+              "lineHeight": 1.55,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "KiV0d",
+              "name": "Privacy note",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "leAmE",
+              "name": "Actions",
+              "width": "fill_container",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "WWOKf",
+                  "type": "ref",
+                  "ref": "FV6WE",
+                  "name": "Don't show again",
+                  "descendants": {
+                    "GD0DK": {
+                      "enabled": false
+                    },
+                    "FYP6F": {
+                      "content": "Don't show again",
+                      "fill": "$ink-muted"
+                    }
+                  }
+                },
+                {
+                  "type": "frame",
+                  "id": "F2hjbV",
+                  "name": "Spacer",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "id": "GfP3h",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Maybe later",
+                  "descendants": {
+                    "I6qeCj": {
+                      "enabled": false
+                    },
+                    "l83V3": {
+                      "content": "Maybe later"
+                    }
+                  }
+                },
+                {
+                  "id": "XL6i1",
+                  "type": "ref",
+                  "ref": "RHvJO",
+                  "name": "Sponsor",
+                  "descendants": {
+                    "FuxJL": {
+                      "icon": "heart"
+                    },
+                    "gNKXH": {
+                      "content": "Sponsor"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "themes": {
