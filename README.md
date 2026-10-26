@@ -23,7 +23,9 @@ packages/
   format/            Manifest validation, migrations, chapter-tree edits, file naming
   templates/         Novel, nonfiction and modern templates as data
   import-docx/       Markdown and DOCX import with warnings (wired into the start screen)
-fixtures/            Sample manuscripts and golden outputs
+  project-fs/        Node port of the project-folder rules (safe paths, atomic writes, conflicts, trash, assets, workspace guard)
+  mcp/               Headless MCP server (stdio) to create, edit, import and export books: see docs/mcp.md
+fixtures/            Sample manuscripts, golden outputs, and contract/ vectors shared by the Rust and TS project-fs tests
 docs/                Architecture notes, file format outline, roadmap
 ```
 Packages never import from `apps/desktop`.

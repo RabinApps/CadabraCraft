@@ -1,0 +1,37 @@
+{
+  "description": "Project-relative path rules. `resolve` mirrors Rust project::resolve (and TS resolveRelative): non-empty, no backslash, only normal components. Interior `.` and repeated `/` are normalised away (as Path::components does); a leading `./`, `..`, or a leading `/` is refused. `normalized` is the path relative to the root after joining.",
+  "resolve": [
+    { "rel": "manuscript/001-a.json", "ok": true, "normalized": "manuscript/001-a.json" },
+    { "rel": "cadabra.json", "ok": true, "normalized": "cadabra.json" },
+    { "rel": "a/b/c.txt", "ok": true, "normalized": "a/b/c.txt" },
+    { "rel": "a//b", "ok": true, "normalized": "a/b" },
+    { "rel": "a/./b", "ok": true, "normalized": "a/b" },
+    { "rel": "a/", "ok": true, "normalized": "a" },
+    { "rel": "..a/b..", "ok": true, "normalized": "..a/b.." },
+    { "rel": "", "ok": false },
+    { "rel": ".", "ok": false },
+    { "rel": "./x", "ok": false },
+    { "rel": "../x", "ok": false },
+    { "rel": "..", "ok": false },
+    { "rel": "a/../b", "ok": false },
+    { "rel": "a/../../b", "ok": false },
+    { "rel": "/etc/passwd", "ok": false },
+    { "rel": "/", "ok": false },
+    { "rel": "a\\b", "ok": false },
+    { "rel": "..\\x", "ok": false }
+  ],
+  "imageReference": {
+    "description": "Markdown image references that must be refused before touching the disk (read_relative_image / readRelativeImage). `error` is a substring of the message.",
+    "reject": [
+      { "reference": "../secret.png", "error": "not allowed" },
+      { "reference": "a/../../secret.png", "error": "not allowed" },
+      { "reference": "", "error": "not allowed" },
+      { "reference": "..\\secret.png", "error": "not allowed" },
+      { "reference": "a\\b.png", "error": "not allowed" },
+      { "reference": "a\u0000b.png", "error": "not allowed" },
+      { "reference": "/etc/hosts.png", "error": "not allowed" },
+      { "reference": "notes.txt", "error": "unsupported image type" },
+      { "reference": "img/readme", "error": "unsupported image type" }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "description": "sanitize_asset_stem: runs of characters other than [A-Za-z0-9_] become one '-', leading/trailing '-' trimmed, at most 80 chars, empty -> 'image'. `stem` is the file name without its extension.",
+  "stems": [
+    { "stem": "photo", "expected": "photo" },
+    { "stem": "My Cover (final)!", "expected": "My-Cover-final" },
+    { "stem": "../../etc", "expected": "etc" },
+    { "stem": "???", "expected": "image" },
+    { "stem": "", "expected": "image" },
+    { "stem": "a__b", "expected": "a__b" },
+    { "stem": "a - b", "expected": "a-b" },
+    { "stem": "--x--", "expected": "x" },
+    { "stem": "café über", "expected": "caf-ber" },
+    { "stem": "日本語", "expected": "image" },
+    { "stem": "tab\tnew\nline", "expected": "tab-new-line" },
+    { "stem": "Fig 1", "expected": "Fig-1" },
+    { "stem": "a.b.c", "expected": "a-b-c" },
+    {
+      "stem": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "expected": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "extensions": {
+    "description": "image_ext: allowlisted extension (lower-cased ASCII) of the last path component, or null. Dotfiles have no extension.",
+    "cases": [
+      { "name": "a.png", "expected": "png" },
+      { "name": "a.PNG", "expected": "png" },
+      { "name": "a.JpEg", "expected": "jpeg" },
+      { "name": "dir/a.webp", "expected": "webp" },
+      { "name": "a.svg", "expected": "svg" },
+      { "name": "a.gif", "expected": "gif" },
+      { "name": "a.jpg", "expected": "jpg" },
+      { "name": "a.exe", "expected": null },
+      { "name": "noext", "expected": null },
+      { "name": ".png", "expected": null },
+      { "name": "a.", "expected": null },
+      { "name": "a.png.exe", "expected": null },
+      { "name": "..png", "expected": "png" }
+    ]
+  }
+}

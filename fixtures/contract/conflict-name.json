@@ -1,0 +1,21 @@
+{
+  "description": "Relative path of the kept copy of an externally changed file: `<stem>.conflict-<STAMP>.<ext>` where STAMP is UTC YYYYMMDD-HHMM (tests replace the live stamp with the literal STAMP). The Rust side never avoids an existing copy; TS adds -2, -3 (see collisions). `rustExpected` documents known Rust behaviour that differs from `expected`.",
+  "names": [
+    { "rel": "manuscript/001-chapter-one.json", "expected": "manuscript/001-chapter-one.conflict-STAMP.json" },
+    { "rel": "cadabra.json", "expected": "cadabra.conflict-STAMP.json" },
+    { "rel": "a/b.c.json", "expected": "a/b.c.conflict-STAMP.json" },
+    { "rel": "notes/README", "expected": "notes/README.conflict-STAMP" },
+    { "rel": "manuscript/.hidden", "expected": "manuscript/.conflict-STAMP.hidden" },
+    {
+      "rel": "v1.0/noext",
+      "expected": "v1.0/noext.conflict-STAMP",
+      "rustExpected": "v1.conflict-STAMP.0/noext",
+      "note": "Rust splits at the last '.' of the whole relative path, so a dot in a directory name with an extension-less file puts the stamp inside the directory name."
+    }
+  ],
+  "collisions": {
+    "description": "TS only: with N copies already present the next free name gets -2, -3, ... before the extension.",
+    "rel": "manuscript/x.json",
+    "expected": ["manuscript/x.conflict-STAMP.json", "manuscript/x.conflict-STAMP-2.json", "manuscript/x.conflict-STAMP-3.json"]
+  }
+}
