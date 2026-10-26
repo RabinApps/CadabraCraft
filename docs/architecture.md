@@ -46,13 +46,19 @@ Spike caveat: output was checked via `pdffonts`/`pdftotext` and page size, not v
 Content hashes are used instead of modification times because sync clients rewrite mtimes.
 
 ### Editor toolbar
-Formatting buttons (undo/redo, bold, italic, underline, small caps, link, H1-H3, quote, lists, scene break, footnote) live in `apps/desktop/src/editor/Toolbar.tsx`, expose `aria-pressed` state, and are tested in Playwright. Links are limited to http, https and mailto (`normalizeLinkUrl`). Image insertion is deferred until assets import exists.
+Formatting buttons (undo/redo, bold, italic, underline, small caps, link, H1-H3, quote, lists, scene break, footnote) live in `apps/desktop/src/editor/Toolbar.tsx`, expose `aria-pressed` state, and are tested in Playwright. Links are limited to http, https and mailto (`normalizeLinkUrl`). The Image button picks a file with the native dialog, imports it into `assets/` and inserts an image node (alt text, caption in `title`); see Images below.
 
 ### Desktop UI stack
 **Decision:** Tailwind CSS v4 with Radix UI primitives (dialog, dropdown menu, toggle group) and lucide icons, in `apps/desktop` only. Design tokens are CSS variables in `src/styles/tokens.css`, mirroring `cadabracraft.pen` and `docs/design.md`; `data-theme` (`system | light | dark`, stored in `localStorage`) switches them. Inter and Newsreader are bundled via `@fontsource-variable/*`, so there are no runtime font requests.
 **Why:** tokens map one to one onto Tailwind `@theme`; build-time only (no runtime, no network); Radix gives accessible dialogs and menus without imposing a look; small bundle for the webview.
 **Rejected:** MUI (Material look, emotion runtime, a second theming system to keep in sync with the design), CSS modules (more hand-written responsive and dark-mode code), Chakra and Mantine (runtime theming, same drawbacks as MUI).
 **Caveats:** the e2e suite fakes the Tauri bridge, so native dialogs (`pickFolder`) and the real window are not covered. Reading mode keeps text size and page width in `localStorage` only (app preference, never in project files). Unsaved typing is saved when switching to Read, like switching chapters.
+
+### Images and assets
+- Import (`import_asset` in `src-tauri/src/project`): copies the picked file atomically into `assets/` and returns `assets/<name>`. The name is sanitized to `[A-Za-z0-9_-]` plus a lowercase extension; extension allowlist png, jpg, jpeg, gif, webp, svg; 25 MB cap; a cheap signature check refuses renamed non-images. An existing file with identical bytes (sha256) is reused; a different one is never overwritten (`-2`, `-3` suffix). The absolute source path is used once and never stored.
+- Display: chapter JSON keeps the relative `assets/...` path. The webview cannot load it, so `CaptionedImage` in `packages/editor-schema` has a node view that asks a registered resolver (`setAssetUrlResolver`) for a URL; the desktop app implements it with `read_asset` (binary IPC response, only `assets/<image>` is served) and blob URLs cached per project.
+- Export: `buildEpub(meta, chapters, { assets })` takes a `Map` of path to bytes, writes `OEBPS/assets/<name>` with the right media type and manifest items, and keeps srcs unchanged. It throws on missing bytes, external URLs, `..` paths and non-image extensions. The store reads referenced assets through the bridge before building. EPUBCheck: 0 errors and warnings with an image (`epubcheck.test.ts`).
+- Not done: image resizing or optimisation, alt text enforcement, cleanup of unreferenced assets, SVG sanitising (SVGs are only shown through `<img>`, so scripts do not run).
 
 ### Not done yet in M1
 Full-project undo of tree edits, real-client sync testing (M3), and Tauri-WebDriver e2e covering the Rust side.

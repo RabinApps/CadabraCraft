@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 // Backend behaviour is covered by the Rust tests in src-tauri/src/project.
 async function fakeTauri(page: Page) {
   await page.addInitScript(() => {
+    const PIXEL = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
     // UI language is an app preference; specs assert English text unless a test picks another locale first.
     if (!localStorage.getItem("cadabracraft.locale")) localStorage.setItem("cadabracraft.locale", "en");
     const disk: Record<string, string | number[]> = JSON.parse(sessionStorage.getItem("disk") ?? "{}");
@@ -15,7 +16,8 @@ async function fakeTauri(page: Page) {
       transformCallback: () => 0,
       invoke: async (cmd: string, a: any) => {
         switch (cmd) {
-          case "plugin:dialog|open": return "/proj";
+          // The image picker passes extension filters; the folder picker does not.
+          case "plugin:dialog|open": return a?.options?.filters ? "/pics/pic.png" : "/proj";
           case "plugin:event|listen": return 1;
           case "plugin:event|unlisten": return null;
           case "watch_project": return null;
@@ -23,6 +25,14 @@ async function fakeTauri(page: Page) {
           case "read_project_file": return typeof disk[a.path] === "string" ? { contents: disk[a.path], hash: h(disk[a.path] as string) } : null;
           case "write_project_file": disk[a.path] = a.contents; persist(); return { hash: h(a.contents), conflict_copy: null };
           case "write_project_bytes": disk[a.path] = a.bytes; persist(); return null;
+          case "import_asset":
+            if ((window as any).__importError) throw (window as any).__importError;
+            disk["assets/pic.png"] = Array.from(atob(PIXEL), (c) => c.charCodeAt(0));
+            persist();
+            return "assets/pic.png";
+          case "read_asset":
+            if (!Array.isArray(disk[a.path])) throw `missing ${a.path}`;
+            return disk[a.path];
           case "backup_manifest": return "backup";
           case "trash_project_file": disk[`.cadabra/trash/${a.path}`] = disk[a.path]!; delete disk[a.path]; persist(); return "t";
         }
@@ -120,6 +130,52 @@ test("export writes a valid EPUB zip with mimetype first", async ({ page }) => {
     return String.fromCharCode(...b.slice(0, 4), ...b.slice(30, 38));
   });
   expect(head).toBe("PK\u0003\u0004mimetype");
+});
+
+test.describe("images", () => {
+  const tb = (page: Page, name: string) => page.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name, exact: true });
+
+  test("inserts an imported image with alt and caption, shows it, saves a relative path and exports it", async ({ page }) => {
+    await newProject(page);
+    await page.locator(".ProseMirror p").last().click();
+    await tb(page, "Image").click();
+    const dialog = page.getByRole("dialog", { name: "Add image" });
+    await expect(dialog.getByLabel("Image file")).toHaveValue("assets/pic.png");
+    await dialog.getByLabel("Description (alt text)").fill("A single pixel");
+    await dialog.getByLabel("Caption").fill("Figure one");
+    await dialog.getByRole("button", { name: "Insert" }).click();
+
+    const img = page.locator(".ProseMirror figure img");
+    await expect(img).toHaveAttribute("alt", "A single pixel");
+    await expect(img).toHaveAttribute("src", /^blob:/);
+    await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth)).toBe(1);
+    await expect(page.locator(".ProseMirror figure figcaption")).toHaveText("Figure one");
+
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByRole("status")).toHaveText("Saved");
+    const saved = await page.evaluate(() => (window as any).__disk["manuscript/001-chapter-one.json"] as string);
+    expect(JSON.parse(saved).content.find((n: any) => n.type === "image").attrs).toMatchObject({ src: "assets/pic.png", alt: "A single pixel", title: "Figure one" });
+    expect(saved).not.toContain("blob:");
+
+    await page.getByRole("button", { name: "Export EPUB" }).click();
+    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    const zipText = await page.evaluate(() => String.fromCharCode(...((window as any).__disk["exports/book.epub"] as number[])));
+    expect(zipText).toContain("OEBPS/assets/pic.png");
+
+    // Reopening resolves the stored relative path again.
+    await page.reload();
+    await page.getByRole("button", { name: "Open folder" }).click();
+    await expect(page.locator(".ProseMirror figure img")).toHaveAttribute("src", /^blob:/);
+  });
+
+  test("a refused image shows a message and inserts nothing", async ({ page }) => {
+    await newProject(page);
+    await page.evaluate(() => { (window as any).__importError = "pic.png is larger than 25 MB"; });
+    await tb(page, "Image").click();
+    await expect(page.getByRole("status")).toContainText("Could not add the image: pic.png is larger than 25 MB");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(page.locator(".ProseMirror figure")).toHaveCount(0);
+  });
 });
 
 test.describe("formatting toolbar", () => {

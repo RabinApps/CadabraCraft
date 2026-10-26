@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // In-memory stand-in for the Rust project layer, including its conflict-copy rule.
 const disk = new Map<string, string>();
+const assets = new Map<string, Uint8Array>();
+let picked: string | null = "/pics/cover.png";
+let importError: string | null = null;
 const h = (s: string) => `h:${s.length}:${s.slice(0, 40)}`;
 vi.mock("../lib/bridge", () => ({
   bridge: {
@@ -15,6 +18,14 @@ vi.mock("../lib/bridge", () => ({
     },
     writeBytes: async (_r: string, p: string, b: number[]) => { disk.set(p, `bytes:${b.length}`); },
     backupManifest: async () => "backup",
+    pickImage: async () => picked,
+    importAsset: async (_r: string, src: string) => {
+      if (importError) throw new Error(importError);
+      const rel = `assets/${src.split("/").pop()}`;
+      assets.set(rel, new Uint8Array([1, 2, 3]));
+      return rel;
+    },
+    readAsset: async (_r: string, p: string) => { const b = assets.get(p); if (!b) throw new Error("missing"); return b; },
     watchProject: async () => {},
     trashFile: async (_r: string, p: string) => { const c = disk.get(p)!; disk.delete(p); disk.set(`.cadabra/trash/${p}`, c); return "trash"; },
   },
@@ -28,6 +39,9 @@ const text = (t: string) => ({ type: "doc" as const, content: [{ type: "paragrap
 
 beforeEach(async () => {
   disk.clear();
+  assets.clear();
+  picked = "/pics/cover.png";
+  importError = null;
   useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0 });
   await a().createProject("/p", "Book", "Me");
 });
@@ -67,6 +81,28 @@ describe("project store", () => {
   });
   it("exports every chapter into exports/", async () => {
     await a().add("Two");
+    await a().exportEpub();
+    expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
+  });
+  it("imports a picked image and returns its relative asset path", async () => {
+    expect(await a().importImage()).toBe("assets/cover.png");
+    expect(assets.has("assets/cover.png")).toBe(true);
+  });
+  it("returns null when the picker is cancelled", async () => {
+    picked = null;
+    expect(await a().importImage()).toBeNull();
+    expect(s().notice).not.toMatch(/image/);
+  });
+  it("reports a refused image through the notice instead of throwing", async () => {
+    importError = "cover.png is larger than 25 MB";
+    expect(await a().importImage()).toBeNull();
+    expect(s().notice).toMatch(/Could not add the image: cover\.png is larger/);
+  });
+  it("exports images that chapters reference and fails clearly when one is missing", async () => {
+    const withImage = { type: "doc" as const, content: [{ type: "image" as const, attrs: { src: "assets/cover.png", alt: "Cover", title: null } }] };
+    await a().saveCurrent(withImage);
+    await expect(a().exportEpub()).rejects.toThrow(/Missing image file assets\/cover\.png/);
+    assets.set("assets/cover.png", new Uint8Array([1, 2, 3]));
     await a().exportEpub();
     expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
   });

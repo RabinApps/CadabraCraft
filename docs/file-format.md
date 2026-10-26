@@ -36,6 +36,13 @@ MyBook/
 ## Chapter files
 Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 schema in `@cadabracraft/editor-schema`. Never HTML. Image nodes reference `assets/...` by relative path.
 
+## Assets
+- Images live in `assets/` (one level, no subfolders) and are referenced from chapters as `assets/<name>`, relative, never absolute and never a URL.
+- Allowed types: png, jpg, jpeg, gif, webp, svg, at most 25 MB each. Names contain only `A-Z a-z 0-9 _ -` and one lowercase extension.
+- Imports never overwrite: identical bytes reuse the existing file, different bytes get a `-2`, `-3`... suffix.
+- Image node attrs: `src` (required), `alt` (text for screen readers), `title` (shown as the caption). EPUB export copies referenced images to `OEBPS/assets/`.
+- The app never deletes assets; unreferenced ones are simply left in the folder.
+
 ## Writes and conflicts
 - Every write is temp file in the same folder, then rename.
 - If a chapter changed both locally and externally before a sync finished, the other version is kept as `<name>.conflict-YYYYMMDD-HHMM.json` next to it. Nothing is overwritten silently.

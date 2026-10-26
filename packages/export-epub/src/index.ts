@@ -1,2 +1,2 @@
-export { buildEpub, type EpubChapter } from "./epub";
-export { chapterToXhtmlBody } from "./xhtml";
+export { buildEpub, type BuildOptions, type EpubChapter } from "./epub";
+export { chapterToXhtmlBody, collectImageSources } from "./xhtml";

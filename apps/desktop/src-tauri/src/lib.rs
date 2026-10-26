@@ -13,6 +13,8 @@ pub fn run() {
             commands::backup_manifest,
             commands::trash_project_file,
             commands::write_project_bytes,
+            commands::import_asset,
+            commands::read_asset,
             commands::watch_project
         ])
         .run(tauri::generate_context!())

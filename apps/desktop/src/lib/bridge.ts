@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
+import { IMAGE_EXTENSIONS } from "@cadabracraft/shared";
 
 export interface FileRead { contents: string; hash: string }
 export interface WriteResult { hash: string; conflict_copy: string | null }
@@ -10,6 +11,18 @@ export const bridge = {
   pickFolder: async (): Promise<string | null> => {
     const r = await open({ directory: true, multiple: false });
     return typeof r === "string" ? r : null;
+  },
+  /** Native file picker for one image; returns its absolute path (only ever passed to `importAsset`, never stored). */
+  pickImage: async (): Promise<string | null> => {
+    const r = await open({ multiple: false, directory: false, filters: [{ name: "Images", extensions: IMAGE_EXTENSIONS }] });
+    return typeof r === "string" ? r : null;
+  },
+  /** Copies the picked image into the project's `assets/`; resolves to the project-relative path (`assets/<name>`). */
+  importAsset: (root: string, source: string) => invoke<string>("import_asset", { root, source }),
+  /** Bytes of `assets/<image>`, for display and export. */
+  readAsset: async (root: string, path: string): Promise<Uint8Array> => {
+    const r = await invoke<ArrayBuffer | number[]>("read_asset", { root, path });
+    return r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
   },
   createProject: (root: string, manifestJson: string) => invoke<void>("create_project", { root, manifestJson }),
   readFile: (root: string, path: string) => invoke<FileRead | null>("read_project_file", { root, path }),

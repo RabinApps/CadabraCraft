@@ -42,3 +42,21 @@ describe("normalizeLinkUrl", () => {
     expect(normalizeLinkUrl(v)).toBeNull();
   });
 });
+
+import { isAssetPath } from "@cadabracraft/shared";
+import { setAssetUrlResolver } from "./index";
+
+describe("images", () => {
+  it("accepts an image node with a relative asset path, alt and title", () => {
+    const doc = { type: "doc", content: [{ type: "image", attrs: { src: "assets/a.png", alt: "A", title: "Cap" } }] };
+    expect(() => Node.fromJSON(schema, doc).check()).not.toThrow();
+  });
+  it("only treats single-level assets/ paths as assets", () => {
+    expect(isAssetPath("assets/a b.png")).toBe(true);
+    for (const bad of ["https://x/a.png", "assets/../a.png", "../assets/a.png", "assets/sub/a.png", "/assets/a.png", "a.png"]) expect(isAssetPath(bad), bad).toBe(false);
+  });
+  it("exposes a resolver hook that can be cleared", () => {
+    setAssetUrlResolver(async (s) => `blob:${s}`);
+    setAssetUrlResolver(null);
+  });
+});

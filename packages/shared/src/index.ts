@@ -1,4 +1,5 @@
 export * from "./language";
+export * from "./assets";
 
 /** TipTap/ProseMirror JSON, the on-disk chapter format and the editor/exporter contract. */
 export interface Mark {

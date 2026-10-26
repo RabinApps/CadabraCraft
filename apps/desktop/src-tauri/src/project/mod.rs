@@ -128,6 +128,94 @@ pub fn trash_file(root: &Path, rel: &str) -> Result<String, String> {
     Ok(to_rel)
 }
 
+/// Image types that may be imported into `assets/`.
+pub const IMAGE_EXTENSIONS: [&str; 6] = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+/// Largest image accepted, in bytes.
+pub const MAX_IMAGE_BYTES: u64 = 25 * 1024 * 1024;
+
+fn image_ext(name: &str) -> Option<String> {
+    let ext = Path::new(name).extension()?.to_str()?.to_ascii_lowercase();
+    IMAGE_EXTENSIONS.contains(&ext.as_str()).then_some(ext)
+}
+
+/// Cheap signature check so a renamed non-image is refused. SVG must at least look like SVG text.
+fn looks_like(ext: &str, b: &[u8]) -> bool {
+    match ext {
+        "png" => b.starts_with(&[0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a]),
+        "jpg" | "jpeg" => b.starts_with(&[0xff, 0xd8, 0xff]),
+        "gif" => b.starts_with(b"GIF87a") || b.starts_with(b"GIF89a"),
+        "webp" => b.len() > 12 && &b[0..4] == b"RIFF" && &b[8..12] == b"WEBP",
+        "svg" => std::str::from_utf8(b).map(|t| t.contains("<svg")).unwrap_or(false),
+        _ => false,
+    }
+}
+
+/// Reduces a user file name to `[A-Za-z0-9_-]` (runs of other characters become one `-`), so it is safe on every
+/// platform and in XML ids.
+pub fn sanitize_asset_stem(stem: &str) -> String {
+    let mut out = String::new();
+    for c in stem.chars() {
+        let c = if c.is_ascii_alphanumeric() || c == '_' { c } else { '-' };
+        if c == '-' && (out.is_empty() || out.ends_with('-')) {
+            continue;
+        }
+        out.push(c);
+    }
+    let out: String = out.trim_end_matches('-').chars().take(80).collect();
+    if out.is_empty() { "image".into() } else { out }
+}
+
+/// Copies an image the user picked (absolute path) into `assets/` and returns its project-relative path.
+/// Never overwrites a different file: an identical existing file is reused, otherwise `-2`, `-3`... is appended.
+pub fn import_image(root: &Path, source: &Path) -> Result<String, String> {
+    let file_name = source.file_name().and_then(|n| n.to_str()).ok_or("invalid file name")?;
+    let ext = image_ext(file_name).ok_or_else(|| format!("unsupported image type: {file_name}"))?;
+    let meta = fs::metadata(source).map_err(|e| e.to_string())?;
+    if !meta.is_file() {
+        return Err(format!("{file_name} is not a file"));
+    }
+    if meta.len() > MAX_IMAGE_BYTES {
+        return Err(format!("{file_name} is larger than {} MB", MAX_IMAGE_BYTES / 1024 / 1024));
+    }
+    let bytes = fs::read(source).map_err(|e| e.to_string())?;
+    if bytes.len() as u64 > MAX_IMAGE_BYTES {
+        return Err(format!("{file_name} is larger than {} MB", MAX_IMAGE_BYTES / 1024 / 1024));
+    }
+    if !looks_like(&ext, &bytes) {
+        return Err(format!("{file_name} is not a valid {ext} image"));
+    }
+    let stem = sanitize_asset_stem(file_name.rsplit_once('.').map_or(file_name, |(s, _)| s));
+    let hash = hash_bytes(&bytes);
+    for n in 1u32.. {
+        let name = if n == 1 { format!("{stem}.{ext}") } else { format!("{stem}-{n}.{ext}") };
+        let rel = format!("assets/{name}");
+        let path = resolve(root, &rel)?;
+        match fs::read(&path) {
+            Ok(existing) if hash_bytes(&existing) == hash => return Ok(rel),
+            Ok(_) => continue,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                atomic_write(&path, &bytes)?;
+                return Ok(rel);
+            }
+            Err(e) => return Err(e.to_string()),
+        }
+    }
+    unreachable!()
+}
+
+/// Reads an asset's bytes for display. Only `assets/<image>` paths are served.
+pub fn read_asset(root: &Path, rel: &str) -> Result<Vec<u8>, String> {
+    if !rel.starts_with("assets/") || image_ext(rel).is_none() {
+        return Err(format!("not an image asset: {rel}"));
+    }
+    let path = resolve(root, rel)?;
+    let meta = fs::metadata(&path).map_err(|e| format!("{rel}: {e}"))?;
+    if meta.len() > MAX_IMAGE_BYTES {
+        return Err(format!("{rel} is too large"));
+    }
+    fs::read(&path).map_err(|e| format!("{rel}: {e}"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -216,5 +304,87 @@ mod tests {
         assert!(!d.path().join("manuscript/x.json").exists());
         assert_eq!(fs::read_to_string(d.path().join(t)).unwrap(), "keep me");
         assert!(trash_file(d.path(), "manuscript/nope.json").is_err());
+    }
+
+    const PNG: [u8; 12] = [0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 1];
+
+    fn src(d: &tempfile::TempDir, name: &str, bytes: &[u8]) -> PathBuf {
+        let p = d.path().join(name);
+        fs::write(&p, bytes).unwrap();
+        p
+    }
+
+    #[test]
+    fn import_copies_into_assets_and_sanitizes_name() {
+        let (proj, out) = (tmp(), tmp());
+        let s = src(&out, "My Cover (final)!.PNG", &PNG);
+        let rel = import_image(proj.path(), &s).unwrap();
+        assert_eq!(rel, "assets/My-Cover-final.png");
+        assert_eq!(fs::read(proj.path().join(&rel)).unwrap(), PNG);
+        assert!(s.exists(), "source is left alone");
+        assert_eq!(sanitize_asset_stem("../../etc"), "etc");
+        assert_eq!(sanitize_asset_stem("???"), "image");
+    }
+
+    #[test]
+    fn import_reuses_identical_and_suffixes_different() {
+        let (proj, out) = (tmp(), tmp());
+        let a = src(&out, "a.png", &PNG);
+        assert_eq!(import_image(proj.path(), &a).unwrap(), "assets/a.png");
+        assert_eq!(import_image(proj.path(), &a).unwrap(), "assets/a.png");
+        let mut other = PNG.to_vec();
+        other.push(9);
+        let sub = out.path().join("sub");
+        fs::create_dir(&sub).unwrap();
+        fs::write(sub.join("a.png"), &other).unwrap();
+        assert_eq!(import_image(proj.path(), &sub.join("a.png")).unwrap(), "assets/a-2.png");
+        other.push(10);
+        fs::write(sub.join("a.png"), &other).unwrap();
+        assert_eq!(import_image(proj.path(), &sub.join("a.png")).unwrap(), "assets/a-3.png");
+        assert_eq!(fs::read(proj.path().join("assets/a.png")).unwrap(), PNG, "original untouched");
+    }
+
+    #[test]
+    fn import_rejects_bad_extension_content_size_and_non_files() {
+        let (proj, out) = (tmp(), tmp());
+        assert!(import_image(proj.path(), &src(&out, "x.exe", &PNG)).unwrap_err().contains("unsupported"));
+        assert!(import_image(proj.path(), &src(&out, "noext", &PNG)).is_err());
+        assert!(import_image(proj.path(), &src(&out, "fake.png", b"not an image")).unwrap_err().contains("not a valid"));
+        assert!(import_image(proj.path(), &out.path().join("missing.png")).is_err());
+        let dir = out.path().join("d.png");
+        fs::create_dir(&dir).unwrap();
+        assert!(import_image(proj.path(), &dir).unwrap_err().contains("not a file"));
+        let big = out.path().join("big.png");
+        let f = fs::File::create(&big).unwrap();
+        f.set_len(MAX_IMAGE_BYTES + 1).unwrap();
+        assert!(import_image(proj.path(), &big).unwrap_err().contains("larger"));
+        assert!(!proj.path().join("assets").exists());
+    }
+
+    #[test]
+    fn import_accepts_every_allowed_type() {
+        let (proj, out) = (tmp(), tmp());
+        let cases: [(&str, &[u8]); 6] = [
+            ("a.png", &PNG),
+            ("b.jpg", &[0xff, 0xd8, 0xff, 0xe0]),
+            ("c.jpeg", &[0xff, 0xd8, 0xff, 0xe0, 1]),
+            ("d.gif", b"GIF89a.."),
+            ("e.webp", b"RIFF\0\0\0\0WEBPVP8 "),
+            ("f.svg", b"<?xml version=\"1.0\"?><svg xmlns=\"http://www.w3.org/2000/svg\"/>"),
+        ];
+        for (n, b) in cases {
+            assert_eq!(import_image(proj.path(), &src(&out, n, b)).unwrap(), format!("assets/{n}"));
+        }
+    }
+
+    #[test]
+    fn read_asset_only_serves_images_under_assets() {
+        let (proj, out) = (tmp(), tmp());
+        let rel = import_image(proj.path(), &src(&out, "a.png", &PNG)).unwrap();
+        assert_eq!(read_asset(proj.path(), &rel).unwrap(), PNG);
+        write_file(proj.path(), "manuscript/x.json", "{}", None).unwrap();
+        for bad in ["manuscript/x.json", "assets/../cadabra.json", "assets/notes.txt", "../a.png", "/etc/a.png", "assets/missing.png"] {
+            assert!(read_asset(proj.path(), bad).is_err(), "{bad}");
+        }
     }
 }

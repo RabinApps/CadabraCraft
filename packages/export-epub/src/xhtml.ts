@@ -69,3 +69,16 @@ export function chapterToXhtmlBody(doc: ChapterDoc): string {
     .join("");
   return `${body}\n<aside epub:type="footnotes"><ol>${notes}</ol></aside>`;
 }
+
+/** Every distinct image `src` used in a chapter, in document order. */
+export function collectImageSources(doc: ChapterDoc): string[] {
+  const out: string[] = [];
+  const walk = (nodes: DocNode[] | undefined) => {
+    for (const n of nodes ?? []) {
+      if (n.type === "image") out.push(String(n.attrs?.src ?? ""));
+      if ("content" in n) walk(n.content);
+    }
+  };
+  walk(doc.content);
+  return [...new Set(out)];
+}

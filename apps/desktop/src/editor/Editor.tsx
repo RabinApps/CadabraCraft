@@ -1,10 +1,18 @@
 import type { CSSProperties } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { extensions } from "@cadabracraft/editor-schema";
+import { extensions, setAssetUrlResolver } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { sizes, widths, type Width } from "../app/reading";
 import { dirFor } from "../i18n/locales";
+import { assetUrl } from "../lib/assets";
+import { useProject } from "../app/store";
 import { Toolbar } from "./Toolbar";
+
+// Chapter JSON keeps `assets/...` paths; the webview shows them through blob URLs read via the Tauri bridge.
+setAssetUrlResolver((src) => {
+  const root = useProject.getState().root;
+  return root ? assetUrl(root, src) : Promise.reject(new Error("no project open"));
+});
 
 interface Props {
   initial: ChapterDoc;

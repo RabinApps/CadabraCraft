@@ -38,6 +38,10 @@ msgid "Add chapter"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
+msgid "Add image"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
 msgid "Add link"
 msgstr ""
 
@@ -84,6 +88,10 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+#: src/editor/Toolbar.tsx
+msgid "Caption"
+msgstr ""
+
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: manifest.chapters.length + 1
 #: src/app/App.tsx
@@ -123,12 +131,21 @@ msgstr ""
 msgid "Choose…"
 msgstr ""
 
+#. placeholder {0}: e instanceof Error ? e.message : String(e)
+#: src/app/store.ts
+msgid "Could not add the image: {0}"
+msgstr ""
+
 #: src/app/Home.tsx
 msgid "Create book"
 msgstr ""
 
 #: src/ui/ThemeToggle.tsx
 msgid "Dark theme"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
+msgid "Description (alt text)"
 msgstr ""
 
 #: src/app/Home.tsx
@@ -167,6 +184,18 @@ msgstr ""
 msgid "Heading 3"
 msgstr ""
 
+#: src/editor/Toolbar.tsx
+msgid "Image"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
+msgid "Image file"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
+msgid "Insert"
+msgstr ""
+
 #: src/app/Sidebar.tsx
 msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
 msgstr ""
@@ -198,6 +227,10 @@ msgstr ""
 #. placeholder {0}: c.file
 #: src/app/store.ts
 msgid "Missing chapter file {0}"
+msgstr ""
+
+#: src/app/store.ts
+msgid "Missing image file {src}"
 msgstr ""
 
 #. placeholder {0}: deleting?.title ?? ""
@@ -253,6 +286,10 @@ msgstr ""
 msgid "Open folder"
 msgstr ""
 
+#: src/editor/Toolbar.tsx
+msgid "Optional. Shown below the image."
+msgstr ""
+
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
 msgstr ""
@@ -268,6 +305,10 @@ msgstr ""
 
 #: src/app/App.tsx
 msgid "Read"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
+msgid "Read aloud by screen readers. Leave empty only for decoration."
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx

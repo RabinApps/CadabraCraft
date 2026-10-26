@@ -35,3 +35,15 @@ pub fn write_project_bytes(root: String, path: String, bytes: Vec<u8>) -> Result
 pub fn watch_project(app: tauri::AppHandle, state: tauri::State<crate::fs_watch::WatchState>, root: String) -> Result<(), String> {
     crate::fs_watch::start(app, PathBuf::from(root), &state)
 }
+
+/// Copies an image the user picked into `assets/`; returns `assets/<name>`.
+#[tauri::command]
+pub fn import_asset(root: String, source: String) -> Result<String, String> {
+    project::import_image(&PathBuf::from(root), &PathBuf::from(source))
+}
+
+/// Raw bytes of `assets/<image>` for display (sent as binary, not a JSON array).
+#[tauri::command]
+pub fn read_asset(root: String, path: String) -> Result<tauri::ipc::Response, String> {
+    project::read_asset(&PathBuf::from(root), &path).map(tauri::ipc::Response::new)
+}

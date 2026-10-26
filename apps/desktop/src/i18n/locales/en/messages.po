@@ -38,6 +38,10 @@ msgid "Add chapter"
 msgstr "Add chapter"
 
 #: src/editor/Toolbar.tsx
+msgid "Add image"
+msgstr "Add image"
+
+#: src/editor/Toolbar.tsx
 msgid "Add link"
 msgstr "Add link"
 
@@ -84,6 +88,10 @@ msgstr "cadabra.json was changed outside the app and could not be read; saving w
 msgid "Cancel"
 msgstr "Cancel"
 
+#: src/editor/Toolbar.tsx
+msgid "Caption"
+msgstr "Caption"
+
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: manifest.chapters.length + 1
 #: src/app/App.tsx
@@ -123,6 +131,11 @@ msgstr "Choose a chapter to start."
 msgid "Choose…"
 msgstr "Choose…"
 
+#. placeholder {0}: e instanceof Error ? e.message : String(e)
+#: src/app/store.ts
+msgid "Could not add the image: {0}"
+msgstr "Could not add the image: {0}"
+
 #: src/app/Home.tsx
 msgid "Create book"
 msgstr "Create book"
@@ -130,6 +143,10 @@ msgstr "Create book"
 #: src/ui/ThemeToggle.tsx
 msgid "Dark theme"
 msgstr "Dark theme"
+
+#: src/editor/Toolbar.tsx
+msgid "Description (alt text)"
+msgstr "Description (alt text)"
 
 #: src/app/Home.tsx
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
@@ -167,6 +184,18 @@ msgstr "Heading 2"
 msgid "Heading 3"
 msgstr "Heading 3"
 
+#: src/editor/Toolbar.tsx
+msgid "Image"
+msgstr "Image"
+
+#: src/editor/Toolbar.tsx
+msgid "Image file"
+msgstr "Image file"
+
+#: src/editor/Toolbar.tsx
+msgid "Insert"
+msgstr "Insert"
+
 #: src/app/Sidebar.tsx
 msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
 msgstr "It moves to the project trash inside your book folder. Nothing is permanently deleted."
@@ -199,6 +228,10 @@ msgstr "Location"
 #: src/app/store.ts
 msgid "Missing chapter file {0}"
 msgstr "Missing chapter file {0}"
+
+#: src/app/store.ts
+msgid "Missing image file {src}"
+msgstr "Missing image file {src}"
 
 #. placeholder {0}: deleting?.title ?? ""
 #: src/app/Sidebar.tsx
@@ -253,6 +286,10 @@ msgstr "Numbered list"
 msgid "Open folder"
 msgstr "Open folder"
 
+#: src/editor/Toolbar.tsx
+msgid "Optional. Shown below the image."
+msgstr "Optional. Shown below the image."
+
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
 msgstr "Page width"
@@ -269,6 +306,10 @@ msgstr "Project upgraded from format {0}; backup saved to {backup}"
 #: src/app/App.tsx
 msgid "Read"
 msgstr "Read"
+
+#: src/editor/Toolbar.tsx
+msgid "Read aloud by screen readers. Leave empty only for decoration."
+msgstr "Read aloud by screen readers. Leave empty only for decoration."
 
 #: src/editor/ReadingSettings.tsx
 msgid "Reading settings"

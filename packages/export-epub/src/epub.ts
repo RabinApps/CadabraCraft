@@ -1,7 +1,7 @@
 import { zipSync, strToU8 } from "fflate";
-import { textDirection, type BookMetadata, type ChapterDoc } from "@cadabracraft/shared";
+import { imageMediaType, isAssetPath, textDirection, type BookMetadata, type ChapterDoc } from "@cadabracraft/shared";
 import { contentsHeading } from "./strings";
-import { chapterToXhtmlBody, esc } from "./xhtml";
+import { chapterToXhtmlBody, collectImageSources, esc } from "./xhtml";
 
 const CSS = `body{font-family:serif;line-height:1.4}
 h1,h2,h3{font-family:sans-serif;page-break-after:avoid}
@@ -24,8 +24,13 @@ function isoNoMs(d: Date): string {
   return d.toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
-/** Builds an EPUB3 package as bytes. Output is deterministic for a given input. */
-export function buildEpub(meta: BookMetadata, chapters: EpubChapter[]): Uint8Array {
+export interface BuildOptions {
+  /** Bytes of every image the chapters reference, keyed by the project-relative path stored in the chapter (`assets/a.png`). */
+  assets?: ReadonlyMap<string, Uint8Array>;
+}
+
+/** Builds an EPUB3 package as bytes. Output is deterministic for a given input. Throws if a referenced image is not an allowed `assets/` image or its bytes are missing. */
+export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: BuildOptions = {}): Uint8Array {
   const lang = esc(meta.language);
   const rtl = textDirection(meta.language) === "rtl";
   const dir = rtl ? ' dir="rtl"' : "";
@@ -39,6 +44,16 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[]): Uint8Arr
     `${xmlHead}<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`,
   );
   files["OEBPS/style.css"] = strToU8(CSS);
+  // Images keep their relative `assets/<name>` path inside OEBPS, so chapter srcs need no rewriting.
+  const imagePaths = [...new Set(chapters.flatMap((c) => collectImageSources(c.doc)))];
+  const imageItems = imagePaths.map((src, i) => {
+    const type = isAssetPath(src) ? imageMediaType(src) : null;
+    if (!type) throw new Error(`Unsupported image source in chapter: ${src}`);
+    const bytes = options.assets?.get(src);
+    if (!bytes) throw new Error(`Missing image file for ${src}`);
+    files[`OEBPS/${src}`] = bytes;
+    return `<item id="img-asset-${i + 1}" href="${esc(src)}" media-type="${type}"/>`;
+  });
   for (const c of chapters) files[`OEBPS/${c.id}.xhtml`] = strToU8(page(c.title, chapterToXhtmlBody(c.doc)));
 
   const toc = chapters.map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`).join("");
@@ -51,7 +66,7 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[]): Uint8Arr
     .join("");
   const spine = chapters.map((c) => `<itemref idref="${c.id}"/>`).join("");
   files["OEBPS/content.opf"] = strToU8(
-    `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier><dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language><meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta></metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,
+    `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier><dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language><meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta></metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,
   );
 
   return zipSync(files as never, { mtime: new Date(Date.UTC(2020, 0, 1)) });

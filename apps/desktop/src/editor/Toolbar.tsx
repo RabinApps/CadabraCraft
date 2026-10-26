@@ -2,11 +2,12 @@ import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
-import { ALargeSmall, Asterisk, Bold, Heading1, Heading2, Heading3, Italic, Link, List, ListOrdered, Quote, Redo2, Superscript, Underline, Undo2, type LucideIcon } from "lucide-react";
+import { ALargeSmall, Asterisk, Bold, Heading1, Heading2, Heading3, Image as ImageIcon, Italic, Link, List, ListOrdered, Quote, Redo2, Superscript, Underline, Undo2, type LucideIcon } from "lucide-react";
 import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
 import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
+import { useProject } from "../app/store";
 
 interface Item {
   id: string;
@@ -34,6 +35,18 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const [linkOpen, setLinkOpen] = useState(false);
   const [href, setHref] = useState("");
   const [linkError, setLinkError] = useState("");
+
+  const [image, setImage] = useState<{ src: string; alt: string; caption: string } | null>(null);
+  const importImage = useProject((p) => p.actions.importImage);
+  const addImage = async () => {
+    const src = await importImage();
+    if (src) setImage({ src, alt: "", caption: "" });
+  };
+  const applyImage = () => {
+    if (!image) return;
+    c().insertContent({ type: "image", attrs: { src: image.src, alt: image.alt.trim(), title: image.caption.trim() || null } }).run();
+    setImage(null);
+  };
 
   const setLink = () => {
     if (s.link) { c().extendMarkRange("link").unsetLink().run(); return; }
@@ -73,6 +86,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
     ],
     [
       { id: "sceneBreak", label: t`Scene break`, icon: Asterisk, run: () => c().insertContent([{ type: "sceneBreak" }, { type: "paragraph" }]).run() },
+      { id: "image", label: t`Image`, icon: ImageIcon, run: () => void addImage() },
       { id: "footnote", label: t`Footnote`, icon: Superscript, run: () => c().insertContent({ type: "footnote", content: [{ type: "text", text: t`Note` }] }).run() },
     ],
   ];
@@ -100,6 +114,17 @@ export function Toolbar({ editor }: { editor: Editor }) {
           </div>
         ))}
       </div>
+      <Modal open={image !== null} onOpenChange={(o) => !o && setImage(null)} title={t`Add image`}>
+        <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); applyImage(); }}>
+          <Field label={t`Image file`} value={image?.src ?? ""} readOnly />
+          <Field label={t`Description (alt text)`} value={image?.alt ?? ""} onChange={(e) => setImage((i) => i && { ...i, alt: e.target.value })} hint={t`Read aloud by screen readers. Leave empty only for decoration.`} autoFocus />
+          <Field label={t`Caption`} value={image?.caption ?? ""} onChange={(e) => setImage((i) => i && { ...i, caption: e.target.value })} hint={t`Optional. Shown below the image.`} />
+          <div className="flex justify-end gap-2.5">
+            <Button onClick={() => setImage(null)}>{t`Cancel`}</Button>
+            <Button type="submit" variant="primary">{t`Insert`}</Button>
+          </div>
+        </form>
+      </Modal>
       <Modal open={linkOpen} onOpenChange={setLinkOpen} title={t`Add link`}>
         <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); applyLink(); }}>
           <Field label={t`Address`} value={href} onChange={(e) => { setHref(e.target.value); setLinkError(""); }} hint={t`Use http, https or mailto.`} autoFocus />

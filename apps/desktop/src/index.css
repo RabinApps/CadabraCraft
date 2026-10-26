@@ -80,3 +80,9 @@ body {
 /* Reading mode: larger, user-adjustable type on the plain paper background. */
 .prose-reading .ProseMirror { font-size: var(--reading-size, 1.3125rem); line-height: 1.75; }
 .prose-reading .ProseMirror h1 { font-size: 2.75rem; }
+
+/* Images: block figure with the caption (stored in the node's title) underneath. */
+.prose-manuscript .ProseMirror figure.book-image { margin: 1.25rem 0; text-align: center; }
+.prose-manuscript .ProseMirror figure.book-image img { max-width: 100%; height: auto; }
+.prose-manuscript .ProseMirror figure.book-image.ProseMirror-selectednode img { outline: 2px solid var(--accent); }
+.prose-manuscript .ProseMirror figure.book-image figcaption { font-size: 0.875rem; color: var(--ink-muted); margin-top: 0.4rem; }

@@ -61,3 +61,32 @@ describe("more node coverage", () => {
     expect(html.indexOf('id="fn1"')).toBeLessThan(html.indexOf('id="fn2"'));
   });
 });
+
+describe("images", () => {
+  const png = new Uint8Array(readFileSync(new URL("../../../fixtures/assets/pixel.png", import.meta.url)));
+  const img = (src: string) => ({ type: "image" as const, attrs: { src, alt: "A pixel", title: "Caption" } });
+  const withImages = (...srcs: string[]): ChapterDoc => ({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x" }] }, ...srcs.map(img)] });
+
+  it("packages referenced images under OEBPS/assets with media types and manifest items", () => {
+    const assets = new Map([["assets/pixel.png", png], ["assets/photo.jpg", new Uint8Array([1])], ["assets/unused.png", png]]);
+    const f = unzipSync(buildEpub(meta, [{ id: "ch1", title: "One", doc: withImages("assets/pixel.png", "assets/photo.jpg", "assets/pixel.png") }], { assets }));
+    expect(Buffer.from(f["OEBPS/assets/pixel.png"]!)).toEqual(Buffer.from(png));
+    expect(f["OEBPS/assets/photo.jpg"]).toBeDefined();
+    expect(f["OEBPS/assets/unused.png"]).toBeUndefined();
+    const opf = strFromU8(f["OEBPS/content.opf"]!);
+    expect(opf).toContain('href="assets/pixel.png" media-type="image/png"');
+    expect(opf).toContain('href="assets/photo.jpg" media-type="image/jpeg"');
+    expect(opf.match(/assets\/pixel\.png/g)).toHaveLength(1);
+    expect(strFromU8(f["OEBPS/ch1.xhtml"]!)).toContain('<img src="assets/pixel.png" alt="A pixel"/>');
+  });
+  it("is deterministic with images", () => {
+    const o = { assets: new Map([["assets/pixel.png", png]]) };
+    const c = [{ id: "ch1", title: "One", doc: withImages("assets/pixel.png") }];
+    expect(Buffer.from(buildEpub(meta, c, o))).toEqual(Buffer.from(buildEpub(meta, c, o)));
+  });
+  it("throws on missing bytes, external urls, traversal and non-image types", () => {
+    const build = (src: string) => buildEpub(meta, [{ id: "ch1", title: "One", doc: withImages(src) }], { assets: new Map([[src, png]]) });
+    expect(() => buildEpub(meta, [{ id: "ch1", title: "One", doc: withImages("assets/pixel.png") }])).toThrow(/Missing image/);
+    for (const bad of ["https://example.com/a.png", "assets/../cadabra.json", "assets/a.txt", "a.png", ""]) expect(() => build(bad), bad).toThrow(/Unsupported image/);
+  });
+});

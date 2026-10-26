@@ -1,6 +1,7 @@
 import { Mark, Node, mergeAttributes } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
+import { isAssetPath } from "@cadabracraft/shared";
 
 export const SceneBreak = Node.create({
   name: "sceneBreak",
@@ -25,6 +26,53 @@ export const Footnote = Node.create({
   renderHTML: () => ["span", { class: "footnote" }, 0],
 });
 
+type AssetUrlResolver = (src: string) => Promise<string>;
+let assetUrlResolver: AssetUrlResolver | null = null;
+
+/**
+ * The webview cannot load a project-relative `assets/...` path, so the app registers a resolver that turns it into a
+ * displayable (blob) URL. Stored JSON always keeps the relative path; only the node view swaps what the `<img>` shows.
+ */
+export function setAssetUrlResolver(fn: AssetUrlResolver | null): void {
+  assetUrlResolver = fn;
+}
+
+/** Block image with a caption (stored in `title`) and an asset-aware node view. */
+export const CaptionedImage = Image.extend({
+  addNodeView() {
+    return ({ node: initial }) => {
+      const dom = document.createElement("figure");
+      dom.className = "book-image";
+      const img = document.createElement("img");
+      const caption = document.createElement("figcaption");
+      dom.append(img, caption);
+      let shownSrc: string | null = null;
+      const render = (attrs: Record<string, unknown>) => {
+        const src = String(attrs.src ?? "");
+        img.alt = String(attrs.alt ?? "");
+        caption.textContent = String(attrs.title ?? "");
+        caption.hidden = !attrs.title;
+        if (src === shownSrc) return;
+        shownSrc = src;
+        if (assetUrlResolver && isAssetPath(src)) {
+          assetUrlResolver(src).then((url) => { if (shownSrc === src) img.src = url; }, () => { img.removeAttribute("src"); img.classList.add("missing-asset"); });
+        } else {
+          img.src = src;
+        }
+      };
+      render(initial.attrs);
+      return {
+        dom,
+        update(next) {
+          if (next.type !== initial.type) return false;
+          render(next.attrs);
+          return true;
+        },
+      };
+    };
+  },
+});
+
 /** The fixed v1 schema. Headings limited to levels 1-3. Strike, code and rules are disabled. StarterKit 3 bundles underline and link. */
 export const extensions = [
   StarterKit.configure({
@@ -35,7 +83,7 @@ export const extensions = [
     horizontalRule: false,
     link: { openOnClick: false },
   }),
-  Image,
+  CaptionedImage,
   SceneBreak,
   SmallCaps,
   Footnote,

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
 import { addChapter, createManifest, moveChapter, parseManifest, removeChapter, renameChapter, serializeManifest, type Manifest } from "@cadabracraft/format";
-import { buildEpub } from "@cadabracraft/export-epub";
+import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../lib/bridge";
 
@@ -37,6 +37,8 @@ interface State {
     move: (id: string, delta: number) => Promise<void>;
     remove: (id: string) => Promise<void>;
     exportEpub: () => Promise<void>;
+    /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
+    importImage: () => Promise<string | null>;
   };
 }
 
@@ -156,9 +158,29 @@ export const useProject = create<State>((set, get) => {
           if (!r) throw new Error(t`Missing chapter file ${c.file}`);
           chapters.push({ id: c.id, title: c.title, doc: JSON.parse(r.contents) as ChapterDoc });
         }
-        const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters);
+        const assets = new Map<string, Uint8Array>();
+        for (const src of chapters.flatMap((c) => collectImageSources(c.doc))) {
+          if (assets.has(src)) continue;
+          try {
+            assets.set(src, await bridge.readAsset(root, src));
+          } catch {
+            throw new Error(t`Missing image file ${src}`);
+          }
+        }
+        const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets });
         await bridge.writeBytes(root, "exports/book.epub", Array.from(bytes));
         set({ notice: t`Exported exports/book.epub` });
+      },
+      async importImage() {
+        const { root } = need();
+        const picked = await bridge.pickImage();
+        if (!picked) return null;
+        try {
+          return await bridge.importAsset(root, picked);
+        } catch (e) {
+          set({ notice: t`Could not add the image: ${e instanceof Error ? e.message : String(e)}` });
+          return null;
+        }
       },
     },
   };

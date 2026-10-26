@@ -16,4 +16,13 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
     const out = execFileSync("java", ["-jar", jar, f], { encoding: "utf8" });
     expect(out).toContain("No errors or warnings detected");
   });
+
+  it("validates an EPUB containing images with zero messages", () => {
+    const f = join(mkdtempSync(join(tmpdir(), "epub-")), "img.epub");
+    const png = new Uint8Array(readFileSync(new URL("../../../fixtures/assets/pixel.png", import.meta.url)));
+    const withImage = { ...doc, content: [...doc.content, { type: "image", attrs: { src: "assets/pixel.png", alt: "A single pixel", title: "A caption" } }] };
+    writeFileSync(f, buildEpub({ title: "S", author: "A", language: "en", identifier: "urn:uuid:5b1d1d2c-6f0a-4c43-9a55-1f0d3c8d3a11", modified: new Date() }, [{ id: "ch1", title: "One", doc: withImage }], { assets: new Map([["assets/pixel.png", png]]) }));
+    const out = execFileSync("java", ["-jar", jar, f], { encoding: "utf8" });
+    expect(out).toContain("No errors or warnings detected");
+  });
 });
