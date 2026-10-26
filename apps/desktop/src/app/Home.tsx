@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { BookOpen, BookPlus, FileUp, FolderOpen, HardDrive, Plus, Settings, WandSparkles, X } from "lucide-react";
+import { BookOpen, BookPlus, FileUp, FolderOpen, HardDrive, Plus, Settings, X } from "lucide-react";
 import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
@@ -30,7 +30,7 @@ export function Home({ error, onSettings, onOpen, onOpenRecent, pickFolder, onCr
     <div className="flex min-h-dvh flex-col bg-bg text-ink">
       <header className="flex items-center justify-between px-4 py-3.5 md:px-12">
         <div className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-md bg-accent text-accent-ink"><WandSparkles size={18} aria-hidden /></span>
+          <img src="/brand/cadabracraft-icon.svg" alt="" width={32} height={32} className="size-8" />
           <span className="font-book text-xl font-semibold">CadabraCraft</span>
         </div>
         <IconButton icon={Settings} label={t`Settings`} onClick={onSettings} />

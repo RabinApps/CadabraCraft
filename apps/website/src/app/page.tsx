@@ -50,7 +50,8 @@ export default function Home() {
     <>
       <header className="sticky top-0 z-10 border-b border-border bg-bg/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <a href="#top" className="font-book text-xl font-semibold">
+          <a href="#top" className="flex items-center gap-2.5 font-book text-xl font-semibold">
+            <img src="/brand/cadabracraft-icon.svg" alt="" width={28} height={28} className="size-7" />
             CadabraCraft
           </a>
           <nav aria-label="Main" className="flex items-center gap-4 text-sm">
