@@ -64,7 +64,7 @@ Frame names follow `Name / size / mode` (size is desktop, tablet or mobile; mode
 | Export dialog | `Export (M2-M3) / mode` | M2-M3 | EPUB and PDF, validation results |
 | Settings | `Settings (M2+) / size / mode` | M2+ | Desktop (1280x800) and tablet (820x1180) use the Nav (Appearance, General, Editor, Backups, Shortcuts) and a content column; mobile (390x844) has no nav, back arrow in the top bar and the same sections stacked. Sections: Appearance (theme segmented control), General (interface language select, placeholder until i18n is scoped), Editor (manuscript font, writing column width, typewriter scrolling). Preferences save immediately, so there is no primary action. Backups and Shortcuts are nav items without content yet. |
 
-Designed but not in the first M1 build (see `docs/m1-ui-plan.md`): recent-projects list, project trash restore, details panel, focus mode.
+Designed but not in the first M1 build (see `docs/m1-ui-plan.md`): project trash restore, details panel, focus mode.
 
 ## Implementation notes
 - Stack decision: Tailwind CSS v4 (`@theme` tokens above) plus Radix UI primitives. Not MUI (Material look, emotion runtime, second theming system). Log it with `/record-decision` before adding dependencies.

@@ -1,26 +1,32 @@
 import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { BookPlus, FileUp, FolderOpen, HardDrive, Plus, WandSparkles } from "lucide-react";
-import { Button } from "../ui/Button";
+import { BookOpen, BookPlus, FileUp, FolderOpen, HardDrive, Plus, WandSparkles, X } from "lucide-react";
+import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { LanguagePicker } from "../ui/LanguagePicker";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { ImportDialog } from "./ImportDialogs";
+import { useRecents } from "./recents";
 
 interface Props {
   error: string;
   onOpen: () => void;
+  onOpenRecent: (root: string) => Promise<void>;
   pickFolder: () => Promise<string | null>;
   onCreate: (root: string, title: string, author: string) => void;
   pickImportSource: () => Promise<string | null>;
   onImport: (source: string, root: string, title: string, author: string) => Promise<void>;
 }
 
-export function Home({ error, onOpen, pickFolder, onCreate, pickImportSource, onImport }: Props) {
+export function Home({ error, onOpen, onOpenRecent, pickFolder, onCreate, pickImportSource, onImport }: Props) {
   const { t } = useLingui();
   const [creating, setCreating] = useState(false);
   const [importing, setImporting] = useState(false);
+  const { recents, remove } = useRecents();
+  // Folders that failed to open (moved, renamed or deleted). The entry stays so the user removes it deliberately.
+  const [missing, setMissing] = useState<ReadonlySet<string>>(new Set());
+  const openRecent = (root: string) => onOpenRecent(root).catch(() => setMissing((m) => new Set(m).add(root)));
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-ink">
       <header className="flex items-center justify-between px-4 py-3.5 md:px-12">
@@ -40,6 +46,26 @@ export function Home({ error, onOpen, pickFolder, onCreate, pickImportSource, on
           <Button icon={FileUp} onClick={() => setImporting(true)}>{t`Import…`}</Button>
         </div>
         {error && <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
+        {recents.length > 0 && (
+          <section aria-labelledby="recent-heading" className="mt-4 flex w-full flex-col gap-2 text-start">
+            <h2 id="recent-heading" className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{t`Recent projects`}</h2>
+            <ul className="flex flex-col gap-1.5">
+              {recents.map((r) => (
+                <li key={r.root} className="flex items-center gap-1 rounded-md border border-border bg-surface">
+                  <button type="button" onClick={() => void openRecent(r.root)} className="flex min-w-0 flex-1 items-center gap-3 rounded-md px-3 py-2.5 text-start hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent">
+                    <BookOpen size={16} aria-hidden className="shrink-0 text-accent" />
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold">{r.title || t`Untitled`}</span>
+                      <span dir="ltr" className="block truncate text-xs text-ink-muted">{r.root}</span>
+                      {missing.has(r.root) && <span role="status" className="block text-xs text-danger">{t`Folder not found. Remove it from the list or move it back.`}</span>}
+                    </span>
+                  </button>
+                  <IconButton icon={X} label={t`Remove ${r.title || r.root} from recent projects`} onClick={() => { remove(r.root); setMissing((m) => { const n = new Set(m); n.delete(r.root); return n; }); }} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <p className="mt-6 flex max-w-sm items-start gap-2.5 text-start text-[13px] leading-relaxed text-ink-muted">
           <HardDrive size={16} aria-hidden className="mt-0.5 shrink-0" />
           {t`Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices.`}
