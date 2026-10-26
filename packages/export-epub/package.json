@@ -1,0 +1,19 @@
+{
+  "name": "@cadabracraft/export-epub",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json",
+    "build:sample": "tsx scripts/build-sample.ts"
+  },
+  "dependencies": {
+    "@cadabracraft/shared": "workspace:*",
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/
+target/
+dist/
+tools/
+out/
+.cadabra/
+.DS_Store
+test-results/
+playwright-report/
+**/src-tauri/gen/
