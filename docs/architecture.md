@@ -1,5 +1,30 @@
 # Architecture notes
 
+Decisions, with the alternatives we rejected. Sections are grouped by area; add new decisions under the matching group (see the `record-decision` skill).
+
+**Foundations**
+- [M0 spike results (2026-10-25)](#m0-spike-results-2026-10-25)
+
+**Desktop app**
+- [M1: desktop app foundations](#m1-desktop-app-foundations)
+- [M2 UI: Settings, templates, export dialog, print preview](#m2-ui-settings-templates-export-dialog-print-preview)
+- [Menu bar](#menu-bar)
+- [Sponsor dialog after an export](#sponsor-dialog-after-an-export)
+- [Internationalization (UI)](#internationalization-ui)
+- [Safety follow-ups (window close, project root, CSP, binary compile request)](#safety-follow-ups-window-close-project-root-csp-binary-compile-request)
+- [Code review refactors (Rust scope, errors, autosave)](#code-review-refactors-rust-scope-errors-autosave)
+
+**Export**
+- [M2 print side: templates and Typst PDF export](#m2-print-side-templates-and-typst-pdf-export)
+
+**Platform and tooling**
+- [Headless MCP server](#headless-mcp-server)
+- [Cross-platform paths and CI (macOS, Windows, Linux)](#cross-platform-paths-and-ci-macos-windows-linux)
+- [Updates and releases](#updates-and-releases)
+
+**Website**
+- [Marketing website (`apps/website`)](#marketing-website-appswebsite)
+
 ## M0 spike results (2026-10-25)
 
 ### Stack versions (latest stable at spike time)
@@ -38,7 +63,7 @@ Chosen: **Typst**. Rejected: Paged.js, because of footnotes, font control and pa
 Follow-ups for M2: confirm Typst font-missing behavior surfaces as an error we can show, decide CLI sidecar vs embedding the crate, and replace the spike converter with a tested one.
 Spike caveat: output was checked via `pdffonts`/`pdftotext` and page size, not visually proofed.
 
-## M1 (in progress)
+## M1: desktop app foundations
 
 ### Layering
 - `packages/format` (TypeScript, pure): manifest validation, migrations, chapter-tree edits, file naming. No disk access.
@@ -91,22 +116,25 @@ Formatting buttons (undo/redo, bold, italic, underline, small caps, link, H1-H3,
 ### Not done yet in M1
 Real-client sync testing (a manual checklist is in [sync-testing.md](sync-testing.md); it needs real iCloud, Drive and Dropbox accounts and has not been run) and running the Tauri-WebDriver smoke suite on Linux/Windows CI (written, see Testing; not runnable on macOS).
 
-## Marketing website (`apps/website`)
-Next.js (App Router) with `output: 'export'`, Tailwind v4 and the tokens from `docs/design.md`, deployed to GitHub Pages at cadabracraft.com by `.github/workflows/pages.yml` (custom domain via `public/CNAME`, so no `basePath`). Fonts are self-hosted at build time by `next/font`; the shipped site makes no third-party requests and has no analytics. The site is a standalone app and imports nothing from `packages/*`.
+## M2 UI: Settings, templates, export dialog, print preview
 
-Rejected: Astro (Next.js was requested), plain HTML (no shared components or theming), publishing from `docs/` (mixes site output with project docs).
+Screens follow `docs/design.md` (Settings, Templates, Export, Print preview). Decisions:
+- **Views are state, not routes.** `App.tsx` switches between `book`, `settings`, `templates` and `print` with local state, as it already does for write and read modes. Rejected: a router (one window, no deep links to need one).
+- **Preferences stay in `localStorage`.** Manuscript font, writing width and typewriter scrolling live in `app/editorPrefs.ts` (`cadabracraft.settings`), next to the existing theme, locale, reading and layout keys. They are app preferences, never in project files. Rejected: a Tauri store plugin (a new dependency for four values).
+- **EPUB checks are structural only.** The Export dialog lists chapters with no title and an empty book. EPUBCheck (Java) is not run in the app; `/validate-epub` and CI still do that. The design's "EPUBCheck passed" line is labelled "No problems found" for this reason. The manifest has no cover field, so "cover image not set" is not shown.
+- **Export progress has no percentage.** `buildEpub` is synchronous, so the dialog shows the stage text and an indeterminate track. Rejected: a fake percentage.
+- **Print preview is an approximation, not a render.** It draws trim-sized pages with the template's margins, face and size and a rough text flow (`app/PrintPreview.tsx`). The page count is an estimate from word count (`lib/printPreview.ts`). Rejected: rendering the Typst output into the preview (needs PDF rasterisation, so a new dependency such as pdf.js, which needs approval first). Bleed and crop marks are shown in the preview only; the PDF does not include them yet.
+- **Templates use the design's names; ids do not change.** `novel` is shown as "Classic Novel" and `modern` as "Modern Memoir", so existing `cadabra.json` files keep working. `poetry` is new. `nonfiction` stays registered and appears in the gallery only for books that already use it. Drop cap and ornament have no template data and are not shown.
+- **One Export dialog.** "Export book" offers EPUB 3 and Print PDF. The editor header has a single "Export" button; phones put Save, Export and Settings in an overflow menu.
+- **Theme has one preference.** Settings (Appearance) and the reading popover's Theme control share `app/theme.ts`. Locale stays in `i18n`; the language select moved from the header to Settings.
 
-### Multi-page marketing and SEO
-The site is several static routes (home, features, compare, support, download) built from plain TSX plus typed data files (`src/data/*`), with per-page metadata through `src/lib/seo.ts`, `sitemap.ts`, `robots.ts` and JSON-LD. Compare pages come from one `[slug]` route over `src/data/competitors.ts`; every fact there is sourced or marked "Not verified", and pages state the date it was compiled. Structured data is `WebSite`, not `SoftwareApplication`, until a release exists.
+## Menu bar
 
-Rejected: MDX (a new dependency for content that is mostly structured data), analytics or tag managers (the no-tracking rule), a headless CMS (backend and accounts), hand-written comparison pages (drift between pages and no shared table).
-
-## Safety follow-ups (window close, project root, CSP, binary compile request)
-
-- **The native window close waits for the last save.** `useSaveOnClose` listens to Tauri's `onCloseRequested`; `createCloseHandler` (`app/closeGuard.ts`, tested without a window) lets the window close when nothing is unsaved, otherwise holds the close back, flushes the draft and then calls `destroy()` (capability `core:window:allow-destroy`). If the write fails the window stays open and the notice says so; asking to close again closes it anyway, so a permanent write error never traps the window. `beforeunload` and `pagehide` stay as the fallback for reloads and plain browsers. Rejected: only `beforeunload` (the page cannot wait for an async write, so a close inside the autosave delay lost text) and a blocking "are you sure" dialog (the text can simply be saved).
-- **Every project command checks its `root`.** `project::require_project` (used by every command except `create_project`) accepts an absolute folder that holds a real, non-link `cadabra.json`, else `not_a_project`; `create_project` and the manifest read that opens a folder only need an absolute path. A bad `root` such as `/` or a relative path can no longer read or write arbitrary folders. Rejected: a registry of "opened" folders in Rust (the webview itself would register them, so it adds nothing over the marker file, and recent projects reopen without a dialog). **Known gap:** the webview can still name any absolute folder for `create_project`, and `import_asset` and `read_import_source` read the picked path they are given; closing that needs the native pickers to run in Rust and remember what the author picked (see the roadmap).
-- **A real CSP.** `tauri.conf.json` sets `default-src 'self'`, `script-src 'self'`, `style-src 'self' 'unsafe-inline'` (React and ProseMirror write `style` attributes), `img-src 'self' blob: data:` (cover and chapter images are object URLs), `font-src 'self' data:`, `connect-src 'self' ipc: http://ipc.localhost`, and `object-src`, `frame-src`, `base-uri` and `form-action` closed. Tauri adds a hash for the inline theme script in `index.html`; its nonce injection for `style-src` is switched off (`dangerousDisableAssetCspModification`) because a nonce makes browsers ignore `'unsafe-inline'`, which would drop every `style` attribute. `devCsp` additionally allows the Vite dev server (`http://localhost:1420`, `ws://localhost:1420`, inline scripts for the React refresh preamble). Checked in a real window built with `tauri build --debug` (production CSP): `eval` and an injected inline script are blocked, and the whole `/drive-app` scenario passes. Rejected: `'unsafe-eval'` (nothing needs it) and a meta tag (a header cannot be changed by page content).
-- **`typst_compile` takes one binary body.** Layout: 4-byte little-endian header length, a UTF-8 JSON header (`typstPath`, `source`, `pdfA`, `files: [{ name, len }]`), then the files' bytes back to back (`packCompileRequest` in `src/lib/compileFrame.ts`, `parse_compile_request` in `src-tauri/src/typst.rs`). Images used to cross IPC as JSON number arrays (several bytes of text per image byte); now they are copied once. The Rust parser refuses short, overlong, malformed or overflowing frames. Rejected: base64 in JSON (a third larger and decoded twice) and headers per file (size limits, many headers).
+- **A native menu driven by a command registry, not a hand-wired menu per screen.** `menuModel.ts` builds the whole menu as plain data from which commands are registered and usable; components register commands while they can act (`useRegisterCommands`) and the menu greys out the rest. The structure is fixed so the menu does not jump between contexts. Rejected: building a different menu per screen (items appear and vanish, shortcuts differ by screen) and an in-page HTML menu bar (not native on macOS, no system shortcuts, duplicates the OS).
+- **Tauri's menu API from the webview (`@tauri-apps/api/menu`), no Rust menu code and no new dependency.** The menu is rebuilt only when labels or items change; availability and ticks are updated in place (`nativeMenu.ts`), because a rebuild on every keystroke flickers. Rejected: defining the menu in Rust (a second copy of every label and translation, and an event round trip for each action).
+- **Menu actions are inert while a dialog is open** (`modalOpen`), so a shortcut cannot change the page behind an export or details dialog.
+- **Undo, Redo, Cut, Copy, Paste stay the system's predefined items;** book-level undo is a separate pair that names the edit. Rejected: routing text undo through the menu (breaks IME and the editor's history).
+- **Native item clicks are not driven by tests.** Accessibility access is not granted, so the end-to-end scenario runs commands through a dev-only `window.__cadabraMenu.run` and checks what the menu was told to show. Unit tests cover the model and the native adapter against a fake menu API. A real click on a native item is only checked by hand.
 
 ## Sponsor dialog after an export
 
@@ -143,6 +171,23 @@ Rust returns error codes with params, not English sentences; the UI translates t
 
 ### Follow-ups / caveats
 Only English strings exist; he/ar/ja layout and fonts are unverified until catalogs land. Lingui and the Babel pipeline add a build step and about 100 dev dependencies (mostly Babel). Non-English catalogs need native-speaker review before a locale is enabled in the picker.
+
+## Safety follow-ups (window close, project root, CSP, binary compile request)
+
+- **The native window close waits for the last save.** `useSaveOnClose` listens to Tauri's `onCloseRequested`; `createCloseHandler` (`app/closeGuard.ts`, tested without a window) lets the window close when nothing is unsaved, otherwise holds the close back, flushes the draft and then calls `destroy()` (capability `core:window:allow-destroy`). If the write fails the window stays open and the notice says so; asking to close again closes it anyway, so a permanent write error never traps the window. `beforeunload` and `pagehide` stay as the fallback for reloads and plain browsers. Rejected: only `beforeunload` (the page cannot wait for an async write, so a close inside the autosave delay lost text) and a blocking "are you sure" dialog (the text can simply be saved).
+- **Every project command checks its `root`.** `project::require_project` (used by every command except `create_project`) accepts an absolute folder that holds a real, non-link `cadabra.json`, else `not_a_project`; `create_project` and the manifest read that opens a folder only need an absolute path. A bad `root` such as `/` or a relative path can no longer read or write arbitrary folders. Rejected: a registry of "opened" folders in Rust (the webview itself would register them, so it adds nothing over the marker file, and recent projects reopen without a dialog). **Known gap:** the webview can still name any absolute folder for `create_project`, and `import_asset` and `read_import_source` read the picked path they are given; closing that needs the native pickers to run in Rust and remember what the author picked (see the roadmap).
+- **A real CSP.** `tauri.conf.json` sets `default-src 'self'`, `script-src 'self'`, `style-src 'self' 'unsafe-inline'` (React and ProseMirror write `style` attributes), `img-src 'self' blob: data:` (cover and chapter images are object URLs), `font-src 'self' data:`, `connect-src 'self' ipc: http://ipc.localhost`, and `object-src`, `frame-src`, `base-uri` and `form-action` closed. Tauri adds a hash for the inline theme script in `index.html`; its nonce injection for `style-src` is switched off (`dangerousDisableAssetCspModification`) because a nonce makes browsers ignore `'unsafe-inline'`, which would drop every `style` attribute. `devCsp` additionally allows the Vite dev server (`http://localhost:1420`, `ws://localhost:1420`, inline scripts for the React refresh preamble). Checked in a real window built with `tauri build --debug` (production CSP): `eval` and an injected inline script are blocked, and the whole `/drive-app` scenario passes. Rejected: `'unsafe-eval'` (nothing needs it) and a meta tag (a header cannot be changed by page content).
+- **`typst_compile` takes one binary body.** Layout: 4-byte little-endian header length, a UTF-8 JSON header (`typstPath`, `source`, `pdfA`, `files: [{ name, len }]`), then the files' bytes back to back (`packCompileRequest` in `src/lib/compileFrame.ts`, `parse_compile_request` in `src-tauri/src/typst.rs`). Images used to cross IPC as JSON number arrays (several bytes of text per image byte); now they are copied once. The Rust parser refuses short, overlong, malformed or overflowing frames. Rejected: base64 in JSON (a third larger and decoded twice) and headers per file (size limits, many headers).
+
+## Code review refactors (Rust scope, errors, autosave)
+
+- **Rust stays the thin, safe IO layer; exporters and importers stay TypeScript.** The editor schema is the contract and is TypeScript, the MCP server must run on plain Node, and a Rust port needs a second schema plus contract fixtures and pays IPC serialisation on every call. Rejected: a Rust core with a CLI sidecar for MCP (a toolchain or per-platform binaries) and porting the EPUB, Typst or Markdown paths (cheap next to the cost and risk). Deferred: `.docx` import is the only parser with a real performance case (see the roadmap).
+- **File commands are `async` on the blocking pool.** Synchronous Tauri commands run on the main thread, so a 200 MB import froze the window. Rejected: leaving them sync and capping sizes.
+- **`ProjectError` is a serde-tagged enum, `{ "kind": "snake_case", ...params }`,** the same shape as `TypstError`, translated in the UI (`lib/projectError.ts`). `Display` keeps an English fallback. Rejected: a numeric code plus a string-param array (opaque) and English sentences (cannot be translated or matched).
+- **Path safety in Rust matches TS `resolveSafe`:** NUL is rejected and symlinks that resolve outside the project fail with `path_escape`, shared fixtures cover both. Reads are capped at 32 MB. Rejected: lexical checks only.
+- **`write_project_bytes` takes raw bytes** with `root` and `path` in percent-encoded headers, not a JSON `number[]`. The old JSON form is still accepted.
+- **One word counter and one chapter check.** `countWords` lives in `packages/shared`; `isChapterDoc` in `packages/editor-schema` replaces unchecked `as ChapterDoc` casts. Corrupt chapter files are reported and never overwritten.
+- **Autosave 2 s after the last keystroke** (`AUTOSAVE_MS`), plus a flush on `beforeunload` and `pagehide` (best effort; the native close is covered in "Safety follow-ups"). This fixes a data-loss gap where only Save, chapter switch or export wrote to disk. Saves run one at a time.
 
 ## M2 print side: templates and Typst PDF export
 
@@ -197,19 +242,6 @@ Visual check: `build:sample` leaves the `.typ` and its images in `out/`; `cd out
 ### Follow-ups
 Decide CLI sidecar vs embedding the Typst crate in the app (the CLI must be bundled or installed; nothing downloads it). Hyphenation and `lang` coverage for non-English books, RTL page binding and CJK fonts are untested. Front matter (title page, copyright, TOC) is not part of this step.
 
-
-## M2 UI: Settings, templates, export dialog, print preview
-
-Screens follow `docs/design.md` (Settings, Templates, Export, Print preview). Decisions:
-- **Views are state, not routes.** `App.tsx` switches between `book`, `settings`, `templates` and `print` with local state, as it already does for write and read modes. Rejected: a router (one window, no deep links to need one).
-- **Preferences stay in `localStorage`.** Manuscript font, writing width and typewriter scrolling live in `app/editorPrefs.ts` (`cadabracraft.settings`), next to the existing theme, locale, reading and layout keys. They are app preferences, never in project files. Rejected: a Tauri store plugin (a new dependency for four values).
-- **EPUB checks are structural only.** The Export dialog lists chapters with no title and an empty book. EPUBCheck (Java) is not run in the app; `/validate-epub` and CI still do that. The design's "EPUBCheck passed" line is labelled "No problems found" for this reason. The manifest has no cover field, so "cover image not set" is not shown.
-- **Export progress has no percentage.** `buildEpub` is synchronous, so the dialog shows the stage text and an indeterminate track. Rejected: a fake percentage.
-- **Print preview is an approximation, not a render.** It draws trim-sized pages with the template's margins, face and size and a rough text flow (`app/PrintPreview.tsx`). The page count is an estimate from word count (`lib/printPreview.ts`). Rejected: rendering the Typst output into the preview (needs PDF rasterisation, so a new dependency such as pdf.js, which needs approval first). Bleed and crop marks are shown in the preview only; the PDF does not include them yet.
-- **Templates use the design's names; ids do not change.** `novel` is shown as "Classic Novel" and `modern` as "Modern Memoir", so existing `cadabra.json` files keep working. `poetry` is new. `nonfiction` stays registered and appears in the gallery only for books that already use it. Drop cap and ornament have no template data and are not shown.
-- **One Export dialog.** "Export book" offers EPUB 3 and Print PDF. The editor header has a single "Export" button; phones put Save, Export and Settings in an overflow menu.
-- **Theme has one preference.** Settings (Appearance) and the reading popover's Theme control share `app/theme.ts`. Locale stays in `i18n`; the language select moved from the header to Settings.
-
 ## Headless MCP server
 
 See [mcp.md](mcp.md). Decisions:
@@ -217,16 +249,6 @@ See [mcp.md](mcp.md). Decisions:
 - **Stricter than Rust where an agent is the caller:** a workspace root guard that follows symlinks, symlink containment inside a project, and never-overwrite naming for conflict copies, trash and backups. Chapter replacement keeps the previous text in `.cadabra/backups/`.
 - **One bundled `dist/cli.js` (esbuild)** because workspace packages are TypeScript source (`main: src/index.ts`). Rejected: tsc emit per package (needs build order and `exports` maps for every package) and running through tsx at runtime (slow start, a dev dependency in the client config).
 - **No app-lifecycle tools** (launching or driving the desktop app); that is handled separately.
-
-## Code review refactors (Rust scope, errors, autosave)
-
-- **Rust stays the thin, safe IO layer; exporters and importers stay TypeScript.** The editor schema is the contract and is TypeScript, the MCP server must run on plain Node, and a Rust port needs a second schema plus contract fixtures and pays IPC serialisation on every call. Rejected: a Rust core with a CLI sidecar for MCP (a toolchain or per-platform binaries) and porting the EPUB, Typst or Markdown paths (cheap next to the cost and risk). Deferred: `.docx` import is the only parser with a real performance case (see the roadmap).
-- **File commands are `async` on the blocking pool.** Synchronous Tauri commands run on the main thread, so a 200 MB import froze the window. Rejected: leaving them sync and capping sizes.
-- **`ProjectError` is a serde-tagged enum, `{ "kind": "snake_case", ...params }`,** the same shape as `TypstError`, translated in the UI (`lib/projectError.ts`). `Display` keeps an English fallback. Rejected: a numeric code plus a string-param array (opaque) and English sentences (cannot be translated or matched).
-- **Path safety in Rust matches TS `resolveSafe`:** NUL is rejected and symlinks that resolve outside the project fail with `path_escape`, shared fixtures cover both. Reads are capped at 32 MB. Rejected: lexical checks only.
-- **`write_project_bytes` takes raw bytes** with `root` and `path` in percent-encoded headers, not a JSON `number[]`. The old JSON form is still accepted.
-- **One word counter and one chapter check.** `countWords` lives in `packages/shared`; `isChapterDoc` in `packages/editor-schema` replaces unchecked `as ChapterDoc` casts. Corrupt chapter files are reported and never overwritten.
-- **Autosave 2 s after the last keystroke** (`AUTOSAVE_MS`), plus a flush on `beforeunload` and `pagehide` (best effort; the native close is covered in "Safety follow-ups"). This fixes a data-loss gap where only Save, chapter switch or export wrote to disk. Saves run one at a time.
 
 ## Cross-platform paths and CI (macOS, Windows, Linux)
 
@@ -242,15 +264,6 @@ CI lessons (from the macOS failure in run 40399041624):
 - **Windows-only branches can be tested on any OS** by stubbing `process.platform` with `Object.defineProperty` and restoring it afterwards (`packages/project-fs/test/paths.test.ts`).
 - **macOS has no `timeout` command.** Use `pnpm` directly or a background run with a log file.
 
-## Menu bar
-
-- **A native menu driven by a command registry, not a hand-wired menu per screen.** `menuModel.ts` builds the whole menu as plain data from which commands are registered and usable; components register commands while they can act (`useRegisterCommands`) and the menu greys out the rest. The structure is fixed so the menu does not jump between contexts. Rejected: building a different menu per screen (items appear and vanish, shortcuts differ by screen) and an in-page HTML menu bar (not native on macOS, no system shortcuts, duplicates the OS).
-- **Tauri's menu API from the webview (`@tauri-apps/api/menu`), no Rust menu code and no new dependency.** The menu is rebuilt only when labels or items change; availability and ticks are updated in place (`nativeMenu.ts`), because a rebuild on every keystroke flickers. Rejected: defining the menu in Rust (a second copy of every label and translation, and an event round trip for each action).
-- **Menu actions are inert while a dialog is open** (`modalOpen`), so a shortcut cannot change the page behind an export or details dialog.
-- **Undo, Redo, Cut, Copy, Paste stay the system's predefined items;** book-level undo is a separate pair that names the edit. Rejected: routing text undo through the menu (breaks IME and the editor's history).
-- **Native item clicks are not driven by tests.** Accessibility access is not granted, so the end-to-end scenario runs commands through a dev-only `window.__cadabraMenu.run` and checks what the menu was told to show. Unit tests cover the model and the native adapter against a fake menu API. A real click on a native item is only checked by hand.
-
-
 ## Updates and releases
 
 - **Updates through `tauri-plugin-updater` and `tauri-plugin-process`.** The updater fetches `latest.json` from the latest GitHub Release, verifies the minisign signature against the public key in `tauri.conf.json` (`plugins.updater.pubkey`), and installs it. The HTTP request runs in Rust, so the webview CSP is unchanged. Rejected: a hand-written GitHub API check and download (more code and no signature check), `electron-updater` (wrong runtime), and package-manager-only distribution (no in-app path).
@@ -261,3 +274,13 @@ CI lessons (from the macOS failure in run 40399041624):
 - **Linux packages.** `updates_supported` (Rust, `commands/mod.rs`) is true everywhere except a Linux build not started from an AppImage (`APPIMAGE` unset). The store checks it before every update check; a `.deb` install gets the "your package manager updates this copy" notice instead of an offer it cannot install.
 - **Release workflow (`.github/workflows/release.yml`).** A `v*` tag runs the same checks as CI (`ci.yml` is reusable), verifies the tag against the version files, then builds macOS (universal), Windows (NSIS, WebView2 embedded) and Linux (AppImage) with `tauri-apps/tauri-action`. The release is created as a draft with `latest.json` attached; publishing it is the step that makes the update visible. `tauri.release.conf.json` turns on updater artifacts only for release builds, so local builds never need the signing key. `workflow_dispatch` builds without a release and uploads the bundles as artifacts.
 - **Not signed yet:** the workflow has no Apple Developer ID or Azure Trusted Signing step. Add the secrets and the signing environment (`APPLE_*`, the Windows `signCommand`) before a public release.
+
+## Marketing website (`apps/website`)
+Next.js (App Router) with `output: 'export'`, Tailwind v4 and the tokens from `docs/design.md`, deployed to GitHub Pages at cadabracraft.com by `.github/workflows/pages.yml` (custom domain via `public/CNAME`, so no `basePath`). Fonts are self-hosted at build time by `next/font`; the shipped site makes no third-party requests and has no analytics. The site is a standalone app and imports nothing from `packages/*`.
+
+Rejected: Astro (Next.js was requested), plain HTML (no shared components or theming), publishing from `docs/` (mixes site output with project docs).
+
+### Multi-page marketing and SEO
+The site is several static routes (home, features, compare, support, download) built from plain TSX plus typed data files (`src/data/*`), with per-page metadata through `src/lib/seo.ts`, `sitemap.ts`, `robots.ts` and JSON-LD. Compare pages come from one `[slug]` route over `src/data/competitors.ts`; every fact there is sourced or marked "Not verified", and pages state the date it was compiled. Structured data is `WebSite`, not `SoftwareApplication`, until a release exists.
+
+Rejected: MDX (a new dependency for content that is mostly structured data), analytics or tag managers (the no-tracking rule), a headless CMS (backend and accounts), hand-written comparison pages (drift between pages and no shared table).

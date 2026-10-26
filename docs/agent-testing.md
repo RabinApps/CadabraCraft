@@ -31,7 +31,7 @@ The plugin authors publish an MCP server (`@hypothesi/tauri-mcp-server`) with hi
 ```
 
 ## Headless server
-`@cadabracraft/mcp` (see docs/mcp.md when present) operates project folders without the GUI: create, edit chapters, import, export EPUB and PDF, inspect and validate. Use it for fast checks and the real window for what only the real window can show.
+`@cadabracraft/mcp` (see [mcp.md](mcp.md)) operates project folders without the GUI: create, edit chapters, import, export EPUB and PDF, inspect and validate. Use it for fast checks and the real window for what only the real window can show.
 
 ## Safety
 - Release builds never include any of this: the plugin is an optional dependency behind `dev-automation` and `cfg(debug_assertions)`, `tauri.conf.json` keeps `withGlobalTauri` off, and the automation capability only comes from `tauri.automation.conf.json`.
