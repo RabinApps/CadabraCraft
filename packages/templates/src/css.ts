@@ -1,0 +1,36 @@
+// Shared by every template. Class names match packages/export-epub (small-caps, underline, scene-break, noteref).
+const BASE = `.small-caps{font-variant:small-caps}.underline{text-decoration:underline}
+a.noteref{font-size:.75em;vertical-align:super;line-height:0}
+img{max-width:100%;height:auto}figure{margin:1.5em 0;text-align:center;page-break-inside:avoid}
+figcaption{font-size:.85em;margin-top:.4em}
+ul,ol{margin:.6em 0;padding-left:1.6em}li>p{text-indent:0}
+aside ol{font-size:.85em}
+h1,h2,h3{page-break-after:avoid;break-after:avoid}`;
+
+export const NOVEL_CSS = `body{font-family:serif;line-height:1.4}
+h1{font-size:1.6em;text-align:center;font-weight:normal;margin:3em 0 2em}
+h2{font-size:1.2em;text-align:center;font-weight:normal;font-variant:small-caps;margin:2em 0 1em}
+h3{font-size:1em;font-style:italic;font-weight:normal;margin:1.5em 0 .75em}
+p{margin:0;text-indent:1.4em}h1+p,h2+p,h3+p,hr+p,blockquote+p{text-indent:0}
+blockquote{margin:1em 1.5em;font-size:.95em}blockquote p{text-indent:0}
+hr.scene-break{border:0;text-align:center;margin:1.5em 0;height:1em}hr.scene-break:after{content:"* * *";letter-spacing:.3em}
+${BASE}`;
+
+export const NONFICTION_CSS = `body{font-family:serif;line-height:1.45;counter-reset:chapter}
+h1{font-size:1.8em;font-weight:bold;text-align:left;margin:2.5em 0 1em;padding-bottom:.3em;border-bottom:.08em solid currentColor;counter-increment:chapter}
+h1:before{content:"Chapter " counter(chapter);display:block;font-size:.5em;font-weight:normal;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4em}
+h2{font-size:1.3em;font-weight:bold;margin:2em 0 .6em}
+h3{font-size:1.05em;font-weight:bold;font-style:italic;margin:1.5em 0 .5em}
+p{margin:0 0 .9em;text-indent:0}
+blockquote{margin:1.2em 0;padding:.6em 1em;border-left:.25em solid #888;background:rgba(128,128,128,.08)}blockquote p:last-child{margin-bottom:0}
+hr.scene-break{border:0;text-align:center;margin:1.5em 0;height:1em}hr.scene-break:after{content:"\\2042"}
+${BASE}`;
+
+export const MODERN_CSS = `body{font-family:sans-serif;line-height:1.5}
+h1{font-size:1.9em;font-weight:600;text-align:left;margin:3em 0 1.2em;letter-spacing:-.01em}
+h2{font-size:1.25em;font-weight:600;margin:2em 0 .6em}
+h3{font-size:1em;font-weight:600;margin:1.5em 0 .5em}
+p{margin:0 0 1em;text-indent:0}
+blockquote{margin:1.2em 0;padding:0 0 0 1.2em;border-left:.15em solid currentColor}blockquote p{margin-bottom:.5em}
+hr.scene-break{border:0;margin:2em 0;height:0;border-top:.05em solid #999;width:3em}
+${BASE}`;

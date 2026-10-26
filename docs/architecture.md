@@ -96,3 +96,48 @@ Rust returns error codes with params, not English sentences; the UI translates t
 
 ### Follow-ups / caveats
 Only English strings exist; he/ar/ja layout and fonts are unverified until catalogs land. Lingui and the Babel pipeline add a build step and about 100 dev dependencies (mostly Babel). Non-English catalogs need native-speaker review before a locale is enabled in the picker.
+
+## M2 print side: templates and Typst PDF export
+
+Replaces the M0 spike (`scripts/spike.ts`, Paged.js, Playwright; all removed from `packages/export-pdf`). The decision above stands: Typst.
+
+### Packages
+- `@cadabracraft/templates`: templates as plain data. `getTemplate(id)` (throws `TemplateError` for an unknown id), `listTemplates()`, `validateTemplate()`. Ships `novel`, `nonfiction`, `modern`; the registry validates every built-in at load.
+- `@cadabracraft/export-pdf`: `buildTypst(book, chapters, options)` is pure (chapter JSON to Typst source, no I/O, no font lookup). `renderPdf(...)` finds the `typst` binary (explicit `typstPath`, `TYPST_BIN`, then PATH; clear `TypstNotFoundError` otherwise), checks fonts, writes the source and images into a temp dir and returns the PDF bytes.
+
+### Template format
+A template is `{ id, name, description, print, epub }`.
+- `print` (see `packages/templates/src/types.ts`): body and heading font candidates, size, leading, justification, paragraph style (`indent` or `spaced`), per-level heading styles, chapter opening (`recto` or `any`, sink, optional "Chapter {n}" label), block quote, scene break glyph, running header/footer style, footnote size, and defaults for trim size and margins. The exporter turns these into Typst set/show rules.
+- `epub.css`: a stylesheet string using the class names of `packages/export-epub` (`small-caps`, `underline`, `scene-break`, `noteref`). `export-epub` still has its own inline CSS; it can adopt `getTemplate(id).epub.css` later without changes here.
+
+Adding a template: add an object in `builtin.ts` and list it in `BUILTIN_TEMPLATES`; the registry test validates it.
+
+### Options (`PdfOptions`)
+Trim size `5x8`, `5.5x8.5`, `6x9`; margins in inches (`top`, `bottom`, `inside`, `outside`); `mirrored` (inside/outside alternate, default) or left/right; `pageNumbers`; `runningHeaders` (book title on left pages, chapter title on right pages; none on chapter opening pages or blank versos); `fonts` (`body`, `heading`); `chapterStart` override; `pdfA` (adds `--pdf-standard a-2b`); `assets` (image bytes keyed by the image node's `src`); `fontPaths` (extra `--font-path` dirs). Chapters always start on a new page, and on a right-hand page for `novel` (blank versos are inserted and left unnumbered). Footnotes are native Typst footnotes, numbered per chapter. Links other than http(s)/mailto keep their text and lose the link. Unknown nodes or marks throw.
+
+### Escaping
+All text goes through `escapeMarkup` (backslash-escapes `\ # $ * _ ` < > @ ~ [ ] " '`, `//` and `/*`, `=`/`-`/`+`/`/`/`1.` at line start, `--`/`---`/`-?`/`...` shorthands, and a leading `.` or `(` right after an inline call) or `typstString` (string literals in code). Image `src` values are never used as paths: images are copied to `assets/img-N.ext` in the temp dir. Tests render hostile strings through Typst and compare the extracted PDF text.
+
+### How fonts are checked
+`typst fonts` (plus any `fontPaths`) lists every usable family, bundled ones included (Libertinus Serif, New Computer Modern, DejaVu Sans Mono). Before compiling, `renderPdf` resolves each requested family against that list (case-insensitive):
+- An explicit `fonts.body`/`fonts.heading` that is missing throws `FontNotAvailableError` naming it. There is no fallback and nothing is compiled.
+- A template lists ordered candidates (`modern`: Inter, Helvetica Neue, Helvetica, Arial). The first installed one is used and returned in `RenderResult.fonts`; if none is installed the export is refused with all candidates named.
+- Typst's own "unknown font family" warning is also treated as an error.
+
+Typst embeds subsets of every used font. Glyphs missing from the chosen family can still fall back to another font inside Typst (not detected). Caveat: `modern` depends on system sans fonts because Typst bundles none; bundling a sans family later would make output identical across machines.
+
+### Tests
+```bash
+pnpm --filter @cadabracraft/templates test
+pnpm --filter @cadabracraft/export-pdf test                   # unit tests; integration tests skip without typst/poppler
+REQUIRE_TYPST=1 pnpm --filter @cadabracraft/export-pdf test   # CI mode: missing typst or poppler fails
+pnpm --filter @cadabracraft/export-pdf build:sample [novel|nonfiction|modern] [5x8|5.5x8.5|6x9]   # writes out/sample-*.pdf and .typ
+```
+Integration tests need `typst` and poppler (`pdfinfo`, `pdffonts`, `pdftotext`). They check page size in points (6x9 = 432x648), embedded fonts, text and running headers, recto chapter starts, the hostile-string round trip, the missing-font error and the PDF/A-2b flag.
+
+Golden test: `fixtures/golden/sample-chapter.typ` is the generated Typst for `fixtures/manuscripts/sample-chapter.json` (novel, defaults). When the generator or a template changes on purpose, run `UPDATE_GOLDEN=1 pnpm --filter @cadabracraft/export-pdf test`, review `git diff fixtures/golden`, and commit it with the change. `fixtures/manuscripts/full-book.json` (four chapters, every node type, an image from `fixtures/manuscripts/assets/`) is the longer manuscript for integration tests.
+
+Visual check: `build:sample` leaves the `.typ` and its images in `out/`; `cd out && typst compile --format png sample-novel.typ 'pg-{0p}.png'` renders pages for proofing. The novel and nonfiction templates (6x9) and the first page of modern (5x8) were reviewed by eye once; this is not a typographic proof (no widow/orphan or hyphenation review).
+
+### Follow-ups
+Decide CLI sidecar vs embedding the Typst crate in the app (the CLI must be bundled or installed; nothing downloads it). Hyphenation and `lang` coverage for non-English books, RTL page binding and CJK fonts are untested. Front matter (title page, copyright, TOC) is not part of this step.
