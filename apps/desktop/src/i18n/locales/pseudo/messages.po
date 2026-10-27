@@ -7,6 +7,11 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: pseudo\n"
 
+#. placeholder {0}: stuck.length
+#: src/app/store.ts
+msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
+msgstr ""
+
 #. placeholder {0}: countWords(c.doc)
 #: src/app/ImportDialogs.tsx
 msgid "{0, plural, one {# word} other {# words}}"
@@ -124,6 +129,14 @@ msgstr ""
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr ""
 
+#: src/app/store.ts
+msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
+msgstr ""
+
+#: src/app/store.ts
+msgid "{stuck, plural, one {# page could not be put back and is now in the other state} other {# pages could not be put back and are now in the other state}}"
+msgstr ""
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr ""
@@ -238,6 +251,10 @@ msgstr ""
 
 #: src/app/store.ts
 msgid "An export is already running"
+msgstr ""
+
+#: src/app/store.ts
+msgid "An import is already running"
 msgstr ""
 
 #: src/app/Templates.tsx
@@ -547,6 +564,14 @@ msgstr ""
 #. placeholder {0}: errText(e)
 #: src/app/store.ts
 msgid "Could not add the image: {0}"
+msgstr ""
+
+#: src/editor/Editor.tsx
+msgid "Could not convert the HTML in the selection"
+msgstr ""
+
+#: src/editor/Editor.tsx
+msgid "Could not convert the HTML, so it was pasted as text"
 msgstr ""
 
 #: src/app/UpdateDialog.tsx
@@ -926,10 +951,9 @@ msgstr ""
 msgid "Importing…"
 msgstr ""
 
-#. placeholder {0}: bad.title
-#. placeholder {1}: e.message
+#. placeholder {0}: e.message
 #: src/app/store.ts
-msgid "In “{0}”: {1}"
+msgid "In “{where}”: {0}"
 msgstr ""
 
 #: src/app/Templates.tsx
@@ -1242,6 +1266,10 @@ msgstr ""
 msgid "Nothing was lost or changed."
 msgstr ""
 
+#: src/editor/Editor.tsx
+msgid "Nothing was pasted here. Select text inside one paragraph or cell and try again"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Numbered list"
 msgstr ""
@@ -1461,6 +1489,14 @@ msgstr ""
 msgid "Replace all “{0}”"
 msgstr ""
 
+#: src/app/store.ts
+msgid "Replace all stopped: {why}."
+msgstr ""
+
+#: src/app/store.ts
+msgid "Replace all stopped: {why}. Nothing was changed."
+msgstr ""
+
 #: src/editor/FindBar.tsx
 msgid "Replace with"
 msgstr ""
@@ -1533,6 +1569,10 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "Select All"
+msgstr ""
+
+#: src/editor/Editor.tsx
+msgid "Select text inside one cell or paragraph to convert it"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -1671,6 +1711,10 @@ msgstr ""
 msgid "That file name is not valid"
 msgstr ""
 
+#: src/app/store.ts
+msgid "The book has no pages to export yet. Add a chapter first."
+msgstr ""
+
 #: src/app/Home.tsx
 msgid "The book is stored in this folder. Nothing leaves your computer."
 msgstr ""
@@ -1710,7 +1754,15 @@ msgid "The only thing sent is the update check. Nothing about your books is sent
 msgstr ""
 
 #: src/app/store.ts
+msgid "The page changed while searching, so nothing was replaced. Try again."
+msgstr ""
+
+#: src/app/store.ts
 msgid "the page is no longer in the trash"
+msgstr ""
+
+#: src/editor/Editor.tsx
+msgid "The selection is too large to convert"
 msgstr ""
 
 #: src/editor/Editor.tsx
@@ -1765,6 +1817,14 @@ msgstr ""
 
 #: src/app/importBook.ts
 msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
+msgstr ""
+
+#: src/app/importBook.ts
+msgid "This file does not look like text. It may be damaged or saved in another format."
+msgstr ""
+
+#: src/app/importBook.ts
+msgid "This file is too large or too deeply nested to import."
 msgstr ""
 
 #: src/app/importBook.ts

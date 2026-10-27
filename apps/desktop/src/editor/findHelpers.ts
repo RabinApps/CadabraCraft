@@ -12,6 +12,9 @@ export function prefillQuery(text: string): string | null {
   return text;
 }
 
+/** True while an input method (IME) is composing text: Enter then confirms the composition and Escape cancels it, so neither is a Find shortcut. */
+export const isComposing = (e: { isComposing?: boolean; keyCode?: number }): boolean => !!e.isComposing || e.keyCode === 229;
+
 /** "3 of 12" while there are matches, "No results" for a query without any, nothing for an empty query. */
 export function countLabel(query: string, total: number, index: number): string {
   if (!query) return "";

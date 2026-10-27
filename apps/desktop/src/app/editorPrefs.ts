@@ -27,7 +27,7 @@ export const cleanGoal = (v: unknown): number => (typeof v === "number" && Numbe
 function read(): Prefs {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) ?? "null");
-    if (v && v.manuscriptFont in manuscriptFonts && v.writingWidth in writingWidths && typeof v.typewriterScroll === "boolean") {
+    if (v && typeof v.manuscriptFont === "string" && Object.hasOwn(manuscriptFonts, v.manuscriptFont) && typeof v.writingWidth === "string" && Object.hasOwn(writingWidths, v.writingWidth) && typeof v.typewriterScroll === "boolean") {
       return { manuscriptFont: v.manuscriptFont, writingWidth: v.writingWidth, typewriterScroll: v.typewriterScroll, sessionGoal: cleanGoal(v.sessionGoal), rawHtmlPaste: cleanRawHtmlPaste(v.rawHtmlPaste) };
     }
   } catch { /* storage unavailable or corrupt: use defaults */ }

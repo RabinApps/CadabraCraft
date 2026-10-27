@@ -13,6 +13,8 @@ export interface MatchOptions {
   wholeWord: boolean;
   /** The query is an RE2 regular expression (see `compileRegex`). Absent means literal. */
   regex?: boolean;
+  /** Regex mode: stop after this many matches (default `MAX_MATCHES`, a UI guard). Replacing passes Infinity so no match is skipped. */
+  limit?: number;
 }
 
 const wordChar = /[\p{L}\p{N}\p{M}]/u;
@@ -50,8 +52,8 @@ const isWordAt = (text: string, index: number, before: boolean): boolean => {
  * ("aa" in "aaa" gives one match at 0). An empty query matches nothing. Whole word means the characters just outside
  * the match are not letters, digits or combining marks (Unicode `\p{L}\p{N}\p{M}`).
  */
-export function findInText(text: string, query: string, { matchCase, wholeWord, regex }: MatchOptions): TextRange[] {
-  if (regex) return findRegexInText(text, query, matchCase, wholeWord);
+export function findInText(text: string, query: string, { matchCase, wholeWord, regex, limit }: MatchOptions): TextRange[] {
+  if (regex) return findRegexInText(text, query, matchCase, wholeWord, limit ?? MAX_MATCHES);
   if (!query || query.length > text.length) return [];
   const haystack = matchCase ? text : fold(text);
   const needle = matchCase ? query : fold(query);
@@ -105,14 +107,14 @@ export function compileRegex(query: string, matchCase: boolean): RE2JS | null {
 /** Index just after the code point starting at `index`. */
 const nextCodePoint = (text: string, index: number): number => index + ((text.codePointAt(index) ?? 0) > 0xffff ? 2 : 1);
 
-function findRegexInText(text: string, query: string, matchCase: boolean, wholeWord: boolean): TextRange[] {
+function findRegexInText(text: string, query: string, matchCase: boolean, wholeWord: boolean, limit: number): TextRange[] {
   const re = compileRegex(query, matchCase);
   if (!re || !text) return [];
   const m = re.matcher(text);
   const groups = Math.min(re.groupCount(), 9);
   const found: TextRange[] = [];
   let pos = 0;
-  while (found.length < MAX_MATCHES && pos <= text.length && m.find(pos)) {
+  while (found.length < limit && pos <= text.length && m.find(pos)) {
     const from = m.start();
     const to = m.end();
     if (to === from || (wholeWord && (isWordAt(text, from, true) || isWordAt(text, to, false)))) {

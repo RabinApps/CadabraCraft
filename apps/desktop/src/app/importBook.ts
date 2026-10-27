@@ -102,16 +102,44 @@ export async function loadImport(sourcePath: string): Promise<LoadedSource> {
   return { ext, bytes: await bridge.readImportSource(sourcePath) };
 }
 
+const decoderFor = (label: string): TextDecoder | null => { try { return new TextDecoder(label); } catch { return null; } };
+
+/**
+ * A text source as a string. A byte-order mark picks UTF-8 or UTF-16; an HTML file may name its charset in a `<meta>`
+ * tag near the top; otherwise strict UTF-8, and bytes that are not valid UTF-8 are read as Windows-1252 (what an old
+ * editor wrote) rather than turned into replacement characters. Throws for binary data.
+ */
+export function decodeText(bytes: Uint8Array, html = false): string {
+  let text: string | null = null;
+  const b = bytes;
+  if (b[0] === 0xff && b[1] === 0xfe) text = new TextDecoder("utf-16le").decode(b.subarray(2));
+  else if (b[0] === 0xfe && b[1] === 0xff) text = new TextDecoder("utf-16be").decode(b.subarray(2));
+  else if (b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) text = new TextDecoder("utf-8").decode(b.subarray(3));
+  if (text === null && html) {
+    const head = new TextDecoder("latin1").decode(b.subarray(0, 2048));
+    const label = /<meta[^>]+charset\s*=\s*["']?\s*([\w:.-]+)/i.exec(head)?.[1];
+    const d = label && !/^utf-?8$/i.test(label) ? decoderFor(label) : null;
+    if (d) text = d.decode(b);
+  }
+  if (text === null) {
+    try { text = new TextDecoder("utf-8", { fatal: true }).decode(b); } catch { text = new TextDecoder("windows-1252").decode(b); }
+  }
+  if (text.slice(0, 4096).includes("\u0000")) throw new Error(t`This file does not look like text. It may be damaged or saved in another format.`);
+  return text.replace(/^\uFEFF/, "");
+}
+
 /** Parses a loaded source; pure, so the wizard can re-run it when the split level changes. */
 export function parseImport(src: LoadedSource, splitHeadingLevel: 1 | 2 | 3 = 1): ImportResult {
   let result: ImportResult;
   try {
-    const text = () => new TextDecoder("utf-8").decode(src.bytes).replace(/^\uFEFF/, "");
+    const text = () => decodeText(src.bytes, src.ext === "html" || src.ext === "htm");
     result = src.ext === "docx" ? importDocx(src.bytes, { splitHeadingLevel })
       : src.ext === "html" || src.ext === "htm" ? importHtml(text(), { splitHeadingLevel })
       : importMarkdown(text(), { splitHeadingLevel });
   } catch (e) {
     if (e instanceof ImportError) throw new Error(describeImportError(e));
+    // A stack overflow or out-of-range string from a pathological file: the same advice as for deep nesting.
+    if (e instanceof RangeError) throw new Error(t`This file is too large or too deeply nested to import.`);
     throw e;
   }
   if (result.chapters.length === 0) throw new Error(t`There is no text to import in this file.`);

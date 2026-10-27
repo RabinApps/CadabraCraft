@@ -10,8 +10,8 @@ import { Field } from "../ui/Input";
 import { readingOrder } from "@cadabracraft/format";
 import { useProject } from "../app/store";
 import { errText } from "../lib/projectError";
-import { bookPosition, bookStep, countLabel, resultRows, type PageCounts, type ResultRow } from "./findHelpers";
-import { useFind } from "./findStore";
+import { bookPosition, bookStep, countLabel, isComposing, resultRows, type PageCounts, type ResultRow } from "./findHelpers";
+import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "./findStore";
 import { searchBook } from "./search/bookSearch";
 import { isInvalidRegex } from "./search/match";
 import { getSearchInfo, searchCommands, searchKey } from "./search/plugin";
@@ -26,6 +26,9 @@ function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord
   const readPages = useProject((s) => s.actions.readPages);
   // A book-wide replace (or its undo) changes pages other than the open one, so it also triggers a recount.
   const history = useProject((s) => s.history);
+  // Another book (or the same one after pages were added or removed) invalidates the counts too.
+  const root = useProject((s) => s.root);
+  const manifest = useProject((s) => s.manifest);
   const [counts, setCounts] = useState<PageCounts>({});
   useEffect(() => {
     if (!on || !query) { setCounts({}); return; }
@@ -33,10 +36,16 @@ function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord
     const id = setTimeout(() => {
       readPages()
         .then((pages) => { if (live) setCounts(Object.fromEntries(searchBook(pages, { query, matchCase, wholeWord, regex }).pages.map((p) => [p.id, p.count]))); })
-        .catch(() => { if (live) setCounts({}); });
+        .catch((e) => {
+          if (!live) return;
+          // A page that cannot be read is not silently "no results": say so (the same text is not set twice).
+          setCounts({});
+          const why = errText(e);
+          if (useProject.getState().notice !== why) useProject.setState({ notice: why });
+        });
     }, 150);
     return () => { live = false; clearTimeout(id); };
-  }, [on, query, matchCase, wholeWord, regex, editorTotal, history, readPages]);
+  }, [on, query, matchCase, wholeWord, regex, editorTotal, history, root, manifest, readPages]);
   return counts;
 }
 
@@ -150,7 +159,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
   const toggle = (patch: { matchCase: boolean } | { wholeWord: boolean } | { allChapters: boolean } | { regex: boolean }) => { f.set(patch); queueMicrotask(apply); };
 
   const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
+    if (e.key === "Escape" && !isComposing(e.nativeEvent)) {
       // Stop here so focus mode's own Escape does not also exit.
       e.preventDefault(); e.stopPropagation(); close();
     }
@@ -187,9 +196,10 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
             hideLabel
             placeholder={t`Find`}
             value={f.query}
+            maxLength={MAX_QUERY_CHARS}
             className="py-1.5"
             onChange={(e) => { f.set({ query: e.target.value }); later(); }}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); step(e.shiftKey ? -1 : 1); } }}
+            onKeyDown={(e) => { if (e.key === "Enter" && !isComposing(e.nativeEvent)) { e.preventDefault(); step(e.shiftKey ? -1 : 1); } }}
           />
         </div>
         <span aria-live="polite" className={cx("min-w-14 shrink-0 text-end text-xs tabular-nums", noResults || invalid ? "text-danger" : "text-ink-muted")}>
@@ -207,9 +217,10 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
               hideLabel
               placeholder={t`Replace with`}
               value={f.replacement}
+              maxLength={MAX_REPLACEMENT_CHARS}
               className="py-1.5"
               onChange={(e) => { f.set({ replacement: e.target.value }); later(); }}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); replaceOne(); } }}
+              onKeyDown={(e) => { if (e.key === "Enter" && !isComposing(e.nativeEvent)) { e.preventDefault(); replaceOne(); } }}
             />
           </div>
           <Button className={small} onClick={replaceOne} disabled={info.total === 0}>{t`Replace`}</Button>

@@ -40,16 +40,17 @@ interface Meta {
  * match never crosses a paragraph, cell or code block, nor an inline node (hard break, footnote). Footnote text is
  * searched too: the footnote node holds plain inline content, so it is its own run and can be found and replaced.
  */
-export function findAll(doc: PMNode, s: SearchSettings): TextRange[] {
+export function findAll(doc: PMNode, s: SearchSettings, uncapped = false): TextRange[] {
   if (!s.query) return [];
   const out: TextRange[] = [];
+  if (uncapped) s = { ...s, limit: Infinity } as SearchSettings;
   doc.descendants((node, pos) => {
     if (!node.inlineContent) return;
     let text = "";
     let start = 0;
     const flush = () => {
       for (const r of findInText(text, s.query, s)) {
-        if (s.regex && out.length >= MAX_MATCHES) break;
+        if (s.regex && !uncapped && out.length >= MAX_MATCHES) break;
         out.push({ ...r, from: start + r.from, to: start + r.to });
       }
       text = "";
@@ -168,7 +169,7 @@ export function replaceCurrentTransaction(state: EditorState, tr: Transaction = 
 /** One transaction (one undo step) replacing every match (null when there are none). */
 export function replaceAllTransaction(state: EditorState, tr: Transaction = state.tr): Transaction | null {
   const s = get(state);
-  const fresh = findAll(state.doc, s);
+  const fresh = findAll(state.doc, s, true); // every match, not just the capped display set
   if (!fresh.length) return null;
   replaceRanges(tr, fresh, s.replacement, s.regex);
   return tr.setMeta(searchKey, { rescan: true, current: 0 } satisfies Meta);
