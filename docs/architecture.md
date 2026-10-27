@@ -446,3 +446,36 @@ Throwaway script `scripts/audio-spike/kokoro.mjs` (setup in `tools/audio-spike/`
 **Rejected.** Claiming `dcterms:conformsTo` (WCAG / EPUB Accessibility) or `a11y:certifiedBy`: we do not evaluate the output, and a false claim is worse than none. `displayTransformability`: the stylesheet is not audited for it. Making the ISBN the unique identifier (it changes the id when the author edits the ISBN and breaks stable ids). Blocking export on missing alt text (authors may mark images decorative). A translated accessibility summary (it would need one per supported language; it is tagged `xml:lang="en"` meanwhile).
 
 **Caveats.** Retailers read only some of this: KDP ignores most accessibility metadata, Apple Books and Kobo show it. `structuralNavigation` is claimed from the table of contents, which exists whenever the book has a page. Alt text quality is not judged, only presence. Publisher, description, subjects, series and rights need new manifest fields (a format change): see the roadmap.
+
+## Performance budgets (large manuscripts)
+
+**Decision:** a novel is 90-120k words in 30-60 chapters, and some chapters reach 20k words. `apps/desktop/e2e/bigBook.ts` generates such books deterministically (seeded PRNG, headings, dialogue, marks, footnotes, scene breaks; nothing stored in git). Vitest (`src/lib/perf.test.ts`, `src/app/store.bookwords.test.ts`) and one Playwright test (typing in a 20k-word chapter) assert hard ceilings. The ceilings are 10x or more above what was measured, so slow CI passes but a quadratic step or a whole-book pass per keystroke fails.
+
+**Measured** (Apple-silicon Mac, Node, in-memory file layer, 100k words in 40 chapters, 20k-word chapter = 243 KiB of JSON):
+
+| Step | Measured | Ceiling |
+|---|---|---|
+| `countWords`, whole book | 10 ms | 250 ms |
+| `isChapterDoc`, 20k-word chapter / whole book | 7 ms / 5 ms | 500 ms / 2 s |
+| `JSON.parse`, 20k-word chapter | 0.7 ms | 100 ms |
+| `searchBook` whole book / `replaceInDoc` 20k-word chapter | 13 ms / 1.6 ms | 500 ms each |
+| `diffChapters` of two 20k-word versions (also a full rewrite) | 14 ms (17 ms) | 1.5 s |
+| `readPages` of 40 chapters (before the fix, per word-count refresh) | 33 ms, 40 reads | 3 s |
+| Book word count after the fix, cold / one edit in the open page | 38 ms, 39 reads / 0 reads | 2 s |
+| Typing in a 20k-word chapter (keydown to second frame, Chromium) | median 29 ms, worst 42 ms | 500 ms / 1.5 s |
+
+The in-memory layer has no disk cost, so the real saving is the file reads, which the tests count. The typing numbers sit at the frame-rate floor (two frames at 60 Hz is about 33 ms), so a single 20k-word ProseMirror document is not a problem at this size.
+
+**Fixed:** `useBookWordCount` used to call `readPages` one second after every saved change, which read, parsed and validated every chapter file (40 reads for a 100k-word book, on every pause in typing). It now calls the store's `bookWords`, which counts the open page from its draft or loaded doc (no read) and reads another chapter only when its file hash in `hashes` differs from the one it was counted under. The cache is cleared when a book opens or closes and a chapter is dropped from it when the file watcher reports an outside change. Every read still goes through `parseChapter`, so validation is unchanged and a corrupt chapter still fails the count. Typing in one chapter reads no other chapter; replace-all and undo (which update `hashes`) cost one read per changed page.
+
+**Remains:** the first count of a book reads every chapter once; the Export dialog, print preview and find bar still call `readPages` (every chapter, on open or on search); reading mode and print preview still build all pages. Roadmap has the follow-ups.
+
+**Rejected:**
+| Option | Why not |
+|---|---|
+| Counting in Rust with a cache | Right long term, but needs Rust changes and a cache format; the JS path is fast once reads are avoided. |
+| Debounce longer / count only on close | Changes what the author sees; the cause was the full re-read, not the timing. |
+| Caching parsed docs in the store | Holds the whole book in memory and risks stale text; a number per file is enough here. |
+| Trusting file modified times | Sync folders rewrite them; the content hash is what the store already uses for conflicts. |
+
+**Caveats:** not measured in the native app or on a real disk (the tests use an in-memory file layer). A page changed by another program is noticed through the file watcher; if the watcher misses an event, the book total is stale until the page is next saved or the book is reopened (the open page itself is always exact).

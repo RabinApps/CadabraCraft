@@ -11,7 +11,7 @@ import { buildDocx, type ManuscriptFont } from "@cadabracraft/export-docx";
 import { bookToMarkdown, chapterToMarkdown, MarkdownExportError } from "@cadabracraft/export-markdown";
 import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
-import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
+import { countWords, type ChapterDoc, type MatterKind } from "@cadabracraft/shared";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate } from "@cadabracraft/templates";
 import { bridge } from "../lib/bridge";
 import { mergeAdjacentText } from "../editor/findHelpers";
@@ -175,6 +175,8 @@ interface State {
     remove: (id: string) => Promise<void>;
     /** Every page in reading order with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
     readPages: () => Promise<BookPage[]>;
+    /** Words in all chapters (front and back matter excluded). Pages whose file is unchanged since they were last counted are not read again; the open page is counted from memory. */
+    bookWords: () => Promise<number>;
     /**
      * Replaces every match in every page (front and back matter too) and returns how many were replaced. Saves unsaved
      * typing first, writes the changed pages through the normal save path (backup, temp file and rename), reloads the open
@@ -409,6 +411,30 @@ export const useProject = create<State>((set, get) => {
     }
     return pages;
   };
+  /** Word count per chapter file, valid while the store's hash for that file is the one it was counted under. */
+  let wordCache = new Map<string, { hash: string | undefined; words: number }>();
+  /** Words in the book's chapters, reading only pages that changed since they were last counted. The open page is counted from the draft or the loaded doc. */
+  const countBook = async () => {
+    const { root, manifest } = need();
+    const currentId = get().currentId;
+    let total = 0;
+    for (const c of readingOrder(manifest)) {
+      if (sectionOf(manifest, c.id) !== "chapter") continue;
+      if (c.id === currentId) {
+        const open = get().draft ?? get().currentDoc;
+        if (open) { total += countWords(open); continue; }
+      }
+      const hash = get().hashes[c.file];
+      const hit = wordCache.get(c.file);
+      if (hit && hit.hash === hash) { total += hit.words; continue; }
+      const r = await bridge.readFile(root, c.file);
+      if (!r) throw new Error(t`Missing chapter file ${c.file}`);
+      const words = countWords(parseChapter(r.contents, c.file));
+      wordCache.set(c.file, { hash, words });
+      total += words;
+    }
+    return total;
+  };
   /** Bytes of every image the chapters use. */
   const loadAssets = async (chapters: { doc: ChapterDoc }[]) => {
     const { root } = need();
@@ -486,6 +512,7 @@ export const useProject = create<State>((set, get) => {
         if (!root || !manifest) return;
         const r = await bridge.readFile(root, path).catch(() => null);
         if (!r || r.hash === hashes[path]) return; // gone, unreadable, or our own write
+        wordCache.delete(path);
         if (path === "cadabra.json") {
           try {
             set({ manifest: parseManifest(r.contents).manifest, hashes: { ...get().hashes, [path]: r.hash }, history: NO_HISTORY, notice: t`Chapter list updated from outside the app` });
@@ -522,6 +549,7 @@ export const useProject = create<State>((set, get) => {
         const r = await bridge.readFile(root, "cadabra.json");
         if (!r) throw new Error(t`No cadabra.json in that folder`);
         const parsed = parseManifest(r.contents);
+        wordCache = new Map();
         set({ root, manifest: parsed.manifest, hashes: { "cadabra.json": r.hash }, currentId: null, currentDoc: null, notice: "", history: NO_HISTORY, trash: [], recovery: [] });
         const pageFiles = readingOrder(parsed.manifest).map((e) => e.file);
         // Offered before any page is opened: a page that was put back to older text by a sync folder is easy to miss otherwise.
@@ -540,6 +568,7 @@ export const useProject = create<State>((set, get) => {
       },
       async closeProject() {
         await flush();
+        wordCache = new Map();
         set({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", history: NO_HISTORY, trash: [], recovery: [], importReport: null });
       },
       async createProject(root, title, author) {
@@ -603,6 +632,9 @@ export const useProject = create<State>((set, get) => {
           const fallback = next.chapters[0] ?? readingOrder(next)[0];
           if (fallback) await load(fallback.id);
         }
+      },
+      async bookWords() {
+        return countBook();
       },
       async readPages() {
         await flush();

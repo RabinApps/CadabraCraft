@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { bigChapter } from "./bigBook";
 
 // The Tauri backend is replaced with an in-memory fake of the same commands (persisted in sessionStorage so
 // reloads work), so the real UI, TipTap editor, store and EPUB exporter run in a plain browser.
@@ -1587,4 +1588,34 @@ test("a page with a newer snapshot than its saved text is offered for recovery w
   await page.getByRole("button", { name: "Open folder" }).click();
   await page.getByRole("dialog", { name: "Recover newer text for “Chapter One”?" }).getByRole("button", { name: "Use newer text" }).click();
   await expect(page.locator(".ProseMirror")).toContainText("the newer text");
+});
+
+test("typing stays responsive in a 20,000-word chapter", async ({ page }) => {
+  await newProject(page);
+  const big = JSON.stringify(bigChapter(20_000, 99, "Long"), null, 2);
+  await page.evaluate((json) => {
+    (window as any).__disk["manuscript/001-chapter-one.json"] = json;
+    sessionStorage.setItem("disk", JSON.stringify((window as any).__disk));
+  }, big);
+  await page.reload();
+  await page.getByRole("button", { name: "Open folder" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Long");
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  // Time from each keydown to the second frame after it, as the author would feel it.
+  await page.evaluate(() => {
+    const lat: number[] = [];
+    (window as any).__lat = lat;
+    window.addEventListener("keydown", () => {
+      const t0 = performance.now();
+      requestAnimationFrame(() => requestAnimationFrame(() => lat.push(performance.now() - t0)));
+    }, true);
+  });
+  for (let i = 0; i < 40; i++) await page.keyboard.type("x");
+  await expect.poll(() => page.evaluate(() => (window as any).__lat.length)).toBe(40);
+  const sorted = [...(await page.evaluate(() => (window as any).__lat as number[]))].sort((a, b) => a - b);
+  console.info(`[perf] typing in a 20k-word chapter: median ${sorted[20]!.toFixed(1)} ms, worst ${sorted[39]!.toFixed(1)} ms`);
+  // Generous ceilings, well above what the dev machine measures, to still catch a per-keystroke pass over the whole document.
+  expect(sorted[20]!).toBeLessThan(500);
+  expect(sorted[39]!).toBeLessThan(1500);
 });
