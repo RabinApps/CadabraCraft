@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chunkBlocks, PAUSE_MS } from "./chunk";
+import { chunkBlocks, PAUSE_MS, sampleChunks } from "./chunk";
 
 describe("chunkBlocks", () => {
   it("groups sentences up to the limit and never crosses a block", () => {
@@ -26,5 +26,16 @@ describe("chunkBlocks", () => {
 
   it("yields nothing for a pause alone", () => {
     expect(chunkBlocks([{ type: "pause", text: "" }])).toEqual([]);
+  });
+});
+
+describe("sampleChunks", () => {
+  const c = (n: number) => ({ text: "x".repeat(n), pauseAfterMs: 250 });
+  it("takes whole chunks up to the limit", () => {
+    expect(sampleChunks([c(300), c(250), c(100)], 600)).toHaveLength(2);
+  });
+  it("always keeps the first chunk and handles no chunks", () => {
+    expect(sampleChunks([c(900), c(10)], 600)).toHaveLength(1);
+    expect(sampleChunks([])).toEqual([]);
   });
 });

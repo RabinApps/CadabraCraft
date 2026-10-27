@@ -7,6 +7,8 @@ const audio = {
   requests: [] as { jobId: string; base: string; voice: string; formats: string[]; speed: number; chunks: { text: string }[] }[],
   /** Files that exist on the fake disk; filled by renders unless a test removes them. */
   present: new Set<string>(),
+  samples: [] as { jobId: string; chunks: { text: string }[]; voice: string; speed: number }[],
+  sample: null as null | ((req: { jobId: string }) => Promise<Uint8Array>),
   cancelled: [] as string[],
   forgotten: [] as string[],
   /** Decides what a chapter render does; set per test. */
@@ -32,6 +34,11 @@ vi.mock("../lib/bridge", () => ({
       files.forEach((f) => audio.present.add(f.path));
       return { files, durationSec: 90 };
     },
+    audioSample: async (req: { jobId: string; chunks: { text: string }[]; voice: string; speed: number }) => {
+      audio.samples.push(req);
+      if (audio.sample) return audio.sample(req);
+      return new Uint8Array([1, 2, 3]);
+    },
     audioFilesExist: async (_r: string, paths: string[]) => paths.map((p) => audio.present.has(p)),
     audioDownloadPack: async (pack: string, _jobId: string, onProgress: (p: { done: number; total: number }) => void) => {
       audio.downloads.push(pack);
@@ -55,6 +62,8 @@ beforeEach(async () => {
   audio.voices = [{ id: "piper-amy", engine: "piper", installed: true }];
   audio.requests = [];
   audio.cancelled = [];
+  audio.samples = [];
+  audio.sample = null;
   audio.present = new Set();
   audio.forgotten = [];
   audio.render = null;
@@ -168,6 +177,38 @@ describe("exportAudio chapter selection", () => {
     await a().exportAudio({ ...options, formats: ["opus"], chapterIds: [second] });
     expect(audio.requests).toHaveLength(1);
     expect(s().audio!.chapters.map((c) => c.id)).toEqual([second]);
+  });
+});
+
+describe("hearAudioSample", () => {
+  it("renders a few sentences of the first chosen chapter and returns the bytes, writing nothing", async () => {
+    const before = new Set(disk.keys());
+    const bytes = await a().hearAudioSample({ voice: "piper-amy", speed: 1.1 });
+    expect(bytes).toEqual(new Uint8Array([1, 2, 3]));
+    expect(audio.samples).toHaveLength(1);
+    expect(audio.samples[0]).toMatchObject({ voice: "piper-amy", speed: 1.1 });
+    expect(audio.samples[0]!.chunks.length).toBeGreaterThan(0);
+    expect(audio.forgotten).toEqual([audio.samples[0]!.jobId]);
+    expect(new Set(disk.keys())).toEqual(before);
+  });
+
+  it("is null when stopped and a readable error when the engine fails", async () => {
+    audio.sample = async () => { throw { kind: "cancelled" }; };
+    expect(await a().hearAudioSample({ voice: "piper-amy", speed: 1 })).toBeNull();
+    audio.sample = async () => { throw { kind: "synth", message: "engine broke" }; };
+    await expect(a().hearAudioSample({ voice: "piper-amy", speed: 1 })).rejects.toThrow(/engine broke/);
+  });
+
+  it("refuses a second sample while one runs and cancels the running one", async () => {
+    let release: (b: Uint8Array) => void = () => {};
+    audio.sample = () => new Promise((r) => { release = r; });
+    const first = a().hearAudioSample({ voice: "piper-amy", speed: 1 });
+    await vi.waitFor(() => expect(audio.samples).toHaveLength(1));
+    await expect(a().hearAudioSample({ voice: "piper-amy", speed: 1 })).rejects.toThrow();
+    a().cancelAudioSample();
+    expect(audio.cancelled).toEqual([audio.samples[0]!.jobId]);
+    release(new Uint8Array([9]));
+    await first;
   });
 });
 

@@ -230,6 +230,10 @@ msgstr ""
 msgid "A project already exists in this folder"
 msgstr ""
 
+#: src/app/store.ts
+msgid "A sample is already being made"
+msgstr ""
+
 #: src/app/menuModel.ts
 msgid "About CadabraCraft"
 msgstr ""
@@ -1087,6 +1091,10 @@ msgstr ""
 msgid "Heading 3"
 msgstr ""
 
+#: src/app/ExportDialog.tsx
+msgid "Hear a sample"
+msgstr ""
+
 #: src/app/menuModel.ts
 msgid "Help"
 msgstr ""
@@ -1346,6 +1354,10 @@ msgstr ""
 
 #: src/app/ExportDialog.tsx
 msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
+msgstr ""
+
+#: src/app/ExportDialog.tsx
+msgid "Making sample… (stop)"
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -2020,6 +2032,10 @@ msgstr ""
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr ""
 
+#: src/app/ExportDialog.tsx
+msgid "Stop sample"
+msgstr ""
+
 #: src/app/AudioExport.tsx
 msgid "Stopped"
 msgstr ""
@@ -2221,6 +2237,10 @@ msgstr ""
 
 #: src/lib/audioErrors.ts
 msgid "there is not enough disk space"
+msgstr ""
+
+#: src/app/store.ts
+msgid "There is nothing to read aloud in this chapter."
 msgstr ""
 
 #: src/app/ImportDialogs.tsx

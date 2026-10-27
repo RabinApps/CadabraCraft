@@ -290,6 +290,16 @@ pub struct ChapterRequest {
     pub formats: Vec<String>,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct SampleRequest {
+    /// Stops this sample with `audio_cancel`.
+    pub job_id: String,
+    pub chunks: Vec<Chunk>,
+    pub voice: String,
+    pub speed: f64,
+}
+
 #[derive(Serialize, Debug, PartialEq)]
 pub struct RenderedFile {
     pub format: String,
@@ -396,17 +406,11 @@ fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
     Ok(())
 }
 
-/// Renders one chapter. `progress` receives 0..1 after every batch. Everything is validated before the engine runs,
-/// and nothing is written unless the whole chapter rendered.
-pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>, cancel: &AtomicBool, progress: &dyn Fn(f64)) -> Result<RenderedChapter, AudioError> {
-    check_request(req)?;
-    let root = project::require_project(&PathBuf::from(&req.root))?;
-    for f in &req.formats {
-        project::resolve(&root, &format!("{}.{f}", req.base))?;
-    }
-    let voice = VOICES.iter().find(|v| v.id == req.voice).filter(|v| voices.is_some_and(|r| v.installed(r))).ok_or_else(|| AudioError::VoiceMissing { voice: req.voice.clone() })?;
+/// Runs the engine over the chunks and joins the batches with their pauses. Shared by a chapter render and a sample.
+fn synthesize(chunks: &[Chunk], voice_id: &str, speed: f64, sherpa: &Path, voices: Option<&Path>, cancel: &AtomicBool, progress: &dyn Fn(f64)) -> Result<(Vec<i16>, u32), AudioError> {
+    let voice = VOICES.iter().find(|v| v.id == voice_id).filter(|v| voices.is_some_and(|r| v.installed(r))).ok_or_else(|| AudioError::VoiceMissing { voice: voice_id.to_string() })?;
     let voices = voices.unwrap_or(Path::new(""));
-    let batches = plan_batches(&req.chunks);
+    let batches = plan_batches(chunks);
     let total: usize = batches.iter().map(|b| b.text.len()).sum::<usize>().max(1);
     let threads = std::thread::available_parallelism().map(|n| n.get().min(4)).unwrap_or(2);
     let scratch = tempfile::Builder::new().prefix("cadabracraft-audio-").tempdir().map_err(other)?;
@@ -416,7 +420,7 @@ pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>
             return Err(AudioError::Cancelled);
         }
         let out = scratch.path().join(format!("b{i}.wav"));
-        let r = run_cancellable(sherpa, &engine_args(voice, voices, req.speed, threads, &out, &b.text), BATCH_TIMEOUT, cancel)?;
+        let r = run_cancellable(sherpa, &engine_args(voice, voices, speed, threads, &out, &b.text), BATCH_TIMEOUT, cancel)?;
         if !r.success || !out.is_file() {
             let msg = r.stderr.trim();
             return Err(AudioError::Synth { message: if msg.is_empty() { "the voice engine exited with an error and no message".into() } else { msg.chars().rev().take(2000).collect::<Vec<_>>().into_iter().rev().collect() } });
@@ -432,6 +436,40 @@ pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>
         done += b.text.len();
         progress(done as f64 / total as f64);
     }
+    if cancel.load(Ordering::Relaxed) {
+        return Err(AudioError::Cancelled);
+    }
+    Ok((samples, rate))
+}
+
+/// Most characters a sample may read: a few sentences, never a chapter.
+const SAMPLE_MAX_CHARS: usize = 1200;
+
+/// A short WAV of the given text for "Hear a sample". Nothing touches the project: the engine writes to a temp dir
+/// that is removed on every path and the bytes are returned.
+pub fn render_sample(req: &SampleRequest, sherpa: &Path, voices: Option<&Path>, cancel: &AtomicBool) -> Result<Vec<u8>, AudioError> {
+    if req.chunks.iter().all(|c| c.text.trim().is_empty()) {
+        return Err(other("there is nothing to read aloud in this chapter"));
+    }
+    if !(0.5..=2.0).contains(&req.speed) {
+        return Err(other("speed must be between 0.5 and 2"));
+    }
+    if req.chunks.iter().map(|c| c.text.len()).sum::<usize>() > SAMPLE_MAX_CHARS {
+        return Err(other("a sample is limited to a few sentences"));
+    }
+    let (samples, rate) = synthesize(&req.chunks, &req.voice, req.speed, sherpa, voices, cancel, &|_| {})?;
+    Ok(write_wav(rate, &samples))
+}
+
+/// Renders one chapter. `progress` receives 0..1 after every batch. Everything is validated before the engine runs,
+/// and nothing is written unless the whole chapter rendered.
+pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>, cancel: &AtomicBool, progress: &dyn Fn(f64)) -> Result<RenderedChapter, AudioError> {
+    check_request(req)?;
+    let root = project::require_project(&PathBuf::from(&req.root))?;
+    for f in &req.formats {
+        project::resolve(&root, &format!("{}.{f}", req.base))?;
+    }
+    let (samples, rate) = synthesize(&req.chunks, &req.voice, req.speed, sherpa, voices, cancel, progress)?;
     if cancel.load(Ordering::Relaxed) {
         return Err(AudioError::Cancelled);
     }
@@ -488,6 +526,17 @@ pub async fn audio_render_chapter(state: tauri::State<'_, AudioJobs>, request: C
         render_chapter(&request, &sherpa, voices_root().as_deref(), &flag, &|f| {
             let _ = on_progress.send(f);
         })
+    })
+    .await
+}
+
+/// Renders a short sample off the UI thread and returns the WAV bytes (a raw IPC response, not JSON).
+#[tauri::command]
+pub async fn audio_sample(state: tauri::State<'_, AudioJobs>, request: SampleRequest) -> Result<tauri::ipc::Response, AudioError> {
+    let flag = state.flag(&request.job_id);
+    crate::typst::blocking(move || {
+        let sherpa = find_sherpa()?;
+        render_sample(&request, &sherpa, voices_root().as_deref(), &flag).map(tauri::ipc::Response::new)
     })
     .await
 }
@@ -671,6 +720,25 @@ mod tests {
             assert_eq!(pcm.samples.len(), (1.8 * 24000.0) as usize);
             let seen = seen.into_inner().unwrap();
             assert!(seen.windows(2).all(|w| w[0] <= w[1]) && (seen.last().unwrap() - 1.0).abs() < 1e-9);
+        }
+
+        #[test]
+        fn a_sample_returns_wav_bytes_writes_nothing_and_cleans_up() {
+            let f = fixture(copy);
+            let req = SampleRequest { job_id: "s".into(), chunks: vec![chunk("Hello there.", 600)], voice: "piper-amy".into(), speed: 1.0 };
+            let bytes = render_sample(&req, &f.engine, Some(&f.voices), &AtomicBool::new(false)).unwrap();
+            assert_eq!(parse_wav(&bytes).unwrap().samples.len(), (0.7 * 24000.0) as usize);
+            assert!(!f.project.join("exports").exists(), "a sample must not write into the project");
+        }
+
+        #[test]
+        fn a_sample_refuses_long_text_bad_speed_and_a_missing_voice() {
+            let f = fixture(copy);
+            let mk = |text: String, speed: f64, voice: &str| SampleRequest { job_id: "s".into(), chunks: vec![chunk(&text, 0)], voice: voice.into(), speed };
+            let off = AtomicBool::new(false);
+            assert!(render_sample(&mk("a".repeat(SAMPLE_MAX_CHARS + 1), 1.0, "piper-amy"), &f.engine, Some(&f.voices), &off).is_err());
+            assert!(render_sample(&mk("Hi.".into(), 3.0, "piper-amy"), &f.engine, Some(&f.voices), &off).is_err());
+            assert!(matches!(render_sample(&mk("Hi.".into(), 1.0, "kokoro-heart"), &f.engine, Some(&f.voices), &off), Err(AudioError::VoiceMissing { .. })));
         }
 
         #[test]

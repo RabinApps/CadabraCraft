@@ -40,6 +40,7 @@ macro_rules! app_handlers {
             audio::audio_cancel,
             audio::audio_forget,
             audio::audio_files_exist,
+            audio::audio_sample,
             audio_voices::audio_packs,
             audio_voices::audio_download_pack,
             audio_voices::audio_delete_pack,

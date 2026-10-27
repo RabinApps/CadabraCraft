@@ -231,6 +231,10 @@ msgstr "A PDF export is already running"
 msgid "A project already exists in this folder"
 msgstr "A project already exists in this folder"
 
+#: src/app/store.ts
+msgid "A sample is already being made"
+msgstr "A sample is already being made"
+
 #: src/app/menuModel.ts
 msgid "About CadabraCraft"
 msgstr "About CadabraCraft"
@@ -1088,6 +1092,10 @@ msgstr "Heading 2"
 msgid "Heading 3"
 msgstr "Heading 3"
 
+#: src/app/ExportDialog.tsx
+msgid "Hear a sample"
+msgstr "Hear a sample"
+
 #: src/app/menuModel.ts
 msgid "Help"
 msgstr "Help"
@@ -1348,6 +1356,10 @@ msgstr "Lossless, about 60% of the size of WAV."
 #: src/app/ExportDialog.tsx
 msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
 msgstr "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
+
+#: src/app/ExportDialog.tsx
+msgid "Making sample… (stop)"
+msgstr "Making sample… (stop)"
 
 #: src/app/Settings.tsx
 msgid "Manuscript font"
@@ -2021,6 +2033,10 @@ msgstr "Start a new chapter at"
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr "Start a new folder, or open one you already have. Everything stays on this computer."
 
+#: src/app/ExportDialog.tsx
+msgid "Stop sample"
+msgstr "Stop sample"
+
 #: src/app/AudioExport.tsx
 msgid "Stopped"
 msgstr "Stopped"
@@ -2224,6 +2240,10 @@ msgstr "There is no text to import in this file."
 #: src/lib/audioErrors.ts
 msgid "there is not enough disk space"
 msgstr "there is not enough disk space"
+
+#: src/app/store.ts
+msgid "There is nothing to read aloud in this chapter."
+msgstr "There is nothing to read aloud in this chapter."
 
 #: src/app/ImportDialogs.tsx
 msgid "These are routine adjustments; nothing was lost."

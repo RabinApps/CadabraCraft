@@ -144,6 +144,8 @@ export const bridge = {
     channel.onmessage = onProgress;
     return invoke<void>("audio_download_pack", { pack, jobId, onProgress: channel });
   },
+  /** A short WAV of the given chunks, rendered off the UI thread and never written to the project. Stop it with `audioCancel(jobId)`. */
+  audioSample: (request: { jobId: string; chunks: Chunk[]; voice: string; speed: number }): Promise<Uint8Array> => binary(invoke<RawBytes>("audio_sample", { request })),
   audioDeletePack: (pack: string) => invoke<void>("audio_delete_pack", { pack }),
   /** Stops the job's running chapter (the engine process is killed) and every later one. */
   audioCancel: (jobId: string) => invoke<void>("audio_cancel", { jobId }),

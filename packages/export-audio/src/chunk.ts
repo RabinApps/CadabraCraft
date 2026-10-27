@@ -57,3 +57,18 @@ export function chunkBlocks(blocks: NarrationBlock[], max = DEFAULT_MAX_CHARS): 
   }
   return out;
 }
+
+/** Characters of the sample: a few sentences, well under what the Rust side accepts. */
+export const SAMPLE_MAX_CHARS = 600;
+
+/** The first chunks that fit in `max` characters (always at least the first chunk), for "Hear a sample". */
+export function sampleChunks(chunks: Chunk[], max = SAMPLE_MAX_CHARS): Chunk[] {
+  const out: Chunk[] = [];
+  let used = 0;
+  for (const c of chunks) {
+    if (out.length > 0 && used + c.text.length > max) break;
+    out.push(c);
+    used += c.text.length;
+  }
+  return out;
+}

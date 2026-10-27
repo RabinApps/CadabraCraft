@@ -8,7 +8,7 @@ import {
 } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
 import { buildDocx, type ManuscriptFont } from "@cadabracraft/export-docx";
-import { renderAudiobook, type AudioFormat } from "@cadabracraft/export-audio";
+import { CancelledError, chunkBlocks, narrate, renderAudiobook, sampleChunks, type AudioFormat } from "@cadabracraft/export-audio";
 import { bookToMarkdown, chapterToMarkdown, MarkdownExportError } from "@cadabracraft/export-markdown";
 import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
@@ -279,6 +279,13 @@ interface State {
     cancelVoiceDownload: () => void;
     /** Clears a failed or stopped voice download. A running one is left alone. */
     dismissVoiceDownload: () => void;
+    /**
+     * Renders a few sentences of the first chosen chapter and resolves to WAV bytes, or null when stopped. Nothing is
+     * written to the project. Rejects with a readable message (no voice, no text, engine failure).
+     */
+    hearAudioSample: (options: { voice: string; speed: number; chapterIds?: string[] }) => Promise<Uint8Array | null>;
+    /** Stops a running sample. */
+    cancelAudioSample: () => void;
     /** Stops the audiobook: the engine is killed and finished chapters are kept. */
     cancelAudio: () => void;
     /** Clears a finished or failed audiobook from `audio`. A running one is left alone. */
@@ -325,6 +332,7 @@ export const useProject = create<State>((set, get) => {
   let replacing = false;
   let importing = false;
   let audioAbort: AbortController | null = null;
+  let sampleJob: string | null = null;
   let voiceAbort: AbortController | null = null;
   const need = () => {
     const { root, manifest } = get();
@@ -966,6 +974,30 @@ export const useProject = create<State>((set, get) => {
           audioAbort = null;
           bridge.audioForget(jobId).catch(() => undefined);
         }
+      },
+      async hearAudioSample(options) {
+        if (sampleJob) throw new Error(t`A sample is already being made`);
+        await flush();
+        const pages = (await loadChapters()).filter((p) => p.section === "chapter" && (!options.chapterIds || options.chapterIds.includes(p.id)));
+        const first = pages[0];
+        if (!first) throw new Error(t`The book has no chapters to read aloud yet. Add a chapter first.`);
+        const chunks = sampleChunks(chunkBlocks(narrate(first.doc, first.title).blocks));
+        if (chunks.length === 0) throw new Error(t`There is nothing to read aloud in this chapter.`);
+        const jobId = crypto.randomUUID();
+        sampleJob = jobId;
+        try {
+          return await bridge.audioSample({ jobId, chunks, voice: options.voice, speed: options.speed });
+        } catch (e) {
+          const mapped = mapAudioError(e);
+          if (mapped instanceof CancelledError) return null;
+          throw new Error(describeAudioError(mapped).message);
+        } finally {
+          sampleJob = null;
+          bridge.audioForget(jobId).catch(() => undefined);
+        }
+      },
+      cancelAudioSample() {
+        if (sampleJob) void bridge.audioCancel(sampleJob).catch(() => undefined);
       },
       async downloadVoices(packs) {
         if (get().voiceDownload?.status === "running") throw new Error(t`A download is already running`);

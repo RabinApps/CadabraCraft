@@ -482,6 +482,13 @@ try {
       await app.sleep(300);
       assert((await dlg(`return d.querySelectorAll('fieldset input[type=checkbox]').length;`)) >= 1, "no chapter checkboxes after choosing Selected chapters");
       await shot("07-audiobook-dialog");
+      // Hear a sample: the real engine renders a few sentences, the page plays them; nothing is written to the project.
+      await dlg(`const b = [...d.querySelectorAll("button")].find((e) => e.textContent.trim() === "Hear a sample"); if (!b) throw new Error("no Hear a sample button"); b.click(); return "clicked";`);
+      for (let i = 0; i < 120 && /Making sample/.test(await text()); i++) await app.sleep(500);
+      const afterSample = await text();
+      assert(!/Making sample/.test(afterSample), "the sample never finished");
+      assert((await dlg(`return d.querySelectorAll('[role=alert]').length;`)) === 0, `the sample failed: ${afterSample.slice(-300)}`);
+      assert(!existsSync(join(book, "exports/audio")), "the sample wrote into exports/audio");
       const audioDir = join(book, "exports/audio");
       const cache = join(book, ".cadabra/audio/cache.json");
       await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
@@ -495,7 +502,7 @@ try {
       await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
       for (let i = 0; i < 120 && !/Your audiobook is ready/.test(await text()); i++) await app.sleep(500);
       for (const [f, m] of files) assert(statSync(join(audioDir, f)).mtimeMs === m, `${f} was rendered again although nothing changed`);
-      detail = `${files.length} file(s) rendered once; the second export reused them from the cache`;
+      detail = `a sample played without writing files; ${files.length} file(s) rendered once; the second export reused them from the cache`;
     } else {
       assert(first.includes("only time CadabraCraft uses the network"), "the download panel does not say it is the only network use");
       await shot("07-audiobook-voices");

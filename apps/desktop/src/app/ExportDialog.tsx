@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { CircleAlert, CircleCheck, Download, FileText, Headphones, Info, Printer } from "lucide-react";
+import { CircleAlert, CircleCheck, Download, FileText, Headphones, Info, LoaderCircle, Play, Printer, Square } from "lucide-react";
 import { countWords } from "@cadabracraft/shared";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
@@ -85,6 +85,8 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const readPages = useProject((s) => s.actions.readPages);
   const exportAudio = useProject((s) => s.actions.exportAudio);
   const cancelAudio = useProject((s) => s.actions.cancelAudio);
+  const hearAudioSample = useProject((s) => s.actions.hearAudioSample);
+  const cancelAudioSample = useProject((s) => s.actions.cancelAudioSample);
   const dismissAudio = useProject((s) => s.actions.dismissAudio);
   const downloadVoices = useProject((s) => s.actions.downloadVoices);
   const cancelVoiceDownload = useProject((s) => s.actions.cancelVoiceDownload);
@@ -98,6 +100,8 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const [voice, setVoice] = useState("");
   const [speed, setSpeed] = useState<number>(AUDIO_SPEEDS[1]);
   const [audioFormats, setAudioFormats] = useState<AudioFormat[]>(() => useSettings.getState().audioFormats);
+  const [sample, setSample] = useState<"idle" | "making" | "playing">("idle");
+  const player = useRef<{ el: HTMLAudioElement; url: string } | null>(null);
   const [audioChapters, setAudioChapters] = useState<string[] | null>(null);
   const templates = listTemplates();
   const [trimSize, setTrimSize] = useState<TrimSize>("6x9");
@@ -173,10 +177,38 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
 
   const change = (o: boolean) => {
     if (running) return; // an export cannot be cancelled; keep the dialog until it ends
-    if (!o) { setError(null); setTemplate(null); setGetMore(false); if (format === "audiobook") { dismissAudio(); dismissVoiceDownload(); } }
+    if (!o) { cancelAudioSample(); stopSample(); setError(null); setTemplate(null); setGetMore(false); if (format === "audiobook") { dismissAudio(); dismissVoiceDownload(); } }
     onOpenChange(o);
   };
+  const stopSample = useCallback(() => {
+    const p = player.current;
+    player.current = null;
+    if (p) { p.el.pause(); URL.revokeObjectURL(p.url); }
+    setSample("idle");
+  }, []);
+  useEffect(() => () => { cancelAudioSample(); stopSample(); }, [cancelAudioSample, stopSample]);
+  const hear = async () => {
+    if (sample === "playing") return stopSample();
+    if (sample === "making") return cancelAudioSample();
+    setError(null);
+    setSample("making");
+    try {
+      const bytes = await hearAudioSample({ voice, speed, ...(audioChapters ? { chapterIds: audioChapters } : {}) });
+      if (!bytes) return setSample("idle");
+      const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "audio/wav" }));
+      const el = new Audio(url);
+      player.current = { el, url };
+      el.onended = stopSample;
+      el.onerror = stopSample;
+      setSample("playing");
+      await el.play();
+    } catch (e) {
+      stopSample();
+      setError(new PdfUiError("other", errText(e)));
+    }
+  };
   const startAudio = () => {
+    stopSample();
     setError(null);
     exportAudio({ voice, speed, formats: audioFormats, ...(audioChapters ? { chapterIds: audioChapters } : {}) }).catch((e) => setError(new PdfUiError("other", errText(e))));
   };
@@ -277,6 +309,9 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
               <Button variant="primary" onClick={() => change(false)}>{t`Done`}</Button>
             ) : (
               <>
+                <Button className="me-auto" icon={sample === "making" ? LoaderCircle : sample === "playing" ? Square : Play} disabled={!voice || audioChapters?.length === 0} onClick={() => void hear()}>
+                  {sample === "making" ? t`Making sample… (stop)` : sample === "playing" ? t`Stop sample` : t`Hear a sample`}
+                </Button>
                 <Button onClick={() => change(false)}>{t`Cancel`}</Button>
                 <Button type="submit" variant="primary" icon={Headphones} disabled={!voice || audioFormats.length === 0 || chapterCount === 0 || audioChapters?.length === 0}>{t`Export audiobook`}</Button>
               </>

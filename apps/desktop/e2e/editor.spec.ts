@@ -73,6 +73,17 @@ async function fakeTauri(page: Page) {
             return { files: a.request.formats.map((f: string) => ({ format: f, path: `${a.request.base}.${f}` })), durationSec: 60 };
           }
           case "audio_cancel": ((window as any).__audioReject)?.({ kind: "cancelled" }); ((window as any).__downloadReject)?.({ kind: "cancelled" }); return null;
+          case "audio_sample": {
+            const w = window as any;
+            (w.__sampleCalls ??= []).push(a.request);
+            if (w.__sampleError) throw w.__sampleError;
+            // 0.3 s of silence at 8 kHz, 16-bit mono.
+            const n = 2400, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+            const tag = (o: number, t: string) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+            tag(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); tag(8, "WAVE"); tag(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+            v.setUint32(24, 8000, true); v.setUint32(28, 16000, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); tag(36, "data"); v.setUint32(40, n * 2, true);
+            return buf;
+          }
           case "audio_forget": return null;
           case "audio_files_exist": return (a.paths as string[]).map(() => false);
           case "backup_manifest": return "backup";
@@ -477,6 +488,24 @@ test("Export audiobook renders the chapters with the chosen voice and formats an
   expect(call.base).toMatch(/^exports\/audio\/01-/);
   await dialog.getByRole("button", { name: "Done" }).click();
   await expect(dialog).toHaveCount(0);
+});
+
+test("Hear a sample renders a few sentences with the chosen voice, writes nothing and shows failures", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await dialog.getByLabel("Voice").selectOption("piper-amy");
+  await dialog.getByRole("button", { name: "Hear a sample" }).click();
+  await expect.poll(() => page.evaluate(() => (window as any).__sampleCalls?.length ?? 0)).toBe(1);
+  const call = await page.evaluate(() => (window as any).__sampleCalls[0]);
+  expect(call).toMatchObject({ voice: "piper-amy", speed: 1 });
+  expect(call.chunks.length).toBeGreaterThan(0);
+  await expect(dialog.getByRole("button", { name: "Hear a sample" })).toBeVisible();
+  expect(await page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith("exports/")))).toEqual([]);
+  await page.evaluate(() => { (window as any).__sampleError = { kind: "synth", message: "engine broke" }; });
+  await dialog.getByRole("button", { name: "Hear a sample" }).click();
+  await expect(dialog.getByRole("alert")).toContainText("engine broke");
 });
 
 test("Audiobook can be closed while it runs, shows a header chip, and Cancel stops it", async ({ page }) => {
