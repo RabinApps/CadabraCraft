@@ -12,7 +12,7 @@ import { trimLabel } from "../../lib/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
 import { Select } from "../../ui/Select";
 import { Switch } from "../../ui/Switch";
-import type { ExportFormat } from "./ExportDialog";
+import type { ExportFormat } from "./exportFormat";
 import { useProject, type BookPage } from "../../state/project/index";
 
 /** Width of one preview page in px. Height and everything inside are scaled from the trim size against it. */

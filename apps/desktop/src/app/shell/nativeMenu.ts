@@ -1,3 +1,4 @@
+import { errMsg } from "@cadabracraft/shared";
 import type { MenuEntry } from "./menuModel";
 
 /** The parts of `@tauri-apps/api/menu` this file uses, so a test can stand in for the operating system's menu. */
@@ -119,7 +120,7 @@ export function createNativeMenu(api: MenuApi, run: (id: string, arg?: string) =
     /** Shows `entries` as the application menu. Errors (no native menu, e.g. in a browser) are swallowed: the app works without it. */
     apply(entries: MenuEntry[]): Promise<void> {
       latest = entries;
-      queue = queue.then(() => update(entries).then(() => { failure = null; })).catch((e: unknown) => { failure = e instanceof Error ? e.message : String(e); });
+      queue = queue.then(() => update(entries).then(() => { failure = null; })).catch((e: unknown) => { failure = errMsg(e); });
       return queue;
     },
     /** The message of the last failed update, or null. Shown to a developer, never to the author. */
@@ -132,7 +133,7 @@ let shared: Promise<ReturnType<typeof createNativeMenu> | null> | null = null;
 
 /** Shows `entries` as the application menu, creating the native menu on first use. Does nothing outside the desktop app. */
 export function showNativeMenu(entries: MenuEntry[], run: (id: string, arg?: string) => boolean | void): Promise<void> {
-  shared ??= tauriMenuApi().then((api) => createNativeMenu(api, run), (e: unknown) => { unavailable = e instanceof Error ? e.message : String(e); return null; });
+  shared ??= tauriMenuApi().then((api) => createNativeMenu(api, run), (e: unknown) => { unavailable = errMsg(e); return null; });
   return shared.then(async (m) => {
     await m?.apply(entries);
     // For the automation scripts (dev builds only): what the menu was told to show, whether the system accepted it, and a way to

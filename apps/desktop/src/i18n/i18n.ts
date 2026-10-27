@@ -1,5 +1,6 @@
 import { i18n, type Messages } from "@lingui/core";
 import { create } from "zustand";
+import { readStored, writeStored } from "../lib/persisted";
 import { DEFAULT_LOCALE, dirFor, isLoadable, resolveLocale } from "./locales";
 
 const KEY = "cadabracraft.locale";
@@ -10,12 +11,8 @@ const catalogs = import.meta.glob<{ messages: Messages }>(
 
 /** App preference only; never stored in project files. */
 export function readLocale(): string {
-  try {
-    const v = localStorage.getItem(KEY);
-    if (v && isLoadable(v)) return v;
-  } catch {
-    /* storage unavailable: fall through to detection */
-  }
+  const v = readStored(KEY);
+  if (v && isLoadable(v)) return v;
   return resolveLocale(typeof navigator === "undefined" ? [] : navigator.languages);
 }
 
@@ -38,7 +35,7 @@ export const useLocale = create<{ locale: string; setLocale: (code: string) => P
     setLocale: async (code) => {
       if (!isLoadable(code)) return;
       await activateLocale(code);
-      try { localStorage.setItem(KEY, code); } catch { /* keep in memory */ }
+      writeStored(KEY, code);
       set({ locale: code });
     },
   }),

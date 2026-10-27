@@ -10,7 +10,8 @@ import { Field } from "../../ui/Input";
 import { bridge, type VoicePack } from "../../lib/bridge";
 import { describeAudioError } from "../../lib/audioErrors";
 import type { VoiceInfo } from "@cadabracraft/export-audio";
-import { AUDIO_FORMATS_ORDER, mb, useAudioLabels } from "../export/AudioExport";
+import { AUDIO_FORMATS, mb, toggleAudioFormat } from "../../lib/audioFormats";
+import { useAudioLabels } from "../hooks/useAudioLabels";
 import { Segmented } from "../../ui/Segmented";
 import { Select } from "../../ui/Select";
 import { languageOptions } from "../../ui/LanguagePicker";
@@ -18,7 +19,7 @@ import { Switch } from "../../ui/Switch";
 import { useTheme, type Theme } from "../../state/theme";
 import { useUpdates } from "../../state/updates";
 import type { AudioFormat } from "@cadabracraft/export-audio";
-import { MAX_SESSION_GOAL, SNAPSHOT_KEEP_MAX, SNAPSHOT_KEEP_MIN, cleanSnapshotKeep, useSettings, type ManuscriptFont, type RawHtmlPaste, type WritingWidth } from "../../state/editorPrefs";
+import { MAX_SESSION_GOAL, SNAPSHOT_KEEP_MAX, SNAPSHOT_KEEP_MIN, cleanSnapshotKeep, useSettings, type EditorFont, type RawHtmlPaste, type WritingWidth } from "../../state/editorPrefs";
 
 const sections = ["appearance", "general", "editor", "audio", "backups"] as const;
 
@@ -121,14 +122,14 @@ function AudioSection({ title, voice, formats, onVoice, onFormats }: {
         control={
           <fieldset className="flex gap-4">
             <legend className="sr-only">{t`Default formats`}</legend>
-            {AUDIO_FORMATS_ORDER().map((f) => (
+            {AUDIO_FORMATS.map((f) => (
               <Checkbox
                 key={f}
                 label={names.format(f).label}
                 checked={formats.includes(f)}
                 onChange={(e) => {
-                  const next = AUDIO_FORMATS_ORDER().filter((x) => (x === f ? e.target.checked : formats.includes(x)));
-                  if (next.length > 0) onFormats(next);
+                  const next = toggleAudioFormat(formats, f, e.target.checked);
+                  if (next) onFormats(next);
                 }}
               />
             ))}
@@ -225,7 +226,7 @@ export function Settings({ onBack }: { onBack: () => void }) {
                 hint={t`Used while writing and reading.`}
                 control={
                   <div className="w-56 max-sm:w-full">
-                    <Select label={t`Manuscript font`} hideLabel className="py-2" value={manuscriptFont} onChange={(e) => set({ manuscriptFont: e.target.value as ManuscriptFont })}>
+                    <Select label={t`Manuscript font`} hideLabel className="py-2" value={manuscriptFont} onChange={(e) => set({ manuscriptFont: e.target.value as EditorFont })}>
                       <option value="newsreader">Newsreader</option>
                       <option value="inter">Inter</option>
                     </Select>

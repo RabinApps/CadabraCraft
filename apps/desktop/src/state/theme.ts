@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { readStored, writeStored } from "../lib/persisted";
 
 export type Theme = "system" | "light" | "dark";
 const KEY = "cadabracraft.theme";
@@ -7,12 +8,8 @@ const isTheme = (v: unknown): v is Theme => v === "system" || v === "light" || v
 
 /** App preference only; never stored in project files. */
 export function readTheme(): Theme {
-  try {
-    const v = localStorage.getItem(KEY);
-    return isTheme(v) ? v : "system";
-  } catch {
-    return "system";
-  }
+  const v = readStored(KEY);
+  return isTheme(v) ? v : "system";
 }
 
 const dark = () => window.matchMedia("(prefers-color-scheme: dark)");
@@ -27,7 +24,7 @@ dark().addEventListener("change", () => { if (useTheme.getState().theme === "sys
 export const useTheme = create<{ theme: Theme; setTheme: (t: Theme) => void }>((set) => ({
   theme: readTheme(),
   setTheme: (theme) => {
-    try { localStorage.setItem(KEY, theme); } catch { /* storage unavailable: keep in memory */ }
+    writeStored(KEY, theme);
     applyTheme(theme);
     set({ theme });
   },

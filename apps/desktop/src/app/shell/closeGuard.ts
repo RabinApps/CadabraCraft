@@ -1,3 +1,5 @@
+import { errMsg } from "@cadabracraft/shared";
+
 /** What the close handler needs from the app, so it can be tested without a window. */
 export interface CloseGuard {
   /** True while typing sits unsaved in the editor. */
@@ -30,7 +32,7 @@ export function createCloseHandler(guard: CloseGuard, destroy: () => Promise<voi
       await guard.flush();
     } catch (err) {
       failed = true;
-      guard.onSaveFailed(err instanceof Error ? err.message : String(err));
+      guard.onSaveFailed(errMsg(err));
       return;
     }
     await destroy();

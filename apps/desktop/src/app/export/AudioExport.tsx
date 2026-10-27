@@ -7,33 +7,9 @@ import { Segmented } from "../../ui/Segmented";
 import { Select } from "../../ui/Select";
 import { cx } from "../../ui/cx";
 import type { VoicePack } from "../../lib/bridge";
+import { AUDIO_FORMATS, AUDIO_SPEEDS, mb, toggleAudioFormat } from "../../lib/audioFormats";
+import { useAudioLabels } from "../hooks/useAudioLabels";
 import type { AudioJob, VoiceDownload } from "../../state/project/index";
-
-export const AUDIO_SPEEDS = [0.9, 1, 1.1, 1.25] as const;
-
-export const AUDIO_FORMATS_ORDER = (): AudioFormat[] => FORMATS;
-
-/** Display order of the formats; the order the files are written in too. */
-const FORMATS: AudioFormat[] = ["opus", "flac", "wav"];
-
-/** The first installed voice: the catalog lists the best quality one first. */
-export const defaultVoice = (voices: VoiceInfo[]): string => voices.find((v) => v.installed)?.id ?? "";
-
-/** Download sizes are shown in decimal megabytes, like the operating system does. */
-export const mb = (bytes: number): number => Math.max(1, Math.round(bytes / 1e6));
-
-export function useAudioLabels() {
-  const { t } = useLingui();
-  const voice = (id: string): string =>
-    id === "kokoro-heart" ? t`Kokoro · Heart (best quality)` : id === "piper-amy" ? t`Piper · Amy (fast)` : id === "piper-libritts-0" ? t`Piper · LibriTTS (fast)` : id;
-  const format = (f: AudioFormat) =>
-    f === "opus"
-      ? { label: t`Opus`, hint: t`Small files, about 14 MB per hour. Plays on phones and modern players.` }
-      : f === "flac"
-      ? { label: t`FLAC`, hint: t`Lossless, about 60% of the size of WAV.` }
-      : { label: t`WAV`, hint: t`Lossless and large: about 1.7 GB per 10 hours.` };
-  return { voice, format };
-}
 
 /** The Audiobook mode of the Export dialog: voice, speed, formats and a note about stores. Matches "Export Audiobook" in the pen. */
 export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, onFormats, chapters, picked, onPicked, disabled, moreBytes, onMore }: {
@@ -65,7 +41,7 @@ export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, o
       <Segmented<string> label={t`Speed`} value={String(speed)} onChange={(v) => onSpeed(Number(v))} items={AUDIO_SPEEDS.map((s) => ({ value: String(s), label: `${s}×` }))} />
       <fieldset className="flex flex-col gap-2.5" disabled={disabled}>
         <legend className="mb-1 text-xs font-semibold text-ink-muted">{t`Formats`}</legend>
-        {FORMATS.map((f) => {
+        {AUDIO_FORMATS.map((f) => {
           const { label, hint } = names.format(f);
           const on = formats.includes(f);
           return (
@@ -76,8 +52,8 @@ export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, o
               checked={on}
               disabled={disabled}
               onChange={(e) => {
-                const next = FORMATS.filter((x) => (x === f ? e.target.checked : formats.includes(x)));
-                if (next.length > 0) onFormats(next); // at least one format stays chosen
+                const next = toggleAudioFormat(formats, f, e.target.checked);
+                if (next) onFormats(next); // at least one format stays chosen
               }}
             />
           );

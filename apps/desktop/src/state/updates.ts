@@ -1,17 +1,14 @@
 import type { Update } from "@tauri-apps/plugin-updater";
 import { create } from "zustand";
 import { bridge } from "../lib/bridge";
+import { readStored, writeStored } from "../lib/persisted";
 import { errText } from "../lib/projectError";
 
 const KEY = "cadabracraft.updates";
 
 /** "Check for updates on launch" is on unless the author switched it off. App preference only; never stored in project files. */
-function readCheckOnLaunch(): boolean {
-  try { return localStorage.getItem(KEY) !== "off"; } catch { return true; }
-}
-function writeCheckOnLaunch(on: boolean) {
-  try { localStorage.setItem(KEY, on ? "on" : "off"); } catch { /* keep it for this session only */ }
-}
+const readCheckOnLaunch = (): boolean => readStored(KEY) !== "off";
+const writeCheckOnLaunch = (on: boolean) => writeStored(KEY, on ? "on" : "off");
 
 export type UpdateStatus =
   | { kind: "idle" }

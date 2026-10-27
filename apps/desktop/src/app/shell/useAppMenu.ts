@@ -12,7 +12,7 @@ import { showNativeMenu } from "./nativeMenu";
 import { useRecents } from "../../state/recents";
 import { useUpdates } from "../../state/updates";
 import { SPONSOR_URL } from "../../state/sponsor";
-import type { ExportFormat } from "../export/ExportDialog";
+import type { ExportFormat } from "../export/exportFormat";
 import { useProject } from "../../state/project/index";
 
 type View = "book" | "settings" | "templates" | "print";

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { readStored, writeStored } from "../lib/persisted";
 
 const KEY = "cadabracraft.sponsor";
 
@@ -6,12 +7,8 @@ const KEY = "cadabracraft.sponsor";
 export const SPONSOR_URL = "https://github.com/sponsors/RabinApps";
 
 /** "Don't show again" is an app preference only; never stored in project files. */
-function readHidden(): boolean {
-  try { return localStorage.getItem(KEY) === "hidden"; } catch { return false; }
-}
-function writeHidden() {
-  try { localStorage.setItem(KEY, "hidden"); } catch { /* keep it for this session only */ }
-}
+const readHidden = (): boolean => readStored(KEY) === "hidden";
+const writeHidden = () => writeStored(KEY, "hidden");
 
 interface Sponsor {
   /** Set while the dialog is open: what was just exported (`exports/book.epub`). */

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { readStored, writeStored } from "../lib/persisted";
 
 const KEY = "cadabracraft.recents";
 export const MAX_RECENTS = 8;
@@ -29,13 +30,8 @@ export function parseRecents(raw: string | null, max = MAX_RECENTS): Recent[] {
   } catch { return []; }
 }
 
-function read(): Recent[] {
-  try { return parseRecents(localStorage.getItem(KEY)); } catch { return []; }
-}
-
-function write(list: Recent[]) {
-  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* storage unavailable: keep in memory */ }
-}
+const read = (): Recent[] => parseRecents(readStored(KEY));
+const write = (list: Recent[]) => writeStored(KEY, JSON.stringify(list));
 
 /** Recently opened projects. App preference only: absolute paths live here, never in project files. */
 export const useRecents = create<{ recents: Recent[]; add: (root: string, title: string) => void; remove: (root: string) => void; clear: () => void }>((set, get) => ({
