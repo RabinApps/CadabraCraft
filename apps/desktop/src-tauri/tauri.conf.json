@@ -43,7 +43,7 @@
     "active": true,
     "targets": "all",
     "icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"],
-    "externalBin": ["binaries/typst"],
+    "externalBin": ["binaries/typst", "binaries/sherpa-onnx-offline-tts"],
     "resources": { "binaries/fonts/*": "fonts/", "binaries/licenses/*": "licenses/", "licenses/*": "licenses/" },
     "windows": { "webviewInstallMode": { "type": "embedBootstrapper" } }
   },

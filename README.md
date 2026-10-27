@@ -28,7 +28,7 @@ CadabraCraft is for authors who want to write a whole book in one place and publ
 
 ## Install
 
-There is **no release yet**, so there is no installer to download. Today you can build the app from source (the commands are under [Quick start](#quick-start): install the prerequisites, run `scripts/fetch-typst.sh` once, then `pnpm install` and `pnpm tauri dev`).
+There is **no release yet**, so there is no installer to download. Today you can build the app from source (the commands are under [Quick start](#quick-start): install the prerequisites, run `scripts/fetch-typst.sh` and `scripts/fetch-sherpa.sh` once, then `pnpm install` and `pnpm tauri dev`).
 
 Once releases exist, they will be published on GitHub Releases for macOS, Windows and Linux (AppImage). Be aware that macOS notarization and Windows code signing are **not set up yet**, so the first releases will make your operating system warn that the app is from an unidentified developer or an unrecognised publisher, and you will have to confirm that you want to open it. The app checks GitHub Releases for newer versions at launch (switchable in Settings); that is its only network request.
 
@@ -60,7 +60,7 @@ Ideas outside the current milestone live in [docs/roadmap.md](docs/roadmap.md).
 
 ## Quick start
 
-Prerequisites: Node 24, pnpm 11, Rust (stable). Run `scripts/fetch-typst.sh` once (downloads the Typst sidecar and Inter fonts the app bundles; also needed before `cargo test`), Java 17 for EPUBCheck, poppler for the PDF integration tests, and Playwright's Chromium for e2e.
+Prerequisites: Node 24, pnpm 11, Rust (stable). Run `scripts/fetch-typst.sh` once (downloads the Typst sidecar and Inter fonts the app bundles; also needed before `cargo test`) and `scripts/fetch-sherpa.sh` (the text-to-speech program for audiobook export, one 200 to 400 MB download that leaves a 30 MB program; also needed before `cargo test`), Java 17 for EPUBCheck, poppler for the PDF integration tests, and Playwright's Chromium for e2e.
 
 ```bash
 pnpm install

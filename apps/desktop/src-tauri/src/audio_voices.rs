@@ -580,8 +580,9 @@ mod tests {
         assert_eq!(count.load(Ordering::Relaxed), 3);
     }
 
-    /// Downloads every pack (about 510 MB) and renders a sentence with each voice through the real engine, which is
-    /// the app's path end to end. Opt in with `CADABRA_NET_TESTS=full`, and `SHERPA_TTS_BIN` for the rendering.
+    /// Downloads every pack (about 510 MB; `CADABRA_NET_PACKS=piper` limits it to one pack, 148 MB) and renders a sentence
+    /// with each of their voices through the real engine, which is the app's path end to end. Opt in with
+    /// `CADABRA_NET_TESTS=full`, and `SHERPA_TTS_BIN` for the rendering. CI runs it with the bundled engine.
     #[test]
     fn real_packs_download_and_then_speak() {
         if std::env::var("CADABRA_NET_TESTS").as_deref() != Ok("full") {
@@ -593,19 +594,23 @@ mod tests {
         fs::create_dir_all(&book).unwrap();
         fs::write(book.join("cadabra.json"), "{}").unwrap();
         let client = build_client().unwrap();
-        for pack in PACKS {
+        let only = std::env::var("CADABRA_NET_PACKS").ok();
+        let packs: Vec<&Pack> = PACKS.iter().filter(|p| only.as_deref().is_none_or(|o| o == p.id)).collect();
+        assert!(!packs.is_empty(), "CADABRA_NET_PACKS names no pack");
+        for pack in &packs {
             let last = Mutex::new(0u64);
             let r = tauri::async_runtime::block_on(download_pack(&client, pack, &voices, &AtomicBool::new(false), &|p| *last.lock().unwrap() = p.done));
             assert_eq!(r, Ok(()), "{}", pack.id);
             assert_eq!(*last.lock().unwrap(), pack.bytes());
             assert!(pack.installed(&voices));
         }
-        assert_eq!(crate::audio::list_voices(Some(&voices)).iter().filter(|v| v.installed).count(), crate::audio::VOICES.len());
+        let expected: Vec<&str> = packs.iter().flat_map(|p| p.voices.iter().copied()).collect();
+        assert_eq!(crate::audio::list_voices(Some(&voices)).iter().filter(|v| v.installed).count(), expected.len());
         let Ok(bin) = crate::audio::find_sherpa() else {
             eprintln!("downloaded; skipping the render: no engine (SHERPA_TTS_BIN)");
             return;
         };
-        for voice in crate::audio::VOICES {
+        for voice in crate::audio::VOICES.iter().filter(|v| expected.contains(&v.id)) {
             let req = crate::audio::ChapterRequest { job_id: "dl".into(), root: book.to_string_lossy().into_owned(), base: format!("exports/audio/{}", voice.id), chunks: vec![crate::audio::Chunk { text: "The quay was empty. A gull cried once.".into(), pause_after_ms: 600 }], voice: voice.id.into(), speed: 1.0, formats: vec!["opus".into(), "flac".into()] };
             let done = crate::audio::render_chapter(&req, &bin, Some(&voices), &AtomicBool::new(false), &|_| {}).unwrap();
             assert!(done.duration_sec > 1.0 && done.duration_sec < 30.0, "{}: {}", voice.id, done.duration_sec);

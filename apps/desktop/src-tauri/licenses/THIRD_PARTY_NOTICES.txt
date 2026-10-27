@@ -2,7 +2,7 @@ CadabraCraft third-party notices
 ================================
 
 CadabraCraft ships the following programs, fonts and libraries with the app. Each keeps its own license; the full
-texts are in this folder (Typst and the audio libraries) and in the "fonts" folder (Inter).
+texts are in this folder (Typst, sherpa-onnx, ONNX Runtime and the audio libraries) and in the "fonts" folder (Inter).
 
 Typst 0.15.1 (the "typst" program used for print PDF export)
   Copyright the Typst Contributors. Licensed under the Apache License, Version 2.0.
@@ -13,6 +13,18 @@ Inter 4.1 (Regular, Italic, Bold, Bold Italic; used by the "Modern Memoir" templ
   Copyright The Inter Project Authors. Licensed under the SIL Open Font License, Version 1.1.
   Source: https://github.com/rsms/inter
   License: ../fonts/LICENSE.txt
+
+sherpa-onnx 2.0.1 (the "sherpa-onnx-offline-tts" program that reads the book aloud; Kokoro and Piper voices run in it)
+  Copyright the sherpa-onnx authors (Xiaomi Corporation and contributors). Licensed under the Apache License, Version 2.0.
+  Source: https://github.com/k2-fsa/sherpa-onnx
+  License: Sherpa-onnx-LICENSE.txt
+  The program is a static build with ONNX Runtime 1.28.2 linked in. ONNX Runtime: Copyright (c) Microsoft Corporation, MIT License.
+  Source: https://github.com/microsoft/onnxruntime    License: Onnxruntime-LICENSE.txt
+  The static build also contains the other small libraries sherpa-onnx builds from source (for example kaldi-native-fbank,
+  OpenFst, Eigen, nlohmann/json, utf8proc and simple-sentencepiece), each under its own permissive license; their names and
+  licenses are in the sherpa-onnx repository (cmake/ and its README) at the version above.
+  The voices (Kokoro-82M, Piper voices such as LibriTTS-R) are not part of the installer: the app downloads them when the
+  author asks to, and each keeps its own license (see "Voice download" in the architecture notes).
 
 Audio file encoders (compiled into the app; used by audiobook export)
 flacenc 0.5.1: Copyright Yotaro Kubo. Licensed under the Apache License, Version 2.0.

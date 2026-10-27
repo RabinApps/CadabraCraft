@@ -56,5 +56,18 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: mkdir -p apps/desktop/dist
       - run: bash scripts/fetch-typst.sh
+      - run: bash scripts/fetch-sherpa.sh
       - run: cargo test
+        working-directory: apps/desktop/src-tauri
+      # End to end on every OS: download the Piper voices (148 MB) over TLS, check their hashes, and speak a sentence into
+      # Opus and FLAC with the bundled engine. It is the only place the Windows and Linux engine builds are run.
+      - name: Voice download and bundled engine
+        shell: bash
+        run: |
+          triple=$(rustc -vV | sed -n 's/^host: //p')
+          exe=""; [[ $triple == *windows* ]] && exe=".exe"
+          export SHERPA_TTS_BIN="$PWD/binaries/sherpa-onnx-offline-tts-$triple$exe"
+          [[ $triple == *windows* ]] && SHERPA_TTS_BIN=$(cygpath -w "$SHERPA_TTS_BIN")
+          export CADABRA_NET_TESTS=full CADABRA_NET_PACKS=piper
+          cargo test --lib real_packs -- --nocapture
         working-directory: apps/desktop/src-tauri
