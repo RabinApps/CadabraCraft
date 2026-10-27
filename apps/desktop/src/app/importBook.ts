@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
 import { addChapter, createManifest, serializeManifest } from "@cadabracraft/format";
-import { ImportError, importDocx, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
+import { ImportError, importDocx, importHtml, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../lib/bridge";
 import { errText } from "../lib/projectError";
@@ -98,7 +98,7 @@ export interface ImportChoices { splitHeadingLevel?: 1 | 2 | 3; edits?: ChapterE
 /** Reads the source (read-only). Nothing is parsed yet. */
 export async function loadImport(sourcePath: string): Promise<LoadedSource> {
   const ext = /\.([^.]+)$/.exec(baseName(sourcePath))?.[1]?.toLowerCase() ?? "";
-  if (!["docx", "md", "markdown", "txt"].includes(ext)) throw new Error(t`Choose a .docx, .md or .markdown file.`);
+  if (!["docx", "md", "markdown", "html", "htm", "txt"].includes(ext)) throw new Error(t`Choose a .docx, .md, .markdown or .html file.`);
   return { ext, bytes: await bridge.readImportSource(sourcePath) };
 }
 
@@ -106,9 +106,10 @@ export async function loadImport(sourcePath: string): Promise<LoadedSource> {
 export function parseImport(src: LoadedSource, splitHeadingLevel: 1 | 2 | 3 = 1): ImportResult {
   let result: ImportResult;
   try {
-    result = src.ext === "docx"
-      ? importDocx(src.bytes, { splitHeadingLevel })
-      : importMarkdown(new TextDecoder("utf-8").decode(src.bytes).replace(/^\uFEFF/, ""), { splitHeadingLevel });
+    const text = () => new TextDecoder("utf-8").decode(src.bytes).replace(/^\uFEFF/, "");
+    result = src.ext === "docx" ? importDocx(src.bytes, { splitHeadingLevel })
+      : src.ext === "html" || src.ext === "htm" ? importHtml(text(), { splitHeadingLevel })
+      : importMarkdown(text(), { splitHeadingLevel });
   } catch (e) {
     if (e instanceof ImportError) throw new Error(describeImportError(e));
     throw e;

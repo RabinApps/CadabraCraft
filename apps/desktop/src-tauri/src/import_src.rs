@@ -6,7 +6,7 @@ use std::path::{Component, Path, PathBuf};
 type Result<T> = std::result::Result<T, ProjectError>;
 
 /// Document types the importer understands.
-pub const IMPORT_EXTENSIONS: [&str; 4] = ["docx", "md", "markdown", "txt"];
+pub const IMPORT_EXTENSIONS: [&str; 6] = ["docx", "md", "markdown", "html", "htm", "txt"];
 /// Largest source document accepted, in bytes.
 pub const MAX_IMPORT_BYTES: u64 = 200 * 1024 * 1024;
 
@@ -74,11 +74,11 @@ mod tests {
     #[test]
     fn reads_allowed_sources_and_leaves_them_untouched() {
         let d = tempfile::tempdir().unwrap();
-        for n in ["a.docx", "b.MD", "c.markdown", "d.txt"] {
+        for n in ["a.docx", "b.MD", "c.markdown", "d.txt", "e.html", "f.HTM"] {
             fs::write(d.path().join(n), b"x").unwrap();
             assert_eq!(read_source(&d.path().join(n)).unwrap(), b"x", "{n}");
         }
-        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 4, "no files were added");
+        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 6, "no files were added");
     }
 
     #[test]

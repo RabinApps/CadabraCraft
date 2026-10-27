@@ -52,7 +52,7 @@ export function projectErrorMessage(e: ProjectError): string {
     case "not_a_file": return t`${e.path} is not a file`;
     case "unsupported_image": return t`Unsupported image type: ${e.name}`;
     case "invalid_image": return t`${e.name} is not a valid ${e.ext} image`;
-    case "unsupported_document": return t`${e.name} is not a .docx, .md, .markdown or .txt file`;
+    case "unsupported_document": return t`${e.name} is not a .docx, .md, .markdown, .html, .htm or .txt file`;
     case "not_image_asset": return t`Not an image in the assets folder: ${e.path}`;
     case "not_trash_path": return t`Not a page in the trash: ${e.path}`;
     case "cannot_restore": return t`Cannot restore ${e.path}`;

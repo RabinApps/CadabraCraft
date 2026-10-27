@@ -86,7 +86,7 @@ describe("readAsset", () => {
 describe("readSource", () => {
   it("reads allowed sources and adds nothing next to them", () => {
     const d = tmp();
-    for (const n of ["a.docx", "b.MD", "c.markdown", "d.txt"]) {
+    for (const n of ["a.docx", "b.MD", "c.markdown", "d.txt", "e.html", "f.HTM"]) {
       writeFileSync(join(d, n), "x");
       expect(new TextDecoder().decode(readSource(join(d, n))), n).toBe("x");
     }

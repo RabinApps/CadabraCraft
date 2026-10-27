@@ -36,8 +36,8 @@ msgstr "{0} is larger than {1} MB"
 
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
-msgid "{0} is not a .docx, .md, .markdown or .txt file"
-msgstr "{0} is not a .docx, .md, .markdown or .txt file"
+msgid "{0} is not a .docx, .md, .markdown, .html, .htm or .txt file"
+msgstr "{0} is not a .docx, .md, .markdown, .html, .htm or .txt file"
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
@@ -435,8 +435,8 @@ msgid "Checks"
 msgstr "Checks"
 
 #: src/app/importBook.ts
-msgid "Choose a .docx, .md or .markdown file."
-msgstr "Choose a .docx, .md or .markdown file."
+msgid "Choose a .docx, .md, .markdown or .html file."
+msgstr "Choose a .docx, .md, .markdown or .html file."
 
 #: src/app/App.tsx
 msgid "Choose a chapter to start."
@@ -562,8 +562,8 @@ msgid "Create book"
 msgstr "Create book"
 
 #: src/app/ImportDialogs.tsx
-msgid "Creates a new book from a Word (.docx) or Markdown file. The original file is never changed."
-msgstr "Creates a new book from a Word (.docx) or Markdown file. The original file is never changed."
+msgid "Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed."
+msgstr "Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed."
 
 #: src/app/ExportDialog.tsx
 msgid "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."

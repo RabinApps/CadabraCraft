@@ -57,7 +57,7 @@ impl fmt::Display for ProjectError {
             NotAFile { path } => write!(f, "{path} is not a file"),
             UnsupportedImage { name } => write!(f, "unsupported image type: {name}"),
             InvalidImage { name, ext } => write!(f, "{name} is not a valid {ext} image"),
-            UnsupportedDocument { name } => write!(f, "{name} is not a .docx, .md, .markdown or .txt file"),
+            UnsupportedDocument { name } => write!(f, "{name} is not a .docx, .md, .markdown, .html, .htm or .txt file"),
             NotImageAsset { path } => write!(f, "not an image asset: {path}"),
             NotTrashPath { path } => write!(f, "not a trash path: {path}"),
             CannotRestore { path } => write!(f, "cannot restore {path}"),

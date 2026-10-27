@@ -36,7 +36,7 @@ msgstr ""
 
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
-msgid "{0} is not a .docx, .md, .markdown or .txt file"
+msgid "{0} is not a .docx, .md, .markdown, .html, .htm or .txt file"
 msgstr ""
 
 #. placeholder {0}: e.path
@@ -435,7 +435,7 @@ msgid "Checks"
 msgstr ""
 
 #: src/app/importBook.ts
-msgid "Choose a .docx, .md or .markdown file."
+msgid "Choose a .docx, .md, .markdown or .html file."
 msgstr ""
 
 #: src/app/App.tsx
@@ -562,7 +562,7 @@ msgid "Create book"
 msgstr ""
 
 #: src/app/ImportDialogs.tsx
-msgid "Creates a new book from a Word (.docx) or Markdown file. The original file is never changed."
+msgid "Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed."
 msgstr ""
 
 #: src/app/ExportDialog.tsx

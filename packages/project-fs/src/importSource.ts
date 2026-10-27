@@ -6,7 +6,7 @@ import { ProjectFsError, fsError } from "./errors";
 import { fileBaseName, fileExtension, isInside } from "./paths";
 
 /** Document types the importer understands. */
-export const IMPORT_EXTENSIONS = ["docx", "md", "markdown", "txt"] as const;
+export const IMPORT_EXTENSIONS = ["docx", "md", "markdown", "html", "htm", "txt"] as const;
 /** Largest source document accepted, in bytes. */
 export const MAX_IMPORT_BYTES = 200 * 1024 * 1024;
 const MAX_IMPORT_MB = MAX_IMPORT_BYTES / 1024 / 1024;
@@ -16,7 +16,7 @@ export function readSource(path: string): Uint8Array {
   const name = fileBaseName(path);
   const ext = fileExtension(path) ?? "";
   if (!name || !(IMPORT_EXTENSIONS as readonly string[]).includes(ext)) {
-    throw new ProjectFsError("unsupported_source", `${name || path} is not a .docx, .md, .markdown or .txt file`);
+    throw new ProjectFsError("unsupported_source", `${name || path} is not a .docx, .md, .markdown, .html, .htm or .txt file`);
   }
   try {
     const st = statSync(path);

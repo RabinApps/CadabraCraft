@@ -57,10 +57,10 @@ export const bridge = {
   pickImportSource: async (): Promise<string | null> => {
     const queued = await queuedDialog();
     if (queued !== undefined) return queued;
-    const r = await open({ multiple: false, directory: false, filters: [{ name: "Documents", extensions: ["docx", "md", "markdown"] }] });
+    const r = await open({ multiple: false, directory: false, filters: [{ name: "Documents", extensions: ["docx", "md", "markdown", "html", "htm"] }] });
     return typeof r === "string" ? r : null;
   },
-  /** Bytes of the picked document (docx/md/markdown/txt, at most 200 MB). */
+  /** Bytes of the picked document (docx/md/markdown/html/htm/txt, at most 200 MB). */
   readImportSource: (path: string) => binary(invoke<RawBytes>("read_import_source", { path })),
   /** Bytes of an image a Markdown file references, resolved inside that file's folder (rejects `..`, absolute paths, symlink escapes). */
   readImportImage: (sourceFile: string, reference: string) => binary(invoke<RawBytes>("read_import_image", { sourceFile, reference })),

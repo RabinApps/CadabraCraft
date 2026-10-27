@@ -110,7 +110,7 @@ pub async fn import_asset(root: String, source: String) -> Result<String, Projec
     blocking(move || project::import_image(&project::require_project(&PathBuf::from(root))?, &PathBuf::from(source))).await
 }
 
-/// Bytes of a document the user picked for import (.docx/.md/.markdown/.txt, at most 200 MB). Read-only.
+/// Bytes of a document the user picked for import (.docx/.md/.markdown/.html/.htm/.txt, at most 200 MB). Read-only.
 #[tauri::command]
 pub async fn read_import_source(path: String) -> Result<Response, ProjectError> {
     blocking(move || crate::import_src::read_source(&PathBuf::from(path))).await.map(Response::new)

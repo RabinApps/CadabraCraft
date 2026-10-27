@@ -28,7 +28,7 @@ vi.mock("../lib/bridge", () => ({
 }));
 
 import { useProject } from "./store";
-import { applyChapterEdits, groupWarnings, parseImport } from "./importBook";
+import { applyChapterEdits, groupWarnings, loadImport, parseImport } from "./importBook";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
@@ -126,6 +126,22 @@ describe("importBook", () => {
     await a().importBook("/src/b.md", "/new", "B", "Me");
     a().dismissImportReport();
     expect(s().importReport).toBeNull();
+  });
+});
+
+describe("html import", () => {
+  it("imports .html files, reads relative images, refuses remote ones and rejects other extensions", async () => {
+    sources.set("/src/page.html", enc('<html><head><title>T</title><script>evil()</script></head><body><h1>Alpha</h1><p>Some <b>bold</b>.</p><img src="img/pixel.png" alt="P"><img src="https://x.test/r.png" alt="R"></body></html>'));
+    images.set("/src/page.html|img/pixel.png", PNG_BYTES);
+    await a().importBook("/src/page.html", "/new", "Page", "Me");
+    expect(s().manifest!.chapters.map((c) => c.title)).toEqual(["Alpha"]);
+    const doc = disk.get("manuscript/001-alpha.json")!;
+    expect(doc).toContain("bold");
+    expect(doc).not.toContain("evil");
+    expect(assets.size).toBe(1);
+    expect(s().importReport!.warnings.some((w) => w.code === "remote-image")).toBe(true);
+    sources.set("/src/x.xyz", enc("x"));
+    await expect(loadImport("/src/x.xyz")).rejects.toThrow(".html");
   });
 });
 

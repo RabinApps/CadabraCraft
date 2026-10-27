@@ -3,22 +3,24 @@ import { PNG_BYTES, TINY_MD, tinyDocx } from "./fixtures";
 
 // Same idea as editor.spec.ts: the Tauri commands are faked in memory. Here the fake also serves the "source files"
 // that the native picker would have returned, and records every command so we can assert the source is never written.
-interface Fixtures { md: number[]; docx: number[]; png: number[] }
+interface Fixtures { md: number[]; docx: number[]; png: number[]; html: number[] }
 const fixtures = (): Fixtures => ({
   md: Array.from(new TextEncoder().encode(TINY_MD)),
   docx: Array.from(tinyDocx({ image: true })),
   png: Array.from(PNG_BYTES),
+  html: Array.from(new TextEncoder().encode('<html><head><title>Web Page</title><script>stealCookies()</script></head><body><h1>Gamma</h1><p>Plain and <strong>strong</strong> text. <blink>x</blink></p></body></html>')),
 });
 
-async function fakeTauri(page: Page, pick: "md" | "docx" | "broken") {
+async function fakeTauri(page: Page, pick: "md" | "docx" | "html" | "broken") {
   await page.addInitScript(([f, which]: [Fixtures, string]) => {
     if (!localStorage.getItem("cadabracraft.locale")) localStorage.setItem("cadabracraft.locale", "en");
     const sources: Record<string, number[]> = {
       "/src/My_Book.md": f.md,
       "/src/book.docx": f.docx,
+      "/src/page.html": f.html,
       "/src/broken.docx": Array.from(new TextEncoder().encode("not a zip")),
     };
-    const pickedSource = which === "md" ? "/src/My_Book.md" : which === "docx" ? "/src/book.docx" : "/src/broken.docx";
+    const pickedSource = which === "md" ? "/src/My_Book.md" : which === "docx" ? "/src/book.docx" : which === "html" ? "/src/page.html" : "/src/broken.docx";
     const disk: Record<string, string | number[]> = {};
     const calls: { cmd: string; args: any }[] = [];
     const h = (s: string) => `${s.length}:${s.slice(0, 50)}`;
@@ -107,6 +109,21 @@ test("importing a DOCX works the same way", async ({ page }) => {
   await report.getByRole("button", { name: "Done" }).click();
   await expect(chapterNav(page).getByRole("button", { name: "Dawn", exact: true })).toBeVisible();
   await expect(chapterNav(page).getByRole("button", { name: "Dusk", exact: true })).toBeVisible();
+});
+
+test("importing an HTML file keeps headings and bold text, drops scripts and reports what was lost", async ({ page }) => {
+  await fakeTauri(page, "html");
+  const dialog = await startImport(page);
+  await dialog.getByRole("button", { name: "Import", exact: true }).click();
+  const report = page.getByRole("dialog", { name: "Import report" });
+  await expect(report).toContainText("Imported 1 chapter from page.html.");
+  await expect(report.getByRole("region", { name: "Import warnings" })).toContainText("Unsupported HTML elements");
+  await report.getByRole("button", { name: "Done" }).click();
+  await expect(chapterNav(page).getByRole("button", { name: "Gamma", exact: true })).toBeVisible();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Gamma");
+  await expect(page.locator(".ProseMirror strong")).toHaveText("strong");
+  const saved = await page.evaluate(() => JSON.stringify((window as any).__disk));
+  expect(saved).not.toContain("stealCookies");
 });
 
 test("an unreadable file shows the error in the dialog and creates no project", async ({ page }) => {

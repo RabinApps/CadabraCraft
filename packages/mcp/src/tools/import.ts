@@ -4,7 +4,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { addChapter, createManifest, serializeManifest } from "@cadabracraft/format";
-import { ImportError, importDocx, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
+import { ImportError, importDocx, importHtml, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
 import { MANIFEST, ProjectFsError, createProject, fileBaseName, readRelativeImage, readSource, resolveInWorkspace, storeImage, writeProjectFile } from "@cadabracraft/project-fs";
 import { remapImages } from "../doc";
 import { ToolError } from "../errors";
@@ -60,7 +60,7 @@ function checkDestination(dest: string): void {
 export const importFile = defineTool({
   name: "cadabra_import_file",
   title: "Import manuscript",
-  description: "Import a Markdown (.md/.markdown/.txt) or Word (.docx) manuscript into a NEW project folder. Chapters split on top-level headings; images are copied into assets/. The source is never modified; the destination must not exist or be an empty folder. Returns a grouped warning report of anything that could not be kept (see cadabra://docs/import).",
+  description: "Import a Markdown (.md/.markdown/.txt), HTML (.html/.htm) or Word (.docx) manuscript into a NEW project folder. Chapters split on top-level headings; images are copied into assets/. The source is never modified; the destination must not exist or be an empty folder. Returns a grouped warning report of anything that could not be kept (see cadabra://docs/import).",
   input: {
     source: z.string().min(1).describe("Manuscript file, relative to the workspace root or an absolute path inside it."),
     destination: z.string().min(1).describe("New project folder (nonexistent or empty)."),
@@ -82,9 +82,11 @@ export const importFile = defineTool({
       throw e;
     }
     const isDocx = /\.docx$/i.test(sourcePath);
+    const isHtml = /\.html?$/i.test(sourcePath);
+    const text = () => new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, "");
     let result: ImportResult;
     try {
-      result = isDocx ? importDocx(bytes) : importMarkdown(new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, ""));
+      result = isDocx ? importDocx(bytes) : isHtml ? importHtml(text()) : importMarkdown(text());
     } catch (e) {
       if (e instanceof ImportError) throw new ToolError("import_failed", `${e.message} (${e.code})`, { importCode: e.code });
       throw e;

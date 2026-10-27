@@ -75,7 +75,7 @@ export function ImportDialog({ open, onOpenChange, pickSource, pickFolder, onImp
   };
   const errorBox = error && <p role="alert" className="max-h-40 overflow-y-auto break-words rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>;
   return (
-    <Modal open={open} onOpenChange={change} title={t`Import a manuscript`} description={t`Creates a new book from a Word (.docx) or Markdown file. The original file is never changed.`}>
+    <Modal open={open} onOpenChange={change} title={t`Import a manuscript`} description={t`Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed.`}>
       {!preview ? (
         <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); if (ready) next(); }}>
           <PickRow label={t`File`} value={source ? baseName(source) : ""} placeholder={t`No file chosen`} button={t`Choose file…`} icon={FileUp} onPick={() => pick(pickSource, (p) => { setSource(p); setTitle((cur) => cur || titleFromFile(p)); })} />

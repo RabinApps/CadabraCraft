@@ -126,3 +126,33 @@ describe("import_file (docx)", () => {
     expect(info.assets).toEqual(["assets/image1.png"]);
   });
 });
+
+describe("import_file (html)", () => {
+  it("takes the title from <title>, drops scripts, groups warnings and reads relative images", async () => {
+    s = await connect();
+    mkdirSync(join(s.root, "src/img"), { recursive: true });
+    writeFileSync(join(s.root, "src/img/grad.png"), gradientPng());
+    writeFileSync(
+      join(s.root, "src/page.HTM"),
+      '<!doctype html><html><head><title>My Page</title><script>alert("secret-js")</script></head><body><h1>One</h1><p>Hello <b>bold</b> <blink>x</blink> <a href="javascript:alert(1)">bad</a></p><img src="img/grad.png" alt="G"><img src="https://example.com/r.png" alt="R"><h1>Two</h1><p>End.</p></body></html>',
+    );
+    const r = await s.ok("cadabra_import_file", { source: "src/page.HTM", destination: "out" });
+    expect(r).toMatchObject({ chapterCount: 2, imageCount: 1 });
+    const codes = r.warnings.map((g: { code: string }) => g.code);
+    expect(codes).toEqual(expect.arrayContaining(["unsupported-element", "unsafe-link", "remote-image"]));
+    const info = await s.ok("cadabra_project_info", { path: "out" });
+    expect(info.entries.map((e: { title: string }) => e.title)).toEqual(["One", "Two"]);
+    expect((await s.ok("cadabra_project_validate", { path: "out" })).valid).toBe(true);
+    const ch = readdirSync(join(s.root, "out/manuscript")).map((f) => readFileSync(join(s.root, "out/manuscript", f), "utf8")).join("\n");
+    expect(ch).not.toContain("secret-js");
+    expect(readdirSync(join(s.root, "src")).sort()).toEqual(["img", "page.HTM"]);
+  });
+
+  it("uses the <title> when there is no heading", async () => {
+    s = await connect();
+    writeFileSync(join(s.root, "t.html"), "<html><head><title>Only Title</title></head><body><p>Text here.</p></body></html>");
+    await s.ok("cadabra_import_file", { source: "t.html", destination: "out" });
+    const info = await s.ok("cadabra_project_info", { path: "out" });
+    expect(info.entries.map((e: { title: string }) => e.title)).toEqual(["Only Title"]);
+  });
+});
