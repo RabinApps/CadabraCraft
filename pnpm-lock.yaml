@@ -209,6 +209,12 @@ importers:
         specifier: ^3.32.0
         version: 3.32.0
 
+  packages/export-audio:
+    dependencies:
+      '@cadabracraft/shared':
+        specifier: workspace:*
+        version: link:../shared
+
   packages/export-docx:
     dependencies:
       '@cadabracraft/shared':
