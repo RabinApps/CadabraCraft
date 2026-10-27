@@ -1,0 +1,109 @@
+import type { DocNode, Mark } from "@cadabracraft/shared";
+import { codeSpan, escapeText, linkDestination } from "./escape";
+import { MarkdownExportError, type Ctx, type Item, type Where } from "./types";
+
+/** Outer to inner. Inline code is always innermost (the editor schema lets it exclude every other mark). */
+const MARK_ORDER: Mark["type"][] = ["link", "bold", "italic", "strike", "underline", "smallCaps", "superscript", "subscript", "code"];
+const HTML_MARKS: Partial<Record<Mark["type"], [string, string]>> = {
+  underline: ["<u>", "</u>"],
+  smallCaps: ['<span class="small-caps">', "</span>"],
+  superscript: ["<sup>", "</sup>"],
+  subscript: ["<sub>", "</sub>"],
+};
+
+const sameMark = (a: Mark | undefined, b: Mark | undefined): boolean => !!a && !!b && a.type === b.type && (a.attrs?.href ?? "") === (b.attrs?.href ?? "");
+
+function canonicalMarks(marks: Mark[] | undefined, ctx: Ctx): Mark[] {
+  const seen = new Set<string>();
+  const out: Mark[] = [];
+  for (const m of marks ?? []) {
+    const type = (m as { type?: unknown }).type;
+    if (!MARK_ORDER.includes(type as Mark["type"])) throw new MarkdownExportError(`Unsupported mark type in chapter: ${String(type)}`);
+    if (HTML_MARKS[m.type] && !ctx.opts.htmlMarks) {
+      throw new MarkdownExportError(`The "${m.type}" mark has no Markdown syntax. Pass htmlMarks: true to write it as inline HTML (CadabraCraft reads it back; other tools may show the tags).`);
+    }
+    if (m.type === "link" && !m.attrs?.href) throw new MarkdownExportError("A link mark without an href cannot be written");
+    if (seen.has(m.type)) continue;
+    seen.add(m.type);
+    out.push(m);
+  }
+  return out.sort((a, b) => MARK_ORDER.indexOf(a.type) - MARK_ORDER.indexOf(b.type));
+}
+
+/** Delimiters hug the text: whitespace at the edges moves outside them (`**a **` would not be emphasis). */
+function wrap(inner: string, open: string, close: string): string {
+  const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(inner)!;
+  return m[2] === "" ? inner : `${m[1]}${open}${m[2]}${close}${m[3]}`;
+}
+
+function renderItems(items: Item[], ctx: Ctx, where: Where, atStart: boolean): string {
+  let out = "";
+  let i = 0;
+  while (i < items.length) {
+    const it = items[i]!;
+    if (it.kind === "raw") {
+      out += it.md;
+      i++;
+      continue;
+    }
+    const mark = it.marks[0];
+    if (!mark) {
+      out += escapeText(it.text, atStart && out === "", where);
+      i++;
+      continue;
+    }
+    let j = i;
+    while (j < items.length) {
+      const k = items[j]!;
+      if (k.kind !== "text" || !sameMark(k.marks[0], mark)) break;
+      j++;
+    }
+    const run = items.slice(i, j) as Extract<Item, { kind: "text" }>[];
+    const next = items[j];
+    if (mark.type === "code") {
+      out += codeSpan(run.map((r) => r.text).join(""), where);
+    } else {
+      const inner = renderItems(run.map((r) => ({ ...r, marks: r.marks.slice(1) })), ctx, where, false);
+      if (mark.type === "link") {
+        // "!" right before "[" would turn the link into an image.
+        if (out.endsWith("!")) out = `${out.slice(0, -1)}\\!`;
+        out += `[${inner}](${linkDestination(mark.attrs!.href!)})`;
+      }
+      else if (mark.type === "bold") out += wrap(inner, "**", "**");
+      else if (mark.type === "strike") out += wrap(inner, "~~", "~~");
+      else if (mark.type === "italic") {
+        // `**a***b*` is ambiguous, so italic next to a bold or italic neighbour uses underscores.
+        const nm = next?.kind === "text" ? next.marks[0]?.type : undefined;
+        const d = out.endsWith("*") || nm === "bold" || nm === "italic" ? "_" : "*";
+        out += wrap(inner, d, d);
+      } else {
+        const [open, close] = HTML_MARKS[mark.type]!;
+        out += wrap(inner, open, close);
+      }
+    }
+    i = j;
+  }
+  return out;
+}
+
+export function inline(nodes: DocNode[] | undefined, ctx: Ctx, where: Where = {}): string {
+  const items: Item[] = [];
+  for (const n of nodes ?? []) {
+    const type = n.type as string;
+    if (n.type === "text") {
+      if (n.text.includes("\n")) throw new MarkdownExportError("Text contains a line break; use a hard break node");
+      if (n.text !== "") items.push({ kind: "text", text: n.text, marks: canonicalMarks(n.marks, ctx) });
+    } else if (n.type === "footnote") {
+      if (where.note) throw new MarkdownExportError("A footnote cannot contain another footnote");
+      const text = inline(n.content, ctx, { note: true });
+      ctx.notes.push(text);
+      items.push({ kind: "raw", md: `[^${(ctx.opts.footnoteOffset ?? 0) + ctx.notes.length}]` });
+    } else if (type === "hardBreak") {
+      if (where.table || where.heading || where.note) throw new MarkdownExportError("A hard break cannot be written in a heading, table cell or footnote");
+      items.push({ kind: "raw", md: "\\\n" });
+    } else {
+      throw new MarkdownExportError(`Unsupported node type in inline content: ${type}`);
+    }
+  }
+  return renderItems(items, ctx, where, true);
+}
