@@ -6,6 +6,7 @@ import { sizes, widths, type Width } from "../app/reading";
 import { manuscriptFonts, useSettings, writingWidths } from "../app/editorPrefs";
 import { dirFor } from "../i18n/locales";
 import { Toolbar } from "./Toolbar";
+import { Search } from "./search/plugin";
 
 /** Typewriter scrolling: keeps the caret line near the middle of the scrolling column. */
 function centerCaret(editor: TipTapEditor) {
@@ -29,7 +30,7 @@ interface Props {
 
 export function Editor({ initial, language, onChange, reading, focus }: Props) {
   const editor = useEditor({
-    extensions,
+    extensions: reading ? extensions : [...extensions, Search],
     editorProps: { attributes: { lang: language, dir: dirFor(language) } },
     content: initial,
     editable: !reading,
