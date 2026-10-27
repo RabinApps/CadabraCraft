@@ -5,12 +5,11 @@ import type { DocNode, Mark } from "@cadabracraft/shared";
 import type { Definition, FootnoteDefinition, Nodes, PhrasingContent, Root, RootContent } from "mdast";
 import {
   AssetRegistry,
-  IMAGE_TYPES,
   Warnings,
   type Item,
   cellParagraphs,
-  extOf,
   flattenItems,
+  imageItems,
   isSep,
   listItemOf,
   mergeInline,
@@ -20,6 +19,7 @@ import {
   tableOf,
   textNode,
 } from "./common";
+import { htmlSnippetBlocks } from "./html";
 import { ImportError, type ImportOptions, type ImportResult } from "./types";
 
 const parser = unified().use(remarkParse).use(remarkGfm);
@@ -54,35 +54,43 @@ function collect(n: Nodes, ctx: Ctx): void {
   }
 }
 
-function image(url: string, alt: string, title: string | null | undefined, line: number | undefined, ctx: Ctx): Item[] {
-  const u = url.trim();
-  if (/^https?:\/\//i.test(u) || u.startsWith("//")) {
-    ctx.warn.at("remote-image", "warning", `Remote image not imported (no network access): ${u.slice(0, 80)}`, line);
-  } else if (/^[a-z][a-z0-9+.-]*:/i.test(u) && !/^[a-z]:[\\/]/i.test(u)) {
-    ctx.warn.at("unsupported-image", "warning", `Image with a ${u.split(":")[0]}: URL was not imported.`, line);
-  } else {
-    let path = u;
-    try {
-      path = decodeURI(u);
-    } catch {
-      /* keep raw */
-    }
-    path = path.split(/[?#]/)[0] ?? path;
-    const ext = extOf(path);
-    if (!IMAGE_TYPES[ext]) {
-      ctx.warn.at("unsupported-image", "warning", `Image "${path.slice(0, 80)}" has an unsupported type and was not imported.`, line);
-    } else {
-      const a = ctx.assets.register(path, IMAGE_TYPES[ext]);
-      return [{ sep: "block", node: { type: "image", attrs: { src: a.targetPath, alt: alt || null, title: title ?? null } } }];
-    }
-  }
-  const t = textNode(alt ? `[Image: ${alt}]` : "");
-  return t ? [t] : [];
+/** The inline HTML tags `export-markdown` writes for `htmlMarks`: `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>`. */
+const HTML_MARK = /^<(\/)?(u|sup|sub|span)(\s[^>]*)?>$/i;
+function htmlMark(value: string): { close: boolean; tag: string; mark: Mark } | null {
+  const m = HTML_MARK.exec(value.trim());
+  if (!m) return null;
+  const tag = m[2]!.toLowerCase();
+  const close = !!m[1];
+  if (tag === "span") return /^\s+class\s*=\s*["']small-caps["']\s*$/i.test(m[3] ?? "") || (close && !m[3]) ? { close, tag, mark: { type: "smallCaps" } } : null;
+  if (m[3]) return null;
+  return { close, tag, mark: { type: tag === "u" ? "underline" : tag === "sup" ? "superscript" : "subscript" } };
 }
 
-function inlines(nodes: PhrasingContent[], ctx: Ctx, marks: Mark[], inNote = false): Item[] {
+/** Indexes of inline `html` siblings that are balanced open/close pairs of the four mark tags (a span close only pairs with a small-caps open). */
+function pairedHtmlMarks(nodes: PhrasingContent[]): Set<number> {
+  const paired = new Set<number>();
+  const open: { tag: string; index: number }[] = [];
+  nodes.forEach((n, index) => {
+    if (n.type !== "html") return;
+    const h = htmlMark(n.value);
+    if (!h) return;
+    if (!h.close) return void open.push({ tag: h.tag, index });
+    for (let i = open.length - 1; i >= 0; i--) {
+      if (open[i]!.tag !== h.tag) continue;
+      paired.add(open[i]!.index).add(index);
+      open.splice(i, 1);
+      break;
+    }
+  });
+  return paired;
+}
+
+function inlines(nodes: PhrasingContent[], ctx: Ctx, baseMarks: Mark[], inNote = false): Item[] {
   const out: Item[] = [];
-  for (const n of nodes) {
+  const paired = pairedHtmlMarks(nodes);
+  const openMarks: { tag: string; mark: Mark }[] = [];
+  let marks = baseMarks;
+  for (const [index, n] of nodes.entries()) {
     switch (n.type) {
       case "text": {
         const t = textNode(n.value.replace(/\n/g, " "), marks);
@@ -125,10 +133,20 @@ function inlines(nodes: PhrasingContent[], ctx: Ctx, marks: Mark[], inNote = fal
         if (url === undefined) {
           const t = textNode(n.alt ?? "", marks);
           if (t) out.push(t);
-        } else out.push(...image(url, n.alt ?? "", title, lineOf(n), ctx));
+        } else out.push(...imageItems(url, n.alt ?? "", title, lineOf(n), ctx));
         break;
       }
       case "html": {
+        const h = paired.has(index) ? htmlMark(n.value) : null;
+        if (h) {
+          if (!h.close) openMarks.push({ tag: h.tag, mark: h.mark });
+          else {
+            const at = openMarks.map((o) => o.tag).lastIndexOf(h.tag);
+            if (at >= 0) openMarks.splice(at, 1);
+          }
+          marks = [...baseMarks, ...openMarks.map((o) => o.mark)];
+          break;
+        }
         ctx.warn.at("html", "warning", "Raw HTML is not supported; its text was kept literally.", lineOf(n));
         const t = textNode(n.value, marks);
         if (t) out.push(t);
@@ -265,11 +283,9 @@ function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[] {
         });
         break;
       }
-      case "html": {
-        ctx.warn.at("html", "warning", "Raw HTML is not supported; its text was kept literally.", line);
-        for (const l of n.value.split("\n")) if (l.trim()) out.push(paragraphOf([{ type: "text", text: l.trim() }]));
+      case "html":
+        out.push(...htmlSnippetBlocks(n.value, ctx));
         break;
-      }
       case "table": {
         // GFM: the first row is the header.
         let flattened = false;

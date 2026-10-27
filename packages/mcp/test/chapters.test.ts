@@ -108,7 +108,7 @@ describe("chapter_write_markdown", () => {
   it("returns importer warnings (raw html) and merges several chapters with a warning", async () => {
     await fresh();
     const a = await s.ok("cadabra_chapter_add", { path: "p", title: "One" });
-    const r = await s.ok("cadabra_chapter_write_markdown", { path: "p", chapterId: a.chapter.id, markdown: "# A\n\ntext\n\n<div>raw</div>\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# B\n\nmore" });
+    const r = await s.ok("cadabra_chapter_write_markdown", { path: "p", chapterId: a.chapter.id, markdown: "# A\n\ntext\n\n<mark>raw</mark>\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# B\n\nmore" });
     const codes = r.warnings.map((w: { code: string }) => w.code);
     expect(codes).toContain("html");
     expect(codes).not.toContain("table");
