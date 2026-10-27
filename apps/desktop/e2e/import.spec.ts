@@ -1,8 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PNG_BYTES, TINY_MD, tinyDocx } from "./fixtures";
+import { fakeTauri } from "./support/fakeTauri";
 
-// Same idea as editor.spec.ts: the Tauri commands are faked in memory. Here the fake also serves the "source files"
-// that the native picker would have returned, and records every command so we can assert the source is never written.
+// The shared fakeTauri (support/fakeTauri.ts) fakes the project commands. On top of it, the import specs fake the
+// "source files" that the native picker would have returned, and record every command so we can assert the source is never written.
 interface Fixtures { md: number[]; docx: number[]; png: number[]; html: number[] }
 const fixtures = (): Fixtures => ({
   md: Array.from(new TextEncoder().encode(TINY_MD)),
@@ -11,9 +12,9 @@ const fixtures = (): Fixtures => ({
   html: Array.from(new TextEncoder().encode('<html><head><title>Web Page</title><script>stealCookies()</script></head><body><h1>Gamma</h1><p>Plain and <strong>strong</strong> text. <blink>x</blink></p></body></html>')),
 });
 
-async function fakeTauri(page: Page, pick: "md" | "docx" | "html" | "broken") {
+async function fakeImportTauri(page: Page, pick: "md" | "docx" | "html" | "broken") {
+  await fakeTauri(page);
   await page.addInitScript(([f, which]: [Fixtures, string]) => {
-    if (!localStorage.getItem("cadabracraft.locale")) localStorage.setItem("cadabracraft.locale", "en");
     const sources: Record<string, number[]> = {
       "/src/My_Book.md": f.md,
       "/src/book.docx": f.docx,
@@ -21,31 +22,19 @@ async function fakeTauri(page: Page, pick: "md" | "docx" | "html" | "broken") {
       "/src/broken.docx": Array.from(new TextEncoder().encode("not a zip")),
     };
     const pickedSource = which === "md" ? "/src/My_Book.md" : which === "docx" ? "/src/book.docx" : which === "html" ? "/src/page.html" : "/src/broken.docx";
-    const disk: Record<string, string | number[]> = {};
     const calls: { cmd: string; args: any }[] = [];
-    const h = (s: string) => `${s.length}:${s.slice(0, 50)}`;
     const w = window as any;
-    w.__disk = disk; w.__calls = calls; w.__sources = sources;
-    w.__TAURI_INTERNALS__ = {
-      transformCallback: () => 0,
-      invoke: async (cmd: string, a: any) => {
-        calls.push({ cmd, args: a });
-        switch (cmd) {
-          case "plugin:dialog|open": return a?.options?.filters?.[0]?.extensions?.includes("docx") ? pickedSource : "/newbook";
-          case "plugin:event|listen": return 1;
-          case "plugin:event|unlisten": return null;
-          case "watch_project": return null;
-          case "read_import_source": if (!sources[a.path]) throw `cannot read ${a.path}`; return sources[a.path];
-          case "read_import_image": if (a.reference === "img/pixel.png") return f.png; throw `image not found: ${a.reference}`;
-          case "import_asset_bytes": disk[`assets/${a.name}`] = a.bytes; return `assets/${a.name}`;
-          case "create_project": disk["cadabra.json"] = a.manifestJson; return null;
-          case "read_project_file": return typeof disk[a.path] === "string" ? { contents: disk[a.path], hash: h(disk[a.path] as string) } : null;
-          case "write_project_file": disk[a.path] = a.contents; return { hash: h(a.contents), conflict_copy: null };
-          case "read_asset": if (!Array.isArray(disk[a.path])) throw `missing ${a.path}`; return disk[a.path];
-          case "backup_manifest": return "backup";
-        }
-        throw new Error(`unexpected command ${cmd}`);
-      },
+    w.__calls = calls; w.__sources = sources;
+    const base = w.__TAURI_INTERNALS__.invoke;
+    w.__TAURI_INTERNALS__.invoke = async (cmd: string, a: any, opts?: any) => {
+      calls.push({ cmd, args: a });
+      switch (cmd) {
+        case "plugin:dialog|open": return a?.options?.filters?.[0]?.extensions?.includes("docx") ? pickedSource : "/newbook";
+        case "read_import_source": if (!sources[a.path]) throw `cannot read ${a.path}`; return sources[a.path];
+        case "read_import_image": if (a.reference === "img/pixel.png") return f.png; throw `image not found: ${a.reference}`;
+        case "import_asset_bytes": w.__disk[`assets/${a.name}`] = a.bytes; return `assets/${a.name}`;
+      }
+      return base(cmd, a, opts);
     };
   }, [fixtures(), pick] as [Fixtures, string]);
 }
@@ -65,7 +54,7 @@ async function startImport(page: Page) {
 }
 
 test("importing Markdown creates a new project with chapters, shows the report, and leaves the source untouched", async ({ page }) => {
-  await fakeTauri(page, "md");
+  await fakeImportTauri(page, "md");
   const dialog = await startImport(page);
   await dialog.getByRole("button", { name: "Back" }).click();
   await expect(dialog.getByLabel("Title")).toHaveValue("My Book"); // from the file name
@@ -101,7 +90,7 @@ test("importing Markdown creates a new project with chapters, shows the report, 
 });
 
 test("importing a DOCX works the same way", async ({ page }) => {
-  await fakeTauri(page, "docx");
+  await fakeImportTauri(page, "docx");
   const dialog = await startImport(page);
   await dialog.getByRole("button", { name: "Import", exact: true }).click();
   const report = page.getByRole("dialog", { name: "Import report" });
@@ -112,7 +101,7 @@ test("importing a DOCX works the same way", async ({ page }) => {
 });
 
 test("importing an HTML file keeps headings and bold text, drops scripts and reports what was lost", async ({ page }) => {
-  await fakeTauri(page, "html");
+  await fakeImportTauri(page, "html");
   const dialog = await startImport(page);
   await dialog.getByRole("button", { name: "Import", exact: true }).click();
   const report = page.getByRole("dialog", { name: "Import report" });
@@ -127,7 +116,7 @@ test("importing an HTML file keeps headings and bold text, drops scripts and rep
 });
 
 test("an unreadable file shows the error in the dialog and creates no project", async ({ page }) => {
-  await fakeTauri(page, "broken");
+  await fakeImportTauri(page, "broken");
   const dialog = await startImport(page);
   await expect(dialog.getByRole("alert")).toContainText("does not look like a valid .docx");
   await expect(dialog).toBeVisible();
@@ -136,7 +125,7 @@ test("an unreadable file shows the error in the dialog and creates no project", 
 });
 
 test("the preview step lets the author rename and skip chapters before anything is written", async ({ page }) => {
-  await fakeTauri(page, "md");
+  await fakeImportTauri(page, "md");
   const dialog = await startImport(page);
   await expect(dialog.getByLabel("Title of chapter 1")).toHaveValue("Alpha");
   expect(await page.evaluate(() => Object.keys((window as any).__disk).length)).toBe(0); // nothing written yet
