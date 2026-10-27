@@ -365,6 +365,8 @@ try {
     await runMenu("edit.find");
     await app.fill(0, "Agent");
     await app.click("All chapters"); await app.sleep(900);
+    const rows = await app.js(`[...document.querySelectorAll('[aria-label="Find and replace"] button')].map((b) => b.getAttribute("aria-label") ?? "").filter((l) => /match/.test(l)).join("|")`);
+    assert(/Front matter: .*1 match/.test(rows), `the results list should list the title page: ${rows}`);
     await runMenu("edit.findReplace");
     await app.fill(1, "Writer"); await app.click("Replace all"); await app.sleep(1500);
     assert(count("Agent") === 0 && count("Writer") >= 1, `Replace all did not rewrite the pages on disk (Agent in ${count("Agent")}, Writer in ${count("Writer")})`);
