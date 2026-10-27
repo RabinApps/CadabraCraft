@@ -48940,6 +48940,5628 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "E1uqh",
+      "x": 0,
+      "y": 27235,
+      "name": "Export Audiobook (M5) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 980,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "DcSFd",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "EHFpT",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Export book",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "Usc3G",
+              "name": "Makes one audio file per cha",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "vltaK",
+              "name": "Segmented",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "N28MNO",
+                  "name": "EPUB 3",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "l5q4j3",
+                      "name": "EPUB 3",
+                      "fill": "$ink-muted",
+                      "content": "EPUB 3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "y8K6dZ",
+                  "name": "Print PDF",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "WEama",
+                      "name": "Print PDF",
+                      "fill": "$ink-muted",
+                      "content": "Print PDF",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "lTrcy",
+                  "name": "Markdown",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Uk5DV",
+                      "name": "Markdown",
+                      "fill": "$ink-muted",
+                      "content": "Markdown",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Aahwh",
+                  "name": "Word",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "GWJU5",
+                      "name": "Word",
+                      "fill": "$ink-muted",
+                      "content": "Word",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mUclp",
+                  "name": "Audiobook",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "svJ9N",
+                      "name": "Audiobook",
+                      "fill": "$accent",
+                      "content": "Audiobook",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "uSPBU",
+              "name": "Voice",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "D5BWq",
+                  "name": "Voice",
+                  "fill": "$ink-muted",
+                  "content": "Voice",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "eBIhw",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Voice select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "Kokoro · Heart (best quality)"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "RsQ7Y",
+                  "name": "Kokoro sounds the most natur",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JyS4o",
+              "name": "Speed",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "xSnju",
+                  "name": "Speed",
+                  "fill": "$ink-muted",
+                  "content": "Speed",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "YyCFC",
+                  "name": "Segmented",
+                  "fill": "$bg",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "gap": 2,
+                  "padding": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "kkHVQ",
+                      "name": "0.9×",
+                      "cornerRadius": 7,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "k4XE7",
+                          "name": "0.9×",
+                          "fill": "$ink-muted",
+                          "content": "0.9×",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "DZJcg",
+                      "name": "1.0×",
+                      "fill": "$accent-soft",
+                      "cornerRadius": 7,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Mr02W",
+                          "name": "1.0×",
+                          "fill": "$accent",
+                          "content": "1.0×",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "eUHSS",
+                      "name": "1.1×",
+                      "cornerRadius": 7,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "g4bKoP",
+                          "name": "1.1×",
+                          "fill": "$ink-muted",
+                          "content": "1.1×",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "p7liA3",
+                      "name": "1.25×",
+                      "cornerRadius": 7,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wwVoJ",
+                          "name": "1.25×",
+                          "fill": "$ink-muted",
+                          "content": "1.25×",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "XfnUb",
+              "name": "Formats",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "lui31",
+                  "name": "Formats",
+                  "fill": "$ink-muted",
+                  "content": "Formats",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "DZCHf",
+                  "name": "MP3",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "uizl4",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$accent",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "IeuFR",
+                          "name": "check",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$accent-ink"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RzOME",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ua4Gi",
+                          "name": "MP3",
+                          "fill": "$ink",
+                          "content": "MP3",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "hfUaw",
+                          "name": "Plays everywhere, small file",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Plays everywhere, small files.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BQngg",
+                  "name": "FLAC",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "X0J8Ek",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QQBMw",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Wf6Ec",
+                          "name": "FLAC",
+                          "fill": "$ink",
+                          "content": "FLAC",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Oj8hb",
+                          "name": "Lossless, about half the siz",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Lossless, about half the size of WAV.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yVxUR",
+                  "name": "WAV",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Q7SaOL",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Proao",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "M1EQ6Q",
+                          "name": "WAV",
+                          "fill": "$ink",
+                          "content": "WAV",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "lZDy6",
+                          "name": "Lossless and large: about 1.",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Lossless and large: about 1.7 GB per 10 hours.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "QQDaD",
+                  "name": "Opus",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "QmCWT",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "XoVMT",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "keWnt",
+                          "name": "Opus",
+                          "fill": "$ink",
+                          "content": "Opus",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Kskuf",
+                          "name": "Very small, good for phones.",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Very small, good for phones.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "z13jR",
+                  "name": "M4B with chapters",
+                  "opacity": 0.45,
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "MUnU7",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "k7tsc3",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MRnXB",
+                          "name": "M4B with chapters",
+                          "fill": "$ink",
+                          "content": "M4B with chapters",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "vNDlz",
+                          "name": "One file with chapter marks.",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "One file with chapter marks. Coming later.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "unWWm",
+              "name": "Chapters",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "O8yUA",
+                  "name": "Chapters",
+                  "fill": "$ink-muted",
+                  "content": "Chapters",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "tsiPJ",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Chapters select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "All chapters (4)"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "U4BG4g",
+              "name": "Note",
+              "width": "fill_container",
+              "fill": "$warn-soft",
+              "cornerRadius": 8,
+              "gap": 10,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "IFTUa",
+                  "name": "info",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "info",
+                  "library": "lucide",
+                  "fill": "$warn"
+                },
+                {
+                  "type": "text",
+                  "id": "qhuuS",
+                  "name": "Some audiobook stores do not",
+                  "fill": "$warn",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Some audiobook stores do not accept synthetic voices. Check their rules before you upload.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Xhns8",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "XtIW7",
+                  "name": "Left",
+                  "children": [
+                    {
+                      "id": "i6ojvJ",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Hear a sample",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "play"
+                        },
+                        "l83V3": {
+                          "content": "Hear a sample"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "pbe5h",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "KhUsY",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "CGSt9",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Export audiobook",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "headphones"
+                        },
+                        "gNKXH": {
+                          "content": "Export audiobook"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "dyD6z",
+      "x": 0,
+      "y": 28315,
+      "name": "Audiobook voices not installed (M5) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "UdWKp",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "J2Ioqw",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Export book",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "DUo1v",
+              "name": "Makes one audio file per cha",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "GPHBq",
+              "name": "Segmented",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "GoCLH",
+                  "name": "EPUB 3",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "DRyH0",
+                      "name": "EPUB 3",
+                      "fill": "$ink-muted",
+                      "content": "EPUB 3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "n4dxlI",
+                  "name": "Print PDF",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XsAW4",
+                      "name": "Print PDF",
+                      "fill": "$ink-muted",
+                      "content": "Print PDF",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Uj4cF",
+                  "name": "Markdown",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "W6YzmG",
+                      "name": "Markdown",
+                      "fill": "$ink-muted",
+                      "content": "Markdown",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "HPPt8",
+                  "name": "Word",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "spBpz",
+                      "name": "Word",
+                      "fill": "$ink-muted",
+                      "content": "Word",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rS7Ax",
+                  "name": "Audiobook",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "urBmR",
+                      "name": "Audiobook",
+                      "fill": "$accent",
+                      "content": "Audiobook",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "uTuS8",
+              "name": "Download panel",
+              "width": "fill_container",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 12,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "G4N12x",
+                  "name": "Panel title",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "SQFRJ",
+                      "name": "download",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "download",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "y2wYm",
+                      "name": "Voices are not installed",
+                      "fill": "$ink",
+                      "content": "Voices are not installed",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "Myauc",
+                  "name": "Voices are downloaded once f",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Voices are downloaded once from GitHub and then work offline. This is the only time CadabraCraft uses the network for audio.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "BLYxV",
+                  "name": "Piper voices: Amy and LibriTTS",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "B5JNA",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$accent",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "goh6t",
+                          "name": "check",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$accent-ink"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "A936kI",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Kan31",
+                          "name": "Piper voices: Amy and LibriT",
+                          "fill": "$ink",
+                          "content": "Piper voices: Amy and LibriTTS",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "NB5zM",
+                          "name": "Fast and clear. About 145 MB",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Fast and clear. About 145 MB.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "E1v1Ii",
+                  "name": "Kokoro: Heart and other voices",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "OWajw",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PGEEH",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "o3wHHo",
+                          "name": "Kokoro: Heart and other voic",
+                          "fill": "$ink",
+                          "content": "Kokoro: Heart and other voices",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "qDKDA",
+                          "name": "Most natural, slower. About ",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Most natural, slower. About 335 MB.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "v7f0hu",
+                  "name": "Voice licences are listed in",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Voice licences are listed in Settings, Audio.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Kr5Es",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "wKLw6",
+                  "name": "Left",
+                  "width": "fit_content(0)",
+                  "height": "fit_content(0)"
+                },
+                {
+                  "type": "frame",
+                  "id": "VEbjW",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "jjMEM",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "UE761",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Download selected (145 MB)",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "download"
+                        },
+                        "gNKXH": {
+                          "content": "Download selected (145 MB)"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "aymPc",
+      "x": 0,
+      "y": 29075,
+      "name": "Audiobook rendering (M5) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "VY3Z7",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "czwJ7",
+              "name": "Making your audiobook",
+              "fill": "$ink",
+              "content": "Making your audiobook",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "dlZ2O",
+              "name": "You can close this window. T",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "You can close this window. The audiobook keeps rendering in the background.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "nhuhE",
+              "name": "Overall progress",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "wAU1m",
+                  "name": "Progress text",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "f1e6Ic",
+                      "name": "Chapter 3 of 4",
+                      "fill": "$ink",
+                      "content": "Chapter 3 of 4",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "o5Mvq",
+                      "name": "65%, about 6 minutes left",
+                      "fill": "$ink-muted",
+                      "content": "65%, about 6 minutes left",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "l1SHHS",
+                  "name": "Progress track",
+                  "width": "fill_container",
+                  "height": 8,
+                  "fill": "$bg",
+                  "cornerRadius": 4,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 4,
+                      "id": "m9FlGU",
+                      "name": "Progress",
+                      "fill": "$accent",
+                      "width": 332,
+                      "height": 6
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "AqYiV",
+              "name": "Chapter list",
+              "width": "fill_container",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "FIL57",
+                  "name": "The Quay",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "b6VaVC",
+                      "name": "circle-check",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "circle-check",
+                      "library": "lucide",
+                      "fill": "$success"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Lppsc",
+                      "name": "The Quay",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The Quay",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "zMUsQ",
+                      "name": "Done",
+                      "fill": "$ink-muted",
+                      "content": "Done",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TVx4q",
+                  "name": "What the Letter Said",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "hBsLk",
+                      "name": "circle-check",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "circle-check",
+                      "library": "lucide",
+                      "fill": "$success"
+                    },
+                    {
+                      "type": "text",
+                      "id": "p78e9N",
+                      "name": "What the Letter Said",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "What the Letter Said",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "jFtaf",
+                      "name": "Done",
+                      "fill": "$ink-muted",
+                      "content": "Done",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Z1vdUH",
+                  "name": "Hostile Characters",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "NCaRF",
+                      "name": "loader",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "loader",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "WxdjQ",
+                      "name": "Hostile Characters",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Hostile Characters",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "z0SQi",
+                      "name": "62%",
+                      "fill": "$accent",
+                      "content": "62%",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "v6bGtG",
+                  "name": "Afterword",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Elsdk",
+                      "name": "circle",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "circle",
+                      "library": "lucide",
+                      "fill": "$ink-muted"
+                    },
+                    {
+                      "type": "text",
+                      "id": "bqaxr",
+                      "name": "Afterword",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Afterword",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "cGEj0",
+                      "name": "Waiting",
+                      "fill": "$ink-muted",
+                      "content": "Waiting",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "eBfr7",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ThomT",
+                  "name": "Left",
+                  "width": "fit_content(0)",
+                  "height": "fit_content(0)"
+                },
+                {
+                  "type": "frame",
+                  "id": "cP9Ld",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "G1zTh",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel export",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel export"
+                        }
+                      }
+                    },
+                    {
+                      "id": "o9AR4D",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Keep working",
+                      "descendants": {
+                        "FuxJL": {
+                          "enabled": false
+                        },
+                        "gNKXH": {
+                          "content": "Keep working"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "FCzkr",
+      "x": 0,
+      "y": 29835,
+      "name": "Audiobook done (M5) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "D4sup",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "c20vYq",
+              "name": "Title",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "obTdo",
+                  "name": "circle-check",
+                  "width": 24,
+                  "height": 24,
+                  "icon": "circle-check",
+                  "library": "lucide",
+                  "fill": "$success"
+                },
+                {
+                  "type": "text",
+                  "id": "Xd0MS",
+                  "name": "Your audiobook is ready",
+                  "fill": "$ink",
+                  "content": "Your audiobook is ready",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "fgbrM",
+              "name": "4 chapters, 25 minutes. Save",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "4 chapters, 25 minutes. Saved in the exports folder, in audio.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "eaUFy",
+              "name": "Files",
+              "width": "fill_container",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "aZY1Z",
+                  "name": "MP3",
+                  "width": "fill_container",
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gMM3v",
+                      "name": "MP3",
+                      "fill": "$ink",
+                      "content": "MP3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "tAUAH",
+                      "name": "4 files, 21 MB",
+                      "fill": "$ink-muted",
+                      "content": "4 files, 21 MB",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "VG13T",
+                  "name": "FLAC",
+                  "width": "fill_container",
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "JoVQp",
+                      "name": "FLAC",
+                      "fill": "$ink",
+                      "content": "FLAC",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XM3En",
+                      "name": "4 files, 74 MB",
+                      "fill": "$ink-muted",
+                      "content": "4 files, 74 MB",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "q6ylZ",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Xliez",
+                  "name": "Left",
+                  "children": [
+                    {
+                      "id": "ZINlN",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Show in folder",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "folder-open"
+                        },
+                        "l83V3": {
+                          "content": "Show in folder"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "LCrWV",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "bhgYf",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Done",
+                      "descendants": {
+                        "FuxJL": {
+                          "enabled": false
+                        },
+                        "gNKXH": {
+                          "content": "Done"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "BiZOF",
+      "x": 0,
+      "y": 30595,
+      "name": "Audiobook error (M5) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "fS69a",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "uIzTp",
+              "name": "Could not finish the audiobo",
+              "fill": "$ink",
+              "content": "Could not finish the audiobook",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "cPR3h",
+              "name": "Rendering stopped part of th",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Rendering stopped part of the way through.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "nvJiF",
+              "name": "Note",
+              "width": "fill_container",
+              "fill": "$danger-soft",
+              "cornerRadius": 8,
+              "gap": 10,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "H3JRH",
+                  "name": "triangle-alert",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "triangle-alert",
+                  "library": "lucide",
+                  "fill": "$danger"
+                },
+                {
+                  "type": "text",
+                  "id": "b2h7CV",
+                  "name": "Chapter 3, Hostile Character",
+                  "fill": "$danger",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Chapter 3, Hostile Characters, stopped: the voice engine closed unexpectedly (code 1). Chapters 1 and 2 are saved in the exports folder.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "pY5r5",
+              "name": "Retry starts again at chapte",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Retry starts again at chapter 3. Finished chapters are kept.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "z6o6B3",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "TVy1r",
+                  "name": "Left",
+                  "children": [
+                    {
+                      "id": "ZVY6u",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Copy details",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "copy"
+                        },
+                        "l83V3": {
+                          "content": "Copy details"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "b9WXE",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "aaQuq",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Close",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Close"
+                        }
+                      }
+                    },
+                    {
+                      "id": "Uod3F",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Retry from chapter 3",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "rotate-cw"
+                        },
+                        "gNKXH": {
+                          "content": "Retry from chapter 3"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "m6CXy",
+      "x": 0,
+      "y": 31355,
+      "name": "Audiobook header chip and menu (M5) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 460,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "gap": 28,
+      "padding": 40,
+      "children": [
+        {
+          "type": "frame",
+          "id": "U5sZac",
+          "name": "Top bar",
+          "width": "fill_container",
+          "height": 57,
+          "fill": "$bg",
+          "cornerRadius": 10,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "padding": [
+            0,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "RNsXv",
+              "name": "The Quay",
+              "fill": "$ink",
+              "content": "The Quay",
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "YndvO",
+              "name": "Right",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Vc7f3",
+                  "name": "Audiobook chip",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 999,
+                  "gap": 8,
+                  "padding": [
+                    6,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "BGD4x",
+                      "name": "loader",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "loader",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "KImOu",
+                      "name": "Audiobook 65%",
+                      "fill": "$accent",
+                      "content": "Audiobook 65%",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "id": "spsLT",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Export",
+                  "descendants": {
+                    "I6qeCj": {
+                      "icon": "upload"
+                    },
+                    "l83V3": {
+                      "content": "Export"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "TiT8J",
+          "name": "File, Export submenu",
+          "width": 260,
+          "fill": "$raised",
+          "cornerRadius": 10,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 8
+            },
+            "blur": 24
+          },
+          "layout": "vertical",
+          "padding": 6,
+          "children": [
+            {
+              "type": "frame",
+              "id": "giOQs",
+              "name": "EPUB…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "xa8Ft",
+                  "name": "EPUB…",
+                  "fill": "$ink",
+                  "content": "EPUB…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "PvOUA",
+              "name": "Print PDF…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gQbj7",
+                  "name": "Print PDF…",
+                  "fill": "$ink",
+                  "content": "Print PDF…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "u4Fi9u",
+              "name": "Markdown…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "paOHk",
+                  "name": "Markdown…",
+                  "fill": "$ink",
+                  "content": "Markdown…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ZMfKS",
+              "name": "Word (.docx)…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "FdhQt",
+                  "name": "Word (.docx)…",
+                  "fill": "$ink",
+                  "content": "Word (.docx)…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "xhd7d",
+              "name": "Audiobook…",
+              "width": "fill_container",
+              "fill": "$accent-soft",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "G7RBlW",
+                  "name": "Audiobook…",
+                  "fill": "$accent",
+                  "content": "Audiobook…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "y3ufl",
+              "name": "Print Preview…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bpVQ9",
+                  "name": "Print Preview…",
+                  "fill": "$ink",
+                  "content": "Print Preview…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "oneAJ",
+      "x": 0,
+      "y": 31915,
+      "name": "Settings Audio section (M5) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 685,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "y92ufL",
+          "name": "Audio settings",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "tILL0",
+              "name": "Audio",
+              "fill": "$ink",
+              "content": "Audio",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "dyLoD",
+              "name": "Default voice",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "j2DQcz",
+                  "name": "Default voice",
+                  "fill": "$ink-muted",
+                  "content": "Default voice",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "N5Zran",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Default voice select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "Piper · LibriTTS (speaker 0)"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "tpce4",
+              "name": "Default formats",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "dW5BK",
+                  "name": "Default formats",
+                  "fill": "$ink-muted",
+                  "content": "Default formats",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "tDrs7",
+                  "name": "MP3",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "fmOkM",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$accent",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "ccjP1",
+                          "name": "check",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$accent-ink"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SbiOw",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "x8GX8x",
+                          "name": "MP3",
+                          "fill": "$ink",
+                          "content": "MP3",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "oGapb",
+                  "name": "FLAC",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "l3LheO",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "iR3QX",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "OAMV1",
+                          "name": "FLAC",
+                          "fill": "$ink",
+                          "content": "FLAC",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kU4D0",
+              "name": "Voices",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "DwBaZ",
+                  "name": "Voices",
+                  "fill": "$ink-muted",
+                  "content": "Voices",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "XcWCW",
+                  "name": "Voice list",
+                  "width": "fill_container",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "p7J7ew",
+                      "name": "Kokoro",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "G4FSEf",
+                          "name": "Text",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "eLWWJ",
+                              "name": "Kokoro",
+                              "fill": "$ink",
+                              "content": "Kokoro",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "CdZne",
+                              "name": "Best quality. 394 MB on disk",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Best quality. 394 MB on disk.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Fpd0V",
+                          "name": "Installed",
+                          "fill": "$success",
+                          "content": "Installed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "H5kTe",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Delete",
+                          "descendants": {
+                            "I6qeCj": {
+                              "icon": "trash-2"
+                            },
+                            "l83V3": {
+                              "content": "Delete"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zn6fh",
+                      "name": "Piper · Amy",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "q8goVj",
+                          "name": "Text",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "P2pB4",
+                              "name": "Piper · Amy",
+                              "fill": "$ink",
+                              "content": "Piper · Amy",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "CPCio",
+                              "name": "Fast. 79 MB on disk.",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Fast. 79 MB on disk.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "nolaf",
+                          "name": "Not installed",
+                          "fill": "$ink-muted",
+                          "content": "Not installed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "EgiSR",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Download",
+                          "descendants": {
+                            "I6qeCj": {
+                              "icon": "download"
+                            },
+                            "l83V3": {
+                              "content": "Download"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yRFbD",
+                      "name": "Piper · LibriTTS",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "E2teQ",
+                          "name": "Text",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Vb4Fs",
+                              "name": "Piper · LibriTTS",
+                              "fill": "$ink",
+                              "content": "Piper · LibriTTS",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "L1fcY",
+                              "name": "Fast, many speakers. 98 MB o",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Fast, many speakers. 98 MB on disk.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "DkJM3",
+                          "name": "Installed",
+                          "fill": "$success",
+                          "content": "Installed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "AUm7d",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Delete",
+                          "descendants": {
+                            "I6qeCj": {
+                              "icon": "trash-2"
+                            },
+                            "l83V3": {
+                              "content": "Delete"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "m94pSZ",
+              "name": "Voices folder",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "HJmKC",
+                  "name": "Voices folder",
+                  "fill": "$ink-muted",
+                  "content": "Voices folder",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "ADr6P",
+                  "name": "Folder row",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "N6bs7",
+                      "name": "App data folder, voices",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "App data folder, voices",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "I4RRXT",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Show in folder",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "folder-open"
+                        },
+                        "l83V3": {
+                          "content": "Show in folder"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "mX5IT",
+              "name": "View voice licences",
+              "fill": "$accent",
+              "content": "View voice licences",
+              "fontFamily": "$font-ui",
+              "fontSize": 13,
+              "fontWeight": "600"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "H8EORc",
+      "x": 860,
+      "y": 27235,
+      "name": "Export Audiobook (M5) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 980,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "zJ4vR",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "pZX8m",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Export book",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "SJzfe",
+              "name": "Makes one audio file per cha",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "y8Pon",
+              "name": "Segmented",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "rkqUm",
+                  "name": "EPUB 3",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "S2Iu2U",
+                      "name": "EPUB 3",
+                      "fill": "$ink-muted",
+                      "content": "EPUB 3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cYDj3",
+                  "name": "Print PDF",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "RKTRv",
+                      "name": "Print PDF",
+                      "fill": "$ink-muted",
+                      "content": "Print PDF",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "f8OYpo",
+                  "name": "Markdown",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "OpiAf",
+                      "name": "Markdown",
+                      "fill": "$ink-muted",
+                      "content": "Markdown",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BN9nI",
+                  "name": "Word",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KWLkX",
+                      "name": "Word",
+                      "fill": "$ink-muted",
+                      "content": "Word",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "J1LkqD",
+                  "name": "Audiobook",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "nhRax",
+                      "name": "Audiobook",
+                      "fill": "$accent",
+                      "content": "Audiobook",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "INj8s",
+              "name": "Voice",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "OuwaH",
+                  "name": "Voice",
+                  "fill": "$ink-muted",
+                  "content": "Voice",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "vK17V",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Voice select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "Kokoro · Heart (best quality)"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "s4yR4z",
+                  "name": "Kokoro sounds the most natur",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mGB0h",
+              "name": "Speed",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pQGDS",
+                  "name": "Speed",
+                  "fill": "$ink-muted",
+                  "content": "Speed",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "p7CSe",
+                  "name": "Segmented",
+                  "fill": "$bg",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "gap": 2,
+                  "padding": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "VGaiw",
+                      "name": "0.9×",
+                      "cornerRadius": 7,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ox2ig",
+                          "name": "0.9×",
+                          "fill": "$ink-muted",
+                          "content": "0.9×",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "itvk3",
+                      "name": "1.0×",
+                      "fill": "$accent-soft",
+                      "cornerRadius": 7,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "JIkB8",
+                          "name": "1.0×",
+                          "fill": "$accent",
+                          "content": "1.0×",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sPi6O",
+                      "name": "1.1×",
+                      "cornerRadius": 7,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "NwRwY",
+                          "name": "1.1×",
+                          "fill": "$ink-muted",
+                          "content": "1.1×",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "S5Ftx8",
+                      "name": "1.25×",
+                      "cornerRadius": 7,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "h1IZn",
+                          "name": "1.25×",
+                          "fill": "$ink-muted",
+                          "content": "1.25×",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "SKYe1",
+              "name": "Formats",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "aQc6J",
+                  "name": "Formats",
+                  "fill": "$ink-muted",
+                  "content": "Formats",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "XCQgi",
+                  "name": "MP3",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "w4JjwQ",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$accent",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "fLIcc",
+                          "name": "check",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$accent-ink"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UbOnn",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Jk2Lz",
+                          "name": "MP3",
+                          "fill": "$ink",
+                          "content": "MP3",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "YT21M",
+                          "name": "Plays everywhere, small file",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Plays everywhere, small files.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "KDnFO",
+                  "name": "FLAC",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "yyDxl",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "R0qVD",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "jjN7h",
+                          "name": "FLAC",
+                          "fill": "$ink",
+                          "content": "FLAC",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "E2h5tq",
+                          "name": "Lossless, about half the siz",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Lossless, about half the size of WAV.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GmDgu",
+                  "name": "WAV",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "kdjp6",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QCohR",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "aieXA",
+                          "name": "WAV",
+                          "fill": "$ink",
+                          "content": "WAV",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "F1UTu",
+                          "name": "Lossless and large: about 1.",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Lossless and large: about 1.7 GB per 10 hours.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "k1sIU",
+                  "name": "Opus",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "JShsV",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JUVVI",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WiDVS",
+                          "name": "Opus",
+                          "fill": "$ink",
+                          "content": "Opus",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "t0F4Ko",
+                          "name": "Very small, good for phones.",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Very small, good for phones.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "MGsqT",
+                  "name": "M4B with chapters",
+                  "opacity": 0.45,
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Z9uzN",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "K5DIb",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "i1OkUk",
+                          "name": "M4B with chapters",
+                          "fill": "$ink",
+                          "content": "M4B with chapters",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "LEjkZ",
+                          "name": "One file with chapter marks.",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "One file with chapter marks. Coming later.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dXNz0",
+              "name": "Chapters",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "wbu2W",
+                  "name": "Chapters",
+                  "fill": "$ink-muted",
+                  "content": "Chapters",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "JHoba",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Chapters select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "All chapters (4)"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Qq0M7",
+              "name": "Note",
+              "width": "fill_container",
+              "fill": "$warn-soft",
+              "cornerRadius": 8,
+              "gap": 10,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "TSGku",
+                  "name": "info",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "info",
+                  "library": "lucide",
+                  "fill": "$warn"
+                },
+                {
+                  "type": "text",
+                  "id": "BIySG",
+                  "name": "Some audiobook stores do not",
+                  "fill": "$warn",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Some audiobook stores do not accept synthetic voices. Check their rules before you upload.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "c7xFd",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Hac0L",
+                  "name": "Left",
+                  "children": [
+                    {
+                      "id": "C7EM7",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Hear a sample",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "play"
+                        },
+                        "l83V3": {
+                          "content": "Hear a sample"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "FNKIa",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "C80wKu",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "uWTqs",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Export audiobook",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "headphones"
+                        },
+                        "gNKXH": {
+                          "content": "Export audiobook"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "nLL7m",
+      "x": 860,
+      "y": 28315,
+      "name": "Audiobook voices not installed (M5) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "N2pHpp",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "NDIMU",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Export book",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "Ztd8S",
+              "name": "Makes one audio file per cha",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "odZF0",
+              "name": "Segmented",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "rgEIR",
+                  "name": "EPUB 3",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "u5Rd90",
+                      "name": "EPUB 3",
+                      "fill": "$ink-muted",
+                      "content": "EPUB 3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SBVWy",
+                  "name": "Print PDF",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "hf9Bh",
+                      "name": "Print PDF",
+                      "fill": "$ink-muted",
+                      "content": "Print PDF",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mSOCh",
+                  "name": "Markdown",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "q2rh0I",
+                      "name": "Markdown",
+                      "fill": "$ink-muted",
+                      "content": "Markdown",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wZOBB",
+                  "name": "Word",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Ut07g",
+                      "name": "Word",
+                      "fill": "$ink-muted",
+                      "content": "Word",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Lo2sa",
+                  "name": "Audiobook",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "NKlFG",
+                      "name": "Audiobook",
+                      "fill": "$accent",
+                      "content": "Audiobook",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "X5Ryml",
+              "name": "Download panel",
+              "width": "fill_container",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 12,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "aZkn7",
+                  "name": "Panel title",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "rwGsH",
+                      "name": "download",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "download",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "VkoWU",
+                      "name": "Voices are not installed",
+                      "fill": "$ink",
+                      "content": "Voices are not installed",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "aW6ul",
+                  "name": "Voices are downloaded once f",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Voices are downloaded once from GitHub and then work offline. This is the only time CadabraCraft uses the network for audio.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "L6ysiZ",
+                  "name": "Piper voices: Amy and LibriTTS",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "MpOhk",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$accent",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "bL8xe",
+                          "name": "check",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$accent-ink"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "k2xQf",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "VMUwR",
+                          "name": "Piper voices: Amy and LibriT",
+                          "fill": "$ink",
+                          "content": "Piper voices: Amy and LibriTTS",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "KYoLl",
+                          "name": "Fast and clear. About 145 MB",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Fast and clear. About 145 MB.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "NVABY",
+                  "name": "Kokoro: Heart and other voices",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "idpso",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "v4QfdI",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "F312uy",
+                          "name": "Kokoro: Heart and other voic",
+                          "fill": "$ink",
+                          "content": "Kokoro: Heart and other voices",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "jUPOP",
+                          "name": "Most natural, slower. About ",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Most natural, slower. About 335 MB.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "D7iNkO",
+                  "name": "Voice licences are listed in",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Voice licences are listed in Settings, Audio.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "y2etZ",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "t5Mehh",
+                  "name": "Left",
+                  "width": "fit_content(0)",
+                  "height": "fit_content(0)"
+                },
+                {
+                  "type": "frame",
+                  "id": "aEwf5",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "hXgYz",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "d4co7",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Download selected (145 MB)",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "download"
+                        },
+                        "gNKXH": {
+                          "content": "Download selected (145 MB)"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "NLR2M",
+      "x": 860,
+      "y": 29075,
+      "name": "Audiobook rendering (M5) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "nnnzb",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "E17GtT",
+              "name": "Making your audiobook",
+              "fill": "$ink",
+              "content": "Making your audiobook",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "tk8PP",
+              "name": "You can close this window. T",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "You can close this window. The audiobook keeps rendering in the background.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "H6lgeP",
+              "name": "Overall progress",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "XjeXY",
+                  "name": "Progress text",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rwGGp",
+                      "name": "Chapter 3 of 4",
+                      "fill": "$ink",
+                      "content": "Chapter 3 of 4",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "u2qP1",
+                      "name": "65%, about 6 minutes left",
+                      "fill": "$ink-muted",
+                      "content": "65%, about 6 minutes left",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Gtdk0",
+                  "name": "Progress track",
+                  "width": "fill_container",
+                  "height": 8,
+                  "fill": "$bg",
+                  "cornerRadius": 4,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 4,
+                      "id": "N4UYWf",
+                      "name": "Progress",
+                      "fill": "$accent",
+                      "width": 332,
+                      "height": 6
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "v4zoV",
+              "name": "Chapter list",
+              "width": "fill_container",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ffYKc",
+                  "name": "The Quay",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "IP8wD",
+                      "name": "circle-check",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "circle-check",
+                      "library": "lucide",
+                      "fill": "$success"
+                    },
+                    {
+                      "type": "text",
+                      "id": "uc5c2",
+                      "name": "The Quay",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The Quay",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mPwk9",
+                      "name": "Done",
+                      "fill": "$ink-muted",
+                      "content": "Done",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "nMk5n",
+                  "name": "What the Letter Said",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "tn6iA",
+                      "name": "circle-check",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "circle-check",
+                      "library": "lucide",
+                      "fill": "$success"
+                    },
+                    {
+                      "type": "text",
+                      "id": "g3mhkZ",
+                      "name": "What the Letter Said",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "What the Letter Said",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "V4srR",
+                      "name": "Done",
+                      "fill": "$ink-muted",
+                      "content": "Done",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "kIjzG",
+                  "name": "Hostile Characters",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "a0rWzO",
+                      "name": "loader",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "loader",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NXV98",
+                      "name": "Hostile Characters",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Hostile Characters",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "C7rBn7",
+                      "name": "62%",
+                      "fill": "$accent",
+                      "content": "62%",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "h6fHdy",
+                  "name": "Afterword",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "XcTFs",
+                      "name": "circle",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "circle",
+                      "library": "lucide",
+                      "fill": "$ink-muted"
+                    },
+                    {
+                      "type": "text",
+                      "id": "cspOm",
+                      "name": "Afterword",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Afterword",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "vmQNG",
+                      "name": "Waiting",
+                      "fill": "$ink-muted",
+                      "content": "Waiting",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "yrScZ",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mcqs0",
+                  "name": "Left",
+                  "width": "fit_content(0)",
+                  "height": "fit_content(0)"
+                },
+                {
+                  "type": "frame",
+                  "id": "s2Ufp",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "df93w",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel export",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel export"
+                        }
+                      }
+                    },
+                    {
+                      "id": "iZ6HB",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Keep working",
+                      "descendants": {
+                        "FuxJL": {
+                          "enabled": false
+                        },
+                        "gNKXH": {
+                          "content": "Keep working"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "e1FuB",
+      "x": 860,
+      "y": 29835,
+      "name": "Audiobook done (M5) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "N7Hgcq",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "ifcJu",
+              "name": "Title",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "KLw0F",
+                  "name": "circle-check",
+                  "width": 24,
+                  "height": 24,
+                  "icon": "circle-check",
+                  "library": "lucide",
+                  "fill": "$success"
+                },
+                {
+                  "type": "text",
+                  "id": "akaU5",
+                  "name": "Your audiobook is ready",
+                  "fill": "$ink",
+                  "content": "Your audiobook is ready",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "SAGZa",
+              "name": "4 chapters, 25 minutes. Save",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "4 chapters, 25 minutes. Saved in the exports folder, in audio.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "o6NuAv",
+              "name": "Files",
+              "width": "fill_container",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "G4XgT",
+                  "name": "MP3",
+                  "width": "fill_container",
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UmBk4",
+                      "name": "MP3",
+                      "fill": "$ink",
+                      "content": "MP3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "kCf2F",
+                      "name": "4 files, 21 MB",
+                      "fill": "$ink-muted",
+                      "content": "4 files, 21 MB",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wH8j4",
+                  "name": "FLAC",
+                  "width": "fill_container",
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ShlvP",
+                      "name": "FLAC",
+                      "fill": "$ink",
+                      "content": "FLAC",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "grDmM",
+                      "name": "4 files, 74 MB",
+                      "fill": "$ink-muted",
+                      "content": "4 files, 74 MB",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "w5KGHv",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "XBVqI",
+                  "name": "Left",
+                  "children": [
+                    {
+                      "id": "C0FQeA",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Show in folder",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "folder-open"
+                        },
+                        "l83V3": {
+                          "content": "Show in folder"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ixAFc",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "r2c3vd",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Done",
+                      "descendants": {
+                        "FuxJL": {
+                          "enabled": false
+                        },
+                        "gNKXH": {
+                          "content": "Done"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "d7UCm",
+      "x": 860,
+      "y": 30595,
+      "name": "Audiobook error (M5) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "RrH9a",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "kQDMx",
+              "name": "Could not finish the audiobo",
+              "fill": "$ink",
+              "content": "Could not finish the audiobook",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "G0uqp",
+              "name": "Rendering stopped part of th",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Rendering stopped part of the way through.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "q0cAWP",
+              "name": "Note",
+              "width": "fill_container",
+              "fill": "$danger-soft",
+              "cornerRadius": 8,
+              "gap": 10,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "j9BmpL",
+                  "name": "triangle-alert",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "triangle-alert",
+                  "library": "lucide",
+                  "fill": "$danger"
+                },
+                {
+                  "type": "text",
+                  "id": "GMoCW",
+                  "name": "Chapter 3, Hostile Character",
+                  "fill": "$danger",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Chapter 3, Hostile Characters, stopped: the voice engine closed unexpectedly (code 1). Chapters 1 and 2 are saved in the exports folder.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "vLdy9",
+              "name": "Retry starts again at chapte",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Retry starts again at chapter 3. Finished chapters are kept.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "z4EZs1",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "DQlvy",
+                  "name": "Left",
+                  "children": [
+                    {
+                      "id": "srxQu",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Copy details",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "copy"
+                        },
+                        "l83V3": {
+                          "content": "Copy details"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "U0wiH",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "iQ75B",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Close",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Close"
+                        }
+                      }
+                    },
+                    {
+                      "id": "VT7x3",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Retry from chapter 3",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "rotate-cw"
+                        },
+                        "gNKXH": {
+                          "content": "Retry from chapter 3"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "y1eU8",
+      "x": 860,
+      "y": 31355,
+      "name": "Audiobook header chip and menu (M5) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 460,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "gap": 28,
+      "padding": 40,
+      "children": [
+        {
+          "type": "frame",
+          "id": "ZKgVn",
+          "name": "Top bar",
+          "width": "fill_container",
+          "height": 57,
+          "fill": "$bg",
+          "cornerRadius": 10,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "padding": [
+            0,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "nKYYa",
+              "name": "The Quay",
+              "fill": "$ink",
+              "content": "The Quay",
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "EmrpA",
+              "name": "Right",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "n7My87",
+                  "name": "Audiobook chip",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 999,
+                  "gap": 8,
+                  "padding": [
+                    6,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "z7XOc",
+                      "name": "loader",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "loader",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Sm224",
+                      "name": "Audiobook 65%",
+                      "fill": "$accent",
+                      "content": "Audiobook 65%",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "id": "zsin4",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Export",
+                  "descendants": {
+                    "I6qeCj": {
+                      "icon": "upload"
+                    },
+                    "l83V3": {
+                      "content": "Export"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Rn5RT",
+          "name": "File, Export submenu",
+          "width": 260,
+          "fill": "$raised",
+          "cornerRadius": 10,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 8
+            },
+            "blur": 24
+          },
+          "layout": "vertical",
+          "padding": 6,
+          "children": [
+            {
+              "type": "frame",
+              "id": "eA0Kw",
+              "name": "EPUB…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "f7Vjv",
+                  "name": "EPUB…",
+                  "fill": "$ink",
+                  "content": "EPUB…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dQtyQ",
+              "name": "Print PDF…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Km7qH",
+                  "name": "Print PDF…",
+                  "fill": "$ink",
+                  "content": "Print PDF…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "NqRXf",
+              "name": "Markdown…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "hyo5z",
+                  "name": "Markdown…",
+                  "fill": "$ink",
+                  "content": "Markdown…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "vAEnH",
+              "name": "Word (.docx)…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "nXo9i",
+                  "name": "Word (.docx)…",
+                  "fill": "$ink",
+                  "content": "Word (.docx)…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "idQQK",
+              "name": "Audiobook…",
+              "width": "fill_container",
+              "fill": "$accent-soft",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "TgrM0",
+                  "name": "Audiobook…",
+                  "fill": "$accent",
+                  "content": "Audiobook…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fZwWJ",
+              "name": "Print Preview…",
+              "width": "fill_container",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "KGrUO",
+                  "name": "Print Preview…",
+                  "fill": "$ink",
+                  "content": "Print Preview…",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "PPwet",
+      "x": 860,
+      "y": 31915,
+      "name": "Settings Audio section (M5) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 685,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "nY8HU",
+          "name": "Audio settings",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "t70AB",
+              "name": "Audio",
+              "fill": "$ink",
+              "content": "Audio",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "Hgx2g",
+              "name": "Default voice",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rS7pg",
+                  "name": "Default voice",
+                  "fill": "$ink-muted",
+                  "content": "Default voice",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "d3xr3",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Default voice select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "Piper · LibriTTS (speaker 0)"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "NLQsS",
+              "name": "Default formats",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "IXzvZ",
+                  "name": "Default formats",
+                  "fill": "$ink-muted",
+                  "content": "Default formats",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "aTwwg",
+                  "name": "MP3",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "KjCho",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$accent",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "Y0tjMP",
+                          "name": "check",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$accent-ink"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "X3TXuR",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "gQnDO",
+                          "name": "MP3",
+                          "fill": "$ink",
+                          "content": "MP3",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "LtVJo",
+                  "name": "FLAC",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Hr99e",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": 4,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "GtSjU",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fDMfx",
+                          "name": "FLAC",
+                          "fill": "$ink",
+                          "content": "FLAC",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "MAuXr",
+              "name": "Voices",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "g01vTW",
+                  "name": "Voices",
+                  "fill": "$ink-muted",
+                  "content": "Voices",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "S45vXg",
+                  "name": "Voice list",
+                  "width": "fill_container",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "VsMwH",
+                      "name": "Kokoro",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "rgF4i",
+                          "name": "Text",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "XG1Sc",
+                              "name": "Kokoro",
+                              "fill": "$ink",
+                              "content": "Kokoro",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "aau8Q",
+                              "name": "Best quality. 394 MB on disk",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Best quality. 394 MB on disk.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "R8IDyj",
+                          "name": "Installed",
+                          "fill": "$success",
+                          "content": "Installed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "DYUqg",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Delete",
+                          "descendants": {
+                            "I6qeCj": {
+                              "icon": "trash-2"
+                            },
+                            "l83V3": {
+                              "content": "Delete"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "FU9xR",
+                      "name": "Piper · Amy",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dfsVV",
+                          "name": "Text",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "PCP2s",
+                              "name": "Piper · Amy",
+                              "fill": "$ink",
+                              "content": "Piper · Amy",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "E8lZt",
+                              "name": "Fast. 79 MB on disk.",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Fast. 79 MB on disk.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "o1kpl6",
+                          "name": "Not installed",
+                          "fill": "$ink-muted",
+                          "content": "Not installed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "FAbft",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Download",
+                          "descendants": {
+                            "I6qeCj": {
+                              "icon": "download"
+                            },
+                            "l83V3": {
+                              "content": "Download"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "x8LMU",
+                      "name": "Piper · LibriTTS",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "w2OOj",
+                          "name": "Text",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "FSODA",
+                              "name": "Piper · LibriTTS",
+                              "fill": "$ink",
+                              "content": "Piper · LibriTTS",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "vNxjI",
+                              "name": "Fast, many speakers. 98 MB o",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Fast, many speakers. 98 MB on disk.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$font-ui",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "maLo4",
+                          "name": "Installed",
+                          "fill": "$success",
+                          "content": "Installed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "qwo0K",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Delete",
+                          "descendants": {
+                            "I6qeCj": {
+                              "icon": "trash-2"
+                            },
+                            "l83V3": {
+                              "content": "Delete"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Vbg2F",
+              "name": "Voices folder",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "QAbNv",
+                  "name": "Voices folder",
+                  "fill": "$ink-muted",
+                  "content": "Voices folder",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "qKgma",
+                  "name": "Folder row",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "f1DSu7",
+                      "name": "App data folder, voices",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "App data folder, voices",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "Z5heH8",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Show in folder",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "folder-open"
+                        },
+                        "l83V3": {
+                          "content": "Show in folder"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "I5POg",
+              "name": "View voice licences",
+              "fill": "$accent",
+              "content": "View voice licences",
+              "fontFamily": "$font-ui",
+              "fontSize": 13,
+              "fontWeight": "600"
+            }
+          ]
+        }
+      ]
     }
   ],
   "themes": {
