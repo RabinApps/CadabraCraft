@@ -21,6 +21,7 @@ import { PrintPreview } from "./PrintPreview";
 import { Settings } from "./Settings";
 import { SponsorDialog } from "./SponsorDialog";
 import { UpdateDialog } from "./UpdateDialog";
+import { RecoverDialog } from "./RecoverDialog";
 import { useUpdates } from "./updates";
 import { Sidebar } from "./Sidebar";
 import { Templates } from "./Templates";
@@ -189,6 +190,7 @@ export function App() {
         </D.Portal>
       </D.Root>
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
+      <RecoverDialog />
       <SponsorDialog />
       <UpdateDialog />
       <ImportReportDialog />

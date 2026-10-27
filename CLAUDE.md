@@ -1,6 +1,6 @@
 # CadabraCraft agent guide
 
-Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout and commands. Scope lives in the implementation plan; M0 is done, M1 (format and editor) is next.
+Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout and commands. Scope lives in the implementation plan; M0 to M4 are done; `docs/roadmap.md` lists what is open.
 
 ## Rules
 - Work milestone by milestone; no features outside the current one (ideas go in `docs/roadmap.md`).

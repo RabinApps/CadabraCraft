@@ -13,6 +13,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 - [Internationalization (UI)](#internationalization-ui)
 - [Safety follow-ups (window close, project root, CSP, binary compile request)](#safety-follow-ups-window-close-project-root-csp-binary-compile-request)
 - [Code review refactors (Rust scope, errors, autosave)](#code-review-refactors-rust-scope-errors-autosave)
+- [Chapter snapshots and History](#chapter-snapshots-and-history)
 
 **Export**
 - [M2 print side: templates and Typst PDF export](#m2-print-side-templates-and-typst-pdf-export)
@@ -375,3 +376,27 @@ Hostile input: parse5 builds the tree iteratively, but its open-element stack ma
 Typst has no drop cap, so print uses the `droplet` package (MIT, 0.3.1). It is vendored unmodified in `packages/export-pdf/src/vendor/droplet.ts` and written into the compile directory as `typst-droplet/` only when a chapter uses it. The first paragraph of a chapter becomes a three-line drop cap when the template sets `chapterOpening.dropCap` and the paragraph starts with an unmarked letter; otherwise it is set normally. Typst counts the paragraph after the drop cap block as a first paragraph, so indenting templates get their indent put back with `#h()`.
 
 Rejected: importing `@preview/droplet` (Typst would download it at compile time, which breaks "no network calls" and offline exports); a hand-written drop cap (measuring and wrapping text around a letter is what the package already does and tests); drawing the letter as an image (not selectable text, breaks PDF/A text extraction).
+
+## Chapter snapshots and History
+
+**Decision:** `write_file` in `src-tauri/src/project` keeps the text a page save is about to replace as a snapshot, in `.cadabra/backups/<YYYYMMDD-HHMM>-<path with / as __>[-N].json`: the layout the MCP server already writes (`packages/project-fs`), so both tools see each other's versions. It is throttled (nothing if the newest snapshot is under 10 minutes old, or the text is empty, unchanged, or equal to the newest snapshot) and best effort (a snapshot that cannot be written never stops the save). Only pages are snapshotted (`manuscript`, `front-matter`, `back-matter`; the manifest keeps its own pre-migration backup). Commands: list, read, restore (the replaced text is kept first, bypassing the throttle), prune, find stale pages.
+- **Retention:** keep the newest N per page (Settings, 5 to 500, default 50), but never remove one younger than 30 days. Pruning runs when a book opens and is the only place the app deletes anything, and only these backup files.
+- **History dialog:** lists up to 50 snapshots with their words and `+added -removed` against the current text, and shows a word-level diff (`lib/wordDiff.ts`: paragraph LCS, then word LCS inside changed paragraphs; inputs over 4M cells fall back to whole removals and additions). The diff compares words only, not formatting.
+- **Recovery on open:** a page is offered when its newest snapshot is more than 2 minutes newer than the file's modified time and its text differs, or the file is empty. That is what a sync folder putting an older file back looks like.
+
+**Why:** snapshotting in the one Rust write path covers autosave, replace-all, undo and restore with no per-caller code. Storing the replaced text means a version exists exactly when something was about to be lost, and the first save after any gap over 10 minutes keeps the previous session's final text. Stateless names (stamp in the file name, throttle read from the newest snapshot) need no index to corrupt. No new dependency.
+
+**Rejected:**
+| Option | Why not |
+|---|---|
+| Snapshot the new text after each write | Keeps nothing the live file does not already have; the older text is what a restore needs. |
+| Extra snapshot when the book closes | Redundant: the next save snapshots that same text, and holding window close open for it would change the close guard. |
+| Versions inside chapter files or the manifest | Changes the synced on-disk format (`/change-file-format`) and bloats every sync. `.cadabra` is local and excluded from sync. |
+| A diff library (`diff`, `jsdiff`) | New dependency for about 60 lines; asked and declined. |
+| An editor-side draft journal for crash recovery | Autosave is 2 s and writes are atomic, so the loss window is tiny; a journal is a separate feature. |
+
+**Caveats:**
+- Recovery cannot recover unsaved typing; it only catches a page rolled back to older text. "Keep saved text" is not remembered, so it asks again on the next open until the page is saved again.
+- A snapshot name `...-a-2.json` is ambiguous between a numbered copy of page `a` and the plain snapshot of page `a-2`; listing treats it as the sibling's when that page exists. Deleted siblings resolve the other way.
+- Snapshots of a page removed from the book are never pruned.
+- Not run on a real sync folder, on Windows or in the native app (`/drive-app` not run).

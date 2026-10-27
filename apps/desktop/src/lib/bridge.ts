@@ -9,6 +9,10 @@ import { packCompileRequest } from "./compileFrame";
 
 export interface FileRead { contents: string; hash: string }
 export interface TrashEntry { path: string; original: string; trashed_at: string }
+/** An earlier version of a page: `path` is its file under `.cadabra/backups`, `at` is `YYYYMMDD-HHMM` in UTC. */
+export interface SnapshotEntry { path: string; at: string }
+/** A page whose newest snapshot is newer than the page itself and differs from it. */
+export interface StalePage { path: string; snapshot: string }
 export interface WriteResult { hash: string; conflict_copy: string | null }
 
 /** What `invoke` hands back for binary commands: an ArrayBuffer for raw responses, a number array for JSON ones. */
@@ -90,6 +94,14 @@ export const bridge = {
   listTrash: (root: string) => invoke<TrashEntry[]>("list_project_trash", { root }),
   /** Moves a trashed page back (never overwriting; a taken name gets `-2`...). Resolves to the project-relative path it now has. */
   restoreTrash: (root: string, path: string) => invoke<string>("restore_project_trash", { root, path }),
+  /** Earlier versions of a page, newest first. The Rust layer takes one on a save, at most every 10 minutes. */
+  listSnapshots: (root: string, path: string) => invoke<SnapshotEntry[]>("list_page_snapshots", { root, path }),
+  readSnapshot: (root: string, path: string, snapshot: string) => invoke<FileRead>("read_page_snapshot", { root, path, snapshot }),
+  /** Puts a snapshot back as the page; the text it replaces is kept as a snapshot first. */
+  restoreSnapshot: (root: string, path: string, snapshot: string) => invoke<WriteResult>("restore_page_snapshot", { root, path, snapshot }),
+  /** Removes old snapshots beyond `keep` per page (never ones younger than 30 days); resolves to how many were removed. */
+  pruneSnapshots: (root: string, paths: string[], keep: number) => invoke<number>("prune_page_snapshots", { root, paths, keep }),
+  findStalePages: (root: string, paths: string[]) => invoke<StalePage[]>("find_stale_pages", { root, paths }),
   /** Where typst is and its version; rejects with `{ kind: "not_found", message }` (install advice) when missing. `typstPath` is a user-configured location. */
   typstFind: (typstPath: string | null) => invoke<{ path: string; version: string }>("typst_find", { typstPath }),
   typstListFonts: (typstPath: string | null) => invoke<string[]>("typst_list_fonts", { typstPath }),

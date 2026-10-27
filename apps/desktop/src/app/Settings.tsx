@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft } from "lucide-react";
 import { useLocale } from "../i18n/i18n";
@@ -11,9 +11,9 @@ import { languageOptions } from "../ui/LanguagePicker";
 import { Switch } from "../ui/Switch";
 import { useTheme, type Theme } from "./theme";
 import { useUpdates } from "./updates";
-import { MAX_SESSION_GOAL, useSettings, type ManuscriptFont, type RawHtmlPaste, type WritingWidth } from "./editorPrefs";
+import { MAX_SESSION_GOAL, SNAPSHOT_KEEP_MAX, SNAPSHOT_KEEP_MIN, cleanSnapshotKeep, useSettings, type ManuscriptFont, type RawHtmlPaste, type WritingWidth } from "./editorPrefs";
 
-const sections = ["appearance", "general", "editor"] as const;
+const sections = ["appearance", "general", "editor", "backups"] as const;
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
@@ -36,15 +36,34 @@ function Row({ title, hint, control }: { title: string; hint: string; control: R
   );
 }
 
+/** Snapshots to keep: edits stay local while typing and are applied on blur, so "2" on the way to "20" is not clamped to the minimum. */
+function KeepField({ label, value, onCommit }: { label: string; value: number; onCommit: (n: number) => void }) {
+  const [text, setText] = useState(String(value));
+  return (
+    <Field
+      label={label}
+      hideLabel
+      className="py-2"
+      type="number"
+      min={SNAPSHOT_KEEP_MIN}
+      max={SNAPSHOT_KEEP_MAX}
+      step={5}
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={() => { const n = cleanSnapshotKeep(Number(text)); onCommit(n); setText(String(n)); }}
+    />
+  );
+}
+
 /** Preferences page. Every control saves immediately, so there is no primary action. */
 export function Settings({ onBack }: { onBack: () => void }) {
   const { t } = useLingui();
   const { theme, setTheme } = useTheme();
-  const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, rawHtmlPaste, set } = useSettings();
+  const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, rawHtmlPaste, snapshotKeep, set } = useSettings();
   const checkOnLaunch = useUpdates((s) => s.checkOnLaunch);
   const setCheckOnLaunch = useUpdates((s) => s.setCheckOnLaunch);
   const { locale, setLocale } = useLocale();
-  const navLabels: Record<(typeof sections)[number], string> = { appearance: t`Appearance`, general: t`General`, editor: t`Editor` };
+  const navLabels: Record<(typeof sections)[number], string> = { appearance: t`Appearance`, general: t`General`, editor: t`Editor`, backups: t`Backups` };
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" });
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
@@ -60,7 +79,6 @@ export function Settings({ onBack }: { onBack: () => void }) {
             </button>
           ))}
           {/* Designed, not built yet: shown so the list matches the design. */}
-          <button type="button" disabled className="rounded-md px-3 py-2 text-start text-sm font-medium text-ink-muted opacity-50">{t`Backups`}</button>
           <button type="button" disabled className="rounded-md px-3 py-2 text-start text-sm font-medium text-ink-muted opacity-50">{t`Shortcuts`}</button>
         </nav>
         <main className="min-h-0 flex-1 overflow-y-auto">
@@ -150,6 +168,16 @@ export function Settings({ onBack }: { onBack: () => void }) {
                 }
               />
             </Section>
+            <Section id="backups" title={navLabels.backups}>
+              <Row
+                title={t`Snapshots to keep per chapter`}
+                hint={t`Older snapshots are removed, but anything from the last 30 days stays.`}
+                control={<div className="w-32 max-sm:w-full"><KeepField key={snapshotKeep} label={t`Snapshots to keep per chapter`} value={snapshotKeep} onCommit={(n) => set({ snapshotKeep: n })} /></div>}
+              />
+              <Row title={t`When snapshots are taken`} hint={t`Before a save replaces different text, at most once every 10 minutes per chapter.`} control={null} />
+              <Row title={t`Where they are stored`} hint={t`In the .cadabra/backups folder inside your book folder.`} control={null} />
+            </Section>
+            <p className="-mt-4 text-xs text-ink-muted">{t`Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer.`}</p>
           </div>
         </main>
       </div>

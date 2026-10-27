@@ -20,6 +20,7 @@ import { describePdfError } from "../lib/pdfErrors";
 import { describeEpubError } from "../lib/epubErrors";
 import { createTauriRunner } from "../lib/typstRunner";
 import { errText } from "../lib/projectError";
+import { useSettings } from "./editorPrefs";
 
 const emptyDoc = (title: string): ChapterDoc => ({
   type: "doc",
@@ -87,6 +88,15 @@ function retargetEntry(e: HistoryEntry, from: string, to: string): HistoryEntry 
 }
 
 /** The book fields the Book details dialog edits. */
+/** A page whose newest snapshot is newer than the saved page and differs from it (see `find_stale_pages`). */
+export interface Recovery {
+  id: string;
+  title: string;
+  file: string;
+  /** Project-relative path of the newer snapshot. */
+  snapshot: string;
+}
+
 export interface BookDetails {
   title: string;
   author: string;
@@ -130,6 +140,8 @@ interface State {
   trash: TrashItem[];
   /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
   history: History;
+  /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
+  recovery: Recovery[];
   actions: {
     /** Reverts the latest chapter-tree edit (add, rename, move, trash, add page, restore). Added pages go to the trash, trashed pages come back from it. Resolves to false when there is nothing to undo or it failed (see `notice`). */
     undo: () => Promise<boolean>;
@@ -138,6 +150,10 @@ interface State {
     refreshTrash: () => Promise<void>;
     /** Moves a trashed page back, adds it to the end of its section and opens it. Never overwrites an existing page (a taken file name gets a `-2` suffix). */
     restoreTrash: (path: string) => Promise<void>;
+    /** Puts an earlier version of a page back and opens the page. The text it replaces is kept as a snapshot first, so this can be undone from History. */
+    restoreSnapshot: (id: string, snapshot: string) => Promise<void>;
+    /** Stops offering a page for recovery until the book is opened again. */
+    dismissRecovery: (id: string) => void;
     /** Saves unsaved typing, if any, without reloading the chapter. */
     flush: () => Promise<void>;
     externalChange: (path: string) => Promise<void>;
@@ -196,6 +212,15 @@ function parseChapter(contents: string, file: string): ChapterDoc {
   }
   if (!isChapterDoc(raw)) throw new Error(t`${file} is not a valid chapter, so it was not opened. The file was left untouched.`);
   return raw;
+}
+
+/** Runs housekeeping that must never stop a book from opening: any failure (rejected or thrown) gives `fallback`. */
+async function bestEffort<T>(run: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await run();
+  } catch {
+    return fallback;
+  }
 }
 
 /** A group of page writes failed; `stuck` are the pages that were written and could not be put back. */
@@ -408,7 +433,7 @@ export const useProject = create<State>((set, get) => {
   };
 
   return {
-    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, trash: [], history: NO_HISTORY,
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, trash: [], history: NO_HISTORY, recovery: [],
     actions: {
       flush,
       undo: () => travel("undo"),
@@ -424,6 +449,20 @@ export const useProject = create<State>((set, get) => {
           trash.push({ path: e.path, original: e.original, title: titleOfDoc(doc, e.original), trashedAt: e.trashed_at });
         }
         if (get().root === root) set({ trash });
+      },
+      async restoreSnapshot(id, snapshot) {
+        await flush();
+        const { root, manifest } = need();
+        const entry = entryOf(manifest, id);
+        if (!entry) return;
+        const w = await bridge.restoreSnapshot(root, entry.file, snapshot);
+        set({ hashes: { ...get().hashes, [entry.file]: w.hash }, recovery: get().recovery.filter((r) => r.id !== id) });
+        if (get().currentId === id) await reloadCurrent();
+        else await load(id);
+        set({ notice: t`Restored an earlier version of ${entry.title}. The text it replaced is kept in History.` });
+      },
+      dismissRecovery(id) {
+        set({ recovery: get().recovery.filter((r) => r.id !== id) });
       },
       async restoreTrash(path) {
         await flush();
@@ -480,7 +519,12 @@ export const useProject = create<State>((set, get) => {
         const r = await bridge.readFile(root, "cadabra.json");
         if (!r) throw new Error(t`No cadabra.json in that folder`);
         const parsed = parseManifest(r.contents);
-        set({ root, manifest: parsed.manifest, hashes: { "cadabra.json": r.hash }, currentId: null, currentDoc: null, notice: "", history: NO_HISTORY, trash: [] });
+        set({ root, manifest: parsed.manifest, hashes: { "cadabra.json": r.hash }, currentId: null, currentDoc: null, notice: "", history: NO_HISTORY, trash: [], recovery: [] });
+        const pageFiles = readingOrder(parsed.manifest).map((e) => e.file);
+        // Offered before any page is opened: a page that was put back to older text by a sync folder is easy to miss otherwise.
+        const stale = await bestEffort(() => bridge.findStalePages(root, pageFiles), []);
+        const recovery = stale.flatMap((x) => { const e = readingOrder(parsed.manifest).find((m) => m.file === x.path); return e ? [{ id: e.id, title: e.title, file: e.file, snapshot: x.snapshot }] : []; });
+        set({ recovery });
         if (parsed.migrated) {
           const backup = await bridge.backupManifest(root);
           await saveManifest(parsed.manifest);
@@ -489,10 +533,11 @@ export const useProject = create<State>((set, get) => {
         const first = parsed.manifest.chapters[0] ?? readingOrder(parsed.manifest)[0];
         if (first) await load(first.id);
         await bridge.watchProject(root);
+        void bestEffort(() => bridge.pruneSnapshots(root, pageFiles, useSettings.getState().snapshotKeep), 0);
       },
       async closeProject() {
         await flush();
-        set({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", history: NO_HISTORY, trash: [], importReport: null });
+        set({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", history: NO_HISTORY, trash: [], recovery: [], importReport: null });
       },
       async createProject(root, title, author) {
         const manifest = createManifest({ title, author, language: i18n.locale === "pseudo" ? "en" : i18n.locale, identifier: `urn:uuid:${crypto.randomUUID()}` });
