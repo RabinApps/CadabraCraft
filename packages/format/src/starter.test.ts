@@ -34,9 +34,12 @@ describe("starterDoc", () => {
     expect(lines(doc)).toEqual(["The Long Quay", "A. Writer"]);
   });
   it("copyright page has the year, author and rights line, plus ISBN only when set", () => {
-    expect(lines(starterDoc("copyright", book))).toEqual(["© 2026 A. Writer", "All rights reserved."]);
-    expect(lines(starterDoc("copyright", { ...book, isbn: "978-3-16-148410-0" }))).toEqual(["© 2026 A. Writer", "All rights reserved.", "ISBN 978-3-16-148410-0"]);
-    expect(lines(starterDoc("copyright", { ...book, isbn: "" }))).toHaveLength(2);
+    const rights = "No part of this book may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of the author, except for brief quotations in reviews.";
+    expect(lines(starterDoc("copyright", book))).toEqual(["© 2026 A. Writer", "All rights reserved.", rights]);
+    expect(lines(starterDoc("copyright", { ...book, isbn: "978-3-16-148410-0" }))).toEqual(["© 2026 A. Writer", "All rights reserved.", "ISBN 978-3-16-148410-0", rights]);
+    expect(lines(starterDoc("copyright", { ...book, isbn: "" }))).toHaveLength(3);
+    expect(lines(starterDoc("copyright", { ...book, isbn: "  " }))).toHaveLength(3);
+    expect(lines(starterDoc("copyright", { ...book, language: "de" }))).toEqual(["© 2026 A. Writer", "Alle Rechte vorbehalten."]);
   });
   it("dedication is an italic placeholder paragraph", () => {
     const doc = starterDoc("dedication", book);

@@ -228,6 +228,7 @@ describe("project store", () => {
       expect(text).toContain(`© ${new Date().getFullYear()} Me`);
       expect(text).toContain("All rights reserved.");
       expect(text).toContain("ISBN 978-3-16-148410-0");
+      expect(text).toContain("No part of this book may be reproduced");
     });
     it("refuses a second title page", async () => {
       await a().addMatter("front", "title-page");
