@@ -35440,6 +35440,32 @@
                           "fontWeight": "600"
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "I0XAul",
+                      "name": "Chip Regex",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MdAN8",
+                          "name": "Regex",
+                          "fill": "$ink-muted",
+                          "content": "Regex",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -36854,6 +36880,32 @@
                           "fontWeight": "600"
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZNRjd",
+                      "name": "Chip Regex",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "R2LssV",
+                          "name": "Regex",
+                          "fill": "$ink-muted",
+                          "content": "Regex",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -38106,6 +38158,32 @@
                           "fontWeight": "600"
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Q3MyK",
+                      "name": "Chip Regex",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Qp1n4",
+                          "name": "Regex",
+                          "fill": "$ink-muted",
+                          "content": "Regex",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -39052,6 +39130,32 @@
                           "fontWeight": "600"
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sjzlB",
+                      "name": "Chip Regex",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ANnSq",
+                          "name": "Regex",
+                          "fill": "$ink-muted",
+                          "content": "Regex",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -39915,6 +40019,32 @@
                           "name": "All chapters",
                           "fill": "$ink-muted",
                           "content": "All chapters",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cxOsx",
+                      "name": "Chip Regex",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "g6f7OD",
+                          "name": "Regex",
+                          "fill": "$ink-muted",
+                          "content": "Regex",
                           "fontFamily": "$font-ui",
                           "fontSize": 12,
                           "fontWeight": "600"
