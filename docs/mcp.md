@@ -114,7 +114,7 @@ Stable `error.code` values:
 | `internal_error` | Unexpected failure inside the server (the server keeps running). |
 
 ## Testing
-`pnpm --filter @cadabracraft/mcp test` drives every tool through the SDK's in-memory transport and spawns the built `dist/cli.js` over stdio (the test builds it first). EPUBCheck and real-Typst tests skip when the jar / typst or poppler are missing; `REQUIRE_EPUBCHECK=1` and `REQUIRE_TYPST=1` make them fail instead. The shared rules with the Rust layer are pinned by `fixtures/contract/*.json`, consumed by `packages/project-fs/test/contract.test.ts` and `apps/desktop/src-tauri/src/project/contract_tests.rs`.
+`pnpm --filter @cadabracraft/mcp test` drives every tool through the SDK's in-memory transport and spawns the built `dist/cli.js` over stdio (the test builds it first). EPUBCheck and real-Typst tests skip when the jar / typst or poppler are missing; `REQUIRE_EPUBCHECK=1` and `REQUIRE_TYPST=1` make them fail instead. The 100 MB import test needs `tools/enwik8/` (`scripts/fetch-enwik8.sh`); `REQUIRE_ENWIK8=1` makes it fail when missing. The shared rules with the Rust layer are pinned by `fixtures/contract/*.json`, consumed by `packages/project-fs/test/contract.test.ts` and `apps/desktop/src-tauri/src/project/contract_tests.rs`.
 
 ## Known differences from the Rust layer
 - Conflict copies never overwrite an earlier copy in either layer (both add `-2`, `-3`). Trash entries and manifest backups made in the same minute are not overwritten in TS; Rust still overwrites those.

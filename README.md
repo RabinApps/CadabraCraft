@@ -87,6 +87,7 @@ cd apps/desktop && pnpm exec playwright install chromium && pnpm test:e2e
 cd apps/desktop/src-tauri && cargo test
 ```
 
+- The large-input import tests (100 MB of real Wikipedia text) skip without `tools/enwik8/`; run `scripts/fetch-enwik8.sh` once (36 MB download, SHA-1 checked, gitignored) and set `REQUIRE_ENWIK8=1` to make them fail when it is missing, as in CI.
 - PDF tests skip when Typst or poppler is missing. Set `REQUIRE_TYPST=1` to make them fail instead.
 - E2E tests fake the Tauri bridge in memory, so they do not cover the Rust side or the native window.
 
