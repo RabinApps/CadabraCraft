@@ -21,7 +21,7 @@ export interface AppMenuHooks {
   setView: (v: View) => void;
   mode: "write" | "read";
   setMode: (m: "write" | "read") => void;
-  openExport: (format: "epub" | "pdf") => void;
+  openExport: (format: "epub" | "pdf" | "markdown") => void;
   openDetails: () => void;
   /** Shows a failure from a menu action in the page's error banner. */
   fail: (message: string) => void;
@@ -80,6 +80,7 @@ export function useAppMenu(h: AppMenuHooks): void {
       "file.bookDetails": { run: h.openDetails },
       "file.exportEpub": { run: guard(async () => { await actions.flush(); h.openExport("epub"); }) },
       "file.exportPdf": { run: guard(async () => { await actions.flush(); h.openExport("pdf"); }) },
+      "file.exportMarkdown": { run: guard(async () => { await actions.flush(); h.openExport("markdown"); }) },
       "file.printPreview": { run: guard(async () => { await actions.flush(); h.setView("print"); }) },
       "file.close": { run: guard(leave) },
       "edit.bookUndo": { run: guard(actions.undo), enabled: history.undo.length > 0 },

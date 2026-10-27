@@ -169,3 +169,27 @@ describe("exportPdf", () => {
     expect(s().manifest!.template).toBe("novel");
   });
 });
+
+describe("exportMarkdown", () => {
+  const underlined = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Hi", marks: [{ type: "underline" }] }] }] };
+  const text = () => new TextDecoder().decode(bytesOnDisk.get("exports/book.md")!);
+  it("writes exports/book.md and sets the notice", async () => {
+    disk.set("manuscript/001-chapter-one.json", JSON.stringify({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Hello there" }] }] }));
+    await a().exportMarkdown({ htmlMarks: false });
+    expect(text()).toContain("Hello there");
+    expect(s().notice).toBe("Exported exports/book.md");
+    expect(s().exportStage).toBeNull();
+  });
+  it("stops at an underline, naming the chapter, when htmlMarks is off, and writes nothing", async () => {
+    disk.set("manuscript/001-chapter-one.json", JSON.stringify(underlined));
+    const e = await a().exportMarkdown({ htmlMarks: false }).then(() => null, (x: unknown) => x);
+    expect((e as Error).message).toContain("Chapter One");
+    expect(bytesOnDisk.has("exports/book.md")).toBe(false);
+    expect(s().exportStage).toBeNull();
+  });
+  it("writes underline as HTML when htmlMarks is on", async () => {
+    disk.set("manuscript/001-chapter-one.json", JSON.stringify(underlined));
+    await a().exportMarkdown({ htmlMarks: true });
+    expect(text()).toContain("<u>Hi</u>");
+  });
+});
