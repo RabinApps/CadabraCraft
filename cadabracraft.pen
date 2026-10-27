@@ -43,7 +43,7 @@
                   "name": "Icon",
                   "width": 16,
                   "height": 16,
-                  "icon": "plus",
+                  "icon": "wand-sparkles",
                   "library": "lucide",
                   "fill": "$accent-ink"
                 },
@@ -52,7 +52,7 @@
                   "id": "gNKXH",
                   "name": "Label",
                   "fill": "$accent-ink",
-                  "content": "Button",
+                  "content": "Convert",
                   "fontFamily": "$font-ui",
                   "fontSize": 14,
                   "fontWeight": "600"
@@ -91,7 +91,7 @@
                   "id": "l83V3",
                   "name": "Label",
                   "fill": "$ink",
-                  "content": "Button",
+                  "content": "Keep as text",
                   "fontFamily": "$font-ui",
                   "fontSize": 14,
                   "fontWeight": "600"
@@ -16970,6 +16970,65 @@
                                   }
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "oSPDl",
+                              "name": "Paste HTML",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "zuEes",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "qJWyU",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "When pasting HTML",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "QgcuK",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "RNAUn",
+                                  "type": "ref",
+                                  "ref": "PE4pF",
+                                  "name": "Paste HTML select",
+                                  "width": 160,
+                                  "descendants": {
+                                    "oNv10": {
+                                      "content": "Ask each time"
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -20116,6 +20175,65 @@
                                   }
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "efzZz",
+                              "name": "Paste HTML",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "jMO0c",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "UMnq2",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "When pasting HTML",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "l6xQg",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "BKWnH",
+                                  "type": "ref",
+                                  "ref": "PE4pF",
+                                  "name": "Paste HTML select",
+                                  "width": 160,
+                                  "descendants": {
+                                    "oNv10": {
+                                      "content": "Ask each time"
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -21087,6 +21205,65 @@
                                   "descendants": {
                                     "oNv10": {
                                       "content": "500"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "UDzPU",
+                              "name": "Paste HTML",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "HQ7u5",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "B4oLL",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "When pasting HTML",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "g8Bq2",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "gChcX",
+                                  "type": "ref",
+                                  "ref": "PE4pF",
+                                  "name": "Paste HTML select",
+                                  "width": 160,
+                                  "descendants": {
+                                    "oNv10": {
+                                      "content": "Ask each time"
                                     }
                                   }
                                 }
@@ -22066,6 +22243,65 @@
                                   }
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "uXKWZ",
+                              "name": "Paste HTML",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "o7c2rJ",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "eA6TU",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "When pasting HTML",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "OEqHD",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "aJkF1",
+                                  "type": "ref",
+                                  "ref": "PE4pF",
+                                  "name": "Paste HTML select",
+                                  "width": 160,
+                                  "descendants": {
+                                    "oNv10": {
+                                      "content": "Ask each time"
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -22915,6 +23151,64 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "vyFRZ",
+                          "name": "Paste HTML",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "padding": [
+                            14,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "sVwnS",
+                              "name": "Text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "NroOy",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "When pasting HTML",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Fh3is",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text.",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "x1lp5F",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "Paste HTML select",
+                              "width": 160,
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "Ask each time"
+                                }
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
@@ -23758,6 +24052,64 @@
                               "descendants": {
                                 "oNv10": {
                                   "content": "500"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "vf907",
+                          "name": "Paste HTML",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "padding": [
+                            14,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "WulMd",
+                              "name": "Text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "pz5fM",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "When pasting HTML",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "GLzVn",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text.",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "lIBmQ",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "Paste HTML select",
+                              "width": 160,
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "Ask each time"
                                 }
                               }
                             }
@@ -44754,6 +45106,458 @@
                           "fontWeight": "600"
                         }
                       ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "W33GXS",
+      "x": 3000,
+      "y": 24600,
+      "name": "Paste HTML dialog (M5) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "lDx6N",
+          "name": "Dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "OTVZn",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Paste as styled text?",
+              "fontFamily": "$font-book",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "X2Uigl",
+              "name": "Description",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "LtXpb",
+              "name": "Preview",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": "$radius",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 4,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fGfTD",
+                  "name": "Preview label",
+                  "fill": "$ink-muted",
+                  "content": "What you pasted",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "eZgBt",
+                  "name": "Preview text",
+                  "fill": "$ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "<p>The gate was <b>old</b> and <em>very</em> tired.</p>",
+                  "lineHeight": 1.5,
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "q9qFfi",
+                  "name": "Result label",
+                  "fill": "$ink-muted",
+                  "content": "Becomes",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "rY386",
+                  "name": "Result text",
+                  "fill": "$ink",
+                  "content": "The gate was old and very tired.",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Tlik8",
+              "name": "Keep underline and small caps",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Cgwpc",
+                  "name": "Checkbox",
+                  "width": 18,
+                  "height": 18,
+                  "fill": "$surface",
+                  "cornerRadius": 4,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center"
+                },
+                {
+                  "type": "frame",
+                  "id": "jehOW",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xrWkc",
+                      "name": "Remember label",
+                      "fill": "$ink",
+                      "content": "Remember my choice",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Ska7A",
+                      "name": "Remember hint",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "You can change this later in Settings, Editor.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "DcVpc",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ENdHu",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "IYLrG",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Keep as text",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Keep as text"
+                        }
+                      }
+                    },
+                    {
+                      "id": "RkjdE",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Convert",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "wand-sparkles"
+                        },
+                        "gNKXH": {
+                          "content": "Convert"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "xXUCB",
+      "x": 3870,
+      "y": 24600,
+      "name": "Paste HTML dialog (M5) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "WYfw8",
+          "name": "Dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "CxwRD",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Paste as styled text?",
+              "fontFamily": "$font-book",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "hDpvx",
+              "name": "Description",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "SQops",
+              "name": "Preview",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": "$radius",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 4,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "z4RJZF",
+                  "name": "Preview label",
+                  "fill": "$ink-muted",
+                  "content": "What you pasted",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "eToAl",
+                  "name": "Preview text",
+                  "fill": "$ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "<p>The gate was <b>old</b> and <em>very</em> tired.</p>",
+                  "lineHeight": 1.5,
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "req1J",
+                  "name": "Result label",
+                  "fill": "$ink-muted",
+                  "content": "Becomes",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "hGb8C",
+                  "name": "Result text",
+                  "fill": "$ink",
+                  "content": "The gate was old and very tired.",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "AG9d6",
+              "name": "Keep underline and small caps",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "yhhPb",
+                  "name": "Checkbox",
+                  "width": 18,
+                  "height": 18,
+                  "fill": "$surface",
+                  "cornerRadius": 4,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center"
+                },
+                {
+                  "type": "frame",
+                  "id": "w3qMS",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "q36X2j",
+                      "name": "Remember label",
+                      "fill": "$ink",
+                      "content": "Remember my choice",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "X5ARX",
+                      "name": "Remember hint",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "You can change this later in Settings, Editor.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "N1gVkL",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "d16oPt",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "J16o0w",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Keep as text",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Keep as text"
+                        }
+                      }
+                    },
+                    {
+                      "id": "RpIY2",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Convert",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "wand-sparkles"
+                        },
+                        "gNKXH": {
+                          "content": "Convert"
+                        }
+                      }
                     }
                   ]
                 }
