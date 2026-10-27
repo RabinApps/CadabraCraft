@@ -514,6 +514,16 @@ The in-memory layer has no disk cost, so the real saving is the file reads, whic
 **Batching:** a process start costs about a second, so chunks are grouped into batches of 1,200 to 2,500 characters. Heading and scene-break pauses always end a batch; a paragraph pause ends one only once it is big enough, and inside a batch the engine's own sentence silence is used. Not yet listened to: paragraph pauses may sound shorter than the designed 600 ms.
 **Rejected:** a process per chunk (a book would spend hours starting processes), running the engine in-process through a Rust crate (new dependency, a crash takes the app down, cannot be killed), a Python runtime (size and packaging).
 **Not done:**
-- Only WAV is written. MP3, FLAC and Opus need encoder crates (to be approved); requests for them fail with an `encode` error before any synthesis.
+- MP3 is not written (see "Audio encoders" below); asking for it fails with an `encode` error before any synthesis.
 - Voice download, the bundled sidecar and its `externalBin` entry, the TypeScript Tauri runner and the UI.
 - Tested with a stand-in engine script (cancel, timeout, failure, garbage output, path rules) and once against the real engine and the Piper Amy voice (`SHERPA_TTS_BIN`, `CADABRA_VOICES_DIR`, `REQUIRE_SHERPA=1`; skipped when the engine is absent). Only macOS arm64 was run.
+
+### Audio encoders (FLAC, Opus)
+
+`src-tauri/src/audio_encode.rs`. **Decision:** FLAC with `flacenc` 0.5.1 (Apache-2.0) and Opus with `opus-rs` 0.1.40 (BSD-3-Clause, a pure-Rust port of libopus) inside `ogg` 0.9.2 (BSD-3-Clause); all pure Rust, so no extra binaries, C toolchain or per-platform builds. Opus is 32 kbit/s mono VBR, 20 ms frames, written as Ogg Opus (`.opus`, pre-skip 312 at 48 kHz, last-page granule trims the padding). Rates Opus does not take (Piper libritts 22.05 kHz) are converted to 24 kHz by a Hann-windowed sinc resampler in the same file. WAV is also written.
+**Verified with ffmpeg 8 on macOS (tests skip without ffmpeg; `REQUIRE_FFMPEG=1` makes a missing one fail):**
+- FLAC decodes bit-exactly (SNR infinite) for the Kokoro, Piper Amy and Piper LibriTTS clips; the output is about 63% of the WAV size.
+- Opus decodes with no ffmpeg warnings, ffprobe reports `codec_name=opus`, the delay is 0 samples (pre-skip is right) and the length is within 7 ms. Against libopus at the same bitrate (ffmpeg's encoder) the match is the same: Amy corr 0.9953 vs 0.9953, Kokoro 0.8976 vs 0.9031 (waveform correlation is a poor measure for Opus; this only shows `opus-rs` is not worse than libopus). Size is about 32 kbit/s, 14 MB per hour.
+- Speed in a debug build: Opus about 8 s for 90 s of audio, FLAC 0.4 s. Release speed is not measured; an hour-long chapter should be checked.
+**Not verified:** listening quality (nobody has listened to the Opus files), Windows and Linux builds, `opus-rs` on other inputs (it is a 0.1.x crate).
+**MP3 left out:** the Rust MP3 encoders are `mp3lame-encoder` (LGPL-3.0, wraps LAME, builds with autotools and a C compiler) and `shine-rs` (LGPL-2.0). Statically linking them into an Apache-2.0 + Commons Clause app needs a legal decision. Options: a separate LAME executable as a sidecar, link it after review, or skip MP3. The Export Audiobook design still shows MP3 as the default; the code defaults to Opus until this is decided.

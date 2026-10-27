@@ -1,6 +1,7 @@
 #[cfg(feature = "dev-automation")]
 mod automation;
 mod audio;
+mod audio_encode;
 mod commands;
 mod fs_watch;
 mod import_src;

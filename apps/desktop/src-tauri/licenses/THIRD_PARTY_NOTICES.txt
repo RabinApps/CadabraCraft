@@ -1,8 +1,8 @@
 CadabraCraft third-party notices
 ================================
 
-CadabraCraft ships the following programs and fonts alongside the app. Each keeps its own license; the full
-texts are in this folder (Typst) and in the "fonts" folder (Inter).
+CadabraCraft ships the following programs, fonts and libraries with the app. Each keeps its own license; the full
+texts are in this folder (Typst and the audio libraries) and in the "fonts" folder (Inter).
 
 Typst 0.15.1 (the "typst" program used for print PDF export)
   Copyright the Typst Contributors. Licensed under the Apache License, Version 2.0.
@@ -13,3 +13,14 @@ Inter 4.1 (Regular, Italic, Bold, Bold Italic; used by the "Modern Memoir" templ
   Copyright The Inter Project Authors. Licensed under the SIL Open Font License, Version 1.1.
   Source: https://github.com/rsms/inter
   License: ../fonts/LICENSE.txt
+
+Audio file encoders (compiled into the app; used by audiobook export)
+flacenc 0.5.1: Copyright Yotaro Kubo. Licensed under the Apache License, Version 2.0.
+  Source: https://github.com/yotarok/flacenc-rs    License: flacenc-LICENSE.txt
+opus-rs 0.1.40 (Opus codec in Rust): Copyright 2026 restsend.com; portions Copyright 2001-2023 Xiph.Org, Skype
+  Limited, Octasic, Jean-Marc Valin, Timothy B. Terriberry, CSIRO, Gregory Maxwell, Mark Borgerding, Erik de Castro
+  Lopo, Mozilla, Amazon. Licensed under the BSD 3-Clause License.
+  Source: https://github.com/restsend/opus-rs    License: opus-rs-COPYING.txt
+ogg 0.9.2: Copyright 2016-2017 est31 and contributors; Copyright 2002-2015 Xiph.org Foundation. Licensed under the
+  BSD 3-Clause License.
+  Source: https://github.com/RustAudio/ogg    License: ogg-LICENSE.txt

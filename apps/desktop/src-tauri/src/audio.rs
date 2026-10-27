@@ -9,6 +9,7 @@
 //! engine checks it every 20 ms and kills the process, so Cancel takes effect within a fraction of a second. Progress
 //! goes back over a `Channel`. Arguments are always an array (no shell), the engine's output goes to a temp dir that is
 //! removed on every path, and the finished file is written atomically under `exports/` of the project.
+use crate::audio_encode;
 use crate::project::{self, ProjectError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -367,8 +368,8 @@ fn silence(rate: u32, ms: u32) -> usize {
     (rate as u64 * ms as u64 / 1000) as usize
 }
 
-/// Formats this build can write. MP3, FLAC and Opus need encoder crates that have not been added yet.
-const WRITABLE: &[&str] = &["wav"];
+/// Formats this build can write. MP3 is left out on purpose: every Rust MP3 encoder is LGPL (a licensing decision).
+const WRITABLE: &[&str] = &["wav", "flac", "opus"];
 const KNOWN: &[&str] = &["wav", "mp3", "flac", "opus"];
 
 fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
@@ -386,7 +387,7 @@ fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
             return Err(other(format!("unknown audio format {f:?}")));
         }
         if !WRITABLE.contains(&f.as_str()) {
-            return Err(AudioError::Encode { format: f.clone(), message: "this format is not available yet; choose WAV".into() });
+            return Err(AudioError::Encode { format: f.clone(), message: "this format is not available yet; choose WAV, FLAC or Opus".into() });
         }
     }
     if !req.base.starts_with("exports/") || req.base.ends_with('/') {
@@ -400,7 +401,9 @@ fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
 pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>, cancel: &AtomicBool, progress: &dyn Fn(f64)) -> Result<RenderedChapter, AudioError> {
     check_request(req)?;
     let root = project::require_project(&PathBuf::from(&req.root))?;
-    project::resolve(&root, &format!("{}.wav", req.base))?;
+    for f in &req.formats {
+        project::resolve(&root, &format!("{}.{f}", req.base))?;
+    }
     let voice = VOICES.iter().find(|v| v.id == req.voice).filter(|v| voices.is_some_and(|r| v.installed(r))).ok_or_else(|| AudioError::VoiceMissing { voice: req.voice.clone() })?;
     let voices = voices.unwrap_or(Path::new(""));
     let batches = plan_batches(&req.chunks);
@@ -432,9 +435,22 @@ pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>
     if cancel.load(Ordering::Relaxed) {
         return Err(AudioError::Cancelled);
     }
-    let path = format!("{}.wav", req.base);
-    project::write_bytes(&root, &path, &write_wav(rate, &samples))?;
-    Ok(RenderedChapter { files: vec![RenderedFile { format: "wav".into(), path }], duration_sec: samples.len() as f64 / rate as f64 })
+    let mut files = Vec::new();
+    for f in &req.formats {
+        if cancel.load(Ordering::Relaxed) {
+            return Err(AudioError::Cancelled);
+        }
+        let encoded = match f.as_str() {
+            "wav" => Ok(write_wav(rate, &samples)),
+            "flac" => audio_encode::encode_flac(rate, &samples),
+            _ => audio_encode::encode_opus(rate, &samples),
+        };
+        let bytes = encoded.map_err(|message| AudioError::Encode { format: f.clone(), message })?;
+        let path = format!("{}.{f}", req.base);
+        project::write_bytes(&root, &path, &bytes)?;
+        files.push(RenderedFile { format: f.clone(), path });
+    }
+    Ok(RenderedChapter { files, duration_sec: samples.len() as f64 / rate as f64 })
 }
 
 // ---- jobs and Tauri commands ---------------------------------------------------------------------------------
@@ -630,6 +646,19 @@ mod tests {
             assert_eq!(pcm.samples.len(), (1.8 * 24000.0) as usize);
             let seen = seen.into_inner().unwrap();
             assert!(seen.windows(2).all(|w| w[0] <= w[1]) && (seen.last().unwrap() - 1.0).abs() < 1e-9);
+        }
+
+        #[test]
+        fn writes_every_requested_format_next_to_each_other() {
+            let f = fixture(copy);
+            let mut r = request(&f, vec![chunk("Hello there.", 600)]);
+            r.formats = vec!["opus".into(), "flac".into(), "wav".into()];
+            let done = render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {}).unwrap();
+            assert_eq!(done.files.iter().map(|x| (x.format.as_str(), x.path.as_str())).collect::<Vec<_>>(), vec![("opus", "exports/audio/01-one.opus"), ("flac", "exports/audio/01-one.flac"), ("wav", "exports/audio/01-one.wav")]);
+            let read = |n: &str| fs::read(f.project.join(format!("exports/audio/01-one.{n}"))).unwrap();
+            assert_eq!(&read("opus")[..4], b"OggS");
+            assert_eq!(&read("flac")[..4], b"fLaC");
+            assert_eq!(&read("wav")[..4], b"RIFF");
         }
 
         #[test]
