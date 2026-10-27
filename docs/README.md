@@ -5,6 +5,7 @@ Back to the [project README](../README.md).
 ## Using CadabraCraft and its formats
 | Doc | What it covers |
 |---|---|
+| [user-guide.md](user-guide.md) | For authors: getting started, writing, organising, importing, exporting, synced folders, shortcuts, troubleshooting |
 | [file-format.md](file-format.md) | The project folder: `cadabra.json`, chapter JSON, assets, conflicts, versioning |
 | [import.md](import.md) | Markdown and `.docx` import: mappings, warnings, limits |
 | [mcp.md](mcp.md) | The headless MCP server: tools, safety model, error codes |

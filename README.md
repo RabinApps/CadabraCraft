@@ -22,6 +22,20 @@ CadabraCraft is a desktop app for writing and formatting books. Write in a rich-
 - **Your sync, your choice.** Point the folder at Google Drive, Dropbox or iCloud Drive. Conflicting edits keep both copies.
 - **Open source.** The app, the file format and the exporters all live in this repo.
 
+## What it is
+
+CadabraCraft is for authors who want to write a whole book in one place and publish it themselves. You write in a rich-text editor, organise chapters and front and back matter, and export an EPUB e-book, a print-ready PDF or Markdown. Everything stays on your computer, with no account. New to the app? Read the [user guide](docs/user-guide.md).
+
+## Install
+
+There is **no release yet**, so there is no installer to download. Today you can build the app from source (the commands are under [Quick start](#quick-start): install the prerequisites, run `scripts/fetch-typst.sh` once, then `pnpm install` and `pnpm tauri dev`).
+
+Once releases exist, they will be published on GitHub Releases for macOS, Windows and Linux (AppImage). Be aware that macOS notarization and Windows code signing are **not set up yet**, so the first releases will make your operating system warn that the app is from an unidentified developer or an unrecognised publisher, and you will have to confirm that you want to open it. The app checks GitHub Releases for newer versions at launch (switchable in Settings); that is its only network request.
+
+## Your book is a folder
+
+A book is a plain folder you choose: one file per chapter, your images, and a `cadabra.json` with the title and chapter order. You can copy it, back it up or keep it in Dropbox, Google Drive or iCloud Drive (sync with real clients is not yet tested, see the [user guide](docs/user-guide.md#using-a-cloud-synced-folder)). Exports go to its `exports/` folder, and removed chapters go to `.cadabra/trash/` rather than being deleted. Details are in [docs/file-format.md](docs/file-format.md).
+
 ## Features
 
 - **Editor:** chapters you can add, rename, reorder, trash and restore, with undo and redo for structure edits, autosave, focus mode and a reading mode.
@@ -111,6 +125,7 @@ More in [docs/agent-testing.md](docs/agent-testing.md).
 
 Start at the [docs index](docs/README.md). Highlights:
 
+- [User guide](docs/user-guide.md): writing, organising, importing, exporting and troubleshooting, for authors.
 - [File format](docs/file-format.md): the project folder layout. Deleting a chapter moves it to `.cadabra/trash/`; the app never permanently deletes.
 - [Architecture](docs/architecture.md): decisions and the alternatives we rejected.
 - [Design](docs/design.md): tokens, screens and breakpoints, mirrored from `cadabracraft.pen`.
