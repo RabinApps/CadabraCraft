@@ -98,17 +98,38 @@ The list on the left has three parts: front matter, chapters and back matter. Re
 
 Book details (File > Book Details…, or the book icon at the top) hold the title, author, language, ISBN, identifier and cover image. The cover is a PNG, JPEG or WebP image up to 25 MB; portrait and about 1600 x 2400 pixels works best. Change the look of the printed book on the **Templates** page (Change template in the details panel). The Novel, Nonfiction and Modern templates are included.
 
-## Backups and keeping your work safe
+## History, backups and keeping your work safe
 
-Plainly, here is what the app does today.
+### Snapshots and the History dialog
 
-- **Autosave** writes every change to your chapter file. Each save is written to a temporary file first and then swapped in, so a crash in the middle cannot leave a half-written chapter.
+Each time a save is about to replace a chapter's text with different text, the app first keeps the old text as a **snapshot**. To avoid clutter it keeps at most one per chapter every 10 minutes. This covers every kind of change, including Replace all.
+
+To look at earlier versions, open the `...` menu next to a chapter (or front or back matter page) and choose **History**.
+
+- The list shows the earlier versions with their word count and how many words were added or removed compared with the current text. The newest 50 are listed.
+- Pick one to see a word-by-word comparison with the current text. Green marks words only in that version; red marks words only in the current text. The comparison looks at words, not formatting.
+- **Restore this version** puts it back. The text it replaces is kept as a new snapshot first, so you can undo a restore the same way.
+
+### Backups settings
+
+Settings, **Backups** sets how many snapshots to keep per chapter: 5 to 500, 50 by default. Older ones are removed, but the app never removes a snapshot younger than 30 days. Pruning happens when a book opens, and the app deletes nothing else on its own.
+
+### Where snapshots live
+
+In the `.cadabra/backups/` folder inside your book folder. They belong to this computer: keep `.cadabra` out of cloud sync. They are safe to delete by hand, and nothing in your chapters refers to them. The same folder also holds the copy of `cadabra.json` made before a format upgrade.
+
+### Recovery offer
+
+When you open a book, the app checks each page. If its newest snapshot is clearly newer than the saved file, or the file is empty, which is what a sync folder putting an older file back looks like, it asks whether to **Use newer text** or **Keep saved text**. Either way your saved text is kept as a snapshot. This only catches a chapter rolled back to older text; it cannot recover typing that was never saved. If you choose Keep saved text it will ask again next time until the page is saved again.
+
+### Other safety nets
+
+- **Autosave** writes about two seconds after you stop typing. Each save goes to a temporary file first and is then swapped in, so a crash cannot leave a half-written chapter.
 - **The trash** keeps every chapter or page you removed (see above).
-- **Format upgrades.** If a newer version of the app has to upgrade your book's `cadabra.json`, it copies the old one to `.cadabra/backups/` first.
-- **Conflicts.** If the same chapter was changed in the app and by something else (a sync service, say) before the app could save, the other version is kept next to it as `<name>.conflict-DATE-TIME.json`. Nothing is overwritten silently.
-- **Your own backups.** Because a book is a folder, copying the folder is a complete backup. Do this before big changes, such as a Find and Replace across all chapters.
+- **Conflicts.** If the same chapter changed in the app and elsewhere (a sync service, say) before the app could save, the other version is kept next to it as `<name>.conflict-DATE-TIME.json`.
+- **Your own backups.** A book is a folder, so copying it is a complete backup. Do this before big changes.
 
-Not built yet: per-chapter version history ("History" snapshots) and the Backups and Shortcuts pages in Settings (they appear greyed out). See [roadmap.md](roadmap.md).
+The Shortcuts page in Settings is not built yet and appears greyed out. See [roadmap.md](roadmap.md).
 
 ## Importing a manuscript
 
@@ -153,9 +174,9 @@ You can keep the book folder inside Dropbox, Google Drive or iCloud Drive to use
 Be honest with yourself about the limits:
 
 - The sync rules are tested with simulated sync clients. The checklist for the real clients ([sync-testing.md](sync-testing.md)) **has not been run yet**. Treat sync as experimental.
-- Use the book on one computer at a time, and let the sync client finish before you open it on another.
+- History and the recovery offer help if an older file reappears, but they are also untested on real sync folders. Use the book on one computer at a time, and let the sync client finish before you open it on another.
 - Keep a separate backup copy of the folder.
-- If you can, tell your sync client to skip the `.cadabra/` folder (it holds local safety copies and trash).
+- Tell your sync client to skip the `.cadabra/` folder: it holds this computer's snapshots and trash.
 - If you see a `.conflict-` file, open both versions and copy over what you want to keep.
 
 ## Keyboard shortcuts
@@ -202,7 +223,7 @@ Everything else is in the menus. There is no way to change shortcuts yet.
 - `assets/`: images and your cover
 - `exports/`: EPUB, PDF and Markdown you have made
 - `.cadabra/trash/`: pages you moved to the trash
-- `.cadabra/backups/`: copies made before a format upgrade
+- `.cadabra/backups/`: History snapshots and the copy made before a format upgrade
 - `*.conflict-*.json`: the other version of a chapter that changed in two places
 
-**I deleted something.** Look in the Trash first, then in `.cadabra/trash/`.
+**I lost some text.** Open the chapter's History and restore an earlier version. For a removed chapter, look in the Trash, then in `.cadabra/trash/`.
