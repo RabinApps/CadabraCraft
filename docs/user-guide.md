@@ -167,9 +167,13 @@ Writes the whole book as one Markdown file in reading order. Underline, small ca
 
 After an export finishes the app may offer a sponsor dialog; you can say "Maybe later" or "Don't show again".
 
-## Selling the books you write
+## Using CadabraCraft for books you sell
 
-You can use CadabraCraft free to write and publish your own books, including books you sell. Your manuscript and the EPUB, PDF, Word and Markdown files it makes belong to you. What you can't do is sell, resell or rent CadabraCraft itself, offer it as a paid or hosted service, or put it in a product you charge for. The exact terms are in `LICENSE` and `LICENSE-ADDITIONAL-PERMISSION.md` in the CadabraCraft source repository. If you are unsure about a particular use, ask by opening an issue in the project repository.
+Authors and publishing companies can use CadabraCraft free to write and publish books, including books they sell. Your manuscript and the EPUB, PDF, Word and Markdown files it makes belong to you.
+
+Nobody sells CadabraCraft itself, including its maker. You can't sell, rent or charge for the software or a changed version of it, offer it as a paid or hosted service, charge clients to format their books with it, or charge for support or training. Editing, proofreading and ghostwriting for a fee are fine as long as the fee isn't for formatting or converting a manuscript with the app.
+
+The exact terms are in `LICENSE`, `NOTICE` and `LICENSE-CLARIFICATIONS.md` in the CadabraCraft source repository. If you are unsure about a particular use, ask by opening an issue in the project repository.
 
 ## Using a cloud-synced folder
 

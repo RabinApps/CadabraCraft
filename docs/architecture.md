@@ -336,13 +336,28 @@ Every test and test harness is TypeScript: Vitest and Playwright suites, the nat
 Rejected: keeping `.mjs` scripts (no typechecking, and the scenario already imported a `.ts` fixture); adding `tsx` or `ts-node` (a new tool to download, and Node already does the job).
 
 ## License
-CadabraCraft is licensed under **PolyForm Noncommercial License 1.0.0**: free for noncommercial use, modification and sharing; commercial use needs a separate license from Rabin Apps LLC. Rabin Apps LLC keeps the right to sell the app or dual-license it, and `CONTRIBUTING.md` asks contributors to grant a relicensing right for that. The project is source-available, not open source (the OSI definition forbids restricting commercial use), so the docs must not call it open source.
+CadabraCraft is licensed under the **Apache License 2.0 with the Commons Clause License Condition v1.0** (`LICENSE`, `NOTICE`), with the licensor's clarifications and pledge in `LICENSE-CLARIFICATIONS.md`. The intent: authors and publishing companies use it free; nobody sells the software or a paid service built on it (including paid formatting, hosting, support or training), and Rabin Apps LLC pledges not to either. It is source-available, not open source (the OSI definition forbids restricting sale), so the docs must not call it open source.
 
-**Additional permission for authors.** The noncommercial license permits only noncommercial purposes, so an author selling a book written with the app could be read as a commercial application. The intent is that anyone can use the app free to write and publish their own books, sold or not, and that nobody can sell or repackage the software. `LICENSE-ADDITIONAL-PERMISSION.md` grants exactly that next to `LICENSE` (a licensor may grant extra permissions; the license text itself is unchanged), and the README, user guide and website FAQ say it in plain words.
-- **Rejected:** switching to PolyForm Shield (allows any use except competing products, which is a different line from "cannot be sold", and changes the license, `CONTRIBUTING.md` and the docs); an FAQ with no license change (promises more than the license text grants, and the license wins in a dispute); editing the PolyForm text (a modified standard license is harder to read and to trust).
-- **Caveats:** drafted by an AI, not reviewed by a lawyer; get it reviewed before the first release. Not settled: whether a freelance formatter or editor using the app on clients' manuscripts is covered ("your own books" plus a paid service for others), and hosted use inside a company's own tooling.
+**Decision:** Apache-2.0 gives a standard grant, a patent license and no trademark license; the Commons Clause is a one-paragraph rider that removes the right to "Sell", defined as providing a product or service whose value derives substantially from the software for a fee (hosting, consulting and support included). `LICENSE-CLARIFICATIONS.md` lists what is allowed and not, and says it decides doubtful cases. `CONTRIBUTING.md` is inbound = outbound (Apache-2.0 section 5): contributors keep their copyright and give Rabin Apps LLC no extra relicensing right, so selling later would need every contributor's consent. The pledge is a public covenant that the LLC will not sell or dual-license the software.
 
-Dependencies (Tauri, TipTap core, React, Lingui and similar) are MIT, Apache-2.0 or BSD, which a noncommercial license on our own code does not conflict with. Bundled fonts and tools (Typst, EPUBCheck) keep their own licenses.
+**Rejected:**
+| Option | Why not |
+|---|---|
+| PolyForm Noncommercial plus an additional permission (the previous setup) | Needs a custom permission to let authors and publishers earn money, and bars every other company use by default; required the LLC to keep a right to sell. |
+| PolyForm Shield | Bars only competing products, so a paid formatting service would pass. |
+| MIT, Apache-2.0 or GPL alone, AGPL | Cannot stop selling or paid services. |
+| FSL, BSL | Convert to open source after a few years, which allows selling. |
+| Elastic License 2.0 | Only blocks hosted services. |
+| A custom license from a lawyer | Clearest, but costs time and money; still possible later. |
+
+**Caveats:**
+- Drafted by an AI, not reviewed by a lawyer; get it reviewed before the first release.
+- "A service whose value derives substantially from the software" is vague and the Commons Clause is widely criticised for it; the clarifications list examples to reduce that. Open: hybrid publishers that charge authors a formatting fee, editors who also format, and companies using the MCP server in a paid pipeline.
+- A license cannot bind its own owner. The pledge's enforceability, and a structural backstop (a foundation or an asset lock), are for a lawyer.
+- The Commons Clause page states no license for the clause text itself; check the `fossas/commons-clause` repository.
+- Nothing had been released under the earlier PolyForm terms; anyone who copied the repository before this change keeps those terms for that copy.
+
+Dependencies (Tauri, TipTap core, React, Lingui and similar) are MIT, Apache-2.0 or BSD, which our Apache-2.0 plus Commons Clause license does not conflict with (their notices still have to ship, see the roadmap). Bundled fonts and tools (Typst, EPUBCheck) keep their own licenses.
 
 Rejected: AGPL-3.0 and MPL-2.0 (the earlier candidates; neither stops anyone selling the app), CC BY-NC (Creative Commons advises against it for software), FSL-1.1-MIT (blocks only competing products and turns MIT after 2 years), custom proprietary terms (legal risk without a lawyer), a full CLA (too heavy for a solo project; revisit if outside contributions grow).
 ## Regex find and replace

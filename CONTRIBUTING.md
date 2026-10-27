@@ -4,12 +4,7 @@ Contributions are welcome.
 
 ## License of contributions
 
-CadabraCraft is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). By submitting a contribution (pull request, patch or issue attachment) you agree that:
-
-- your contribution is licensed under the same terms as the rest of the project, and
-- you grant Rabin Apps LLC a perpetual, worldwide, irrevocable right to use, modify, sublicense and relicense your contribution, including under commercial terms, so Rabin Apps LLC can offer commercial licenses for CadabraCraft.
-
-You keep the copyright in what you write. Only submit work you have the right to submit.
+CadabraCraft is licensed under the [Apache License 2.0 with the Commons Clause](LICENSE). By submitting a contribution (pull request, patch or issue attachment) you agree that it is licensed under those same terms, including Apache-2.0's patent license (section 5 of the license). You keep the copyright in what you write. Rabin Apps LLC gets no extra right to relicense or sell your contribution, and the pledge in [LICENSE-CLARIFICATIONS.md](LICENSE-CLARIFICATIONS.md) covers it. Only submit work you have the right to submit (for example, your employer allows it).
 
 ## Workflow
 

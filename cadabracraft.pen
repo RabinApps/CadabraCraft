@@ -25819,7 +25819,7 @@
                       "fill": "$ink-muted",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Yes. Use it free to write and publish your own books, even ones you sell. The software itself can't be sold or repackaged. Sponsorship keeps it independent.",
+                      "content": "Yes. Authors and publishers use it free to write and publish books. Nobody sells the software itself, including its maker. Sponsorship keeps it independent.",
                       "fontFamily": "$font-ui",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -26866,7 +26866,7 @@
                       "fill": "$ink-muted",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Yes. Use it free to write and publish your own books, even ones you sell. The software itself can't be sold or repackaged. Sponsorship keeps it independent.",
+                      "content": "Yes. Authors and publishers use it free to write and publish books. Nobody sells the software itself, including its maker. Sponsorship keeps it independent.",
                       "fontFamily": "$font-ui",
                       "fontSize": 14,
                       "fontWeight": "normal"

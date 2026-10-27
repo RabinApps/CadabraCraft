@@ -20,7 +20,7 @@ CadabraCraft is a desktop app for writing and formatting books. Write in a rich-
 
 - **Local-first.** Your project is a folder of plain, documented files. No account, no server, no telemetry.
 - **Your sync, your choice.** Point the folder at Google Drive, Dropbox or iCloud Drive. Conflicting edits keep both copies.
-- **Free for your books, source-available.** The app, the file format and the exporters all live in this repo. Anyone can use CadabraCraft free to write and publish their own books, including books they sell. The software itself can't be sold or repackaged (see [License](#license)).
+- **Free, and never sold.** The app, the file format and the exporters all live in this repo. Authors and publishing companies can use CadabraCraft free to write and publish books. The software itself is never sold, by anyone, including its maker (see [License](#license)).
 
 ## What it is
 
@@ -146,10 +146,10 @@ Work milestone by milestone, one PR each, with tests and docs. Record ideas outs
 
 ## License
 
-CadabraCraft is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE), plus an [additional permission for authors](LICENSE-ADDITIONAL-PERMISSION.md). In plain words:
+CadabraCraft is source-available under the [Apache License 2.0 with the Commons Clause](LICENSE), plus [clarifications and a pledge](LICENSE-CLARIFICATIONS.md). In plain words:
 
-- **Authors:** you can use CadabraCraft free to write, format, export and publish your own books, including books you sell. Your books and the files it makes are yours.
-- **Everyone:** you can read the code, change it for yourself and share it for noncommercial purposes.
-- **Not allowed without a separate license from Rabin Apps LLC:** selling, reselling or renting the software or a changed version of it, offering it as a paid or hosted service, or putting it in a product you charge for.
+- **Authors and publishing companies:** use it free to write, format, export and publish books, including books you sell. Your books and the files it makes are yours.
+- **Everyone:** read the code, change it and share your changes for free (keep `LICENSE` and `NOTICE` with them).
+- **Nobody sells it:** you can't sell, rent or charge for the software or a changed version, offer it as a paid or hosted service, charge clients to format their books with it, or charge for support or training. Rabin Apps LLC pledges not to do any of that either.
 
-It is not open source in the OSI sense. This summary is not the legal text: the two license files are.
+It is not open source in the OSI sense, because the Commons Clause restricts selling. This summary is not the legal text: `LICENSE`, `NOTICE` and the clarifications file are.
