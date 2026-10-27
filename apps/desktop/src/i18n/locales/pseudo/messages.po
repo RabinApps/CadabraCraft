@@ -40,6 +40,12 @@ msgid "{0} is larger than {1} MB"
 msgstr ""
 
 #. placeholder {0}: e.name
+#. placeholder {1}: e.max_megapixels
+#: src/lib/projectError.ts
+msgid "{0} is larger than {1} megapixels"
+msgstr ""
+
+#. placeholder {0}: e.name
 #: src/lib/projectError.ts
 msgid "{0} is not a .docx, .md, .markdown, .html, .htm or .txt file"
 msgstr ""
@@ -375,6 +381,11 @@ msgstr ""
 
 #: src/app/store.ts
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "CadabraCraft does not have permission to use {0}"
 msgstr ""
 
 #: src/app/SponsorDialog.tsx
@@ -1776,6 +1787,11 @@ msgstr ""
 #: src/app/Settings.tsx
 #: src/editor/ReadingSettings.tsx
 msgid "Theme"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "There is no space left on the disk to write {0}"
 msgstr ""
 
 #: src/app/importBook.ts

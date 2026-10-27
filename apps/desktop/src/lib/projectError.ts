@@ -22,12 +22,15 @@ export type ProjectError =
   | { kind: "image_ref_not_found"; reference: string }
   | { kind: "image_ref_outside"; reference: string }
   | { kind: "invalid_file_name" }
+  | { kind: "permission_denied"; path: string }
+  | { kind: "disk_full"; path: string }
+  | { kind: "image_dimensions"; name: string; max_megapixels: number }
   | { kind: "io"; message: string };
 
 const KINDS = new Set<string>([
   "unsafe_path", "path_escape", "not_found", "already_exists", "not_a_project", "not_utf8", "icloud_pending", "too_large", "not_a_file", "unsupported_image",
   "invalid_image", "unsupported_document", "not_image_asset", "not_trash_path", "cannot_restore", "image_ref_not_allowed", "image_ref_not_found",
-  "image_ref_outside", "invalid_file_name", "io",
+  "image_ref_outside", "invalid_file_name", "permission_denied", "disk_full", "image_dimensions", "io",
 ]);
 
 /** True for a rejection from a Rust file command. (`TypstError` also uses `not_found`, but with a `message` and no `path`.) */
@@ -60,6 +63,9 @@ export function projectErrorMessage(e: ProjectError): string {
     case "image_ref_not_found": return t`Image not found: ${e.reference}`;
     case "image_ref_outside": return t`The image ${e.reference} is outside the document's folder`;
     case "invalid_file_name": return t`That file name is not valid`;
+    case "permission_denied": return t`CadabraCraft does not have permission to use ${e.path}`;
+    case "disk_full": return t`There is no space left on the disk to write ${e.path}`;
+    case "image_dimensions": return t`${e.name} is larger than ${e.max_megapixels} megapixels`;
     case "io": return e.message;
   }
 }

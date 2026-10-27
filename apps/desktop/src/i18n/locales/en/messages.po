@@ -40,6 +40,12 @@ msgid "{0} is larger than {1} MB"
 msgstr "{0} is larger than {1} MB"
 
 #. placeholder {0}: e.name
+#. placeholder {1}: e.max_megapixels
+#: src/lib/projectError.ts
+msgid "{0} is larger than {1} megapixels"
+msgstr "{0} is larger than {1} megapixels"
+
+#. placeholder {0}: e.name
 #: src/lib/projectError.ts
 msgid "{0} is not a .docx, .md, .markdown, .html, .htm or .txt file"
 msgstr "{0} is not a .docx, .md, .markdown, .html, .htm or .txt file"
@@ -376,6 +382,11 @@ msgstr "cadabra.json changed outside the app; your previous copy was kept as {0}
 #: src/app/store.ts
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 msgstr "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "CadabraCraft does not have permission to use {0}"
+msgstr "CadabraCraft does not have permission to use {0}"
 
 #: src/app/SponsorDialog.tsx
 msgid "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
@@ -1777,6 +1788,11 @@ msgstr "The trash is empty."
 #: src/editor/ReadingSettings.tsx
 msgid "Theme"
 msgstr "Theme"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "There is no space left on the disk to write {0}"
+msgstr "There is no space left on the disk to write {0}"
 
 #: src/app/importBook.ts
 msgid "There is no text to import in this file."
