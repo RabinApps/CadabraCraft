@@ -1,4 +1,4 @@
-import { parse, parseFragment, type DefaultTreeAdapterMap } from "parse5";
+import { parse, type DefaultTreeAdapterMap } from "parse5";
 import type { DocNode, Mark } from "@cadabracraft/shared";
 import {
   AssetRegistry,
@@ -9,6 +9,7 @@ import {
   imageItems,
   isSep,
   listItemOf,
+  cleanText,
   mergeInline,
   paragraphOf,
   plainText,
@@ -27,7 +28,7 @@ type PText = DefaultTreeAdapterMap["textNode"];
 const MAX_DOM_DEPTH = 512;
 
 /** Dropped with their content. `head` is skipped here because the file importer reads `<title>` separately. */
-const SKIP = new Set(["script", "style", "iframe", "object", "svg", "noscript", "template", "head", "title", "meta", "link", "base", "embed", "applet", "frame", "frameset", "col", "colgroup", "wbr"]);
+const SKIP = new Set(["script", "style", "iframe", "object", "svg", "noscript", "template", "head", "title", "meta", "link", "base", "embed", "applet", "frame", "frameset", "col", "colgroup", "wbr", "select", "datalist"]);
 /** Block containers with no formatting of their own: their children are laid out as if they were not there. */
 const CONTAINERS = new Set([
   "html", "body", "div", "section", "article", "main", "header", "footer", "nav", "aside", "figure", "figcaption", "details", "summary",
@@ -76,6 +77,33 @@ function tooNested(html: string): boolean {
     }
   }
   return false;
+}
+
+/** parse5 compares every new attribute with the earlier ones, so one tag with 50,000 attributes takes seconds. */
+const MAX_ATTRS_PER_TAG = 5000;
+const TAG_OPEN = /<[A-Za-z][^\s/>]*/g;
+const ATTR = /[\s/]+[^\s"'>/=][^\s>/=]*(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*))?/y;
+function tooManyAttributes(html: string): boolean {
+  TAG_OPEN.lastIndex = 0;
+  for (let m = TAG_OPEN.exec(html); m; m = TAG_OPEN.exec(html)) {
+    let pos = m.index + m[0].length;
+    let n = 0;
+    for (;;) {
+      ATTR.lastIndex = pos;
+      const a = ATTR.exec(html);
+      if (!a) break;
+      pos += a[0].length;
+      if (++n > MAX_ATTRS_PER_TAG) return true;
+    }
+    TAG_OPEN.lastIndex = Math.max(TAG_OPEN.lastIndex, pos);
+  }
+  return false;
+}
+
+/** Refuse input whose shape makes parse5 or the tree walk blow up (see `tooNested`, `tooManyAttributes`). */
+function refuseHostileShape(html: string): void {
+  if (tooNested(html)) throw new ImportError("too-deeply-nested", TOO_DEEP);
+  if (tooManyAttributes(html)) throw new ImportError("input-too-large", `The HTML has a tag with more than ${MAX_ATTRS_PER_TAG} attributes.`);
 }
 
 const isElement = (n: PNode): n is PElement => "tagName" in n;
@@ -174,8 +202,10 @@ function flush(f: Flow, ctx: HtmlCtx): void {
   let cur: DocNode[] = [];
   let breaks = false;
   const end = () => {
+    // A paragraph of only spaces or no-break spaces (a Word-style spacer) is not content.
+    const blank = cur.every((n) => n.type === "text" && n.text.trim() === "");
     const p = paragraphOf(cur);
-    if (p.type === "paragraph" && p.content) f.out.push(p);
+    if (!blank && p.type === "paragraph" && p.content) f.out.push(p);
     cur = [];
   };
   for (const it of items) {
@@ -242,7 +272,7 @@ function element(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: numb
     case "span": {
       if (hasClass(el, "footnote")) {
         const text = textOf(el);
-        f.run.push(text ? { type: "footnote", content: [{ type: "text", text }] } : { type: "footnote" });
+        f.run.push(text ? { type: "footnote", content: [{ type: "text", text: cleanText(text) }] } : { type: "footnote" });
         return;
       }
       const small = hasClass(el, "small-caps") || /font-variant(?:-caps)?\s*:\s*(?:all-)?small-caps/i.test(attr(el, "style") ?? "");
@@ -264,7 +294,7 @@ function element(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: numb
       flush(f, ctx);
       const code = el.childNodes.find((c): c is PElement => isElement(c) && c.tagName === "code");
       const lang = /(?:^|\s)(?:language|lang)-([A-Za-z0-9_+#.-]{1,32})(?:\s|$)/.exec(attr(code ?? el, "class") ?? "")?.[1];
-      const text = preText(el);
+      const text = cleanText(preText(el));
       f.out.push({ type: "codeBlock", ...(lang ? { attrs: { language: lang } } : {}), ...(text ? { content: [{ type: "text", text }] } : {}) });
       return;
     }
@@ -360,30 +390,37 @@ function table(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: number
   if (node) f.out.push(node);
 }
 
-/** parse5 can still overflow the stack on some hostile shapes (nested `<template>`): report that as the nesting error. */
-function guarded<T>(parseIt: () => T): T {
+const TOO_DEEP = "The HTML is nested too deeply to import.";
+
+/** Run one import step so that the only thing that can escape is an `ImportError` (a stack overflow means too deep; anything else is a parser failure). */
+function guarded<T>(step: () => T): T {
   try {
-    return parseIt();
+    return step();
   } catch (e) {
-    if (e instanceof RangeError) throw new ImportError("too-deeply-nested", "The HTML is nested too deeply to import.");
-    throw e;
+    if (e instanceof ImportError) throw e;
+    if (e instanceof RangeError) throw new ImportError("too-deeply-nested", TOO_DEEP);
+    throw new ImportError("invalid-xml", `The HTML could not be read: ${e instanceof Error ? e.message.slice(0, 200) : "unknown error"}`);
   }
+}
+
+/**
+ * Parse a snippet as the body of a document. `parseFragment` is far slower on large flat input (200,000 `<b>x</b>` take
+ * seconds against 0.1 s for a document parse), so snippets go through the document parser.
+ */
+function parseSnippet(html: string): readonly PNode[] {
+  const doc = parse(`<!DOCTYPE html><body>${html}`);
+  const root = doc.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "html");
+  const body = root?.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "body");
+  return body?.childNodes ?? [];
 }
 
 /** Convert parsed nodes into top-level blocks. */
-function convert(nodes: readonly PNode[], ctx: HtmlCtx): DocNode[] {
-  try {
-    return blocksIn(nodes, ctx, [], 0, 0);
-  } catch (e) {
-    if (e instanceof RangeError) throw new ImportError("too-deeply-nested", "The HTML is nested too deeply to import.");
-    throw e;
-  }
-}
+const convert = (nodes: readonly PNode[], ctx: HtmlCtx): DocNode[] => guarded(() => blocksIn(nodes, ctx, [], 0, 0));
 
 /** Blocks for an HTML snippet, sharing the caller's warnings and asset registry (used by the Markdown importer). */
 export function htmlSnippetBlocks(html: string, ctx: HtmlCtx): DocNode[] {
-  if (tooNested(html)) throw new ImportError("too-deeply-nested", "The HTML is nested too deeply to import.");
-  return convert(guarded(() => parseFragment(html)).childNodes, ctx);
+  refuseHostileShape(html);
+  return convert(guarded(() => parseSnippet(html)), ctx);
 }
 
 const newCtx = (opts: ImportOptions): HtmlCtx => ({ warn: new Warnings(), assets: new AssetRegistry(), maxDepth: opts.maxNestingDepth ?? 32 });
@@ -391,7 +428,7 @@ const newCtx = (opts: ImportOptions): HtmlCtx => ({ warn: new Warnings(), assets
 function guardSize(html: string, opts: ImportOptions): void {
   const max = opts.maxInputChars ?? 50_000_000;
   if (html.length > max) throw new ImportError("input-too-large", `HTML input is larger than ${max} characters.`);
-  if (tooNested(html)) throw new ImportError("too-deeply-nested", "The HTML is nested too deeply to import.");
+  refuseHostileShape(html);
 }
 
 /** Blocks for a pasted HTML snippet. Pure: no DOM, disk or network access. */
@@ -420,22 +457,25 @@ const TAG_LIKE = /<\/?[A-Za-z][A-Za-z0-9]*(?:\s+[A-Za-z_:][-\w:.]*(?:\s*=\s*(?:"
 
 /** True only when the text parses to at least one recognised element, so `a < b` and `<3` are not mistaken for HTML. */
 export function looksLikeHtml(text: string): boolean {
-  if (!TAG_LIKE.test(text)) return false;
-  if (tooNested(text)) return true;
-  let stack: PNode[];
   try {
-    stack = [...guarded(() => parseFragment(text)).childNodes];
+    if (typeof text !== "string" || !TAG_LIKE.test(text)) return false;
+    try {
+      refuseHostileShape(text);
+    } catch {
+      return true;
+    }
+    const stack: PNode[] = [...guarded(() => parseSnippet(text))];
+    while (stack.length) {
+      const n = stack.pop()!;
+      if (!isElement(n)) continue;
+      if (RECOGNISED.has(n.tagName)) return true;
+      for (const c of kids(n)) stack.push(c);
+    }
+    return false;
   } catch (e) {
-    if (e instanceof ImportError) return true;
-    throw e;
+    // Too deep to import still counts as HTML (the import will say why it refuses); any other failure is "not HTML".
+    return e instanceof ImportError && e.code === "too-deeply-nested";
   }
-  while (stack.length) {
-    const n = stack.pop()!;
-    if (!isElement(n)) continue;
-    if (RECOGNISED.has(n.tagName)) return true;
-    stack.push(...kids(n));
-  }
-  return false;
 }
 
 /** The `<title>` text of a parsed document, if any. */
