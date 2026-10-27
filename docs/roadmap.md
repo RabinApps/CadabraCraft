@@ -30,6 +30,9 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Port `.docx` import (`packages/import-docx`) to Rust (`zip` + `quick-xml`) to stop the double XML pass and synchronous unzip; needs approval for the new crates and a contract-fixture set for the doc output.
 - Run the native pickers (`pickFolder`, `pickImage`, `pickImportSource`) in Rust and remember what the author picked, so `create_project`, `import_asset` and `read_import_source` only accept those paths (today the webview can name any absolute folder or file for them).
 
+### Audio
+- Audiobook export (M4B/MP3, local TTS only): see [Audiobook export spike](architecture.md#audiobook-export-spike-2026-10-27). Voices picked: Kokoro default, Piper `amy-medium` and `libritts_r-medium` speaker 0 as the fast options. Implementation still to be documented. Needs: a Piper licensing decision, an Export Audio dialog, a per-chapter content-hash cache, sentence chunking, an ffmpeg or Opus encoder sidecar and a per-platform build (ask before adding binaries). Retail platforms differ on synthetic voices; say so in the dialog.
+
 ### Format coverage
 - Task lists and definition lists are not supported and have no schema node; add them only on demand. Today the Markdown importer keeps task items as list items with a `[ ] ` / `[x] ` text prefix and a `task-list` warning, and definition-style content is plain paragraphs (`[^1]` definitions are footnotes, not definition lists). The DOCX importer has no definition-list handling: "Definition Term" / "Definition" style paragraphs fall back to normal paragraphs, and Word content-control checkboxes (`sdt`) import as their text content.
 

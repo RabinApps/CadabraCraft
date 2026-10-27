@@ -17,6 +17,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 
 **Export**
 - [M2 print side: templates and Typst PDF export](#m2-print-side-templates-and-typst-pdf-export)
+- [Audiobook export spike (2026-10-27)](#audiobook-export-spike-2026-10-27)
 
 **Platform and tooling**
 - [Headless MCP server](#headless-mcp-server)
@@ -400,3 +401,26 @@ Rejected: importing `@preview/droplet` (Typst would download it at compile time,
 - A snapshot name `...-a-2.json` is ambiguous between a numbered copy of page `a` and the plain snapshot of page `a-2`; listing treats it as the sibling's when that page exists. Deleted siblings resolve the other way.
 - Snapshots of a page removed from the book are never pruned.
 - Not run on a real sync folder, on Windows or in the native app (`/drive-app` not run).
+
+## Audiobook export spike (2026-10-27)
+
+Throwaway script `scripts/audio-spike/kokoro.mjs` (setup in `tools/audio-spike/`, gitignored) renders `fixtures/manuscripts/full-book.json` (first 1,500 characters of each of 4 chapters, footnotes, code and tables skipped) to WAV on an Apple M1 Max, CPU only. Nothing shipped; no app code changed.
+
+| | Kokoro-82M (q8 ONNX via `kokoro-js`) | Piper (`en_US-lessac-medium`, `piper-tts` 1.8.0) |
+|---|---|---|
+| Speed | 412 s of audio in 260 s (real-time factor 0.63, about 1.6x faster than real time) | 80 s of audio in 3.5 s (about 0.04, roughly 15x faster than Kokoro) |
+| Size | Model 88 MB | Voice 60 MB (more per language) |
+| Engine license | Apache-2.0 per the model card (not re-checked here) | Current Piper is GPL-3.0-or-later; the MIT repo (rhasspy/piper) is archived |
+| Runtime network | None after the one-off model fetch | None after the voice fetch |
+
+**Decision (provisional):** audiobook export is worth a future milestone, local and offline only. Kokoro is the quality default; Piper is the fast option, using `en_US-amy-medium` and `en_US-libritts_r-medium` (speaker 0). Engine and packaging are not final.
+**Listening check (author, 2026-10-27):** Kokoro sounded better than any Piper voice. `en_US-ryan-high` (115 MB, 14.6 s for 75 s of audio) sounded awful and is dropped despite its "high" tier. `amy-medium` (60 MB, 3.3 s for 96 s) and `libritts_r-medium` speaker 0 (75 MB, 2.6 s for 65 s) are the Piper voices to ship. `lessac-medium` was not chosen. Spike downloads were deleted afterwards; they re-download from rhasspy/piper-voices on Hugging Face.
+**Why:** both run offline on CPU with no account or per-character cost; a 100k-word book (about 10 h) would take about 6 h with Kokoro and about 25 min with Piper on this machine.
+**Rejected:** XTTS v2 (CPML, non-commercial), Orpheus (Llama attribution terms), cloud or Edge TTS (network, breaks the v1 rule), a Python runtime in the app (size and packaging).
+**Findings:**
+- Kokoro drops text past about 510 tokens per `generate()` call (1,500 characters gave only 25 s of audio), so the exporter must chunk by sentence.
+- The archived MIT Piper macOS arm64 release (2023.11.14-2) is missing its dylibs (`libespeak-ng`, `libonnxruntime`) and does not start. The maintained Piper is GPL-3.0; shipping it as a separate sidecar needs a licensing decision against our own license (see [License](#license)).
+**Caveats / not verified:**
+- Listening was by one person, on a handful of clips; no blind comparison and only the first 1,500 characters of chapter 1 for the extra Piper voices.
+- One machine, one voice per engine, English only; Windows and Linux not tried; no ffmpeg/M4B encoding step built.
+- Kokoro and Piper licenses and distribution terms must be confirmed on their repos before any release.
