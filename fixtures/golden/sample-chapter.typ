@@ -129,4 +129,13 @@ One
 
 #strike[struck] #raw("a<b") H#sub[2]O x#super[2]
 
+#enum(start: 3, 
+  [
+Third
+  ],
+  [
+Fourth
+  ],
+)
+
 #mark("chapter-end")

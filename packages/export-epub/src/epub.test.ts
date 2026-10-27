@@ -70,6 +70,16 @@ describe("more node coverage", () => {
     expect(html).toContain('alt="say &quot;hi&quot;"');
     expect(html).toContain("<figcaption>Cap</figcaption>");
   });
+  it("emits start on ordered lists only for integers other than 1", () => {
+    const ol = (start: string | number) => chapterToXhtmlBody({
+      type: "doc",
+      content: [{ type: "orderedList", attrs: { start }, content: [{ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "a" }] }] }] }],
+    });
+    expect(ol(3)).toContain('<ol start="3">');
+    expect(ol(1)).toContain("<ol>");
+    expect(ol(2.5)).toContain("<ol>");
+    expect(ol("3")).toContain("<ol>");
+  });
   it("numbers multiple footnotes in order", () => {
     const fn = (t: string) => ({ type: "footnote" as const, content: [{ type: "text" as const, text: t }] });
     const html = chapterToXhtmlBody({ type: "doc", content: [{ type: "paragraph", content: [fn("one"), fn("two")] }] });

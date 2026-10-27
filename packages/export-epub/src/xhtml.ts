@@ -52,7 +52,11 @@ function block(n: DocNode, ctx: Ctx): string {
     }
     case "blockquote": return `<blockquote>${(kids ?? []).map((k) => block(k, ctx)).join("")}</blockquote>`;
     case "bulletList": return `<ul>${(kids ?? []).map((k) => block(k, ctx)).join("")}</ul>`;
-    case "orderedList": return `<ol>${(kids ?? []).map((k) => block(k, ctx)).join("")}</ol>`;
+    case "orderedList": {
+      const start = n.attrs?.start;
+      const attr = typeof start === "number" && Number.isInteger(start) && start !== 1 ? ` start="${start}"` : "";
+      return `<ol${attr}>${(kids ?? []).map((k) => block(k, ctx)).join("")}</ol>`;
+    }
     case "listItem": return `<li>${(kids ?? []).map((k) => block(k, ctx)).join("")}</li>`;
     case "codeBlock": {
       const lang = typeof n.attrs?.language === "string" && n.attrs.language ? ` class="language-${esc(n.attrs.language)}"` : "";

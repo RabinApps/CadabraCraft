@@ -30,6 +30,10 @@
       { "type": "text", "text": "2", "marks": [{ "type": "subscript" }] },
       { "type": "text", "text": "O x" },
       { "type": "text", "text": "2", "marks": [{ "type": "superscript" }] }
+    ] },
+    { "type": "orderedList", "attrs": { "start": 3 }, "content": [
+      { "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Third" }] }] },
+      { "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Fourth" }] }] }
     ] }
   ]
 }
