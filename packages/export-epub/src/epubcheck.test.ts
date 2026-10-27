@@ -53,6 +53,20 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
     expect(check("cover-only.epub", buildEpub(metaOf("en"), matterBook().slice(0, 1), { cover: { path: "assets/cover.png", bytes: png } }))).toContain("No errors or warnings detected");
   }, JVM_TIMEOUT);
 
+  it("validates an ISBN, images without alt text, a cover and a GIF, all with accessibility metadata", () => {
+    const png = new Uint8Array(readFileSync(new URL("../../../fixtures/assets/pixel.png", import.meta.url)));
+    const img = (src: string, alt?: string) => ({ type: "image", attrs: { src, ...(alt === undefined ? {} : { alt }) } });
+    const noAlt = { ...doc, content: [...doc.content, img("assets/pixel.png"), img("assets/b.png", "  ")] };
+    const assets = new Map([["assets/pixel.png", png], ["assets/b.png", png]]);
+    const m = { ...metaOf("en"), isbn: "978-3-16-148410-0" };
+    expect(check("alt.epub", buildEpub(m, [{ id: "ch1", title: "One", doc: noAlt }], { assets }))).toContain("No errors or warnings detected");
+    expect(check("alt-cover.epub", buildEpub(m, [{ id: "ch1", title: "One", doc: noAlt }], { assets, cover: { path: "assets/cover.png", bytes: png } }))).toContain("No errors or warnings detected");
+    const withAlt = { ...doc, content: [...doc.content, img("assets/pixel.png", "A pixel")] };
+    expect(check("isbn10.epub", buildEpub({ ...m, isbn: "0-306-40615-2" }, [{ id: "ch1", title: "One", doc: withAlt }], { assets }))).toContain("No errors or warnings detected");
+    const gif = { ...doc, content: [...doc.content, img("assets/g.gif", "A gif")] };
+    expect(check("gif.epub", buildEpub(m, [{ id: "ch1", title: "One", doc: gif }], { assets: new Map([["assets/g.gif", new Uint8Array(Buffer.from("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", "base64"))]]) }))).toContain("No errors or warnings detected");
+  }, JVM_TIMEOUT);
+
   it("validates matter-only and right-to-left books", () => {
     expect(check("front-only.epub", buildEpub(metaOf("en"), matterBook().slice(0, 1)))).toContain("No errors or warnings detected");
     expect(check("he.epub", buildEpub(metaOf("he"), matterBook()))).toContain("No errors or warnings detected");

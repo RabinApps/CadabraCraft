@@ -5,7 +5,7 @@ import { countWords } from "@cadabracraft/shared";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
 import { PdfUiError } from "../lib/pdfErrors";
-import { epubChecks, pdfChecks, type ExportCheck } from "../lib/exportChecks";
+import { epubChecks, pdfChecks, type CheckPage, type ExportCheck } from "../lib/exportChecks";
 import { estimatePages, wordsPerPage } from "../lib/printPreview";
 import { trimLabel } from "../lib/trimLabels";
 import { Button } from "../ui/Button";
@@ -87,7 +87,8 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const [error, setError] = useState<PdfUiError | null>(null);
   const running = stage !== null;
   const current = template ?? (manifest && hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID);
-  const checks = manifest ? epubChecks(manifest) : [];
+  const [altPages, setAltPages] = useState<CheckPage[]>([]);
+  const checks = manifest ? epubChecks(manifest, altPages) : [];
   const [words, setWords] = useState<number | null>(null);
   useEffect(() => {
     if (!open || format !== "pdf") return;
@@ -95,6 +96,13 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
     readPages().then((pages) => { if (live) setWords(pages.reduce((sum, p) => sum + countWords(p.doc), 0)); }, () => { if (live) setWords(null); });
     return () => { live = false; };
   }, [open, format, readPages]);
+  useEffect(() => {
+    if (!open || format !== "epub" || !manifest) return;
+    let live = true;
+    const fileOf = (id: string) => [...manifest.frontMatter, ...manifest.chapters, ...manifest.backMatter].find((e) => e.id === id)?.file;
+    readPages().then((pages) => { if (live) setAltPages(pages.map((p) => ({ title: p.title, file: fileOf(p.id), doc: p.doc }))); }, () => { if (live) setAltPages([]); });
+    return () => { live = false; };
+  }, [open, format, readPages, manifest]);
   const pdfCheckList = useMemo(() => {
     if (!manifest || words === null) return [];
     const print = getTemplate(current).print;

@@ -7,6 +7,18 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
+#: src/lib/epubErrors.ts
+msgid "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+msgstr "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+
+#: src/lib/epubErrors.ts
+msgid "“{page}” uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
+msgstr "“{page}” uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
+
+#: src/lib/epubErrors.ts
+msgid "“{page}”: {detail}"
+msgstr "“{page}”: {detail}"
+
 #. placeholder {0}: stuck.length
 #: src/app/store.ts
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
@@ -128,6 +140,10 @@ msgstr "{kept, plural, one {# chapter will be imported.} other {# chapters will 
 #: src/app/Details.tsx
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
 msgstr "{minutes, plural, one {# minute} other {# minutes}}"
+
+#: src/lib/exportChecks.ts
+msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
+msgstr "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 
 #: src/editor/FindBar.tsx
 msgid "{n, plural, one {# match} other {# matches}}"
@@ -1816,6 +1832,10 @@ msgstr "That address can't be used as a link."
 msgid "That file name is not valid"
 msgstr "That file name is not valid"
 
+#: src/lib/epubErrors.ts
+msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+msgstr "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+
 #: src/app/store.ts
 msgid "The book has no pages to export yet. Add a chapter first."
 msgstr "The book has no pages to export yet. Add a chapter first."
@@ -1823,6 +1843,10 @@ msgstr "The book has no pages to export yet. Add a chapter first."
 #: src/app/Home.tsx
 msgid "The book is stored in this folder. Nothing leaves your computer."
 msgstr "The book is stored in this folder. Nothing leaves your computer."
+
+#: src/lib/epubErrors.ts
+msgid "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
+msgstr "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
 
 #. placeholder {0}: manifest.cover
 #: src/app/store.ts
