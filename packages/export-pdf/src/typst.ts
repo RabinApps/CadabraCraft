@@ -60,6 +60,8 @@ function resolveMargins(options: PdfOptions, t: Template): PdfMargins {
 
 interface Ctx {
   images: Map<string, string>;
+  /** Set when a chapter opening used `dropcap`, so the vendored package is written next to the source. */
+  usesDropCap?: boolean;
   /** Max image height in inches. */
   maxImageIn: number;
   assets: Record<string, Uint8Array> | undefined;
@@ -410,7 +412,20 @@ const BLANK_VERSO_AFTER: readonly (MatterKind | undefined)[] = ["dedication", "e
  * The pages in order. Front matter is numbered in lowercase roman (title and copyright pages show no number), arabic numbering
  * restarts at 1 on a right-hand page at the first page after the front matter, and back matter continues the arabic count.
  */
-function bodyOf(pages: PdfChapter[], ctx: Ctx): string {
+/** First paragraph of a chapter as a drop cap, or null when it does not start with a letter in plain text (then it is set normally). */
+function dropCapOpening(doc: DocNode[] | undefined, ctx: Ctx, indentEm: number): string | null {
+  const first = doc?.[0];
+  const kids = first?.type === "paragraph" && "content" in first ? first.content : undefined;
+  const lead = kids?.[0];
+  if (lead?.type !== "text" || (lead.marks?.length ?? 0) > 0 || !/^\p{L}.{1,}/u.test(lead.text)) return null;
+  const rest = blocks(doc!.slice(1), ctx);
+  ctx.usesDropCap = true;
+  // Typst treats the paragraph after the drop cap block as a first paragraph, so an indenting template needs its indent put back by hand.
+  const indent = indentEm > 0 && doc![1]?.type === "paragraph" ? `#h(${em(indentEm)})` : "";
+  return `#dropcap(height: 3, gap: 0.12em)[${inline(kids, ctx, true)}]${rest === "" ? "" : `\n\n${indent}${rest}`}`;
+}
+
+function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm: number): string {
   const out: string[] = [];
   let chapterNo = 0;
   let sawFront = false;
@@ -428,7 +443,7 @@ function bodyOf(pages: PdfChapter[], ctx: Ctx): string {
       out.push('#pagebreak(weak: true, to: "odd")\n');
     }
     prev = kind;
-    const content = blocks(page.doc.content, ctx);
+    const content = (kind === undefined && dropCap ? dropCapOpening(page.doc.content, ctx, indentEm) : null) ?? blocks(page.doc.content, ctx);
     const title = typstString(page.title);
     switch (kind) {
       case "title-page": out.push(`#title-page[\n${content}\n]\n`); break;
@@ -474,8 +489,9 @@ export function buildTypstDocument(
   };
   const head = preamble(book, t, options, resolved, margins, chapters.some((c) => (c.section ?? "chapter") === "front"));
   const cover = options.cover === undefined ? "" : coverPage(options.cover, ctx);
-  const body = bodyOf(chapters, ctx);
-  return { source: `${head}\n${cover}${body}`, images: ctx.images, fonts: resolved };
+  const body = bodyOf(chapters, ctx, t.print.chapterOpening.dropCap, t.print.paragraph.style === "indent" ? t.print.paragraph.indentEm : 0);
+  const droplet = ctx.usesDropCap ? '#import "typst-droplet/lib.typ": dropcap\n' : "";
+  return { source: `${head}\n${droplet}${cover}${body}`, images: ctx.images, fonts: resolved, usesDropCap: ctx.usesDropCap === true };
 }
 
 /** Pure: chapter JSON -> Typst source. No I/O, no font availability check (see `renderPdf`). */

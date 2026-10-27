@@ -2,6 +2,7 @@ import { MissingAssetError, PdfExportError, TypstCompileError } from "./errors";
 import type { TypstRunner } from "./runner";
 import type { PdfBook, PdfChapter, PdfOptions, RenderResult } from "./types";
 import { buildTypstDocument, resolveFonts } from "./typst";
+import { DROPLET_FILES } from "./vendor/droplet";
 import { errMsg } from "@cadabracraft/shared";
 
 export type RenderPdfOptions = PdfOptions;
@@ -20,6 +21,7 @@ export async function renderPdf(book: PdfBook, chapters: PdfChapter[], options: 
 
   const files = new Map<string, Uint8Array>();
   for (const [src, rel] of doc.images) files.set(rel, options.assets![src]!);
+  if (doc.usesDropCap) for (const [rel, text] of Object.entries(DROPLET_FILES)) files.set(rel, new TextEncoder().encode(text));
   let pdf: Uint8Array;
   try {
     pdf = await runner.compile(doc.source, files, { pdfA: options.pdfA === true });

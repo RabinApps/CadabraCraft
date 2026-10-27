@@ -55,6 +55,19 @@ describe("buildTypst content", () => {
     expect(buildTypst(book, ch(), { template: "novel" })).toContain('align(center, text(size: 1.2em, "⁂"))');
     expect(buildTypst(book, ch(), { template: "poetry" })).not.toContain("size: 1.2em");
   });
+  it("sets the first paragraph of a chapter as a drop cap when the template asks for it", () => {
+    const doc = buildTypstDocument(book, ch(para(text("Once upon a time.")), para(text("Second."))), { template: "novel" });
+    expect(doc.usesDropCap).toBe(true);
+    expect(doc.source).toContain('#import "typst-droplet/lib.typ": dropcap');
+    expect(doc.source).toContain("#dropcap(height: 3, gap: 0.12em)[Once upon a time.]");
+    const plain = buildTypstDocument(book, ch(para(text("Once upon a time."))), { template: "poetry" });
+    expect(plain.usesDropCap).toBe(false);
+    expect(plain.source).not.toContain("dropcap");
+  });
+  it("skips the drop cap when the chapter does not open with a plain-text paragraph", () => {
+    expect(buildTypstDocument(book, ch(para(text("Bold start", [{ type: "bold" }]))), { template: "novel" }).usesDropCap).toBe(false);
+    expect(buildTypstDocument(book, ch(para(text("1 is not a letter."))), { template: "novel" }).usesDropCap).toBe(false);
+  });
   it("renders ordered and nested lists", () => {
     const item = (t: string, ...extra: DocNode[]): DocNode => ({ type: "listItem", content: [para(text(t)), ...extra] });
     const out = buildTypst(book, ch({ type: "orderedList", attrs: { start: 3 }, content: [item("a", { type: "bulletList", content: [item("b")] })] }));

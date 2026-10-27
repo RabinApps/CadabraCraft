@@ -70,6 +70,8 @@ export interface TypstDocument {
   /** Image node `src` -> relative path inside the compile directory. */
   images: Map<string, string>;
   fonts: FontChoice;
+  /** The source imports the vendored drop cap package (`typst-droplet/`), which `renderPdf` writes next to it. */
+  usesDropCap: boolean;
 }
 
 export interface RenderResult {

@@ -316,3 +316,9 @@ The schema has `table`, `tableRow`, `tableCell` and `tableHeader` from `@tiptap/
 - **Rejected: HTML-in-JSON tables.** Breaks the rule that chapters store TipTap JSON, never HTML, and exporters would have to parse and sanitize markup.
 - **Rejected: a custom table node without the TipTap extension.** Would mean re-implementing row/column commands, cell selection and keyboard navigation that `prosemirror-tables` already provides.
 - **Rejected: merged cells in v1.** Needs colspan/rowspan in both exporters, Typst `table.cell` spans and a rectangularity rule that understands spans; rare in books. Merged cells in imported DOCX are split with a warning instead.
+
+## Drop caps in the PDF
+
+Typst has no drop cap, so print uses the `droplet` package (MIT, 0.3.1). It is vendored unmodified in `packages/export-pdf/src/vendor/droplet.ts` and written into the compile directory as `typst-droplet/` only when a chapter uses it. The first paragraph of a chapter becomes a three-line drop cap when the template sets `chapterOpening.dropCap` and the paragraph starts with an unmarked letter; otherwise it is set normally. Typst counts the paragraph after the drop cap block as a first paragraph, so indenting templates get their indent put back with `#h()`.
+
+Rejected: importing `@preview/droplet` (Typst would download it at compile time, which breaks "no network calls" and offline exports); a hand-written drop cap (measuring and wrapping text around a letter is what the package already does and tests); drawing the letter as an image (not selectable text, breaks PDF/A text extraction).

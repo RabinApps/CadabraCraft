@@ -20,7 +20,7 @@ export interface PrintChapterOpening {
   sinkEm: number;
   /** Small label above the chapter title; `{n}` is the chapter number. `null` for none. */
   label: string | null;
-  /** Large initial on the first paragraph of each chapter. Honoured by the EPUB only; the print PDF does not draw drop caps yet. */
+  /** Large initial on the first paragraph of each chapter. Print draws it with the vendored `droplet` package, three lines tall. */
   dropCap: boolean;
   /** A single glyph centered above the chapter title (print and EPUB). `null` for none. */
   ornament: string | null;
