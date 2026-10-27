@@ -72,6 +72,8 @@
   state("chapter-title").update(title)
   counter(footnote).update(0)
   v(8em)
+  align(center, text(size: 1.2em, "⁂"))
+  v(0.6em)
 }
 // Front and back matter pages with their own layout. The marks sit inside the aligned block so they stay on the page they describe.
 #let matter-marks(start, end, body) = {

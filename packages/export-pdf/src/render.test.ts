@@ -76,7 +76,7 @@ describe("typst discovery (no typst needed)", () => {
 
 typstSuite("renderPdf with typst", () => {
   it("produces a PDF at the requested trim sizes (in points)", async () => {
-    const expected = { "5x8": [360, 576], "5.5x8.5": [396, 612], "6x9": [432, 648] } as const;
+    const expected = { "5x8": [360, 576], "5.5x8.5": [396, 612], "6x9": [432, 648], "5.25x8": [378, 576], "7x10": [504, 720] } as const;
     for (const [trimSize, [w, h]] of Object.entries(expected)) {
       const { pdf } = await renderPdf(book, chapters.slice(0, 1), { trimSize: trimSize as keyof typeof expected, assets });
       expect(Buffer.from(pdf).subarray(0, 5).toString()).toBe("%PDF-");
@@ -172,7 +172,7 @@ popplerSuite("rendered PDF content (poppler)", () => {
   it("starts chapters on right-hand pages for the novel template, with blank versos unnumbered", async () => {
     const { pdf } = await renderPdf(book, chapters, { template: "novel", assets });
     const pages = poppler("pdftotext", pdf).split("\f").slice(0, -1);
-    const first = (title: string): number => pages.findIndex((p) => p.startsWith(title)) + 1;
+    const first = (title: string): number => pages.findIndex((p) => p.replace(/^⁂\s*/, "").startsWith(title)) + 1;
     for (const title of ["The Quay", "What the Letter Said", "Hostile Characters", "Afterword"]) {
       const n = first(title);
       expect(n, title).toBeGreaterThan(0);

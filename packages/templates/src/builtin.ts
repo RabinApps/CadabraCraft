@@ -1,9 +1,17 @@
-import { MODERN_CSS, NONFICTION_CSS, NOVEL_CSS, POETRY_CSS } from "./css";
-import type { PrintHeadingStyle, Template } from "./types";
+import { openingCss, MODERN_CSS, NONFICTION_CSS, NOVEL_CSS, POETRY_CSS } from "./css";
+import type { PrintChapterOpening, PrintHeadingStyle, Template } from "./types";
 
 const h = (o: Partial<PrintHeadingStyle>): PrintHeadingStyle => ({
   sizeEm: 1, bold: false, italic: false, smallCaps: false, align: "left", spaceAboveEm: 1.5, spaceBelowEm: 0.6, ...o,
 });
+
+/** Template CSS plus the rules for the template's own chapter opening. */
+const epubCss = (css: string, o: { dropCap: boolean; ornament: string | null }): string => `${css}\n${openingCss(o)}`;
+
+const novelOpening: PrintChapterOpening = { startOn: "recto", sinkEm: 8, label: null, dropCap: true, ornament: "⁂" };
+const nonfictionOpening: PrintChapterOpening = { startOn: "recto", sinkEm: 5, label: "Chapter {n}", dropCap: false, ornament: null };
+const modernOpening: PrintChapterOpening = { startOn: "any", sinkEm: 6, label: null, dropCap: false, ornament: null };
+const poetryOpening: PrintChapterOpening = { startOn: "recto", sinkEm: 10, label: null, dropCap: false, ornament: null };
 
 const SERIF = ["Libertinus Serif"];
 
@@ -24,14 +32,14 @@ export const novel: Template = {
       2: h({ sizeEm: 1.2, align: "center", smallCaps: true, spaceAboveEm: 2, spaceBelowEm: 1 }),
       3: h({ sizeEm: 1, italic: true, spaceAboveEm: 1.5, spaceBelowEm: 0.75 }),
     },
-    chapterOpening: { startOn: "recto", sinkEm: 8, label: null },
+    chapterOpening: novelOpening,
     blockQuote: { indentEm: 1.5, sizeEm: 0.95, italic: false, ruleLeft: false, spaceEm: 0.8 },
     sceneBreak: { glyph: "*   *   *", spaceEm: 1 },
     runningText: { sizePt: 9, smallCaps: true, italic: false },
     footnoteSizeEm: 0.85,
     defaults: { trimSize: "5.5x8.5", marginsIn: { top: 0.8, bottom: 0.9, inside: 0.9, outside: 0.65 } },
   },
-  epub: { css: NOVEL_CSS },
+  epub: { css: epubCss(NOVEL_CSS, novelOpening) },
 };
 
 export const nonfiction: Template = {
@@ -51,14 +59,14 @@ export const nonfiction: Template = {
       2: h({ sizeEm: 1.35, bold: true, spaceAboveEm: 2, spaceBelowEm: 0.7 }),
       3: h({ sizeEm: 1.05, bold: true, italic: true, spaceAboveEm: 1.5, spaceBelowEm: 0.5 }),
     },
-    chapterOpening: { startOn: "recto", sinkEm: 5, label: "Chapter {n}" },
+    chapterOpening: nonfictionOpening,
     blockQuote: { indentEm: 1.2, sizeEm: 0.95, italic: false, ruleLeft: true, spaceEm: 1 },
     sceneBreak: { glyph: "⁂", spaceEm: 1 },
     runningText: { sizePt: 9, smallCaps: false, italic: true },
     footnoteSizeEm: 0.85,
     defaults: { trimSize: "6x9", marginsIn: { top: 0.85, bottom: 0.95, inside: 1, outside: 0.75 } },
   },
-  epub: { css: NONFICTION_CSS },
+  epub: { css: epubCss(NONFICTION_CSS, nonfictionOpening) },
 };
 
 export const modern: Template = {
@@ -79,14 +87,14 @@ export const modern: Template = {
       2: h({ sizeEm: 1.3, bold: true, spaceAboveEm: 2, spaceBelowEm: 0.7 }),
       3: h({ sizeEm: 1, bold: true, spaceAboveEm: 1.5, spaceBelowEm: 0.5 }),
     },
-    chapterOpening: { startOn: "any", sinkEm: 6, label: null },
+    chapterOpening: modernOpening,
     blockQuote: { indentEm: 1.2, sizeEm: 1, italic: false, ruleLeft: true, spaceEm: 1 },
     sceneBreak: { glyph: "—", spaceEm: 1.2 },
     runningText: { sizePt: 8.5, smallCaps: false, italic: false },
     footnoteSizeEm: 0.85,
     defaults: { trimSize: "6x9", marginsIn: { top: 0.9, bottom: 1, inside: 1, outside: 0.8 } },
   },
-  epub: { css: MODERN_CSS },
+  epub: { css: epubCss(MODERN_CSS, modernOpening) },
 };
 
 export const poetry: Template = {
@@ -106,14 +114,14 @@ export const poetry: Template = {
       2: h({ sizeEm: 1.1, align: "center", italic: true, spaceAboveEm: 2, spaceBelowEm: 1 }),
       3: h({ sizeEm: 1, align: "center", italic: true, spaceAboveEm: 1.5, spaceBelowEm: 0.75 }),
     },
-    chapterOpening: { startOn: "recto", sinkEm: 10, label: null },
+    chapterOpening: poetryOpening,
     blockQuote: { indentEm: 2, sizeEm: 0.95, italic: true, ruleLeft: false, spaceEm: 1 },
     sceneBreak: { glyph: "*   *   *", spaceEm: 1.2 },
     runningText: { sizePt: 9, smallCaps: false, italic: true },
     footnoteSizeEm: 0.85,
     defaults: { trimSize: "5.5x8.5", marginsIn: { top: 1.1, bottom: 1.2, inside: 1.1, outside: 1 } },
   },
-  epub: { css: POETRY_CSS },
+  epub: { css: epubCss(POETRY_CSS, poetryOpening) },
 };
 
 export const BUILTIN_TEMPLATES: readonly Template[] = [novel, nonfiction, modern, poetry];

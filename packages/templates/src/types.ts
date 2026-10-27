@@ -20,9 +20,13 @@ export interface PrintChapterOpening {
   sinkEm: number;
   /** Small label above the chapter title; `{n}` is the chapter number. `null` for none. */
   label: string | null;
+  /** Large initial on the first paragraph of each chapter. Honoured by the EPUB only; the print PDF does not draw drop caps yet. */
+  dropCap: boolean;
+  /** A single glyph centered above the chapter title (print and EPUB). `null` for none. */
+  ornament: string | null;
 }
 
-export type TrimSizeId = "5x8" | "5.5x8.5" | "6x9";
+export type TrimSizeId = "4.25x6.87" | "5x8" | "5.25x8" | "5.5x8.5" | "6x9" | "7x10" | "8.5x11";
 
 /** Typst-oriented print settings. Lengths in pt or em as named; the exporter turns them into Typst. */
 export interface PrintSettings {

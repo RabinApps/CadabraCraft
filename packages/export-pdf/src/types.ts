@@ -5,9 +5,13 @@ export type TrimSize = TrimSizeId;
 
 /** Trim sizes in inches (width x height). */
 export const TRIM_SIZES: Record<TrimSize, { w: number; h: number }> = {
+  "4.25x6.87": { w: 4.25, h: 6.87 },
   "5x8": { w: 5, h: 8 },
+  "5.25x8": { w: 5.25, h: 8 },
   "5.5x8.5": { w: 5.5, h: 8.5 },
   "6x9": { w: 6, h: 9 },
+  "7x10": { w: 7, h: 10 },
+  "8.5x11": { w: 8.5, h: 11 },
 };
 
 export type PdfBook = Pick<BookMetadata, "title" | "author" | "language">;

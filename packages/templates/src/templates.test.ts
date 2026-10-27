@@ -8,6 +8,16 @@ describe("template registry", () => {
   it("every template is well-formed", () => {
     for (const t of listTemplates()) expect(validateTemplate(t), t.id).toEqual([]);
   });
+  it("EPUB css follows the chapter opening data", () => {
+    expect(getTemplate("novel").epub.css).toContain("h1+p::first-letter");
+    expect(getTemplate("novel").epub.css).toContain('content:"⁂"');
+    expect(getTemplate("poetry").epub.css).not.toContain("::first-letter");
+  });
+  it("rejects a multi-character ornament", () => {
+    const bad = structuredClone(getTemplate("novel"));
+    bad.print.chapterOpening.ornament = "ab";
+    expect(validateTemplate(bad)).toContain("print.chapterOpening.ornament must be null or a single character");
+  });
   it("getTemplate returns by id and errors on unknown ids", () => {
     expect(getTemplate("novel").name).toBe("Classic Novel");
     expect(() => getTemplate("nope")).toThrow(TemplateError);

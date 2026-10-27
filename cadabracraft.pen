@@ -5238,6 +5238,45 @@
               "fontWeight": "normal"
             },
             {
+              "type": "frame",
+              "id": "k8xSnx",
+              "name": "Session goal",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "w6bBqe",
+                  "name": "Track",
+                  "width": 96,
+                  "height": 6,
+                  "fill": "$border",
+                  "cornerRadius": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "rPPan",
+                      "name": "Fill",
+                      "width": 58,
+                      "height": 6,
+                      "fill": "$accent",
+                      "cornerRadius": 3
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "Dlayt",
+                  "name": "Session goal text",
+                  "fill": "$ink-muted",
+                  "content": "290 of 500 words this session",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
               "type": "text",
               "id": "i8oTU",
               "name": "Chapter 7 of 12 · Saved ",
@@ -5815,6 +5854,45 @@
               "fontFamily": "$font-ui",
               "fontSize": 12,
               "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "mjluf",
+              "name": "Session goal",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "DYAfj",
+                  "name": "Track",
+                  "width": 96,
+                  "height": 6,
+                  "fill": "$border",
+                  "cornerRadius": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "HB8TV",
+                      "name": "Fill",
+                      "width": 58,
+                      "height": 6,
+                      "fill": "$accent",
+                      "cornerRadius": 3
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "BstIH",
+                  "name": "Session goal text",
+                  "fill": "$ink-muted",
+                  "content": "290 of 500 words this session",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
             },
             {
               "type": "text",
@@ -7226,6 +7304,45 @@
               "fontWeight": "normal"
             },
             {
+              "type": "frame",
+              "id": "Yynl2",
+              "name": "Session goal",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "HCM2H",
+                  "name": "Track",
+                  "width": 96,
+                  "height": 6,
+                  "fill": "$border",
+                  "cornerRadius": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "bxRKj",
+                      "name": "Fill",
+                      "width": 58,
+                      "height": 6,
+                      "fill": "$accent",
+                      "cornerRadius": 3
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "hNKUK",
+                  "name": "Session goal text",
+                  "fill": "$ink-muted",
+                  "content": "290 of 500 words this session",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
               "type": "text",
               "id": "FGVIg",
               "name": "Chapter 7 of 12 · Saved ",
@@ -7803,6 +7920,45 @@
               "fontFamily": "$font-ui",
               "fontSize": 12,
               "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "cozrD",
+              "name": "Session goal",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "M6ELo",
+                  "name": "Track",
+                  "width": 96,
+                  "height": 6,
+                  "fill": "$border",
+                  "cornerRadius": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "qCKEE",
+                      "name": "Fill",
+                      "width": 58,
+                      "height": 6,
+                      "fill": "$accent",
+                      "cornerRadius": 3
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "WJSyr",
+                  "name": "Session goal text",
+                  "fill": "$ink-muted",
+                  "content": "290 of 500 words this session",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
             },
             {
               "type": "text",
@@ -16755,6 +16911,65 @@
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "JWR0n",
+                              "name": "Session word goal",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "ICu4N",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "NgJ2W",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Session word goal",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "J93fe",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Words to write each time you open a book. 0 turns it off.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "G5qbeQ",
+                                  "type": "ref",
+                                  "ref": "PE4pF",
+                                  "name": "Goal input",
+                                  "width": 128,
+                                  "descendants": {
+                                    "oNv10": {
+                                      "content": "500"
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -19842,6 +20057,65 @@
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "IYjlW",
+                              "name": "Session word goal",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "rM0pm",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "OOxrp",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Session word goal",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "shPGY",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Words to write each time you open a book. 0 turns it off.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "bay3G",
+                                  "type": "ref",
+                                  "ref": "PE4pF",
+                                  "name": "Goal input",
+                                  "width": 128,
+                                  "descendants": {
+                                    "oNv10": {
+                                      "content": "500"
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -20756,6 +21030,65 @@
                                       "height": 16
                                     }
                                   ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "D52Ya",
+                              "name": "Session word goal",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "HfOiR",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "vPNmo",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Session word goal",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "C7jH7l",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Words to write each time you open a book. 0 turns it off.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "lMEJM",
+                                  "type": "ref",
+                                  "ref": "PE4pF",
+                                  "name": "Goal input",
+                                  "width": 128,
+                                  "descendants": {
+                                    "oNv10": {
+                                      "content": "500"
+                                    }
+                                  }
                                 }
                               ]
                             }
@@ -21674,6 +22007,65 @@
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sZLXV",
+                              "name": "Session word goal",
+                              "width": "fill_container",
+                              "gap": 16,
+                              "padding": [
+                                14,
+                                20
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "oeHBv",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "A1z7gQ",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Session word goal",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Rwzcd",
+                                      "name": "Description",
+                                      "fill": "$ink-muted",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Words to write each time you open a book. 0 turns it off.",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "OgUlr",
+                                  "type": "ref",
+                                  "ref": "PE4pF",
+                                  "name": "Goal input",
+                                  "width": 128,
+                                  "descendants": {
+                                    "oNv10": {
+                                      "content": "500"
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           ]
                         }
@@ -22465,6 +22857,64 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "qmXZx",
+                          "name": "Session word goal",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "padding": [
+                            14,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "rKoIU",
+                              "name": "Text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "d56UUO",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Session word goal",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Z4Edjb",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Words to write each time you open a book. 0 turns it off.",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "OO0Zj",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "Goal input",
+                              "width": 128,
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "500"
+                                }
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
@@ -23252,6 +23702,64 @@
                                   "height": 16
                                 }
                               ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ClsFw",
+                          "name": "Session word goal",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "padding": [
+                            14,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "U1pPZ",
+                              "name": "Text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "COgZb",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Session word goal",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "ZOp7K",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Words to write each time you open a book. 0 turns it off.",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "kkFye",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "Goal input",
+                              "width": 128,
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "500"
+                                }
+                              }
                             }
                           ]
                         }

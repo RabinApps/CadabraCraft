@@ -8,6 +8,7 @@ import { countWords } from "@cadabracraft/shared";
 import { assetUrl } from "../lib/assets";
 import { errText } from "../lib/projectError";
 import { estimatePages, plainBlocks, wordsPerPage, type Margins } from "../lib/printPreview";
+import { trimLabel } from "../lib/trimLabels";
 import { Button, IconButton } from "../ui/Button";
 import { Select } from "../ui/Select";
 import { Switch } from "../ui/Switch";
@@ -120,7 +121,6 @@ export function PrintPreview({ onBack, onExport }: Props) {
   const first = (pages ?? []).find((p) => p.section === "chapter") ?? pages?.[0];
   const blocks = first ? plainBlocks(first.doc).filter((b) => b !== first.title) : [];
   const bodyFont = /serif/i.test(template.print.bodyFonts[0] ?? "") ? "var(--font-book)" : "var(--font-ui)";
-  const trimLabels: Record<TrimSize, string> = { "5x8": t`5 × 8 in`, "5.5x8.5": t`5.5 × 8.5 in`, "6x9": t`6 × 9 in` };
   const pageProps = { template, margins, scale, heightPx, showMargins, cropMarks, bodyFont, bleedPx: bleed === "3mm" ? (3 / 25.4) * scale : 0 };
 
   return (
@@ -158,7 +158,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
         <aside className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t border-border bg-surface p-5 lg:w-[300px] lg:border-s lg:border-t-0">
           <h2 className="font-book text-lg font-semibold">{t`Page setup`}</h2>
           <Select label={t`Trim size`} value={trim} onChange={(e) => setTrim(e.target.value as TrimSize)}>
-            {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => <option key={id} value={id}>{trimLabels[id]}</option>)}
+            {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => <option key={id} value={id}>{trimLabel(id)}</option>)}
           </Select>
           <Select label={t`Bleed`} value={bleed} onChange={(e) => setBleed(e.target.value as "none" | "3mm")} hint={t`Shown in this preview only. The PDF does not include bleed or crop marks yet.`}>
             <option value="none">{t`None`}</option>

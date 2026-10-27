@@ -75,6 +75,10 @@ msgstr ""
 msgid "{0} was updated from outside the app"
 msgstr ""
 
+#: src/app/App.tsx
+msgid "{bookWords} in the book"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr ""
@@ -103,6 +107,10 @@ msgstr ""
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
 msgstr ""
 
+#: src/app/App.tsx
+msgid "{sessionWritten} of {sessionGoal} words this session"
+msgstr ""
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr ""
@@ -117,21 +125,6 @@ msgstr ""
 
 #: src/app/PrintPreview.tsx
 msgid "3 mm"
-msgstr ""
-
-#: src/app/ExportDialog.tsx
-#: src/app/PrintPreview.tsx
-msgid "5 × 8 in"
-msgstr ""
-
-#: src/app/ExportDialog.tsx
-#: src/app/PrintPreview.tsx
-msgid "5.5 × 8.5 in"
-msgstr ""
-
-#: src/app/ExportDialog.tsx
-#: src/app/PrintPreview.tsx
-msgid "6 × 9 in"
 msgstr ""
 
 #: src/app/store.ts
@@ -1363,6 +1356,14 @@ msgstr ""
 msgid "Services"
 msgstr ""
 
+#: src/app/App.tsx
+msgid "Session goal"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Session word goal"
+msgstr ""
+
 #: src/app/AppHeader.tsx
 #: src/app/Home.tsx
 #: src/app/Settings.tsx
@@ -1741,6 +1742,10 @@ msgstr ""
 
 #: src/app/Details.tsx
 msgid "Words"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Words to write each time you open a book. 0 turns it off."
 msgstr ""
 
 #: src/app/AppHeader.tsx

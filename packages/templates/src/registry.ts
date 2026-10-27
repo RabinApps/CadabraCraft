@@ -8,7 +8,7 @@ export class TemplateError extends Error {
   }
 }
 
-const TRIMS: string[] = ["5x8", "5.5x8.5", "6x9"];
+const TRIMS: string[] = ["4.25x6.87", "5x8", "5.25x8", "5.5x8.5", "6x9", "7x10", "8.5x11"];
 const isNum = (v: unknown, min: number, max: number): boolean => typeof v === "number" && Number.isFinite(v) && v >= min && v <= max;
 const isStr = (v: unknown): v is string => typeof v === "string" && v.trim() !== "";
 
@@ -40,6 +40,9 @@ export function validateTemplate(t: Template): string[] {
   if (!isNum(p.chapterOpening?.sinkEm, 0, 30)) e.push("print.chapterOpening.sinkEm out of range");
   const label = p.chapterOpening?.label;
   if (label !== null && (typeof label !== "string" || !label.includes("{n}"))) e.push("print.chapterOpening.label must be null or contain {n}");
+  if (typeof p.chapterOpening?.dropCap !== "boolean") e.push("print.chapterOpening.dropCap must be true or false");
+  const orn = p.chapterOpening?.ornament;
+  if (orn !== null && (typeof orn !== "string" || [...orn].length !== 1)) e.push("print.chapterOpening.ornament must be null or a single character");
   if (!isNum(p.blockQuote?.indentEm, 0, 6)) e.push("print.blockQuote.indentEm out of range");
   if (!isNum(p.blockQuote?.sizeEm, 0.5, 2)) e.push("print.blockQuote.sizeEm out of range");
   if (!isNum(p.blockQuote?.spaceEm, 0, 5)) e.push("print.blockQuote.spaceEm out of range");

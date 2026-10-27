@@ -54,7 +54,8 @@ export function pageLabels(pdf: Uint8Array): string[] {
 const squash = (s: string): string => s.replace(/\s+/g, "");
 const lines = (p: string): string[] => p.split("\n").map((l) => l.trim()).filter(Boolean);
 const footer = (p: string): string => lines(p).at(-1) ?? "";
-const header = (p: string): string => lines(p)[0] ?? "";
+/** First line of the page, ignoring a chapter ornament above the title. */
+const header = (p: string): string => lines(p).find((l) => l !== "⁂") ?? "";
 
 suite("front and back matter in the PDF", () => {
   for (const template of ["novel", "nonfiction", "modern"] as const) {

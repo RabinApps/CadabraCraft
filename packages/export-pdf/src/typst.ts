@@ -346,6 +346,12 @@ ${headingRule(3, p.headings[3], fonts.heading)}
   counter(footnote).update(0)
   v(${sink})
 ${
+    p.chapterOpening.ornament === null
+      ? ""
+      : `  align(center, text(size: 1.2em, ${typstString(p.chapterOpening.ornament)}))
+  v(0.6em)
+`
+  }${
     label === null
       ? ""
       : `  if n != none {

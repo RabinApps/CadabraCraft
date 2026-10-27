@@ -32,6 +32,10 @@ import { useAppMenu } from "./useAppMenu";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useSaveOnClose } from "./useSaveOnClose";
 import { useWordCount } from "./useWordCount";
+import { useBookWordCount } from "./useBookWordCount";
+import { useSessionWords } from "./useSessionWords";
+import { useSettings } from "./editorPrefs";
+import { goalProgress } from "../lib/sessionWords";
 
 /** Full-page views. "book" is the editor (or Home when no project is open). */
 type View = "book" | "settings" | "templates" | "print";
@@ -65,6 +69,9 @@ export function App() {
   useGlobalShortcuts({ open, focus, exitFocus });
   useSaveOnClose();
   const words = useWordCount();
+  const bookWords = useBookWordCount();
+  const sessionWritten = useSessionWords(root, bookWords);
+  const sessionGoal = useSettings((s) => s.sessionGoal);
   useEffect(() => {
     if (!open) return;
     const un = bridge.onProjectChanged((p) => void actions.externalChange(p));
@@ -146,7 +153,18 @@ export function App() {
             <ReadingFooter index={index} pages={pages} chapterIds={chapters.map((c) => c.id)} onSelect={(id) => void actions.selectChapter(id)} />
           ) : (
             <footer className={cx("hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex", focus && "md:hidden")}>
-              <span>{section === "chapter" ? plural(words, { one: "# word in this chapter", other: "# words in this chapter" }) : plural(words, { one: "# word on this page", other: "# words on this page" })}</span>
+              {sessionGoal > 0 && sessionWritten !== null && (
+                <span className="flex items-center gap-2" data-testid="session-goal">
+                  <span role="progressbar" aria-label={t`Session goal`} aria-valuemin={0} aria-valuemax={sessionGoal} aria-valuenow={Math.min(sessionWritten, sessionGoal)} className="h-1.5 w-24 overflow-hidden rounded-full bg-border">
+                    <span className="block h-full bg-accent" style={{ width: `${goalProgress(sessionWritten, sessionGoal) * 100}%` }} />
+                  </span>
+                  {t`${sessionWritten} of ${sessionGoal} words this session`}
+                </span>
+              )}
+              <span>
+                {section === "chapter" ? plural(words, { one: "# word in this chapter", other: "# words in this chapter" }) : plural(words, { one: "# word on this page", other: "# words on this page" })}
+                {bookWords !== null && ` · ${t`${bookWords} in the book`}`}
+              </span>
               <span>{section === "front" ? t`Front matter` : section === "back" ? t`Back matter` : t`Chapter ${chapterNo} of ${chapters.length}`}</span>
             </footer>
           )}

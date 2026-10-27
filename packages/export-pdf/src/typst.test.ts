@@ -51,6 +51,10 @@ describe("buildTypst content", () => {
     expect(src).toContain('#link("https://example.com/?a=1&b=2")[link]');
     expect(src).toContain('#chapter-start("Chapter One", 1)');
   });
+  it("draws the template's chapter ornament above the title, only when it has one", () => {
+    expect(buildTypst(book, ch(), { template: "novel" })).toContain('align(center, text(size: 1.2em, "⁂"))');
+    expect(buildTypst(book, ch(), { template: "poetry" })).not.toContain("size: 1.2em");
+  });
   it("renders ordered and nested lists", () => {
     const item = (t: string, ...extra: DocNode[]): DocNode => ({ type: "listItem", content: [para(text(t)), ...extra] });
     const out = buildTypst(book, ch({ type: "orderedList", attrs: { start: 3 }, content: [item("a", { type: "bulletList", content: [item("b")] })] }));
@@ -184,7 +188,7 @@ describe("unsupported input", () => {
   it("rejects bad geometry and unknown templates", () => {
     expect(() => buildTypst(book, ch(), { margins: { inside: 5 } })).toThrow(/margin/);
     expect(() => buildTypst(book, ch(), { margins: { inside: 3, outside: 3 } })).toThrow(/too little room/);
-    expect(() => buildTypst(book, ch(), { trimSize: "7x10" as never })).toThrow(/trim size/);
+    expect(() => buildTypst(book, ch(), { trimSize: "9x9" as never })).toThrow(/trim size/);
     expect(() => buildTypst(book, ch(), { template: "nope" })).toThrow(/Unknown template/);
     expect(() => buildTypst(book, ch(), { fontSizePt: 2 })).toThrow(/font size/);
   });

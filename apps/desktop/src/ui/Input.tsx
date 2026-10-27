@@ -4,14 +4,16 @@ import { cx } from "./cx";
 interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   hint?: string;
+  /** Keep the label for screen readers but do not show it. */
+  hideLabel?: boolean;
 }
 
-export function Field({ label, hint, className, id, ...rest }: FieldProps) {
+export function Field({ label, hint, hideLabel, className, id, ...rest }: FieldProps) {
   const auto = useId();
   const inputId = id ?? auto;
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-xs font-semibold text-ink-muted">{label}</label>
+      <label htmlFor={inputId} className={hideLabel ? "sr-only" : "text-xs font-semibold text-ink-muted"}>{label}</label>
       <input
         id={inputId}
         aria-describedby={hint ? `${inputId}-hint` : undefined}

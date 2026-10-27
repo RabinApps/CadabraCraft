@@ -5,6 +5,7 @@ import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { DEFAULT_TEMPLATE_ID, hasTemplate, listTemplates } from "@cadabracraft/templates";
 import { PdfUiError } from "../lib/pdfErrors";
 import { epubChecks } from "../lib/exportChecks";
+import { trimLabel } from "../lib/trimLabels";
 import { Button } from "../ui/Button";
 import { Checkbox } from "../ui/Checkbox";
 import { Modal } from "../ui/Dialog";
@@ -62,7 +63,6 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const running = stage !== null;
   const current = template ?? (manifest && hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID);
   const checks = manifest ? epubChecks(manifest) : [];
-  const trimLabels: Record<TrimSize, string> = { "5x8": t`5 × 8 in`, "5.5x8.5": t`5.5 × 8.5 in`, "6x9": t`6 × 9 in` };
   const stageText = format === "epub"
     ? { preparing: t`Reading your chapters…`, rendering: t`Building EPUB…`, saving: t`Saving exports/book.epub…` }
     : { preparing: t`Reading your chapters…`, rendering: t`Typesetting the book with Typst…`, saving: t`Saving exports/book.pdf…` };
@@ -108,7 +108,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
         ) : (
           <>
             <Select label={t`Trim size`} value={trimSize} disabled={running} onChange={(e) => setTrimSize(e.target.value as TrimSize)}>
-              {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => <option key={id} value={id}>{trimLabels[id]}</option>)}
+              {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => <option key={id} value={id}>{trimLabel(id)}</option>)}
             </Select>
             <Select label={t`Template`} value={current} disabled={running} onChange={(e) => setTemplate(e.target.value)} hint={templates.find((x) => x.id === current)?.description}>
               {templates.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}

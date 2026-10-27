@@ -4,13 +4,14 @@ import { ArrowLeft } from "lucide-react";
 import { useLocale } from "../i18n/i18n";
 import { PSEUDO_LOCALE } from "../i18n/locales";
 import { IconButton } from "../ui/Button";
+import { Field } from "../ui/Input";
 import { Segmented } from "../ui/Segmented";
 import { Select } from "../ui/Select";
 import { languageOptions } from "../ui/LanguagePicker";
 import { Switch } from "../ui/Switch";
 import { useTheme, type Theme } from "./theme";
 import { useUpdates } from "./updates";
-import { useSettings, type ManuscriptFont, type WritingWidth } from "./editorPrefs";
+import { MAX_SESSION_GOAL, useSettings, type ManuscriptFont, type WritingWidth } from "./editorPrefs";
 
 const sections = ["appearance", "general", "editor"] as const;
 
@@ -39,7 +40,7 @@ function Row({ title, hint, control }: { title: string; hint: string; control: R
 export function Settings({ onBack }: { onBack: () => void }) {
   const { t } = useLingui();
   const { theme, setTheme } = useTheme();
-  const { manuscriptFont, writingWidth, typewriterScroll, set } = useSettings();
+  const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, set } = useSettings();
   const checkOnLaunch = useUpdates((s) => s.checkOnLaunch);
   const setCheckOnLaunch = useUpdates((s) => s.setCheckOnLaunch);
   const { locale, setLocale } = useLocale();
@@ -125,6 +126,15 @@ export function Settings({ onBack }: { onBack: () => void }) {
                 title={t`Typewriter scrolling`}
                 hint={t`Keep the line you are writing centered.`}
                 control={<Switch label={t`Typewriter scrolling`} checked={typewriterScroll} onChange={(v) => set({ typewriterScroll: v })} />}
+              />
+              <Row
+                title={t`Session word goal`}
+                hint={t`Words to write each time you open a book. 0 turns it off.`}
+                control={
+                  <div className="w-32 max-sm:w-full">
+                    <Field label={t`Session word goal`} hideLabel className="py-2" type="number" min={0} max={MAX_SESSION_GOAL} step={50} value={sessionGoal} onChange={(e) => set({ sessionGoal: e.target.valueAsNumber })} />
+                  </div>
+                }
               />
             </Section>
           </div>
