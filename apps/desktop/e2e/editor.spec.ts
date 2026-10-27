@@ -457,6 +457,40 @@ test("Export Markdown writes exports/book.md, and explains underline until the H
   expect(md).toContain("<u>Underlined</u>");
 });
 
+test("Export Word writes exports/manuscript.docx in manuscript format with the chosen font", async ({ page }) => {
+  await newProject(page);
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.type("Typed for Word");
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Word (.docx)" }).click();
+  await expect(dialog.getByRole("button", { name: "Print preview" })).toHaveCount(0);
+  await dialog.getByLabel("Font").selectOption("courier");
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("status")).toHaveText("Exported exports/manuscript.docx");
+  const bytes = await page.evaluate(() => (window as any).__disk["exports/manuscript.docx"] as number[]);
+  expect(bytes.slice(0, 2)).toEqual([0x50, 0x4b]); // zip
+  expect(bytes.length).toBeGreaterThan(1000);
+});
+
+test("Export Word: a write failure shows the reason and keeps the dialog usable", async ({ page }) => {
+  await newProject(page);
+  await page.evaluate(() => { (window as any).__failBytes = true; });
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Word (.docx)" }).click();
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText("No space left on device");
+  await expect(dialog.getByRole("button", { name: "Export", exact: true })).toBeEnabled();
+  await expect(page.getByRole("status").filter({ hasText: "Exported" })).toHaveCount(0);
+  await page.evaluate(() => { (window as any).__failBytes = false; });
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("status")).toHaveText("Exported exports/manuscript.docx");
+});
+
 test("Export PDF dialog shows KDP print checks for a very short book", async ({ page }) => {
   await newProject(page);
   await page.locator(".ProseMirror").click();

@@ -7,6 +7,7 @@ import {
   type Manifest, type ManuscriptEntry, type Tree,
 } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
+import { buildDocx, type ManuscriptFont } from "@cadabracraft/export-docx";
 import { bookToMarkdown, chapterToMarkdown, MarkdownExportError } from "@cadabracraft/export-markdown";
 import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
@@ -189,6 +190,8 @@ interface State {
     exportEpub: () => Promise<void>;
     /** Writes the whole book as exports/book.md. With `htmlMarks` false it throws `MarkdownExportError` (naming the chapter) at the first underline, small caps, superscript or subscript. */
     exportMarkdown: (options: { htmlMarks: boolean }) => Promise<void>;
+    /** Writes the whole book as exports/manuscript.docx in standard manuscript format. Throws a `DocxExportError` message that names the page (and node) it cannot write. */
+    exportDocx: (options: { font: ManuscriptFont }) => Promise<void>;
     /** Builds exports/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
     exportPdf: (options: PdfExportOptions) => Promise<void>;
     /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
@@ -731,6 +734,27 @@ export const useProject = create<State>((set, get) => {
           set({ exportStage: "saving" });
           await bridge.writeBytes(root, "exports/book.md", new TextEncoder().encode(markdown));
           set({ notice: t`Exported exports/book.md` });
+        } finally {
+          set({ exportStage: null });
+        }
+      },
+      async exportDocx({ font }) {
+        if (get().exportStage) throw new Error(t`An export is already running`);
+        set({ exportStage: "preparing" });
+        try {
+          await flush();
+          const { root, manifest } = need();
+          const chapters = await loadChapters();
+          // An empty book would write a title page only and still report success.
+          if (!chapters.length) throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
+          const assets = await loadAssets(chapters);
+          set({ exportStage: "rendering" });
+          // A page with an empty title is named by its file in error messages.
+          const pages = chapters.map((c) => ({ ...c, id: entryOf(manifest, c.id)?.file ?? c.id }));
+          const bytes = buildDocx({ title: manifest.title, author: manifest.author, language: manifest.language }, pages, { assets, font, modified: new Date() });
+          set({ exportStage: "saving" });
+          await bridge.writeBytes(root, "exports/manuscript.docx", bytes);
+          set({ notice: t`Exported exports/manuscript.docx` });
         } finally {
           set({ exportStage: null });
         }

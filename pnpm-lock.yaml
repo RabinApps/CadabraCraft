@@ -23,6 +23,9 @@ importers:
       '@cadabracraft/editor-schema':
         specifier: workspace:*
         version: link:../../packages/editor-schema
+      '@cadabracraft/export-docx':
+        specifier: workspace:*
+        version: link:../../packages/export-docx
       '@cadabracraft/export-epub':
         specifier: workspace:*
         version: link:../../packages/export-epub
@@ -205,6 +208,31 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.32.0
         version: 3.32.0
+
+  packages/export-docx:
+    dependencies:
+      '@cadabracraft/shared':
+        specifier: workspace:*
+        version: link:../shared
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
+    devDependencies:
+      '@cadabracraft/editor-schema':
+        specifier: workspace:*
+        version: link:../editor-schema
+      '@cadabracraft/import-docx':
+        specifier: workspace:*
+        version: link:../import-docx
+      '@tiptap/core':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/pm@3.32.0)
+      '@tiptap/pm':
+        specifier: ^3.32.0
+        version: 3.32.0
+      fast-xml-parser:
+        specifier: ^5.11.2
+        version: 5.11.2
 
   packages/export-epub:
     dependencies:

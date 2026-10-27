@@ -27,7 +27,7 @@ CadabraCraft is a desktop app for writing and formatting books. Write in a rich-
 - **Editor:** chapters you can add, rename, reorder, trash and restore, with undo and redo for structure edits, autosave, focus mode and a reading mode.
 - **Front and back matter:** title page, copyright, dedication, epigraph, foreword, preface, acknowledgments, about the author, also by, colophon.
 - **Import:** Word (`.docx`) and Markdown manuscripts, with a report of anything that could not be kept. See [docs/import.md](docs/import.md).
-- **Export:** EPUB 3 (passes EPUBCheck) and print PDF through Typst (trim sizes, templates, PDF/A, cover, footnotes).
+- **Export:** EPUB 3 (passes EPUBCheck), print PDF through Typst (trim sizes, templates, PDF/A, cover, footnotes), Markdown, and Word (`.docx`) in standard manuscript format for agents and editors.
 - **Templates and settings:** novel, nonfiction and modern templates, an approximate print preview, and a Settings page.
 - **Book details:** title, author, language, ISBN, identifier and cover image.
 - **Headless MCP server:** create, edit, import and export books (EPUB, PDF, Markdown) from an AI agent or script. See [docs/mcp.md](docs/mcp.md).
@@ -68,6 +68,7 @@ packages/
   export-epub/      Chapter JSON to EPUB 3
   export-pdf/       Print PDF via Typst
   export-markdown/  Chapter JSON to Markdown (inverse of the importer)
+  export-docx/      Chapter JSON to a manuscript-format .docx (hand-written OOXML)
   import-docx/      Markdown and DOCX import with warnings
   project-fs/       Node port of the project-folder rules
   mcp/              Headless MCP server (stdio)

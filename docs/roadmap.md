@@ -38,6 +38,11 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 ### Audio
 - Audiobook export (M4B/MP3, local TTS only): see [Audiobook export spike](architecture.md#audiobook-export-spike-2026-10-27). Voices picked: Kokoro default, Piper `amy-medium` and `libritts_r-medium` speaker 0 as the fast options. Implementation still to be documented. Needs: a Piper licensing decision, an Export Audio dialog, a per-chapter content-hash cache, sentence chunking, an ffmpeg or Opus encoder sidecar and a per-platform build (ask before adding binaries). Retail platforms differ on synthetic voices; say so in the dialog.
 
+### Word export follow-ups
+- MCP tool `cadabra_export_docx` (the desktop app has the export; the headless server does not yet).
+- Open the generated `.docx` in Word, Pages, Google Docs and LibreOffice (headless `soffice --convert-to pdf` smoke test in CI) and fix whatever they disagree on.
+- RTF export; alternate templates (A4, other fonts and spacing, contact block on the title page, chapter title drop, shunn-style "approximately N words"); Word comments and tracked changes from the editor; right-to-left books.
+
 ### Format coverage
 - Task lists and definition lists are not supported and have no schema node; add them only on demand. Today the Markdown importer keeps task items as list items with a `[ ] ` / `[x] ` text prefix and a `task-list` warning, and definition-style content is plain paragraphs (`[^1]` definitions are footnotes, not definition lists). The DOCX importer has no definition-list handling: "Definition Term" / "Definition" style paragraphs fall back to normal paragraphs, and Word content-control checkboxes (`sdt`) import as their text content.
 

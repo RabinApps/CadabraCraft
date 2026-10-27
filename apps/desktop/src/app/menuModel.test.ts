@@ -17,7 +17,7 @@ const submenu = (entries: MenuEntry[], text: string) => (entries.find((e) => e.k
 
 /** The commands a book in the editor registers, so the "everything available" case is real. */
 const BOOK: Commands = Object.fromEntries(
-  ["app.settings", "file.new", "file.open", "file.import", "file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.exportMarkdown", "file.printPreview", "file.close", "insert.chapter", "go.previous", "go.next",
+  ["app.settings", "file.new", "file.open", "file.import", "file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.exportMarkdown", "file.exportDocx", "file.printPreview", "file.close", "insert.chapter", "go.previous", "go.next",
     "view.write", "view.read", "view.focus", "view.details", "editor.bold", "editor.sceneBreak", "edit.find", "edit.findReplace", "edit.convertHtml", "help.updates", "help.sponsor"].map((id) => [id, { run }]),
 );
 
@@ -93,7 +93,7 @@ describe("what is available in each context", () => {
     const start: Commands = Object.fromEntries(["app.settings", "file.new", "file.open", "file.import", "help.sponsor"].map((id) => [id, { run }]));
     const m = buildMenuModel(ctx(start));
     for (const id of ["app.settings", "file.new", "file.open", "file.import", "help.sponsor"]) expect(find(m, id)?.enabled, id).toBe(true);
-    for (const id of ["file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.exportMarkdown", "file.printPreview", "file.close", "insert.chapter", "view.write", "view.focus", "editor.bold", "go.next", "edit.bookUndo", "edit.find", "edit.findReplace", "edit.convertHtml"]) {
+    for (const id of ["file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.exportMarkdown", "file.exportDocx", "file.printPreview", "file.close", "insert.chapter", "view.write", "view.focus", "editor.bold", "go.next", "edit.bookUndo", "edit.find", "edit.findReplace", "edit.convertHtml"]) {
       expect(find(m, id)?.enabled, id).toBe(false);
     }
   });
