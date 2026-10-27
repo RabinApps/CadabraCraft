@@ -468,8 +468,11 @@ test("keyboard: the Add page menu opens and selects with the keyboard", async ({
   await expect(page.getByRole("menu")).toBeVisible();
   await expect(page.getByRole("menuitem").first()).toBeFocused();
   await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("menuitem").nth(1)).toBeFocused(); // Enter before focus moves would pick the first item
   await page.keyboard.press("Enter");
-  await expect(page.locator(".ProseMirror h1")).toHaveText("E2E Book");
+  // The menu opens on Title page, so one ArrowDown lands on Copyright.
+  await expect(sidebar(page).getByRole("button", { name: "Copyright", exact: true })).toBeVisible();
+  expect((await manifestOf(page)).frontMatter.map((e: any) => e.kind)).toEqual(["copyright"]);
 });
 
 test("EPUB and PDF exports include the matter pages", async ({ page }) => {
