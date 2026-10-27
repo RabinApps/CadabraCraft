@@ -1298,11 +1298,24 @@ test.describe("pasting HTML text", () => {
 
   test("Convert HTML in Selection replaces the selected tags, and says so when there are none", async ({ page }) => {
     await ready(page);
+    // Select the last paragraph's text explicitly (Shift+Home depends on where the caret landed), then let ProseMirror read the selection
+    const selectLastParagraph = async (text: string) => {
+      await page.evaluate(() => {
+        const p = [...document.querySelectorAll(".ProseMirror p")].pop()!;
+        const r = document.createRange();
+        r.selectNodeContents(p);
+        const sel = getSelection()!;
+        sel.removeAllRanges();
+        sel.addRange(r);
+      });
+      await expect.poll(() => page.evaluate(() => getSelection()?.toString())).toBe(text);
+      await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    };
     await page.keyboard.type("<u>mark</u>");
-    await page.keyboard.press("Shift+Home");
+    await selectLastParagraph("<u>mark</u>");
     await convertCommand(page);
     await expect(page.locator(".ProseMirror u")).toHaveText("mark");
-    await page.keyboard.press("Shift+Home");
+    await selectLastParagraph("mark");
     await convertCommand(page);
     await expect(page.getByRole("status").filter({ hasText: "No HTML found in the selection" })).toBeVisible();
   });
