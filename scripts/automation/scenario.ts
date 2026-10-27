@@ -357,6 +357,23 @@ try {
     return "Find opened from the Edit menu, 1 of 1 shown, Replace all changed the real editor text";
   });
 
+  await step("find and replace across chapters: Replace all rewrites other pages on disk, book Undo restores them", async () => {
+    const pages = () => [join(book, "front-matter"), join(book, "back-matter"), join(book, "manuscript")].flatMap((d) => (existsSync(d) ? readdirSync(d).filter((f) => f.endsWith(".json")).map((f) => join(d, f)) : []));
+    const count = (needle: string) => pages().filter((f) => readFileSync(f, "utf8").includes(needle)).length;
+    const before = count("Agent");
+    assert(before >= 1, "expected the author name on a front-matter page");
+    await runMenu("edit.find");
+    await app.fill(0, "Agent");
+    await app.click("All chapters"); await app.sleep(900);
+    await runMenu("edit.findReplace");
+    await app.fill(1, "Writer"); await app.click("Replace all"); await app.sleep(1500);
+    assert(count("Agent") === 0 && count("Writer") >= 1, `Replace all did not rewrite the pages on disk (Agent in ${count("Agent")}, Writer in ${count("Writer")})`);
+    await app.js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await app.sleep(400);
+    await runMenu("edit.bookUndo"); await app.sleep(1500);
+    assert(count("Agent") === before && count("Writer") === 0, `book Undo did not restore the pages (Agent in ${count("Agent")}, Writer in ${count("Writer")})`);
+    return `Replace all changed ${before} page(s) on disk; Undo put them back`;
+  });
+
   await step("commands refuse a root that is not an existing project", async () => {
     const outcome = (cmd: string, args: unknown) => app.js(`window.__TAURI__.core.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)}).then((r) => "resolved:" + JSON.stringify(r), (e) => "rejected:" + JSON.stringify(e))`);
     const notProject = join(out, "not-a-project");
