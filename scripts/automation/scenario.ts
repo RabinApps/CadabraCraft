@@ -338,6 +338,21 @@ try {
     return "Read/Write, New Chapter and Undo, Book Details, Settings, Close Project, Open Recent and New Project all acted on the real window";
   });
 
+  await step("find and replace: menu opens the bar, counts matches, replaces all; the book word count shows in the status bar", async () => {
+    const editorText = () => app.js(`document.querySelector(".ProseMirror").textContent`);
+    assert(/\d+ in the book/.test(await app.js(`document.body.innerText`)), "status bar lacks the whole-book word count");
+    await runMenu("edit.find");
+    assert(await app.js(`!!document.querySelector('[aria-label="Find and replace"]')`), "Find did not open the bar");
+    await app.fill(0, "agent"); await app.sleep(500);
+    assert(/1 of 1/.test(await app.js(`document.querySelector('[aria-label="Find and replace"]').innerText`)), "the bar does not show 1 of 1");
+    await runMenu("edit.findReplace");
+    await app.fill(1, "robot"); await app.click("Replace all"); await app.sleep(500);
+    const text = await editorText();
+    assert(text.includes("Typed by an robot.") && !text.includes("agent."), `replace all did not change the text: ${text.slice(0, 80)}`);
+    await app.js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await app.sleep(400);
+    return "Find opened from the Edit menu, 1 of 1 shown, Replace all changed the real editor text";
+  });
+
   await step("commands refuse a root that is not an existing project", async () => {
     const outcome = (cmd: string, args: unknown) => app.js(`window.__TAURI__.core.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)}).then((r) => "resolved:" + JSON.stringify(r), (e) => "rejected:" + JSON.stringify(e))`);
     const notProject = join(out, "not-a-project");
