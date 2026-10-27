@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { CircleAlert, CircleCheck, FileText, Printer } from "lucide-react";
+import { CircleAlert, CircleCheck, FileText, Info, Printer } from "lucide-react";
+import { countWords } from "@cadabracraft/shared";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
-import { DEFAULT_TEMPLATE_ID, hasTemplate, listTemplates } from "@cadabracraft/templates";
+import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
 import { PdfUiError } from "../lib/pdfErrors";
-import { epubChecks } from "../lib/exportChecks";
+import { epubChecks, pdfChecks, type ExportCheck } from "../lib/exportChecks";
+import { estimatePages, wordsPerPage } from "../lib/printPreview";
 import { Button } from "../ui/Button";
 import { Checkbox } from "../ui/Checkbox";
 import { Modal } from "../ui/Dialog";
@@ -45,13 +47,34 @@ interface Props {
   onPreview?: () => void;
 }
 
-/** Export the book as EPUB 3 or as a print PDF (Typst). Shows the EPUB checks before building. */
+const TONE_CLASS: Record<ExportCheck["tone"], string> = {
+  ok: "bg-success-soft text-success",
+  info: "bg-accent-soft text-accent-ink",
+  warn: "bg-warn-soft text-warn",
+  error: "bg-danger-soft text-danger",
+};
+
+function CheckList({ checks, label }: { checks: ExportCheck[]; label: string }) {
+  return (
+    <ul aria-label={label} className="flex flex-col gap-2">
+      {checks.map((c) => (
+        <li key={c.text} className={cx("flex items-center gap-2 rounded-md px-3 py-2 text-sm", TONE_CLASS[c.tone])}>
+          {c.tone === "ok" ? <CircleCheck size={16} aria-hidden /> : c.tone === "info" ? <Info size={16} aria-hidden /> : <CircleAlert size={16} aria-hidden />}
+          {c.text}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Export the book as EPUB 3 or as a print PDF (Typst). Shows the EPUB checks, or KDP-style print checks, before building. */
 export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPreview }: Props) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const stage = useProject((s) => s.exportStage);
   const exportEpub = useProject((s) => s.actions.exportEpub);
   const exportPdf = useProject((s) => s.actions.exportPdf);
+  const readPages = useProject((s) => s.actions.readPages);
   const templates = listTemplates();
   const [trimSize, setTrimSize] = useState<TrimSize>("6x9");
   const [pdfA, setPdfA] = useState(false);
@@ -62,6 +85,20 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const running = stage !== null;
   const current = template ?? (manifest && hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID);
   const checks = manifest ? epubChecks(manifest) : [];
+  const [words, setWords] = useState<number | null>(null);
+  useEffect(() => {
+    if (!open || format !== "pdf") return;
+    let live = true;
+    readPages().then((pages) => { if (live) setWords(pages.reduce((sum, p) => sum + countWords(p.doc), 0)); }, () => { if (live) setWords(null); });
+    return () => { live = false; };
+  }, [open, format, readPages]);
+  const pdfCheckList = useMemo(() => {
+    if (!manifest || words === null) return [];
+    const print = getTemplate(current).print;
+    const margins = print.defaults.marginsIn;
+    const perPage = wordsPerPage(TRIM_SIZES[trimSize], margins, print.fontSizePt);
+    return pdfChecks({ estimatedPages: estimatePages(words, manifest.chapters.length, perPage), margins, hasCover: manifest.cover !== null });
+  }, [manifest, words, current, trimSize]);
   const trimLabels: Record<TrimSize, string> = { "5x8": t`5 × 8 in`, "5.5x8.5": t`5.5 × 8.5 in`, "6x9": t`6 × 9 in` };
   const stageText = format === "epub"
     ? { preparing: t`Reading your chapters…`, rendering: t`Building EPUB…`, saving: t`Saving exports/book.epub…` }
@@ -97,16 +134,10 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
           items={[{ value: "epub", label: t`EPUB 3`, icon: FileText }, { value: "pdf", label: t`Print PDF`, icon: Printer }]}
         />
         {format === "epub" ? (
-          <ul aria-label={t`Checks`} className="flex flex-col gap-2">
-            {checks.map((c) => (
-              <li key={c.text} className={cx("flex items-center gap-2 rounded-md px-3 py-2 text-sm", c.tone === "ok" ? "bg-success-soft text-success" : "bg-warn-soft text-warn")}>
-                {c.tone === "ok" ? <CircleCheck size={16} aria-hidden /> : <CircleAlert size={16} aria-hidden />}
-                {c.text}
-              </li>
-            ))}
-          </ul>
+          <CheckList checks={checks} label={t`Checks`} />
         ) : (
           <>
+            {pdfCheckList.length > 0 && <CheckList checks={pdfCheckList} label={t`Print checks`} />}
             <Select label={t`Trim size`} value={trimSize} disabled={running} onChange={(e) => setTrimSize(e.target.value as TrimSize)}>
               {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => <option key={id} value={id}>{trimLabels[id]}</option>)}
             </Select>

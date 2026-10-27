@@ -651,6 +651,14 @@ msgstr ""
 msgid "EPUB…"
 msgstr ""
 
+#: src/lib/exportChecks.ts
+msgid "Estimated {estimatedPages} pages: KDP paperbacks allow at most {KDP_MAX_PAGES}. This is an estimate."
+msgstr ""
+
+#: src/lib/exportChecks.ts
+msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
+msgstr ""
+
 #: src/app/App.tsx
 msgid "Exit focus mode"
 msgstr ""
@@ -871,6 +879,10 @@ msgstr ""
 
 #: src/editor/TableCommands.tsx
 msgid "Insert table"
+msgstr ""
+
+#: src/lib/exportChecks.ts
+msgid "Inside margin {inside} in is below KDP's {gutter} in minimum for about {estimatedPages} pages (estimate)."
 msgstr ""
 
 #: src/app/UpdateDialog.tsx
@@ -1190,6 +1202,10 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "Previous Page"
+msgstr ""
+
+#: src/app/ExportDialog.tsx
+msgid "Print checks"
 msgstr ""
 
 #: src/app/ExportDialog.tsx
@@ -1551,6 +1567,10 @@ msgstr ""
 msgid "This book has no chapters yet."
 msgstr ""
 
+#: src/lib/exportChecks.ts
+msgid "This book has no cover image. KDP takes the cover as a separate file."
+msgstr ""
+
 #: src/app/importBook.ts
 msgid "This document contains too many parts to import safely."
 msgstr ""
@@ -1603,6 +1623,10 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "Toggle Header Row"
+msgstr ""
+
+#: src/lib/exportChecks.ts
+msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
 msgstr ""
 
 #: src/app/Sidebar.tsx
