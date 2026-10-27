@@ -92,6 +92,16 @@ describe("strike, code, superscript, subscript", () => {
   });
 });
 
+describe("code blocks", () => {
+  it("emits a raw block from an escaped string and keeps newlines", () => {
+    const out = buildTypst(book, ch({ type: "codeBlock", content: [text('#let x = "y"\n  *z* \\')] }));
+    expect(out).toContain('#raw(block: true, "#let x = \\"y\\"\\n  *z* \\\\")');
+  });
+  it("rejects non-text children", () => {
+    expect(() => buildTypst(book, ch({ type: "codeBlock", content: [{ type: "footnote" } as never] }))).toThrow(/Unsupported/);
+  });
+});
+
 describe("escaping inside documents", () => {
   it("never leaks hostile text as markup", () => {
     const out = buildTypst(book, ch(...HOSTILE.map((h) => para(text(h)))));

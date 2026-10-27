@@ -105,6 +105,7 @@ interface Rel {
 type Cls =
   | { kind: "heading"; level: number }
   | { kind: "quote" }
+  | { kind: "code" }
   | { kind: "list"; ordered: boolean; level: number }
   | { kind: "normal"; fallback?: string };
 
@@ -215,6 +216,7 @@ function classify(styleId: string | undefined, ctx: DCtx): Cls {
     let m: RegExpExecArray | null;
     if ((m = /^heading ([1-9])$/.exec(name))) return { kind: "heading", level: Number(m[1]) };
     if (["quote", "block quote", "intense quote", "block text"].includes(name)) return { kind: "quote" };
+    if (["code", "source code", "preformatted text"].includes(name)) return { kind: "code" };
     if ((m = /^list bullet(?: (\d))?$/.exec(name))) return { kind: "list", ordered: false, level: m[1] ? Number(m[1]) - 1 : 0 };
     if ((m = /^list number(?: (\d))?$/.exec(name))) return { kind: "list", ordered: true, level: m[1] ? Number(m[1]) - 1 : 0 };
     if (["normal", "body text", "body text 2", "body text 3", "first paragraph", "no spacing", "plain text", "list paragraph", "default"].includes(name))
@@ -590,6 +592,7 @@ class BodyBuilder {
   out: DocNode[] = [];
   private list: ListEntry[] = [];
   private quote: DocNode[] = [];
+  private code: string[] = [];
   constructor(private ctx: DCtx, private maxLevel: number) {}
 
   private flushList() {
@@ -600,9 +603,18 @@ class BodyBuilder {
     if (this.quote.length) this.out.push({ type: "blockquote", content: this.quote });
     this.quote = [];
   }
+  /** Consecutive "Code" paragraphs become one code block, one line per paragraph (and per manual line break). */
+  private flushCode() {
+    if (this.code.length) {
+      const text = this.code.join("\n");
+      this.out.push({ type: "codeBlock", ...(text ? { content: [{ type: "text", text }] } : {}) });
+    }
+    this.code = [];
+  }
   flush() {
     this.flushList();
     this.flushQuote();
+    this.flushCode();
   }
 
   paragraph(p: XNode): void {
@@ -620,6 +632,24 @@ class BodyBuilder {
     if (cls.kind === "normal" && cls.fallback) {
       ctx.warn.tally("style-fallback", "info", "Custom paragraph styles were imported as normal paragraphs.", cls.fallback);
     }
+
+    // Code paragraphs hold plain text only; one with a footnote or an image is kept as a normal paragraph instead of losing them.
+    if (cls.kind === "code" && st.items.some((i) => (isSep(i) ? i.sep === "block" : i.type === "footnote"))) cls = { kind: "normal" };
+    if (cls.kind === "code") {
+      this.flushList();
+      this.flushQuote();
+      let line = "";
+      for (const i of st.items) {
+        if (!isSep(i)) line += plainText([i]);
+        else {
+          this.code.push(line);
+          line = "";
+        }
+      }
+      this.code.push(line);
+      return;
+    }
+    this.flushCode();
 
     // list membership via numPr (paragraph first, then style)
     if (cls.kind === "normal" || cls.kind === "list") {

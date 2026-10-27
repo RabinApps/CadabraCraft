@@ -14,11 +14,13 @@ describe("v1 editor schema", () => {
     expect(() => Node.fromJSON(schema, sample).check()).not.toThrow();
   });
   it("defines every v1 node and mark", () => {
-    for (const n of ["paragraph", "heading", "blockquote", "bulletList", "orderedList", "image", "sceneBreak", "footnote"]) expect(schema.nodes[n], n).toBeDefined();
+    for (const n of ["paragraph", "heading", "blockquote", "bulletList", "orderedList", "codeBlock", "image", "sceneBreak", "footnote"]) expect(schema.nodes[n], n).toBeDefined();
     for (const m of ["bold", "italic", "underline", "smallCaps", "strike", "code", "superscript", "subscript", "link"]) expect(schema.marks[m], m).toBeDefined();
   });
-  it("leaves out unsupported features", () => {
-    expect(schema.nodes.codeBlock).toBeUndefined();
+  it("holds code blocks as plain text without marks", () => {
+    const code = (content: unknown[]) => ({ type: "doc", content: [{ type: "codeBlock", content }] });
+    expect(() => Node.fromJSON(schema, code([{ type: "text", text: "a\nb" }])).check()).not.toThrow();
+    expect(() => Node.fromJSON(schema, code([{ type: "text", text: "a", marks: [{ type: "bold" }] }])).check()).toThrow();
   });
   it("keeps superscript and subscript mutually exclusive", () => {
     const doc = (marks: { type: string }[]) => ({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x", marks }] }] });

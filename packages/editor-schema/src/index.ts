@@ -89,13 +89,12 @@ export const CaptionedImage = Image.extend({
 });
 
 /**
- * The fixed schema. Headings limited to levels 1-3. Code blocks and rules are disabled.
+ * The fixed schema. Headings limited to levels 1-3. Horizontal rules are disabled (the scene break replaces them). Code blocks are plain text with an optional `language` string.
  * StarterKit 3 bundles underline, link, strike and inline code; superscript and subscript are our own marks.
  */
 export const extensions = [
   StarterKit.configure({
     heading: { levels: [1, 2, 3] },
-    codeBlock: false,
     horizontalRule: false,
     link: { openOnClick: false },
   }),

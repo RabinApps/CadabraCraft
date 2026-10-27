@@ -13,7 +13,7 @@ export type DocNode =
   | {
       type:
         | "doc" | "paragraph" | "heading" | "blockquote" | "bulletList" | "orderedList"
-        | "listItem" | "sceneBreak" | "image" | "figcaption" | "footnote";
+        | "listItem" | "codeBlock" | "sceneBreak" | "image" | "figcaption" | "footnote";
       attrs?: Record<string, string | number | null>;
       content?: DocNode[];
     };

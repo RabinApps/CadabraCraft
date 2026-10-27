@@ -255,8 +255,12 @@ function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[] {
         out.push({ type: "sceneBreak" });
         break;
       case "code": {
-        ctx.warn.at("code-block", "warning", "Code blocks are not supported; each line was imported as a plain paragraph.", line);
-        for (const l of n.value.split("\n")) if (l.trim()) out.push(paragraphOf([{ type: "text", text: l }]));
+        const lang = /^[A-Za-z0-9_+#.-]{1,32}$/.test(n.lang ?? "") ? n.lang : undefined;
+        out.push({
+          type: "codeBlock",
+          ...(lang ? { attrs: { language: lang } } : {}),
+          ...(n.value ? { content: [{ type: "text", text: n.value }] } : {}),
+        });
         break;
       }
       case "html": {

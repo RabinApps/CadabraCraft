@@ -54,6 +54,14 @@ function block(n: DocNode, ctx: Ctx): string {
     case "bulletList": return `<ul>${(kids ?? []).map((k) => block(k, ctx)).join("")}</ul>`;
     case "orderedList": return `<ol>${(kids ?? []).map((k) => block(k, ctx)).join("")}</ol>`;
     case "listItem": return `<li>${(kids ?? []).map((k) => block(k, ctx)).join("")}</li>`;
+    case "codeBlock": {
+      const lang = typeof n.attrs?.language === "string" && n.attrs.language ? ` class="language-${esc(n.attrs.language)}"` : "";
+      const text = (kids ?? []).map((k) => {
+        if (k.type !== "text") throw new Error(`Unsupported node type in code block: ${k.type}`);
+        return k.text;
+      }).join("");
+      return `<pre><code${lang}>${esc(text)}</code></pre>`;
+    }
     case "sceneBreak": return `<hr class="scene-break"/>`;
     case "image": {
       const a = n.attrs ?? {};

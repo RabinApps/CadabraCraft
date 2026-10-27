@@ -28,8 +28,9 @@ describe("plainBlocks", () => {
         { type: "paragraph", content: [{ type: "text", text: "Hello " }, { type: "text", text: "there", marks: [{ type: "bold" }] }] },
         { type: "paragraph" },
         { type: "blockquote", content: [{ type: "paragraph", content: [{ type: "text", text: "Quoted" }] }] },
+        { type: "codeBlock", content: [{ type: "text", text: "let x = 1;" }] },
       ],
     } as unknown as ChapterDoc;
-    expect(plainBlocks(doc)).toEqual(["One", "Hello there", "Quoted"]);
+    expect(plainBlocks(doc)).toEqual(["One", "Hello there", "Quoted", "let x = 1;"]);
   });
 });

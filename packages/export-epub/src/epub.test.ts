@@ -23,6 +23,13 @@ describe("chapterToXhtmlBody", () => {
     const html = chapterToXhtmlBody(doc);
     for (const s of ["<s>struck</s>", "<code>a&lt;b</code>", "H<sub>2</sub>O", "x<sup>2</sup>"]) expect(html).toContain(s);
   });
+  it("renders code blocks as escaped pre/code with newlines kept", () => {
+    const block = { type: "codeBlock", attrs: { language: 'js"x' }, content: [{ type: "text", text: "if (a < b) {\n  go();\n}" }] };
+    const html = chapterToXhtmlBody({ type: "doc", content: [block as never] });
+    expect(html).toBe('<pre><code class="language-js&quot;x">if (a &lt; b) {\n  go();\n}</code></pre>');
+    expect(chapterToXhtmlBody({ type: "doc", content: [{ type: "codeBlock" }] })).toBe("<pre><code></code></pre>");
+    expect(() => chapterToXhtmlBody({ type: "doc", content: [{ type: "codeBlock", content: [{ type: "footnote" } as never] }] })).toThrow(/Unsupported/);
+  });
   it("rejects unknown marks with a clear error", () => {
     const bad = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x", marks: [{ type: "bogus" }] }] }] } as never;
     expect(() => chapterToXhtmlBody(bad)).toThrow(/Unsupported mark/);

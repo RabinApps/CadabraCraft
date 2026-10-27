@@ -41,6 +41,8 @@ export const STYLES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w
 <w:style w:type="paragraph" w:styleId="ListBullet"><w:name w:val="List Bullet"/><w:basedOn w:val="Normal"/></w:style>
 <w:style w:type="paragraph" w:styleId="ListNumber"><w:name w:val="List Number"/><w:basedOn w:val="Normal"/></w:style>
 <w:style w:type="paragraph" w:styleId="MyChapter"><w:name w:val="My Chapter"/><w:basedOn w:val="Heading1"/></w:style>
+<w:style w:type="paragraph" w:styleId="SourceCode"><w:name w:val="Source Code"/><w:basedOn w:val="Normal"/></w:style>
+<w:style w:type="paragraph" w:styleId="MyCode"><w:name w:val="My Listing"/><w:basedOn w:val="SourceCode"/></w:style>
 <w:style w:type="paragraph" w:styleId="Weird"><w:name w:val="Weird Style"/></w:style>
 <w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:rPr><w:u w:val="single"/></w:rPr></w:style>
 <w:style w:type="character" w:styleId="Strong"><w:name w:val="Strong"/><w:rPr><w:b/></w:rPr></w:style>

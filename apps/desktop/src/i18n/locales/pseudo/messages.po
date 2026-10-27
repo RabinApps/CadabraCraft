@@ -453,6 +453,11 @@ msgid "Code"
 msgstr ""
 
 #: src/app/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Code Block"
+msgstr ""
+
+#: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Colophon"
 msgstr ""
