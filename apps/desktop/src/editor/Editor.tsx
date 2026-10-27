@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { EditorContent, useEditor, type Editor as TipTapEditor } from "@tiptap/react";
 import { extensions } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
@@ -7,6 +7,10 @@ import { manuscriptFonts, useSettings, writingWidths } from "../app/editorPrefs"
 import { dirFor } from "../i18n/locales";
 import { Toolbar } from "./Toolbar";
 import { Search } from "./search/plugin";
+import { FindBar } from "./FindBar";
+import { prefillQuery } from "./findHelpers";
+import { useFind } from "./findStore";
+import { modalOpen, useRegisterCommands } from "../app/commands";
 
 /** Typewriter scrolling: keeps the caret line near the middle of the scrolling column. */
 function centerCaret(editor: TipTapEditor) {
@@ -38,6 +42,37 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
     onSelectionUpdate: ({ editor }) => { if (!reading && useSettings.getState().typewriterScroll) centerCaret(editor); },
   });
   const { manuscriptFont, writingWidth } = useSettings();
+  const findOpen = useFind((s) => s.open);
+
+  // Find is Write mode only: the Search extension is not loaded for reading. The shortcut works in focus mode too (the
+  // bar then sits below the exit button). The native menu owns the accelerators; the keydown listener covers the browser
+  // and any platform where the key also reaches the page, so a second call within a few ms is ignored.
+  const lastInvoke = useRef(0);
+  const invoke = (mode: "find" | "replace" | "toggle") => {
+    if (!editor || reading || modalOpen() || Date.now() - lastInvoke.current < 80) return;
+    lastInvoke.current = Date.now();
+    const { from, to } = editor.state.selection;
+    const query = editor.isFocused ? prefillQuery(editor.state.doc.textBetween(from, to, "\n")) : null;
+    const find = useFind.getState();
+    if (mode === "toggle") find.toggleReplace(query);
+    else find.show({ query, ...(mode === "replace" ? { replace: true } : {}) });
+  };
+  const invokeRef = useRef(invoke);
+  invokeRef.current = invoke;
+  useEffect(() => {
+    if (reading) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.code !== "KeyF") return;
+      e.preventDefault();
+      invokeRef.current(e.altKey ? "toggle" : "find");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [reading]);
+  useRegisterCommands(reading ? {} : {
+    "edit.find": { run: () => invokeRef.current("find") },
+    "edit.findReplace": { run: () => invokeRef.current("replace") },
+  });
   if (!editor) return null;
   if (reading) {
     const style = { "--reading-size": `${sizes[reading.size]}rem`, maxWidth: widths[reading.width] } as CSSProperties;
@@ -50,7 +85,8 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
     );
   }
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      {findOpen && <FindBar editor={editor} focusMode={focus} />}
       {!focus && <Toolbar editor={editor} />}
       <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first">
         <div className="mx-auto md:p-8" style={{ maxWidth: writingWidths[writingWidth] }}>

@@ -18,7 +18,7 @@ const submenu = (entries: MenuEntry[], text: string) => (entries.find((e) => e.k
 /** The commands a book in the editor registers, so the "everything available" case is real. */
 const BOOK: Commands = Object.fromEntries(
   ["app.settings", "file.new", "file.open", "file.import", "file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.printPreview", "file.close", "insert.chapter", "go.previous", "go.next",
-    "view.write", "view.read", "view.focus", "view.details", "editor.bold", "editor.sceneBreak", "help.updates", "help.sponsor"].map((id) => [id, { run }]),
+    "view.write", "view.read", "view.focus", "view.details", "editor.bold", "editor.sceneBreak", "edit.find", "edit.findReplace", "help.updates", "help.sponsor"].map((id) => [id, { run }]),
 );
 
 describe("menu structure", () => {
@@ -65,12 +65,28 @@ describe("table commands", () => {
   });
 });
 
+describe("find", () => {
+  it("owns Cmd/Ctrl+F and Cmd/Ctrl+Alt+F in the Edit menu, greyed out unless the write-mode editor registers it", () => {
+    const edit = submenu(buildMenuModel(ctx(BOOK)), "Edit");
+    expect(find(edit, "edit.find")).toMatchObject({ text: "Find…", accelerator: "CmdOrCtrl+F", enabled: true });
+    expect(find(edit, "edit.findReplace")).toMatchObject({ text: "Find and Replace…", accelerator: "CmdOrCtrl+Alt+F", enabled: true });
+    expect(find(submenu(buildMenuModel(ctx({})), "Edit"), "edit.find")?.enabled).toBe(false);
+  });
+
+  it("gives every accelerator to one item only", () => {
+    const keys: string[] = [];
+    const walk = (es: MenuEntry[]) => es.forEach((e) => { if (e.kind === "command" && e.accelerator) keys.push(e.accelerator); if (e.kind === "submenu") walk(e.items); });
+    walk(buildMenuModel(ctx(BOOK)));
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+});
+
 describe("what is available in each context", () => {
   it("on the start screen only the start actions and Settings work; every book action is greyed out", () => {
     const start: Commands = Object.fromEntries(["app.settings", "file.new", "file.open", "file.import", "help.sponsor"].map((id) => [id, { run }]));
     const m = buildMenuModel(ctx(start));
     for (const id of ["app.settings", "file.new", "file.open", "file.import", "help.sponsor"]) expect(find(m, id)?.enabled, id).toBe(true);
-    for (const id of ["file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.printPreview", "file.close", "insert.chapter", "view.write", "view.focus", "editor.bold", "go.next", "edit.bookUndo"]) {
+    for (const id of ["file.save", "file.bookDetails", "file.exportEpub", "file.exportPdf", "file.printPreview", "file.close", "insert.chapter", "view.write", "view.focus", "editor.bold", "go.next", "edit.bookUndo", "edit.find", "edit.findReplace"]) {
       expect(find(m, id)?.enabled, id).toBe(false);
     }
   });

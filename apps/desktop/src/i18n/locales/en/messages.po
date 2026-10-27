@@ -99,6 +99,10 @@ msgstr "{file} is not valid JSON, so it was not opened. The file was left untouc
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgstr "{imageCount, plural, one {# image added.} other {# images added.}}"
 
+#: src/editor/findHelpers.ts
+msgid "{index} of {total}"
+msgstr "{index} of {total}"
+
 #: src/app/ImportDialogs.tsx
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
@@ -441,6 +445,10 @@ msgstr "Choose…"
 msgid "Clear Menu"
 msgstr "Clear Menu"
 
+#: src/editor/FindBar.tsx
+msgid "Close"
+msgstr "Close"
+
 #: src/app/menuModel.ts
 msgid "Close Project"
 msgstr "Close Project"
@@ -695,6 +703,22 @@ msgstr "Exporting…"
 #: src/app/menuModel.ts
 msgid "File"
 msgstr "File"
+
+#: src/editor/FindBar.tsx
+msgid "Find"
+msgstr "Find"
+
+#: src/editor/FindBar.tsx
+msgid "Find and replace"
+msgstr "Find and replace"
+
+#: src/app/menuModel.ts
+msgid "Find and Replace…"
+msgstr "Find and Replace…"
+
+#: src/app/menuModel.ts
+msgid "Find…"
+msgstr "Find…"
 
 #: src/app/AppHeader.tsx
 msgid "Focus mode"
@@ -967,6 +991,10 @@ msgstr "Manuscript font"
 msgid "Margins (in/out)"
 msgstr "Margins (in/out)"
 
+#: src/editor/FindBar.tsx
+msgid "Match case"
+msgstr "Match case"
+
 #: src/app/SponsorDialog.tsx
 msgid "Maybe later"
 msgstr "Maybe later"
@@ -1060,6 +1088,10 @@ msgstr "Next"
 msgid "Next chapter"
 msgstr "Next chapter"
 
+#: src/editor/FindBar.tsx
+msgid "Next match"
+msgstr "Next match"
+
 #: src/editor/ReadingFooter.tsx
 msgid "Next page"
 msgstr "Next page"
@@ -1088,6 +1120,10 @@ msgstr "No problems found"
 #: src/app/menuModel.ts
 msgid "No Recent Projects"
 msgstr "No Recent Projects"
+
+#: src/editor/findHelpers.ts
+msgid "No results"
+msgstr "No results"
 
 #: src/app/PrintPreview.tsx
 msgid "No text yet"
@@ -1188,6 +1224,10 @@ msgstr "Preface"
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
 msgstr "Previous chapter"
+
+#: src/editor/FindBar.tsx
+msgid "Previous match"
+msgstr "Previous match"
 
 #: src/editor/ReadingFooter.tsx
 msgid "Previous page"
@@ -1305,6 +1345,18 @@ msgstr "Rename"
 #: src/app/store.ts
 msgid "Rename {0}"
 msgstr "Rename {0}"
+
+#: src/editor/FindBar.tsx
+msgid "Replace"
+msgstr "Replace"
+
+#: src/editor/FindBar.tsx
+msgid "Replace all"
+msgstr "Replace all"
+
+#: src/editor/FindBar.tsx
+msgid "Replace with"
+msgstr "Replace with"
 
 #: src/app/Sidebar.tsx
 msgid "Restore"
@@ -1752,6 +1804,10 @@ msgstr "View"
 #: src/app/ImportDialogs.tsx
 msgid "Warning"
 msgstr "Warning"
+
+#: src/editor/FindBar.tsx
+msgid "Whole word"
+msgstr "Whole word"
 
 #: src/app/Settings.tsx
 msgid "Wide"

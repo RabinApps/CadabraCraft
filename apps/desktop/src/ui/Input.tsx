@@ -1,7 +1,7 @@
-import { useId, type InputHTMLAttributes } from "react";
+import { useId, type ComponentPropsWithRef } from "react";
 import { cx } from "./cx";
 
-interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
+interface FieldProps extends ComponentPropsWithRef<"input"> {
   label: string;
   hint?: string;
   /** Keep the label for screen readers but do not show it. */

@@ -119,6 +119,9 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     pre("Paste", t`Paste`),
     pre("SelectAll", t`Select All`),
     sep,
+    cmd("edit.find", t`Find…`, "CmdOrCtrl+F"),
+    cmd("edit.findReplace", t`Find and Replace…`, "CmdOrCtrl+Alt+F"),
+    sep,
     cmd("edit.bookUndo", ctx.undoLabel ? t`Undo ${ctx.undoLabel}` : t`Undo Chapter Change`),
     cmd("edit.bookRedo", ctx.redoLabel ? t`Redo ${ctx.redoLabel}` : t`Redo Chapter Change`),
   ]);

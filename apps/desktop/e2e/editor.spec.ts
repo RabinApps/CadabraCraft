@@ -860,3 +860,85 @@ test.describe("sponsor dialog after an export", () => {
     await expect(sponsor(page)).toHaveCount(0);
   });
 });
+
+test.describe("find and replace", () => {
+  const bar = (page: Page) => page.getByRole("search", { name: "Find and replace" });
+  async function withText(page: Page) {
+    await newProject(page);
+    await page.locator(".ProseMirror").click();
+    await page.keyboard.press("ControlOrMeta+End");
+    await page.keyboard.type(" The cat sat. The cat ran. A cat slept.");
+  }
+
+  test("finds, steps, replaces one, replaces all in one undo step, and Escape clears it", async ({ page }) => {
+    await withText(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    await expect(bar(page)).toBeVisible();
+    await expect(bar(page).getByLabel("Find", { exact: true })).toBeFocused();
+    await page.keyboard.type("cat");
+    await expect(bar(page).getByText("1 of 3")).toBeVisible();
+    await expect(page.locator(".search-match")).toHaveCount(3);
+    const current = () => page.locator(".search-match-current").evaluate((el) => Array.from(document.querySelectorAll(".search-match")).indexOf(el));
+    const first = await current();
+    await page.keyboard.press("Enter");
+    await expect(bar(page).getByText("2 of 3")).toBeVisible();
+    expect(await current()).not.toBe(first);
+    await page.keyboard.press("Shift+Enter");
+    await expect(bar(page).getByText("1 of 3")).toBeVisible();
+
+    await bar(page).getByLabel("Replace with").fill("dog");
+    await bar(page).getByRole("button", { name: "Replace", exact: true }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("The dog sat.");
+    await expect(bar(page).getByText("1 of 2")).toBeVisible();
+    await bar(page).getByRole("button", { name: "Replace all" }).click();
+    await expect(page.locator(".ProseMirror")).not.toContainText("cat");
+    await expect(bar(page).getByText("No results")).toBeVisible();
+    await expect(bar(page).getByRole("button", { name: "Replace all" })).toBeDisabled();
+
+    await page.locator(".ProseMirror").click();
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(page.locator(".ProseMirror")).toContainText("The dog sat. The cat ran. A cat slept."); // one step undid Replace all only
+
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.press("Escape");
+    await expect(bar(page)).toHaveCount(0);
+    await expect(page.locator(".search-match")).toHaveCount(0);
+    await expect(page.locator(".ProseMirror")).toBeFocused();
+  });
+
+  test("toggles match case and whole word, and Cmd+Alt+F hides the replace row", async ({ page }) => {
+    await withText(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.type("the");
+    await expect(page.locator(".search-match")).toHaveCount(2);
+    await bar(page).getByRole("button", { name: "Match case" }).click();
+    await expect(bar(page).getByRole("button", { name: "Match case" })).toHaveAttribute("aria-pressed", "true");
+    await expect(bar(page).getByText("No results")).toBeVisible();
+    await bar(page).getByRole("button", { name: "Match case" }).click();
+    await bar(page).getByRole("button", { name: "Whole word" }).click();
+    await expect(page.locator(".search-match")).toHaveCount(2);
+    await expect(bar(page).getByLabel("Replace with")).toBeVisible();
+    await page.keyboard.press("ControlOrMeta+Alt+f");
+    await expect(bar(page).getByLabel("Replace with")).toHaveCount(0);
+  });
+
+  test("is not available while reading", async ({ page }) => {
+    await withText(page);
+    await page.getByRole("radio", { name: "Read" }).click();
+    await page.keyboard.press("ControlOrMeta+f");
+    await expect(bar(page)).toHaveCount(0);
+  });
+
+  test("fits a phone without horizontal overflow", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await withText(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.type("cat");
+    await expect(bar(page)).toBeVisible();
+    const box = await bar(page).boundingBox();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await expect(bar(page).getByRole("button", { name: "Close" })).toBeVisible();
+  });
+});

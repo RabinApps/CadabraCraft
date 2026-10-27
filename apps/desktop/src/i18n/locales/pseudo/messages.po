@@ -99,6 +99,10 @@ msgstr ""
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgstr ""
 
+#: src/editor/findHelpers.ts
+msgid "{index} of {total}"
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr ""
@@ -441,6 +445,10 @@ msgstr ""
 msgid "Clear Menu"
 msgstr ""
 
+#: src/editor/FindBar.tsx
+msgid "Close"
+msgstr ""
+
 #: src/app/menuModel.ts
 msgid "Close Project"
 msgstr ""
@@ -694,6 +702,22 @@ msgstr ""
 #: src/app/ImportDialogs.tsx
 #: src/app/menuModel.ts
 msgid "File"
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "Find"
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "Find and replace"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Find and Replace…"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Find…"
 msgstr ""
 
 #: src/app/AppHeader.tsx
@@ -967,6 +991,10 @@ msgstr ""
 msgid "Margins (in/out)"
 msgstr ""
 
+#: src/editor/FindBar.tsx
+msgid "Match case"
+msgstr ""
+
 #: src/app/SponsorDialog.tsx
 msgid "Maybe later"
 msgstr ""
@@ -1060,6 +1088,10 @@ msgstr ""
 msgid "Next chapter"
 msgstr ""
 
+#: src/editor/FindBar.tsx
+msgid "Next match"
+msgstr ""
+
 #: src/editor/ReadingFooter.tsx
 msgid "Next page"
 msgstr ""
@@ -1087,6 +1119,10 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "No Recent Projects"
+msgstr ""
+
+#: src/editor/findHelpers.ts
+msgid "No results"
 msgstr ""
 
 #: src/app/PrintPreview.tsx
@@ -1187,6 +1223,10 @@ msgstr ""
 
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "Previous match"
 msgstr ""
 
 #: src/editor/ReadingFooter.tsx
@@ -1304,6 +1344,18 @@ msgstr ""
 #. placeholder {0}: entryOf(m, id)?.title ?? ""
 #: src/app/store.ts
 msgid "Rename {0}"
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "Replace"
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "Replace all"
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "Replace with"
 msgstr ""
 
 #: src/app/Sidebar.tsx
@@ -1750,6 +1802,10 @@ msgstr ""
 
 #: src/app/ImportDialogs.tsx
 msgid "Warning"
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "Whole word"
 msgstr ""
 
 #: src/app/Settings.tsx
