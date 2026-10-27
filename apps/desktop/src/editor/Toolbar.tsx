@@ -7,8 +7,8 @@ import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
 import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
-import { useRegisterCommands } from "../app/commands";
-import { useProject } from "../app/store";
+import { useRegisterCommands } from "../state/commands";
+import { useProject } from "../state/project/index";
 import { TableCommands } from "./TableCommands";
 
 interface Item {

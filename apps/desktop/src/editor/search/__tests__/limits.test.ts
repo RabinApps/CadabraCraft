@@ -3,8 +3,8 @@ import { EditorState } from "@tiptap/pm/state";
 import { getSchema } from "@tiptap/react";
 import { extensions } from "@cadabracraft/editor-schema";
 import { Search, replaceAllTransaction, searchKey, setSearchTransaction } from "../plugin";
-import { replaceInDoc, searchBook } from "../bookSearch";
-import { compileRegex, expandReplacement, findInText, isInvalidRegex, MAX_MATCHES } from "../match";
+import { replaceInDoc, searchBook } from "../../../lib/search/bookSearch";
+import { compileRegex, expandReplacement, findInText, isInvalidRegex, MAX_MATCHES } from "../../../lib/search/match";
 
 const schema = getSchema(extensions);
 const plugins = Search.config.addProseMirrorPlugins!.call({} as never);

@@ -3,7 +3,7 @@ import type { Manifest } from "@cadabracraft/format";
 import { imageAltStats } from "@cadabracraft/export-epub";
 import type { ChapterDoc } from "@cadabracraft/shared";
 
-import type { Margins } from "./printPreview";
+import type { Margins } from "./printEstimate";
 
 export interface ExportCheck { tone: "ok" | "info" | "warn" | "error"; text: string }
 

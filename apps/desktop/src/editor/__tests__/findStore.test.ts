@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "../findStore";
-import { bookPosition, bookStep, countLabel, isComposing, prefillQuery, resultRows } from "../findHelpers";
+import { bookPosition, bookStep, countLabel, isComposing, prefillQuery, resultRows } from "../../lib/search/findHelpers";
 
 beforeEach(() => useFind.setState({ open: false, query: "", replacement: "" }));
 

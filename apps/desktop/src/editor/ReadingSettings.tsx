@@ -1,8 +1,8 @@
 import * as M from "@radix-ui/react-dropdown-menu";
 import { ALargeSmall, Check, Minus, Plus } from "lucide-react";
 import { useLingui } from "@lingui/react/macro";
-import { sizes, useReading, type Width } from "../app/reading";
-import { useTheme, type Theme } from "../app/theme";
+import { sizes, useReading, type Width } from "../state/reading";
+import { useTheme, type Theme } from "../state/theme";
 import { IconButton } from "../ui/Button";
 
 const item = "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";

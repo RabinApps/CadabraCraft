@@ -1,0 +1,43 @@
+import { useEffect } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { t } from "@lingui/core/macro";
+import { createCloseHandler } from "../shell/closeGuard";
+import { useProject } from "../../state/project/index";
+
+/**
+ * Writes unsaved typing when the window is closed. Autosave covers the usual case; this covers closing within its
+ * delay. The native close request is held back until the write has finished (see `createCloseHandler`). In a plain
+ * browser (tests, `vite` alone) there is no native window, so only the best-effort `beforeunload` and `pagehide` writes
+ * apply: the page cannot wait for them.
+ */
+export function useSaveOnClose() {
+  useEffect(() => {
+    const save = () => { if (useProject.getState().draft) void useProject.getState().actions.flush().catch(() => {}); };
+    window.addEventListener("beforeunload", save);
+    window.addEventListener("pagehide", save);
+
+    let unlisten: (() => void) | undefined;
+    let gone = false;
+    try {
+      const win = getCurrentWindow();
+      const handle = createCloseHandler(
+        {
+          hasUnsaved: () => useProject.getState().draft !== null,
+          flush: () => useProject.getState().actions.flush(),
+          onSaveFailed: (message) => useProject.setState({ notice: t`Your last changes could not be saved (${message}). Close the window again to leave without them.` }),
+        },
+        () => win.destroy(),
+      );
+      win.onCloseRequested(handle).then((un) => { if (gone) un(); else unlisten = un; }, () => {});
+    } catch {
+      // Not running inside Tauri.
+    }
+
+    return () => {
+      gone = true;
+      unlisten?.();
+      window.removeEventListener("beforeunload", save);
+      window.removeEventListener("pagehide", save);
+    };
+  }, []);
+}

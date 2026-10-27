@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { countWords } from "@cadabracraft/shared";
 import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { bigBook, bigChapter } from "../../../test/bigBook";
-import { replaceInDoc, searchBook } from "../bookSearch";
+import { replaceInDoc, searchBook } from "../../../lib/search/bookSearch";
 import { diffChapters, paragraphsOf } from "../../../lib/wordDiff";
 
 // Budgets are at least 10x what the dev laptop measures (see docs/architecture.md, "Performance budgets"), so slow CI machines pass

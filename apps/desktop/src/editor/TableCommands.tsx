@@ -5,7 +5,7 @@ import { useLingui } from "@lingui/react/macro";
 import { Button } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
-import { useRegisterCommands, type Commands } from "../app/commands";
+import { useRegisterCommands, type Commands } from "../state/commands";
 
 export const MAX_TABLE_ROWS = 50;
 export const MAX_TABLE_COLUMNS = 8;
