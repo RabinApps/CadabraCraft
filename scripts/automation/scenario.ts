@@ -345,6 +345,10 @@ try {
     assert(await app.js(`!!document.querySelector('[aria-label="Find and replace"]')`), "Find did not open the bar");
     await app.fill(0, "agent"); await app.sleep(500);
     assert(/1 of 1/.test(await app.js(`document.querySelector('[aria-label="Find and replace"]').innerText`)), "the bar does not show 1 of 1");
+    await app.click("All chapters"); await app.sleep(900);
+    const bookCount = await app.js(`document.querySelector('[aria-label="Find and replace"]').innerText`);
+    assert(/of 2\b/.test(bookCount), `All chapters should also count the author on the title page: ${bookCount.slice(0, 60)}`);
+    await app.click("All chapters"); await app.sleep(500);
     await runMenu("edit.findReplace");
     await app.fill(1, "robot"); await app.click("Replace all"); await app.sleep(500);
     const text = await editorText();
@@ -374,6 +378,16 @@ try {
     const real = await outcome("read_project_file", { root: book, path: "cadabra.json" });
     assert(real.startsWith("resolved:") && real.includes("Scenario Book"), "the real project was refused");
     return "6 commands refused with not_a_project, nothing written; the real project still opens";
+  });
+
+  await step("Markdown export writes exports/book.md from the Export dialog", async () => {
+    await exportVia("Markdown");
+    for (let i = 0; i < 20 && !(await status()).includes("exports/book.md"); i++) await app.sleep(500);
+    assert((await status()).includes("exports/book.md"), "Markdown export did not finish");
+    const md = readFileSync(join(book, "exports/book.md"), "utf8");
+    assert(md.includes("Typed by an robot.") && md.includes("**Bold part.**"), `book.md lacks the chapter text: ${md.slice(0, 120)}`);
+    await app.js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await app.sleep(500);
+    return "exports/book.md has the chapter text with bold written as Markdown";
   });
 
   await step("import Markdown into a new project; source untouched; warnings reported", async () => {
