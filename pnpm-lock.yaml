@@ -26,6 +26,9 @@ importers:
       '@cadabracraft/export-epub':
         specifier: workspace:*
         version: link:../../packages/export-epub
+      '@cadabracraft/export-markdown':
+        specifier: workspace:*
+        version: link:../../packages/export-markdown
       '@cadabracraft/export-pdf':
         specifier: workspace:*
         version: link:../../packages/export-pdf

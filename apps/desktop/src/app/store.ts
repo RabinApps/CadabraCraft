@@ -7,6 +7,7 @@ import {
   type Manifest, type ManuscriptEntry, type Tree,
 } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
+import { bookToMarkdown, chapterToMarkdown, MarkdownExportError } from "@cadabracraft/export-markdown";
 import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
@@ -159,6 +160,8 @@ interface State {
     /** Asks for a cover image (png, jpg or webp), copies it into assets/ and returns `assets/<name>`. Null if cancelled or refused (refusals set `notice`). Does not change the manifest. */
     importCover: () => Promise<string | null>;
     exportEpub: () => Promise<void>;
+    /** Writes the whole book as exports/book.md. With `htmlMarks` false it throws `MarkdownExportError` (naming the chapter) at the first underline, small caps, superscript or subscript. */
+    exportMarkdown: (options: { htmlMarks: boolean }) => Promise<void>;
     /** Builds exports/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
     exportPdf: (options: PdfExportOptions) => Promise<void>;
     /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
@@ -533,6 +536,31 @@ export const useProject = create<State>((set, get) => {
           set({ exportStage: "saving" });
           await bridge.writeBytes(root, "exports/book.epub", bytes);
           set({ notice: t`Exported exports/book.epub` });
+        } finally {
+          set({ exportStage: null });
+        }
+      },
+      async exportMarkdown({ htmlMarks }) {
+        if (get().exportStage) throw new Error(t`An export is already running`);
+        set({ exportStage: "preparing" });
+        try {
+          await flush();
+          const { root, manifest } = need();
+          const chapters = await loadChapters();
+          set({ exportStage: "rendering" });
+          const opts = { htmlMarks, imageBase: "../" };
+          let markdown: string;
+          try {
+            markdown = bookToMarkdown({ title: manifest.title, author: manifest.author }, chapters, opts);
+          } catch (e) {
+            if (!(e instanceof MarkdownExportError)) throw e;
+            // The library's message does not say where; find the first page that fails so the author can.
+            const bad = chapters.find((c) => { try { chapterToMarkdown(c.doc, opts); return false; } catch { return true; } });
+            throw new Error(bad ? t`In “${bad.title}”: ${e.message}` : e.message);
+          }
+          set({ exportStage: "saving" });
+          await bridge.writeBytes(root, "exports/book.md", new TextEncoder().encode(markdown));
+          set({ notice: t`Exported exports/book.md` });
         } finally {
           set({ exportStage: null });
         }

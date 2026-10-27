@@ -423,6 +423,26 @@ test("Export PDF sends the chosen options to Typst and writes exports/book.pdf",
   expect(manifest.template).toBe("nonfiction");
 });
 
+test("Export Markdown writes exports/book.md, and explains underline until the HTML option is on", async ({ page }) => {
+  await newProject(page);
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.press("ControlOrMeta+u");
+  await page.keyboard.type("Underlined");
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Markdown" }).click();
+  await expect(dialog.getByRole("button", { name: "Print preview" })).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText("underline");
+  await dialog.getByLabel("Keep underline and small caps").check();
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("status")).toHaveText("Exported exports/book.md");
+  const md = await page.evaluate(() => String.fromCharCode(...((window as any).__disk["exports/book.md"] as number[])));
+  expect(md).toContain("<u>Underlined</u>");
+});
+
 test("Export PDF dialog shows KDP print checks for a very short book", async ({ page }) => {
   await newProject(page);
   await page.locator(".ProseMirror").click();

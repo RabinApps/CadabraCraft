@@ -692,6 +692,10 @@ msgid "Exported exports/book.epub"
 msgstr "Exported exports/book.epub"
 
 #: src/app/store.ts
+msgid "Exported exports/book.md"
+msgstr "Exported exports/book.md"
+
+#: src/app/store.ts
 msgid "Exported exports/book.pdf"
 msgstr "Exported exports/book.pdf"
 
@@ -875,6 +879,12 @@ msgstr "Import…"
 msgid "Importing…"
 msgstr "Importing…"
 
+#. placeholder {0}: bad.title
+#. placeholder {1}: e.message
+#: src/app/store.ts
+msgid "In “{0}”: {1}"
+msgstr "In “{0}”: {1}"
+
 #: src/app/Templates.tsx
 msgid "In use"
 msgstr "In use"
@@ -936,6 +946,10 @@ msgstr "Keep at least one chapter."
 msgid "Keep the line you are writing centered."
 msgstr "Keep the line you are writing centered."
 
+#: src/app/ExportDialog.tsx
+msgid "Keep underline and small caps"
+msgstr "Keep underline and small caps"
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/ui/LanguagePicker.tsx
@@ -990,6 +1004,18 @@ msgstr "Manuscript font"
 #: src/app/Templates.tsx
 msgid "Margins (in/out)"
 msgstr "Margins (in/out)"
+
+#: src/app/ExportDialog.tsx
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/app/ExportDialog.tsx
+msgid "Markdown has no syntax for them, so they are written as HTML tags. Leave this off and the export stops at the first one, naming the chapter."
+msgstr "Markdown has no syntax for them, so they are written as HTML tags. Leave this off and the export stops at the first one, naming the chapter."
+
+#: src/app/menuModel.ts
+msgid "Markdown…"
+msgstr "Markdown…"
 
 #: src/editor/FindBar.tsx
 msgid "Match case"
@@ -1394,6 +1420,10 @@ msgstr "Saved"
 #: src/app/ExportDialog.tsx
 msgid "Saving exports/book.epub…"
 msgstr "Saving exports/book.epub…"
+
+#: src/app/ExportDialog.tsx
+msgid "Saving exports/book.md…"
+msgstr "Saving exports/book.md…"
 
 #: src/app/ExportDialog.tsx
 msgid "Saving exports/book.pdf…"
@@ -1842,9 +1872,17 @@ msgstr "Write or read"
 msgid "Write your first book"
 msgstr "Write your first book"
 
+#: src/app/ExportDialog.tsx
+msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
+msgstr "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
+
 #: src/app/Settings.tsx
 msgid "Writing column width"
 msgstr "Writing column width"
+
+#: src/app/ExportDialog.tsx
+msgid "Writing Markdown…"
+msgstr "Writing Markdown…"
 
 #. placeholder {0}: update.currentVersion
 #: src/app/UpdateDialog.tsx

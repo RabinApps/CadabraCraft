@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { CircleAlert, CircleCheck, FileText, Info, Printer } from "lucide-react";
+import { CircleAlert, CircleCheck, FileText, FileType, Info, Printer } from "lucide-react";
 import { countWords } from "@cadabracraft/shared";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
@@ -19,7 +19,7 @@ import { useSponsor } from "./sponsor";
 import { useProject } from "./store";
 import { errText } from "../lib/projectError";
 
-export type ExportFormat = "epub" | "pdf";
+export type ExportFormat = "epub" | "pdf" | "markdown";
 
 const TYPST_PATH_KEY = "cadabracraft.typstPath";
 /** App preference only (an absolute path), never stored in project files. */
@@ -74,11 +74,13 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const manifest = useProject((s) => s.manifest);
   const stage = useProject((s) => s.exportStage);
   const exportEpub = useProject((s) => s.actions.exportEpub);
+  const exportMarkdown = useProject((s) => s.actions.exportMarkdown);
   const exportPdf = useProject((s) => s.actions.exportPdf);
   const readPages = useProject((s) => s.actions.readPages);
   const templates = listTemplates();
   const [trimSize, setTrimSize] = useState<TrimSize>("6x9");
   const [pdfA, setPdfA] = useState(false);
+  const [htmlMarks, setHtmlMarks] = useState(false);
   const [withCover, setWithCover] = useState(true);
   const [template, setTemplate] = useState<string | null>(null);
   const [typstPath, setTypstPath] = useState(readTypstPath);
@@ -102,6 +104,8 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   }, [manifest, words, current, trimSize]);
   const stageText = format === "epub"
     ? { preparing: t`Reading your chapters…`, rendering: t`Building EPUB…`, saving: t`Saving exports/book.epub…` }
+    : format === "markdown"
+    ? { preparing: t`Reading your chapters…`, rendering: t`Writing Markdown…`, saving: t`Saving exports/book.md…` }
     : { preparing: t`Reading your chapters…`, rendering: t`Typesetting the book with Typst…`, saving: t`Saving exports/book.pdf…` };
 
   const change = (o: boolean) => {
@@ -114,27 +118,31 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
     try {
       if (format === "epub") {
         await exportEpub();
+      } else if (format === "markdown") {
+        await exportMarkdown({ htmlMarks });
       } else {
         saveTypstPath(typstPath.trim());
         await exportPdf({ trimSize, pdfA, cover: withCover, template: current, typstPath: typstPath.trim() || undefined });
       }
       change(false);
-      useSponsor.getState().offer(format === "epub" ? "exports/book.epub" : "exports/book.pdf");
+      useSponsor.getState().offer(format === "epub" ? "exports/book.epub" : format === "markdown" ? "exports/book.md" : "exports/book.pdf");
     } catch (e) {
       setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
     }
   };
   return (
-    <Modal open={open} onOpenChange={change} title={t`Export book`} description={format === "epub" ? t`Creates an EPUB 3 e-book in the exports folder.` : t`Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer.`}>
+    <Modal open={open} onOpenChange={change} title={t`Export book`} description={format === "epub" ? t`Creates an EPUB 3 e-book in the exports folder.` : format === "markdown" ? t`Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer.` : t`Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer.`}>
       <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <Segmented<ExportFormat>
           label={t`Format`}
           value={format}
           onChange={(f) => { setError(null); onFormatChange(f); }}
-          items={[{ value: "epub", label: t`EPUB 3`, icon: FileText }, { value: "pdf", label: t`Print PDF`, icon: Printer }]}
+          items={[{ value: "epub", label: t`EPUB 3`, icon: FileText }, { value: "pdf", label: t`Print PDF`, icon: Printer }, { value: "markdown", label: t`Markdown`, icon: FileType }]}
         />
         {format === "epub" ? (
           <CheckList checks={checks} label={t`Checks`} />
+        ) : format === "markdown" ? (
+          <Checkbox label={t`Keep underline and small caps`} hint={t`Markdown has no syntax for them, so they are written as HTML tags. Leave this off and the export stops at the first one, naming the chapter.`} checked={htmlMarks} disabled={running} onChange={(e) => setHtmlMarks(e.target.checked)} />
         ) : (
           <>
             {pdfCheckList.length > 0 && <CheckList checks={pdfCheckList} label={t`Print checks`} />}
@@ -163,7 +171,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
         )}
         {error && <p role="alert" className="whitespace-pre-wrap break-words rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error.message}</p>}
         <div className="flex flex-wrap items-center justify-between gap-2.5">
-          {onPreview ? <Button disabled={running} onClick={onPreview} icon={Printer}>{t`Print preview`}</Button> : <span />}
+          {onPreview && format !== "markdown" ? <Button disabled={running} onClick={onPreview} icon={Printer}>{t`Print preview`}</Button> : <span />}
           <div className="flex gap-2.5">
             <Button disabled={running} onClick={() => change(false)}>{t`Cancel`}</Button>
             <Button type="submit" variant="primary" icon={FileText} disabled={running}>{running ? t`Exporting…` : t`Export`}</Button>
