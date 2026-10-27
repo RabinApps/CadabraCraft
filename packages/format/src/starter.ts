@@ -23,6 +23,8 @@ interface Words {
   colophon: string;
   newPage: string;
   rights: string;
+  /** Rights paragraph for the copyright page. Only written for languages that have one (English for now). */
+  reproduction?: string;
   dedicationText: string;
 }
 
@@ -31,7 +33,7 @@ interface Words {
  * language rather than the app's. Languages without an entry get English; there is no error because the author can edit it.
  */
 const WORDS: Record<string, Words> = {
-  en: { titlePage: "Title Page", copyright: "Copyright", dedication: "Dedication", epigraph: "Epigraph", foreword: "Foreword", preface: "Preface", acknowledgments: "Acknowledgments", aboutTheAuthor: "About the Author", alsoBy: "Also by {author}", colophon: "Colophon", newPage: "New Page", rights: "All rights reserved.", dedicationText: "For …" },
+  en: { titlePage: "Title Page", copyright: "Copyright", dedication: "Dedication", epigraph: "Epigraph", foreword: "Foreword", preface: "Preface", acknowledgments: "Acknowledgments", aboutTheAuthor: "About the Author", alsoBy: "Also by {author}", colophon: "Colophon", newPage: "New Page", rights: "All rights reserved.", reproduction: "No part of this book may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of the author, except for brief quotations in reviews.", dedicationText: "For …" },
   he: { titlePage: "עמוד שער", copyright: "זכויות יוצרים", dedication: "הקדשה", epigraph: "מוטו", foreword: "הקדמה", preface: "פתח דבר", acknowledgments: "תודות", aboutTheAuthor: "על המחבר", alsoBy: "עוד מאת {author}", colophon: "קולופון", newPage: "עמוד חדש", rights: "כל הזכויות שמורות.", dedicationText: "ל…" },
   ar: { titlePage: "صفحة العنوان", copyright: "حقوق النشر", dedication: "إهداء", epigraph: "اقتباس افتتاحي", foreword: "تقديم", preface: "مقدمة", acknowledgments: "شكر وتقدير", aboutTheAuthor: "عن المؤلف", alsoBy: "مؤلفات أخرى لـ {author}", colophon: "بيانات الإنتاج", newPage: "صفحة جديدة", rights: "جميع الحقوق محفوظة.", dedicationText: "إلى …" },
   it: { titlePage: "Frontespizio", copyright: "Copyright", dedication: "Dedica", epigraph: "Epigrafe", foreword: "Prefazione", preface: "Premessa", acknowledgments: "Ringraziamenti", aboutTheAuthor: "Sull’autore", alsoBy: "Altri libri di {author}", colophon: "Colophon", newPage: "Nuova pagina", rights: "Tutti i diritti riservati.", dedicationText: "A …" },
@@ -76,7 +78,7 @@ export function starterDoc(kind: MatterKind, book: StarterBook): ChapterDoc {
   const content = ((): DocNode[] => {
     switch (kind) {
       case "title-page": return [h1(book.title), para(book.author)];
-      case "copyright": return [para(`© ${book.year} ${book.author}`), para(w.rights), ...(book.isbn ? [para(`ISBN ${book.isbn}`)] : [])];
+      case "copyright": return [para(`© ${book.year} ${book.author}`), para(w.rights), ...(book.isbn?.trim() ? [para(`ISBN ${book.isbn.trim()}`)] : []), ...(w.reproduction ? [para(w.reproduction)] : [])];
       case "dedication": return [para(w.dedicationText, true)];
       case "epigraph": return [para("…", true), para("— …")];
       case "also-by": return [h1(alsoByTitle(w, book.author)), para()];
