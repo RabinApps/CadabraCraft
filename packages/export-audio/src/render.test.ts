@@ -9,7 +9,7 @@ const book: AudioChapter[] = [
   { id: "b", title: "Two", doc: doc("Second chapter.") },
   { id: "c", title: "Three", doc: doc("Third chapter.") },
 ];
-const options: AudioOptions = { voice: "kokoro", speed: 1, formats: ["mp3"] };
+const options: AudioOptions = { voice: "kokoro", speed: 1, formats: ["opus"] };
 
 function fakeRunner(over: Partial<AudioRunner> = {}): AudioRunner & { requests: RenderRequest[] } {
   const requests: RenderRequest[] = [];
@@ -19,7 +19,7 @@ function fakeRunner(over: Partial<AudioRunner> = {}): AudioRunner & { requests: 
     renderChapter: async (req, onProgress) => {
       requests.push(req);
       onProgress(0.5);
-      return { files: [{ format: "mp3", path: `exports/audio/${req.chapterId}.mp3` }], durationSec: 10 };
+      return { files: [{ format: "opus", path: `exports/audio/${req.chapterId}.opus` }], durationSec: 10 };
     },
     ...over,
   };
@@ -42,7 +42,7 @@ describe("renderAudiobook", () => {
     const runner = fakeRunner();
     await expect(renderAudiobook(book, { ...options, speed: 3 }, runner)).rejects.toThrow(AudioExportError);
     await expect(renderAudiobook(book, { ...options, formats: [] }, runner)).rejects.toThrow(/at least one/);
-    await expect(renderAudiobook(book, { ...options, formats: ["mp3", "mp3"] }, runner)).rejects.toThrow(/once/);
+    await expect(renderAudiobook(book, { ...options, formats: ["opus", "opus"] }, runner)).rejects.toThrow(/once/);
     await expect(renderAudiobook([], options, runner)).rejects.toThrow(/no chapters/);
     expect(runner.requests).toEqual([]);
   });
@@ -75,7 +75,7 @@ describe("renderAudiobook", () => {
 
   it("reuses a cached chapter and uses a different hash when voice, speed or formats change", async () => {
     const runner = fakeRunner();
-    const cached = vi.fn(async (id: string) => (id === "a" ? { files: [{ format: "mp3" as const, path: "exports/audio/a.mp3" }], durationSec: 5 } : undefined));
+    const cached = vi.fn(async (id: string) => (id === "a" ? { files: [{ format: "opus" as const, path: "exports/audio/a.opus" }], durationSec: 5 } : undefined));
     const results = await renderAudiobook(book, options, runner, { cached });
     expect(results.map((r) => r.status)).toEqual(["cached", "done", "done"]);
     expect(runner.requests.map((r) => r.chapterId)).toEqual(["b", "c"]);

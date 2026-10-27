@@ -5,7 +5,7 @@ import { AudioExportError, CancelledError, ChapterRenderError, SynthesisError, V
 import { contentHash } from "./hash";
 import { narrate } from "./narrate";
 
-export type AudioFormat = "mp3" | "flac" | "wav" | "opus";
+export type AudioFormat = "opus" | "flac" | "wav";
 
 export interface VoiceInfo {
   id: string;
@@ -41,7 +41,7 @@ export interface RenderRequest {
 }
 
 export interface RenderedChapter {
-  /** Paths relative to the book folder (for example `exports/audio/01-the-quay.mp3`). */
+  /** Paths relative to the book folder (for example `exports/audio/01-the-quay.opus`). */
   files: { format: AudioFormat; path: string }[];
   durationSec: number;
 }

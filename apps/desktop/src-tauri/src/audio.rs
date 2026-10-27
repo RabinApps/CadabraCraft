@@ -368,9 +368,8 @@ fn silence(rate: u32, ms: u32) -> usize {
     (rate as u64 * ms as u64 / 1000) as usize
 }
 
-/// Formats this build can write. MP3 is left out on purpose: every Rust MP3 encoder is LGPL (a licensing decision).
+/// Formats this build can write. There is no MP3 on purpose (see docs/architecture.md, "Audio encoders").
 const WRITABLE: &[&str] = &["wav", "flac", "opus"];
-const KNOWN: &[&str] = &["wav", "mp3", "flac", "opus"];
 
 fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
     if req.chunks.iter().all(|c| c.text.trim().is_empty()) {
@@ -383,11 +382,8 @@ fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
         return Err(other("choose at least one audio format"));
     }
     for f in &req.formats {
-        if !KNOWN.contains(&f.as_str()) {
-            return Err(other(format!("unknown audio format {f:?}")));
-        }
         if !WRITABLE.contains(&f.as_str()) {
-            return Err(AudioError::Encode { format: f.clone(), message: "this format is not available yet; choose WAV, FLAC or Opus".into() });
+            return Err(other(format!("unknown audio format {f:?}; choose WAV, FLAC or Opus")));
         }
     }
     if !req.base.starts_with("exports/") || req.base.ends_with('/') {
@@ -719,7 +715,7 @@ mod tests {
             };
             assert!(matches!(run(&|r| r.voice = "kokoro-heart".into()), Err(AudioError::VoiceMissing { .. })));
             assert!(matches!(run(&|r| r.voice = "nope".into()), Err(AudioError::VoiceMissing { .. })));
-            assert!(matches!(run(&|r| r.formats = vec!["mp3".into()]), Err(AudioError::Encode { .. })));
+            assert!(matches!(run(&|r| r.formats = vec!["mp3".into()]), Err(AudioError::Other { .. })));
             assert!(matches!(run(&|r| r.formats = vec!["ogg".into()]), Err(AudioError::Other { .. })));
             assert!(matches!(run(&|r| r.formats = vec![]), Err(AudioError::Other { .. })));
             assert!(matches!(run(&|r| r.speed = 3.0), Err(AudioError::Other { .. })));
