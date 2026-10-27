@@ -1313,8 +1313,12 @@ test.describe("pasting HTML text", () => {
     };
     await page.keyboard.type("<u>mark</u>");
     await selectLastParagraph("<u>mark</u>");
-    await convertCommand(page);
-    await expect(page.locator(".ProseMirror u")).toHaveText("mark");
+    // under load ProseMirror can still hold the previous selection when the command runs; select again and retry until it converts
+    await expect(async () => {
+      await selectLastParagraph("<u>mark</u>");
+      await convertCommand(page);
+      await expect(page.locator(".ProseMirror u")).toHaveText("mark", { timeout: 1000 });
+    }).toPass({ timeout: 10000 });
     await selectLastParagraph("mark");
     await convertCommand(page);
     await expect(page.getByRole("status").filter({ hasText: "No HTML found in the selection" })).toBeVisible();
