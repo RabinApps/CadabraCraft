@@ -36,6 +36,10 @@ export function plainBlocks(doc: ChapterDoc): string[] {
       if (typeof n.type === "string" && BLOCKS.has(n.type)) {
         const s = textOf(n).trim();
         if (s) out.push(s);
+      } else if (n.type === "tableRow" && Array.isArray(n.content)) {
+        // A table row is one block for the preview: its cells' text in order.
+        const s = (n.content as Node[]).map((c) => textOf(c).trim()).filter(Boolean).join(" ");
+        if (s) out.push(s);
       } else if (Array.isArray(n.content)) {
         walk(n.content as Node[]);
       }

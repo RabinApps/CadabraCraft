@@ -30,6 +30,21 @@ describe("chapterToXhtmlBody", () => {
     expect(chapterToXhtmlBody({ type: "doc", content: [{ type: "codeBlock" }] })).toBe("<pre><code></code></pre>");
     expect(() => chapterToXhtmlBody({ type: "doc", content: [{ type: "codeBlock", content: [{ type: "footnote" } as never] }] })).toThrow(/Unsupported/);
   });
+  it("renders tables with a thead, th scopes, escaped cells and cell footnotes", () => {
+    const html = chapterToXhtmlBody(doc);
+    expect(html).toContain('<table><thead><tr><th scope="col"><p>Item</p></th><th scope="col"><p>Cost &amp; note</p></th></tr></thead><tbody>');
+    expect(html).toContain('<td><p>a&lt;b</p></td>');
+    expect(html).toMatch(/<td><p>Ten<a epub:type="noteref" id="ref2"/);
+  });
+  it("rejects malformed tables", () => {
+    const p = { type: "paragraph" } as never;
+    const t = (...rows: unknown[]) => ({ type: "doc", content: [{ type: "table", content: rows }] }) as never;
+    const row = (...cells: unknown[]) => ({ type: "tableRow", content: cells });
+    const cell = { type: "tableCell", content: [p] };
+    expect(() => chapterToXhtmlBody(t())).toThrow(/without rows/);
+    expect(() => chapterToXhtmlBody(t(row(cell, cell), row(cell)))).toThrow(/same, non-zero/);
+    expect(() => chapterToXhtmlBody(t(row({ type: "tableCell", content: [{ type: "bulletList" }] })))).toThrow(/table cell/);
+  });
   it("rejects unknown marks with a clear error", () => {
     const bad = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x", marks: [{ type: "bogus" }] }] }] } as never;
     expect(() => chapterToXhtmlBody(bad)).toThrow(/Unsupported mark/);

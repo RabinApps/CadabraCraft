@@ -135,6 +135,30 @@ describe("importDocx", () => {
     expectValid(r);
   });
 
+  it("imports tables as table nodes, flattening merges and nested content with warnings", () => {
+    const p = (t: string) => `<w:p><w:r><w:t>${t}</w:t></w:r></w:p>`;
+    const tc = (inner: string, pr = "") => `<w:tc>${pr ? `<w:tcPr>${pr}</w:tcPr>` : ""}${inner}</w:tc>`;
+    const plain = `<w:tbl><w:tr><w:trPr><w:tblHeader/></w:trPr>${tc(p("H1"))}${tc(p("H2"))}</w:tr><w:tr>${tc(p("a") + p("a2"))}${tc(p("b"))}</w:tr></w:tbl>`;
+    const r = importDocx(makeDocx({ body: para("T", "Heading1") + plain }));
+    expect(codes(r)).not.toContain("table");
+    expect(codes(r)).not.toContain("table-merged");
+    const t = JSON.stringify(r.chapters[0]!.doc.content[1]);
+    expect(t).toContain('"type":"tableHeader"');
+    expect(t).toContain('"text":"a2"');
+    expectValid(r);
+
+    const messy =
+      `<w:tbl><w:tr>${tc(p("wide"), '<w:gridSpan w:val="2"/>')}</w:tr>` +
+      `<w:tr>${tc(p("top"), '<w:vMerge w:val="restart"/>')}${tc(p("x"))}</w:tr>` +
+      `<w:tr>${tc("<w:p/>", "<w:vMerge/>")}${tc(`<w:tbl><w:tr>${tc(p("n1"))}${tc(p("n2"))}</w:tr></w:tbl>${p("after")}`)}</w:tr></w:tbl>`;
+    const m = importDocx(makeDocx({ body: para("T", "Heading1") + messy }));
+    expect(codes(m)).toEqual(expect.arrayContaining(["table-merged", "table-complex"]));
+    const tbl = m.chapters[0]!.doc.content[1] as unknown as { content: { content: unknown[] }[] };
+    expect(tbl.content.map((row) => row.content.length)).toEqual([2, 2, 2]);
+    expect(JSON.stringify(tbl)).toContain("n1 | n2");
+    expectValid(m);
+  });
+
   it("reports unsupported features with counts and examples", () => {
     const tbl = (t: string) => `<w:tbl><w:tr><w:tc><w:p><w:r><w:t>${t}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>b</w:t></w:r></w:p></w:tc></w:tr></w:tbl>`;
     const body =
@@ -145,7 +169,7 @@ describe("importDocx", () => {
       '<w:p><m:oMath><m:r><m:t>x=1</m:t></m:r></m:oMath></w:p>' +
       '<w:p><w:r><w:rPr><w:strike/></w:rPr><w:t>struck</w:t></w:r></w:p>';
     const r = importDocx(makeDocx({ body, comments: '<w:comment w:id="0"><w:p><w:r><w:t>c</w:t></w:r></w:p></w:comment>', header: "<w:p><w:r><w:t>Running head</w:t></w:r></w:p>" }));
-    expect(w(r, "table")).toMatchObject({ count: 2 });
+    expect(w(r, "table")).toBeUndefined();
     expect(w(r, "text-box")).toMatchObject({ examples: ["boxed"] });
     expect(w(r, "tracked-changes")).toMatchObject({ count: 2 });
     expect(w(r, "comments")).toBeDefined();
@@ -153,7 +177,7 @@ describe("importDocx", () => {
     expect(w(r, "header-footer")).toMatchObject({ examples: ["Running head"] });
     expect(w(r, "unsupported-formatting")).toBeUndefined();
     const text = JSON.stringify(r.chapters[0]!.doc);
-    for (const s of ["cell1 | b", "added", "x=1", "struck"]) expect(text).toContain(s);
+    for (const s of ["cell1", "added", "x=1", "struck"]) expect(text).toContain(s);
     expect(text).toContain('"marks":[{"type":"strike"}]');
     expect(text).not.toContain("removed");
     expectValid(r);

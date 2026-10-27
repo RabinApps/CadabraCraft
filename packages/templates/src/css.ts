@@ -7,6 +7,9 @@ img{max-width:100%;height:auto}figure{margin:1.5em 0;text-align:center;page-brea
 figcaption{font-size:.85em;margin-top:.4em}
 ul,ol{margin:.6em 0;padding-left:1.6em}li>p{text-indent:0}
 aside ol{font-size:.85em}
+table{width:100%;table-layout:fixed;border-collapse:collapse;margin:1.2em 0;font-size:.9em}
+th,td{border:1px solid #888;padding:.3em .5em;text-align:left;vertical-align:top;word-wrap:break-word;overflow-wrap:break-word}
+th{font-weight:bold}td p,th p{margin:0;text-indent:0}td p+p,th p+p{margin-top:.4em}tr{page-break-inside:avoid}
 h1,h2,h3{page-break-after:avoid;break-after:avoid}
 body.title-page,body.dedication,body.epigraph{text-align:center}
 body.title-page h1{margin:30% 0 .5em}body.title-page p,body.dedication p,body.epigraph p,body.copyright p{text-indent:0}

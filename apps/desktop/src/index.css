@@ -76,6 +76,12 @@ body {
 .prose-manuscript .ProseMirror a { color: var(--accent); text-decoration: underline; }
 .prose-manuscript .ProseMirror hr.scene-break { border: 0; margin: 1.5rem 0; text-align: center; }
 .prose-manuscript .ProseMirror hr.scene-break::after { content: "* * *"; color: var(--ink-muted); }
+.prose-manuscript .ProseMirror table { width: 100%; table-layout: fixed; border-collapse: collapse; margin: 1em 0; font-size: 0.95em; }
+.prose-manuscript .ProseMirror th, .prose-manuscript .ProseMirror td { border: 1px solid var(--border); padding: 0.35rem 0.55rem; text-align: start; vertical-align: top; overflow-wrap: anywhere; position: relative; }
+.prose-manuscript .ProseMirror th { font-weight: 600; background: rgba(128, 128, 128, 0.08); }
+.prose-manuscript .ProseMirror td > p, .prose-manuscript .ProseMirror th > p { margin: 0; }
+.prose-manuscript .ProseMirror td > p + p, .prose-manuscript .ProseMirror th > p + p { margin-top: 0.4em; }
+.prose-manuscript .ProseMirror .selectedCell::after { content: ""; position: absolute; inset: 0; background: var(--accent); opacity: 0.15; pointer-events: none; }
 .prose-manuscript .ProseMirror .small-caps { font-variant: small-caps; }
 .prose-manuscript .ProseMirror .footnote { color: var(--accent); border-bottom: 1px dotted var(--accent); }
 

@@ -42,6 +42,35 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
     .join("");
 }
 
+/** `<table>` with a `<thead>` when the first row is all header cells. Cells hold paragraphs only; anything else throws. */
+function table(n: DocNode, ctx: Ctx): string {
+  const rows = ("content" in n ? n.content : undefined) ?? [];
+  if (rows.length === 0) throw new Error("Table without rows in chapter");
+  const cellsOf = (row: DocNode): DocNode[] => {
+    if (row.type !== "tableRow") throw new Error(`Unsupported node type in table: ${row.type}`);
+    return row.content ?? [];
+  };
+  const width = cellsOf(rows[0]!).length;
+  const render = (row: DocNode, inHead: boolean): string => {
+    const cells = cellsOf(row);
+    if (cells.length === 0 || cells.length !== width) throw new Error("Table rows must all have the same, non-zero number of cells");
+    const html = cells.map((c) => {
+      if (c.type !== "tableCell" && c.type !== "tableHeader") throw new Error(`Unsupported node type in table row: ${c.type}`);
+      const body = (c.content ?? []).map((k) => {
+        if (k.type !== "paragraph") throw new Error(`Unsupported node in a table cell: ${k.type}`);
+        return block(k, ctx);
+      }).join("");
+      const tag = c.type === "tableHeader" ? "th" : "td";
+      return `<${tag}${tag === "th" ? ` scope="${inHead ? "col" : "row"}"` : ""}>${body}</${tag}>`;
+    }).join("");
+    return `<tr>${html}</tr>`;
+  };
+  const headRow = cellsOf(rows[0]!).every((c) => c.type === "tableHeader");
+  const head = headRow ? `<thead>${render(rows[0]!, true)}</thead>` : "";
+  const body = rows.slice(headRow ? 1 : 0).map((r) => render(r, false)).join("");
+  return `<table>${head}${body ? `<tbody>${body}</tbody>` : ""}</table>`;
+}
+
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
@@ -66,6 +95,7 @@ function block(n: DocNode, ctx: Ctx): string {
       }).join("");
       return `<pre><code${lang}>${esc(text)}</code></pre>`;
     }
+    case "table": return table(n, ctx);
     case "sceneBreak": return `<hr class="scene-break"/>`;
     case "image": {
       const a = n.attrs ?? {};

@@ -50,6 +50,10 @@
 #show enum: set par(first-line-indent: 0pt)
 #set list(indent: 0.8em, body-indent: 0.6em)
 #set enum(indent: 0.8em, body-indent: 0.6em)
+#set table(stroke: 0.5pt + luma(120), inset: 0.5em)
+#show table: set text(size: 0.9em)
+#show table: set par(first-line-indent: 0pt, justify: false)
+#show table: set block(above: 1.2em, below: 1.2em)
 #show raw: set text(size: 0.9em)
 #show raw.where(block: true): set par(first-line-indent: 0pt, justify: false)
 #show raw.where(block: true): set block(above: 1em, below: 1em, breakable: true)
@@ -136,6 +140,12 @@ Third
   [
 Fourth
   ],
+)
+
+#table(
+  columns: (1fr, 1fr),
+  table.header([Item], [Cost & note]),
+  [a\<b], [Ten#footnote[In cells.]],
 )
 
 #mark("chapter-end")

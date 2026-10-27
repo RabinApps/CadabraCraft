@@ -43,7 +43,7 @@ const app: App = launched ?? await connect();
 
 const book = join(out, "book"), imported = join(out, "imported"), src = join(out, "src");
 for (const d of [book, imported, src]) mkdirSync(d, { recursive: true });
-writeFileSync(join(src, "book.md"), "# First\n\nHello *world*[^1].\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# Second\n\nMore.\n\n[^1]: Note.\n");
+writeFileSync(join(src, "book.md"), "# First\n\nHello *world*[^1].\n\n<div>raw</div>\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# Second\n\nMore.\n\n[^1]: Note.\n");
 writeFileSync(join(src, "book.docx"), tinyDocx({ image: true }));
 const docxBefore = readFileSync(join(src, "book.docx"));
 const importedDocx = join(out, "imported-docx");
@@ -337,7 +337,7 @@ try {
     await app.click("Next"); await app.sleep(1000);
     await app.click("Import"); await app.sleep(4000);
     const s = await app.snapshot();
-    assert(s.dialogs.some((d) => d.includes("Imported 2 chapters") && d.includes("table")), "report missing or wrong");
+    assert(s.dialogs.some((d) => d.includes("Imported 2 chapters") && d.includes("Raw HTML")), "report missing or wrong");
     assert(readFileSync(join(src, "book.md"), "utf8") === mdBefore, "source file was modified");
     assert(existsSync(join(imported, "manuscript/002-second.json")), "chapter files missing");
     await shot("04-import-report");

@@ -34,6 +34,16 @@
     { "type": "orderedList", "attrs": { "start": 3 }, "content": [
       { "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Third" }] }] },
       { "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Fourth" }] }] }
+    ] },
+    { "type": "table", "content": [
+      { "type": "tableRow", "content": [
+        { "type": "tableHeader", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Item" }] }] },
+        { "type": "tableHeader", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Cost & note" }] }] }
+      ] },
+      { "type": "tableRow", "content": [
+        { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "a<b" }] }] },
+        { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Ten" }, { "type": "footnote", "content": [{ "type": "text", "text": "In cells." }] }] }] }
+      ] }
     ] }
   ]
 }

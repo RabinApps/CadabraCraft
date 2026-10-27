@@ -53,6 +53,18 @@ describe("menu structure", () => {
   });
 });
 
+describe("table commands", () => {
+  it("puts Table… under Insert and the row/column commands under Format > Table, greyed out outside a table", () => {
+    const m = buildMenuModel(ctx({ ...BOOK, "editor.table": { run }, "editor.tableAddRow": { run, enabled: false }, "editor.tableDelete": { run, enabled: true } }));
+    expect(find(submenu(m, "Insert"), "editor.table")).toMatchObject({ text: "Table…", enabled: true });
+    const table = submenu(submenu(m, "Format"), "Table");
+    expect(table.map((e) => (e as { id: string }).id)).toEqual(["editor.tableAddRow", "editor.tableAddColumn", "editor.tableDeleteRow", "editor.tableDeleteColumn", "editor.tableHeaderRow", "editor.tableDelete"]);
+    expect(find(table, "editor.tableAddRow")?.enabled).toBe(false);
+    expect(find(table, "editor.tableAddColumn")?.enabled).toBe(false);
+    expect(find(table, "editor.tableDelete")?.enabled).toBe(true);
+  });
+});
+
 describe("what is available in each context", () => {
   it("on the start screen only the start actions and Settings work; every book action is greyed out", () => {
     const start: Commands = Object.fromEntries(["app.settings", "file.new", "file.open", "file.import", "help.sponsor"].map((id) => [id, { run }]));

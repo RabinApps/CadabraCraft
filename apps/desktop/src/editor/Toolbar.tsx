@@ -9,6 +9,7 @@ import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { useRegisterCommands } from "../app/commands";
 import { useProject } from "../app/store";
+import { TableCommands } from "./TableCommands";
 
 interface Item {
   id: string;
@@ -141,6 +142,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
           </div>
         </form>
       </Modal>
+      <TableCommands editor={editor} />
       <Modal open={linkOpen} onOpenChange={setLinkOpen} title={t`Add link`}>
         <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); applyLink(); }}>
           <Field label={t`Address`} value={href} onChange={(e) => { setHref(e.target.value); setLinkError(""); }} hint={t`Use http, https or mailto.`} autoFocus />

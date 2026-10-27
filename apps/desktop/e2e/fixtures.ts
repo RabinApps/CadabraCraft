@@ -24,7 +24,7 @@ export function tinyDocx(opts: { image?: boolean } = {}): Uint8Array {
   return zipSync(files);
 }
 
-/** Markdown with two chapters, a hard-to-keep table and a local image reference. */
+/** Markdown with two chapters, a table, a raw HTML line (hard to keep) and a local image reference. */
 export const TINY_MD = `# Alpha
 
 Opening *paragraph* with **weight**.
@@ -34,6 +34,8 @@ Opening *paragraph* with **weight**.
 # Beta
 
 Second chapter.
+
+<div>raw</div>
 
 | a | b |
 |---|---|

@@ -47,6 +47,11 @@ function block(n: N, indent = ""): string {
     }
     case "sceneBreak":
       return `${indent}* * *`;
+    case "table":
+      // One line per row, cells separated by " | " (paragraphs within a cell are joined by a space).
+      return (n.content ?? [])
+        .map((row) => `${indent}${(row.content ?? []).map((c) => (c.content ?? []).map(inline).join(" ").replace(/\s+/g, " ").trim()).join(" | ")}`)
+        .join("\n");
     case "image":
       return `${indent}[Image: ${String(n.attrs?.alt ?? "")}]${n.attrs?.title ? ` ${String(n.attrs.title)}` : ""}`;
     default:

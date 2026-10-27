@@ -178,6 +178,10 @@ msgstr "Add {title}"
 msgid "Add chapter"
 msgstr "Add chapter"
 
+#: src/app/menuModel.ts
+msgid "Add Column After"
+msgstr "Add Column After"
+
 #: src/editor/Toolbar.tsx
 msgid "Add image"
 msgstr "Add image"
@@ -189,6 +193,10 @@ msgstr "Add link"
 #: src/app/Sidebar.tsx
 msgid "Add page"
 msgstr "Add page"
+
+#: src/app/menuModel.ts
+msgid "Add Row Below"
+msgstr "Add Row Below"
 
 #: src/app/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
@@ -337,6 +345,7 @@ msgstr "CadabraCraft is up to date."
 #: src/app/ExportDialog.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
+#: src/editor/TableCommands.tsx
 #: src/editor/Toolbar.tsx
 #: src/ui/Dialog.tsx
 msgid "Cancel"
@@ -462,6 +471,14 @@ msgstr "Code Block"
 msgid "Colophon"
 msgstr "Colophon"
 
+#: src/editor/TableCommands.tsx
+msgid "Columns"
+msgstr "Columns"
+
+#: src/editor/TableCommands.tsx
+msgid "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
+msgstr "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
+
 #: src/app/ImportDialogs.tsx
 msgid "Copied"
 msgstr "Copied"
@@ -559,6 +576,18 @@ msgstr "Dark"
 #: src/app/Sidebar.tsx
 msgid "Dedication"
 msgstr "Dedication"
+
+#: src/app/menuModel.ts
+msgid "Delete Column"
+msgstr "Delete Column"
+
+#: src/app/menuModel.ts
+msgid "Delete Row"
+msgstr "Delete Row"
+
+#: src/app/menuModel.ts
+msgid "Delete Table"
+msgstr "Delete Table"
 
 #: src/editor/Toolbar.tsx
 msgid "Description (alt text)"
@@ -835,9 +864,14 @@ msgid "Include the cover"
 msgstr "Include the cover"
 
 #: src/app/menuModel.ts
+#: src/editor/TableCommands.tsx
 #: src/editor/Toolbar.tsx
 msgid "Insert"
 msgstr "Insert"
+
+#: src/editor/TableCommands.tsx
+msgid "Insert table"
+msgstr "Insert table"
 
 #: src/app/UpdateDialog.tsx
 msgid "Install now"
@@ -1278,6 +1312,10 @@ msgstr "Restore {0}"
 msgid "Right-hand page"
 msgstr "Right-hand page"
 
+#: src/editor/TableCommands.tsx
+msgid "Rows"
+msgstr "Rows"
+
 #: src/app/AppHeader.tsx
 #: src/app/menuModel.ts
 msgid "Save"
@@ -1416,6 +1454,14 @@ msgstr "Superscript"
 msgid "System"
 msgstr "System"
 
+#: src/app/menuModel.ts
+msgid "Table"
+msgstr "Table"
+
+#: src/app/menuModel.ts
+msgid "Table…"
+msgstr "Table…"
+
 #: src/app/Details.tsx
 #: src/app/ExportDialog.tsx
 msgid "Template"
@@ -1449,6 +1495,10 @@ msgstr "The cover image {0} could not be read. Choose it again in Book details, 
 #: src/app/BookDetailsDialog.tsx
 msgid "The cover image could not be read."
 msgstr "The cover image could not be read."
+
+#: src/editor/TableCommands.tsx
+msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
+msgstr "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 
 #: src/lib/pdfErrors.ts
 msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
@@ -1550,6 +1600,10 @@ msgstr "Title of chapter {0}"
 #: src/app/Sidebar.tsx
 msgid "Title page"
 msgstr "Title page"
+
+#: src/app/menuModel.ts
+msgid "Toggle Header Row"
+msgstr "Toggle Header Row"
 
 #: src/app/Sidebar.tsx
 msgid "Trash"

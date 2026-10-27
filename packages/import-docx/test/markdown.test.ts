@@ -111,10 +111,6 @@ describe("importMarkdown", () => {
     const md = [
       "# A",
       "",
-      "| a | b |",
-      "|---|---|",
-      "| 1 | 2 |",
-      "",
       "```js",
       "let x = 1;",
       "```",
@@ -127,13 +123,25 @@ describe("importMarkdown", () => {
       "- [ ] todo",
     ].join("\n");
     const r = importMarkdown(md);
-    expect(codes(r)).toEqual(expect.arrayContaining(["table", "html", "task-list"]));
+    expect(codes(r)).toEqual(expect.arrayContaining(["html", "task-list"]));
     expect(codes(r)).not.toContain("code-block");
     expect(codes(r)).not.toContain("strikethrough");
     expect(codes(r)).not.toContain("inline-code");
     const text = JSON.stringify(r.chapters[0]!.doc);
-    for (const s of ["a | b", "1 | 2", "raw", "gone", "code", "[x] done", "[ ] todo"]) expect(text).toContain(s);
-    expect(r.warnings.find((w) => w.code === "table")?.line).toBe(3);
+    for (const s of ["let x = 1;", "raw", "gone", "code", "[x] done", "[ ] todo"]) expect(text).toContain(s);
+    expectValid(r);
+  });
+
+  it("maps GFM tables to table nodes with a header row, padding ragged rows", () => {
+    const r = importMarkdown("# T\n\n| a | **b** |\n|---|---|\n| 1 | 2 |\n| 3 |\n");
+    expect(codes(r)).not.toContain("table");
+    const table = r.chapters[0]!.doc.content.find((n) => n.type === "table")!;
+    const rows = ("content" in table ? table.content : [])!;
+    expect(rows).toHaveLength(3);
+    expect(JSON.stringify(rows[0])).toContain("tableHeader");
+    expect(JSON.stringify(rows[0])).toContain('"marks":[{"type":"bold"}]');
+    expect(rows.map((row) => ("content" in row ? row.content : [])!.length)).toEqual([2, 2, 2]);
+    expect(JSON.stringify(rows[1])).not.toContain("tableHeader");
     expectValid(r);
   });
 

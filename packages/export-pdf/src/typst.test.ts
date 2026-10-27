@@ -34,6 +34,10 @@ describe("buildTypst content", () => {
   it("is deterministic", () => {
     expect(buildTypst(book, [{ id: "ch1", title: "Chapter One", doc: sample }])).toBe(src);
   });
+  it("renders tables with a repeating header row and escaped cells", () => {
+    expect(src).toContain("#table(\n  columns: (1fr, 1fr),\n  table.header([Item], [Cost & note]),");
+    expect(src).toContain("[a\\<b], [Ten#footnote[In cells.]]");
+  });
   it("renders marks, footnotes, quotes, scene breaks and lists", () => {
     expect(src).toContain("#strong[bright]");
     expect(src).toContain("#emph[striking]");
@@ -103,6 +107,18 @@ describe("code blocks", () => {
 });
 
 describe("escaping inside documents", () => {
+  it("never leaks hostile text out of table cells", () => {
+    const cell = (type: "tableCell" | "tableHeader", h: string): DocNode => ({ type, content: [para(text(h))] });
+    const out = buildTypst(book, ch({ type: "table", content: [
+      { type: "tableRow", content: HOSTILE.slice(0, 2).map((h) => cell("tableHeader", h)) },
+      { type: "tableRow", content: HOSTILE.slice(0, 2).map((h) => cell("tableCell", h)) },
+    ] }));
+    const body = out.slice(out.indexOf("#table("));
+    expect(body).not.toMatch(/(^|[^\\])#let x/);
+    expect(body).not.toMatch(/(^|[^\\])\/\//m);
+    expect(body).not.toContain("\n= not");
+    expect(body).toContain("\\#let x = 1");
+  });
   it("never leaks hostile text as markup", () => {
     const out = buildTypst(book, ch(...HOSTILE.map((h) => para(text(h)))));
     const body = out.slice(out.indexOf("#chapter-start"));
@@ -144,8 +160,17 @@ describe("unsupported input", () => {
   it("throws on unknown node types instead of dropping them", () => {
     expect(() => buildTypst(book, ch({ type: "figcaption" }))).toThrow(PdfExportError);
     expect(() => buildTypst(book, ch({ type: "figcaption" }))).toThrow(/Unsupported node type in chapter: figcaption/);
-    expect(() => buildTypst(book, ch({ type: "table" } as unknown as DocNode))).toThrow(/table/);
     expect(() => buildTypst(book, ch(para({ type: "hardBreak" } as unknown as DocNode)))).toThrow(/hardBreak/);
+  });
+  it("throws on malformed tables", () => {
+    const cell = (t: string): DocNode => ({ type: "tableCell", content: [para(text(t))] });
+    const row = (...c: DocNode[]): DocNode => ({ type: "tableRow", content: c });
+    const table = (...r: DocNode[]): DocNode => ({ type: "table", content: r });
+    expect(() => buildTypst(book, ch({ type: "table" }))).toThrow(/without rows/);
+    expect(() => buildTypst(book, ch(table(row(cell("a"), cell("b")), row(cell("c")))))).toThrow(/same, non-zero/);
+    expect(() => buildTypst(book, ch(table(row())))).toThrow(PdfExportError);
+    expect(() => buildTypst(book, ch(table(para(text("x")))))).toThrow(/paragraph/);
+    expect(() => buildTypst(book, ch(table(row({ type: "tableCell", content: [{ type: "bulletList", content: [] }] }))))).toThrow(/table cell/);
   });
   it("throws on unknown marks", () => {
     expect(() => buildTypst(book, ch(para(text("x", [{ type: "bogus" } as never]))))).toThrow(/bogus/);

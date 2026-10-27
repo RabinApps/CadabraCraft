@@ -156,6 +156,38 @@ function listItems(kids: DocNode[] | undefined, ctx: Ctx): string {
     .join(",\n");
 }
 
+/** Rows of cells as a rectangle, or a `PdfExportError`. Cells hold paragraphs only (the editor schema guarantees it; hand-written JSON gets the error). */
+function tableRows(n: DocNode): DocNode[][] {
+  const rows = ("content" in n ? n.content : undefined) ?? [];
+  if (rows.length === 0) throw new PdfExportError("Table without rows");
+  const out = rows.map((row) => {
+    if (row.type !== "tableRow") return unsupported(row.type);
+    const cells = ("content" in row ? row.content : undefined) ?? [];
+    for (const c of cells) {
+      if (c.type !== "tableCell" && c.type !== "tableHeader") return unsupported(c.type);
+      for (const k of ("content" in c ? c.content : undefined) ?? []) if (k.type !== "paragraph") throw new PdfExportError(`Unsupported node in a table cell: ${k.type}`);
+    }
+    return cells;
+  });
+  const width = out[0]!.length;
+  if (width === 0 || out.some((r) => r.length !== width)) throw new PdfExportError("Table rows must all have the same, non-zero number of cells");
+  return out;
+}
+
+function tableBlock(n: DocNode, ctx: Ctx): string {
+  const rows = tableRows(n);
+  const cell = (c: DocNode, inHeader: boolean): string => {
+    const body = blocks("content" in c ? c.content : undefined, ctx);
+    return `[${c.type === "tableHeader" && !inHeader ? `#strong[${body}]` : body}]`;
+  };
+  const headerRow = rows[0]!.every((c) => c.type === "tableHeader");
+  const lines = rows.map((r, i) => {
+    const cells = r.map((c) => cell(c, headerRow && i === 0)).join(", ");
+    return headerRow && i === 0 ? `  table.header(${cells}),` : `  ${cells},`;
+  });
+  return `#table(\n  columns: (${rows[0]!.map(() => "1fr").join(", ")}),\n${lines.join("\n")}\n)`;
+}
+
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
@@ -180,6 +212,7 @@ function block(n: DocNode, ctx: Ctx): string {
       }).join("");
       return `#raw(block: true, ${typstString(text)})`;
     }
+    case "table": return tableBlock(n, ctx);
     case "sceneBreak": return "#scene-break()";
     case "image": {
       const a = n.attrs ?? {};
@@ -290,6 +323,10 @@ ${headingRule(3, p.headings[3], fonts.heading)}
 #show enum: set par(first-line-indent: 0pt)
 #set list(indent: 0.8em, body-indent: 0.6em)
 #set enum(indent: 0.8em, body-indent: 0.6em)
+#set table(stroke: 0.5pt + luma(120), inset: 0.5em)
+#show table: set text(size: 0.9em)
+#show table: set par(first-line-indent: 0pt, justify: false)
+#show table: set block(above: 1.2em, below: 1.2em)
 #show raw: set text(size: 0.9em)
 #show raw.where(block: true): set par(first-line-indent: 0pt, justify: false)
 #show raw.where(block: true): set block(above: 1em, below: 1em, breakable: true)

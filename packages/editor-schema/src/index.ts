@@ -1,6 +1,7 @@
 import { Mark, Node, getSchema, mergeAttributes } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
+import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
 import { Node as PMNode } from "@tiptap/pm/model";
 import { isAssetPath, type ChapterDoc, errMsg } from "@cadabracraft/shared";
 
@@ -40,6 +41,19 @@ export const Footnote = Node.create({
   parseHTML: () => [{ tag: "span.footnote" }],
   renderHTML: () => ["span", { class: "footnote" }, 0],
 });
+
+/**
+ * Tables: cells hold paragraphs only (no nested tables, lists or images), and merged cells are not supported, so
+ * colspan/rowspan are fixed at 1 (prosemirror-tables needs the attrs to exist) and no column widths are stored.
+ */
+const singleSpanAttrs = () => ({
+  colspan: { default: 1, parseHTML: () => 1, renderHTML: () => ({}) },
+  rowspan: { default: 1, parseHTML: () => 1, renderHTML: () => ({}) },
+});
+export const BookTable = Table.configure({ resizable: false });
+export const BookTableRow = TableRow;
+export const BookTableCell = TableCell.extend({ content: "paragraph+", addAttributes: singleSpanAttrs });
+export const BookTableHeader = TableHeader.extend({ content: "paragraph+", addAttributes: singleSpanAttrs });
 
 type AssetUrlResolver = (src: string) => Promise<string>;
 let assetUrlResolver: AssetUrlResolver | null = null;
@@ -104,6 +118,10 @@ export const extensions = [
   Superscript,
   Subscript,
   Footnote,
+  BookTable,
+  BookTableRow,
+  BookTableCell,
+  BookTableHeader,
 ];
 
 /** Returns a safe link href (http, https or mailto; bare domains get https://), or null if it should be refused. */
@@ -138,12 +156,31 @@ export function chapterDocProblem(doc: unknown): string | null {
   }
   // The schema's heading `levels` option only limits the editor's commands; the node spec itself accepts any level.
   let bad: unknown = null;
+  let tableBad: string | null = null;
   const walk = (n: RawNode) => {
     if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
+    if (n.type === "table") tableBad ??= tableProblem(n);
     for (const c of n.content ?? []) walk(c);
   };
   walk(doc as RawNode);
-  return bad === null ? null : `heading level ${String(bad)} is not allowed (levels 1-3 only)`;
+  if (bad !== null) return `heading level ${String(bad)} is not allowed (levels 1-3 only)`;
+  return tableBad;
+}
+
+/** Tables must be rectangular and unmerged: every row has the same number of cells, each with colspan and rowspan 1. */
+function tableProblem(table: RawNode): string | null {
+  const rows = table.content ?? [];
+  let width = -1;
+  for (const [i, row] of rows.entries()) {
+    const cells = row.content ?? [];
+    for (const c of cells) {
+      if (Number(c.attrs?.colspan ?? 1) !== 1 || Number(c.attrs?.rowspan ?? 1) !== 1) return "merged table cells (colspan/rowspan) are not supported";
+    }
+    if (cells.length === 0) return `table row ${i + 1} has no cells`;
+    if (width < 0) width = cells.length;
+    else if (cells.length !== width) return `table row ${i + 1} has ${cells.length} cells but the first row has ${width} (tables must be rectangular)`;
+  }
+  return null;
 }
 
 /** Runtime check that `doc` is a valid chapter document (see `chapterDocProblem`). */

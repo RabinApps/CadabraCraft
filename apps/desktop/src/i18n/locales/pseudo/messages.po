@@ -178,6 +178,10 @@ msgstr ""
 msgid "Add chapter"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Add Column After"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Add image"
 msgstr ""
@@ -188,6 +192,10 @@ msgstr ""
 
 #: src/app/Sidebar.tsx
 msgid "Add page"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Add Row Below"
 msgstr ""
 
 #: src/app/PrintPreview.tsx
@@ -337,6 +345,7 @@ msgstr ""
 #: src/app/ExportDialog.tsx
 #: src/app/Home.tsx
 #: src/app/ImportDialogs.tsx
+#: src/editor/TableCommands.tsx
 #: src/editor/Toolbar.tsx
 #: src/ui/Dialog.tsx
 msgid "Cancel"
@@ -462,6 +471,14 @@ msgstr ""
 msgid "Colophon"
 msgstr ""
 
+#: src/editor/TableCommands.tsx
+msgid "Columns"
+msgstr ""
+
+#: src/editor/TableCommands.tsx
+msgid "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "Copied"
 msgstr ""
@@ -558,6 +575,18 @@ msgstr ""
 #: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Dedication"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Delete Column"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Delete Row"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Delete Table"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -835,8 +864,13 @@ msgid "Include the cover"
 msgstr ""
 
 #: src/app/menuModel.ts
+#: src/editor/TableCommands.tsx
 #: src/editor/Toolbar.tsx
 msgid "Insert"
+msgstr ""
+
+#: src/editor/TableCommands.tsx
+msgid "Insert table"
 msgstr ""
 
 #: src/app/UpdateDialog.tsx
@@ -1278,6 +1312,10 @@ msgstr ""
 msgid "Right-hand page"
 msgstr ""
 
+#: src/editor/TableCommands.tsx
+msgid "Rows"
+msgstr ""
+
 #: src/app/AppHeader.tsx
 #: src/app/menuModel.ts
 msgid "Save"
@@ -1416,6 +1454,14 @@ msgstr ""
 msgid "System"
 msgstr ""
 
+#: src/app/menuModel.ts
+msgid "Table"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Table…"
+msgstr ""
+
 #: src/app/Details.tsx
 #: src/app/ExportDialog.tsx
 msgid "Template"
@@ -1448,6 +1494,10 @@ msgstr ""
 
 #: src/app/BookDetailsDialog.tsx
 msgid "The cover image could not be read."
+msgstr ""
+
+#: src/editor/TableCommands.tsx
+msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr ""
 
 #: src/lib/pdfErrors.ts
@@ -1549,6 +1599,10 @@ msgstr ""
 #: src/app/menuModel.ts
 #: src/app/Sidebar.tsx
 msgid "Title page"
+msgstr ""
+
+#: src/app/menuModel.ts
+msgid "Toggle Header Row"
 msgstr ""
 
 #: src/app/Sidebar.tsx
