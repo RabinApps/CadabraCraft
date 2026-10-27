@@ -4,7 +4,7 @@
 //   --launch  start `pnpm tauri:automate` first (waits for the bridge) and stop it afterwards
 //   --out     where to put the scratch books and screenshots (default: a new temp dir)
 import { spawn, execFileSync, type ChildProcess } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -460,6 +460,53 @@ try {
     assert(md.includes("Typed by an bot-ro.") && md.includes("**Bold part.**"), `book.md lacks the chapter text: ${md.slice(0, 120)}`);
     await app.js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await app.sleep(500);
     return "exports/book.md has the chapter text with bold written as Markdown";
+  });
+
+  await step("audiobook: the menu opens the dialog, Chapters select limits the chapters, a real render fills the cache; Settings > Audio lists the voices", async () => {
+    await runMenu("file.exportAudiobook");
+    const text = () => dlg(`return d.textContent;`) as Promise<string>;
+    for (let i = 0; i < 20 && !/Voices are not installed|Chapters/.test(await text()); i++) await app.sleep(500);
+    let first = await text();
+    // Only with --download-voices: the 148 MB Piper pack is fetched through the real panel (the only network use of this step).
+    if (first.includes("Voices are not installed") && args.includes("--download-voices")) {
+      await dlg(`d.querySelector('button[type="submit"]').click(); return "download";`);
+      for (let i = 0; i < 600 && (await text()).includes("Voices are not installed"); i++) await app.sleep(1000);
+      first = await text();
+      assert(!first.includes("Voices are not installed"), `the voice download did not finish: ${first.slice(0, 300)}`);
+    }
+    const installed = !first.includes("Voices are not installed");
+    let detail = "voices not installed on this computer: the download panel shows and nothing is downloaded";
+    if (installed) {
+      assert(first.includes("All chapters"), `no Chapters select: ${first.slice(0, 200)}`);
+      await dlg(`const s = [...d.querySelectorAll("select")].find((e) => [...e.options].some((o) => o.value === "some")); if (!s) throw new Error("no chapters select"); s.value = "some"; s.dispatchEvent(new Event("change", { bubbles: true })); return "some";`);
+      await app.sleep(300);
+      assert((await dlg(`return d.querySelectorAll('fieldset input[type=checkbox]').length;`)) >= 1, "no chapter checkboxes after choosing Selected chapters");
+      await shot("07-audiobook-dialog");
+      const audioDir = join(book, "exports/audio");
+      const cache = join(book, ".cadabra/audio/cache.json");
+      await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
+      for (let i = 0; i < 240 && !(existsSync(cache) && /Your audiobook is ready/.test(await text())); i++) await app.sleep(500);
+      assert(existsSync(audioDir) && readdirSync(audioDir).length > 0, "no audio file was written to exports/audio");
+      assert(Object.keys(JSON.parse(readFileSync(cache, "utf8"))).length >= 1, "the chapter cache is empty");
+      const files = readdirSync(audioDir).map((f) => [f, statSync(join(audioDir, f)).mtimeMs] as const);
+      await app.click("Done"); await app.sleep(600);
+      await runMenu("file.exportAudiobook");
+      for (let i = 0; i < 20 && !/Chapters/.test(await text()); i++) await app.sleep(500);
+      await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
+      for (let i = 0; i < 120 && !/Your audiobook is ready/.test(await text()); i++) await app.sleep(500);
+      for (const [f, m] of files) assert(statSync(join(audioDir, f)).mtimeMs === m, `${f} was rendered again although nothing changed`);
+      detail = `${files.length} file(s) rendered once; the second export reused them from the cache`;
+    } else {
+      assert(first.includes("only time CadabraCraft uses the network"), "the download panel does not say it is the only network use");
+      await shot("07-audiobook-voices");
+    }
+    await app.js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await app.sleep(600);
+    await runMenu("app.settings");
+    const page = await app.js(`document.body.innerText`);
+    for (const needle of ["Default voice", "Default formats"]) assert(page.includes(needle), `Settings > Audio lacks ${needle}`);
+    await shot("08-settings-audio");
+    await app.click("Back").catch(() => {}); await app.sleep(800);
+    return detail;
   });
 
   const chapterFile = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8")).chapters[0].file as string;
