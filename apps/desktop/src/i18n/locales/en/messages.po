@@ -42,10 +42,23 @@ msgstr "{0} changed outside the app; saving will keep both versions"
 msgid "{0} changed outside the app; the other version was kept as {1}"
 msgstr "{0} changed outside the app; the other version was kept as {1}"
 
+#. placeholder {0}: e.format.toUpperCase()
+#. placeholder {1}: e.detail.trim()
+#: src/lib/audioErrors.ts
+msgid "{0} could not be written:\n"
+"{1}"
+msgstr "{0} could not be written:\n"
+"{1}"
+
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
 msgid "{0} does not exist"
 msgstr "{0} does not exist"
+
+#. placeholder {0}: job.files
+#: src/app/AudioExport.tsx
+msgid "{0} files, {minutes} min. Saved in the exports folder, in audio."
+msgstr "{0} files, {minutes} min. Saved in the exports folder, in audio."
 
 #. placeholder {0}: e.path
 #. placeholder {1}: e.max_mb
@@ -107,6 +120,10 @@ msgstr "{bookWords} in the book"
 #: src/app/ImportDialogs.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
+
+#: src/app/AudioExport.tsx
+msgid "{chapters, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads all # chapters, one audio file each. Front and back matter are not read.}}"
+msgstr "{chapters, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads all # chapters, one audio file each. Front and back matter are not read.}}"
 
 #: src/app/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
@@ -301,6 +318,23 @@ msgstr "Apply"
 msgid "Ask each time"
 msgstr "Ask each time"
 
+#: src/app/ExportDialog.tsx
+msgid "Audiobook"
+msgstr "Audiobook"
+
+#. placeholder {0}: Math.round(audio.overall * 100)
+#: src/app/AppHeader.tsx
+msgid "Audiobook {0}%"
+msgstr "Audiobook {0}%"
+
+#: src/app/AudioExport.tsx
+msgid "Audiobook progress"
+msgstr "Audiobook progress"
+
+#: src/app/menuModel.ts
+msgid "Audiobook…"
+msgstr "Audiobook…"
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/app/Home.tsx
@@ -329,6 +363,10 @@ msgstr "Back Matter"
 #: src/editor/FindBar.tsx
 msgid "Back matter: {0}"
 msgstr "Back matter: {0}"
+
+#: src/app/ExportDialog.tsx
+msgid "Back to options"
+msgstr "Back to options"
 
 #: src/app/Settings.tsx
 msgid "Backups"
@@ -432,6 +470,10 @@ msgstr "CadabraCraft is up to date."
 msgid "Cancel"
 msgstr "Cancel"
 
+#: src/app/ExportDialog.tsx
+msgid "Cancel export"
+msgstr "Cancel export"
+
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
 msgid "Cannot restore {0}"
@@ -465,6 +507,15 @@ msgstr "Chapter {0}"
 msgid "Chapter {chapterNo} of {0}"
 msgstr "Chapter {chapterNo} of {0}"
 
+#: src/app/AudioExport.tsx
+msgid "Chapter {current} of {total}"
+msgstr "Chapter {current} of {total}"
+
+#. placeholder {0}: e.chapterTitle
+#: src/lib/audioErrors.ts
+msgid "Chapter {n}, {0}, stopped: {text}"
+msgstr "Chapter {n}, {0}, stopped: {text}"
+
 #: src/app/store.ts
 msgid "Chapter list updated from outside the app"
 msgstr "Chapter list updated from outside the app"
@@ -482,6 +533,7 @@ msgid "Chapter title"
 msgstr "Chapter title"
 
 #: src/app/App.tsx
+#: src/app/AudioExport.tsx
 #: src/app/Details.tsx
 #: src/app/ImportDialogs.tsx
 #: src/app/Sidebar.tsx
@@ -529,6 +581,7 @@ msgstr "Choose…"
 msgid "Clear Menu"
 msgstr "Clear Menu"
 
+#: src/app/ExportDialog.tsx
 #: src/app/HistoryDialog.tsx
 #: src/editor/FindBar.tsx
 msgid "Close"
@@ -724,6 +777,8 @@ msgstr "Details Panel"
 msgid "Don't show again"
 msgstr "Don't show again"
 
+#: src/app/AudioExport.tsx
+#: src/app/ExportDialog.tsx
 #: src/app/ImportDialogs.tsx
 msgid "Done"
 msgstr "Done"
@@ -796,6 +851,10 @@ msgid "Export"
 msgstr "Export"
 
 #: src/app/ExportDialog.tsx
+msgid "Export audiobook"
+msgstr "Export audiobook"
+
+#: src/app/ExportDialog.tsx
 msgid "Export book"
 msgstr "Export book"
 
@@ -828,6 +887,10 @@ msgstr "Exported exports/book.pdf"
 msgid "Exported exports/manuscript.docx"
 msgstr "Exported exports/manuscript.docx"
 
+#: src/app/store.ts
+msgid "Exported the audiobook to exports/audio"
+msgstr "Exported the audiobook to exports/audio"
+
 #: src/app/ExportDialog.tsx
 msgid "Exporting…"
 msgstr "Exporting…"
@@ -852,6 +915,10 @@ msgstr "Find and Replace…"
 #: src/app/menuModel.ts
 msgid "Find…"
 msgstr "Find…"
+
+#: src/app/AudioExport.tsx
+msgid "FLAC"
+msgstr "FLAC"
 
 #: src/app/AppHeader.tsx
 msgid "Focus mode"
@@ -891,6 +958,10 @@ msgstr "Foreword"
 #: src/app/menuModel.ts
 msgid "Format"
 msgstr "Format"
+
+#: src/app/AudioExport.tsx
+msgid "Formats"
+msgstr "Formats"
 
 #: src/editor/Toolbar.tsx
 msgid "Formatting"
@@ -1117,6 +1188,18 @@ msgstr "Keep the line you are writing centered."
 msgid "Keep underline and small caps"
 msgstr "Keep underline and small caps"
 
+#: src/app/ExportDialog.tsx
+msgid "Keep working"
+msgstr "Keep working"
+
+#: src/app/AudioExport.tsx
+msgid "Kokoro · Heart (best quality)"
+msgstr "Kokoro · Heart (best quality)"
+
+#: src/app/AudioExport.tsx
+msgid "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster."
+msgstr "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster."
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/ui/LanguagePicker.tsx
@@ -1163,6 +1246,18 @@ msgstr "Location"
 #: src/app/Settings.tsx
 msgid "Looks for a new version when the app starts. Nothing else is sent."
 msgstr "Looks for a new version when the app starts. Nothing else is sent."
+
+#: src/app/AudioExport.tsx
+msgid "Lossless and large: about 1.7 GB per 10 hours."
+msgstr "Lossless and large: about 1.7 GB per 10 hours."
+
+#: src/app/AudioExport.tsx
+msgid "Lossless, about 60% of the size of WAV."
+msgstr "Lossless, about 60% of the size of WAV."
+
+#: src/app/ExportDialog.tsx
+msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
+msgstr "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
 
 #: src/app/Settings.tsx
 msgid "Manuscript font"
@@ -1397,6 +1492,10 @@ msgstr "Open Recent"
 msgid "Optional. Shown below the image."
 msgstr "Optional. Shown below the image."
 
+#: src/app/AudioExport.tsx
+msgid "Opus"
+msgstr "Opus"
+
 #: src/app/PrintPreview.tsx
 msgid "Page setup"
 msgstr "Page setup"
@@ -1432,6 +1531,14 @@ msgstr "PDF/A (archival)"
 #: src/app/ImportDialogs.tsx
 msgid "Pick or create an empty folder. The imported book is stored there."
 msgstr "Pick or create an empty folder. The imported book is stored there."
+
+#: src/app/AudioExport.tsx
+msgid "Piper · Amy (fast)"
+msgstr "Piper · Amy (fast)"
+
+#: src/app/AudioExport.tsx
+msgid "Piper · LibriTTS (fast)"
+msgstr "Piper · LibriTTS (fast)"
 
 #: src/app/BookDetailsDialog.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
@@ -1762,6 +1869,10 @@ msgstr "Small caps"
 msgid "Small Caps"
 msgstr "Small Caps"
 
+#: src/app/AudioExport.tsx
+msgid "Small files, about 14 MB per hour. Plays on phones and modern players."
+msgstr "Small files, about 14 MB per hour. Plays on phones and modern players."
+
 #: src/editor/ReadingSettings.tsx
 msgid "Smaller text"
 msgstr "Smaller text"
@@ -1769,6 +1880,10 @@ msgstr "Smaller text"
 #: src/app/Settings.tsx
 msgid "Snapshots to keep per chapter"
 msgstr "Snapshots to keep per chapter"
+
+#: src/app/AudioExport.tsx
+msgid "Some audiobook stores do not accept synthetic voices. Check their rules before you upload."
+msgstr "Some audiobook stores do not accept synthetic voices. Check their rules before you upload."
 
 #. placeholder {0}: lost.map((g) => g.code).join(", ")
 #: src/app/ImportDialogs.tsx
@@ -1778,6 +1893,10 @@ msgstr "Some content could not be kept: {0}. A full report follows the import."
 #: src/app/ImportDialogs.tsx
 msgid "Some content or formatting could not be kept. Review these before you continue."
 msgstr "Some content or formatting could not be kept. Review these before you continue."
+
+#: src/app/AudioExport.tsx
+msgid "Speed"
+msgstr "Speed"
 
 #: src/app/SponsorDialog.tsx
 msgid "Sponsor"
@@ -1794,6 +1913,14 @@ msgstr "Start a new chapter at"
 #: src/app/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr "Start a new folder, or open one you already have. Everything stays on this computer."
+
+#: src/app/AudioExport.tsx
+msgid "Stopped"
+msgstr "Stopped"
+
+#: src/app/AudioExport.tsx
+msgid "Stopping…"
+msgstr "Stopping…"
 
 #: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -1844,9 +1971,17 @@ msgstr "That address can't be used as a link."
 msgid "That file name is not valid"
 msgstr "That file name is not valid"
 
+#: src/lib/audioErrors.ts
+msgid "The audiobook was cancelled. Chapters that were finished are kept."
+msgstr "The audiobook was cancelled. Chapters that were finished are kept."
+
 #: src/lib/epubErrors.ts
 msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
 msgstr "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+
+#: src/app/store.ts
+msgid "The book has no chapters to read aloud yet. Add a chapter first."
+msgstr "The book has no chapters to read aloud yet. Add a chapter first."
 
 #: src/app/store.ts
 msgid "The book has no pages to export yet. Add a chapter first."
@@ -1914,6 +2049,31 @@ msgstr "The text you pasted contains HTML tags. CadabraCraft can turn them into 
 msgid "The trash is empty."
 msgstr "The trash is empty."
 
+#. placeholder {0}: e.voice
+#: src/lib/audioErrors.ts
+msgid "the voice \"{0}\" is not installed"
+msgstr "the voice \"{0}\" is not installed"
+
+#. placeholder {0}: e.detail.trim()
+#: src/lib/audioErrors.ts
+msgid "the voice engine stopped:\n"
+"{0}"
+msgstr "the voice engine stopped:\n"
+"{0}"
+
+#: src/lib/audioErrors.ts
+msgid "the voice engine that comes with CadabraCraft is missing. Reinstall the app."
+msgstr "the voice engine that comes with CadabraCraft is missing. Reinstall the app."
+
+#. placeholder {0}: e.seconds
+#: src/lib/audioErrors.ts
+msgid "the voice engine took longer than {0} seconds and was stopped"
+msgstr "the voice engine took longer than {0} seconds and was stopped"
+
+#: src/app/AudioExport.tsx
+msgid "The voices that read your book aloud are not on this computer yet, and CadabraCraft cannot download them from here yet. Put the voice folders in the app's voices folder, then open this dialog again."
+msgstr "The voices that read your book aloud are not on this computer yet, and CadabraCraft cannot download them from here yet. Put the voice folders in the app's voices folder, then open this dialog again."
+
 #: src/app/Settings.tsx
 #: src/editor/ReadingSettings.tsx
 msgid "Theme"
@@ -1927,6 +2087,10 @@ msgstr "There is no space left on the disk to write {0}"
 #: src/app/importBook.ts
 msgid "There is no text to import in this file."
 msgstr "There is no text to import in this file."
+
+#: src/lib/audioErrors.ts
+msgid "there is not enough disk space"
+msgstr "there is not enough disk space"
 
 #: src/app/ImportDialogs.tsx
 msgid "These are routine adjustments; nothing was lost."
@@ -2142,9 +2306,25 @@ msgstr "Version {0} is available"
 msgid "View"
 msgstr "View"
 
+#: src/app/AudioExport.tsx
+msgid "Voice"
+msgstr "Voice"
+
+#: src/app/AudioExport.tsx
+msgid "Voices are not installed"
+msgstr "Voices are not installed"
+
+#: src/app/AudioExport.tsx
+msgid "Waiting"
+msgstr "Waiting"
+
 #: src/app/ImportDialogs.tsx
 msgid "Warning"
 msgstr "Warning"
+
+#: src/app/AudioExport.tsx
+msgid "WAV"
+msgstr "WAV"
 
 #: src/editor/Editor.tsx
 msgid "What you pasted"
@@ -2235,6 +2415,10 @@ msgstr "You can change this later in Settings, Editor."
 #: src/app/UpdateDialog.tsx
 msgid "You have {0}. Your books and settings stay as they are."
 msgstr "You have {0}. Your books and settings stay as they are."
+
+#: src/app/AudioExport.tsx
+msgid "Your audiobook is ready"
+msgstr "Your audiobook is ready"
 
 #: src/app/useSaveOnClose.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."

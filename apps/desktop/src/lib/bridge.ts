@@ -1,11 +1,23 @@
-import { invoke } from "@tauri-apps/api/core";
+import { Channel, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { check, type Update } from "@tauri-apps/plugin-updater";
+import type { Chunk, RenderedChapter, VoiceInfo } from "@cadabracraft/export-audio";
 import { IMAGE_EXTENSIONS } from "@cadabracraft/shared";
 import { packCompileRequest } from "./compileFrame";
+
+/** One `audio_render_chapter` call (`ChapterRequest` in src-tauri/src/audio.rs). `base` is the output path without its extension. */
+export interface AudioChapterRequest {
+  jobId: string;
+  root: string;
+  base: string;
+  chunks: Chunk[];
+  voice: string;
+  speed: number;
+  formats: string[];
+}
 
 export interface FileRead { contents: string; hash: string }
 export interface TrashEntry { path: string; original: string; trashed_at: string }
@@ -108,5 +120,17 @@ export const bridge = {
   /** Compiles Typst source plus asset files (name, bytes) to PDF bytes. The request travels as one binary body (see `packCompileRequest`). */
   typstCompile: (typstPath: string | null, source: string, files: readonly (readonly [string, Uint8Array])[], pdfA: boolean): Promise<Uint8Array> =>
     binary(invoke<RawBytes>("typst_compile", packCompileRequest({ typstPath, source, files, pdfA }))),
+  /** Voices the audio engine knows and whether their files are installed. */
+  audioVoices: () => invoke<VoiceInfo[]>("audio_voices"),
+  /** Renders one chapter off the UI thread; `onProgress` gets 0..1 after every batch. Rejects with an `AudioError` shape (`{ kind, ... }`). */
+  audioRenderChapter: (request: AudioChapterRequest, onProgress: (fraction: number) => void): Promise<RenderedChapter> => {
+    const channel = new Channel<number>();
+    channel.onmessage = onProgress;
+    return invoke<RenderedChapter>("audio_render_chapter", { request, onProgress: channel });
+  },
+  /** Stops the job's running chapter (the engine process is killed) and every later one. */
+  audioCancel: (jobId: string) => invoke<void>("audio_cancel", { jobId }),
+  /** Drops the job's cancel flag once an export has ended. */
+  audioForget: (jobId: string) => invoke<void>("audio_forget", { jobId }),
 };
 export type Bridge = typeof bridge;

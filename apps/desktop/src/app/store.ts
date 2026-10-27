@@ -8,6 +8,7 @@ import {
 } from "@cadabracraft/format";
 import { buildEpub, collectImageSources } from "@cadabracraft/export-epub";
 import { buildDocx, type ManuscriptFont } from "@cadabracraft/export-docx";
+import { renderAudiobook, type AudioFormat } from "@cadabracraft/export-audio";
 import { bookToMarkdown, chapterToMarkdown, MarkdownExportError } from "@cadabracraft/export-markdown";
 import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
@@ -20,6 +21,8 @@ import { runImport, type ImportChoices, type ImportReport } from "./importBook";
 import { describePdfError } from "../lib/pdfErrors";
 import { describeEpubError } from "../lib/epubErrors";
 import { createTauriRunner } from "../lib/typstRunner";
+import { createTauriAudioRunner } from "../lib/audioRunner";
+import { describeAudioError, type AudioUiError } from "../lib/audioErrors";
 import { errText } from "../lib/projectError";
 import { useSettings } from "./editorPrefs";
 
@@ -37,6 +40,36 @@ export interface PdfExportOptions {
   cover?: boolean;
   /** User-configured location of the typst program (an app preference, never stored in the project). */
   typstPath?: string;
+}
+
+export interface AudioExportOptions {
+  voice: string;
+  /** 0.5 to 2; 1 is normal. */
+  speed: number;
+  formats: AudioFormat[];
+  /** Only these chapters (default: every chapter, not front or back matter). */
+  chapterIds?: string[];
+}
+
+export interface AudioChapterState {
+  id: string;
+  title: string;
+  state: "waiting" | "rendering" | "done" | "empty" | "failed";
+  /** 0..1 while rendering. */
+  progress: number;
+}
+
+/** The audiobook export in progress or just finished. It lives in the store, not the dialog, so the dialog can close while it runs. */
+export interface AudioJob {
+  status: "running" | "done" | "error";
+  chapters: AudioChapterState[];
+  /** 0..1 across all chapters. */
+  overall: number;
+  /** Cancel was pressed and the engine is being stopped. */
+  cancelling: boolean;
+  durationSec: number;
+  files: number;
+  error: AudioUiError | null;
 }
 
 /** A page in the project trash, with a title for the list. */
@@ -137,6 +170,8 @@ interface State {
   importReport: ImportReport | null;
   /** Set while an EPUB or PDF export runs. */
   exportStage: PdfStage | null;
+  /** The audiobook export (running, finished or failed); null when none has run or it was dismissed. */
+  audio: AudioJob | null;
   /** Restorable pages in the project trash, newest first (filled by `refreshTrash`). */
   trash: TrashItem[];
   /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
@@ -196,6 +231,16 @@ interface State {
     exportDocx: (options: { font: ManuscriptFont }) => Promise<void>;
     /** Builds exports/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
     exportPdf: (options: PdfExportOptions) => Promise<void>;
+    /**
+     * Reads every chapter aloud with a local voice into exports/audio/, one chapter at a time on a worker thread (the page stays
+     * responsive). Progress and the outcome are in `audio`; a render failure does not throw, it sets `audio.error` (and `audio.status`).
+     * Throws only when it cannot start: another export is running, or the book has no chapters.
+     */
+    exportAudio: (options: AudioExportOptions) => Promise<void>;
+    /** Stops the audiobook: the engine is killed and finished chapters are kept. */
+    cancelAudio: () => void;
+    /** Clears a finished or failed audiobook from `audio`. A running one is left alone. */
+    dismissAudio: () => void;
     /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
     importImage: () => Promise<string | null>;
     /** Imports a .docx/.md file into a NEW project in `root` (the source is only read), opens it and sets `importReport`. Throws, having created nothing, when the file cannot be imported. */
@@ -237,6 +282,7 @@ export const useProject = create<State>((set, get) => {
   /** A book-wide replace is running: a second one is ignored instead of racing it. */
   let replacing = false;
   let importing = false;
+  let audioAbort: AbortController | null = null;
   const need = () => {
     const { root, manifest } = get();
     if (!root || !manifest) throw new Error("no project open");
@@ -462,7 +508,7 @@ export const useProject = create<State>((set, get) => {
   };
 
   return {
-    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, trash: [], history: NO_HISTORY, recovery: [],
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, audio: null, trash: [], history: NO_HISTORY, recovery: [],
     actions: {
       flush,
       undo: () => travel("undo"),
@@ -569,7 +615,7 @@ export const useProject = create<State>((set, get) => {
       async closeProject() {
         await flush();
         wordCache = new Map();
-        set({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", history: NO_HISTORY, trash: [], recovery: [], importReport: null });
+        set({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", history: NO_HISTORY, trash: [], recovery: [], importReport: null, audio: null });
       },
       async createProject(root, title, author) {
         const manifest = createManifest({ title, author, language: i18n.locale === "pseudo" ? "en" : i18n.locale, identifier: `urn:uuid:${crypto.randomUUID()}` });
@@ -834,6 +880,48 @@ export const useProject = create<State>((set, get) => {
         } finally {
           set({ exportStage: null });
         }
+      },
+      async exportAudio(options) {
+        if (get().audio?.status === "running" || get().exportStage) throw new Error(t`An export is already running`);
+        await flush();
+        const { root } = need();
+        const pages = (await loadChapters()).filter((p) => p.section === "chapter" && (!options.chapterIds || options.chapterIds.includes(p.id)));
+        if (pages.length === 0) throw new Error(t`The book has no chapters to read aloud yet. Add a chapter first.`);
+        const jobId = crypto.randomUUID();
+        const ctrl = new AbortController();
+        audioAbort = ctrl;
+        const update = (fn: (j: AudioJob) => AudioJob) => set((s) => (s.audio ? { audio: fn(s.audio) } : {}));
+        const mark = (j: AudioJob, i: number, patch: Partial<AudioChapterState>) => j.chapters.map((c, k) => (k === i ? { ...c, ...patch } : c));
+        set({ audio: { status: "running", chapters: pages.map((p) => ({ id: p.id, title: p.title, state: "waiting", progress: 0 })), overall: 0, cancelling: false, durationSec: 0, files: 0, error: null } });
+        try {
+          await renderAudiobook(
+            pages.map(({ id, title, doc }) => ({ id, title, doc })),
+            { voice: options.voice, speed: options.speed, formats: options.formats },
+            createTauriAudioRunner(bridge, root, jobId),
+            {
+              onChapterStart: (i) => update((j) => ({ ...j, chapters: mark(j, i, { state: "rendering" }) })),
+              onProgress: (p) => update((j) => ({ ...j, overall: p.overall, chapters: mark(j, p.chapterIndex, { progress: p.fraction }) })),
+              onChapterDone: (i, r) => update((j) => ({ ...j, durationSec: j.durationSec + r.durationSec, files: j.files + r.files.length, chapters: mark(j, i, { state: r.status === "empty" ? "empty" : "done", progress: 1 }) })),
+            },
+            ctrl.signal,
+          );
+          update((j) => ({ ...j, status: "done", overall: 1 }));
+          set({ notice: t`Exported the audiobook to exports/audio` });
+        } catch (e) {
+          const error = describeAudioError(e);
+          update((j) => ({ ...j, status: "error", error, chapters: error.chapterIndex === undefined ? j.chapters : mark(j, error.chapterIndex, { state: "failed" }) }));
+        } finally {
+          audioAbort = null;
+          bridge.audioForget(jobId).catch(() => undefined);
+        }
+      },
+      cancelAudio() {
+        if (!audioAbort) return;
+        set((s) => (s.audio ? { audio: { ...s.audio, cancelling: true } } : {}));
+        audioAbort.abort();
+      },
+      dismissAudio() {
+        if (get().audio?.status !== "running") set({ audio: null });
       },
       async importImage() {
         const { root } = need();

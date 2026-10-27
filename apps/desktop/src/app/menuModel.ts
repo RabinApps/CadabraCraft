@@ -104,6 +104,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
       cmd("file.exportPdf", t`Print PDF…`, "CmdOrCtrl+Shift+E"),
       cmd("file.exportMarkdown", t`Markdown…`),
       cmd("file.exportDocx", t`Word (.docx)…`),
+      cmd("file.exportAudiobook", t`Audiobook…`),
       sep,
       cmd("file.printPreview", t`Print Preview…`),
     ]),

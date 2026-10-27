@@ -34,7 +34,7 @@ export function Segmented<T extends string>({ value, onChange, items, label }: P
           value={v}
           aria-label={l}
           title={l}
-          className={cx("inline-flex items-center gap-1.5 rounded-[7px] px-3 py-1.5 text-[13px] font-semibold text-ink-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent data-[state=on]:bg-accent-soft data-[state=on]:text-accent", iconOnly && "px-2.5")}
+          className={cx("inline-flex items-center gap-1.5 whitespace-nowrap rounded-[7px] px-3 py-1.5 text-[13px] font-semibold text-ink-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent data-[state=on]:bg-accent-soft data-[state=on]:text-accent", iconOnly && "px-2.5")}
         >
           {Icon && <Icon size={14} aria-hidden />}
           {!iconOnly && <span className={cx(collapse && "max-sm:hidden")}>{l}</span>}

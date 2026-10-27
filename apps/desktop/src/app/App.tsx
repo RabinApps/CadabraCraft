@@ -135,7 +135,7 @@ export function App() {
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       {focus && <IconButton icon={Minimize2} label={t`Exit focus mode`} className="fixed end-3 top-3 z-10 bg-surface/80 backdrop-blur" onClick={() => setLayout({ focus: false })} />}
-      {!focus && <AppHeader mode={mode} onMode={setMode} onShowChapters={() => setDrawer(true)} onExport={() => openExport("epub")} onSettings={() => setView("settings")} onDetails={() => setDetailsOpen(true)} run={run} />}
+      {!focus && <AppHeader mode={mode} onMode={setMode} onShowChapters={() => setDrawer(true)} onExport={() => openExport("epub")} onAudio={() => openExport("audiobook")} onSettings={() => setView("settings")} onDetails={() => setDetailsOpen(true)} run={run} />}
       <div className="flex min-h-0 flex-1">
         <aside className={cx("hidden w-[264px] shrink-0 overflow-y-auto bg-sidebar", focus ? "" : "lg:block")}>
           <Sidebar />

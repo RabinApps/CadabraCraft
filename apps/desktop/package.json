@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@cadabracraft/editor-schema": "workspace:*",
+    "@cadabracraft/export-audio": "workspace:*",
     "@cadabracraft/export-docx": "workspace:*",
     "@cadabracraft/export-epub": "workspace:*",
     "@cadabracraft/export-markdown": "workspace:*",

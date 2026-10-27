@@ -12,6 +12,7 @@ import { showNativeMenu } from "./nativeMenu";
 import { useRecents } from "./recents";
 import { useUpdates } from "./updates";
 import { SPONSOR_URL } from "./sponsor";
+import type { ExportFormat } from "./ExportDialog";
 import { useProject } from "./store";
 
 type View = "book" | "settings" | "templates" | "print";
@@ -21,7 +22,7 @@ export interface AppMenuHooks {
   setView: (v: View) => void;
   mode: "write" | "read";
   setMode: (m: "write" | "read") => void;
-  openExport: (format: "epub" | "pdf" | "markdown" | "docx") => void;
+  openExport: (format: ExportFormat) => void;
   openDetails: () => void;
   /** Shows a failure from a menu action in the page's error banner. */
   fail: (message: string) => void;
@@ -82,6 +83,7 @@ export function useAppMenu(h: AppMenuHooks): void {
       "file.exportPdf": { run: guard(async () => { await actions.flush(); h.openExport("pdf"); }) },
       "file.exportMarkdown": { run: guard(async () => { await actions.flush(); h.openExport("markdown"); }) },
       "file.exportDocx": { run: guard(async () => { await actions.flush(); h.openExport("docx"); }) },
+      "file.exportAudiobook": { run: guard(async () => { await actions.flush(); h.openExport("audiobook"); }) },
       "file.printPreview": { run: guard(async () => { await actions.flush(); h.setView("print"); }) },
       "file.close": { run: guard(leave) },
       "edit.bookUndo": { run: guard(actions.undo), enabled: history.undo.length > 0 },

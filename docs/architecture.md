@@ -19,6 +19,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 - [M2 print side: templates and Typst PDF export](#m2-print-side-templates-and-typst-pdf-export)
 - [Audiobook export spike (2026-10-27)](#audiobook-export-spike-2026-10-27)
 - [Audiobook rendering in Rust (sherpa-onnx)](#audiobook-rendering-in-rust-sherpa-onnx)
+- [Audiobook export (app)](#audiobook-export-app)
 
 **Platform and tooling**
 - [Headless MCP server](#headless-mcp-server)
@@ -526,3 +527,13 @@ The in-memory layer has no disk cost, so the real saving is the file reads, whic
 - Speed in a debug build: Opus about 8 s for 90 s of audio, FLAC 0.4 s. Release speed is not measured; an hour-long chapter should be checked.
 **Not verified:** listening quality (nobody has listened to the Opus files), Windows and Linux builds, `opus-rs` on other inputs (it is a 0.1.x crate).
 **No MP3 (decision, not needed):** Opus, FLAC and WAV cover modern players and archiving, and the designs no longer offer it. Rejected: `mp3lame-encoder` (LGPL-3.0, wraps LAME) and `shine-rs` (LGPL-2.0), because statically linking an LGPL library into an Apache-2.0 + Commons Clause app needs legal sign-off; a LAME sidecar (one more binary and notice set per platform); our own encoder (weeks for a basic one, and quality below LAME). Revisit only if a store or player the authors need requires MP3. Asking for it is refused as an unknown format before any synthesis.
+
+## Audiobook export (app)
+
+The webview side of the audiobook export. It is a new "Audiobook" format in the Export dialog (`app/ExportDialog.tsx`, `app/AudioExport.tsx`), a File > Export > Audiobook… menu entry and a header chip, following the screens in `docs/design.md`.
+
+**Decision:** the job lives in the store (`audio` in `app/store.ts`), not in the dialog. `exportAudio` runs `renderAudiobook` from `@cadabracraft/export-audio` with a Tauri runner (`lib/audioRunner.ts`), so the dialog can close ("Keep working") while a render continues and a header chip shows the percentage. The render itself is on a Rust worker thread, so the page stays responsive; the webview only awaits a `Channel` of progress numbers.
+**Errors:** render failures do not throw; they set `audio.status = "error"` with an `AudioUiError` (`lib/audioErrors.ts`: a translated message and a code, plus the chapter index so the dialog can mark the chapter that stopped). Cancel aborts an `AbortController`; the runner then calls `audio_cancel`, Rust kills the engine, and the result is a `cancelled` state, not a failure. `exportAudio` throws only when it cannot start (another export is running, no chapters).
+**Choices:** only chapters are read (not front or back matter); Opus is the default format and at least one format always stays chosen; output is `exports/audio/NN-slug.<format>`; the Export dialog is now 560px wide (the pen's size) so five format segments fit.
+**Rejected:** keeping progress in dialog state (it would be lost when the dialog closes), a Web Worker (the work is already off-thread in Rust), a polling loop for progress (a Channel pushes it).
+**Not done:** downloading voices (the dialog says plainly that none are installed and that it cannot download them yet; no download code exists), "Hear a sample", the Chapters select (the dialog says how many chapters are read), the per-chapter cache (every export re-renders), the Settings Audio section, M4B, the sidecar in the bundle (`externalBin`) and its fetch script, and Windows/Linux runs. Tests: Vitest for the runner and the store action with a fake bridge (order, progress, failure, cancel, refusal, missing voice), and three Playwright tests with a faked `audio_*` backend; the real window and the real engine through the UI were not run.

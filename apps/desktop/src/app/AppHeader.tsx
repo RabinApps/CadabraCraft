@@ -1,5 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
-import { BookOpen, BookText, Download, Maximize2, Menu, PanelRight, PenLine, Save, Settings as SettingsIcon } from "lucide-react";
+import { BookOpen, BookText, Download, LoaderCircle, Maximize2, Menu, PanelRight, PenLine, Save, Settings as SettingsIcon } from "lucide-react";
 import { ReadingSettings } from "../editor/ReadingSettings";
 import { Badge } from "../ui/Badge";
 import { Button, IconButton } from "../ui/Button";
@@ -13,6 +13,8 @@ interface Props {
   onMode: (mode: "write" | "read") => void;
   onShowChapters: () => void;
   onExport: () => void;
+  /** Opens the Export dialog on the audiobook, which shows the progress of a running render. */
+  onAudio: () => void;
   onSettings: () => void;
   onDetails: () => void;
   /** Runs an action, clearing the shown error first and showing its failure. */
@@ -20,11 +22,12 @@ interface Props {
 }
 
 /** The top bar of an open book: title, save state, write/read switch and the main actions. */
-export function AppHeader({ mode, onMode, onShowChapters, onExport, onSettings, onDetails, run }: Props) {
+export function AppHeader({ mode, onMode, onShowChapters, onExport, onAudio, onSettings, onDetails, run }: Props) {
   const { t } = useLingui();
   const title = useProject((s) => s.manifest?.title);
   const unsaved = useProject((s) => s.draft !== null);
   const notice = useProject((s) => s.notice);
+  const audio = useProject((s) => s.audio);
   const actions = useProject((s) => s.actions);
   const { details, set: setLayout } = useLayout();
   const reader = mode === "read";
@@ -45,6 +48,12 @@ export function AppHeader({ mode, onMode, onShowChapters, onExport, onSettings, 
         items={[{ value: "write", label: t`Write`, icon: PenLine, collapse: true }, { value: "read", label: t`Read`, icon: BookOpen, collapse: true }]}
       />
       <div className="ms-auto flex items-center gap-2">
+        {audio?.status === "running" && (
+          <button type="button" onClick={onAudio} className="flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-sm font-semibold text-accent focus-visible:outline-2 focus-visible:outline-accent">
+            <LoaderCircle size={14} className="animate-spin motion-reduce:animate-none" aria-hidden />
+            {t`Audiobook ${Math.round(audio.overall * 100)}%`}
+          </button>
+        )}
         {reader && <ReadingSettings />}
         {!reader && <IconButton icon={Maximize2} label={t`Focus mode`} onClick={() => setLayout({ focus: true })} />}
         {!reader && <IconButton icon={PanelRight} label={t`Details`} active={details} className="max-xl:hidden" onClick={() => setLayout({ details: !details })} />}

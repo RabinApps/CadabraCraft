@@ -52,6 +52,17 @@ async function fakeTauri(page: Page) {
             }
             if ((window as any).__compileError) throw (window as any).__compileError;
             return new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]).buffer;
+          case "audio_voices":
+            return (window as any).__audioVoices ?? [{ id: "kokoro-heart", engine: "kokoro", installed: true }, { id: "piper-amy", engine: "piper", installed: true }];
+          case "audio_render_chapter": {
+            const w = window as any;
+            (w.__audioCalls ??= []).push(a.request);
+            a.onProgress?.onmessage?.(0.5);
+            if (w.__audioHold) await new Promise((_, reject) => { w.__audioReject = reject; });
+            return { files: a.request.formats.map((f: string) => ({ format: f, path: `${a.request.base}.${f}` })), durationSec: 60 };
+          }
+          case "audio_cancel": ((window as any).__audioReject)?.({ kind: "cancelled" }); return null;
+          case "audio_forget": return null;
           case "backup_manifest": return "backup";
           // Same naming as the Rust command: .cadabra/trash/<stamp>-<path with / as __>.
           case "trash_project_file": {
@@ -436,6 +447,50 @@ test("Export PDF sends the chosen options to Typst and writes exports/book.pdf",
   expect(pdf).toEqual([0x25, 0x50, 0x44, 0x46, 0x2d]);
   const manifest = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
   expect(manifest.template).toBe("nonfiction");
+});
+
+test("Export audiobook renders the chapters with the chosen voice and formats and says when it is ready", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await expect(dialog.getByLabel("Voice")).toHaveValue("kokoro-heart");
+  await dialog.getByLabel("Voice").selectOption("piper-amy");
+  await dialog.getByRole("radio", { name: "1.1×" }).click();
+  await dialog.getByLabel("FLAC").check();
+  await dialog.getByRole("button", { name: "Export audiobook" }).click();
+  await expect(dialog.getByText("Your audiobook is ready")).toBeVisible();
+  const call = await page.evaluate(() => (window as any).__audioCalls[0]);
+  expect(call).toMatchObject({ voice: "piper-amy", speed: 1.1, formats: ["opus", "flac"], root: "/proj" });
+  expect(call.base).toMatch(/^exports\/audio\/01-/);
+  await dialog.getByRole("button", { name: "Done" }).click();
+  await expect(dialog).toHaveCount(0);
+});
+
+test("Audiobook can be closed while it runs, shows a header chip, and Cancel stops it", async ({ page }) => {
+  await page.addInitScript(() => { (window as any).__audioHold = true; });
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await dialog.getByRole("button", { name: "Export audiobook" }).click();
+  await expect(dialog.getByRole("progressbar")).toBeVisible();
+  await dialog.getByRole("button", { name: "Keep working" }).click();
+  await expect(dialog).toHaveCount(0);
+  await page.getByRole("button", { name: /^Audiobook \d+%$/ }).click();
+  await page.getByRole("dialog", { name: "Export book" }).getByRole("button", { name: "Cancel export" }).click();
+  await expect(page.getByText("The audiobook was cancelled")).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Audiobook \d+%$/ })).toHaveCount(0);
+});
+
+test("Audiobook says when no voice is installed instead of offering to export", async ({ page }) => {
+  await page.addInitScript(() => { (window as any).__audioVoices = [{ id: "kokoro-heart", engine: "kokoro", installed: false }]; });
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await expect(dialog.getByText("Voices are not installed")).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Export audiobook" })).toBeDisabled();
 });
 
 test("Export Markdown writes exports/book.md, and explains underline until the HTML option is on", async ({ page }) => {

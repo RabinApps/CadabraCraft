@@ -9,6 +9,8 @@ interface ModalProps {
   title: string;
   description?: string;
   children?: ReactNode;
+  /** The Export dialog size (560px, as in the pen) instead of the 460px default. */
+  md?: boolean;
   /** Two-column forms (about 680px) instead of the 460px default. */
   wide?: boolean;
   /** Side-by-side layouts (about 860px), such as the History dialog. */
@@ -18,14 +20,14 @@ interface ModalProps {
 export const overlayClass = "fixed inset-0 z-40 bg-scrim";
 export const panelClass = "fixed z-50 border border-border bg-raised text-ink shadow-2xl focus:outline-none";
 
-export function Modal({ open, onOpenChange, title, description, children, wide, xl }: ModalProps) {
+export function Modal({ open, onOpenChange, title, description, children, md, wide, xl }: ModalProps) {
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
         <D.Overlay className={overlayClass} />
         <D.Content
           {...(description ? {} : { "aria-describedby": undefined })}
-          className={`${panelClass} left-1/2 top-1/2 ${xl ? "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto" : wide ? "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto" : "w-[min(92vw,460px)]"} -translate-x-1/2 -translate-y-1/2 rounded-lg p-6`}
+          className={`${panelClass} left-1/2 top-1/2 ${xl ? "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto" : wide ? "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto" : md ? "max-h-[92dvh] w-[min(92vw,560px)] overflow-y-auto" : "w-[min(92vw,460px)]"} -translate-x-1/2 -translate-y-1/2 rounded-lg p-6`}
         >
           <D.Title className="font-book text-xl font-semibold">{title}</D.Title>
           {description ? <D.Description className="mt-2 text-sm text-ink-muted">{description}</D.Description> : null}

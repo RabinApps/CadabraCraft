@@ -23,6 +23,9 @@ importers:
       '@cadabracraft/editor-schema':
         specifier: workspace:*
         version: link:../../packages/editor-schema
+      '@cadabracraft/export-audio':
+        specifier: workspace:*
+        version: link:../../packages/export-audio
       '@cadabracraft/export-docx':
         specifier: workspace:*
         version: link:../../packages/export-docx
