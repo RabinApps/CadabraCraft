@@ -64,13 +64,27 @@ export function sortMarks(marks: Mark[]): Mark[] | undefined {
     out.push(m);
   }
   if (out.length === 0) return undefined;
+  // Super- and subscript exclude each other in the schema: the innermost (last added) wins.
+  const script = marks.filter((m) => m.type === "superscript" || m.type === "subscript").pop();
+  if (script) for (let i = out.length - 1; i >= 0; i--) if ((out[i]!.type === "superscript" || out[i]!.type === "subscript") && out[i]!.type !== script.type) out.splice(i, 1);
   // Inline code excludes every other mark in the schema, so it wins over whatever surrounds it.
   const code = out.find((m) => m.type === "code");
   if (code) return [code];
   return out.sort((a, b) => MARK_ORDER.indexOf(a.type) - MARK_ORDER.indexOf(b.type));
 }
 
-export function textNode(text: string, marks: Mark[] = []): DocNode | null {
+/**
+ * Text that XML 1.0 (EPUB) and UTF-8 files can hold: C0 controls other than tab and newline, U+FFFE/U+FFFF and the BOM-like
+ * U+FEFF inside text are removed, and a lone surrogate becomes U+FFFD. NUL, form feed and friends would make the XHTML invalid.
+ */
+// eslint-disable-next-line no-control-regex
+const BAD_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+export function cleanText(text: string): string {
+  return text.replace(BAD_CHARS, (c) => (c >= "\uD800" && c <= "\uDFFF" ? "\uFFFD" : ""));
+}
+
+export function textNode(rawText: string, marks: Mark[] = []): DocNode | null {
+  const text = cleanText(rawText);
   if (text === "") return null;
   const m = sortMarks(marks);
   return m ? { type: "text", text, marks: m } : { type: "text", text };
@@ -232,6 +246,7 @@ export function cellParagraphs(blocks: DocNode[]): { paragraphs: DocNode[]; flat
         }
         break;
       }
+      case "codeBlock": flattened = true; if (plainText(n.content)) paragraphs.push(paragraphOf([{ type: "text", text: plainText(n.content) }])); break;
       case "image": flattened = true; if (n.attrs?.alt) paragraphs.push(paragraphOf([{ type: "text", text: String(n.attrs.alt) }])); break;
       default: flattened = true;
     }
@@ -263,6 +278,7 @@ export function imageItems(
   ctx: { warn: Warnings; assets: AssetRegistry },
 ): Item[] {
   const u = url.trim();
+  alt = cleanText(alt);
   if (/^https?:\/\//i.test(u) || u.startsWith("//")) {
     ctx.warn.at("remote-image", "warning", `Remote image not imported (no network access): ${u.slice(0, 80)}`, line);
   } else if (/^[a-z][a-z0-9+.-]*:/i.test(u) && !/^[a-z]:[\\/]/i.test(u)) {
@@ -280,7 +296,7 @@ export function imageItems(
       ctx.warn.at("unsupported-image", "warning", `Image "${path.slice(0, 80)}" has an unsupported type and was not imported.`, line);
     } else {
       const a = ctx.assets.register(path, IMAGE_TYPES[ext]);
-      return [{ sep: "block", node: { type: "image", attrs: { src: a.targetPath, alt: alt || null, title: title ?? null } } }];
+      return [{ sep: "block", node: { type: "image", attrs: { src: a.targetPath, alt: alt || null, title: title == null ? null : cleanText(title) } } }];
     }
   }
   const t = textNode(alt ? `[Image: ${alt}]` : "");

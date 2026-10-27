@@ -6,6 +6,7 @@ import type { Definition, FootnoteDefinition, Nodes, PhrasingContent, Root, Root
 import {
   AssetRegistry,
   Warnings,
+  cleanText,
   type Item,
   cellParagraphs,
   flattenItems,
@@ -66,6 +67,8 @@ function htmlMark(value: string): { close: boolean; tag: string; mark: Mark } | 
   return { close, tag, mark: { type: tag === "u" ? "underline" : tag === "sup" ? "superscript" : "subscript" } };
 }
 
+const MAX_OPEN_MARKS = 32;
+
 /** Indexes of inline `html` siblings that are balanced open/close pairs of the four mark tags (a span close only pairs with a small-caps open). */
 function pairedHtmlMarks(nodes: PhrasingContent[]): Set<number> {
   const paired = new Set<number>();
@@ -74,7 +77,8 @@ function pairedHtmlMarks(nodes: PhrasingContent[]): Set<number> {
     if (n.type !== "html") return;
     const h = htmlMark(n.value);
     if (!h) return;
-    if (!h.close) return void open.push({ tag: h.tag, index });
+    // Deeper nesting than any real text uses is left as literal text (and keeps the pairing and the mark list cheap).
+    if (!h.close) return void (open.length < MAX_OPEN_MARKS && open.push({ tag: h.tag, index }));
     for (let i = open.length - 1; i >= 0; i--) {
       if (open[i]!.tag !== h.tag) continue;
       paired.add(open[i]!.index).add(index);
@@ -279,7 +283,7 @@ function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[] {
         out.push({
           type: "codeBlock",
           ...(lang ? { attrs: { language: lang } } : {}),
-          ...(n.value ? { content: [{ type: "text", text: n.value }] } : {}),
+          ...(cleanText(n.value) ? { content: [{ type: "text", text: cleanText(n.value) }] } : {}),
         });
         break;
       }
@@ -336,8 +340,9 @@ export function importMarkdown(text: string, opts: ImportOptions = {}): ImportRe
     collect(tree, ctx);
     top = blocks(tree.children, ctx, 0);
   } catch (e) {
+    if (e instanceof ImportError) throw e;
     if (e instanceof RangeError) throw new ImportError("too-deeply-nested", "The Markdown is nested too deeply to import.");
-    throw e;
+    throw new ImportError("invalid-xml", `The Markdown could not be read: ${e instanceof Error ? e.message.slice(0, 200) : "unknown error"}`);
   }
   for (const [id, def] of ctx.footnotes) {
     if (!ctx.usedFootnotes.has(id)) warn.at("footnote-unreferenced", "warning", `Footnote [^${def.label ?? id}] is defined but never referenced; its text was not imported.`, lineOf(def));

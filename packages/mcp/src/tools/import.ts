@@ -36,6 +36,24 @@ export function groupWarnings(warnings: ImportWarning[]): WarningGroup[] {
   return [...groups.values()].sort((a, b) => Number(b.severity === "warning") - Number(a.severity === "warning") || b.count - a.count);
 }
 
+/**
+ * Source bytes as text: a UTF-8 BOM is dropped, a UTF-16 BOM selects UTF-16, and anything else must be valid UTF-8.
+ * Guessing (Latin-1, UTF-16 without BOM) would import garbage silently, so those are refused with a message instead.
+ */
+export function decodeSourceText(bytes: Uint8Array, name: string): string {
+  const b0 = bytes[0];
+  const b1 = bytes[1];
+  try {
+    if (b0 === 0xff && b1 === 0xfe) return new TextDecoder("utf-16le", { fatal: true }).decode(bytes.subarray(2));
+    if (b0 === 0xfe && b1 === 0xff) return new TextDecoder("utf-16be", { fatal: true }).decode(bytes.subarray(2));
+    if (bytes.subarray(0, 4096).includes(0)) throw new Error("it contains NUL bytes (probably UTF-16 without a byte order mark)");
+    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes).replace(/^﻿/, "");
+  } catch (e) {
+    const why = e instanceof Error && e.message.startsWith("it contains") ? e.message : "it is not valid UTF-8 or UTF-16 text";
+    throw new ToolError("invalid_file", `${name} cannot be read as text: ${why}. Save the file as UTF-8 and try again.`);
+  }
+}
+
 const decode = (s: string): string => {
   try {
     return decodeURIComponent(s);
@@ -83,10 +101,10 @@ export const importFile = defineTool({
     }
     const isDocx = /\.docx$/i.test(sourcePath);
     const isHtml = /\.html?$/i.test(sourcePath);
-    const text = () => new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, "");
+    const text = isDocx ? "" : decodeSourceText(bytes, fileBaseName(sourcePath));
     let result: ImportResult;
     try {
-      result = isDocx ? importDocx(bytes) : isHtml ? importHtml(text()) : importMarkdown(text());
+      result = isDocx ? importDocx(bytes) : isHtml ? importHtml(text) : importMarkdown(text);
     } catch (e) {
       if (e instanceof ImportError) throw new ToolError("import_failed", `${e.message} (${e.code})`, { importCode: e.code });
       throw e;

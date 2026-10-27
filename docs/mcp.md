@@ -92,7 +92,7 @@ Stable `error.code` values:
 | `source_invalid` | Import source is not an allowed type, not a regular file, or too large. |
 | `too_large` | A file exceeds its size limit. |
 | `invalid_manifest` | `cadabra.json` fails validation or is a newer format version. |
-| `invalid_file` | A project file is not valid UTF-8. |
+| `invalid_file` | A project file, or a source file given to `import_file`, is not valid text: UTF-8 (BOM allowed) and UTF-16 with a BOM are read; UTF-16 without a BOM, Latin-1 and other encodings are refused with a message asking for UTF-8. |
 | `chapter_not_found` | No chapter with that id (rename/move/remove only look at the chapter list). |
 | `chapter_missing` | The manifest lists a file that does not exist. |
 | `chapter_json_invalid` | A chapter file is not valid JSON. |
