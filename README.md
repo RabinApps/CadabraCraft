@@ -30,7 +30,7 @@ CadabraCraft is a desktop app for writing and formatting books. Write in a rich-
 - **Export:** EPUB 3 (passes EPUBCheck) and print PDF through Typst (trim sizes, templates, PDF/A, cover, footnotes).
 - **Templates and settings:** novel, nonfiction and modern templates, an approximate print preview, and a Settings page.
 - **Book details:** title, author, language, ISBN, identifier and cover image.
-- **Headless MCP server:** create, edit, import and export books from an AI agent or script. See [docs/mcp.md](docs/mcp.md).
+- **Headless MCP server:** create, edit, import and export books (EPUB, PDF, Markdown) from an AI agent or script. See [docs/mcp.md](docs/mcp.md).
 
 ## Status
 
@@ -67,6 +67,7 @@ packages/
   templates/        Novel, nonfiction and modern templates as data
   export-epub/      Chapter JSON to EPUB 3
   export-pdf/       Print PDF via Typst
+  export-markdown/  Chapter JSON to Markdown (inverse of the importer)
   import-docx/      Markdown and DOCX import with warnings
   project-fs/       Node port of the project-folder rules
   mcp/              Headless MCP server (stdio)

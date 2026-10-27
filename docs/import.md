@@ -37,6 +37,44 @@ ImportResult = { chapters: { title, doc: ChapterDoc }[], warnings: ImportWarning
 
 Markdown warnings carry a 1-based `line`. At most 25 located warnings per code are kept, then one summary with `count`.
 
+## Markdown export (inverse of the above)
+
+Library: `packages/export-markdown` (`@cadabracraft/export-markdown`). Pure functions, no disk access. Headless only for now (MCP tool `cadabra_export_markdown`); there is no menu entry yet.
+
+```ts
+chapterToMarkdown(doc, opts?): string                     // one chapter document
+chaptersToMarkdown(book, chapters, opts?): string[]       // one string per page, reading order (front, chapters, back)
+bookToMarkdown(book, chapters, opts?): string             // the pages joined, importable with splitHeadingLevel 1
+opts = { htmlMarks?, imageBase?, footnoteOffset? }
+```
+
+A page whose document does not start with a level-1 heading gets `# Title` from its title. Footnote labels continue across pages so joined text has no clashes. Anything without a faithful form throws `MarkdownExportError`: unknown nodes or marks, headings outside 1-3, a code-block language with spaces, text with a raw newline, image paths containing `?` or `#`, ragged tables. Nothing is dropped silently.
+
+| Document | Markdown |
+|---|---|
+| paragraph, heading 1-3, blockquote | text, `#`..`###`, `> ` (nested) |
+| bullet / ordered list (nested, `start` kept) | `-` / `1.`, continuation lines indented to the marker. A list directly after a list of the same kind alternates `-`/`*` and `.`/`)` so they do not merge |
+| code block | fenced with backticks, the fence is longer than any backtick run inside; `language` is the info string |
+| hard break | backslash + newline (the importer turns it into two paragraphs) |
+| image | `![alt](path "caption")`; caption is the `title`; the path is percent-encoded and prefixed with `imageBase` when relative |
+| scene break | `* * *` |
+| footnote | `[^n]` and `[^n]: text` definitions after the last block |
+| table | GFM; the header row is the first row when all its cells are headers, otherwise an empty header row is written (GFM requires one) |
+| bold, italic, strike | `**x**`, `*x*` (`_x_` next to a bold/italic neighbour), `~~x~~` |
+| inline code | backtick span, padded when the text starts/ends with a backtick or space |
+| link | `[text](href)`, `<href>` form for spaces/unbalanced parentheses |
+| underline, small caps, superscript, subscript | **no Markdown syntax.** Default: throw, naming the mark. With `htmlMarks: true`: `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>`. The importer reads raw HTML as literal text (`html` warning), so these do not round-trip; use `htmlMarks` only for output read by other tools |
+
+Text is backslash-escaped (`\ ` * _ [ ] < > ~`, entity-like `&`, `|` in table cells, and `#`, `-`, `+`, `1.` at the start of a block), so it re-imports verbatim. Delimiters never touch whitespace (`x **bold** y`).
+
+Round trip (tests in `packages/export-markdown`, including 1000 seeded random documents and `fixtures/manuscripts/sample-chapter.json`): doc -> Markdown -> `importMarkdown` -> the same doc, with these known differences:
+- Underline, small caps, superscript and subscript (see above).
+- Hard breaks become separate paragraphs; empty paragraphs are not written; leading/trailing spaces of a paragraph are trimmed.
+- Several paragraphs in one table cell are joined with a space; header cells below the first row become normal cells; a table without header cells re-imports with its first row as header.
+- Bare URLs, `www.` hosts and e-mail addresses in plain text are linked by the importer (GFM autolink literals); escaping cannot prevent it, so the text is unchanged but gains a link mark.
+- Emphasis whose first or last character is punctuation directly next to a letter (`a**"b"**`) is not recognised by CommonMark and may not re-import as emphasis.
+- Image paths are re-registered by the importer under sanitized `assets/<name>` names.
+
 ## DOCX mappings
 
 | Word | Result |

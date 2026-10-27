@@ -33,7 +33,7 @@ describe("built server over stdio", () => {
     try {
       const { tools } = await client.listTools();
       expect(tools.map((t) => t.name)).toContain("cadabra_project_create");
-      expect(tools.length).toBe(17);
+      expect(tools.length).toBe(18);
       const created = await client.callTool({ name: "cadabra_project_create", arguments: { path: "smoke", title: "Smoke", author: "Test" } });
       expect(created.isError).not.toBe(true);
       const info = await client.callTool({ name: "cadabra_project_info", arguments: { path: "smoke" } });

@@ -1,0 +1,21 @@
+{
+  "name": "@cadabracraft/export-markdown",
+  "license": "SEE LICENSE IN LICENSE",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cadabracraft/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@cadabracraft/editor-schema": "workspace:*",
+    "@cadabracraft/import-docx": "workspace:*",
+    "@tiptap/core": "^3.32.0",
+    "@tiptap/pm": "^3.32.0"
+  }
+}

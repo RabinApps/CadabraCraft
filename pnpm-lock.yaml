@@ -216,6 +216,25 @@ importers:
         specifier: ^4.23.15
         version: 4.23.15
 
+  packages/export-markdown:
+    dependencies:
+      '@cadabracraft/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@cadabracraft/editor-schema':
+        specifier: workspace:*
+        version: link:../editor-schema
+      '@cadabracraft/import-docx':
+        specifier: workspace:*
+        version: link:../import-docx
+      '@tiptap/core':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/pm@3.32.0)
+      '@tiptap/pm':
+        specifier: ^3.32.0
+        version: 3.32.0
+
   packages/export-pdf:
     dependencies:
       '@cadabracraft/shared':
@@ -287,6 +306,9 @@ importers:
       '@cadabracraft/export-epub':
         specifier: workspace:*
         version: link:../export-epub
+      '@cadabracraft/export-markdown':
+        specifier: workspace:*
+        version: link:../export-markdown
       '@cadabracraft/export-pdf':
         specifier: workspace:*
         version: link:../export-pdf
