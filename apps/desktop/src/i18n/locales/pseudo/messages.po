@@ -7,6 +7,18 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: pseudo\n"
 
+#: src/lib/epubErrors.ts
+msgid "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+msgstr ""
+
+#: src/lib/epubErrors.ts
+msgid "“{page}” uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
+msgstr ""
+
+#: src/lib/epubErrors.ts
+msgid "“{page}”: {detail}"
+msgstr ""
+
 #. placeholder {0}: stuck.length
 #: src/app/store.ts
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
@@ -127,6 +139,10 @@ msgstr ""
 
 #: src/app/Details.tsx
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr ""
+
+#: src/lib/exportChecks.ts
+msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr ""
 
 #: src/editor/FindBar.tsx
@@ -1816,12 +1832,20 @@ msgstr ""
 msgid "That file name is not valid"
 msgstr ""
 
+#: src/lib/epubErrors.ts
+msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+msgstr ""
+
 #: src/app/store.ts
 msgid "The book has no pages to export yet. Add a chapter first."
 msgstr ""
 
 #: src/app/Home.tsx
 msgid "The book is stored in this folder. Nothing leaves your computer."
+msgstr ""
+
+#: src/lib/epubErrors.ts
+msgid "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
 msgstr ""
 
 #. placeholder {0}: manifest.cover

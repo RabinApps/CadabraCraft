@@ -17,6 +17,11 @@ UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 - Print checks: the gutter bands, 24-828 page range and 0.25 in outer margin in `lib/exportChecks.ts` match KDP's "Set Trim Size, Bleed, and Margins" page (checked 2026-10-26). Not covered yet: the 0.375 in outer minimum when the interior has bleed (we do not export bleed), and per-trim-size page limits.
 - Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
 
+### EPUB retail metadata
+- More OPF metadata needs new manifest fields (a format change, so `/change-file-format`): publisher, description, subjects/BISAC, series and number, rights, publication date. Today the EPUB writes identifier, ISBN, title, author, language, modified and accessibility metadata only.
+- Offer a "decorative image" choice so an intentionally empty alt does not trigger the alt-text warning; translate the accessibility summary; consider an evaluated `dcterms:conformsTo` claim only after an accessibility audit.
+- Show the alt-text row's counts in the Export dialog with a jump to the image (needs a pen design).
+
 ### Internationalization
 Infrastructure is in; see the Internationalization section of [architecture.md](architecture.md).
 - Translate the catalogs (he, ar, it, ja, ru, fr, de, es), get native-speaker review, then add each code to `ENABLED_LOCALES`.

@@ -1,5 +1,7 @@
 import { plural, t } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
+import { imageAltStats } from "@cadabracraft/export-epub";
+import type { ChapterDoc } from "@cadabracraft/shared";
 
 import type { Margins } from "./printPreview";
 
@@ -53,12 +55,21 @@ export function pdfChecks({ estimatedPages, margins, hasCover }: PdfCheckInput):
   return checks;
 }
 
-/** Checks the Export dialog shows before an EPUB is built. Only what the app can see; EPUBCheck is not run here. */
-export function epubChecks(manifest: Manifest): ExportCheck[] {
+/** A page of the book as the checks see it: `file` names a page with no title. */
+export interface CheckPage { title: string; file?: string; doc: ChapterDoc }
+
+/** Checks the Export dialog shows before an EPUB is built. Only what the app can see; EPUBCheck is not run here. `pages` (every page's document) enables the image alt-text check. */
+export function epubChecks(manifest: Manifest, pages: CheckPage[] = []): ExportCheck[] {
   const checks: ExportCheck[] = [];
   if (manifest.chapters.length === 0) checks.push({ tone: "warn", text: t`This book has no chapters yet.` });
   const untitled = manifest.chapters.filter((c) => c.title.trim() === "").length;
   if (untitled > 0) checks.push({ tone: "warn", text: plural(untitled, { one: "# chapter has no title", other: "# chapters have no title" }) });
+  for (const p of pages) {
+    const missing = imageAltStats(p.doc).missingAlt;
+    if (missing === 0) continue;
+    const name = p.title.trim() || p.file || "";
+    checks.push({ tone: "warn", text: plural(missing, { one: `“${name}” has # image without alt text`, other: `“${name}” has # images without alt text` }) });
+  }
   if (checks.length === 0) checks.push({ tone: "ok", text: t`No problems found` });
   return checks;
 }

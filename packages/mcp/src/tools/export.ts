@@ -32,7 +32,7 @@ export const exportEpub = defineTool({
       const { root, manifest, chapters, assets, templateId } = loadBook(ctx, path);
       let bytes: Uint8Array;
       try {
-        bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css });
+        bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, isbn: manifest.isbn, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css });
       } catch (e) {
         throw new ToolError("epub_error", errMsg(e));
       }
