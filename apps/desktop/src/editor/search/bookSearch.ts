@@ -72,7 +72,8 @@ export function searchBook(pages: BookPage[], opts: BookSearchOptions): BookSear
 
 /** Rebuilds one run of text nodes with the matches replaced. */
 function replaceRun(nodes: JSONContent[], opts: BookSearchOptions, replacement: string): { nodes: JSONContent[]; count: number } {
-  const ranges = findInText(runText(nodes), opts.query, opts);
+  // No match cap when replacing: the cap is a display guard, and stopping at it would leave matches behind.
+  const ranges = findInText(runText(nodes), opts.query, { ...opts, limit: Infinity });
   if (!ranges.length) return { nodes, count: 0 };
   const out: JSONContent[] = [];
   const push = (src: JSONContent, t: string) => { if (t) out.push({ ...src, text: t }); };

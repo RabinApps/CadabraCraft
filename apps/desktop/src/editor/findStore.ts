@@ -30,10 +30,20 @@ export interface FindState extends FindData {
   toggleReplace: (query?: string | null) => void;
 }
 
+/** Longest search text and replacement the bar accepts; longer input is cut (a pattern this long is never a real search, and it keeps scans and recounts cheap). */
+export const MAX_QUERY_CHARS = 1000;
+export const MAX_REPLACEMENT_CHARS = 10000;
+
+const limited = (patch: Partial<FindData>): Partial<FindData> => ({
+  ...patch,
+  ...(typeof patch.query === "string" ? { query: patch.query.slice(0, MAX_QUERY_CHARS) } : {}),
+  ...(typeof patch.replacement === "string" ? { replacement: patch.replacement.slice(0, MAX_REPLACEMENT_CHARS) } : {}),
+});
+
 export const useFind = create<FindState>((set) => ({
   open: false, replace: true, query: "", replacement: "", matchCase: false, wholeWord: false, regex: false, allChapters: false, pendingReveal: null, focusTick: 0,
-  set: (patch) => set(patch),
-  show: ({ replace, query }) => set((s) => ({ open: true, replace: replace ?? s.replace, ...(query ? { query } : {}), focusTick: s.focusTick + 1 })),
+  set: (patch) => set(limited(patch)),
+  show: ({ replace, query }) => set((s) => ({ open: true, replace: replace ?? s.replace, ...(query ? limited({ query }) : {}), focusTick: s.focusTick + 1 })),
   close: () => set({ open: false }),
-  toggleReplace: (query) => set((s) => ({ open: true, replace: s.open ? !s.replace : true, focusTick: s.focusTick + 1, ...(query ? { query } : {}) })),
+  toggleReplace: (query) => set((s) => ({ open: true, replace: s.open ? !s.replace : true, focusTick: s.focusTick + 1, ...(query ? limited({ query }) : {}) })),
 }));

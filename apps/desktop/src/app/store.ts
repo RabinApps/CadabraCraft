@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { t } from "@lingui/core/macro";
+import { plural, t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
 import {
   addBackMatter, addChapter, addFrontMatter, createManifest, moveChapter, moveMatter, parseManifest, readingOrder, removeChapter, removeMatter,
@@ -197,7 +197,15 @@ function parseChapter(contents: string, file: string): ChapterDoc {
   return raw;
 }
 
+/** A group of page writes failed; `stuck` are the pages that were written and could not be put back. */
+class PartialWrite extends Error {
+  constructor(message: string, readonly stuck: { file: string; from: string; to: string }[]) { super(message); }
+}
+
 export const useProject = create<State>((set, get) => {
+  /** A book-wide replace is running: a second one is ignored instead of racing it. */
+  let replacing = false;
+  let importing = false;
   const need = () => {
     const { root, manifest } = get();
     if (!root || !manifest) throw new Error("no project open");
@@ -222,6 +230,30 @@ export const useProject = create<State>((set, get) => {
     const { root } = need();
     const w = await bridge.writeFile(root, file, contents, get().hashes[file] ?? null);
     set({ hashes: { ...get().hashes, [file]: w.hash }, ...(w.conflict_copy ? { notice: t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}` } : {}) });
+    return w.conflict_copy ? t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}` : null;
+  };
+  /**
+   * Writes several pages as a group: when one write fails, the pages already written are put back, so a failure does
+   * not leave the book half changed. Throws a `PartialWrite` naming the pages that could not be put back (empty when
+   * everything was restored). Returns the conflict messages of pages that changed outside the app.
+   */
+  const writePages = async (pages: { file: string; from: string; to: string }[]): Promise<string[]> => {
+    const done: typeof pages = [];
+    const conflicts: string[] = [];
+    try {
+      for (const p of pages) {
+        const c = await writePage(p.file, p.to);
+        if (c) conflicts.push(c);
+        done.push(p);
+      }
+    } catch (e) {
+      const stuck: typeof pages = [];
+      for (const p of done.reverse()) {
+        try { await writePage(p.file, p.from); } catch { stuck.push(p); }
+      }
+      throw new PartialWrite(errText(e), stuck);
+    }
+    return conflicts;
   };
   /** Loads the open page again from disk and remounts its editor. */
   const reloadCurrent = async () => {
@@ -242,13 +274,19 @@ export const useProject = create<State>((set, get) => {
       const undoing = from === "undo";
       if (entry.docs) {
         // A text edit across pages: write each page's saved text back (no tree change).
-        for (const d of entry.docs) await writePage(d.file, undoing ? d.before : d.after);
+        // Pages removed from the book since (trashed) are skipped: writing them would bring back a file the book no longer lists.
+        const listed = new Set(readingOrder(need().manifest).map((e) => e.file));
+        const live = entry.docs.filter((d) => listed.has(d.file));
+        const skipped = entry.docs.length - live.length;
+        const conflicts = await writePages(live.map((d) => ({ file: d.file, from: undoing ? d.after : d.before, to: undoing ? d.before : d.after })));
         const { history } = get();
         const kept = history[from].slice(0, -1);
         const other = undoing ? history.redo : history.undo;
         set({ history: undoing ? { undo: kept, redo: [...other, entry] } : { undo: [...other, entry], redo: kept } });
         await reloadCurrent();
-        set({ notice: undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}` });
+        const done = undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}`;
+        const skip = skipped ? plural(skipped, { one: "# page is no longer in the book and was left out", other: "# pages are no longer in the book and were left out" }) : "";
+        set({ notice: [done, skip, ...conflicts].filter(Boolean).join(". ") });
         return true;
       }
       let target = undoing ? entry.before : entry.after;
@@ -288,7 +326,9 @@ export const useProject = create<State>((set, get) => {
       return true;
     } catch (e) {
       const why = errText(e);
-      set({ notice: from === "undo" ? t`Could not undo: ${why}` : t`Could not redo: ${why}` });
+      const stuck = e instanceof PartialWrite ? e.stuck.length : 0;
+      const base = from === "undo" ? t`Could not undo: ${why}` : t`Could not redo: ${why}`;
+      set({ notice: stuck ? `${base}. ${plural(stuck, { one: "# page could not be put back and is now in the other state", other: "# pages could not be put back and are now in the other state" })}` : base });
       return false;
     } finally {
       historyBusy = false;
@@ -520,25 +560,47 @@ export const useProject = create<State>((set, get) => {
         return loadChapters();
       },
       async replaceInBook(opts, replacement) {
-        await flush();
-        const { manifest } = need();
-        const docs: NonNullable<HistoryEntry["docs"]> = [];
-        let count = 0;
-        for (const page of await loadChapters()) {
-          const r = replaceInDoc(page.doc, opts, replacement);
-          if (!r.count) continue;
-          const file = entryOf(manifest, page.id)?.file;
-          if (!file) continue;
-          count += r.count;
-          docs.push({ file, before: JSON.stringify(page.doc, null, 2), after: JSON.stringify(mergeAdjacentText(r.doc), null, 2) });
+        if (replacing) return 0;
+        replacing = true;
+        try {
+          await flush();
+          const { manifest } = need();
+          const docs: NonNullable<HistoryEntry["docs"]> = [];
+          let count = 0;
+          // Every page is read and parsed before the first write: an unreadable page stops the replace with nothing changed.
+          const pages = await loadChapters();
+          // Typing that arrived while the pages were being read would be overwritten by the reload below.
+          if (get().draft) throw new Error(t`The page changed while searching, so nothing was replaced. Try again.`);
+          for (const page of pages) {
+            const r = replaceInDoc(page.doc, opts, replacement);
+            if (!r.count) continue;
+            const file = entryOf(manifest, page.id)?.file;
+            if (!file) continue;
+            count += r.count;
+            docs.push({ file, before: JSON.stringify(page.doc, null, 2), after: JSON.stringify(mergeAdjacentText(r.doc), null, 2) });
+          }
+          if (!docs.length) return 0;
+          const tree = treeOf(manifest);
+          const record = (list: typeof docs) => set({ history: { undo: [...get().history.undo, { label: t`Replace all “${opts.query}”`, before: tree, after: tree, docs: list }].slice(-HISTORY_LIMIT), redo: [] } });
+          let conflicts: string[];
+          try {
+            conflicts = await writePages(docs.map((d) => ({ file: d.file, from: d.before, to: d.after })));
+          } catch (e) {
+            const why = errText(e);
+            const stuck = e instanceof PartialWrite ? e.stuck : [];
+            if (!stuck.length) throw new Error(t`Replace all stopped: ${why}. Nothing was changed.`);
+            // Some pages could not be put back: keep one undo step for exactly those, so Undo finishes the job.
+            record(docs.filter((d) => stuck.some((p) => p.file === d.file)));
+            await reloadCurrent().catch(() => {});
+            throw new Error(`${t`Replace all stopped: ${why}.`} ${plural(stuck.length, { one: "# page could not be put back and keeps the replacement; Undo restores it.", other: "# pages could not be put back and keep the replacement; Undo restores them." })}`);
+          }
+          record(docs);
+          await reloadCurrent();
+          set({ notice: [t`Replaced ${count} in the book`, ...conflicts].join(". ") });
+          return count;
+        } finally {
+          replacing = false;
         }
-        if (!docs.length) return 0;
-        for (const d of docs) await writePage(d.file, d.after);
-        const tree = treeOf(manifest);
-        set({ history: { undo: [...get().history.undo, { label: t`Replace all “${opts.query}”`, before: tree, after: tree, docs }].slice(-HISTORY_LIMIT), redo: [] } });
-        await reloadCurrent();
-        set({ notice: t`Replaced ${count} in the book` });
-        return count;
       },
       async setTemplate(id) {
         const { manifest } = need();
@@ -602,6 +664,8 @@ export const useProject = create<State>((set, get) => {
           await flush();
           const { root, manifest } = need();
           const chapters = await loadChapters();
+          // An empty book would write an empty file and still report success.
+          if (!chapters.length) throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
           set({ exportStage: "rendering" });
           const opts = { htmlMarks, imageBase: "../" };
           let markdown: string;
@@ -611,7 +675,9 @@ export const useProject = create<State>((set, get) => {
             if (!(e instanceof MarkdownExportError)) throw e;
             // The library's message does not say where; find the first page that fails so the author can.
             const bad = chapters.find((c) => { try { chapterToMarkdown(c.doc, opts); return false; } catch { return true; } });
-            throw new Error(bad ? t`In “${bad.title}”: ${e.message}` : e.message);
+            // A page with an empty title is named by its file instead.
+            const where = bad ? bad.title.trim() || entryOf(manifest, bad.id)?.file || "" : "";
+            throw new Error(where ? t`In “${where}”: ${e.message}` : e.message);
           }
           set({ exportStage: "saving" });
           await bridge.writeBytes(root, "exports/book.md", new TextEncoder().encode(markdown));
@@ -621,10 +687,17 @@ export const useProject = create<State>((set, get) => {
         }
       },
       async importBook(sourcePath, root, title, author, opts) {
-        await flush();
-        const report = await runImport({ sourcePath, root, title, author, ...opts });
-        await get().actions.openProject(root);
-        set({ importReport: report });
+        // Two imports at once would both write into a project and fight over which one opens.
+        if (importing) throw new Error(t`An import is already running`);
+        importing = true;
+        try {
+          await flush();
+          const report = await runImport({ sourcePath, root, title, author, ...opts });
+          await get().actions.openProject(root);
+          set({ importReport: report });
+        } finally {
+          importing = false;
+        }
       },
       dismissImportReport: () => set({ importReport: null }),
       async exportPdf(options) {

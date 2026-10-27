@@ -7,6 +7,11 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
+#. placeholder {0}: stuck.length
+#: src/app/store.ts
+msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
+msgstr "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
+
 #. placeholder {0}: countWords(c.doc)
 #: src/app/ImportDialogs.tsx
 msgid "{0, plural, one {# word} other {# words}}"
@@ -124,6 +129,14 @@ msgstr "{n, plural, one {# match} other {# matches}}"
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} of {sessionGoal} words this session"
 
+#: src/app/store.ts
+msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
+msgstr "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
+
+#: src/app/store.ts
+msgid "{stuck, plural, one {# page could not be put back and is now in the other state} other {# pages could not be put back and are now in the other state}}"
+msgstr "{stuck, plural, one {# page could not be put back and is now in the other state} other {# pages could not be put back and are now in the other state}}"
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
@@ -239,6 +252,10 @@ msgstr "Also by"
 #: src/app/store.ts
 msgid "An export is already running"
 msgstr "An export is already running"
+
+#: src/app/store.ts
+msgid "An import is already running"
+msgstr "An import is already running"
 
 #: src/app/Templates.tsx
 msgid "Any page"
@@ -548,6 +565,14 @@ msgstr "Could not add the cover: {0}"
 #: src/app/store.ts
 msgid "Could not add the image: {0}"
 msgstr "Could not add the image: {0}"
+
+#: src/editor/Editor.tsx
+msgid "Could not convert the HTML in the selection"
+msgstr "Could not convert the HTML in the selection"
+
+#: src/editor/Editor.tsx
+msgid "Could not convert the HTML, so it was pasted as text"
+msgstr "Could not convert the HTML, so it was pasted as text"
 
 #: src/app/UpdateDialog.tsx
 msgid "Could not install the update: {error}"
@@ -926,11 +951,10 @@ msgstr "Import…"
 msgid "Importing…"
 msgstr "Importing…"
 
-#. placeholder {0}: bad.title
-#. placeholder {1}: e.message
+#. placeholder {0}: e.message
 #: src/app/store.ts
-msgid "In “{0}”: {1}"
-msgstr "In “{0}”: {1}"
+msgid "In “{where}”: {0}"
+msgstr "In “{where}”: {0}"
 
 #: src/app/Templates.tsx
 msgid "In use"
@@ -1242,6 +1266,10 @@ msgstr "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in
 msgid "Nothing was lost or changed."
 msgstr "Nothing was lost or changed."
 
+#: src/editor/Editor.tsx
+msgid "Nothing was pasted here. Select text inside one paragraph or cell and try again"
+msgstr "Nothing was pasted here. Select text inside one paragraph or cell and try again"
+
 #: src/editor/Toolbar.tsx
 msgid "Numbered list"
 msgstr "Numbered list"
@@ -1461,6 +1489,14 @@ msgstr "Replace all"
 msgid "Replace all “{0}”"
 msgstr "Replace all “{0}”"
 
+#: src/app/store.ts
+msgid "Replace all stopped: {why}."
+msgstr "Replace all stopped: {why}."
+
+#: src/app/store.ts
+msgid "Replace all stopped: {why}. Nothing was changed."
+msgstr "Replace all stopped: {why}. Nothing was changed."
+
 #: src/editor/FindBar.tsx
 msgid "Replace with"
 msgstr "Replace with"
@@ -1534,6 +1570,10 @@ msgstr "Section"
 #: src/app/menuModel.ts
 msgid "Select All"
 msgstr "Select All"
+
+#: src/editor/Editor.tsx
+msgid "Select text inside one cell or paragraph to convert it"
+msgstr "Select text inside one cell or paragraph to convert it"
 
 #: src/editor/Toolbar.tsx
 msgid "Select the text you want to link first."
@@ -1671,6 +1711,10 @@ msgstr "That address can't be used as a link."
 msgid "That file name is not valid"
 msgstr "That file name is not valid"
 
+#: src/app/store.ts
+msgid "The book has no pages to export yet. Add a chapter first."
+msgstr "The book has no pages to export yet. Add a chapter first."
+
 #: src/app/Home.tsx
 msgid "The book is stored in this folder. Nothing leaves your computer."
 msgstr "The book is stored in this folder. Nothing leaves your computer."
@@ -1710,8 +1754,16 @@ msgid "The only thing sent is the update check. Nothing about your books is sent
 msgstr "The only thing sent is the update check. Nothing about your books is sent."
 
 #: src/app/store.ts
+msgid "The page changed while searching, so nothing was replaced. Try again."
+msgstr "The page changed while searching, so nothing was replaced. Try again."
+
+#: src/app/store.ts
 msgid "the page is no longer in the trash"
 msgstr "the page is no longer in the trash"
+
+#: src/editor/Editor.tsx
+msgid "The selection is too large to convert"
+msgstr "The selection is too large to convert"
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
@@ -1766,6 +1818,14 @@ msgstr "This document's contents could not be read. It may be damaged."
 #: src/app/importBook.ts
 msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
 msgstr "This does not look like a valid .docx file (it could not be opened as a Word document)."
+
+#: src/app/importBook.ts
+msgid "This file does not look like text. It may be damaged or saved in another format."
+msgstr "This file does not look like text. It may be damaged or saved in another format."
+
+#: src/app/importBook.ts
+msgid "This file is too large or too deeply nested to import."
+msgstr "This file is too large or too deeply nested to import."
 
 #: src/app/importBook.ts
 msgid "This file is too large to import."

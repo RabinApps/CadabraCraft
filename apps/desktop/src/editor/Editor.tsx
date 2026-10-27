@@ -3,7 +3,6 @@ import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { WandSparkles } from "lucide-react";
 import { EditorContent, useEditor, useEditorState, type Editor as TipTapEditor } from "@tiptap/react";
-import { looksLikeHtml } from "@cadabracraft/import-docx";
 import { extensions } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { sizes, widths, type Width } from "../app/reading";
@@ -19,7 +18,7 @@ import { useProject } from "../app/store";
 import { Modal } from "../ui/Dialog";
 import { Button } from "../ui/Button";
 import { Checkbox } from "../ui/Checkbox";
-import { convertHtmlText, literalContent, pasteAction, truncate, type Converted } from "./htmlPaste";
+import { MAX_HTML_CHARS, crossesCells, insertConverted, literalContent, pasteAction, safeLooksLikeHtml, truncate, tryConvertHtmlText, type Converted } from "./htmlPaste";
 
 /** Typewriter scrolling: keeps the caret line near the middle of the scrolling column. */
 function centerCaret(editor: TipTapEditor) {
@@ -51,28 +50,40 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
   // Pasted text that holds HTML tags, waiting for the author's answer in the dialog.
   const [pending, setPending] = useState<{ text: string; converted: Converted; from: number; to: number } | null>(null);
   const [remember, setRemember] = useState(false);
-  const askRef = useRef<(text: string, from: number, to: number) => void>(() => {});
-  askRef.current = (text, from, to) => { setRemember(false); setPending({ text, converted: convertHtmlText(text), from, to }); };
+  // Set the moment a paste opens the dialog (before React re-renders), so a quick second paste is ignored.
+  const askingRef = useRef(false);
+  const askRef = useRef<(text: string, converted: Converted, from: number, to: number) => void>(() => {});
+  askRef.current = (text, converted, from, to) => { askingRef.current = true; setRemember(false); setPending({ text, converted, from, to }); };
   const editor = useEditor({
     extensions: reading ? extensions : [...extensions, Search],
     editorProps: {
       attributes: { lang: language, dir: dirFor(language) },
       // Only text/plain that looks like HTML is handled here; a real HTML clipboard keeps ProseMirror's own path.
+      // Nothing in here may throw or block: on any failure the default paste runs.
       handlePaste: reading ? undefined : (view, event) => {
-        const data = event.clipboardData;
-        if (!data) return false;
-        const text = data.getData("text/plain");
-        const { $from } = view.state.selection;
-        const inCode = $from.parent.type.name === "codeBlock" || view.state.selection.$from.marks().some((m) => m.type.name === "code");
-        const action = pasteAction({ text, hasHtml: data.types.includes("text/html"), inCode, pref: useSettings.getState().rawHtmlPaste });
-        if (action === "default") return false;
-        event.preventDefault();
-        const { from, to } = view.state.selection;
-        if (action === "ask") { askRef.current(text, from, to); return true; }
-        const c = convertHtmlText(text);
-        insertRef.current(c.content, { from, to });
-        warnNotice(c.warnings);
-        return true;
+        try {
+          const data = event.clipboardData;
+          if (!data) return false;
+          // The dialog is open: swallow the paste instead of stacking a second one or typing behind the dialog.
+          if (askingRef.current) { event.preventDefault(); return true; }
+          const text = data.getData("text/plain");
+          const { $from } = view.state.selection;
+          const inCode = $from.parent.type.name === "codeBlock" || $from.marks().some((m) => m.type.name === "code");
+          const action = pasteAction({ text, hasHtml: data.types.includes("text/html"), inCode, pref: useSettings.getState().rawHtmlPaste });
+          // Another dialog is open: never open a second one.
+          if (action === "default" || (action === "ask" && modalOpen())) return false;
+          const { from, to } = view.state.selection;
+          if (crossesCells(view.state, from, to)) return false;
+          const c = tryConvertHtmlText(text);
+          if (!c) { useProject.setState({ notice: t`Could not convert the HTML, so it was pasted as text` }); return false; }
+          event.preventDefault();
+          if (action === "ask") { askRef.current(text, c, from, to); return true; }
+          if (!insertRef.current(c.content, { from, to })) return false;
+          warnNotice(c.warnings);
+          return true;
+        } catch {
+          return false;
+        }
       },
     },
     content: initial,
@@ -82,29 +93,43 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
   });
   const { manuscriptFont, writingWidth } = useSettings();
   const findOpen = useFind((s) => s.open);
-  const insertRef = useRef<(content: ReturnType<typeof literalContent>, range: { from: number; to: number }) => void>(() => {});
+  const insertRef = useRef<(content: ReturnType<typeof literalContent>, range: { from: number; to: number }) => boolean>(() => false);
   // Insert at the range the paste happened at: the dialog takes focus, and the editor's selection can move while it is open.
-  insertRef.current = (content, { from, to }) => {
-    if (!editor || !content.length) return;
-    const size = editor.state.doc.content.size;
-    editor.chain().focus().insertContentAt({ from: Math.min(from, size), to: Math.min(to, size) }, content).run();
+  // One transaction (one undo step), checked against the schema; returns false when nothing was inserted.
+  insertRef.current = (content, range) => {
+    if (!editor || editor.isDestroyed || !content.length) return false;
+    try {
+      const tr = insertConverted(editor.state, content, range);
+      if (!tr) return false;
+      editor.view.dispatch(tr.scrollIntoView());
+      editor.commands.focus(); // deferred, so it lands after a closing dialog gives focus back
+      return true;
+    } catch {
+      return false;
+    }
   };
   const hasSelection = useEditorState({ editor, selector: ({ editor: e }) => !!e && !e.state.selection.empty });
 
+  const close = () => { askingRef.current = false; setPending(null); };
   const answer = (convert: boolean) => {
     if (!pending) return;
+    const done = insertRef.current(convert ? pending.converted.content : literalContent(pending.text), pending);
+    // The choice is remembered only when the author confirms and it was applied.
     if (remember) useSettings.getState().set({ rawHtmlPaste: convert ? "convert" : "text" });
-    insertRef.current(convert ? pending.converted.content : literalContent(pending.text), pending);
-    if (convert) warnNotice(pending.converted.warnings);
-    setPending(null);
+    if (done && convert) warnNotice(pending.converted.warnings);
+    if (!done) useProject.setState({ notice: t`Nothing was pasted here. Select text inside one paragraph or cell and try again` });
+    close();
   };
   const convertSelection = () => {
-    if (!editor) return;
+    if (!editor || editor.isDestroyed) return;
     const { from, to } = editor.state.selection;
+    if (to - from > MAX_HTML_CHARS) { useProject.setState({ notice: t`The selection is too large to convert` }); return; }
     const text = editor.state.doc.textBetween(from, to, "\n");
-    if (!looksLikeHtml(text)) { useProject.setState({ notice: t`No HTML found in the selection` }); return; }
-    const c = convertHtmlText(text);
-    editor.chain().focus().insertContentAt({ from, to }, c.content).run();
+    if (!safeLooksLikeHtml(text)) { useProject.setState({ notice: t`No HTML found in the selection` }); return; }
+    if (crossesCells(editor.state, from, to)) { useProject.setState({ notice: t`Select text inside one cell or paragraph to convert it` }); return; }
+    const c = tryConvertHtmlText(text);
+    if (!c) { useProject.setState({ notice: t`Could not convert the HTML in the selection` }); return; }
+    if (!insertRef.current(c.content, { from, to })) { useProject.setState({ notice: t`Could not convert the HTML in the selection` }); return; }
     warnNotice(c.warnings);
   };
   const convertRef = useRef(convertSelection);
@@ -157,7 +182,7 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
       {!focus && <Toolbar editor={editor} />}
       <Modal
         open={pending !== null}
-        onOpenChange={(o) => { if (!o) { setPending(null); editor.commands.focus(); } }}
+        onOpenChange={(o) => { if (!o) { close(); editor.commands.focus(); } }}
         title={t`Paste as styled text?`}
         description={t`The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text.`}
       >
