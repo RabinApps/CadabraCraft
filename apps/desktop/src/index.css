@@ -74,6 +74,8 @@ body {
 .prose-manuscript .ProseMirror ul { list-style: disc; }
 .prose-manuscript .ProseMirror ol { list-style: decimal; }
 .prose-manuscript .ProseMirror a { color: var(--accent); text-decoration: underline; }
+.prose-manuscript .ProseMirror .search-match { background: var(--accent-soft); border-radius: 2px; }
+.prose-manuscript .ProseMirror .search-match-current { background: var(--accent); color: var(--accent-ink); }
 .prose-manuscript .ProseMirror hr.scene-break { border: 0; margin: 1.5rem 0; text-align: center; }
 .prose-manuscript .ProseMirror hr.scene-break::after { content: "* * *"; color: var(--ink-muted); }
 .prose-manuscript .ProseMirror table { width: 100%; table-layout: fixed; border-collapse: collapse; margin: 1em 0; font-size: 0.95em; }
