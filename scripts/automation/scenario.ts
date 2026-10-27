@@ -43,11 +43,13 @@ const app: App = launched ?? await connect();
 
 const book = join(out, "book"), imported = join(out, "imported"), src = join(out, "src");
 for (const d of [book, imported, src]) mkdirSync(d, { recursive: true });
-writeFileSync(join(src, "book.md"), "# First\n\nHello *world*[^1].\n\n<div>raw</div>\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# Second\n\nMore.\n\n[^1]: Note.\n");
+writeFileSync(join(src, "book.md"), "# First\n\nHello *world*[^1].\n\n<mark>raw</mark>\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# Second\n\nMore.\n\n[^1]: Note.\n");
 writeFileSync(join(src, "book.docx"), tinyDocx({ image: true }));
 const docxBefore = readFileSync(join(src, "book.docx"));
-const importedDocx = join(out, "imported-docx");
+const importedDocx = join(out, "imported-docx"), importedHtml = join(out, "imported-html");
 mkdirSync(importedDocx, { recursive: true });
+mkdirSync(importedHtml, { recursive: true });
+writeFileSync(join(src, "page.html"), "<html><head><title>Page Title</title><script>alert(1)</script></head><body><h1>Gate</h1><p>The gate was <b>old</b> and <u>tired</u>.</p></body></html>");
 const mdBefore = readFileSync(join(src, "book.md"), "utf8");
 const png = join(repo, "fixtures/assets/pixel.png");
 const shot = (n: string) => app.screenshot(join(out, `${n}.png`));
@@ -393,6 +395,17 @@ try {
     return "(ro)(bot) with $2-$1 gave bot-ro; (unclosed shows Invalid pattern";
   });
 
+  await step("pasting HTML text asks, Convert makes real formatting", async () => {
+    await app.js(`localStorage.removeItem("cadabracraft.settings")`);
+    const paste = (text: string) => app.js(`(() => { const ed = document.querySelector('.ProseMirror'); ed.focus(); const dt = new DataTransfer(); dt.setData('text/plain', ${JSON.stringify(text)}); ed.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true })); })()`);
+    await paste("<p>Gate <b>old</b> <em>tired</em></p>"); await app.sleep(700);
+    assert((await app.snapshot()).dialogs.some((d) => d.includes("Paste as styled text?")), "the paste dialog did not open");
+    await app.click("Convert"); await app.sleep(700);
+    const html = await app.js(`document.querySelector('.ProseMirror').innerHTML`);
+    assert(html.includes("<strong>old</strong>") && html.includes("<em>tired</em>") && !html.includes("&lt;b&gt;"), `paste was not converted: ${html.slice(-200)}`);
+    return "dialog shown, Convert produced strong and em nodes";
+  });
+
   await step("commands refuse a root that is not an existing project", async () => {
     const outcome = (cmd: string, args: unknown) => app.js(`window.__TAURI__.core.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)}).then((r) => "resolved:" + JSON.stringify(r), (e) => "rejected:" + JSON.stringify(e))`);
     const notProject = join(out, "not-a-project");
@@ -466,6 +479,23 @@ try {
     assert(readFileSync(join(importedDocx, "cadabra.json"), "utf8").includes("Prologue"), "rename not in manifest");
     assert(!readFileSync(join(importedDocx, "cadabra.json"), "utf8").includes("Dusk"), "skipped chapter listed");
     await shot("06-import-docx-report");
+  });
+
+  await step("import a real .html file through the wizard; scripts never reach the chapter", async () => {
+    await app.click("Done").catch(() => {}); await app.sleep(500);
+    await app.js("location.reload()").catch(() => {}); await app.sleep(3000);
+    await app.queueDialogs([join(src, "page.html"), importedHtml]);
+    await app.click("Import…"); await app.sleep(800);
+    await app.click("Choose file…"); await app.sleep(500);
+    await app.click("Choose…"); await app.sleep(500);
+    await app.click("Next"); await app.sleep(1500);
+    await app.click("Import"); await app.sleep(4000);
+    const files = readdirSync(join(importedHtml, "manuscript"));
+    assert(files.length === 1, `expected 1 chapter file, got ${files.join(",")}`);
+    const json = readFileSync(join(importedHtml, "manuscript", files[0] ?? ""), "utf8");
+    assert(json.includes("The gate was") && json.includes('"bold"') && json.includes('"underline"'), "styled text missing from the chapter");
+    assert(!json.includes("alert(1)") && !json.includes("<b>"), "script text or raw tags reached the chapter");
+    return "heading, bold and underline imported; script dropped";
   });
 
   await step("sponsor dialog: appears after an export, Sponsor is the only address the opener may open", async () => {

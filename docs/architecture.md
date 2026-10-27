@@ -343,6 +343,8 @@ The schema has `table`, `tableRow`, `tableCell` and `tableHeader` from `@tiptap/
 
 Raw HTML (pasted snippets, `.html` files, HTML inside Markdown) is converted by one pure function set in `packages/import-docx/src/html.ts`, on `parse5` 8.0.1 (MIT, pinned, no dependencies of its own to speak of). It is a spec-compliant tokenizer and tree builder with no DOM, so the same code runs in the webview, in Node tests and in the headless MCP server. Output is the usual `ChapterDoc` JSON (HTML is never stored), and everything the schema cannot hold is reported through the existing warning codes instead of being dropped silently.
 
+Bundle cost: the desktop main chunk went from 1,385.52 kB (436.29 kB gzip) to 1,550.67 kB (483.92 kB gzip) across the HTML work (parse5, the converter and the paste dialog together), about +165 kB raw and +48 kB gzip.
+
 Hostile input: parse5 builds the tree iteratively, but its open-element stack makes piles of unclosed block tags quadratic (20,000 nested `<div>` take seconds; nested `<template>` overflows its own stack). So a cheap scan of the raw text refuses more than 512 unclosed block tags with `too-deeply-nested` before parsing, a `RangeError` from the parser maps to the same error, and the converter's tree walk (recursive) is capped at 512 element levels. `maxInputChars` applies as for Markdown.
 
 - **Rejected: browser `DOMParser` and TipTap `generateJSON`.** They need a DOM (none in the MCP server or in Node tests without a shim), silently drop anything the schema lacks (no warnings, which breaks the rule that nothing is dropped silently), and parsing untrusted markup into the live webview document is a risk under our CSP.
