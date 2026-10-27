@@ -9,6 +9,8 @@ import { buildEpub } from "./index";
 import { matterBook } from "./matterBook";
 
 const jar = fileURLToPath(new URL("../../../tools/epubcheck-5.4.0/epubcheck.jar", import.meta.url));
+// Each check starts a JVM (about 3 s alone). `pnpm test` runs every package at once, which can make a cold JVM several times slower.
+const JVM_TIMEOUT = 120_000;
 const doc = JSON.parse(readFileSync(new URL("../../../fixtures/manuscripts/sample-chapter.json", import.meta.url), "utf8"));
 
 // Run scripts/fetch-epubcheck.sh first. CI always fetches it; set REQUIRE_EPUBCHECK=1 to fail instead of skip.
@@ -18,7 +20,7 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
     writeFileSync(f, buildEpub({ title: "S", author: "A", language: "en", identifier: "urn:uuid:5b1d1d2c-6f0a-4c43-9a55-1f0d3c8d3a11", modified: new Date() }, [{ id: "ch1", title: "One", doc }]));
     const out = execFileSync("java", ["-jar", jar, f], { encoding: "utf8" });
     expect(out).toContain("No errors or warnings detected");
-  }, 60_000); // a cold JVM on a CI runner can take longer than vitest's 5s default
+  }, JVM_TIMEOUT);
 
   it("validates an EPUB containing images with zero messages", () => {
     const f = join(mkdtempSync(join(tmpdir(), "epub-")), "img.epub");
@@ -27,7 +29,7 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
     writeFileSync(f, buildEpub({ title: "S", author: "A", language: "en", identifier: "urn:uuid:5b1d1d2c-6f0a-4c43-9a55-1f0d3c8d3a11", modified: new Date() }, [{ id: "ch1", title: "One", doc: withImage }], { assets: new Map([["assets/pixel.png", png]]) }));
     const out = execFileSync("java", ["-jar", jar, f], { encoding: "utf8" });
     expect(out).toContain("No errors or warnings detected");
-  }, 60_000);
+  }, JVM_TIMEOUT);
 
   const metaOf = (language: string) => ({ title: "S", author: "A", language, identifier: "urn:uuid:5b1d1d2c-6f0a-4c43-9a55-1f0d3c8d3a11", modified: new Date() });
   const check = (name: string, bytes: Uint8Array): string => {
@@ -41,7 +43,7 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
       const out = check(`matter-${t.id}.epub`, buildEpub(metaOf("en"), matterBook(), { css: t.epub.css }));
       expect(out, t.id).toContain("No errors or warnings detected");
     }
-  }, 60_000);
+  }, JVM_TIMEOUT);
 
   it("validates a book with a cover, left-to-right, right-to-left and with front matter only", () => {
     const png = new Uint8Array(readFileSync(new URL("../../../fixtures/assets/pixel.png", import.meta.url)));
@@ -49,10 +51,10 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
     expect(check("cover-en.epub", withCover("en", "assets/cover.png"))).toContain("No errors or warnings detected");
     expect(check("cover-he.epub", withCover("he", "assets/cover.png"))).toContain("No errors or warnings detected");
     expect(check("cover-only.epub", buildEpub(metaOf("en"), matterBook().slice(0, 1), { cover: { path: "assets/cover.png", bytes: png } }))).toContain("No errors or warnings detected");
-  }, 60_000);
+  }, JVM_TIMEOUT);
 
   it("validates matter-only and right-to-left books", () => {
     expect(check("front-only.epub", buildEpub(metaOf("en"), matterBook().slice(0, 1)))).toContain("No errors or warnings detected");
     expect(check("he.epub", buildEpub(metaOf("he"), matterBook()))).toContain("No errors or warnings detected");
-  }, 30_000);
+  }, JVM_TIMEOUT);
 });

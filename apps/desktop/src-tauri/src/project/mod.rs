@@ -81,6 +81,31 @@ pub fn resolve(root: &Path, rel: &str) -> Result<PathBuf> {
 /// Failures are typed (`permission_denied`, `disk_full`, `not_a_file` for a folder where the file should go or a file
 /// where a folder should be) and name only the file, never an absolute path.
 pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<()> {
+    retry_transient(|| atomic_write_once(path, bytes))
+}
+
+/// Windows refuses to replace a file that another handle has open or is replacing at that moment (antivirus and
+/// indexers do this too), reporting `PermissionDenied`, or `NotFound` while the other rename is in flight. Those are
+/// transient, so retry a bounded number of times with a short growing pause; a real denial (read-only folder) still
+/// fails, after about a second. Other platforms make a single attempt.
+pub(crate) fn retry_transient<T>(mut attempt: impl FnMut() -> Result<T>) -> Result<T> {
+    #[cfg(windows)]
+    {
+        let mut pause_ms = 2u64;
+        for _ in 0..24 {
+            match attempt() {
+                Err(ProjectError::PermissionDenied { .. } | ProjectError::NotFound { .. }) => {
+                    std::thread::sleep(std::time::Duration::from_millis(pause_ms));
+                    pause_ms = (pause_ms * 2).min(50);
+                }
+                done => return done,
+            }
+        }
+    }
+    attempt()
+}
+
+fn atomic_write_once(path: &Path, bytes: &[u8]) -> Result<()> {
     let dir = path.parent().ok_or(ProjectError::InvalidFileName)?;
     let label = path.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
     let io = |e: std::io::Error| io_error(e, label);
@@ -259,11 +284,14 @@ pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str
 /// Writes binary output (EPUB, PDF, Markdown) under `exports/` of the project, atomically. Only `exports/<name>` is
 /// accepted: the webview has no reason to rewrite the manifest or chapters as raw bytes, which would skip their backups.
 pub fn write_bytes(root: &Path, rel: &str, bytes: &[u8]) -> Result<()> {
-    let target = resolve(root, rel)?;
-    if !rel.starts_with("exports/") || rel.ends_with('/') {
-        return Err(ProjectError::UnsafePath { path: rel.to_string() });
-    }
-    atomic_write(&target, bytes)
+    // `resolve` looks at the target too, so a concurrent replace can fail it transiently on Windows; see `retry_transient`.
+    retry_transient(|| {
+        let target = resolve(root, rel)?;
+        if !rel.starts_with("exports/") || rel.ends_with('/') {
+            return Err(ProjectError::UnsafePath { path: rel.to_string() });
+        }
+        atomic_write_once(&target, bytes)
+    })
 }
 
 /// Copies the manifest into `.cadabra/backups/` before a migration rewrites it. Returns the backup's relative path.
