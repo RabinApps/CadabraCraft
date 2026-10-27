@@ -12,7 +12,10 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 ### Editor and app UI
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 - M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
-- M2+: backups and shortcuts settings (disabled nav items for now), command palette, find and replace, outline navigator.
+- M2+: backups and shortcuts settings (disabled nav items for now), command palette, outline navigator.
+- Find and replace follow-ups: search across the whole book (today it covers the open chapter), regular expressions, and a Markdown export entry in the File menu and Export dialog (the `cadabra_export_markdown` MCP tool exists; the app UI needs a design first).
+- Design nits from the find bar work: mobile icon buttons are 36px while the touch target is 44px, and the mobile editor workspace frame has no layout set.
+- Print checks: the KDP page-count and gutter thresholds in `lib/exportChecks.ts` are not verified against current KDP docs.
 - Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
 
 ### Internationalization
