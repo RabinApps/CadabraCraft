@@ -2,6 +2,8 @@
 //! Manifest parsing and migration live in `@cadabracraft/format` (TypeScript); this layer only does safe file IO.
 mod error;
 pub use error::{io_error, ProjectError};
+pub mod snapshots;
+pub use snapshots::SnapshotMode;
 
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -266,16 +268,26 @@ fn free_conflict_name(root: &Path, rel: &str) -> Result<String> {
 }
 
 /// Writes a project file. If `base_hash` is given and the file on disk no longer matches it (it changed outside
-/// the app, e.g. through sync), the on-disk version is kept as `<name>.conflict-YYYYMMDD-HHMM.<ext>` first.
+/// the app, e.g. through sync), the on-disk version is kept as `<name>.conflict-YYYYMMDD-HHMM.<ext>` first. The text a
+/// page save replaces is kept as a snapshot (see `snapshots`), at most every `SNAPSHOT_INTERVAL_MINUTES`.
 pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str>) -> Result<WriteResult> {
+    write_file_with(root, rel, contents, base_hash, SnapshotMode::Throttled)
+}
+
+pub(crate) fn write_file_with(root: &Path, rel: &str, contents: &str, base_hash: Option<&str>, snapshot: SnapshotMode) -> Result<WriteResult> {
     let path = resolve(root, rel)?;
     let mut conflict_copy = None;
-    if let (Some(base), Ok(existing)) = (base_hash, fs::read(&path)) {
-        if hash_bytes(&existing) != base {
+    let existing = fs::read(&path).ok();
+    if let (Some(base), Some(existing)) = (base_hash, &existing) {
+        if hash_bytes(existing) != base {
             let copy = free_conflict_name(root, rel)?;
-            atomic_write(&resolve(root, &copy)?, &existing)?;
+            atomic_write(&resolve(root, &copy)?, existing)?;
             conflict_copy = Some(copy);
         }
+    }
+    if let Some(existing) = &existing {
+        // Best effort: a snapshot that cannot be written (full disk, no permission) must not stop the save itself.
+        let _ = snapshots::keep_before_overwrite(root, rel, existing, contents.as_bytes(), snapshot, chrono::Utc::now());
     }
     atomic_write(&path, contents.as_bytes())?;
     Ok(WriteResult { hash: hash_bytes(contents.as_bytes()), conflict_copy })

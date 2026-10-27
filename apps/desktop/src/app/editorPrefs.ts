@@ -13,13 +13,21 @@ export const manuscriptFonts: Record<ManuscriptFont, string> = { newsreader: "va
 /** Largest session goal the Settings field accepts. */
 export const MAX_SESSION_GOAL = 100000;
 
+/** How many snapshots of each page are kept (older ones are removed, but never those younger than 30 days). */
+export const SNAPSHOT_KEEP_MIN = 5;
+export const SNAPSHOT_KEEP_MAX = 500;
+export const SNAPSHOT_KEEP_DEFAULT = 50;
+/** A whole number in the allowed range; anything else becomes the default. */
+export const cleanSnapshotKeep = (v: unknown): number =>
+  typeof v === "number" && Number.isInteger(v) ? Math.min(SNAPSHOT_KEEP_MAX, Math.max(SNAPSHOT_KEEP_MIN, v)) : SNAPSHOT_KEEP_DEFAULT;
+
 export type RawHtmlPaste = "ask" | "convert" | "text";
 const rawHtmlPastes: readonly RawHtmlPaste[] = ["ask", "convert", "text"];
 /** A stored choice for pasted HTML text, or "ask" when it is missing or unknown. */
 export const cleanRawHtmlPaste = (v: unknown): RawHtmlPaste => (rawHtmlPastes.includes(v as RawHtmlPaste) ? (v as RawHtmlPaste) : "ask");
 
-interface Prefs { manuscriptFont: ManuscriptFont; writingWidth: WritingWidth; typewriterScroll: boolean; /** Words to write per session; 0 turns the goal off. */ sessionGoal: number; /** What pasting text that contains HTML tags does. */ rawHtmlPaste: RawHtmlPaste }
-const defaults: Prefs = { manuscriptFont: "newsreader", writingWidth: "medium", typewriterScroll: false, sessionGoal: 0, rawHtmlPaste: "ask" };
+interface Prefs { manuscriptFont: ManuscriptFont; writingWidth: WritingWidth; typewriterScroll: boolean; /** Words to write per session; 0 turns the goal off. */ sessionGoal: number; /** What pasting text that contains HTML tags does. */ rawHtmlPaste: RawHtmlPaste; /** Snapshots kept per page. */ snapshotKeep: number }
+const defaults: Prefs = { manuscriptFont: "newsreader", writingWidth: "medium", typewriterScroll: false, sessionGoal: 0, rawHtmlPaste: "ask", snapshotKeep: SNAPSHOT_KEEP_DEFAULT };
 
 /** A whole number in 0..MAX_SESSION_GOAL; anything else becomes 0 (off). */
 export const cleanGoal = (v: unknown): number => (typeof v === "number" && Number.isInteger(v) && v >= 0 ? Math.min(v, MAX_SESSION_GOAL) : 0);
@@ -28,7 +36,7 @@ function read(): Prefs {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) ?? "null");
     if (v && typeof v.manuscriptFont === "string" && Object.hasOwn(manuscriptFonts, v.manuscriptFont) && typeof v.writingWidth === "string" && Object.hasOwn(writingWidths, v.writingWidth) && typeof v.typewriterScroll === "boolean") {
-      return { manuscriptFont: v.manuscriptFont, writingWidth: v.writingWidth, typewriterScroll: v.typewriterScroll, sessionGoal: cleanGoal(v.sessionGoal), rawHtmlPaste: cleanRawHtmlPaste(v.rawHtmlPaste) };
+      return { manuscriptFont: v.manuscriptFont, writingWidth: v.writingWidth, typewriterScroll: v.typewriterScroll, sessionGoal: cleanGoal(v.sessionGoal), rawHtmlPaste: cleanRawHtmlPaste(v.rawHtmlPaste), snapshotKeep: cleanSnapshotKeep(v.snapshotKeep) };
     }
   } catch { /* storage unavailable or corrupt: use defaults */ }
   return defaults;
@@ -38,8 +46,8 @@ function read(): Prefs {
 export const useSettings = create<Prefs & { set: (p: Partial<Prefs>) => void }>((set, get) => ({
   ...read(),
   set: (p) => {
-    const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, rawHtmlPaste } = { ...get(), ...p };
-    const next = { manuscriptFont, writingWidth, typewriterScroll, sessionGoal: cleanGoal(sessionGoal), rawHtmlPaste: cleanRawHtmlPaste(rawHtmlPaste) };
+    const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, rawHtmlPaste, snapshotKeep } = { ...get(), ...p };
+    const next = { manuscriptFont, writingWidth, typewriterScroll, sessionGoal: cleanGoal(sessionGoal), rawHtmlPaste: cleanRawHtmlPaste(rawHtmlPaste), snapshotKeep: cleanSnapshotKeep(snapshotKeep) };
     try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* keep in memory */ }
     set(next);
   },

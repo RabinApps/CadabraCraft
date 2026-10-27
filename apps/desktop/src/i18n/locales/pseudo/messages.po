@@ -13,6 +13,8 @@ msgid "{0, plural, one {# page could not be put back and keeps the replacement; 
 msgstr ""
 
 #. placeholder {0}: countWords(c.doc)
+#. placeholder {0}: v.words
+#: src/app/HistoryDialog.tsx
 #: src/app/ImportDialogs.tsx
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr ""
@@ -167,6 +169,10 @@ msgstr ""
 msgid "A cover must be a PNG, JPEG or WebP image."
 msgstr ""
 
+#: src/app/RecoverDialog.tsx
+msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
+msgstr ""
+
 #: src/app/store.ts
 msgid "A PDF export is already running"
 msgstr ""
@@ -314,6 +320,10 @@ msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "Becomes"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Before a save replaces different text, at most once every 10 minutes per chapter."
 msgstr ""
 
 #: src/app/PrintPreview.tsx
@@ -503,6 +513,7 @@ msgstr ""
 msgid "Clear Menu"
 msgstr ""
 
+#: src/app/HistoryDialog.tsx
 #: src/editor/FindBar.tsx
 msgid "Close"
 msgstr ""
@@ -536,6 +547,14 @@ msgstr ""
 
 #: src/editor/TableCommands.tsx
 msgid "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "Compared with the current text"
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "Comparison"
 msgstr ""
 
 #: src/editor/Editor.tsx
@@ -575,6 +594,10 @@ msgstr ""
 #. placeholder {0}: errText(e)
 #: src/app/store.ts
 msgid "Could not add the image: {0}"
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "Could not be read"
 msgstr ""
 
 #: src/editor/Editor.tsx
@@ -691,6 +714,14 @@ msgstr ""
 
 #: src/app/Home.tsx
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "Earlier versions"
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "Earlier versions of this page. Pick one to compare it with the current text."
 msgstr ""
 
 #: src/app/menuModel.ts
@@ -898,6 +929,15 @@ msgstr ""
 msgid "Hide Others"
 msgstr ""
 
+#: src/app/Sidebar.tsx
+msgid "History"
+msgstr ""
+
+#. placeholder {0}: page?.title ?? ""
+#: src/app/HistoryDialog.tsx
+msgid "History · {0}"
+msgstr ""
+
 #: src/app/Settings.tsx
 msgid "How wide the page is in the editor."
 msgstr ""
@@ -967,6 +1007,14 @@ msgstr ""
 msgid "In “{where}”: {0}"
 msgstr ""
 
+#: src/app/Settings.tsx
+msgid "In the .cadabra/backups folder inside your book folder."
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "In this version only"
+msgstr ""
+
 #: src/app/Templates.tsx
 msgid "In use"
 msgstr ""
@@ -1031,6 +1079,10 @@ msgstr ""
 
 #: src/app/importBook.ts
 msgid "Keep at least one chapter."
+msgstr ""
+
+#: src/app/RecoverDialog.tsx
+msgid "Keep saved text"
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -1221,6 +1273,10 @@ msgstr ""
 msgid "No cadabra.json in that folder"
 msgstr ""
 
+#: src/app/HistoryDialog.tsx
+msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
+msgstr ""
+
 #: src/app/ImportDialogs.tsx
 msgid "No file chosen"
 msgstr ""
@@ -1287,6 +1343,18 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "Numbered List"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Older snapshots are removed, but anything from the last 30 days stays."
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "Only in the current text"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 msgstr ""
 
 #: src/app/Home.tsx
@@ -1433,6 +1501,11 @@ msgstr ""
 msgid "Recent projects"
 msgstr ""
 
+#. placeholder {0}: next.title
+#: src/app/RecoverDialog.tsx
+msgid "Recover newer text for “{0}”?"
+msgstr ""
+
 #. placeholder {0}: entry.label
 #: src/app/store.ts
 msgid "Redid: {0}"
@@ -1527,6 +1600,19 @@ msgstr ""
 msgid "Restore {0}"
 msgstr ""
 
+#: src/app/HistoryDialog.tsx
+msgid "Restore this version"
+msgstr ""
+
+#. placeholder {0}: entry.title
+#: src/app/store.ts
+msgid "Restored an earlier version of {0}. The text it replaced is kept in History."
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "Restoring keeps the current text as a new snapshot, so you can undo it."
+msgstr ""
+
 #: src/editor/FindBar.tsx
 msgid "Results by page"
 msgstr ""
@@ -1537,6 +1623,10 @@ msgstr ""
 
 #: src/editor/TableCommands.tsx
 msgid "Rows"
+msgstr ""
+
+#: src/app/HistoryDialog.tsx
+msgid "same as now"
 msgstr ""
 
 #: src/app/AppHeader.tsx
@@ -1646,6 +1736,10 @@ msgstr ""
 
 #: src/editor/ReadingSettings.tsx
 msgid "Smaller text"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Snapshots to keep per chapter"
 msgstr ""
 
 #. placeholder {0}: lost.map((g) => g.code).join(", ")
@@ -1856,6 +1950,10 @@ msgstr ""
 msgid "This page"
 msgstr ""
 
+#: src/app/HistoryDialog.tsx
+msgid "This version has the same words as the current text."
+msgstr ""
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/app/Home.tsx
@@ -1982,6 +2080,10 @@ msgstr ""
 msgid "Use http, https or mailto."
 msgstr ""
 
+#: src/app/RecoverDialog.tsx
+msgid "Use newer text"
+msgstr ""
+
 #: src/app/Templates.tsx
 msgid "Use template"
 msgstr ""
@@ -2009,6 +2111,14 @@ msgstr ""
 
 #: src/app/Settings.tsx
 msgid "When pasting HTML"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "When snapshots are taken"
+msgstr ""
+
+#: src/app/Settings.tsx
+msgid "Where they are stored"
 msgstr ""
 
 #: src/editor/FindBar.tsx
