@@ -1,3 +1,5 @@
+import { RE2JS } from "re2js";
+
 export interface TextRange {
   /** Offsets in UTF-16 code units, `to` exclusive. */
   from: number;
@@ -9,7 +11,7 @@ export interface TextRange {
 export interface MatchOptions {
   matchCase: boolean;
   wholeWord: boolean;
-  /** The query is a JavaScript regular expression (see `compileRegex`). Absent means literal. */
+  /** The query is an RE2 regular expression (see `compileRegex`). Absent means literal. */
   regex?: boolean;
 }
 
@@ -68,65 +70,66 @@ export function findInText(text: string, query: string, { matchCase, wholeWord, 
 }
 
 /**
- * Regex mode. The pattern is a JavaScript regular expression compiled with the `u` flag (plus `i` unless Match case is
- * on). Whole word wraps it as `(?<![\p{L}\p{N}\p{M}])(?:pattern)(?![\p{L}\p{N}\p{M}])`, the same Unicode word-character
- * test as the literal path. `^` and `$` mean the start and end of a run (no `m` flag), `.` does not cross a run.
+ * Regex mode. The pattern is an RE2 regular expression run by `re2js` (UTF-16 offsets, case-insensitive unless Match
+ * case is on). RE2 matches in time linear in the text, so a pattern cannot hang the UI thread; backreferences and
+ * lookaround do not exist in RE2 and are reported as an invalid pattern, like any other syntax error. `^` and `$` mean
+ * the start and end of a run, `.` does not cross a run.
  *
- * Catastrophic backtracking cannot be interrupted on the UI thread, so it is bounded by construction, not by time:
- *  - patterns with a quantified group that itself holds a quantifier ("(a+)+", "(.*)*", "(\w+\s?)*") are rejected up
- *    front and treated like an invalid pattern (a cheap heuristic: it also refuses a few harmless ones, and misses
- *    ambiguous alternations such as "(a|aa)+");
- *  - at most `MAX_MATCHES` matches are collected per scan (document-wide scans stop at the same cap).
- * Running regexes in a worker was rejected, see docs/architecture.md ("Regex find and replace").
+ * Whole word cannot use lookarounds, so each match is checked afterwards: it is rejected when a letter, digit or
+ * combining mark (the same Unicode word set as the literal path) touches either side, and the scan resumes one
+ * character after the rejected match's start so overlapping candidates are still tried. Unlike a lookaround wrapper,
+ * this cannot make the engine pick a different alternative: "ab|abcd" on "abcd" finds "ab", rejects it, and never
+ * finds "abcd" (put the longer alternative first: "abcd|ab").
+ *
+ * `MAX_MATCHES` is only a UI guard against pathological counts (decorating a million matches), not a safety net.
  */
 export const MAX_MATCHES = 10000;
 
-const NESTED_QUANTIFIER = /\((?:[^()\\]|\\.)*(?:[+*]|\{\d+,\d*\})(?:[^()\\]|\\.)*\)(?:[+*]|\{\d+,\d*\})/;
-const WORD = "[\\p{L}\\p{N}\\p{M}]";
+let cached: { key: string; re: RE2JS | null } | null = null;
 
-let cached: { key: string; re: RegExp | null } | null = null;
-
-/** The compiled search regex (global, so callers reset `lastIndex`), or null when the pattern is empty, invalid or too risky. */
-export function compileRegex(query: string, matchCase: boolean, wholeWord: boolean): RegExp | null {
+/** The compiled search regex, or null when the pattern is empty or not valid RE2 syntax (never throws). */
+export function compileRegex(query: string, matchCase: boolean): RE2JS | null {
   if (!query) return null;
-  const key = `${matchCase ? 1 : 0}${wholeWord ? 1 : 0}${query}`;
+  const key = `${matchCase ? 1 : 0}${query}`;
   if (cached?.key === key) return cached.re;
-  let re: RegExp | null = null;
-  if (!NESTED_QUANTIFIER.test(query)) {
-    try {
-      const flags = matchCase ? "gu" : "giu";
-      new RegExp(query, flags); // validate on its own so wrapping cannot make a broken pattern valid, e.g. "a)(b"
-      re = new RegExp(wholeWord ? `(?<!${WORD})(?:${query})(?!${WORD})` : query, flags);
-    } catch {
-      re = null;
-    }
+  let re: RE2JS | null = null;
+  try {
+    re = RE2JS.compile(query, matchCase ? 0 : RE2JS.CASE_INSENSITIVE);
+  } catch {
+    re = null;
   }
   cached = { key, re };
   return re;
 }
 
+/** Index just after the code point starting at `index`. */
+const nextCodePoint = (text: string, index: number): number => index + ((text.codePointAt(index) ?? 0) > 0xffff ? 2 : 1);
+
 function findRegexInText(text: string, query: string, matchCase: boolean, wholeWord: boolean): TextRange[] {
-  const re = compileRegex(query, matchCase, wholeWord);
+  const re = compileRegex(query, matchCase);
   if (!re || !text) return [];
+  const m = re.matcher(text);
+  const groups = Math.min(re.groupCount(), 9);
   const found: TextRange[] = [];
-  re.lastIndex = 0;
-  let m: RegExpExecArray | null;
-  while (found.length < MAX_MATCHES && (m = re.exec(text))) {
-    if (m[0] === "") {
-      // Zero-length matches are skipped; step one code point so the scan always advances.
-      const cp = text.codePointAt(re.lastIndex);
-      re.lastIndex += cp !== undefined && cp > 0xffff ? 2 : 1;
-      if (re.lastIndex > text.length) break;
+  let pos = 0;
+  while (found.length < MAX_MATCHES && pos <= text.length && m.find(pos)) {
+    const from = m.start();
+    const to = m.end();
+    if (to === from || (wholeWord && (isWordAt(text, from, true) || isWordAt(text, to, false)))) {
+      // Zero-length (skipped) or rejected by Whole word: retry one code point after this start so the scan always advances.
+      pos = nextCodePoint(text, from);
       continue;
     }
-    found.push({ from: m.index, to: m.index + m[0].length, captures: Array.from(m).slice(0, 10).map((c) => c ?? "") });
+    const captures = [text.slice(from, to)];
+    for (let i = 1; i <= groups; i++) captures.push(m.group(i) ?? "");
+    found.push({ from, to, captures });
+    pos = to;
   }
-  re.lastIndex = 0;
   return found;
 }
 
 /** Whether a regex-mode query is unusable (invalid or refused). An empty query is not "invalid". */
-export const isInvalidRegex = (query: string, matchCase: boolean, wholeWord: boolean): boolean => query !== "" && compileRegex(query, matchCase, wholeWord) === null;
+export const isInvalidRegex = (query: string, matchCase: boolean): boolean => query !== "" && compileRegex(query, matchCase) === null;
 
 /**
  * The replacement text for one match. Regex mode expands `$1`..`$9` (the capture, "" if it did not take part; a

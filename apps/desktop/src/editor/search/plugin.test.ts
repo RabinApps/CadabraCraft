@@ -140,5 +140,17 @@ describe("search plugin", () => {
     s = search(s, { query: "(", regex: true });
     expect(info(s)).toEqual({ total: 0, index: 0 });
     expect(replaceAllTransaction(s)).toBeNull();
+    s = search(s, { query: "a(?=b)", regex: true });
+    expect(info(s)).toEqual({ total: 0, index: 0 });
+  });
+
+  it("regex: catastrophic patterns finish quickly and offsets survive emoji", () => {
+    let s = search(make([p(t("😀 " + "a".repeat(3000) + "b 😀 end"))]), { query: "(a+)+$", regex: true });
+    const start = performance.now();
+    expect(info(s).total).toBe(0);
+    expect(performance.now() - start).toBeLessThan(1000);
+    s = search(s, { query: "end", replacement: "fin", regex: true });
+    s = apply(s, replaceAllTransaction(s));
+    expect(s.doc.textContent.endsWith("😀 fin")).toBe(true);
   });
 });

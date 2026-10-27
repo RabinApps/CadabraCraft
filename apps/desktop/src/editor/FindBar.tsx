@@ -155,7 +155,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
       e.preventDefault(); e.stopPropagation(); close();
     }
   };
-  const invalid = f.regex && isInvalidRegex(f.query, f.matchCase, f.wholeWord);
+  const invalid = f.regex && isInvalidRegex(f.query, f.matchCase);
   const noResults = f.query !== "" && info.total === 0;
   const rows = f.allChapters && !invalid && manifest ? resultRows(manifest, counts, currentId, editorInfo) : [];
   const rowTitle = (r: ResultRow) => r.section === "front" ? t`Front matter: ${r.title}` : r.section === "back" ? t`Back matter: ${r.title}` : r.title;

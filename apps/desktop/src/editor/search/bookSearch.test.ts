@@ -89,6 +89,11 @@ describe("regex mode", () => {
     expect(marked).toEqual(doc(p(t("cab", bold))));
   });
 
+  it("uses UTF-16 offsets after emoji and rejects unsupported syntax", () => {
+    expect(findInDoc(doc(p(t("😀😀 me@home"))), rx)).toEqual([{ path: [0], from: 5, to: 12 }]);
+    expect(findInDoc(doc(p(t("ab"))), { ...rx, query: "a(?=b)" })).toEqual([]);
+  });
+
   it("keeps the replacement literal with regex off", () => {
     expect(replaceInDoc(doc(p(t("cat"))), { ...o, regex: false }, "$1 $&").doc).toEqual(doc(p(t("$1 $&"))));
   });

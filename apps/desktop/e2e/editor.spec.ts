@@ -1018,6 +1018,10 @@ test.describe("find and replace", () => {
     await expect(bar(page).getByText("Invalid pattern")).toBeVisible();
     await expect(bar(page).getByRole("button", { name: "Replace all" })).toBeDisabled();
     await expect(bar(page).getByRole("button", { name: "Replace", exact: true })).toBeDisabled();
+    await find.fill("c(?=a)");
+    await expect(bar(page).getByText("Invalid pattern")).toBeVisible();
+    await find.fill("(a)\\1");
+    await expect(bar(page).getByText("Invalid pattern")).toBeVisible();
     await expect(page.locator(".search-match")).toHaveCount(0);
     expect(errors).toEqual([]);
 

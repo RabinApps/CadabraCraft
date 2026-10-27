@@ -80,26 +80,50 @@ describe("findInText with regex", () => {
   it("applies whole word with Unicode boundaries", () => {
     expect(words("cat concat cats cat", "cat", { wholeWord: true })).toEqual(["cat", "cat"]);
     expect(words("café cafés", "caf.", { wholeWord: true })).toEqual(["café"]);
-    expect(words("ab|cd abcd", "ab|abcd", { wholeWord: true })).toEqual(["ab", "abcd"]);
+    expect(words("ab|cd abcd", "abcd|ab", { wholeWord: true })).toEqual(["ab", "abcd"]);
+    // A rejected candidate does not hide an overlapping one that starts later.
+    expect(words("aa aaa a", "a+", { wholeWord: true })).toEqual(["aa", "aaa", "a"]);
+    expect(words("xab ab", "ab", { wholeWord: true })).toEqual(["ab"]);
+    expect(words("e\u0301a e", "a", { wholeWord: true })).toEqual([]);
+    expect(words("😀cat😀 cat", "cat", { wholeWord: true })).toEqual(["cat", "cat"]);
   });
 
   it("treats invalid patterns as no match, without throwing", () => {
-    for (const q of ["(", "[a", "a)(b", "*", "\\p{Nope}"]) {
+    for (const q of ["(", "[a", "a)(b", "*", "\\p{Nope}", "(?=a)a", "(?<=a)b", "(?<!a)b", "(?!a)b", "(a)\\1", "a{1001}"]) {
       expect(found("a(b", q)).toEqual([]);
-      expect(isInvalidRegex(q, false, false)).toBe(true);
+      expect(isInvalidRegex(q, false)).toBe(true);
     }
-    expect(isInvalidRegex("", false, false)).toBe(false);
-    expect(isInvalidRegex("a+", false, false)).toBe(false);
+    expect(isInvalidRegex("", false)).toBe(false);
+    expect(isInvalidRegex("a+", false)).toBe(false);
   });
 
-  it("refuses nested quantifiers and caps the match count", () => {
-    for (const q of ["(a+)+$", "(.*)*", "(\\w+\\s?)*", "(a{1,3})+", "(?:a*)+"]) expect(compileRegex(q, false, false)).toBeNull();
-    expect(compileRegex("(ab)+", false, false)).not.toBeNull();
-    expect(compileRegex("a+b*", false, false)).not.toBeNull();
+  it("accepts nested quantifiers and stays linear on catastrophic patterns", () => {
+    for (const q of ["(a+)+$", "(.*)*", "(\\w+\\s?)*", "(a{1,3})+", "(?:a*)+", "(a|aa)+$"]) expect(compileRegex(q, false)).not.toBeNull();
+    for (const q of ["(a+)+$", "(a|aa)+$", "(a*)*b", "(\\w+\\s?)*$"]) {
+      const start = performance.now();
+      expect(findInText("a".repeat(5000) + "!", q, { matchCase: false, wholeWord: false, regex: true }).length).toBeLessThanOrEqual(1);
+      expect(performance.now() - start).toBeLessThan(1000);
+    }
+  });
+
+  it("caps the match count as a UI guard", () => {
     expect(found("a".repeat(MAX_MATCHES + 50), "a")).toHaveLength(MAX_MATCHES);
-    const start = performance.now();
-    expect(found("a".repeat(40) + "!", "(a+)+$")).toEqual([]);
-    expect(performance.now() - start).toBeLessThan(100);
+  });
+
+  it("honours Match case through the engine flag", () => {
+    expect(words("Foo foo FOO", "foo")).toEqual(["Foo", "foo", "FOO"]);
+    expect(words("Foo foo FOO", "foo", { matchCase: true })).toEqual(["foo"]);
+    expect(words("ÉCOLE école", "école")).toEqual(["ÉCOLE", "école"]);
+    expect(words("ÉCOLE école", "école", { matchCase: true })).toEqual(["école"]);
+  });
+
+  it("returns UTF-16 offsets after emoji and combining marks", () => {
+    const text = "😀😀 e\u0301t 😀 end";
+    const ranges = findInText(text, "(e)\\x{301}?t|end", { matchCase: false, wholeWord: false, regex: true });
+    expect(ranges.map((r) => text.slice(r.from, r.to))).toEqual(["e\u0301t", "end"]);
+    expect(ranges[0]).toMatchObject({ from: 5, to: 8, captures: ["e\u0301t", "e"] });
+    expect(findInText("😀b", "b", { matchCase: false, wholeWord: false, regex: true })).toEqual([{ from: 2, to: 3, captures: ["b"] }]);
+    expect(findInText("a😀b😀", "😀", { matchCase: false, wholeWord: false, regex: true }).map((r) => [r.from, r.to])).toEqual([[1, 3], [4, 6]]);
   });
 
   it("leaves the literal path alone: regex characters are plain text without the option", () => {
