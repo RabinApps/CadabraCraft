@@ -43,7 +43,7 @@ export const benefits = features.filter((f) => highlights.includes(f.title));
 export const faq = [
   {
     q: "Is CadabraCraft really free?",
-    a: "Yes. It is free and source-available. Sponsorship pays for development time and keeps the project independent.",
+    a: "Yes. You can use it free to write and publish your own books, including books you sell. The software itself is source-available: it can't be sold or repackaged. Sponsorship pays for development time and keeps the project independent.",
   },
   {
     q: "Do I need an account?",

@@ -20,7 +20,7 @@ CadabraCraft is a desktop app for writing and formatting books. Write in a rich-
 
 - **Local-first.** Your project is a folder of plain, documented files. No account, no server, no telemetry.
 - **Your sync, your choice.** Point the folder at Google Drive, Dropbox or iCloud Drive. Conflicting edits keep both copies.
-- **Source-available.** The app, the file format and the exporters all live in this repo, free for noncommercial use (see [License](#license)).
+- **Free for your books, source-available.** The app, the file format and the exporters all live in this repo. Anyone can use CadabraCraft free to write and publish their own books, including books they sell. The software itself can't be sold or repackaged (see [License](#license)).
 
 ## What it is
 
@@ -146,4 +146,10 @@ Work milestone by milestone, one PR each, with tests and docs. Record ideas outs
 
 ## License
 
-CadabraCraft is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE). You can use, modify and share it for noncommercial purposes. Commercial use needs a separate license from Rabin Apps LLC. It is not open source in the OSI sense.
+CadabraCraft is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE), plus an [additional permission for authors](LICENSE-ADDITIONAL-PERMISSION.md). In plain words:
+
+- **Authors:** you can use CadabraCraft free to write, format, export and publish your own books, including books you sell. Your books and the files it makes are yours.
+- **Everyone:** you can read the code, change it for yourself and share it for noncommercial purposes.
+- **Not allowed without a separate license from Rabin Apps LLC:** selling, reselling or renting the software or a changed version of it, offering it as a paid or hosted service, or putting it in a product you charge for.
+
+It is not open source in the OSI sense. This summary is not the legal text: the two license files are.

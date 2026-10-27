@@ -32,6 +32,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Add e2e for `he` RTL layout once its catalog exists; run `/validate-epub` with a Hebrew sample (EPUBCheck was not available in this worktree).
 
 ### Engineering
+- Licensing: have a lawyer review `LICENSE-ADDITIONAL-PERMISSION.md` before the first release. Open questions: freelance formatters and editors using the app on clients' manuscripts, and hosted use inside a company's own tooling.
 - Port `.docx` import (`packages/import-docx`) to Rust (`zip` + `quick-xml`) to stop the double XML pass and synchronous unzip; needs approval for the new crates and a contract-fixture set for the doc output.
 - Run the native pickers (`pickFolder`, `pickImage`, `pickImportSource`) in Rust and remember what the author picked, so `create_project`, `import_asset` and `read_import_source` only accept those paths (today the webview can name any absolute folder or file for them).
 - Large manuscripts (see architecture.md, "Performance budgets"): a Rust-side per-page word count kept in a small cache next to the snapshots (removes the first-open read of every chapter); virtualised or lazily mounted chapter rendering for reading mode and print preview (they still build every page); a cheaper cache for `readPages` (print preview, export checks, find bar) keyed by the same file hashes; measure typing and open time on a real disk and in the native webview with `/drive-app` and a 20k-word chapter.
