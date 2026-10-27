@@ -59,6 +59,27 @@ export interface AudioChapterState {
   progress: number;
 }
 
+const AUDIO_CACHE = ".cadabra/audio/cache.json";
+interface AudioCacheEntry { hash: string; files: { format: AudioFormat; path: string }[]; durationSec: number }
+
+/** The per-chapter audio cache: local to this computer (`.cadabra/`), never needed to open the book. A missing or damaged file is an empty cache. */
+async function readAudioCache(root: string): Promise<Record<string, AudioCacheEntry>> {
+  try {
+    const f = await bridge.readFile(root, AUDIO_CACHE);
+    const parsed: unknown = f ? JSON.parse(f.contents) : {};
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, AudioCacheEntry>) : {};
+  } catch {
+    return {};
+  }
+}
+
+async function saveAudioCache(root: string, r: { id: string; hash: string; files: AudioCacheEntry["files"]; durationSec: number }): Promise<void> {
+  const f = await bridge.readFile(root, AUDIO_CACHE).catch(() => null);
+  const all = await readAudioCache(root);
+  all[r.id] = { hash: r.hash, files: r.files, durationSec: r.durationSec };
+  await bridge.writeFile(root, AUDIO_CACHE, JSON.stringify(all), f?.hash ?? null);
+}
+
 /** The audiobook export in progress or just finished. It lives in the store, not the dialog, so the dialog can close while it runs. */
 export interface AudioJob {
   status: "running" | "done" | "error";
@@ -921,9 +942,18 @@ export const useProject = create<State>((set, get) => {
             { voice: options.voice, speed: options.speed, formats: options.formats },
             createTauriAudioRunner(bridge, root, jobId),
             {
+              cached: async (id, hash) => {
+                const hit = (await readAudioCache(root))[id];
+                if (!hit || hit.hash !== hash) return undefined;
+                const there = await bridge.audioFilesExist(root, hit.files.map((f) => f.path)).catch(() => []);
+                return there.length === hit.files.length && there.every(Boolean) ? { files: hit.files, durationSec: hit.durationSec } : undefined;
+              },
               onChapterStart: (i) => update((j) => ({ ...j, chapters: mark(j, i, { state: "rendering" }) })),
               onProgress: (p) => update((j) => ({ ...j, overall: p.overall, chapters: mark(j, p.chapterIndex, { progress: p.fraction }) })),
-              onChapterDone: (i, r) => update((j) => ({ ...j, durationSec: j.durationSec + r.durationSec, files: j.files + r.files.length, chapters: mark(j, i, { state: r.status === "empty" ? "empty" : "done", progress: 1 }) })),
+              onChapterDone: (i, r) => {
+                if (r.status === "done") void saveAudioCache(root, r).catch(() => undefined);
+                update((j) => ({ ...j, durationSec: j.durationSec + r.durationSec, files: j.files + r.files.length, chapters: mark(j, i, { state: r.status === "empty" ? "empty" : "done", progress: 1 }) }));
+              },
             },
             ctrl.signal,
           );

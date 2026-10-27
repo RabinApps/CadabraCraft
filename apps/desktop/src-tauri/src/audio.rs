@@ -503,9 +503,34 @@ pub fn audio_forget(state: tauri::State<'_, AudioJobs>, job_id: String) {
     state.forget(&job_id);
 }
 
+/// Which of these project-relative paths are existing regular files. Used to trust a cached chapter only while its
+/// audio files are still on disk. A path outside the project is refused like everywhere else.
+pub(crate) fn files_exist(root: &std::path::Path, paths: &[String]) -> Result<Vec<bool>, AudioError> {
+    paths
+        .iter()
+        .map(|rel| Ok(crate::project::resolve(root, rel)?.symlink_metadata().map(|m| m.is_file()).unwrap_or(false)))
+        .collect()
+}
+
+#[tauri::command]
+pub async fn audio_files_exist(root: String, paths: Vec<String>) -> Result<Vec<bool>, AudioError> {
+    crate::typst::blocking(move || files_exist(std::path::Path::new(&root), &paths)).await
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn files_exist_reports_files_only_and_refuses_outside_paths() {
+        let dir = std::env::temp_dir().join(format!("cc-exist-{}", std::process::id()));
+        std::fs::create_dir_all(dir.join("sub")).unwrap();
+        std::fs::write(dir.join("a.opus"), b"x").unwrap();
+        let got = files_exist(&dir, &["a.opus".into(), "missing.opus".into(), "sub".into()]).unwrap();
+        assert_eq!(got, vec![true, false, false]);
+        assert!(files_exist(&dir, &["../a.opus".into()]).is_err());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 
     fn chunk(text: &str, pause: u32) -> Chunk {
         Chunk { text: text.into(), pause_after_ms: pause }

@@ -1,19 +1,26 @@
-import { useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft } from "lucide-react";
 import { useLocale } from "../i18n/i18n";
 import { PSEUDO_LOCALE } from "../i18n/locales";
 import { IconButton } from "../ui/Button";
+import { Button } from "../ui/Button";
+import { Checkbox } from "../ui/Checkbox";
 import { Field } from "../ui/Input";
+import { bridge, type VoicePack } from "../lib/bridge";
+import { describeAudioError } from "../lib/audioErrors";
+import type { VoiceInfo } from "@cadabracraft/export-audio";
+import { AUDIO_FORMATS_ORDER, mb, useAudioLabels } from "./AudioExport";
 import { Segmented } from "../ui/Segmented";
 import { Select } from "../ui/Select";
 import { languageOptions } from "../ui/LanguagePicker";
 import { Switch } from "../ui/Switch";
 import { useTheme, type Theme } from "./theme";
 import { useUpdates } from "./updates";
+import type { AudioFormat } from "@cadabracraft/export-audio";
 import { MAX_SESSION_GOAL, SNAPSHOT_KEEP_MAX, SNAPSHOT_KEEP_MIN, cleanSnapshotKeep, useSettings, type ManuscriptFont, type RawHtmlPaste, type WritingWidth } from "./editorPrefs";
 
-const sections = ["appearance", "general", "editor", "backups"] as const;
+const sections = ["appearance", "general", "editor", "audio", "backups"] as const;
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
@@ -55,15 +62,112 @@ function KeepField({ label, value, onCommit }: { label: string; value: number; o
   );
 }
 
+/** Audiobook preferences: the voice and formats the export starts with, and the downloaded voices with a way to remove them. */
+function AudioSection({ title, voice, formats, onVoice, onFormats }: {
+  title: string;
+  voice: string;
+  formats: AudioFormat[];
+  onVoice: (id: string) => void;
+  onFormats: (f: AudioFormat[]) => void;
+}) {
+  const { t } = useLingui();
+  const names = useAudioLabels();
+  const [voices, setVoices] = useState<VoiceInfo[]>([]);
+  const [packs, setPacks] = useState<VoicePack[]>([]);
+  const [confirm, setConfirm] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const refresh = useCallback(async (live: () => boolean = () => true) => {
+    try {
+      const [v, p] = await Promise.all([bridge.audioVoices(), bridge.audioPacks()]);
+      if (live()) { setVoices(v); setPacks(p); }
+    } catch (e) {
+      if (live()) setError(describeAudioError(e).message);
+    }
+  }, []);
+  useEffect(() => {
+    let live = true;
+    void refresh(() => live);
+    return () => { live = false; };
+  }, [refresh]);
+  const remove = async (id: string) => {
+    setConfirm(null);
+    setError(null);
+    try {
+      await bridge.audioDeletePack(id);
+    } catch (e) {
+      setError(describeAudioError(e).message);
+    }
+    await refresh();
+  };
+  const packName = (p: VoicePack) => (p.id === "piper" ? t`Piper voices: Amy and LibriTTS` : t`Kokoro: Heart`);
+  const installed = voices.filter((v) => v.installed);
+  return (
+    <Section id="audio" title={title}>
+      <Row
+        title={t`Default voice`}
+        hint={t`The voice the audiobook export starts with. Only installed voices can be picked.`}
+        control={
+          <div className="w-56 max-sm:w-full">
+            <Select label={t`Default voice`} hideLabel className="py-2" value={installed.some((v) => v.id === voice) ? voice : ""} onChange={(e) => onVoice(e.target.value)}>
+              <option value="">{t`Best installed voice`}</option>
+              {installed.map((v) => <option key={v.id} value={v.id}>{names.voice(v.id)}</option>)}
+            </Select>
+          </div>
+        }
+      />
+      <Row
+        title={t`Default formats`}
+        hint={t`The audio formats ticked when you open the export.`}
+        control={
+          <fieldset className="flex gap-4">
+            <legend className="sr-only">{t`Default formats`}</legend>
+            {AUDIO_FORMATS_ORDER().map((f) => (
+              <Checkbox
+                key={f}
+                label={names.format(f).label}
+                checked={formats.includes(f)}
+                onChange={(e) => {
+                  const next = AUDIO_FORMATS_ORDER().filter((x) => (x === f ? e.target.checked : formats.includes(x)));
+                  if (next.length > 0) onFormats(next);
+                }}
+              />
+            ))}
+          </fieldset>
+        }
+      />
+      {packs.map((p) => (
+        <Row
+          key={p.id}
+          title={packName(p)}
+          hint={p.installed ? t`Installed, about ${mb(p.bytes)} MB on this computer.` : t`Not installed. Download it from the Audiobook export.`}
+          control={
+            p.installed ? (
+              confirm === p.id ? (
+                <div className="flex gap-2">
+                  <Button onClick={() => setConfirm(null)}>{t`Keep`}</Button>
+                  <Button variant="danger" onClick={() => void remove(p.id)}>{t`Delete voices`}</Button>
+                </div>
+              ) : (
+                <Button onClick={() => setConfirm(p.id)}>{t`Delete`}</Button>
+              )
+            ) : null
+          }
+        />
+      ))}
+      {error && <p role="alert" className="px-4 py-3 text-sm text-danger">{error}</p>}
+    </Section>
+  );
+}
+
 /** Preferences page. Every control saves immediately, so there is no primary action. */
 export function Settings({ onBack }: { onBack: () => void }) {
   const { t } = useLingui();
   const { theme, setTheme } = useTheme();
-  const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, rawHtmlPaste, snapshotKeep, set } = useSettings();
+  const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, rawHtmlPaste, snapshotKeep, audioVoice, audioFormats, set } = useSettings();
   const checkOnLaunch = useUpdates((s) => s.checkOnLaunch);
   const setCheckOnLaunch = useUpdates((s) => s.setCheckOnLaunch);
   const { locale, setLocale } = useLocale();
-  const navLabels: Record<(typeof sections)[number], string> = { appearance: t`Appearance`, general: t`General`, editor: t`Editor`, backups: t`Backups` };
+  const navLabels: Record<(typeof sections)[number], string> = { appearance: t`Appearance`, general: t`General`, editor: t`Editor`, audio: t`Audio`, backups: t`Backups` };
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" });
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
@@ -168,6 +272,7 @@ export function Settings({ onBack }: { onBack: () => void }) {
                 }
               />
             </Section>
+            <AudioSection voice={audioVoice} formats={audioFormats} title={navLabels.audio} onVoice={(v) => set({ audioVoice: v })} onFormats={(f) => set({ audioFormats: f })} />
             <Section id="backups" title={navLabels.backups}>
               <Row
                 title={t`Snapshots to keep per chapter`}

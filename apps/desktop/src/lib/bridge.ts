@@ -147,6 +147,8 @@ export const bridge = {
   audioDeletePack: (pack: string) => invoke<void>("audio_delete_pack", { pack }),
   /** Stops the job's running chapter (the engine process is killed) and every later one. */
   audioCancel: (jobId: string) => invoke<void>("audio_cancel", { jobId }),
+  /** Which of these project-relative files exist (for trusting the chapter cache). */
+  audioFilesExist: (root: string, paths: string[]) => invoke<boolean[]>("audio_files_exist", { root, paths }),
   /** Drops the job's cancel flag once an export has ended. */
   audioForget: (jobId: string) => invoke<void>("audio_forget", { jobId }),
 };

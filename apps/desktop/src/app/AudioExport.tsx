@@ -10,7 +10,8 @@ import type { VoicePack } from "../lib/bridge";
 import type { AudioJob, VoiceDownload } from "./store";
 
 export const AUDIO_SPEEDS = [0.9, 1, 1.1, 1.25] as const;
-export const DEFAULT_AUDIO_FORMATS: AudioFormat[] = ["opus"];
+
+export const AUDIO_FORMATS_ORDER = (): AudioFormat[] => FORMATS;
 
 /** Display order of the formats; the order the files are written in too. */
 const FORMATS: AudioFormat[] = ["opus", "flac", "wav"];
@@ -21,7 +22,7 @@ export const defaultVoice = (voices: VoiceInfo[]): string => voices.find((v) => 
 /** Download sizes are shown in decimal megabytes, like the operating system does. */
 export const mb = (bytes: number): number => Math.max(1, Math.round(bytes / 1e6));
 
-function useAudioLabels() {
+export function useAudioLabels() {
   const { t } = useLingui();
   const voice = (id: string): string =>
     id === "kokoro-heart" ? t`Kokoro · Heart (best quality)` : id === "piper-amy" ? t`Piper · Amy (fast)` : id === "piper-libritts-0" ? t`Piper · LibriTTS (fast)` : id;
@@ -35,7 +36,7 @@ function useAudioLabels() {
 }
 
 /** The Audiobook mode of the Export dialog: voice, speed, formats and a note about stores. Matches "Export Audiobook" in the pen. */
-export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, onFormats, chapters, disabled, moreBytes, onMore }: {
+export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, onFormats, chapters, picked, onPicked, disabled, moreBytes, onMore }: {
   voices: VoiceInfo[] | null;
   voice: string;
   onVoice: (id: string) => void;
@@ -43,7 +44,10 @@ export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, o
   onSpeed: (s: number) => void;
   formats: AudioFormat[];
   onFormats: (f: AudioFormat[]) => void;
-  chapters: number;
+  chapters: { id: string; title: string }[];
+  /** Chapter ids to read, or null for every chapter. */
+  picked: string[] | null;
+  onPicked: (ids: string[] | null) => void;
   disabled: boolean;
   /** Download size of the voices that are not installed yet; with `onMore`, offers to download them. */
   moreBytes?: number;
@@ -79,7 +83,24 @@ export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, o
           );
         })}
       </fieldset>
-      <p className="text-sm text-ink-muted">{plural(chapters, { one: "Reads # chapter, as one audio file. Front and back matter are not read.", other: "Reads all # chapters, one audio file each. Front and back matter are not read." })}</p>
+      <Select label={t`Chapters`} value={picked ? "some" : "all"} disabled={disabled} onChange={(e) => onPicked(e.target.value === "all" ? null : chapters.map((c) => c.id))}>
+        <option value="all">{t`All chapters`}</option>
+        <option value="some">{t`Selected chapters`}</option>
+      </Select>
+      {picked && (
+        <fieldset className="flex flex-col gap-2 rounded-lg border border-border p-3" disabled={disabled}>
+          <legend className="sr-only">{t`Chapters to read`}</legend>
+          {chapters.map((c) => (
+            <Checkbox
+              key={c.id}
+              label={c.title}
+              checked={picked.includes(c.id)}
+              onChange={(e) => onPicked(chapters.map((x) => x.id).filter((id) => (id === c.id ? e.target.checked : picked.includes(id))))}
+            />
+          ))}
+        </fieldset>
+      )}
+      <p className="text-sm text-ink-muted">{plural(picked ? picked.length : chapters.length, { one: "Reads # chapter, as one audio file. Front and back matter are not read.", other: "Reads # chapters, one audio file each. Front and back matter are not read." })}</p>
       <p className="flex items-start gap-2 rounded-md bg-warn-soft px-3 py-2 text-sm text-warn">
         <Info size={16} className="mt-0.5 shrink-0" aria-hidden />
         {t`Some audiobook stores do not accept synthetic voices. Check their rules before you upload.`}

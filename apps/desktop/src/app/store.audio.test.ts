@@ -5,6 +5,8 @@ const disk = new Map<string, string>();
 const audio = {
   voices: [{ id: "piper-amy", engine: "piper", installed: true }] as { id: string; engine: string; installed: boolean }[],
   requests: [] as { jobId: string; base: string; voice: string; formats: string[]; speed: number; chunks: { text: string }[] }[],
+  /** Files that exist on the fake disk; filled by renders unless a test removes them. */
+  present: new Set<string>(),
   cancelled: [] as string[],
   forgotten: [] as string[],
   /** Decides what a chapter render does; set per test. */
@@ -26,8 +28,11 @@ vi.mock("../lib/bridge", () => ({
       audio.requests.push(req);
       if (audio.render) return audio.render(req, onProgress);
       onProgress(0.5);
-      return { files: req.formats.map((format) => ({ format, path: `${req.base}.${format}` })), durationSec: 90 };
+      const files = req.formats.map((format) => ({ format, path: `${req.base}.${format}` }));
+      files.forEach((f) => audio.present.add(f.path));
+      return { files, durationSec: 90 };
     },
+    audioFilesExist: async (_r: string, paths: string[]) => paths.map((p) => audio.present.has(p)),
     audioDownloadPack: async (pack: string, _jobId: string, onProgress: (p: { done: number; total: number }) => void) => {
       audio.downloads.push(pack);
       if (audio.download) return audio.download(pack, onProgress);
@@ -50,6 +55,7 @@ beforeEach(async () => {
   audio.voices = [{ id: "piper-amy", engine: "piper", installed: true }];
   audio.requests = [];
   audio.cancelled = [];
+  audio.present = new Set();
   audio.forgotten = [];
   audio.render = null;
   audio.download = null;
@@ -153,6 +159,33 @@ describe("exportAudio", () => {
     await a().addMatter("back", "acknowledgments");
     await a().exportAudio({ ...options, formats: ["opus"] });
     expect(audio.requests).toHaveLength(2);
+  });
+});
+
+describe("exportAudio chapter selection", () => {
+  it("reads only the chosen chapters", async () => {
+    const second = s().manifest!.chapters[1]!.id;
+    await a().exportAudio({ ...options, formats: ["opus"], chapterIds: [second] });
+    expect(audio.requests).toHaveLength(1);
+    expect(s().audio!.chapters.map((c) => c.id)).toEqual([second]);
+  });
+});
+
+describe("exportAudio cache", () => {
+  it("reuses unchanged chapters and re-renders when the voice or the files change", async () => {
+    await a().exportAudio(options);
+    expect(audio.requests).toHaveLength(2);
+    a().dismissAudio();
+    await a().exportAudio(options);
+    expect(audio.requests).toHaveLength(2);
+    expect(s().audio).toMatchObject({ status: "done", files: 4, durationSec: 180 });
+    a().dismissAudio();
+    await a().exportAudio({ ...options, speed: 1 });
+    expect(audio.requests).toHaveLength(4);
+    a().dismissAudio();
+    audio.present.delete("exports/audio/01-chapter-one.opus");
+    await a().exportAudio({ ...options, speed: 1 });
+    expect(audio.requests).toHaveLength(5);
   });
 });
 

@@ -64,6 +64,8 @@ export interface ChapterResult extends RenderedChapter {
   title: string;
   /** `empty`: nothing to read aloud (for example a chapter of only images). `cached`: reused, not re-rendered. */
   status: "done" | "cached" | "empty";
+  /** The cache key this chapter was rendered for. */
+  hash: string;
   skipped: Record<string, number>;
 }
 
@@ -117,14 +119,14 @@ export async function renderAudiobook(
     hooks.onChapterStart?.(chapterIndex, total, chapter.title);
     let result: ChapterResult;
     if (chunks.length === 0) {
-      result = { id: chapter.id, title: chapter.title, status: "empty", files: [], durationSec: 0, skipped };
+      result = { id: chapter.id, title: chapter.title, status: "empty", hash, files: [], durationSec: 0, skipped };
     } else {
       try {
         const hit = await hooks.cached?.(chapter.id, hash);
         const rendered =
           hit ??
           (await runner.renderChapter({ chapterId: chapter.id, chapterIndex, title: chapter.title, chunks, hash, voice: options.voice, speed: options.speed, formats: options.formats }, report, signal));
-        result = { id: chapter.id, title: chapter.title, status: hit ? "cached" : "done", ...rendered, skipped };
+        result = { id: chapter.id, title: chapter.title, status: hit ? "cached" : "done", hash, ...rendered, skipped };
       } catch (e) {
         if (e instanceof CancelledError || signal.aborted) throw new CancelledError();
         throw new ChapterRenderError(chapterIndex, chapter.title, e instanceof AudioExportError ? e : new SynthesisError(errMsg(e)));

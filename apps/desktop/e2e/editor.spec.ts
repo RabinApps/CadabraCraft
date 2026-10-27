@@ -74,6 +74,7 @@ async function fakeTauri(page: Page) {
           }
           case "audio_cancel": ((window as any).__audioReject)?.({ kind: "cancelled" }); ((window as any).__downloadReject)?.({ kind: "cancelled" }); return null;
           case "audio_forget": return null;
+          case "audio_files_exist": return (a.paths as string[]).map(() => false);
           case "backup_manifest": return "backup";
           // Same naming as the Rust command: .cadabra/trash/<stamp>-<path with / as __>.
           case "trash_project_file": {

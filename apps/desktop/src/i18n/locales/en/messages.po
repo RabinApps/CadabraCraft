@@ -31,6 +31,11 @@ msgstr "{0, plural, one {# page could not be put back and keeps the replacement;
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# word} other {# words}}"
 
+#. placeholder {0}: picked ? picked.length : chapters.length
+#: src/app/AudioExport.tsx
+msgid "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
+msgstr "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
+
 #. placeholder {0}: info(p.id).hint
 #. placeholder {1}: mb(p.bytes)
 #: src/app/AudioExport.tsx
@@ -132,10 +137,6 @@ msgstr "{bookWords} in the book"
 #: src/app/ImportDialogs.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
-
-#: src/app/AudioExport.tsx
-msgid "{chapters, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads all # chapters, one audio file each. Front and back matter are not read.}}"
-msgstr "{chapters, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads all # chapters, one audio file each. Front and back matter are not read.}}"
 
 #: src/app/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
@@ -294,6 +295,7 @@ msgstr "Address"
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 
+#: src/app/AudioExport.tsx
 #: src/editor/FindBar.tsx
 msgid "All chapters"
 msgstr "All chapters"
@@ -333,6 +335,10 @@ msgstr "Apply"
 #: src/app/Settings.tsx
 msgid "Ask each time"
 msgstr "Ask each time"
+
+#: src/app/Settings.tsx
+msgid "Audio"
+msgstr "Audio"
 
 #: src/app/ExportDialog.tsx
 msgid "Audiobook"
@@ -395,6 +401,10 @@ msgstr "Becomes"
 #: src/app/Settings.tsx
 msgid "Before a save replaces different text, at most once every 10 minutes per chapter."
 msgstr "Before a save replaces different text, at most once every 10 minutes per chapter."
+
+#: src/app/Settings.tsx
+msgid "Best installed voice"
+msgstr "Best installed voice"
 
 #: src/app/PrintPreview.tsx
 msgid "Bleed"
@@ -559,6 +569,10 @@ msgstr "Chapter title"
 #: src/app/Sidebar.tsx
 msgid "Chapters"
 msgstr "Chapters"
+
+#: src/app/AudioExport.tsx
+msgid "Chapters to read"
+msgstr "Chapters to read"
 
 #: src/app/Settings.tsx
 msgid "Check for updates on launch"
@@ -768,6 +782,18 @@ msgstr "Dark"
 msgid "Dedication"
 msgstr "Dedication"
 
+#: src/app/Settings.tsx
+msgid "Default formats"
+msgstr "Default formats"
+
+#: src/app/Settings.tsx
+msgid "Default voice"
+msgstr "Default voice"
+
+#: src/app/Settings.tsx
+msgid "Delete"
+msgstr "Delete"
+
 #: src/app/menuModel.ts
 msgid "Delete Column"
 msgstr "Delete Column"
@@ -779,6 +805,10 @@ msgstr "Delete Row"
 #: src/app/menuModel.ts
 msgid "Delete Table"
 msgstr "Delete Table"
+
+#: src/app/Settings.tsx
+msgid "Delete voices"
+msgstr "Delete voices"
 
 #: src/editor/Toolbar.tsx
 msgid "Description (alt text)"
@@ -1187,6 +1217,11 @@ msgstr "Inside margin {inside} in is below KDP's {gutter} in minimum for about {
 msgid "Install now"
 msgstr "Install now"
 
+#. placeholder {0}: mb(p.bytes)
+#: src/app/Settings.tsx
+msgid "Installed, about {0} MB on this computer."
+msgstr "Installed, about {0} MB on this computer."
+
 #: src/app/UpdateDialog.tsx
 msgid "Installing…"
 msgstr "Installing…"
@@ -1212,6 +1247,10 @@ msgstr "It moves to the project trash inside your book folder. Nothing is perman
 #: src/editor/Toolbar.tsx
 msgid "Italic"
 msgstr "Italic"
+
+#: src/app/Settings.tsx
+msgid "Keep"
+msgstr "Keep"
 
 #: src/app/Settings.tsx
 #: src/editor/Editor.tsx
@@ -1247,6 +1286,7 @@ msgid "Kokoro sounds the most natural but is slower: roughly 20 minutes of work 
 msgstr "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster."
 
 #: src/app/AudioExport.tsx
+#: src/app/Settings.tsx
 msgid "Kokoro: Heart"
 msgstr "Kokoro: Heart"
 
@@ -1493,6 +1533,10 @@ msgstr "Not a page in the trash: {0}"
 msgid "Not an image in the assets folder: {0}"
 msgstr "Not an image in the assets folder: {0}"
 
+#: src/app/Settings.tsx
+msgid "Not installed. Download it from the Audiobook export."
+msgstr "Not installed. Download it from the Audiobook export."
+
 #: src/app/ImportDialogs.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
@@ -1595,6 +1639,7 @@ msgid "Piper · LibriTTS (fast)"
 msgstr "Piper · LibriTTS (fast)"
 
 #: src/app/AudioExport.tsx
+#: src/app/Settings.tsx
 msgid "Piper voices: Amy and LibriTTS"
 msgstr "Piper voices: Amy and LibriTTS"
 
@@ -1873,6 +1918,10 @@ msgstr "Select text inside one cell or paragraph to convert it"
 msgid "Select the text you want to link first."
 msgstr "Select the text you want to link first."
 
+#: src/app/AudioExport.tsx
+msgid "Selected chapters"
+msgstr "Selected chapters"
+
 #: src/app/menuModel.ts
 msgid "Services"
 msgstr "Services"
@@ -2033,6 +2082,10 @@ msgstr "That address can't be used as a link."
 msgid "That file name is not valid"
 msgstr "That file name is not valid"
 
+#: src/app/Settings.tsx
+msgid "The audio formats ticked when you open the export."
+msgstr "The audio formats ticked when you open the export."
+
 #: src/lib/audioErrors.ts
 msgid "The audiobook was cancelled. Chapters that were finished are kept."
 msgstr "The audiobook was cancelled. Chapters that were finished are kept."
@@ -2145,6 +2198,10 @@ msgstr "the voice engine that comes with CadabraCraft is missing. Reinstall the 
 #: src/lib/audioErrors.ts
 msgid "the voice engine took longer than {0} seconds and was stopped"
 msgstr "the voice engine took longer than {0} seconds and was stopped"
+
+#: src/app/Settings.tsx
+msgid "The voice the audiobook export starts with. Only installed voices can be picked."
+msgstr "The voice the audiobook export starts with. Only installed voices can be picked."
 
 #: src/app/AudioExport.tsx
 msgid "The voices' licences are listed in Settings, Audio."

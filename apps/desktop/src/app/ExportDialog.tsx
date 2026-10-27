@@ -21,7 +21,8 @@ import { cx } from "../ui/cx";
 import { useSponsor } from "./sponsor";
 import { useProject } from "./store";
 import { errText } from "../lib/projectError";
-import { AudioFields, AudioJobView, AUDIO_SPEEDS, DEFAULT_AUDIO_FORMATS, defaultVoice, mb, VoiceDownloadPanel } from "./AudioExport";
+import { useSettings } from "./editorPrefs";
+import { AudioFields, AudioJobView, AUDIO_SPEEDS, defaultVoice, mb, VoiceDownloadPanel } from "./AudioExport";
 
 export type ExportFormat = "epub" | "pdf" | "markdown" | "docx" | "audiobook";
 
@@ -96,7 +97,8 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const [picked, setPicked] = useState<string[] | null>(null);
   const [voice, setVoice] = useState("");
   const [speed, setSpeed] = useState<number>(AUDIO_SPEEDS[1]);
-  const [audioFormats, setAudioFormats] = useState<AudioFormat[]>(DEFAULT_AUDIO_FORMATS);
+  const [audioFormats, setAudioFormats] = useState<AudioFormat[]>(() => useSettings.getState().audioFormats);
+  const [audioChapters, setAudioChapters] = useState<string[] | null>(null);
   const templates = listTemplates();
   const [trimSize, setTrimSize] = useState<TrimSize>("6x9");
   const [pdfA, setPdfA] = useState(false);
@@ -131,7 +133,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
       if (!isLive()) return;
       setVoices(list);
       setPacks(found);
-      setVoice((v) => (list.some((x) => x.id === v && x.installed) ? v : defaultVoice(list)));
+      setVoice((v) => (list.some((x) => x.id === v && x.installed) ? v : list.some((x) => x.id === useSettings.getState().audioVoice && x.installed) ? useSettings.getState().audioVoice : defaultVoice(list)));
     } catch (e) {
       if (!isLive()) return;
       setVoices([]);
@@ -176,7 +178,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   };
   const startAudio = () => {
     setError(null);
-    exportAudio({ voice, speed, formats: audioFormats }).catch((e) => setError(new PdfUiError("other", errText(e))));
+    exportAudio({ voice, speed, formats: audioFormats, ...(audioChapters ? { chapterIds: audioChapters } : {}) }).catch((e) => setError(new PdfUiError("other", errText(e))));
   };
   const submit = async () => {
     setError(null);
@@ -208,7 +210,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
           items={[{ value: "epub", label: t`EPUB 3` }, { value: "pdf", label: t`Print PDF` }, { value: "markdown", label: t`Markdown` }, { value: "docx", label: t`Word (.docx)` }, { value: "audiobook", label: t`Audiobook` }]}
         />
         {format === "audiobook" ? (
-          job ? <AudioJobView job={job} /> : showDownload ? <VoiceDownloadPanel packs={missing} picked={chosen} onPicked={setPicked} download={download} none={!hasVoices} /> : <AudioFields voices={voices} voice={voice} onVoice={setVoice} speed={speed} onSpeed={setSpeed} formats={audioFormats} onFormats={setAudioFormats} chapters={chapterCount} disabled={false} moreBytes={missing.reduce((n, p) => n + p.bytes, 0)} onMore={() => setGetMore(true)} />
+          job ? <AudioJobView job={job} /> : showDownload ? <VoiceDownloadPanel packs={missing} picked={chosen} onPicked={setPicked} download={download} none={!hasVoices} /> : <AudioFields voices={voices} voice={voice} onVoice={setVoice} speed={speed} onSpeed={setSpeed} formats={audioFormats} onFormats={setAudioFormats} chapters={manifest?.chapters ?? []} picked={audioChapters} onPicked={setAudioChapters} disabled={false} moreBytes={missing.reduce((n, p) => n + p.bytes, 0)} onMore={() => setGetMore(true)} />
         ) : format === "epub" ? (
           <CheckList checks={checks} label={t`Checks`} />
         ) : format === "docx" ? (
@@ -276,7 +278,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
             ) : (
               <>
                 <Button onClick={() => change(false)}>{t`Cancel`}</Button>
-                <Button type="submit" variant="primary" icon={Headphones} disabled={!voice || audioFormats.length === 0 || chapterCount === 0}>{t`Export audiobook`}</Button>
+                <Button type="submit" variant="primary" icon={Headphones} disabled={!voice || audioFormats.length === 0 || chapterCount === 0 || audioChapters?.length === 0}>{t`Export audiobook`}</Button>
               </>
             )}
           </div>

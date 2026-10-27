@@ -39,6 +39,7 @@ macro_rules! app_handlers {
             audio::audio_render_chapter,
             audio::audio_cancel,
             audio::audio_forget,
+            audio::audio_files_exist,
             audio_voices::audio_packs,
             audio_voices::audio_download_pack,
             audio_voices::audio_delete_pack,
