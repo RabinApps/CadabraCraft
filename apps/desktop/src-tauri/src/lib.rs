@@ -1,5 +1,6 @@
 #[cfg(feature = "dev-automation")]
 mod automation;
+mod audio;
 mod commands;
 mod fs_watch;
 mod import_src;
@@ -32,6 +33,10 @@ macro_rules! app_handlers {
             typst::typst_find,
             typst::typst_list_fonts,
             typst::typst_compile,
+            audio::audio_voices,
+            audio::audio_render_chapter,
+            audio::audio_cancel,
+            audio::audio_forget,
             commands::updates_supported
             $(, $extra)*
         ]
@@ -41,6 +46,7 @@ macro_rules! app_handlers {
 pub fn run() {
     let builder = tauri::Builder::default()
         .manage(fs_watch::WatchState::default())
+        .manage(audio::AudioJobs::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -62,6 +68,9 @@ pub fn run() {
             use tauri::Manager;
             if let Ok(dir) = app.path().resource_dir() {
                 typst::set_font_dir(dir.join("fonts"));
+            }
+            if let Ok(dir) = app.path().app_data_dir() {
+                audio::set_voices_dir(dir.join("voices"));
             }
             Ok(())
         })

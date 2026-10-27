@@ -18,6 +18,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 **Export**
 - [M2 print side: templates and Typst PDF export](#m2-print-side-templates-and-typst-pdf-export)
 - [Audiobook export spike (2026-10-27)](#audiobook-export-spike-2026-10-27)
+- [Audiobook rendering in Rust (sherpa-onnx)](#audiobook-rendering-in-rust-sherpa-onnx)
 
 **Platform and tooling**
 - [Headless MCP server](#headless-mcp-server)
@@ -498,3 +499,21 @@ The in-memory layer has no disk cost, so the real saving is the file reads, whic
 | Trusting file modified times | Sync folders rewrite them; the content hash is what the store already uses for conflicts. |
 
 **Caveats:** not measured in the native app or on a real disk (the tests use an in-memory file layer). A page changed by another program is noticed through the file watcher; if the watcher misses an event, the book total is stale until the page is next saved or the book is reopened (the open page itself is always exact).
+
+## Audiobook rendering in Rust (sherpa-onnx)
+
+`src-tauri/src/audio.rs` renders one chapter per call with the `sherpa-onnx-offline-tts` CLI, which runs both Kokoro and Piper voices. `@cadabracraft/export-audio` narrates, chunks, caches and orders; Rust only runs the engine. The design screens are in `docs/design.md` ("Export Audiobook" and the rows after it).
+
+**Decision:** one sherpa-onnx sidecar for both engines (Apache-2.0). Voices are files under a voices folder (the layout of the sherpa model archives); the voice catalog in `audio.rs` maps ids (`kokoro-heart`, `piper-amy`, `piper-libritts-0`) to files, speaker ids and lexicons. English works from lexicon files, so sherpa 2.x needs no espeak-ng (GPL) data; other languages are not checked.
+**Why:** one runtime and one code path; process isolation like Typst (a crash, hang or GPL component never touches the app); measured on an M1 Max: Kokoro about 0.29x real time, Piper about 0.03x, about 1 s per process start.
+**Threading and errors:**
+- Every command is `async` and runs on Tauri's blocking pool (`typst::blocking`); the webview and async runtime never wait on the engine.
+- A job id maps to a cancel flag (`AudioJobs`, the same managed-state shape as `WatchState`). The wait loop checks it every 20 ms and kills the process, so Cancel lands in a fraction of a second; a Cancel that arrives between chapters still stops the next one. A batch is killed after 15 minutes (`Timeout`).
+- Progress goes over a `tauri::ipc::Channel<f64>` (first use in the repo), once per batch.
+- `AudioError` is a serde-tagged enum (`not_found`, `voice_missing`, `synth`, `encode`, `disk_full`, `timeout`, `cancelled`, `other`), like `TypstError`. Everything is validated before the engine runs; nothing is written unless the whole chapter rendered; the file goes through `project::write_bytes` (atomic, only under `exports/`); output is read from a temp dir that is removed on every path.
+**Batching:** a process start costs about a second, so chunks are grouped into batches of 1,200 to 2,500 characters. Heading and scene-break pauses always end a batch; a paragraph pause ends one only once it is big enough, and inside a batch the engine's own sentence silence is used. Not yet listened to: paragraph pauses may sound shorter than the designed 600 ms.
+**Rejected:** a process per chunk (a book would spend hours starting processes), running the engine in-process through a Rust crate (new dependency, a crash takes the app down, cannot be killed), a Python runtime (size and packaging).
+**Not done:**
+- Only WAV is written. MP3, FLAC and Opus need encoder crates (to be approved); requests for them fail with an `encode` error before any synthesis.
+- Voice download, the bundled sidecar and its `externalBin` entry, the TypeScript Tauri runner and the UI.
+- Tested with a stand-in engine script (cancel, timeout, failure, garbage output, path rules) and once against the real engine and the Piper Amy voice (`SHERPA_TTS_BIN`, `CADABRA_VOICES_DIR`, `REQUIRE_SHERPA=1`; skipped when the engine is absent). Only macOS arm64 was run.
