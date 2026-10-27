@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowDown, ArrowUp, Ellipsis, FilePlus, GripVertical, Pencil, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Ellipsis, FilePlus, GripVertical, History, Pencil, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
 import { canAddMatter, type ManuscriptEntry } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
 import { Confirm, Modal } from "../ui/Dialog";
@@ -9,6 +9,7 @@ import { Button, IconButton } from "../ui/Button";
 import { cx } from "../ui/cx";
 import { useProject } from "./store";
 import { errText } from "../lib/projectError";
+import { HistoryDialog, type HistoryPage } from "./HistoryDialog";
 
 const menuItem = "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";
 
@@ -44,11 +45,12 @@ interface ListProps {
   editing: Editing;
   setEditing: (e: Editing) => void;
   setDeleting: (d: { id: string; title: string }) => void;
+  setHistory: (p: HistoryPage) => void;
   onNavigate?: () => void;
 }
 
 /** One section of the book (front matter, chapters or back matter): the same row, rename, reorder and trash actions in each. */
-function EntryList({ entries, heading, titleLabel, currentId, editing, setEditing, setDeleting, onNavigate }: ListProps) {
+function EntryList({ entries, heading, titleLabel, currentId, editing, setEditing, setDeleting, setHistory, onNavigate }: ListProps) {
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
   const last = entries.length - 1;
@@ -89,6 +91,7 @@ function EntryList({ entries, heading, titleLabel, currentId, editing, setEditin
                     <M.Item className={menuItem} onSelect={() => setEditing({ id: c.id })}><Pencil size={14} aria-hidden />{t`Rename`}</M.Item>
                     <M.Item className={menuItem} disabled={i === 0} onSelect={() => void actions.move(c.id, -1)}><ArrowUp size={14} aria-hidden />{t`Move up`}</M.Item>
                     <M.Item className={menuItem} disabled={i === last} onSelect={() => void actions.move(c.id, 1)}><ArrowDown size={14} aria-hidden />{t`Move down`}</M.Item>
+                    <M.Item className={menuItem} onSelect={() => setHistory({ id: c.id, title: c.title, file: c.file })}><History size={14} aria-hidden />{t`History`}</M.Item>
                     <M.Item className={cx(menuItem, "text-danger")} onSelect={() => setDeleting({ id: c.id, title: c.title })}><Trash2 size={14} aria-hidden />{t`Move to trash`}</M.Item>
                   </M.Content>
                 </M.Portal>
@@ -149,9 +152,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const [editing, setEditing] = useState<Editing>(null);
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
+  const [versionsOf, setVersionsOf] = useState<HistoryPage | null>(null);
   const kinds = useKindLabels();
   if (!manifest) return null;
-  const shared = { currentId, editing, setEditing, setDeleting, onNavigate };
+  const shared = { currentId, editing, setEditing, setDeleting, setHistory: setVersionsOf, onNavigate };
   const preset = (section: "front" | "back", kind: MatterKind) => (
     <M.Item key={`${section}-${kind}`} className={menuItem} disabled={!canAddMatter(manifest, kind)} onSelect={() => { void actions.addMatter(section, kind).then(() => onNavigate?.(), () => {}); }}>
       {kinds[kind]}
@@ -200,6 +204,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           onClick={() => void actions.redo()}
         />
       </div>
+      <HistoryDialog page={versionsOf} open={versionsOf !== null} onOpenChange={(o) => { if (!o) setVersionsOf(null); }} onNavigate={onNavigate} />
       <TrashDialog open={trashOpen} onOpenChange={setTrashOpen} onNavigate={onNavigate} />
       <Confirm
         open={deleting !== null}

@@ -10,7 +10,7 @@ An AI agent (or a script) can operate the real CadabraCraft window in developmen
 pnpm automation:scenario                      # launches the app, runs the whole click-through, stops the app
 node scripts/automation/scenario.ts --launch --out /tmp/run1   # keep the artifacts somewhere you choose
 ```
-The scenario creates a project, types, applies formatting, inserts an image, exports EPUB (then runs EPUBCheck), exports a 6x9 PDF (then checks page size), and imports Markdown into a new project, asserting at each step. It writes `results.json` and screenshots to the output folder.
+The scenario creates a project, types, applies formatting, inserts an image, exports EPUB (then runs EPUBCheck), exports a 6x9 PDF (then checks page size), checks History (compare and restore an earlier version, with files seeded in `.cadabra/backups`) and the recovery offer on open, and imports Markdown into a new project, asserting at each step. It writes `results.json` and screenshots to the output folder.
 
 For ad-hoc driving, start the app with `pnpm --filter @cadabracraft/desktop tauri:automate`, then:
 ```bash

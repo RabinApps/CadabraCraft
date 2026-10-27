@@ -59,6 +59,9 @@ Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 sc
 - If a chapter changed both locally and externally before a sync finished, the other version is kept as `<name>.conflict-YYYYMMDD-HHMM.json` next to it. Nothing is overwritten silently.
 - Files that are not downloaded yet (iCloud, Drive placeholders) are treated as unavailable, never as empty chapters.
 
+## Snapshots
+- Before a chapter save replaces different text, the old text is copied to `.cadabra/backups/<YYYYMMDD-HHMM>-<path with / as __>.json` (`-2`, `-3`... when taken). Local state, excluded from sync, safe to delete; the app keeps the newest 50 per page by default and never removes one under 30 days old. Nothing in `cadabra.json` or the chapter files refers to them, so the format version does not change.
+
 ## Versioning
 - Version 2 -> 3: adds `cover` (`null` when absent). The migration sets `cover: null` and changes nothing else.
 - Version 1 -> 2: front and back matter entries may carry `kind`. The migration changes nothing else; older entries keep no kind.
