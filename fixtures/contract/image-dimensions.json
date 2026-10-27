@@ -1,0 +1,24 @@
+{
+  "description": "Pixel size read from an image header without decoding (image_size / imageSize). `expected` is [width, height], or null when the header is cut short, unknown, or the type has no pixel size. Images above maxPixels are refused with image_dimensions.",
+  "maxPixels": 150000000,
+  "cases": [
+    { "name": "png 1x1", "ext": "png", "hex": "89504e470d0a1a0a0000000d4948445200000001000000010806000000", "expected": [1, 1] },
+    { "name": "png 60000x60000", "ext": "png", "hex": "89504e470d0a1a0a0000000d494844520000ea600000ea600806000000", "expected": [60000, 60000] },
+    { "name": "png signature only", "ext": "png", "hex": "89504e470d0a1a0a", "expected": null },
+    { "name": "png header cut inside IHDR", "ext": "png", "hex": "89504e470d0a1a0a0000000d4948445200000001", "expected": null },
+    { "name": "png without IHDR first", "ext": "png", "hex": "89504e470d0a1a0a0000000d6162636400000001000000010806000000", "expected": null },
+    { "name": "gif cut before the size", "ext": "gif", "hex": "474946383961", "expected": null },
+    { "name": "gif 10x20", "ext": "gif", "hex": "4749463839610a001400f00000", "expected": [10, 20] },
+    { "name": "gif 65535x65535", "ext": "gif", "hex": "474946383961ffffffff", "expected": [65535, 65535] },
+    { "name": "jpeg 200x100 after APP0", "ext": "jpg", "hex": "ffd8ffe000104a46494600010100000100010000ffc0001108006400c80301", "expected": [200, 100] },
+    { "name": "jpeg progressive 200x100", "ext": "jpeg", "hex": "ffd8ffe000104a46494600010100000100010000ffc2001108006400c80301", "expected": [200, 100] },
+    { "name": "jpeg 60000x60000", "ext": "jpg", "hex": "ffd8ffe000104a46494600010100000100010000ffc0001108ea60ea600301", "expected": [60000, 60000] },
+    { "name": "jpeg skips DHT (c4) to find the frame", "ext": "jpg", "hex": "ffd8ffc400040102ffc0001108006400c80301", "expected": [200, 100] },
+    { "name": "jpeg with no frame header before scan", "ext": "jpg", "hex": "ffd8ffda0004000000", "expected": null },
+    { "name": "jpeg truncated", "ext": "jpg", "hex": "ffd8ffe000", "expected": null },
+    { "name": "jpeg lying segment length", "ext": "jpg", "hex": "ffd8ffe0ffff00", "expected": null },
+    { "name": "webp VP8X 100x50", "ext": "webp", "hex": "524946460000000057454250565038580a00000000000000630000310000", "expected": [100, 50] },
+    { "name": "webp VP8X cut short", "ext": "webp", "hex": "524946460000000057454250565038580a0000000000000063", "expected": null },
+    { "name": "svg has no pixel size", "ext": "svg", "hex": "3c7376673e", "expected": null }
+  ]
+}

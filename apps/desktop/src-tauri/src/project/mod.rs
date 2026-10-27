@@ -1,7 +1,7 @@
 //! Reads and writes a CadabraCraft project folder. All paths are relative to the project root.
 //! Manifest parsing and migration live in `@cadabracraft/format` (TypeScript); this layer only does safe file IO.
 mod error;
-pub use error::ProjectError;
+pub use error::{io_error, ProjectError};
 
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -77,22 +77,78 @@ pub fn resolve(root: &Path, rel: &str) -> Result<PathBuf> {
 
 /// Write to a uniquely named temp file in the same directory, then rename, so a crash or sync never leaves a half-written
 /// file. The temp file is removed if anything fails, and concurrent writers never share a temp name.
+///
+/// Failures are typed (`permission_denied`, `disk_full`, `not_a_file` for a folder where the file should go or a file
+/// where a folder should be) and name only the file, never an absolute path.
 pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<()> {
     let dir = path.parent().ok_or(ProjectError::InvalidFileName)?;
-    fs::create_dir_all(dir)?;
+    let label = path.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
+    let io = |e: std::io::Error| io_error(e, label);
+    // A folder in the way: rename-over-directory fails with an OS-specific error, so say it plainly (and early).
+    if fs::symlink_metadata(path).map(|m| m.is_dir()).unwrap_or(false) {
+        return Err(ProjectError::NotAFile { path: label.to_string() });
+    }
+    // An existing *file* where a folder is needed (`exports` is a file) reports `AlreadyExists` on some platforms.
+    fs::create_dir_all(dir).map_err(|e| match e.kind() {
+        std::io::ErrorKind::AlreadyExists => ProjectError::NotAFile { path: dir.file_name().and_then(|n| n.to_str()).unwrap_or(label).to_string() },
+        _ => io(e),
+    })?;
     // `.<random>.tmp`: dot-prefixed and `.tmp`-suffixed, which the file watcher ignores.
-    let mut tmp = tempfile::Builder::new().prefix(".").suffix(".tmp").tempfile_in(dir)?;
-    tmp.write_all(bytes)?;
-    tmp.as_file().sync_all()?;
+    let mut tmp = tempfile::Builder::new().prefix(".").suffix(".tmp").tempfile_in(dir).map_err(io)?;
+    tmp.write_all(bytes).map_err(io)?;
+    tmp.as_file().sync_all().map_err(io)?;
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
         // tempfile creates 0600; keep the existing file's mode, or the usual 0644 for a new one.
         let mode = fs::metadata(path).map(|m| m.permissions().mode() & 0o7777).unwrap_or(0o644);
-        fs::set_permissions(tmp.path(), fs::Permissions::from_mode(mode))?;
+        fs::set_permissions(tmp.path(), fs::Permissions::from_mode(mode)).map_err(io)?;
     }
-    tmp.persist(path).map_err(|e| ProjectError::from(e.error))?; // on failure `e.file` drops and deletes the temp file
+    tmp.persist(path).map_err(|e| io(e.error))?; // on failure `e.file` drops and deletes the temp file
     Ok(())
+}
+
+/// True when `path` is an iCloud placeholder that has not been downloaded: the real name is missing and macOS left
+/// `.<name>.icloud` beside it.
+pub(crate) fn icloud_pending(path: &Path) -> bool {
+    path.file_name().and_then(|n| n.to_str()).is_some_and(|name| path.with_file_name(format!(".{name}.icloud")).exists())
+}
+
+/// An IO failure while opening something that may be missing: a placeholder, a plain absence, or any other typed error.
+pub(crate) fn open_error(e: std::io::Error, path: &Path, label: &str) -> ProjectError {
+    use std::io::ErrorKind::{NotADirectory, NotFound};
+    if matches!(e.kind(), NotFound | NotADirectory) {
+        return if icloud_pending(path) { ProjectError::IcloudPending { path: label.to_string() } } else { ProjectError::NotFound { path: label.to_string() } };
+    }
+    io_error(e, label)
+}
+
+/// Reads a regular file of at most `cap` bytes. A folder, fifo or device is `not_a_file` without being opened (a fifo
+/// would block forever); the size is checked on the opened handle too, and the read itself is capped at `cap + 1`, so a
+/// file that grows while it is read can never use unbounded memory. Links are followed (the user picked the link).
+pub(crate) fn read_regular(path: &Path, cap: u64, label: &str, too_large: impl Fn() -> ProjectError) -> Result<Vec<u8>> {
+    let not_file = || ProjectError::NotAFile { path: label.to_string() };
+    let meta = fs::metadata(path).map_err(|e| open_error(e, path, label))?;
+    if !meta.is_file() {
+        return Err(not_file());
+    }
+    if meta.len() > cap {
+        return Err(too_large());
+    }
+    let mut file = fs::File::open(path).map_err(|e| open_error(e, path, label))?;
+    let meta = file.metadata().map_err(|e| io_error(e, label))?;
+    if !meta.is_file() {
+        return Err(not_file());
+    }
+    if meta.len() > cap {
+        return Err(too_large());
+    }
+    let mut bytes = Vec::with_capacity(meta.len() as usize);
+    (&mut file).take(cap + 1).read_to_end(&mut bytes).map_err(|e| io_error(e, label))?;
+    if bytes.len() as u64 > cap {
+        return Err(too_large());
+    }
+    Ok(bytes)
 }
 
 fn stamp() -> String {
@@ -200,9 +256,14 @@ pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str
     Ok(WriteResult { hash: hash_bytes(contents.as_bytes()), conflict_copy })
 }
 
-/// Writes binary output (EPUB/PDF) under the project, atomically.
+/// Writes binary output (EPUB, PDF, Markdown) under `exports/` of the project, atomically. Only `exports/<name>` is
+/// accepted: the webview has no reason to rewrite the manifest or chapters as raw bytes, which would skip their backups.
 pub fn write_bytes(root: &Path, rel: &str, bytes: &[u8]) -> Result<()> {
-    atomic_write(&resolve(root, rel)?, bytes)
+    let target = resolve(root, rel)?;
+    if !rel.starts_with("exports/") || rel.ends_with('/') {
+        return Err(ProjectError::UnsafePath { path: rel.to_string() });
+    }
+    atomic_write(&target, bytes)
 }
 
 /// Copies the manifest into `.cadabra/backups/` before a migration rewrites it. Returns the backup's relative path.
@@ -327,6 +388,8 @@ pub fn restore_trash(root: &Path, trash_rel: &str) -> Result<String> {
 pub const IMAGE_EXTENSIONS: [&str; 6] = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
 /// Largest image accepted, in bytes.
 pub const MAX_IMAGE_BYTES: u64 = 25 * 1024 * 1024;
+/// Largest image accepted, in pixels (150 megapixels): a small PNG can declare 60000 x 60000 and need 14 GB to decode.
+pub const MAX_IMAGE_PIXELS: u64 = 150_000_000;
 
 pub(crate) fn image_too_large(name: &str) -> ProjectError {
     ProjectError::TooLarge { path: name.to_string(), max_mb: MAX_IMAGE_BYTES / 1024 / 1024 }
@@ -369,15 +432,69 @@ pub fn sanitize_asset_stem(stem: &str) -> String {
 pub fn import_image(root: &Path, source: &Path) -> Result<String> {
     let file_name = source.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
     image_ext(file_name).ok_or_else(|| ProjectError::UnsupportedImage { name: file_name.to_string() })?;
-    let meta = fs::metadata(source)?;
-    if !meta.is_file() {
-        return Err(ProjectError::NotAFile { path: file_name.to_string() });
-    }
-    if meta.len() > MAX_IMAGE_BYTES {
-        return Err(image_too_large(file_name));
-    }
-    let bytes = fs::read(source)?;
+    let bytes = read_regular(source, MAX_IMAGE_BYTES, file_name, || image_too_large(file_name))?;
     store_image(root, file_name, &bytes)
+}
+
+/// Width and height from the image header (PNG, GIF, JPEG, WebP), without decoding. None when the header is cut short,
+/// unknown or the type has no pixel size (SVG).
+pub(crate) fn image_size(ext: &str, b: &[u8]) -> Option<(u64, u64)> {
+    let be16 = |i: usize| b.get(i..i + 2).map(|v| u64::from(u16::from_be_bytes([v[0], v[1]])));
+    let le16 = |i: usize| b.get(i..i + 2).map(|v| u64::from(u16::from_le_bytes([v[0], v[1]])));
+    let le24 = |i: usize| b.get(i..i + 3).map(|v| u64::from(v[0]) | u64::from(v[1]) << 8 | u64::from(v[2]) << 16);
+    match ext {
+        "png" if b.get(12..16) == Some(b"IHDR") => {
+            let w = b.get(16..20)?;
+            let h = b.get(20..24)?;
+            Some((u64::from(u32::from_be_bytes([w[0], w[1], w[2], w[3]])), u64::from(u32::from_be_bytes([h[0], h[1], h[2], h[3]]))))
+        }
+        "gif" => Some((le16(6)?, le16(8)?)),
+        "jpg" | "jpeg" => {
+            let mut i = 2;
+            while i + 4 <= b.len() {
+                if b[i] != 0xff {
+                    return None;
+                }
+                let m = b[i + 1];
+                match m {
+                    0xff => i += 1, // fill byte
+                    0x01 | 0xd0..=0xd8 => i += 2,
+                    0xd9 | 0xda => return None, // end of image / start of scan: no frame header seen
+                    _ => {
+                        if (0xc0..=0xcf).contains(&m) && !matches!(m, 0xc4 | 0xc8 | 0xcc) {
+                            return Some((be16(i + 7)?, be16(i + 5)?));
+                        }
+                        i += 2 + be16(i + 2)? as usize;
+                    }
+                }
+            }
+            None
+        }
+        "webp" => match b.get(12..16)? {
+            b"VP8X" => Some((le24(24)? + 1, le24(27)? + 1)),
+            b"VP8 " => Some((le16(26)? & 0x3fff, le16(28)? & 0x3fff)),
+            b"VP8L" => {
+                let v = b.get(21..25)?;
+                let bits = u32::from_le_bytes([v[0], v[1], v[2], v[3]]);
+                Some((u64::from(bits & 0x3fff) + 1, u64::from((bits >> 14) & 0x3fff) + 1))
+            }
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// Signature and pixel-count check shared by every way an image enters the project (picker, document import, preview).
+pub(crate) fn check_image(name: &str, ext: &str, bytes: &[u8]) -> Result<()> {
+    if !looks_like(ext, bytes) {
+        return Err(ProjectError::InvalidImage { name: name.to_string(), ext: ext.to_string() });
+    }
+    if let Some((w, h)) = image_size(ext, bytes) {
+        if w.saturating_mul(h) > MAX_IMAGE_PIXELS {
+            return Err(ProjectError::ImageDimensions { name: name.to_string(), max_megapixels: MAX_IMAGE_PIXELS / 1_000_000 });
+        }
+    }
+    Ok(())
 }
 
 /// Validates image bytes (allowlisted extension, size, signature) and stores them in `assets/` under a sanitized,
@@ -387,9 +504,7 @@ pub fn store_image(root: &Path, file_name: &str, bytes: &[u8]) -> Result<String>
     if bytes.len() as u64 > MAX_IMAGE_BYTES {
         return Err(image_too_large(file_name));
     }
-    if !looks_like(&ext, bytes) {
-        return Err(ProjectError::InvalidImage { name: file_name.to_string(), ext });
-    }
+    check_image(file_name, &ext, bytes)?;
     let stem = sanitize_asset_stem(file_name.rsplit_once('.').map_or(file_name, |(s, _)| s));
     let hash = hash_bytes(bytes);
     let mut n = 1u32;
@@ -415,11 +530,7 @@ pub fn read_asset(root: &Path, rel: &str) -> Result<Vec<u8>> {
         return Err(ProjectError::NotImageAsset { path: rel.to_string() });
     }
     let path = resolve(root, rel)?;
-    let meta = fs::metadata(&path)?;
-    if meta.len() > MAX_IMAGE_BYTES {
-        return Err(image_too_large(rel));
-    }
-    Ok(fs::read(&path)?)
+    read_regular(&path, MAX_IMAGE_BYTES, rel, || image_too_large(rel))
 }
 
 #[cfg(test)]
@@ -829,5 +940,141 @@ mod tests {
         assert_eq!(store_image(proj.path(), "x.png", b"no").unwrap_err(), ProjectError::InvalidImage { name: "x.png".into(), ext: "png".into() });
         assert_eq!(read_asset(proj.path(), "manuscript/x.json").unwrap_err(), ProjectError::NotImageAsset { path: "manuscript/x.json".into() });
         assert_eq!(store_image(proj.path(), "big.png", &vec![0u8; MAX_IMAGE_BYTES as usize + 1]).unwrap_err(), ProjectError::TooLarge { path: "big.png".into(), max_mb: 25 });
+    }
+
+    fn no_temp_files(dir: &Path) {
+        let left: Vec<_> = fs::read_dir(dir).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).filter(|n| n.ends_with(".tmp")).collect();
+        assert!(left.is_empty(), "leftover temp files in {}: {left:?}", dir.display());
+    }
+
+    #[test]
+    fn write_bytes_only_writes_under_exports() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("exports")).unwrap();
+        for bad in [MANIFEST, "manuscript/ch1.json", "assets/a.png", "exports", "exports/", ".cadabra/x", "exportsx/a.pdf", "exports/../cadabra.json"] {
+            assert!(matches!(write_bytes(d.path(), bad, b"x"), Err(ProjectError::UnsafePath { .. })), "{bad}");
+        }
+        assert!(!d.path().join(MANIFEST).exists());
+        write_bytes(d.path(), "exports/book.epub", b"ok").unwrap();
+        write_bytes(d.path(), "exports/sub/book.pdf", b"ok").unwrap();
+        assert_eq!(fs::read(d.path().join("exports/sub/book.pdf")).unwrap(), b"ok");
+    }
+
+    #[test]
+    fn write_bytes_replaces_an_existing_export_and_keeps_no_temp() {
+        let d = tmp();
+        write_bytes(d.path(), "exports/book.pdf", b"first").unwrap();
+        write_bytes(d.path(), "exports/book.pdf", b"second, longer").unwrap();
+        write_bytes(d.path(), "exports/book.pdf", b"").unwrap(); // an empty file is a valid write
+        assert_eq!(fs::read(d.path().join("exports/book.pdf")).unwrap(), b"");
+        no_temp_files(&d.path().join("exports"));
+    }
+
+    #[test]
+    fn write_bytes_onto_a_directory_is_not_a_file_and_leaves_nothing_behind() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("exports/book.epub")).unwrap();
+        fs::write(d.path().join("exports/book.epub/keep.txt"), "x").unwrap();
+        assert_eq!(write_bytes(d.path(), "exports/book.epub", b"x").unwrap_err(), ProjectError::NotAFile { path: "book.epub".into() });
+        assert!(d.path().join("exports/book.epub/keep.txt").exists());
+        no_temp_files(&d.path().join("exports"));
+    }
+
+    #[test]
+    fn write_bytes_when_exports_is_a_file_is_not_a_file() {
+        let d = tmp();
+        fs::write(d.path().join("exports"), "i am a file").unwrap();
+        assert_eq!(write_bytes(d.path(), "exports/book.epub", b"x").unwrap_err(), ProjectError::NotAFile { path: "exports".into() });
+        assert_eq!(fs::read_to_string(d.path().join("exports")).unwrap(), "i am a file");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn write_bytes_into_a_read_only_folder_is_permission_denied_and_leaves_nothing() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        let exports = d.path().join("exports");
+        fs::create_dir_all(&exports).unwrap();
+        fs::set_permissions(&exports, fs::Permissions::from_mode(0o555)).unwrap();
+        let probe = fs::File::create(exports.join("probe"));
+        let result = write_bytes(d.path(), "exports/book.epub", b"x");
+        fs::set_permissions(&exports, fs::Permissions::from_mode(0o755)).unwrap();
+        if probe.is_ok() {
+            return; // running as root: permissions do not apply
+        }
+        assert_eq!(result.unwrap_err(), ProjectError::PermissionDenied { path: "book.epub".into() });
+        assert!(!exports.join("book.epub").exists());
+        no_temp_files(&exports);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn write_bytes_over_a_read_only_existing_file_replaces_it_and_keeps_its_mode() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        write_bytes(d.path(), "exports/book.pdf", b"old").unwrap();
+        fs::set_permissions(d.path().join("exports/book.pdf"), fs::Permissions::from_mode(0o444)).unwrap();
+        write_bytes(d.path(), "exports/book.pdf", b"new").unwrap();
+        assert_eq!(fs::read(d.path().join("exports/book.pdf")).unwrap(), b"new");
+        assert_eq!(fs::metadata(d.path().join("exports/book.pdf")).unwrap().permissions().mode() & 0o777, 0o444);
+        no_temp_files(&d.path().join("exports"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn write_bytes_never_follows_a_link_out_of_exports() {
+        let d = tmp();
+        let (proj, outside) = (d.path().join("p"), d.path().join("outside"));
+        fs::create_dir_all(proj.join("exports")).unwrap();
+        fs::create_dir_all(&outside).unwrap();
+        std::os::unix::fs::symlink(outside.join("victim.pdf"), proj.join("exports/book.pdf")).unwrap(); // dangling
+        fs::write(outside.join("real.pdf"), "keep").unwrap();
+        std::os::unix::fs::symlink(outside.join("real.pdf"), proj.join("exports/book.epub")).unwrap();
+        assert!(matches!(write_bytes(&proj, "exports/book.pdf", b"x"), Err(ProjectError::PathEscape { .. })));
+        assert!(matches!(write_bytes(&proj, "exports/book.epub", b"x"), Err(ProjectError::PathEscape { .. })));
+        assert!(!outside.join("victim.pdf").exists());
+        assert_eq!(fs::read_to_string(outside.join("real.pdf")).unwrap(), "keep");
+    }
+
+    #[test]
+    fn concurrent_writes_to_one_export_never_mix_or_leave_temp_files() {
+        let d = tmp();
+        let root = d.path().to_path_buf();
+        let payloads: Vec<Vec<u8>> = (0u8..8).map(|i| vec![i; 64 * 1024 + usize::from(i) * 977]).collect();
+        let handles: Vec<_> = payloads
+            .iter()
+            .cloned()
+            .map(|p| {
+                let root = root.clone();
+                std::thread::spawn(move || {
+                    for _ in 0..15 {
+                        write_bytes(&root, "exports/book.epub", &p).unwrap();
+                    }
+                })
+            })
+            .collect();
+        for h in handles {
+            h.join().unwrap();
+        }
+        let got = fs::read(root.join("exports/book.epub")).unwrap();
+        assert!(payloads.contains(&got), "the file must be exactly one writer's bytes, not a mix");
+        no_temp_files(&root.join("exports"));
+    }
+
+    #[test]
+    fn image_import_checks_pixels_and_size_on_the_picked_file() {
+        let d = tmp();
+        let (proj, src) = (d.path().join("p"), d.path().join("src"));
+        fs::create_dir_all(&src).unwrap();
+        let mut bomb = PNG[..8].to_vec();
+        bomb.extend_from_slice(&[0, 0, 0, 13, b'I', b'H', b'D', b'R', 0, 0, 0xea, 0x60, 0, 0, 0xea, 0x60, 8, 6, 0, 0, 0]);
+        fs::write(src.join("bomb.png"), &bomb).unwrap();
+        assert_eq!(import_image(&proj, &src.join("bomb.png")).unwrap_err(), ProjectError::ImageDimensions { name: "bomb.png".into(), max_megapixels: 150 });
+        assert!(!proj.join("assets").exists(), "nothing is stored for a refused image");
+        assert_eq!(import_image(&proj, &src.join("gone.png")).unwrap_err(), ProjectError::NotFound { path: "gone.png".into() });
+        let mut at_limit = PNG[..8].to_vec(); // exactly 150 megapixels: 15000 x 10000
+        at_limit.extend_from_slice(&[0, 0, 0, 13, b'I', b'H', b'D', b'R', 0, 0, 0x3a, 0x98, 0, 0, 0x27, 0x10, 8, 6, 0, 0, 0]);
+        fs::write(src.join("edge.png"), &at_limit).unwrap();
+        assert_eq!(import_image(&proj, &src.join("edge.png")).unwrap(), "assets/edge.png");
     }
 }

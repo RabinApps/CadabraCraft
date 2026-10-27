@@ -153,3 +153,13 @@ fn contract_trash_names() {
         assert_eq!(restore_trash(d.path(), &t).unwrap(), rel);
     }
 }
+
+#[test]
+fn contract_image_dimensions() {
+    let v = vectors("image-dimensions");
+    assert_eq!(v["maxPixels"].as_u64().unwrap(), MAX_IMAGE_PIXELS);
+    for c in v["cases"].as_array().unwrap() {
+        let want = c["expected"].as_array().map(|a| (a[0].as_u64().unwrap(), a[1].as_u64().unwrap()));
+        assert_eq!(image_size(s(&c["ext"]), &hex(s(&c["hex"]))), want, "{}", s(&c["name"]));
+    }
+}

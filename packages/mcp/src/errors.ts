@@ -67,6 +67,9 @@ const FS_CODES: Record<ProjectFsError["code"], ErrorCode> = {
   bad_image: "invalid_image",
   too_large: "too_large",
   unsupported_source: "source_invalid",
+  image_dimensions: "invalid_image",
+  permission_denied: "io_error",
+  disk_full: "io_error",
   io_error: "io_error",
 };
 

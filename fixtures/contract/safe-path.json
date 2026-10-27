@@ -119,6 +119,13 @@
   "imageReference": {
     "description": "Markdown image references that must be refused before touching the disk (read_relative_image / readRelativeImage). `error` is a substring of the message.",
     "reject": [
+      { "reference": "C:/x.png", "error": "not allowed" },
+      { "reference": "c:x.png", "error": "not allowed" },
+      { "reference": "//server/share/x.png", "error": "not allowed" },
+      { "reference": "\\\\server\\share\\x.png", "error": "not allowed" },
+      { "reference": "file:///etc/x.png", "error": "not allowed" },
+      { "reference": "x.png:stream", "error": "not allowed" },
+      { "reference": "./../x.png", "error": "not allowed" },
       {
         "reference": "../secret.png",
         "error": "not allowed"

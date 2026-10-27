@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkS
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { ProjectFsError, conflictPath, imageExt, looksLike, readRelativeImage, resolveRelative, resolveSafe, sanitizeAssetStem, storeImage, writeProjectFile } from "../src/index";
+import { MAX_IMAGE_PIXELS, ProjectFsError, conflictPath, imageExt, imageSize, looksLike, readRelativeImage, resolveRelative, resolveSafe, sanitizeAssetStem, storeImage, writeProjectFile } from "../src/index";
 
 const vec = (name: string) => JSON.parse(readFileSync(new URL(`../../../fixtures/contract/${name}.json`, import.meta.url), "utf8"));
 const hex = (h: string) => Uint8Array.from(h.match(/../g) ?? [], (b) => parseInt(b, 16));
@@ -71,6 +71,14 @@ describe("contract: sanitize names", () => {
 describe("contract: magic bytes", () => {
   for (const c of vec("magic-bytes").cases as { name: string; ext: string; hex: string; expected: boolean }[]) {
     it(c.name, () => expect(looksLike(c.ext, hex(c.hex))).toBe(c.expected));
+  }
+});
+
+describe("contract: image dimensions", () => {
+  const v = vec("image-dimensions");
+  it("shares the pixel cap", () => expect(MAX_IMAGE_PIXELS).toBe(v.maxPixels));
+  for (const c of v.cases as { name: string; ext: string; hex: string; expected: [number, number] | null }[]) {
+    it(c.name, () => expect(imageSize(c.ext, hex(c.hex))).toEqual(c.expected));
   }
 });
 

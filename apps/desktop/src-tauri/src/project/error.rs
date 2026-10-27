@@ -38,6 +38,12 @@ pub enum ProjectError {
     ImageRefNotFound { reference: String },
     ImageRefOutside { reference: String },
     InvalidFileName,
+    /// The operating system refused access (file or folder permissions, read-only volume).
+    PermissionDenied { path: String },
+    /// The volume is full or the user's quota is used up.
+    DiskFull { path: String },
+    /// An image whose width times height is above `MAX_IMAGE_PIXELS` (a small file can still decode to gigabytes).
+    ImageDimensions { name: String, max_megapixels: u64 },
     /// Any other IO or runtime failure (the OS message).
     Io { message: String },
 }
@@ -65,6 +71,9 @@ impl fmt::Display for ProjectError {
             ImageRefNotFound { reference } => write!(f, "image not found: {reference}"),
             ImageRefOutside { reference } => write!(f, "image is outside the document folder: {reference}"),
             InvalidFileName => write!(f, "invalid file name"),
+            PermissionDenied { path } => write!(f, "no permission to access {path}"),
+            DiskFull { path } => write!(f, "not enough disk space to write {path}"),
+            ImageDimensions { name, max_megapixels } => write!(f, "{name} has more than {max_megapixels} megapixels"),
             Io { message } => write!(f, "{message}"),
         }
     }
@@ -75,6 +84,20 @@ impl std::error::Error for ProjectError {}
 impl From<std::io::Error> for ProjectError {
     fn from(e: std::io::Error) -> Self {
         ProjectError::Io { message: e.to_string() }
+    }
+}
+
+/// Maps an IO failure on `label` (a file name or project-relative path, never an absolute path) to the typed error the
+/// UI can translate: permission, full disk, missing and not-a-file get their own codes, anything else stays `Io`.
+pub fn io_error(e: std::io::Error, label: &str) -> ProjectError {
+    use std::io::ErrorKind::*;
+    let path = label.to_string();
+    match e.kind() {
+        PermissionDenied | ReadOnlyFilesystem => ProjectError::PermissionDenied { path },
+        StorageFull | QuotaExceeded => ProjectError::DiskFull { path },
+        NotFound => ProjectError::NotFound { path },
+        NotADirectory | IsADirectory => ProjectError::NotAFile { path },
+        _ => ProjectError::from(e),
     }
 }
 
@@ -98,6 +121,24 @@ mod tests {
         assert_eq!(j(ProjectError::NotAProject { path: "/x".into() }), r#"{"kind":"not_a_project","path":"/x"}"#);
         assert_eq!(j(ProjectError::IcloudPending { path: "a".into() }), r#"{"kind":"icloud_pending","path":"a"}"#);
         assert_eq!(j(ProjectError::ImageRefOutside { reference: "r".into() }), r#"{"kind":"image_ref_outside","reference":"r"}"#);
+    }
+
+    #[test]
+    fn io_errors_get_typed_codes() {
+        use std::io::{Error, ErrorKind};
+        let k = |kind| io_error(Error::from(kind), "a.epub");
+        assert_eq!(k(ErrorKind::PermissionDenied), ProjectError::PermissionDenied { path: "a.epub".into() });
+        assert_eq!(k(ErrorKind::ReadOnlyFilesystem), ProjectError::PermissionDenied { path: "a.epub".into() });
+        assert_eq!(k(ErrorKind::StorageFull), ProjectError::DiskFull { path: "a.epub".into() });
+        assert_eq!(k(ErrorKind::QuotaExceeded), ProjectError::DiskFull { path: "a.epub".into() });
+        assert_eq!(k(ErrorKind::NotFound), ProjectError::NotFound { path: "a.epub".into() });
+        assert_eq!(k(ErrorKind::IsADirectory), ProjectError::NotAFile { path: "a.epub".into() });
+        assert!(matches!(k(ErrorKind::TimedOut), ProjectError::Io { .. }));
+        let j = |e: ProjectError| serde_json::to_string(&e).unwrap();
+        assert_eq!(j(k(ErrorKind::StorageFull)), r#"{"kind":"disk_full","path":"a.epub"}"#);
+        assert_eq!(j(k(ErrorKind::PermissionDenied)), r#"{"kind":"permission_denied","path":"a.epub"}"#);
+        let dims = ProjectError::ImageDimensions { name: "a.png".into(), max_megapixels: 150 };
+        assert_eq!(j(dims), r#"{"kind":"image_dimensions","name":"a.png","max_megapixels":150}"#);
     }
 
     #[test]
