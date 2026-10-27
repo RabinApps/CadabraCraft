@@ -423,6 +423,19 @@ test("Export PDF sends the chosen options to Typst and writes exports/book.pdf",
   expect(manifest.template).toBe("nonfiction");
 });
 
+test("Export PDF dialog shows KDP print checks for a very short book", async ({ page }) => {
+  await newProject(page);
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.type("Just a few words");
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Print PDF" }).click();
+  const checks = dialog.getByRole("list", { name: "Print checks" });
+  await expect(checks).toContainText("KDP paperbacks need at least 24");
+  await expect(checks).toContainText("no cover image");
+});
+
 test("Export PDF explains when Typst is missing and offers a location field", async ({ page }) => {
   await newProject(page);
   await page.evaluate(() => { (window as any).__typstError = { kind: "not_found", message: 'The "typst" program was not found. Install Typst (brew install typst).' }; });

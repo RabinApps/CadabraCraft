@@ -644,6 +644,14 @@ msgstr "EPUB 3"
 msgid "EPUB…"
 msgstr "EPUB…"
 
+#: src/lib/exportChecks.ts
+msgid "Estimated {estimatedPages} pages: KDP paperbacks allow at most {KDP_MAX_PAGES}. This is an estimate."
+msgstr "Estimated {estimatedPages} pages: KDP paperbacks allow at most {KDP_MAX_PAGES}. This is an estimate."
+
+#: src/lib/exportChecks.ts
+msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
+msgstr "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
+
 #: src/app/App.tsx
 msgid "Exit focus mode"
 msgstr "Exit focus mode"
@@ -865,6 +873,10 @@ msgstr "Insert"
 #: src/editor/TableCommands.tsx
 msgid "Insert table"
 msgstr "Insert table"
+
+#: src/lib/exportChecks.ts
+msgid "Inside margin {inside} in is below KDP's {gutter} in minimum for about {estimatedPages} pages (estimate)."
+msgstr "Inside margin {inside} in is below KDP's {gutter} in minimum for about {estimatedPages} pages (estimate)."
 
 #: src/app/UpdateDialog.tsx
 msgid "Install now"
@@ -1184,6 +1196,10 @@ msgstr "Previous page"
 #: src/app/menuModel.ts
 msgid "Previous Page"
 msgstr "Previous Page"
+
+#: src/app/ExportDialog.tsx
+msgid "Print checks"
+msgstr "Print checks"
 
 #: src/app/ExportDialog.tsx
 msgid "Print PDF"
@@ -1552,6 +1568,10 @@ msgstr "This .docx file has no document body. It may be damaged or not a Word do
 msgid "This book has no chapters yet."
 msgstr "This book has no chapters yet."
 
+#: src/lib/exportChecks.ts
+msgid "This book has no cover image. KDP takes the cover as a separate file."
+msgstr "This book has no cover image. KDP takes the cover as a separate file."
+
 #: src/app/importBook.ts
 msgid "This document contains too many parts to import safely."
 msgstr "This document contains too many parts to import safely."
@@ -1605,6 +1625,10 @@ msgstr "Title page"
 #: src/app/menuModel.ts
 msgid "Toggle Header Row"
 msgstr "Toggle Header Row"
+
+#: src/lib/exportChecks.ts
+msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
+msgstr "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
 
 #: src/app/Sidebar.tsx
 msgid "Trash"
