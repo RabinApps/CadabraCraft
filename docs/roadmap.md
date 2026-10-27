@@ -38,7 +38,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Large manuscripts (see architecture.md, "Performance budgets"): a Rust-side per-page word count kept in a small cache next to the snapshots (removes the first-open read of every chapter); virtualised or lazily mounted chapter rendering for reading mode and print preview (they still build every page); a cheaper cache for `readPages` (print preview, export checks, find bar) keyed by the same file hashes; measure typing and open time on a real disk and in the native webview with `/drive-app` and a 20k-word chapter.
 
 ### Audio
-- Audiobook export, remaining: "Hear a sample" in the dialog (read audio back into the webview, CSP `media-src`), M4B with chapter markers and cover (needs an LGPL ffmpeg sidecar per platform; ask before downloading binaries), the Settings Audio voices folder and licences rows, and a real run on Windows and Linux. Built: WAV, FLAC and Opus (no MP3), Kokoro and Piper through one sherpa-onnx sidecar, voice download, chapter select, per-chapter cache. Retail platforms differ on synthetic voices; the dialog says so.
+- Audiobook export, remaining: M4B with chapter markers and cover (needs an LGPL ffmpeg sidecar per platform; ask before downloading binaries), the Settings Audio voices folder and licences rows, and a real run on Windows and Linux. Built: WAV, FLAC and Opus (no MP3), Kokoro and Piper through one sherpa-onnx sidecar, voice download, chapter select, per-chapter cache, Hear a sample. Retail platforms differ on synthetic voices; the dialog says so.
 
 ### Word export follow-ups
 - MCP tool `cadabra_export_docx` (the desktop app has the export; the headless server does not yet).
