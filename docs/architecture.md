@@ -261,6 +261,14 @@ See [mcp.md](mcp.md). Decisions:
 - **One bundled `dist/cli.js` (esbuild)** because workspace packages are TypeScript source (`main: src/index.ts`). Rejected: tsc emit per package (needs build order and `exports` maps for every package) and running through tsx at runtime (slow start, a dev dependency in the client config).
 - **No app-lifecycle tools** (launching or driving the desktop app); that is handled separately.
 
+## Markdown export
+
+`packages/export-markdown` is the inverse of `importMarkdown`; mappings and known round-trip losses are in [import.md](import.md#markdown-export-inverse-of-the-above). Decisions:
+- **Underline, small caps, superscript and subscript throw by default; `htmlMarks: true` writes inline HTML.** The importer reads raw HTML as literal text, so HTML cannot round-trip, and Markdown has no syntax for them. Rejected: silently dropping the marks (loses formatting without notice, against the exporter rule) and always writing HTML (output the importer would then show as literal tags).
+- **No new dependencies; the writer is a small string renderer, not an mdast serializer.** `mdast-util-to-markdown` would add a dependency and decides escaping and delimiters itself; here escaping is tuned to what `importMarkdown` parses, and a seeded property test checks it against the real importer.
+- **Escaping cannot stop GFM autolink literals** (they are applied to the parsed text, not the source), so bare URLs re-import with a link mark. Accepted rather than changing the importer.
+- **MCP writes `exports/book.md` with `../`-prefixed image paths** so images resolve from `exports/` without copying assets.
+
 ## Cross-platform paths and CI (macOS, Windows, Linux)
 
 Decisions:

@@ -8,7 +8,7 @@ const EXPECTED = [
   "cadabra_project_create", "cadabra_project_info", "cadabra_project_validate",
   "cadabra_chapter_add", "cadabra_chapter_rename", "cadabra_chapter_move", "cadabra_chapter_remove",
   "cadabra_chapter_read", "cadabra_chapter_write_markdown", "cadabra_chapter_write_json",
-  "cadabra_import_file", "cadabra_export_epub", "cadabra_export_pdf", "cadabra_inspect_pdf", "cadabra_inspect_epub",
+  "cadabra_import_file", "cadabra_export_epub", "cadabra_export_pdf", "cadabra_export_markdown", "cadabra_inspect_pdf", "cadabra_inspect_epub",
   "cadabra_list_templates", "cadabra_set_template",
 ];
 const READ_ONLY = ["project_info", "project_validate", "chapter_read", "inspect_pdf", "inspect_epub", "list_templates"].map((n) => `cadabra_${n}`);

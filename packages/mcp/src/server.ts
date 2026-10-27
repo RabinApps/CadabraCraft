@@ -23,7 +23,7 @@ export interface ServerOptions {
 
 const INSTRUCTIONS = `Tools to create, edit, import and export CadabraCraft books (a project is a folder with cadabra.json and chapter JSON files) without the app.
 All paths are relative to the workspace root (or absolute inside it); anything outside is refused.
-Typical flow: cadabra_project_create or cadabra_import_file, then cadabra_chapter_add / cadabra_chapter_write_markdown, cadabra_project_validate, cadabra_export_epub / cadabra_export_pdf.
+Typical flow: cadabra_project_create or cadabra_import_file, then cadabra_chapter_add / cadabra_chapter_write_markdown, cadabra_project_validate, cadabra_export_epub / cadabra_export_pdf / cadabra_export_markdown.
 Nothing is deleted for good: removed chapters go to .cadabra/trash/, replaced chapter text is kept in .cadabra/backups/, exports go to exports/.
 Read cadabra://docs/file-format and cadabra://docs/import for the format and the Markdown mappings. Errors are tool errors with a stable code.`;
 

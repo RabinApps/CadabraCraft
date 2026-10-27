@@ -4,6 +4,7 @@ import { XMLParser } from "fast-xml-parser";
 import { unzipSync } from "fflate";
 import { z } from "zod";
 import { buildEpub } from "@cadabracraft/export-epub";
+import { bookToMarkdown } from "@cadabracraft/export-markdown";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import { createNodeRunner } from "@cadabracraft/export-pdf/node";
 import { ProjectFsError, writeBytes } from "@cadabracraft/project-fs";
@@ -18,6 +19,7 @@ import { errMsg } from "@cadabracraft/shared";
 
 const EPUB = "exports/book.epub";
 const PDF = "exports/book.pdf";
+const MARKDOWN = "exports/book.md";
 
 export const exportEpub = defineTool({
   name: "cadabra_export_epub",
@@ -38,6 +40,28 @@ export const exportEpub = defineTool({
       const epubcheck = await runEpubcheck(ctx, join(root, EPUB));
       const check = !epubcheck.ran ? `EPUBCheck not run (${epubcheck.reason})` : epubcheck.passed ? "EPUBCheck passed" : `EPUBCheck reported ${epubcheck.messages.length} message(s)`;
       return { summary: `Wrote ${EPUB} (${bytes.length} bytes, ${chapters.length} chapters). ${check}`, data: { file: EPUB, bytes: bytes.length, chapterCount: chapters.length, template: templateId, epubcheck } };
+    }),
+});
+
+export const exportMarkdown = defineTool({
+  name: "cadabra_export_markdown",
+  title: "Export Markdown",
+  description:
+    "Write exports/book.md (CommonMark + GFM: footnotes, tables, strikethrough) with every page in reading order; chapters without a level-1 heading get '# Title'. Image paths are written relative to exports/ (../assets/x.png). Underline, small caps, superscript and subscript have no Markdown syntax: the export fails (markdown_error) unless htmlMarks is true, which writes them as inline HTML. Only writes under exports/.",
+  input: { path: PATH, htmlMarks: z.boolean().optional().describe("Write underline, small caps, superscript and subscript as inline HTML instead of failing.") },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+  run: ({ path, htmlMarks }, ctx) =>
+    withLock(projectRoot(ctx, path), async () => {
+      const { root, manifest, chapters } = loadBook(ctx, path);
+      let markdown: string;
+      try {
+        markdown = bookToMarkdown({ title: manifest.title, author: manifest.author }, chapters, { htmlMarks: htmlMarks === true, imageBase: "../" });
+      } catch (e) {
+        throw new ToolError("markdown_error", errMsg(e));
+      }
+      const bytes = new TextEncoder().encode(markdown);
+      writeBytes(root, MARKDOWN, bytes);
+      return { summary: `Wrote ${MARKDOWN} (${bytes.length} bytes, ${chapters.length} chapters)`, data: { file: MARKDOWN, bytes: bytes.length, chapterCount: chapters.length, htmlMarks: htmlMarks === true } };
     }),
 });
 
@@ -172,4 +196,4 @@ export const inspectEpub = defineTool({
   },
 });
 
-export const exportTools: ToolDef[] = [exportEpub, exportPdf, inspectPdf, inspectEpub];
+export const exportTools: ToolDef[] = [exportEpub, exportPdf, exportMarkdown, inspectPdf, inspectEpub];

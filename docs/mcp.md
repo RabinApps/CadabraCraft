@@ -1,6 +1,6 @@
 # MCP server (headless)
 
-`packages/mcp` (`@cadabracraft/mcp`) is a stdio [Model Context Protocol](https://modelcontextprotocol.io) server that lets an AI agent create, edit, import and export CadabraCraft books without the desktop app. It reuses the same packages as the app (`format`, `editor-schema`, `import-docx`, `export-epub`, `export-pdf`, `templates`) and `packages/project-fs`, a Node port of the project-folder rules in `apps/desktop/src-tauri/src/project`. No network access, no accounts, no telemetry.
+`packages/mcp` (`@cadabracraft/mcp`) is a stdio [Model Context Protocol](https://modelcontextprotocol.io) server that lets an AI agent create, edit, import and export CadabraCraft books without the desktop app. It reuses the same packages as the app (`format`, `editor-schema`, `import-docx`, `export-epub`, `export-pdf`, `export-markdown`, `templates`) and `packages/project-fs`, a Node port of the project-folder rules in `apps/desktop/src-tauri/src/project`. No network access, no accounts, no telemetry.
 
 ## Build and run
 ```bash
@@ -54,6 +54,7 @@ Every tool returns two text blocks (a one-line summary and the JSON result) plus
 | `cadabra_import_file` | `source, destination, title?, author?` | Imports `.md`/`.markdown`/`.txt`/`.docx` into a NEW project. Same order as the app: parse, load images, then write images, chapters, and the manifest last. Returns `{ root, manifest, chapterCount, imageCount, warnings }` with warnings grouped by code (count, up to three examples). | write |
 | `cadabra_export_epub` | `path` | `exports/book.epub` with the project template's CSS and its images. Runs EPUBCheck when the jar and java exist: `epubcheck: { ran, passed, messages[] }`. | write exports/, idempotent |
 | `cadabra_export_pdf` | `path, trimSize?, template?, pdfA?` | `exports/book.pdf` via Typst (`5x8`, `5.5x8.5`, `6x9`; template/trim apply to this export only). | write exports/, idempotent |
+| `cadabra_export_markdown` | `path, htmlMarks?` | `exports/book.md`: every page in reading order as CommonMark + GFM (footnotes, tables, strikethrough); image paths relative to `exports/` (`../assets/x.png`). Underline, small caps, superscript and subscript fail with `markdown_error` unless `htmlMarks` is true (inline HTML). Mappings and round-trip losses: [import.md](import.md#markdown-export-inverse-of-the-above). | write exports/, idempotent |
 | `cadabra_inspect_pdf` | `path` | Page count, page size, fonts (embedded?), first-page text from `exports/book.pdf` via poppler; `poppler: "missing"` plus a `poppler_missing` note when absent. | read-only |
 | `cadabra_inspect_epub` | `path` | Zip entries, OPF title/author/language/identifier, chapter count of `exports/book.epub`. | read-only |
 | `cadabra_list_templates` | none | Built-in templates (`id, name, description, defaultTrimSize`). | read-only |
@@ -108,7 +109,7 @@ Stable `error.code` values:
 | `font_missing` | A font the template needs is not installed. |
 | `compile_error` | Typst failed to compile the book (message carries its output). |
 | `timeout` | Typst exceeded its time limit. |
-| `pdf_error`, `epub_error` | Other export or inspection failure. |
+| `pdf_error`, `epub_error`, `markdown_error` | Other export or inspection failure (`markdown_error`: a node or mark with no Markdown form). |
 | `io_error` | Other file system failure. |
 | `internal_error` | Unexpected failure inside the server (the server keeps running). |
 

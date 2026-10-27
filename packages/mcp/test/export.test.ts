@@ -134,3 +134,33 @@ describe("export_pdf / inspect_pdf", () => {
     expect(JSON.parse(readFileSync(join(s.root, path, "cadabra.json"), "utf8")).template).toBe("novel");
   });
 });
+
+describe("export_markdown", () => {
+  it("writes exports/book.md for the whole book; marks without syntax fail unless htmlMarks is set", async () => {
+    s = await connect({ epubcheckJar: null });
+    const { path, ids } = await seedBook(s);
+    const failed = await s.call("cadabra_export_markdown", { path });
+    expect(failed.isError).toBe(true);
+    expect(failed.data.error.code).toBe("markdown_error");
+    expect(failed.data.error.message).toMatch(/htmlMarks/);
+    expect(existsSync(join(s.root, path, "exports/book.md"))).toBe(false);
+
+    const r = await s.ok("cadabra_export_markdown", { path, htmlMarks: true });
+    expect(r).toMatchObject({ file: "exports/book.md", chapterCount: ids.length, htmlMarks: true });
+    const md = readFileSync(join(s.root, path, "exports/book.md"), "utf8");
+    expect(md.startsWith("# ")).toBe(true);
+    expect(md).toContain("](../assets/gradient.png");
+    expect(readdirSync(join(s.root, path, "exports"))).toEqual(["book.md"]);
+  });
+
+  it("writes plain Markdown for a simple chapter and refuses an empty book", async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "m", title: "T", author: "A" });
+    expect((await s.call("cadabra_export_markdown", { path: "m" })).data.error.code).toBe("empty_book");
+    const a = await s.ok("cadabra_chapter_add", { path: "m", title: "One" });
+    const md = "# One\n\nHello *there* **you**[^1].\n\n- a\n- b\n\n[^1]: Note.\n";
+    await s.ok("cadabra_chapter_write_markdown", { path: "m", chapterId: a.chapter.id, markdown: md });
+    await s.ok("cadabra_export_markdown", { path: "m" });
+    expect(readFileSync(join(s.root, "m/exports/book.md"), "utf8")).toBe(md);
+  });
+});

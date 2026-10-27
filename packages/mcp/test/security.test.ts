@@ -20,6 +20,7 @@ const PATH_TOOLS: [string, Record<string, unknown>][] = [
   ["cadabra_chapter_write_json", { chapterId: "ch-1", doc: { type: "doc", content: [{ type: "paragraph" }] } }],
   ["cadabra_export_epub", {}],
   ["cadabra_export_pdf", {}],
+  ["cadabra_export_markdown", {}],
   ["cadabra_inspect_pdf", {}],
   ["cadabra_inspect_epub", {}],
   ["cadabra_set_template", { template: "novel" }],

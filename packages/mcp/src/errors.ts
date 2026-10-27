@@ -39,6 +39,7 @@ export type ErrorCode =
   | "timeout"
   | "pdf_error"
   | "epub_error"
+  | "markdown_error"
   | "io_error"
   | "internal_error";
 
