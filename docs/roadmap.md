@@ -13,7 +13,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 - M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
 - M2+: backups and shortcuts settings (disabled nav items for now), command palette, outline navigator.
-- Find and replace follow-ups: regular expressions, and a book-wide results list (today "All chapters" counts and steps through matches).
+- Find and replace follow-ups: a book-wide results list (today "All chapters" counts and steps through matches), and a real regex engine with a time limit (the nested-quantifier guard is a heuristic; see architecture.md).
 - Print checks: the gutter bands, 24-828 page range and 0.25 in outer margin in `lib/exportChecks.ts` match KDP's "Set Trim Size, Bleed, and Margins" page (checked 2026-10-26). Not covered yet: the 0.375 in outer minimum when the interior has bleed (we do not export bleed), and per-trim-size page limits.
 - Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
 

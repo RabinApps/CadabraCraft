@@ -374,6 +374,23 @@ try {
     return `Replace all changed ${before} page(s) on disk; Undo put them back`;
   });
 
+  await step("find and replace with Regex: capture groups in the replacement, an invalid pattern is refused", async () => {
+    await runMenu("edit.find");
+    await app.fill(0, "(ro)(bot)");
+    await app.click("Regex"); await app.sleep(600);
+    const bar = () => app.js(`document.querySelector('[aria-label="Find and replace"]').innerText`);
+    assert(/1 of 1/.test(await bar()), `regex should match "robot": ${(await bar()).slice(0, 60)}`);
+    await app.fill(0, "(unclosed"); await app.sleep(600);
+    assert((await bar()).includes("Invalid pattern"), "an invalid pattern should say so");
+    await app.fill(0, "(ro)(bot)"); await runMenu("edit.findReplace");
+    await app.fill(1, "$2-$1"); await app.click("Replace all"); await app.sleep(600);
+    const text = await app.js(`document.querySelector(".ProseMirror").textContent`);
+    assert(text.includes("Typed by an bot-ro."), `capture groups were not applied: ${text.slice(0, 80)}`);
+    await app.click("Regex");
+    await app.js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await app.sleep(400);
+    return "(ro)(bot) with $2-$1 gave bot-ro; (unclosed shows Invalid pattern";
+  });
+
   await step("commands refuse a root that is not an existing project", async () => {
     const outcome = (cmd: string, args: unknown) => app.js(`window.__TAURI__.core.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)}).then((r) => "resolved:" + JSON.stringify(r), (e) => "rejected:" + JSON.stringify(e))`);
     const notProject = join(out, "not-a-project");
@@ -402,7 +419,7 @@ try {
     for (let i = 0; i < 20 && !(await status()).includes("exports/book.md"); i++) await app.sleep(500);
     assert((await status()).includes("exports/book.md"), "Markdown export did not finish");
     const md = readFileSync(join(book, "exports/book.md"), "utf8");
-    assert(md.includes("Typed by an robot.") && md.includes("**Bold part.**"), `book.md lacks the chapter text: ${md.slice(0, 120)}`);
+    assert(md.includes("Typed by an bot-ro.") && md.includes("**Bold part.**"), `book.md lacks the chapter text: ${md.slice(0, 120)}`);
     await app.js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await app.sleep(500);
     return "exports/book.md has the chapter text with bold written as Markdown";
   });
