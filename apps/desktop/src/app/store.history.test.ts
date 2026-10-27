@@ -34,7 +34,8 @@ const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
 const text = (t: string) => ({ type: "doc" as const, content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }] });
 const titles = () => s().manifest!.chapters.map((c) => c.title);
-const trashed = () => [...disk.keys()].filter((k) => k.startsWith(".cadabra/trash/"));
+const firstText = () => JSON.stringify(s().currentDoc).match(/"text":"([^"]*)"/)?.[1];
+const trashed =() => [...disk.keys()].filter((k) => k.startsWith(".cadabra/trash/"));
 
 beforeEach(async () => {
   disk.clear();
@@ -170,6 +171,29 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     await a().add("Three");
     await a().openProject("/p");
     expect(s().history).toEqual({ undo: [], redo: [] });
+  });
+  it("replaceInBook rewrites every matching page (open one included) as one undo step", async () => {
+    a().setDraft(text("a cat here")); // unsaved typing in the open chapter
+    await a().add("Two");
+    a().setDraft(text("cat and cat"));
+    await a().addMatter("back", "about-the-author");
+    await a().selectChapter("ch-1");
+    const files = [s().manifest!.chapters[0]!.file, s().manifest!.chapters[1]!.file];
+    const undoBefore = s().history.undo.length;
+    const n = await a().replaceInBook({ query: "cat", matchCase: false, wholeWord: false }, "dog");
+    expect(n).toBe(3);
+    expect(disk.get(files[0]!)).toContain("a dog here"); // the draft was saved first, then replaced
+    expect(disk.get(files[1]!)).toContain("dog and dog");
+    expect(firstText()).toBe("a dog here");
+    expect(s().history.undo).toHaveLength(undoBefore + 1);
+    expect(await a().undo()).toBe(true);
+    expect(disk.get(files[0]!)).toContain("a cat here");
+    expect(disk.get(files[1]!)).toContain("cat and cat");
+    expect(firstText()).toBe("a cat here");
+    expect(await a().redo()).toBe(true);
+    expect(disk.get(files[1]!)).toContain("dog and dog");
+    expect(await a().replaceInBook({ query: "zzz", matchCase: false, wholeWord: false }, "x")).toBe(0);
+    expect(s().history.undo).toHaveLength(undoBefore + 1);
   });
   it("does nothing with an empty history", async () => {
     expect(await a().undo()).toBe(false);

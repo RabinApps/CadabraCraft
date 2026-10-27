@@ -17,3 +17,55 @@ export function countLabel(query: string, total: number, index: number): string 
   if (!query) return "";
   return total === 0 ? t`No results` : t`${index} of ${total}`;
 }
+
+interface Json { type?: string; text?: string; marks?: unknown[]; content?: Json[] }
+
+/** Joins neighbouring text nodes that have the same marks (replaceInDoc leaves the pieces apart), as the editor does on load. Returns a new tree. */
+export function mergeAdjacentText<T extends Json>(node: T): T {
+  if (!node.content) return node;
+  const out: Json[] = [];
+  for (const child of node.content) {
+    const last = out[out.length - 1];
+    if (child.type === "text" && last?.type === "text" && JSON.stringify(last.marks ?? []) === JSON.stringify(child.marks ?? [])) {
+      out[out.length - 1] = { ...last, text: (last.text ?? "") + (child.text ?? "") };
+    } else out.push(mergeAdjacentText(child));
+  }
+  return { ...node, content: out };
+}
+
+/** Match counts per page id (pages without a match may be absent). */
+export type PageCounts = Record<string, number>;
+
+/** The open page's own state in the editor: total matches and 1-based current index (0 when none). */
+export interface InPage { total: number; index: number }
+
+/**
+ * "3 of 12" across the book: pages are counted in reading order (`order`), the open page by its live editor state
+ * (`counts` may be a little behind while the editor changes). Without a current match the index is 0.
+ */
+export function bookPosition(order: string[], counts: PageCounts, currentId: string | null, inPage: InPage): InPage {
+  let total = 0;
+  let before = 0;
+  let seen = false;
+  for (const id of order) {
+    const n = id === currentId ? inPage.total : (counts[id] ?? 0);
+    if (id === currentId) seen = true;
+    else if (!seen) before += n;
+    total += n;
+  }
+  return { total, index: inPage.total > 0 ? before + inPage.index : 0 };
+}
+
+/** Where Enter / Shift+Enter goes in book scope: stay in the open page (the editor steps, wrapping), open another page, or nowhere. */
+export type BookStep = { to: "stay" } | { to: "page"; id: string; at: "first" | "last" } | null;
+
+export function bookStep(order: string[], counts: PageCounts, currentId: string | null, inPage: InPage, dir: 1 | -1): BookStep {
+  if (dir === 1 ? inPage.index < inPage.total : inPage.index > 1) return { to: "stay" };
+  const n = order.length;
+  const at = Math.max(0, order.indexOf(currentId ?? ""));
+  for (let k = 1; k < n; k++) {
+    const id = order[(((at + dir * k) % n) + n) % n]!;
+    if ((counts[id] ?? 0) > 0) return { to: "page", id, at: dir === 1 ? "first" : "last" };
+  }
+  return inPage.total > 0 ? { to: "stay" } : null;
+}
