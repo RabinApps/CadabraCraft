@@ -29,7 +29,7 @@ ImportResult = { chapters: { title, doc: ChapterDoc }[], warnings: ImportWarning
 | `![alt](path)` | image block, path recorded in `assets`. Remote and non-image targets: `[Image: alt]` text, `remote-image` / `unsupported-image` |
 | hard break | splits paragraph (`line-break`, info) |
 | table | one paragraph per row, ` | ` separated (`table`) |
-| code block | plain paragraphs per line (`code-block`) |
+| fenced or indented code block | codeBlock (text kept as is; the first word of the fence info becomes `language` when it is a plain token, otherwise dropped) |
 | inline code | `code` mark (replaces any other marks on that text) |
 | raw HTML | literal text (`html`) |
 | `~~x~~` | `strike` mark |
@@ -52,6 +52,7 @@ Markdown warnings carry a 1-based `line`. At most 25 located warnings per code a
 | page / section breaks | ignored (`page-break`, `section-break`, info) |
 | manual line break | splits paragraph (`line-break`, info) |
 | images (PNG, JPEG, GIF, WebP, SVG) | image block, bytes in `assets`, alt from `descr` |
+| paragraphs styled Code, Source Code or Preformatted Text (or a style based on one) | codeBlock; consecutive paragraphs merge, one line per paragraph. Fonts are never used to guess code. A paragraph with a footnote or image stays a normal paragraph |
 | tracked changes | insertions accepted, deletions dropped (`tracked-changes`) |
 
 ## Warnings catalogue
@@ -66,7 +67,7 @@ Markdown warnings carry a 1-based `line`. At most 25 located warnings per code a
 | `internal-link` | docx (info) | link to a bookmark, kept as text |
 | `line-break` | both (info) | break split into paragraphs |
 | `table` | both | table flattened to row paragraphs |
-| `code-block`, `html`, `task-list` | md | see table above |
+| `html`, `task-list` | md | see table above |
 | `remote-image`, `unsupported-image` | md | image not imported |
 | `footnote-undefined`, `footnote-unreferenced`, `footnote-nested`, `footnote-complex` | md | footnote problems |
 | `nesting-too-deep` | md | list/quote deeper than `maxNestingDepth` flattened |

@@ -21,14 +21,14 @@ export function estimatePages(words: number, chapters: number, perPage: number):
 }
 
 interface Node { type?: unknown; text?: unknown; content?: unknown }
-const BLOCKS = new Set(["paragraph", "heading", "blockquote"]);
+const BLOCKS = new Set(["paragraph", "heading", "blockquote", "codeBlock"]);
 
 const textOf = (n: Node): string => {
   if (typeof n.text === "string") return n.text;
   return Array.isArray(n.content) ? (n.content as Node[]).map(textOf).join("") : "";
 };
 
-/** The text of each paragraph, heading and quote in a chapter, in order. Empty blocks are skipped. */
+/** The text of each paragraph, heading, quote and code block in a chapter, in order. Empty blocks are skipped. */
 export function plainBlocks(doc: ChapterDoc): string[] {
   const out: string[] = [];
   const walk = (nodes: Node[]) => {

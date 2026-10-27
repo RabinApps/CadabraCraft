@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
-import { ALargeSmall, Asterisk, Bold, Heading1, Heading2, Heading3, Image as ImageIcon, Italic, Link, List, ListOrdered, Quote, Redo2, Superscript, Underline, Undo2, type LucideIcon } from "lucide-react";
+import { ALargeSmall, Asterisk, Bold, Code, Heading1, Heading2, Heading3, Image as ImageIcon, Italic, Link, List, ListOrdered, Quote, Redo2, Superscript, Underline, Undo2, type LucideIcon } from "lucide-react";
 import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
 import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
@@ -27,7 +27,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
     selector: ({ editor: e }) => ({
       bold: e.isActive("bold"), italic: e.isActive("italic"), underline: e.isActive("underline"),
       smallCaps: e.isActive("smallCaps"), strike: e.isActive("strike"), code: e.isActive("code"),
-      superscript: e.isActive("superscript"), subscript: e.isActive("subscript"), link: e.isActive("link"),
+      superscript: e.isActive("superscript"), subscript: e.isActive("subscript"), codeBlock: e.isActive("codeBlock"), link: e.isActive("link"),
       h1: e.isActive("heading", { level: 1 }), h2: e.isActive("heading", { level: 2 }), h3: e.isActive("heading", { level: 3 }),
       quote: e.isActive("blockquote"), bullets: e.isActive("bulletList"), numbers: e.isActive("orderedList"),
       canUndo: e.can().undo(), canRedo: e.can().redo(),
@@ -93,12 +93,13 @@ export function Toolbar({ editor }: { editor: Editor }) {
     ],
   ];
 
-  // Less common marks live in the Format menu only, to keep the toolbar short.
+  // Less common marks live in the Format menu (and Code Block in Insert) only, to keep the toolbar short.
   const menuOnly: Item[] = [
     { id: "strike", label: t`Strikethrough`, icon: Underline, active: s.strike, run: () => c().toggleStrike().run() },
     { id: "code", label: t`Code`, icon: Underline, active: s.code, run: () => c().toggleCode().run() },
     { id: "superscript", label: t`Superscript`, icon: Superscript, active: s.superscript, run: () => c().toggleMark("superscript").run() },
     { id: "subscript", label: t`Subscript`, icon: Superscript, active: s.subscript, run: () => c().toggleMark("subscript").run() },
+    { id: "codeBlock", label: t`Code Block`, icon: Code, active: s.codeBlock, run: () => c().toggleCodeBlock().run() },
   ];
 
   // The same actions as menu commands (Insert and Format), available while the toolbar is shown. Undo and redo stay the system's.

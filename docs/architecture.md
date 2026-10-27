@@ -82,6 +82,11 @@ The schema also has the `strike`, `code`, `superscript` and `subscript` marks. S
 - **Rejected: `@tiptap/extension-superscript` and `-subscript`.** Two more dependencies for a few lines of mark spec each.
 - **Rejected: bumping `formatVersion`.** Migrations only touch the manifest, so the bump would lock older apps out of whole books without protecting any data.
 
+### Code blocks
+The schema has StarterKit's `codeBlock` node (plain text, no marks, optional `language` string). It is in the Insert menu ("Code Block"), not the toolbar. The `language` is kept on disk and in EPUB (`<pre><code class="language-x">`, escaped) but never highlighted anywhere, and PDF ignores it; importers set it only from a Markdown fence whose first info word is a plain token. EPUB writes `<pre><code>` with escaped text and `white-space: pre-wrap` (long lines wrap, no overflow); PDF writes `#raw(block: true, "...")` through `typstString` (monospace comes from Typst's raw default, size from the existing `#show raw` rule; blocks may break across pages). Exporters throw on any non-text child. Markdown fenced and indented blocks become the node; DOCX paragraphs styled "Code", "Source Code" or "Preformatted Text" (or based on one) become one block per run of consecutive paragraphs. No format version bump, for the reason given under strike/code above.
+- **Rejected: guessing code in DOCX from monospace fonts.** Fonts are routinely monospace for unrelated reasons (typewriter-style manuscripts), so it would turn prose into code.
+- **Rejected: syntax highlighting.** A dependency and a per-theme colour palette for a feature books rarely need.
+
 ### Desktop UI stack
 **Decision:** Tailwind CSS v4 with Radix UI primitives (dialog, dropdown menu, toggle group) and lucide icons, in `apps/desktop` only. Design tokens are CSS variables in `src/styles/tokens.css`, mirroring `cadabracraft.pen` and `docs/design.md`; `data-theme` (`system | light | dark`, stored in `localStorage`) switches them. Inter and Newsreader are bundled via `@fontsource-variable/*`, so there are no runtime font requests.
 **Why:** tokens map one to one onto Tailwind `@theme`; build-time only (no runtime, no network); Radix gives accessible dialogs and menus without imposing a look; small bundle for the webview.

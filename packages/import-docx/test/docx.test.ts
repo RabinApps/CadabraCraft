@@ -48,6 +48,20 @@ describe("importDocx", () => {
     expectValid(r);
   });
 
+  it("merges consecutive Code paragraphs into one code block and ignores fonts", () => {
+    const mono = '<w:rFonts w:ascii="Courier New"/>';
+    const body =
+      para("T", "Heading1") + para("before") + para("let a = 1;", "SourceCode") + para("", "SourceCode") + para("  b(&lt;x&gt;);", "MyCode") +
+      '<w:p><w:pPr><w:pStyle w:val="SourceCode"/></w:pPr><w:r><w:t>one</w:t></w:r><w:r><w:br/></w:r><w:r><w:t>two</w:t></w:r></w:p>' +
+      para("after") + `<w:p>${run("only monospace", mono)}</w:p>`;
+    const r = importDocx(makeDocx({ body }));
+    const c = r.chapters[0]!.doc.content;
+    expect(c.map((n) => n.type)).toEqual(["heading", "paragraph", "codeBlock", "paragraph", "paragraph"]);
+    expect(c[2]).toEqual({ type: "codeBlock", content: [{ type: "text", text: "let a = 1;\n\n  b(<x>);\none\ntwo" }] });
+    expect(r.warnings.map((w) => w.code)).not.toContain("style-fallback");
+    expectValid(r);
+  });
+
   it("maps style-based and numbering-based lists with nesting", () => {
     const num = (id: number, lvl: number, t: string) => para(t, undefined, `<w:numPr><w:ilvl w:val="${lvl}"/><w:numId w:val="${id}"/></w:numPr>`);
     const body =

@@ -12,6 +12,24 @@ describe("schema contract", () => {
   });
 });
 
+describe("importMarkdown code blocks", () => {
+  it("turns fenced and indented blocks into codeBlock nodes with their text and language", () => {
+    const md = ["# T", "", "```js title=x", "let a = 1;", "", "  <b>&</b>", "```", "", "para", "", "    indented", "    code", "", "```", "", "```"].join("\n");
+    const r = importMarkdown(md);
+    expect(r.warnings).toEqual([]);
+    const c = r.chapters[0]!.doc.content;
+    expect(c.map((n) => n.type)).toEqual(["heading", "codeBlock", "paragraph", "codeBlock", "codeBlock"]);
+    expect(c[1]).toEqual({ type: "codeBlock", attrs: { language: "js" }, content: [{ type: "text", text: "let a = 1;\n\n  <b>&</b>" }] });
+    expect(c[3]).toEqual({ type: "codeBlock", content: [{ type: "text", text: "indented\ncode" }] });
+    expect(c[4]).toEqual({ type: "codeBlock" });
+    expectValid(r);
+  });
+  it("drops a language that is not a plain token", () => {
+    const r = importMarkdown('# T\n\n```"><x\ncode\n```');
+    expect(r.chapters[0]!.doc.content[1]).toEqual({ type: "codeBlock", content: [{ type: "text", text: "code" }] });
+  });
+});
+
 describe("importMarkdown", () => {
   it("splits chapters on H1 and keeps the heading", () => {
     const r = importMarkdown("# One\n\nHello **bold** and *it* and [a](https://x.com).\n\n# Two\n\nBye");
@@ -109,11 +127,12 @@ describe("importMarkdown", () => {
       "- [ ] todo",
     ].join("\n");
     const r = importMarkdown(md);
-    expect(codes(r)).toEqual(expect.arrayContaining(["table", "code-block", "html", "task-list"]));
+    expect(codes(r)).toEqual(expect.arrayContaining(["table", "html", "task-list"]));
+    expect(codes(r)).not.toContain("code-block");
     expect(codes(r)).not.toContain("strikethrough");
     expect(codes(r)).not.toContain("inline-code");
     const text = JSON.stringify(r.chapters[0]!.doc);
-    for (const s of ["a | b", "1 | 2", "let x = 1;", "raw", "gone", "code", "[x] done", "[ ] todo"]) expect(text).toContain(s);
+    for (const s of ["a | b", "1 | 2", "raw", "gone", "code", "[x] done", "[ ] todo"]) expect(text).toContain(s);
     expect(r.warnings.find((w) => w.code === "table")?.line).toBe(3);
     expectValid(r);
   });

@@ -41,6 +41,10 @@ function block(n: N, indent = ""): string {
     }
     case "blockquote":
       return (n.content ?? []).map((b) => block(b, indent)).join("\n\n").replace(/^/gm, `${indent}> `);
+    case "codeBlock": {
+      const lang = typeof n.attrs?.language === "string" ? n.attrs.language : "";
+      return [`${indent}\`\`\`${lang}`, ...(n.content ?? []).map(inline).join("").split("\n").map((l) => indent + l), `${indent}\`\`\``].join("\n");
+    }
     case "sceneBreak":
       return `${indent}* * *`;
     case "image":
@@ -50,7 +54,7 @@ function block(n: N, indent = ""): string {
   }
 }
 
-/** Plain text of a chapter: blocks separated by blank lines, lists as "- " / "1. ", footnotes inline in [note: ...]. */
+/** Plain text of a chapter: blocks separated by blank lines, lists as "- " / "1. ", code blocks fenced, footnotes inline in [note: ...]. */
 export function docToText(doc: unknown): string {
   return ((doc as N)?.content ?? []).map((n) => block(n)).join("\n\n").trim();
 }

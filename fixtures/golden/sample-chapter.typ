@@ -51,6 +51,8 @@
 #set list(indent: 0.8em, body-indent: 0.6em)
 #set enum(indent: 0.8em, body-indent: 0.6em)
 #show raw: set text(size: 0.9em)
+#show raw.where(block: true): set par(first-line-indent: 0pt, justify: false)
+#show raw.where(block: true): set block(above: 1em, below: 1em, breakable: true)
 #show footnote.entry: set text(size: 0.85em)
 #show footnote.entry: set par(first-line-indent: 0pt, justify: false)
 #show figure: set block(above: 1.2em, below: 1.2em)
@@ -111,6 +113,8 @@ A quoted \<line\>.
 ]
 
 #scene-break()
+
+#raw(block: true, "if (a < b && c) {\n  say(\"hi #1\");\n}")
 
 #heading(level: 2)[A Section]
 

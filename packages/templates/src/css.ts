@@ -1,7 +1,8 @@
 // Shared by every template. Class names match packages/export-epub (small-caps, underline, scene-break, noteref).
 const BASE = `.small-caps{font-variant:small-caps}.underline{text-decoration:underline}
 a.noteref{font-size:.75em;vertical-align:super;line-height:0}
-code{font-family:monospace;font-size:.9em}sup,sub{font-size:.75em;line-height:0}
+code{font-family:monospace;font-size:.9em}
+pre{font-family:monospace;font-size:.85em;white-space:pre-wrap;overflow-wrap:anywhere;margin:1em 0;text-indent:0;text-align:left}pre code{font-size:1em}sup,sub{font-size:.75em;line-height:0}
 img{max-width:100%;height:auto}figure{margin:1.5em 0;text-align:center;page-break-inside:avoid}
 figcaption{font-size:.85em;margin-top:.4em}
 ul,ol{margin:.6em 0;padding-left:1.6em}li>p{text-indent:0}

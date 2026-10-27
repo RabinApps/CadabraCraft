@@ -173,6 +173,13 @@ function block(n: DocNode, ctx: Ctx): string {
       const start = typeof n.attrs?.start === "number" && Number.isInteger(n.attrs.start) ? `start: ${n.attrs.start}, ` : "";
       return `#enum(${start}\n${listItems(kids, ctx)},\n)`;
     }
+    case "codeBlock": {
+      const text = (kids ?? []).map((k) => {
+        if (k.type !== "text") throw new PdfExportError(`Unsupported node type in code block: ${k.type}`);
+        return k.text;
+      }).join("");
+      return `#raw(block: true, ${typstString(text)})`;
+    }
     case "sceneBreak": return "#scene-break()";
     case "image": {
       const a = n.attrs ?? {};
@@ -284,6 +291,8 @@ ${headingRule(3, p.headings[3], fonts.heading)}
 #set list(indent: 0.8em, body-indent: 0.6em)
 #set enum(indent: 0.8em, body-indent: 0.6em)
 #show raw: set text(size: 0.9em)
+#show raw.where(block: true): set par(first-line-indent: 0pt, justify: false)
+#show raw.where(block: true): set block(above: 1em, below: 1em, breakable: true)
 #show footnote.entry: set text(size: ${em(p.footnoteSizeEm)})
 #show footnote.entry: set par(first-line-indent: 0pt, justify: false)
 #show figure: set block(above: 1.2em, below: 1.2em)
