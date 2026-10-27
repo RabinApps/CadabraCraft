@@ -1,6 +1,7 @@
 export * from "./language";
 export * from "./assets";
 export * from "./matter";
+export * from "./isbn";
 
 /** TipTap/ProseMirror JSON, the on-disk chapter format and the editor/exporter contract. */
 export interface Mark {
@@ -30,6 +31,8 @@ export interface BookMetadata {
   language: string;
   /** UUID or ISBN */
   identifier: string;
+  /** ISBN as the author typed it (hyphens allowed). The EPUB gets an extra `urn:isbn:` identifier when it is a valid ISBN-10 or ISBN-13; otherwise it is skipped. */
+  isbn?: string | null;
   modified: Date;
 }
 export * from "./errors";

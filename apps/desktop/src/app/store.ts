@@ -17,6 +17,7 @@ import { mergeAdjacentText } from "../editor/findHelpers";
 import { replaceInDoc, type BookSearchOptions } from "../editor/search/bookSearch";
 import { runImport, type ImportChoices, type ImportReport } from "./importBook";
 import { describePdfError } from "../lib/pdfErrors";
+import { describeEpubError } from "../lib/epubErrors";
 import { createTauriRunner } from "../lib/typstRunner";
 import { errText } from "../lib/projectError";
 
@@ -649,10 +650,13 @@ export const useProject = create<State>((set, get) => {
           const assets = await loadAssets(chapters);
           const cover = await loadCover();
           set({ exportStage: "rendering" });
-          const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, modified: new Date() }, chapters, { assets, cover, css: getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).epub.css });
+          const bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, isbn: manifest.isbn, modified: new Date() }, chapters, { assets, cover, css: getTemplate(hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID).epub.css });
           set({ exportStage: "saving" });
           await bridge.writeBytes(root, "exports/book.epub", bytes);
           set({ notice: t`Exported exports/book.epub` });
+        } catch (e) {
+          const manifest = get().manifest;
+          throw describeEpubError(e, (id) => (manifest ? entryOf(manifest, id)?.file : undefined));
         } finally {
           set({ exportStage: null });
         }
