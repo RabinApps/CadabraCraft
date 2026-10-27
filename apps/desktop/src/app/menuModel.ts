@@ -123,6 +123,8 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("edit.find", t`Find…`, "CmdOrCtrl+F"),
     cmd("edit.findReplace", t`Find and Replace…`, "CmdOrCtrl+Alt+F"),
     sep,
+    cmd("edit.convertHtml", t`Convert HTML in Selection to Styled Text`),
+    sep,
     cmd("edit.bookUndo", ctx.undoLabel ? t`Undo ${ctx.undoLabel}` : t`Undo Chapter Change`),
     cmd("edit.bookRedo", ctx.redoLabel ? t`Redo ${ctx.redoLabel}` : t`Redo Chapter Change`),
   ]);

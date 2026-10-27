@@ -128,6 +128,10 @@ msgstr "{sessionWritten} of {sessionGoal} words this session"
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 
+#: src/editor/Editor.tsx
+msgid "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
+msgstr "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
+
 #: src/app/App.tsx
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
@@ -248,6 +252,10 @@ msgstr "Appearance"
 msgid "Apply"
 msgstr "Apply"
 
+#: src/app/Settings.tsx
+msgid "Ask each time"
+msgstr "Ask each time"
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/app/Home.tsx
@@ -280,6 +288,10 @@ msgstr "Back matter: {0}"
 #: src/app/Settings.tsx
 msgid "Backups"
 msgstr "Backups"
+
+#: src/editor/Editor.tsx
+msgid "Becomes"
+msgstr "Becomes"
 
 #: src/app/PrintPreview.tsx
 msgid "Bleed"
@@ -497,6 +509,18 @@ msgstr "Columns"
 #: src/editor/TableCommands.tsx
 msgid "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
 msgstr "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
+
+#: src/editor/Editor.tsx
+msgid "Convert"
+msgstr "Convert"
+
+#: src/app/menuModel.ts
+msgid "Convert HTML in Selection to Styled Text"
+msgstr "Convert HTML in Selection to Styled Text"
+
+#: src/app/Settings.tsx
+msgid "Convert to styled text"
+msgstr "Convert to styled text"
 
 #: src/app/ImportDialogs.tsx
 msgid "Copied"
@@ -965,6 +989,11 @@ msgstr "It moves to the project trash inside your book folder. Nothing is perman
 msgid "Italic"
 msgstr "Italic"
 
+#: src/app/Settings.tsx
+#: src/editor/Editor.tsx
+msgid "Keep as text"
+msgstr "Keep as text"
+
 #: src/app/importBook.ts
 msgid "Keep at least one chapter."
 msgstr "Keep at least one chapter."
@@ -1166,6 +1195,10 @@ msgstr "No file chosen"
 msgid "No folder chosen"
 msgstr "No folder chosen"
 
+#: src/editor/Editor.tsx
+msgid "No HTML found in the selection"
+msgstr "No HTML found in the selection"
+
 #: src/lib/exportChecks.ts
 msgid "No problems found"
 msgstr "No problems found"
@@ -1257,6 +1290,10 @@ msgstr "Pages you moved to the trash. Restoring puts a page back at the end of i
 msgid "Paste"
 msgstr "Paste"
 
+#: src/editor/Editor.tsx
+msgid "Paste as styled text?"
+msgstr "Paste as styled text?"
+
 #: src/app/ExportDialog.tsx
 msgid "PDF/A (archival)"
 msgstr "PDF/A (archival)"
@@ -1324,6 +1361,10 @@ msgstr "Quit"
 msgid "Quit CadabraCraft"
 msgstr "Quit CadabraCraft"
 
+#: src/app/Settings.tsx
+msgid "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text."
+msgstr "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text."
+
 #: src/app/AppHeader.tsx
 #: src/app/menuModel.ts
 msgid "Read"
@@ -1384,6 +1425,10 @@ msgstr "Redo: {0}"
 #: src/editor/FindBar.tsx
 msgid "Regex"
 msgstr "Regex"
+
+#: src/editor/Editor.tsx
+msgid "Remember my choice"
+msgstr "Remember my choice"
 
 #. placeholder {0}: r.title || r.root
 #: src/app/Home.tsx
@@ -1668,6 +1713,10 @@ msgstr "The only thing sent is the update check. Nothing about your books is sen
 msgid "the page is no longer in the trash"
 msgstr "the page is no longer in the trash"
 
+#: src/editor/Editor.tsx
+msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
+msgstr "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
+
 #: src/app/Sidebar.tsx
 msgid "The trash is empty."
 msgstr "The trash is empty."
@@ -1879,6 +1928,14 @@ msgstr "View"
 msgid "Warning"
 msgstr "Warning"
 
+#: src/editor/Editor.tsx
+msgid "What you pasted"
+msgstr "What you pasted"
+
+#: src/app/Settings.tsx
+msgid "When pasting HTML"
+msgstr "When pasting HTML"
+
 #: src/editor/FindBar.tsx
 msgid "Whole word"
 msgstr "Whole word"
@@ -1927,6 +1984,10 @@ msgstr "Writing column width"
 #: src/app/ExportDialog.tsx
 msgid "Writing Markdown…"
 msgstr "Writing Markdown…"
+
+#: src/editor/Editor.tsx
+msgid "You can change this later in Settings, Editor."
+msgstr "You can change this later in Settings, Editor."
 
 #. placeholder {0}: update.currentVersion
 #: src/app/UpdateDialog.tsx

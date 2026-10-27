@@ -11,7 +11,7 @@ import { languageOptions } from "../ui/LanguagePicker";
 import { Switch } from "../ui/Switch";
 import { useTheme, type Theme } from "./theme";
 import { useUpdates } from "./updates";
-import { MAX_SESSION_GOAL, useSettings, type ManuscriptFont, type WritingWidth } from "./editorPrefs";
+import { MAX_SESSION_GOAL, useSettings, type ManuscriptFont, type RawHtmlPaste, type WritingWidth } from "./editorPrefs";
 
 const sections = ["appearance", "general", "editor"] as const;
 
@@ -40,7 +40,7 @@ function Row({ title, hint, control }: { title: string; hint: string; control: R
 export function Settings({ onBack }: { onBack: () => void }) {
   const { t } = useLingui();
   const { theme, setTheme } = useTheme();
-  const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, set } = useSettings();
+  const { manuscriptFont, writingWidth, typewriterScroll, sessionGoal, rawHtmlPaste, set } = useSettings();
   const checkOnLaunch = useUpdates((s) => s.checkOnLaunch);
   const setCheckOnLaunch = useUpdates((s) => s.setCheckOnLaunch);
   const { locale, setLocale } = useLocale();
@@ -133,6 +133,19 @@ export function Settings({ onBack }: { onBack: () => void }) {
                 control={
                   <div className="w-32 max-sm:w-full">
                     <Field label={t`Session word goal`} hideLabel className="py-2" type="number" min={0} max={MAX_SESSION_GOAL} step={50} value={sessionGoal} onChange={(e) => set({ sessionGoal: e.target.valueAsNumber })} />
+                  </div>
+                }
+              />
+              <Row
+                title={t`When pasting HTML`}
+                hint={t`Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text.`}
+                control={
+                  <div className="w-56 max-sm:w-full">
+                    <Select label={t`When pasting HTML`} hideLabel className="py-2" value={rawHtmlPaste} onChange={(e) => set({ rawHtmlPaste: e.target.value as RawHtmlPaste })}>
+                      <option value="ask">{t`Ask each time`}</option>
+                      <option value="convert">{t`Convert to styled text`}</option>
+                      <option value="text">{t`Keep as text`}</option>
+                    </Select>
                   </div>
                 }
               />
