@@ -48408,6 +48408,538 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "AcXbM",
+      "x": 0,
+      "y": 25595,
+      "name": "Export Word (M4) / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "swo3l",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "QEQR1",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Export book",
+              "fontFamily": "$font-book",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "Wnp60",
+              "name": "Description",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "x1fXc",
+              "name": "Segmented",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "WeSwj",
+                  "name": "EPUB 3",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EmdhT",
+                      "name": "EPUB 3",
+                      "fill": "$ink-muted",
+                      "content": "EPUB 3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "zfpyP",
+                  "name": "Print PDF",
+                  "fill": "#00000000",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "hdCOm",
+                      "name": "Print PDF",
+                      "fill": "$ink-muted",
+                      "content": "Print PDF",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sBBRX",
+                  "name": "Markdown",
+                  "fill": "#00000000",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XcTk9",
+                      "name": "Markdown",
+                      "fill": "$ink-muted",
+                      "content": "Markdown",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "JIgay",
+                  "name": "Word (.docx)",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "s5KL5",
+                      "name": "Word (.docx)",
+                      "fill": "$accent",
+                      "content": "Word (.docx)",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "DwrcL",
+              "name": "Font",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Qs2RJ",
+                  "name": "Font label",
+                  "fill": "$ink-muted",
+                  "content": "Font",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "JEDU4",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Font select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "Times New Roman"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "sF6eR",
+                  "name": "Font hint",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "QVWJi",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "t6Gx1Z",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "HwpLe",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "HEeM8",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Export",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "file-text"
+                        },
+                        "gNKXH": {
+                          "content": "Export"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "hyDvk",
+      "x": 0,
+      "y": 26375,
+      "name": "Export Word (M4) / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 760,
+      "height": 660,
+      "fill": "$sidebar",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "H6WG23",
+          "name": "Export dialog",
+          "width": 560,
+          "fill": "$raised",
+          "cornerRadius": 14,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 12
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 18,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "g51fzB",
+              "name": "Export book",
+              "fill": "$ink",
+              "content": "Export book",
+              "fontFamily": "$font-book",
+              "fontSize": 20,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "Y12ze",
+              "name": "Description",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer.",
+              "lineHeight": 1.5,
+              "fontFamily": "$font-ui",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "VZAmL",
+              "name": "Segmented",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "C4QysK",
+                  "name": "EPUB 3",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gq63C",
+                      "name": "EPUB 3",
+                      "fill": "$ink-muted",
+                      "content": "EPUB 3",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dk3M2",
+                  "name": "Print PDF",
+                  "fill": "#00000000",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bIdrx",
+                      "name": "Print PDF",
+                      "fill": "$ink-muted",
+                      "content": "Print PDF",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fqN15",
+                  "name": "Markdown",
+                  "fill": "#00000000",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "G6YzTo",
+                      "name": "Markdown",
+                      "fill": "$ink-muted",
+                      "content": "Markdown",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "DxGys",
+                  "name": "Word (.docx)",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "SD8Zg",
+                      "name": "Word (.docx)",
+                      "fill": "$accent",
+                      "content": "Word (.docx)",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "iCv7k",
+              "name": "Font",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fwcdL",
+                  "name": "Font label",
+                  "fill": "$ink-muted",
+                  "content": "Font",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "a6iPU",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Font select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "Times New Roman"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "TiZMk",
+                  "name": "Font hint",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "gM5L4",
+              "name": "Actions",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "q9rcP",
+                  "name": "Right",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "cSJ0K",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "B7NbK",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Export",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "file-text"
+                        },
+                        "gNKXH": {
+                          "content": "Export"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "themes": {

@@ -30,6 +30,11 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Port `.docx` import (`packages/import-docx`) to Rust (`zip` + `quick-xml`) to stop the double XML pass and synchronous unzip; needs approval for the new crates and a contract-fixture set for the doc output.
 - Run the native pickers (`pickFolder`, `pickImage`, `pickImportSource`) in Rust and remember what the author picked, so `create_project`, `import_asset` and `read_import_source` only accept those paths (today the webview can name any absolute folder or file for them).
 
+### Word export follow-ups
+- MCP tool `cadabra_export_docx` (the desktop app has the export; the headless server does not yet).
+- Open the generated `.docx` in Word, Pages, Google Docs and LibreOffice (headless `soffice --convert-to pdf` smoke test in CI) and fix whatever they disagree on.
+- RTF export; alternate templates (A4, other fonts and spacing, contact block on the title page, chapter title drop, shunn-style "approximately N words"); Word comments and tracked changes from the editor; right-to-left books.
+
 ### Format coverage
 - Task lists and definition lists are not supported and have no schema node; add them only on demand. Today the Markdown importer keeps task items as list items with a `[ ] ` / `[x] ` text prefix and a `task-list` warning, and definition-style content is plain paragraphs (`[^1]` definitions are footnotes, not definition lists). The DOCX importer has no definition-list handling: "Definition Term" / "Definition" style paragraphs fall back to normal paragraphs, and Word content-control checkboxes (`sdt`) import as their text content.
 

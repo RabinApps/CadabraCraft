@@ -808,6 +808,10 @@ msgstr "Exported exports/book.md"
 msgid "Exported exports/book.pdf"
 msgstr "Exported exports/book.pdf"
 
+#: src/app/store.ts
+msgid "Exported exports/manuscript.docx"
+msgstr "Exported exports/manuscript.docx"
+
 #: src/app/ExportDialog.tsx
 msgid "Exporting…"
 msgstr "Exporting…"
@@ -852,6 +856,10 @@ msgstr "Folder not found. Remove it from the list or move it back."
 #: src/app/Settings.tsx
 msgid "Follow the system or pick one."
 msgstr "Follow the system or pick one."
+
+#: src/app/ExportDialog.tsx
+msgid "Font"
+msgstr "Font"
 
 #: src/app/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -1655,6 +1663,10 @@ msgstr "Saving exports/book.md…"
 msgid "Saving exports/book.pdf…"
 msgstr "Saving exports/book.pdf…"
 
+#: src/app/ExportDialog.tsx
+msgid "Saving exports/manuscript.docx…"
+msgstr "Saving exports/manuscript.docx…"
+
 #: src/app/Templates.tsx
 #: src/editor/Toolbar.tsx
 msgid "Scene break"
@@ -1954,6 +1966,10 @@ msgstr "This page"
 msgid "This version has the same words as the current text."
 msgstr "This version has the same words as the current text."
 
+#: src/app/ExportDialog.tsx
+msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer."
+msgstr "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer."
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/app/Home.tsx
@@ -2138,6 +2154,14 @@ msgstr "Wide page"
 msgid "Window"
 msgstr "Window"
 
+#: src/app/ExportDialog.tsx
+msgid "Word (.docx)"
+msgstr "Word (.docx)"
+
+#: src/app/menuModel.ts
+msgid "Word (.docx)…"
+msgstr "Word (.docx)…"
+
 #: src/app/Details.tsx
 msgid "Words"
 msgstr "Words"
@@ -2160,6 +2184,10 @@ msgid "Write your first book"
 msgstr "Write your first book"
 
 #: src/app/ExportDialog.tsx
+msgid "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
+msgstr "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
+
+#: src/app/ExportDialog.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
 msgstr "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
 
@@ -2170,6 +2198,10 @@ msgstr "Writing column width"
 #: src/app/ExportDialog.tsx
 msgid "Writing Markdown…"
 msgstr "Writing Markdown…"
+
+#: src/app/ExportDialog.tsx
+msgid "Writing the Word file…"
+msgstr "Writing the Word file…"
 
 #: src/editor/Editor.tsx
 msgid "You can change this later in Settings, Editor."
