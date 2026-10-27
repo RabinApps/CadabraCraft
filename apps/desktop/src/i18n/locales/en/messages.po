@@ -116,6 +116,10 @@ msgstr "{kept, plural, one {# chapter will be imported.} other {# chapters will 
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
 msgstr "{minutes, plural, one {# minute} other {# minutes}}"
 
+#: src/editor/FindBar.tsx
+msgid "{n, plural, one {# match} other {# matches}}"
+msgstr "{n, plural, one {# match} other {# matches}}"
+
 #: src/app/App.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} of {sessionGoal} words this session"
@@ -267,6 +271,11 @@ msgstr "Back matter"
 #: src/app/menuModel.ts
 msgid "Back Matter"
 msgstr "Back Matter"
+
+#. placeholder {0}: r.title
+#: src/editor/FindBar.tsx
+msgid "Back matter: {0}"
+msgstr "Back matter: {0}"
 
 #: src/app/Settings.tsx
 msgid "Backups"
@@ -781,6 +790,11 @@ msgstr "Front matter"
 #: src/app/menuModel.ts
 msgid "Front Matter"
 msgstr "Front Matter"
+
+#. placeholder {0}: r.title
+#: src/editor/FindBar.tsx
+msgid "Front matter: {0}"
+msgstr "Front matter: {0}"
 
 #: src/app/Settings.tsx
 msgid "General"
@@ -1420,6 +1434,10 @@ msgstr "Restore"
 #: src/app/store.ts
 msgid "Restore {0}"
 msgstr "Restore {0}"
+
+#: src/editor/FindBar.tsx
+msgid "Results by page"
+msgstr "Results by page"
 
 #: src/app/Templates.tsx
 msgid "Right-hand page"

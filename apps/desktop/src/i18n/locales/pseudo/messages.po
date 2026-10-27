@@ -116,6 +116,10 @@ msgstr ""
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
 msgstr ""
 
+#: src/editor/FindBar.tsx
+msgid "{n, plural, one {# match} other {# matches}}"
+msgstr ""
+
 #: src/app/App.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr ""
@@ -266,6 +270,11 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "Back Matter"
+msgstr ""
+
+#. placeholder {0}: r.title
+#: src/editor/FindBar.tsx
+msgid "Back matter: {0}"
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -780,6 +789,11 @@ msgstr ""
 
 #: src/app/menuModel.ts
 msgid "Front Matter"
+msgstr ""
+
+#. placeholder {0}: r.title
+#: src/editor/FindBar.tsx
+msgid "Front matter: {0}"
 msgstr ""
 
 #: src/app/Settings.tsx
@@ -1419,6 +1433,10 @@ msgstr ""
 #: src/app/Sidebar.tsx
 #: src/app/store.ts
 msgid "Restore {0}"
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "Results by page"
 msgstr ""
 
 #: src/app/Templates.tsx

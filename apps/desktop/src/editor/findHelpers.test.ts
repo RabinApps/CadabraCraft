@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeAdjacentText, bookPosition, bookStep, countLabel, prefillQuery } from "./findHelpers";
+import { mergeAdjacentText, bookPosition, bookStep, countLabel, resultRows, prefillQuery } from "./findHelpers";
 
 describe("mergeAdjacentText", () => {
   const bold = [{ type: "bold" }];
@@ -42,6 +42,23 @@ describe("bookStep", () => {
     expect(bookStep(order, { b: 2 }, "b", { total: 2, index: 2 }, 1)).toEqual({ to: "stay" });
     expect(bookStep(order, { b: 2 }, "c", { total: 0, index: 0 }, 1)).toEqual({ to: "page", id: "b", at: "first" });
     expect(bookStep(order, {}, "c", { total: 0, index: 0 }, 1)).toBeNull();
+  });
+});
+
+describe("resultRows", () => {
+  const book = {
+    frontMatter: [{ id: "f", title: "Dedication" }],
+    chapters: [{ id: "a", title: "One" }, { id: "b", title: "Two" }, { id: "c", title: "Three" }],
+    backMatter: [{ id: "k", title: "About" }],
+  };
+  it("lists only pages with matches, in reading order, with sections", () => {
+    const rows = resultRows(book, { f: 1, a: 2, c: 0, k: 3 }, null, { total: 0, index: 0 });
+    expect(rows.map((r) => [r.id, r.section, r.count, r.current])).toEqual([["f", "front", 1, false], ["a", "chapter", 2, false], ["k", "back", 3, false]]);
+  });
+  it("uses the live count for the open page and marks it current only with a current match", () => {
+    expect(resultRows(book, { a: 5 }, "a", { total: 2, index: 1 })).toEqual([{ id: "a", title: "One", section: "chapter", count: 2, current: true }]);
+    expect(resultRows(book, { a: 5 }, "a", { total: 2, index: 0 })[0]!.current).toBe(false);
+    expect(resultRows(book, { a: 5 }, "a", { total: 0, index: 0 })).toEqual([]);
   });
 });
 

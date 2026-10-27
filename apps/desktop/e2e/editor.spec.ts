@@ -1067,6 +1067,104 @@ test.describe("find and replace", () => {
     await expect.poll(async () => ((await disk()).match(/id-\d/g) ?? []).length).toBe(3);
   });
 
+  /** Chapter One (2 owls), Chapter 2 (1), Chapter 3 (0) and a Dedication (1); Chapter One is left open. */
+  async function owlBook(page: Page) {
+    await newProject(page);
+    const typeInPage = async (text: string) => {
+      await page.locator(".ProseMirror").click();
+      await page.keyboard.press("ControlOrMeta+End");
+      await page.keyboard.type(text);
+    };
+    await typeInPage(" owl one owl");
+    await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+    await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+    await typeInPage("owl two");
+    await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+    await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 3");
+    await typeInPage("nothing here");
+    await addPage(page, "Dedication");
+    await typeInPage(" owl dedication");
+    await page.getByRole("button", { name: "Chapter One", exact: true }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("owl one owl");
+  }
+
+  test("All chapters: results list shows pages with counts, opens a page on click, and is absent when off", async ({ page }) => {
+    await owlBook(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.type("owl");
+    const list = bar(page).getByRole("list", { name: "Results by page" });
+    await expect(list).toHaveCount(0); // chip is off
+    await bar(page).getByRole("button", { name: "All chapters" }).click();
+    const rows = list.getByRole("button");
+    await expect(rows).toHaveCount(3);
+    await expect(list.getByRole("button", { name: "Front matter: Dedication, 1 match", exact: true })).toBeVisible();
+    await expect(list.getByRole("button", { name: "Chapter One, 2 matches", exact: true })).toHaveAttribute("aria-current", "true");
+    await expect(list.getByRole("button", { name: "Chapter 2, 1 match", exact: true })).toBeVisible();
+    await expect(list.getByRole("button", { name: "Chapter 3" })).toHaveCount(0);
+
+    await list.getByRole("button", { name: "Chapter 2, 1 match" }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("owl two");
+    await expect(page.locator(".search-match-current")).toHaveText("owl");
+    await expect(bar(page).getByText("4 of 4")).toBeVisible();
+    await expect(list.getByRole("button", { name: "Chapter 2, 1 match" })).toHaveAttribute("aria-current", "true");
+
+    await bar(page).getByLabel("Find", { exact: true }).fill("zzz");
+    await expect(list).toHaveCount(0); // no matches
+    await bar(page).getByLabel("Find", { exact: true }).fill("owl");
+    await expect(rows).toHaveCount(3);
+    await bar(page).getByRole("button", { name: "All chapters" }).click();
+    await expect(list).toHaveCount(0);
+  });
+
+  test("All chapters: results list works with Regex and refreshes after Replace all", async ({ page }) => {
+    await owlBook(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    await bar(page).getByRole("button", { name: "All chapters" }).click();
+    await bar(page).getByRole("button", { name: "Regex" }).click();
+    const find = bar(page).getByLabel("Find", { exact: true });
+    const list = bar(page).getByRole("list", { name: "Results by page" });
+    await find.fill("(");
+    await expect(bar(page).getByText("Invalid pattern")).toBeVisible();
+    await expect(list).toHaveCount(0);
+    await find.fill("o.l");
+    await expect(list.getByRole("button")).toHaveCount(3);
+    await find.fill("owl two");
+    await expect(list.getByRole("button")).toHaveCount(1);
+    await find.fill("o.l");
+    await bar(page).getByLabel("Replace with").fill("dog");
+    await bar(page).getByRole("button", { name: "Replace all" }).click();
+    await expect(bar(page).getByText("No results")).toBeVisible();
+    await expect(list).toHaveCount(0);
+    await page.keyboard.press("ControlOrMeta+Alt+z");
+    await expect(list.getByRole("button")).toHaveCount(3);
+  });
+
+  test("All chapters: results list scrolls past its row limit and fits a phone", async ({ page }) => {
+    await newProject(page);
+    for (let i = 0; i < 4; i++) {
+      await page.locator(".ProseMirror").click();
+      await page.keyboard.press("ControlOrMeta+End");
+      await page.keyboard.type(" owl with a rather long sentence so that nothing could possibly fit");
+      await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+      await expect(page.locator(".ProseMirror h1")).toHaveText(`Chapter ${i + 2}`);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator(".ProseMirror").click();
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.type("owl");
+    await bar(page).getByRole("button", { name: "All chapters" }).click();
+    const list = bar(page).getByRole("list", { name: "Results by page" });
+    await expect(list.getByRole("button")).toHaveCount(4);
+    const first = await list.getByRole("button").first().boundingBox();
+    expect(first!.height).toBeGreaterThanOrEqual(44);
+    const box = await list.boundingBox();
+    expect(box!.height).toBeLessThanOrEqual(133);
+    expect(await list.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    const bb = await bar(page).boundingBox();
+    expect(bb!.x + bb!.width).toBeLessThanOrEqual(390);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
   test("is not available while reading", async ({ page }) => {
     await withText(page);
     await page.getByRole("radio", { name: "Read" }).click();

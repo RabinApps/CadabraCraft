@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { Editor } from "@tiptap/react";
 import { TextSelection } from "@tiptap/pm/state";
+import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { Button, IconButton } from "../ui/Button";
@@ -9,7 +10,7 @@ import { Field } from "../ui/Input";
 import { readingOrder } from "@cadabracraft/format";
 import { useProject } from "../app/store";
 import { errText } from "../lib/projectError";
-import { bookPosition, bookStep, countLabel, type PageCounts } from "./findHelpers";
+import { bookPosition, bookStep, countLabel, resultRows, type PageCounts, type ResultRow } from "./findHelpers";
 import { useFind } from "./findStore";
 import { searchBook } from "./search/bookSearch";
 import { isInvalidRegex } from "./search/match";
@@ -23,6 +24,8 @@ const DEBOUNCE_MS = 100;
  */
 function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord: boolean, regex: boolean, editorTotal: number): PageCounts {
   const readPages = useProject((s) => s.actions.readPages);
+  // A book-wide replace (or its undo) changes pages other than the open one, so it also triggers a recount.
+  const history = useProject((s) => s.history);
   const [counts, setCounts] = useState<PageCounts>({});
   useEffect(() => {
     if (!on || !query) { setCounts({}); return; }
@@ -33,7 +36,7 @@ function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord
         .catch(() => { if (live) setCounts({}); });
     }, 150);
     return () => { live = false; clearTimeout(id); };
-  }, [on, query, matchCase, wholeWord, regex, editorTotal, readPages]);
+  }, [on, query, matchCase, wholeWord, regex, editorTotal, history, readPages]);
   return counts;
 }
 
@@ -154,6 +157,16 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
   };
   const invalid = f.regex && isInvalidRegex(f.query, f.matchCase, f.wholeWord);
   const noResults = f.query !== "" && info.total === 0;
+  const rows = f.allChapters && !invalid && manifest ? resultRows(manifest, counts, currentId, editorInfo) : [];
+  const rowTitle = (r: ResultRow) => r.section === "front" ? t`Front matter: ${r.title}` : r.section === "back" ? t`Back matter: ${r.title}` : r.title;
+  const rowCount = (n: number) => plural(n, { one: "# match", other: "# matches" });
+  /** Opens that page and selects its first match (the same hand-over as stepping into another page). */
+  const openRow = (id: string) => {
+    flush();
+    if (id === currentId) { apply(); requestAnimationFrame(() => { if (!editor.isDestroyed) revealCurrent(editor); }); return; }
+    useFind.setState({ pendingReveal: "first" });
+    void useProject.getState().actions.selectChapter(id).catch((e) => useProject.setState({ notice: errText(e) }));
+  };
 
   return (
     <div
@@ -209,6 +222,27 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
         <button type="button" aria-pressed={f.allChapters} className={cx(chip, f.allChapters ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ allChapters: !f.allChapters })}>{t`All chapters`}</button>
         <button type="button" aria-pressed={f.regex} className={cx(chip, f.regex ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ regex: !f.regex })}>{t`Regex`}</button>
       </div>
+      {rows.length > 0 && (
+        <ul aria-label={t`Results by page`} className="m-0 flex max-h-[132px] list-none flex-col gap-0.5 overflow-y-auto p-0 md:max-h-[128px]">
+          {rows.map((r) => (
+            <li key={r.id} className="min-w-0">
+              <button
+                type="button"
+                aria-label={`${rowTitle(r)}, ${rowCount(r.count)}`}
+                aria-current={r.current ? "true" : undefined}
+                onClick={() => openRow(r.id)}
+                className={cx(
+                  "flex min-h-11 w-full min-w-0 items-center justify-between gap-3 rounded-md px-2.5 text-start text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:min-h-7",
+                  r.current ? "bg-accent-soft font-semibold text-accent" : "text-ink hover:bg-accent-soft",
+                )}
+              >
+                <span className="min-w-0 flex-1 truncate">{rowTitle(r)}</span>
+                <span className={cx("shrink-0 tabular-nums", r.current ? "text-accent" : "text-ink-muted")}>{r.count}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

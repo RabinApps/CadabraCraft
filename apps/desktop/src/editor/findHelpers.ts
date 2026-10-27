@@ -56,6 +56,31 @@ export function bookPosition(order: string[], counts: PageCounts, currentId: str
   return { total, index: inPage.total > 0 ? before + inPage.index : 0 };
 }
 
+/** One row of the book-wide results list. */
+export interface ResultRow { id: string; title: string; section: "front" | "chapter" | "back"; count: number; current: boolean }
+
+interface Titled { id: string; title: string }
+
+/** Pages (in reading order) that have matches, with the open page's count taken live from the editor. */
+export function resultRows(
+  book: { frontMatter: Titled[]; chapters: Titled[]; backMatter: Titled[] },
+  counts: PageCounts,
+  currentId: string | null,
+  inPage: InPage,
+): ResultRow[] {
+  const rows: ResultRow[] = [];
+  const add = (list: Titled[], section: ResultRow["section"]) => {
+    for (const e of list) {
+      const count = e.id === currentId ? inPage.total : (counts[e.id] ?? 0);
+      if (count > 0) rows.push({ id: e.id, title: e.title, section, count, current: e.id === currentId && inPage.index > 0 });
+    }
+  };
+  add(book.frontMatter, "front");
+  add(book.chapters, "chapter");
+  add(book.backMatter, "back");
+  return rows;
+}
+
 /** Where Enter / Shift+Enter goes in book scope: stay in the open page (the editor steps, wrapping), open another page, or nowhere. */
 export type BookStep = { to: "stay" } | { to: "page"; id: string; at: "first" | "last" } | null;
 
