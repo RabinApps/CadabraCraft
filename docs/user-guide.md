@@ -1,0 +1,229 @@
+# CadabraCraft user guide
+
+For authors. Back to the [docs index](README.md) or the [project README](../README.md).
+
+CadabraCraft is a desktop app for writing a book and turning it into an e-book (EPUB) or a print-ready PDF. Your book lives in a folder on your computer. There is no account, no server and no tracking. The only thing the app ever sends over the network is an optional check for a newer version when it starts (you can switch it off in Settings, General).
+
+## Getting started
+
+### Make or open a book
+
+On the start screen choose:
+
+- **New project** to start a book. Give it a title and an author and choose a folder to keep it in. The app puts everything for the book in that folder.
+- **Open folder** to open a book you already made, for example one you copied from another computer.
+- **Import…** to start a book from a Word, Markdown or HTML file (see [Importing](#importing-a-manuscript)).
+
+Books you opened before appear under **Recent projects**. File > Open Recent lists them too.
+
+### Your book is a folder
+
+A book is an ordinary folder. Inside it:
+
+```
+MyBook/
+  cadabra.json     the book's title, author, language, chapter order and so on
+  manuscript/      one file per chapter
+  front-matter/    title page, copyright page, dedication...
+  back-matter/     acknowledgments, about the author...
+  assets/          your images and cover
+  exports/         the EPUB, PDF and Markdown files you make
+  .cadabra/        the app's own safety copies and trash
+```
+
+Why this is good for you:
+
+- You own it. You can copy it, zip it, back it up or put it under version control like any other folder.
+- Nothing needs the app to read it. Chapters are plain, documented text files. The exact layout is in [file-format.md](file-format.md).
+- It works with any sync service. See [Using a cloud-synced folder](#using-a-cloud-synced-folder).
+
+The app never stores full paths on your computer inside the book, so moving the folder is safe. Move it with the app closed, then open it from the new place.
+
+## Writing
+
+Click a chapter in the list on the left to edit it. Changes are saved automatically about two seconds after you stop typing, and the app waits for the save when you close the window. **File > Save** (Cmd/Ctrl+S) saves right away.
+
+### Formatting
+
+The toolbar and the **Format** and **Insert** menus offer:
+
+- Bold, italic, underline, small caps, strikethrough, code, superscript and subscript
+- Heading 1, 2 and 3
+- Block quote, bulleted list and numbered list
+- Links (http, https or mailto addresses only)
+- Tables (Insert > Table…, then Format > Table to add or remove rows and columns)
+- Code blocks (Insert > Code Block)
+
+### Chapter headings and scene breaks
+
+Use **Heading 1** for a chapter title; headings 2 and 3 are for sections inside a chapter. A **scene break** (Insert > Scene Break, or the asterisk button) marks a shift in time or place. In the finished book it is shown with the template's own ornament, so you never have to type rows of asterisks.
+
+### Footnotes
+
+Insert > Footnote (or the Fn button) adds a note at the cursor. Type the note's text in place. In an EPUB they are gathered as notes at the end of the chapter; in the PDF they sit at the foot of the page and are numbered per chapter.
+
+### Images
+
+Insert > Image… lets you pick a picture (png, jpg, gif, webp or svg, up to 25 MB). Add a description for screen readers and, if you like, a caption. A copy of the picture goes into the book's `assets/` folder, so the original can stay where it is.
+
+### Focus mode, typewriter scrolling and a word goal
+
+- **Focus mode** (View > Focus Mode, Cmd/Ctrl+Shift+F) hides everything but the page. Press Escape or click the button at the top right to leave.
+- **Typewriter scrolling** keeps the line you are writing in the middle of the screen. Turn it on in Settings, Editor.
+- **Session word goal** (Settings, Editor) is the number of words you want to write each time you open a book. While it is above 0, a small progress bar at the bottom of the window shows how many words you have written since you opened the book. Set it to 0 to turn it off.
+- Settings, Editor also has the manuscript font, the width of the writing column and what to do when you paste text that contains HTML tags.
+
+### Find and replace
+
+Edit > Find… (Cmd/Ctrl+F) opens the find bar; Edit > Find and Replace… (Cmd/Ctrl+Alt+F) adds the replace field. Options:
+
+- **Match case** and **Whole word**
+- **All chapters** searches the whole book, front and back matter included, and lists the results by page so you can jump to them
+- **Regex** treats your search as a regular expression. The flavour is RE2, so character classes, groups and the usual repeats work, but backreferences such as `\1` and lookahead or lookbehind do not (they show "Invalid pattern"). In the replacement, `$1` to `$9` insert the groups you captured.
+
+Replacing works on text within one paragraph at a time; a match cannot run across a paragraph break.
+
+### Reading mode
+
+Use the **Read** switch at the top to see your book the way a reader would, without the toolbar. You can change the text size, page width and theme from the reading settings button, and move between chapters with the buttons at the bottom. Reading mode is for looking, not editing; switch back to **Write** to change the text. (Find is available in Write mode only.)
+
+## Organising your book
+
+The list on the left has three parts: front matter, chapters and back matter. Reading order is simply the order of this list.
+
+- **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page and one copyright page.
+- The `...` menu next to each entry lets you **Rename**, **Move up**, **Move down** or **Move to trash**.
+- **Trash** (bottom of the list) shows pages you moved to the trash. **Restore** puts one back at the end of its section. Nothing is ever permanently deleted by the app; trashed files stay in `.cadabra/trash/` inside your book folder until you delete them yourself.
+- **Book undo and redo** (the arrows at the bottom of the list, or Edit > Undo ... / Redo ..., Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z) reverse changes to the structure: adding, renaming, moving, trashing and restoring. The button says what it will undo. They do not undo typing (normal Cmd/Ctrl+Z does that) and they start fresh each time you open the book.
+
+Book details (File > Book Details…, or the book icon at the top) hold the title, author, language, ISBN, identifier and cover image. The cover is a PNG, JPEG or WebP image up to 25 MB; portrait and about 1600 x 2400 pixels works best. Change the look of the printed book on the **Templates** page (Change template in the details panel). The Novel, Nonfiction and Modern templates are included.
+
+## History, backups and keeping your work safe
+
+### Snapshots and the History dialog
+
+Each time a save is about to replace a chapter's text with different text, the app first keeps the old text as a **snapshot**. To avoid clutter it keeps at most one per chapter every 10 minutes. This covers every kind of change, including Replace all.
+
+To look at earlier versions, open the `...` menu next to a chapter (or front or back matter page) and choose **History**.
+
+- The list shows the earlier versions with their word count and how many words were added or removed compared with the current text. The newest 50 are listed.
+- Pick one to see a word-by-word comparison with the current text. Green marks words only in that version; red marks words only in the current text. The comparison looks at words, not formatting.
+- **Restore this version** puts it back. The text it replaces is kept as a new snapshot first, so you can undo a restore the same way.
+
+### Backups settings
+
+Settings, **Backups** sets how many snapshots to keep per chapter: 5 to 500, 50 by default. Older ones are removed, but the app never removes a snapshot younger than 30 days. Pruning happens when a book opens, and the app deletes nothing else on its own.
+
+### Where snapshots live
+
+In the `.cadabra/backups/` folder inside your book folder. They belong to this computer: keep `.cadabra` out of cloud sync. They are safe to delete by hand, and nothing in your chapters refers to them. The same folder also holds the copy of `cadabra.json` made before a format upgrade.
+
+### Recovery offer
+
+When you open a book, the app checks each page. If its newest snapshot is clearly newer than the saved file, or the file is empty, which is what a sync folder putting an older file back looks like, it asks whether to **Use newer text** or **Keep saved text**. Either way your saved text is kept as a snapshot. This only catches a chapter rolled back to older text; it cannot recover typing that was never saved. If you choose Keep saved text it will ask again next time until the page is saved again.
+
+### Other safety nets
+
+- **Autosave** writes about two seconds after you stop typing. Each save goes to a temporary file first and is then swapped in, so a crash cannot leave a half-written chapter.
+- **The trash** keeps every chapter or page you removed (see above).
+- **Conflicts.** If the same chapter changed in the app and elsewhere (a sync service, say) before the app could save, the other version is kept next to it as `<name>.conflict-DATE-TIME.json`.
+- **Your own backups.** A book is a folder, so copying it is a complete backup. Do this before big changes.
+
+The Shortcuts page in Settings is not built yet and appears greyed out. See [roadmap.md](roadmap.md).
+
+## Importing a manuscript
+
+File > Import Manuscript… (Cmd/Ctrl+Shift+I) or **Import…** on the start screen creates a **new** book from:
+
+- a Word file (`.docx`)
+- a Markdown file (`.md`)
+- an HTML file (`.html` or `.htm`)
+
+Choose the file, a title, an author and an empty folder for the new book. The next step shows the chapters the app found. You can choose which heading level starts a new chapter (Heading 1, 2 or 3), rename chapters and leave some out. Your original file is never changed.
+
+After the import an **Import report** lists anything that could not be kept exactly, grouped by kind with a few examples, for instance unsupported Word features or an image that could not be read. "Warning" means something was lost or changed and is worth a look; "Note" means a routine adjustment. Use **Copy report** if you want to keep it or send it with a bug report. "Nothing was lost or changed" means just that. The full list of mappings and warnings is in [import.md](import.md).
+
+You cannot import into a book that is already open; import into a new book, then copy over what you need.
+
+## Exporting
+
+File > Export opens the Export dialog (or use the shortcuts below). Files are saved in the `exports/` folder of your book as `book.epub`, `book.pdf` and `book.md`. Exporting again replaces the previous file of the same name, so move one elsewhere if you want to keep it. The `exports/` folder is safe to delete; the app can always make the files again.
+
+### EPUB (e-book)
+
+EPUB 3 works with most e-readers and stores. The dialog first checks what it can see, such as a book with no chapters or untitled chapters. The EPUB format itself is checked with the standard EPUBCheck tool during development; the app does not run EPUBCheck on your file. If a store rejects an EPUB, see [Troubleshooting](#troubleshooting).
+
+### Print PDF
+
+Choose a **trim size** (page size: 5 x 8, 5.5 x 8.5 or 6 x 9 inches), a **template**, whether to make an archival **PDF/A**, and whether to include the cover as the first page. Printers usually want the cover as a separate file, so turn the cover off for a print-ready interior.
+
+Above the options a list of **Print checks** compares your book with Amazon KDP paperback rules: a page count of 24 to 828, the minimum inside (gutter) margin for your page count and a 0.25 inch minimum outer margin. These use an estimated page count, so treat them as early warnings, not a guarantee. KDP's own previewer has the final say. The PDF has no bleed or crop marks. **Print preview** shows an approximate layout; it is not the PDF.
+
+The PDF is built by Typst. Installers are meant to ship with it (see Troubleshooting for builds from source).
+
+### Markdown
+
+Writes the whole book as one Markdown file in reading order. Underline, small caps, superscript and subscript have no Markdown form, so by default the export stops and names the chapter; tick **Keep underline and small caps** to write them as HTML tags instead.
+
+After an export finishes the app may offer a sponsor dialog; you can say "Maybe later" or "Don't show again".
+
+## Using a cloud-synced folder
+
+You can keep the book folder inside Dropbox, Google Drive or iCloud Drive to use it on more than one computer. The app is built for that: writes are safe, files that have not finished downloading are reported as "still downloading" instead of looking empty, and if both sides changed a chapter the app keeps both copies.
+
+Be honest with yourself about the limits:
+
+- The sync rules are tested with simulated sync clients. The checklist for the real clients ([sync-testing.md](sync-testing.md)) **has not been run yet**. Treat sync as experimental.
+- History and the recovery offer help if an older file reappears, but they are also untested on real sync folders. Use the book on one computer at a time, and let the sync client finish before you open it on another.
+- Keep a separate backup copy of the folder.
+- Tell your sync client to skip the `.cadabra/` folder: it holds this computer's snapshots and trash.
+- If you see a `.conflict-` file, open both versions and copy over what you want to keep.
+
+## Keyboard shortcuts
+
+On Windows and Linux use Ctrl where the table says Cmd.
+
+| Action | Shortcut |
+|---|---|
+| New project | Cmd/Ctrl+N |
+| Open project | Cmd/Ctrl+O |
+| Import manuscript | Cmd/Ctrl+Shift+I |
+| Save | Cmd/Ctrl+S |
+| Export EPUB | Cmd/Ctrl+E |
+| Export print PDF | Cmd/Ctrl+Shift+E |
+| Close project | Cmd/Ctrl+Shift+W |
+| Settings | Cmd/Ctrl+, |
+| Find | Cmd/Ctrl+F |
+| Find and replace | Cmd/Ctrl+Alt+F |
+| New chapter | Cmd/Ctrl+Shift+N |
+| Focus mode | Cmd/Ctrl+Shift+F |
+| Previous page / next page | Cmd/Ctrl+[ and Cmd/Ctrl+] |
+| Undo / redo typing | the usual Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z |
+| Undo / redo book change | Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z |
+| Leave focus mode | Escape |
+| Bold, italic, underline | Cmd/Ctrl+B, Cmd/Ctrl+I, Cmd/Ctrl+U |
+
+Everything else is in the menus. There is no way to change shortcuts yet.
+
+## Troubleshooting
+
+**PDF export says Typst is missing.** Print PDF is built by a program called Typst. Packaged installers are meant to include it, so a release build needs nothing else. If you built the app from source, run `scripts/fetch-typst.sh` once before building (see the [README](../README.md)), or install Typst yourself (for example with Homebrew) and, if the app still cannot find it, type its location into the **Typst location** field of the Export dialog. Note that the Export dialog's own wording still says Typst must be installed; that text is out of date for packaged builds.
+
+**PDF export says a font is missing.** The Modern template uses Inter, which ships with the app. If you pointed the app at your own Typst, make sure the fonts of the template you chose are installed on your computer.
+
+**A store rejects my EPUB.** Check the title, author, language and cover in Book Details. If you still have trouble, see [the project README](../README.md) for how to run the EPUBCheck validator and send the output with a bug report.
+
+**Some text vanished after an import.** Open the report (it is also shown right after the import) and look for warnings. Your original file is untouched, so you can import again with a different heading level.
+
+**A chapter is shown as unavailable or "still downloading".** Your sync service has not finished downloading that file. Wait, then reopen the book.
+
+**Where did my files go?**
+
+- `manuscript/`, `front-matter/`, `back-matter/`: the text of your book
+- `assets/`: images and your cover
+- `exports/`: EPUB, PDF and Markdown you have made
+- `.cadabra/trash/`: pages you moved to the trash
+- `.cadabra/backups/`: History snapshots and the copy made before a format upgrade
+- `*.conflict-*.json`: the other version of a chapter that changed in two places
+
+**I lost some text.** Open the chapter's History and restore an earlier version. For a removed chapter, look in the Trash, then in `.cadabra/trash/`.
