@@ -26,7 +26,7 @@ export default function Download() {
           </a>
         </div>
         <p className="mt-6 text-sm text-ink-muted">
-          Print PDF export uses Typst, which you install once on your computer.
+          Print PDF export uses Typst, which comes with the app.
         </p>
       </section>
       <SponsorBand />

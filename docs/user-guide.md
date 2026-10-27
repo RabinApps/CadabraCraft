@@ -189,7 +189,7 @@ On Windows and Linux use Ctrl where the table says Cmd.
 | Open project | Cmd/Ctrl+O |
 | Import manuscript | Cmd/Ctrl+Shift+I |
 | Save | Cmd/Ctrl+S |
-| Export EPUB | Cmd/Ctrl+E |
+| Export EPUB | Cmd/Ctrl+Alt+E |
 | Export print PDF | Cmd/Ctrl+Shift+E |
 | Close project | Cmd/Ctrl+Shift+W |
 | Settings | Cmd/Ctrl+, |
@@ -202,6 +202,7 @@ On Windows and Linux use Ctrl where the table says Cmd.
 | Undo / redo book change | Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z |
 | Leave focus mode | Escape |
 | Bold, italic, underline | Cmd/Ctrl+B, Cmd/Ctrl+I, Cmd/Ctrl+U |
+| Inline code | Cmd/Ctrl+E |
 
 Everything else is in the menus. There is no way to change shortcuts yet.
 

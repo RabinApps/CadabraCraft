@@ -37,7 +37,7 @@ export const competitors: Competitor[] = [
       openSource: { value: "No" },
     },
     chooseThem: "You work on a Mac, want its established, polished layouts and are happy to pay for them.",
-    chooseUs: "You want a free, open-source app on any desktop, with your book kept as plain local files.",
+    chooseUs: "You want a free, source-available app on any desktop, with your book kept as plain local files.",
   },
   {
     slug: "atticus",
@@ -101,7 +101,7 @@ export const us = {
   account: "No account",
   localFiles: "Yes, plain documented files",
   epub: "Yes, validated EPUB3",
-  printPdf: "Yes (needs Typst installed)",
+  printPdf: "Yes",
   openSource: "Yes",
 };
 
@@ -112,7 +112,7 @@ export const factRows: { key: keyof typeof us; label: string }[] = [
   { key: "localFiles", label: "Book kept in local files" },
   { key: "epub", label: "EPUB3 export" },
   { key: "printPdf", label: "Print PDF export" },
-  { key: "openSource", label: "Open source" },
+  { key: "openSource", label: "Source code available" },
 ];
 
 export function getCompetitor(slug: string): Competitor | undefined {

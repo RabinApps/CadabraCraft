@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
   "Book writing and formatting features",
-  "Local-first editor, EPUB3 and print PDF export, templates, Word and Markdown import. Free and open source.",
+  "Local-first editor, EPUB3 and print PDF export, templates, Word and Markdown import. Free and source-available.",
   "/features/",
 );
 

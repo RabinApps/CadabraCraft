@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader" });
 
 const description =
-  "CadabraCraft is a free, open-source desktop app for writing and formatting books. Local-first, no account, EPUB3 and print PDF export.";
+  "CadabraCraft is a free, source-available desktop app for writing and formatting books. Local-first, no account, EPUB3 and print PDF export.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

@@ -4,7 +4,7 @@
 
 # CadabraCraft
 
-**Write, format and publish your book. Local-first, open source, no account.**
+**Write, format and publish your book. Local-first, source-available, no account.**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/RabinApps/CadabraCraft/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/RabinApps/CadabraCraft/actions/workflows/ci.yml)
 [![Website](https://img.shields.io/badge/website-cadabracraft.com-2F73E6?style=flat-square)](https://cadabracraft.com)
@@ -20,7 +20,7 @@ CadabraCraft is a desktop app for writing and formatting books. Write in a rich-
 
 - **Local-first.** Your project is a folder of plain, documented files. No account, no server, no telemetry.
 - **Your sync, your choice.** Point the folder at Google Drive, Dropbox or iCloud Drive. Conflicting edits keep both copies.
-- **Open source.** The app, the file format and the exporters all live in this repo.
+- **Source-available.** The app, the file format and the exporters all live in this repo, free for noncommercial use (see [License](#license)).
 
 ## What it is
 

@@ -100,7 +100,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("file.bookDetails", t`Book Details…`),
     sep,
     sub(t`Export`, [
-      cmd("file.exportEpub", t`EPUB…`, "CmdOrCtrl+E"),
+      cmd("file.exportEpub", t`EPUB…`, "CmdOrCtrl+Alt+E"),
       cmd("file.exportPdf", t`Print PDF…`, "CmdOrCtrl+Shift+E"),
       cmd("file.exportMarkdown", t`Markdown…`),
       cmd("file.exportDocx", t`Word (.docx)…`),

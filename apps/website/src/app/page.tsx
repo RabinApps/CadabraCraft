@@ -10,7 +10,7 @@ export default function Home() {
     <>
       <section className="mx-auto max-w-6xl px-4 pb-16 pt-16 text-center sm:px-6 sm:pt-24">
         <p className="mb-4 inline-block rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent">
-          Free and open source · No account · Your files stay yours
+          Free and source-available · No account · Your files stay yours
         </p>
         <h1 className="mx-auto max-w-3xl font-book text-4xl font-medium leading-tight sm:text-6xl">
           Write your book. Format it beautifully.

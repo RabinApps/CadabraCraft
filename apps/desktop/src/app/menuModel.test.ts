@@ -141,3 +141,18 @@ describe("what is available in each context", () => {
     expect(items.filter((e) => e.kind === "command" && e.id === "file.openRecent")).toHaveLength(8);
   });
 });
+
+describe("menu shortcuts", () => {
+  const accelerators = (entries: readonly MenuEntry[]): string[] =>
+    entries.flatMap((e) => (e.kind === "command" && e.accelerator ? [e.accelerator] : e.kind === "submenu" ? accelerators(e.items) : []));
+
+  it("never gives two commands the same shortcut", () => {
+    const all = accelerators(buildMenuModel(ctx(BOOK)));
+    expect(all.filter((a, i) => all.indexOf(a) !== i)).toEqual([]);
+  });
+
+  it("leaves Cmd/Ctrl+E to the editor, where it toggles inline code", () => {
+    expect(accelerators(buildMenuModel(ctx(BOOK)))).not.toContain("CmdOrCtrl+E");
+    expect(find(buildMenuModel(ctx(BOOK)), "file.exportEpub")?.accelerator).toBe("CmdOrCtrl+Alt+E");
+  });
+});

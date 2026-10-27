@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm text-ink-muted sm:grid-cols-3 sm:px-6">
         <div>
           <p className="font-book text-lg text-ink">CadabraCraft</p>
-          <p className="mt-2">Free, open-source book writing and formatting.</p>
+          <p className="mt-2">Free, source-available book writing and formatting.</p>
         </div>
         <nav aria-label="Footer" className="flex flex-col gap-2">
           {nav.map((n) => (

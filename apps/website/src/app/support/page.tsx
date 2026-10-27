@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
   "Support the project",
-  "CadabraCraft is free and open source. Sponsor it through GitHub Sponsors, Buy Me a Coffee or PayPal.",
+  "CadabraCraft is free and source-available. Sponsor it through GitHub Sponsors, Buy Me a Coffee or PayPal.",
   "/support/",
 );
 

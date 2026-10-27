@@ -80,7 +80,7 @@ export default async function ComparePage({ params }: { params: Promise<Params> 
           </ul>
           <p className="mt-3">
             {c.name} is a trademark of its owner. Details can change; check the vendor for current information.
-            CadabraCraft is early software: print PDF needs Typst installed and downloads are not packaged yet.
+            CadabraCraft is early software: downloads are not packaged yet.
           </p>
         </section>
       </article>

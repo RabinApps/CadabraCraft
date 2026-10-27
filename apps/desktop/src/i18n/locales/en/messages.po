@@ -415,8 +415,8 @@ msgid "CadabraCraft does not have permission to use {0}"
 msgstr "CadabraCraft does not have permission to use {0}"
 
 #: src/app/SponsorDialog.tsx
-msgid "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
-msgstr "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
+msgid "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
+msgstr "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 
 #: src/app/useAppMenu.ts
 msgid "CadabraCraft is up to date."
@@ -665,8 +665,8 @@ msgid "Creates a new book from a Word (.docx), Markdown or HTML file. The origin
 msgstr "Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed."
 
 #: src/app/ExportDialog.tsx
-msgid "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
-msgstr "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
+msgid "Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app."
+msgstr "Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app."
 
 #: src/app/ExportDialog.tsx
 msgid "Creates an EPUB 3 e-book in the exports folder."
@@ -1136,8 +1136,8 @@ msgid "Later"
 msgstr "Later"
 
 #: src/app/ExportDialog.tsx
-msgid "Leave empty to use the typst found on this computer."
-msgstr "Leave empty to use the typst found on this computer."
+msgid "Leave empty to use the Typst that comes with the app."
+msgstr "Leave empty to use the Typst that comes with the app."
 
 #: src/app/Settings.tsx
 #: src/editor/ReadingSettings.tsx

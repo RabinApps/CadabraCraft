@@ -17,7 +17,7 @@ export const features = [
   },
   {
     title: "Print-ready PDF",
-    body: "Novel, nonfiction and modern templates, trim sizes, PDF/A and a print preview. PDF export uses Typst, which you install once on your computer.",
+    body: "Novel, nonfiction and modern templates, trim sizes, PDF/A and a print preview. PDF export uses Typst, which comes with the app.",
   },
   {
     title: "Bring your manuscript",
@@ -43,7 +43,7 @@ export const benefits = features.filter((f) => highlights.includes(f.title));
 export const faq = [
   {
     q: "Is CadabraCraft really free?",
-    a: "Yes. It is free and open source. Sponsorship pays for development time and keeps the project independent.",
+    a: "Yes. It is free and source-available. Sponsorship pays for development time and keeps the project independent.",
   },
   {
     q: "Do I need an account?",
@@ -55,7 +55,7 @@ export const faq = [
   },
   {
     q: "What formats can I export?",
-    a: "EPUB3 and print-ready PDF. PDF export uses Typst, which you install once on your computer.",
+    a: "EPUB3 and print-ready PDF. PDF export uses Typst, which comes with the app.",
   },
   {
     q: "Which platforms does it support?",

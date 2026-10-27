@@ -146,7 +146,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
     }
   };
   return (
-    <Modal open={open} onOpenChange={change} title={t`Export book`} description={format === "epub" ? t`Creates an EPUB 3 e-book in the exports folder.` : format === "markdown" ? t`Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer.` : format === "docx" ? t`Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer.` : t`Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer.`}>
+    <Modal open={open} onOpenChange={change} title={t`Export book`} description={format === "epub" ? t`Creates an EPUB 3 e-book in the exports folder.` : format === "markdown" ? t`Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer.` : format === "docx" ? t`Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer.` : t`Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app.`}>
       <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <Segmented<ExportFormat>
           label={t`Format`}
@@ -177,7 +177,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
               <Checkbox label={t`Include the cover`} hint={t`Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file.`} checked={withCover} disabled={running} onChange={(e) => setWithCover(e.target.checked)} />
             )}
             {(error?.code === "typst-missing" || typstPath) && (
-              <Field label={t`Typst location (optional)`} value={typstPath} disabled={running} placeholder="/opt/homebrew/bin/typst" onChange={(e) => setTypstPath(e.target.value)} hint={t`Leave empty to use the typst found on this computer.`} />
+              <Field label={t`Typst location (optional)`} value={typstPath} disabled={running} placeholder="/opt/homebrew/bin/typst" onChange={(e) => setTypstPath(e.target.value)} hint={t`Leave empty to use the Typst that comes with the app.`} />
             )}
           </>
         )}

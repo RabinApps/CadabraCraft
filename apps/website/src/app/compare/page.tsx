@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
   "Compare book formatting software",
-  "Fair, dated, side-by-side comparisons of CadabraCraft, a free open-source book formatter, with popular alternatives.",
+  "Fair, dated, side-by-side comparisons of CadabraCraft, a free, source-available book formatter, with popular alternatives.",
   "/compare/",
 );
 

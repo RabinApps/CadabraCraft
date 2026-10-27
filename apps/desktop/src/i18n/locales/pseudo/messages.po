@@ -415,7 +415,7 @@ msgid "CadabraCraft does not have permission to use {0}"
 msgstr ""
 
 #: src/app/SponsorDialog.tsx
-msgid "CadabraCraft is free and open source, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
+msgid "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 msgstr ""
 
 #: src/app/useAppMenu.ts
@@ -665,7 +665,7 @@ msgid "Creates a new book from a Word (.docx), Markdown or HTML file. The origin
 msgstr ""
 
 #: src/app/ExportDialog.tsx
-msgid "Creates a print-ready PDF in the exports folder. This needs Typst installed on this computer."
+msgid "Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app."
 msgstr ""
 
 #: src/app/ExportDialog.tsx
@@ -1136,7 +1136,7 @@ msgid "Later"
 msgstr ""
 
 #: src/app/ExportDialog.tsx
-msgid "Leave empty to use the typst found on this computer."
+msgid "Leave empty to use the Typst that comes with the app."
 msgstr ""
 
 #: src/app/Settings.tsx
