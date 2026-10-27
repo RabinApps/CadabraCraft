@@ -942,6 +942,63 @@ test.describe("find and replace", () => {
     await expect(bar(page).getByLabel("Replace with")).toHaveCount(0);
   });
 
+  test("All chapters: counts the whole book, steps into other chapters, and replaces everywhere with one book undo", async ({ page }) => {
+    await newProject(page);
+    const typeInPage = async (text: string) => {
+      await page.locator(".ProseMirror").click();
+      await page.keyboard.press("ControlOrMeta+End");
+      await page.keyboard.type(text);
+    };
+    await typeInPage(" owl one owl");
+    await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+    await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+    await typeInPage("owl two");
+    await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+    await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 3");
+    await typeInPage("nothing here");
+    await addPage(page, "Dedication");
+    await typeInPage(" owl dedication");
+    await page.getByRole("button", { name: "Chapter One", exact: true }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("owl one owl");
+
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.type("owl");
+    await expect(bar(page).getByText("1 of 2")).toBeVisible(); // this chapter only
+    const all = bar(page).getByRole("button", { name: "All chapters" });
+    await expect(all).toHaveAttribute("aria-pressed", "false");
+    await all.click();
+    // Reading order: Dedication (1), Chapter One (2), Chapter 2 (1), Chapter 3 (0).
+    await expect(bar(page).getByText("2 of 4")).toBeVisible();
+    await bar(page).getByLabel("Find", { exact: true }).press("Enter");
+    await expect(bar(page).getByText("3 of 4")).toBeVisible();
+    await bar(page).getByLabel("Find", { exact: true }).press("Enter");
+    await expect(page.locator(".ProseMirror")).toContainText("owl two"); // opened Chapter 2
+    await expect(bar(page).getByText("4 of 4")).toBeVisible();
+    await expect(page.locator(".search-match-current")).toHaveText("owl");
+    await bar(page).getByLabel("Find", { exact: true }).press("Enter"); // wraps to the first page
+    await expect(page.locator(".ProseMirror")).toContainText("owl dedication");
+    await expect(bar(page).getByText("1 of 4")).toBeVisible();
+    await bar(page).getByLabel("Find", { exact: true }).press("Shift+Enter"); // back to the last match
+    await expect(page.locator(".ProseMirror")).toContainText("owl two");
+    await expect(bar(page).getByText("4 of 4")).toBeVisible();
+
+    await bar(page).getByLabel("Replace with").fill("dog");
+    await bar(page).getByRole("button", { name: "Replace all" }).click();
+    await expect(bar(page).getByText("No results")).toBeVisible();
+    await expect(page.locator(".ProseMirror")).toContainText("dog two");
+    const disk = () => page.evaluate(() => Object.entries((window as any).__disk).filter(([k]) => /\.json$/.test(k) && !k.includes(".cadabra") && k !== "cadabra.json").map(([, v]) => v as string).join("\n"));
+    expect(await disk()).not.toContain("owl");
+    expect((await disk()).match(/dog/g)).toHaveLength(4);
+    await page.getByRole("button", { name: "Chapter One", exact: true }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("dog one dog");
+
+    await page.keyboard.press("ControlOrMeta+Alt+z"); // one book undo restores every page
+    await expect.poll(async () => ((await disk()).match(/owl/g) ?? []).length).toBe(4);
+    await expect(page.locator(".ProseMirror")).toContainText("owl one owl");
+    await page.getByRole("button", { name: "Chapter 2", exact: true }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("owl two");
+  });
+
   test("is not available while reading", async ({ page }) => {
     await withText(page);
     await page.getByRole("radio", { name: "Read" }).click();

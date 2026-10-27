@@ -6,11 +6,35 @@ import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { Button, IconButton } from "../ui/Button";
 import { cx } from "../ui/cx";
 import { Field } from "../ui/Input";
-import { countLabel } from "./findHelpers";
+import { readingOrder } from "@cadabracraft/format";
+import { useProject } from "../app/store";
+import { errText } from "../lib/projectError";
+import { bookPosition, bookStep, countLabel, type PageCounts } from "./findHelpers";
 import { useFind } from "./findStore";
+import { searchBook } from "./search/bookSearch";
 import { getSearchInfo, searchCommands, searchKey } from "./search/plugin";
 
 const DEBOUNCE_MS = 100;
+
+/**
+ * Matches per page for the whole book (read from disk after saving unsaved typing), while "All chapters" is on.
+ * Recounted when the search or the open page's own count changes; the open page itself is counted live by the editor.
+ */
+function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord: boolean, editorTotal: number): PageCounts {
+  const readPages = useProject((s) => s.actions.readPages);
+  const [counts, setCounts] = useState<PageCounts>({});
+  useEffect(() => {
+    if (!on || !query) { setCounts({}); return; }
+    let live = true;
+    const id = setTimeout(() => {
+      readPages()
+        .then((pages) => { if (live) setCounts(Object.fromEntries(searchBook(pages, { query, matchCase, wholeWord }).pages.map((p) => [p.id, p.count]))); })
+        .catch(() => { if (live) setCounts({}); });
+    }, 150);
+    return () => { live = false; clearTimeout(id); };
+  }, [on, query, matchCase, wholeWord, editorTotal, readPages]);
+  return counts;
+}
 
 /** Total and 1-based current index, kept in step with the document without re-rendering when nothing changed. */
 function useSearchInfo(editor: Editor) {
@@ -46,7 +70,12 @@ const small = "px-3 py-1.5 text-xs";
 export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boolean }) {
   const { t } = useLingui();
   const f = useFind();
-  const info = useSearchInfo(editor);
+  const editorInfo = useSearchInfo(editor);
+  const manifest = useProject((s) => s.manifest);
+  const currentId = useProject((s) => s.currentId);
+  const counts = useBookCounts(f.allChapters, f.query, f.matchCase, f.wholeWord, editorInfo.total);
+  const order = manifest ? readingOrder(manifest).map((e) => e.id) : [];
+  const info = f.allChapters ? bookPosition(order, counts, currentId, editorInfo) : editorInfo;
   const findRef = useRef<HTMLInputElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // Not kept across renders: TipTap binds `editor.commands` to the state at the time it is read.
@@ -68,7 +97,17 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
     apply();
     findRef.current?.focus();
     findRef.current?.select();
-  }, [f.focusTick, apply]);
+    // Arrived here by stepping to a match in another chapter: select it once the page has laid out.
+    const reveal = useFind.getState().pendingReveal;
+    if (reveal) {
+      useFind.setState({ pendingReveal: null });
+      requestAnimationFrame(() => {
+        if (editor.isDestroyed) return;
+        if (reveal === "last") searchCommands(editor).findPrevious(true); // from the first match this wraps to the last
+        else revealCurrent(editor);
+      });
+    }
+  }, [f.focusTick, apply, editor]);
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const close = () => {
@@ -77,10 +116,34 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
     f.close();
     editor.commands.focus();
   };
-  const step = (dir: 1 | -1) => { flush(); if (dir === 1) commands().findNext(true); else commands().findPrevious(true); };
-  const replaceOne = () => { flush(); if (commands().replaceCurrent()) revealCurrent(editor); };
-  const replaceAll = () => { flush(); commands().replaceAll(); };
-  const toggle = (patch: { matchCase: boolean } | { wholeWord: boolean }) => { f.set(patch); queueMicrotask(apply); };
+  const stepInPage = (dir: 1 | -1) => { if (dir === 1) commands().findNext(true); else commands().findPrevious(true); };
+  /** Moves to the next/previous match; in book scope this may open another page (its editor then reveals the match). */
+  const step = (dir: 1 | -1) => {
+    flush();
+    if (!f.allChapters) return stepInPage(dir);
+    const to = bookStep(order, counts, currentId, getSearchInfo(editor), dir);
+    if (to?.to === "stay") stepInPage(dir);
+    else if (to) {
+      useFind.setState({ pendingReveal: to.at });
+      void useProject.getState().actions.selectChapter(to.id).catch((e) => useProject.setState({ notice: errText(e) }));
+    }
+  };
+  const replaceOne = () => {
+    flush();
+    // Book scope with no match on this page: behave like Next (open the page that has the next one).
+    if (f.allChapters && getSearchInfo(editor).total === 0) return step(1);
+    if (!commands().replaceCurrent()) return;
+    if (f.allChapters && getSearchInfo(editor).total === 0) step(1);
+    else revealCurrent(editor);
+  };
+  const replaceAll = () => {
+    flush();
+    if (!f.allChapters) { commands().replaceAll(); return; }
+    // The store saves the open page first, rewrites every page that matches, records one undo step and reloads this page.
+    const { query, replacement, matchCase, wholeWord } = useFind.getState();
+    void useProject.getState().actions.replaceInBook({ query, matchCase, wholeWord }, replacement).catch((e) => useProject.setState({ notice: errText(e) }));
+  };
+  const toggle = (patch: { matchCase: boolean } | { wholeWord: boolean } | { allChapters: boolean }) => { f.set(patch); queueMicrotask(apply); };
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -141,6 +204,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
       <div className="flex items-center gap-1.5">
         <button type="button" aria-pressed={f.matchCase} className={cx(chip, f.matchCase ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ matchCase: !f.matchCase })}>{t`Match case`}</button>
         <button type="button" aria-pressed={f.wholeWord} className={cx(chip, f.wholeWord ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ wholeWord: !f.wholeWord })}>{t`Whole word`}</button>
+        <button type="button" aria-pressed={f.allChapters} className={cx(chip, f.allChapters ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ allChapters: !f.allChapters })}>{t`All chapters`}</button>
       </div>
     </div>
   );

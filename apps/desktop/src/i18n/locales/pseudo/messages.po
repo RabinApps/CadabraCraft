@@ -87,6 +87,11 @@ msgstr ""
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr ""
 
+#. placeholder {0}: w.conflict_copy
+#: src/app/store.ts
+msgid "{file} changed outside the app; the other version was kept as {0}"
+msgstr ""
+
 #: src/app/store.ts
 msgid "{file} is not a valid chapter, so it was not opened. The file was left untouched."
 msgstr ""
@@ -205,6 +210,10 @@ msgstr ""
 
 #: src/app/ExportDialog.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
+msgstr ""
+
+#: src/editor/FindBar.tsx
+msgid "All chapters"
 msgstr ""
 
 #. placeholder {0}: opts.root
@@ -1380,8 +1389,17 @@ msgstr ""
 msgid "Replace all"
 msgstr ""
 
+#. placeholder {0}: opts.query
+#: src/app/store.ts
+msgid "Replace all “{0}”"
+msgstr ""
+
 #: src/editor/FindBar.tsx
 msgid "Replace with"
+msgstr ""
+
+#: src/app/store.ts
+msgid "Replaced {count} in the book"
 msgstr ""
 
 #: src/app/Sidebar.tsx

@@ -13,6 +13,8 @@ import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate } from "@cadabracraft/templates";
 import { bridge } from "../lib/bridge";
+import { mergeAdjacentText } from "../editor/findHelpers";
+import { replaceInDoc, type BookSearchOptions } from "../editor/search/bookSearch";
 import { runImport, type ImportChoices, type ImportReport } from "./importBook";
 import { describePdfError } from "../lib/pdfErrors";
 import { createTauriRunner } from "../lib/typstRunner";
@@ -66,6 +68,8 @@ export interface HistoryEntry {
   /** `added`: the edit made the page exist (add, add page, restore); otherwise it moved the page to the trash. */
   file?: { path: string; added: boolean };
   trashPath?: string;
+  /** A text edit across pages (Replace all in the whole book): the pages' file text before and after. `before` and `after` trees are equal. */
+  docs?: { file: string; before: string; after: string }[];
 }
 
 export interface History {
@@ -153,6 +157,12 @@ interface State {
     remove: (id: string) => Promise<void>;
     /** Every page in reading order with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
     readPages: () => Promise<BookPage[]>;
+    /**
+     * Replaces every match in every page (front and back matter too) and returns how many were replaced. Saves unsaved
+     * typing first, writes the changed pages through the normal save path (backup, temp file and rename), reloads the open
+     * page, and records ONE book undo step (Undo/Redo, Mod+Alt+Z) that restores or reapplies all of those pages.
+     */
+    replaceInBook: (opts: BookSearchOptions, replacement: string) => Promise<number>;
     /** Sets the book's template (cadabra.json). A no-op when it is already set. */
     setTemplate: (id: string) => Promise<void>;
     /** Saves the book details (cadabra.json). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
@@ -207,6 +217,19 @@ export const useProject = create<State>((set, get) => {
     set({ history: { undo: [...get().history.undo, { ...entry, ...tree }].slice(-HISTORY_LIMIT), redo: [] } });
   };
   let historyBusy = false;
+  /** Writes a page's file text through the normal save path (backup, temp file and rename in the Rust layer). */
+  const writePage = async (file: string, contents: string) => {
+    const { root } = need();
+    const w = await bridge.writeFile(root, file, contents, get().hashes[file] ?? null);
+    set({ hashes: { ...get().hashes, [file]: w.hash }, ...(w.conflict_copy ? { notice: t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}` } : {}) });
+  };
+  /** Loads the open page again from disk and remounts its editor. */
+  const reloadCurrent = async () => {
+    const id = get().currentId;
+    if (!id) return;
+    await load(id);
+    set({ reloadCount: get().reloadCount + 1 });
+  };
   /** Undoes (`from` = "undo") or redoes (`from` = "redo") the latest entry of that stack. */
   const travel = async (from: "undo" | "redo"): Promise<boolean> => {
     if (historyBusy) return false;
@@ -217,6 +240,17 @@ export const useProject = create<State>((set, get) => {
       if (!entry) return false;
       const { root } = need();
       const undoing = from === "undo";
+      if (entry.docs) {
+        // A text edit across pages: write each page's saved text back (no tree change).
+        for (const d of entry.docs) await writePage(d.file, undoing ? d.before : d.after);
+        const { history } = get();
+        const kept = history[from].slice(0, -1);
+        const other = undoing ? history.redo : history.undo;
+        set({ history: undoing ? { undo: kept, redo: [...other, entry] } : { undo: [...other, entry], redo: kept } });
+        await reloadCurrent();
+        set({ notice: undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}` });
+        return true;
+      }
       let target = undoing ? entry.before : entry.after;
       const present = entry.file ? entry.file.added !== undoing : false; // should the page file exist when we are done?
       let file = entry.file?.path;
@@ -484,6 +518,27 @@ export const useProject = create<State>((set, get) => {
       async readPages() {
         await flush();
         return loadChapters();
+      },
+      async replaceInBook(opts, replacement) {
+        await flush();
+        const { manifest } = need();
+        const docs: NonNullable<HistoryEntry["docs"]> = [];
+        let count = 0;
+        for (const page of await loadChapters()) {
+          const r = replaceInDoc(page.doc, opts, replacement);
+          if (!r.count) continue;
+          const file = entryOf(manifest, page.id)?.file;
+          if (!file) continue;
+          count += r.count;
+          docs.push({ file, before: JSON.stringify(page.doc, null, 2), after: JSON.stringify(mergeAdjacentText(r.doc), null, 2) });
+        }
+        if (!docs.length) return 0;
+        for (const d of docs) await writePage(d.file, d.after);
+        const tree = treeOf(manifest);
+        set({ history: { undo: [...get().history.undo, { label: t`Replace all “${opts.query}”`, before: tree, after: tree, docs }].slice(-HISTORY_LIMIT), redo: [] } });
+        await reloadCurrent();
+        set({ notice: t`Replaced ${count} in the book` });
+        return count;
       },
       async setTemplate(id) {
         const { manifest } = need();

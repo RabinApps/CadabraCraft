@@ -87,6 +87,11 @@ msgstr "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {About # page} other {About # pages}}"
 
+#. placeholder {0}: w.conflict_copy
+#: src/app/store.ts
+msgid "{file} changed outside the app; the other version was kept as {0}"
+msgstr "{file} changed outside the app; the other version was kept as {0}"
+
 #: src/app/store.ts
 msgid "{file} is not a valid chapter, so it was not opened. The file was left untouched."
 msgstr "{file} is not a valid chapter, so it was not opened. The file was left untouched."
@@ -206,6 +211,10 @@ msgstr "Address"
 #: src/app/ExportDialog.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
+
+#: src/editor/FindBar.tsx
+msgid "All chapters"
+msgstr "All chapters"
 
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
@@ -1380,9 +1389,18 @@ msgstr "Replace"
 msgid "Replace all"
 msgstr "Replace all"
 
+#. placeholder {0}: opts.query
+#: src/app/store.ts
+msgid "Replace all “{0}”"
+msgstr "Replace all “{0}”"
+
 #: src/editor/FindBar.tsx
 msgid "Replace with"
 msgstr "Replace with"
+
+#: src/app/store.ts
+msgid "Replaced {count} in the book"
+msgstr "Replaced {count} in the book"
 
 #: src/app/Sidebar.tsx
 msgid "Restore"
