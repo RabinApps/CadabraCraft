@@ -35,7 +35,7 @@ Opening *paragraph* with **weight**.
 
 Second chapter.
 
-<div>raw</div>
+<mark>raw</mark>
 
 | a | b |
 |---|---|

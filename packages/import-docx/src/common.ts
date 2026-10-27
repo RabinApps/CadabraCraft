@@ -253,3 +253,36 @@ export function tableOf(rows: DocNode[][][], headerRow: boolean): { node: DocNod
   });
   return { node: { type: "table", content }, padded };
 }
+
+/** An image reference as items: a lifted image block for a local file, or its alt text (with a warning) when it cannot be imported. */
+export function imageItems(
+  url: string,
+  alt: string,
+  title: string | null | undefined,
+  line: number | undefined,
+  ctx: { warn: Warnings; assets: AssetRegistry },
+): Item[] {
+  const u = url.trim();
+  if (/^https?:\/\//i.test(u) || u.startsWith("//")) {
+    ctx.warn.at("remote-image", "warning", `Remote image not imported (no network access): ${u.slice(0, 80)}`, line);
+  } else if (/^[a-z][a-z0-9+.-]*:/i.test(u) && !/^[a-z]:[\\/]/i.test(u)) {
+    ctx.warn.at("unsupported-image", "warning", `Image with a ${u.split(":")[0]}: URL was not imported.`, line);
+  } else {
+    let path = u;
+    try {
+      path = decodeURI(u);
+    } catch {
+      /* keep raw */
+    }
+    path = path.split(/[?#]/)[0] ?? path;
+    const ext = extOf(path);
+    if (!IMAGE_TYPES[ext]) {
+      ctx.warn.at("unsupported-image", "warning", `Image "${path.slice(0, 80)}" has an unsupported type and was not imported.`, line);
+    } else {
+      const a = ctx.assets.register(path, IMAGE_TYPES[ext]);
+      return [{ sep: "block", node: { type: "image", attrs: { src: a.targetPath, alt: alt || null, title: title ?? null } } }];
+    }
+  }
+  const t = textNode(alt ? `[Image: ${alt}]` : "");
+  return t ? [t] : [];
+}

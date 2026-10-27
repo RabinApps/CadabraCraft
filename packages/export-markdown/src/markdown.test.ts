@@ -228,6 +228,35 @@ describe("escaping", () => {
   });
 });
 
+describe("htmlMarks round trip", () => {
+  const read = (md: string): ChapterDoc => {
+    const r = importMarkdown(md);
+    expect(r.warnings.filter((w) => w.code !== "no-headings"), md).toEqual([]);
+    const out = r.chapters.length === 1 ? r.chapters[0]!.doc : { type: "doc" as const, content: r.chapters.flatMap((c) => c.doc.content) };
+    assertChapterDoc(out);
+    return unlink(out) as ChapterDoc;
+  };
+
+  it("importMarkdown reads the four HTML mark tags back into the same doc", () => {
+    const d = doc(
+      p(t("plain "), t("under", m("underline")), t(" "), t("caps", m("smallCaps")), t(" x"), t("2", m("superscript")), t(" H"), t("2", m("subscript")), t("O")),
+      p(t("bold under", m("bold"), m("underline")), t(" "), t("ital caps", m("italic"), m("smallCaps"))),
+      p(t("link", m("link", "https://a.test/")), t(" "), t("linked sup", m("link", "https://a.test/"), m("bold"), m("superscript"))),
+    );
+    expect(read(chapterToMarkdown(d, { htmlMarks: true }))).toEqual(d);
+  });
+
+  it("sample-chapter.json keeps its text and every mark with htmlMarks (the exporter moves marked edge spaces outside the tags)", () => {
+    const d = unlink(sample()) as ChapterDoc;
+    const out = read(chapterToMarkdown(d, { htmlMarks: true }));
+    const flat = (x: DocNode): string => (x.type === "text" ? x.text : "content" in x ? (x.content ?? []).map(flat).join("") : "");
+    const marked = (x: ChapterDoc) => JSON.stringify(x).match(/"type":"(underline|smallCaps|superscript|subscript)"/g) ?? [];
+    expect(flat(out as unknown as DocNode)).toBe(flat(d as unknown as DocNode));
+    expect(new Set(marked(out))).toEqual(new Set(marked(d)));
+    expect(marked(out).length).toBeGreaterThan(0);
+  });
+});
+
 describe("round trip of the fixtures", () => {
   it("sample-chapter.json without the marks that have no syntax comes back identical", () => {
     const d = normalised(sample());

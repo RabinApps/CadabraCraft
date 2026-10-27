@@ -339,6 +339,18 @@ The schema has `table`, `tableRow`, `tableCell` and `tableHeader` from `@tiptap/
 - **Rejected: a custom table node without the TipTap extension.** Would mean re-implementing row/column commands, cell selection and keyboard navigation that `prosemirror-tables` already provides.
 - **Rejected: merged cells in v1.** Needs colspan/rowspan in both exporters, Typst `table.cell` spans and a rectangularity rule that understands spans; rare in books. Merged cells in imported DOCX are split with a warning instead.
 
+## HTML import (`parse5`)
+
+Raw HTML (pasted snippets, `.html` files, HTML inside Markdown) is converted by one pure function set in `packages/import-docx/src/html.ts`, on `parse5` 8.0.1 (MIT, pinned, no dependencies of its own to speak of). It is a spec-compliant tokenizer and tree builder with no DOM, so the same code runs in the webview, in Node tests and in the headless MCP server. Output is the usual `ChapterDoc` JSON (HTML is never stored), and everything the schema cannot hold is reported through the existing warning codes instead of being dropped silently.
+
+Hostile input: parse5 builds the tree iteratively, but its open-element stack makes piles of unclosed block tags quadratic (20,000 nested `<div>` take seconds; nested `<template>` overflows its own stack). So a cheap scan of the raw text refuses more than 512 unclosed block tags with `too-deeply-nested` before parsing, a `RangeError` from the parser maps to the same error, and the converter's tree walk (recursive) is capped at 512 element levels. `maxInputChars` applies as for Markdown.
+
+- **Rejected: browser `DOMParser` and TipTap `generateJSON`.** They need a DOM (none in the MCP server or in Node tests without a shim), silently drop anything the schema lacks (no warnings, which breaks the rule that nothing is dropped silently), and parsing untrusted markup into the live webview document is a risk under our CSP.
+- **Rejected: jsdom or happy-dom.** Whole DOM implementations (megabytes) for a tree we only read.
+- **Rejected: rehype-parse.** It wraps parse5 in the unified/hast stack for no gain once we walk the tree ourselves.
+- **Rejected: htmlparser2.** Fast and small, but it does not implement the HTML5 tree-building rules (implied tags, table foster parenting, misnested formatting), so real-world pasted HTML and tag soup would map differently from what browsers show.
+- Bundle size impact of `parse5` in the desktop app has not been measured yet.
+
 ## Drop caps in the PDF
 
 Typst has no drop cap, so print uses the `droplet` package (MIT, 0.3.1). It is vendored unmodified in `packages/export-pdf/src/vendor/droplet.ts` and written into the compile directory as `typst-droplet/` only when a chapter uses it. The first paragraph of a chapter becomes a three-line drop cap when the template sets `chapterOpening.dropCap` and the paragraph starts with an unmarked letter; otherwise it is set normally. Typst counts the paragraph after the drop cap block as a first paragraph, so indenting templates get their indent put back with `#h()`.

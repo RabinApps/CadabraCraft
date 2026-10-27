@@ -1,17 +1,21 @@
-# Import (Markdown and .docx)
+# Import (Markdown, HTML and .docx)
 
 Library: `packages/import-docx` (`@cadabracraft/import-docx`). Pure functions: no disk, no network. The importer never touches the source file; the app decides what to write.
 
 ```ts
 importMarkdown(text: string, opts?: ImportOptions): ImportResult
 importDocx(bytes: Uint8Array, opts?: ImportOptions): ImportResult
+importHtml(html: string, opts?: ImportOptions): ImportResult          // a .html/.htm document
+htmlToBlocks(html: string, opts?: ImportOptions): { blocks: DocNode[]; warnings: ImportWarning[] }  // a pasted snippet
+htmlToInline(html: string, opts?: ImportOptions): DocNode[]          // a snippet with no block wrapper
+looksLikeHtml(text: string): boolean                                  // true only when a recognised element parses
 
 ImportResult = { chapters: { title, doc: ChapterDoc }[], warnings: ImportWarning[], assets: ImportAsset[] }
 ```
 
 - `chapters[].doc` is TipTap JSON valid in `@cadabracraft/editor-schema` (tests run `Node.fromJSON(schema, doc).check()` on every output). The chapter heading stays in the doc, as in `fixtures/manuscripts`.
 - `assets`: `{ sourcePath, targetPath, mediaType?, bytes? }`. Image nodes use `targetPath` (`assets/<name>`, unique, sanitized). DOCX assets carry `bytes`; Markdown assets do not (the app copies `sourcePath`, resolved relative to the .md file, and must reject absolute paths or `..` escaping the source folder).
-- `ImportOptions`: `splitHeadingLevel` (1-3, default 1), `untitledTitle` ("Untitled"), `maxInputChars` (Markdown, 50M), `maxDecompressedBytes` (200 MB), `maxEntries` (10,000), `maxNestingDepth` (32).
+- `ImportOptions`: `splitHeadingLevel` (1-3, default 1), `untitledTitle` ("Untitled"), `maxInputChars` (Markdown and HTML, 50M), `maxDecompressedBytes` (200 MB), `maxEntries` (10,000), `maxNestingDepth` (32).
 - Hard failures throw `ImportError` with a `code`: `invalid-zip`, `archive-too-large`, `too-many-entries`, `missing-document`, `invalid-xml`, `input-too-large`, `too-deeply-nested`.
 - Chapters split on headings of `splitHeadingLevel`. Content before the first one goes into a chapter titled "Untitled" (`untitled-content`). No such heading at all: one "Untitled" chapter (`no-headings`). Nothing importable: zero chapters (`empty-input`).
 
@@ -31,11 +35,35 @@ ImportResult = { chapters: { title, doc: ChapterDoc }[], warnings: ImportWarning
 | GFM table | table node, first row = header; short rows padded to a rectangle; images in cells become their alt text (`table-complex`) |
 | fenced or indented code block | codeBlock (text kept as is; the first word of the fence info becomes `language` when it is a plain token, otherwise dropped) |
 | inline code | `code` mark (replaces any other marks on that text) |
-| raw HTML | literal text (`html`) |
+| raw HTML, block level | converted by the HTML importer (see below) with the same warnings |
+| raw HTML, inline | exactly the pairs `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>` (what `htmlMarks` writes) become marks, across emphasis and links. Any other inline tag, or an unpaired one, stays literal text (`html`) |
 | `~~x~~` | `strike` mark |
 | `- [x]` | text prefix `[x] ` / `[ ] ` (`task-list`) |
 
 Markdown warnings carry a 1-based `line`. At most 25 located warnings per code are kept, then one summary with `count`.
+
+## HTML mappings
+
+`importHtml` (files, full document parse), `htmlToBlocks` and `htmlToInline` (snippets, fragment parse) share one converter (`src/html.ts`) built on `parse5` (no DOM, so it also runs in the headless MCP server). It never fetches anything and never puts parsed HTML into a live DOM.
+
+| Source | Result |
+|---|---|
+| `h1`..`h6` | heading 1-3 (deeper clamped, `heading-clamped`) |
+| `p`, `div`, `section`, `article` and other containers | paragraphs; bare text next to blocks is wrapped in a paragraph |
+| `blockquote`, `ul`, `ol` (`start` kept), `li`, nested | blockquote, lists (`nesting-too-deep` past `maxNestingDepth`) |
+| `pre` (+ `code.language-x`) | codeBlock, whitespace kept |
+| `table` | table node; first row is the header when it is in `thead` or all `th`; `colspan`/`rowspan` and ragged rows give `table-merged`, lists/images in cells `table-complex`; `caption` becomes a paragraph before the table |
+| `hr` (with or without `class="scene-break"`) | sceneBreak |
+| `br` | splits the paragraph (`line-break`, info) |
+| `strong`/`b`, `em`/`i`, `u`, `s`/`del`/`strike`, `code`, `sup`, `sub` | marks |
+| `span.small-caps`, `style="font-variant: small-caps"` | smallCaps mark |
+| `span.footnote` | footnote node (text only) |
+| `a[href]` | link mark for http, https, mailto; other schemes: text, `unsafe-link`. `#anchor` and `a[name]` links are plain text without a warning |
+| `img` | image block for a local path (recorded in `assets`, app copies it as for Markdown); remote and `data:` sources become `[Image: alt]` text (`remote-image`, `unsupported-image`) |
+| `script`, `style`, `iframe`, `object`, `svg`, `noscript`, `template`, `head` (except `<title>`), comments | dropped with their content, silently |
+| any other element (`mark`, `small`, `font`-like extras, custom tags) | its children are kept; one aggregated `unsupported-element` warning lists the tag names |
+
+Whitespace outside `pre` is collapsed and trimmed per paragraph; entities are decoded. `importHtml` names content before the first split heading, or a file with no such heading, after `<title>`, else the first heading, else `untitledTitle`. Nesting deeper than 512 elements, or a pile of unclosed block tags (parse5 is quadratic on those), throws `ImportError` `too-deeply-nested` before parsing. `looksLikeHtml` needs a well-formed tag whose element is one of p, div, span, b, strong, i, em, u, s, del, strike, a, h1-h6, ul, ol, li, blockquote, pre, code, table parts, br, hr, sup, sub, img; `a < b`, `<3`, `x<y>z` and `if (a<b && c>d)` are not HTML. Known gap: `a<b and y>c` reads as a `<b>` tag.
 
 ## Markdown export (inverse of the above)
 
@@ -63,7 +91,7 @@ A page whose document does not start with a level-1 heading gets `# Title` from 
 | bold, italic, strike | `**x**`, `*x*` (`_x_` next to a bold/italic neighbour), `~~x~~` |
 | inline code | backtick span, padded when the text starts/ends with a backtick or space |
 | link | `[text](href)`, `<href>` form for spaces/unbalanced parentheses |
-| underline, small caps, superscript, subscript | **no Markdown syntax.** Default: throw, naming the mark. With `htmlMarks: true`: `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>`. The importer reads raw HTML as literal text (`html` warning), so these do not round-trip; use `htmlMarks` only for output read by other tools |
+| underline, small caps, superscript, subscript | **no Markdown syntax.** Default: throw, naming the mark. With `htmlMarks: true`: `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>`. `importMarkdown` reads exactly these four tags back as marks (round trip tested), but other Markdown tools may show them as text |
 
 Text is backslash-escaped (`\ ` * _ [ ] < > ~`, entity-like `&`, `|` in table cells, and `#`, `-`, `+`, `1.` at the start of a block), so it re-imports verbatim. Delimiters never touch whitespace (`x **bold** y`).
 
@@ -105,12 +133,12 @@ Round trip (tests in `packages/export-markdown`, including 1000 seeded random do
 | `unsafe-link` | both | link scheme not allowed (text kept) |
 | `internal-link` | docx (info) | link to a bookmark, kept as text |
 | `line-break` | both (info) | break split into paragraphs |
-| `table-complex` | both | images, lists or nested tables inside a table cell flattened to paragraphs (nested tables become one ` | ` separated paragraph per row) |
-| `table-merged` | docx | merged cells (`gridSpan`, `vMerge`) split; covered cells are empty so the table stays rectangular |
-| `html`, `task-list` | md | see table above |
-| `remote-image`, `unsupported-image` | md | image not imported |
+| `table-complex` | all | images, lists or nested tables inside a table cell flattened to paragraphs (nested tables become one ` | ` separated paragraph per row) |
+| `table-merged` | docx, html | merged cells (`gridSpan`, `vMerge`, `colspan`, `rowspan`) split; covered cells are empty so the table stays rectangular |
+| `html`, `task-list` | md | see table above (`html`: inline tag other than the four mark tags, or an unpaired one) |
+| `remote-image`, `unsupported-image` | md, html | image not imported |
 | `footnote-undefined`, `footnote-unreferenced`, `footnote-nested`, `footnote-complex` | md | footnote problems |
-| `nesting-too-deep` | md | list/quote deeper than `maxNestingDepth` flattened |
+| `nesting-too-deep` | md, html | list/quote deeper than `maxNestingDepth` flattened |
 | `unsupported-node` | md | unknown mdast node kept as text |
 | `style-fallback` | docx (info) | custom paragraph style imported as Normal (examples = style names) |
 | `text-box`, `unsupported-drawing`, `embedded-object` | docx | skipped; text-box text shown as example |
@@ -123,7 +151,7 @@ Round trip (tests in `packages/export-markdown`, including 1000 seeded random do
 | `missing-image`, `unsupported-image-format`, `note-image` | docx | image skipped |
 | `footnote-missing`, `note-table` | docx | note problems |
 | `page-break`, `section-break` | docx (info) | ignored |
-| `unsupported-element` | docx | unknown body element skipped |
+| `unsupported-element` | docx, html | docx: unknown body element skipped; html: unknown element ignored, its text kept (aggregated, examples = tag names) |
 
 ## In the app
 

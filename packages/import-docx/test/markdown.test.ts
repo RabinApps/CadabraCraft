@@ -123,7 +123,8 @@ describe("importMarkdown", () => {
       "- [ ] todo",
     ].join("\n");
     const r = importMarkdown(md);
-    expect(codes(r)).toEqual(expect.arrayContaining(["html", "task-list"]));
+    expect(codes(r)).toEqual(expect.arrayContaining(["task-list"]));
+    expect(codes(r)).not.toContain("html");
     expect(codes(r)).not.toContain("code-block");
     expect(codes(r)).not.toContain("strikethrough");
     expect(codes(r)).not.toContain("inline-code");
@@ -167,5 +168,52 @@ describe("importMarkdown", () => {
     const r = importMarkdown("");
     expect(r.chapters).toEqual([]);
     expect(codes(r)).toEqual(["empty-input"]);
+  });
+});
+
+describe("HTML inside Markdown", () => {
+  const body = (md: string) => importMarkdown(md).chapters[0]!.doc.content;
+  const mark = (type: string) => ({ type });
+
+  it("converts block HTML through the HTML importer", () => {
+    const r = importMarkdown("# T\n\n<div><p>one <b>two</b></p>\n<ul><li>x</li></ul></div>\n\nafter\n");
+    expect(codes(r)).toEqual([]);
+    expect(r.chapters[0]!.doc.content.map((n) => n.type)).toEqual(["heading", "paragraph", "bulletList", "paragraph"]);
+    expectValid(r);
+  });
+
+  it("refuses unsafe links and remote images in block HTML", () => {
+    const r = importMarkdown('<p><a href="javascript:x">l</a></p>\n\n<img src="https://e.test/a.png" alt="r">\n');
+    expect(codes(r)).toEqual(["unsafe-link", "remote-image", "no-headings"]);
+    expectValid(r);
+  });
+
+  it("reads <u>, small caps, <sup> and <sub> pairs as marks, across emphasis", () => {
+    const [p] = body('a <u>b</u> <span class="small-caps">c</span> x<sup>2</sup> H<sub>2</sub>O <u>**d**</u>');
+    expect(p).toEqual({
+      type: "paragraph",
+      content: [
+        { type: "text", text: "a " },
+        { type: "text", text: "b", marks: [mark("underline")] },
+        { type: "text", text: " " },
+        { type: "text", text: "c", marks: [mark("smallCaps")] },
+        { type: "text", text: " x" },
+        { type: "text", text: "2", marks: [mark("superscript")] },
+        { type: "text", text: " H" },
+        { type: "text", text: "2", marks: [mark("subscript")] },
+        { type: "text", text: "O " },
+        { type: "text", text: "d", marks: [mark("bold"), mark("underline")] },
+      ],
+    });
+    expect(codes(importMarkdown("<u>x</u>"))).not.toContain("html");
+  });
+
+  it("keeps anything else, and unpaired mark tags, as literal text with an html warning", () => {
+    for (const md of ["a <u>b", "a </u> b", 'a <span class="other">b</span>', "a <mark>b</mark>", "<u>a</sup>", "x <br> y"]) {
+      const r = importMarkdown(md);
+      expect(codes(r), md).toContain("html");
+      expect(JSON.stringify(r.chapters[0]!.doc), md).toContain("<");
+      expectValid(r);
+    }
   });
 });

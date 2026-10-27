@@ -11,8 +11,8 @@ export class MarkdownExportError extends Error {
 export interface MarkdownOptions {
   /**
    * Write underline, small caps, superscript and subscript as inline HTML (`<u>`, `<span class="small-caps">`, `<sup>`,
-   * `<sub>`). Off by default: Markdown has no syntax for them and the CadabraCraft importer reads HTML as literal text, so
-   * they would not round-trip. Without this option such marks make the export throw.
+   * `<sub>`). Off by default: Markdown has no syntax for them, so other tools may show the tags as text (the CadabraCraft
+   * importer reads exactly these four tags back as marks). Without this option such marks make the export throw.
    */
   htmlMarks?: boolean;
   /** Footnote labels start at `footnoteOffset + 1` (used to keep labels unique when chapters are joined). Default 0. */
@@ -96,7 +96,7 @@ function canonicalMarks(marks: Mark[] | undefined, ctx: Ctx): Mark[] {
     const type = (m as { type?: unknown }).type;
     if (!MARK_ORDER.includes(type as Mark["type"])) throw new MarkdownExportError(`Unsupported mark type in chapter: ${String(type)}`);
     if (HTML_MARKS[m.type] && !ctx.opts.htmlMarks) {
-      throw new MarkdownExportError(`The "${m.type}" mark has no Markdown syntax. Pass htmlMarks: true to write it as inline HTML (it is read back as literal text).`);
+      throw new MarkdownExportError(`The "${m.type}" mark has no Markdown syntax. Pass htmlMarks: true to write it as inline HTML (CadabraCraft reads it back; other tools may show the tags).`);
     }
     if (m.type === "link" && !m.attrs?.href) throw new MarkdownExportError("A link mark without an href cannot be written");
     if (seen.has(m.type)) continue;

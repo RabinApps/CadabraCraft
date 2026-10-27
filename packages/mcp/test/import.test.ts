@@ -6,7 +6,7 @@ import { type Session, connect, docxPara, gradientPng, makeDocx, snapshot } from
 let s: Session;
 afterEach(() => s.close());
 
-const MD = "# Chapter One\n\nIt was *late*.\n\n![Grad](img/grad.png)\n\n# Chapter Two\n\n<div>raw</div>\n\nDone.\n";
+const MD = "# Chapter One\n\nIt was *late*.\n\n![Grad](img/grad.png)\n\n# Chapter Two\n\n<mark>raw</mark>\n\nDone.\n";
 
 function sourceDir(): void {
   mkdirSync(join(s.root, "src/img"), { recursive: true });
