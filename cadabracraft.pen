@@ -40562,6 +40562,4206 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "VcN8N",
+      "x": 2810,
+      "y": 4200,
+      "name": "Find bar (all chapters) / desktop / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 1280,
+      "height": 800,
+      "fill": "$bg",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "MIrwY",
+          "name": "Top bar",
+          "width": "fill_container",
+          "fill": "$surface",
+          "stroke": "$border",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "padding": [
+            10,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "vTWq1",
+              "name": "Left",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "ILxDG",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "chevron-left",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "chevron-left"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "w4efP",
+                  "name": "The Salt Orchard",
+                  "fill": "$ink",
+                  "content": "The Salt Orchard",
+                  "fontFamily": "$font-book",
+                  "fontSize": 16,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "BZVnt",
+                  "type": "ref",
+                  "ref": "CQZQQ",
+                  "name": "Saved badge"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JdOB3",
+              "name": "Write / Read",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "gzNnP",
+                  "name": "Write",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "gap": 6,
+                  "padding": [
+                    5,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "J7sKE",
+                      "name": "i",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "pen-line",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZdCKc",
+                      "name": "Write",
+                      "fill": "$accent",
+                      "content": "Write",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PqqLf",
+                  "name": "Read",
+                  "cornerRadius": 7,
+                  "gap": 6,
+                  "padding": [
+                    5,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "cfVA3",
+                      "name": "i",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "book-open",
+                      "library": "lucide",
+                      "fill": "$ink-muted"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wCDJl",
+                      "name": "Read",
+                      "fill": "$ink-muted",
+                      "content": "Read",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "yFW6o",
+              "name": "Right",
+              "gap": 6,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "m9rVY",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "maximize-2",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "maximize-2"
+                    }
+                  }
+                },
+                {
+                  "id": "I4o8IC",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Export",
+                  "descendants": {
+                    "I6qeCj": {
+                      "icon": "download"
+                    },
+                    "l83V3": {
+                      "content": "Export"
+                    }
+                  }
+                },
+                {
+                  "id": "Qkmp9",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "settings",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "settings"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "JPzw5",
+          "name": "Workspace",
+          "width": "fill_container",
+          "height": "fill_container",
+          "children": [
+            {
+              "type": "frame",
+              "id": "DtVOx",
+              "name": "Chapters sidebar",
+              "width": 264,
+              "height": "fill_container",
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "gap": 6,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "vJ0mH",
+                  "name": "Header",
+                  "width": "fill_container",
+                  "padding": [
+                    4,
+                    6,
+                    6,
+                    10
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "RyPeZ",
+                      "name": "CHAPTERS",
+                      "fill": "$ink-muted",
+                      "content": "CHAPTERS",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 11,
+                      "fontWeight": "700",
+                      "letterSpacing": 1.2
+                    },
+                    {
+                      "id": "oUC6q",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "plus",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "plus"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "pUysb",
+                  "name": "Chapter list",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "id": "Y0jkd",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Prologue",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Prologue"
+                        },
+                        "CPL6d": {
+                          "content": "0.8k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "XGlGs",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "The Harbour",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "The Harbour"
+                        },
+                        "CPL6d": {
+                          "content": "3.1k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "vV7o8",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Salt and Iron",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Salt and Iron"
+                        },
+                        "CPL6d": {
+                          "content": "4.2k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "JJaFv",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "A Letter Unsent",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "A Letter Unsent"
+                        },
+                        "CPL6d": {
+                          "content": "2.7k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "TzdB5",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "The Keeper's Daughter",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "The Keeper's Daughter"
+                        },
+                        "CPL6d": {
+                          "content": "5.0k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "TPpHG",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "What the Tide Left",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "What the Tide Left"
+                        },
+                        "CPL6d": {
+                          "content": "3.6k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "p7xix",
+                      "type": "ref",
+                      "ref": "w8HqM",
+                      "name": "The Orchard Wall",
+                      "width": "fill_container",
+                      "descendants": {
+                        "gi5G7": {
+                          "content": "The Orchard Wall"
+                        },
+                        "oP5AW": {
+                          "content": "1.3k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "zBoln",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Hollow Season",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Hollow Season"
+                        },
+                        "CPL6d": {
+                          "content": "0"
+                        }
+                      }
+                    },
+                    {
+                      "id": "ILofF",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Low Water",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Low Water"
+                        },
+                        "CPL6d": {
+                          "content": "0"
+                        }
+                      }
+                    },
+                    {
+                      "id": "u49hz",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Epilogue",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Epilogue"
+                        },
+                        "CPL6d": {
+                          "content": "0"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "dEE3z",
+                  "type": "ref",
+                  "ref": "FV6WE",
+                  "name": "Project trash",
+                  "width": "fill_container",
+                  "descendants": {
+                    "GD0DK": {
+                      "icon": "trash-2"
+                    },
+                    "FYP6F": {
+                      "content": "Project trash (2)"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YCjJf",
+              "name": "Center",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "F6QcFj",
+                  "name": "Formatting toolbar",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 4,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "USc0P",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "undo-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "undo-2"
+                        }
+                      }
+                    },
+                    {
+                      "id": "l9bP9i",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "redo-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "redo-2"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "S5ZlVz",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "qVai1",
+                      "type": "ref",
+                      "ref": "e7Z10",
+                      "name": "bold",
+                      "descendants": {
+                        "JHYgu": {
+                          "icon": "bold"
+                        }
+                      }
+                    },
+                    {
+                      "id": "TYVaF",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "italic",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "italic"
+                        }
+                      }
+                    },
+                    {
+                      "id": "aM6V7",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "underline",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "underline"
+                        }
+                      }
+                    },
+                    {
+                      "id": "u3FQD",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "a-large-small",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "a-large-small"
+                        }
+                      }
+                    },
+                    {
+                      "id": "IWLdC",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "link",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "link"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "Pcvkx",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "O3GVv",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-1",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-1"
+                        }
+                      }
+                    },
+                    {
+                      "id": "r6lYp",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-2"
+                        }
+                      }
+                    },
+                    {
+                      "id": "RxAjJ",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-3",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-3"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "R7yY53",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "oJ59R",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "quote",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "quote"
+                        }
+                      }
+                    },
+                    {
+                      "id": "OIi4i",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "list",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "list"
+                        }
+                      }
+                    },
+                    {
+                      "id": "v2LNm",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "list-ordered",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "list-ordered"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "S3CfqE",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "v8CRK",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "asterisk",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "asterisk"
+                        }
+                      }
+                    },
+                    {
+                      "id": "niG5x",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "superscript",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "superscript"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mDW6X",
+                  "name": "Manuscript",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "padding": [
+                    28,
+                    24
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "qk7Nr",
+                      "name": "Page",
+                      "width": 680,
+                      "fill": "$paper",
+                      "cornerRadius": 6,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 20,
+                      "padding": [
+                        48,
+                        64
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "VtMQz",
+                          "name": "CHAPTER SEVEN",
+                          "fill": "$accent",
+                          "content": "CHAPTER SEVEN",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 11,
+                          "fontWeight": "700",
+                          "letterSpacing": 1.6
+                        },
+                        {
+                          "type": "text",
+                          "id": "mfL3J",
+                          "name": "The Orchard Wall",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The Orchard Wall",
+                          "fontFamily": "$font-book",
+                          "fontSize": 38,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "w7vAE",
+                          "name": "By the time Ines reached",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "H7Fcq",
+                              "name": "Line",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "D7K3Z1",
+                                  "name": "By ",
+                                  "fill": "$ink",
+                                  "content": "By ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "LP4e0",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "K2XDOC",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 19,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "tZYPF",
+                                  "name": " time Ines reached ",
+                                  "fill": "$ink",
+                                  "content": " time Ines reached ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "QfU96",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Hs3vX",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 19,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "ftr94",
+                                  "name": " wall, ",
+                                  "fill": "$ink",
+                                  "content": " wall, ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "c9mQw3",
+                                  "name": "Current match",
+                                  "fill": "$accent",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "WPrkj",
+                                      "name": "the",
+                                      "fill": "$accent-ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 19,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "s3FmRZ",
+                                  "name": " apples had begun to",
+                                  "fill": "$ink",
+                                  "content": " apples had begun to",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "hKVtF",
+                              "name": "Line",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "T6mvtD",
+                                  "name": "fall, thudding into ",
+                                  "fill": "$ink",
+                                  "content": "fall, thudding into ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "jE9uA",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "XJodM",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 19,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mP2c0",
+                                  "name": " long grass like small, unhurried knocks.",
+                                  "fill": "$ink",
+                                  "content": " long grass like small, unhurried knocks.",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "nWjeb",
+                          "name": "She had been told the or",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "She had been told the orchard belonged to no one. Nothing about the gate, rusted open and wound with bindweed, suggested otherwise.",
+                          "lineHeight": 1.65,
+                          "fontFamily": "$font-book",
+                          "fontSize": 19,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Vib2A",
+                          "name": "* * *",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "* * *",
+                          "textAlign": "center",
+                          "fontFamily": "$font-book",
+                          "fontSize": 18,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Dx3rG",
+                          "name": "In the morning the salt ",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "In the morning the salt came in off the water, and with it the smell of something older than the harbour.",
+                          "lineHeight": 1.65,
+                          "fontFamily": "$font-book",
+                          "fontSize": 19,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "OPVxu",
+              "name": "Chapter details",
+              "width": 280,
+              "height": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "left": 1
+              },
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fy2WE",
+                  "name": "Chapter details",
+                  "fill": "$ink",
+                  "content": "Chapter details",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "qeP7a",
+                  "name": "Title",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "K3Ilij",
+                      "name": "Title",
+                      "fill": "$ink-muted",
+                      "content": "Title",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "oFiYS",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Title input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "The Orchard Wall"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "c1eVx",
+                  "name": "Status",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "oBtUR",
+                      "name": "Status",
+                      "fill": "$ink-muted",
+                      "content": "Status",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "L0wuYY",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Status input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "Draft"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bzNo6",
+                  "name": "Word goal",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UReIg",
+                      "name": "Word goal",
+                      "fill": "$ink-muted",
+                      "content": "Word goal",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "h7j6ZN",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Word goal input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "1,500 words"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "hpfXp",
+                  "name": "Notes",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "K0MGQQ",
+                      "name": "Notes",
+                      "fill": "$ink-muted",
+                      "content": "Notes",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "g4Y5cF",
+                      "name": "Notes box",
+                      "width": "fill_container",
+                      "height": 120,
+                      "fill": "$bg",
+                      "cornerRadius": 8,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Q9iUFQ",
+                          "name": "Check the tide times aga",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Check the tide times against chapter 3.",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Ej057",
+              "layoutPosition": "absolute",
+              "x": 604,
+              "y": 56,
+              "name": "Find bar",
+              "width": 380,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#14202F2E",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 24
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bXT8N",
+                  "name": "Find row",
+                  "width": "fill_container",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "o7AjRm",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Find input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "the",
+                          "fill": "$ink"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "vxjiA",
+                      "name": "Match count",
+                      "fill": "$ink-muted",
+                      "content": "3 of 12",
+                      "textAlign": "center",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "id": "cMQHj",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Previous match",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "chevron-up"
+                        }
+                      }
+                    },
+                    {
+                      "id": "Qcsn6",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Next match",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "chevron-down"
+                        }
+                      }
+                    },
+                    {
+                      "id": "QtwrS",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Close",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "x"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "K8970",
+                  "name": "Replace row",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "Q6biCZ",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Replace input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "Replace with",
+                          "fill": "$ink-muted"
+                        }
+                      }
+                    },
+                    {
+                      "id": "kvNL2",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Replace",
+                      "opacity": 1,
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Replace"
+                        }
+                      }
+                    },
+                    {
+                      "id": "yVpZK",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Replace all",
+                      "opacity": 1,
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Replace all"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vxVq1",
+                  "name": "Options row",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "rOqiy",
+                      "name": "Chip Match case",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "KJbGF",
+                          "name": "Match case",
+                          "fill": "$ink-muted",
+                          "content": "Match case",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "V3er4h",
+                      "name": "Chip Whole word",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MegFF",
+                          "name": "Whole word",
+                          "fill": "$ink-muted",
+                          "content": "Whole word",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "b6Tswk",
+                      "name": "Chip All chapters",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "stroke": "$accent",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "UBCRg",
+                          "name": "All chapters",
+                          "fill": "$accent",
+                          "content": "All chapters",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zTZnM",
+                      "name": "Chip Regex",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "o9grqb",
+                          "name": "Regex",
+                          "fill": "$ink-muted",
+                          "content": "Regex",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "zK2gE",
+                  "name": "Results",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "cbVYT",
+                      "name": "Result Front matter: Title page",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dnc0F",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Front matter: Title page",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "EqstA",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "1",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wKc2B",
+                      "name": "Result Ch 3 · The Gate",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ExArC",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Ch 3 · The Gate",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Ib4sK",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "4",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "D6vUI",
+                      "name": "Result Ch 7 · The Orchard Wall",
+                      "width": "fill_container",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "etsQt",
+                          "name": "Title",
+                          "fill": "$accent",
+                          "content": "Ch 7 · The Orchard Wall",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "FpALJ",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "3",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "LnroN",
+                      "name": "Result Ch 9 · Winter Stores",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "UcO7c",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Ch 9 · Winter Stores",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "RQxjE",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "4",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ejQrM",
+          "name": "Status bar",
+          "width": "fill_container",
+          "fill": "$surface",
+          "stroke": "$border",
+          "strokeWidth": {
+            "top": 1
+          },
+          "padding": [
+            7,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "f7frDP",
+              "name": "1,284 words in this chap",
+              "fill": "$ink-muted",
+              "content": "1,284 words in this chapter · 48,210 in the book",
+              "fontFamily": "$font-ui",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "xGaNB",
+              "name": "Session goal",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "gpJpJ",
+                  "name": "Track",
+                  "width": 96,
+                  "height": 6,
+                  "fill": "$border",
+                  "cornerRadius": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mq2Ah",
+                      "name": "Fill",
+                      "width": 58,
+                      "height": 6,
+                      "fill": "$accent",
+                      "cornerRadius": 3
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "QIlru",
+                  "name": "Session goal text",
+                  "fill": "$ink-muted",
+                  "content": "290 of 500 words this session",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "LNBJP",
+              "name": "Chapter 7 of 12 · Saved ",
+              "fill": "$ink-muted",
+              "content": "Chapter 7 of 12 · Saved just now",
+              "fontFamily": "$font-ui",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "O0QVJP",
+      "x": 4200,
+      "y": 4200,
+      "name": "Find bar (all chapters) / desktop / dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 1280,
+      "height": 800,
+      "fill": "$bg",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "G9NUXg",
+          "name": "Top bar",
+          "width": "fill_container",
+          "fill": "$surface",
+          "stroke": "$border",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "padding": [
+            10,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "GHcb1",
+              "name": "Left",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "sFVge",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "chevron-left",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "chevron-left"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "jPBaH",
+                  "name": "The Salt Orchard",
+                  "fill": "$ink",
+                  "content": "The Salt Orchard",
+                  "fontFamily": "$font-book",
+                  "fontSize": 16,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "QRqr1",
+                  "type": "ref",
+                  "ref": "CQZQQ",
+                  "name": "Saved badge"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "HmLHq",
+              "name": "Write / Read",
+              "fill": "$bg",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 2,
+              "padding": 3,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "p4PHa",
+                  "name": "Write",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 7,
+                  "gap": 6,
+                  "padding": [
+                    5,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "R5bBVF",
+                      "name": "i",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "pen-line",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "xKv9K",
+                      "name": "Write",
+                      "fill": "$accent",
+                      "content": "Write",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PVcsb",
+                  "name": "Read",
+                  "cornerRadius": 7,
+                  "gap": 6,
+                  "padding": [
+                    5,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "XfZPB",
+                      "name": "i",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "book-open",
+                      "library": "lucide",
+                      "fill": "$ink-muted"
+                    },
+                    {
+                      "type": "text",
+                      "id": "i5TeM",
+                      "name": "Read",
+                      "fill": "$ink-muted",
+                      "content": "Read",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wiRAb",
+              "name": "Right",
+              "gap": 6,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "VZd3c",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "maximize-2",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "maximize-2"
+                    }
+                  }
+                },
+                {
+                  "id": "jnWsm",
+                  "type": "ref",
+                  "ref": "aWqMK",
+                  "name": "Export",
+                  "descendants": {
+                    "I6qeCj": {
+                      "icon": "download"
+                    },
+                    "l83V3": {
+                      "content": "Export"
+                    }
+                  }
+                },
+                {
+                  "id": "gmWNc",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "settings",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "settings"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "lP2vH",
+          "name": "Workspace",
+          "width": "fill_container",
+          "height": "fill_container",
+          "children": [
+            {
+              "type": "frame",
+              "id": "mbV2J",
+              "name": "Chapters sidebar",
+              "width": 264,
+              "height": "fill_container",
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "gap": 6,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "L9ByZw",
+                  "name": "Header",
+                  "width": "fill_container",
+                  "padding": [
+                    4,
+                    6,
+                    6,
+                    10
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sAyxJ",
+                      "name": "CHAPTERS",
+                      "fill": "$ink-muted",
+                      "content": "CHAPTERS",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 11,
+                      "fontWeight": "700",
+                      "letterSpacing": 1.2
+                    },
+                    {
+                      "id": "T5FPGH",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "plus",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "plus"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "lrIS2",
+                  "name": "Chapter list",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "id": "e7zNo",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Prologue",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Prologue"
+                        },
+                        "CPL6d": {
+                          "content": "0.8k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "uqMAp",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "The Harbour",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "The Harbour"
+                        },
+                        "CPL6d": {
+                          "content": "3.1k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "TPJzS",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Salt and Iron",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Salt and Iron"
+                        },
+                        "CPL6d": {
+                          "content": "4.2k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "HjUGx",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "A Letter Unsent",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "A Letter Unsent"
+                        },
+                        "CPL6d": {
+                          "content": "2.7k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "JuvLO",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "The Keeper's Daughter",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "The Keeper's Daughter"
+                        },
+                        "CPL6d": {
+                          "content": "5.0k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "F8Ax4f",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "What the Tide Left",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "What the Tide Left"
+                        },
+                        "CPL6d": {
+                          "content": "3.6k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "E1pV3w",
+                      "type": "ref",
+                      "ref": "w8HqM",
+                      "name": "The Orchard Wall",
+                      "width": "fill_container",
+                      "descendants": {
+                        "gi5G7": {
+                          "content": "The Orchard Wall"
+                        },
+                        "oP5AW": {
+                          "content": "1.3k"
+                        }
+                      }
+                    },
+                    {
+                      "id": "wKel1",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Hollow Season",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Hollow Season"
+                        },
+                        "CPL6d": {
+                          "content": "0"
+                        }
+                      }
+                    },
+                    {
+                      "id": "uWEg8",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Low Water",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Low Water"
+                        },
+                        "CPL6d": {
+                          "content": "0"
+                        }
+                      }
+                    },
+                    {
+                      "id": "n0fUju",
+                      "type": "ref",
+                      "ref": "At3gY",
+                      "name": "Epilogue",
+                      "width": "fill_container",
+                      "descendants": {
+                        "tkgD4": {
+                          "content": "Epilogue"
+                        },
+                        "CPL6d": {
+                          "content": "0"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "IFTSH",
+                  "type": "ref",
+                  "ref": "FV6WE",
+                  "name": "Project trash",
+                  "width": "fill_container",
+                  "descendants": {
+                    "GD0DK": {
+                      "icon": "trash-2"
+                    },
+                    "FYP6F": {
+                      "content": "Project trash (2)"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Y98Dy",
+              "name": "Center",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "UumEE",
+                  "name": "Formatting toolbar",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 4,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "dcOa3",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "undo-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "undo-2"
+                        }
+                      }
+                    },
+                    {
+                      "id": "qMDXY",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "redo-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "redo-2"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "tNUaA",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "s444Kw",
+                      "type": "ref",
+                      "ref": "e7Z10",
+                      "name": "bold",
+                      "descendants": {
+                        "JHYgu": {
+                          "icon": "bold"
+                        }
+                      }
+                    },
+                    {
+                      "id": "FwkRU",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "italic",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "italic"
+                        }
+                      }
+                    },
+                    {
+                      "id": "x9A9ja",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "underline",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "underline"
+                        }
+                      }
+                    },
+                    {
+                      "id": "DyUo4",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "a-large-small",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "a-large-small"
+                        }
+                      }
+                    },
+                    {
+                      "id": "s0Oj3O",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "link",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "link"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "YogCa",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "o2lxSj",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-1",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-1"
+                        }
+                      }
+                    },
+                    {
+                      "id": "Jxq6j",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-2"
+                        }
+                      }
+                    },
+                    {
+                      "id": "Lywav",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-3",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-3"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "VEfoM",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "uAtmn",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "quote",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "quote"
+                        }
+                      }
+                    },
+                    {
+                      "id": "hgD5V",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "list",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "list"
+                        }
+                      }
+                    },
+                    {
+                      "id": "alzeQ",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "list-ordered",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "list-ordered"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "nrQwD",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "FR7qZ",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "asterisk",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "asterisk"
+                        }
+                      }
+                    },
+                    {
+                      "id": "KPMCY",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "superscript",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "superscript"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vy8b7",
+                  "name": "Manuscript",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "padding": [
+                    28,
+                    24
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Ka4Ca",
+                      "name": "Page",
+                      "width": 680,
+                      "fill": "$paper",
+                      "cornerRadius": 6,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 20,
+                      "padding": [
+                        48,
+                        64
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ZCc4W",
+                          "name": "CHAPTER SEVEN",
+                          "fill": "$accent",
+                          "content": "CHAPTER SEVEN",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 11,
+                          "fontWeight": "700",
+                          "letterSpacing": 1.6
+                        },
+                        {
+                          "type": "text",
+                          "id": "h9n1GI",
+                          "name": "The Orchard Wall",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The Orchard Wall",
+                          "fontFamily": "$font-book",
+                          "fontSize": 38,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "EMmha",
+                          "name": "By the time Ines reached",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "YTiwF",
+                              "name": "Line",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "HWEPl",
+                                  "name": "By ",
+                                  "fill": "$ink",
+                                  "content": "By ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "GuaYn",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "NQM2t",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 19,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mE4In",
+                                  "name": " time Ines reached ",
+                                  "fill": "$ink",
+                                  "content": " time Ines reached ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "X35TB",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "o455C",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 19,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "PEX1S",
+                                  "name": " wall, ",
+                                  "fill": "$ink",
+                                  "content": " wall, ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "jq4is",
+                                  "name": "Current match",
+                                  "fill": "$accent",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "SEXkw",
+                                      "name": "the",
+                                      "fill": "$accent-ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 19,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "uX0uw",
+                                  "name": " apples had begun to",
+                                  "fill": "$ink",
+                                  "content": " apples had begun to",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "DW29h",
+                              "name": "Line",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "v9lmBq",
+                                  "name": "fall, thudding into ",
+                                  "fill": "$ink",
+                                  "content": "fall, thudding into ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "syK9e",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "BtqT3",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 19,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "igKQG",
+                                  "name": " long grass like small, unhurried knocks.",
+                                  "fill": "$ink",
+                                  "content": " long grass like small, unhurried knocks.",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 19,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "wx264",
+                          "name": "She had been told the or",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "She had been told the orchard belonged to no one. Nothing about the gate, rusted open and wound with bindweed, suggested otherwise.",
+                          "lineHeight": 1.65,
+                          "fontFamily": "$font-book",
+                          "fontSize": 19,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "x9iGq",
+                          "name": "* * *",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "* * *",
+                          "textAlign": "center",
+                          "fontFamily": "$font-book",
+                          "fontSize": 18,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ihhT0",
+                          "name": "In the morning the salt ",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "In the morning the salt came in off the water, and with it the smell of something older than the harbour.",
+                          "lineHeight": 1.65,
+                          "fontFamily": "$font-book",
+                          "fontSize": 19,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "tQIED",
+              "name": "Chapter details",
+              "width": 280,
+              "height": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "left": 1
+              },
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Nzc61",
+                  "name": "Chapter details",
+                  "fill": "$ink",
+                  "content": "Chapter details",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "AnMay",
+                  "name": "Title",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "YihZ5",
+                      "name": "Title",
+                      "fill": "$ink-muted",
+                      "content": "Title",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "X7eEX5",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Title input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "The Orchard Wall"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "b63TL",
+                  "name": "Status",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "g37SBB",
+                      "name": "Status",
+                      "fill": "$ink-muted",
+                      "content": "Status",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "cnqfE",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Status input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "Draft"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "YKXo2",
+                  "name": "Word goal",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xcWMI",
+                      "name": "Word goal",
+                      "fill": "$ink-muted",
+                      "content": "Word goal",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "Vc9Ii",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Word goal input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "1,500 words"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "nSnbt",
+                  "name": "Notes",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "GowKL",
+                      "name": "Notes",
+                      "fill": "$ink-muted",
+                      "content": "Notes",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dyl2k",
+                      "name": "Notes box",
+                      "width": "fill_container",
+                      "height": 120,
+                      "fill": "$bg",
+                      "cornerRadius": 8,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "YSRLA",
+                          "name": "Check the tide times aga",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Check the tide times against chapter 3.",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "z4tKlI",
+              "layoutPosition": "absolute",
+              "x": 604,
+              "y": 56,
+              "name": "Find bar",
+              "width": 380,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#14202F2E",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 24
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Xw3By",
+                  "name": "Find row",
+                  "width": "fill_container",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "KV1DA",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Find input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "the",
+                          "fill": "$ink"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "LEWkE",
+                      "name": "Match count",
+                      "fill": "$ink-muted",
+                      "content": "3 of 12",
+                      "textAlign": "center",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "id": "DCYkw",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Previous match",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "chevron-up"
+                        }
+                      }
+                    },
+                    {
+                      "id": "Q5ohL",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Next match",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "chevron-down"
+                        }
+                      }
+                    },
+                    {
+                      "id": "SnKlB",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Close",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "x"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cms8k",
+                  "name": "Replace row",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "ycINx",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Replace input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "Replace with",
+                          "fill": "$ink-muted"
+                        }
+                      }
+                    },
+                    {
+                      "id": "LWoI5",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Replace",
+                      "opacity": 1,
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Replace"
+                        }
+                      }
+                    },
+                    {
+                      "id": "H8sago",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Replace all",
+                      "opacity": 1,
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Replace all"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "c0uy7",
+                  "name": "Options row",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "J5ZVo7",
+                      "name": "Chip Match case",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "NG8BD",
+                          "name": "Match case",
+                          "fill": "$ink-muted",
+                          "content": "Match case",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "P5T1v",
+                      "name": "Chip Whole word",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "CyH0c",
+                          "name": "Whole word",
+                          "fill": "$ink-muted",
+                          "content": "Whole word",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "DqXDc",
+                      "name": "Chip All chapters",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "stroke": "$accent",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mO7AP",
+                          "name": "All chapters",
+                          "fill": "$accent",
+                          "content": "All chapters",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bkouN",
+                      "name": "Chip Regex",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qBXHn",
+                          "name": "Regex",
+                          "fill": "$ink-muted",
+                          "content": "Regex",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "K66Fm",
+                  "name": "Results",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "jelpn",
+                      "name": "Result Front matter: Title page",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "hwg9d",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Front matter: Title page",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "v7YYM",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "1",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "V3pGY",
+                      "name": "Result Ch 3 · The Gate",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "bQ6oP",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Ch 3 · The Gate",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "lNy3a",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "4",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lQokz",
+                      "name": "Result Ch 7 · The Orchard Wall",
+                      "width": "fill_container",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oXRrk",
+                          "name": "Title",
+                          "fill": "$accent",
+                          "content": "Ch 7 · The Orchard Wall",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "LJ2Hf",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "3",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "eQKKS",
+                      "name": "Result Ch 9 · Winter Stores",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "tn9xK",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Ch 9 · Winter Stores",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "i01Wg",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "4",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ZHsdf",
+          "name": "Status bar",
+          "width": "fill_container",
+          "fill": "$surface",
+          "stroke": "$border",
+          "strokeWidth": {
+            "top": 1
+          },
+          "padding": [
+            7,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "ikmWX",
+              "name": "1,284 words in this chap",
+              "fill": "$ink-muted",
+              "content": "1,284 words in this chapter · 48,210 in the book",
+              "fontFamily": "$font-ui",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "NIcAF",
+              "name": "Session goal",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "FeUT2",
+                  "name": "Track",
+                  "width": 96,
+                  "height": 6,
+                  "fill": "$border",
+                  "cornerRadius": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "j0X88",
+                      "name": "Fill",
+                      "width": 58,
+                      "height": 6,
+                      "fill": "$accent",
+                      "cornerRadius": 3
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "JmFg3",
+                  "name": "Session goal text",
+                  "fill": "$ink-muted",
+                  "content": "290 of 500 words this session",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "MSBiF",
+              "name": "Chapter 7 of 12 · Saved ",
+              "fill": "$ink-muted",
+              "content": "Chapter 7 of 12 · Saved just now",
+              "fontFamily": "$font-ui",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "v7vjWo",
+      "x": 7010,
+      "y": 4200,
+      "name": "Find bar (all chapters) / mobile / light",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$bg",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Y1scDR",
+          "name": "Top bar",
+          "width": "fill_container",
+          "fill": "$surface",
+          "stroke": "$border",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "padding": 8,
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "D0pOT",
+              "name": "Left",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "VqBIg",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "menu",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "menu"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "rF7LV",
+                  "name": "Ch 7 · The Orchard Wall",
+                  "fill": "$ink",
+                  "content": "Ch 7 · The Orchard Wall",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kDpTH",
+              "name": "Right",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "g6uCFS",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "book-open",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "book-open"
+                    }
+                  }
+                },
+                {
+                  "id": "y818z",
+                  "type": "ref",
+                  "ref": "ML1v1",
+                  "name": "ellipsis",
+                  "descendants": {
+                    "ygSVs": {
+                      "icon": "ellipsis"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "X2MZI",
+          "name": "Workspace",
+          "width": "fill_container",
+          "height": "fill_container",
+          "children": [
+            {
+              "type": "frame",
+              "id": "G4jzjF",
+              "name": "Center",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "E7lPK",
+                  "name": "Manuscript",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "padding": [
+                    160,
+                    20,
+                    24,
+                    20
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "c21LiY",
+                      "name": "Page",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "U0OaOU",
+                          "name": "CHAPTER SEVEN",
+                          "fill": "$accent",
+                          "content": "CHAPTER SEVEN",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 11,
+                          "fontWeight": "700",
+                          "letterSpacing": 1.6
+                        },
+                        {
+                          "type": "text",
+                          "id": "G7hFi6",
+                          "name": "The Orchard Wall",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The Orchard Wall",
+                          "fontFamily": "$font-book",
+                          "fontSize": 30,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "dNsLb",
+                          "name": "By the time Ines reached",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "cb4SA",
+                              "name": "Line",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "t1XtA",
+                                  "name": "By ",
+                                  "fill": "$ink",
+                                  "content": "By ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "WxNcx",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "E2j9Xm",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 17,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "NwKsS",
+                                  "name": " time Ines reached ",
+                                  "fill": "$ink",
+                                  "content": " time Ines reached ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "kD0Ob",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "QuDGW",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 17,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "MmKEf",
+                                  "name": " wall,",
+                                  "fill": "$ink",
+                                  "content": " wall,",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "nz9SD",
+                              "name": "Line",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "tOwJD",
+                                  "name": "Current match",
+                                  "fill": "$accent",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "lUJ3A",
+                                      "name": "the",
+                                      "fill": "$accent-ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 17,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "w2W2E",
+                                  "name": " apples had begun to fall, thudding",
+                                  "fill": "$ink",
+                                  "content": " apples had begun to fall, thudding",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "bH7Sq",
+                              "name": "Line",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "im1Jx",
+                                  "name": "into ",
+                                  "fill": "$ink",
+                                  "content": "into ",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "zMW3w",
+                                  "name": "Match",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 3,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "iTEot",
+                                      "name": "the",
+                                      "fill": "$ink",
+                                      "content": "the",
+                                      "lineHeight": 1.65,
+                                      "fontFamily": "$font-book",
+                                      "fontSize": 17,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "kMfIz",
+                                  "name": " long grass like small,",
+                                  "fill": "$ink",
+                                  "content": " long grass like small,",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "SZAWX",
+                              "name": "Line",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "W4eOa",
+                                  "name": "unhurried knocks.",
+                                  "fill": "$ink",
+                                  "content": "unhurried knocks.",
+                                  "lineHeight": 1.65,
+                                  "fontFamily": "$font-book",
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "jBbKQ",
+                          "name": "She had been told the or",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "She had been told the orchard belonged to no one. Nothing about the gate, rusted open and wound with bindweed, suggested otherwise.",
+                          "lineHeight": 1.65,
+                          "fontFamily": "$font-book",
+                          "fontSize": 17,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "E5yYng",
+                          "name": "* * *",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "* * *",
+                          "textAlign": "center",
+                          "fontFamily": "$font-book",
+                          "fontSize": 18,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "v7BoJX",
+                          "name": "In the morning the salt ",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "In the morning the salt came in off the water, and with it the smell of something older than the harbour.",
+                          "lineHeight": 1.65,
+                          "fontFamily": "$font-book",
+                          "fontSize": 17,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ElMUX",
+                  "name": "Formatting toolbar (docked)",
+                  "clip": true,
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "top": 1
+                  },
+                  "gap": 2,
+                  "padding": [
+                    6,
+                    8,
+                    26,
+                    8
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "iNCBB",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "undo-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "undo-2"
+                        }
+                      }
+                    },
+                    {
+                      "id": "A0TfjI",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "redo-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "redo-2"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "RllLQ",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "l6hOt",
+                      "type": "ref",
+                      "ref": "e7Z10",
+                      "name": "bold",
+                      "descendants": {
+                        "JHYgu": {
+                          "icon": "bold"
+                        }
+                      }
+                    },
+                    {
+                      "id": "RFOeH",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "italic",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "italic"
+                        }
+                      }
+                    },
+                    {
+                      "id": "z2D4RD",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "underline",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "underline"
+                        }
+                      }
+                    },
+                    {
+                      "id": "hCIG5",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "a-large-small",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "a-large-small"
+                        }
+                      }
+                    },
+                    {
+                      "id": "OeRIx",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "link",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "link"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "nnJBq",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "agW2Z",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-1",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-1"
+                        }
+                      }
+                    },
+                    {
+                      "id": "L97YH",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-2",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-2"
+                        }
+                      }
+                    },
+                    {
+                      "id": "li6d5",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "heading-3",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "heading-3"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "f4WiL",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "h9O1N",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "quote",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "quote"
+                        }
+                      }
+                    },
+                    {
+                      "id": "rar5l",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "list",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "list"
+                        }
+                      }
+                    },
+                    {
+                      "id": "slhQK",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "list-ordered",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "list-ordered"
+                        }
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "xQziX",
+                      "name": "Divider",
+                      "fill": "$border",
+                      "width": 1,
+                      "height": 20
+                    },
+                    {
+                      "id": "q2Qccm",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "asterisk",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "asterisk"
+                        }
+                      }
+                    },
+                    {
+                      "id": "bksD0",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "superscript",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "superscript"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Td4EM",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 0,
+              "name": "Find bar",
+              "width": 390,
+              "fill": "$raised",
+              "cornerRadius": [
+                0,
+                0,
+                14,
+                14
+              ],
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#14202F2E",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 24
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "kZfVM",
+                  "name": "Find row",
+                  "width": "fill_container",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "Q4Okh",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Find input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "the",
+                          "fill": "$ink"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "vAz7C",
+                      "name": "Match count",
+                      "fill": "$ink-muted",
+                      "content": "3 of 12",
+                      "textAlign": "center",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "id": "sYbdx",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Previous match",
+                      "width": 44,
+                      "height": 44,
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "chevron-up"
+                        }
+                      }
+                    },
+                    {
+                      "id": "A5t5k",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Next match",
+                      "width": 44,
+                      "height": 44,
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "chevron-down"
+                        }
+                      }
+                    },
+                    {
+                      "id": "oGaqw",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "Close",
+                      "width": 44,
+                      "height": 44,
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "x"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IKnbJ",
+                  "name": "Replace row",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "Z8vBt",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Replace input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "Replace with",
+                          "fill": "$ink-muted"
+                        }
+                      }
+                    },
+                    {
+                      "id": "JI6dR",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Replace",
+                      "opacity": 1,
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Replace"
+                        }
+                      }
+                    },
+                    {
+                      "id": "wEwsJ",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Replace all",
+                      "opacity": 1,
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": false
+                        },
+                        "l83V3": {
+                          "content": "Replace all"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "L3syJ",
+                  "name": "Options row",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "BKo9x",
+                      "name": "Chip Match case",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ICiPb",
+                          "name": "Match case",
+                          "fill": "$ink-muted",
+                          "content": "Match case",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Ildk2",
+                      "name": "Chip Whole word",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "n1bAjX",
+                          "name": "Whole word",
+                          "fill": "$ink-muted",
+                          "content": "Whole word",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bAKtp",
+                      "name": "Chip All chapters",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "stroke": "$accent",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Z3QoV0",
+                          "name": "All chapters",
+                          "fill": "$accent",
+                          "content": "All chapters",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "A8shkE",
+                      "name": "Chip Regex",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "x1i6s",
+                          "name": "Regex",
+                          "fill": "$ink-muted",
+                          "content": "Regex",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yYUgk",
+                  "name": "Results",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "OZ94L",
+                      "name": "Result Front matter: Title page",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        10,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qHb99",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Front matter: Title page",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "E0Gd0",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "1",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Zz5Rg",
+                      "name": "Result Ch 3 · The Gate",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        10,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "f5BxmL",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Ch 3 · The Gate",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mTcyh",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "4",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cHuQL",
+                      "name": "Result Ch 7 · The Orchard Wall",
+                      "width": "fill_container",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        10,
+                        8
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "EhJ8f",
+                          "name": "Title",
+                          "fill": "$accent",
+                          "content": "Ch 7 · The Orchard Wall",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "BVyh5",
+                          "name": "Count",
+                          "fill": "$ink-muted",
+                          "content": "3",
+                          "fontFamily": "$font-ui",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "themes": {
