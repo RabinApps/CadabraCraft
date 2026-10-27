@@ -21,6 +21,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 - [Headless MCP server](#headless-mcp-server)
 - [Cross-platform paths and CI (macOS, Windows, Linux)](#cross-platform-paths-and-ci-macos-windows-linux)
 - [Updates and releases](#updates-and-releases)
+- [License](#license)
 
 **Website**
 - [Marketing website (`apps/website`)](#marketing-website-appswebsite)
@@ -298,3 +299,10 @@ Rejected: MDX (a new dependency for content that is mostly structured data), ana
 Every test and test harness is TypeScript: Vitest and Playwright suites, the native smoke test, and the click-through in `scripts/automation/` (run by `pnpm automation:scenario`, typechecked by `pnpm typecheck:scripts`). The `.ts` files run directly on Node 24 (built-in type stripping), so the scripts avoid type-only syntax that needs a transform (enums, parameter properties, `<T>` casts; `erasableSyntaxOnly` enforces it).
 
 Rejected: keeping `.mjs` scripts (no typechecking, and the scenario already imported a `.ts` fixture); adding `tsx` or `ts-node` (a new tool to download, and Node already does the job).
+
+## License
+CadabraCraft is licensed under **PolyForm Noncommercial License 1.0.0**: free for noncommercial use, modification and sharing; commercial use needs a separate license from Rabin Apps LLC. Rabin Apps LLC keeps the right to sell the app or dual-license it, and `CONTRIBUTING.md` asks contributors to grant a relicensing right for that. The project is source-available, not open source (the OSI definition forbids restricting commercial use), so the docs must not call it open source.
+
+Dependencies (Tauri, TipTap core, React, Lingui and similar) are MIT, Apache-2.0 or BSD, which a noncommercial license on our own code does not conflict with. Bundled fonts and tools (Typst, EPUBCheck) keep their own licenses.
+
+Rejected: AGPL-3.0 and MPL-2.0 (the earlier candidates; neither stops anyone selling the app), CC BY-NC (Creative Commons advises against it for software), FSL-1.1-MIT (blocks only competing products and turns MIT after 2 years), custom proprietary terms (legal risk without a lawyer), a full CLA (too heavy for a solo project; revisit if outside contributions grow).

@@ -1,5 +1,6 @@
 {
   "name": "cadabracraft",
+  "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "packageManager": "pnpm@11.10.0",
   "scripts": {

@@ -124,8 +124,8 @@ CadabraCraft is free and built in the open. If it helps your writing, you can su
 
 ## Contributing
 
-Work milestone by milestone, one PR each, with tests and docs. Record ideas outside the current milestone in [docs/roadmap.md](docs/roadmap.md). See [CLAUDE.md](CLAUDE.md) for the rules agents follow.
+Work milestone by milestone, one PR each, with tests and docs. Record ideas outside the current milestone in [docs/roadmap.md](docs/roadmap.md). See [CLAUDE.md](CLAUDE.md) for the rules agents follow and [CONTRIBUTING.md](CONTRIBUTING.md) for contribution terms.
 
 ## License
 
-Licensing (AGPL-3.0 vs MPL-2.0) is undecided, so there is no LICENSE file yet.
+CadabraCraft is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE). You can use, modify and share it for noncommercial purposes. Commercial use needs a separate license from Rabin Apps LLC. It is not open source in the OSI sense.
