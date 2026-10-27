@@ -3,13 +3,15 @@ import type { Editor } from "@tiptap/react";
 import { Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import type { Node as PMNode } from "@tiptap/pm/model";
-import { findInText, type TextRange } from "./match";
+import { findInText, expandReplacement, MAX_MATCHES, type TextRange } from "./match";
 
 export interface SearchSettings {
   query: string;
   replacement: string;
   matchCase: boolean;
   wholeWord: boolean;
+  /** The query is a regular expression and the replacement may use `$1`..`$9`, `$&`, `$$`. */
+  regex?: boolean;
 }
 
 export interface SearchState extends SearchSettings {
@@ -46,7 +48,10 @@ export function findAll(doc: PMNode, s: SearchSettings): TextRange[] {
     let text = "";
     let start = 0;
     const flush = () => {
-      for (const r of findInText(text, s.query, s)) out.push({ from: start + r.from, to: start + r.to });
+      for (const r of findInText(text, s.query, s)) {
+        if (s.regex && out.length >= MAX_MATCHES) break;
+        out.push({ ...r, from: start + r.from, to: start + r.to });
+      }
       text = "";
     };
     node.forEach((child, offset) => {
@@ -115,11 +120,13 @@ export function getSearchInfo(editor: Editor): { total: number; index: number } 
 }
 
 /** Replaces ranges (ascending) in `tr`, last first so earlier positions stay valid. The first replaced char's marks are kept. */
-function replaceRanges(tr: Transaction, ranges: TextRange[], replacement: string) {
+function replaceRanges(tr: Transaction, ranges: TextRange[], replacement: string, regex?: boolean) {
   const doc = tr.doc;
   const { schema } = doc.type;
-  for (const { from, to } of [...ranges].reverse()) {
-    if (replacement) tr.replaceWith(from, to, schema.text(replacement, doc.nodeAt(from)?.marks));
+  for (const range of [...ranges].reverse()) {
+    const { from, to } = range;
+    const text = expandReplacement(range, replacement, regex);
+    if (text) tr.replaceWith(from, to, schema.text(text, doc.nodeAt(from)?.marks));
     else tr.delete(from, to);
   }
 }
@@ -153,7 +160,7 @@ export function replaceCurrentTransaction(state: EditorState, tr: Transaction = 
   const index = at ? fresh.findIndex((m) => m.from === at.from) : -1;
   const target = fresh[index];
   if (!target) return null;
-  replaceRanges(tr, [target], s.replacement);
+  replaceRanges(tr, [target], s.replacement, s.regex);
   // The replaced match is gone, so the next one now sits at the same index.
   return tr.setMeta(searchKey, { rescan: true, current: index } satisfies Meta);
 }
@@ -163,7 +170,7 @@ export function replaceAllTransaction(state: EditorState, tr: Transaction = stat
   const s = get(state);
   const fresh = findAll(state.doc, s);
   if (!fresh.length) return null;
-  replaceRanges(tr, fresh, s.replacement);
+  replaceRanges(tr, fresh, s.replacement, s.regex);
   return tr.setMeta(searchKey, { rescan: true, current: 0 } satisfies Meta);
 }
 

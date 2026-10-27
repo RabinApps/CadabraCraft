@@ -129,4 +129,16 @@ describe("search plugin", () => {
     expect(get(found).matches.length).toBe(10000);
     expect(ms).toBeLessThan(500);
   });
+
+  it("regex: finds, replaces the current match with captures and replaces all", () => {
+    let s = search(make([p(t("ab-12 cd-34"))]), { query: "([a-z]+)-(\\d+)", replacement: "$2:$1", regex: true });
+    expect(texts(s)).toEqual(["ab-12", "cd-34"]);
+    s = apply(s, replaceCurrentTransaction(s));
+    expect(s.doc.textContent).toBe("12:ab cd-34");
+    s = apply(s, replaceAllTransaction(s));
+    expect(s.doc.textContent).toBe("12:ab 34:cd");
+    s = search(s, { query: "(", regex: true });
+    expect(info(s)).toEqual({ total: 0, index: 0 });
+    expect(replaceAllTransaction(s)).toBeNull();
+  });
 });

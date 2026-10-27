@@ -12,6 +12,8 @@ interface FindData {
   replacement: string;
   matchCase: boolean;
   wholeWord: boolean;
+  /** The query is a JavaScript regular expression (see search/match.ts). Off by default, kept for the session only. */
+  regex: boolean;
   /** "All chapters": count, step and replace across the whole book (front and back matter too). Off by default, kept for the session only. */
   allChapters: boolean;
   /** Set when stepping opens another page: the new editor selects its first or last match once it mounts. */
@@ -29,7 +31,7 @@ export interface FindState extends FindData {
 }
 
 export const useFind = create<FindState>((set) => ({
-  open: false, replace: true, query: "", replacement: "", matchCase: false, wholeWord: false, allChapters: false, pendingReveal: null, focusTick: 0,
+  open: false, replace: true, query: "", replacement: "", matchCase: false, wholeWord: false, regex: false, allChapters: false, pendingReveal: null, focusTick: 0,
   set: (patch) => set(patch),
   show: ({ replace, query }) => set((s) => ({ open: true, replace: replace ?? s.replace, ...(query ? { query } : {}), focusTick: s.focusTick + 1 })),
   close: () => set({ open: false }),

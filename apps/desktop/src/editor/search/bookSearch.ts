@@ -3,7 +3,7 @@
  *
  * Exports:
  *   interface BookPage { id: string; title: string; doc: JSONContent }
- *   interface BookSearchOptions { query: string; matchCase: boolean; wholeWord: boolean }
+ *   interface BookSearchOptions { query: string; matchCase: boolean; wholeWord: boolean; regex?: boolean }
  *   interface BookSearchResult { total: number; pages: { id: string; title: string; count: number }[] }
  *   searchBook(pages: BookPage[], opts: BookSearchOptions): BookSearchResult
  *     Only pages with at least one match are listed, in input order. Empty query: { total: 0, pages: [] }.
@@ -12,16 +12,16 @@
  *     from/to = UTF-16 offsets in that run's text (a run = adjacent text nodes, `to` exclusive).
  *   replaceInDoc(doc: JSONContent, opts: BookSearchOptions, replacement: string): { doc: JSONContent; count: number }
  *     Returns a new doc (input never mutated; the same object when nothing matched). Each replacement takes the
- *     marks of the first replaced character.
+ *     marks of the first replaced character. With `regex` the replacement expands `$1`..`$9`, `$&`, `$$`.
  *
- * Semantics match plugin.ts `findAll`: literal Unicode, non-overlapping, and a match never crosses a block, a hard
+ * Semantics match plugin.ts `findAll`: literal Unicode (or a regex with `regex`, see match.ts), non-overlapping, and a match never crosses a block, a hard
  * break or a footnote (any non-text child ends the run; footnote text is its own run).
  */
 import type { JSONContent } from "@tiptap/react";
-import { findInText } from "./match";
+import { expandReplacement, findInText, MAX_MATCHES } from "./match";
 
 export interface BookPage { id: string; title: string; doc: JSONContent }
-export interface BookSearchOptions { query: string; matchCase: boolean; wholeWord: boolean }
+export interface BookSearchOptions { query: string; matchCase: boolean; wholeWord: boolean; regex?: boolean }
 export interface BookSearchResult { total: number; pages: { id: string; title: string; count: number }[] }
 export interface DocMatch { path: number[]; from: number; to: number }
 
@@ -50,7 +50,7 @@ export function findInDoc(doc: JSONContent, opts: BookSearchOptions): DocMatch[]
     const content = node.content;
     if (!content) return;
     for (const [a, b] of runsOf(content)) {
-      for (const r of findInText(runText(content.slice(a, b)), opts.query, opts)) out.push({ path, from: r.from, to: r.to });
+      for (const r of findInText(runText(content.slice(a, b)), opts.query, opts)) if (!opts.regex || out.length < MAX_MATCHES) out.push({ path, from: r.from, to: r.to });
     }
     content.forEach((child, i) => { if (!isText(child)) walk(child, [...path, i]); });
   };
@@ -87,7 +87,7 @@ function replaceRun(nodes: JSONContent[], opts: BookSearchOptions, replacement: 
       if (!r || r.from >= end) { push(node, t.slice(at - start)); break; }
       if (r.from > at) { push(node, t.slice(at - start, r.from - start)); at = r.from; }
       // `at` is inside a match: it starts here, or began in an earlier node (then nothing is emitted).
-      if (at === r.from) push(node, replacement);
+      if (at === r.from) push(node, expandReplacement(r, replacement, opts.regex));
       if (r.to <= end) { at = r.to; ri++; } else at = end;
     }
     start = end;

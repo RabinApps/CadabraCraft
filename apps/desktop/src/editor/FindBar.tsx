@@ -12,6 +12,7 @@ import { errText } from "../lib/projectError";
 import { bookPosition, bookStep, countLabel, type PageCounts } from "./findHelpers";
 import { useFind } from "./findStore";
 import { searchBook } from "./search/bookSearch";
+import { isInvalidRegex } from "./search/match";
 import { getSearchInfo, searchCommands, searchKey } from "./search/plugin";
 
 const DEBOUNCE_MS = 100;
@@ -20,7 +21,7 @@ const DEBOUNCE_MS = 100;
  * Matches per page for the whole book (read from disk after saving unsaved typing), while "All chapters" is on.
  * Recounted when the search or the open page's own count changes; the open page itself is counted live by the editor.
  */
-function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord: boolean, editorTotal: number): PageCounts {
+function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord: boolean, regex: boolean, editorTotal: number): PageCounts {
   const readPages = useProject((s) => s.actions.readPages);
   const [counts, setCounts] = useState<PageCounts>({});
   useEffect(() => {
@@ -28,11 +29,11 @@ function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord
     let live = true;
     const id = setTimeout(() => {
       readPages()
-        .then((pages) => { if (live) setCounts(Object.fromEntries(searchBook(pages, { query, matchCase, wholeWord }).pages.map((p) => [p.id, p.count]))); })
+        .then((pages) => { if (live) setCounts(Object.fromEntries(searchBook(pages, { query, matchCase, wholeWord, regex }).pages.map((p) => [p.id, p.count]))); })
         .catch(() => { if (live) setCounts({}); });
     }, 150);
     return () => { live = false; clearTimeout(id); };
-  }, [on, query, matchCase, wholeWord, editorTotal, readPages]);
+  }, [on, query, matchCase, wholeWord, regex, editorTotal, readPages]);
   return counts;
 }
 
@@ -73,7 +74,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
   const editorInfo = useSearchInfo(editor);
   const manifest = useProject((s) => s.manifest);
   const currentId = useProject((s) => s.currentId);
-  const counts = useBookCounts(f.allChapters, f.query, f.matchCase, f.wholeWord, editorInfo.total);
+  const counts = useBookCounts(f.allChapters, f.query, f.matchCase, f.wholeWord, f.regex, editorInfo.total);
   const order = manifest ? readingOrder(manifest).map((e) => e.id) : [];
   const info = f.allChapters ? bookPosition(order, counts, currentId, editorInfo) : editorInfo;
   const findRef = useRef<HTMLInputElement>(null);
@@ -85,8 +86,8 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
   const apply = useCallback(() => {
     clearTimeout(timer.current);
     pending.current = false;
-    const { query, replacement, matchCase, wholeWord } = useFind.getState();
-    searchCommands(editor).setSearch({ query, replacement, matchCase, wholeWord });
+    const { query, replacement, matchCase, wholeWord, regex } = useFind.getState();
+    searchCommands(editor).setSearch({ query, replacement, matchCase, wholeWord, regex });
   }, [editor]);
   /** Applies only if typing is still waiting for its debounce: applying rescans and would reset the current match. */
   const flush = () => { if (pending.current) apply(); };
@@ -140,10 +141,10 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
     flush();
     if (!f.allChapters) { commands().replaceAll(); return; }
     // The store saves the open page first, rewrites every page that matches, records one undo step and reloads this page.
-    const { query, replacement, matchCase, wholeWord } = useFind.getState();
-    void useProject.getState().actions.replaceInBook({ query, matchCase, wholeWord }, replacement).catch((e) => useProject.setState({ notice: errText(e) }));
+    const { query, replacement, matchCase, wholeWord, regex } = useFind.getState();
+    void useProject.getState().actions.replaceInBook({ query, matchCase, wholeWord, regex }, replacement).catch((e) => useProject.setState({ notice: errText(e) }));
   };
-  const toggle = (patch: { matchCase: boolean } | { wholeWord: boolean } | { allChapters: boolean }) => { f.set(patch); queueMicrotask(apply); };
+  const toggle = (patch: { matchCase: boolean } | { wholeWord: boolean } | { allChapters: boolean } | { regex: boolean }) => { f.set(patch); queueMicrotask(apply); };
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -151,6 +152,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
       e.preventDefault(); e.stopPropagation(); close();
     }
   };
+  const invalid = f.regex && isInvalidRegex(f.query, f.matchCase, f.wholeWord);
   const noResults = f.query !== "" && info.total === 0;
 
   return (
@@ -177,8 +179,8 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); step(e.shiftKey ? -1 : 1); } }}
           />
         </div>
-        <span aria-live="polite" className={cx("min-w-14 shrink-0 text-end text-xs tabular-nums", noResults ? "text-danger" : "text-ink-muted")}>
-          {countLabel(f.query, info.total, info.index)}
+        <span aria-live="polite" className={cx("min-w-14 shrink-0 text-end text-xs tabular-nums", noResults || invalid ? "text-danger" : "text-ink-muted")}>
+          {invalid ? t`Invalid pattern` : countLabel(f.query, info.total, info.index)}
         </span>
         <IconButton icon={ChevronUp} label={t`Previous match`} onClick={() => step(-1)} disabled={info.total === 0} />
         <IconButton icon={ChevronDown} label={t`Next match`} onClick={() => step(1)} disabled={info.total === 0} />
@@ -205,6 +207,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
         <button type="button" aria-pressed={f.matchCase} className={cx(chip, f.matchCase ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ matchCase: !f.matchCase })}>{t`Match case`}</button>
         <button type="button" aria-pressed={f.wholeWord} className={cx(chip, f.wholeWord ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ wholeWord: !f.wholeWord })}>{t`Whole word`}</button>
         <button type="button" aria-pressed={f.allChapters} className={cx(chip, f.allChapters ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ allChapters: !f.allChapters })}>{t`All chapters`}</button>
+        <button type="button" aria-pressed={f.regex} className={cx(chip, f.regex ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ regex: !f.regex })}>{t`Regex`}</button>
       </div>
     </div>
   );

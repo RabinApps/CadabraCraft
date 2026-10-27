@@ -999,6 +999,74 @@ test.describe("find and replace", () => {
     await expect(page.locator(".ProseMirror")).toContainText("owl two");
   });
 
+  test("Regex: invalid pattern, captures, $& and $$, and literal replacement when off", async ({ page }) => {
+    await withText(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    const find = bar(page).getByLabel("Find", { exact: true });
+    const regex = bar(page).getByRole("button", { name: "Regex" });
+    await expect(regex).toHaveAttribute("aria-pressed", "false");
+    await find.fill("c.t");
+    await expect(bar(page).getByText("No results")).toBeVisible();
+    await regex.click();
+    await expect(regex).toHaveAttribute("aria-pressed", "true");
+    await expect(bar(page).getByText("1 of 3")).toBeVisible();
+
+    const errors: string[] = [];
+    page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+    page.on("pageerror", (e) => errors.push(String(e)));
+    await find.fill("(");
+    await expect(bar(page).getByText("Invalid pattern")).toBeVisible();
+    await expect(bar(page).getByRole("button", { name: "Replace all" })).toBeDisabled();
+    await expect(bar(page).getByRole("button", { name: "Replace", exact: true })).toBeDisabled();
+    await expect(page.locator(".search-match")).toHaveCount(0);
+    expect(errors).toEqual([]);
+
+    await find.fill("The (c\\w+) (\\w+)\\.");
+    await expect(bar(page).getByText("1 of 2")).toBeVisible();
+    await bar(page).getByLabel("Replace with").fill("$2 $1 [$&] $$5");
+    await bar(page).getByRole("button", { name: "Replace all" }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("sat cat [The cat sat.] $5 ran cat [The cat ran.] $5 A cat slept.");
+    await page.locator(".ProseMirror").click();
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(page.locator(".ProseMirror")).toContainText("The cat sat. The cat ran. A cat slept.");
+
+    await regex.click();
+    await find.fill("cat");
+    await bar(page).getByLabel("Replace with").fill("$&");
+    await bar(page).getByRole("button", { name: "Replace all" }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("The $& sat. The $& ran. A $& slept.");
+  });
+
+  test("Regex in All chapters: replaces book-wide with captures, one book undo", async ({ page }) => {
+    await newProject(page);
+    const typeInPage = async (text: string) => {
+      await page.locator(".ProseMirror").click();
+      await page.keyboard.press("ControlOrMeta+End");
+      await page.keyboard.type(text);
+    };
+    await typeInPage(" id-1 id-2");
+    await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+    await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+    await typeInPage("id-3");
+    await page.getByRole("button", { name: "Chapter One", exact: true }).click();
+    await expect(page.locator(".ProseMirror")).toContainText("id-1 id-2");
+
+    await page.keyboard.press("ControlOrMeta+f");
+    await bar(page).getByRole("button", { name: "Regex" }).click();
+    await bar(page).getByRole("button", { name: "All chapters" }).click();
+    await bar(page).getByLabel("Find", { exact: true }).fill("id-(\\d)");
+    await expect(bar(page).getByText("1 of 3")).toBeVisible();
+    await bar(page).getByLabel("Replace with").fill("item$1");
+    await bar(page).getByRole("button", { name: "Replace all" }).click();
+    await expect(bar(page).getByText("No results")).toBeVisible();
+    const disk = () => page.evaluate(() => Object.entries((window as any).__disk).filter(([k]) => /\.json$/.test(k) && !k.includes(".cadabra") && k !== "cadabra.json").map(([, v]) => v as string).join("\n"));
+    expect(await disk()).toContain("item1 item2");
+    expect(await disk()).toContain("item3");
+    expect(await disk()).not.toContain("id-");
+    await page.keyboard.press("ControlOrMeta+Alt+z");
+    await expect.poll(async () => ((await disk()).match(/id-\d/g) ?? []).length).toBe(3);
+  });
+
   test("is not available while reading", async ({ page }) => {
     await withText(page);
     await page.getByRole("radio", { name: "Read" }).click();

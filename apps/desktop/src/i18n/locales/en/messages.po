@@ -933,6 +933,10 @@ msgstr "Installing…"
 msgid "Interface language"
 msgstr "Interface language"
 
+#: src/editor/FindBar.tsx
+msgid "Invalid pattern"
+msgstr "Invalid pattern"
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 msgid "ISBN"
@@ -1362,6 +1366,10 @@ msgstr "Redo Chapter Change"
 #: src/app/Sidebar.tsx
 msgid "Redo: {0}"
 msgstr "Redo: {0}"
+
+#: src/editor/FindBar.tsx
+msgid "Regex"
+msgstr "Regex"
 
 #. placeholder {0}: r.title || r.root
 #: src/app/Home.tsx
