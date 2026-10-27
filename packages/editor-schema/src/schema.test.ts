@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { getSchema } from "@tiptap/core";
 import { Node } from "@tiptap/pm/model";
+import { EditorState, TextSelection } from "@tiptap/pm/state";
+import { addColumnAfter, addRowAfter, deleteColumn, deleteRow, deleteTable, toggleHeaderRow } from "@tiptap/pm/tables";
 import { assertChapterDoc, chapterDocProblem, extensions, isChapterDoc } from "./index";
 
 const schema = getSchema(extensions);
@@ -14,7 +16,7 @@ describe("v1 editor schema", () => {
     expect(() => Node.fromJSON(schema, sample).check()).not.toThrow();
   });
   it("defines every v1 node and mark", () => {
-    for (const n of ["paragraph", "heading", "blockquote", "bulletList", "orderedList", "image", "sceneBreak", "footnote"]) expect(schema.nodes[n], n).toBeDefined();
+    for (const n of ["paragraph", "heading", "blockquote", "bulletList", "orderedList", "image", "sceneBreak", "footnote", "table", "tableRow", "tableCell", "tableHeader"]) expect(schema.nodes[n], n).toBeDefined();
     for (const m of ["bold", "italic", "underline", "smallCaps", "strike", "code", "superscript", "subscript", "link"]) expect(schema.marks[m], m).toBeDefined();
   });
   it("leaves out unsupported features", () => {
@@ -74,5 +76,61 @@ describe("chapter document validation", () => {
     expect(isChapterDoc({ type: "doc", content: [{ type: "mystery" }] })).toBe(false);
     expect(chapterDocProblem({ type: "doc", content: [{ type: "heading", attrs: { level: 4 }, content: [{ type: "text", text: "x" }] }] })).toMatch(/level 4/);
     expect(() => assertChapterDoc(null)).toThrow(/invalid chapter document/);
+  });
+});
+
+describe("tables", () => {
+  const cell = (type = "tableCell", attrs?: Record<string, unknown>, content: unknown[] = [{ type: "paragraph" }]) => ({ type, ...(attrs ? { attrs } : {}), content });
+  const table = (...rows: unknown[][]) => ({ type: "doc", content: [{ type: "table", content: rows.map((r) => ({ type: "tableRow", content: r })) }] });
+  it("accepts a rectangular table with a header row", () => {
+    expect(chapterDocProblem(table([cell("tableHeader"), cell("tableHeader")], [cell(), cell()]))).toBeNull();
+  });
+  it("rejects ragged tables", () => {
+    expect(chapterDocProblem(table([cell(), cell()], [cell()]))).toMatch(/rectangular/);
+  });
+  it("rejects merged cells", () => {
+    expect(chapterDocProblem(table([cell("tableCell", { colspan: 2 })]))).toMatch(/merged/);
+    expect(chapterDocProblem(table([cell("tableCell", { rowspan: 2 })]))).toMatch(/merged/);
+  });
+  it("only allows paragraphs in cells", () => {
+    expect(chapterDocProblem(table([cell("tableCell", undefined, [{ type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph" }] }] }])]))).not.toBeNull();
+    expect(chapterDocProblem(table([cell("tableCell", undefined, [table([cell()]).content[0]])]))).not.toBeNull();
+    expect(chapterDocProblem(table([cell("tableCell", undefined, [])]))).not.toBeNull();
+  });
+  it("rejects an empty table or row", () => {
+    expect(chapterDocProblem(table())).not.toBeNull();
+    expect(chapterDocProblem(table([]))).not.toBeNull();
+  });
+});
+
+describe("table editing commands (the ones behind the Format > Table menu)", () => {
+  const cell = (type: string, t: string) => ({ type, content: [{ type: "paragraph", content: [{ type: "text", text: t }] }] });
+  const start = () => {
+    const doc = Node.fromJSON(schema, {
+      type: "doc",
+      content: [{ type: "table", content: [
+        { type: "tableRow", content: [cell("tableHeader", "a"), cell("tableHeader", "b")] },
+        { type: "tableRow", content: [cell("tableCell", "c"), cell("tableCell", "d")] },
+      ] }],
+    });
+    let pos = 0;
+    doc.descendants((n, p) => { if (n.isText && n.text === "c") pos = p + 1; });
+    return EditorState.create({ schema, doc, selection: TextSelection.create(doc, pos) });
+  };
+  const run = (state: EditorState, cmd: typeof addRowAfter) => {
+    let next = state;
+    expect(cmd(state, (tr) => { next = state.apply(tr); })).toBe(true);
+    return next;
+  };
+  it("keeps the table rectangular and unmerged after each command", () => {
+    for (const cmd of [addRowAfter, addColumnAfter, deleteRow, deleteColumn, toggleHeaderRow]) {
+      expect(chapterDocProblem(run(start(), cmd).doc.toJSON()), cmd.name).toBeNull();
+    }
+  });
+  it("adds a row and a column of the right size, and deletes the table", () => {
+    const grown = run(run(start(), addRowAfter), addColumnAfter).doc.firstChild!;
+    expect(grown.childCount).toBe(3);
+    expect(grown.child(0).childCount).toBe(3);
+    expect(run(start(), deleteTable).doc.firstChild?.type.name).not.toBe("table");
   });
 });

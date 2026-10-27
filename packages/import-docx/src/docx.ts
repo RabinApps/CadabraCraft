@@ -7,6 +7,7 @@ import {
   SCENE_BREAK_TEXT,
   Warnings,
   type Item,
+  cellParagraphs,
   extOf,
   flattenItems,
   isSep,
@@ -16,6 +17,7 @@ import {
   plainText,
   safeHref,
   splitChapters,
+  tableOf,
   textNode,
 } from "./common";
 import { ImportError, type ImportOptions, type ImportResult } from "./types";
@@ -686,14 +688,35 @@ class BodyBuilder {
 
   table(t: XNode): void {
     const ctx = this.ctx;
-    const rows = childrenNamed(t, "tr");
-    ctx.warn.tally("table", "warning", "Tables are not supported; each row was imported as a paragraph with cells separated by |.", rawText(t));
     this.flush();
-    for (const r of rows) {
-      const cells = childrenNamed(r, "tc").map((c) => rawText(c).replace(/\s+/g, " ").trim());
-      const text = cells.join(" | ");
-      if (text.replace(/[|\s]/g, "")) this.out.push(paragraphOf([{ type: "text", text }]));
+    let merged = false;
+    let complex = false;
+    const rows: DocNode[][][] = [];
+    const trs = childrenNamed(t, "tr");
+    for (const r of trs) {
+      const cells: DocNode[][] = [];
+      for (const c of childrenNamed(r, "tc")) {
+        const tcPr = child(c, "tcPr");
+        const span = Number(attr(child(tcPr ?? {}, "gridSpan") ?? {}, "val") ?? 1);
+        const vm = tcPr ? child(tcPr, "vMerge") : undefined;
+        const sub = new BodyBuilder(ctx, this.maxLevel);
+        sub.walk(kids(c));
+        sub.flush();
+        const { paragraphs, flattened } = cellParagraphs(sub.out);
+        complex ||= flattened;
+        cells.push(paragraphs);
+        // Merged cells are not supported: the covered grid slots become empty cells so the table stays rectangular.
+        if (vm || (Number.isInteger(span) && span > 1)) merged = true;
+        for (let i = 1; i < Math.min(span, 64); i++) cells.push([{ type: "paragraph" }]);
+      }
+      rows.push(cells);
     }
+    const trPr = trs[0] ? child(trs[0], "trPr") : undefined;
+    const header = trPr ? on(child(trPr, "tblHeader")) : false;
+    const { node, padded } = tableOf(rows, header);
+    if (complex) ctx.warn.tally("table-complex", "warning", "Nested tables, lists and images inside table cells were flattened to paragraphs.", rawText(t));
+    if (merged || padded) ctx.warn.tally("table-merged", "warning", "Merged table cells were split into separate cells (the covered cells are empty).", rawText(t));
+    if (node) this.out.push(node);
   }
 
   walk(list: XNode[], depth = 0): void {

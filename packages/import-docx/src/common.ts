@@ -212,3 +212,44 @@ export function listItemOf(content: DocNode[]): DocNode {
   const c = content.length && content[0]!.type === "paragraph" ? content : [{ type: "paragraph" } as DocNode, ...content];
   return { type: "listItem", content: c };
 }
+
+/** A table cell must hold `paragraph+`: keep paragraphs, flatten any other block to paragraphs, and say whether that changed anything. */
+export function cellParagraphs(blocks: DocNode[]): { paragraphs: DocNode[]; flattened: boolean } {
+  const paragraphs: DocNode[] = [];
+  let flattened = false;
+  const kids = (n: DocNode): DocNode[] => ("content" in n ? n.content ?? [] : []);
+  const rowText = (row: DocNode): string => kids(row).map((c) => plainText(kids(c).flatMap(kids)).replace(/\s+/g, " ").trim()).join(" | ");
+  const walk = (n: DocNode) => {
+    switch (n.type) {
+      case "paragraph": paragraphs.push(n); break;
+      case "heading": flattened = true; paragraphs.push(paragraphOf(n.content ?? [])); break;
+      case "bulletList": case "orderedList": case "blockquote": case "listItem": flattened = true; for (const k of n.content ?? []) walk(k); break;
+      case "table": {
+        flattened = true;
+        for (const row of n.content ?? []) {
+          const t = rowText(row);
+          if (t.replace(/[|\s]/g, "")) paragraphs.push(paragraphOf([{ type: "text", text: t }]));
+        }
+        break;
+      }
+      case "image": flattened = true; if (n.attrs?.alt) paragraphs.push(paragraphOf([{ type: "text", text: String(n.attrs.alt) }])); break;
+      default: flattened = true;
+    }
+  };
+  for (const b of blocks) walk(b);
+  return { paragraphs: paragraphs.length ? paragraphs : [{ type: "paragraph" }], flattened };
+}
+
+/** A rectangular table node from rows of cells (each cell a paragraph list); short rows are padded with empty cells. `null` when there are no cells. */
+export function tableOf(rows: DocNode[][][], headerRow: boolean): { node: DocNode | null; padded: boolean } {
+  const width = Math.max(0, ...rows.map((r) => r.length));
+  if (width === 0) return { node: null, padded: false };
+  let padded = false;
+  const kept = rows.filter((r) => r.length > 0);
+  const content = kept.map((cells, i) => {
+    if (cells.length < width) padded = true;
+    const full = [...cells, ...Array.from({ length: width - cells.length }, () => [{ type: "paragraph" } as DocNode])];
+    return { type: "tableRow", content: full.map((c) => ({ type: headerRow && i === 0 ? "tableHeader" : "tableCell", content: c }) as DocNode) } as DocNode;
+  });
+  return { node: { type: "table", content }, padded };
+}

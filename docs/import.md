@@ -28,7 +28,7 @@ ImportResult = { chapters: { title, doc: ChapterDoc }[], warnings: ImportWarning
 | `[^1]` + definition | inline footnote node (definition flattened to text) |
 | `![alt](path)` | image block, path recorded in `assets`. Remote and non-image targets: `[Image: alt]` text, `remote-image` / `unsupported-image` |
 | hard break | splits paragraph (`line-break`, info) |
-| table | one paragraph per row, ` | ` separated (`table`) |
+| GFM table | table node, first row = header; short rows padded to a rectangle; images in cells become their alt text (`table-complex`) |
 | code block | plain paragraphs per line (`code-block`) |
 | inline code | `code` mark (replaces any other marks on that text) |
 | raw HTML | literal text (`html`) |
@@ -53,6 +53,7 @@ Markdown warnings carry a 1-based `line`. At most 25 located warnings per code a
 | manual line break | splits paragraph (`line-break`, info) |
 | images (PNG, JPEG, GIF, WebP, SVG) | image block, bytes in `assets`, alt from `descr` |
 | tracked changes | insertions accepted, deletions dropped (`tracked-changes`) |
+| table (`w:tbl`) | table node; the first row is a header only when Word marks it as a repeating header row. Multi-paragraph cells keep their paragraphs. `gridSpan` / `vMerge` split into separate cells with empty padding (`table-merged`); nested tables, lists and images in a cell flattened to paragraphs (`table-complex`). A table inside a footnote is dropped (`note-table`) |
 
 ## Warnings catalogue
 
@@ -65,7 +66,8 @@ Markdown warnings carry a 1-based `line`. At most 25 located warnings per code a
 | `unsafe-link` | both | link scheme not allowed (text kept) |
 | `internal-link` | docx (info) | link to a bookmark, kept as text |
 | `line-break` | both (info) | break split into paragraphs |
-| `table` | both | table flattened to row paragraphs |
+| `table-complex` | both | images, lists or nested tables inside a table cell flattened to paragraphs (nested tables become one ` | ` separated paragraph per row) |
+| `table-merged` | docx | merged cells (`gridSpan`, `vMerge`) split; covered cells are empty so the table stays rectangular |
 | `code-block`, `html`, `task-list` | md | see table above |
 | `remote-image`, `unsupported-image` | md | image not imported |
 | `footnote-undefined`, `footnote-unreferenced`, `footnote-nested`, `footnote-complex` | md | footnote problems |

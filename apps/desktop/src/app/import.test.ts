@@ -53,8 +53,9 @@ describe("importBook", () => {
     expect(disk.get("manuscript/001-alpha.json")).toContain('"src": "assets/pixel.png"');
     const r = s().importReport!;
     expect(r).toMatchObject({ chapterCount: 2, imageCount: 1, fileName: "My_Book.md" });
-    expect(r.warnings.map((w) => w.code)).toContain("table");
-    expect(groupWarnings(r.warnings).find((g) => g.code === "table")!.count).toBeGreaterThanOrEqual(1);
+    expect(r.warnings.map((w) => w.code)).toContain("html");
+    expect(r.warnings.map((w) => w.code)).not.toContain("table");
+    expect(groupWarnings(r.warnings).find((g) => g.code === "html")!.count).toBeGreaterThanOrEqual(1);
   });
 
   it("imports a DOCX, storing embedded image bytes under assets/", async () => {

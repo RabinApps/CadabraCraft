@@ -50,6 +50,10 @@
 #show enum: set par(first-line-indent: 0pt)
 #set list(indent: 0.8em, body-indent: 0.6em)
 #set enum(indent: 0.8em, body-indent: 0.6em)
+#set table(stroke: 0.5pt + luma(120), inset: 0.5em)
+#show table: set text(size: 0.9em)
+#show table: set par(first-line-indent: 0pt, justify: false)
+#show table: set block(above: 1.2em, below: 1.2em)
 #show raw: set text(size: 0.9em)
 #show footnote.entry: set text(size: 0.85em)
 #show footnote.entry: set par(first-line-indent: 0pt, justify: false)
@@ -124,5 +128,11 @@ One
 )
 
 #strike[struck] #raw("a<b") H#sub[2]O x#super[2]
+
+#table(
+  columns: (1fr, 1fr),
+  table.header([Item], [Cost & note]),
+  [a\<b], [Ten#footnote[In cells.]],
+)
 
 #mark("chapter-end")

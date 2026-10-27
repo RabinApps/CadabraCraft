@@ -132,6 +132,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("editor.image", t`Image…`),
     cmd("editor.footnote", t`Footnote`),
     cmd("editor.link", t`Link…`),
+    cmd("editor.table", t`Table…`),
   ]);
 
   const format = sub(t`Format`, [
@@ -151,6 +152,15 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("editor.quote", t`Block Quote`),
     cmd("editor.bullets", t`Bulleted List`),
     cmd("editor.numbers", t`Numbered List`),
+    sep,
+    sub(t`Table`, [
+      cmd("editor.tableAddRow", t`Add Row Below`),
+      cmd("editor.tableAddColumn", t`Add Column After`),
+      cmd("editor.tableDeleteRow", t`Delete Row`),
+      cmd("editor.tableDeleteColumn", t`Delete Column`),
+      cmd("editor.tableHeaderRow", t`Toggle Header Row`),
+      cmd("editor.tableDelete", t`Delete Table`),
+    ]),
   ]);
 
   const view = sub(t`View`, [

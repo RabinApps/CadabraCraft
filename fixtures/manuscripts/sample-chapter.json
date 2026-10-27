@@ -29,6 +29,16 @@
       { "type": "text", "text": "2", "marks": [{ "type": "subscript" }] },
       { "type": "text", "text": "O x" },
       { "type": "text", "text": "2", "marks": [{ "type": "superscript" }] }
+    ] },
+    { "type": "table", "content": [
+      { "type": "tableRow", "content": [
+        { "type": "tableHeader", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Item" }] }] },
+        { "type": "tableHeader", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Cost & note" }] }] }
+      ] },
+      { "type": "tableRow", "content": [
+        { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "a<b" }] }] },
+        { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Ten" }, { "type": "footnote", "content": [{ "type": "text", "text": "In cells." }] }] }] }
+      ] }
     ] }
   ]
 }

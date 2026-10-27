@@ -256,6 +256,54 @@ test.describe("formatting toolbar", () => {
     expect(saved).toContain("footnote");
   });
 
+  test("tables: Insert > Table and the Format > Table commands edit rows, columns and the header, and export", async ({ page }) => {
+    // The native menu cannot be clicked in a browser; the dev build exposes its command runner (what each menu item calls).
+    const menu = async (id: string) => {
+      await page.waitForFunction(() => Boolean((window as any).__cadabraMenu));
+      return page.evaluate((i) => (window as any).__cadabraMenu.run(i) as boolean, id);
+    };
+    const cells = (sel: string) => ed(page).locator(`table ${sel}`);
+    expect(await menu("editor.tableAddRow")).toBe(false); // not in a table yet
+    expect(await menu("editor.table")).toBe(true);
+    const dialog = page.getByRole("dialog", { name: "Insert table" });
+    await dialog.getByLabel("Rows").fill("3");
+    await dialog.getByLabel("Columns").fill("2");
+    await dialog.getByRole("button", { name: "Insert" }).click();
+    await expect(cells("tr")).toHaveCount(3);
+    await expect(cells("th")).toHaveCount(2);
+    await expect(cells("td")).toHaveCount(4);
+
+    await cells("th").first().click();
+    await page.keyboard.type("Item");
+    await page.keyboard.press("Tab");
+    await page.keyboard.type("Cost & note");
+    await page.keyboard.press("Tab");
+    await page.keyboard.type("Ten");
+    expect(await menu("editor.table")).toBe(false); // cells cannot hold tables
+
+    expect(await menu("editor.tableAddRow")).toBe(true);
+    await expect(cells("tr")).toHaveCount(4);
+    expect(await menu("editor.tableAddColumn")).toBe(true);
+    await expect(cells("tr").first().locator("th")).toHaveCount(3);
+    expect(await menu("editor.tableDeleteColumn")).toBe(true);
+    expect(await menu("editor.tableDeleteRow")).toBe(true);
+    await expect(cells("tr")).toHaveCount(3);
+    await expect(cells("tr").first().locator("th")).toHaveCount(2);
+
+    await exportBook(page, "EPUB 3");
+    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    const saved = await page.evaluate(() => (window as any).__disk["manuscript/001-chapter-one.json"]);
+    expect(saved).toContain('"type": "tableHeader"');
+    expect(saved).toContain("Cost & note");
+
+    await cells("td").first().click();
+    expect(await menu("editor.tableHeaderRow")).toBe(true);
+    await expect(cells("th")).toHaveCount(0);
+    expect(await menu("editor.tableDelete")).toBe(true);
+    await expect(ed(page).locator("table")).toHaveCount(0);
+    expect(await menu("editor.tableDelete")).toBe(false);
+  });
+
   test("links accept https and refuse javascript:", async ({ page }) => {
     await typeLine(page, "click me");
     await selectLine(page);

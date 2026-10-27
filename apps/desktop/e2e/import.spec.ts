@@ -74,7 +74,7 @@ test("importing Markdown creates a new project with chapters, shows the report, 
   await expect(report).toBeVisible();
   await expect(report).toContainText("Imported 2 chapters from My_Book.md.");
   await expect(report).toContainText("1 image added.");
-  await expect(report.getByRole("region", { name: "Import warnings" })).toContainText("table"); // the table was flattened
+  await expect(report.getByRole("region", { name: "Import warnings" })).toContainText("Raw HTML"); // the raw HTML was kept as text
   await expect(report.getByRole("button", { name: "Copy report" })).toBeVisible();
   await report.getByRole("button", { name: "Done" }).click();
   await expect(report).toBeHidden();

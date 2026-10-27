@@ -8,6 +8,7 @@ import {
   IMAGE_TYPES,
   Warnings,
   type Item,
+  cellParagraphs,
   extOf,
   flattenItems,
   isSep,
@@ -16,6 +17,7 @@ import {
   paragraphOf,
   safeHref,
   splitChapters,
+  tableOf,
   textNode,
 } from "./common";
 import { ImportError, type ImportOptions, type ImportResult } from "./types";
@@ -265,11 +267,18 @@ function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[] {
         break;
       }
       case "table": {
-        ctx.warn.at("table", "warning", "Tables are not supported; each row was imported as a paragraph with cells separated by |.", line);
-        for (const row of n.children) {
-          const text = row.children.map((c) => toText(c).replace(/\s+/g, " ").trim()).join(" | ");
-          if (text.replace(/[|\s]/g, "")) out.push(paragraphOf([{ type: "text", text }]));
-        }
+        // GFM: the first row is the header.
+        let flattened = false;
+        const rows = n.children.map((row) =>
+          row.children.map((cell) => {
+            const r = cellParagraphs(paragraphs(inlines(cell.children, ctx, []), ctx, line));
+            flattened ||= r.flattened;
+            return r.paragraphs;
+          }),
+        );
+        if (flattened) ctx.warn.at("table-complex", "warning", "Images inside table cells were replaced by their alt text.", line);
+        const { node } = tableOf(rows, true);
+        if (node) out.push(node);
         break;
       }
       case "definition":

@@ -105,15 +105,17 @@ describe("chapter_write_markdown", () => {
     expect(check.valid).toBe(true);
   });
 
-  it("returns importer warnings (tables, raw html) and merges several chapters with a warning", async () => {
+  it("returns importer warnings (raw html) and merges several chapters with a warning", async () => {
     await fresh();
     const a = await s.ok("cadabra_chapter_add", { path: "p", title: "One" });
-    const r = await s.ok("cadabra_chapter_write_markdown", { path: "p", chapterId: a.chapter.id, markdown: "# A\n\ntext\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# B\n\nmore" });
+    const r = await s.ok("cadabra_chapter_write_markdown", { path: "p", chapterId: a.chapter.id, markdown: "# A\n\ntext\n\n<div>raw</div>\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# B\n\nmore" });
     const codes = r.warnings.map((w: { code: string }) => w.code);
-    expect(codes).toContain("table");
+    expect(codes).toContain("html");
+    expect(codes).not.toContain("table");
     expect(codes).toContain("multiple-chapters-merged");
     const read = await s.ok("cadabra_chapter_read", { path: "p", chapterId: a.chapter.id });
     expect(read.text).toContain("more");
+    expect(read.text).toContain("a | b\n1 | 2");
     expect(read.doc.content.filter((n: { type: string }) => n.type === "heading")).toHaveLength(2);
   });
 
