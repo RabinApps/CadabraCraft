@@ -152,6 +152,39 @@ try {
     await shot("03-image");
   });
 
+  await step("strikethrough, code block and table: menu commands reach the editor and the chapter file", async () => {
+    const editorHtml = () => app.js(`document.querySelector('.ProseMirror').innerHTML`);
+    const key = (k: string) => app.js(`(() => { const ed = document.querySelector('.ProseMirror'); ed.focus(); for (const type of ["keydown", "keyup"]) ed.dispatchEvent(new KeyboardEvent(type, { key: ${JSON.stringify(k)}, code: ${JSON.stringify(k)}, keyCode: ${k === "Tab" ? 9 : 13}, bubbles: true, cancelable: true })); })()`);
+    const type = (text: string) => app.js(`document.execCommand('insertText', false, ${JSON.stringify(text)})`);
+    const toEnd = () => app.js(`(() => { const ed = document.querySelector('.ProseMirror'); ed.focus(); const s = getSelection(); s.selectAllChildren(ed); s.collapseToEnd(); })()`);
+    const chapterJson = () => {
+      const dir = join(book, "manuscript");
+      return readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => readFileSync(join(dir, f), "utf8")).find((t) => t.includes("Typed by an agent.")) ?? "";
+    };
+    await toEnd(); await key("Enter");
+    await runMenu("editor.strike"); await type("Struck out."); await runMenu("editor.strike");
+    assert((await editorHtml()).includes("<s>Struck out.</s>"), "strikethrough did not reach the editor");
+    await key("Enter"); await runMenu("editor.codeBlock"); await type("let x = 1 < 2;");
+    assert((await editorHtml()).includes("<pre><code>let x = 1 &lt; 2;</code></pre>"), "code block did not reach the editor");
+    await key("Enter"); await key("Enter"); await key("Enter"); // a third Enter leaves the code block
+    await type("After code.");
+    await key("Enter");
+    await runMenu("editor.table");
+    await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`); await app.sleep(600);
+    assert((await app.js(`document.querySelectorAll('.ProseMirror table').length`)) === 1, "table did not reach the editor");
+    await type("Item"); await key("Tab"); await type("Cost & note"); await key("Tab"); await type("a<b");
+    const html = await editorHtml();
+    for (const needle of ["<th", "Item", "Cost &amp; note", "a&lt;b"]) assert(html.includes(needle), `table lacks ${needle}`);
+    await shot("03b-marks-code-table");
+    await app.sleep(3500); // autosave
+    const json = chapterJson();
+    for (const needle of ['"type":"strike"', '"type":"codeBlock"', "let x = 1 < 2;", '"type":"table"', '"type":"tableHeader"', '"type":"tableCell"', "Cost & note", "a<b"]) {
+      assert(json.replace(/\s/g, "").includes(needle.replace(/\s/g, "")) || json.includes(needle), `chapter file lacks ${needle}`);
+    }
+    assert(!json.includes("<s>") && !json.includes("<table"), "the chapter file must hold JSON, never HTML");
+    return "strike, codeBlock, table, tableHeader and tableCell are in the chapter JSON";
+  });
+
   await step("add a title page and a back-matter page through the Add page menu", async () => {
     await openMenu("Add page"); await app.sleep(400);
     await pickItem("Title page"); await app.sleep(1500);
