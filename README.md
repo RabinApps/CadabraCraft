@@ -46,7 +46,7 @@ Ideas outside the current milestone live in [docs/roadmap.md](docs/roadmap.md).
 
 ## Quick start
 
-Prerequisites: Node 24, pnpm 11, Rust (stable). Optional: Typst for PDF export (`brew install typst`; the app also accepts a path in the export dialog), Java 17 for EPUBCheck, poppler for the PDF integration tests, and Playwright's Chromium for e2e.
+Prerequisites: Node 24, pnpm 11, Rust (stable). Run `scripts/fetch-typst.sh` once (downloads the Typst sidecar and Inter fonts the app bundles; also needed before `cargo test`), Java 17 for EPUBCheck, poppler for the PDF integration tests, and Playwright's Chromium for e2e.
 
 ```bash
 pnpm install

@@ -55,6 +55,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.rust-targets }}
+      - name: Bundled Typst and fonts
+        run: bash scripts/fetch-typst.sh ${{ runner.os == 'macOS' && '--all' || '' }}
       - uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

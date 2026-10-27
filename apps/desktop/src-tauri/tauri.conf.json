@@ -43,6 +43,8 @@
     "active": true,
     "targets": "all",
     "icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"],
+    "externalBin": ["binaries/typst"],
+    "resources": { "binaries/fonts/*": "fonts/", "binaries/licenses/*": "licenses/", "licenses/*": "licenses/" },
     "windows": { "webviewInstallMode": { "type": "embedBootstrapper" } }
   },
   "plugins": {

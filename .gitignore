@@ -12,3 +12,6 @@ playwright-report/
 # Third-party skill installed locally; upstream (ramziddin/solid-skills) has no LICENSE file, so do not commit it
 .claude/skills/solid/
 .mcp-workspace/
+
+# Fetched by scripts/fetch-typst.sh
+/apps/desktop/src-tauri/binaries/

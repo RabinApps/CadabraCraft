@@ -55,5 +55,6 @@ jobs:
           exit 1
       - uses: dtolnay/rust-toolchain@stable
       - run: mkdir -p apps/desktop/dist
+      - run: bash scripts/fetch-typst.sh
       - run: cargo test
         working-directory: apps/desktop/src-tauri

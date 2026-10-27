@@ -303,6 +303,29 @@ try {
     }
   });
 
+  // Inter comes from the fonts folder bundled with the app (passed to Typst as --font-path), so this fails if the
+  // app does not find its resource dir or Typst rejects the arguments. Do not run it on a machine where Inter is a system font.
+  await step("PDF export with the Modern Memoir template embeds the bundled Inter", async () => {
+    await app.click("Export"); await app.sleep(800);
+    await dlg(`const o = [...d.querySelectorAll("button,[role=radio]")].find((e) => e.textContent.trim() === "Print PDF"); o.click(); return "picked";`);
+    await app.sleep(400);
+    await dlg(`const s = [...d.querySelectorAll("select")].find((s) => [...s.options].some((o) => o.textContent === "Modern Memoir")); if (!s) throw new Error("no template select");
+      Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value").set.call(s, "modern"); s.dispatchEvent(new Event("change", { bubbles: true })); return s.value;`);
+    await app.sleep(300);
+    await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
+    await app.sleep(1500);
+    for (let i = 0; i < 40 && (await app.snapshot()).dialogs.length; i++) await app.sleep(1000);
+    const pdf = join(book, "exports/book.pdf");
+    try {
+      const fonts = execFileSync("pdffonts", [pdf], { encoding: "utf8" });
+      assert(/\+Inter-/.test(fonts), `Inter is not embedded in the PDF:\n${fonts}`);
+      return `embedded: ${[...new Set(fonts.split("\n").map((l) => /\+(Inter[\w-]*)/.exec(l)?.[1]).filter(Boolean))].join(", ")}`;
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code === "ENOENT") return "exported (poppler not installed, fonts not inspected)";
+      throw e;
+    }
+  });
+
   await step("menu commands act on the real app: Read, New Chapter and its Undo, Book Details, Settings, Close Project, Open Recent, New Project", async () => {
     const chapters = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8")).chapters.length;
     const editable = () => app.js(`document.querySelector(".ProseMirror")?.getAttribute("contenteditable")`);

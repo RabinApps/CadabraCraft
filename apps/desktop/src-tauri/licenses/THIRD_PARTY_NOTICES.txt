@@ -1,0 +1,15 @@
+CadabraCraft third-party notices
+================================
+
+CadabraCraft ships the following programs and fonts alongside the app. Each keeps its own license; the full
+texts are in this folder (Typst) and in the "fonts" folder (Inter).
+
+Typst 0.15.1 (the "typst" program used for print PDF export)
+  Copyright the Typst Contributors. Licensed under the Apache License, Version 2.0.
+  Source: https://github.com/typst/typst
+  License: Typst-LICENSE.txt    Notice: Typst-NOTICE.txt
+
+Inter 4.1 (Regular, Italic, Bold, Bold Italic; used by the "Modern Memoir" template)
+  Copyright The Inter Project Authors. Licensed under the SIL Open Font License, Version 1.1.
+  Source: https://github.com/rsms/inter
+  License: ../fonts/LICENSE.txt

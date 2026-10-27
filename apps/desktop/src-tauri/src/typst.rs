@@ -1,5 +1,6 @@
-//! Runs the external `typst` CLI for PDF export. Typst is never bundled or downloaded: it must be installed by the
-//! user (found via an explicit path, `TYPST_BIN`, PATH, or the usual Homebrew locations). The TypeScript side
+//! Runs the `typst` CLI for PDF export. A copy ships with the app as a sidecar next to the executable (see
+//! `bundle.externalBin`), so users install nothing; an explicit path or `TYPST_BIN` overrides it, and PATH or the
+//! usual Homebrew locations are the last resort. Nothing is downloaded at runtime. The TypeScript side
 //! (`@cadabracraft/export-pdf`) builds the Typst source and checks fonts; this layer only runs the binary safely.
 //! Arguments are always passed as an array (no shell), and every compile happens in a fresh temp directory that
 //! is removed afterwards, whatever the outcome.
@@ -12,7 +13,26 @@ use std::time::{Duration, Instant};
 
 pub const COMPILE_TIMEOUT: Duration = Duration::from_secs(120);
 const FONTS_TIMEOUT: Duration = Duration::from_secs(30);
-const INSTALL_ADVICE: &str = "Install Typst (https://typst.app; on macOS \"brew install typst\") and restart CadabraCraft, or set the path to the typst program in the export dialog.";
+const INSTALL_ADVICE: &str = "The Typst program that ships with CadabraCraft is missing; reinstall the app. You can also install Typst yourself (https://typst.app) and set its path in the export dialog.";
+
+/// Folder of bundled fonts (Inter), passed to Typst as `--font-path`. Set once at startup from the resource dir.
+static FONT_DIR: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
+
+pub fn set_font_dir(dir: PathBuf) {
+    if dir.is_dir() {
+        let _ = FONT_DIR.set(dir);
+    }
+}
+
+/// `--font-path <dir>`; Typst accepts it only after the subcommand (`typst fonts --font-path d`).
+fn font_args(dir: Option<&Path>) -> Vec<String> {
+    dir.map(|d| vec!["--font-path".to_string(), d.to_string_lossy().into_owned()]).unwrap_or_default()
+}
+
+/// The sidecar Tauri places next to the app executable, if it exists.
+fn bundled_dir() -> Option<PathBuf> {
+    std::env::current_exe().ok()?.parent().map(Path::to_path_buf)
+}
 
 /// Errors sent to the UI as `{ kind, ... }` so it can show a specific, actionable message.
 #[derive(Serialize, Debug, PartialEq)]
@@ -53,13 +73,13 @@ fn is_executable(p: &Path) -> bool {
     }
 }
 
-/// Finds `typst`: `explicit` (a user-configured path), then `TYPST_BIN`, then PATH, then `/opt/homebrew/bin` and
-/// `/usr/local/bin` (a GUI app launched from Finder does not inherit the shell's PATH).
+/// Finds `typst`: `explicit` (a user-configured path), then `TYPST_BIN`, then the bundled sidecar, then PATH, then
+/// `/opt/homebrew/bin` and `/usr/local/bin` (a GUI app launched from Finder does not inherit the shell's PATH).
 pub fn find_typst(explicit: Option<&str>) -> Result<PathBuf, TypstError> {
-    find_typst_in(explicit, std::env::var("TYPST_BIN").ok().as_deref(), std::env::var_os("PATH").as_deref(), &["/opt/homebrew/bin", "/usr/local/bin"])
+    find_typst_in(explicit, std::env::var("TYPST_BIN").ok().as_deref(), bundled_dir().as_deref(), std::env::var_os("PATH").as_deref(), &["/opt/homebrew/bin", "/usr/local/bin"])
 }
 
-pub fn find_typst_in(explicit: Option<&str>, env_bin: Option<&str>, path_var: Option<&std::ffi::OsStr>, fallback_dirs: &[&str]) -> Result<PathBuf, TypstError> {
+pub fn find_typst_in(explicit: Option<&str>, env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, fallback_dirs: &[&str]) -> Result<PathBuf, TypstError> {
     for (given, what) in [(explicit, "the configured path"), (env_bin, "TYPST_BIN")] {
         if let Some(g) = given.map(str::trim).filter(|g| !g.is_empty()) {
             let p = PathBuf::from(g);
@@ -71,7 +91,8 @@ pub fn find_typst_in(explicit: Option<&str>, env_bin: Option<&str>, path_var: Op
         }
     }
     let names: &[&str] = if cfg!(windows) { &["typst.exe", "typst"] } else { &["typst"] };
-    let mut dirs: Vec<PathBuf> = path_var.map(|p| std::env::split_paths(p).collect()).unwrap_or_default();
+    let mut dirs: Vec<PathBuf> = bundled.map(Path::to_path_buf).into_iter().collect();
+    dirs.extend(path_var.map(|p| std::env::split_paths(p).collect::<Vec<_>>()).unwrap_or_default());
     dirs.extend(fallback_dirs.iter().map(PathBuf::from));
     for d in dirs.iter().filter(|d| !d.as_os_str().is_empty()) {
         for n in names {
@@ -81,7 +102,7 @@ pub fn find_typst_in(explicit: Option<&str>, env_bin: Option<&str>, path_var: Op
             }
         }
     }
-    Err(TypstError::NotFound { message: format!("The \"typst\" program was not found (searched PATH, /opt/homebrew/bin and /usr/local/bin). {INSTALL_ADVICE}") })
+    Err(TypstError::NotFound { message: format!("The \"typst\" program was not found (searched the app folder, PATH, /opt/homebrew/bin and /usr/local/bin). {INSTALL_ADVICE}") })
 }
 
 struct Captured {
@@ -130,7 +151,13 @@ pub fn version(bin: &Path) -> Result<String, TypstError> {
 
 /// Font family names from `typst fonts` (system and bundled).
 pub fn list_fonts(bin: &Path) -> Result<Vec<String>, TypstError> {
-    let r = run_capture(bin, &["fonts".into()], Path::new("."), FONTS_TIMEOUT)?;
+    list_fonts_with(bin, FONT_DIR.get().map(PathBuf::as_path))
+}
+
+fn list_fonts_with(bin: &Path, font_dir: Option<&Path>) -> Result<Vec<String>, TypstError> {
+    let mut args = vec!["fonts".to_string()];
+    args.extend(font_args(font_dir));
+    let r = run_capture(bin, &args, Path::new("."), FONTS_TIMEOUT)?;
     if !r.success {
         return Err(other(format!("typst fonts failed: {}", r.stderr.trim())));
     }
@@ -169,6 +196,7 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
     }
     fs::write(dir.path().join("main.typ"), source).map_err(other)?;
     let mut args: Vec<String> = vec!["compile".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
+    args.extend(font_args(FONT_DIR.get().map(PathBuf::as_path)));
     if pdf_a {
         args.extend(["--pdf-standard".into(), "a-2b".into()]);
     }
@@ -360,15 +388,31 @@ mod tests {
             fs::set_permissions(&fake, fs::Permissions::from_mode(0o755)).unwrap();
         }
         let dir = d.path().to_str().unwrap();
-        assert_eq!(find_typst_in(Some(fake.to_str().unwrap()), None, None, &[]).unwrap(), fake);
-        assert_eq!(find_typst_in(None, Some(fake.to_str().unwrap()), None, &[]).unwrap(), fake);
-        assert_eq!(find_typst_in(None, None, Some(d.path().as_os_str()), &[]).unwrap(), fake);
-        assert_eq!(find_typst_in(None, None, None, &[dir]).unwrap(), fake);
-        // An explicit path that is wrong is an error, not a silent fallback to PATH.
-        let missing = find_typst_in(Some("/no/such/typst"), None, Some(d.path().as_os_str()), &[]);
-        assert!(matches!(&missing, Err(TypstError::NotFound { message }) if message.contains("/no/such/typst") && message.contains("Install Typst")));
-        let none = find_typst_in(None, None, Some(std::ffi::OsStr::new("")), &["/no/such/dir"]);
-        assert!(matches!(&none, Err(TypstError::NotFound { message }) if message.contains("brew install typst")));
+        assert_eq!(find_typst_in(Some(fake.to_str().unwrap()), None, None, None, &[]).unwrap(), fake);
+        assert_eq!(find_typst_in(None, Some(fake.to_str().unwrap()), None, None, &[]).unwrap(), fake);
+        assert_eq!(find_typst_in(None, None, Some(d.path()), None, &[]).unwrap(), fake);
+        assert_eq!(find_typst_in(None, None, None, Some(d.path().as_os_str()), &[]).unwrap(), fake);
+        assert_eq!(find_typst_in(None, None, None, None, &[dir]).unwrap(), fake);
+        // The bundled sidecar wins over PATH.
+        let other_dir = tempfile::tempdir().unwrap();
+        assert_eq!(find_typst_in(None, None, Some(d.path()), Some(other_dir.path().as_os_str()), &[]).unwrap(), fake);
+        // An explicit path that is wrong is an error, not a silent fallback to the bundled copy or PATH.
+        let missing = find_typst_in(Some("/no/such/typst"), None, Some(d.path()), Some(d.path().as_os_str()), &[]);
+        assert!(matches!(&missing, Err(TypstError::NotFound { message }) if message.contains("/no/such/typst") && message.contains("reinstall")));
+        let none = find_typst_in(None, None, None, Some(std::ffi::OsStr::new("")), &["/no/such/dir"]);
+        assert!(matches!(&none, Err(TypstError::NotFound { message }) if message.contains("reinstall")));
+    }
+
+    /// Regression: `--font-path` must follow the subcommand, so the bundled Inter shows up in `typst fonts`.
+    #[test]
+    fn bundled_fonts_are_listed_when_a_font_dir_is_given() {
+        let Some(bin) = real_typst() else { return };
+        let fonts = Path::new(env!("CARGO_MANIFEST_DIR")).join("binaries/fonts");
+        if !fonts.is_dir() {
+            assert!(std::env::var("REQUIRE_TYPST").as_deref() != Ok("1"), "binaries/fonts missing; run scripts/fetch-typst.sh");
+            return;
+        }
+        assert!(list_fonts_with(&bin, Some(&fonts)).unwrap().iter().any(|f| f == "Inter"));
     }
 
     #[cfg(unix)]

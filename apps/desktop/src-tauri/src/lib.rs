@@ -53,6 +53,13 @@ pub fn run() {
     let builder = builder.invoke_handler(app_handlers![]);
 
     builder
+        .setup(|app| {
+            use tauri::Manager;
+            if let Ok(dir) = app.path().resource_dir() {
+                typst::set_font_dir(dir.join("fonts"));
+            }
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running CadabraCraft");
 }
