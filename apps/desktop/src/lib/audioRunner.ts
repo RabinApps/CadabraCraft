@@ -2,6 +2,8 @@ import {
   AudioExportError,
   AudioTimeoutError,
   CancelledError,
+  ChecksumError,
+  DownloadError,
   DiskFullError,
   EncodeError,
   EngineNotFoundError,
@@ -22,6 +24,8 @@ type RustError =
   | { kind: "disk_full" }
   | { kind: "timeout"; seconds: number }
   | { kind: "cancelled" }
+  | { kind: "download"; message: string }
+  | { kind: "checksum"; file: string }
   | { kind: "other"; message: string };
 
 /** Turns whatever `invoke` rejected with into the export-audio error classes the UI knows how to describe. */
@@ -37,6 +41,8 @@ export function mapAudioError(e: unknown): Error {
       case "disk_full": return new DiskFullError();
       case "timeout": return new AudioTimeoutError(r.seconds);
       case "cancelled": return new CancelledError();
+      case "download": return new DownloadError(r.message);
+      case "checksum": return new ChecksumError(r.file);
       default: return new AudioExportError(r.message);
     }
   }

@@ -3,6 +3,8 @@ import {
   AudioTimeoutError,
   CancelledError,
   ChapterRenderError,
+  ChecksumError,
+  DownloadError,
   DiskFullError,
   EncodeError,
   EngineNotFoundError,
@@ -11,7 +13,7 @@ import {
 } from "@cadabracraft/export-audio";
 import { errText } from "./projectError";
 
-export type AudioErrorCode = "voice-missing" | "engine-missing" | "engine-failed" | "encode" | "disk-full" | "timeout" | "cancelled" | "other";
+export type AudioErrorCode = "download" | "voice-missing" | "engine-missing" | "engine-failed" | "encode" | "disk-full" | "timeout" | "cancelled" | "other";
 
 /** An audiobook failure with a message written for the author and a code the dialog can act on. */
 export class AudioUiError extends Error {
@@ -32,6 +34,8 @@ function reason(e: unknown): { code: AudioErrorCode; text: string } {
   if (e instanceof EngineNotFoundError) return { code: "engine-missing", text: t`the voice engine that comes with CadabraCraft is missing. Reinstall the app.` };
   if (e instanceof SynthesisError) return { code: "engine-failed", text: t`the voice engine stopped:\n${e.detail.trim()}` };
   if (e instanceof EncodeError) return { code: "encode", text: t`${e.format.toUpperCase()} could not be written:\n${e.detail.trim()}` };
+  if (e instanceof DownloadError) return { code: "download", text: t`the download failed: ${e.detail}. What was downloaded is kept, so you can try again.` };
+  if (e instanceof ChecksumError) return { code: "download", text: t`the downloaded file ${e.file} was damaged and was deleted. Try the download again` };
   if (e instanceof DiskFullError) return { code: "disk-full", text: t`there is not enough disk space` };
   if (e instanceof AudioTimeoutError) return { code: "timeout", text: t`the voice engine took longer than ${e.seconds} seconds and was stopped` };
   return { code: "other", text: errText(e) };

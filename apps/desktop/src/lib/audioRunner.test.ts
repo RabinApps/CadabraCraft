@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { AudioTimeoutError, CancelledError, DiskFullError, EncodeError, EngineNotFoundError, SynthesisError, VoiceNotInstalledError } from "@cadabracraft/export-audio";
+import { AudioTimeoutError, CancelledError, DiskFullError, DownloadError, EncodeError, EngineNotFoundError, SynthesisError, VoiceNotInstalledError } from "@cadabracraft/export-audio";
 import { chapterBase, createTauriAudioRunner, mapAudioError } from "./audioRunner";
 
 describe("mapAudioError", () => {
@@ -12,6 +12,8 @@ describe("mapAudioError", () => {
     expect(mapAudioError({ kind: "timeout", seconds: 900 })).toMatchObject({ seconds: 900 });
     expect(mapAudioError({ kind: "timeout", seconds: 900 })).toBeInstanceOf(AudioTimeoutError);
     expect(mapAudioError({ kind: "cancelled" })).toBeInstanceOf(CancelledError);
+    expect(mapAudioError({ kind: "download", message: "503" })).toBeInstanceOf(DownloadError);
+    expect(mapAudioError({ kind: "checksum", file: "m.onnx" })).toMatchObject({ file: "m.onnx" });
     expect(mapAudioError({ kind: "other", message: "odd" }).message).toBe("odd");
     expect(mapAudioError(new Error("plain")).message).toBe("plain");
     const known = new DiskFullError();

@@ -9,6 +9,9 @@ const audio = {
   forgotten: [] as string[],
   /** Decides what a chapter render does; set per test. */
   render: null as null | ((req: { base: string }, onProgress: (f: number) => void) => Promise<unknown>),
+  /** Decides what a pack download does; set per test. */
+  download: null as null | ((pack: string, onProgress: (p: { done: number; total: number }) => void) => Promise<void>),
+  downloads: [] as string[],
 };
 const h = (s: string) => `h:${s.length}:${s.slice(0, 40)}`;
 vi.mock("../lib/bridge", () => ({
@@ -24,6 +27,11 @@ vi.mock("../lib/bridge", () => ({
       if (audio.render) return audio.render(req, onProgress);
       onProgress(0.5);
       return { files: req.formats.map((format) => ({ format, path: `${req.base}.${format}` })), durationSec: 90 };
+    },
+    audioDownloadPack: async (pack: string, _jobId: string, onProgress: (p: { done: number; total: number }) => void) => {
+      audio.downloads.push(pack);
+      if (audio.download) return audio.download(pack, onProgress);
+      onProgress({ done: 50, total: 100 });
     },
     audioCancel: async (id: string) => { audio.cancelled.push(id); },
     audioForget: async (id: string) => { audio.forgotten.push(id); },
@@ -44,7 +52,9 @@ beforeEach(async () => {
   audio.cancelled = [];
   audio.forgotten = [];
   audio.render = null;
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, exportStage: null, audio: null });
+  audio.download = null;
+  audio.downloads = [];
+  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, exportStage: null, audio: null, voiceDownload: null });
   await a().createProject("/p", "Book", "Me");
   await a().add("Second chapter");
 });
@@ -143,5 +153,68 @@ describe("exportAudio", () => {
     await a().addMatter("back", "acknowledgments");
     await a().exportAudio({ ...options, formats: ["opus"] });
     expect(audio.requests).toHaveLength(2);
+  });
+});
+
+describe("downloadVoices", () => {
+  const packs = [{ id: "piper", bytes: 100 }, { id: "kokoro", bytes: 300 }];
+
+  it("downloads the packs one after another with progress across all of them", async () => {
+    const seen: number[] = [];
+    audio.download = async (pack, onProgress) => {
+      onProgress({ done: pack === "piper" ? 40 : 150, total: pack === "piper" ? 100 : 300 });
+      seen.push(s().voiceDownload!.done);
+      onProgress({ done: pack === "piper" ? 100 : 300, total: pack === "piper" ? 100 : 300 });
+    };
+    await expect(a().downloadVoices(packs)).resolves.toBe(true);
+    expect(audio.downloads).toEqual(["piper", "kokoro"]);
+    expect(seen).toEqual([40, 250]);
+    expect(s().voiceDownload).toBeNull();
+    expect(audio.forgotten).toHaveLength(1);
+  });
+
+  it("keeps a failure for a retry, with the network message", async () => {
+    audio.download = async () => { throw { kind: "download", message: "the server answered 503" }; };
+    await expect(a().downloadVoices(packs)).resolves.toBe(false);
+    expect(s().voiceDownload).toMatchObject({ status: "error", total: 400, error: { code: "download" } });
+    expect(s().voiceDownload!.error!.message).toContain("503");
+    expect(audio.downloads).toEqual(["piper"]);
+    a().dismissVoiceDownload();
+    expect(s().voiceDownload).toBeNull();
+  });
+
+  it("explains a damaged file and a full disk", async () => {
+    audio.download = async () => { throw { kind: "checksum", file: "model.onnx" }; };
+    await a().downloadVoices(packs);
+    expect(s().voiceDownload!.error!.message).toContain("model.onnx");
+    audio.download = async () => { throw { kind: "disk_full" }; };
+    await a().downloadVoices(packs);
+    expect(s().voiceDownload!.error).toMatchObject({ code: "disk-full" });
+  });
+
+  it("stops on cancel, tells Rust, and says it was a stop, not a failure", async () => {
+    let reject: (e: unknown) => void = () => {};
+    audio.download = () => new Promise((_, r) => { reject = r; });
+    const bridge = (await import("../lib/bridge")).bridge as unknown as { audioCancel: (id: string) => Promise<void> };
+    bridge.audioCancel = async (id) => { audio.cancelled.push(id); reject({ kind: "cancelled" }); };
+    const run = a().downloadVoices(packs);
+    await vi.waitFor(() => expect(audio.downloads).toEqual(["piper"]));
+    a().cancelVoiceDownload();
+    expect(s().voiceDownload!.cancelling).toBe(true);
+    await expect(run).resolves.toBe(false);
+    expect(audio.cancelled).toHaveLength(1);
+    expect(s().voiceDownload).toMatchObject({ status: "error", error: { code: "cancelled" } });
+  });
+
+  it("refuses a second download while one runs, and dismiss leaves a running one alone", async () => {
+    let finish: () => void = () => {};
+    audio.download = () => new Promise((r) => { finish = () => r(); });
+    const first = a().downloadVoices([packs[0]!]);
+    await vi.waitFor(() => expect(s().voiceDownload?.status).toBe("running"));
+    await expect(a().downloadVoices(packs)).rejects.toThrow(/already running/);
+    a().dismissVoiceDownload();
+    expect(s().voiceDownload?.status).toBe("running");
+    finish();
+    await expect(first).resolves.toBe(true);
   });
 });

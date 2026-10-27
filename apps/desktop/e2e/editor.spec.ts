@@ -54,6 +54,17 @@ async function fakeTauri(page: Page) {
             return new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]).buffer;
           case "audio_voices":
             return (window as any).__audioVoices ?? [{ id: "kokoro-heart", engine: "kokoro", installed: true }, { id: "piper-amy", engine: "piper", installed: true }];
+          case "audio_packs":
+            return (window as any).__audioPacks ?? [{ id: "piper", voices: ["piper-amy", "piper-libritts-0"], bytes: 147993194, installed: true }, { id: "kokoro", voices: ["kokoro-heart"], bytes: 359719088, installed: true }];
+          case "audio_download_pack": {
+            const w = window as any;
+            (w.__downloads ??= []).push(a.pack);
+            a.onProgress?.onmessage?.({ done: 74000000, total: 147993194 });
+            if (w.__downloadHold) await new Promise((_, reject) => { w.__downloadReject = reject; });
+            w.__audioVoices = (w.__audioVoices ?? []).map((v: any) => ({ ...v, installed: true }));
+            w.__audioPacks = (w.__audioPacks ?? []).map((p: any) => ({ ...p, installed: true }));
+            return null;
+          }
           case "audio_render_chapter": {
             const w = window as any;
             (w.__audioCalls ??= []).push(a.request);
@@ -61,7 +72,7 @@ async function fakeTauri(page: Page) {
             if (w.__audioHold) await new Promise((_, reject) => { w.__audioReject = reject; });
             return { files: a.request.formats.map((f: string) => ({ format: f, path: `${a.request.base}.${f}` })), durationSec: 60 };
           }
-          case "audio_cancel": ((window as any).__audioReject)?.({ kind: "cancelled" }); return null;
+          case "audio_cancel": ((window as any).__audioReject)?.({ kind: "cancelled" }); ((window as any).__downloadReject)?.({ kind: "cancelled" }); return null;
           case "audio_forget": return null;
           case "backup_manifest": return "backup";
           // Same naming as the Rust command: .cadabra/trash/<stamp>-<path with / as __>.
@@ -483,14 +494,39 @@ test("Audiobook can be closed while it runs, shows a header chip, and Cancel sto
   await expect(page.getByRole("button", { name: /^Audiobook \d+%$/ })).toHaveCount(0);
 });
 
-test("Audiobook says when no voice is installed instead of offering to export", async ({ page }) => {
-  await page.addInitScript(() => { (window as any).__audioVoices = [{ id: "kokoro-heart", engine: "kokoro", installed: false }]; });
+const noVoices = () => {
+  (window as any).__audioVoices = [{ id: "kokoro-heart", engine: "kokoro", installed: false }, { id: "piper-amy", engine: "piper", installed: false }];
+  (window as any).__audioPacks = [{ id: "piper", voices: ["piper-amy"], bytes: 147993194, installed: false }, { id: "kokoro", voices: ["kokoro-heart"], bytes: 359719088, installed: false }];
+};
+
+test("Audiobook offers to download the voices when none are installed, then shows the options", async ({ page }) => {
+  await page.addInitScript(noVoices);
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
   await dialog.getByRole("radio", { name: "Audiobook" }).click();
   await expect(dialog.getByText("Voices are not installed")).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Export audiobook" })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Export audiobook" })).toHaveCount(0);
+  await expect(dialog.getByLabel(/Piper voices/)).toBeChecked();
+  await expect(dialog.getByLabel(/Kokoro/)).not.toBeChecked();
+  await dialog.getByRole("button", { name: "Download selected (148 MB)" }).click();
+  await expect(dialog.getByLabel("Voice")).toBeVisible();
+  expect(await page.evaluate(() => (window as any).__downloads)).toEqual(["piper"]);
+  await expect(dialog.getByRole("button", { name: "Export audiobook" })).toBeEnabled();
+});
+
+test("A voice download shows progress and can be cancelled, then tried again", async ({ page }) => {
+  await page.addInitScript(() => { noVoicesInit(); (window as any).__downloadHold = true; function noVoicesInit() { (window as any).__audioVoices = [{ id: "piper-amy", engine: "piper", installed: false }]; (window as any).__audioPacks = [{ id: "piper", voices: ["piper-amy"], bytes: 147993194, installed: false }]; } });
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await dialog.getByRole("button", { name: /Download selected/ }).click();
+  await expect(dialog.getByRole("progressbar", { name: "Download progress" })).toHaveAttribute("aria-valuenow", "50");
+  await expect(dialog.getByText("74 of 148 MB")).toBeVisible();
+  await dialog.getByRole("button", { name: "Cancel download" }).click();
+  await expect(dialog.getByText(/Stopped\./)).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Try again" })).toBeVisible();
 });
 
 test("Export Markdown writes exports/book.md, and explains underline until the HTML option is on", async ({ page }) => {

@@ -45,10 +45,14 @@ pub enum AudioError {
     DiskFull,
     Timeout { seconds: u64 },
     Cancelled,
+    /// A voice download failed (network, server answer, or the download ended early). The partial file is kept for a retry.
+    Download { message: String },
+    /// A downloaded voice file did not match its pinned sha256 and was deleted.
+    Checksum { file: String },
     Other { message: String },
 }
 
-fn other(m: impl std::fmt::Display) -> AudioError {
+pub(crate) fn other(m: impl std::fmt::Display) -> AudioError {
     AudioError::Other { message: m.to_string() }
 }
 
@@ -95,7 +99,7 @@ pub const VOICES: &[VoiceDef] = &[
 ];
 
 impl VoiceDef {
-    fn files(&self, root: &Path) -> Vec<PathBuf> {
+    pub(crate) fn files(&self, root: &Path) -> Vec<PathBuf> {
         let dir = root.join(self.dir);
         let mut v = vec![dir.join(self.model), dir.join("tokens.txt"), root.join(self.lexicon)];
         if self.engine == Engine::Kokoro {
@@ -123,7 +127,7 @@ pub fn set_voices_dir(dir: PathBuf) {
     let _ = VOICES_DIR.set(dir);
 }
 
-fn voices_root() -> Option<PathBuf> {
+pub(crate) fn voices_root() -> Option<PathBuf> {
     std::env::var_os("CADABRA_VOICES_DIR").map(PathBuf::from).or_else(|| VOICES_DIR.get().cloned())
 }
 
@@ -457,7 +461,7 @@ pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>
 pub struct AudioJobs(Mutex<HashMap<String, Arc<AtomicBool>>>);
 
 impl AudioJobs {
-    fn flag(&self, id: &str) -> Arc<AtomicBool> {
+    pub(crate) fn flag(&self, id: &str) -> Arc<AtomicBool> {
         self.0.lock().unwrap_or_else(|e| e.into_inner()).entry(id.to_string()).or_default().clone()
     }
 

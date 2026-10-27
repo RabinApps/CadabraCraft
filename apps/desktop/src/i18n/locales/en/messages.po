@@ -31,6 +31,12 @@ msgstr "{0, plural, one {# page could not be put back and keeps the replacement;
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# word} other {# words}}"
 
+#. placeholder {0}: info(p.id).hint
+#. placeholder {1}: mb(p.bytes)
+#: src/app/AudioExport.tsx
+msgid "{0} About {1} MB."
+msgstr "{0} About {1} MB."
+
 #. placeholder {0}: entry.title
 #: src/app/store.ts
 msgid "{0} changed outside the app; saving will keep both versions"
@@ -107,6 +113,12 @@ msgstr "{0} is still downloading from iCloud; try again in a moment"
 #: src/lib/projectError.ts
 msgid "{0} leaves the project folder through a symbolic link"
 msgstr "{0} leaves the project folder through a symbolic link"
+
+#. placeholder {0}: mb(download.done)
+#. placeholder {1}: mb(download.total)
+#: src/app/AudioExport.tsx
+msgid "{0} of {1} MB"
+msgstr "{0} of {1} MB"
 
 #. placeholder {0}: entry.title
 #: src/app/store.ts
@@ -201,6 +213,10 @@ msgstr "3 mm"
 #: src/app/store.ts
 msgid "A cover must be a PNG, JPEG or WebP image."
 msgstr "A cover must be a PNG, JPEG or WebP image."
+
+#: src/app/store.ts
+msgid "A download is already running"
+msgstr "A download is already running"
 
 #: src/app/RecoverDialog.tsx
 msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
@@ -469,6 +485,10 @@ msgstr "CadabraCraft is up to date."
 #: src/ui/Dialog.tsx
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/app/ExportDialog.tsx
+msgid "Cancel download"
+msgstr "Cancel download"
 
 #: src/app/ExportDialog.tsx
 msgid "Cancel export"
@@ -783,6 +803,28 @@ msgstr "Don't show again"
 msgid "Done"
 msgstr "Done"
 
+#: src/app/AudioExport.tsx
+msgid "Download more voices"
+msgstr "Download more voices"
+
+#. placeholder {0}: mb(moreBytes)
+#: src/app/AudioExport.tsx
+msgid "Download more voices ({0} MB)"
+msgstr "Download more voices ({0} MB)"
+
+#: src/app/AudioExport.tsx
+msgid "Download progress"
+msgstr "Download progress"
+
+#. placeholder {0}: mb(chosenPacks.reduce((n, p) => n + p.bytes, 0))
+#: src/app/ExportDialog.tsx
+msgid "Download selected ({0} MB)"
+msgstr "Download selected ({0} MB)"
+
+#: src/app/AudioExport.tsx
+msgid "Downloading…"
+msgstr "Downloading…"
+
 #: src/app/Home.tsx
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
@@ -894,6 +936,10 @@ msgstr "Exported the audiobook to exports/audio"
 #: src/app/ExportDialog.tsx
 msgid "Exporting…"
 msgstr "Exporting…"
+
+#: src/app/AudioExport.tsx
+msgid "Fast and clear."
+msgstr "Fast and clear."
 
 #: src/app/ImportDialogs.tsx
 #: src/app/menuModel.ts
@@ -1200,6 +1246,10 @@ msgstr "Kokoro · Heart (best quality)"
 msgid "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster."
 msgstr "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster."
 
+#: src/app/AudioExport.tsx
+msgid "Kokoro: Heart"
+msgstr "Kokoro: Heart"
+
 #: src/app/BookDetailsDialog.tsx
 #: src/app/Details.tsx
 #: src/ui/LanguagePicker.tsx
@@ -1312,6 +1362,10 @@ msgstr "Missing image file {src}"
 #: src/app/AppHeader.tsx
 msgid "More actions"
 msgstr "More actions"
+
+#: src/app/AudioExport.tsx
+msgid "Most natural, slower."
+msgstr "Most natural, slower."
 
 #. placeholder {0}: deleting?.title ?? ""
 #: src/app/Sidebar.tsx
@@ -1539,6 +1593,10 @@ msgstr "Piper · Amy (fast)"
 #: src/app/AudioExport.tsx
 msgid "Piper · LibriTTS (fast)"
 msgstr "Piper · LibriTTS (fast)"
+
+#: src/app/AudioExport.tsx
+msgid "Piper voices: Amy and LibriTTS"
+msgstr "Piper voices: Amy and LibriTTS"
 
 #: src/app/BookDetailsDialog.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
@@ -1919,6 +1977,10 @@ msgid "Stopped"
 msgstr "Stopped"
 
 #: src/app/AudioExport.tsx
+msgid "Stopped. What was downloaded is kept, so the next download carries on from there."
+msgstr "Stopped. What was downloaded is kept, so the next download carries on from there."
+
+#: src/app/AudioExport.tsx
 msgid "Stopping…"
 msgstr "Stopping…"
 
@@ -2004,6 +2066,20 @@ msgstr "The cover image {0} could not be read. Choose it again in Book details, 
 msgid "The cover image could not be read."
 msgstr "The cover image could not be read."
 
+#. placeholder {0}: e.detail
+#: src/lib/audioErrors.ts
+msgid "the download failed: {0}. What was downloaded is kept, so you can try again."
+msgstr "the download failed: {0}. What was downloaded is kept, so you can try again."
+
+#: src/app/AudioExport.tsx
+msgid "The download stopped"
+msgstr "The download stopped"
+
+#. placeholder {0}: e.file
+#: src/lib/audioErrors.ts
+msgid "the downloaded file {0} was damaged and was deleted. Try the download again"
+msgstr "the downloaded file {0} was damaged and was deleted. Try the download again"
+
 #: src/editor/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
@@ -2071,8 +2147,8 @@ msgid "the voice engine took longer than {0} seconds and was stopped"
 msgstr "the voice engine took longer than {0} seconds and was stopped"
 
 #: src/app/AudioExport.tsx
-msgid "The voices that read your book aloud are not on this computer yet, and CadabraCraft cannot download them from here yet. Put the voice folders in the app's voices folder, then open this dialog again."
-msgstr "The voices that read your book aloud are not on this computer yet, and CadabraCraft cannot download them from here yet. Put the voice folders in the app's voices folder, then open this dialog again."
+msgid "The voices' licences are listed in Settings, Audio."
+msgstr "The voices' licences are listed in Settings, Audio."
 
 #: src/app/Settings.tsx
 #: src/editor/ReadingSettings.tsx
@@ -2194,6 +2270,10 @@ msgid "Trim size"
 msgstr "Trim size"
 
 #: src/app/ExportDialog.tsx
+msgid "Try again"
+msgstr "Try again"
+
+#: src/app/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"
 msgstr "Typesetting the book with Typst…"
 
@@ -2311,8 +2391,16 @@ msgid "Voice"
 msgstr "Voice"
 
 #: src/app/AudioExport.tsx
+msgid "Voices are downloaded once from Hugging Face and GitHub and then work offline. This is the only time CadabraCraft uses the network for audio."
+msgstr "Voices are downloaded once from Hugging Face and GitHub and then work offline. This is the only time CadabraCraft uses the network for audio."
+
+#: src/app/AudioExport.tsx
 msgid "Voices are not installed"
 msgstr "Voices are not installed"
+
+#: src/app/AudioExport.tsx
+msgid "Voices to download"
+msgstr "Voices to download"
 
 #: src/app/AudioExport.tsx
 msgid "Waiting"

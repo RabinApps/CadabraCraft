@@ -1,12 +1,13 @@
 import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
-import { Circle, CircleAlert, CircleCheck, CircleX, Info, LoaderCircle } from "lucide-react";
+import { Circle, CircleAlert, CircleCheck, CircleX, Download, Info, LoaderCircle } from "lucide-react";
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
 import { Checkbox } from "../ui/Checkbox";
 import { Segmented } from "../ui/Segmented";
 import { Select } from "../ui/Select";
 import { cx } from "../ui/cx";
-import type { AudioJob } from "./store";
+import type { VoicePack } from "../lib/bridge";
+import type { AudioJob, VoiceDownload } from "./store";
 
 export const AUDIO_SPEEDS = [0.9, 1, 1.1, 1.25] as const;
 export const DEFAULT_AUDIO_FORMATS: AudioFormat[] = ["opus"];
@@ -16,6 +17,9 @@ const FORMATS: AudioFormat[] = ["opus", "flac", "wav"];
 
 /** The first installed voice: the catalog lists the best quality one first. */
 export const defaultVoice = (voices: VoiceInfo[]): string => voices.find((v) => v.installed)?.id ?? "";
+
+/** Download sizes are shown in decimal megabytes, like the operating system does. */
+export const mb = (bytes: number): number => Math.max(1, Math.round(bytes / 1e6));
 
 function useAudioLabels() {
   const { t } = useLingui();
@@ -31,7 +35,7 @@ function useAudioLabels() {
 }
 
 /** The Audiobook mode of the Export dialog: voice, speed, formats and a note about stores. Matches "Export Audiobook" in the pen. */
-export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, onFormats, chapters, disabled }: {
+export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, onFormats, chapters, disabled, moreBytes, onMore }: {
   voices: VoiceInfo[] | null;
   voice: string;
   onVoice: (id: string) => void;
@@ -41,23 +45,19 @@ export function AudioFields({ voices, voice, onVoice, speed, onSpeed, formats, o
   onFormats: (f: AudioFormat[]) => void;
   chapters: number;
   disabled: boolean;
+  /** Download size of the voices that are not installed yet; with `onMore`, offers to download them. */
+  moreBytes?: number;
+  onMore?: () => void;
 }) {
   const { t } = useLingui();
   const names = useAudioLabels();
   const installed = (voices ?? []).filter((v) => v.installed);
-  if (voices && installed.length === 0) {
-    return (
-      <div className="flex flex-col gap-2 rounded-lg border border-border bg-bg p-4">
-        <p className="text-sm font-semibold">{t`Voices are not installed`}</p>
-        <p className="text-sm text-ink-muted">{t`The voices that read your book aloud are not on this computer yet, and CadabraCraft cannot download them from here yet. Put the voice folders in the app's voices folder, then open this dialog again.`}</p>
-      </div>
-    );
-  }
   return (
     <>
       <Select label={t`Voice`} value={voice} disabled={disabled || !voices} onChange={(e) => onVoice(e.target.value)} hint={t`Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster.`}>
         {installed.map((v) => <option key={v.id} value={v.id}>{names.voice(v.id)}</option>)}
       </Select>
+      {onMore && moreBytes ? <button type="button" className="-mt-2 self-start text-sm font-semibold text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent" onClick={onMore}>{t`Download more voices (${mb(moreBytes)} MB)`}</button> : null}
       <Segmented<string> label={t`Speed`} value={String(speed)} onChange={(v) => onSpeed(Number(v))} items={AUDIO_SPEEDS.map((s) => ({ value: String(s), label: `${s}×` }))} />
       <fieldset className="flex flex-col gap-2.5" disabled={disabled}>
         <legend className="mb-1 text-xs font-semibold text-ink-muted">{t`Formats`}</legend>
@@ -138,6 +138,60 @@ export function AudioJobView({ job }: { job: AudioJob }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+/** The "Voices are not installed" panel: pick what to download, then progress or a failure with a retry. Matches the pen frame. */
+export function VoiceDownloadPanel({ packs, picked, onPicked, download, none }: {
+  /** The packs that are not installed yet. */
+  packs: VoicePack[];
+  picked: string[];
+  onPicked: (ids: string[]) => void;
+  download: VoiceDownload | null;
+  /** No voice is installed at all (the title says so); otherwise this is "download more". */
+  none: boolean;
+}) {
+  const { t } = useLingui();
+  const info = (id: string) =>
+    id === "piper"
+      ? { label: t`Piper voices: Amy and LibriTTS`, hint: t`Fast and clear.` }
+      : { label: t`Kokoro: Heart`, hint: t`Most natural, slower.` };
+  const percent = download && download.total > 0 ? Math.min(100, Math.round((download.done / download.total) * 100)) : 0;
+  return (
+    <div className="flex flex-col gap-3 rounded-lg border border-border bg-bg p-4">
+      <p className="flex items-center gap-2 text-sm font-semibold"><Download size={16} className="text-accent" aria-hidden />{none ? t`Voices are not installed` : t`Download more voices`}</p>
+      <p className="text-sm text-ink-muted">{t`Voices are downloaded once from Hugging Face and GitHub and then work offline. This is the only time CadabraCraft uses the network for audio.`}</p>
+      {download ? (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-baseline justify-between gap-2">
+            <p role="status" className="text-sm font-semibold">{download.cancelling ? t`Stopping…` : download.status === "error" ? t`The download stopped` : t`Downloading…`}</p>
+            <span className="text-sm text-ink-muted">{t`${mb(download.done)} of ${mb(download.total)} MB`}</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full border border-border bg-raised" role="progressbar" aria-label={t`Download progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
+            <div className="h-full rounded-full bg-accent transition-[width] motion-reduce:transition-none" style={{ width: `${percent}%` }} />
+          </div>
+          {download.status === "error" && download.error && (
+            download.error.code === "cancelled"
+              ? <p role="status" className="text-sm text-ink-muted">{t`Stopped. What was downloaded is kept, so the next download carries on from there.`}</p>
+              : <p role="alert" className="flex items-start gap-2 whitespace-pre-wrap break-words rounded-md bg-danger-soft px-3 py-2 text-sm text-danger"><CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />{download.error.message}</p>
+          )}
+        </div>
+      ) : (
+        <fieldset className="flex flex-col gap-2.5">
+          <legend className="sr-only">{t`Voices to download`}</legend>
+          {packs.map((p) => (
+            <Checkbox
+              key={p.id}
+              label={info(p.id).label}
+              hint={t`${info(p.id).hint} About ${mb(p.bytes)} MB.`}
+              checked={picked.includes(p.id)}
+              onChange={(e) => onPicked(e.target.checked ? [...picked, p.id] : picked.filter((x) => x !== p.id))}
+            />
+          ))}
+        </fieldset>
+      )}
+      <p className="text-xs text-ink-muted">{t`The voices' licences are listed in Settings, Audio.`}</p>
     </div>
   );
 }

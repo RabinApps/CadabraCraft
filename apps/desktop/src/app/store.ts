@@ -21,7 +21,7 @@ import { runImport, type ImportChoices, type ImportReport } from "./importBook";
 import { describePdfError } from "../lib/pdfErrors";
 import { describeEpubError } from "../lib/epubErrors";
 import { createTauriRunner } from "../lib/typstRunner";
-import { createTauriAudioRunner } from "../lib/audioRunner";
+import { createTauriAudioRunner, mapAudioError } from "../lib/audioRunner";
 import { describeAudioError, type AudioUiError } from "../lib/audioErrors";
 import { errText } from "../lib/projectError";
 import { useSettings } from "./editorPrefs";
@@ -69,6 +69,16 @@ export interface AudioJob {
   cancelling: boolean;
   durationSec: number;
   files: number;
+  error: AudioUiError | null;
+}
+
+/** A voice download in progress or just failed. It lives in the store so the dialog can be closed and reopened while it runs. */
+export interface VoiceDownload {
+  status: "running" | "error";
+  /** Bytes present of everything being downloaded. */
+  done: number;
+  total: number;
+  cancelling: boolean;
   error: AudioUiError | null;
 }
 
@@ -172,6 +182,8 @@ interface State {
   exportStage: PdfStage | null;
   /** The audiobook export (running, finished or failed); null when none has run or it was dismissed. */
   audio: AudioJob | null;
+  /** The voice download (running, or failed and waiting for a retry); null when none is active. */
+  voiceDownload: VoiceDownload | null;
   /** Restorable pages in the project trash, newest first (filled by `refreshTrash`). */
   trash: TrashItem[];
   /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
@@ -237,6 +249,15 @@ interface State {
      * Throws only when it cannot start: another export is running, or the book has no chapters.
      */
     exportAudio: (options: AudioExportOptions) => Promise<void>;
+    /**
+     * Downloads the given voice packs (skipping files already there; a stopped or failed download resumes). Progress and failure are
+     * in `voiceDownload`. Resolves true when every pack finished; false when it was stopped or failed (not an exception).
+     */
+    downloadVoices: (packs: { id: string; bytes: number }[]) => Promise<boolean>;
+    /** Stops the voice download; what was fetched is kept for a retry. */
+    cancelVoiceDownload: () => void;
+    /** Clears a failed or stopped voice download. A running one is left alone. */
+    dismissVoiceDownload: () => void;
     /** Stops the audiobook: the engine is killed and finished chapters are kept. */
     cancelAudio: () => void;
     /** Clears a finished or failed audiobook from `audio`. A running one is left alone. */
@@ -283,6 +304,7 @@ export const useProject = create<State>((set, get) => {
   let replacing = false;
   let importing = false;
   let audioAbort: AbortController | null = null;
+  let voiceAbort: AbortController | null = null;
   const need = () => {
     const { root, manifest } = get();
     if (!root || !manifest) throw new Error("no project open");
@@ -508,7 +530,7 @@ export const useProject = create<State>((set, get) => {
   };
 
   return {
-    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, audio: null, trash: [], history: NO_HISTORY, recovery: [],
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, audio: null, voiceDownload: null, trash: [], history: NO_HISTORY, recovery: [],
     actions: {
       flush,
       undo: () => travel("undo"),
@@ -914,6 +936,40 @@ export const useProject = create<State>((set, get) => {
           audioAbort = null;
           bridge.audioForget(jobId).catch(() => undefined);
         }
+      },
+      async downloadVoices(packs) {
+        if (get().voiceDownload?.status === "running") throw new Error(t`A download is already running`);
+        const total = packs.reduce((n, p) => n + p.bytes, 0);
+        const jobId = crypto.randomUUID();
+        const ctrl = new AbortController();
+        voiceAbort = ctrl;
+        const update = (patch: Partial<VoiceDownload>) => set((s) => (s.voiceDownload ? { voiceDownload: { ...s.voiceDownload, ...patch } } : {}));
+        set({ voiceDownload: { status: "running", done: 0, total, cancelling: false, error: null } });
+        const stop = () => void bridge.audioCancel(jobId).catch(() => undefined);
+        ctrl.signal.addEventListener("abort", stop, { once: true });
+        let before = 0;
+        try {
+          for (const pack of packs) {
+            await bridge.audioDownloadPack(pack.id, jobId, (p) => update({ done: before + p.done })).catch((e) => { throw mapAudioError(e); });
+            before += pack.bytes;
+          }
+          set({ voiceDownload: null });
+          return true;
+        } catch (e) {
+          update({ status: "error", error: describeAudioError(e) });
+          return false;
+        } finally {
+          voiceAbort = null;
+          bridge.audioForget(jobId).catch(() => undefined);
+        }
+      },
+      cancelVoiceDownload() {
+        if (!voiceAbort) return;
+        set((s) => (s.voiceDownload ? { voiceDownload: { ...s.voiceDownload, cancelling: true } } : {}));
+        voiceAbort.abort();
+      },
+      dismissVoiceDownload() {
+        if (get().voiceDownload?.status !== "running") set({ voiceDownload: null });
       },
       cancelAudio() {
         if (!audioAbort) return;

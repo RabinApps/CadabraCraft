@@ -19,6 +19,14 @@ export interface AudioChapterRequest {
   formats: string[];
 }
 
+/** A downloadable set of voices (`PackInfo` in src-tauri/src/audio_voices.rs). `bytes` is the download size. */
+export interface VoicePack {
+  id: string;
+  voices: string[];
+  bytes: number;
+  installed: boolean;
+}
+
 export interface FileRead { contents: string; hash: string }
 export interface TrashEntry { path: string; original: string; trashed_at: string }
 /** An earlier version of a page: `path` is its file under `.cadabra/backups`, `at` is `YYYYMMDD-HHMM` in UTC. */
@@ -128,6 +136,15 @@ export const bridge = {
     channel.onmessage = onProgress;
     return invoke<RenderedChapter>("audio_render_chapter", { request, onProgress: channel });
   },
+  /** The voice packs, their download sizes and whether all their files are installed. */
+  audioPacks: () => invoke<VoicePack[]>("audio_packs"),
+  /** Downloads a voice pack (resuming a stopped download); `onProgress` gets the bytes of the whole pack. Stop it with `audioCancel(jobId)`. */
+  audioDownloadPack: (pack: string, jobId: string, onProgress: (p: { done: number; total: number }) => void): Promise<void> => {
+    const channel = new Channel<{ done: number; total: number }>();
+    channel.onmessage = onProgress;
+    return invoke<void>("audio_download_pack", { pack, jobId, onProgress: channel });
+  },
+  audioDeletePack: (pack: string) => invoke<void>("audio_delete_pack", { pack }),
   /** Stops the job's running chapter (the engine process is killed) and every later one. */
   audioCancel: (jobId: string) => invoke<void>("audio_cancel", { jobId }),
   /** Drops the job's cancel flag once an export has ended. */

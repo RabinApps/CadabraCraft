@@ -59,6 +59,22 @@ export class DiskFullError extends AudioExportError {
   }
 }
 
+/** A voice download failed (network or server). What was fetched is kept, so trying again resumes it. */
+export class DownloadError extends AudioExportError {
+  constructor(public readonly detail: string) {
+    super(`The voice download failed: ${detail}`);
+    this.name = "DownloadError";
+  }
+}
+
+/** A downloaded voice file did not match its pinned hash and was deleted. */
+export class ChecksumError extends AudioExportError {
+  constructor(public readonly file: string) {
+    super(`The downloaded file ${file} was damaged and was deleted. Try the download again.`);
+    this.name = "ChecksumError";
+  }
+}
+
 /** The author pressed Cancel. Finished chapters are kept. */
 export class CancelledError extends AudioExportError {
   constructor() {

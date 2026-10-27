@@ -26,7 +26,7 @@ export function Segmented<T extends string>({ value, onChange, items, label }: P
       value={value}
       onValueChange={(v) => v && onChange(v as T)}
       aria-label={label}
-      className="inline-flex gap-0.5 rounded-[10px] border border-border bg-bg p-[3px]"
+      className="inline-flex max-w-full flex-wrap gap-0.5 rounded-[10px] border border-border bg-bg p-[3px]"
     >
       {items.map(({ value: v, label: l, icon: Icon, iconOnly, collapse }) => (
         <TG.Item

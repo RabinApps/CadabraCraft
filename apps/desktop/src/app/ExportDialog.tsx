@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { CircleAlert, CircleCheck, FileText, FileType, Headphones, Info, Printer } from "lucide-react";
+import { CircleAlert, CircleCheck, Download, FileText, Headphones, Info, Printer } from "lucide-react";
 import { countWords } from "@cadabracraft/shared";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
-import { bridge } from "../lib/bridge";
+import { bridge, type VoicePack } from "../lib/bridge";
 import { PdfUiError } from "../lib/pdfErrors";
 import { epubChecks, pdfChecks, type CheckPage, type ExportCheck } from "../lib/exportChecks";
 import { estimatePages, wordsPerPage } from "../lib/printPreview";
@@ -21,7 +21,7 @@ import { cx } from "../ui/cx";
 import { useSponsor } from "./sponsor";
 import { useProject } from "./store";
 import { errText } from "../lib/projectError";
-import { AudioFields, AudioJobView, AUDIO_SPEEDS, DEFAULT_AUDIO_FORMATS, defaultVoice } from "./AudioExport";
+import { AudioFields, AudioJobView, AUDIO_SPEEDS, DEFAULT_AUDIO_FORMATS, defaultVoice, mb, VoiceDownloadPanel } from "./AudioExport";
 
 export type ExportFormat = "epub" | "pdf" | "markdown" | "docx" | "audiobook";
 
@@ -85,8 +85,15 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const exportAudio = useProject((s) => s.actions.exportAudio);
   const cancelAudio = useProject((s) => s.actions.cancelAudio);
   const dismissAudio = useProject((s) => s.actions.dismissAudio);
+  const downloadVoices = useProject((s) => s.actions.downloadVoices);
+  const cancelVoiceDownload = useProject((s) => s.actions.cancelVoiceDownload);
+  const dismissVoiceDownload = useProject((s) => s.actions.dismissVoiceDownload);
   const job = useProject((s) => s.audio);
+  const download = useProject((s) => s.voiceDownload);
   const [voices, setVoices] = useState<VoiceInfo[] | null>(null);
+  const [packs, setPacks] = useState<VoicePack[] | null>(null);
+  const [getMore, setGetMore] = useState(false);
+  const [picked, setPicked] = useState<string[] | null>(null);
   const [voice, setVoice] = useState("");
   const [speed, setSpeed] = useState<number>(AUDIO_SPEEDS[1]);
   const [audioFormats, setAudioFormats] = useState<AudioFormat[]>(DEFAULT_AUDIO_FORMATS);
@@ -118,15 +125,35 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
     readPages().then((pages) => { if (live) setAltPages(pages.map((p) => ({ title: p.title, file: fileOf(p.id), doc: p.doc }))); }, () => { if (live) setAltPages([]); });
     return () => { live = false; };
   }, [open, format, readPages, manifest]);
+  const refreshVoices = useCallback(async (isLive: () => boolean = () => true) => {
+    try {
+      const [list, found] = await Promise.all([bridge.audioVoices(), bridge.audioPacks()]);
+      if (!isLive()) return;
+      setVoices(list);
+      setPacks(found);
+      setVoice((v) => (list.some((x) => x.id === v && x.installed) ? v : defaultVoice(list)));
+    } catch (e) {
+      if (!isLive()) return;
+      setVoices([]);
+      setPacks([]);
+      setError(new PdfUiError("other", errText(e)));
+    }
+  }, []);
   useEffect(() => {
     if (!open || format !== "audiobook") return;
     let live = true;
-    bridge.audioVoices().then(
-      (list) => { if (live) { setVoices(list); setVoice((v) => (list.some((x) => x.id === v && x.installed) ? v : defaultVoice(list))); } },
-      (e) => { if (live) { setVoices([]); setError(new PdfUiError("other", errText(e))); } },
-    );
+    void refreshVoices(() => live);
     return () => { live = false; };
-  }, [open, format]);
+  }, [open, format, refreshVoices]);
+  const missing = (packs ?? []).filter((p) => !p.installed);
+  const hasVoices = (voices ?? []).some((v) => v.installed);
+  const showDownload = !job && voices !== null && packs !== null && (!hasVoices || getMore || download !== null) && (missing.length > 0 || download !== null);
+  const chosen = picked ?? (missing.some((p) => p.id === "piper") ? ["piper"] : missing.map((p) => p.id));
+  const chosenPacks = missing.filter((p) => chosen.includes(p.id));
+  const startDownload = () => {
+    setError(null);
+    void downloadVoices(chosenPacks).then((ok) => { if (ok) { setGetMore(false); setPicked(null); void refreshVoices(); } });
+  };
   const pdfCheckList = useMemo(() => {
     if (!manifest || words === null) return [];
     const print = getTemplate(current).print;
@@ -144,7 +171,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
 
   const change = (o: boolean) => {
     if (running) return; // an export cannot be cancelled; keep the dialog until it ends
-    if (!o) { setError(null); setTemplate(null); if (format === "audiobook") dismissAudio(); }
+    if (!o) { setError(null); setTemplate(null); setGetMore(false); if (format === "audiobook") { dismissAudio(); dismissVoiceDownload(); } }
     onOpenChange(o);
   };
   const startAudio = () => {
@@ -154,7 +181,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const submit = async () => {
     setError(null);
     try {
-      if (format === "audiobook") return startAudio();
+      if (format === "audiobook") return showDownload ? (download?.status === "running" || chosenPacks.length === 0 ? undefined : startDownload()) : startAudio();
       if (format === "epub") {
         await exportEpub();
       } else if (format === "markdown") {
@@ -178,10 +205,10 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
           label={t`Format`}
           value={format}
           onChange={(f) => { setError(null); onFormatChange(f); }}
-          items={[{ value: "epub", label: t`EPUB 3`, icon: FileText }, { value: "pdf", label: t`Print PDF`, icon: Printer }, { value: "markdown", label: t`Markdown`, icon: FileType }, { value: "docx", label: t`Word (.docx)`, icon: FileType }, { value: "audiobook", label: t`Audiobook`, icon: Headphones }]}
+          items={[{ value: "epub", label: t`EPUB 3` }, { value: "pdf", label: t`Print PDF` }, { value: "markdown", label: t`Markdown` }, { value: "docx", label: t`Word (.docx)` }, { value: "audiobook", label: t`Audiobook` }]}
         />
         {format === "audiobook" ? (
-          job ? <AudioJobView job={job} /> : <AudioFields voices={voices} voice={voice} onVoice={setVoice} speed={speed} onSpeed={setSpeed} formats={audioFormats} onFormats={setAudioFormats} chapters={chapterCount} disabled={false} />
+          job ? <AudioJobView job={job} /> : showDownload ? <VoiceDownloadPanel packs={missing} picked={chosen} onPicked={setPicked} download={download} none={!hasVoices} /> : <AudioFields voices={voices} voice={voice} onVoice={setVoice} speed={speed} onSpeed={setSpeed} formats={audioFormats} onFormats={setAudioFormats} chapters={chapterCount} disabled={false} moreBytes={missing.reduce((n, p) => n + p.bytes, 0)} onMore={() => setGetMore(true)} />
         ) : format === "epub" ? (
           <CheckList checks={checks} label={t`Checks`} />
         ) : format === "docx" ? (
@@ -220,7 +247,21 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
         {error && <p role="alert" className="whitespace-pre-wrap break-words rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error.message}</p>}
         {format === "audiobook" ? (
           <div className="flex flex-wrap items-center justify-end gap-2.5">
-            {job?.status === "running" ? (
+            {showDownload ? (
+              download?.status === "running" ? (
+                <Button disabled={download.cancelling} onClick={cancelVoiceDownload}>{t`Cancel download`}</Button>
+              ) : download?.status === "error" ? (
+                <>
+                  <Button onClick={() => { dismissVoiceDownload(); if (!hasVoices) change(false); else setGetMore(false); }}>{t`Close`}</Button>
+                  <Button variant="primary" icon={Download} onClick={startDownload}>{t`Try again`}</Button>
+                </>
+              ) : (
+                <>
+                  <Button onClick={() => (hasVoices ? setGetMore(false) : change(false))}>{t`Cancel`}</Button>
+                  <Button type="submit" variant="primary" icon={Download} disabled={chosenPacks.length === 0}>{t`Download selected (${mb(chosenPacks.reduce((n, p) => n + p.bytes, 0))} MB)`}</Button>
+                </>
+              )
+            ) : job?.status === "running" ? (
               <>
                 <Button disabled={job.cancelling} onClick={cancelAudio}>{t`Cancel export`}</Button>
                 <Button variant="primary" onClick={() => onOpenChange(false)}>{t`Keep working`}</Button>
