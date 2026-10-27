@@ -28,6 +28,9 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Port `.docx` import (`packages/import-docx`) to Rust (`zip` + `quick-xml`) to stop the double XML pass and synchronous unzip; needs approval for the new crates and a contract-fixture set for the doc output.
 - Run the native pickers (`pickFolder`, `pickImage`, `pickImportSource`) in Rust and remember what the author picked, so `create_project`, `import_asset` and `read_import_source` only accept those paths (today the webview can name any absolute folder or file for them).
 
+### Format coverage
+- Task lists and definition lists are not supported and have no schema node; add them only on demand. Today the Markdown importer keeps task items as list items with a `[ ] ` / `[x] ` text prefix and a `task-list` warning, and definition-style content is plain paragraphs (`[^1]` definitions are footnotes, not definition lists). The DOCX importer has no definition-list handling: "Definition Term" / "Definition" style paragraphs fall back to normal paragraphs, and Word content-control checkboxes (`sdt`) import as their text content.
+
 ### Website (marketing and SEO pass)
 - Export a 1200x630 OG image and real light/dark editor screenshots from the pen's `Website / ...` frames into `apps/website/public/og` and `public/screens`; `src/lib/seo.ts` already points at `/og/cadabracraft-og.png`.
 - Verify every competitor fact in `apps/website/src/data/competitors.ts` against its source and update `checkedOn`; several fields say "See vendor" until confirmed.

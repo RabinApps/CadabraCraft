@@ -122,4 +122,13 @@ One
   ],
 )
 
+#enum(start: 3, 
+  [
+Third
+  ],
+  [
+Fourth
+  ],
+)
+
 #mark("chapter-end")

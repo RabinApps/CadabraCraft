@@ -20,6 +20,10 @@
         { "type": "text", "text": "Two ", "marks": [{ "type": "smallCaps" }] },
         { "type": "text", "text": "link", "marks": [{ "type": "link", "attrs": { "href": "https://example.com/?a=1&b=2" } }] }
       ] }] }
+    ] },
+    { "type": "orderedList", "attrs": { "start": 3 }, "content": [
+      { "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Third" }] }] },
+      { "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Fourth" }] }] }
     ] }
   ]
 }
