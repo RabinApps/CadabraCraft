@@ -66,7 +66,7 @@ export function Home({
             height={32}
             className="size-8"
           />
-          <span className="font-book text-xl font-semibold">CadabraCraft</span>
+          <span className="font-book text-title font-semibold">CadabraCraft</span>
         </div>
         <IconButton icon={Settings} label={t`Settings`} onClick={onSettings} />
       </header>
@@ -74,7 +74,7 @@ export function Home({
         <span className="flex size-16 items-center justify-center rounded-full bg-accent-soft text-accent">
           <BookPlus size={28} aria-hidden />
         </span>
-        <h1 className="font-book text-3xl font-semibold md:text-4xl">{t`Write your first book`}</h1>
+        <h1 className="font-book text-heading font-semibold md:text-display">{t`Write your first book`}</h1>
         <p className="text-sm text-ink-muted">{t`Start a new folder, or open one you already have. Everything stays on this computer.`}</p>
         <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row">
           <Button
@@ -142,7 +142,7 @@ export function Home({
             </ul>
           </section>
         )}
-        <p className="mt-6 flex max-w-sm items-start gap-2.5 text-start text-[13px] leading-relaxed text-ink-muted">
+        <p className="mt-6 flex max-w-sm items-start gap-2.5 text-start text-small leading-relaxed text-ink-muted">
           <HardDrive size={16} aria-hidden className="mt-0.5 shrink-0" />
           {t`Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices.`}
         </p>

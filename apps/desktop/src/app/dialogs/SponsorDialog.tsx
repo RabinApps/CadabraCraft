@@ -33,7 +33,7 @@ export function SponsorDialog() {
       title={t`Enjoying CadabraCraft?`}
     >
       <div className="flex flex-col gap-4">
-        <p className="flex items-center gap-2 rounded-md bg-success-soft px-3 py-2 text-[13px] font-semibold text-success">
+        <p className="flex items-center gap-2 rounded-md bg-success-soft px-3 py-2 text-small font-semibold text-success">
           <CircleCheck size={16} aria-hidden />
           {t`Exported ${exported ?? ""}`}
         </p>

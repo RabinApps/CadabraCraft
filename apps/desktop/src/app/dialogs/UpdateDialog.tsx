@@ -26,7 +26,7 @@ export function UpdateDialog() {
     >
       <div className="flex flex-col gap-4">
         {update && (
-          <p className="flex items-center gap-2 rounded-md bg-accent-soft px-3 py-2 text-[13px] font-semibold text-accent">
+          <p className="flex items-center gap-2 rounded-md bg-accent-soft px-3 py-2 text-small font-semibold text-accent">
             <CircleArrowUp size={16} aria-hidden />
             {t`You have ${update.currentVersion}. Your books and settings stay as they are.`}
           </p>
@@ -36,7 +36,7 @@ export function UpdateDialog() {
         {error && (
           <p
             role="alert"
-            className="text-[13px] text-danger"
+            className="text-small text-danger"
           >{t`Could not install the update: ${error}`}</p>
         )}
         <div className="flex flex-wrap items-center justify-end gap-2.5">

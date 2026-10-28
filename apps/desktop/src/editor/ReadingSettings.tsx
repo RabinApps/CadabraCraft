@@ -6,7 +6,7 @@ import { useTheme, type Theme } from "../state/theme";
 import { IconButton } from "../ui/Button";
 
 const item =
-  "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";
+  "flex cursor-default items-center gap-2 rounded-sm px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";
 
 /** Text size and page width for reading mode. Items keep the menu open so changes can be previewed. */
 export function ReadingSettings() {
@@ -25,7 +25,7 @@ export function ReadingSettings() {
       <M.Portal>
         <M.Content
           align="end"
-          className="z-50 min-w-52 rounded-md border border-border bg-raised p-1 text-ink shadow-xl"
+          className="z-(--z-menu) min-w-52 rounded-md border border-border bg-raised p-1 text-ink shadow-popover"
         >
           <M.Label className="px-2.5 py-1.5 text-xs font-semibold text-ink-muted">{t`Text size`}</M.Label>
           <M.Item

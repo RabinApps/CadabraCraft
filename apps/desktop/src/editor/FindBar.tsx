@@ -199,7 +199,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
       aria-label={t`Find and replace`}
       onKeyDown={onKeyDown}
       className={cx(
-        "absolute z-20 flex flex-col gap-2 border border-border bg-raised p-2 text-ink shadow-xl",
+        "absolute z-(--z-panel) flex flex-col gap-2 border border-border bg-raised p-2 text-ink shadow-popover",
         "max-md:inset-x-0 max-md:top-0 max-md:border-x-0 max-md:border-t-0",
         "md:end-4 md:w-[380px] md:rounded-lg",
         focusMode ? "md:top-14" : "md:top-3",

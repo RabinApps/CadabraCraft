@@ -17,9 +17,9 @@ interface ModalProps {
   xl?: boolean;
 }
 
-export const overlayClass = "fixed inset-0 z-40 bg-scrim";
+export const overlayClass = "fixed inset-0 z-(--z-overlay) bg-scrim";
 export const panelClass =
-  "fixed z-50 border border-border bg-raised text-ink shadow-2xl focus:outline-none";
+  "fixed z-(--z-dialog) border border-border bg-raised text-ink shadow-dialog focus:outline-none";
 
 export function Modal({
   open,
@@ -39,7 +39,7 @@ export function Modal({
           {...(description ? {} : { "aria-describedby": undefined })}
           className={`${panelClass} left-1/2 top-1/2 ${xl ? "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto" : wide ? "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto" : md ? "max-h-[92dvh] w-[min(92vw,560px)] overflow-y-auto" : "w-[min(92vw,460px)]"} -translate-x-1/2 -translate-y-1/2 rounded-lg p-6`}
         >
-          <D.Title className="font-book text-xl font-semibold">{title}</D.Title>
+          <D.Title className="font-book text-title font-semibold">{title}</D.Title>
           {description ? (
             <D.Description className="mt-2 text-sm text-ink-muted">{description}</D.Description>
           ) : null}

@@ -78,7 +78,7 @@ function CoverPreview({
   return (
     <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-2.5 rounded-md border border-border bg-accent-soft p-4 text-center">
       <ImageIcon size={32} className="text-accent" aria-hidden />
-      <p className="font-book text-xl font-semibold">{title}</p>
+      <p className="font-book text-title font-semibold">{title}</p>
       <p className="font-book text-sm text-ink-muted">{author}</p>
       {failed && (
         <p role="alert" className="text-xs text-danger">{t`The cover image could not be read.`}</p>

@@ -25,7 +25,7 @@ import { errText } from "../../lib/projectError";
 import { HistoryDialog, type HistoryPage } from "../dialogs/HistoryDialog";
 
 const menuItem =
-  "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";
+  "flex cursor-default items-center gap-2 rounded-sm px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";
 
 const FRONT_PRESETS: MatterKind[] = [
   "title-page",
@@ -97,7 +97,7 @@ function EntryList({
   const moveFocus = (f: () => void) => () => void (afterClose.current = f);
   return (
     <section aria-label={heading} className="flex flex-col gap-0.5">
-      <h2 className="px-2.5 pt-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+      <h2 className="px-2.5 pt-1 text-micro font-bold uppercase tracking-[0.12em] text-ink-muted">
         {heading}
       </h2>
       <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
@@ -161,7 +161,7 @@ function EntryList({
                       if (next) e.preventDefault();
                       next?.();
                     }}
-                    className="z-50 min-w-44 rounded-md border border-border bg-raised p-1 text-ink shadow-xl"
+                    className="z-(--z-menu) min-w-44 rounded-md border border-border bg-raised p-1 text-ink shadow-popover"
                   >
                     <M.Item
                       className={menuItem}
@@ -350,15 +350,15 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <M.Portal>
           <M.Content
             align="start"
-            className="z-50 min-w-52 rounded-md border border-border bg-raised p-1 text-ink shadow-xl"
+            className="z-(--z-menu) min-w-52 rounded-md border border-border bg-raised p-1 text-ink shadow-popover"
           >
             <M.Group>
-              <M.Label className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted">{t`Front matter`}</M.Label>
+              <M.Label className="px-2.5 py-1 text-micro font-bold uppercase tracking-[0.12em] text-ink-muted">{t`Front matter`}</M.Label>
               {FRONT_PRESETS.map((k) => preset("front", k))}
             </M.Group>
             <M.Separator className="my-1 h-px bg-border" />
             <M.Group>
-              <M.Label className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted">{t`Back matter`}</M.Label>
+              <M.Label className="px-2.5 py-1 text-micro font-bold uppercase tracking-[0.12em] text-ink-muted">{t`Back matter`}</M.Label>
               {BACK_PRESETS.map((k) => preset("back", k))}
             </M.Group>
           </M.Content>

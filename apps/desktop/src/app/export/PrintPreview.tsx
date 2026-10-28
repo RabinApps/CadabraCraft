@@ -76,7 +76,7 @@ function Page({
   };
   return (
     <div className="relative" style={cropMarks ? { padding: CROP_GAP } : undefined}>
-      <div className="relative overflow-hidden bg-paper text-ink shadow-md" style={style}>
+      <div className="relative overflow-hidden bg-paper text-ink shadow-page" style={style}>
         {title && (
           <p className="font-book font-semibold" style={{ fontSize: "1.4em", marginBottom: "1em" }}>
             {title}

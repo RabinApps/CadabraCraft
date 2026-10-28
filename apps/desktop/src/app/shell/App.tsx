@@ -39,6 +39,7 @@ import { useBookWordCount } from "../hooks/useBookWordCount";
 import { useSessionWords } from "../hooks/useSessionWords";
 import { useSettings } from "../../state/editorPrefs";
 import { goalProgress } from "../../lib/sessionWords";
+import { LG_QUERY } from "./breakpoints";
 
 /** Full-page views. "book" is the editor (or Home when no project is open). */
 type View = "book" | "settings" | "templates" | "print";
@@ -92,7 +93,7 @@ export function App() {
     if (import.meta.env.PROD) void useUpdates.getState().check(false);
   }, []);
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
+    const mq = window.matchMedia(LG_QUERY);
     const close = () => {
       if (mq.matches) setDrawer(false);
     };
@@ -179,7 +180,7 @@ export function App() {
         <IconButton
           icon={Minimize2}
           label={t`Exit focus mode`}
-          className="fixed inset-e-3 top-3 z-10 bg-surface/80 backdrop-blur"
+          className="fixed inset-e-3 top-3 z-(--z-float) bg-surface/80 backdrop-blur"
           onClick={() => setLayout({ focus: false })}
         />
       )}
@@ -321,7 +322,7 @@ export function App() {
             aria-describedby={undefined}
             className={cx(
               panelClass,
-              "inset-x-0 bottom-0 max-h-[80dvh] overflow-y-auto rounded-t-2xl bg-sidebar lg:hidden",
+              "inset-x-0 bottom-0 max-h-[80dvh] overflow-y-auto rounded-t-lg bg-sidebar lg:hidden",
               "md:inset-y-0 md:inset-s-0 md:inset-e-auto md:max-h-none md:w-80 md:rounded-none",
             )}
           >

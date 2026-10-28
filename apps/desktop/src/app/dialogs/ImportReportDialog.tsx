@@ -42,7 +42,7 @@ export function ImportReportDialog() {
         <D.Content
           className={`${panelClass} left-1/2 top-1/2 flex max-h-[85dvh] w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg p-6`}
         >
-          <D.Title className="font-book text-xl font-semibold">{t`Import report`}</D.Title>
+          <D.Title className="font-book text-title font-semibold">{t`Import report`}</D.Title>
           <D.Description className="mt-2 text-sm text-ink-muted">
             {plural(chapterCount, {
               one: `Imported # chapter from ${fileName}.`,

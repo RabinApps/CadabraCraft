@@ -106,7 +106,7 @@ export function Templates({ onBack }: { onBack: () => void }) {
                   aria-pressed={on}
                   onClick={() => setSelected(tpl.id)}
                   className={cx(
-                    "flex w-[250px] flex-col items-center gap-3 rounded-[14px] border bg-surface p-4 text-start transition-colors focus-visible:outline-2 focus-visible:outline-accent",
+                    "flex w-[250px] flex-col items-center gap-3 rounded-lg border bg-surface p-4 text-start transition-colors focus-visible:outline-2 focus-visible:outline-accent",
                     on
                       ? "border-accent bg-accent-soft/40"
                       : "border-border hover:bg-accent-soft/40",

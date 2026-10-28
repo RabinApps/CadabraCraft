@@ -10,7 +10,7 @@ export interface HeaderMenuItem {
 }
 
 const item =
-  "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-accent-soft";
+  "flex cursor-default items-center gap-2 rounded-sm px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-accent-soft";
 
 /** Overflow menu for the phone header, where the actions do not all fit. Hidden from `sm` up. */
 export function HeaderMenu({ label, items }: { label: string; items: HeaderMenuItem[] }) {
@@ -24,7 +24,7 @@ export function HeaderMenu({ label, items }: { label: string; items: HeaderMenuI
           <M.Content
             align="end"
             className={cx(
-              "z-50 min-w-44 rounded-md border border-border bg-raised p-1 text-ink shadow-xl",
+              "z-(--z-menu) min-w-44 rounded-md border border-border bg-raised p-1 text-ink shadow-popover",
             )}
           >
             {items.map(({ label: l, icon: Icon, onSelect }) => (

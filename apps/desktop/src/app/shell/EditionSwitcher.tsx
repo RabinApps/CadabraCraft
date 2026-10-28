@@ -10,7 +10,7 @@ import { cx } from "../../ui/cx";
 import { useProject } from "../../state/project/index";
 
 const item =
-  "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-accent-soft";
+  "flex cursor-default items-center gap-2 rounded-sm px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-accent-soft";
 
 export const nativeName = (code: string): string =>
   LOCALES.find((l) => l.code === code)?.nativeName ?? code;
@@ -46,7 +46,7 @@ export function EditionSwitcher() {
         <M.Portal>
           <M.Content
             align="start"
-            className="z-50 min-w-64 rounded-md border border-border bg-raised p-1 text-ink shadow-xl"
+            className="z-(--z-menu) min-w-64 rounded-md border border-border bg-raised p-1 text-ink shadow-popover"
           >
             {manifest.editions.map((e) => {
               const p = translationProgress(manifest, e.language);

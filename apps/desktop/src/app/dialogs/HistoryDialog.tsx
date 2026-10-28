@@ -185,8 +185,8 @@ export function HistoryDialog({
           <div className="flex min-w-0 flex-1 flex-col gap-2.5">
             <div className="flex flex-wrap items-center gap-2.5 text-xs">
               <span className="text-ink-muted">{t`Compared with the current text`}</span>
-              <ins className="rounded bg-success-soft px-2 py-0.5 font-semibold text-success no-underline">{t`In this version only`}</ins>
-              <del className="rounded bg-danger-soft px-2 py-0.5 font-semibold text-danger">{t`Only in the current text`}</del>
+              <ins className="rounded-sm bg-success-soft px-2 py-0.5 font-semibold text-success no-underline">{t`In this version only`}</ins>
+              <del className="rounded-sm bg-danger-soft px-2 py-0.5 font-semibold text-danger">{t`Only in the current text`}</del>
             </div>
             <div
               aria-label={t`Comparison`}

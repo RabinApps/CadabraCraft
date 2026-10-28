@@ -13,10 +13,10 @@ export function Section({
 }) {
   return (
     <section id={id} aria-labelledby={`${id}-heading`} className="flex scroll-mt-4 flex-col gap-3">
-      <h2 id={`${id}-heading`} className="font-book text-xl font-semibold">
+      <h2 id={`${id}-heading`} className="font-book text-title font-semibold">
         {title}
       </h2>
-      <div className="flex flex-col divide-y divide-border rounded-[14px] border border-border bg-surface">
+      <div className="flex flex-col divide-y divide-border rounded-lg border border-border bg-surface">
         {children}
       </div>
     </section>
