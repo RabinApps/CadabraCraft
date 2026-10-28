@@ -108468,6 +108468,285 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "mwinu",
+      "x": 0,
+      "y": 57077,
+      "name": "Website / OG image",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 1200,
+      "height": 630,
+      "fill": "$bg",
+      "layout": "vertical",
+      "gap": 28,
+      "padding": [
+        72,
+        80
+      ],
+      "justifyContent": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "p9Maf",
+          "name": "Logo",
+          "gap": 10,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "XdWql",
+              "name": "Mark",
+              "width": 64,
+              "height": 64,
+              "fill": {
+                "type": "gradient",
+                "gradientType": "linear",
+                "enabled": true,
+                "rotation": 225,
+                "size": {
+                  "height": 1
+                },
+                "colors": [
+                  {
+                    "color": "#2F73E6",
+                    "position": 0
+                  },
+                  {
+                    "color": "#1A4BB0",
+                    "position": 1
+                  }
+                ]
+              },
+              "cornerRadius": 14,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "path",
+                  "id": "S3ym1",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Left page",
+                  "geometry": "M256 210q-60-28-140-16v194q80-12 140 18z",
+                  "viewBox": [
+                    0,
+                    0,
+                    512,
+                    512
+                  ],
+                  "fill": "#FFFFFF",
+                  "width": 64,
+                  "height": 64
+                },
+                {
+                  "type": "path",
+                  "id": "w4QME",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Right page",
+                  "geometry": "M256 210q60-28 140-16v194q-80-12-140 18z",
+                  "viewBox": [
+                    0,
+                    0,
+                    512,
+                    512
+                  ],
+                  "fill": "#FFFFFF",
+                  "width": 64,
+                  "height": 64
+                },
+                {
+                  "type": "path",
+                  "id": "yTSXc",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Left lines",
+                  "opacity": 0.35,
+                  "geometry": "M150 246h72m-72 26h72m-72 26h58",
+                  "viewBox": [
+                    0,
+                    0,
+                    512,
+                    512
+                  ],
+                  "fill": "#1F5FD1",
+                  "width": 64,
+                  "height": 64,
+                  "stroke": "#1F5FD1",
+                  "strokeWidth": 9,
+                  "strokeLinecap": "round"
+                },
+                {
+                  "type": "path",
+                  "id": "M66q59",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Right lines",
+                  "opacity": 0.35,
+                  "geometry": "M290 246h72m-72 26h72m-58 26h58",
+                  "viewBox": [
+                    0,
+                    0,
+                    512,
+                    512
+                  ],
+                  "fill": "#1F5FD1",
+                  "width": 64,
+                  "height": 64,
+                  "stroke": "#1F5FD1",
+                  "strokeWidth": 9,
+                  "strokeLinecap": "round"
+                },
+                {
+                  "type": "path",
+                  "id": "ynWId",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Spine",
+                  "opacity": 0.55,
+                  "geometry": "M256 202v210",
+                  "viewBox": [
+                    0,
+                    0,
+                    512,
+                    512
+                  ],
+                  "fill": "#1F5FD1",
+                  "width": 64,
+                  "height": 64,
+                  "stroke": "#1F5FD1",
+                  "strokeWidth": 8,
+                  "strokeLinecap": "round"
+                },
+                {
+                  "type": "path",
+                  "id": "NTv6u",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Sparkle",
+                  "geometry": "M256 106q6 40 46 46-40 6-46 46-6-40-46-46 40-6 46-46z",
+                  "viewBox": [
+                    0,
+                    0,
+                    512,
+                    512
+                  ],
+                  "fill": "#FFFFFF",
+                  "width": 64,
+                  "height": 64
+                },
+                {
+                  "type": "path",
+                  "id": "S0S0N8",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Small sparkle",
+                  "opacity": 0.85,
+                  "geometry": "M356 124q2 14 16 16-14 2-16 16-2-14-16-16 14-2 16-16z",
+                  "viewBox": [
+                    0,
+                    0,
+                    512,
+                    512
+                  ],
+                  "fill": "#FFFFFF",
+                  "width": 64,
+                  "height": 64
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "BmKSh",
+              "fill": "$ink",
+              "content": "CadabraCraft",
+              "fontFamily": "$font-book",
+              "fontSize": 36,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "DdoKh",
+          "name": "Title",
+          "fill": "$ink",
+          "textGrowth": "fixed-width",
+          "width": 1000,
+          "content": "Write your book. Format it beautifully.",
+          "lineHeight": 1.05,
+          "fontFamily": "$font-book",
+          "fontSize": 84,
+          "fontWeight": "500"
+        },
+        {
+          "type": "text",
+          "id": "oncqp",
+          "name": "Lead",
+          "fill": "$ink-muted",
+          "textGrowth": "fixed-width",
+          "width": 960,
+          "content": "A free, local-first desktop app for self-publishing authors. EPUB3, print PDF, Word, Markdown and audiobooks.",
+          "lineHeight": 1.4,
+          "fontFamily": "$font-ui",
+          "fontSize": 28,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "onqok",
+          "name": "Footer row",
+          "gap": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "h3U6Pw",
+              "name": "Pill",
+              "fill": "$accent-soft",
+              "cornerRadius": 999,
+              "padding": [
+                10,
+                22
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "J9ZWA",
+                  "name": "Pill label",
+                  "fill": "$accent",
+                  "content": "Free and source-available · No account",
+                  "fontFamily": "$font-ui",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "dFNu8",
+              "name": "Domain",
+              "fill": "$ink-muted",
+              "content": "cadabracraft.com",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
     }
   ],
   "themes": {

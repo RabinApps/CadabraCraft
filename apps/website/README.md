@@ -28,7 +28,7 @@ The deploy workflow is `.github/workflows/pages.yml`. It publishes `apps/website
 4. **Verify**: the workflow run is green, `https://cadabracraft.com` loads over HTTPS, and `www` redirects to the apex.
 
 ## Before announcing
-- Add `public/og/cadabracraft-og.png` (1200x630, from the pen) and replace the HTML/CSS `EditorMockup` with real screenshots exported from `cadabracraft.pen` (put them in `public/screens/`), light and dark.
+- Replace the HTML/CSS `EditorMockup` with real screenshots exported from `cadabracraft.pen` (put them in `public/screens/`), light and dark, and set `shot` on the entries in `featureGroups` (`src/data/content.ts`) to show them on `/features/`. The social card `public/og/cadabracraft-og.png` already exists; re-export it from the pen frame `Website / OG image` if the headline changes.
 - Confirm the repo URL in `src/app/page.tsx` (`REPO`) and the three funding links (GitHub Sponsors, Buy Me a Coffee, PayPal; same values as `.github/FUNDING.yml`).
 - Add a real download link once a GitHub Release exists; the hero currently says downloads are not available yet.
 - Check the page at phone, tablet and desktop widths in both themes.

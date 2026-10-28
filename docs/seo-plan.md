@@ -1,6 +1,6 @@
 # SEO plan for cadabracraft.com
 
-Status: proposed 2026-10-27. Nothing here changes `apps/website` yet; the implementation items are in [roadmap.md](roadmap.md), "Website (marketing and SEO pass)". The page designs this plan relies on are in the pen as `Website / ...` frames (see [design.md](design.md), "Website").
+Status: proposed 2026-10-27; the "Before announcing" work in section 8 was implemented the same day (new pages, social card, structured data, sitemap dates, copy). Section 2 describes the site before that work. What is left is in [roadmap.md](roadmap.md), "Website (marketing and SEO pass)". The page designs this plan relies on are in the pen as `Website / ...` frames (see [design.md](design.md), "Website").
 
 ## 1. Goals and rules
 

@@ -40,7 +40,8 @@ export function ThemeToggle() {
       aria-label={`Theme: ${theme}. Switch theme`}
       className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm text-ink-muted hover:text-ink"
     >
-      Theme: {theme}
+      <span className="hidden lg:inline">Theme: </span>
+      {theme}
     </button>
   );
 }

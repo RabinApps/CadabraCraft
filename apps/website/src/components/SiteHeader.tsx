@@ -13,19 +13,21 @@ export function SiteHeader() {
           {nav
             .filter((n) => n.href !== "/support/")
             .map((n) => (
-              <a key={n.href} href={n.href} className="hidden text-ink-muted hover:text-ink sm:inline">
+              <a key={n.href} href={n.href} className="hidden text-ink-muted hover:text-ink md:inline">
                 {n.label}
               </a>
             ))}
-          <a href={REPO} className="hidden text-ink-muted hover:text-ink md:inline">
+          <a href={REPO} className="hidden text-ink-muted hover:text-ink lg:inline">
             GitHub
           </a>
-          <a href="/support/" className={`${btnPrimary} !py-1.5`}>
-            Support
-          </a>
+          <span className="hidden md:inline-flex">
+            <a href="/support/" className={`${btnPrimary} !py-1.5`}>
+              Support
+            </a>
+          </span>
           <ThemeToggle />
         </nav>
-        <details className="relative sm:hidden">
+        <details className="relative md:hidden">
           <summary className="cursor-pointer list-none rounded-md border border-border px-3 py-1.5 text-sm">
             Menu
           </summary>

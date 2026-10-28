@@ -64,14 +64,14 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ### Website (marketing and SEO pass)
 
-- Export a 1200x630 OG image and real light/dark editor screenshots from the pen's `Website / ...` frames into `apps/website/public/og` and `public/screens`; `src/lib/seo.ts` already points at `/og/cadabracraft-og.png`.
+- Export real light/dark editor screenshots from the pen's `Website / ...` frames (or the running app) into `apps/website/public/screens`, then set `shot` on the `featureGroups` entries and replace `EditorMockup` on Home. The OG image is done (`public/og/cadabracraft-og.png`).
 - Verify every competitor fact in `apps/website/src/data/competitors.ts` against its source and update `checkedOn`; several fields say "See vendor" until confirmed.
 - Link the LICENSE once the licensing question is settled; add a real download link once a GitHub Release exists.
-- Build the pages now drawn in the pen (see [seo-plan.md](seo-plan.md) for the order): rebuild Features with alternating text and screenshot rows, Compare index with the at-a-glance table, Download with the released state, the Home "How it works" strip, footer links to Formats and Guides, and new `/formats/`, `/guides/` (index and article template), `/changelog/` routes. Add them to `sitemap.ts`.
-- Technical SEO from [seo-plan.md](seo-plan.md), section 4: `summary_large_image` and per-page images, `lastModified` in the sitemap, `FAQPage`, `BreadcrumbList` and `Article` JSON-LD, `noindex` on the 404 page, `SoftwareApplication` after the first release, performance budgets checked with Lighthouse.
-- Update site copy (Home, Features, FAQ, metadata descriptions) to mention Word and Markdown export, audiobooks and language editions; it still says only EPUB3 and PDF.
-- Write the first guides (EPUB, Word to EPUB) and verify the remaining competitor facts; re-check compare pages every 90 days.
-- Not drawn yet: Formats, Guides, Guide article, Changelog and 404 at tablet and mobile widths (they follow the same responsive rules as the drawn pages).
+- Download page: switch the platform cards to real links, version and size when the first GitHub Release exists (drawn as the "released" variant in the pen), and add `SoftwareApplication` structured data at the same time.
+- Run Lighthouse (the `web-perf` skill) against the built site and check the budgets in [seo-plan.md](seo-plan.md), section 4; verify `www` to apex, HTTPS and Search Console and Bing verification by DNS.
+- Write more guides (print-ready PDF and trim sizes, Markdown workflow, audiobook, translations) from [seo-plan.md](seo-plan.md), section 5, and re-check compare pages every 90 days.
+- Not drawn yet: Formats, Guides, Guide article, Changelog and 404 at tablet and mobile widths (the built pages are responsive and were checked at 375, 700, 820 and 1280 px).
+- Done: Features, Compare index, Download, Formats, Guides (index and article), Changelog and 404 pages; Home "How it works"; header and footer links; social card, `summary_large_image`, sitemap dates, `Article`, `BreadcrumbList` and `FAQPage` data, `noindex` on 404; site copy updated for Word, Markdown, audiobooks and editions.
 
 ## Done
 

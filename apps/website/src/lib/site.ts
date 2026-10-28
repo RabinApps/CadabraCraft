@@ -14,9 +14,14 @@ export const funding = [
   },
 ] as const;
 
+/** Social card, 1200x630, exported from the pen frame "Website / OG image". */
+export const OG_IMAGE = "/og/cadabracraft-og.png";
+
 export const nav = [
   { label: "Features", href: "/features/" },
   { label: "Compare", href: "/compare/" },
+  { label: "Formats", href: "/formats/" },
+  { label: "Guides", href: "/guides/" },
   { label: "Support", href: "/support/" },
 ] as const;
 
