@@ -67,7 +67,10 @@ export async function editingSteps({
       "project did not open",
     );
     const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
-    assert(manifest.title === "Scenario Book" && manifest.chapters.length === 1, "manifest wrong");
+    assert(
+      manifest.editions[0].title === "Scenario Book" && manifest.chapters.length === 1,
+      "manifest wrong",
+    );
     await shot("02-created");
   });
 

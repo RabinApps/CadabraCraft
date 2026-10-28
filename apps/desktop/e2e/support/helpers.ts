@@ -52,7 +52,7 @@ export async function exportBook(page: Page, format: "EPUB 3" | "Print PDF") {
 export async function seedSnapshot(page: Page, words: string) {
   return page.evaluate((w) => {
     const disk = window.__disk;
-    const file = JSON.parse(disk["cadabra.json"] as string).chapters[0].file as string;
+    const file = JSON.parse(disk["cadabra.json"] as string).chapters[0].files.en as string;
     const doc = {
       type: "doc",
       content: [

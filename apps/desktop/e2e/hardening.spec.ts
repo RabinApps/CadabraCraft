@@ -160,7 +160,7 @@ test.describe("hardening: paste, find and export failures", () => {
     });
     await dialog.getByRole("button", { name: "Export", exact: true }).click();
     await expect(dialog).toHaveCount(0);
-    await expect(page.getByRole("status")).toHaveText("Exported exports/book.md");
+    await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.md");
   });
 
   test("Export Markdown: an unreadable chapter file is named in the error", async ({ page }) => {

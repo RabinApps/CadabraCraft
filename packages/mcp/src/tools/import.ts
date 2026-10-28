@@ -3,7 +3,7 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { addChapter, createManifest, serializeManifest } from "@cadabracraft/format";
+import { addChapter, createManifest, serializeManifest, sourceFile } from "@cadabracraft/format";
 import { ImportError, importDocx, importHtml, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
 import { MANIFEST, ProjectFsError, createProject, fileBaseName, readRelativeImage, readSource, resolveInWorkspace, storeImage, writeProjectFile } from "@cadabracraft/project-fs";
 import { remapImages } from "../doc";
@@ -149,7 +149,7 @@ export const importFile = defineTool({
       for (const c of result.chapters) {
         const next = addChapter(manifest, c.title);
         manifest = next.manifest;
-        writeProjectFile(dest, next.entry.file, JSON.stringify(remapImages(c.doc, map), null, 2));
+        writeProjectFile(dest, sourceFile(next.entry, next.manifest.editions), JSON.stringify(remapImages(c.doc, map), null, 2));
         written.chapters++;
       }
       writeProjectFile(dest, MANIFEST, serializeManifest(manifest));

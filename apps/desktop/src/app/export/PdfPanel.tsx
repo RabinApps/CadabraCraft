@@ -1,3 +1,4 @@
+import { sourceEdition } from "@cadabracraft/format";
 import { useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { countWords } from "@cadabracraft/shared";
@@ -9,6 +10,7 @@ import {
   listTemplates,
 } from "@cadabracraft/templates";
 import type { Manifest } from "@cadabracraft/format";
+import type { ExportScope } from "../../state/project/types";
 import { pdfChecks } from "../../lib/exportChecks";
 import { estimatePages, wordsPerPage } from "../../lib/printEstimate";
 import { readStored, removeStored, writeStored } from "../../lib/persisted";
@@ -59,11 +61,12 @@ export function PdfPanel({
   options,
   running,
   error,
+  language,
 }: {
   options: PdfOptions;
   running: boolean;
   error: PdfUiError | null;
-}) {
+} & ExportScope) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const readPages = useProject((s) => s.actions.readPages);
@@ -83,7 +86,7 @@ export function PdfPanel({
   const [words, setWords] = useState<number | null>(null);
   useEffect(() => {
     let live = true;
-    readPages().then(
+    readPages(language).then(
       (pages) => {
         if (live) setWords(pages.reduce((sum, p) => sum + countWords(p.doc), 0));
       },
@@ -94,18 +97,21 @@ export function PdfPanel({
     return () => {
       live = false;
     };
-  }, [readPages]);
+  }, [readPages, language]);
+  const edition = manifest?.editions.find(
+    (e) => e.language === (language ?? sourceEdition(manifest.editions).language),
+  );
   const pdfCheckList = useMemo(() => {
-    if (!manifest || words === null) return [];
+    if (!manifest || !edition || words === null) return [];
     const print = getTemplate(current).print;
     const margins = print.defaults.marginsIn;
     const perPage = wordsPerPage(TRIM_SIZES[trimSize], margins, print.fontSizePt);
     return pdfChecks({
       estimatedPages: estimatePages(words, manifest.chapters.length, perPage),
       margins,
-      hasCover: manifest.cover !== null,
+      hasCover: edition?.cover != null,
     });
-  }, [manifest, words, current, trimSize]);
+  }, [manifest, words, current, trimSize, edition]);
   return (
     <>
       {pdfCheckList.length > 0 && <CheckList checks={pdfCheckList} label={t`Print checks`} />}
@@ -141,7 +147,7 @@ export function PdfPanel({
         disabled={running}
         onChange={(e) => setPdfA(e.target.checked)}
       />
-      {manifest?.cover && (
+      {edition?.cover && (
         <Checkbox
           label={t`Include the cover`}
           hint={t`Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file.`}

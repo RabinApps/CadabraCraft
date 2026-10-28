@@ -26,6 +26,10 @@ UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 - Offer a "decorative image" choice so an intentionally empty alt does not trigger the alt-text warning; translate the accessibility summary; consider an evaluated `dcterms:conformsTo` claim only after an accessibility audit.
 - Show the alt-text row's counts in the Export dialog with a jump to the image (needs a pen design).
 
+### Editions (translations in one book, v1)
+
+Decision and format in [architecture.md](architecture.md), "Editions". Done: format v4 active, the editor switcher, Add language (copy or empty), per-edition chapter text, untranslated marks and rename, export per language with "skip untranslated" (`exports/<lang>/`), book details per edition, removal and undo across editions, the file-change watch for translation files, MCP `language` arguments and a `/drive-app` editions scenario. Still open: the book details language field and the Add language list (it uses all locales, the pen says enabled ones only; see architecture.md); the audiobook per language (it reads the source and writes `exports/audio`); find and replace all per edition; snapshots and History per edition (they already work per file, not yet tested in a translation); an MCP tool to add an edition. Mixed-language passages inside one edition are not planned.
+
 ### Internationalization
 
 Infrastructure is in; see the Internationalization section of [architecture.md](architecture.md).

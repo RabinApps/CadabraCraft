@@ -30,7 +30,7 @@ test.describe("sponsor dialog after an export", () => {
     await newProject(page);
     await exportEpub(page);
     await expect(sponsor(page)).toBeVisible();
-    await expect(sponsor(page).getByText("Exported exports/book.epub")).toBeVisible();
+    await expect(sponsor(page).getByText("Exported exports/en/book.epub")).toBeVisible();
     for (const name of ["Don't show again", "Maybe later", "Sponsor"])
       await expect(sponsor(page).getByRole("button", { name })).toBeVisible();
   });
@@ -41,7 +41,7 @@ test.describe("sponsor dialog after an export", () => {
     await sponsor(page).getByRole("button", { name: "Maybe later" }).click();
     await expect(sponsor(page)).toHaveCount(0);
     await exportEpub(page);
-    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.epub");
     await expect(sponsor(page)).toHaveCount(0);
     expect(await page.evaluate(() => localStorage.getItem("cadabracraft.sponsor"))).toBeNull();
   });
@@ -65,7 +65,7 @@ test.describe("sponsor dialog after an export", () => {
     await page.getByRole("button", { name: "Open folder" }).click();
     await expect(page.locator(".ProseMirror")).toBeVisible();
     await exportEpub(page);
-    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.epub");
     await expect(sponsor(page)).toHaveCount(0);
   });
 

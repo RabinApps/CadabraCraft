@@ -424,6 +424,9 @@ importers:
 
   packages/project-fs:
     dependencies:
+      '@cadabracraft/format':
+        specifier: workspace:*
+        version: link:../format
       '@cadabracraft/shared':
         specifier: workspace:*
         version: link:../shared

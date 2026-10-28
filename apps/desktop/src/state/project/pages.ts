@@ -13,17 +13,38 @@ import {
   sectionOf,
   starterDoc,
   starterTitle,
+  sourceEdition,
+  sourceFile,
+  sourceTitle,
+  sourceTitleById,
+  entryFile,
+  markTranslated,
+  renameIn,
+  setTranslationFile,
+  translationFile,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { emptyDoc, AUTOSAVE_MS } from "./util";
-import type { PageActions } from "./types";
+import type { HistoryEntry, PageActions } from "./types";
 import type { Ctx } from "./context";
 
 /** The chapter list and the open page: select, type, save, add, rename, move, remove, and reading pages and word counts. */
 export const createPageActions = (ctx: Ctx): PageActions => {
-  const { set, get, need, entryOf, saveManifest, record, flush, load, loadChapters, countBook } =
-    ctx;
+  const {
+    set,
+    get,
+    need,
+    entryOf,
+    langOf,
+    titleIn,
+    saveManifest,
+    record,
+    flush,
+    load,
+    loadChaptersIn,
+    countBook,
+  } = ctx;
   let autosave: ReturnType<typeof setTimeout> | undefined;
   return {
     flush,
@@ -39,18 +60,32 @@ export const createPageActions = (ctx: Ctx): PageActions => {
       const { root, manifest } = need();
       const entry = entryOf(manifest, get().currentId ?? "");
       if (!entry) return;
+      const lang = langOf(manifest);
+      // A chapter added after this edition was made has no file in it yet: the first save creates the file.
+      const file =
+        entryFile(entry, lang) ?? translationFile(sourceFile(entry, manifest.editions), lang);
       const w = await bridge.writeFile(
         root,
-        entry.file,
+        file,
         JSON.stringify(doc, null, 2),
-        get().hashes[entry.file] ?? null,
+        get().hashes[file] ?? null,
       );
       set({
-        hashes: { ...get().hashes, [entry.file]: w.hash },
+        hashes: { ...get().hashes, [file]: w.hash },
         notice: w.conflict_copy
-          ? t`${entry.title} changed outside the app; the other version was kept as ${w.conflict_copy}`
+          ? t`${titleIn(entry, manifest, lang)} changed outside the app; the other version was kept as ${w.conflict_copy}`
           : t`Saved`,
       });
+      // Typing in a copy or blank page is the translation: the chapter stops being marked untranslated.
+      const newFile = entryFile(entry, lang) === undefined;
+      if (newFile || (entry.untranslated ?? []).includes(lang)) {
+        const next = markTranslated(
+          setTranslationFile(manifest, entry.id, lang, file),
+          entry.id,
+          lang,
+        );
+        await saveManifest(next);
+      }
     },
     async add(title) {
       await flush();
@@ -58,50 +93,75 @@ export const createPageActions = (ctx: Ctx): PageActions => {
       const { manifest: next, entry } = addChapter(manifest, title);
       const w = await bridge.writeFile(
         root,
-        entry.file,
+        sourceFile(entry, manifest.editions),
         JSON.stringify(emptyDoc(title), null, 2),
         null,
       );
-      set({ hashes: { ...get().hashes, [entry.file]: w.hash } });
+      set({ hashes: { ...get().hashes, [sourceFile(entry, manifest.editions)]: w.hash } });
       await saveManifest(next);
-      record({ label: t`Add ${title}`, file: { path: entry.file, added: true } }, manifest, next);
+      record(
+        {
+          label: t`Add ${title}`,
+          file: { path: sourceFile(entry, manifest.editions), added: true },
+        },
+        manifest,
+        next,
+      );
       await load(entry.id);
     },
     async addMatter(section, kind, title) {
       await flush();
       const { root, manifest } = need();
-      const name = title ?? starterTitle(kind, manifest.language);
+      const name = title ?? starterTitle(kind, sourceEdition(manifest.editions).language);
       const { manifest: next, entry } = (section === "front" ? addFrontMatter : addBackMatter)(
         manifest,
         kind,
         name,
       );
       const doc = starterDoc(kind, {
-        title: manifest.title,
-        author: manifest.author,
-        language: manifest.language,
-        isbn: manifest.isbn,
+        title: sourceEdition(manifest.editions).title,
+        author: sourceEdition(manifest.editions).author,
+        language: sourceEdition(manifest.editions).language,
+        isbn: sourceEdition(manifest.editions).isbn,
         year: new Date().getFullYear(),
       });
-      const w = await bridge.writeFile(root, entry.file, JSON.stringify(doc, null, 2), null);
-      set({ hashes: { ...get().hashes, [entry.file]: w.hash } });
+      const w = await bridge.writeFile(
+        root,
+        sourceFile(entry, manifest.editions),
+        JSON.stringify(doc, null, 2),
+        null,
+      );
+      set({ hashes: { ...get().hashes, [sourceFile(entry, manifest.editions)]: w.hash } });
       await saveManifest(next);
-      record({ label: t`Add ${name}`, file: { path: entry.file, added: true } }, manifest, next);
+      record(
+        {
+          label: t`Add ${name}`,
+          file: { path: sourceFile(entry, manifest.editions), added: true },
+        },
+        manifest,
+        next,
+      );
       await load(entry.id);
     },
     async rename(id, title) {
       const m = need().manifest;
+      const lang = langOf(m);
+      if (lang !== sourceEdition(m.editions).language) {
+        // A translated title is not part of the chapter tree, so it is not in the undo history.
+        await saveManifest(renameIn(m, id, lang, title));
+        return;
+      }
       const next =
         sectionOf(m, id) === "chapter" ? renameChapter(m, id, title) : renameMatter(m, id, title);
       await saveManifest(next);
-      record({ label: t`Rename ${entryOf(m, id)?.title ?? ""}` }, m, next);
+      record({ label: t`Rename ${sourceTitleById(m, id) ?? ""}` }, m, next);
     },
     async move(id, delta) {
       const m = need().manifest;
       const next =
         sectionOf(m, id) === "chapter" ? moveChapter(m, id, delta) : moveMatter(m, id, delta);
       await saveManifest(next);
-      record({ label: t`Move ${entryOf(m, id)?.title ?? ""}` }, m, next);
+      record({ label: t`Move ${sourceTitleById(m, id) ?? ""}` }, m, next);
     },
     async remove(id) {
       const { root, manifest } = need();
@@ -111,12 +171,20 @@ export const createPageActions = (ctx: Ctx): PageActions => {
           ? removeChapter(manifest, id)
           : removeMatter(manifest, id);
       await saveManifest(next);
-      const trashPath = await bridge.trashFile(root, removed.file); // moved to .cadabra/trash, never permanently deleted
+      const trashPath = await bridge.trashFile(root, sourceFile(removed, manifest.editions)); // moved to .cadabra/trash, never permanently deleted
+      // The page's translations go with it (a translation file may not exist yet: the page was added after the edition).
+      const sourceLang = sourceEdition(manifest.editions).language;
+      const others: NonNullable<HistoryEntry["others"]> = [];
+      for (const [language, path] of Object.entries(removed.files)) {
+        if (language === sourceLang || !(await bridge.readFile(root, path))) continue;
+        others.push({ language, path, trashPath: await bridge.trashFile(root, path) });
+      }
       record(
         {
-          label: t`Move ${removed.title} to trash`,
-          file: { path: removed.file, added: false },
+          label: t`Move ${sourceTitle(removed, manifest.editions)} to trash`,
+          file: { path: sourceFile(removed, manifest.editions), added: false },
           trashPath,
+          ...(others.length ? { others } : {}),
         },
         manifest,
         next,
@@ -127,9 +195,9 @@ export const createPageActions = (ctx: Ctx): PageActions => {
         if (fallback) await load(fallback.id);
       }
     },
-    async readPages() {
+    async readPages(language) {
       await flush();
-      return loadChapters();
+      return loadChaptersIn(language ?? langOf(need().manifest));
     },
     async bookWords() {
       return countBook();

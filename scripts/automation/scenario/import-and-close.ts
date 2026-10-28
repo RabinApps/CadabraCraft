@@ -155,7 +155,8 @@ export async function importAndCloseSteps({
       const dialogs = (await app.snapshot()).dialogs;
       assert(
         dialogs.some(
-          (d) => d.includes("Enjoying CadabraCraft?") && d.includes("Exported exports/book.epub"),
+          (d) =>
+            d.includes("Enjoying CadabraCraft?") && d.includes("Exported exports/en/book.epub"),
         ),
         `no sponsor dialog: ${JSON.stringify(dialogs)}`,
       );

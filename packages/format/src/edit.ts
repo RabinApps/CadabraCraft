@@ -7,17 +7,35 @@ import {
   type MatterKind,
 } from "@cadabracraft/shared";
 import { chapterFileName, matterFileName } from "./names";
-import type { Manifest, ManuscriptEntry } from "./manifest";
+import { sourceEdition } from "./editions";
+import type { Manifest, EditionEntry } from "./manifest";
 
-/** Pure manifest edits for the chapter tree. They return a new manifest and never touch disk. */
+/**
+ * Pure manifest edits for the chapter tree. They return a new manifest and never touch disk.
+ * Structure (ids, order, kinds, file names) is shared by every edition; titles and files are set for the source
+ * language here, and translations are added elsewhere.
+ */
+
+/** The source language: where new titles and file names are written. */
+const sourceOf = (m: Manifest): string => sourceEdition(m.editions).language;
+
+const allEntries = (m: Manifest): EditionEntry[] => [
+  ...m.frontMatter,
+  ...m.chapters,
+  ...m.backMatter,
+];
+
+/** Every file of every entry in every edition, so a new file never collides with a translation. */
+const usedFiles = (m: Manifest): Set<string> =>
+  new Set(allEntries(m).flatMap((e) => Object.values(e.files)));
 
 function uniqueId(m: Manifest): string {
-  const used = new Set([...m.frontMatter, ...m.chapters, ...m.backMatter].map((e) => e.id));
+  const used = new Set(allEntries(m).map((e) => e.id));
   for (let i = m.chapters.length + 1; ; i++) if (!used.has(`ch-${i}`)) return `ch-${i}`;
 }
 
 function freeFile(m: Manifest, title: string): string {
-  const used = new Set([...m.frontMatter, ...m.chapters, ...m.backMatter].map((e) => e.file));
+  const used = usedFiles(m);
   for (let pos = m.chapters.length + 1; ; pos++) {
     const f = `manuscript/${chapterFileName(pos, title)}`;
     if (!used.has(f)) return f;
@@ -27,15 +45,26 @@ function freeFile(m: Manifest, title: string): string {
 export function addChapter(
   m: Manifest,
   title: string,
-): { manifest: Manifest; entry: ManuscriptEntry } {
-  const entry = { id: uniqueId(m), file: freeFile(m, title), title };
+): { manifest: Manifest; entry: EditionEntry } {
+  const lang = sourceOf(m);
+  const entry: EditionEntry = {
+    id: uniqueId(m),
+    titles: { [lang]: title },
+    files: { [lang]: freeFile(m, title) },
+  };
   return { manifest: { ...m, chapters: [...m.chapters, entry] }, entry };
 }
 
-/** Renaming changes the title only; the file keeps its name so sync never sees a rename. */
+/** Renaming changes the source title only; the file keeps its name so sync never sees a rename. */
 export function renameChapter(m: Manifest, id: string, title: string): Manifest {
   if (!m.chapters.some((c) => c.id === id)) throw new Error(`no chapter ${id}`);
-  return { ...m, chapters: m.chapters.map((c) => (c.id === id ? { ...c, title } : c)) };
+  const lang = sourceOf(m);
+  return {
+    ...m,
+    chapters: m.chapters.map((c) =>
+      c.id === id ? { ...c, titles: { ...c.titles, [lang]: title } } : c,
+    ),
+  };
 }
 
 /** Moves a chapter by `delta` positions, clamped to the list. Order lives in the manifest, not in file names. */
@@ -52,7 +81,7 @@ export function moveChapter(m: Manifest, id: string, delta: number): Manifest {
 export function removeChapter(
   m: Manifest,
   id: string,
-): { manifest: Manifest; removed: ManuscriptEntry } {
+): { manifest: Manifest; removed: EditionEntry } {
   const removed = m.chapters.find((c) => c.id === id);
   if (!removed) throw new Error(`no chapter ${id}`);
   return { manifest: { ...m, chapters: m.chapters.filter((c) => c.id !== id) }, removed };
@@ -61,12 +90,6 @@ export function removeChapter(
 // ---- front and back matter -------------------------------------------------------------------------
 
 type MatterSection = "frontMatter" | "backMatter";
-
-const allEntries = (m: Manifest): ManuscriptEntry[] => [
-  ...m.frontMatter,
-  ...m.chapters,
-  ...m.backMatter,
-];
 
 /** Which list holds `id`: "front", "chapter", "back", or null when it does not exist. */
 export function sectionOf(m: Manifest, id: string): "front" | "chapter" | "back" | null {
@@ -87,23 +110,25 @@ function addMatter(
   section: MatterSection,
   kind: MatterKind,
   title: string,
-): { manifest: Manifest; entry: ManuscriptEntry } {
+): { manifest: Manifest; entry: EditionEntry } {
   const front = section === "frontMatter";
   if (!(front ? isFrontMatterKind(kind) : isBackMatterKind(kind)))
     throw new Error(`"${kind}" is not a ${front ? "front" : "back"} matter kind`);
   if (!canAddMatter(m, kind)) throw new Error(`The book already has a ${kind} page`);
   const used = allEntries(m);
+  const files = usedFiles(m);
+  const lang = sourceOf(m);
   const prefix = front ? "fm" : "bm";
   const folder = front ? "front-matter" : "back-matter";
   let n = m[section].length + 1;
   while (used.some((e) => e.id === `${prefix}-${n}`)) n++;
   let pos = m[section].length + 1;
-  while (used.some((e) => e.file === `${folder}/${matterFileName(pos, title)}`)) pos++;
-  const entry: ManuscriptEntry = {
+  while (files.has(`${folder}/${matterFileName(pos, title)}`)) pos++;
+  const entry: EditionEntry = {
     id: `${prefix}-${n}`,
-    file: `${folder}/${matterFileName(pos, title)}`,
-    title,
     kind,
+    titles: { [lang]: title },
+    files: { [lang]: `${folder}/${matterFileName(pos, title)}` },
   };
   const list = [...m[section]];
   // Front matter follows the conventional order (title page, copyright, dedication...); custom pages go last. Back matter is appended.
@@ -126,10 +151,16 @@ function matterSection(m: Manifest, id: string): MatterSection {
   throw new Error(`no front or back matter page ${id}`);
 }
 
-/** Renaming changes the title only; the file and kind stay. */
+/** Renaming changes the source title only; the file and kind stay. */
 export function renameMatter(m: Manifest, id: string, title: string): Manifest {
   const section = matterSection(m, id);
-  return { ...m, [section]: m[section].map((e) => (e.id === id ? { ...e, title } : e)) };
+  const lang = sourceOf(m);
+  return {
+    ...m,
+    [section]: m[section].map((e) =>
+      e.id === id ? { ...e, titles: { ...e.titles, [lang]: title } } : e,
+    ),
+  };
 }
 
 /** Moves a page by `delta` positions inside its own section, clamped to the list. */
@@ -146,7 +177,7 @@ export function moveMatter(m: Manifest, id: string, delta: number): Manifest {
 export function removeMatter(
   m: Manifest,
   id: string,
-): { manifest: Manifest; removed: ManuscriptEntry } {
+): { manifest: Manifest; removed: EditionEntry } {
   const section = matterSection(m, id);
   const removed = m[section].find((e) => e.id === id)!;
   return { manifest: { ...m, [section]: m[section].filter((e) => e.id !== id) }, removed };
@@ -165,37 +196,47 @@ function sectionOfFile(file: string): MatterSection | "chapters" | null {
 }
 
 /**
- * Puts a restored file back in the manifest: at the end of the section its folder says (chapters, front matter or back
- * matter), under a fresh id. Matter pages come back as "custom" because the kind is not stored in the file.
+ * Puts a restored source file back in the manifest: at the end of the section its folder says (chapters, front matter or
+ * back matter), under a fresh id. Matter pages come back as "custom" because the kind is not stored in the file.
+ * `translations` are the entry's files in other languages that came back with it.
  */
 export function restoreEntry(
   m: Manifest,
   file: string,
   title: string,
-): { manifest: Manifest; entry: ManuscriptEntry } {
+  translations: { language: string; file: string; title: string; untranslated?: boolean }[] = [],
+): { manifest: Manifest; entry: EditionEntry } {
   const section = sectionOfFile(file);
   if (!section) throw new Error(`cannot restore ${file}`);
+  const taken = usedFiles(m);
+  if ([file, ...translations.map((x) => x.file)].some((f) => taken.has(f)))
+    throw new Error(`${file} is already in the book`);
   const used = allEntries(m);
-  if (used.some((e) => e.file === file)) throw new Error(`${file} is already in the book`);
+  const lang = sourceOf(m);
   const prefix = section === "chapters" ? "ch" : section === "frontMatter" ? "fm" : "bm";
   let n = m[section].length + 1;
   while (used.some((e) => e.id === `${prefix}-${n}`)) n++;
-  const entry: ManuscriptEntry = {
+  const entry: EditionEntry = {
     id: `${prefix}-${n}`,
-    file,
-    title,
+    titles: {
+      [lang]: title,
+      ...Object.fromEntries(translations.map((x) => [x.language, x.title])),
+    },
+    files: { [lang]: file, ...Object.fromEntries(translations.map((x) => [x.language, x.file])) },
     ...(section === "chapters" ? {} : { kind: "custom" as MatterKind }),
   };
+  const marked = translations.filter((x) => x.untranslated).map((x) => x.language);
+  if (marked.length) entry.untranslated = marked;
   return { manifest: { ...m, [section]: [...m[section], entry] }, entry };
 }
 
 // ---- history snapshots -----------------------------------------------------------------------------
 
-/** The part of the manifest that chapter-tree edits change. Undo restores this and nothing else (title, template... stay). */
+/** The part of the manifest that chapter-tree edits change. Undo restores this and nothing else (editions, template... stay). */
 export interface Tree {
-  frontMatter: ManuscriptEntry[];
-  chapters: ManuscriptEntry[];
-  backMatter: ManuscriptEntry[];
+  frontMatter: EditionEntry[];
+  chapters: EditionEntry[];
+  backMatter: EditionEntry[];
 }
 
 export const treeOf = (m: Manifest): Tree => ({
@@ -208,10 +249,15 @@ export const withTree = (m: Manifest, tree: Tree): Manifest => ({ ...m, ...tree 
 
 export const sameTree = (a: Tree, b: Tree): boolean => JSON.stringify(a) === JSON.stringify(b);
 
-/** Points the entry whose file is `from` at `to` (a restored file that had to take another name). */
-export function retargetFile(tree: Tree, from: string, to: string): Tree {
-  const fix = (list: ManuscriptEntry[]) =>
-    list.map((e) => (e.file === from ? { ...e, file: to } : e));
+/**
+ * Points the entry whose `language` file is `from` at `to` (a restored file that had to take another name).
+ * Restored files are source files, so callers pass the source language.
+ */
+export function retargetFile(tree: Tree, language: string, from: string, to: string): Tree {
+  const fix = (list: EditionEntry[]) =>
+    list.map((e) =>
+      e.files[language] === from ? { ...e, files: { ...e.files, [language]: to } } : e,
+    );
   return {
     frontMatter: fix(tree.frontMatter),
     chapters: fix(tree.chapters),

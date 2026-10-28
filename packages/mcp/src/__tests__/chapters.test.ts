@@ -30,7 +30,13 @@ describe("chapter_add / rename / move / remove", () => {
         { type: "paragraph" },
       ],
     });
-    expect(manifest().chapters).toEqual([r.chapter]);
+    expect(manifest().chapters).toEqual([
+      {
+        id: "ch-1",
+        titles: { en: "Chapter One" },
+        files: { en: "manuscript/001-chapter-one.json" },
+      },
+    ]);
     const second = await s.ok("cadabra_chapter_add", { path: "p", title: "Two" });
     expect(second.chapter.id).toBe("ch-2");
   });
@@ -44,7 +50,10 @@ describe("chapter_add / rename / move / remove", () => {
       title: "New",
     });
     expect(r.chapter).toMatchObject({ title: "New", file: a.chapter.file });
-    expect(manifest().chapters[0]).toMatchObject({ title: "New", file: a.chapter.file });
+    expect(manifest().chapters[0]).toMatchObject({
+      titles: { en: "New" },
+      files: { en: a.chapter.file },
+    });
     expect(
       (await s.call("cadabra_chapter_rename", { path: "p", chapterId: "zzz", title: "x" })).data
         .error.code,
@@ -57,8 +66,14 @@ describe("chapter_add / rename / move / remove", () => {
     const r = await s.ok("cadabra_chapter_move", { path: "p", chapterId: "ch-3", delta: -2 });
     expect(r.order.map((c: { title: string }) => c.title)).toEqual(["C", "A", "B"]);
     await s.ok("cadabra_chapter_move", { path: "p", chapterId: "ch-3", delta: 99 });
-    expect(manifest().chapters.map((c: { title: string }) => c.title)).toEqual(["A", "B", "C"]);
-    expect(manifest().chapters.map((c: { file: string }) => c.file)[2]).toContain("003-c");
+    expect(manifest().chapters.map((c: { titles: { en: string } }) => c.titles.en)).toEqual([
+      "A",
+      "B",
+      "C",
+    ]);
+    expect(manifest().chapters.map((c: { files: { en: string } }) => c.files.en)[2]).toContain(
+      "003-c",
+    );
   });
 
   it("remove saves the manifest, then moves the file to .cadabra/trash; the content survives", async () => {
@@ -322,6 +337,6 @@ describe("chapter_write_json", () => {
     const m = manifest();
     expect(m.chapters).toHaveLength(8);
     expect(new Set(m.chapters.map((c: { id: string }) => c.id)).size).toBe(8);
-    for (const c of m.chapters) expect(existsSync(join(s.root, "p", c.file))).toBe(true);
+    for (const c of m.chapters) expect(existsSync(join(s.root, "p", c.files.en))).toBe(true);
   });
 });

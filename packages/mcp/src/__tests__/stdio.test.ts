@@ -52,9 +52,10 @@ describe("built server over stdio", () => {
         arguments: { path: "smoke" },
       });
       expect(info.isError).not.toBe(true);
-      expect((info.structuredContent as { manifest: { title: string } }).manifest.title).toBe(
-        "Smoke",
-      );
+      expect(
+        (info.structuredContent as { manifest: { editions: { title: string }[] } }).manifest
+          .editions[0]!.title,
+      ).toBe("Smoke");
       const escaped = await client.callTool({
         name: "cadabra_project_info",
         arguments: { path: "../x" },

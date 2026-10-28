@@ -12,7 +12,7 @@ pnpm automation:scenario                      # launches the app, runs the whole
 node scripts/automation/scenario.ts --launch --out /tmp/run1   # keep the artifacts somewhere you choose
 ```
 
-The scenario creates a project, types, applies formatting, inserts an image, exports EPUB (then runs EPUBCheck), exports a 6x9 PDF (then checks page size), checks History (compare and restore an earlier version, with files seeded in `.cadabra/backups`) and the recovery offer on open, and imports Markdown into a new project, asserting at each step. It writes `results.json` and screenshots to the output folder.
+The scenario creates a project, types, applies formatting, inserts an image, exports EPUB (then runs EPUBCheck), exports a 6x9 PDF (then checks page size), checks History (compare and restore an earlier version, with files seeded in `.cadabra/backups`) and the recovery offer on open, adds a French edition (typing lands in `manuscript/fr/`, an outside edit of that file reloads the page), and imports Markdown into a new project, asserting at each step. It writes `results.json` and screenshots to the output folder.
 
 For ad-hoc driving, start the app with `pnpm --filter @cadabracraft/desktop tauri:automate`, then:
 

@@ -5,8 +5,10 @@ import {
   parseManifest,
   readingOrder,
   serializeManifest,
+  sourceEdition,
+  type Edition,
+  type EditionEntry,
   type Manifest,
-  type ManuscriptEntry,
 } from "@cadabracraft/format";
 import {
   MANIFEST,
@@ -59,7 +61,7 @@ export function saveManifest(root: string, manifest: Manifest, baseHash: string)
 }
 
 export interface Found {
-  entry: ManuscriptEntry;
+  entry: EditionEntry;
   section: Section;
 }
 
@@ -71,21 +73,21 @@ export function findEntry(m: Manifest, id: string): Found {
   throw new ToolError("chapter_not_found", `no chapter with id "${id}"`);
 }
 
-/** Reads and parses one chapter file. `chapter_missing` when the file is not there, `chapter_json_invalid` when it is not JSON. */
+/** Reads and parses one chapter file (a source-language path). `chapter_missing` when the file is not there, `chapter_json_invalid` when it is not JSON. */
 export function readChapterFile(
   root: string,
-  entry: ManuscriptEntry,
+  file: string,
 ): { doc: unknown; hash: string; raw: string } {
-  const r = readProjectFile(root, entry.file);
-  if (!r) throw new ToolError("chapter_missing", `chapter file ${entry.file} is missing`);
+  const r = readProjectFile(root, file);
+  if (!r) throw new ToolError("chapter_missing", `chapter file ${file} is missing`);
   try {
     return { doc: JSON.parse(r.contents), hash: r.hash, raw: r.contents };
   } catch (e) {
-    throw new ToolError("chapter_json_invalid", `${entry.file} is not valid JSON: ${errMsg(e)}`);
+    throw new ToolError("chapter_json_invalid", `${file} is not valid JSON: ${errMsg(e)}`);
   }
 }
 
-export const sectionOf = (m: Manifest): { section: Section; entry: ManuscriptEntry }[] =>
+export const sectionOf = (m: Manifest): { section: Section; entry: EditionEntry }[] =>
   readingOrder(m).map((entry) => ({
     entry,
     section: (m.frontMatter.includes(entry)
@@ -94,3 +96,17 @@ export const sectionOf = (m: Manifest): { section: Section; entry: ManuscriptEnt
         ? "backMatter"
         : "chapters") as Section,
   }));
+
+/** The edition a tool works on: the one named by `language`, or the source edition when it is left out. */
+export function editionOf(m: Manifest, language?: string): Edition {
+  const edition =
+    language === undefined
+      ? sourceEdition(m.editions)
+      : m.editions.find((e) => e.language === language);
+  if (!edition)
+    throw new ToolError(
+      "language_not_found",
+      `the book has no "${language}" edition (editions: ${m.editions.map((e) => e.language).join(", ")})`,
+    );
+  return edition;
+}

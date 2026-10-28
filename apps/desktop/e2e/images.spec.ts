@@ -46,9 +46,9 @@ test.describe("images", () => {
     expect(saved).not.toContain("blob:");
 
     await exportBook(page, "EPUB 3");
-    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.epub");
     const zipText = await page.evaluate(() =>
-      String.fromCharCode(...(window.__disk["exports/book.epub"] as number[])),
+      String.fromCharCode(...(window.__disk["exports/en/book.epub"] as number[])),
     );
     expect(zipText).toContain("OEBPS/assets/pic.png");
 

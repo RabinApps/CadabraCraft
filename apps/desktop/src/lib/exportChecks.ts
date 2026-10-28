@@ -1,3 +1,4 @@
+import { sourceEdition, sourceTitle } from "@cadabracraft/format";
 import { plural, t } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { imageAltStats } from "@cadabracraft/export-epub";
@@ -82,11 +83,18 @@ export interface CheckPage {
 }
 
 /** Checks the Export dialog shows before an EPUB is built. Only what the app can see; EPUBCheck is not run here. `pages` (every page's document) enables the image alt-text check. */
-export function epubChecks(manifest: Manifest, pages: CheckPage[] = []): ExportCheck[] {
+export function epubChecks(
+  manifest: Manifest,
+  pages: CheckPage[] = [],
+  scope: { language?: string } = {},
+): ExportCheck[] {
   const checks: ExportCheck[] = [];
+  const language = scope.language ?? sourceEdition(manifest.editions).language;
   if (manifest.chapters.length === 0)
     checks.push({ tone: "warn", text: t`This book has no chapters yet.` });
-  const untitled = manifest.chapters.filter((c) => c.title.trim() === "").length;
+  const untitled = manifest.chapters.filter(
+    (c) => (c.titles[language] ?? sourceTitle(c, manifest.editions)).trim() === "",
+  ).length;
   if (untitled > 0)
     checks.push({
       tone: "warn",

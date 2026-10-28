@@ -1,3 +1,4 @@
+import { sourceFile, sourceTitle } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, trashMethods } from "../../../test/fakeBridge";
 
@@ -16,13 +17,14 @@ const text = (t: string) => ({
   type: "doc" as const,
   content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
 });
-const titles = () => s().manifest!.chapters.map((c) => c.title);
+const titles = () => s().manifest!.chapters.map((c) => sourceTitle(c, s().manifest!.editions));
 const firstText = () => JSON.stringify(s().currentDoc).match(/"text":"([^"]*)"/)?.[1];
 const trashed = () => [...disk.keys()].filter((k) => k.startsWith(".cadabra/trash/"));
 
 beforeEach(async () => {
   disk.clear();
   useProject.setState({
+    activeLanguage: null,
     root: null,
     manifest: null,
     currentId: null,
@@ -53,7 +55,7 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     await a().redo();
     await a().redo();
     expect(titles()).toEqual(["Deux", "Chapter One"]);
-    expect(JSON.parse(disk.get("cadabra.json")!).chapters[0].title).toBe("Deux");
+    expect(JSON.parse(disk.get("cadabra.json")!).chapters[0].titles.en).toBe("Deux");
   });
   it("does not record a move that changes nothing", async () => {
     await a().move("ch-1", -1);
@@ -63,7 +65,7 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     await a().add("Two");
     a().setDraft(text("keep me"));
     await a().flush();
-    const file = s().manifest!.chapters[1]!.file;
+    const file = sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions);
     await a().undo();
     expect(titles()).toEqual(["Chapter One"]);
     expect(disk.has(file)).toBe(false);
@@ -84,7 +86,9 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     expect(trashed()).toHaveLength(1);
     await a().undo();
     expect(s().manifest!.chapters.map((c) => c.id)).toEqual(ids);
-    expect(disk.get(s().manifest!.chapters[1]!.file)).toContain("precious");
+    expect(disk.get(sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions))).toContain(
+      "precious",
+    );
     expect(trashed()).toEqual([]);
     expect(s().currentId).toBe("ch-2");
     await a().redo();
@@ -132,17 +136,17 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
   });
   it("a restored page that had to take another name stays consistent through redo and undo", async () => {
     await a().add("Two");
-    const file = s().manifest!.chapters[1]!.file;
+    const file = sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions);
     await a().remove("ch-2");
     disk.set(file, "squatter"); // something outside the app took the name
     await a().undo();
-    const back = s().manifest!.chapters[1]!.file;
+    const back = sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions);
     expect(back).not.toBe(file);
     expect(disk.get(file)).toBe("squatter");
     await a().redo();
     expect(titles()).toEqual(["Chapter One"]);
     await a().undo();
-    expect(disk.has(s().manifest!.chapters[1]!.file)).toBe(true);
+    expect(disk.has(sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions))).toBe(true);
     expect(disk.get(file)).toBe("squatter");
   });
   it("reports the problem and keeps the history when the trashed file is gone", async () => {
@@ -171,7 +175,10 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     a().setDraft(text("cat and cat"));
     await a().addMatter("back", "about-the-author");
     await a().selectChapter("ch-1");
-    const files = [s().manifest!.chapters[0]!.file, s().manifest!.chapters[1]!.file];
+    const files = [
+      sourceFile(s().manifest!.chapters[0]!, s().manifest!.editions),
+      sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions),
+    ];
     const undoBefore = s().history.undo.length;
     const n = await a().replaceInBook({ query: "cat", matchCase: false, wholeWord: false }, "dog");
     expect(n).toBe(3);
@@ -193,5 +200,50 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
   it("does nothing with an empty history", async () => {
     expect(await a().undo()).toBe(false);
     expect(await a().redo()).toBe(false);
+  });
+});
+
+describe("removing a page that has translations", () => {
+  const typeFrench = async () => {
+    a().setDraft(text("Texte"));
+    await a().saveCurrent(s().draft!);
+  };
+  it("trashes every language's file, and undo and redo move all of them", async () => {
+    await a().addLanguage("fr", "copy");
+    await typeFrench();
+    const en = "manuscript/001-chapter-one.json";
+    const fr = "manuscript/fr/001-chapter-one.json";
+    await a().remove("ch-1");
+    expect(disk.has(en) || disk.has(fr)).toBe(false);
+    expect(trashed()).toHaveLength(2);
+    await a().undo();
+    expect(disk.has(en) && disk.has(fr)).toBe(true);
+    expect(trashed()).toHaveLength(0);
+    expect(s().manifest!.chapters[0]!.files).toEqual({ en, fr });
+    await a().redo();
+    expect(disk.has(en) || disk.has(fr)).toBe(false);
+    expect(trashed()).toHaveLength(2);
+    await a().undo();
+    expect(disk.get(fr)).toContain("Texte");
+  });
+  it("restoring the source file from the trash list brings the translation back too", async () => {
+    await a().addLanguage("fr", "copy");
+    await typeFrench();
+    await a().remove("ch-1");
+    await a().refreshTrash();
+    expect(s().trash).toHaveLength(1); // the translation is listed with its page
+    await a().restoreTrash(s().trash[0]!.path);
+    const c = s().manifest!.chapters.at(-1)!;
+    expect(Object.keys(c.files).sort()).toEqual(["en", "fr"]);
+    expect(disk.get(c.files.fr!)).toContain("Texte");
+    expect(trashed()).toHaveLength(0);
+  });
+  it("a page added after the edition has no translation file to trash", async () => {
+    await a().addLanguage("fr", "copy");
+    await a().add("Two");
+    await a().remove("ch-2");
+    expect(trashed()).toHaveLength(1);
+    await a().undo();
+    expect(s().manifest!.chapters.map((c) => c.id)).toEqual(["ch-1", "ch-2"]);
   });
 });

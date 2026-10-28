@@ -1,3 +1,4 @@
+import { sourceEdition } from "@cadabracraft/format";
 import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ImagePlus, Image as ImageIcon, Save, Trash2 } from "lucide-react";
@@ -15,16 +16,25 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
+const editionOf = (
+  m: NonNullable<ReturnType<typeof useProject.getState>["manifest"]>,
+  language: string | null,
+) => m.editions.find((e) => e.language === language) ?? sourceEdition(m.editions);
+
 const detailsOf = (
   m: NonNullable<ReturnType<typeof useProject.getState>["manifest"]>,
-): BookDetails => ({
-  title: m.title,
-  author: m.author,
-  language: m.language,
-  isbn: m.isbn ?? "",
-  identifier: m.identifier,
-  cover: m.cover,
-});
+  language: string | null,
+): BookDetails => {
+  const e = editionOf(m, language);
+  return {
+    title: e.title,
+    author: e.author,
+    language: e.language,
+    isbn: e.isbn ?? "",
+    identifier: e.identifier,
+    cover: e.cover,
+  };
+};
 
 /** Cover preview: the picked image, or a placeholder showing the title and author as they would sit on the cover. */
 function CoverPreview({
@@ -83,17 +93,21 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
   const manifest = useProject((s) => s.manifest);
   const updateDetails = useProject((s) => s.actions.updateDetails);
   const importCover = useProject((s) => s.actions.importCover);
+  const activeLanguage = useProject((s) => s.activeLanguage);
   const [form, setForm] = useState<BookDetails | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   // Start from the saved values each time the dialog opens.
   useEffect(() => {
     if (open && manifest) {
-      setForm(detailsOf(manifest));
+      setForm(detailsOf(manifest, activeLanguage));
       setError("");
     }
   }, [open]);
   if (!manifest || !form) return null;
+  // A translation edition has its own details but keeps its language.
+  const isTranslation =
+    activeLanguage !== null && activeLanguage !== sourceEdition(manifest.editions).language;
   const set = (patch: Partial<BookDetails>) => setForm({ ...form, ...patch });
   const languages = LOCALES.some((l) => l.code === form.language)
     ? LOCALES
@@ -119,7 +133,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
     }
     setBusy(true);
     try {
-      await updateDetails(form);
+      await updateDetails(form, activeLanguage ?? undefined);
       onOpenChange(false);
     } catch (e) {
       setError(errText(e));
@@ -133,7 +147,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
       onOpenChange={(o) => {
         if (!busy) onOpenChange(o);
       }}
-      title={t`Book details`}
+      title={isTranslation ? t`Book details (${form.language})` : t`Book details`}
       wide
     >
       <form
@@ -179,6 +193,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
               <Select
                 label={t`Language`}
                 value={form.language}
+                disabled={isTranslation}
                 onChange={(e) => set({ language: e.target.value })}
               >
                 {languages.map((l) => (

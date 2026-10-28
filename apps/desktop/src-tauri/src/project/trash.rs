@@ -41,7 +41,9 @@ pub struct TrashEntry {
 ///
 /// Flattening turns `/` into `__`, which is ambiguous when a file name itself contains `__`. Pages live directly in
 /// their folder, so only the first `__` (after the folder name) is a separator and the rest is the file name:
-/// `manuscript__a__b.json` restores to `manuscript/a__b.json`.
+/// `manuscript__a__b.json` restores to `manuscript/a__b.json`. A translation lives one folder deeper
+/// (`manuscript/fr/001-a.json`, flattened `manuscript__fr__001-a.json`): when the part after the folder looks like a
+/// language code (2 or 3 letters, then optional `-subtags`) and a file name follows, it is that language's folder.
 pub(super) fn parse_trash_name(name: &str) -> Option<(String, String)> {
     let b = name.as_bytes();
     let stamp_ok = b.len() > 14
@@ -53,7 +55,21 @@ pub(super) fn parse_trash_name(name: &str) -> Option<(String, String)> {
         return None;
     }
     let (dir, file) = name[14..].split_once("__")?;
-    (RESTORE_DIRS.contains(&dir) && !file.is_empty() && !file.contains('/')).then(|| (name[..13].to_string(), format!("{dir}/{file}")))
+    if !RESTORE_DIRS.contains(&dir) || file.is_empty() || file.contains('/') {
+        return None;
+    }
+    let stamp = name[..13].to_string();
+    match file.split_once("__") {
+        Some((lang, rest)) if is_language_folder(lang) && !rest.is_empty() => Some((stamp, format!("{dir}/{lang}/{rest}"))),
+        _ => Some((stamp, format!("{dir}/{file}"))),
+    }
+}
+
+/// A translation folder name: 2 or 3 ASCII letters, then optional `-` subtags (`fr`, `pt-BR`, `zh-Hant`).
+fn is_language_folder(s: &str) -> bool {
+    let mut parts = s.split('-');
+    let first = parts.next().unwrap_or("");
+    (2..=3).contains(&first.len()) && first.bytes().all(|b| b.is_ascii_alphabetic()) && parts.all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_alphanumeric()))
 }
 
 /// Lists restorable pages in `.cadabra/trash/`, newest first.
@@ -118,6 +134,23 @@ mod tests {
         assert_eq!(restore_trash(d.path(), &t).unwrap(), "manuscript/001-a.json");
         assert_eq!(fs::read_to_string(d.path().join("manuscript/001-a.json")).unwrap(), "A");
         assert!(list_trash(d.path()).unwrap().is_empty());
+    }
+
+    #[test]
+    fn a_translation_file_round_trips_through_the_trash() {
+        let d = tmp();
+        write_file(d.path(), "manuscript/fr/001-a.json", "A", None).unwrap();
+        let t = trash_file(d.path(), "manuscript/fr/001-a.json").unwrap();
+        assert!(t.ends_with("-manuscript__fr__001-a.json"));
+        assert_eq!(list_trash(d.path()).unwrap()[0].original, "manuscript/fr/001-a.json");
+        assert_eq!(restore_trash(d.path(), &t).unwrap(), "manuscript/fr/001-a.json");
+        assert_eq!(fs::read_to_string(d.path().join("manuscript/fr/001-a.json")).unwrap(), "A");
+    }
+
+    #[test]
+    fn a_double_underscore_in_a_source_file_name_is_not_a_language() {
+        assert_eq!(parse_trash_name("20260101-1200-manuscript__a__b.json").unwrap().1, "manuscript/a__b.json");
+        assert_eq!(parse_trash_name("20260101-1200-manuscript__pt-BR__01-x.json").unwrap().1, "manuscript/pt-BR/01-x.json");
     }
 
     #[test]

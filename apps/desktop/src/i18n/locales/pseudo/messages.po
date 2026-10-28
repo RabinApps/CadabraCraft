@@ -42,12 +42,12 @@ msgstr ""
 msgid "{0} About {1} MB."
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: ctx.titleIn(entry, manifest, language)
 #: src/state/project/project.ts
 msgid "{0} changed outside the app; saving will keep both versions"
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: titleIn(entry, manifest, lang)
 #. placeholder {1}: w.conflict_copy
 #: src/state/project/pages.ts
 msgid "{0} changed outside the app; the other version was kept as {1}"
@@ -118,13 +118,20 @@ msgstr ""
 msgid "{0} leaves the project folder through a symbolic link"
 msgstr ""
 
+#. placeholder {0}: p.translated
+#. placeholder {1}: p.total
+#: src/app/export/EditionsChecklist.tsx
+#: src/app/shell/EditionSwitcher.tsx
+msgid "{0} of {1} chapters"
+msgstr ""
+
 #. placeholder {0}: mb(download.done)
 #. placeholder {1}: mb(download.total)
 #: src/app/export/AudioExport.tsx
 msgid "{0} of {1} MB"
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: ctx.titleIn(entry, manifest, language)
 #: src/state/project/project.ts
 msgid "{0} was updated from outside the app"
 msgstr ""
@@ -176,6 +183,10 @@ msgstr ""
 
 #: src/editor/FindBar.tsx
 msgid "{n, plural, one {# match} other {# matches}}"
+msgstr ""
+
+#: src/state/project/exports.ts
+msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr ""
 
 #: src/app/shell/App.tsx
@@ -272,6 +283,11 @@ msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Add image"
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+#: src/app/shell/EditionSwitcher.tsx
+msgid "Add language"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -440,6 +456,11 @@ msgstr ""
 msgid "Book details"
 msgstr ""
 
+#. placeholder {0}: form.language
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Book details ({0})"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Book Details…"
 msgstr ""
@@ -490,6 +511,7 @@ msgstr ""
 msgid "CadabraCraft is up to date."
 msgstr ""
 
+#: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/AudioFooter.tsx
@@ -575,6 +597,10 @@ msgstr ""
 msgid "Chapters"
 msgstr ""
 
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Chapters start as English copies, marked Not translated yet."
+msgstr ""
+
 #: src/app/export/AudioExport.tsx
 msgid "Chapters to read"
 msgstr ""
@@ -605,6 +631,11 @@ msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Choose file…"
+msgstr ""
+
+#. placeholder {0}: nativeName(blocked)
+#: src/app/export/ExportDialog.tsx
+msgid "Choose how to handle {0} to export it."
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -768,6 +799,10 @@ msgstr ""
 msgid "Crop marks"
 msgstr ""
 
+#: src/app/export/EditionsChecklist.tsx
+msgid "Current"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Custom page"
@@ -880,6 +915,15 @@ msgstr ""
 msgid "Edit details"
 msgstr ""
 
+#. placeholder {0}: nativeName(active)
+#: src/app/shell/EditionSwitcher.tsx
+msgid "Edition: {0}"
+msgstr ""
+
+#: src/app/export/EditionsChecklist.tsx
+msgid "Editions"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Editor"
 msgstr ""
@@ -917,6 +961,14 @@ msgstr ""
 msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
 msgstr ""
 
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Every chapter starts blank."
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Every language is already in this book."
+msgstr ""
+
 #: src/app/shell/App.tsx
 msgid "Exit focus mode"
 msgstr ""
@@ -949,19 +1001,19 @@ msgid "Exported {0}"
 msgstr ""
 
 #: src/state/project/exports.ts
-msgid "Exported exports/book.epub"
+msgid "Exported {dir}/book.epub"
 msgstr ""
 
 #: src/state/project/exports.ts
-msgid "Exported exports/book.md"
+msgid "Exported {dir}/book.md"
 msgstr ""
 
 #: src/state/project/exports.ts
-msgid "Exported exports/book.pdf"
+msgid "Exported {dir}/book.pdf"
 msgstr ""
 
 #: src/state/project/exports.ts
-msgid "Exported exports/manuscript.docx"
+msgid "Exported {dir}/manuscript.docx"
 msgstr ""
 
 #: src/state/project/audio.ts
@@ -1299,6 +1351,7 @@ msgstr ""
 msgid "Kokoro: Heart"
 msgstr ""
 
+#: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/Details.tsx
 #: src/ui/LanguagePicker.tsx
@@ -1319,6 +1372,10 @@ msgstr ""
 
 #: src/app/export/PdfPanel.tsx
 msgid "Leave empty to use the Typst that comes with the app."
+msgstr ""
+
+#: src/app/export/EditionsChecklist.tsx
+msgid "Leaves them out of this export; the list above says which."
 msgstr ""
 
 #: src/app/settings/Settings.tsx
@@ -1402,9 +1459,13 @@ msgstr ""
 msgid "Minimize"
 msgstr ""
 
-#. placeholder {0}: c.file
-#: src/state/project/context.ts
+#. placeholder {0}: f.from
+#: src/state/project/editions.ts
 msgid "Missing chapter file {0}"
+msgstr ""
+
+#: src/state/project/context.ts
+msgid "Missing chapter file {file}"
 msgstr ""
 
 #. placeholder {0}: e.srcs.join(", ")
@@ -1429,12 +1490,12 @@ msgstr ""
 msgid "Move “{0}” to trash?"
 msgstr ""
 
-#. placeholder {0}: entryOf(m, id)?.title ?? ""
+#. placeholder {0}: sourceTitleById(m, id) ?? ""
 #: src/state/project/pages.ts
 msgid "Move {0}"
 msgstr ""
 
-#. placeholder {0}: removed.title
+#. placeholder {0}: sourceTitle(removed, manifest.editions)
 #: src/state/project/pages.ts
 msgid "Move {0} to trash"
 msgstr ""
@@ -1554,6 +1615,16 @@ msgstr ""
 msgid "Not installed. Download it from the Audiobook export."
 msgstr ""
 
+#: src/app/shell/Sidebar.tsx
+msgid "Not translated yet"
+msgstr ""
+
+#. placeholder {0}: nativeName(e.language)
+#. placeholder {1}: missing .map( (m) => m.titles[e.language] ?? m.titles[manifest.editions[0]!.language] ?? m.id, ) .join(", ")
+#: src/app/export/EditionsChecklist.tsx
+msgid "Not translated yet in {0}: {1}"
+msgstr ""
+
 #: src/app/dialogs/ImportReportDialog.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
@@ -1650,6 +1721,10 @@ msgstr ""
 
 #: src/app/export/PdfPanel.tsx
 msgid "PDF/A (archival)"
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
+msgid "Pick an edition to export."
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
@@ -1815,7 +1890,7 @@ msgstr ""
 msgid "Rename"
 msgstr ""
 
-#. placeholder {0}: entryOf(m, id)?.title ?? ""
+#. placeholder {0}: sourceTitleById(m, id) ?? ""
 #: src/state/project/pages.ts
 msgid "Rename {0}"
 msgstr ""
@@ -1853,7 +1928,7 @@ msgstr ""
 msgid "Restore"
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
 #. placeholder {0}: x.title
 #: src/app/shell/Sidebar.tsx
 #: src/state/project/trash.ts
@@ -1864,7 +1939,7 @@ msgstr ""
 msgid "Restore this version"
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/snapshots.ts
 msgid "Restored an earlier version of {0}. The text it replaced is kept in History."
 msgstr ""
@@ -1904,19 +1979,19 @@ msgid "Saved"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
-msgid "Saving exports/book.epub…"
+msgid "Saving {dir}/book.epub…"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
-msgid "Saving exports/book.md…"
+msgid "Saving {dir}/book.md…"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
-msgid "Saving exports/book.pdf…"
+msgid "Saving {dir}/book.pdf…"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
-msgid "Saving exports/manuscript.docx…"
+msgid "Saving {dir}/manuscript.docx…"
 msgstr ""
 
 #: src/app/export/Templates.tsx
@@ -1994,6 +2069,10 @@ msgstr ""
 msgid "Shown in this preview only. The PDF does not include bleed or crop marks yet."
 msgstr ""
 
+#: src/app/export/EditionsChecklist.tsx
+msgid "Skip untranslated chapters"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Small caps"
 msgstr ""
@@ -2045,6 +2124,18 @@ msgstr ""
 
 #: src/app/home/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start empty"
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start from a copy of the source"
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start the new edition"
 msgstr ""
 
 #: src/app/export/AudioFooter.tsx
@@ -2140,9 +2231,8 @@ msgstr ""
 msgid "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
 msgstr ""
 
-#. placeholder {0}: manifest.cover
 #: src/state/project/context.ts
-msgid "The cover image {0} could not be read. Choose it again in Book details, or remove the cover."
+msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -2268,6 +2358,10 @@ msgstr ""
 
 #: src/lib/importBook.ts
 msgid "This .docx file has no document body. It may be damaged or not a Word document."
+msgstr ""
+
+#: src/state/project/editions.ts
+msgid "This book has no {language} edition."
 msgstr ""
 
 #: src/app/shell/App.tsx

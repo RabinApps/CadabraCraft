@@ -11,15 +11,34 @@ import {
   readingOrder,
   serializeManifest,
   validateManifest,
+  type Manifest,
   type Migration,
 } from "../index";
 
-const base = () => ({
+const base = (): Manifest => ({
   ...createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" }),
-  chapters: [{ id: "c1", file: "manuscript/001-a.json", title: "A" }],
+  chapters: [{ id: "c1", titles: { en: "A" }, files: { en: "manuscript/001-a.json" } }],
 });
 
+const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
+
 describe("manifest", () => {
+  it("creates a v4 book with one source edition", () => {
+    const m = createManifest({ title: "T", author: "A", language: "fr", identifier: "urn:uuid:x" });
+    expect(m.formatVersion).toBe(4);
+    expect(m.editions).toEqual([
+      {
+        language: "fr",
+        title: "T",
+        author: "A",
+        identifier: "urn:uuid:x",
+        isbn: null,
+        cover: null,
+      },
+    ]);
+    expect(m).not.toHaveProperty("title");
+    expect(m).not.toHaveProperty("language");
+  });
   it("round-trips through serialize and parse without migration", () => {
     const m = base();
     const r = parseManifest(serializeManifest(m));
@@ -29,8 +48,8 @@ describe("manifest", () => {
   it("orders front matter, chapters, back matter", () => {
     const m = {
       ...base(),
-      frontMatter: [{ id: "f", file: "front-matter/t.json", title: "T" }],
-      backMatter: [{ id: "b", file: "back-matter/a.json", title: "B" }],
+      frontMatter: [{ id: "f", titles: { en: "T" }, files: { en: "front-matter/t.json" } }],
+      backMatter: [{ id: "b", titles: { en: "B" }, files: { en: "back-matter/a.json" } }],
     };
     expect(readingOrder(m).map((e) => e.id)).toEqual(["f", "c1", "b"]);
   });
@@ -42,14 +61,23 @@ describe("manifest", () => {
   );
   it("rejects unsafe file paths in the manifest", () => {
     const m = base();
-    m.chapters[0]!.file = "../../etc/passwd";
+    m.chapters[0]!.files.en = "../../etc/passwd";
     expect(() => validateManifest(m)).toThrow(FormatError);
   });
   it("rejects duplicate ids and missing fields", () => {
     const m = base();
-    m.backMatter = [{ id: "c1", file: "back-matter/x.json", title: "X" }];
+    m.backMatter = [{ id: "c1", titles: { en: "X" }, files: { en: "back-matter/x.json" } }];
     expect(() => validateManifest(m)).toThrow(/duplicate/);
-    expect(() => validateManifest({ ...base(), title: "" })).toThrow(/title/);
+    expect(() => validateManifest({ ...base(), template: "" })).toThrow(/template/);
+    expect(() => validateManifest({ ...base(), editions: [] })).toThrow(/edition/);
+  });
+  it("rejects an entry without a source title or file, and titles for unknown editions", () => {
+    const m = base();
+    m.chapters[0]!.titles = {};
+    expect(() => validateManifest(m)).toThrow(/no en/);
+    const n = base();
+    n.chapters[0]!.titles = { en: "A", de: "A" };
+    expect(() => validateManifest(n)).toThrow(/unknown edition "de"/);
   });
   it("rejects bad JSON and missing or newer versions", () => {
     expect(() => parseManifest("{nope")).toThrow(/invalid JSON/);
@@ -60,20 +88,17 @@ describe("manifest", () => {
   });
 });
 
-describe("migration v1 -> v2 (front/back matter kinds)", () => {
-  const v1Json = readFileSync(new URL("../fixtures/v1-cadabra.json", import.meta.url), "utf8");
+describe("migration v1 -> v4 (front/back matter kinds, cover, editions)", () => {
+  const v1Json = read("../fixtures/v1-cadabra.json");
   it("opens a real v1 manifest, upgrades it and loses nothing", () => {
     const v1 = JSON.parse(v1Json);
     expect(v1.formatVersion).toBe(1);
     const r = parseManifest(v1Json);
-    expect(CURRENT_FORMAT_VERSION).toBe(3);
+    expect(CURRENT_FORMAT_VERSION).toBe(4);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(1);
-    expect(r.manifest.formatVersion).toBe(3);
-    const { formatVersion: _a, ...before } = v1;
-    const { formatVersion: _b, ...after } = r.manifest;
-    expect(after).toEqual({ ...before, cover: null }); // only cover is added: no kind, every field and entry kept
-    expect(r.manifest.frontMatter[0]).not.toHaveProperty("kind");
+    expect(r.manifest.formatVersion).toBe(4);
+    expect(r.manifest.editions[0]).toMatchObject({ language: v1.language, title: v1.title });
     expect(readingOrder(r.manifest).map((e) => e.id)).toEqual([
       "title-page",
       "ch-1",
@@ -81,73 +106,143 @@ describe("migration v1 -> v2 (front/back matter kinds)", () => {
       "about",
     ]);
   });
-  it("serializes as v3 and reopens without migrating again", () => {
+  it("serializes as v4 and reopens without migrating again", () => {
     const again = parseManifest(serializeManifest(parseManifest(v1Json).manifest));
     expect(again.migrated).toBe(false);
-    expect(again.manifest.formatVersion).toBe(3);
+    expect(again.manifest.formatVersion).toBe(4);
   });
   it("validates kinds: unknown kinds, wrong section and kinds on chapters are rejected", () => {
     const m = base();
-    expect(() =>
-      validateManifest({
-        ...m,
-        frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "bogus" }],
-      }),
-    ).toThrow(/kind/);
-    expect(() =>
-      validateManifest({
-        ...m,
-        frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "colophon" }],
-      }),
-    ).toThrow(/kind/);
-    expect(() =>
-      validateManifest({
-        ...m,
-        backMatter: [{ id: "b", file: "back-matter/a.json", title: "A", kind: "title-page" }],
-      }),
-    ).toThrow(/kind/);
+    const front = (kind: string) => [
+      { id: "f", titles: { en: "A" }, files: { en: "front-matter/a.json" }, kind },
+    ];
+    const back = (kind: string) => [
+      { id: "b", titles: { en: "A" }, files: { en: "back-matter/a.json" }, kind },
+    ];
+    expect(() => validateManifest({ ...m, frontMatter: front("bogus") })).toThrow(/kind/);
+    expect(() => validateManifest({ ...m, frontMatter: front("colophon") })).toThrow(/kind/);
+    expect(() => validateManifest({ ...m, backMatter: back("title-page") })).toThrow(/kind/);
     expect(() =>
       validateManifest({ ...m, chapters: [{ ...m.chapters[0]!, kind: "custom" }] }),
     ).toThrow(/kind/);
     const ok = validateManifest({
       ...m,
-      frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "custom" }],
-      backMatter: [{ id: "b", file: "back-matter/a.json", title: "A", kind: "custom" }],
+      frontMatter: front("custom"),
+      backMatter: back("custom"),
     });
     expect(ok.frontMatter[0]!.kind).toBe("custom");
   });
 });
 
-describe("migration v2 -> v3 (cover)", () => {
-  const v2Json = readFileSync(new URL("../fixtures/v2-cadabra.json", import.meta.url), "utf8");
-  it("opens a real v2 manifest, adds cover: null and loses nothing", () => {
+describe("migration v2 -> v4 (cover, then editions)", () => {
+  const v2Json = read("../fixtures/v2-cadabra.json");
+  it("opens a real v2 manifest, moves its metadata into the source edition and loses nothing", () => {
     const v2 = JSON.parse(v2Json);
     expect(v2.formatVersion).toBe(2);
     const r = parseManifest(v2Json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(2);
-    expect(r.manifest.formatVersion).toBe(3);
-    expect(r.manifest.cover).toBeNull();
-    const { formatVersion: _a, ...before } = v2;
-    const { formatVersion: _b, cover: _c, ...after } = r.manifest;
-    expect(after).toEqual(before); // kinds, isbn and every entry kept
+    expect(r.manifest.formatVersion).toBe(4);
+    expect(r.manifest.editions).toEqual([
+      {
+        language: v2.language,
+        title: v2.title,
+        author: v2.author,
+        identifier: v2.identifier,
+        isbn: v2.isbn,
+        cover: null,
+      },
+    ]);
+    expect(r.manifest.template).toBe(v2.template);
+    expect(r.manifest.chapters.map((c) => c.titles)).toEqual(
+      v2.chapters.map((c: { title: string }) => ({ en: c.title })),
+    );
+    expect(r.manifest.chapters.map((c) => c.files)).toEqual(
+      v2.chapters.map((c: { file: string }) => ({ en: c.file })),
+    );
+    expect(r.manifest.backMatter[0]).toMatchObject({ kind: "about-the-author" });
   });
-  it("reopens a v3 manifest without migrating", () => {
+  it("reopens a v4 manifest without migrating", () => {
     const again = parseManifest(serializeManifest(parseManifest(v2Json).manifest));
     expect(again.migrated).toBe(false);
   });
 });
 
+describe("migration v3 -> v4 (real v3 project file)", () => {
+  const v3Json = read("../fixtures/v3-cadabra.json");
+  it("opens a real v3 manifest, migrates it to one source edition and keeps every file path", () => {
+    const v3 = JSON.parse(v3Json);
+    expect(v3.formatVersion).toBe(3);
+    const r = parseManifest(v3Json);
+    expect(r.migrated).toBe(true);
+    expect(r.fromVersion).toBe(3);
+    expect(r.manifest.formatVersion).toBe(4);
+    expect(r.manifest.editions).toHaveLength(1);
+    expect(r.manifest.editions[0]).toEqual({
+      language: "en",
+      title: "The Long Quay",
+      author: "A. Writer",
+      identifier: v3.identifier,
+      isbn: v3.isbn,
+      cover: null,
+    });
+    expect(r.manifest.chapters).toEqual([
+      {
+        id: "ch-1",
+        titles: { en: "Chapter One" },
+        files: { en: "manuscript/001-chapter-one.json" },
+      },
+      {
+        id: "ch-2",
+        titles: { en: "Chapter Two" },
+        files: { en: "manuscript/002-chapter-two.json" },
+      },
+    ]);
+    expect(r.manifest.frontMatter[0]).toEqual({
+      id: "title-page",
+      kind: "title-page",
+      titles: { en: "Title Page" },
+      files: { en: "front-matter/title-page.json" },
+    });
+    expect(readingOrder(r.manifest).map((e) => e.id)).toEqual([
+      "title-page",
+      "ch-1",
+      "ch-2",
+      "about",
+    ]);
+  });
+});
+
+describe("shared contract fixtures (also read by Rust)", () => {
+  it("reads the v3 manifest and migrates it", () => {
+    const r = parseManifest(read("../../../../fixtures/contract/manifest-v3.json"));
+    expect(r.migrated).toBe(true);
+    expect(r.manifest.editions[0]!.language).toBe("en");
+  });
+  it("accepts the v4 manifest with a French translated chapter, unchanged", () => {
+    const json = read("../../../../fixtures/contract/manifest-v4.json");
+    const r = parseManifest(json);
+    expect(r.migrated).toBe(false);
+    expect(r.manifest.editions.map((e) => e.language)).toEqual(["en", "fr"]);
+    expect(r.manifest.chapters[0]!.files.fr).toBe("manuscript/fr/001-chapitre-un.json");
+    expect(r.manifest.chapters[1]!.files.fr).toBeUndefined();
+  });
+});
+
 describe("cover", () => {
+  const withCover = (cover: string | null) => ({
+    ...base(),
+    editions: [{ ...base().editions[0]!, cover }],
+  });
   it("accepts null and assets/<name> images", () => {
-    expect(validateManifest(base()).cover).toBeNull();
+    expect(validateManifest(base()).editions[0]!.cover).toBeNull();
     for (const c of [
       "assets/cover.jpg",
       "assets/cover-2.PNG".toLowerCase(),
       "assets/my_cover.webp",
       "assets/c.jpeg",
     ]) {
-      expect(validateManifest({ ...base(), cover: c }).cover).toBe(c);
+      expect(validateManifest(withCover(c)).editions[0]!.cover).toBe(c);
     }
   });
   it.each([
@@ -162,7 +257,7 @@ describe("cover", () => {
     "C:/c.jpg",
     "",
   ])("rejects cover %j", (c) => {
-    expect(() => validateManifest({ ...base(), cover: c })).toThrow(FormatError);
+    expect(() => validateManifest(withCover(c))).toThrow(FormatError);
   });
 });
 

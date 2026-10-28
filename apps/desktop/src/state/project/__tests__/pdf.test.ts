@@ -41,6 +41,7 @@ vi.mock("../../../lib/bridge", async () =>
 );
 
 import { PdfUiError } from "../../../lib/pdfErrors";
+import { sourceEdition } from "@cadabracraft/format";
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;
@@ -80,8 +81,17 @@ const fail = async (): Promise<PdfUiError> => {
 };
 
 describe("exportPdf with a cover", () => {
-  const setCover = () =>
-    a().updateDetails({ ...s().manifest!, isbn: "", cover: "assets/front.png" });
+  const setCover = () => {
+    const e = sourceEdition(s().manifest!.editions);
+    return a().updateDetails({
+      title: e.title,
+      author: e.author,
+      language: e.language,
+      identifier: e.identifier,
+      isbn: "",
+      cover: "assets/front.png",
+    });
+  };
   const source = () => typst.compiles.at(-1)!.source;
   it("sends the cover image to Typst as the first page", async () => {
     assets.set("assets/front.png", new Uint8Array([1, 2, 3]));
@@ -104,7 +114,7 @@ describe("exportPdf with a cover", () => {
 });
 
 describe("exportPdf", () => {
-  it("flushes the draft, compiles with the chosen options and writes exports/book.pdf", async () => {
+  it("flushes the draft, compiles with the chosen options and writes exports/en/book.pdf", async () => {
     a().setDraft({
       type: "doc",
       content: [{ type: "paragraph", content: [{ type: "text", text: "typed but not saved" }] }],
@@ -116,8 +126,10 @@ describe("exportPdf", () => {
     expect(c.path).toBe("/opt/typst");
     expect(c.source).toContain("typed but not saved");
     expect(c.source).toMatch(/5\.5in/); // trim size reached the generated source
-    expect(bytesOnDisk.get("exports/book.pdf")).toEqual(new Uint8Array([0x25, 0x50, 0x44, 0x46]));
-    expect(s().notice).toBe("Exported exports/book.pdf");
+    expect(bytesOnDisk.get("exports/en/book.pdf")).toEqual(
+      new Uint8Array([0x25, 0x50, 0x44, 0x46]),
+    );
+    expect(s().notice).toBe("Exported exports/en/book.pdf");
     expect(s().exportStage).toBeNull();
     expect(s().draft).toBeNull();
   });
@@ -231,8 +243,8 @@ describe("exportMarkdown", () => {
       },
     ],
   };
-  const text = () => new TextDecoder().decode(bytesOnDisk.get("exports/book.md")!);
-  it("writes exports/book.md and sets the notice", async () => {
+  const text = () => new TextDecoder().decode(bytesOnDisk.get("exports/en/book.md")!);
+  it("writes exports/en/book.md and sets the notice", async () => {
     disk.set(
       "manuscript/001-chapter-one.json",
       JSON.stringify({
@@ -242,7 +254,7 @@ describe("exportMarkdown", () => {
     );
     await a().exportMarkdown({ htmlMarks: false });
     expect(text()).toContain("Hello there");
-    expect(s().notice).toBe("Exported exports/book.md");
+    expect(s().notice).toBe("Exported exports/en/book.md");
     expect(s().exportStage).toBeNull();
   });
   it("stops at an underline, naming the chapter, when htmlMarks is off, and writes nothing", async () => {
@@ -254,7 +266,7 @@ describe("exportMarkdown", () => {
         (x: unknown) => x,
       );
     expect((e as Error).message).toContain("Chapter One");
-    expect(bytesOnDisk.has("exports/book.md")).toBe(false);
+    expect(bytesOnDisk.has("exports/en/book.md")).toBe(false);
     expect(s().exportStage).toBeNull();
   });
   it("writes underline as HTML when htmlMarks is on", async () => {

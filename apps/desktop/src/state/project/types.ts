@@ -7,7 +7,7 @@ import type { BookSearchOptions } from "../../lib/search/bookSearch";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import type { AudioUiError } from "../../lib/audioErrors";
 
-export interface PdfExportOptions {
+export interface PdfExportOptions extends ExportScope {
   trimSize: TrimSize;
   pdfA: boolean;
   /** Template id; saved in the manifest when it differs from the current one. */
@@ -80,6 +80,8 @@ export interface HistoryEntry {
   /** `added`: the edit made the page exist (add, add page, restore); otherwise it moved the page to the trash. */
   file?: { path: string; added: boolean };
   trashPath?: string;
+  /** The removed page's files in other languages (the translation editions), moved to the trash with it. */
+  others?: { language: string; path: string; trashPath?: string }[];
   /** A text edit across pages (Replace all in the whole book): the pages' file text before and after. `before` and `after` trees are equal. */
   docs?: { file: string; before: string; after: string }[];
 }
@@ -146,6 +148,8 @@ export interface ProjectState {
   trash: TrashItem[];
   /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
   history: History;
+  /** The edition the editor shows and writes (a BCP 47 tag); null means the source edition. Reset when a book opens or closes. */
+  activeLanguage: string | null;
   /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
   recovery: Recovery[];
   actions: ProjectActions &
@@ -157,7 +161,15 @@ export interface ProjectState {
     AssetActions &
     ExportActions &
     AudioActions &
-    VoiceActions;
+    VoiceActions &
+    EditionActions;
+}
+
+export interface EditionActions {
+  /** Shows another edition in the editor and the chapter list. Unsaved typing is saved first. Throws when the book has no such edition. */
+  setLanguage: (language: string) => Promise<void>;
+  /** Adds an edition in `language` and switches to it. `copy` starts every chapter as the source text, `empty` as blank pages; either way every chapter is untranslated until the author writes it. */
+  addLanguage: (language: string, mode: "copy" | "empty") => Promise<void>;
 }
 
 export interface ProjectActions {
@@ -177,8 +189,8 @@ export interface ProjectActions {
   dismissImportReport: () => void;
   /** Sets the book's template (cadabra.json). A no-op when it is already set. */
   setTemplate: (id: string) => Promise<void>;
-  /** Saves the book details (cadabra.json). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
-  updateDetails: (details: BookDetails) => Promise<void>;
+  /** Saves the book details (cadabra.json) of `edition` (default: the source; a translation keeps its language). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
+  updateDetails: (details: BookDetails, edition?: string) => Promise<void>;
 }
 
 export interface PageActions {
@@ -195,8 +207,8 @@ export interface PageActions {
   rename: (id: string, title: string) => Promise<void>;
   move: (id: string, delta: number) => Promise<void>;
   remove: (id: string) => Promise<void>;
-  /** Every page in reading order with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
-  readPages: () => Promise<BookPage[]>;
+  /** Every page in reading order (of `language`, default the open edition) with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
+  readPages: (language?: string) => Promise<BookPage[]>;
   /** Words in all chapters (front and back matter excluded). Pages whose file is unchanged since they were last counted are not read again; the open page is counted from memory. */
   bookWords: () => Promise<number>;
 }
@@ -237,13 +249,19 @@ export interface AssetActions {
   importImage: () => Promise<string | null>;
 }
 
+/** Which edition an export reads (default: the source) and whether untranslated pages are left out instead of stopping it. Output goes to `exports/<language>/`. */
+export interface ExportScope {
+  language?: string;
+  skipUntranslated?: boolean;
+}
+
 export interface ExportActions {
-  exportEpub: () => Promise<void>;
-  /** Writes the whole book as exports/book.md. With `htmlMarks` false it throws `MarkdownExportError` (naming the chapter) at the first underline, small caps, superscript or subscript. */
-  exportMarkdown: (options: { htmlMarks: boolean }) => Promise<void>;
-  /** Writes the whole book as exports/manuscript.docx in standard manuscript format. Throws a `DocxExportError` message that names the page (and node) it cannot write. */
-  exportDocx: (options: { font: ManuscriptFont }) => Promise<void>;
-  /** Builds exports/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
+  exportEpub: (scope?: ExportScope) => Promise<void>;
+  /** Writes the whole book as exports/<language>/book.md. With `htmlMarks` false it throws `MarkdownExportError` (naming the chapter) at the first underline, small caps, superscript or subscript. */
+  exportMarkdown: (options: { htmlMarks: boolean } & ExportScope) => Promise<void>;
+  /** Writes the whole book as exports/<language>/manuscript.docx in standard manuscript format. Throws a `DocxExportError` message that names the page (and node) it cannot write. */
+  exportDocx: (options: { font: ManuscriptFont } & ExportScope) => Promise<void>;
+  /** Builds exports/<language>/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
   exportPdf: (options: PdfExportOptions) => Promise<void>;
 }
 

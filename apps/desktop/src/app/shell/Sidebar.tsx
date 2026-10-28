@@ -14,8 +14,9 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
-import { canAddMatter, type ManuscriptEntry } from "@cadabracraft/format";
+import { canAddMatter, entryRowsIn, type LanguageRow } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
+import { Badge } from "../../ui/Badge";
 import { Confirm, Modal } from "../../ui/Dialog";
 import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
@@ -65,7 +66,7 @@ function useKindLabels() {
 type Editing = { id: string } | null;
 
 interface ListProps {
-  entries: ManuscriptEntry[];
+  entries: LanguageRow[];
   heading: string;
   titleLabel: string;
   currentId: string | null;
@@ -144,6 +145,7 @@ function EntryList({
                   {c.title}
                 </button>
               )}
+              {!c.translated && <Badge tone="warn">{t`Not translated yet`}</Badge>}
               <M.Root>
                 <M.Trigger asChild>
                   <IconButton
@@ -268,6 +270,7 @@ function TrashDialog({
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
+  const language = useProject((s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "");
   const currentId = useProject((s) => s.currentId);
   const history = useProject((s) => s.history);
   const actions = useProject((s) => s.actions);
@@ -309,21 +312,21 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         {manifest.frontMatter.length > 0 && (
           <EntryList
             {...shared}
-            entries={manifest.frontMatter}
+            entries={entryRowsIn(manifest.frontMatter, manifest.editions, language)}
             heading={t`Front matter`}
             titleLabel={t`Page title`}
           />
         )}
         <EntryList
           {...shared}
-          entries={manifest.chapters}
+          entries={entryRowsIn(manifest.chapters, manifest.editions, language)}
           heading={t`Chapters`}
           titleLabel={t`Chapter title`}
         />
         {manifest.backMatter.length > 0 && (
           <EntryList
             {...shared}
-            entries={manifest.backMatter}
+            entries={entryRowsIn(manifest.backMatter, manifest.editions, language)}
             heading={t`Back matter`}
             titleLabel={t`Page title`}
           />

@@ -1,3 +1,4 @@
+import { sourceFile } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, hashOf as h, readFile, writeFileWithConflictCopy } from "../../../test/fakeBridge";
 
@@ -41,7 +42,7 @@ const text = (t: string) => ({
   content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
 });
 const opts = { query: "cat", matchCase: false, wholeWord: false };
-const file = (i: number) => s().manifest!.chapters[i]!.file;
+const file = (i: number) => sourceFile(s().manifest!.chapters[i]!, s().manifest!.editions);
 
 /** A book of three chapters that each contain "cat". */
 async function threeChapters() {

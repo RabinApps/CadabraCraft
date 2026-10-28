@@ -27,7 +27,7 @@ export async function pdfAndDetailsSteps({
     await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
     await app.sleep(1500);
     for (let i = 0; i < 40 && (await app.snapshot()).dialogs.length; i++) await app.sleep(1000);
-    const pdf = join(book, "exports/book.pdf");
+    const pdf = join(book, "exports/en/book.pdf");
     try {
       const fonts = execFileSync("pdffonts", [pdf], { encoding: "utf8" });
       assert(/\+Inter-/.test(fonts), `Inter is not embedded in the PDF:\n${fonts}`);
@@ -321,12 +321,12 @@ export async function pdfAndDetailsSteps({
     return "6 commands refused with not_a_project, nothing written; the real project still opens";
   });
 
-  await step("Markdown export writes exports/book.md from the Export dialog", async () => {
+  await step("Markdown export writes exports/en/book.md from the Export dialog", async () => {
     await exportVia("Markdown");
-    for (let i = 0; i < 20 && !(await status()).includes("exports/book.md"); i++)
+    for (let i = 0; i < 20 && !(await status()).includes("exports/en/book.md"); i++)
       await app.sleep(500);
-    assert((await status()).includes("exports/book.md"), "Markdown export did not finish");
-    const md = readFileSync(join(book, "exports/book.md"), "utf8");
+    assert((await status()).includes("exports/en/book.md"), "Markdown export did not finish");
+    const md = readFileSync(join(book, "exports/en/book.md"), "utf8");
     assert(
       md.includes("Typed by an bot-ro.") && md.includes("**Bold part.**"),
       `book.md lacks the chapter text: ${md.slice(0, 120)}`,
@@ -335,6 +335,6 @@ export async function pdfAndDetailsSteps({
       `document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`,
     );
     await app.sleep(500);
-    return "exports/book.md has the chapter text with bold written as Markdown";
+    return "exports/en/book.md has the chapter text with bold written as Markdown";
   });
 }

@@ -1,0 +1,38 @@
+{
+  "formatVersion": 3,
+  "title": "The Long Quay",
+  "author": "A. Writer",
+  "language": "en",
+  "identifier": "urn:uuid:5b1d1d2c-6f0a-4c43-9a55-1f0d3c8d3a11",
+  "template": "novel",
+  "isbn": "978-3-16-148410-0",
+  "cover": null,
+  "frontMatter": [
+    {
+      "id": "title-page",
+      "file": "front-matter/title-page.json",
+      "title": "Title Page",
+      "kind": "title-page"
+    }
+  ],
+  "chapters": [
+    {
+      "id": "ch-1",
+      "file": "manuscript/001-chapter-one.json",
+      "title": "Chapter One"
+    },
+    {
+      "id": "ch-2",
+      "file": "manuscript/002-chapter-two.json",
+      "title": "Chapter Two"
+    }
+  ],
+  "backMatter": [
+    {
+      "id": "about",
+      "file": "back-matter/about-the-author.json",
+      "title": "About the Author",
+      "kind": "about-the-author"
+    }
+  ]
+}

@@ -29,10 +29,10 @@ describe("front matter edits", () => {
     const r = addFrontMatter(m, "custom", "A Note: to Readers!");
     expect(r.entry).toMatchObject({
       kind: "custom",
-      title: "A Note: to Readers!",
-      file: "front-matter/03-a-note-to-readers.json",
+      titles: { en: "A Note: to Readers!" },
+      files: { en: "front-matter/03-a-note-to-readers.json" },
     });
-    expect(m.frontMatter.map((e) => e.file)).toEqual([
+    expect(m.frontMatter.map((e) => e.files.en)).toEqual([
       "front-matter/01-dedication.json",
       "front-matter/02-foreword.json",
     ]);
@@ -91,7 +91,7 @@ describe("front matter edits", () => {
     m = removeMatter(m, "fm-1").manifest;
     const r = addFrontMatter(m, "preface", "Preface");
     expect(ids(r.manifest.frontMatter)).toHaveLength(2);
-    expect(new Set(r.manifest.frontMatter.map((e) => e.file)).size).toBe(2);
+    expect(new Set(r.manifest.frontMatter.map((e) => e.files.en)).size).toBe(2);
     expect(r.entry.id).not.toBe("fm-2");
     expect(() => validateManifest(r.manifest)).not.toThrow();
   });
@@ -102,7 +102,7 @@ describe("back matter edits", () => {
     let m = book();
     m = addBackMatter(m, "acknowledgments", "Acknowledgments").manifest;
     const r = addBackMatter(m, "about-the-author", "About the Author");
-    expect(r.manifest.backMatter.map((e) => [e.id, e.file, e.kind])).toEqual([
+    expect(r.manifest.backMatter.map((e) => [e.id, e.files.en, e.kind])).toEqual([
       ["bm-1", "back-matter/01-acknowledgments.json", "acknowledgments"],
       ["bm-2", "back-matter/02-about-the-author.json", "about-the-author"],
     ]);
@@ -111,7 +111,7 @@ describe("back matter edits", () => {
     let m = book();
     for (let i = 0; i < 3; i++) m = addBackMatter(m, "custom", "Appendix").manifest;
     expect(m.backMatter).toHaveLength(3);
-    expect(new Set(m.backMatter.map((e) => e.file)).size).toBe(3);
+    expect(new Set(m.backMatter.map((e) => e.files.en)).size).toBe(3);
   });
 });
 
@@ -134,8 +134,8 @@ describe("rename, move and remove matter", () => {
     const m = renameMatter(full(), "fm-2", "Foreword by Someone");
     expect(m.frontMatter[1]).toEqual({
       id: "fm-2",
-      file: "front-matter/02-foreword.json",
-      title: "Foreword by Someone",
+      files: { en: "front-matter/02-foreword.json" },
+      titles: { en: "Foreword by Someone" },
       kind: "foreword",
     });
   });
@@ -151,7 +151,7 @@ describe("rename, move and remove matter", () => {
   it("removes and returns the entry; does not mutate its input", () => {
     const m = full();
     const r = removeMatter(m, "fm-2");
-    expect(r.removed.title).toBe("foreword");
+    expect(r.removed.titles.en).toBe("foreword");
     expect(ids(r.manifest.frontMatter)).toEqual(["fm-1", "fm-3"]);
     expect(ids(m.frontMatter)).toEqual(["fm-1", "fm-2", "fm-3"]);
   });
@@ -167,7 +167,9 @@ describe("rename, move and remove matter", () => {
     expect(ids(m.chapters)).toEqual(["ch-2", "ch-1"]);
     m = renameChapter(m, "ch-1", "First");
     m = removeChapter(m, "ch-2").manifest;
-    expect(m.chapters).toEqual([{ id: "ch-1", file: "manuscript/001-one.json", title: "First" }]);
+    expect(m.chapters).toEqual([
+      { id: "ch-1", files: { en: "manuscript/001-one.json" }, titles: { en: "First" } },
+    ]);
     expect(() => renameChapter(m, "fm-1", "x")).toThrow();
     expect(() => validateManifest(m)).not.toThrow();
   });

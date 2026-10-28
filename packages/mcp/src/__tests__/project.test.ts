@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { CURRENT_FORMAT_VERSION } from "@cadabracraft/format";
@@ -17,18 +17,16 @@ describe("project_create / project_info", () => {
     });
     expect(created.manifest).toMatchObject({
       formatVersion: CURRENT_FORMAT_VERSION,
-      title: "My Book",
-      author: "A. Writer",
-      language: "en",
+      editions: [{ title: "My Book", author: "A. Writer", language: "en" }],
       template: "novel",
       chapters: [],
     });
-    expect(created.manifest.identifier).toMatch(/^urn:uuid:[0-9a-f-]{36}$/);
+    expect(created.manifest.editions[0].identifier).toMatch(/^urn:uuid:[0-9a-f-]{36}$/);
     for (const d of ["manuscript", "front-matter", "back-matter", "assets", "exports", ".cadabra"])
       expect(existsSync(join(s.root, "My Book", d)), d).toBe(true);
     const info = await s.ok("cadabra_project_info", { path: "My Book" });
     expect(info.totals).toEqual({ chapters: 0, words: 0 });
-    expect(info.manifest.title).toBe("My Book");
+    expect(info.manifest.editions[0].title).toBe("My Book");
   });
 
   it("honours language and template, refuses an existing project, unknown templates and bad languages", async () => {
@@ -40,10 +38,12 @@ describe("project_create / project_info", () => {
       language: "fr",
       template: "modern",
     });
-    expect(c.manifest).toMatchObject({ language: "fr", template: "modern" });
+    expect(c.manifest).toMatchObject({ editions: [{ language: "fr" }], template: "modern" });
     const again = await s.call("cadabra_project_create", { path: "p", title: "T2", author: "A" });
     expect(again.data.error.code).toBe("project_exists");
-    expect(JSON.parse(readFileSync(join(s.root, "p/cadabra.json"), "utf8")).title).toBe("T");
+    expect(JSON.parse(readFileSync(join(s.root, "p/cadabra.json"), "utf8")).editions[0].title).toBe(
+      "T",
+    );
     expect(
       (
         await s.call("cadabra_project_create", {
@@ -199,5 +199,43 @@ describe("templates", () => {
     expect(JSON.parse(readFileSync(join(s.root, "p/cadabra.json"), "utf8")).template).toBe(
       "nonfiction",
     );
+  });
+});
+
+describe("opening a v3 project", () => {
+  it("backs up cadabra.json, rewrites it as v4 and keeps every chapter file", async () => {
+    s = await connect();
+    const v3 = readFileSync(
+      new URL("../../../../fixtures/contract/manifest-v3.json", import.meta.url),
+      "utf8",
+    );
+    const pages = JSON.parse(v3);
+    mkdirSync(join(s.root, "old/manuscript"), { recursive: true });
+    mkdirSync(join(s.root, "old/front-matter"), { recursive: true });
+    mkdirSync(join(s.root, "old/back-matter"), { recursive: true });
+    writeFileSync(join(s.root, "old/cadabra.json"), v3);
+    const doc = JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] });
+    for (const e of [...pages.frontMatter, ...pages.chapters, ...pages.backMatter])
+      writeFileSync(join(s.root, "old", e.file), doc);
+
+    const info = await s.ok("cadabra_project_info", { path: "old" });
+    expect(info.manifest).toMatchObject({
+      formatVersion: CURRENT_FORMAT_VERSION,
+      editions: [{ language: "en", title: pages.title, author: pages.author }],
+    });
+    expect(info.manifest.chapters.map((c: { files: { en: string } }) => c.files.en)).toEqual(
+      pages.chapters.map((c: { file: string }) => c.file),
+    );
+
+    const backups = readdirSync(join(s.root, "old/.cadabra/backups")).filter((f) =>
+      f.startsWith("cadabra-"),
+    );
+    expect(backups).toHaveLength(1);
+    expect(readFileSync(join(s.root, "old/.cadabra/backups", backups[0]!), "utf8")).toBe(v3);
+    const onDisk = JSON.parse(readFileSync(join(s.root, "old/cadabra.json"), "utf8"));
+    expect(onDisk.formatVersion).toBe(CURRENT_FORMAT_VERSION);
+    expect(onDisk.editions[0].title).toBe(pages.title);
+    for (const e of [...pages.frontMatter, ...pages.chapters, ...pages.backMatter])
+      expect(existsSync(join(s.root, "old", e.file))).toBe(true);
   });
 });

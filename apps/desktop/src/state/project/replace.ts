@@ -1,5 +1,5 @@
 import { plural, t } from "@lingui/core/macro";
-import { treeOf } from "@cadabracraft/format";
+import { treeOf, sourceFileById } from "@cadabracraft/format";
 import { mergeAdjacentText } from "../../lib/search/findHelpers";
 import { replaceInDoc } from "../../lib/search/bookSearch";
 import { errText } from "../../lib/projectError";
@@ -9,7 +9,7 @@ import type { Ctx } from "./context";
 
 /** Replace all across the whole book, as one book undo step. */
 export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
-  const { set, get, need, entryOf, writePages, reloadCurrent, flush, loadChapters } = ctx;
+  const { set, get, need, writePages, reloadCurrent, flush, loadChapters } = ctx;
   /** A book-wide replace is running: a second one is ignored instead of racing it. */
   let replacing = false;
   return {
@@ -29,7 +29,7 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
         for (const page of pages) {
           const r = replaceInDoc(page.doc, opts, replacement);
           if (!r.count) continue;
-          const file = entryOf(manifest, page.id)?.file;
+          const file = sourceFileById(manifest, page.id);
           if (!file) continue;
           count += r.count;
           docs.push({

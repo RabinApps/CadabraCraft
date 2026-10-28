@@ -28,7 +28,9 @@ test("add front and back matter pages with generated content, and they open in t
   await expect(page.locator(".ProseMirror h1")).toHaveText("About the Author");
   await expect(sidebar(page).getByRole("heading", { name: "Back matter" })).toBeVisible();
   const m = await manifestOf(page);
-  expect(m.frontMatter.map((e: { kind: string; file: string }) => [e.kind, e.file])).toEqual([
+  expect(
+    m.frontMatter.map((e: { kind: string; files: { en: string } }) => [e.kind, e.files.en]),
+  ).toEqual([
     ["title-page", "front-matter/01-title-page.json"],
     ["copyright", "front-matter/02-copyright.json"],
   ]);
@@ -67,10 +69,9 @@ test("rename, reorder and delete front and back matter", async ({ page }) => {
     sidebar(page).getByRole("button", { name: "Words Before", exact: true }),
   ).toBeVisible();
   await chapterAction(page, "Words Before", "Move up");
-  expect((await manifestOf(page)).frontMatter.map((e: { title: string }) => e.title)).toEqual([
-    "Words Before",
-    "Dedication",
-  ]);
+  expect(
+    (await manifestOf(page)).frontMatter.map((e: { titles: { en: string } }) => e.titles.en),
+  ).toEqual(["Words Before", "Dedication"]);
   await page.getByRole("button", { name: "Actions for Words Before" }).click();
   await expect(page.getByRole("menuitem", { name: "Move up" })).toHaveAttribute(
     "data-disabled",
@@ -119,9 +120,9 @@ test("EPUB and PDF exports include the matter pages", async ({ page }) => {
   await addPage(page, "Title page");
   await addPage(page, "Acknowledgments");
   await exportBook(page, "EPUB 3");
-  await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+  await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.epub");
   const names = await page.evaluate(() => {
-    const b = window.__disk["exports/book.epub"] as number[];
+    const b = window.__disk["exports/en/book.epub"] as number[];
     return String.fromCharCode(...b).match(/OEBPS\/(fm|bm|ch)-\d+\.xhtml/g);
   });
   expect([...new Set(names)].sort()).toEqual([
@@ -138,7 +139,7 @@ test("EPUB and PDF exports include the matter pages", async ({ page }) => {
     .getByRole("dialog", { name: "Export book" })
     .getByRole("button", { name: "Export", exact: true })
     .click();
-  await expect(page.getByRole("status")).toHaveText("Exported exports/book.pdf");
+  await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.pdf");
   const source: string = await page.evaluate(() => window.__typstCalls[0]!.source);
   expect(source).toContain("#title-page[");
   expect(source).toContain('#chapter-start("Acknowledgments", none)');
@@ -167,12 +168,12 @@ test("restoring a page from the trash puts it back at the end and opens it", asy
   await expect(dialog).toHaveCount(0);
 
   const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
-  expect(manifest.chapters.map((c: { title: string }) => c.title)).toEqual([
+  expect(manifest.chapters.map((c: { titles: { en: string } }) => c.titles.en)).toEqual([
     "Chapter One",
     "Chapter 2",
     "Chapter 2",
   ]);
-  const files: string[] = manifest.chapters.map((c: { file: string }) => c.file);
+  const files: string[] = manifest.chapters.map((c: { files: { en: string } }) => c.files.en);
   expect(new Set(files).size).toBe(3);
   const disk = await page.evaluate(() => window.__disk as Record<string, string>);
   expect(disk[files[1]!]).toContain("new one");

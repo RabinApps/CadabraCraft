@@ -1,3 +1,4 @@
+import { sourceEdition } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk } from "../../test/fakeBridge";
 
@@ -130,10 +131,10 @@ describe("HTML import: failures and concurrency", () => {
     await expect(a().importBook("/s/a.html", "/new2", "T", "A")).rejects.toThrow(/already running/);
     release();
     await first;
-    expect(s().manifest?.title).toBe("T");
+    expect(sourceEdition(s().manifest!.editions).title).toBe("T");
     // And a later one works again.
     gate = null;
     await a().importBook("/s/a.html", "/new3", "T3", "A");
-    expect(s().manifest?.title).toBe("T3");
+    expect(sourceEdition(s().manifest!.editions).title).toBe("T3");
   });
 });

@@ -1,13 +1,18 @@
 import type { StoreApi } from "zustand";
 import { t } from "@lingui/core/macro";
 import {
+  exportDir,
+  exportPlan,
   readingOrder,
   sameTree,
   sectionOf,
   serializeManifest,
   treeOf,
   type Manifest,
-  type ManuscriptEntry,
+  type EditionEntry,
+  entryFile,
+  sourceEdition,
+  sourceTitle,
 } from "@cadabracraft/format";
 import { collectImageSources } from "@cadabracraft/export-epub";
 import { countWords, type ChapterDoc } from "@cadabracraft/shared";
@@ -26,8 +31,14 @@ export function createContext(set: Set, get: Get) {
     if (!root || !manifest) throw new Error("no project open");
     return { root, manifest };
   };
-  const entryOf = (manifest: Manifest, id: string): ManuscriptEntry | undefined =>
+  const entryOf = (manifest: Manifest, id: string): EditionEntry | undefined =>
     readingOrder(manifest).find((e) => e.id === id);
+  /** The language the editor shows and writes: the chosen edition, or the source edition. */
+  const langOf = (manifest: Manifest): string =>
+    get().activeLanguage ?? sourceEdition(manifest.editions).language;
+  /** An entry's title in `language`, falling back to the source title while it is not translated. */
+  const titleIn = (entry: EditionEntry, manifest: Manifest, language: string): string =>
+    entry.titles[language] ?? sourceTitle(entry, manifest.editions);
   const saveManifest = async (manifest: Manifest) => {
     const { root } = need();
     const base = get().hashes["cadabra.json"] ?? null;
@@ -135,10 +146,12 @@ export function createContext(set: Set, get: Get) {
     const { root, manifest } = need();
     const entry = entryOf(manifest, id);
     if (!entry) return;
-    const r = await bridge.readFile(root, entry.file);
+    const lang = langOf(manifest);
+    const file = entryFile(entry, lang);
+    const r = file ? await bridge.readFile(root, file) : null;
     let doc: ChapterDoc;
     try {
-      doc = r ? parseChapter(r.contents, entry.file) : emptyDoc(entry.title);
+      doc = r && file ? parseChapter(r.contents, file) : emptyDoc(titleIn(entry, manifest, lang));
     } catch (e) {
       // Show no editor for a corrupt page, so nothing can be typed over it and saved.
       set({ currentId: null, currentDoc: null, draft: null, notice: errText(e) });
@@ -148,27 +161,43 @@ export function createContext(set: Set, get: Get) {
       currentId: id,
       currentDoc: doc,
       draft: null,
-      hashes: r ? { ...get().hashes, [entry.file]: r.hash } : get().hashes,
+      hashes: r && file ? { ...get().hashes, [file]: r.hash } : get().hashes,
     });
   };
 
-  /** Every page in reading order (front matter, chapters, back matter), read from disk. */
-  const loadChapters = async () => {
+  /** Every page of one language in reading order (front matter, chapters, back matter), read from disk. A page with no file yet is blank. */
+  const loadChaptersIn = async (lang: string) => {
     const { root, manifest } = need();
     const pages = [];
-    const sectionFor = (e: ManuscriptEntry) => sectionOf(manifest, e.id) ?? "chapter";
+    const sectionFor = (e: EditionEntry) => sectionOf(manifest, e.id) ?? "chapter";
     for (const c of readingOrder(manifest)) {
-      const r = await bridge.readFile(root, c.file);
-      if (!r) throw new Error(t`Missing chapter file ${c.file}`);
+      const file = entryFile(c, lang);
+      const r = file ? await bridge.readFile(root, file) : null;
+      if (file && !r) throw new Error(t`Missing chapter file ${file}`);
       pages.push({
         id: c.id,
-        title: c.title,
-        doc: parseChapter(r.contents, c.file),
+        title: titleIn(c, manifest, lang),
+        doc: r && file ? parseChapter(r.contents, file) : emptyDoc(titleIn(c, manifest, lang)),
         section: sectionFor(c),
         ...(c.kind ? { kind: c.kind } : {}),
       });
     }
     return pages;
+  };
+  /** The source edition's pages (audiobook and find and replace all read the source for now). */
+  const loadChapters = () => loadChaptersIn(sourceEdition(need().manifest.editions).language);
+  /**
+   * What an export of `language` (default: the source) reads: its edition, its pages and the output folder.
+   * Untranslated pages stop the export unless `skipUntranslated`; then they are left out and listed in `skipped`.
+   */
+  const loadExportPages = async (scope: { language?: string; skipUntranslated?: boolean } = {}) => {
+    const { manifest } = need();
+    const language = scope.language ?? sourceEdition(manifest.editions).language;
+    const plan = exportPlan(manifest, language, scope.skipUntranslated ?? false);
+    const keep = new Set(plan.included.map((e) => e.id));
+    const pages = (await loadChaptersIn(language)).filter((p) => keep.has(p.id));
+    const edition = manifest.editions.find((e) => e.language === language)!;
+    return { edition, pages, dir: exportDir(language), skipped: plan.skipped };
   };
   /** Word count per chapter file, valid while the store's hash for that file is the one it was counted under. */
   let wordCache = new Map<string, { hash: string | undefined; words: number }>();
@@ -176,6 +205,7 @@ export function createContext(set: Set, get: Get) {
   const countBook = async () => {
     const { root, manifest } = need();
     const currentId = get().currentId;
+    const lang = langOf(manifest);
     let total = 0;
     for (const c of readingOrder(manifest)) {
       if (sectionOf(manifest, c.id) !== "chapter") continue;
@@ -186,16 +216,18 @@ export function createContext(set: Set, get: Get) {
           continue;
         }
       }
-      const hash = get().hashes[c.file];
-      const hit = wordCache.get(c.file);
+      const file = entryFile(c, lang);
+      if (!file) continue; // no text in this language yet
+      const hash = get().hashes[file];
+      const hit = wordCache.get(file);
       if (hit && hit.hash === hash) {
         total += hit.words;
         continue;
       }
-      const r = await bridge.readFile(root, c.file);
-      if (!r) throw new Error(t`Missing chapter file ${c.file}`);
-      const words = countWords(parseChapter(r.contents, c.file));
-      wordCache.set(c.file, { hash, words });
+      const r = await bridge.readFile(root, file);
+      if (!r) throw new Error(t`Missing chapter file ${file}`);
+      const words = countWords(parseChapter(r.contents, file));
+      wordCache.set(file, { hash, words });
       total += words;
     }
     return total;
@@ -216,14 +248,16 @@ export function createContext(set: Set, get: Get) {
   };
 
   /** Bytes of the cover image, or undefined when the book has none. A cover that cannot be read stops the export instead of leaving it out. */
-  const loadCover = async (): Promise<{ path: string; bytes: Uint8Array } | undefined> => {
-    const { root, manifest } = need();
-    if (!manifest.cover) return undefined;
+  const loadCover = async (
+    cover: string | null,
+  ): Promise<{ path: string; bytes: Uint8Array } | undefined> => {
+    const { root } = need();
+    if (!cover) return undefined;
     try {
-      return { path: manifest.cover, bytes: await bridge.readAsset(root, manifest.cover) };
+      return { path: cover, bytes: await bridge.readAsset(root, cover) };
     } catch {
       throw new Error(
-        t`The cover image ${manifest.cover} could not be read. Choose it again in Book details, or remove the cover.`,
+        t`The cover image ${cover} could not be read. Choose it again in Book details, or remove the cover.`,
       );
     }
   };
@@ -241,6 +275,8 @@ export function createContext(set: Set, get: Get) {
     get,
     need,
     entryOf,
+    langOf,
+    titleIn,
     saveManifest,
     record,
     writePage,
@@ -249,6 +285,8 @@ export function createContext(set: Set, get: Get) {
     flush,
     load,
     loadChapters,
+    loadChaptersIn,
+    loadExportPages,
     countBook,
     loadAssets,
     loadCover,

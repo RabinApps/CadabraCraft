@@ -11,6 +11,7 @@ import { editingSteps } from "./scenario/editing.ts";
 import { exportSteps } from "./scenario/export.ts";
 import { pdfAndDetailsSteps } from "./scenario/pdf-and-details.ts";
 import { findAndHistorySteps } from "./scenario/find-and-history.ts";
+import { editionsSteps } from "./scenario/editions.ts";
 import { importAndCloseSteps } from "./scenario/import-and-close.ts";
 
 const ctx = await createContext(process.argv.slice(2));
@@ -21,6 +22,7 @@ try {
   await exportSteps(ctx);
   await pdfAndDetailsSteps(ctx);
   await findAndHistorySteps(ctx);
+  await editionsSteps(ctx);
   await importAndCloseSteps(ctx);
 } catch {
   process.exitCode = 1;

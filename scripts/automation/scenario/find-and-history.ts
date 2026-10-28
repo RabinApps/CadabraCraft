@@ -143,7 +143,7 @@ export async function findAndHistorySteps({
   );
 
   const chapterFile = () =>
-    JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8")).chapters[0].file as string;
+    JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8")).chapters[0].files.en as string;
   const backups = () => {
     const d = join(book, ".cadabra/backups");
     return existsSync(d) ? readdirSync(d) : [];

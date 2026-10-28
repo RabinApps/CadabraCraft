@@ -1,5 +1,11 @@
 import { plural, t } from "@lingui/core/macro";
-import { readingOrder, retargetFile, withTree } from "@cadabracraft/format";
+import {
+  readingOrder,
+  retargetFile,
+  withTree,
+  sourceFile,
+  sourceEdition,
+} from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { PartialWrite, retargetEntry } from "./util";
@@ -23,7 +29,8 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
       if (entry.docs) {
         // A text edit across pages: write each page's saved text back (no tree change).
         // Pages removed from the book since (trashed) are skipped: writing them would bring back a file the book no longer lists.
-        const listed = new Set(readingOrder(need().manifest).map((e) => e.file));
+        const current = need().manifest;
+        const listed = new Set(readingOrder(current).map((e) => sourceFile(e, current.editions)));
         const live = entry.docs.filter((d) => listed.has(d.file));
         const skipped = entry.docs.length - live.length;
         const conflicts = await writePages(
@@ -56,22 +63,57 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
       const present = entry.file ? entry.file.added !== undoing : false; // should the page file exist when we are done?
       let file = entry.file?.path;
       let trashPath = entry.trashPath;
+      const sourceLang = sourceEdition(need().manifest.editions).language;
+      /** The translation files that came back under another name (every restored file is retargeted in the history). */
+      const renames: { language: string; from: string; to: string }[] = [];
+      let others = entry.others ?? [];
       // Files first when bringing one back, manifest first when sending one away: the manifest never names a missing file.
       if (file && present) {
         if (!trashPath) throw new Error(t`the page is no longer in the trash`);
         const back = await bridge.restoreTrash(root, trashPath); // comes back as -2 when its name was taken since
-        if (back !== file) target = retargetFile(target, file, back);
+        if (back !== file)
+          target = retargetFile(
+            target,
+            sourceEdition(need().manifest.editions).language,
+            file,
+            back,
+          );
         file = back;
         trashPath = undefined;
+        const restored: typeof others = [];
+        for (const o of others) {
+          if (!o.trashPath) {
+            restored.push(o);
+            continue;
+          }
+          const to = await bridge.restoreTrash(root, o.trashPath);
+          if (to !== o.path) {
+            target = retargetFile(target, o.language, o.path, to);
+            renames.push({ language: o.language, from: o.path, to });
+          }
+          restored.push({ language: o.language, path: to });
+        }
+        others = restored;
       }
       await saveManifest(withTree(need().manifest, target));
-      if (file && !present) trashPath = await bridge.trashFile(root, file); // never a hard delete
+      if (file && !present) {
+        trashPath = await bridge.trashFile(root, file); // never a hard delete
+        const gone: typeof others = [];
+        for (const o of others)
+          gone.push({ ...o, trashPath: await bridge.trashFile(root, o.path) });
+        others = gone;
+      }
       const was = entry.file?.path;
+      if (was && file && was !== file) renames.push({ language: sourceLang, from: was, to: file });
       const fix = (e: HistoryEntry) =>
-        was && file && was !== file ? retargetEntry(e, was, file) : e;
+        renames.reduce((acc, r) => retargetEntry(acc, r.language, r.from, r.to), e);
       const { history } = get();
-      const { trashPath: _old, ...rest } = fix(entry);
-      const moved: HistoryEntry = trashPath ? { ...rest, trashPath } : rest;
+      const { trashPath: _old, others: _others, ...rest } = fix(entry);
+      const moved: HistoryEntry = {
+        ...rest,
+        ...(trashPath ? { trashPath } : {}),
+        ...(others.length ? { others } : {}),
+      };
       const kept = history[from].slice(0, -1).map(fix);
       const other = (undoing ? history.redo : history.undo).map(fix);
       set({
@@ -81,7 +123,10 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
       });
       // Show a page that came back; otherwise keep the open page unless it no longer exists.
       const next = need().manifest;
-      const shown = file && present ? readingOrder(next).find((e) => e.file === file) : undefined;
+      const shown =
+        file && present
+          ? readingOrder(next).find((e) => sourceFile(e, next.editions) === file)
+          : undefined;
       const cur = get().currentId;
       if (shown) await load(shown.id);
       else if (cur && !entryOf(next, cur)) {

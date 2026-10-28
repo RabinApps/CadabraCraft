@@ -166,7 +166,7 @@ describe("import_file (html) content edge cases", () => {
     }
     expect(JSON.stringify(r.warnings).length).toBeLessThan(8000);
     const m = JSON.parse(readFileSync(join(s.root, "out/cadabra.json"), "utf8"));
-    const text = readFileSync(join(s.root, "out", m.chapters[0].file), "utf8");
+    const text = readFileSync(join(s.root, "out", m.chapters[0].files.en), "utf8");
     expect(text).toContain("Ünïcödé 日本語");
     expect(text).not.toContain("\\u0000");
     expect(readdirSync(join(s.root, "out/assets"))).toEqual(["grad.png"]);

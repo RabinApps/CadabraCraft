@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { exportDir, sourceEdition } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { FileText, Printer } from "lucide-react";
 import type { ManuscriptFont as DocxFont } from "@cadabracraft/export-docx";
@@ -12,6 +13,8 @@ import { useProject } from "../../state/project";
 import { AudioFooter } from "./AudioFooter";
 import { AudioPanel } from "./AudioPanel";
 import { DocxPanel } from "./DocxPanel";
+import { EditionsChecklist, untranslatedIn } from "./EditionsChecklist";
+import { nativeName } from "../shell/EditionSwitcher";
 import { EpubPanel } from "./EpubPanel";
 import { MarkdownPanel } from "./MarkdownPanel";
 import { PdfPanel, saveTypstPath, usePdfOptions } from "./PdfPanel";
@@ -36,9 +39,32 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const exportMarkdown = useProject((s) => s.actions.exportMarkdown);
   const exportDocx = useProject((s) => s.actions.exportDocx);
   const exportPdf = useProject((s) => s.actions.exportPdf);
+  const activeLanguage = useProject((s) => s.activeLanguage);
   const [htmlMarks, setHtmlMarks] = useState(false);
   const [font, setFont] = useState<DocxFont>("times");
   const [error, setError] = useState<PdfUiError | null>(null);
+  const current = activeLanguage ?? (manifest ? sourceEdition(manifest.editions).language : "");
+  // The editions to export (the open one until the author picks others) and the ones whose untranslated pages are left out.
+  const [picked, setPicked] = useState<string[]>([]);
+  const [skipped, setSkipped] = useState<string[]>([]);
+  const [exporting, setExporting] = useState<string | null>(null);
+  useEffect(() => {
+    if (open) {
+      setPicked(current ? [current] : []);
+      setSkipped([]);
+    }
+    // Reset only when the dialog opens.
+  }, [open]);
+  const many = !!manifest && manifest.editions.length > 1;
+  // The checks and the page estimate follow the first picked edition.
+  const language = picked[0] ?? current;
+  const scopeOf = (l: string) => ({ language: l, skipUntranslated: skipped.includes(l) });
+  const scope = scopeOf(language);
+  const dir = exportDir(exporting ?? language);
+  const blocked = manifest
+    ? picked.find((l) => untranslatedIn(manifest, l).length > 0 && !skipped.includes(l))
+    : undefined;
+  const nothingPicked = many && picked.length === 0;
   const pdf = usePdfOptions(manifest);
   const audio = useAudioExport({ active: open && format === "audiobook", setError });
   const running = stage !== null;
@@ -47,24 +73,24 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
       ? {
           preparing: t`Reading your chapters…`,
           rendering: t`Building EPUB…`,
-          saving: t`Saving exports/book.epub…`,
+          saving: t`Saving ${dir}/book.epub…`,
         }
       : format === "markdown"
         ? {
             preparing: t`Reading your chapters…`,
             rendering: t`Writing Markdown…`,
-            saving: t`Saving exports/book.md…`,
+            saving: t`Saving ${dir}/book.md…`,
           }
         : format === "docx"
           ? {
               preparing: t`Reading your chapters…`,
               rendering: t`Writing the Word file…`,
-              saving: t`Saving exports/manuscript.docx…`,
+              saving: t`Saving ${dir}/manuscript.docx…`,
             }
           : {
               preparing: t`Reading your chapters…`,
               rendering: t`Typesetting the book with Typst…`,
-              saving: t`Saving exports/book.pdf…`,
+              saving: t`Saving ${dir}/book.pdf…`,
             };
 
   const change = (o: boolean) => {
@@ -80,36 +106,42 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
     setError(null);
     try {
       if (format === "audiobook") return audio.submit();
-      if (format === "epub") {
-        await exportEpub();
-      } else if (format === "markdown") {
-        await exportMarkdown({ htmlMarks });
-      } else if (format === "docx") {
-        await exportDocx({ font });
-      } else {
-        saveTypstPath(pdf.typstPath.trim());
-        await exportPdf({
-          trimSize: pdf.trimSize,
-          pdfA: pdf.pdfA,
-          cover: pdf.withCover,
-          template: pdf.current,
-          typstPath: pdf.typstPath.trim() || undefined,
-        });
+      if (format === "pdf") saveTypstPath(pdf.typstPath.trim());
+      const languages = picked.length ? picked : [current];
+      // One edition after the other; the first failure stops the rest and is shown.
+      for (const l of languages) {
+        setExporting(l);
+        const s = scopeOf(l);
+        if (format === "epub") await exportEpub(s);
+        else if (format === "markdown") await exportMarkdown({ htmlMarks, ...s });
+        else if (format === "docx") await exportDocx({ font, ...s });
+        else
+          await exportPdf({
+            trimSize: pdf.trimSize,
+            pdfA: pdf.pdfA,
+            cover: pdf.withCover,
+            template: pdf.current,
+            typstPath: pdf.typstPath.trim() || undefined,
+            ...s,
+          });
       }
+      const last = exportDir(languages.at(-1)!);
       change(false);
       useSponsor
         .getState()
         .offer(
           format === "epub"
-            ? "exports/book.epub"
+            ? `${last}/book.epub`
             : format === "markdown"
-              ? "exports/book.md"
+              ? `${last}/book.md`
               : format === "docx"
-                ? "exports/manuscript.docx"
-                : "exports/book.pdf",
+                ? `${last}/manuscript.docx`
+                : `${last}/book.pdf`,
         );
     } catch (e) {
       setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
+    } finally {
+      setExporting(null);
     }
   };
   return (
@@ -152,16 +184,27 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
             { value: "audiobook", label: t`Audiobook` },
           ]}
         />
+        {format !== "audiobook" && many && manifest && (
+          <EditionsChecklist
+            manifest={manifest}
+            current={current}
+            picked={picked}
+            skipped={skipped}
+            onPicked={setPicked}
+            onSkipped={setSkipped}
+            disabled={running}
+          />
+        )}
         {format === "audiobook" ? (
           <AudioPanel audio={audio} />
         ) : format === "epub" ? (
-          <EpubPanel />
+          <EpubPanel {...scope} />
         ) : format === "docx" ? (
           <DocxPanel font={font} onFont={setFont} disabled={running} />
         ) : format === "markdown" ? (
           <MarkdownPanel htmlMarks={htmlMarks} onHtmlMarks={setHtmlMarks} disabled={running} />
         ) : (
-          <PdfPanel options={pdf} running={running} error={error} />
+          <PdfPanel options={pdf} running={running} error={error} {...scope} />
         )}
         {running && (
           <div className="flex flex-col gap-2">
@@ -198,9 +241,21 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
             ) : (
               <span />
             )}
-            <div className="flex gap-2.5">
+            <div className="flex items-center gap-2.5">
+              {(blocked || nothingPicked) && !running && (
+                <p role="status" className="text-sm text-danger">
+                  {blocked
+                    ? t`Choose how to handle ${nativeName(blocked)} to export it.`
+                    : t`Pick an edition to export.`}
+                </p>
+              )}
               <Button disabled={running} onClick={() => change(false)}>{t`Cancel`}</Button>
-              <Button type="submit" variant="primary" icon={FileText} disabled={running}>
+              <Button
+                type="submit"
+                variant="primary"
+                icon={FileText}
+                disabled={running || !!blocked || nothingPicked}
+              >
                 {running ? t`Exporting…` : t`Export`}
               </Button>
             </div>

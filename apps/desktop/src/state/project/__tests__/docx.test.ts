@@ -1,3 +1,4 @@
+import { sourceFile } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { unzipSync, strFromU8 } from "fflate";
 import { disk } from "../../../test/fakeBridge";
@@ -45,13 +46,13 @@ beforeEach(async () => {
 });
 
 describe("exportDocx", () => {
-  it("writes exports/manuscript.docx and reports it", async () => {
+  it("writes exports/en/manuscript.docx and reports it", async () => {
     await a().saveCurrent(doc(p("Hello manuscript")));
     await a().exportDocx({ font: "times" });
-    expect(exported!.path).toBe("exports/manuscript.docx");
+    expect(exported!.path).toBe("exports/en/manuscript.docx");
     expect(part("word/document.xml")).toContain("Hello manuscript");
     expect(part("word/header2.xml")).toContain("Lovelace / BOOK / ");
-    expect(s().notice).toBe("Exported exports/manuscript.docx");
+    expect(s().notice).toBe("Exported exports/en/manuscript.docx");
     expect(s().exportStage).toBeNull();
   });
   it("passes the font choice through", async () => {
@@ -73,12 +74,14 @@ describe("exportDocx", () => {
   });
   it("names the file when the failing page has an empty title", async () => {
     const entry = s().manifest!.chapters[0]!;
-    useProject.setState({ manifest: { ...s().manifest!, chapters: [{ ...entry, title: "" }] } });
+    useProject.setState({
+      manifest: { ...s().manifest!, chapters: [{ ...entry, titles: { en: "" } }] },
+    });
     await a().saveCurrent(doc({ type: "image", attrs: { src: "assets/a.svg", alt: "x" } }));
     const err = await a()
       .exportDocx({ font: "times" })
       .catch((e: Error) => e);
-    expect((err as Error).message).toContain(entry.file);
+    expect((err as Error).message).toContain(sourceFile(entry, s().manifest!.editions));
   });
   it("a missing image stops the export with its name", async () => {
     await a().saveCurrent(doc({ type: "image", attrs: { src: "assets/x.png", alt: "x" } }));
@@ -92,7 +95,7 @@ describe("exportDocx", () => {
     expect(s().notice).not.toMatch(/Exported/);
     writeBytesError = null;
     await a().exportDocx({ font: "times" });
-    expect(s().notice).toMatch(/Exported exports\/manuscript\.docx/);
+    expect(s().notice).toMatch(/Exported exports\/en\/manuscript\.docx/);
   });
   it("refuses a second export while one runs", async () => {
     const first = a().exportDocx({ font: "times" });
