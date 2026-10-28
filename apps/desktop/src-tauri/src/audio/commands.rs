@@ -10,14 +10,14 @@ use std::path::PathBuf;
 
 #[tauri::command]
 pub async fn audio_voices() -> Result<Vec<VoiceInfo>, AudioError> {
-    crate::typst::blocking(|| Ok(list_voices(voices_root().as_deref()))).await
+    crate::platform::blocking(|| Ok(list_voices(voices_root().as_deref()))).await
 }
 
 /// Renders one chapter off the UI thread and reports 0..1 progress on `on_progress`.
 #[tauri::command]
 pub async fn audio_render_chapter(state: tauri::State<'_, AudioJobs>, request: ChapterRequest, on_progress: tauri::ipc::Channel<f64>) -> Result<RenderedChapter, AudioError> {
     let flag = state.flag(&request.job_id);
-    crate::typst::blocking(move || {
+    crate::platform::blocking(move || {
         let sherpa = find_sherpa()?;
         render_chapter(&request, &sherpa, voices_root().as_deref(), &flag, &|f| {
             let _ = on_progress.send(f);
@@ -30,7 +30,7 @@ pub async fn audio_render_chapter(state: tauri::State<'_, AudioJobs>, request: C
 #[tauri::command]
 pub async fn audio_sample(state: tauri::State<'_, AudioJobs>, request: SampleRequest) -> Result<tauri::ipc::Response, AudioError> {
     let flag = state.flag(&request.job_id);
-    crate::typst::blocking(move || {
+    crate::platform::blocking(move || {
         let sherpa = find_sherpa()?;
         render_sample(&request, &sherpa, voices_root().as_deref(), &flag).map(tauri::ipc::Response::new)
     })
@@ -59,7 +59,7 @@ pub(crate) fn files_exist(root: &std::path::Path, paths: &[String]) -> Result<Ve
 
 #[tauri::command]
 pub async fn audio_files_exist(root: String, paths: Vec<String>) -> Result<Vec<bool>, AudioError> {
-    crate::typst::blocking(move || files_exist(std::path::Path::new(&root), &paths)).await
+    crate::platform::blocking(move || files_exist(std::path::Path::new(&root), &paths)).await
 }
 
 fn require_root() -> Result<PathBuf, AudioError> {
@@ -68,7 +68,7 @@ fn require_root() -> Result<PathBuf, AudioError> {
 
 #[tauri::command]
 pub async fn audio_packs() -> Result<Vec<PackInfo>, AudioError> {
-    crate::typst::blocking(|| Ok(list_packs(voices_root().as_deref()))).await
+    crate::platform::blocking(|| Ok(list_packs(voices_root().as_deref()))).await
 }
 
 /// Downloads a voice pack. `on_progress` gets the bytes of the whole pack. Stop it with `audio_cancel(job_id)`; a stopped
@@ -89,7 +89,7 @@ pub async fn audio_download_pack(state: tauri::State<'_, AudioJobs>, pack: Strin
 pub async fn audio_delete_pack(pack: String) -> Result<(), AudioError> {
     let pack = find_pack(&pack)?;
     let root = require_root()?;
-    crate::typst::blocking(move || delete_pack(pack, &root)).await
+    crate::platform::blocking(move || delete_pack(pack, &root)).await
 }
 
 #[cfg(test)]

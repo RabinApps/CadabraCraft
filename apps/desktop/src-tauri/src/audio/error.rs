@@ -1,4 +1,5 @@
 //! The error type every audio command returns.
+use crate::platform::sidecar::RunError;
 use crate::project::ProjectError;
 use serde::Serialize;
 
@@ -29,6 +30,17 @@ pub(crate) fn other(m: impl std::fmt::Display) -> AudioError {
 impl From<tauri::Error> for AudioError {
     fn from(e: tauri::Error) -> Self {
         other(e)
+    }
+}
+
+impl From<RunError> for AudioError {
+    fn from(e: RunError) -> Self {
+        match e {
+            RunError::NotFound(message) => AudioError::NotFound { message },
+            RunError::Timeout { seconds } => AudioError::Timeout { seconds },
+            RunError::Cancelled => AudioError::Cancelled,
+            RunError::Other(message) => AudioError::Other { message },
+        }
     }
 }
 

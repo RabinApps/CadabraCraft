@@ -4,7 +4,7 @@
 //! extracted side by side). The TypeScript side (`@cadabracraft/export-audio`) narrates and chunks the text and decides
 //! the order; this layer renders one chapter per call, off the UI thread, and is the only place that starts processes.
 //!
-//! Threading: every command is `async` and runs its work on Tauri's blocking pool (`typst::blocking`), so the webview
+//! Threading: every command is `async` and runs its work on Tauri's blocking pool (`platform::blocking`), so the webview
 //! and the async runtime never stall. A job id maps to a cancel flag (`AudioJobs`); the polling loop that waits for the
 //! engine checks it every 20 ms and kills the process, so Cancel takes effect within a fraction of a second. Progress
 //! goes back over a `Channel`. Arguments are always an array (no shell), the engine's output goes to a temp dir that is

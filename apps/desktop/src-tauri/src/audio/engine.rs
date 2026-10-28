@@ -3,32 +3,16 @@ use super::batch::{engine_args, plan_batches, silence, Chunk};
 use super::error::{other, AudioError};
 use super::voices::VOICES;
 use super::wav::parse_wav;
-use std::fs::{self, File};
+use crate::platform::sidecar::{self, find_executable, is_executable, search_dirs, Captured, Run};
+use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// A batch that runs longer than this is killed (a slow machine still renders a few thousand characters in minutes).
 const BATCH_TIMEOUT: Duration = Duration::from_secs(15 * 60);
 const BINARY: &str = if cfg!(windows) { "sherpa-onnx-offline-tts.exe" } else { "sherpa-onnx-offline-tts" };
 const INSTALL_ADVICE: &str = "The voice engine that ships with CadabraCraft is missing; reinstall the app.";
-
-fn is_executable(p: &Path) -> bool {
-    let Ok(md) = fs::metadata(p) else { return false };
-    if !md.is_file() {
-        return false;
-    }
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        md.permissions().mode() & 0o111 != 0
-    }
-    #[cfg(not(unix))]
-    {
-        true
-    }
-}
 
 /// Finds the engine: `SHERPA_TTS_BIN`, then the folder of the app executable (the bundled sidecar), then PATH.
 pub fn find_sherpa() -> Result<PathBuf, AudioError> {
@@ -40,54 +24,14 @@ pub fn find_sherpa_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: O
         let p = PathBuf::from(g);
         return if is_executable(&p) { Ok(p) } else { Err(AudioError::NotFound { message: format!("No runnable voice engine at {g} (from SHERPA_TTS_BIN). {INSTALL_ADVICE}") }) };
     }
-    let mut dirs: Vec<PathBuf> = bundled.map(Path::to_path_buf).into_iter().collect();
-    dirs.extend(path_var.map(|p| std::env::split_paths(p).collect::<Vec<_>>()).unwrap_or_default());
-    dirs.iter().filter(|d| !d.as_os_str().is_empty()).map(|d| d.join(BINARY)).find(|p| is_executable(p)).ok_or_else(|| AudioError::NotFound { message: format!("The voice engine was not found. {INSTALL_ADVICE}") })
-}
-
-pub(crate) struct Captured {
-    pub(crate) success: bool,
-    pub(crate) stderr: String,
+    find_executable(&[BINARY], &search_dirs(bundled, path_var, &[])).ok_or_else(|| AudioError::NotFound { message: format!("The voice engine was not found. {INSTALL_ADVICE}") })
 }
 
 /// Runs `bin args` with output captured through files (no pipe deadlocks), a hard timeout and a cancel flag. Either
 /// one kills the process and waits for it, so nothing is left running.
 pub(crate) fn run_cancellable(bin: &Path, args: &[String], timeout: Duration, cancel: &AtomicBool) -> Result<Captured, AudioError> {
-    let scratch = tempfile::Builder::new().prefix("cadabracraft-audio-run-").tempdir().map_err(other)?;
-    let err_path = scratch.path().join("err");
-    let mut cmd = Command::new(bin);
-    cmd.args(args).stdin(Stdio::null()).stdout(File::create(scratch.path().join("out")).map_err(other)?).stderr(File::create(&err_path).map_err(other)?);
     // The "shared" sherpa archive keeps its libraries in ../lib next to bin/.
-    if let Some(dir) = bin.parent() {
-        let lib = dir.join("..").join("lib");
-        if lib.is_dir() {
-            let var = if cfg!(target_os = "macos") { "DYLD_LIBRARY_PATH" } else { "LD_LIBRARY_PATH" };
-            let joined = std::env::join_paths(std::iter::once(lib).chain(std::env::var_os(var).map(|v| std::env::split_paths(&v).collect::<Vec<_>>()).unwrap_or_default())).map_err(other)?;
-            cmd.env(var, joined);
-        }
-    }
-    let mut child = cmd.spawn().map_err(|e| match e.kind() {
-        std::io::ErrorKind::NotFound => AudioError::NotFound { message: format!("Could not start {}. {INSTALL_ADVICE}", bin.display()) },
-        _ => other(format!("Could not start {}: {e}", bin.display())),
-    })?;
-    let deadline = Instant::now() + timeout;
-    let status = loop {
-        if cancel.load(Ordering::Relaxed) {
-            let _ = child.kill();
-            let _ = child.wait();
-            return Err(AudioError::Cancelled);
-        }
-        match child.try_wait().map_err(other)? {
-            Some(s) => break s,
-            None if Instant::now() >= deadline => {
-                let _ = child.kill();
-                let _ = child.wait();
-                return Err(AudioError::Timeout { seconds: timeout.as_secs() });
-            }
-            None => std::thread::sleep(Duration::from_millis(20)),
-        }
-    };
-    Ok(Captured { success: status.success(), stderr: String::from_utf8_lossy(&fs::read(&err_path).map_err(other)?).into_owned() })
+    Ok(sidecar::run(&Run { bin, args, cwd: None, timeout, cancel: Some(cancel), shared_libs: true, install_advice: INSTALL_ADVICE })?)
 }
 
 /// Runs the engine over the chunks and joins the batches with their pauses. Shared by a chapter render and a sample.

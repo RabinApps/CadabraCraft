@@ -1,15 +1,10 @@
-//! Runs the `typst` CLI for PDF export. A copy ships with the app as a sidecar next to the executable (see
-//! `bundle.externalBin`), so users install nothing; an explicit path or `TYPST_BIN` overrides it, and PATH or the
-//! usual Homebrew locations are the last resort. Nothing is downloaded at runtime. The TypeScript side
-//! (`@cadabracraft/export-pdf`) builds the Typst source and checks fonts; this layer only runs the binary safely.
-//! Arguments are always passed as an array (no shell), and every compile happens in a fresh temp directory that
-//! is removed afterwards, whatever the outcome.
-use serde::Serialize;
+//! Finding the typst program and running it: version, fonts and compile.
+use super::error::{other, TypstError};
+use crate::platform::sidecar::{self, bundled_dir, find_executable, is_executable, search_dirs, Captured, Run};
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
-use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 pub const COMPILE_TIMEOUT: Duration = Duration::from_secs(120);
 const FONTS_TIMEOUT: Duration = Duration::from_secs(30);
@@ -27,50 +22,6 @@ pub fn set_font_dir(dir: PathBuf) {
 /// `--font-path <dir>`; Typst accepts it only after the subcommand (`typst fonts --font-path d`).
 fn font_args(dir: Option<&Path>) -> Vec<String> {
     dir.map(|d| vec!["--font-path".to_string(), d.to_string_lossy().into_owned()]).unwrap_or_default()
-}
-
-/// The sidecar Tauri places next to the app executable, if it exists.
-fn bundled_dir() -> Option<PathBuf> {
-    std::env::current_exe().ok()?.parent().map(Path::to_path_buf)
-}
-
-/// Errors sent to the UI as `{ kind, ... }` so it can show a specific, actionable message.
-#[derive(Serialize, Debug, PartialEq)]
-#[serde(tag = "kind", rename_all = "snake_case")]
-pub enum TypstError {
-    NotFound { message: String },
-    Timeout { seconds: u64 },
-    /// Typst ran and reported errors (its stderr).
-    Compile { message: String },
-    /// Typst substituted an unknown font family; the export is refused.
-    Font { family: String },
-    Other { message: String },
-}
-
-fn other(m: impl std::fmt::Display) -> TypstError {
-    TypstError::Other { message: m.to_string() }
-}
-
-#[derive(Serialize, Debug, PartialEq)]
-pub struct TypstInfo {
-    pub path: String,
-    pub version: String,
-}
-
-fn is_executable(p: &Path) -> bool {
-    let Ok(md) = fs::metadata(p) else { return false };
-    if !md.is_file() {
-        return false;
-    }
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        md.permissions().mode() & 0o111 != 0
-    }
-    #[cfg(not(unix))]
-    {
-        true
-    }
 }
 
 /// Finds `typst`: `explicit` (a user-configured path), then `TYPST_BIN`, then the bundled sidecar, then PATH, then
@@ -91,54 +42,13 @@ pub fn find_typst_in(explicit: Option<&str>, env_bin: Option<&str>, bundled: Opt
         }
     }
     let names: &[&str] = if cfg!(windows) { &["typst.exe", "typst"] } else { &["typst"] };
-    let mut dirs: Vec<PathBuf> = bundled.map(Path::to_path_buf).into_iter().collect();
-    dirs.extend(path_var.map(|p| std::env::split_paths(p).collect::<Vec<_>>()).unwrap_or_default());
-    dirs.extend(fallback_dirs.iter().map(PathBuf::from));
-    for d in dirs.iter().filter(|d| !d.as_os_str().is_empty()) {
-        for n in names {
-            let p = d.join(n);
-            if is_executable(&p) {
-                return Ok(p);
-            }
-        }
-    }
-    Err(TypstError::NotFound { message: format!("The \"typst\" program was not found (searched the app folder, PATH, /opt/homebrew/bin and /usr/local/bin). {INSTALL_ADVICE}") })
-}
-
-struct Captured {
-    success: bool,
-    stdout: Vec<u8>,
-    stderr: String,
+    find_executable(names, &search_dirs(bundled, path_var, fallback_dirs))
+        .ok_or_else(|| TypstError::NotFound { message: format!("The \"typst\" program was not found (searched the app folder, PATH, /opt/homebrew/bin and /usr/local/bin). {INSTALL_ADVICE}") })
 }
 
 /// Runs `bin args` in `cwd` with output captured through files (no pipe deadlocks) and a hard timeout (the process is killed).
 fn run_capture(bin: &Path, args: &[String], cwd: &Path, timeout: Duration) -> Result<Captured, TypstError> {
-    let scratch = tempfile::Builder::new().prefix("cadabracraft-run-").tempdir().map_err(other)?;
-    let (out_path, err_path) = (scratch.path().join("out"), scratch.path().join("err"));
-    let mut child = Command::new(bin)
-        .args(args)
-        .current_dir(cwd)
-        .stdin(Stdio::null())
-        .stdout(File::create(&out_path).map_err(other)?)
-        .stderr(File::create(&err_path).map_err(other)?)
-        .spawn()
-        .map_err(|e| match e.kind() {
-            std::io::ErrorKind::NotFound => TypstError::NotFound { message: format!("Could not start {}. {INSTALL_ADVICE}", bin.display()) },
-            _ => other(format!("Could not start {}: {e}", bin.display())),
-        })?;
-    let deadline = Instant::now() + timeout;
-    let status = loop {
-        match child.try_wait().map_err(other)? {
-            Some(s) => break s,
-            None if Instant::now() >= deadline => {
-                let _ = child.kill();
-                let _ = child.wait();
-                return Err(TypstError::Timeout { seconds: timeout.as_secs() });
-            }
-            None => std::thread::sleep(Duration::from_millis(20)),
-        }
-    };
-    Ok(Captured { success: status.success(), stdout: fs::read(&out_path).map_err(other)?, stderr: String::from_utf8_lossy(&fs::read(&err_path).map_err(other)?).into_owned() })
+    Ok(sidecar::run(&Run { bin, args, cwd: Some(cwd), timeout, cancel: None, shared_libs: false, install_advice: INSTALL_ADVICE })?)
 }
 
 pub fn version(bin: &Path) -> Result<String, TypstError> {
@@ -213,99 +123,10 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
     fs::read(dir.path().join("out.pdf")).map_err(other)
 }
 
-// ---- Tauri commands (blocking work runs off the UI thread) --------------------------------------------------
-
-impl From<tauri::Error> for TypstError {
-    fn from(e: tauri::Error) -> Self {
-        other(e)
-    }
-}
-
-/// Runs blocking work on Tauri's blocking thread pool so it never stalls the UI thread or async runtime. A failed join
-/// (panic in `f`) becomes the error type via `From<tauri::Error>`. Shared by every file/process command.
-pub async fn blocking<T: Send + 'static, E: From<tauri::Error> + Send + 'static>(f: impl FnOnce() -> Result<T, E> + Send + 'static) -> Result<T, E> {
-    tauri::async_runtime::spawn_blocking(f).await?
-}
-
-/// Locates typst and reports its version; `NotFound` carries install advice.
-#[tauri::command]
-pub async fn typst_find(typst_path: Option<String>) -> Result<TypstInfo, TypstError> {
-    blocking(move || {
-        let bin = find_typst(typst_path.as_deref())?;
-        let version = version(&bin)?;
-        Ok(TypstInfo { path: bin.to_string_lossy().into_owned(), version })
-    })
-    .await
-}
-
-#[tauri::command]
-pub async fn typst_list_fonts(typst_path: Option<String>) -> Result<Vec<String>, TypstError> {
-    blocking(move || list_fonts(&find_typst(typst_path.as_deref())?)).await
-}
-
-/// `files` are (relative name, bytes) pairs written next to the source (images). Returns the PDF as raw bytes.
-/// A decoded `typst_compile` request.
-#[derive(Debug, PartialEq)]
-pub struct CompileRequest {
-    pub typst_path: Option<String>,
-    pub source: String,
-    pub files: Vec<(String, Vec<u8>)>,
-    pub pdf_a: bool,
-}
-
-/// Decodes the binary body of `typst_compile`: a 4-byte little-endian header length, the header (UTF-8 JSON with
-/// `typstPath`, `source`, `pdfA` and `files: [{ name, len }]`), then every file's bytes back to back, in header order.
-/// The bytes must add up exactly; anything else is refused rather than guessed at. (The TypeScript writer is
-/// `packCompileRequest` in `src/lib/compileFrame.ts`.)
-pub fn parse_compile_request(body: &[u8]) -> Result<CompileRequest, TypstError> {
-    #[derive(serde::Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    struct Header {
-        typst_path: Option<String>,
-        source: String,
-        pdf_a: bool,
-        files: Vec<FileHeader>,
-    }
-    #[derive(serde::Deserialize)]
-    struct FileHeader {
-        name: String,
-        len: usize,
-    }
-    let bad = |what: &str| other(format!("bad compile request: {what}"));
-    let len_bytes: [u8; 4] = body.get(..4).and_then(|b| b.try_into().ok()).ok_or_else(|| bad("too short"))?;
-    let header_len = u32::from_le_bytes(len_bytes) as usize;
-    let header_end = 4usize.checked_add(header_len).filter(|e| *e <= body.len()).ok_or_else(|| bad("header runs past the end"))?;
-    let header: Header = serde_json::from_slice(&body[4..header_end]).map_err(|e| bad(&e.to_string()))?;
-    let mut at = header_end;
-    let mut files = Vec::with_capacity(header.files.len());
-    for f in header.files {
-        let end = at.checked_add(f.len).filter(|e| *e <= body.len()).ok_or_else(|| bad(&format!("file {} runs past the end", f.name)))?;
-        files.push((f.name, body[at..end].to_vec()));
-        at = end;
-    }
-    if at != body.len() {
-        return Err(bad("extra bytes after the last file"));
-    }
-    Ok(CompileRequest { typst_path: header.typst_path, source: header.source, files, pdf_a: header.pdf_a })
-}
-
-#[tauri::command]
-pub async fn typst_compile(request: tauri::ipc::Request<'_>) -> Result<tauri::ipc::Response, TypstError> {
-    let tauri::ipc::InvokeBody::Raw(body) = request.body() else {
-        return Err(other("typst_compile expects a binary body"));
-    };
-    let req = parse_compile_request(body)?;
-    blocking(move || {
-        let bin = find_typst(req.typst_path.as_deref())?;
-        compile(&bin, &std::env::temp_dir(), &req.source, &req.files, req.pdf_a, COMPILE_TIMEOUT)
-    })
-    .await
-    .map(tauri::ipc::Response::new)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::time::Instant;
 
     /// The real typst, or None (test skipped) unless `REQUIRE_TYPST=1`, in which case a missing typst fails the test.
     fn real_typst() -> Option<PathBuf> {
@@ -321,50 +142,6 @@ mod tests {
     const HELLO: &str = "#set page(width: 5in, height: 8in)\nHello from the Rust test\n";
     fn leftovers(d: &Path) -> usize {
         fs::read_dir(d).unwrap().count()
-    }
-
-    /// Builds a request body the way `packCompileRequest` does.
-    fn frame(header: &str, tail: &[u8]) -> Vec<u8> {
-        let mut v = (header.len() as u32).to_le_bytes().to_vec();
-        v.extend_from_slice(header.as_bytes());
-        v.extend_from_slice(tail);
-        v
-    }
-
-    #[test]
-    fn compile_request_decodes_options_source_and_files_in_order() {
-        let h = r#"{"typstPath":"/x/typst","source":"Hello ✓","pdfA":true,"files":[{"name":"assets/a.png","len":3},{"name":"assets/b.jpg","len":0},{"name":"c.bin","len":2}]}"#;
-        let r = parse_compile_request(&frame(h, &[1, 2, 3, 9, 8])).unwrap();
-        assert_eq!(
-            r,
-            CompileRequest {
-                typst_path: Some("/x/typst".into()),
-                source: "Hello ✓".into(),
-                files: vec![("assets/a.png".into(), vec![1, 2, 3]), ("assets/b.jpg".into(), vec![]), ("c.bin".into(), vec![9, 8])],
-                pdf_a: true,
-            }
-        );
-        let none = parse_compile_request(&frame(r#"{"typstPath":null,"source":"","pdfA":false,"files":[]}"#, &[])).unwrap();
-        assert_eq!((none.typst_path, none.files.len(), none.pdf_a), (None, 0, false));
-    }
-
-    #[test]
-    fn compile_request_refuses_malformed_bodies() {
-        let ok = r#"{"typstPath":null,"source":"s","pdfA":false,"files":[{"name":"a","len":2}]}"#;
-        assert!(parse_compile_request(&frame(ok, &[1, 2])).is_ok());
-        for (what, body) in [
-            ("empty", vec![]),
-            ("three bytes", vec![1, 0, 0]),
-            ("header longer than the body", [100u32.to_le_bytes().to_vec(), b"{}".to_vec()].concat()),
-            ("huge header length", u32::MAX.to_le_bytes().to_vec()),
-            ("not json", frame("nope", &[])),
-            ("missing field", frame(r#"{"source":"s"}"#, &[])),
-            ("file shorter than declared", frame(ok, &[1])),
-            ("extra bytes", frame(ok, &[1, 2, 3])),
-            ("length overflow", frame(r#"{"typstPath":null,"source":"s","pdfA":false,"files":[{"name":"a","len":18446744073709551615}]}"#, &[1])),
-        ] {
-            assert!(matches!(parse_compile_request(&body), Err(TypstError::Other { .. })), "{what}");
-        }
     }
 
     #[test]

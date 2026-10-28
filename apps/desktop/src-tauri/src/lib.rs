@@ -2,8 +2,8 @@
 mod automation;
 mod audio;
 mod commands;
-mod fs_watch;
 mod import_src;
+mod platform;
 mod project;
 mod typst;
 
@@ -30,9 +30,9 @@ macro_rules! app_handlers {
             commands::read_import_image,
             commands::import_asset_bytes,
             commands::watch_project,
-            typst::typst_find,
-            typst::typst_list_fonts,
-            typst::typst_compile,
+            typst::commands::typst_find,
+            typst::commands::typst_list_fonts,
+            typst::commands::typst_compile,
             audio::commands::audio_voices,
             audio::commands::audio_render_chapter,
             audio::commands::audio_cancel,
@@ -50,7 +50,7 @@ macro_rules! app_handlers {
 
 pub fn run() {
     let builder = tauri::Builder::default()
-        .manage(fs_watch::WatchState::default())
+        .manage(platform::fs_watch::WatchState::default())
         .manage(audio::AudioJobs::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
