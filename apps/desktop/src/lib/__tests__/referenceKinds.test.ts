@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { Reference } from "@cadabracraft/format";
 import {
   NO_FILTER,
+  canReorder,
+  dropPosition,
+  insertionIndex,
   allTags,
   filterReferences,
   formatSize,
@@ -86,4 +89,26 @@ describe("filterReferences and allTags", () => {
   });
   it("lists tags once, alphabetically", () =>
     expect(allTags(list)).toEqual(["1893", "harbour", "history"]));
+});
+
+describe("reordering helpers", () => {
+  it("canReorder is true only with no search, type or tag filter", () => {
+    expect(canReorder(NO_FILTER)).toBe(true);
+    expect(canReorder({ ...NO_FILTER, query: " " })).toBe(true);
+    expect(canReorder({ ...NO_FILTER, query: "x" })).toBe(false);
+    expect(canReorder({ ...NO_FILTER, kind: "pdf" })).toBe(false);
+    expect(canReorder({ ...NO_FILTER, tag: "history" })).toBe(false);
+  });
+  it("insertionIndex counts the rows above the pointer", () => {
+    expect(insertionIndex([10, 30, 50], 0)).toBe(0);
+    expect(insertionIndex([10, 30, 50], 35)).toBe(2);
+    expect(insertionIndex([10, 30, 50], 99)).toBe(3);
+    expect(insertionIndex([], 5)).toBe(0);
+  });
+  it("dropPosition accounts for the dragged row leaving its place", () => {
+    expect(dropPosition(1, 0)).toBe(0);
+    expect(dropPosition(1, 1)).toBe(1);
+    expect(dropPosition(1, 2)).toBe(1);
+    expect(dropPosition(1, 3)).toBe(2);
+  });
 });

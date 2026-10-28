@@ -6,3 +6,4 @@ export * from "./importSource";
 export * from "./editions";
 export * from "./workspace";
 export { countWords } from "./wordcount";
+export * from "./references";

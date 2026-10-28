@@ -8,6 +8,7 @@ import {
   createManifest,
   danglingLinks,
   linksOf,
+  moveReference,
   relink,
   migrateV4ToV5,
   nextReferenceId,
@@ -221,5 +222,15 @@ describe("links to chapters", () => {
       relink(removeReference(manifest, first).manifest, links).references.map((r) => r.id),
     ).not.toContain(first);
     expect(linksOf(before, "ch-3")).toEqual([]);
+  });
+  it("moveReference puts a reference at a position, clamped, and keeps the rest in order", () => {
+    const m = linked();
+    const ids = (x: Manifest) => x.references.map((r) => r.id);
+    expect(ids(moveReference(m, "ref-1", 2))).toEqual(["ref-2", "ref-3", "ref-1"]);
+    expect(ids(moveReference(m, "ref-3", 0))).toEqual(["ref-3", "ref-1", "ref-2"]);
+    expect(ids(moveReference(m, "ref-1", 99))).toEqual(["ref-2", "ref-3", "ref-1"]);
+    expect(ids(moveReference(m, "ref-2", -5))).toEqual(["ref-2", "ref-1", "ref-3"].slice(0, 3));
+    expect(moveReference(m, "ref-2", 1)).toBe(m);
+    expect(() => moveReference(m, "nope", 0)).toThrow("no reference nope");
   });
 });

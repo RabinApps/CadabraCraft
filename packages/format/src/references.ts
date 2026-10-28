@@ -170,3 +170,15 @@ export function relink(m: Manifest, links: { reference: string; chapter: string 
     }),
   };
 }
+
+/** Puts a reference at position `to` of the list (clamped to the list); the others keep their order. Returns `m` itself when nothing moves. */
+export function moveReference(m: Manifest, id: string, to: number): Manifest {
+  const from = m.references.findIndex((r) => r.id === id);
+  if (from < 0) throw new Error(`no reference ${id}`);
+  const target = Math.min(m.references.length - 1, Math.max(0, to));
+  if (target === from) return m;
+  const list = [...m.references];
+  const [r] = list.splice(from, 1);
+  list.splice(target, 0, r!);
+  return { ...m, references: list };
+}

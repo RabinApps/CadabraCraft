@@ -15,7 +15,7 @@ import { ReadingFooter } from "../../editor/ReadingFooter";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { Button, IconButton } from "../../ui/Button";
-import { Modal, overlayClass, panelClass } from "../../ui/Dialog";
+import { overlayClass, panelClass } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
 import { Details } from "./Details";
 import { ReferencesPanel } from "../references/ReferencesPanel";
@@ -367,17 +367,29 @@ export function App() {
         </D.Portal>
       </D.Root>
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
-      <Modal open={refsSheet} onOpenChange={setRefsSheet} title={t`References`} size="wide">
-        <div className="-m-4 h-[65dvh]">
-          <ReferencesPanel
-            openId={viewingId}
-            onOpen={(id) => {
-              setRefsSheet(false);
-              setViewingId(id);
-            }}
-          />
-        </div>
-      </Modal>
+      <D.Root open={refsSheet} onOpenChange={setRefsSheet}>
+        <D.Portal>
+          <D.Overlay className={cx(overlayClass, "xl:hidden")} />
+          <D.Content
+            aria-describedby={undefined}
+            className={cx(
+              panelClass,
+              "inset-x-0 bottom-0 h-[80dvh] overflow-hidden rounded-t-lg bg-surface xl:hidden",
+              "md:inset-y-0 md:inset-e-0 md:inset-s-auto md:h-auto md:w-100 md:rounded-none md:border-e-0",
+            )}
+          >
+            <D.Title className="sr-only">{t`References`}</D.Title>
+            <ReferencesPanel
+              onClose={() => setRefsSheet(false)}
+              openId={viewingId}
+              onOpen={(id) => {
+                setRefsSheet(false);
+                setViewingId(id);
+              }}
+            />
+          </D.Content>
+        </D.Portal>
+      </D.Root>
       <ReferenceViewer id={viewingId} onClose={() => setViewingId(null)} />
       <RecoverDialog />
       <SponsorDialog />

@@ -44,7 +44,7 @@ async function withReferences(page: Page, files: Record<string, number[]>) {
   );
   await page.getByRole("button", { name: "References", exact: true }).first().click();
   await page.getByRole("button", { name: "Add files" }).click();
-  await expect(panel(page).getByRole("list").getByRole("button")).toHaveCount(
+  await expect(panel(page).getByRole("list").getByRole("listitem")).toHaveCount(
     Object.keys(files).length,
   );
 }
@@ -95,14 +95,14 @@ test.describe("reference files", () => {
     await viewer.getByLabel("Add a tag").press("Enter");
     await viewer.getByRole("button", { name: "Close viewer" }).click();
     await panel(page).getByLabel("Search references").fill("LIGHT");
-    await expect(panel(page).getByRole("list").getByRole("button")).toHaveCount(1);
+    await expect(panel(page).getByRole("list").getByRole("listitem")).toHaveCount(1);
     await expect(row(page, "lighthouse")).toBeVisible();
     await panel(page).getByLabel("Search references").fill("");
     await panel(page).getByRole("button", { name: "Video", exact: true }).click();
-    await expect(panel(page).getByRole("list").getByRole("button")).toHaveCount(1);
+    await expect(panel(page).getByRole("list").getByRole("listitem")).toHaveCount(1);
     await panel(page).getByRole("button", { name: "All", exact: true }).click();
     await panel(page).getByRole("button", { name: "#history" }).click();
-    await expect(panel(page).getByRole("list").getByRole("button")).toHaveCount(1);
+    await expect(panel(page).getByRole("list").getByRole("listitem")).toHaveCount(1);
     await expect(row(page, "map")).toBeVisible();
     await panel(page).getByRole("button", { name: "#history" }).click();
     await panel(page).getByLabel("Search references").fill("nothing like this");
@@ -177,31 +177,52 @@ test.describe("reference files", () => {
       .toBeGreaterThan(100);
   });
 
-  test("searches the text of a PDF and steps between the pages that match", async ({ page }) => {
+  test("searches the text of a PDF, highlights every match and steps through them", async ({
+    page,
+  }) => {
     await withReferences(page, { "/refs/log.pdf": TEXT_PDF });
     await row(page, "log").click();
     const viewer = page.getByRole("dialog");
     await expect(viewer.getByText("1 / 2")).toBeVisible();
     await viewer.getByRole("button", { name: "Search in PDF" }).click();
     const box = viewer.getByLabel("Search text");
+    const current = viewer.locator('[data-match="current"]');
     await box.fill("calm");
     await box.press("Enter");
-    await expect(viewer.getByText("Page 2, 1 of 1")).toBeVisible();
+    await expect(viewer.getByText("Match 1 of 1, page 2 (1 on this page)")).toBeVisible();
     await expect(viewer.getByText("2 / 2")).toBeVisible();
+    await expect(current).toHaveCount(1);
     await box.fill("storm");
     await box.press("Enter");
-    await expect(viewer.getByText("Page 1, 1 of 2")).toBeVisible();
+    await expect(viewer.getByText("Match 1 of 2, page 1 (1 on this page)")).toBeVisible();
+    await expect(current).toHaveCount(1);
+    await expect(viewer.locator("[data-match]")).toHaveCount(1);
+    const first = await current.boundingBox();
+    const canvas = await viewer.getByLabel("PDF page 1").boundingBox();
+    expect(first!.x).toBeGreaterThanOrEqual(canvas!.x);
+    expect(first!.width).toBeGreaterThan(5);
+    expect(first!.width).toBeLessThan(canvas!.width / 2);
     await expect(viewer.getByRole("button", { name: "Previous match" })).toBeDisabled();
     await viewer.getByRole("button", { name: "Next match" }).click();
-    await expect(viewer.getByText("Page 2, 2 of 2")).toBeVisible();
+    await expect(viewer.getByText("Match 2 of 2, page 2 (1 on this page)")).toBeVisible();
     await expect(viewer.getByText("2 / 2")).toBeVisible();
+    await expect(current).toHaveCount(1);
     await viewer.getByRole("button", { name: "Previous match" }).click();
     await expect(viewer.getByText("1 / 2")).toBeVisible();
+    await box.press("Enter"); // the same text again steps on
+    await expect(viewer.getByText("Match 2 of 2, page 2 (1 on this page)")).toBeVisible();
+    await box.press("Enter"); // and wraps round
+    await expect(viewer.getByText("Match 1 of 2, page 1 (1 on this page)")).toBeVisible();
     await box.fill("gale");
     await box.press("Enter");
     await expect(viewer.getByText("No matches")).toBeVisible();
+    await expect(viewer.locator("[data-match]")).toHaveCount(0);
+    await box.fill("storm");
+    await box.press("Enter");
+    await expect(viewer.locator("[data-match]")).toHaveCount(1);
     await viewer.getByRole("button", { name: "Close search" }).click();
     await expect(box).toBeHidden();
+    await expect(viewer.locator("[data-match]")).toHaveCount(0);
     await viewer.getByRole("button", { name: "Search in PDF" }).click(); // open again, then close with the same button
     await expect(box).toBeVisible();
     await viewer.getByRole("button", { name: "Search in PDF" }).click();
@@ -352,7 +373,7 @@ test.describe("reference files", () => {
     await page.evaluate(() =>
       window.__emit!("tauri://drag-drop", { type: "over", position: { x: 0, y: 0 } }),
     );
-    await expect(panel(page).getByRole("list").getByRole("button")).toHaveCount(1);
+    await expect(panel(page).getByRole("list").getByRole("listitem")).toHaveCount(1);
   });
 
   test("the panel and Details swap places, and the choice is remembered", async ({ page }) => {
@@ -368,6 +389,88 @@ test.describe("reference files", () => {
     await page.getByRole("button", { name: "References", exact: true }).first().click();
     await page.getByRole("button", { name: "Details", exact: true }).click();
     await expect(page.getByRole("complementary", { name: "Details" })).toBeVisible();
+  });
+
+  test("reorders with the row menu and by dragging the grip, only while nothing is filtered", async ({
+    page,
+  }) => {
+    await withReferences(page, {
+      "/refs/one.png": PIXEL,
+      "/refs/two.png": PIXEL.slice(0, 60).concat([1]),
+      "/refs/three.png": PIXEL.slice(0, 50).concat([2, 3]),
+    });
+    const titles = () =>
+      panel(page)
+        .getByRole("listitem")
+        .evaluateAll((li) =>
+          li.map((x) => x.querySelector("button[aria-label]")!.getAttribute("aria-label")),
+        );
+    await expect.poll(titles).toEqual(["one", "two", "three"]);
+    await panel(page).getByRole("button", { name: "Actions for one" }).click();
+    await expect(page.getByRole("menuitem", { name: "Move up" })).toBeDisabled();
+    await page.getByRole("menuitem", { name: "Move down" }).click();
+    await expect.poll(titles).toEqual(["two", "one", "three"]);
+    await panel(page).getByRole("button", { name: "Actions for three" }).click();
+    await expect(page.getByRole("menuitem", { name: "Move down" })).toBeDisabled();
+    await page.getByRole("menuitem", { name: "Move up" }).click();
+    await expect.poll(titles).toEqual(["two", "three", "one"]);
+    // Drag the first row's grip below the last row.
+    const grip = panel(page).locator("[data-grip]").first();
+    const last = panel(page).getByRole("listitem").last();
+    const g = (await grip.boundingBox())!;
+    const l = (await last.boundingBox())!;
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(g.x + 4, l.y + l.height + 4, { steps: 5 });
+    await expect(panel(page).locator("[data-drop-line]")).toHaveCount(1);
+    await page.mouse.up();
+    await expect.poll(titles).toEqual(["three", "one", "two"]);
+    await expect(panel(page).locator("[data-drop-line]")).toHaveCount(0);
+    // Dropping where it started changes nothing.
+    const g2 = (await panel(page).locator("[data-grip]").first().boundingBox())!;
+    await page.mouse.move(g2.x + 4, g2.y + 4);
+    await page.mouse.down();
+    await page.mouse.move(g2.x + 4, g2.y + 8, { steps: 2 });
+    await page.mouse.up();
+    await expect.poll(titles).toEqual(["three", "one", "two"]);
+    // A filter hides the grips and the menu cannot move rows.
+    await panel(page).getByRole("button", { name: "Images" }).click();
+    await expect(panel(page).getByText("Clear search and filters to reorder")).toBeVisible();
+    await expect(panel(page).locator("[data-grip]")).toHaveCount(0);
+    await panel(page).getByRole("button", { name: "Actions for one" }).click();
+    await expect(page.getByRole("menuitem", { name: "Move up" })).toBeDisabled();
+    await page.keyboard.press("Escape");
+    // The order is in the manifest.
+    await panel(page).getByRole("button", { name: "All" }).click();
+    expect((await manifestOf(page)).references.map((r: { title: string }) => r.title)).toEqual([
+      "three",
+      "one",
+      "two",
+    ]);
+  });
+
+  test("removes a reference from its row menu", async ({ page }) => {
+    await withReferences(page, { "/refs/one.png": PIXEL });
+    await panel(page).getByRole("button", { name: "Actions for one" }).click();
+    await page.getByRole("menuitem", { name: "Open" }).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await panel(page).getByRole("button", { name: "Actions for one" }).click();
+    await page.getByRole("menuitem", { name: "Remove from book" }).click();
+    await expect(panel(page).getByRole("listitem")).toHaveCount(0);
+  });
+
+  test("on a tablet the library is a side drawer that closes with its button", async ({ page }) => {
+    await page.setViewportSize({ width: 820, height: 1180 });
+    await withReferences(page, { "/refs/one.png": PIXEL });
+    const drawer = page.getByRole("dialog", { name: "References" });
+    await expect(drawer).toBeVisible();
+    const box = (await drawer.boundingBox())!;
+    expect(box.width).toBeLessThan(500);
+    expect(box.x + box.width).toBeGreaterThan(800);
+    await expect(drawer.getByRole("button", { name: "Add files" })).toBeVisible();
+    await drawer.getByRole("button", { name: "Close references" }).click();
+    await expect(drawer).toBeHidden();
   });
 
   test("on a phone the library opens as a dialog and a reference opens its viewer", async ({

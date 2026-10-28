@@ -300,6 +300,8 @@ msgid "Acknowledgments"
 msgstr "Acknowledgments"
 
 #. placeholder {0}: c.title
+#. placeholder {0}: reference.title
+#: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
 msgid "Actions for {0}"
 msgstr "Actions for {0}"
@@ -720,6 +722,10 @@ msgstr "Choose…"
 msgid "Clear Menu"
 msgstr "Clear Menu"
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Clear search and filters to reorder"
+msgstr "Clear search and filters to reorder"
+
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/editor/FindBar.tsx
@@ -733,6 +739,10 @@ msgstr "Close chapters"
 #: src/app/shell/menuModel.ts
 msgid "Close Project"
 msgstr "Close Project"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Close references"
+msgstr "Close references"
 
 #: src/app/references/PdfSearch.tsx
 msgid "Close search"
@@ -864,6 +874,11 @@ msgstr "Could not redo: {why}"
 #: src/state/project/references.ts
 msgid "Could not remove {0}: {1}"
 msgstr "Could not remove {0}: {1}"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not reorder the references: {0}"
+msgstr "Could not reorder the references: {0}"
 
 #. placeholder {0}: errText(e)
 #: src/state/project/references.ts
@@ -1020,6 +1035,11 @@ msgstr "Download selected ({0} MB)"
 #: src/app/export/AudioExport.tsx
 msgid "Downloading…"
 msgstr "Downloading…"
+
+#. placeholder {0}: reference.title
+#: src/app/references/ReferenceRow.tsx
+msgid "Drag to reorder {0}"
+msgstr "Drag to reorder {0}"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Drop files here to add them"
@@ -1634,6 +1654,12 @@ msgstr "Markdown has no syntax for them, so they are written as HTML tags. Leave
 msgid "Markdown…"
 msgstr "Markdown…"
 
+#. placeholder {0}: hits.at + 1
+#. placeholder {1}: current.page
+#: src/app/references/PdfSearch.tsx
+msgid "Match {0} of {total}, page {1} ({onPage} on this page)"
+msgstr "Match {0} of {total}, page {1} ({onPage} on this page)"
+
 #: src/editor/FindBar.tsx
 msgid "Match case"
 msgstr "Match case"
@@ -1691,6 +1717,7 @@ msgstr "Move {0}"
 msgid "Move {0} to trash"
 msgstr "Move {0} to trash"
 
+#: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
 msgid "Move down"
 msgstr "Move down"
@@ -1700,6 +1727,7 @@ msgstr "Move down"
 msgid "Move to trash"
 msgstr "Move to trash"
 
+#: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
 msgid "Move up"
 msgstr "Move up"
@@ -1885,6 +1913,10 @@ msgstr "One file for the whole book with chapters and your cover, about 29 MB pe
 msgid "Only in the current text"
 msgstr "Only in the current text"
 
+#: src/app/references/ReferenceRow.tsx
+msgid "Open"
+msgstr "Open"
+
 #: src/app/settings/Settings.tsx
 msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 msgstr "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
@@ -1924,13 +1956,6 @@ msgstr "Other"
 #: src/app/export/AudioExport.tsx
 msgid "Packing the audiobook…"
 msgstr "Packing the audiobook…"
-
-#. placeholder {0}: hits[at]
-#. placeholder {1}: at + 1
-#. placeholder {2}: hits.length
-#: src/app/references/PdfSearch.tsx
-msgid "Page {0}, {1} of {2}"
-msgstr "Page {0}, {1} of {2}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
@@ -2189,6 +2214,7 @@ msgid "Remove cover"
 msgstr "Remove cover"
 
 #: src/app/references/ReferenceDetails.tsx
+#: src/app/references/ReferenceRow.tsx
 msgid "Remove from book"
 msgstr "Remove from book"
 

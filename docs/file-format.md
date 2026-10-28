@@ -104,7 +104,7 @@ Research files the author keeps next to the book to look at while writing: image
 - `references` is a list in the manifest, in the order the author sees it. Each item has `id` (starts with a letter, letters, digits, `-` and `_`, unique among references), `file` (`references/<name>`, unique), `title` (non-empty, free text), `note` (free text, may be empty), `tags` (list of unique non-empty strings), `chapters` (ids of chapters or matter pages the reference is linked to) and `addedAt` (ISO 8601 date and time).
 - A chapter id in `chapters` that no longer exists is ignored by the app and reported by `cadabra_project_validate`; the manifest still opens. Removing a chapter or matter page removes its links.
 - The app never deletes a reference file for good: removing a reference takes it out of the list and moves the file to `.cadabra/trash`. A file in `references/` that is not listed is simply left alone.
-- Allowed types and size limits are enforced when importing (see architecture.md); the manifest does not store them. Reading a reference never changes the file.
+- Allowed types and size limits are enforced when importing, by the app and by the MCP tool `cadabra_reference_add` alike (see architecture.md); the manifest does not store them. Reading a reference never changes the file.
 - Why a version bump: an older app would rewrite the manifest without `references` and silently lose the list, so version 4 apps refuse a version 5 project.
 
 ## Writes and conflicts

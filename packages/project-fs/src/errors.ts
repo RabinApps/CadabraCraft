@@ -10,6 +10,8 @@ export type ProjectFsErrorCode =
   | "unsupported_image"
   | "bad_image"
   | "image_dimensions"
+  | "unsupported_reference"
+  | "bad_reference"
   | "too_large"
   | "unsupported_source"
   | "permission_denied"

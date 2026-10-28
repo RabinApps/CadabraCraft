@@ -16,6 +16,9 @@ const EXPECTED = [
   "cadabra_chapter_write_markdown",
   "cadabra_chapter_write_json",
   "cadabra_import_file",
+  "cadabra_reference_list",
+  "cadabra_reference_add",
+  "cadabra_reference_update",
   "cadabra_export_epub",
   "cadabra_export_pdf",
   "cadabra_export_markdown",
@@ -31,6 +34,7 @@ const READ_ONLY = [
   "inspect_pdf",
   "inspect_epub",
   "list_templates",
+  "reference_list",
 ].map((n) => `cadabra_${n}`);
 
 describe("tool registry", () => {

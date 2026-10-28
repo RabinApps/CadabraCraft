@@ -92,3 +92,14 @@ export function filterReferences(refs: Reference[], f: ReferenceFilter): Referen
 /** Every tag in use, alphabetical. */
 export const allTags = (refs: Reference[]): string[] =>
   [...new Set(refs.flatMap((r) => r.tags))].sort((a, b) => a.localeCompare(b));
+
+/** True when the list shows every reference, so its order can be changed (a search, type or tag filter hides some). */
+export const canReorder = (f: ReferenceFilter): boolean =>
+  f.query.trim() === "" && f.kind === "all" && f.tag === null;
+
+/** Where a dragged row would land: the number of rows whose middle is above `y` (0 = before the first row). */
+export const insertionIndex = (middles: number[], y: number): number =>
+  middles.filter((m) => m < y).length;
+
+/** The list position a row ends up at when it is dropped at insertion point `at` (the row's own removal shifts later points up). */
+export const dropPosition = (from: number, at: number): number => (at > from ? at - 1 : at);

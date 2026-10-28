@@ -40,6 +40,9 @@ export type ErrorCode =
   | "template_unknown"
   | "unsupported_image"
   | "invalid_image"
+  | "unsupported_reference"
+  | "invalid_reference"
+  | "reference_not_found"
   | "asset_missing"
   | "icloud_placeholder"
   | "typst_missing"
@@ -77,6 +80,8 @@ const FS_CODES: Record<ProjectFsError["code"], ErrorCode> = {
   too_large: "too_large",
   unsupported_source: "source_invalid",
   image_dimensions: "invalid_image",
+  unsupported_reference: "unsupported_reference",
+  bad_reference: "invalid_reference",
   permission_denied: "io_error",
   disk_full: "io_error",
   io_error: "io_error",

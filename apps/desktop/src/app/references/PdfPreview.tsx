@@ -6,18 +6,22 @@ import { errText } from "../../lib/projectError";
 import { readReferenceBytes } from "../../lib/references";
 import { IconButton } from "../../ui/Button";
 import { Notice } from "../../ui/Notice";
-import { PdfSearch } from "./PdfSearch";
+import { toScreen } from "../../lib/pdfSearch";
+import { PdfSearch, type PdfHits } from "./PdfSearch";
 
 const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 
-/** A PDF drawn page by page on a canvas with pdf.js (loaded when the first PDF is opened). */
+/** A PDF drawn page by page on a canvas with pdf.js (loaded when the first PDF is opened); search hits are boxes over the canvas. */
 export function PdfPreview({ root, file }: { root: string; file: string }) {
   const { t } = useLingui();
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [zoom, setZoom] = useState(2);
+  const [hits, setHits] = useState<PdfHits | null>(null);
+  const [transform, setTransform] = useState<number[] | null>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const focused = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     let task: { destroy: () => Promise<void> } | null = null;
@@ -49,6 +53,7 @@ export function PdfPreview({ root, file }: { root: string; file: string }) {
       target.width = viewport.width;
       target.height = viewport.height;
       target.style.width = `${viewport.width / ratio}px`;
+      setTransform(p.getViewport({ scale: ZOOMS[zoom]! }).transform);
       task = p.render({ canvas: target, viewport });
       await task.promise;
     })().catch(() => {
@@ -58,6 +63,10 @@ export function PdfPreview({ root, file }: { root: string; file: string }) {
       task?.cancel();
     };
   }, [doc, page, zoom]);
+
+  useEffect(() => {
+    focused.current?.scrollIntoView?.({ block: "center", inline: "center" });
+  }, [hits, page, transform]);
 
   if (error)
     return <Notice role="alert" className="m-4">{t`Could not show this PDF: ${error}`}</Notice>;
@@ -98,14 +107,33 @@ export function PdfPreview({ root, file }: { root: string; file: string }) {
           disabled={zoom >= ZOOMS.length - 1}
           onClick={() => setZoom(zoom + 1)}
         />
-        <PdfSearch doc={doc} onGo={setPage} />
+        <PdfSearch doc={doc} onGo={setPage} onHits={setHits} />
       </div>
       <div className="flex min-h-0 flex-1 justify-center overflow-auto bg-sidebar p-4">
-        <canvas
-          ref={canvas}
-          aria-label={t`PDF page ${page}`}
-          className="h-fit bg-white shadow-popover"
-        />
+        <div className="relative h-fit">
+          <canvas
+            ref={canvas}
+            aria-label={t`PDF page ${page}`}
+            className="block bg-white shadow-popover"
+          />
+          {transform &&
+            hits?.matches.flatMap((m, i) =>
+              m.page !== page
+                ? []
+                : m.rects.map((r, k) => (
+                    <span
+                      key={`${i}-${k}`}
+                      ref={i === hits.at && k === 0 ? focused : undefined}
+                      aria-hidden="true"
+                      data-match={i === hits.at ? "current" : "other"}
+                      style={toScreen(r, transform)}
+                      className={`pointer-events-none absolute mix-blend-multiply ${
+                        i === hits.at ? "bg-accent/50 outline-2 outline-accent" : "bg-accent/25"
+                      }`}
+                    />
+                  )),
+            )}
+        </div>
       </div>
     </div>
   );

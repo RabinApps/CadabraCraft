@@ -191,6 +191,8 @@ export interface ReferenceActions {
   /** Imports files into `references/` and lists them in the book. Without `paths` it asks the author to pick files. Duplicates and refused files become `referenceNotices`; nothing throws. */
   addReferences: (paths?: string[]) => Promise<void>;
   /** Changes a reference's title, note, tags or linked pages. Failures set `notice`. */
+  /** Puts a reference at position `to` of the list and saves. */
+  moveReference: (id: string, to: number) => Promise<void>;
   updateReference: (
     id: string,
     patch: Partial<Pick<Reference, "title" | "note" | "tags" | "chapters">>,

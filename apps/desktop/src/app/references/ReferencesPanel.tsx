@@ -1,13 +1,22 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { Grid2x2, List, Plus, Upload, X } from "lucide-react";
-import { allTags, filterReferences, NO_FILTER, type ReferenceKind } from "../../lib/referenceKinds";
+import { ArrowUpDown, Grid2x2, List, Plus, Upload, X } from "lucide-react";
+import {
+  allTags,
+  canReorder,
+  dropPosition,
+  filterReferences,
+  insertionIndex,
+  NO_FILTER,
+  type ReferenceKind,
+} from "../../lib/referenceKinds";
 import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
 import { Button, IconButton } from "../../ui/Button";
 import { Chip } from "../../ui/Chip";
 import { Field } from "../../ui/Input";
 import { Notice } from "../../ui/Notice";
+import { cx } from "../../ui/cx";
 import { ProgressBar } from "../../ui/ProgressBar";
 import { ReferenceRow } from "./ReferenceRow";
 import { useReferenceDrop } from "./useReferenceDrop";
@@ -16,10 +25,28 @@ interface Props {
   /** The reference shown in the viewer, if any. */
   openId?: string | null;
   onOpen: (id: string) => void;
+  /** Given when the panel is a drawer: shows a close button next to Add files. */
+  onClose?: () => void;
+}
+
+/** The line that shows where a dragged row will land, drawn in the gap above (or below) a row so the list does not move. */
+function DropLine({ below }: { below?: boolean }) {
+  return (
+    <span
+      aria-hidden
+      data-drop-line
+      className={cx(
+        "pointer-events-none absolute inset-x-0 h-[3px] rounded-full bg-accent",
+        below ? "-bottom-[5.5px]" : "-top-[5.5px]",
+      )}
+    >
+      <span className="absolute -start-1 -top-[3px] size-[9px] rounded-full bg-accent" />
+    </span>
+  );
 }
 
 /** The author's reference library: search, filter by kind and tag, add files, and open one in the viewer. */
-export function ReferencesPanel({ openId, onOpen }: Props) {
+export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
   const { t } = useLingui();
   const references = useProject((s) => s.manifest!.references);
   const notices = useProject((s) => s.referenceNotices);
@@ -28,6 +55,42 @@ export function ReferencesPanel({ openId, onOpen }: Props) {
   const [filter, setFilter] = useState(NO_FILTER);
   const [grid, setGrid] = useState(false);
   useReferenceDrop();
+  const reorderable = canReorder(filter) && !grid;
+  /** The row being dragged and the insertion point (0 = before the first row) under the pointer. */
+  const [drag, setDrag] = useState<{ id: string; at: number } | null>(null);
+  const at = useRef(0);
+  const list = useRef<HTMLUListElement>(null);
+  const dragId = drag?.id;
+  useEffect(() => {
+    if (!dragId) return;
+    const move = (e: globalThis.PointerEvent) => {
+      const rows = [...list.current!.children].map((li) => li.getBoundingClientRect());
+      at.current = insertionIndex(
+        rows.map((r) => r.top + r.height / 2),
+        e.clientY,
+      );
+      setDrag({ id: dragId, at: at.current });
+    };
+    const drop = () => {
+      const from = references.findIndex((r) => r.id === dragId);
+      setDrag(null);
+      const to = dropPosition(from, at.current);
+      if (to !== from) attempt(actions.moveReference(dragId, to));
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", drop);
+    window.addEventListener("pointercancel", drop);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", drop);
+      window.removeEventListener("pointercancel", drop);
+    };
+  }, [dragId, references, actions]);
+  const grab = (id: string, index: number) => (e: PointerEvent<HTMLElement>) => {
+    e.preventDefault();
+    at.current = index;
+    setDrag({ id, at: index });
+  };
   const tags = useMemo(() => allTags(references), [references]);
   const shown = useMemo(() => filterReferences(references, filter), [references, filter]);
   const kinds: [ReferenceKind | "all", string][] = [
@@ -44,7 +107,10 @@ export function ReferencesPanel({ openId, onOpen }: Props) {
     <section aria-label={t`References`} className="flex h-full min-h-0 flex-col gap-3 p-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-lead font-semibold">{t`References`}</h2>
-        <Button variant="primary" size="sm" icon={Plus} onClick={add}>{t`Add files`}</Button>
+        <div className="flex items-center gap-1">
+          <Button variant="primary" size="sm" icon={Plus} onClick={add}>{t`Add files`}</Button>
+          {onClose && <IconButton icon={X} label={t`Close references`} onClick={onClose} />}
+        </div>
       </div>
       <div className="flex items-end gap-2">
         <div className="min-w-0 flex-1">
@@ -63,6 +129,12 @@ export function ReferencesPanel({ openId, onOpen }: Props) {
           onClick={() => setGrid(!grid)}
         />
       </div>
+      {!reorderable && !grid && references.length > 1 && (
+        <p className="flex items-center gap-1.5 text-xs text-ink-muted">
+          <ArrowUpDown size={14} aria-hidden />
+          {t`Clear search and filters to reorder`}
+        </p>
+      )}
       <div role="group" aria-label={t`Filter by type`} className="flex flex-wrap gap-1.5">
         {kinds.map(([kind, label]) => (
           <Chip
@@ -128,14 +200,30 @@ export function ReferencesPanel({ openId, onOpen }: Props) {
         ) : shown.length === 0 ? (
           <p className="py-6 text-center text-sm text-ink-muted">{t`No references match.`}</p>
         ) : (
-          <ul className={grid ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2"}>
-            {shown.map((r) => (
-              <li key={r.id} className="min-w-0">
-                <ReferenceRow
-                  reference={r}
-                  selected={r.id === openId}
-                  onOpen={() => onOpen(r.id)}
-                />
+          <ul ref={list} className={grid ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2"}>
+            {shown.map((r, i) => (
+              <li key={r.id} className="relative min-w-0">
+                {drag && drag.at === i && <DropLine />}
+                {drag && drag.at === shown.length && i === shown.length - 1 && <DropLine below />}
+                <div>
+                  <ReferenceRow
+                    reference={r}
+                    selected={r.id === openId}
+                    onOpen={() => onOpen(r.id)}
+                    onRemove={() => attempt(actions.removeReference(r.id))}
+                    {...(reorderable
+                      ? {
+                          reorder: {
+                            onGrab: grab(r.id, i),
+                            onMove: (d: number) => attempt(actions.moveReference(r.id, i + d)),
+                            first: i === 0,
+                            last: i === shown.length - 1,
+                            dragging: drag?.id === r.id,
+                          },
+                        }
+                      : {})}
+                  />
+                </div>
               </li>
             ))}
           </ul>

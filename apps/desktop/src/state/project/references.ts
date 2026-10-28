@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import {
   addReference,
   removeReference as removeFromManifest,
+  moveReference as moveInManifest,
   treeOf,
   updateReference as updateInManifest,
 } from "@cadabracraft/format";
@@ -52,6 +53,13 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
         await saveManifest(updateInManifest(need().manifest, id, patch));
       } catch (e) {
         set({ notice: t`Could not save the reference: ${errText(e)}` });
+      }
+    },
+    async moveReference(id, to) {
+      try {
+        await saveManifest(moveInManifest(need().manifest, id, to));
+      } catch (e) {
+        set({ notice: t`Could not reorder the references: ${errText(e)}` });
       }
     },
     async removeReference(id) {

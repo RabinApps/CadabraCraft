@@ -36,6 +36,8 @@ describe("toToolError", () => {
       unsupported_image: "unsupported_image",
       bad_image: "invalid_image",
       image_dimensions: "invalid_image",
+      unsupported_reference: "unsupported_reference",
+      bad_reference: "invalid_reference",
       too_large: "too_large",
       unsupported_source: "source_invalid",
       permission_denied: "io_error",
