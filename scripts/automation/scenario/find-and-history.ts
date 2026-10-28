@@ -1,9 +1,11 @@
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
 export async function findAndHistorySteps({
   app,
+  repo,
   book,
   shot,
   openMenu,
@@ -14,7 +16,7 @@ export async function findAndHistorySteps({
   args,
 }: Context) {
   await step(
-    "audiobook: the menu opens the dialog, Chapters select limits the chapters, a real render fills the cache; Settings > Audio lists the voices",
+    "audiobook: the menu opens the dialog, Chapters select limits the chapters, a real render fills the cache, M4B packs chapters and the cover; Settings > Audio lists the voices",
     async () => {
       await runMenu("file.exportAudiobook");
       const text = () => dlg<string>(`return d.textContent;`);
@@ -92,7 +94,32 @@ export async function findAndHistorySteps({
             statSync(join(audioDir, f)).mtimeMs === m,
             `${f} was rendered again although nothing changed`,
           );
-        detail = `a sample played without writing files; ${files.length} file(s) rendered once; the second export reused them from the cache`;
+        // M4B: one book file with chapters and the cover, built from the chapters' lossless parts by the bundled ffmpeg.
+        await app.click("Done");
+        await app.sleep(600);
+        await runMenu("file.exportAudiobook");
+        for (let i = 0; i < 20 && !/Chapters/.test(await text()); i++) await app.sleep(500);
+        await dlg(
+          `const l = [...d.querySelectorAll("label")].find((e) => e.textContent.trim() === "M4B audiobook"); const c = l && document.getElementById(l.htmlFor); if (!c) throw new Error("no M4B checkbox"); c.click(); return "ticked";`,
+        );
+        await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
+        const m4b = join(audioDir, "scenario-book.m4b");
+        for (
+          let i = 0;
+          i < 240 && !(existsSync(m4b) && /Your audiobook is ready/.test(await text()));
+          i++
+        )
+          await app.sleep(500);
+        assert(existsSync(m4b) && statSync(m4b).size > 1000, "no M4B was written to exports/audio");
+        const host = /host: (.*)/.exec(execFileSync("rustc", ["-vV"], { encoding: "utf8" }))?.[1];
+        const ffmpeg = join(repo, "apps/desktop/src-tauri/binaries", `ffmpeg-${host}`);
+        const info = spawnSync(ffmpeg, ["-hide_banner", "-i", m4b], { encoding: "utf8" }).stderr;
+        assert(info.includes("Audio: aac"), `the M4B has no AAC audio:\n${info}`);
+        assert(info.includes("Chapter #0:0"), `the M4B has no chapter markers:\n${info}`);
+        assert(info.includes("(attached pic)"), `the M4B has no cover picture:\n${info}`);
+        assert(info.includes("title           : Scenario Book"), `the M4B has no title:\n${info}`);
+        assert(existsSync(join(book, ".cadabra/audio/parts")), "no chapter parts were kept");
+        detail = `a sample played without writing files; ${files.length} file(s) rendered once; the second export reused them from the cache; the M4B has AAC, chapters, a cover and a title`;
       } else {
         assert(
           first.includes("only time CadabraCraft uses the network"),
