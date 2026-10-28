@@ -56,9 +56,9 @@ jobs:
         with:
           targets: ${{ matrix.rust-targets }}
       - name: Bundled Typst and fonts
-        run: bash scripts/fetch-typst.sh ${{ runner.os == 'kinhin-xcode' && '--all' || '' }}
+        run: bash scripts/fetch-typst.sh ${{ matrix.os == 'kinhin-xcode' && '--all' || '' }}
       - name: Bundled voice engine (sherpa-onnx)
-        run: bash scripts/fetch-sherpa.sh ${{ runner.os == 'kinhin-xcode' && '--all' || '' }}
+        run: bash scripts/fetch-sherpa.sh ${{ matrix.os == 'kinhin-xcode' && '--all' || '' }}
       - name: MSYS2 toolchain for ffmpeg
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
@@ -68,7 +68,7 @@ jobs:
           install: make diffutils mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-zlib
       - name: Bundled audio encoder (ffmpeg)
         if: runner.os != 'Windows'
-        run: bash scripts/fetch-ffmpeg.sh ${{ runner.os == 'kinhin-xcode' && '--all' || '' }}
+        run: bash scripts/fetch-ffmpeg.sh ${{ matrix.os == 'kinhin-xcode' && '--all' || '' }}
       - name: Bundled audio encoder (ffmpeg, Windows)
         if: runner.os == 'Windows'
         shell: msys2 {0}

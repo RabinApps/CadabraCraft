@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { PdfExportError } from "../errors";
-import { loadMatterBook, matterPages, page } from "../matterBook";
+import { loadMatterBook, matterPages, page } from "./matterBook";
 import { buildTypst } from "../typst";
 
 const book = { title: "The Long Quay", author: "Test Author", language: "en" };

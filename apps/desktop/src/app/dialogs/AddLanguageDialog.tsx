@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Modal } from "../../ui/Dialog";
 import { Button } from "../../ui/Button";
@@ -26,6 +26,16 @@ export function AddLanguageDialog({ open, onOpenChange }: Props) {
   const [mode, setMode] = useState<"copy" | "empty">("copy");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const firstAvailable = available[0]?.code ?? "";
+  // Each opening starts fresh: the language added last time is no longer on offer, and an old error must not linger.
+  useEffect(() => {
+    if (!open) return;
+    setLanguage(firstAvailable);
+    setMode("copy");
+    setError("");
+  }, [open, firstAvailable]);
+  const sourceCode = editions[0]?.language ?? "";
+  const sourceName = LOCALES.find((l) => l.code === sourceCode)?.nativeName ?? sourceCode;
   const add = async () => {
     setBusy(true);
     setError("");
@@ -70,7 +80,7 @@ export function AddLanguageDialog({ open, onOpenChange }: Props) {
                 [
                   "copy",
                   t`Start from a copy of the source`,
-                  t`Chapters start as English copies, marked Not translated yet.`,
+                  t`Chapters start as ${sourceName} copies, marked Not translated yet.`,
                 ],
                 ["empty", t`Start empty`, t`Every chapter starts blank.`],
               ] as const

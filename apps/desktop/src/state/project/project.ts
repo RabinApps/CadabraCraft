@@ -13,11 +13,12 @@ import {
 } from "@cadabracraft/format";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
+import { forgetProjectAssets } from "../../lib/assets";
 import { runImport } from "../../lib/importBook";
-import { errText } from "../../lib/projectError";
+import { errText, noManifestMessage } from "../../lib/projectError";
 import { useSettings } from "../editorPrefs";
 import { parseChapter, bestEffort, NO_HISTORY } from "./util";
-import type { ProjectActions } from "./types";
+import type { ProjectActions, ProjectState } from "./types";
 import type { Ctx } from "./context";
 
 /** Opening, closing and creating a book, changes from outside the app, import, and the book-level settings in cadabra.json. */
@@ -25,6 +26,88 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
   const { set, get, need, saveManifest, flush, load, resetWordCache, forgetWords } = ctx;
   /** An import is running: a second one is refused instead of racing it. */
   let importing = false;
+  /** The open that is running, so a second one (a double click on a recent book) joins it instead of racing it. */
+  let opening: Promise<void> | null = null;
+  const closedState: Partial<ProjectState> = {
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    activeLanguage: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    history: NO_HISTORY,
+    trash: [],
+    recovery: [],
+    importReport: null,
+    audio: null,
+  };
+  const openNow = async (root: string): Promise<void> => {
+    await flush(); // typing in the book being left
+    const r = await bridge.readFile(root, "cadabra.json");
+    if (!r) throw new Error(noManifestMessage());
+    const parsed = parseManifest(r.contents);
+    resetWordCache();
+    const previous = get().root;
+    if (previous && previous !== root) forgetProjectAssets(previous);
+    set({
+      root,
+      manifest: parsed.manifest,
+      hashes: { "cadabra.json": r.hash },
+      currentId: null,
+      currentDoc: null,
+      activeLanguage: null,
+      notice: "",
+      history: NO_HISTORY,
+      trash: [],
+      recovery: [],
+    });
+    try {
+      await finishOpen(root, parsed);
+    } catch (e) {
+      // Never stay half open (a book on screen that is not watched): go back to no book.
+      set({ ...closedState });
+      throw e;
+    }
+  };
+  const finishOpen = async (root: string, parsed: ReturnType<typeof parseManifest>) => {
+    const pageFiles = readingOrder(parsed.manifest).map((e) =>
+      sourceFile(e, parsed.manifest.editions),
+    );
+    // Offered before any page is opened: a page that was put back to older text by a sync folder is easy to miss otherwise.
+    const stale = await bestEffort(() => bridge.findStalePages(root, pageFiles), []);
+    const recovery = stale.flatMap((x) => {
+      const e = readingOrder(parsed.manifest).find(
+        (m) => sourceFile(m, parsed.manifest.editions) === x.path,
+      );
+      return e
+        ? [
+            {
+              id: e.id,
+              title: sourceTitle(e, parsed.manifest.editions),
+              file: sourceFile(e, parsed.manifest.editions),
+              snapshot: x.snapshot,
+            },
+          ]
+        : [];
+    });
+    set({ recovery });
+    if (parsed.migrated) {
+      const backup = await bridge.backupManifest(root);
+      await saveManifest(parsed.manifest);
+      set({
+        notice: t`Project upgraded from format ${parsed.fromVersion}; backup saved to ${backup}`,
+      });
+    }
+    const first = parsed.manifest.chapters[0] ?? readingOrder(parsed.manifest)[0];
+    if (first) await load(first.id);
+    await bridge.watchProject(root);
+    void bestEffort(
+      () => bridge.pruneSnapshots(root, pageFiles, useSettings.getState().snapshotKeep),
+      0,
+    );
+  };
   return {
     async externalChange(path) {
       const { root, manifest, hashes } = get();
@@ -72,63 +155,17 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         notice: t`${ctx.titleIn(entry, manifest, language)} was updated from outside the app`,
       });
     },
-    async openProject(root) {
-      await flush(); // typing in the book being left
-      const r = await bridge.readFile(root, "cadabra.json");
-      if (!r) throw new Error(t`No cadabra.json in that folder`);
-      const parsed = parseManifest(r.contents);
-      resetWordCache();
-      set({
-        root,
-        manifest: parsed.manifest,
-        hashes: { "cadabra.json": r.hash },
-        currentId: null,
-        currentDoc: null,
-        activeLanguage: null,
-        notice: "",
-        history: NO_HISTORY,
-        trash: [],
-        recovery: [],
+    openProject(root) {
+      opening ??= openNow(root).finally(() => {
+        opening = null;
       });
-      const pageFiles = readingOrder(parsed.manifest).map((e) =>
-        sourceFile(e, parsed.manifest.editions),
-      );
-      // Offered before any page is opened: a page that was put back to older text by a sync folder is easy to miss otherwise.
-      const stale = await bestEffort(() => bridge.findStalePages(root, pageFiles), []);
-      const recovery = stale.flatMap((x) => {
-        const e = readingOrder(parsed.manifest).find(
-          (m) => sourceFile(m, parsed.manifest.editions) === x.path,
-        );
-        return e
-          ? [
-              {
-                id: e.id,
-                title: sourceTitle(e, parsed.manifest.editions),
-                file: sourceFile(e, parsed.manifest.editions),
-                snapshot: x.snapshot,
-              },
-            ]
-          : [];
-      });
-      set({ recovery });
-      if (parsed.migrated) {
-        const backup = await bridge.backupManifest(root);
-        await saveManifest(parsed.manifest);
-        set({
-          notice: t`Project upgraded from format ${parsed.fromVersion}; backup saved to ${backup}`,
-        });
-      }
-      const first = parsed.manifest.chapters[0] ?? readingOrder(parsed.manifest)[0];
-      if (first) await load(first.id);
-      await bridge.watchProject(root);
-      void bestEffort(
-        () => bridge.pruneSnapshots(root, pageFiles, useSettings.getState().snapshotKeep),
-        0,
-      );
+      return opening;
     },
     async closeProject() {
       await flush();
       resetWordCache();
+      const root = get().root;
+      if (root) forgetProjectAssets(root);
       set({
         root: null,
         manifest: null,
@@ -236,6 +273,9 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       validateManifest(next);
       if (JSON.stringify(next) === JSON.stringify(manifest)) return;
       await saveManifest(next);
+      // The source language is the key of the shown edition: a stale `activeLanguage` would point at an edition that is gone.
+      if (language !== source!.language && get().activeLanguage === source!.language)
+        set({ activeLanguage: null });
     },
   };
 };

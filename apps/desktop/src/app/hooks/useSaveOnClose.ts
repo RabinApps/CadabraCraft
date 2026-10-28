@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { t } from "@lingui/core/macro";
-import { createCloseHandler } from "../shell/closeGuard";
+import { closeRequest } from "../shell/quit";
 import { useProject } from "../../state/project/index";
 
 /**
@@ -26,18 +25,7 @@ export function useSaveOnClose() {
     let gone = false;
     try {
       const win = getCurrentWindow();
-      const handle = createCloseHandler(
-        {
-          hasUnsaved: () => useProject.getState().draft !== null,
-          flush: () => useProject.getState().actions.flush(),
-          onSaveFailed: (message) =>
-            useProject.setState({
-              notice: t`Your last changes could not be saved (${message}). Close the window again to leave without them.`,
-            }),
-        },
-        () => win.destroy(),
-      );
-      win.onCloseRequested(handle).then(
+      win.onCloseRequested(closeRequest).then(
         (un) => {
           if (gone) un();
           else unlisten = un;

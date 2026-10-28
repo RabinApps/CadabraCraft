@@ -5,7 +5,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { MissingAssetError, PdfExportError } from "../errors";
-import { loadMatterBook } from "../matterBook";
+import { loadMatterBook } from "./matterBook";
 import { createNodeRunner } from "../node";
 import { renderPdf } from "../render";
 import { buildTypstDocument } from "../typst";

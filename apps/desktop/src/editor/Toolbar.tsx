@@ -27,6 +27,7 @@ import { Button, IconButton } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { useRegisterCommands } from "../state/commands";
+import { attempt } from "../state/attempt";
 import { useProject } from "../state/project/index";
 import { TableCommands } from "./TableCommands";
 
@@ -208,7 +209,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
             .insertContent([{ type: "sceneBreak" }, { type: "paragraph" }])
             .run(),
       },
-      { id: "image", label: t`Image`, icon: ImageIcon, run: () => void addImage() },
+      { id: "image", label: t`Image`, icon: ImageIcon, run: () => attempt(addImage()) },
       {
         id: "footnote",
         label: t`Footnote`,

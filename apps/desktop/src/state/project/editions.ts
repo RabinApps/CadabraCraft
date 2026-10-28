@@ -14,7 +14,9 @@ export const createEditionActions = (ctx: Ctx): EditionActions => {
       if (!manifest.editions.some((e) => e.language === language))
         throw new Error(t`This book has no ${language} edition.`);
       await flush(); // typing is saved in the language it was typed in
-      set({ activeLanguage: language });
+      set({
+        activeLanguage: language === sourceEdition(manifest.editions).language ? null : language,
+      });
       await reloadCurrent();
     },
     async addLanguage(language, mode) {

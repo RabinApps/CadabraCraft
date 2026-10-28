@@ -178,6 +178,15 @@ describe("migration edge cases", () => {
 });
 
 describe("manifest validation", () => {
+  it.each(["1a", "a b", "../x", "a/b", "a.b", "é", "x".repeat(65)])(
+    "rejects the entry id %j (used as an XML id and file name by exports)",
+    (id) => {
+      bad(
+        (o) => (o.chapters = [{ id, titles: { en: "A" }, files: { en: "a.json" } }]),
+        /chapters\[0\]\.id" must start with a letter/,
+      );
+    },
+  );
   it("rejects bad shapes", () => {
     bad((o) => (o.editions = "x"), /"editions" must be an array/);
     bad((o) => (o.editions = [null]), /editions\[0\]\.language/);

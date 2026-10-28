@@ -102,6 +102,47 @@ describe("installing", () => {
     expect(bridge.relaunch).toHaveBeenCalledTimes(1);
   });
 
+  it("writes unsaved typing before and after the download, because the restart skips the window close", async () => {
+    const { store } = await fresh(null);
+    const { useProject } = await import("../project/index");
+    const order: string[] = [];
+    const flush = vi.fn(async () => {
+      order.push("flush");
+    });
+    useProject.setState({ actions: { ...useProject.getState().actions, flush } });
+    const update = found();
+    update.downloadAndInstall.mockImplementation(async () => {
+      order.push("install");
+    });
+    bridge.checkForUpdate.mockResolvedValue(update);
+    bridge.relaunch.mockImplementation(async () => {
+      order.push("relaunch");
+    });
+    await store.getState().check(false);
+    await store.getState().install();
+    expect(order).toEqual(["flush", "install", "flush", "relaunch"]);
+  });
+
+  it("does not install or restart when the typing cannot be saved", async () => {
+    const { store } = await fresh(null);
+    const { useProject } = await import("../project/index");
+    useProject.setState({
+      actions: {
+        ...useProject.getState().actions,
+        flush: async () => {
+          throw new Error("disk full");
+        },
+      },
+    });
+    const update = found();
+    bridge.checkForUpdate.mockResolvedValue(update);
+    await store.getState().check(false);
+    await store.getState().install();
+    expect(update.downloadAndInstall).not.toHaveBeenCalled();
+    expect(bridge.relaunch).not.toHaveBeenCalled();
+    expect(store.getState().status).toEqual({ kind: "error", message: "disk full" });
+  });
+
   it("a failed install keeps the dialog open with the error", async () => {
     const { store } = await fresh(null);
     const update = found();

@@ -66,6 +66,21 @@ fn hex(h: Sha256) -> String {
     h.finalize().iter().map(|b| format!("{b:02x}")).collect()
 }
 
+/// The hash state and length of a partial download, read from disk.
+fn rehash(path: &Path) -> Result<(Sha256, u64), AudioError> {
+    let (mut hasher, mut have) = (Sha256::new(), 0u64);
+    let mut f = File::open(path).map_err(io_err)?;
+    let mut buf = vec![0u8; 1 << 20];
+    loop {
+        let n = f.read(&mut buf).map_err(io_err)?;
+        if n == 0 {
+            return Ok((hasher, have));
+        }
+        hasher.update(&buf[..n]);
+        have += n as u64;
+    }
+}
+
 /// Downloads `url` to `dest`, resuming a `.part` file when the server honours `Range`, and renames it into place only
 /// when its size and sha256 match. `progress` receives the bytes of this file present so far (including resumed ones).
 /// Cancel leaves the `.part` file for a later resume; a hash mismatch deletes it.
@@ -79,16 +94,9 @@ pub async fn download_file(client: &reqwest::Client, url: &str, size: u64, sha25
     let (mut hasher, mut have) = (Sha256::new(), 0u64);
     if let Ok(md) = fs::metadata(&part) {
         if md.is_file() && md.len() <= size {
-            let mut f = File::open(&part).map_err(io_err)?;
-            let mut buf = vec![0u8; 1 << 20];
-            loop {
-                let n = f.read(&mut buf).map_err(io_err)?;
-                if n == 0 {
-                    break;
-                }
-                hasher.update(&buf[..n]);
-                have += n as u64;
-            }
+            // Rehashing a partly downloaded voice (up to hundreds of MB) is disk-bound work: keep it off the async threads.
+            let path = part.clone();
+            (hasher, have) = tauri::async_runtime::spawn_blocking(move || rehash(&path)).await.map_err(other)??;
         } else {
             let _ = fs::remove_file(&part);
         }
@@ -135,8 +143,8 @@ pub async fn download_file(client: &reqwest::Client, url: &str, size: u64, sha25
                 last = Instant::now();
             }
         }
-        out.flush().map_err(io_err)?;
-        out.sync_all().map_err(io_err)?;
+        // fsync can take a while on a slow disk; it must not hold an async thread.
+        tauri::async_runtime::spawn_blocking(move || out.flush().and_then(|()| out.sync_all())).await.map_err(other)?.map_err(io_err)?;
     }
     if cancel.load(Ordering::Relaxed) {
         return Err(AudioError::Cancelled);

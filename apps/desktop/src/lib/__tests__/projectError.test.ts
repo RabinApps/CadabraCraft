@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { errText, isProjectError, projectErrorMessage, type ProjectError } from "../projectError";
+import {
+  errText,
+  isMissingFolder,
+  isProjectError,
+  noManifestMessage,
+  projectErrorMessage,
+  type ProjectError,
+} from "../projectError";
 
 describe("projectErrorMessage", () => {
   const cases: [ProjectError, RegExp][] = [
@@ -59,5 +66,16 @@ describe("isProjectError", () => {
   it("rejects everything else", () => {
     for (const v of [null, undefined, "io", 3, new Error("x"), {}, { kind: 1 }, { kind: "nope" }])
       expect(isProjectError(v)).toBe(false);
+  });
+});
+
+describe("isMissingFolder", () => {
+  it("is true for a gone folder or one without a book, false for a book that could not be read", () => {
+    expect(isMissingFolder({ kind: "not_found", path: "cadabra.json" })).toBe(true);
+    expect(isMissingFolder({ kind: "not_a_project", path: "/x" })).toBe(true);
+    expect(isMissingFolder(new Error(noManifestMessage()))).toBe(true);
+    expect(isMissingFolder({ kind: "permission_denied", path: "/x" })).toBe(false);
+    expect(isMissingFolder(new Error("cadabra.json is not valid JSON"))).toBe(false);
+    expect(isMissingFolder("nope")).toBe(false);
   });
 });

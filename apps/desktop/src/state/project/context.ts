@@ -141,14 +141,28 @@ export function createContext(set: Set, get: Get) {
     flushTail = tail;
     return run;
   };
+  /** Counts page loads: a load that a newer one overtook stops without touching the store. */
+  let loadSeq = 0;
   const load = async (id: string) => {
-    await flush();
-    const { root, manifest } = need();
-    const entry = entryOf(manifest, id);
-    if (!entry) return;
-    const lang = langOf(manifest);
-    const file = entryFile(entry, lang);
-    const r = file ? await bridge.readFile(root, file) : null;
+    const seq = ++loadSeq;
+    let target: { root: string; manifest: Manifest; entry: EditionEntry; lang: string };
+    let file: string | undefined;
+    let r: Awaited<ReturnType<typeof bridge.readFile>>;
+    for (;;) {
+      await flush();
+      if (seq !== loadSeq) return;
+      const { root, manifest } = need();
+      const entry = entryOf(manifest, id);
+      if (!entry) return;
+      const lang = langOf(manifest);
+      target = { root, manifest, entry, lang };
+      file = entryFile(entry, lang);
+      r = file ? await bridge.readFile(root, file) : null;
+      if (seq !== loadSeq) return;
+      // Typing that arrived while the file was being read is written first (and the file read again), never dropped.
+      if (!get().draft) break;
+    }
+    const { manifest, entry, lang } = target;
     let doc: ChapterDoc;
     try {
       doc = r && file ? parseChapter(r.contents, file) : emptyDoc(titleIn(entry, manifest, lang));

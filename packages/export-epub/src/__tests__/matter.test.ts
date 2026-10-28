@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { strFromU8, unzipSync } from "fflate";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { buildEpub, type EpubChapter } from "../index";
-import { matterBook } from "../matterBook";
+import { matterBook } from "./matterBook";
 
 const meta = {
   title: "The Long Quay",

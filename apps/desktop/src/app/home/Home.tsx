@@ -8,7 +8,7 @@ import { useStartDialogs } from "../../state/commands";
 import type { ImportChoices } from "../../lib/importBook";
 import { ImportDialog } from "../dialogs/ImportDialogs";
 import { useRecents } from "../../state/recents";
-import { errText } from "../../lib/projectError";
+import { errText, isMissingFolder } from "../../lib/projectError";
 
 interface Props {
   error: string;
@@ -42,9 +42,19 @@ export function Home({
   const { creating, importing, setCreating, setImporting } = useStartDialogs();
   const { recents, remove } = useRecents();
   // Folders that failed to open (moved, renamed or deleted). The entry stays so the user removes it deliberately.
-  const [missing, setMissing] = useState<ReadonlySet<string>>(new Set());
+  // Value: what to tell the author about that entry (the real reason when the folder exists but the book could not be read).
+  const [missing, setMissing] = useState<ReadonlyMap<string, string>>(new Map());
   const openRecent = (root: string) =>
-    onOpenRecent(root).catch(() => setMissing((m) => new Set(m).add(root)));
+    onOpenRecent(root).catch((e: unknown) =>
+      setMissing((m) =>
+        new Map(m).set(
+          root,
+          isMissingFolder(e)
+            ? t`Folder not found. Remove it from the list or move it back.`
+            : t`Could not open this book: ${errText(e)}`,
+        ),
+      ),
+    );
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-ink">
       <header className="flex items-center justify-between px-4 py-3.5 md:px-12">
@@ -109,10 +119,9 @@ export function Home({
                         {r.root}
                       </span>
                       {missing.has(r.root) && (
-                        <span
-                          role="status"
-                          className="block text-xs text-danger"
-                        >{t`Folder not found. Remove it from the list or move it back.`}</span>
+                        <span role="status" className="block text-xs text-danger">
+                          {missing.get(r.root)}
+                        </span>
                       )}
                     </span>
                   </button>
@@ -122,7 +131,7 @@ export function Home({
                     onClick={() => {
                       remove(r.root);
                       setMissing((m) => {
-                        const n = new Set(m);
+                        const n = new Map(m);
                         n.delete(r.root);
                         return n;
                       });

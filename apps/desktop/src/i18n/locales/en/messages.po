@@ -599,8 +599,8 @@ msgid "Chapters"
 msgstr "Chapters"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
-msgid "Chapters start as English copies, marked Not translated yet."
-msgstr "Chapters start as English copies, marked Not translated yet."
+msgid "Chapters start as {sourceName} copies, marked Not translated yet."
+msgstr "Chapters start as {sourceName} copies, marked Not translated yet."
 
 #: src/app/export/AudioExport.tsx
 msgid "Chapters to read"
@@ -756,6 +756,11 @@ msgstr "Could not install the update: {error}"
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Could not open {SPONSOR_URL}: {0}"
 msgstr "Could not open {SPONSOR_URL}: {0}"
+
+#. placeholder {0}: errText(e)
+#: src/app/home/Home.tsx
+msgid "Could not open this book: {0}"
+msgstr "Could not open this book: {0}"
 
 #: src/state/project/history.ts
 msgid "Could not redo: {why}"
@@ -1355,7 +1360,6 @@ msgstr "Kokoro: Heart"
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/Details.tsx
-#: src/ui/LanguagePicker.tsx
 msgid "Language"
 msgstr "Language"
 
@@ -1561,7 +1565,7 @@ msgstr "Next page"
 msgid "Next Page"
 msgstr "Next Page"
 
-#: src/state/project/project.ts
+#: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
 msgstr "No cadabra.json in that folder"
 
@@ -1874,6 +1878,10 @@ msgstr "Redo: {0}"
 msgid "Regex"
 msgstr "Regex"
 
+#: src/app/shell/ErrorBoundary.tsx
+msgid "Reload"
+msgstr "Reload"
+
 #: src/editor/Editor.tsx
 msgid "Remember my choice"
 msgstr "Remember my choice"
@@ -2106,6 +2114,10 @@ msgstr "Some content could not be kept: {0}. A full report follows the import."
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Some content or formatting could not be kept. Review these before you continue."
 msgstr "Some content or formatting could not be kept. Review these before you continue."
+
+#: src/app/shell/ErrorBoundary.tsx
+msgid "Something went wrong. Your last changes were saved if possible."
+msgstr "Something went wrong. Your last changes were saved if possible."
 
 #: src/app/export/AudioExport.tsx
 msgid "Speed"
@@ -2698,7 +2710,7 @@ msgstr "You have {0}. Your books and settings stay as they are."
 msgid "Your audiobook is ready"
 msgstr "Your audiobook is ready"
 
-#: src/app/hooks/useSaveOnClose.ts
+#: src/app/shell/quit.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
 msgstr "Your last changes could not be saved ({message}). Close the window again to leave without them."
 

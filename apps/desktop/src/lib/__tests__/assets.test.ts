@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const bridge = vi.hoisted(() => ({ readAsset: vi.fn() }));
 vi.mock("../bridge", () => ({ bridge }));
 
-import { assetUrl, forgetAsset } from "../assets";
+import { assetUrl, forgetAsset, forgetProjectAssets } from "../assets";
 
 const create = vi.fn();
 const revoke = vi.fn();
@@ -59,5 +59,22 @@ describe("forgetAsset", () => {
     forgetAsset("/p", "assets/d.png");
     await expect(failing).rejects.toThrow("x");
     expect(revoke).not.toHaveBeenCalled();
+  });
+});
+
+describe("forgetProjectAssets", () => {
+  it("revokes every URL of one project and leaves other projects alone", async () => {
+    bridge.readAsset.mockResolvedValue(Uint8Array.of(1));
+    const a = await assetUrl("/gone", "assets/a.png");
+    const b = await assetUrl("/gone", "assets/b.png");
+    const other = await assetUrl("/kept", "assets/a.png");
+    bridge.readAsset.mockRejectedValue(new Error("pending read fails"));
+    const failing = assetUrl("/gone", "assets/f.png");
+    forgetProjectAssets("/gone");
+    await expect(failing).rejects.toThrow();
+    await Promise.resolve();
+    expect(revoke.mock.calls.map((c) => c[0]).sort()).toEqual([a, b].sort());
+    expect(revoke).not.toHaveBeenCalledWith(other);
+    expect(await assetUrl("/kept", "assets/a.png")).toBe(other); // still cached
   });
 });

@@ -1,6 +1,6 @@
 # Coverage gaps
 
-Baseline measured 2026-10-27 with Vitest v8, instrumented Playwright/V8 and `cargo llvm-cov` in `apps/desktop/src-tauri`. The goal is 100% lines, branches, functions and statements, minus the allowlisted exclusions in [docs/agent-testing.md](agent-testing.md) and the reviewed Rust wrapper exclusions below. Thresholds are ratcheted per package as each one reaches 100%; desktop and Rust have interim CI floors while the final gaps remain.
+Baseline measured 2026-10-27 with Vitest v8, instrumented Playwright/V8 and `cargo llvm-cov` in `apps/desktop/src-tauri`. The goal is 100% lines, branches, functions and statements, minus the allowlisted exclusions in [docs/testing.md](testing.md) and the reviewed Rust wrapper exclusions below. Thresholds are ratcheted per package as each one reaches 100%; desktop and Rust have interim CI floors while the final gaps remain.
 
 ## Status
 

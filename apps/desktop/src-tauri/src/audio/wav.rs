@@ -27,7 +27,7 @@ pub fn parse_wav(b: &[u8]) -> Result<Pcm, AudioError> {
         } else if id == b"data" {
             let rate = rate.ok_or_else(|| bad("data before fmt"))?;
             let end = body.saturating_add(size).min(b.len()); // streamed files may claim more than they hold
-            return Ok(Pcm { rate, samples: b[body..end].chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]])).collect() });
+            return Ok(Pcm { rate, samples: b[body..end].as_chunks::<2>().0.iter().map(|c| i16::from_le_bytes(*c)).collect() });
         }
         at = body.saturating_add(size).saturating_add(size & 1);
     }

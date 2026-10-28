@@ -11,6 +11,9 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
+/// A book has at most a few hundred chapters; this stops a request from building an enormous list.
+const MAX_CHAPTERS: usize = 10_000;
+
 /// Joining and encoding a long book takes a few minutes at most; anything longer is stuck.
 const TIMEOUT: Duration = Duration::from_secs(60 * 60);
 /// Mono speech: transparent enough for narration and about 29 MB per hour.
@@ -79,7 +82,7 @@ pub fn ffmetadata(title: &str, author: &str, chapters: &[M4bChapter]) -> String 
     let mut out = format!(";FFMETADATA1\ntitle={}\nartist={}\nalbum={}\ngenre=Audiobook\n", meta_escape(title), meta_escape(author), meta_escape(title));
     let mut start = 0u64;
     for c in chapters {
-        let end = start + (c.duration_sec.max(0.0) * 1000.0).round() as u64;
+        let end = start.saturating_add((c.duration_sec.max(0.0) * 1000.0).round() as u64);
         out.push_str(&format!("[CHAPTER]\nTIMEBASE=1/1000\nSTART={start}\nEND={end}\ntitle={}\n", meta_escape(&c.title)));
         start = end;
     }
@@ -109,9 +112,16 @@ pub fn concat_list(paths: &[PathBuf]) -> String {
 /// attached picture, not re-encoded).
 pub fn ffmpeg_args(list: &Path, meta: &Path, cover: Option<&Path>, out: &Path) -> Vec<String> {
     let s = |p: &Path| p.to_string_lossy().into_owned();
-    let mut a: Vec<String> = ["-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i"].map(String::from).into();
-    a.extend([s(list), "-i".into(), s(meta)]);
+    // Each input may only be opened as a plain file (or pipe): a crafted list or picture can then not make ffmpeg
+    // read a URL or another protocol.
+    let wl = ["-protocol_whitelist", "file,pipe"].map(String::from);
+    let mut a: Vec<String> = ["-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0"].map(String::from).into();
+    a.extend(wl.clone());
+    a.extend(["-i".into(), s(list)]);
+    a.extend(wl.clone());
+    a.extend(["-i".into(), s(meta)]);
     if let Some(c) = cover {
+        a.extend(wl);
         a.extend(["-i".into(), s(c)]);
     }
     a.extend(["-map", "0:a"].map(String::from));
@@ -130,6 +140,9 @@ pub fn ffmpeg_args(list: &Path, meta: &Path, cover: Option<&Path>, out: &Path) -
 fn check(req: &M4bRequest) -> Result<(), AudioError> {
     if req.chapters.is_empty() {
         return Err(other("there are no chapters to put in the audiobook"));
+    }
+    if req.chapters.len() > MAX_CHAPTERS {
+        return Err(other("there are too many chapters for one audiobook"));
     }
     if !req.base.starts_with("exports/") || req.base.ends_with('/') {
         return Err(AudioError::from(ProjectError::UnsafePath { path: req.base.clone() }));
@@ -159,6 +172,15 @@ pub fn build_m4b(req: &M4bRequest, ffmpeg: &Path, cancel: &AtomicBool) -> Result
     if cover.as_ref().is_some_and(|c| !c.symlink_metadata().is_ok_and(|m| m.is_file())) {
         return Err(AudioError::from(ProjectError::NotImageAsset { path: req.cover.clone().unwrap_or_default() }));
     }
+    if let Some(rel) = &req.cover {
+        // The picture goes to ffmpeg untouched, so it must really be a PNG or JPEG of a sane size.
+        let bytes = project::read_asset(&root, rel)?;
+        let ext = project::image_ext(rel).ok_or_else(|| ProjectError::NotImageAsset { path: rel.clone() })?;
+        if !matches!(ext.as_str(), "png" | "jpg" | "jpeg") {
+            return Err(AudioError::from(ProjectError::NotImageAsset { path: rel.clone() }));
+        }
+        project::check_image(rel, &ext, &bytes)?;
+    }
     let parts: Vec<PathBuf> = req.chapters.iter().map(|c| project::resolve(&root, &c.part)).collect::<Result<_, _>>()?;
     let scratch = tempfile::Builder::new().prefix("cadabracraft-m4b-").tempdir().map_err(other)?;
     let (list, meta, out) = (scratch.path().join("parts.txt"), scratch.path().join("book.ffmeta"), scratch.path().join("book.m4b"));
@@ -172,7 +194,7 @@ pub fn build_m4b(req: &M4bRequest, ffmpeg: &Path, cancel: &AtomicBool) -> Result
     }
     let bytes = fs::read(&out).map_err(other)?;
     project::write_bytes(&root, &path, &bytes)?;
-    Ok(BuiltM4b { path, duration_sec: req.chapters.iter().map(|c| c.duration_sec).sum() })
+    Ok(BuiltM4b { path, duration_sec: req.chapters.iter().map(|c| c.duration_sec.max(0.0)).sum() })
 }
 
 #[cfg(test)]
@@ -203,6 +225,13 @@ mod tests {
     }
 
     #[test]
+    fn huge_durations_saturate_instead_of_overflowing() {
+        let m = ffmetadata("T", "A", &[chapter("One", "a.flac", f64::MAX), chapter("Two", "b.flac", f64::MAX)]);
+        assert!(m.contains(&format!("START=0\nEND={}\n", u64::MAX)), "{m}");
+        assert!(m.contains(&format!("START={}\nEND={}\n", u64::MAX, u64::MAX)), "{m}");
+    }
+
+    #[test]
     fn windows_paths_use_forward_slashes_in_the_list() {
         assert_eq!(forward_slashes("C:\\Books\\a.flac", true), "C:/Books/a.flac");
         assert_eq!(forward_slashes("/p/a\\b.flac", false), "/p/a\\b.flac");
@@ -212,7 +241,7 @@ mod tests {
     fn arguments_map_the_audio_chapters_and_the_cover_as_an_attached_picture() {
         let (l, m, o, c) = (Path::new("/t/l"), Path::new("/t/m"), Path::new("/t/o"), Path::new("/p/assets/c.png"));
         let with = ffmpeg_args(l, m, Some(c), o).join(" ");
-        assert!(with.contains("-f concat -safe 0 -i /t/l -i /t/m -i /p/assets/c.png -map 0:a -map 2:v -map_metadata 1 -map_chapters 1 -c:a aac -b:a 64k -c:v copy -disposition:v:0 attached_pic -f ipod /t/o"), "{with}");
+        assert!(with.contains("-f concat -safe 0 -protocol_whitelist file,pipe -i /t/l -protocol_whitelist file,pipe -i /t/m -protocol_whitelist file,pipe -i /p/assets/c.png -map 0:a -map 2:v -map_metadata 1 -map_chapters 1 -c:a aac -b:a 64k -c:v copy -disposition:v:0 attached_pic -f ipod /t/o"), "{with}");
         let without = ffmpeg_args(l, m, None, o).join(" ");
         assert!(!without.contains("2:v") && !without.contains("attached_pic") && without.ends_with("-f ipod /t/o"), "{without}");
     }
@@ -237,7 +266,7 @@ mod tests {
             fs::write(project.join("cadabra.json"), "{}").unwrap();
             fs::write(project.join(".cadabra/audio/parts/a.flac"), b"fLaC-a").unwrap();
             fs::write(project.join(".cadabra/audio/parts/b.flac"), b"fLaC-b").unwrap();
-            fs::write(project.join("assets/cover.png"), b"png").unwrap();
+            fs::copy(Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/assets/pixel.png"), project.join("assets/cover.png")).unwrap();
             let ffmpeg = dir.path().join("fake-ffmpeg");
             fs::write(&ffmpeg, format!("#!/bin/sh\nfor a in \"$@\"; do OUT=\"$a\"; done\n{body}\n")).unwrap();
             fs::set_permissions(&ffmpeg, fs::Permissions::from_mode(0o755)).unwrap();
@@ -333,8 +362,21 @@ mod tests {
             r.chapters.clear();
             assert!(build_m4b(&r, &f.ffmpeg, &off).is_err());
             let mut r = request(&f);
+            r.chapters = (0..=MAX_CHAPTERS).map(|_| chapter("x", "a.flac", 1.0)).collect();
+            assert!(build_m4b(&r, &f.ffmpeg, &off).is_err(), "too many chapters");
+            let mut r = request(&f);
             r.cover = None;
             assert!(build_m4b(&r, &f.ffmpeg, &off).is_ok(), "no cover is allowed");
+        }
+
+        #[test]
+        fn a_cover_that_is_not_an_image_is_refused_before_the_tool_runs() {
+            let f = fixture("echo ran > \"$OUT\"");
+            fs::write(f.project.join("assets/fake.png"), b"concat:http://example.com/x").unwrap();
+            let mut r = request(&f);
+            r.cover = Some("assets/fake.png".into());
+            assert!(matches!(build_m4b(&r, &f.ffmpeg, &AtomicBool::new(false)), Err(AudioError::Other { .. })));
+            assert!(!f.project.join("exports").exists());
         }
 
         #[test]

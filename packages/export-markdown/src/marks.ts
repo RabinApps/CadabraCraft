@@ -54,19 +54,24 @@ function wrap(inner: string, open: string, close: string): string {
 function renderItems(items: Item[], ctx: Ctx, where: Where, atStart: boolean): string {
   let out = "";
   let i = 0;
+  let afterBreak = false;
   while (i < items.length) {
     const it = items[i]!;
     if (it.kind === "raw") {
       out += it.md;
+      afterBreak = it.lineBreak === true;
       i++;
       continue;
     }
     const mark = it.marks[0];
     if (!mark) {
-      out += escapeText(it.text, atStart && out === "", where);
+      // After a hard break the text starts a new line, where "#", "-", "1." or "===" would be block syntax.
+      out += escapeText(it.text, (atStart && out === "") || afterBreak, where);
+      afterBreak = false;
       i++;
       continue;
     }
+    afterBreak = false;
     let j = i;
     while (j < items.length) {
       const k = items[j]!;
@@ -124,10 +129,13 @@ export function inline(nodes: DocNode[] | undefined, ctx: Ctx, where: Where = {}
         throw new MarkdownExportError(
           "A hard break cannot be written in a heading, table cell or footnote",
         );
-      items.push({ kind: "raw", md: "\\\n" });
+      items.push({ kind: "raw", md: "\\\n", lineBreak: true });
     } else {
       throw new MarkdownExportError(`Unsupported node type in inline content: ${type}`);
     }
   }
+  // A backslash at the very end of a block is a literal backslash, and a trailing break shows nothing anyway.
+  for (let last = items.at(-1); last?.kind === "raw" && last.lineBreak; last = items.at(-1))
+    items.pop();
   return renderItems(items, ctx, where, true);
 }

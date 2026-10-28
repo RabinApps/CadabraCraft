@@ -99,20 +99,20 @@ The marketing site is drawn in the same pen file, on a separate area starting at
 
 Sizes: desktop 1280, tablet 768, mobile 390; every frame exists in `light` and `dark`. Pages below are `Website / <Page> / <size> / <mode>`.
 
-| Page          | Sizes drawn                | Notes                                                                                                                             |
-| ------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Home          | desktop, tablet, mobile    | nav, hero with CTAs, product shot, benefits, "How it works" three steps with a link to Formats, compare strip, FAQ, sponsor band, footer |
-| Features      | desktop, tablet, mobile    | hero, formats chips, seven alternating text and screenshot rows (editor, import, export, audiobook, editions, local-first, MCP), "small things" grid |
-| Compare index | desktop, mobile            | `/compare/`: four "CadabraCraft vs X" cards with a "choose X if" line, at-a-glance table (desktop only), "how these pages are written" |
-| Compare page  | desktop, tablet            | template for `/compare/<name>/`: header with last-checked date, facts table, "choose X if" columns, sponsor band                  |
-| Download      | desktop, tablet, mobile    | current state (platform cards say "Not available yet"), the released state drawn below it as a variant, good-to-know, build from source |
-| Formats       | desktop                    | `/formats/` (new): import, write, export flow, one row per format (EPUB3, print PDF, Word, Markdown, audiobook), format FAQ        |
-| Guides        | desktop                    | `/guides/` (new): featured guide card and a list of guides with tag, summary and read time                                       |
-| Guide article | desktop                    | article template: breadcrumb, byline with updated date, table of contents, body, "Try it in CadabraCraft" callout, related guides  |
-| Changelog     | desktop, mobile            | `/changelog/` (new): entries with version, date and New, Improved or Info tags                                                    |
-| 404           | desktop, mobile            | not-found page with links back to Home, Features and Compare                                                                       |
-| OG image      | 1200x630, light only       | `Website / OG image`: the social card exported to `apps/website/public/og/cadabracraft-og.png` (logo, headline, lead, free and no-account pill) |
-| Support       | desktop, mobile            | three ways to give (GitHub Sponsors, Buy me a coffee, PayPal) and what funding pays for                                           |
+| Page          | Sizes drawn             | Notes                                                                                                                                                |
+| ------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home          | desktop, tablet, mobile | nav, hero with CTAs, product shot, benefits, "How it works" three steps with a link to Formats, compare strip, FAQ, sponsor band, footer             |
+| Features      | desktop, tablet, mobile | hero, formats chips, seven alternating text and screenshot rows (editor, import, export, audiobook, editions, local-first, MCP), "small things" grid |
+| Compare index | desktop, mobile         | `/compare/`: four "CadabraCraft vs X" cards with a "choose X if" line, at-a-glance table (desktop only), "how these pages are written"               |
+| Compare page  | desktop, tablet         | template for `/compare/<name>/`: header with last-checked date, facts table, "choose X if" columns, sponsor band                                     |
+| Download      | desktop, tablet, mobile | current state (platform cards say "Not available yet"), the released state drawn below it as a variant, good-to-know, build from source              |
+| Formats       | desktop                 | `/formats/` (new): import, write, export flow, one row per format (EPUB3, print PDF, Word, Markdown, audiobook), format FAQ                          |
+| Guides        | desktop                 | `/guides/` (new): featured guide card and a list of guides with tag, summary and read time                                                           |
+| Guide article | desktop                 | article template: breadcrumb, byline with updated date, table of contents, body, "Try it in CadabraCraft" callout, related guides                    |
+| Changelog     | desktop, mobile         | `/changelog/` (new): entries with version, date and New, Improved or Info tags                                                                       |
+| 404           | desktop, mobile         | not-found page with links back to Home, Features and Compare                                                                                         |
+| OG image      | 1200x630, light only    | `Website / OG image`: the social card exported to `apps/website/public/og/cadabracraft-og.png` (logo, headline, lead, free and no-account pill)      |
+| Support       | desktop, mobile         | three ways to give (GitHub Sponsors, Buy me a coffee, PayPal) and what funding pays for                                                              |
 
 The footer on desktop frames lists Features, Compare, Formats, Guides, Support and Source on GitHub; the header keeps four links plus the Download button. Mobile and tablet frames reuse the Home mobile nav, sponsor band and footer. Screenshot areas are placeholders named "Screenshot (export from ...)"; the SEO plan ([seo-plan.md](seo-plan.md)) lists which designs the new pages serve. Not drawn at tablet or mobile widths: Formats, Guides, Guide article, and Changelog and 404 at tablet; they follow the same rules. The site collapses the desktop layouts to the mobile Home pattern below 768px.
 

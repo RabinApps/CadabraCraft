@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadMatterBook } from "../matterBook";
+import { loadMatterBook } from "./matterBook";
 import { createNodeRunner } from "../node";
 import { renderPdf as render } from "../render";
 import type { PdfOptions } from "../types";

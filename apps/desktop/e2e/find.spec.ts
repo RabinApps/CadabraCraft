@@ -157,6 +157,7 @@ test.describe("find and replace", () => {
     await regex.click();
     await expect(regex).toHaveAttribute("aria-pressed", "true");
     await expect(bar(page).getByText("1 of 3")).toBeVisible();
+    await expect(find).not.toHaveAttribute("aria-invalid", "true");
 
     const errors: string[] = [];
     page.on("console", (m) => {
@@ -165,6 +166,7 @@ test.describe("find and replace", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     await find.fill("(");
     await expect(bar(page).getByText("Invalid pattern")).toBeVisible();
+    await expect(find).toHaveAttribute("aria-invalid", "true");
     await expect(bar(page).getByRole("button", { name: "Replace all" })).toBeDisabled();
     await expect(bar(page).getByRole("button", { name: "Replace", exact: true })).toBeDisabled();
     await find.fill("c(?=a)");

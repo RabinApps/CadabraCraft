@@ -1,9 +1,7 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { safeHref, type DocNode, type Mark } from "@cadabracraft/shared";
 import { escapeMarkup, typstString } from "../escape";
 import { PdfExportError } from "../errors";
 import { unsupported, type Ctx } from "./ctx";
-
-const SAFE_LINK = /^(https?:|mailto:)/i;
 
 function wrapMark(content: string, m: Mark): string {
   switch (m.type) {
@@ -26,8 +24,8 @@ function wrapMark(content: string, m: Mark): string {
       return content;
     case "link": {
       const href = m.attrs?.href?.trim() ?? "";
-      // Anything but http(s)/mailto keeps its text and loses the link.
-      return SAFE_LINK.test(href) ? `#link(${typstString(href)})[${content}]` : content;
+      // Anything but http(s)/mailto keeps its text and loses the link (the href is written as typed, not re-serialized).
+      return safeHref(href) === null ? content : `#link(${typstString(href)})[${content}]`;
     }
     default:
       return unsupported(`mark:${String((m as { type: unknown }).type)}`);
@@ -82,6 +80,10 @@ export function inline(
       out += `#footnote[${body}]`;
       afterCall = true;
       atStart = false;
+    } else if (n.type === "hardBreak") {
+      out += "\\\n"; // Typst line break; the next text starts a line, so list markers are escaped again
+      afterCall = false;
+      atStart = true;
     } else {
       unsupported(n.type);
     }

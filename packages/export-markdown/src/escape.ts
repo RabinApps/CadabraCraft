@@ -11,6 +11,7 @@ export function escapeText(text: string, atStart: boolean, where: Where): string
     s = s
       .replace(/^(#{1,6})(?=[ \t]|$)/, "\\$1")
       .replace(/^([-+])/, "\\$1")
+      .replace(/^(=+)(?=[ \t]*$)/, "\\$1") // a line of "=" under text is a setext heading underline
       .replace(/^(\d{1,9})([.)])(?=[ \t]|$)/, "$1\\$2");
   }
   return s;

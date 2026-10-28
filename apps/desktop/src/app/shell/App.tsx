@@ -30,6 +30,7 @@ import { useLayout } from "../../state/layout";
 import { useReading } from "../../state/reading";
 import { useRecents } from "../../state/recents";
 import { useProject } from "../../state/project/index";
+import { attempt } from "../../state/attempt";
 import { useAppMenu } from "./useAppMenu";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useSaveOnClose } from "../hooks/useSaveOnClose";
@@ -80,11 +81,11 @@ export function App() {
   useSaveOnClose();
   const words = useWordCount();
   const bookWords = useBookWordCount();
-  const sessionWritten = useSessionWords(root, bookWords);
+  const sessionWritten = useSessionWords(root, activeLanguage, bookWords);
   const sessionGoal = useSettings((s) => s.sessionGoal);
   useEffect(() => {
     if (!open) return;
-    const un = bridge.onProjectChanged((p) => void actions.externalChange(p));
+    const un = bridge.onProjectChanged((p) => attempt(actions.externalChange(p)));
     return () => void un.then((f) => f());
   }, [open, actions]);
   useEffect(() => {
@@ -162,6 +163,8 @@ export function App() {
           })}
         />
         <ImportReportDialog />
+        <SponsorDialog />
+        <UpdateDialog />
       </>
     );
   }
@@ -229,7 +232,7 @@ export function App() {
               <Button
                 variant="primary"
                 icon={Plus}
-                onClick={() => void actions.add(t`Chapter ${chapters.length + 1}`)}
+                onClick={() => attempt(actions.add(t`Chapter ${chapters.length + 1}`))}
               >{t`Add chapter`}</Button>
             </div>
           )}
@@ -238,7 +241,8 @@ export function App() {
               index={index}
               pages={pages}
               chapterIds={chapters.map((c) => c.id)}
-              onSelect={(id) => void actions.selectChapter(id)}
+              language={activeLanguage}
+              onSelect={(id) => attempt(actions.selectChapter(id))}
             />
           ) : (
             <footer

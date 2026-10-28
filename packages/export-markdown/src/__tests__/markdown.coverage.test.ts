@@ -196,6 +196,26 @@ describe("inline nodes", () => {
       "x[^5]\n\n[^5]: note\n",
     );
   });
+  it("escapes block markers at the start of the line after a hard break", () => {
+    const br = bare("hardBreak");
+    expect(md(p(t("a"), br, t("# h"), br, t("- b"), br, t("1. c"), br, t("+ d")))).toBe(
+      "a\\\n\\# h\\\n\\- b\\\n1\\. c\\\n\\+ d\n",
+    );
+    // a line of "=" would turn the previous line into a setext heading
+    expect(md(p(t("a"), br, t("===")))).toBe("a\\\n\\===\n");
+    // a footnote reference is not text, so the next text is still escaped; bold text hides the marker
+    expect(md(p(t("a"), br, t("x", { type: "bold" }), br, t("- y")))).toBe("a\\\n**x**\\\n\\- y\n");
+    // text after a non-break item is not at a line start
+    expect(md(p(t("a"), br, { type: "footnote", content: [t("n")] }, t("- b")))).toBe(
+      "a\\\n[^1]- b\n\n[^1]: n\n",
+    );
+  });
+  it("drops trailing hard breaks, which would end the block with a literal backslash", () => {
+    const br = bare("hardBreak");
+    expect(md(p(t("a"), br))).toBe("a\n");
+    expect(md(p(t("a"), br, br))).toBe("a\n");
+    expect(md(p(br, t("b")))).toBe("\\\nb\n");
+  });
   it("refuses line feeds in text, a hard break where it cannot be written and nested footnotes", () => {
     expect(() => md(p(t("a\nb")))).toThrow(/line break/);
     expect(() => md(p({ type: "footnote", content: [bare("hardBreak")] }))).toThrow(/hard break/);

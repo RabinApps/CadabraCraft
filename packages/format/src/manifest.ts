@@ -1,4 +1,9 @@
-import { isBackMatterKind, isFrontMatterKind, type MatterKind } from "@cadabracraft/shared";
+import {
+  isBackMatterKind,
+  isFrontMatterKind,
+  isValidEntryId,
+  type MatterKind,
+} from "@cadabracraft/shared";
 import { FormatError } from "./errors";
 import { validateEditions } from "./editions";
 
@@ -113,8 +118,13 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
   if (!Array.isArray(v)) throw new FormatError(`manifest: "${name}" must be an array`);
   return v.map((e, i) => {
     const o = (e ?? {}) as Record<string, unknown>;
+    const id = str(o.id, `${name}[${i}].id`);
+    if (!isValidEntryId(id))
+      throw new FormatError(
+        `manifest: "${name}[${i}].id" must start with a letter and use only letters, digits, "-" and "_" (got ${JSON.stringify(id)})`,
+      );
     const entry: EditionEntry = {
-      id: str(o.id, `${name}[${i}].id`),
+      id,
       titles: stringMap(o.titles, `${name}[${i}].titles`),
       files: stringMap(o.files, `${name}[${i}].files`),
     };

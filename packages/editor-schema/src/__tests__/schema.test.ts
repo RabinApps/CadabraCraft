@@ -258,3 +258,28 @@ describe("table editing commands (the ones behind the Format > Table menu)", () 
     expect(run(start(), deleteTable).doc.firstChild?.type.name).not.toBe("table");
   });
 });
+
+describe("chapterDocProblem links", () => {
+  const withHref = (href: unknown) => ({
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "x", marks: [{ type: "link", attrs: { href } }] }],
+      },
+    ],
+  });
+  it("accepts http, https and mailto links", () => {
+    for (const h of ["https://a.test/", "http://a.test", "mailto:a@b.test"])
+      expect(chapterDocProblem(withHref(h))).toBeNull();
+  });
+  it.each(["javascript:alert(1)", "data:text/html,x", "file:///etc/passwd", "no-scheme.test", ""])(
+    "refuses %j",
+    (h) => {
+      expect(chapterDocProblem(withHref(h))).toMatch(/link .* is not allowed/);
+    },
+  );
+  it("refuses a link without an href", () => {
+    expect(chapterDocProblem(withHref(undefined))).toMatch(/link "" is not allowed/);
+  });
+});

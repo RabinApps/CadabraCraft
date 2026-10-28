@@ -1,8 +1,8 @@
 // Loads fixtures/manuscripts/full-book.json for tests and the sample script (not part of the public API).
 import { readFileSync } from "node:fs";
-import type { PdfBook, PdfChapter } from "./types";
+import type { PdfBook, PdfChapter } from "../types";
 
-const root = new URL("../../../fixtures/manuscripts/", import.meta.url);
+const root = new URL("../../../../fixtures/manuscripts/", import.meta.url);
 
 export interface FullBook {
   book: PdfBook;

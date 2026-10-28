@@ -1,8 +1,25 @@
 import type { ChapterDoc, DocNode, Mark } from "@cadabracraft/shared";
 import { EpubExportError, type EpubErrorCode } from "./errors";
 
-export const esc = (s: string): string =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+/** Characters XML 1.0 cannot carry at all (not even escaped): most control characters, U+FFFE/U+FFFF and lone surrogates. */
+const XML_ILLEGAL =
+  // eslint-disable-next-line no-control-regex -- intentional: this is the list of forbidden control characters
+  /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+
+/** Escapes text for XML. Throws `invalid-text` for a character XML cannot hold, since the book would not open. */
+export const esc = (s: string): string => {
+  const bad = XML_ILLEGAL.exec(s);
+  if (bad)
+    throw new EpubExportError(
+      "invalid-text",
+      `Text contains a character that is not allowed in an EPUB (U+${bad[0].charCodeAt(0).toString(16).toUpperCase().padStart(4, "0")}). Remove it and export again.`,
+    );
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+};
 
 const MARK_TAGS: Record<Mark["type"], (m: Mark) => [string, string]> = {
   bold: () => ["<strong>", "</strong>"],
@@ -18,6 +35,8 @@ const MARK_TAGS: Record<Mark["type"], (m: Mark) => [string, string]> = {
 
 interface Ctx {
   notes: string[];
+  /** Inside a footnote: footnotes cannot nest. */
+  inNote: boolean;
   /** Where the walk is, outermost first ("bulletList 2", "listItem 1", ...). Only used to say where an error happened. */
   path: string[];
 }
@@ -59,10 +78,25 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
           return out;
         }
         if (n.type === "footnote") {
+          if (ctx.inNote)
+            throw fail(
+              ctx,
+              "nested-footnote",
+              "A footnote cannot contain another footnote",
+              "footnote",
+            );
+          ctx.inNote = true;
+          let text: string;
+          try {
+            text = inline(n.content, ctx);
+          } finally {
+            ctx.inNote = false;
+          }
           const id = ctx.notes.length + 1;
-          ctx.notes.push(inline(n.content, ctx));
+          ctx.notes.push(text);
           return `<a epub:type="noteref" id="ref${id}" href="#fn${id}" class="noteref">${id}</a>`;
         }
+        if (n.type === "hardBreak") return "<br/>";
         return block(n, ctx);
       }),
     )
@@ -136,7 +170,14 @@ function block(n: DocNode, ctx: Ctx): string {
     case "paragraph":
       return `<p>${inline(kids, ctx)}</p>`;
     case "heading": {
-      const level = Math.min(3, Math.max(1, Number(n.attrs?.level ?? 1)));
+      const level = Number(n.attrs?.level ?? 1);
+      if (![1, 2, 3].includes(level))
+        throw fail(
+          ctx,
+          "invalid-heading",
+          `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
+          "heading",
+        );
       return `<h${level}>${inline(kids, ctx)}</h${level}>`;
     }
     case "blockquote":
@@ -191,7 +232,7 @@ function block(n: DocNode, ctx: Ctx): string {
 
 /** Chapter JSON -> XHTML body fragment, with an endnotes section when footnotes exist. */
 export function chapterToXhtmlBody(doc: ChapterDoc): string {
-  const ctx: Ctx = { notes: [], path: [] };
+  const ctx: Ctx = { notes: [], inNote: false, path: [] };
   const body = doc.content.map((n, i) => at(ctx, n, i, () => block(n, ctx))).join("\n");
   if (!ctx.notes.length) return body;
   const notes = ctx.notes

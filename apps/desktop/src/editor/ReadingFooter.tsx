@@ -1,6 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLingui } from "@lingui/react/macro";
-import { useLocale } from "../i18n/i18n";
 import { dirFor } from "../i18n/locales";
 import { Button, IconButton } from "../ui/Button";
 
@@ -11,12 +10,14 @@ interface Props {
   /** Ids of the chapters among `pages`, for "Chapter n of m". */
   chapterIds: string[];
   onSelect: (id: string) => void;
+  /** Language of the book being read: it sets the reading direction, whatever the app's own language is. */
+  language: string;
 }
 
-export function ReadingFooter({ index, pages, chapterIds, onSelect }: Props) {
+export function ReadingFooter({ index, pages, chapterIds, onSelect, language }: Props) {
   const { t } = useLingui();
   // Chevrons point along the reading direction, so swap them in right-to-left languages.
-  const rtl = dirFor(useLocale().locale) === "rtl";
+  const rtl = dirFor(language) === "rtl";
   const PrevIcon = rtl ? ChevronRight : ChevronLeft;
   const NextIcon = rtl ? ChevronLeft : ChevronRight;
   const prev = pages[index - 1];

@@ -14,6 +14,7 @@ import {
 } from "../../state/commands";
 import { useLayout } from "../../state/layout";
 import { buildMenuModel } from "./menuModel";
+import { quitApp } from "./quit";
 import { showNativeMenu } from "./nativeMenu";
 import { useRecents } from "../../state/recents";
 import { useUpdates } from "../../state/updates";
@@ -86,6 +87,7 @@ export function useAppMenu(h: AppMenuHooks): void {
   };
 
   const commands: Record<string, Commands[string]> = {
+    "app.quit": { run: guard(quitApp), global: true },
     "app.settings": { run: () => h.setView("settings"), enabled: h.view !== "settings" },
     "file.new": {
       run: guard(async () => {

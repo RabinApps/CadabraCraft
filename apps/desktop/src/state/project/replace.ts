@@ -1,5 +1,5 @@
 import { plural, t } from "@lingui/core/macro";
-import { treeOf, sourceFileById } from "@cadabracraft/format";
+import { treeOf, entryFile } from "@cadabracraft/format";
 import { mergeAdjacentText } from "../../lib/search/findHelpers";
 import { replaceInDoc } from "../../lib/search/bookSearch";
 import { errText } from "../../lib/projectError";
@@ -9,7 +9,7 @@ import type { Ctx } from "./context";
 
 /** Replace all across the whole book, as one book undo step. */
 export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
-  const { set, get, need, writePages, reloadCurrent, flush, loadChapters } = ctx;
+  const { set, get, need, writePages, reloadCurrent, flush, loadChaptersIn, entryOf, langOf } = ctx;
   /** A book-wide replace is running: a second one is ignored instead of racing it. */
   let replacing = false;
   return {
@@ -22,14 +22,17 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
         const docs: NonNullable<HistoryEntry["docs"]> = [];
         let count = 0;
         // Every page is read and parsed before the first write: an unreadable page stops the replace with nothing changed.
-        const pages = await loadChapters();
+        // The edition the editor shows is the one searched and changed (a translation has its own files).
+        const lang = langOf(manifest);
+        const pages = await loadChaptersIn(lang);
         // Typing that arrived while the pages were being read would be overwritten by the reload below.
         if (get().draft)
           throw new Error(t`The page changed while searching, so nothing was replaced. Try again.`);
         for (const page of pages) {
+          const file = entryFile(entryOf(manifest, page.id)!, lang); // the pages were read from this same manifest
+          if (!file) continue; // not translated yet: a blank page has no file to change
           const r = replaceInDoc(page.doc, opts, replacement);
           if (!r.count) continue;
-          const file = sourceFileById(manifest, page.id)!; // the pages were read from this same manifest
           count += r.count;
           docs.push({
             file,

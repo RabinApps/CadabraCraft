@@ -32,6 +32,17 @@ describe("command registry", () => {
     off();
   });
 
+  it("runs a global command (Quit) even while a dialog is open", () => {
+    vi.stubGlobal("document", {
+      querySelector: (s: string) => (s === "[role=dialog]" ? {} : null),
+    });
+    const run = vi.fn();
+    const off = registerCommands({ "app.quit": { run, global: true } });
+    expect(runCommand("app.quit")).toBe(true);
+    expect(run).toHaveBeenCalledTimes(1);
+    off();
+  });
+
   it("removes exactly what a component registered when it goes away, leaving the others", () => {
     const offA = registerCommands({ "a.one": { run: vi.fn() }, "a.two": { run: vi.fn() } });
     const offB = registerCommands({ "b.one": { run: vi.fn() } });

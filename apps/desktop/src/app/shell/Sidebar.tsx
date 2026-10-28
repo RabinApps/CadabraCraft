@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import {
@@ -6,7 +6,6 @@ import {
   ArrowUp,
   Ellipsis,
   FilePlus,
-  GripVertical,
   History,
   Pencil,
   Plus,
@@ -21,6 +20,7 @@ import { Confirm, Modal } from "../../ui/Dialog";
 import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { useProject } from "../../state/project/index";
+import { attempt } from "../../state/attempt";
 import { errText } from "../../lib/projectError";
 import { HistoryDialog, type HistoryPage } from "../dialogs/HistoryDialog";
 
@@ -92,6 +92,9 @@ function EntryList({
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
   const last = entries.length - 1;
+  /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
+  const afterClose = useRef<(() => void) | null>(null);
+  const moveFocus = (f: () => void) => () => void (afterClose.current = f);
   return (
     <section aria-label={heading} className="flex flex-col gap-0.5">
       <h2 className="px-2.5 pt-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted">
@@ -108,11 +111,6 @@ function EntryList({
                 current && "bg-accent-soft",
               )}
             >
-              <GripVertical
-                size={16}
-                aria-hidden
-                className={cx("shrink-0", current ? "text-accent" : "text-ink-muted")}
-              />
               {editing?.id === c.id ? (
                 <input
                   autoFocus
@@ -122,7 +120,7 @@ function EntryList({
                   onBlur={(e) => {
                     setEditing(null);
                     if (e.target.value.trim() && e.target.value !== c.title)
-                      void actions.rename(c.id, e.target.value.trim());
+                      attempt(actions.rename(c.id, e.target.value.trim()));
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") e.currentTarget.blur();
@@ -138,7 +136,7 @@ function EntryList({
                     current && "font-semibold",
                   )}
                   onClick={() => {
-                    void actions.selectChapter(c.id);
+                    attempt(actions.selectChapter(c.id));
                     onNavigate?.();
                   }}
                 >
@@ -157,17 +155,25 @@ function EntryList({
                 <M.Portal>
                   <M.Content
                     align="end"
-                    onCloseAutoFocus={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => {
+                      const next = afterClose.current;
+                      afterClose.current = null;
+                      if (next) e.preventDefault();
+                      next?.();
+                    }}
                     className="z-50 min-w-44 rounded-md border border-border bg-raised p-1 text-ink shadow-xl"
                   >
-                    <M.Item className={menuItem} onSelect={() => setEditing({ id: c.id })}>
+                    <M.Item
+                      className={menuItem}
+                      onSelect={moveFocus(() => setEditing({ id: c.id }))}
+                    >
                       <Pencil size={14} aria-hidden />
                       {t`Rename`}
                     </M.Item>
                     <M.Item
                       className={menuItem}
                       disabled={i === 0}
-                      onSelect={() => void actions.move(c.id, -1)}
+                      onSelect={() => attempt(actions.move(c.id, -1))}
                     >
                       <ArrowUp size={14} aria-hidden />
                       {t`Move up`}
@@ -175,21 +181,23 @@ function EntryList({
                     <M.Item
                       className={menuItem}
                       disabled={i === last}
-                      onSelect={() => void actions.move(c.id, 1)}
+                      onSelect={() => attempt(actions.move(c.id, 1))}
                     >
                       <ArrowDown size={14} aria-hidden />
                       {t`Move down`}
                     </M.Item>
                     <M.Item
                       className={menuItem}
-                      onSelect={() => setHistory({ id: c.id, title: c.title, file: c.file })}
+                      onSelect={moveFocus(() =>
+                        setHistory({ id: c.id, title: c.title, file: c.file }),
+                      )}
                     >
                       <History size={14} aria-hidden />
                       {t`History`}
                     </M.Item>
                     <M.Item
                       className={cx(menuItem, "text-danger")}
-                      onSelect={() => setDeleting({ id: c.id, title: c.title })}
+                      onSelect={moveFocus(() => setDeleting({ id: c.id, title: c.title }))}
                     >
                       <Trash2 size={14} aria-hidden />
                       {t`Move to trash`}
@@ -297,10 +305,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       className={menuItem}
       disabled={!canAddMatter(manifest, kind)}
       onSelect={() => {
-        void actions.addMatter(section, kind).then(
-          () => onNavigate?.(),
-          () => {},
-        );
+        attempt(actions.addMatter(section, kind).then(() => onNavigate?.()));
       }}
     >
       {kinds[kind]}
@@ -336,7 +341,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         variant="ghost"
         icon={Plus}
         className="justify-start"
-        onClick={() => void actions.add(t`Chapter ${manifest.chapters.length + 1}`)}
+        onClick={() => attempt(actions.add(t`Chapter ${manifest.chapters.length + 1}`))}
       >{t`Add chapter`}</Button>
       <M.Root>
         <M.Trigger asChild>
@@ -345,7 +350,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <M.Portal>
           <M.Content
             align="start"
-            onCloseAutoFocus={(e) => e.preventDefault()}
             className="z-50 min-w-52 rounded-md border border-border bg-raised p-1 text-ink shadow-xl"
           >
             <M.Group>
@@ -372,14 +376,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           label={lastUndo ? t`Undo: ${lastUndo.label}` : t`Undo book change`}
           title={`${lastUndo ? t`Undo: ${lastUndo.label}` : t`Undo book change`} (${isMac ? "⌘⌥Z" : "Ctrl+Alt+Z"})`}
           disabled={!lastUndo}
-          onClick={() => void actions.undo()}
+          onClick={() => attempt(actions.undo())}
         />
         <IconButton
           icon={Redo2}
           label={lastRedo ? t`Redo: ${lastRedo.label}` : t`Redo book change`}
           title={`${lastRedo ? t`Redo: ${lastRedo.label}` : t`Redo book change`} (${isMac ? "⌘⌥⇧Z" : "Ctrl+Alt+Shift+Z"})`}
           disabled={!lastRedo}
-          onClick={() => void actions.redo()}
+          onClick={() => attempt(actions.redo())}
         />
       </div>
       <HistoryDialog
@@ -400,7 +404,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         description={t`It moves to the project trash inside your book folder. Nothing is permanently deleted.`}
         confirmLabel={t`Move to trash`}
         onConfirm={() => {
-          if (deleting) void actions.remove(deleting.id);
+          if (deleting) attempt(actions.remove(deleting.id));
         }}
       />
     </nav>

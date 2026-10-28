@@ -598,7 +598,7 @@ msgid "Chapters"
 msgstr ""
 
 #: src/app/dialogs/AddLanguageDialog.tsx
-msgid "Chapters start as English copies, marked Not translated yet."
+msgid "Chapters start as {sourceName} copies, marked Not translated yet."
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
@@ -754,6 +754,11 @@ msgstr ""
 #. placeholder {0}: errText(e)
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Could not open {SPONSOR_URL}: {0}"
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/app/home/Home.tsx
+msgid "Could not open this book: {0}"
 msgstr ""
 
 #: src/state/project/history.ts
@@ -1354,7 +1359,6 @@ msgstr ""
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/Details.tsx
-#: src/ui/LanguagePicker.tsx
 msgid "Language"
 msgstr ""
 
@@ -1560,7 +1564,7 @@ msgstr ""
 msgid "Next Page"
 msgstr ""
 
-#: src/state/project/project.ts
+#: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
 msgstr ""
 
@@ -1873,6 +1877,10 @@ msgstr ""
 msgid "Regex"
 msgstr ""
 
+#: src/app/shell/ErrorBoundary.tsx
+msgid "Reload"
+msgstr ""
+
 #: src/editor/Editor.tsx
 msgid "Remember my choice"
 msgstr ""
@@ -2104,6 +2112,10 @@ msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Some content or formatting could not be kept. Review these before you continue."
+msgstr ""
+
+#: src/app/shell/ErrorBoundary.tsx
+msgid "Something went wrong. Your last changes were saved if possible."
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
@@ -2695,7 +2707,7 @@ msgstr ""
 msgid "Your audiobook is ready"
 msgstr ""
 
-#: src/app/hooks/useSaveOnClose.ts
+#: src/app/shell/quit.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
 msgstr ""
 

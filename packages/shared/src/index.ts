@@ -1,5 +1,7 @@
 export * from "./language";
 export * from "./assets";
+export * from "./href";
+export * from "./ids";
 export * from "./matter";
 export * from "./isbn";
 
@@ -30,6 +32,7 @@ export type DocNode =
         | "orderedList"
         | "listItem"
         | "codeBlock"
+        | "hardBreak"
         | "sceneBreak"
         | "image"
         | "figcaption"

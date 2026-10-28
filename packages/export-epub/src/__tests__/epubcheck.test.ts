@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { listTemplates } from "@cadabracraft/templates";
 import { buildEpub } from "../index";
-import { matterBook } from "../matterBook";
+import { matterBook } from "./matterBook";
 
 const jar = fileURLToPath(
   new URL("../../../../tools/epubcheck-5.4.0/epubcheck.jar", import.meta.url),

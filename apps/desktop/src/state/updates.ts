@@ -1,6 +1,7 @@
 import type { Update } from "@tauri-apps/plugin-updater";
 import { create } from "zustand";
 import { bridge } from "../lib/bridge";
+import { useProject } from "./project/index";
 import { readStored, writeStored } from "../lib/persisted";
 import { errText } from "../lib/projectError";
 
@@ -68,7 +69,10 @@ export const useUpdates = create<Updates>((set, get) => ({
     if (status.kind !== "available") return;
     set({ status: { kind: "installing" } });
     try {
+      // The relaunch ends the process without a close request, so unsaved typing is written first; a failure aborts.
+      await useProject.getState().actions.flush();
       await status.update.downloadAndInstall();
+      await useProject.getState().actions.flush();
       await bridge.relaunch();
     } catch (e) {
       set({ status: { kind: "error", message: errText(e) }, dialogOpen: true });

@@ -54,6 +54,10 @@ pub struct RenderedChapter {
 }
 
 /// Formats this build can write. There is no MP3 on purpose (see docs/architecture.md, "Audio encoders").
+/// Most characters and chunks one chapter request may carry (a long novel chapter is well under a million characters).
+const CHAPTER_MAX_CHARS: usize = 2_000_000;
+const CHAPTER_MAX_CHUNKS: usize = 200_000;
+
 const WRITABLE: &[&str] = &["wav", "flac", "opus"];
 
 fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
@@ -62,6 +66,9 @@ fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
     }
     if !(0.5..=2.0).contains(&req.speed) {
         return Err(other("speed must be between 0.5 and 2"));
+    }
+    if req.chunks.len() > CHAPTER_MAX_CHUNKS || req.chunks.iter().map(|c| c.text.len()).sum::<usize>() > CHAPTER_MAX_CHARS {
+        return Err(other("this chapter is too long to read aloud in one piece; split it"));
     }
     if req.formats.is_empty() && req.part.is_none() {
         return Err(other("choose at least one audio format"));
@@ -159,6 +166,15 @@ mod tests {
 
     fn chunk(text: &str, pause: u32) -> Chunk {
         Chunk { text: text.into(), pause_after_ms: pause }
+    }
+
+    #[test]
+    fn a_chapter_request_with_too_much_text_or_too_many_chunks_is_refused() {
+        let req = |chunks: Vec<Chunk>| ChapterRequest { job_id: "j".into(), root: "/r".into(), base: "exports/a".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None };
+        assert!(check_request(&req(vec![chunk("Hi.", 600)])).is_ok());
+        let long = "x".repeat(CHAPTER_MAX_CHARS + 1);
+        assert!(matches!(check_request(&req(vec![chunk(&long, 0)])), Err(AudioError::Other { message }) if message.contains("too long")));
+        assert!(check_request(&req((0..=CHAPTER_MAX_CHUNKS).map(|_| chunk("a", 0)).collect())).is_err());
     }
 
     #[cfg(unix)]

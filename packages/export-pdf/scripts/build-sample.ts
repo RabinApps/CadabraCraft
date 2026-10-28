@@ -4,7 +4,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadMatterBook } from "../src/matterBook";
+import { loadMatterBook } from "../src/__tests__/matterBook";
 import { createNodeRunner } from "../src/node";
 import { buildTypstDocument, renderPdf, type TrimSize } from "../src/index";
 

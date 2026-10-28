@@ -203,6 +203,23 @@ describe("exportAudio", () => {
     expect(audio.requests).toHaveLength(1);
   });
 
+  it("refuses a second export started in the same tick, before the first shows as running", async () => {
+    const first = a().exportAudio({ ...options, formats: ["opus"] });
+    const second = a().exportAudio({ ...options, formats: ["opus"] });
+    await expect(second).rejects.toThrow(/already running/);
+    await first;
+    expect(audio.requests.length).toBe(2); // two chapters, rendered once each
+    // The guard is released: a later export is accepted (its chapters come from the cache).
+    await a().exportAudio({ ...options, formats: ["opus"] });
+    expect(s().audio?.status).toBe("done");
+  });
+
+  it("releases the start guard when setup fails", async () => {
+    useProject.setState({ manifest: { ...s().manifest!, chapters: [] } });
+    await expect(a().exportAudio(options)).rejects.toThrow(/no chapters/);
+    await expect(a().exportAudio(options)).rejects.toThrow(/no chapters/);
+  });
+
   it("refuses a second export while one runs, and dismiss never clears a running one", async () => {
     let finish: (v: unknown) => void = () => {};
     audio.render = (req) =>

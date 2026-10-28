@@ -29,7 +29,7 @@ export type {
   TrashItem,
   VoiceDownload,
 } from "./types";
-export { AUTOSAVE_MS } from "./util";
+export { AUTOSAVE_MS, AUTOSAVE_MAX_MS } from "./util";
 
 /**
  * The open book and everything in progress around it. One zustand store, built from slices that each own a group of

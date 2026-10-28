@@ -63,6 +63,8 @@ export function retargetEntry(
 
 /** How long typing may sit unsaved before it is written to disk. */
 export const AUTOSAVE_MS = 2000;
+/** Longest typing may sit unsaved while the author keeps typing (each keystroke restarts the AUTOSAVE_MS delay). */
+export const AUTOSAVE_MAX_MS = 10000;
 
 /** Parses a chapter file's text and checks it against the editor schema. Throws (a message for the author) for corrupt files; the file is never touched. */
 export function parseChapter(contents: string, file: string): ChapterDoc {

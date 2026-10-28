@@ -1,7 +1,7 @@
 // The full fixture book wrapped in front and back matter, shared by the exporter tests (not part of the public API).
 import type { ChapterDoc, DocNode, MatterKind, Section } from "@cadabracraft/shared";
 import { loadFullBook } from "./fixtures";
-import type { PdfChapter } from "./types";
+import type { PdfChapter } from "../types";
 
 const h1 = (t: string): DocNode => ({
   type: "heading",

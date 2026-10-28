@@ -10,6 +10,8 @@ const HARD_PAUSE_MS: u32 = 1000;
 const MIN_BATCH_CHARS: usize = 1200;
 const MAX_BATCH_CHARS: usize = 2500;
 const PARAGRAPH_MS: u32 = 600;
+/// Longest pause the renderer will insert, so a hostile or buggy request cannot ask for hours of silence.
+pub(crate) const MAX_PAUSE_MS: u32 = 10_000;
 
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -41,7 +43,7 @@ pub(crate) fn plan_batches(chunks: &[Chunk]) -> Vec<Batch> {
             text.push(' ');
         }
         text.push_str(&t);
-        pause = c.pause_after_ms;
+        pause = c.pause_after_ms.min(MAX_PAUSE_MS);
         if pause >= HARD_PAUSE_MS || (pause >= PARAGRAPH_MS && text.len() >= MIN_BATCH_CHARS) {
             out.push(Batch { text: std::mem::take(&mut text), pause_after_ms: pause });
         }
@@ -84,7 +86,7 @@ pub(crate) fn engine_args(v: &VoiceDef, root: &Path, speed: f64, threads: usize,
 }
 
 pub(crate) fn silence(rate: u32, ms: u32) -> usize {
-    (rate as u64 * ms as u64 / 1000) as usize
+    (rate as u64 * ms.min(MAX_PAUSE_MS) as u64 / 1000) as usize
 }
 
 #[cfg(test)]
@@ -106,6 +108,13 @@ mod tests {
         let many: Vec<Chunk> = (0..40).map(|_| chunk(&"y".repeat(200), 250)).collect();
         assert!(plan_batches(&many).iter().all(|b| b.text.len() <= MAX_BATCH_CHARS));
         assert_eq!(plan_batches(&[chunk("--flag looking", 600), chunk("  ", 600)])[0].text, "flag looking");
+    }
+
+    #[test]
+    fn pauses_are_clamped() {
+        assert_eq!(plan_batches(&[chunk("Title", u32::MAX)])[0].pause_after_ms, MAX_PAUSE_MS);
+        assert_eq!(silence(24_000, u32::MAX), 240_000);
+        assert_eq!(silence(24_000, 1000), 24_000);
     }
 
     #[test]

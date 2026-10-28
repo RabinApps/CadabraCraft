@@ -1,11 +1,12 @@
 //! Reading and writing project text files (pages, manifest) with external-edit conflict copies.
-use super::fsio::{atomic_write, hash_bytes, read_capped, stamp};
+use super::fsio::{atomic_write, hash_bytes, read_regular, stamp};
 use super::paths::resolve;
 use super::snapshots::{self, SnapshotMode};
 use super::{ProjectError, Result};
 use serde::Serialize;
-use std::fs;
-use std::path::Path;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex, OnceLock};
 
 /// Largest text file `read_file` returns, in bytes. Chapters and the manifest are far smaller; this stops a huge or
 /// hostile file from being pulled into memory and sent over IPC.
@@ -30,22 +31,12 @@ pub struct WriteResult {
 pub fn read_file(root: &Path, rel: &str) -> Result<Option<FileRead>> {
     let path = resolve(root, rel)?;
     let too_large = || ProjectError::TooLarge { path: rel.to_string(), max_mb: MAX_READ_BYTES / 1024 / 1024 };
-    if path.is_dir() {
-        return Err(ProjectError::NotAFile { path: rel.to_string() }); // Windows refuses to open a directory with a different error
-    }
-    let mut file = match fs::File::open(&path) {
-        Ok(f) => f,
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-            let name = path.file_name().and_then(|n| n.to_str()).unwrap_or_default();
-            if path.with_file_name(format!(".{name}.icloud")).exists() {
-                return Err(ProjectError::IcloudPending { path: rel.to_string() });
-            }
-            return Ok(None);
-        }
-        Err(e) => return Err(e.into()),
+    // `read_regular` looks at the file type before opening, so a fifo or device is refused instead of blocking forever.
+    let bytes = match read_regular(&path, MAX_READ_BYTES, rel, too_large) {
+        Ok(b) => b,
+        Err(ProjectError::NotFound { .. }) => return Ok(None),
+        Err(e) => return Err(e),
     };
-    let meta = file.metadata()?;
-    let bytes = read_capped(&mut file, meta.is_file(), meta.len(), MAX_READ_BYTES).map_err(|e| e.into_project(rel, &too_large, &ProjectError::from))?;
     let hash = hash_bytes(&bytes);
     let contents = String::from_utf8(bytes).map_err(|_| ProjectError::NotUtf8 { path: rel.to_string() })?;
     Ok(Some(FileRead { contents, hash }))
@@ -77,10 +68,28 @@ pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str
     write_file_with(root, rel, contents, base_hash, SnapshotMode::Throttled)
 }
 
+/// Runs `f` while holding a lock for `path`, so two saves of the same page (autosave and a save on close) cannot
+/// interleave their read-compare-write and lose a conflict copy. Entries are tiny and live for the session.
+fn with_path_lock<T>(path: &Path, f: impl FnOnce() -> T) -> T {
+    static LOCKS: OnceLock<Mutex<HashMap<PathBuf, Arc<Mutex<()>>>>> = OnceLock::new();
+    let lock = LOCKS.get_or_init(Default::default).lock().unwrap_or_else(|e| e.into_inner()).entry(path.to_path_buf()).or_default().clone();
+    let _guard = lock.lock().unwrap_or_else(|e| e.into_inner());
+    f()
+}
+
 pub(crate) fn write_file_with(root: &Path, rel: &str, contents: &str, base_hash: Option<&str>, snapshot: SnapshotMode) -> Result<WriteResult> {
     let path = resolve(root, rel)?;
+    with_path_lock(&path, || write_locked(root, rel, &path, contents, base_hash, snapshot))
+}
+
+fn write_locked(root: &Path, rel: &str, path: &Path, contents: &str, base_hash: Option<&str>, snapshot: SnapshotMode) -> Result<WriteResult> {
     let mut conflict_copy = None;
-    let existing = fs::read(&path).ok();
+    // Only a missing file is "new"; any other failure (unreadable, a folder, too large) must not skip the conflict check.
+    let existing = match read_regular(path, MAX_READ_BYTES, rel, || ProjectError::TooLarge { path: rel.to_string(), max_mb: MAX_READ_BYTES / 1024 / 1024 }) {
+        Ok(b) => Some(b),
+        Err(ProjectError::NotFound { .. }) => None,
+        Err(e) => return Err(e),
+    };
     if let (Some(base), Some(existing)) = (base_hash, &existing) {
         if hash_bytes(existing) != base {
             let copy = free_conflict_name(root, rel)?;
@@ -92,7 +101,7 @@ pub(crate) fn write_file_with(root: &Path, rel: &str, contents: &str, base_hash:
         // Best effort: a snapshot that cannot be written (full disk, no permission) must not stop the save itself.
         let _ = snapshots::keep_before_overwrite(root, rel, existing, contents.as_bytes(), snapshot, chrono::Utc::now());
     }
-    atomic_write(&path, contents.as_bytes())?;
+    atomic_write(path, contents.as_bytes())?;
     Ok(WriteResult { hash: hash_bytes(contents.as_bytes()), conflict_copy })
 }
 
@@ -100,6 +109,7 @@ pub(crate) fn write_file_with(root: &Path, rel: &str, contents: &str, base_hash:
 mod tests {
     use super::*;
     use crate::project::*;
+    use std::fs;
 
     fn tmp() -> tempfile::TempDir {
         tempfile::tempdir().unwrap()
@@ -199,16 +209,51 @@ mod tests {
         let denied = fs::File::open(&page).is_err(); // false when running as root
         let result = read_file(d.path(), "manuscript/001-a.json");
         fs::set_permissions(&page, fs::Permissions::from_mode(0o644)).unwrap();
-        assert!(!denied || matches!(result, Err(ProjectError::Io { .. })));
-        // Opening a fifo for reading waits for a writer, so one is provided; the page is then refused as not a file.
+        assert!(!denied || matches!(result, Err(ProjectError::PermissionDenied { .. } | ProjectError::Io { .. })));
+        // A save must not treat an unreadable page as new (that would skip the conflict copy).
+        fs::set_permissions(&page, fs::Permissions::from_mode(0o000)).unwrap();
+        let write = write_file(d.path(), "manuscript/001-a.json", "new", Some("stale"));
+        fs::set_permissions(&page, fs::Permissions::from_mode(0o644)).unwrap();
+        assert!(!denied || write.is_err());
+        assert_eq!(fs::read_to_string(&page).unwrap(), "{}");
+        // Opening a fifo for reading waits for a writer, and none ever comes; the page must be refused without opening it.
         let fifo = d.path().join("manuscript/002-b.json");
         assert!(std::process::Command::new("mkfifo").arg(&fifo).status().unwrap().success());
-        let writer = fifo.clone();
-        std::thread::spawn(move || drop(fs::OpenOptions::new().write(true).open(writer)));
         let root = d.path().to_path_buf();
         let (tx, rx) = std::sync::mpsc::channel();
         std::thread::spawn(move || drop(tx.send(read_file(&root, "manuscript/002-b.json"))));
         let got = rx.recv_timeout(std::time::Duration::from_secs(10)).expect("reading a fifo page must not hang");
         assert_eq!(got.unwrap_err(), ProjectError::NotAFile { path: "manuscript/002-b.json".into() });
+    }
+
+    #[test]
+    fn a_save_of_a_folder_or_oversized_page_is_an_error_not_a_blind_overwrite() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("manuscript/dir.json")).unwrap();
+        assert!(matches!(write_file(d.path(), "manuscript/dir.json", "x", Some("h")).unwrap_err(), ProjectError::NotAFile { .. }));
+        let big = d.path().join("manuscript/big.json");
+        fs::File::create(&big).unwrap().set_len(MAX_READ_BYTES + 1).unwrap();
+        assert!(matches!(write_file(d.path(), "manuscript/big.json", "x", Some("h")).unwrap_err(), ProjectError::TooLarge { .. }));
+        assert_eq!(fs::metadata(&big).unwrap().len(), MAX_READ_BYTES + 1);
+    }
+
+    #[test]
+    fn concurrent_saves_of_one_page_each_keep_the_version_they_replace() {
+        let d = tmp();
+        write_file(d.path(), "manuscript/x.json", "v0", None).unwrap();
+        let root = d.path().to_path_buf();
+        let handles: Vec<_> = (0..8)
+            .map(|i| {
+                let root = root.clone();
+                std::thread::spawn(move || write_file(&root, "manuscript/x.json", &format!("w{i}"), Some("stale")).unwrap())
+            })
+            .collect();
+        let copies: Vec<String> = handles.into_iter().map(|h| h.join().unwrap().conflict_copy.expect("every save sees a changed file")).collect();
+        let mut unique = copies.clone();
+        unique.sort();
+        unique.dedup();
+        assert_eq!(unique.len(), 8, "{copies:?}");
+        let kept: std::collections::HashSet<String> = copies.iter().map(|c| fs::read_to_string(d.path().join(c)).unwrap()).collect();
+        assert_eq!(kept.len(), 8); // v0 plus seven of the eight writes: every replaced version is somewhere
     }
 }

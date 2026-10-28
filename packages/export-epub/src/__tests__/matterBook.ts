@@ -1,6 +1,6 @@
 // A book with every kind of front and back matter page, shared by the exporter tests (not part of the public API).
 import type { ChapterDoc } from "@cadabracraft/shared";
-import type { EpubChapter } from "./epub";
+import type { EpubChapter } from "../epub";
 
 const doc = (t: string): ChapterDoc => ({
   type: "doc",

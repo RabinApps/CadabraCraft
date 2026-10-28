@@ -113,6 +113,15 @@ export function projectErrorMessage(e: ProjectError): string {
   }
 }
 
+/** What opening a folder without a cadabra.json fails with. Home compares against it to tell "folder gone" from other failures. */
+export const noManifestMessage = (): string => t`No cadabra.json in that folder`;
+
+/** True when opening a book failed because the folder is gone or holds no book, as opposed to a book that could not be read. */
+export function isMissingFolder(e: unknown): boolean {
+  if (isProjectError(e)) return e.kind === "not_found" || e.kind === "not_a_project";
+  return e instanceof Error && e.message === noManifestMessage();
+}
+
 /** Message of anything a bridge call can reject with: a Rust `ProjectError`, any `{ message }` object, an Error or a string. */
 export function errText(e: unknown): string {
   if (isProjectError(e)) return projectErrorMessage(e);

@@ -196,6 +196,8 @@ fn audio_commands_work_through_the_ipc() {
     let book = tempfile::tempdir().unwrap();
     std::fs::write(book.path().join("a.opus"), "x").unwrap();
     let r = root(&book);
+    assert!(call(&w, "audio_files_exist", json!({ "root": r, "paths": ["a.opus"] })).is_err(), "not a project yet");
+    std::fs::write(book.path().join("cadabra.json"), "{}").unwrap();
     assert_eq!(json_of(call(&w, "audio_files_exist", json!({ "root": r, "paths": ["a.opus", "nope"] }))), json!([true, false]));
     assert!(call(&w, "audio_files_exist", json!({ "root": r, "paths": ["../a.opus"] })).is_err());
     // The state-injected commands: the job flags live in the managed `AudioJobs`.

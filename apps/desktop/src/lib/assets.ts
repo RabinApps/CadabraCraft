@@ -32,3 +32,16 @@ export function forgetAsset(root: string, src: string): void {
   );
   cache.delete(key);
 }
+
+/** Revokes every cached URL of one project, so a closed book does not keep its images in memory for the rest of the session. */
+export function forgetProjectAssets(root: string): void {
+  const prefix = `${root}\u0000`;
+  for (const key of [...cache.keys()]) {
+    if (!key.startsWith(prefix)) continue;
+    cache.get(key)?.then(
+      (u) => URL.revokeObjectURL(u),
+      () => {},
+    );
+    cache.delete(key);
+  }
+}

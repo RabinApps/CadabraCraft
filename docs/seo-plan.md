@@ -14,33 +14,33 @@ Status: proposed 2026-10-27; the "Before announcing" work in section 8 was imple
 
 Checked against `apps/website/src` on 2026-10-27.
 
-| Area                | State                                                                                                                                  |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Routes              | `/`, `/features/`, `/compare/`, `/compare/<slug>/` (4), `/support/`, `/download/`, 404                                                  |
-| Metadata            | `pageMetadata()` in `lib/seo.ts`: title, description, canonical, OpenGraph, Twitter `summary`. No image                                 |
-| Sitemap and robots  | `sitemap.ts` lists every route without `lastModified`; `robots.ts` allows all and names the sitemap                                    |
-| Structured data     | One `WebSite` object in `layout.tsx`. No `FAQPage`, `BreadcrumbList`, `SoftwareApplication` or `Article`                               |
-| Hosting             | GitHub Pages, custom domain via `public/CNAME`, `output: "export"`, `trailingSlash: true`, fonts self-hosted by `next/font`            |
-| Images              | None. The home page uses an HTML mockup; `images.unoptimized` is set because of the static export                                      |
-| Copy gap            | FAQ and Features say "EPUB3 and print-ready PDF". The app also exports Word, Markdown and audiobooks, imports HTML, and has editions   |
+| Area               | State                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Routes             | `/`, `/features/`, `/compare/`, `/compare/<slug>/` (4), `/support/`, `/download/`, 404                                               |
+| Metadata           | `pageMetadata()` in `lib/seo.ts`: title, description, canonical, OpenGraph, Twitter `summary`. No image                              |
+| Sitemap and robots | `sitemap.ts` lists every route without `lastModified`; `robots.ts` allows all and names the sitemap                                  |
+| Structured data    | One `WebSite` object in `layout.tsx`. No `FAQPage`, `BreadcrumbList`, `SoftwareApplication` or `Article`                             |
+| Hosting            | GitHub Pages, custom domain via `public/CNAME`, `output: "export"`, `trailingSlash: true`, fonts self-hosted by `next/font`          |
+| Images             | None. The home page uses an HTML mockup; `images.unoptimized` is set because of the static export                                    |
+| Copy gap           | FAQ and Features say "EPUB3 and print-ready PDF". The app also exports Word, Markdown and audiobooks, imports HTML, and has editions |
 
 ## 3. Keyword map
 
 One primary intent per URL. Volume and difficulty are not measured here (no tracking, no paid tools); validate with Search Console impressions after launch and revise.
 
-| URL                     | Primary query                                  | Also                                                     | Title draft (50 to 60 chars)                       |
-| ----------------------- | ---------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------- |
-| `/`                     | free book formatting software                  | book writing software, offline book editor               | CadabraCraft: free book writing and formatting app |
-| `/features/`            | book writing and formatting features           | local-first writing app, audiobook from manuscript       | Book writing and formatting features               |
-| `/formats/` (new)       | EPUB and print PDF from one manuscript         | export epub, export docx, import markdown                | EPUB, PDF, Word and Markdown for your book         |
-| `/compare/`             | book formatting software comparison            | vellum alternatives                                      | Compare book formatting software                   |
-| `/compare/vellum/`      | Vellum alternative for Windows and Linux       | free vellum alternative                                  | CadabraCraft vs Vellum: a free alternative         |
-| `/compare/atticus/`     | Atticus vs Vellum alternatives                 | atticus alternative                                      | CadabraCraft vs Atticus                            |
-| `/compare/scrivener/`   | Scrivener alternative for formatting           | scrivener epub export                                    | CadabraCraft vs Scrivener                          |
-| `/compare/reedsy-studio/` | Reedsy Studio alternative offline            | offline book editor                                      | CadabraCraft vs Reedsy Studio                      |
-| `/download/`            | CadabraCraft download                          | book formatter for mac, windows, linux                   | Download CadabraCraft                              |
-| `/guides/<slug>/` (new) | see section 5                                  |                                                          | per guide                                          |
-| `/support/`, `/changelog/` | brand queries only                          |                                                          | keep short; no keyword targeting                   |
+| URL                        | Primary query                            | Also                                               | Title draft (50 to 60 chars)                       |
+| -------------------------- | ---------------------------------------- | -------------------------------------------------- | -------------------------------------------------- |
+| `/`                        | free book formatting software            | book writing software, offline book editor         | CadabraCraft: free book writing and formatting app |
+| `/features/`               | book writing and formatting features     | local-first writing app, audiobook from manuscript | Book writing and formatting features               |
+| `/formats/` (new)          | EPUB and print PDF from one manuscript   | export epub, export docx, import markdown          | EPUB, PDF, Word and Markdown for your book         |
+| `/compare/`                | book formatting software comparison      | vellum alternatives                                | Compare book formatting software                   |
+| `/compare/vellum/`         | Vellum alternative for Windows and Linux | free vellum alternative                            | CadabraCraft vs Vellum: a free alternative         |
+| `/compare/atticus/`        | Atticus vs Vellum alternatives           | atticus alternative                                | CadabraCraft vs Atticus                            |
+| `/compare/scrivener/`      | Scrivener alternative for formatting     | scrivener epub export                              | CadabraCraft vs Scrivener                          |
+| `/compare/reedsy-studio/`  | Reedsy Studio alternative offline        | offline book editor                                | CadabraCraft vs Reedsy Studio                      |
+| `/download/`               | CadabraCraft download                    | book formatter for mac, windows, linux             | Download CadabraCraft                              |
+| `/guides/<slug>/` (new)    | see section 5                            |                                                    | per guide                                          |
+| `/support/`, `/changelog/` | brand queries only                       |                                                    | keep short; no keyword targeting                   |
 
 Rules: the title carries the primary query once; the H1 is a readable variant of it, not a duplicate; descriptions (140 to 160 chars) state the benefit and "free" and "no account" where true; no two pages target the same query.
 
@@ -66,14 +66,14 @@ Ordered by value. Each item maps to a file.
 
 **Guides** (new `/guides/` index plus articles; template drawn as `Website / Guide article`). Backlog in priority order, each tied to a product capability so it can link to a real feature:
 
-| Guide                                           | Primary query                          | Links to                  |
-| ----------------------------------------------- | -------------------------------------- | ------------------------- |
-| How to format an EPUB                           | how to format an epub                  | `/formats/`, `/download/` |
-| Print-ready PDF: trim sizes, margins and fonts  | book trim sizes for print              | `/formats/`               |
-| Convert a Word manuscript to EPUB               | convert docx to epub                   | `/formats/`               |
-| Write a book in Markdown                        | write a book in markdown               | `/features/`              |
-| Make an audiobook from your manuscript          | make an audiobook from text offline    | `/features/`              |
-| Translate your book into another language       | translate a book edition               | `/features/`              |
+| Guide                                          | Primary query                       | Links to                  |
+| ---------------------------------------------- | ----------------------------------- | ------------------------- |
+| How to format an EPUB                          | how to format an epub               | `/formats/`, `/download/` |
+| Print-ready PDF: trim sizes, margins and fonts | book trim sizes for print           | `/formats/`               |
+| Convert a Word manuscript to EPUB              | convert docx to epub                | `/formats/`               |
+| Write a book in Markdown                       | write a book in markdown            | `/features/`              |
+| Make an audiobook from your manuscript         | make an audiobook from text offline | `/features/`              |
+| Translate your book into another language      | translate a book edition            | `/features/`              |
 
 Every guide: 800 to 1,500 words, written by a person who ran the steps in the app, screenshots from the app, "Updated" date, no filler. Do not publish a guide whose steps the current app cannot do.
 
@@ -99,12 +99,12 @@ Every guide: 800 to 1,500 words, written by a person who ran the steps in the ap
 
 ## 8. Phases
 
-| Phase                  | Work                                                                                                                                                                           |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Before announcing**  | OG image and screenshots; copy fixes (section 5); sitemap dates; `FAQPage` and `BreadcrumbList`; DNS, HTTPS and `www`; Search Console and Bing verification; competitor facts verified; Lighthouse pass |
-| **Launch (first release)** | `SoftwareApplication` data and real download buttons on `/download/`; release notes and `/changelog/`; GitHub topics and description; AlternativeTo listing                    |
-| **+30 days**           | `/formats/` built; first two guides (EPUB, Word to EPUB); review Search Console queries and adjust titles and descriptions                                                      |
-| **+90 days**           | Remaining guides; 90-day re-check of compare pages; quarterly rank check; decide on translated pages based on real demand                                                      |
+| Phase                      | Work                                                                                                                                                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Before announcing**      | OG image and screenshots; copy fixes (section 5); sitemap dates; `FAQPage` and `BreadcrumbList`; DNS, HTTPS and `www`; Search Console and Bing verification; competitor facts verified; Lighthouse pass |
+| **Launch (first release)** | `SoftwareApplication` data and real download buttons on `/download/`; release notes and `/changelog/`; GitHub topics and description; AlternativeTo listing                                             |
+| **+30 days**               | `/formats/` built; first two guides (EPUB, Word to EPUB); review Search Console queries and adjust titles and descriptions                                                                              |
+| **+90 days**               | Remaining guides; 90-day re-check of compare pages; quarterly rank check; decide on translated pages based on real demand                                                                               |
 
 ## 9. Risks
 

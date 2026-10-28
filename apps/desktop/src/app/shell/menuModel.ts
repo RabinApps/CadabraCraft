@@ -14,7 +14,6 @@ export type PredefinedKind =
   | "Maximize"
   | "Fullscreen"
   | "CloseWindow"
-  | "Quit"
   | "Services"
   | "Hide"
   | "HideOthers"
@@ -162,7 +161,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     pre("HideOthers", t`Hide Others`),
     pre("ShowAll", t`Show All`),
     sep,
-    pre("Quit", t`Quit CadabraCraft`),
+    cmd("app.quit", t`Quit CadabraCraft`, "CmdOrCtrl+Q"),
   ]);
 
   const file = sub(t`File`, [
@@ -185,7 +184,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     ]),
     sep,
     cmd("file.close", t`Close Project`, "CmdOrCtrl+Shift+W"),
-    ...(ctx.mac ? [] : [sep, settings, sep, pre("Quit", t`Quit`)]),
+    ...(ctx.mac ? [] : [sep, settings, sep, cmd("app.quit", t`Quit`, "CmdOrCtrl+Q")]),
   ]);
 
   const edit = sub(t`Edit`, [

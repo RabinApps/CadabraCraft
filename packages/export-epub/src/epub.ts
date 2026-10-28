@@ -4,6 +4,7 @@ import {
   isAssetPath,
   isBackMatterKind,
   isFrontMatterKind,
+  isValidEntryId,
   normalizeIsbn,
   textDirection,
   type BookMetadata,
@@ -26,6 +27,8 @@ a.noteref{font-size:.75em;vertical-align:super}
 img{max-width:100%}
 body.title-page,body.dedication,body.epigraph{text-align:center}body.copyright p,body.title-page p,body.dedication p,body.epigraph p{text-indent:0}
 body.dedication,body.epigraph{margin-top:25%}body.dedication p{font-style:italic}body.copyright{font-size:.85em}`;
+
+const COVER_PAGE = "epub-cover";
 
 const xmlHead = '<?xml version="1.0" encoding="UTF-8"?>\n';
 
@@ -59,6 +62,43 @@ const UNLISTED: readonly MatterKind[] = [
   "epigraph",
   "colophon",
 ];
+
+/** Ids that the package itself uses for its own files and manifest items. */
+const RESERVED_IDS = new Set(["nav", "css", COVER_PAGE, "epub-cover-image"]);
+
+/** Chapter ids become file names and XML ids, so they must be plain, unique and not clash with the package's own items. */
+function checkIds(chapters: EpubChapter[]): void {
+  const seen = new Set<string>();
+  for (const c of chapters) {
+    const where = { chapter: { id: c.id, title: c.title } };
+    if (!isValidEntryId(c.id))
+      throw new EpubExportError(
+        "invalid-id",
+        `Page id ${JSON.stringify(c.id)} is not allowed (start with a letter; use letters, digits, "-" and "_")`,
+        where,
+      );
+    if (RESERVED_IDS.has(c.id) || /^img-asset-\d+$/.test(c.id) || seen.has(c.id))
+      throw new EpubExportError(
+        "invalid-id",
+        `Page id "${c.id}" is reserved or used more than once`,
+        where,
+      );
+    seen.add(c.id);
+  }
+}
+
+/** What in an SVG could run code or fetch something: scripts, event handlers, foreign content, external references, doctypes. */
+const SVG_ACTIVE =
+  /<script|<foreignObject|<iframe|<embed|<object|<!DOCTYPE|<!ENTITY|<\?xml-stylesheet|\bon[a-z]+\s*=|javascript:|\b(?:xlink:)?href\s*=\s*["']?\s*(?!#|data:image\/(?:png|jpe?g|gif|webp)[;,])[^"'\s>]|@import|url\(\s*["']?\s*(?!#)[^)"'\s]/i;
+
+function checkSvg(src: string, bytes: Uint8Array, where: EpubExportError["where"]): void {
+  if (SVG_ACTIVE.test(new TextDecoder("utf-8").decode(bytes)))
+    throw new EpubExportError(
+      "unsupported-image",
+      `The SVG image ${src} contains scripts, event handlers or external references, which are not allowed in an EPUB. Use a PNG or JPEG instead.`,
+      where,
+    );
+}
 
 function checkSection(c: EpubChapter): Section {
   const section = c.section ?? "chapter";
@@ -105,14 +145,13 @@ export interface BuildOptions {
   cover?: { path: string; bytes: Uint8Array };
 }
 
-const COVER_PAGE = "epub-cover";
-
-/** Builds an EPUB3 package as bytes. Output is deterministic for a given input. Throws an `EpubExportError` (naming the page and the place in it) for an unknown node or mark, a malformed table, or a referenced image that is not an allowed `assets/` image or has no bytes. */
+/** Builds an EPUB3 package as bytes. Output is deterministic for a given input. Throws an `EpubExportError` (naming the page and the place in it) for an unknown node or mark, a malformed table, a heading level outside 1-3, a nested footnote, an XML-illegal character, an invalid or duplicate page id, or a referenced image that is not an allowed `assets/` image or has no bytes. */
 export function buildEpub(
   meta: BookMetadata,
   chapters: EpubChapter[],
   options: BuildOptions = {},
 ): Uint8Array {
+  checkIds(chapters);
   const lang = esc(meta.language);
   const rtl = textDirection(meta.language) === "rtl";
   const dir = rtl ? ' dir="rtl"' : "";
@@ -148,6 +187,7 @@ export function buildEpub(
       );
     const bytes = options.assets?.get(src);
     if (!bytes) throw new EpubExportError("missing-image", `Missing image file for ${src}`, where);
+    if (type === "image/svg+xml") checkSvg(src, bytes, where);
     files[`OEBPS/${src}`] = bytes;
     return `<item id="img-asset-${i + 1}" href="${esc(src)}" media-type="${type}"/>`;
   });

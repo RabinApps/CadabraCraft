@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
 
 /** Escape leaves focus mode, unless a dialog or menu is open and should take the key first. */
@@ -28,7 +29,7 @@ function useBookUndo(open: boolean) {
       )
         return;
       e.preventDefault();
-      void (e.shiftKey ? actions.redo() : actions.undo());
+      attempt(e.shiftKey ? actions.redo() : actions.undo());
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

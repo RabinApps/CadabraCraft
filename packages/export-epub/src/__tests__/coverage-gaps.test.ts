@@ -22,6 +22,7 @@ const text = (t: string): DocNode => ({ type: "text", text: t });
 const para = (t = "x"): DocNode => ({ type: "paragraph", content: [text(t)] });
 const doc = (...content: unknown[]): ChapterDoc => ({ type: "doc", content: content as DocNode[] });
 const body = (...content: unknown[]) => chapterToXhtmlBody(doc(...content));
+const chapter = (id: string, title: string) => ({ id, title, doc: doc(para()) });
 const thrown = (fn: () => unknown): unknown => {
   try {
     fn();
@@ -184,5 +185,140 @@ describe("buildEpub edge cases", () => {
       buildEpub(meta, [{ id: "ch-1", title: "One", doc: { type: "doc" } as never }]),
     );
     expect(e).toBeInstanceOf(TypeError);
+  });
+});
+
+describe("hard breaks, headings, footnotes and text validity", () => {
+  it("writes a hard break as <br/>, in paragraphs, footnotes and table cells", () => {
+    const br = { type: "hardBreak" };
+    expect(body({ type: "paragraph", content: [text("a"), br, text("b")] })).toBe("<p>a<br/>b</p>");
+    const withNote = body({
+      type: "paragraph",
+      content: [text("a"), { type: "footnote", content: [text("n"), br, text("m")] }],
+    });
+    expect(withNote).toContain("<p>n<br/>m <a");
+    const cell = { type: "tableCell", content: [{ type: "paragraph", content: [text("a"), br] }] };
+    expect(body({ type: "table", content: [{ type: "tableRow", content: [cell] }] })).toContain(
+      "<td><p>a<br/></p></td>",
+    );
+  });
+
+  it("refuses a hard break in a code block", () => {
+    expect(() => body({ type: "codeBlock", content: [{ type: "hardBreak" }] })).toThrow(
+      /code block/,
+    );
+  });
+
+  it("accepts heading levels 1-3 and a missing level, and throws on anything else", () => {
+    const h = (level: unknown) => ({
+      type: "heading",
+      ...(level === undefined ? {} : { attrs: { level } }),
+      content: [text("H")],
+    });
+    expect(body(h(undefined))).toBe("<h1>H</h1>");
+    expect(body(h(3))).toBe("<h3>H</h3>");
+    for (const level of [0, 4, 6, "x", 1.5]) {
+      const e = thrown(() => body(h(level))) as EpubExportError;
+      expect(e).toBeInstanceOf(EpubExportError);
+      expect(e.code).toBe("invalid-heading");
+      expect(e.where.nodeType).toBe("heading");
+    }
+  });
+
+  it("throws on nested footnotes and recovers for the next footnote", () => {
+    const fn = (...content: unknown[]) => ({ type: "footnote", content });
+    const e = thrown(() =>
+      body({ type: "paragraph", content: [fn(fn(text("x")))] }),
+    ) as EpubExportError;
+    expect(e.code).toBe("nested-footnote");
+    // siblings are fine
+    expect(body({ type: "paragraph", content: [fn(text("a")), fn(text("b"))] })).toContain(
+      'id="fn2"',
+    );
+  });
+
+  it("rejects characters XML cannot hold, in chapters and in metadata", () => {
+    for (const bad of [
+      "a\u0000b",
+      "a\u0008b",
+      "a\u000Bb",
+      "a\u001Fb",
+      "a￾b",
+      "a\uD800b",
+      "a\uDC00b",
+    ]) {
+      const e = thrown(() => body({ type: "paragraph", content: [text(bad)] })) as EpubExportError;
+      expect(e.code).toBe("invalid-text");
+      expect(e.message).toMatch(/U\+[0-9A-F]{4}/);
+    }
+    expect(
+      thrown(() => buildEpub({ ...meta, title: "T\u0001" }, [chapter("c1", "C")])),
+    ).toBeInstanceOf(EpubExportError);
+    // tab, newline, CR, astral characters (valid surrogate pairs) and ordinary text are fine
+    expect(body({ type: "paragraph", content: [text("a\tb\n\r\u{1F600} é")] })).toContain(
+      "\u{1F600}",
+    );
+  });
+});
+
+describe("page ids", () => {
+  it.each(["", "1a", "a b", "../x", "a/b", "a.b", "é", "x".repeat(65)])("refuses id %j", (id) => {
+    const e = thrown(() => buildEpub(meta, [chapter(id, "C")])) as EpubExportError;
+    expect(e.code).toBe("invalid-id");
+    expect(e.where.chapter?.id).toBe(id);
+  });
+  it.each(["nav", "css", "epub-cover", "epub-cover-image", "img-asset-1"])(
+    "refuses the reserved id %j",
+    (id) => {
+      expect((thrown(() => buildEpub(meta, [chapter(id, "C")])) as EpubExportError).code).toBe(
+        "invalid-id",
+      );
+    },
+  );
+  it("refuses a duplicate id and accepts the usual ones", () => {
+    expect(
+      (
+        thrown(() =>
+          buildEpub(meta, [chapter("ch-1", "A"), chapter("ch-1", "B")]),
+        ) as EpubExportError
+      ).code,
+    ).toBe("invalid-id");
+    expect(() => buildEpub(meta, [chapter("ch-1", "A"), chapter("title_page", "B")])).not.toThrow();
+  });
+});
+
+describe("SVG images", () => {
+  const svg = (inner: string, attrs = "") =>
+    new TextEncoder().encode(`<svg xmlns="http://www.w3.org/2000/svg" ${attrs}>${inner}</svg>`);
+  const withSvg = (bytes: Uint8Array) =>
+    buildEpub(
+      meta,
+      [{ id: "c1", title: "C", doc: doc({ type: "image", attrs: { src: "assets/a.svg" } }) }],
+      {
+        assets: new Map([["assets/a.svg", bytes]]),
+      },
+    );
+  it("accepts a plain SVG, internal references and embedded raster images", () => {
+    expect(() => withSvg(svg('<rect width="1" height="1" fill="url(#g)"/>'))).not.toThrow();
+    expect(() => withSvg(svg('<use href="#a"/><use xlink:href="#a"/>'))).not.toThrow();
+    expect(() => withSvg(svg('<image href="data:image/png;base64,AAAA"/>'))).not.toThrow();
+  });
+  it.each([
+    ["a script", "<script>alert(1)</script>"],
+    ["an event handler", '<rect onload="x()"/>'],
+    ["foreignObject", "<foreignObject><p/></foreignObject>"],
+    ["an external image", '<image href="https://x.test/a.png"/>'],
+    ["an external xlink image", '<image xlink:href="http://x.test/a.png"/>'],
+    ["a link", '<a href="https://x.test"><rect/></a>'],
+    ["a javascript: link", '<a href="javascript:alert(1)"><rect/></a>'],
+    ["an external url()", '<rect style="fill:url(http://x.test/a)"/>'],
+    ["an @import", "<style>@import 'x.css';</style>"],
+    ["a doctype entity", "<!DOCTYPE svg [<!ENTITY x 'y'>]>"],
+    ["a data: SVG image", '<image href="data:image/svg+xml;base64,AAAA"/>'],
+  ])("refuses an SVG with %s", (_name, inner) => {
+    const e = thrown(() => withSvg(svg(inner))) as EpubExportError;
+    expect(e.code).toBe("unsupported-image");
+    expect(e.where.chapter?.id).toBe("c1");
+    expect(e.message).toMatch(/assets\/a\.svg/);
   });
 });

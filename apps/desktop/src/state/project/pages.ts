@@ -25,7 +25,7 @@ import {
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
-import { emptyDoc, AUTOSAVE_MS } from "./util";
+import { emptyDoc, AUTOSAVE_MS, AUTOSAVE_MAX_MS } from "./util";
 import type { HistoryEntry, PageActions } from "./types";
 import type { Ctx } from "./context";
 
@@ -46,15 +46,26 @@ export const createPageActions = (ctx: Ctx): PageActions => {
     countBook,
   } = ctx;
   let autosave: ReturnType<typeof setTimeout> | undefined;
+  /** Fires AUTOSAVE_MAX_MS after the first unsaved keystroke, so continuous typing is still written. */
+  let maxWait: ReturnType<typeof setTimeout> | undefined;
+  const runAutosave = () => {
+    clearTimeout(autosave);
+    clearTimeout(maxWait);
+    autosave = maxWait = undefined;
+    flush().catch((e) => {
+      set({ notice: t`Could not save: ${errText(e)}` });
+      // Typing is still unsaved: try again, so a short write error does not leave it for the window close.
+      if (get().draft && autosave === undefined) autosave = setTimeout(runAutosave, AUTOSAVE_MS);
+    });
+  };
   return {
     flush,
     selectChapter: load,
     setDraft(doc) {
       set({ draft: doc });
       clearTimeout(autosave);
-      autosave = setTimeout(() => {
-        flush().catch((e) => set({ notice: t`Could not save: ${errText(e)}` }));
-      }, AUTOSAVE_MS);
+      autosave = setTimeout(runAutosave, AUTOSAVE_MS);
+      maxWait ??= setTimeout(runAutosave, AUTOSAVE_MAX_MS);
     },
     async saveCurrent(doc) {
       const { root, manifest } = need();
@@ -164,6 +175,7 @@ export const createPageActions = (ctx: Ctx): PageActions => {
       record({ label: t`Move ${sourceTitleById(m, id)!}` }, m, next);
     },
     async remove(id) {
+      await flush(); // typing in the page being removed would otherwise be written back after it went to trash
       const { root, manifest } = need();
       const currentId = get().currentId;
       const { manifest: next, removed } =

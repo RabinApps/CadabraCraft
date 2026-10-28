@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { escapeMarkup, typstString } from "../escape";
-import { HOSTILE } from "../hostile";
+import { HOSTILE } from "./hostile";
 
 /** Remove escape pairs; whatever is left must contain no active markup characters. */
 const stripEscapes = (s: string): string => s.replace(/\\[\s\S]/g, "");

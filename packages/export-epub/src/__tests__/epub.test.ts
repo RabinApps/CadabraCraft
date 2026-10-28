@@ -118,11 +118,10 @@ describe("buildEpub", () => {
 });
 
 describe("more node coverage", () => {
-  it("clamps heading levels and renders ordered lists and images", () => {
+  it("renders ordered lists and images", () => {
     const html = chapterToXhtmlBody({
       type: "doc",
       content: [
-        { type: "heading", attrs: { level: 6 }, content: [{ type: "text", text: "H" }] },
         {
           type: "orderedList",
           content: [
@@ -135,7 +134,6 @@ describe("more node coverage", () => {
         { type: "image", attrs: { src: "assets/a.png", alt: 'say "hi"', title: "Cap" } },
       ],
     });
-    expect(html).toContain("<h3>H</h3>");
     expect(html).toContain("<ol><li><p>a</p></li></ol>");
     expect(html).toContain('alt="say &quot;hi&quot;"');
     expect(html).toContain("<figcaption>Cap</figcaption>");

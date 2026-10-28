@@ -13,6 +13,8 @@ export interface Command {
   enabled?: boolean;
   /** For toggles and radio items. */
   checked?: boolean;
+  /** Runs even while a dialog is open (Quit). */
+  global?: boolean;
 }
 
 export type Commands = Readonly<Record<string, Command>>;
@@ -30,7 +32,7 @@ export const modalOpen = (): boolean =>
 /** Runs a command if it is registered and enabled and no dialog is open. Returns whether it ran. */
 export function runCommand(id: string, arg?: string): boolean {
   const c = getCommands()[id];
-  if (!c || c.enabled === false || modalOpen()) return false;
+  if (!c || c.enabled === false || (modalOpen() && !c.global)) return false;
   c.run(arg);
   return true;
 }
@@ -63,6 +65,7 @@ export function useRegisterCommands(commands: Commands): void {
         run: (arg) => latest.current[id]?.run(arg),
         ...(c.enabled === undefined ? {} : { enabled: c.enabled }),
         ...(c.checked === undefined ? {} : { checked: c.checked }),
+        ...(c.global ? { global: true } : {}),
       };
     }
     return registerCommands(wrapped);

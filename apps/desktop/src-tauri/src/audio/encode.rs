@@ -282,7 +282,7 @@ mod tests {
         let r = Command::new("ffmpeg").args(["-v", "error", "-y", "-i"]).arg(path).args(["-f", "s16le", "-ac", "1", "-ar", &rate.to_string()]).arg(&out).output().unwrap();
         assert!(r.status.success() && r.stderr.is_empty(), "ffmpeg: {}", String::from_utf8_lossy(&r.stderr));
         let probe = Command::new("ffprobe").args(["-v", "error", "-show_entries", "stream=codec_name,sample_rate,channels", "-of", "default=nw=1"]).arg(path).output().unwrap();
-        (std::fs::read(out).unwrap().chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]])).collect(), String::from_utf8_lossy(&probe.stdout).into_owned())
+        (std::fs::read(out).unwrap().as_chunks::<2>().0.iter().map(|c| i16::from_le_bytes(*c)).collect(), String::from_utf8_lossy(&probe.stdout).into_owned())
     }
 
     #[test]

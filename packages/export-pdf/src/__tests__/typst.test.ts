@@ -3,9 +3,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import type { ChapterDoc, DocNode } from "@cadabracraft/shared";
 import { getTemplate, listTemplates } from "@cadabracraft/templates";
 import { FontNotAvailableError, MissingAssetError, PdfExportError } from "../errors";
-import { HOSTILE } from "../hostile";
+import { HOSTILE } from "./hostile";
 import { buildTypst, buildTypstDocument, resolveFonts } from "../typst";
-import { loadFullBook } from "../fixtures";
+import { loadFullBook } from "./fixtures";
 import type { PdfChapter } from "../types";
 
 const book = { title: "Sample Book", author: "Test Author", language: "en" };
@@ -262,9 +262,25 @@ describe("unsupported input", () => {
     expect(() => buildTypst(book, ch({ type: "figcaption" }))).toThrow(
       /Unsupported node type in chapter: figcaption/,
     );
-    expect(() => buildTypst(book, ch(para({ type: "hardBreak" } as unknown as DocNode)))).toThrow(
-      /hardBreak/,
+    expect(() => buildTypst(book, ch(para({ type: "bogusInline" } as unknown as DocNode)))).toThrow(
+      /bogusInline/,
     );
+  });
+  it("renders hard breaks as Typst line breaks and escapes block markers after them", () => {
+    const br = { type: "hardBreak" } as DocNode;
+    const out = buildTypst(book, ch(para(text("one"), br, text("- two"), br, text("1. three"))));
+    expect(out).toContain("one\\\n\\- two\\\n1\\. three");
+    const inNote = buildTypst(
+      book,
+      ch(para(text("a"), { type: "footnote", content: [para(text("n"), br, text("m"))] })),
+    );
+    expect(inNote).toContain("#footnote[n\\\nm]");
+  });
+  it("throws on heading levels outside 1-3 and non-numeric levels", () => {
+    for (const level of [0, 4, 6, "x", 1.5])
+      expect(() =>
+        buildTypst(book, ch({ type: "heading", attrs: { level }, content: [text("H")] })),
+      ).toThrow(/Heading level .* is not allowed/);
   });
   it("throws on malformed tables", () => {
     const cell = (t: string): DocNode => ({ type: "tableCell", content: [para(text(t))] });

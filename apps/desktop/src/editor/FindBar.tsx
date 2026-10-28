@@ -210,6 +210,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
           <Field
             ref={findRef}
             label={t`Find`}
+            aria-invalid={invalid || undefined}
             hideLabel
             placeholder={t`Find`}
             value={f.query}

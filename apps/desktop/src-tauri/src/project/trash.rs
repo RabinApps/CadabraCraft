@@ -10,8 +10,14 @@ use std::path::Path;
 /// trashed file with the same name (same minute) is never overwritten.
 pub fn trash_file(root: &Path, rel: &str) -> Result<String> {
     let from = resolve(root, rel)?;
-    if !from.exists() {
-        return Err(ProjectError::NotFound { path: rel.to_string() });
+    // Only chapter pages can be trashed (and later restored): not the manifest, assets, exports or whole folders.
+    if !is_page_path(rel) {
+        return Err(ProjectError::CannotRestore { path: rel.to_string() });
+    }
+    match from.symlink_metadata() {
+        Err(_) => return Err(ProjectError::NotFound { path: rel.to_string() }),
+        Ok(m) if !m.is_file() => return Err(ProjectError::NotAFile { path: rel.to_string() }),
+        Ok(_) => {}
     }
     let name = rel.replace('/', "__");
     let to_rel = free_name(root, &format!(".cadabra/trash/{}-{name}", stamp()))?;
@@ -19,6 +25,14 @@ pub fn trash_file(root: &Path, rel: &str) -> Result<String> {
     fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?)?;
     fs::rename(from, to)?;
     Ok(to_rel)
+}
+
+/// `manuscript|front-matter|back-matter/<name>.json`, optionally one language folder deeper.
+fn is_page_path(rel: &str) -> bool {
+    let mut parts = rel.split('/');
+    let dir_ok = parts.next().is_some_and(|d| RESTORE_DIRS.contains(&d));
+    let rest: Vec<&str> = parts.collect();
+    dir_ok && (1..=2).contains(&rest.len()) && rest.iter().all(|p| !p.is_empty()) && rest.last().is_some_and(|f| f.ends_with(".json"))
 }
 
 const TRASH_DIR: &str = ".cadabra/trash";
@@ -211,6 +225,23 @@ mod tests {
         assert_eq!(restore_trash(d.path(), &t).unwrap(), "manuscript/a__b.json");
         assert_eq!(parse_trash_name("20260101-1200-manuscript__a__b__c.json").unwrap().1, "manuscript/a__b__c.json");
         assert_eq!(parse_trash_name("20260101-1200-assets__a__b.json"), None);
+    }
+
+    #[test]
+    fn only_page_files_can_be_trashed() {
+        let d = tmp();
+        create_project(d.path(), "{}").unwrap();
+        write_file(d.path(), "manuscript/001-a.json", "A", None).unwrap();
+        fs::create_dir_all(d.path().join("assets")).unwrap();
+        fs::write(d.path().join("assets/a.png"), "x").unwrap();
+        for bad in ["cadabra.json", "assets/a.png", "manuscript", "manuscript/", "manuscript/a/b/c.json", "manuscript/001-a.txt", ".cadabra/trash/x.json"] {
+            assert!(matches!(trash_file(d.path(), bad), Err(ProjectError::CannotRestore { .. } | ProjectError::UnsafePath { .. })), "{bad}");
+        }
+        assert!(d.path().join("cadabra.json").is_file() && d.path().join("assets/a.png").is_file());
+        // A folder with a page-like name is not a file.
+        fs::create_dir_all(d.path().join("manuscript/dir.json")).unwrap();
+        assert_eq!(trash_file(d.path(), "manuscript/dir.json").unwrap_err(), ProjectError::NotAFile { path: "manuscript/dir.json".into() });
+        assert!(d.path().join("manuscript/dir.json").is_dir());
     }
 
     #[test]

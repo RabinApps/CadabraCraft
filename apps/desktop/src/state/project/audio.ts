@@ -65,18 +65,29 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
   const { set, get, need, flush, loadChapters } = ctx;
   let audioAbort: AbortController | null = null;
   let sampleJob: string | null = null;
+  /** An export is being set up (before its running state is in the store): a second one is refused too. */
+  let starting = false;
   return {
     async exportAudio(options) {
-      if (get().audio?.status === "running" || get().exportStage)
+      if (starting || get().audio?.status === "running" || get().exportStage)
         throw new Error(t`An export is already running`);
-      await flush();
-      const { root, manifest } = need();
-      const pages = (await loadChapters()).filter(
-        (p) =>
-          p.section === "chapter" && (!options.chapterIds || options.chapterIds.includes(p.id)),
-      );
-      if (pages.length === 0)
-        throw new Error(t`The book has no chapters to read aloud yet. Add a chapter first.`);
+      starting = true;
+      let setup: { root: string; manifest: ReturnType<typeof need>["manifest"] };
+      let pages: Awaited<ReturnType<typeof loadChapters>>;
+      try {
+        await flush();
+        setup = need();
+        pages = (await loadChapters()).filter(
+          (p) =>
+            p.section === "chapter" && (!options.chapterIds || options.chapterIds.includes(p.id)),
+        );
+        if (pages.length === 0)
+          throw new Error(t`The book has no chapters to read aloud yet. Add a chapter first.`);
+      } catch (e) {
+        starting = false;
+        throw e;
+      }
+      const { root, manifest } = setup;
       const jobId = crypto.randomUUID();
       const ctrl = new AbortController();
       audioAbort = ctrl;
@@ -96,6 +107,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           error: null,
         },
       });
+      starting = false;
       try {
         const results = await renderAudiobook(
           pages.map(({ id, title, doc }) => ({ id, title, doc })),

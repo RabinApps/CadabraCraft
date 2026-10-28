@@ -3,7 +3,13 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
 import { Node as PMNode } from "@tiptap/pm/model";
-import { isAssetPath, type ChapterDoc, errMsg } from "@cadabracraft/shared";
+import {
+  errMsg,
+  isAssetPath,
+  normalizeLinkUrl,
+  safeHref,
+  type ChapterDoc,
+} from "@cadabracraft/shared";
 
 export const SceneBreak = Node.create({
   name: "sceneBreak",
@@ -142,47 +148,48 @@ export const extensions = [
   BookTableHeader,
 ];
 
-/** Returns a safe link href (http, https or mailto; bare domains get https://), or null if it should be refused. */
-export function normalizeLinkUrl(input: string): string | null {
-  const v = input.trim();
-  if (!v || /\s/.test(v)) return null;
-  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : `https://${v}`;
-  try {
-    const u = new URL(withScheme);
-    return ["http:", "https:", "mailto:"].includes(u.protocol) ? u.href : null;
-  } catch {
-    return null;
-  }
-}
+/** The link policy lives in `@cadabracraft/shared`; re-exported because the editor toolbar imports it from here. */
+export { normalizeLinkUrl };
 
 let cachedSchema: ReturnType<typeof getSchema> | null = null;
+
+/** The ProseMirror schema built from `extensions` (cached). Exporter contract tests walk its `nodes` and `marks`. */
+export function editorSchema(): ReturnType<typeof getSchema> {
+  return (cachedSchema ??= getSchema(extensions));
+}
 
 interface RawNode {
   type?: string;
   attrs?: Record<string, unknown>;
   content?: RawNode[];
+  marks?: { type?: string; attrs?: Record<string, unknown> }[];
 }
 
 /** Why `doc` is not a valid chapter in the real editor schema (the one the app and exporters use), or null if it is valid. */
 export function chapterDocProblem(doc: unknown): string | null {
   if (!doc || typeof doc !== "object" || (doc as { type?: unknown }).type !== "doc")
     return 'a chapter document must be an object with type "doc"';
-  cachedSchema ??= getSchema(extensions);
   try {
-    PMNode.fromJSON(cachedSchema, doc).check();
+    PMNode.fromJSON(editorSchema(), doc).check();
   } catch (e) {
     return errMsg(e);
   }
   // The schema's heading `levels` option only limits the editor's commands; the node spec itself accepts any level.
   let bad: unknown = null;
   let tableBad: string | null = null;
+  let badHref: string | null = null;
   const walk = (n: RawNode) => {
     if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
+    for (const m of n.marks ?? [])
+      if (m.type === "link" && safeHref(String(m.attrs?.href ?? "")) === null)
+        badHref ??= String(m.attrs?.href ?? "");
     if (n.type === "table") tableBad ??= tableProblem(n);
     for (const c of n.content ?? []) walk(c);
   };
   walk(doc as RawNode);
   if (bad !== null) return `heading level ${String(bad)} is not allowed (levels 1-3 only)`;
+  if (badHref !== null)
+    return `link ${JSON.stringify(badHref)} is not allowed (only http, https and mailto links)`;
   return tableBad;
 }
 

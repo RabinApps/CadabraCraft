@@ -38,6 +38,12 @@ const unmount = () => {
 beforeEach(unmount);
 
 describe("useRegisterCommands", () => {
+  it("keeps a command's global flag when it wraps the handler", () => {
+    render({ "app.quit": { run: vi.fn(), global: true }, "a.b": { run: vi.fn() } });
+    expect(getCommands()["app.quit"]!.global).toBe(true);
+    expect(getCommands()["a.b"]!.global).toBeUndefined();
+  });
+
   it("registers while mounted and removes them on unmount", () => {
     render({ "a.one": { run: vi.fn() } });
     expect(Object.keys(getCommands())).toEqual(["a.one"]);

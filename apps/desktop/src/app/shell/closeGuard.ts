@@ -10,7 +10,7 @@ export interface CloseGuard {
   onSaveFailed: (message: string) => void;
 }
 
-interface CloseEvent {
+export interface CloseEvent {
   preventDefault: () => void;
 }
 

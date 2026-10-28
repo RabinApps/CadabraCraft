@@ -72,7 +72,11 @@ function block(n: DocNode, ctx: Ctx): string {
       return s.trim() === "" ? "" : s;
     }
     case "heading": {
-      const level = Math.min(3, Math.max(1, Number(n.attrs?.level ?? 1)));
+      const level = Number(n.attrs?.level ?? 1);
+      if (![1, 2, 3].includes(level))
+        throw new PdfExportError(
+          `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
+        );
       return `#heading(level: ${level})[${inline(kids, ctx, true)}]`;
     }
     case "blockquote":

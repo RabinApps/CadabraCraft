@@ -86,7 +86,7 @@ pub(crate) fn files_exist(root: &std::path::Path, paths: &[String]) -> Result<Ve
 
 #[tauri::command]
 pub async fn audio_files_exist(root: String, paths: Vec<String>) -> Result<Vec<bool>, AudioError> {
-    crate::platform::blocking(move || files_exist(std::path::Path::new(&root), &paths)).await
+    crate::platform::blocking(move || files_exist(&crate::project::require_project(&PathBuf::from(root))?, &paths)).await
 }
 
 fn require_root(root: Option<PathBuf>) -> Result<PathBuf, AudioError> {
@@ -103,6 +103,7 @@ pub async fn audio_packs() -> Result<Vec<PackInfo>, AudioError> {
 async fn download_pack_job(jobs: &AudioJobs, pack: Result<&Pack, AudioError>, job_id: String, on_progress: tauri::ipc::Channel<DownloadProgress>, voices: Option<PathBuf>, client: impl FnOnce() -> Result<reqwest::Client, AudioError>) -> Result<(), AudioError> {
     let pack = pack?;
     let root = require_root(voices)?;
+    let _running = jobs.begin_download(pack.id).ok_or_else(|| other("this voice pack is already downloading"))?;
     let flag = jobs.flag(&job_id);
     let client = client()?;
     download_pack(&client, pack, &root, &flag, &|p| {
@@ -147,6 +148,9 @@ mod tests {
         assert_eq!(got, vec![true, false, false]);
         assert!(files_exist(&dir, &["../a.opus".into()]).is_err());
         let root = dir.to_string_lossy().into_owned();
+        // The command only answers for a real project (a folder with cadabra.json).
+        assert!(run(audio_files_exist(root.clone(), vec!["a.opus".into()])).is_err());
+        std::fs::write(dir.join("cadabra.json"), "{}").unwrap();
         assert_eq!(run(audio_files_exist(root.clone(), vec!["a.opus".into(), "nope".into()])).unwrap(), vec![true, false]);
         assert!(run(audio_files_exist(root, vec!["/etc/hosts".into()])).is_err());
         std::fs::remove_dir_all(&dir).unwrap();
@@ -205,6 +209,22 @@ mod tests {
         let (progress, _) = collect::<DownloadProgress>();
         let r = run(download_pack_job(&jobs, Ok(pack), "x".into(), progress, Some(other.path().to_path_buf()), || Err(AudioError::DiskFull)));
         assert_eq!(r, Err(AudioError::DiskFull));
+    }
+
+    #[test]
+    fn a_second_download_of_a_pack_that_is_running_is_refused_and_the_mark_is_released() {
+        let data = stub::body(100);
+        let pack = stub::stub_pack("stub-busy", &[], "http://127.0.0.1:1/x", &data, &["one.bin"]);
+        let (jobs, voices) = (AudioJobs::default(), tempfile::tempdir().unwrap());
+        let running = jobs.begin_download("stub-busy").unwrap();
+        let (progress, _) = collect::<DownloadProgress>();
+        let r = run(download_pack_job(&jobs, Ok(pack), "x".into(), progress, Some(voices.path().to_path_buf()), stub_client));
+        assert!(matches!(r, Err(AudioError::Other { message }) if message.contains("already downloading")));
+        drop(running);
+        // a failed run (the server is not there) must not leave the pack marked as running
+        let (progress, _) = collect::<DownloadProgress>();
+        assert!(run(download_pack_job(&jobs, Ok(pack), "x".into(), progress, Some(voices.path().to_path_buf()), stub_client)).is_err());
+        assert!(jobs.begin_download("stub-busy").is_some());
     }
 
     #[test]

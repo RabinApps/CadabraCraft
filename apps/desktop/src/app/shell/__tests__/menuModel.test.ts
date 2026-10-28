@@ -89,7 +89,8 @@ describe("menu structure", () => {
     });
     expect(
       app.filter((e) => e.kind === "predefined").map((e) => (e as { item: string }).item),
-    ).toEqual(["About", "Services", "Hide", "HideOthers", "ShowAll", "Quit"]);
+    ).toEqual(["About", "Services", "Hide", "HideOthers", "ShowAll"]);
+    expect(find(app, "app.quit")).toMatchObject({ accelerator: "CmdOrCtrl+Q" });
   });
 
   it("keeps Settings and Quit under File on other systems, with no app menu", () => {
@@ -97,7 +98,9 @@ describe("menu structure", () => {
     expect(titles(m)).toEqual(["File", "Edit", "Insert", "Format", "View", "Window", "Help"]);
     const file = submenu(m, "File");
     expect(find(file, "app.settings")).toBeDefined();
-    expect(file.some((e) => e.kind === "predefined" && e.item === "Quit")).toBe(true);
+    expect(find(file, "app.quit")).toBeDefined();
+    // Quit is a command, not the native Quit item, which would end the process without saving typing.
+    expect(file.some((e) => e.kind === "predefined" && (e.item as string) === "Quit")).toBe(false);
   });
 
   it("gives every command id once, except the recent-project entries that share one", () => {

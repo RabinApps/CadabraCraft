@@ -6,6 +6,10 @@ export type EpubErrorCode =
   | "missing-image"
   | "unsupported-cover"
   | "invalid-section"
+  | "invalid-id"
+  | "invalid-heading"
+  | "invalid-text"
+  | "nested-footnote"
   | "other";
 
 export interface EpubErrorWhere {

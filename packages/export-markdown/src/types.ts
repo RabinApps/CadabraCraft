@@ -36,4 +36,10 @@ export interface Where {
   note?: boolean;
 }
 
-export type Item = { kind: "text"; text: string; marks: Mark[] } | { kind: "raw"; md: string };
+export type Item =
+  | { kind: "text"; text: string; marks: Mark[] }
+  | {
+      kind: "raw";
+      md: string;
+      /** A hard break: the text after it begins a line. */ lineBreak?: true;
+    };
