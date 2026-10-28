@@ -46,7 +46,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ### Audio
 
-- Audiobook export, remaining: M4B with chapter markers and cover (needs an LGPL ffmpeg sidecar per platform; ask before downloading binaries), the Settings Audio voices folder and licences rows, and a real run on Windows and Linux. Built: WAV, FLAC and Opus (no MP3), Kokoro and Piper through one sherpa-onnx sidecar, voice download, chapter select, per-chapter cache, Hear a sample. Retail platforms differ on synthetic voices; the dialog says so.
+- Audiobook export, remaining: the Settings Audio voices folder and licences rows, a real run on Windows and Linux (CI builds and runs the ffmpeg sidecar there), and checking an M4B in Apple Books and other players. Built: WAV, FLAC, Opus and M4B (chapters and cover; no MP3), Kokoro and Piper through one sherpa-onnx sidecar, voice download, chapter select, per-chapter cache, Hear a sample. Retail platforms differ on synthetic voices; the dialog says so.
 
 ### Word export follow-ups
 
