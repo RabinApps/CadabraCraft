@@ -160,4 +160,32 @@ mod tests {
         write_file(&proj, "front-matter/a.json", "ok", None).unwrap();
         assert_eq!(fs::read_to_string(proj.join("manuscript/a.json")).unwrap(), "ok");
     }
+
+    #[test]
+    fn free_name_handles_names_without_an_extension_and_skips_taken_numbers() {
+        let d = tmp();
+        assert_eq!(free_name(d.path(), "notes").unwrap(), "notes");
+        fs::write(d.path().join("notes"), "").unwrap();
+        assert_eq!(free_name(d.path(), "notes").unwrap(), "notes-2");
+        fs::write(d.path().join("notes-2"), "").unwrap();
+        assert_eq!(free_name(d.path(), "notes").unwrap(), "notes-3");
+        fs::write(d.path().join("a.json"), "").unwrap();
+        fs::write(d.path().join("a-2.json"), "").unwrap();
+        assert_eq!(free_name(d.path(), "a.json").unwrap(), "a-3.json");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn containment_walks_up_to_the_top_of_a_relative_path_and_reports_unreadable_folders() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        assert!(ensure_contained(d.path(), Path::new("no-such-top/x/y"), "x/y").is_ok(), "nothing exists, so no link to follow");
+        let locked = d.path().join("locked");
+        fs::create_dir(&locked).unwrap();
+        fs::set_permissions(&locked, fs::Permissions::from_mode(0o000)).unwrap();
+        let result = resolve(d.path(), "locked/page.json");
+        let denied = fs::read_dir(&locked).is_err(); // false when running as root
+        fs::set_permissions(&locked, fs::Permissions::from_mode(0o755)).unwrap();
+        assert!(!denied || matches!(result, Err(ProjectError::Io { .. })));
+    }
 }

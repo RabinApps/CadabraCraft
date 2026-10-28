@@ -1490,7 +1490,7 @@ msgstr ""
 msgid "Move “{0}” to trash?"
 msgstr ""
 
-#. placeholder {0}: sourceTitleById(m, id) ?? ""
+#. placeholder {0}: sourceTitleById(m, id)
 #: src/state/project/pages.ts
 msgid "Move {0}"
 msgstr ""
@@ -1890,7 +1890,7 @@ msgstr ""
 msgid "Rename"
 msgstr ""
 
-#. placeholder {0}: sourceTitleById(m, id) ?? ""
+#. placeholder {0}: sourceTitleById(m, id)
 #: src/state/project/pages.ts
 msgid "Rename {0}"
 msgstr ""

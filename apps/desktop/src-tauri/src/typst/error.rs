@@ -6,13 +6,23 @@ use serde::Serialize;
 #[derive(Serialize, Debug, PartialEq)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum TypstError {
-    NotFound { message: String },
-    Timeout { seconds: u64 },
+    NotFound {
+        message: String,
+    },
+    Timeout {
+        seconds: u64,
+    },
     /// Typst ran and reported errors (its stderr).
-    Compile { message: String },
+    Compile {
+        message: String,
+    },
     /// Typst substituted an unknown font family; the export is refused.
-    Font { family: String },
-    Other { message: String },
+    Font {
+        family: String,
+    },
+    Other {
+        message: String,
+    },
 }
 
 pub(crate) fn other(m: impl std::fmt::Display) -> TypstError {
@@ -34,5 +44,30 @@ impl From<RunError> for TypstError {
             RunError::Cancelled => other("the typst run was cancelled"),
             RunError::Other(message) => TypstError::Other { message },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn errors_serialize_as_a_kind_with_its_fields() {
+        assert_eq!(serde_json::to_value(TypstError::Font { family: "X".into() }).unwrap(), serde_json::json!({ "kind": "font", "family": "X" }));
+        assert_eq!(serde_json::to_value(other("boom")).unwrap(), serde_json::json!({ "kind": "other", "message": "boom" }));
+    }
+
+    #[test]
+    fn a_failed_blocking_task_becomes_an_other_error() {
+        let e = tauri::async_runtime::block_on(async { tauri::async_runtime::spawn_blocking(|| -> u8 { panic!("worker died") }).await.unwrap_err() });
+        assert!(matches!(TypstError::from(e), TypstError::Other { .. }));
+    }
+
+    #[test]
+    fn run_errors_keep_their_kind() {
+        assert_eq!(TypstError::from(RunError::NotFound("n".into())), TypstError::NotFound { message: "n".into() });
+        assert_eq!(TypstError::from(RunError::Timeout { seconds: 3 }), TypstError::Timeout { seconds: 3 });
+        assert_eq!(TypstError::from(RunError::Cancelled), other("the typst run was cancelled"));
+        assert_eq!(TypstError::from(RunError::Other("o".into())), TypstError::Other { message: "o".into() });
     }
 }

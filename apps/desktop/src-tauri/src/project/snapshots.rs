@@ -349,4 +349,35 @@ mod tests {
         put(d.path(), REL, "");
         assert_eq!(find_stale(d.path(), &[REL.to_string()]).unwrap().len(), 1, "an emptied page with a snapshot is recoverable");
     }
+
+    #[test]
+    fn listing_skips_foreign_entries_and_reports_an_unreadable_backups_folder() {
+        let d = tempfile::tempdir().unwrap();
+        let backups = d.path().join(BACKUPS_DIR);
+        fs::create_dir_all(backups.join("a-folder")).unwrap();
+        fs::write(backups.join("notes.txt"), "x").unwrap();
+        fs::write(backups.join("20261027-1000-manuscript__002-b.json"), "other page").unwrap();
+        assert!(list_snapshots(d.path(), REL).unwrap().is_empty());
+        let e = tempfile::tempdir().unwrap();
+        put(e.path(), BACKUPS_DIR, "a file where the folder should be");
+        assert!(matches!(list_snapshots(e.path(), REL), Err(ProjectError::Io { .. })));
+    }
+
+    #[test]
+    fn an_unchanged_page_is_not_snapshotted_twice_even_when_the_interval_has_passed() {
+        let d = tempfile::tempdir().unwrap();
+        let first = keep_before_overwrite(d.path(), REL, b"same", b"new", SnapshotMode::Throttled, at("20261027-1000")).unwrap();
+        assert!(first.is_some());
+        let again = keep_before_overwrite(d.path(), REL, b"same", b"newer", SnapshotMode::Throttled, at("20261027-1100")).unwrap();
+        assert_eq!(again, None);
+        assert_eq!(list_snapshots(d.path(), REL).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn a_snapshot_with_an_impossible_date_never_marks_a_page_stale() {
+        let d = tempfile::tempdir().unwrap();
+        put(d.path(), REL, "live text");
+        put(d.path(), &format!("{BACKUPS_DIR}/20269999-9999-manuscript__001-a.json"), "different");
+        assert!(find_stale(d.path(), &[REL.to_string()]).unwrap().is_empty());
+    }
 }

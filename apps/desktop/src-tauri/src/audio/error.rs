@@ -52,3 +52,35 @@ impl From<ProjectError> for AudioError {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn errors_serialize_as_a_kind_with_its_fields() {
+        assert_eq!(serde_json::to_value(AudioError::DiskFull).unwrap(), serde_json::json!({ "kind": "disk_full" }));
+        assert_eq!(serde_json::to_value(AudioError::Checksum { file: "a".into() }).unwrap(), serde_json::json!({ "kind": "checksum", "file": "a" }));
+        assert_eq!(serde_json::to_value(other("boom")).unwrap(), serde_json::json!({ "kind": "other", "message": "boom" }));
+    }
+
+    #[test]
+    fn a_failed_blocking_task_becomes_an_other_error() {
+        let e = tauri::async_runtime::block_on(async { tauri::async_runtime::spawn_blocking(|| -> u8 { panic!("worker died") }).await.unwrap_err() });
+        assert!(matches!(AudioError::from(e), AudioError::Other { .. }));
+    }
+
+    #[test]
+    fn run_errors_keep_their_kind() {
+        assert_eq!(AudioError::from(RunError::NotFound("n".into())), AudioError::NotFound { message: "n".into() });
+        assert_eq!(AudioError::from(RunError::Timeout { seconds: 3 }), AudioError::Timeout { seconds: 3 });
+        assert_eq!(AudioError::from(RunError::Cancelled), AudioError::Cancelled);
+        assert_eq!(AudioError::from(RunError::Other("o".into())), AudioError::Other { message: "o".into() });
+    }
+
+    #[test]
+    fn only_a_full_disk_keeps_its_kind_among_project_errors() {
+        assert_eq!(AudioError::from(ProjectError::DiskFull { path: "a.opus".into() }), AudioError::DiskFull);
+        assert!(matches!(AudioError::from(ProjectError::UnsafePath { path: "../a".into() }), AudioError::Other { message } if message.contains("../a")));
+    }
+}

@@ -30,6 +30,15 @@ pub fn find_typst(explicit: Option<&str>) -> Result<PathBuf, TypstError> {
     find_typst_in(explicit, std::env::var("TYPST_BIN").ok().as_deref(), bundled_dir().as_deref(), std::env::var_os("PATH").as_deref(), &["/opt/homebrew/bin", "/usr/local/bin"])
 }
 
+/// File names to look for: Windows has `typst.exe`.
+fn binary_names(windows: bool) -> &'static [&'static str] {
+    if windows {
+        &["typst.exe", "typst"]
+    } else {
+        &["typst"]
+    }
+}
+
 pub fn find_typst_in(explicit: Option<&str>, env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, fallback_dirs: &[&str]) -> Result<PathBuf, TypstError> {
     for (given, what) in [(explicit, "the configured path"), (env_bin, "TYPST_BIN")] {
         if let Some(g) = given.map(str::trim).filter(|g| !g.is_empty()) {
@@ -41,8 +50,7 @@ pub fn find_typst_in(explicit: Option<&str>, env_bin: Option<&str>, bundled: Opt
             };
         }
     }
-    let names: &[&str] = if cfg!(windows) { &["typst.exe", "typst"] } else { &["typst"] };
-    find_executable(names, &search_dirs(bundled, path_var, fallback_dirs))
+    find_executable(binary_names(cfg!(windows)), &search_dirs(bundled, path_var, fallback_dirs))
         .ok_or_else(|| TypstError::NotFound { message: format!("The \"typst\" program was not found (searched the app folder, PATH, /opt/homebrew/bin and /usr/local/bin). {INSTALL_ADVICE}") })
 }
 
@@ -99,9 +107,7 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
     let dir = tempfile::Builder::new().prefix("cadabracraft-pdf-").tempdir_in(tmp_base).map_err(other)?;
     for (rel, (_, bytes)) in rels.iter().zip(files) {
         let target = dir.path().join(rel);
-        if let Some(parent) = target.parent() {
-            fs::create_dir_all(parent).map_err(other)?;
-        }
+        fs::create_dir_all(target.parent().unwrap_or(dir.path())).map_err(other)?; // a file inside `dir` always has a parent
         File::create(&target).and_then(|mut f| f.write_all(bytes)).map_err(other)?;
     }
     fs::write(dir.path().join("main.typ"), source).map_err(other)?;
@@ -130,14 +136,26 @@ mod tests {
 
     /// The real typst, or None (test skipped) unless `REQUIRE_TYPST=1`, in which case a missing typst fails the test.
     fn real_typst() -> Option<PathBuf> {
-        match find_typst(None) {
+        real_typst_from(find_typst(None), std::env::var("REQUIRE_TYPST").as_deref() == Ok("1"))
+    }
+
+    fn real_typst_from(found: Result<PathBuf, TypstError>, required: bool) -> Option<PathBuf> {
+        match found {
             Ok(p) => Some(p),
             Err(e) => {
-                assert!(std::env::var("REQUIRE_TYPST").as_deref() != Ok("1"), "REQUIRE_TYPST=1 but typst was not found: {e:?}");
+                assert!(!required, "REQUIRE_TYPST=1 but typst was not found: {e:?}");
                 eprintln!("skipping: typst not installed");
                 None
             }
         }
+    }
+
+    #[test]
+    fn a_missing_typst_skips_the_real_tests_unless_it_is_required() {
+        let missing = || Err(TypstError::NotFound { message: "n".into() });
+        assert_eq!(real_typst_from(missing(), false), None);
+        assert_eq!(real_typst_from(Ok(PathBuf::from("/x/typst")), true), Some(PathBuf::from("/x/typst")));
+        assert!(std::panic::catch_unwind(|| real_typst_from(Err(TypstError::NotFound { message: "n".into() }), true)).is_err());
     }
     const HELLO: &str = "#set page(width: 5in, height: 8in)\nHello from the Rust test\n";
     fn leftovers(d: &Path) -> usize {
@@ -185,11 +203,74 @@ mod tests {
     fn bundled_fonts_are_listed_when_a_font_dir_is_given() {
         let Some(bin) = real_typst() else { return };
         let fonts = Path::new(env!("CARGO_MANIFEST_DIR")).join("binaries/fonts");
+        check_bundled_fonts(&bin, &fonts, std::env::var("REQUIRE_TYPST").as_deref() == Ok("1"));
+    }
+
+    fn check_bundled_fonts(bin: &Path, fonts: &Path, required: bool) {
         if !fonts.is_dir() {
-            assert!(std::env::var("REQUIRE_TYPST").as_deref() != Ok("1"), "binaries/fonts missing; run scripts/fetch-typst.sh");
+            assert!(!required, "binaries/fonts missing; run scripts/fetch-typst.sh");
             return;
         }
-        assert!(list_fonts_with(&bin, Some(&fonts)).unwrap().iter().any(|f| f == "Inter"));
+        assert!(list_fonts_with(bin, Some(fonts)).unwrap().iter().any(|f| f == "Inter"));
+    }
+
+    #[test]
+    fn a_missing_fonts_folder_skips_the_font_check_unless_it_is_required() {
+        let gone = Path::new("/no/such/fonts");
+        check_bundled_fonts(Path::new("/no/such/typst"), gone, false);
+        assert!(std::panic::catch_unwind(|| check_bundled_fonts(Path::new("/no/such/typst"), Path::new("/no/such/fonts"), true)).is_err());
+    }
+
+    #[test]
+    fn the_program_name_depends_on_the_platform() {
+        assert_eq!(binary_names(true), ["typst.exe", "typst"]);
+        assert_eq!(binary_names(false), ["typst"]);
+    }
+
+    #[test]
+    fn a_font_folder_is_used_only_when_it_exists() {
+        let missing = std::env::temp_dir().join("cadabracraft-no-such-fonts");
+        set_font_dir(missing.clone());
+        assert_ne!(FONT_DIR.get(), Some(&missing));
+        // An existing folder is remembered for the rest of the run (an empty one adds no fonts).
+        let fonts = std::env::temp_dir().join("cadabracraft-test-fonts");
+        fs::create_dir_all(&fonts).unwrap();
+        set_font_dir(fonts.clone());
+        assert!(FONT_DIR.get().is_some());
+    }
+
+    #[cfg(unix)]
+    fn fake(dir: &Path, body: &str) -> PathBuf {
+        use std::os::unix::fs::PermissionsExt;
+        let p = dir.join("fake-typst");
+        fs::write(&p, format!("#!/bin/sh\n{body}\n")).unwrap();
+        fs::set_permissions(&p, fs::Permissions::from_mode(0o755)).unwrap();
+        p
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_program_that_fails_is_an_error_with_its_message_for_version_fonts_and_compile() {
+        let d = tempfile::tempdir().unwrap();
+        let loud = fake(d.path(), "echo 'bad things' >&2; exit 2");
+        assert!(matches!(version(&loud), Err(TypstError::Other { message }) if message.contains("--version failed") && message.contains("bad things")));
+        assert!(matches!(list_fonts(&loud), Err(TypstError::Other { message }) if message.contains("typst fonts failed") && message.contains("bad things")));
+        assert!(matches!(compile(&loud, d.path(), "x", &[], false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message == "bad things"));
+        let silent = fake(d.path(), "exit 2");
+        assert!(matches!(compile(&silent, d.path(), "x", &[], false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message.contains("no message")));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn compile_passes_the_pdf_standard_and_reports_a_missing_output() {
+        let d = tempfile::tempdir().unwrap();
+        let base = tempfile::tempdir().unwrap();
+        let echo_args = fake(d.path(), "echo \"$@\" > out.pdf");
+        let pdf = compile(&echo_args, base.path(), "x", &[], true, COMPILE_TIMEOUT).unwrap();
+        assert!(String::from_utf8_lossy(&pdf).contains("--pdf-standard a-2b main.typ out.pdf"));
+        let nothing = fake(d.path(), "true");
+        assert!(matches!(compile(&nothing, base.path(), "x", &[], false, COMPILE_TIMEOUT), Err(TypstError::Other { .. })));
+        assert_eq!(leftovers(base.path()), 0);
     }
 
     #[cfg(unix)]

@@ -43,3 +43,36 @@ describe("plainBlocks", () => {
     expect(plainBlocks(doc)).toEqual(["One", "Hello there", "Quoted", "let x = 1;"]);
   });
 });
+
+describe("plainBlocks tables and containers", () => {
+  const cell = (text: string) => ({
+    type: "tableCell",
+    content: [{ type: "paragraph", content: text ? [{ type: "text", text }] : [] }],
+  });
+  it("makes one block of each table row (cells in order, empty cells skipped) and skips empty rows", () => {
+    const doc = {
+      type: "doc",
+      content: [
+        {
+          type: "table",
+          content: [
+            { type: "tableRow", content: [cell("a"), cell(""), cell("b")] },
+            { type: "tableRow", content: [cell("")] },
+          ],
+        },
+        {
+          type: "bulletList",
+          content: [
+            {
+              type: "listItem",
+              content: [{ type: "paragraph", content: [{ type: "text", text: "x" }] }],
+            },
+          ],
+        },
+        { type: "horizontalRule" },
+        { type: "paragraph" },
+      ],
+    } as unknown as ChapterDoc;
+    expect(plainBlocks(doc)).toEqual(["a b", "x"]);
+  });
+});

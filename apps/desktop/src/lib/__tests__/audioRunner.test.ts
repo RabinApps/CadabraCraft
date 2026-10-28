@@ -160,4 +160,27 @@ describe("createTauriAudioRunner", () => {
     expect(audioCancel).toHaveBeenCalledWith("j");
     await expect(runner.listVoices()).rejects.toBeInstanceOf(EngineNotFoundError);
   });
+
+  it("ignores a failing cancel: the render result still decides the outcome", async () => {
+    const audioCancel = vi.fn(async () => {
+      throw new Error("ipc closed");
+    });
+    const ctl = new AbortController();
+    ctl.abort();
+    const runner = createTauriAudioRunner(
+      { audioVoices: async () => [], audioRenderChapter: async () => rendered, audioCancel },
+      "/b",
+      "j",
+    );
+    await expect(runner.renderChapter(req, () => {}, ctl.signal)).resolves.toBeDefined();
+    await Promise.resolve();
+    expect(audioCancel).toHaveBeenCalled();
+  });
+});
+
+describe("chapterPart edge cases", () => {
+  it("falls back to chapter for an empty id", () => {
+    expect(chapterPart("")).toBe(".cadabra/audio/parts/chapter.flac");
+    expect(chapterPart("a b/c")).toBe(".cadabra/audio/parts/a_b_c.flac");
+  });
 });

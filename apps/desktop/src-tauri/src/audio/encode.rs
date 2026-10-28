@@ -16,16 +16,30 @@ const PRE_SKIP_48K: u64 = 312;
 const OPUS_RATES: [u32; 5] = [8000, 12000, 16000, 24000, 48000];
 const PAGE_PACKETS: usize = 25;
 
+/// Error text of the encoder crates (their errors have no `Display`, so `Debug`).
+fn debug_text(e: impl std::fmt::Debug) -> String {
+    format!("{e:?}")
+}
+
+/// The same for an error that comes with the value it was made from, as `Verify::into_verified` returns it.
+fn debug_text_of_second<T>((_, e): (T, impl std::fmt::Debug)) -> String {
+    debug_text(e)
+}
+
+fn display_text(e: impl std::fmt::Display) -> String {
+    e.to_string()
+}
+
 pub fn encode_flac(rate: u32, samples: &[i16]) -> Result<Vec<u8>, String> {
     if samples.is_empty() {
         return Err("there is no audio to encode".into());
     }
-    let config = flacenc::config::Encoder::default().into_verified().map_err(|(_, e)| format!("{e:?}"))?;
+    let config = flacenc::config::Encoder::default().into_verified().map_err(debug_text_of_second)?;
     let pcm: Vec<i32> = samples.iter().map(|&s| s as i32).collect();
     let source = flacenc::source::MemSource::from_samples(&pcm, 1, 16, rate as usize);
-    let stream = flacenc::encode_with_fixed_block_size(&config, source, config.block_size).map_err(|e| format!("{e:?}"))?;
+    let stream = flacenc::encode_with_fixed_block_size(&config, source, config.block_size).map_err(debug_text)?;
     let mut sink = ByteSink::new();
-    stream.write(&mut sink).map_err(|e| format!("{e:?}"))?;
+    stream.write(&mut sink).map_err(debug_text)?;
     Ok(sink.as_slice().to_vec())
 }
 
@@ -107,13 +121,13 @@ pub fn encode_opus(rate: u32, samples: &[i16]) -> Result<Vec<u8>, String> {
     head.extend_from_slice(&(PRE_SKIP_48K as u16).to_le_bytes());
     head.extend_from_slice(&rate.to_le_bytes());
     head.extend_from_slice(&[0, 0, 0]);
-    w.write_packet(head, serial, PacketWriteEndInfo::EndPage, 0).map_err(|e| e.to_string())?;
+    w.write_packet(head, serial, PacketWriteEndInfo::EndPage, 0).map_err(display_text)?;
     let vendor = b"CadabraCraft";
     let mut tags = b"OpusTags".to_vec();
     tags.extend_from_slice(&(vendor.len() as u32).to_le_bytes());
     tags.extend_from_slice(vendor);
     tags.extend_from_slice(&0u32.to_le_bytes());
-    w.write_packet(tags, serial, PacketWriteEndInfo::EndPage, 0).map_err(|e| e.to_string())?;
+    w.write_packet(tags, serial, PacketWriteEndInfo::EndPage, 0).map_err(display_text)?;
 
     let total_48k = pcm.len() as u64 * 48_000 / enc_rate as u64;
     let frames = pcm.len().div_ceil(frame);
@@ -131,7 +145,7 @@ pub fn encode_opus(rate: u32, samples: &[i16]) -> Result<Vec<u8>, String> {
         let last = i + 1 == frames;
         let granule = if last { PRE_SKIP_48K + total_48k } else { PRE_SKIP_48K + (i as u64 + 1) * FRAME_48K };
         let end = if last { PacketWriteEndInfo::EndStream } else if (i + 1) % PAGE_PACKETS == 0 { PacketWriteEndInfo::EndPage } else { PacketWriteEndInfo::NormalPacket };
-        w.write_packet(buf[..n].to_vec(), serial, end, granule).map_err(|e| e.to_string())?;
+        w.write_packet(buf[..n].to_vec(), serial, end, granule).map_err(display_text)?;
     }
     Ok(w.into_inner())
 }
@@ -173,6 +187,32 @@ mod tests {
         assert_eq!(resample(&src, 22_050, 22_050).unwrap(), src);
         assert!(resample(&src, 22_050, 0).is_err());
         assert!(resample(&[], 22_050, 24_000).unwrap().is_empty());
+    }
+
+    #[test]
+    fn encoder_errors_become_plain_text() {
+        assert_eq!(debug_text(Some(3)), "Some(3)");
+        assert_eq!(debug_text_of_second((1, "bad")), "\"bad\"");
+        assert_eq!(display_text(std::io::Error::other("boom")), "boom");
+    }
+
+    #[test]
+    fn resample_refuses_rates_whose_ratio_is_too_fine() {
+        assert_eq!(resample(&[1, 2, 3], 24_000, 44_101), Err("cannot convert 24000 Hz to 44101 Hz".to_string()));
+    }
+
+    #[test]
+    fn opus_pads_a_last_frame_that_is_not_full() {
+        // 24 kHz frames are 480 samples; 700 samples leave a partial second frame.
+        let bytes = encode_opus(24_000, &sine(24_000, 700.0 / 24_000.0, 300.0)).unwrap();
+        let mut r = ogg::PacketReader::new(std::io::Cursor::new(bytes));
+        r.read_packet_expected().unwrap();
+        r.read_packet_expected().unwrap();
+        let mut packets = 0;
+        while r.read_packet().unwrap().is_some() {
+            packets += 1;
+        }
+        assert_eq!(packets, 2);
     }
 
     #[test]
@@ -218,11 +258,22 @@ mod tests {
 
     fn ffmpeg() -> Option<&'static str> {
         let ok = Command::new("ffmpeg").arg("-version").output().is_ok_and(|o| o.status.success());
+        ffmpeg_if(ok, std::env::var("REQUIRE_FFMPEG").as_deref() == Ok("1"))
+    }
+
+    fn ffmpeg_if(ok: bool, required: bool) -> Option<&'static str> {
         if !ok {
-            assert!(std::env::var("REQUIRE_FFMPEG").as_deref() != Ok("1"), "REQUIRE_FFMPEG=1 but ffmpeg was not found");
+            assert!(!required, "REQUIRE_FFMPEG=1 but ffmpeg was not found");
             eprintln!("skipping: ffmpeg not installed");
         }
         ok.then_some("ffmpeg")
+    }
+
+    #[test]
+    fn a_missing_ffmpeg_skips_the_decode_tests_unless_it_is_required() {
+        assert_eq!(ffmpeg_if(false, false), None);
+        assert_eq!(ffmpeg_if(true, true), Some("ffmpeg"));
+        assert!(std::panic::catch_unwind(|| ffmpeg_if(false, true)).is_err());
     }
 
     /// Decodes with ffmpeg to 16-bit mono PCM at `rate`, and also returns what `ffprobe` says about the container.

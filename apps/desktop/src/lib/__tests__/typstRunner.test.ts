@@ -55,3 +55,25 @@ describe("createTauriRunner", () => {
     );
   });
 });
+
+describe("mapTypstError for values that are not Rust errors", () => {
+  it("wraps null, strings and plain objects without a kind", () => {
+    for (const v of [null, undefined, "boom", { message: "x" }]) {
+      expect(mapTypstError(v)).toBeInstanceOf(PdfExportError);
+    }
+    expect(mapTypstError("boom").message).toBe("boom");
+  });
+  it("passes an existing export error through", () => {
+    const e = new PdfExportError("x");
+    expect(mapTypstError(e)).toBe(e);
+  });
+});
+
+describe("createTauriRunner typst path", () => {
+  it("trims the configured path and treats a blank one as unset", async () => {
+    const typstListFonts = vi.fn(async () => []);
+    await createTauriRunner({ typstListFonts, typstCompile: vi.fn() }, "  /bin/typst ").listFonts();
+    await createTauriRunner({ typstListFonts, typstCompile: vi.fn() }, "   ").listFonts();
+    expect(typstListFonts.mock.calls).toEqual([["/bin/typst"], [null]]);
+  });
+});

@@ -184,11 +184,19 @@ mod tests {
         fs::write(&img, PNG).unwrap();
         fs::set_permissions(&a, fs::Permissions::from_mode(0o000)).unwrap();
         fs::set_permissions(&img, fs::Permissions::from_mode(0o000)).unwrap();
-        if fs::File::open(&a).is_ok() {
-            return; // running as root: permissions do not apply
-        }
-        assert_eq!(read_source(&a).unwrap_err(), ProjectError::PermissionDenied { path: "a.md".into() });
-        assert_eq!(read_relative_image(&d.path().join("book.md"), "p.png").unwrap_err(), ProjectError::PermissionDenied { path: "p.png".into() });
+        // (as root permissions do not apply, so there is nothing to check)
+        let denied = fs::File::open(&a).is_err();
+        let (source, image) = (read_source(&a), read_relative_image(&d.path().join("book.md"), "p.png"));
+        assert!(!denied || source.unwrap_err() == ProjectError::PermissionDenied { path: "a.md".into() });
+        assert!(!denied || image.unwrap_err() == ProjectError::PermissionDenied { path: "p.png".into() });
+        // A folder that cannot be searched makes the image path itself unreadable.
+        let locked = d.path().join("locked");
+        fs::create_dir(&locked).unwrap();
+        fs::set_permissions(&locked, fs::Permissions::from_mode(0o000)).unwrap();
+        let through = read_relative_image(&d.path().join("book.md"), "locked/p.png");
+        let denied = fs::read_dir(&locked).is_err();
+        fs::set_permissions(&locked, fs::Permissions::from_mode(0o755)).unwrap();
+        assert!(!denied || through.unwrap_err() == ProjectError::PermissionDenied { path: "locked/p.png".into() });
     }
 
     #[cfg(unix)]

@@ -117,3 +117,108 @@ pub fn run(r: &Run) -> Result<Captured, RunError> {
     };
     Ok(Captured { success: status.success(), stdout: fs::read(&out_path).map_err(other)?, stderr: String::from_utf8_lossy(&fs::read(&err_path).map_err(other)?).into_owned() })
 }
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+
+    fn script(dir: &Path, name: &str, body: &str) -> PathBuf {
+        let p = dir.join(name);
+        fs::write(&p, format!("#!/bin/sh\n{body}\n")).unwrap();
+        fs::set_permissions(&p, fs::Permissions::from_mode(0o755)).unwrap();
+        p
+    }
+
+    fn run_of<'a>(bin: &'a Path, args: &'a [String]) -> Run<'a> {
+        Run { bin, args, cwd: None, timeout: Duration::from_secs(30), cancel: None, shared_libs: false, install_advice: "Install it." }
+    }
+
+    #[test]
+    fn executables_are_regular_files_with_an_execute_bit() {
+        let d = tempfile::tempdir().unwrap();
+        let exe = script(d.path(), "tool", "true");
+        let plain = d.path().join("plain");
+        fs::write(&plain, "x").unwrap();
+        assert!(is_executable(&exe));
+        assert!(!is_executable(&plain));
+        assert!(!is_executable(d.path()), "a folder is not a program");
+        assert!(!is_executable(&d.path().join("missing")));
+    }
+
+    #[test]
+    fn search_order_is_bundled_then_path_then_fallbacks_and_finding_skips_empty_entries() {
+        let dirs = search_dirs(Some(Path::new("/b")), Some(std::ffi::OsStr::new("/p1:/p2")), &["/f"]);
+        assert_eq!(dirs, vec![PathBuf::from("/b"), PathBuf::from("/p1"), PathBuf::from("/p2"), PathBuf::from("/f")]);
+        assert_eq!(search_dirs(None, None, &[]), Vec::<PathBuf>::new());
+        assert!(bundled_dir().is_some());
+        let d = tempfile::tempdir().unwrap();
+        let exe = script(d.path(), "tool", "true");
+        assert_eq!(find_executable(&["nope", "tool"], &[PathBuf::new(), d.path().to_path_buf()]), Some(exe));
+        assert_eq!(find_executable(&["nope"], &[d.path().to_path_buf()]), None);
+    }
+
+    #[test]
+    fn captures_output_status_and_honours_the_working_directory() {
+        let d = tempfile::tempdir().unwrap();
+        let bin = script(d.path(), "t", "pwd; echo oops >&2; exit \"$1\"");
+        let work = fs::canonicalize(d.path()).unwrap();
+        let args = ["3".to_string()];
+        let got = run(&Run { cwd: Some(&work), ..run_of(&bin, &args) }).unwrap();
+        assert!(!got.success);
+        assert_eq!(String::from_utf8(got.stdout).unwrap().trim(), work.to_str().unwrap());
+        assert_eq!(got.stderr.trim(), "oops");
+        assert!(run(&run_of(&bin, &["0".to_string()])).unwrap().success);
+    }
+
+    #[test]
+    fn a_missing_program_carries_the_install_advice_and_an_unrunnable_one_is_other() {
+        let d = tempfile::tempdir().unwrap();
+        let gone = d.path().join("gone");
+        let Err(RunError::NotFound(m)) = run(&run_of(&gone, &[])) else { panic!("expected NotFound") };
+        assert!(m.contains("Could not start") && m.ends_with("Install it."), "{m}");
+        let plain = d.path().join("plain");
+        fs::write(&plain, "x").unwrap();
+        let Err(RunError::Other(m)) = run(&run_of(&plain, &[])) else { panic!("expected Other") };
+        assert!(m.starts_with("Could not start"), "{m}");
+    }
+
+    #[test]
+    fn a_program_path_without_a_parent_cannot_start_and_gets_no_library_path() {
+        let got = run(&Run { shared_libs: true, ..run_of(Path::new("/"), &[]) });
+        assert!(matches!(got, Err(RunError::Other(_))));
+    }
+
+    #[test]
+    fn a_slow_program_is_killed_at_the_timeout_and_a_cancel_flag_stops_it_at_once() {
+        let d = tempfile::tempdir().unwrap();
+        let bin = script(d.path(), "slow", "sleep 30");
+        let started = Instant::now();
+        let got = run(&Run { timeout: Duration::from_millis(100), ..run_of(&bin, &[]) });
+        assert_eq!(got.err(), Some(RunError::Timeout { seconds: 0 }));
+        let cancel = AtomicBool::new(true);
+        let got = run(&Run { cancel: Some(&cancel), ..run_of(&bin, &[]) });
+        assert_eq!(got.err(), Some(RunError::Cancelled));
+        assert!(started.elapsed() < Duration::from_secs(20), "neither run waited for the program");
+    }
+
+    #[test]
+    fn shared_libraries_next_to_the_program_go_on_the_library_path() {
+        let d = tempfile::tempdir().unwrap();
+        fs::create_dir_all(d.path().join("bin")).unwrap();
+        fs::create_dir_all(d.path().join("lib")).unwrap();
+        let bin = script(&d.path().join("bin"), "t", "echo \"$DYLD_LIBRARY_PATH:$LD_LIBRARY_PATH\"");
+        let got = run(&Run { shared_libs: true, ..run_of(&bin, &[]) }).unwrap();
+        assert!(got.success);
+        // macOS strips DYLD_* variables when it starts the system shell, so only Linux can observe the variable.
+        #[cfg(target_os = "linux")]
+        assert!(String::from_utf8(got.stdout).unwrap().contains("/bin/../lib"));
+        // Without a lib folder the environment is left alone.
+        let bare = tempfile::tempdir().unwrap();
+        let bin = script(bare.path(), "t", "echo \"[$DYLD_LIBRARY_PATH$LD_LIBRARY_PATH]\"");
+        let got = run(&Run { shared_libs: true, ..run_of(&bin, &[]) }).unwrap();
+        assert!(got.success);
+        #[cfg(target_os = "linux")]
+        assert!(!String::from_utf8(got.stdout).unwrap().contains("/lib"));
+    }
+}

@@ -39,3 +39,18 @@ describe("epubChecks alt text", () => {
     ]);
   });
 });
+
+describe("epubChecks fallbacks", () => {
+  it("uses the source title when a chapter has none in the requested language", () => {
+    expect(epubChecks(book(["One"]), [], { language: "fr" })).toEqual([
+      { tone: "ok", text: "No problems found" },
+    ]);
+    expect(epubChecks(book([" "]), [], { language: "fr" })[0]!.tone).toBe("warn");
+  });
+  it("names an untitled page without a file as empty quotes", () => {
+    const { file: _file, ...noFile } = page("", img());
+    expect(epubChecks(book(["One"]), [noFile])).toEqual([
+      { tone: "warn", text: "“” has 1 image without alt text" },
+    ]);
+  });
+});

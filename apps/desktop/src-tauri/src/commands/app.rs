@@ -22,4 +22,9 @@ mod tests {
         assert!(self_update_supported(true, true));
         assert!(!self_update_supported(true, false));
     }
+
+    #[test]
+    fn updates_supported_follows_the_platform_and_the_appimage_variable() {
+        assert_eq!(updates_supported(), self_update_supported(cfg!(target_os = "linux"), std::env::var_os("APPIMAGE").is_some()));
+    }
 }

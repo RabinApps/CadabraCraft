@@ -76,6 +76,12 @@ mod tests {
     }
 
     #[test]
+    fn a_header_with_a_bad_escape_is_an_error_that_names_it() {
+        let err = parse_write_bytes(&InvokeBody::Raw(vec![1]), &headers("%zz", "exports%2Fa.bin")).unwrap_err();
+        assert!(matches!(&err, ProjectError::Io { message } if message.contains("bad root header")), "{err:?}");
+    }
+
+    #[test]
     fn raw_body_without_headers_is_an_error() {
         let err = parse_write_bytes(&InvokeBody::Raw(vec![1]), &HeaderMap::new()).unwrap_err();
         assert!(matches!(err, ProjectError::Io { .. }), "{err:?}");

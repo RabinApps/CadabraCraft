@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getCommands, registerCommands, runCommand } from "../commands";
+import { getCommands, modalOpen, registerCommands, runCommand } from "../commands";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -39,5 +39,15 @@ describe("command registry", () => {
     expect(Object.keys(getCommands())).toEqual(["b.one"]);
     offB();
     expect(Object.keys(getCommands())).toEqual([]);
+  });
+
+  it("treats a missing document (no webview) as no dialog open", () => {
+    vi.stubGlobal("document", undefined);
+    expect(modalOpen()).toBe(false);
+  });
+
+  it("is open when a dialog element exists and closed when none does", () => {
+    vi.stubGlobal("document", { querySelector: () => null });
+    expect(modalOpen()).toBe(false);
   });
 });

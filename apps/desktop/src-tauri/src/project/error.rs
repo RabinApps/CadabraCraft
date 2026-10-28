@@ -146,4 +146,40 @@ mod tests {
         assert_eq!(ProjectError::UnsafePath { path: "..".into() }.to_string(), "unsafe project path: ..");
         assert_eq!(ProjectError::from(std::io::Error::other("boom")).to_string(), "boom");
     }
+
+    #[test]
+    fn every_variant_has_an_english_message_and_a_tauri_join_failure_is_io() {
+        use ProjectError::*;
+        let p = || "p".to_string();
+        let all = vec![
+            (UnsafePath { path: p() }, "unsafe project path: p"),
+            (PathEscape { path: p() }, "p leaves the project folder through a symbolic link"),
+            (NotFound { path: p() }, "p does not exist"),
+            (AlreadyExists, "a project already exists in this folder"),
+            (NotAProject { path: p() }, "p is not a CadabraCraft project folder"),
+            (NotUtf8 { path: p() }, "p is not valid UTF-8"),
+            (IcloudPending { path: p() }, "p is still downloading from iCloud; try again in a moment"),
+            (TooLarge { path: p(), max_mb: 3 }, "p is larger than 3 MB"),
+            (NotAFile { path: p() }, "p is not a file"),
+            (UnsupportedImage { name: p() }, "unsupported image type: p"),
+            (InvalidImage { name: p(), ext: "png".into() }, "p is not a valid png image"),
+            (UnsupportedDocument { name: p() }, "p is not a .docx, .md, .markdown, .html, .htm or .txt file"),
+            (NotImageAsset { path: p() }, "not an image asset: p"),
+            (NotTrashPath { path: p() }, "not a trash path: p"),
+            (CannotRestore { path: p() }, "cannot restore p"),
+            (ImageRefNotAllowed { reference: p() }, "image path is not allowed: p"),
+            (ImageRefNotFound { reference: p() }, "image not found: p"),
+            (ImageRefOutside { reference: p() }, "image is outside the document folder: p"),
+            (InvalidFileName, "invalid file name"),
+            (PermissionDenied { path: p() }, "no permission to access p"),
+            (DiskFull { path: p() }, "not enough disk space to write p"),
+            (ImageDimensions { name: p(), max_megapixels: 150 }, "p has more than 150 megapixels"),
+            (Io { message: "boom".into() }, "boom"),
+        ];
+        for (e, text) in all {
+            assert_eq!(e.to_string(), text);
+        }
+        let joined = ProjectError::from(tauri::Error::FailedToReceiveMessage);
+        assert!(matches!(&joined, ProjectError::Io { message } if !message.is_empty()));
+    }
 }

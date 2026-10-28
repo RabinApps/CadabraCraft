@@ -49,3 +49,15 @@ describe("errText", () => {
     expect(isProjectError(Object.assign(new Error("x"), { kind: "io" }))).toBe(false);
   });
 });
+
+describe("isProjectError", () => {
+  it("accepts Rust file errors, and not_found only with a path", () => {
+    expect(isProjectError({ kind: "io", message: "x" })).toBe(true);
+    expect(isProjectError({ kind: "not_found", path: "a" })).toBe(true);
+    expect(isProjectError({ kind: "not_found", message: "typst" })).toBe(false);
+  });
+  it("rejects everything else", () => {
+    for (const v of [null, undefined, "io", 3, new Error("x"), {}, { kind: 1 }, { kind: "nope" }])
+      expect(isProjectError(v)).toBe(false);
+  });
+});

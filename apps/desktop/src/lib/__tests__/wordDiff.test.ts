@@ -82,6 +82,14 @@ describe("diffChapters", () => {
     expect(lines[0]).toEqual([{ kind: "del", text: "p0" }]);
     expect(lines[2500]).toEqual([{ kind: "add", text: "q0" }]);
   });
+  it("shows a whole edited paragraph as removed then added when it has too many words to compare", () => {
+    const words = (prefix: string) =>
+      Array.from({ length: 2100 }, (_, i) => `${prefix}${i}`).join(" ");
+    const [line] = diffChapters([words("a")], [words("b")]);
+    expect(line).toHaveLength(2); // one run of removed words, one of added
+    expect(line![0]!.kind).toBe("del");
+    expect(line![1]!.kind).toBe("add");
+  });
   it("counts added and removed words", () => {
     const lines = diffChapters(["one two three", "gone paragraph"], ["one 2 three four", "x"]);
     expect(changeSummary(lines)).toEqual({ added: 3, removed: 3 });

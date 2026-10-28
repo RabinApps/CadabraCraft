@@ -272,10 +272,8 @@ mod tests {
         let probe = fs::File::create(exports.join("probe"));
         let result = write_bytes(d.path(), "exports/book.epub", b"x");
         fs::set_permissions(&exports, fs::Permissions::from_mode(0o755)).unwrap();
-        if probe.is_ok() {
-            return; // running as root: permissions do not apply
-        }
-        assert_eq!(result.unwrap_err(), ProjectError::PermissionDenied { path: "book.epub".into() });
+        // (as root permissions do not apply, so there is nothing to check)
+        assert!(probe.is_ok() || result.unwrap_err() == ProjectError::PermissionDenied { path: "book.epub".into() });
         assert!(!exports.join("book.epub").exists());
         no_temp_files(&exports);
     }
@@ -332,5 +330,19 @@ mod tests {
         let got = fs::read(root.join("exports/book.epub")).unwrap();
         assert!(payloads.contains(&got), "the file must be exactly one writer's bytes, not a mix");
         no_temp_files(&root.join("exports"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn atomic_write_reports_a_folder_it_may_not_create() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        let ro = d.path().join("ro");
+        fs::create_dir(&ro).unwrap();
+        fs::set_permissions(&ro, fs::Permissions::from_mode(0o555)).unwrap();
+        let denied = fs::File::create(ro.join("probe")).is_err(); // false when running as root
+        let result = atomic_write(&ro.join("sub/page.json"), b"x");
+        fs::set_permissions(&ro, fs::Permissions::from_mode(0o755)).unwrap();
+        assert!(!denied || result.unwrap_err() == ProjectError::PermissionDenied { path: "page.json".into() });
     }
 }

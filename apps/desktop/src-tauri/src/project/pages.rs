@@ -197,4 +197,29 @@ mod tests {
         // The placeholder itself is a normal dotfile path and resolves fine.
         assert!(resolve(d.path(), "manuscript/.x.json.icloud").is_ok());
     }
+
+    #[cfg(unix)]
+    #[test]
+    fn an_unreadable_page_is_an_error_and_a_fifo_is_not_a_file() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tempfile::tempdir().unwrap();
+        let page = d.path().join("manuscript/001-a.json");
+        fs::create_dir_all(page.parent().unwrap()).unwrap();
+        fs::write(&page, "{}").unwrap();
+        fs::set_permissions(&page, fs::Permissions::from_mode(0o000)).unwrap();
+        let denied = fs::File::open(&page).is_err(); // false when running as root
+        let result = read_file(d.path(), "manuscript/001-a.json");
+        fs::set_permissions(&page, fs::Permissions::from_mode(0o644)).unwrap();
+        assert!(!denied || matches!(result, Err(ProjectError::Io { .. })));
+        // Opening a fifo for reading waits for a writer, so one is provided; the page is then refused as not a file.
+        let fifo = d.path().join("manuscript/002-b.json");
+        assert!(std::process::Command::new("mkfifo").arg(&fifo).status().unwrap().success());
+        let writer = fifo.clone();
+        std::thread::spawn(move || drop(fs::OpenOptions::new().write(true).open(writer)));
+        let root = d.path().to_path_buf();
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || drop(tx.send(read_file(&root, "manuscript/002-b.json"))));
+        let got = rx.recv_timeout(std::time::Duration::from_secs(10)).expect("reading a fifo page must not hang");
+        assert_eq!(got.unwrap_err(), ProjectError::NotAFile { path: "manuscript/002-b.json".into() });
+    }
 }
