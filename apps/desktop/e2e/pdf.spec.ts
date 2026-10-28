@@ -13,13 +13,18 @@ test("Export PDF sends the chosen options to Typst and writes exports/en/book.pd
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
   await page.keyboard.type("Typeset me");
+  await page.getByRole("button", { name: "Book details" }).click();
+  const details = page.getByRole("dialog", { name: "Book details" });
+  await details.getByLabel("Trim size").selectOption("5x8");
+  await details.getByRole("button", { name: "Save details" }).click();
+  await expect(details).toBeHidden();
   await page.getByRole("button", { name: "Export", exact: true }).click();
   await page
     .getByRole("dialog", { name: "Export book" })
     .getByRole("radio", { name: "Print PDF" })
     .click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
-  await dialog.getByLabel("Trim size").selectOption("5x8");
+  await expect(dialog.getByTestId("trim-size")).toContainText("5 × 8 in");
   await dialog.getByLabel("Template").selectOption("nonfiction");
   await dialog.getByLabel("PDF/A (archival)").check();
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
@@ -34,6 +39,38 @@ test("Export PDF sends the chosen options to Typst and writes exports/en/book.pd
   expect(pdf).toEqual([0x25, 0x50, 0x44, 0x46, 0x2d]);
   const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   expect(manifest.template).toBe("nonfiction");
+});
+
+test("the trim size is a book setting: chosen at creation, shown read-only in Export, changed in Book details", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "New project" }).click();
+  const create = page.getByRole("dialog", { name: "New book" });
+  await create.getByLabel("Title").fill("Sized Book");
+  await create.getByLabel("Trim size").selectOption("6x9");
+  await create.getByRole("button", { name: "Choose…" }).click();
+  await create.getByRole("button", { name: "Create book" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+  const manifest = () => page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
+  expect((await manifest()).trimSize).toBe("6x9");
+
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.type("Some words to count");
+  await expect(page.getByText(/in the book · ≈ \d+ pages at 6 × 9 in/)).toBeVisible();
+
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Print PDF" }).click();
+  await expect(dialog.getByTestId("trim-size")).toContainText("6 × 9 in");
+  await dialog.getByRole("button", { name: "Change" }).click();
+  const details = page.getByRole("dialog", { name: "Book details" });
+  await details.getByLabel("Trim size").selectOption("5x8");
+  await details.getByRole("button", { name: "Save details" }).click();
+  await expect(details).toBeHidden();
+  expect((await manifest()).trimSize).toBe("5x8");
+  await expect(page.getByText(/pages at 5 × 8 in/)).toBeVisible();
 });
 
 test("Export PDF dialog shows KDP print checks for a very short book", async ({ page }) => {

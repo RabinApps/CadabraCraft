@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  DEFAULT_TEMPLATE_ID,
   GALLERY_TEMPLATE_IDS,
   getTemplate,
   hasTemplate,
   listTemplates,
+  resolveTrimSize,
   TemplateError,
   validateTemplate,
   type Template,
@@ -176,6 +178,18 @@ describe("validation of malformed templates", () => {
     expect(validateTemplate(t)).toEqual([]);
     t.epub.css = "a{background:url( 'https://x.test/a.png')}";
     expect(validateTemplate(t)).toContain("epub.css must not load remote resources");
+  });
+});
+
+describe("resolveTrimSize", () => {
+  it("prefers the book's own size, then the template's default, then the default template's", () => {
+    expect(resolveTrimSize({ template: "novel", trimSize: "7x10" })).toBe("7x10");
+    expect(resolveTrimSize({ template: "nonfiction" })).toBe(
+      getTemplate("nonfiction").print.defaults.trimSize,
+    );
+    expect(resolveTrimSize({ template: "gone" })).toBe(
+      getTemplate(DEFAULT_TEMPLATE_ID).print.defaults.trimSize,
+    );
   });
 });
 

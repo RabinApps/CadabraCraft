@@ -267,6 +267,12 @@ msgstr ""
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr ""
 
+#. placeholder {0}: estimate.pages
+#. placeholder {1}: trimLabel(estimate.trimSize)
+#: src/app/shell/PageEstimate.tsx
+msgid "≈ {0} pages at {1}"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "3 mm"
 msgstr ""
@@ -613,6 +619,10 @@ msgstr ""
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Caption"
+msgstr ""
+
+#: src/app/export/PdfPanel.tsx
+msgid "Change"
 msgstr ""
 
 #: src/app/shell/Details.tsx
@@ -2445,6 +2455,14 @@ msgstr ""
 msgid "Session word goal"
 msgstr ""
 
+#: src/app/export/PdfPanel.tsx
+msgid "set in Book details"
+msgstr ""
+
+#: src/app/home/Home.tsx
+msgid "Sets the page size for the print layout. You can change it later in Book details."
+msgstr ""
+
 #: src/app/home/Home.tsx
 #: src/app/settings/Settings.tsx
 #: src/app/shell/AppHeader.tsx
@@ -2728,6 +2746,10 @@ msgstr ""
 msgid "the page is no longer in the trash"
 msgstr ""
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
+msgstr ""
+
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
 msgstr ""
@@ -2903,9 +2925,11 @@ msgstr ""
 msgid "Trash"
 msgstr ""
 
+#: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/export/PdfPanel.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
+#: src/app/home/Home.tsx
 msgid "Trim size"
 msgstr ""
 

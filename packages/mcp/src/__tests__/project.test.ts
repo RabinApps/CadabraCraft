@@ -37,6 +37,26 @@ describe("project_create / project_info", () => {
     expect(info.manifest.editions[0].title).toBe("My Book");
   });
 
+  it("stores a chosen trim size in the manifest and rejects an unknown one", async () => {
+    s = await connect();
+    const created = await s.ok("cadabra_project_create", {
+      path: "Sized",
+      title: "T",
+      author: "A",
+      trimSize: "6x9",
+    });
+    expect(created.manifest.trimSize).toBe("6x9");
+    const plain = await s.ok("cadabra_project_create", { path: "Plain", title: "T", author: "A" });
+    expect("trimSize" in plain.manifest).toBe(false);
+    const bad = await s.call("cadabra_project_create", {
+      path: "Bad",
+      title: "T",
+      author: "A",
+      trimSize: "9x9",
+    });
+    expect(bad.isError).toBe(true);
+  });
+
   it("honours language and template, refuses an existing project, unknown templates and bad languages", async () => {
     s = await connect();
     const c = await s.ok("cadabra_project_create", {

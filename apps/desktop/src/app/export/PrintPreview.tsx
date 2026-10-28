@@ -8,6 +8,7 @@ import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
   hasTemplate,
+  resolveTrimSize,
   type Template,
 } from "@cadabracraft/templates";
 import { countWords } from "@cadabracraft/shared";
@@ -119,7 +120,7 @@ function Page({
           <span
             key={c}
             aria-hidden
-            className={`pointer-events-none absolute size-[10px] border-ink ${c}`}
+            className={`pointer-events-none absolute size-2.5 border-ink ${c}`}
           />
         ))}
     </div>
@@ -149,7 +150,7 @@ function CoverThumb({ root, cover }: { root: string; cover: string }) {
       <img
         src={url}
         alt={t`Cover`}
-        className="h-[112px] w-[84px] rounded-sm border border-border object-cover"
+        className="h-28 w-21 rounded-sm border border-border object-cover"
       />
       <figcaption className="text-xs text-ink-muted">{t`Cover`}</figcaption>
     </figure>
@@ -179,7 +180,12 @@ export function PrintPreview({ onBack, onExport }: Props) {
   const template = getTemplate(
     manifest && hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID,
   );
-  const [trim, setTrim] = useState<TrimSize>(template.print.defaults.trimSize);
+  const [trim, setTrim] = useState<TrimSize>(
+    resolveTrimSize({
+      template: template.id,
+      ...(manifest?.trimSize ? { trimSize: manifest.trimSize } : {}),
+    }),
+  );
   useEffect(() => {
     readPages().then(setPages, (e: unknown) => setError(errText(e)));
   }, [readPages]);
@@ -234,13 +240,13 @@ export function PrintPreview({ onBack, onExport }: Props) {
         </Notice>
       )}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <aside className="hidden w-[140px] shrink-0 flex-col items-center gap-3 overflow-y-auto bg-sidebar p-4 md:flex">
+        <aside className="hidden w-35 shrink-0 flex-col items-center gap-3 overflow-y-auto bg-sidebar p-4 md:flex">
           {root && activeEdition.cover && (
             <CoverThumb root={root} cover={activeEdition.cover ?? ""} />
           )}
           {(pages ?? []).slice(0, 6).map((p, i) => (
             <div key={p.id} className="flex flex-col items-center gap-1.5" aria-hidden>
-              <div className="flex h-[112px] w-[84px] flex-col gap-1.5 rounded-sm border border-border bg-paper p-3">
+              <div className="flex h-28 w-21 flex-col gap-1.5 rounded-sm border border-border bg-paper p-3">
                 <span className="h-1.5 w-8 rounded-full bg-ink-muted" />
                 {Array.from({ length: 5 }, (_, n) => (
                   <span key={n} className="h-px w-full bg-border" />
@@ -265,7 +271,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
             />
           </div>
         </main>
-        <aside className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t border-border bg-surface p-5 lg:w-[300px] lg:border-s lg:border-t-0">
+        <aside className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t border-border bg-surface p-5 lg:w-75 lg:border-s lg:border-t-0">
           <h2 className="font-book text-lg font-semibold">{t`Page setup`}</h2>
           <Select
             label={t`Trim size`}

@@ -13,9 +13,9 @@ import {
   type Commands,
 } from "../../state/commands";
 import { useLayout } from "../../state/layout";
-import { buildMenuModel } from "./menuModel";
-import { quitApp } from "./quit";
-import { showNativeMenu } from "./nativeMenu";
+import { buildMenuModel } from "../shell/menuModel";
+import { quitApp } from "../shell/quit";
+import { showNativeMenu } from "../shell/nativeMenu";
 import { useRecents } from "../../state/recents";
 import { useUpdates } from "../../state/updates";
 import { SPONSOR_URL } from "../../state/sponsor";

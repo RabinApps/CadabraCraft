@@ -155,7 +155,7 @@ EPUB 3 works with most e-readers and stores. The dialog first checks what it can
 
 ### Print PDF
 
-Choose a **trim size** (page size: 5 x 8, 5.5 x 8.5 or 6 x 9 inches), a **template**, whether to make an archival **PDF/A**, and whether to include the cover as the first page. Printers usually want the cover as a separate file, so turn the cover off for a print-ready interior.
+The **trim size** (page size) is a setting of the book: you pick it when you create the book (4.25 x 6.87, 5 x 8, 5.25 x 8, 5.5 x 8.5, 6 x 9, 7 x 10 or 8.5 x 11 inches) and change it any time in Book details; the status bar shows the estimated page count at that size. The dialog shows it with a **Change** link. Choose a **template**, whether to make an archival **PDF/A**, and whether to include the cover as the first page. Printers usually want the cover as a separate file, so turn the cover off for a print-ready interior.
 
 Above the options a list of **Print checks** compares your book with Amazon KDP paperback rules: a page count of 24 to 828, the minimum inside (gutter) margin for your page count and a 0.25 inch minimum outer margin. These use an estimated page count, so treat them as early warnings, not a guarantee. KDP's own previewer has the final say. The PDF has no bleed or crop marks. **Print preview** shows an approximate layout; it is not the PDF.
 

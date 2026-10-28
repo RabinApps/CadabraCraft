@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createManifest, danglingLinks, entryFile, isTranslated, parseManifest, readingOrder, serializeManifest, sourceTitle, translationProgress } from "@cadabracraft/format";
 import { MANIFEST, ProjectFsError, countWords, createProject, imageExt, looksLike, readAsset, readProjectFile, resolveInWorkspace } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
-import { isAssetPath, errMsg } from "@cadabracraft/shared";
+import { isAssetPath, errMsg, TRIM_SIZE_IDS } from "@cadabracraft/shared";
 import { imageSources, schemaProblem } from "../doc";
 import { ToolError } from "../errors";
 import { editionOf, loadProject, projectRoot, readChapterFile, saveManifest, sectionOf } from "../project";
@@ -37,13 +37,14 @@ export const projectCreate = defineTool({
     author: z.string().min(1).describe("Author name."),
     language: z.string().min(2).optional().describe('BCP 47 language tag, default "en".'),
     template: z.string().optional().describe('Template id (see cadabra_list_templates), default "novel".'),
+    trimSize: z.enum(TRIM_SIZE_IDS).optional().describe("Print page size in inches, stored in the manifest; default is the template's."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
-  run: ({ path, title, author, language, template }, ctx) => {
+  run: ({ path, title, author, language, template, trimSize }, ctx) => {
     if (language !== undefined && !validLanguage(language)) throw new ToolError("invalid_input", `"${language}" is not a valid BCP 47 language tag`);
     if (template !== undefined && !hasTemplate(template)) getTemplate(template); // throws template_unknown with the available ids
     const root = resolveInWorkspace(ctx.ws, path);
-    const manifest = createManifest({ title, author, language, template: template ?? DEFAULT_TEMPLATE_ID, identifier: `urn:uuid:${randomUUID()}` });
+    const manifest = createManifest({ title, author, language, template: template ?? DEFAULT_TEMPLATE_ID, ...(trimSize ? { trimSize } : {}), identifier: `urn:uuid:${randomUUID()}` });
     createProject(root, serializeManifest(manifest));
     return { summary: `Created project "${title}" at ${root}`, data: { root, manifest } };
   },

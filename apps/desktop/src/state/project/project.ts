@@ -11,7 +11,8 @@ import {
   sourceFile,
   sourceTitle,
 } from "@cadabracraft/format";
-import type { ChapterDoc } from "@cadabracraft/shared";
+import type { ChapterDoc, TrimSize } from "@cadabracraft/shared";
+import { resolveTrimSize } from "@cadabracraft/templates";
 import { bridge } from "../../lib/bridge";
 import { forgetProjectAssets } from "../../lib/assets";
 import { forgetProjectReferences } from "../../lib/references";
@@ -21,6 +22,10 @@ import { useSettings } from "../editorPrefs";
 import { parseChapter, bestEffort, NO_HISTORY } from "./util";
 import type { ProjectActions, ProjectState } from "./types";
 import type { Ctx } from "./context";
+
+/** Stores the book's trim size only when it differs from what the book resolves to now, so books that never chose one keep following their template. */
+const withTrimSize = (m: Manifest, trimSize: TrimSize | undefined): Manifest =>
+  !trimSize || resolveTrimSize(m) === trimSize ? m : { ...m, trimSize };
 
 /** Opening, closing and creating a book, changes from outside the app, import, and the book-level settings in cadabra.json. */
 export const createProjectActions = (ctx: Ctx): ProjectActions => {
@@ -198,12 +203,13 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         audio: null,
       });
     },
-    async createProject(root, title, author) {
+    async createProject(root, title, author, trimSize) {
       const manifest = createManifest({
         title,
         author,
         language: i18n.locale === "pseudo" ? "en" : i18n.locale,
         identifier: `urn:uuid:${crypto.randomUUID()}`,
+        trimSize,
       });
       await bridge.createProject(root, serializeManifest(manifest));
       await get().actions.openProject(root);
@@ -241,8 +247,9 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
           isbn: d.isbn.trim() || null,
           cover: d.cover,
         });
-        validateManifest(next);
-        if (JSON.stringify(next) !== JSON.stringify(manifest)) await saveManifest(next);
+        const withTrim = withTrimSize(next, d.trimSize);
+        validateManifest(withTrim);
+        if (JSON.stringify(withTrim) !== JSON.stringify(manifest)) await saveManifest(withTrim);
         return;
       }
       const language = d.language.trim();
@@ -251,40 +258,43 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         Object.fromEntries(
           Object.entries(map).map(([k, v]) => [k === source!.language ? language : k, v]),
         );
-      const next: Manifest = {
-        ...manifest,
-        editions: [
-          {
-            ...source!,
-            language,
-            title: d.title.trim(),
-            author: d.author.trim(),
-            identifier: d.identifier.trim(),
-            isbn: d.isbn.trim() || null,
-            cover: d.cover,
-          },
-          ...translations,
-        ],
-        ...(language === source!.language
-          ? {}
-          : {
-              frontMatter: manifest.frontMatter.map((e) => ({
-                ...e,
-                titles: rekey(e.titles),
-                files: rekey(e.files),
-              })),
-              chapters: manifest.chapters.map((e) => ({
-                ...e,
-                titles: rekey(e.titles),
-                files: rekey(e.files),
-              })),
-              backMatter: manifest.backMatter.map((e) => ({
-                ...e,
-                titles: rekey(e.titles),
-                files: rekey(e.files),
-              })),
-            }),
-      };
+      const next: Manifest = withTrimSize(
+        {
+          ...manifest,
+          editions: [
+            {
+              ...source!,
+              language,
+              title: d.title.trim(),
+              author: d.author.trim(),
+              identifier: d.identifier.trim(),
+              isbn: d.isbn.trim() || null,
+              cover: d.cover,
+            },
+            ...translations,
+          ],
+          ...(language === source!.language
+            ? {}
+            : {
+                frontMatter: manifest.frontMatter.map((e) => ({
+                  ...e,
+                  titles: rekey(e.titles),
+                  files: rekey(e.files),
+                })),
+                chapters: manifest.chapters.map((e) => ({
+                  ...e,
+                  titles: rekey(e.titles),
+                  files: rekey(e.files),
+                })),
+                backMatter: manifest.backMatter.map((e) => ({
+                  ...e,
+                  titles: rekey(e.titles),
+                  files: rekey(e.files),
+                })),
+              }),
+        },
+        d.trimSize,
+      );
       // validateManifest owns the rules; it names the field, which is enough for the dialog to show.
       validateManifest(next);
       if (JSON.stringify(next) === JSON.stringify(manifest)) return;

@@ -14,6 +14,7 @@ import { Editor } from "../../editor/Editor";
 import { ReadingFooter } from "../../editor/ReadingFooter";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
+import { PageEstimate } from "./PageEstimate";
 import { Button, IconButton } from "../../ui/Button";
 import { overlayClass, panelClass } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
@@ -39,8 +40,8 @@ import { useReading } from "../../state/reading";
 import { useRecents } from "../../state/recents";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
-import { useAppMenu } from "./useAppMenu";
-import { useGlobalShortcuts } from "./useGlobalShortcuts";
+import { useAppMenu } from "../hooks/useAppMenu";
+import { useGlobalShortcuts } from "../hooks/useGlobalShortcuts";
 import { useSaveOnClose } from "../hooks/useSaveOnClose";
 import { useWordCount } from "../hooks/useWordCount";
 import { useBookWordCount } from "../hooks/useBookWordCount";
@@ -176,8 +177,8 @@ export function App() {
           pickFolder={bridge.pickFolder}
           pickImportSource={bridge.pickImportSource}
           onImport={actions.importBook}
-          onCreate={(root, title, author) =>
-            run(() => actions.createProject(root, title, author))()
+          onCreate={(root, title, author, trimSize) =>
+            run(() => actions.createProject(root, title, author, trimSize))()
           }
           onOpenRecent={(r) => {
             setError("");
@@ -300,6 +301,7 @@ export function App() {
                     })
                   : plural(words, { one: "# word on this page", other: "# words on this page" })}
                 {bookWords !== null && ` · ${t`${bookWords} in the book`}`}
+                <PageEstimate words={bookWords} />
               </span>
               <span>
                 {section === "front"
@@ -343,6 +345,10 @@ export function App() {
         onPreview={() => {
           setExportOpen(false);
           setView("print");
+        }}
+        onChangeTrimSize={() => {
+          setExportOpen(false);
+          setDetailsOpen(true);
         }}
       />
       <D.Root open={drawer} onOpenChange={setDrawer}>

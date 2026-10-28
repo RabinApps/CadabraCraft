@@ -19,6 +19,7 @@ UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 - Loading skeleton (`Loading / desktop / mode` in the pen) is designed but not built: opening a project still shows the previous screen until the manifest arrives.
 - Keyboard-open mobile editor frame and a phone header at 390px that keeps Focus mode and Details out of the way are not drawn or checked yet.
 - Snapshots follow-ups: Backups settings for tablet and mobile in the pen, whole-book and named snapshots, a diff that shows formatting changes, run the History dialog and recovery on the native app and a real sync folder (`/drive-app`).
+- Exact page count while writing: the status bar page estimate is word-count based; render with Typst (see "Trim size is a book setting" in architecture.md) or show the count of the last export.
 - Print checks: the gutter bands, 24-828 page range and 0.25 in outer margin in `lib/exportChecks.ts` match KDP's "Set Trim Size, Bleed, and Margins" page (checked 2026-10-26). Not covered yet: the 0.375 in outer minimum when the interior has bleed (we do not export bleed), and per-trim-size page limits.
 - Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
 

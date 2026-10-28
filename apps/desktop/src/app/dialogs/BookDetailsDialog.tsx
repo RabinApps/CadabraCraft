@@ -1,10 +1,13 @@
 import { sourceEdition } from "@cadabracraft/format";
+import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
+import { resolveTrimSize } from "@cadabracraft/templates";
 import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ImagePlus, Image as ImageIcon, Save, Trash2 } from "lucide-react";
 import { LOCALES } from "../../i18n/locales";
 import { assetUrl } from "../../lib/assets";
 import { errText } from "../../lib/projectError";
+import { trimLabel } from "../../lib/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
 import { Field } from "../../ui/Input";
@@ -34,6 +37,7 @@ const detailsOf = (
     isbn: e.isbn ?? "",
     identifier: e.identifier,
     cover: e.cover,
+    trimSize: resolveTrimSize(m),
   };
 };
 
@@ -73,11 +77,11 @@ function CoverPreview({
       <img
         src={url}
         alt={t`Cover preview`}
-        className="aspect-[2/3] w-full rounded-md border border-border object-cover"
+        className="aspect-2/3 w-full rounded-md border border-border object-cover"
       />
     );
   return (
-    <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-2.5 rounded-md border border-border bg-accent-soft p-4 text-center">
+    <div className="flex aspect-2/3 w-full flex-col items-center justify-center gap-2.5 rounded-md border border-border bg-accent-soft p-4 text-center">
       <ImageIcon size={32} className="text-accent" aria-hidden />
       <p className="font-book text-title font-semibold">{title}</p>
       <p className="font-book text-sm text-ink-muted">{author}</p>
@@ -158,9 +162,9 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
           void save();
         }}
       >
-        <div className="flex w-full flex-col gap-2.5 sm:w-[200px] sm:shrink-0">
+        <div className="flex w-full flex-col gap-2.5 sm:w-50 sm:shrink-0">
           <span className="text-xs font-semibold text-ink-muted">{t`Cover`}</span>
-          <div className="mx-auto w-[160px] sm:w-full">
+          <div className="mx-auto w-40 sm:w-full">
             <CoverPreview cover={form.cover} title={form.title} author={form.author} />
           </div>
           <div className="flex gap-2">
@@ -210,6 +214,18 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
               />
             </div>
           </div>
+          <Select
+            label={t`Trim size`}
+            value={form.trimSize}
+            onChange={(e) => set({ trimSize: e.target.value as TrimSize })}
+            hint={t`The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched.`}
+          >
+            {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => (
+              <option key={id} value={id}>
+                {trimLabel(id)}
+              </option>
+            ))}
+          </Select>
           <Field
             label={t`Identifier`}
             value={form.identifier}

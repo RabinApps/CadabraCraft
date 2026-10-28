@@ -1,8 +1,10 @@
 import {
   isBackMatterKind,
   isFrontMatterKind,
+  isTrimSize,
   isValidEntryId,
   type MatterKind,
+  type TrimSize,
 } from "@cadabracraft/shared";
 import { FormatError } from "./errors";
 import { validateEditions } from "./editions";
@@ -54,6 +56,8 @@ export interface Manifest {
   formatVersion: number;
   editions: Edition[];
   template: string;
+  /** Print page size the book is written for. Absent means the template's default. Added without a version bump: older apps ignore it. */
+  trimSize?: TrimSize;
   frontMatter: EditionEntry[];
   chapters: EditionEntry[];
   backMatter: EditionEntry[];
@@ -66,6 +70,7 @@ export function createManifest(init: {
   language?: string;
   identifier: string;
   template?: string;
+  trimSize?: TrimSize;
 }): Manifest {
   return {
     formatVersion: CURRENT_FORMAT_VERSION,
@@ -80,6 +85,7 @@ export function createManifest(init: {
       },
     ],
     template: init.template ?? "novel",
+    ...(init.trimSize ? { trimSize: init.trimSize } : {}),
     frontMatter: [],
     chapters: [],
     backMatter: [],
@@ -180,6 +186,11 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     backMatter: entries(o.backMatter, "backMatter", "back"),
     references: validateReferences(o.references),
   };
+  if (o.trimSize !== undefined) {
+    if (!isTrimSize(o.trimSize))
+      throw new FormatError(`manifest: unknown trimSize ${JSON.stringify(o.trimSize)}`);
+    m.trimSize = o.trimSize;
+  }
   validateEditions(m.editions, readingOrder(m));
   const seen = new Set<string>();
   for (const e of readingOrder(m)) {

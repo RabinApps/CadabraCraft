@@ -1,5 +1,5 @@
 import { BUILTIN_TEMPLATES } from "./builtin";
-import type { PrintHeadingStyle, Template } from "./types";
+import type { PrintHeadingStyle, Template, TrimSizeId } from "./types";
 
 export class TemplateError extends Error {
   constructor(message: string) {
@@ -91,6 +91,14 @@ export function getTemplate(id: string): Template {
       `Unknown template "${id}". Available: ${[...REGISTRY.keys()].join(", ")}`,
     );
   return t;
+}
+
+/** The print page size of a book: its own `trimSize`, else its template's default (an unknown template falls back to the default template). */
+export function resolveTrimSize(book: { template: string; trimSize?: TrimSizeId }): TrimSizeId {
+  return (
+    book.trimSize ??
+    (REGISTRY.get(book.template) ?? getTemplate(DEFAULT_TEMPLATE_ID)).print.defaults.trimSize
+  );
 }
 
 export const listTemplates = (): Template[] => [...REGISTRY.values()];

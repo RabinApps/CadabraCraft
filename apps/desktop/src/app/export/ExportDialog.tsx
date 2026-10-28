@@ -29,10 +29,19 @@ interface Props {
   onFormatChange: (f: ExportFormat) => void;
   /** Opens the print preview, which has the page setup. Omitted when the dialog is already in the preview. */
   onPreview?: () => void;
+  /** Opens Book details, where the trim size is set. Omitted when the dialog is already in the print preview. */
+  onChangeTrimSize?: () => void;
 }
 
 /** Export the book as EPUB 3, a print PDF (Typst), Markdown, Word or an audiobook. Each format's panel shows its checks or options before building. */
-export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPreview }: Props) {
+export function ExportDialog({
+  open,
+  onOpenChange,
+  format,
+  onFormatChange,
+  onPreview,
+  onChangeTrimSize,
+}: Props) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const stage = useProject((s) => s.exportStage);
@@ -205,7 +214,13 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
         ) : format === "markdown" ? (
           <MarkdownPanel htmlMarks={htmlMarks} onHtmlMarks={setHtmlMarks} disabled={running} />
         ) : (
-          <PdfPanel options={pdf} running={running} error={error} {...scope} />
+          <PdfPanel
+            options={pdf}
+            running={running}
+            error={error}
+            onChangeTrimSize={onChangeTrimSize}
+            {...scope}
+          />
         )}
         {running && (
           <div className="flex flex-col gap-2">
@@ -218,7 +233,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
           </div>
         )}
         {error && (
-          <Notice role="alert" className="whitespace-pre-wrap break-words">
+          <Notice role="alert" className="whitespace-pre-wrap wrap-break-word">
             {error.message}
           </Notice>
         )}

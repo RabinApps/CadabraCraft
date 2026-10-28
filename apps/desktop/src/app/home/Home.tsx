@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
+import { DEFAULT_TEMPLATE_ID, resolveTrimSize } from "@cadabracraft/templates";
 import { useLingui } from "@lingui/react/macro";
 import { BookPlus, FileUp, FolderOpen, HardDrive, Plus, Settings } from "lucide-react";
 import { Button, IconButton } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
 import { Field } from "../../ui/Input";
+import { Select } from "../../ui/Select";
+import { trimLabel } from "../../lib/trimLabels";
 import { useStartDialogs } from "../../state/commands";
 import type { ImportChoices } from "../../lib/importBook";
 import { ImportDialog } from "../dialogs/ImportDialogs";
@@ -18,7 +22,7 @@ interface Props {
   onOpen: () => void;
   onOpenRecent: (root: string) => Promise<void>;
   pickFolder: () => Promise<string | null>;
-  onCreate: (root: string, title: string, author: string) => void;
+  onCreate: (root: string, title: string, author: string, trimSize: TrimSize) => void;
   pickImportSource: () => Promise<string | null>;
   onImport: (
     source: string,
@@ -168,6 +172,9 @@ function NewProjectDialog({
   const { t } = useLingui();
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
+  const [trimSize, setTrimSize] = useState<TrimSize>(
+    resolveTrimSize({ template: DEFAULT_TEMPLATE_ID }),
+  );
   const [root, setRoot] = useState<string | null>(null);
   const [pickError, setPickError] = useState("");
   const ready = title.trim() !== "" && root !== null;
@@ -175,6 +182,7 @@ function NewProjectDialog({
   const change = () => {
     setTitle("");
     setAuthor("");
+    setTrimSize(resolveTrimSize({ template: DEFAULT_TEMPLATE_ID }));
     setRoot(null);
     setPickError("");
     onOpenChange(false);
@@ -188,7 +196,7 @@ function NewProjectDialog({
           if (!ready) return;
           const [bookTitle, bookAuthor, folder] = [title.trim(), author.trim() || t`Unknown`, root];
           change();
-          onCreate(folder, bookTitle, bookAuthor);
+          onCreate(folder, bookTitle, bookAuthor, trimSize);
         }}
       >
         <Field
@@ -198,6 +206,18 @@ function NewProjectDialog({
           autoFocus
         />
         <Field label={t`Author`} value={author} onChange={(e) => setAuthor(e.target.value)} />
+        <Select
+          label={t`Trim size`}
+          value={trimSize}
+          onChange={(e) => setTrimSize(e.target.value as TrimSize)}
+          hint={t`Sets the page size for the print layout. You can change it later in Book details.`}
+        >
+          {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => (
+            <option key={id} value={id}>
+              {trimLabel(id)}
+            </option>
+          ))}
+        </Select>
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-ink-muted">{t`Location`}</span>
           <div className="flex gap-2">

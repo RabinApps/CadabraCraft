@@ -268,6 +268,12 @@ msgstr "{words, plural, one {# word in this chapter} other {# words in this chap
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr "{words, plural, one {# word on this page} other {# words on this page}}"
 
+#. placeholder {0}: estimate.pages
+#. placeholder {1}: trimLabel(estimate.trimSize)
+#: src/app/shell/PageEstimate.tsx
+msgid "≈ {0} pages at {1}"
+msgstr "≈ {0} pages at {1}"
+
 #: src/app/export/PrintPreview.tsx
 msgid "3 mm"
 msgstr "3 mm"
@@ -615,6 +621,10 @@ msgstr "Cannot restore {0}"
 #: src/editor/ToolbarDialogs.tsx
 msgid "Caption"
 msgstr "Caption"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Change"
+msgstr "Change"
 
 #: src/app/shell/Details.tsx
 msgid "Change template"
@@ -2446,6 +2456,14 @@ msgstr "Session goal"
 msgid "Session word goal"
 msgstr "Session word goal"
 
+#: src/app/export/PdfPanel.tsx
+msgid "set in Book details"
+msgstr "set in Book details"
+
+#: src/app/home/Home.tsx
+msgid "Sets the page size for the print layout. You can change it later in Book details."
+msgstr "Sets the page size for the print layout. You can change it later in Book details."
+
 #: src/app/home/Home.tsx
 #: src/app/settings/Settings.tsx
 #: src/app/shell/AppHeader.tsx
@@ -2729,6 +2747,10 @@ msgstr "The page changed while searching, so nothing was replaced. Try again."
 msgid "the page is no longer in the trash"
 msgstr "the page is no longer in the trash"
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
+msgstr "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
+
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
 msgstr "The selection is too large to convert"
@@ -2905,9 +2927,11 @@ msgstr "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in f
 msgid "Trash"
 msgstr "Trash"
 
+#: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/export/PdfPanel.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
+#: src/app/home/Home.tsx
 msgid "Trim size"
 msgstr "Trim size"
 

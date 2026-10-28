@@ -72,6 +72,19 @@ describe("manifest", () => {
     expect(() => validateManifest({ ...base(), template: "" })).toThrow(/template/);
     expect(() => validateManifest({ ...base(), editions: [] })).toThrow(/edition/);
   });
+  it("keeps an optional trimSize, and an old manifest without one is unchanged", () => {
+    const withTrim = createManifest({
+      title: "T",
+      author: "A",
+      identifier: "urn:uuid:x",
+      trimSize: "6x9",
+    });
+    expect(validateManifest(JSON.parse(serializeManifest(withTrim))).trimSize).toBe("6x9");
+    const plain = base();
+    expect("trimSize" in plain).toBe(false);
+    expect("trimSize" in validateManifest(plain)).toBe(false);
+    expect(() => validateManifest({ ...base(), trimSize: "9x9" })).toThrow(/trimSize/);
+  });
   it("rejects an entry without a source title or file, and titles for unknown editions", () => {
     const m = base();
     m.chapters[0]!.titles = {};

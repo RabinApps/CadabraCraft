@@ -5545,7 +5545,7 @@
               "id": "k2LTn",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -6163,7 +6163,7 @@
               "id": "y1mGW",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -7611,7 +7611,7 @@
               "id": "jezH5",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -8229,7 +8229,7 @@
               "id": "TNYsl",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -11178,6 +11178,51 @@
             },
             {
               "type": "frame",
+              "id": "K217v7",
+              "name": "Trim size",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "i1H6K",
+                  "name": "Trim size label",
+                  "fill": "$ink-muted",
+                  "content": "Trim size",
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "j44BPG",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Trim size select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "5.5 × 8.5 in"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "d0IGmG",
+                  "name": "Trim size hint",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Sets the page size for the print layout. You can change it later in Book details.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "OA759",
               "name": "Location",
               "width": "fill_container",
@@ -12210,6 +12255,51 @@
                       "content": "Mara Quill"
                     }
                   }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "POQEK",
+              "name": "Trim size",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ByPu9",
+                  "name": "Trim size label",
+                  "fill": "$ink-muted",
+                  "content": "Trim size",
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "ayul3",
+                  "type": "ref",
+                  "ref": "PE4pF",
+                  "name": "Trim size select",
+                  "width": "fill_container",
+                  "descendants": {
+                    "oNv10": {
+                      "content": "5.5 × 8.5 in"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "R69CQW",
+                  "name": "Trim size hint",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Sets the page size for the print layout. You can change it later in Book details.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -24789,6 +24879,51 @@
                     },
                     {
                       "type": "frame",
+                      "id": "ZinOs",
+                      "name": "Trim size",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "BLJZr",
+                          "name": "Trim size label",
+                          "fill": "$ink-muted",
+                          "content": "Trim size",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "XNQcN",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Trim size select",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "5.5 × 8.5 in"
+                            }
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "id": "wE7sm",
+                          "name": "Trim size hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
                       "id": "Yj2dX",
                       "name": "Identifier",
                       "width": "fill_container",
@@ -25224,6 +25359,51 @@
                               }
                             }
                           ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JhnpE",
+                      "name": "Trim size",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "li1Ce",
+                          "name": "Trim size label",
+                          "fill": "$ink-muted",
+                          "content": "Trim size",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "Z7kpq",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Trim size select",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "5.5 × 8.5 in"
+                            }
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "id": "CGqsw",
+                          "name": "Trim size hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -33034,16 +33214,34 @@
                   "fontWeight": "600"
                 },
                 {
-                  "id": "BtTxb",
-                  "type": "ref",
-                  "ref": "PE4pF",
-                  "name": "Trim size select",
+                  "type": "frame",
+                  "id": "NmR3d",
+                  "name": "Trim size row",
                   "width": "fill_container",
-                  "descendants": {
-                    "oNv10": {
-                      "content": "6 × 9 in"
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "HatWd",
+                      "name": "Trim size value",
+                      "fill": "$ink",
+                      "content": "6 × 9 in · set in Book details",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LMm2s",
+                      "name": "Trim size change",
+                      "fill": "$accent",
+                      "content": "Change",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
                     }
-                  }
+                  ]
                 }
               ]
             },
@@ -33406,16 +33604,34 @@
                   "fontWeight": "600"
                 },
                 {
-                  "id": "OwRmn",
-                  "type": "ref",
-                  "ref": "PE4pF",
-                  "name": "Trim size select",
+                  "type": "frame",
+                  "id": "RRKgX",
+                  "name": "Trim size row",
                   "width": "fill_container",
-                  "descendants": {
-                    "oNv10": {
-                      "content": "6 × 9 in"
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "NG5M8",
+                      "name": "Trim size value",
+                      "fill": "$ink",
+                      "content": "6 × 9 in · set in Book details",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "v0WKx",
+                      "name": "Trim size change",
+                      "fill": "$accent",
+                      "content": "Change",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
                     }
-                  }
+                  ]
                 }
               ]
             },
@@ -37192,7 +37408,7 @@
               "id": "UWezB",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -38632,7 +38848,7 @@
               "id": "S02PC",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -39910,7 +40126,7 @@
               "id": "NGaj2",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -43796,7 +44012,7 @@
               "id": "f7frDP",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -45390,7 +45606,7 @@
               "id": "ikmWX",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -111815,7 +112031,7 @@
               "id": "OBFbY",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -113095,7 +113311,7 @@
               "id": "dGK0w",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -114311,7 +114527,7 @@
               "id": "O1E6i",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -115603,7 +115819,7 @@
               "id": "pDhaA",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -119214,7 +119430,7 @@
               "id": "G4lEat",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -120178,7 +120394,7 @@
               "id": "WBK4z",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -122089,7 +122305,7 @@
               "id": "b0y3r",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -123557,7 +123773,7 @@
               "id": "vlYl7",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -125074,7 +125290,7 @@
               "id": "E7cIej",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"
@@ -126776,7 +126992,7 @@
               "id": "dNpth",
               "name": "1,284 words in this chap",
               "fill": "$ink-muted",
-              "content": "1,284 words in this chapter · 48,210 in the book",
+              "content": "1,284 words in this chapter · 48,210 in the book · ≈ 170 pages at 6 × 9 in",
               "fontFamily": "$font-ui",
               "fontSize": "$type-caption",
               "fontWeight": "normal"

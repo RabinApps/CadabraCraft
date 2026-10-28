@@ -413,6 +413,21 @@ describe("project store", () => {
       await a().updateDetails({ ...form(), isbn: "  " });
       expect(onDisk().isbn).toBeNull();
     });
+    it("keeps the trim size in the manifest only when it differs from what the book resolves to", async () => {
+      const trim = () => JSON.parse(disk.get("cadabra.json")!).trimSize;
+      await a().updateDetails({ ...form(), trimSize: "5.5x8.5" }); // the Classic Novel default: nothing to store
+      expect(trim()).toBeUndefined();
+      await a().updateDetails({ ...form(), trimSize: "6x9" });
+      expect(trim()).toBe("6x9");
+      await a().updateDetails({ ...form() }); // not part of the form: keeps the book's size
+      expect(trim()).toBe("6x9");
+      await a().updateDetails({ ...form(), trimSize: "5x8" });
+      expect(s().manifest!.trimSize).toBe("5x8");
+    });
+    it("stores the trim size chosen when the book is created", async () => {
+      await a().createProject("/q", "Other", "Me", "7x10");
+      expect(JSON.parse(disk.get("cadabra.json")!).trimSize).toBe("7x10");
+    });
     it("rejects an empty title or a cover outside assets/ and writes nothing", async () => {
       const before = disk.get("cadabra.json");
       await expect(a().updateDetails({ ...form(), title: " " })).rejects.toThrow(/title/);

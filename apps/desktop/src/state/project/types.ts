@@ -126,6 +126,8 @@ export interface BookDetails {
   isbn: string;
   identifier: string;
   cover: string | null;
+  /** Print page size of the book (shared by every edition). Absent keeps what the book has. */
+  trimSize?: TrimSize;
 }
 
 /** Cover images the exporters can place: png, jpg, jpeg and webp (not gif or svg). */
@@ -221,7 +223,12 @@ export interface ProjectActions {
   openProject: (root: string) => Promise<void>;
   /** Saves unsaved typing, then leaves the open book (back to the start screen). Nothing on disk changes. */
   closeProject: () => Promise<void>;
-  createProject: (root: string, title: string, author: string) => Promise<void>;
+  createProject: (
+    root: string,
+    title: string,
+    author: string,
+    trimSize?: TrimSize,
+  ) => Promise<void>;
   /** Imports a .docx/.md file into a NEW project in `root` (the source is only read), opens it and sets `importReport`. Throws, having created nothing, when the file cannot be imported. */
   importBook: (
     sourcePath: string,

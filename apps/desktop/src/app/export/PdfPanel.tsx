@@ -8,6 +8,7 @@ import {
   getTemplate,
   hasTemplate,
   listTemplates,
+  resolveTrimSize,
 } from "@cadabracraft/templates";
 import type { Manifest } from "@cadabracraft/format";
 import type { ExportScope } from "../../state/project/types";
@@ -32,7 +33,6 @@ export const saveTypstPath = (p: string): void => {
 
 /** The print PDF choices, owned by the dialog so it can pass them to the export. */
 export function usePdfOptions(manifest: Manifest | null) {
-  const [trimSize, setTrimSize] = useState<TrimSize>("6x9");
   const [pdfA, setPdfA] = useState(false);
   const [withCover, setWithCover] = useState(true);
   const [template, setTemplate] = useState<string | null>(null);
@@ -41,9 +41,13 @@ export function usePdfOptions(manifest: Manifest | null) {
   const current =
     template ??
     (manifest && hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID);
+  /** The book's own page size (Book details), never a choice made here. */
+  const trimSize: TrimSize = resolveTrimSize({
+    template: current,
+    ...(manifest?.trimSize ? { trimSize: manifest.trimSize } : {}),
+  });
   return {
     trimSize,
-    setTrimSize,
     pdfA,
     setPdfA,
     withCover,
@@ -62,17 +66,18 @@ export function PdfPanel({
   running,
   error,
   language,
+  onChangeTrimSize,
 }: {
   options: PdfOptions;
   running: boolean;
   error: PdfUiError | null;
+  onChangeTrimSize?: () => void;
 } & ExportScope) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const readPages = useProject((s) => s.actions.readPages);
   const {
     trimSize,
-    setTrimSize,
     pdfA,
     setPdfA,
     withCover,
@@ -115,18 +120,22 @@ export function PdfPanel({
   return (
     <>
       {pdfCheckList.length > 0 && <CheckList checks={pdfCheckList} label={t`Print checks`} />}
-      <Select
-        label={t`Trim size`}
-        value={trimSize}
-        disabled={running}
-        onChange={(e) => setTrimSize(e.target.value as TrimSize)}
-      >
-        {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => (
-          <option key={id} value={id}>
-            {trimLabel(id)}
-          </option>
-        ))}
-      </Select>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-semibold text-ink-muted">{t`Trim size`}</span>
+        <div className="flex items-center justify-between gap-3 text-sm text-ink">
+          <span data-testid="trim-size">
+            {trimLabel(trimSize)} · {t`set in Book details`}
+          </span>
+          {onChangeTrimSize && (
+            <button
+              type="button"
+              disabled={running}
+              onClick={onChangeTrimSize}
+              className="text-xs font-semibold text-accent hover:underline disabled:opacity-50"
+            >{t`Change`}</button>
+          )}
+        </div>
+      </div>
       <Select
         label={t`Template`}
         value={current}
