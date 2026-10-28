@@ -72,13 +72,19 @@ export const release = (page: Page, cmd: string) =>
 
 /** How many times `cmd` has been invoked (so a held call is known to be waiting). */
 export const calls = (page: Page, cmd: string) =>
-  page.evaluate((c) => (window as unknown as CovWindow).__cov.log.filter((x) => x === c).length, cmd);
+  page.evaluate(
+    (c) => (window as unknown as CovWindow).__cov.log.filter((x) => x === c).length,
+    cmd,
+  );
 
 /** Answers `cmd` with the result of the function body `body`, which sees the arguments as `a`. */
 export const answerWith = (page: Page, cmd: string, body: string) =>
   page.evaluate(
     ([c, b]) => {
-      (window as unknown as CovWindow).__cov.fn[c as string] = new Function("a", b as string) as never;
+      (window as unknown as CovWindow).__cov.fn[c as string] = new Function(
+        "a",
+        b as string,
+      ) as never;
     },
     [cmd, body],
   );
@@ -109,7 +115,7 @@ export async function menu(page: Page, id: string) {
 export async function reopen<A>(page: Page, edit: (arg: A) => void, arg: A) {
   await menu(page, "file.close");
   await expect(page.getByRole("button", { name: "Open folder" })).toBeVisible();
-  await page.evaluate(edit, arg);
+  await page.evaluate(edit as never, arg);
   await page.getByRole("button", { name: "Open folder" }).click();
   await expect(page.locator(".ProseMirror")).toBeVisible();
 }

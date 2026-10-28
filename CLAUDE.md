@@ -9,6 +9,7 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 - Never overwrite user files without a backup; writes are temp file + rename. Never store absolute paths in project files.
 - Store TipTap JSON on disk, never HTML. The schema in `packages/editor-schema` is the editor/exporter contract; exporters must throw on unknown nodes, never drop them.
 - `packages/*` must not import from `apps/desktop`. Use `workspace:*` for internal deps.
+- New logic must keep the coverage threshold of its area; new desktop UI should have instrumented Playwright coverage. See `docs/testing.md` for scope and exclusions.
 - Record architecture decisions (with rejected alternatives) in `docs/architecture.md`.
 - Ask before downloading tools or binaries.
 - `cadabracraft.pen` is the UI source of truth and `docs/design.md` must always match it. After any change to the pen file, run `/sync-design` in the same turn (a hook reminds you). The pen file is encrypted: use only the Pencil MCP or, when Pencil is not running, the headless `pen` CLI (procedure in `docs/design.md`); never Read/Grep it.

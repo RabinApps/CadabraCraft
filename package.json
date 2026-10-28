@@ -13,7 +13,12 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:coverage": "pnpm -r --workspace-concurrency=1 exec vitest run --passWithNoTests --coverage"
+    "test:coverage": "pnpm -r --workspace-concurrency=1 exec vitest run --passWithNoTests --coverage && pnpm --filter @cadabracraft/desktop test:e2e:coverage && pnpm coverage:report",
+    "test:coverage:unit": "pnpm -r --workspace-concurrency=1 exec vitest run --passWithNoTests --coverage",
+    "coverage:report": "node scripts/coverage.mjs",
+    "coverage:report:js": "node scripts/coverage.mjs --js-only",
+    "coverage:report:rust": "node scripts/coverage.mjs --rust-only",
+    "test:coverage:rust": "pnpm --filter @cadabracraft/desktop exec cargo llvm-cov --manifest-path src-tauri/Cargo.toml --lib --lcov --output-path src-tauri/target/llvm-cov.lcov --ignore-filename-regex 'src/main.rs' && pnpm --filter @cadabracraft/desktop exec cargo llvm-cov --manifest-path src-tauri/Cargo.toml report --json --output-path src-tauri/target/llvm-cov-summary.json --ignore-filename-regex 'src/main.rs' && pnpm coverage:report:rust"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { convertHtmlText, literalContent, pasteAction, truncate } from "../htmlPaste";
+import { convertHtmlText, literalContent, pasteAction, plainOf, truncate } from "../htmlPaste";
 
 const base = {
   text: "<p>The gate was <b>old</b></p>",
@@ -45,6 +45,18 @@ describe("convertHtmlText", () => {
   });
   it("counts warnings", () => {
     expect(convertHtmlText('<p>x</p><img src="https://e.com/a.png">').warnings).toBeGreaterThan(0);
+  });
+});
+
+describe("plainOf", () => {
+  it("omits footnote content and separates text from known block nodes", () => {
+    expect(
+      plainOf([
+        { type: "paragraph", content: [{ type: "text", text: "first" }] },
+        { type: "footnote", content: [{ type: "text", text: "not in preview" }] },
+        { type: "image", content: [{ type: "text", text: "second" }] },
+      ]),
+    ).toBe("first second");
   });
 });
 

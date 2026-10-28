@@ -22,6 +22,7 @@ Back to the [project README](../README.md).
 
 | Doc                                  | What it covers                                              |
 | ------------------------------------ | ----------------------------------------------------------- |
+| [testing.md](testing.md)             | Unit, e2e and coverage commands, thresholds and exclusions  |
 | [agent-testing.md](agent-testing.md) | Driving the real app through the dev-only bridge            |
 | [sync-testing.md](sync-testing.md)   | Manual checklist for iCloud Drive, Google Drive and Dropbox |
 

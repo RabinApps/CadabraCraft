@@ -13,8 +13,14 @@ export const test = base.extend<{ appCoverage: void }>({
         return;
       }
       await page.coverage.startJSCoverage({ resetOnNavigation: false });
-      await use();
-      await new CoverageReport(coverageOptions).add(await page.coverage.stopJSCoverage());
+      try {
+        await use();
+      } finally {
+        if (!page.isClosed()) {
+          const coverage = await page.coverage.stopJSCoverage();
+          await new CoverageReport(coverageOptions).add(coverage);
+        }
+      }
     },
     { auto: true },
   ],

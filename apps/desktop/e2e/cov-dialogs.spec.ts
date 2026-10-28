@@ -40,7 +40,9 @@ test("update dialog: Escape and Later wait for the next launch, a failed install
   const dialog = page.getByRole("dialog", { name: "Version 0.2.0 is available" });
 
   await menu(page, "help.updates");
-  await expect(dialog.getByText("You have 0.1.0. Your books and settings stay as they are.")).toBeVisible();
+  await expect(
+    dialog.getByText("You have 0.1.0. Your books and settings stay as they are."),
+  ).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
 
@@ -169,7 +171,9 @@ test("add language: Escape, Cancel and a failed add keep the dialog, a busy add 
             e.titles[l] = e.titles.en;
             e.files[l] = file;
             e.untranslated = [...(e.untranslated ?? []), l];
-            disk[file] = disk[e.files.en];
+            if (disk instanceof Array) {
+              disk[file] = disk[e.files.en];
+            }
           }
       }
       disk["cadabra.json"] = JSON.stringify(m);
@@ -502,7 +506,9 @@ test("import report: warnings and notes, copying the report, and a report with n
     Object.defineProperty(navigator, "clipboard", {
       value: {
         writeText: (text: string) =>
-          w.__clipFails ? Promise.reject(new Error("denied")) : ((w.__clip = text), Promise.resolve()),
+          w.__clipFails
+            ? Promise.reject(new Error("denied"))
+            : ((w.__clip = text), Promise.resolve()),
       },
     });
   });

@@ -33,6 +33,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 - [Headless MCP server](#headless-mcp-server)
 - [Cross-platform paths and CI (macOS, Windows, Linux)](#cross-platform-paths-and-ci-macos-windows-linux)
 - [Updates and releases](#updates-and-releases)
+- [Coverage tooling and ratchets](#coverage-tooling-and-ratchets)
 - [License](#license)
 
 **Website**
@@ -426,6 +427,16 @@ Rejected: MDX (a new dependency for content that is mostly structured data), ana
 Every test and test harness is TypeScript: Vitest and Playwright suites, the native smoke test, and the click-through in `scripts/automation/` (run by `pnpm automation:scenario`, typechecked by `pnpm typecheck:scripts`). The `.ts` files run directly on Node 24 (built-in type stripping), so the scripts avoid type-only syntax that needs a transform (enums, parameter properties, `<T>` casts; `erasableSyntaxOnly` enforces it).
 
 Rejected: keeping `.mjs` scripts (no typechecking, and the scenario already imported a `.ts` fixture); adding `tsx` or `ts-node` (a new tool to download, and Node already does the job).
+
+## Coverage tooling and ratchets
+
+**Decision:** measure TypeScript with Vitest's V8 provider, browser/UI code with Chromium's V8 coverage collected by Playwright and reported by Monocart, and Rust with `cargo-llvm-cov` backed by `llvm-tools-preview`. JavaScript lcov from desktop unit and Playwright is merged into one gitignored report. CI runs the full JavaScript coverage pipeline in the Linux JS job and Rust coverage in the Linux Rust job, uploading LCOV artifacts. The shared scripts run the same report gates locally.
+
+**Why:** all three runtimes already have test suites; coverage should reuse them, expose source-oriented LCOV, and keep the reporting tools out of product runtime code. V8 retains native coverage mapping for Vitest and the browser, while LLVM is Rust's source-coverage toolchain.
+
+**Rejected:** Istanbul-only unit coverage (adds a second instrumentation model and would diverge from V8 browser coverage); the `c8` CLI (duplicates collection/reporting that Vitest and Chromium already provide); Tarpaulin (does not share LLVM's source instrumentation or the existing `cargo-llvm-cov` output format).
+
+**Caveats:** packages at 100% use strict thresholds; desktop unit/e2e and Rust use measured interim floors recorded in [coverage-gaps.md](coverage-gaps.md) until the remaining branches and function instantiations are closed. Rust excludes only Tauri builder/entry wiring and two generated `#[tauri::command]` wrapper source lines; see [testing.md](testing.md) for the reviewed exclusion list and commands.
 
 ## License
 

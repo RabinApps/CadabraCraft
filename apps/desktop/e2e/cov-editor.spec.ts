@@ -17,8 +17,7 @@ const setting = (page: Page, patch: Record<string, unknown>) =>
   page.evaluate(async (p) => {
     (await import("/src/state/editorPrefs.ts" as string)).useSettings.getState().set(p);
   }, patch);
-const notice = (page: Page, text: string) =>
-  page.getByRole("status").filter({ hasText: text });
+const notice = (page: Page, text: string) => page.getByRole("status").filter({ hasText: text });
 /** Caret at the end of the empty paragraph under the chapter title. */
 async function toEnd(page: Page) {
   await pm(page).locator("p").last().click();
@@ -40,14 +39,18 @@ const paste = (page: Page, text: string) =>
   }, text);
 async function selectParagraph(page: Page, which: "last" | "heading") {
   await page.evaluate((w) => {
-    const els = [...document.querySelectorAll(w === "heading" ? ".ProseMirror h1" : ".ProseMirror p")];
+    const els = [
+      ...document.querySelectorAll(w === "heading" ? ".ProseMirror h1" : ".ProseMirror p"),
+    ];
     const r = document.createRange();
     r.selectNodeContents(w === "heading" ? els[0]! : els.pop()!);
     const sel = getSelection()!;
     sel.removeAllRanges();
     sel.addRange(r);
   }, which);
-  await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+  );
 }
 const dlg = (page: Page) => page.getByRole("dialog", { name: "Paste as styled text?" });
 
@@ -58,9 +61,7 @@ test.describe("typewriter scrolling", () => {
     await toEnd(page);
     for (let i = 0; i < 40; i++) await page.keyboard.press("Enter");
     await expect
-      .poll(() =>
-        pm(page).evaluate((el) => el.closest<HTMLElement>(".overflow-y-auto")!.scrollTop),
-      )
+      .poll(() => pm(page).evaluate((el) => el.closest<HTMLElement>(".overflow-y-auto")!.scrollTop))
       .toBeGreaterThan(0);
     await pm(page).evaluate((el) =>
       el.closest(".overflow-y-auto")!.classList.remove("overflow-y-auto"),
@@ -117,7 +118,9 @@ test.describe("pasting HTML text", () => {
     await newProject(page);
     await toEnd(page);
     await paste(page, `${"<div>".repeat(600)}x`);
-    await expect(notice(page, "Could not convert the HTML, so it was pasted as text")).toBeVisible();
+    await expect(
+      notice(page, "Could not convert the HTML, so it was pasted as text"),
+    ).toBeVisible();
     await expect(dlg(page)).toHaveCount(0);
   });
 
@@ -195,15 +198,15 @@ test.describe("pasting HTML text", () => {
       await page.evaluate(() => {
         const text = (el: Element) => {
           const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-          return w.nextNode()!;
+          return w.nextNode() as Text | null;
         };
-        const before = [...document.querySelectorAll(".ProseMirror p")].find((p) =>
-          p.textContent?.includes("before"),
-        )!;
+        const before = document.querySelector(".ProseMirror p")!;
         const cell = document.querySelector(".ProseMirror td")!;
-        const r = document.createRange();
-        r.setStart(text(before), 0);
+        const start = text(before);
         const end = text(cell);
+        if (!start || !end) throw new Error("Expected text nodes before and inside the table");
+        const r = document.createRange();
+        r.setStart(start, 0);
         r.setEnd(end, end.textContent!.length);
         const sel = getSelection()!;
         sel.removeAllRanges();
@@ -216,6 +219,10 @@ test.describe("pasting HTML text", () => {
     await across();
     await paste(page, "<p>x</p>");
     await expect(dlg(page)).toHaveCount(0);
+    // The browser's default paste replaces both endpoints of the cross-table selection.
+    // Restore a text node in the cell before testing the conversion guard with another range.
+    await pm(page).locator("td").first().click();
+    await page.keyboard.type("cell again");
     await expect(async () => {
       await across();
       await run(page, "edit.convertHtml");
@@ -232,7 +239,9 @@ test.describe("Convert HTML in Selection", () => {
     await toEnd(page);
     await paste(page, "a".repeat(1_000_100)); // longer than the limit: the default paste
     await page.keyboard.press("ControlOrMeta+a");
-    await expect.poll(() => page.evaluate(() => getSelection()?.toString().length)).toBeGreaterThan(1_000_000);
+    await expect
+      .poll(() => page.evaluate(() => getSelection()?.toString().length))
+      .toBeGreaterThan(1_000_000);
     await run(page, "edit.convertHtml");
     await expect(notice(page, "The selection is too large to convert")).toBeVisible();
   });
@@ -387,7 +396,9 @@ test.describe("toolbar", () => {
     await tb(page, "Link").click();
     await link(page).getByLabel("Address").fill("https://example.com");
     await link(page).getByRole("button", { name: "Apply" }).click();
-    await expect(link(page).getByRole("alert")).toHaveText("Select the text you want to link first.");
+    await expect(link(page).getByRole("alert")).toHaveText(
+      "Select the text you want to link first.",
+    );
     await link(page).getByRole("button", { name: "Cancel" }).click();
     await expect(link(page)).toHaveCount(0);
 

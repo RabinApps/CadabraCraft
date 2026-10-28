@@ -1,6 +1,35 @@
 import { describe, expect, it, vi } from "vitest";
 import type { MenuEntry } from "../menuModel";
-import { createNativeMenu, structureOf, type MenuApi } from "../nativeMenu";
+import {
+  createNativeMenu,
+  showNativeMenu,
+  structureOf,
+  tauriMenuApi,
+  type MenuApi,
+} from "../nativeMenu";
+
+const tauriMenuMocks = vi.hoisted(() => ({
+  menu: vi.fn(async (_options: { items: unknown[] }) => ({
+    setAsAppMenu: vi.fn(async () => undefined),
+  })),
+  submenu: vi.fn(async (_options: { text: string; items: unknown[] }) => ({})),
+  item: vi.fn(async (_options: { action: () => void }) => ({
+    setEnabled: vi.fn(async () => undefined),
+  })),
+  checkItem: vi.fn(async (_options: { action: () => void }) => ({
+    setEnabled: vi.fn(async () => undefined),
+    setChecked: vi.fn(async () => undefined),
+  })),
+  predefined: vi.fn(async (_options: { item: unknown; text?: string }) => ({})),
+}));
+
+vi.mock("@tauri-apps/api/menu", () => ({
+  Menu: { new: tauriMenuMocks.menu },
+  Submenu: { new: tauriMenuMocks.submenu },
+  MenuItem: { new: tauriMenuMocks.item },
+  CheckMenuItem: { new: tauriMenuMocks.checkItem },
+  PredefinedMenuItem: { new: tauriMenuMocks.predefined },
+}));
 
 /** A stand-in for the operating system's menu that records what was created and changed. */
 function fakeApi() {
@@ -85,6 +114,72 @@ const entries = (
   },
 ];
 
+describe("Tauri menu API adapter", () => {
+  it("translates menu constructors and wraps action callbacks", async () => {
+    const api = await tauriMenuApi();
+    const action = vi.fn();
+    await api.newMenu(["item"]);
+    await api.newSubmenu("File", ["child"]);
+    await api.newItem({ id: "save", text: "Save", enabled: true, action });
+    await api.newCheckItem({ id: "write", text: "Write", enabled: true, checked: false, action });
+    await api.newPredefined("About");
+    await api.newPredefined("Separator", "Custom separator");
+
+    expect(tauriMenuMocks.menu).toHaveBeenCalledWith({ items: ["item"] });
+    expect(tauriMenuMocks.submenu).toHaveBeenCalledWith({ text: "File", items: ["child"] });
+    const item = tauriMenuMocks.item.mock.calls.at(-1)![0];
+    const check = tauriMenuMocks.checkItem.mock.calls.at(-1)![0];
+    item.action();
+    check.action();
+    expect(action).toHaveBeenCalledTimes(2);
+    expect(tauriMenuMocks.predefined).toHaveBeenNthCalledWith(1, { item: { About: null } });
+    expect(tauriMenuMocks.predefined).toHaveBeenNthCalledWith(2, {
+      item: "Separator",
+      text: "Custom separator",
+    });
+  });
+
+  it("shows the menu and exposes its model to dev automation", async () => {
+    const run = vi.fn();
+    const model = entries();
+    await showNativeMenu(model, run);
+    expect((globalThis as { __cadabraMenu?: unknown }).__cadabraMenu).toMatchObject({
+      model,
+      error: null,
+      run,
+    });
+  });
+
+  it("reports an unavailable native API without rejecting the update", async () => {
+    vi.resetModules();
+    vi.doMock("@tauri-apps/api/menu", () => ({
+      get Menu() {
+        throw new Error("native menu unavailable");
+      },
+    }));
+    const { showNativeMenu: showUnavailableMenu } = await import("../nativeMenu");
+    await expect(showUnavailableMenu(entries(), vi.fn())).resolves.toBeUndefined();
+    expect((globalThis as { __cadabraMenu?: { error?: string } }).__cadabraMenu?.error).toBe(
+      "native menu unavailable",
+    );
+  });
+
+  it("records a failed menu rebuild and recovers on the next successful apply", async () => {
+    const t = fakeApi();
+    const menu = createNativeMenu(t.api, vi.fn());
+    t.api.newMenu = async () => {
+      throw new Error("menu creation failed");
+    };
+
+    await menu.apply(entries());
+    expect(menu.error()).toBe("menu creation failed");
+
+    t.api.newMenu = async () => ({ setAsAppMenu: async () => undefined });
+    await menu.apply(entries());
+    expect(menu.error()).toBeNull();
+  });
+});
+
 describe("native menu adapter", () => {
   it("builds the whole menu the first time and installs it", async () => {
     const t = fakeApi();
@@ -140,6 +235,27 @@ describe("native menu adapter", () => {
     await new Promise((r) => setTimeout(r, 5));
     expect(t.items.get("view.write")!.checked).toBe(true);
     expect(run).toHaveBeenLastCalledWith("view.write", undefined);
+  });
+
+  it("continues updating when a live native item has been removed", async () => {
+    const t = fakeApi();
+    const menu = createNativeMenu(t.api, vi.fn());
+    await menu.apply(entries());
+    const unchanged: MenuEntry[] = [
+      {
+        kind: "submenu",
+        text: "File",
+        items: [{ kind: "command", id: "file.save", text: "Save", enabled: true }],
+      },
+      {
+        kind: "submenu",
+        text: "View",
+        items: [{ kind: "command", id: "view.write", text: "Write", enabled: true, checked: true }],
+      },
+    ];
+    await menu.apply(unchanged);
+    expect(menu.error()).toBeNull();
+    expect(t.log).not.toContain("enabled:file.save=false");
   });
 
   it("swallows failures, as in a browser without a native menu", async () => {

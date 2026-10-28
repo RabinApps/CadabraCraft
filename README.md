@@ -88,6 +88,7 @@ Packages never import from `apps/desktop`. Stack: Tauri 2 (Rust), React 19, Type
 ```bash
 pnpm typecheck
 pnpm test                     # Vitest in every package
+pnpm test:coverage             # Vitest + instrumented Playwright + JS coverage gates
 cd apps/desktop && pnpm exec playwright install chromium && pnpm test:e2e
 cd apps/desktop/src-tauri && cargo test
 ```

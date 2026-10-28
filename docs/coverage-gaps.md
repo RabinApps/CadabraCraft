@@ -1,12 +1,14 @@
 # Coverage gaps
 
-Baseline measured 2026-10-27 with `pnpm test:coverage` (vitest v8) and `cargo llvm-cov --summary-only` in `apps/desktop/src-tauri`. The goal is 100% lines, branches, functions and statements, minus the allowlisted exclusions in `docs/testing.md`. Thresholds are ratcheted per package as each one reaches 100%.
+Baseline measured 2026-10-27 with Vitest v8, instrumented Playwright/V8 and `cargo llvm-cov` in `apps/desktop/src-tauri`. The goal is 100% lines, branches, functions and statements, minus the allowlisted exclusions in [docs/agent-testing.md](agent-testing.md) and the reviewed Rust wrapper exclusions below. Thresholds are ratcheted per package as each one reaches 100%; desktop and Rust have interim CI floors while the final gaps remain.
 
 ## Status
 
-All 12 `packages/*` reached 100% lines, branches, functions and statements and enforce it through `strictCoverage` in `vitest.coverage.ts`. About 20 `v8 ignore` pragmas remain in product code, each with a reason comment; they cover type-forced fallbacks (`?? ""` after `split`) and defensive guards. Still open: `apps/desktop` (TS and React) and the Rust crate. The tables below are the original baseline.
+All 12 `packages/*` reached 100% lines, branches, functions and statements and enforce it through `strictCoverage` in `vitest.coverage.ts`. Product-code `v8 ignore` pragmas are locally commented with their defensive/unreachable rationale. The current measured gate totals (2026-10-27) are Desktop Vitest: 100% lines, 99.78% statements, 99.81% functions, 98.78% branches; Playwright: 99.02% lines, 97.81% statements, 95.81% functions, 92.51% branches; Rust: 99.75% lines and 98.65% functions. CI floors are 99/99/99/98 for desktop unit, 98/97/95/90 for e2e and 99/98 for Rust. The 153-spec Playwright run and 261 Rust tests passed. Rust has no uncovered executable source lines after the two allowlisted command-macro wrapper lines are removed; the remaining function gap is in LLVM-reported function instantiations.
 
-## TypeScript (unit tests only)
+## Historical TypeScript baseline (unit tests only)
+
+The table below is the original pre-coverage-work baseline; current totals are listed above and produced by `pnpm test:coverage`.
 
 | Package         | Lines        | Branches     | Work unit |
 | --------------- | ------------ | ------------ | --------- |
@@ -26,13 +28,12 @@ All 12 `packages/*` reached 100% lines, branches, functions and statements and e
 
 Notes:
 
-- `import-docx`: four hostile-input and performance tests (`hostile.test.ts`, `html-hardening.test.ts`) time out at 5 s when coverage is on. Raise their timeout (or the package's `testTimeout`) before measuring.
-- `export-pdf`: the summary was cut off; re-run for the branch numbers.
-- `apps/desktop` includes the React components, which are meant to be covered by instrumented Playwright (not set up yet).
+- `import-docx` hostile-input and performance tests use a 30 s test timeout and scale their explicit wall-clock budgets when coverage is enabled.
+- The baseline data above is historical; the current CI gate runs all package Vitest coverage and the instrumented Playwright suite before producing the merged desktop LCOV.
 
-## Rust (`cargo llvm-cov`)
+## Historical Rust baseline (`cargo llvm-cov`)
 
-Total: 86.9% lines, 74.0% functions (no branch data).
+The original baseline was 86.9% lines, 74.0% functions. Current measured totals are listed in Status above (coverage is produced for the Rust crate with `cargo llvm-cov`; branch coverage is not available in this stable configuration).
 
 | File                                          | Lines       | Work unit                 |
 | --------------------------------------------- | ----------- | ------------------------- |
@@ -55,4 +56,4 @@ Total: 86.9% lines, 74.0% functions (no branch data).
 | remaining files                               | 95% to 100% | 7, 8                      |
 | lib.rs, main.rs                               | 0%          | excluded (builder wiring) |
 
-The `commands/*` and `typst/commands.rs` files are `#[tauri::command]` wrappers; the plan is to move logic out of them so it can be unit tested.
+The explicitly excluded Rust source is `lib.rs` (Tauri builder wiring), `main.rs` (binary entry point, filtered out at collection), and exactly the command-macro wrapper source lines `src/commands/project.rs:58` and `src/typst/commands.rs:46`. The underlying command logic is exercised through unit and Tauri IPC tests. The gate removes the two generated wrapper lines from line totals; it does not discard whole command files. LLVM reports function-instantiation coverage below 100%; the 98% function floor is an interim ratchet, not a claim that Rust has reached 100%.

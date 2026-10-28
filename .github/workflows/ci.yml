@@ -35,6 +35,23 @@ jobs:
       - run: pnpm test
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/desktop
+      - name: Coverage (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          pnpm test:coverage:unit
+          pnpm --filter @cadabracraft/desktop test:e2e:coverage
+          pnpm coverage:report:js
+      - name: Upload JavaScript coverage (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: javascript-coverage
+          path: |
+            coverage/merged/lcov.info
+            coverage/merged/summary.json
+            coverage/e2e/coverage-summary.json
+            apps/desktop/coverage/coverage-summary.json
+          if-no-files-found: error
       - run: pnpm test:e2e
         working-directory: apps/desktop
         env: { CI: "1" }
@@ -56,6 +73,9 @@ jobs:
           done
           exit 1
       - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v7
+        if: runner.os == 'Linux'
+        with: { node-version: 24 }
       - run: mkdir -p apps/desktop/dist
       - run: bash scripts/fetch-typst.sh
       - run: bash scripts/fetch-sherpa.sh
@@ -76,6 +96,23 @@ jobs:
         run: bash scripts/fetch-ffmpeg.sh
       - run: cargo test
         working-directory: apps/desktop/src-tauri
+      - name: Rust coverage (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          rustup component add llvm-tools-preview
+          cargo install cargo-llvm-cov --locked
+          cargo llvm-cov --lib --lcov --ignore-filename-regex 'src/main.rs' > target/llvm-cov.lcov
+          cargo llvm-cov report --json --ignore-filename-regex 'src/main.rs' > target/llvm-cov-summary.json
+          cd ../../..
+          node scripts/coverage.mjs --rust-only
+        working-directory: apps/desktop/src-tauri
+      - name: Upload Rust coverage (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: rust-coverage
+          path: coverage/merged/rust-lcov.info
+          if-no-files-found: error
       # The bundled encoder builds a real M4B (AAC, chapters, cover) on every OS, so the Windows and Linux builds are run.
       - name: Bundled encoder (M4B)
         shell: bash

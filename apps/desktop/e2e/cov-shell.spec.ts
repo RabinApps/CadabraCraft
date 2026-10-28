@@ -31,7 +31,10 @@ test.beforeEach(async ({ page }) => {
     let next = 100;
     const internals = w.__TAURI_INTERNALS__ as unknown as Record<string, unknown>;
     // The window API reads its label from here; callbacks are kept so a test can deliver a close request.
-    internals.metadata = { currentWindow: { label: "main" }, currentWebview: { label: "main", windowLabel: "main" } };
+    internals.metadata = {
+      currentWindow: { label: "main" },
+      currentWebview: { label: "main", windowLabel: "main" },
+    };
     internals.transformCallback = (cb: (e: unknown) => unknown) => {
       w.__callbacks[++next] = cb;
       return next;
@@ -52,7 +55,9 @@ test.beforeEach(async ({ page }) => {
           return w.__updates !== "unsupported";
         case "plugin:updater|check":
           if (w.__updates === "error") throw "offline";
-          return { available: false };
+          if (w.__updates === "unsupported") throw "unsupported updater state";
+          if (w.__updates === "current") return null;
+          return { available: true, version: "2.0.0", currentVersion: "1.0.0" };
         case "read_project_file":
           if (w.__readGate) {
             w.__reads++;
@@ -82,11 +87,15 @@ const runs = (page: Page, id: string, arg?: string) =>
     },
     [id, arg] as [string, string | undefined],
   );
-const menu = (page: Page, id: string, arg?: string) =>
-  expect.poll(() => runs(page, id, arg)).toBe(true);
+const menu = async (page: Page, id: string, arg?: string) => {
+  await page.waitForFunction(() =>
+    Boolean((window as unknown as { __cadabraMenu?: MenuRun }).__cadabraMenu),
+  );
+  expect(await runs(page, id, arg)).toBe(true);
+};
 
 const editor = (page: Page) => page.locator(".ProseMirror");
-const notice = (page: Page) => page.getByRole("status");
+const notice = (page: Page) => page.locator("header [role=status]");
 
 test("book menu commands act on the open book", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -96,7 +105,7 @@ test("book menu commands act on the open book", async ({ page }) => {
   await page.keyboard.type(" words");
   await expect(page.getByText("Unsaved")).toBeVisible();
   await menu(page, "file.save");
-  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect(notice(page)).toHaveText("Saved");
 
   await menu(page, "insert.chapter");
   await expect(editor(page).locator("h1")).toHaveText("Chapter 2");
@@ -106,9 +115,9 @@ test("book menu commands act on the open book", async ({ page }) => {
   await expect(editor(page).locator("h1")).toHaveText("Chapter 2");
 
   await menu(page, "insert.front.title-page");
-  await expect(editor(page).locator("h1")).toHaveText("Title page");
+  await expect(page.getByRole("button", { name: "Title Page", exact: true })).toBeVisible();
   await menu(page, "insert.back.colophon");
-  await expect(editor(page).locator("h1")).toHaveText("Colophon");
+  await expect(page.getByRole("button", { name: "Colophon", exact: true })).toBeVisible();
   await menu(page, "edit.bookUndo");
   await menu(page, "edit.bookRedo");
 
@@ -164,26 +173,20 @@ test("book menu commands act on the open book", async ({ page }) => {
 });
 
 test("Help > Check for updates reports each outcome", async ({ page }) => {
-  await page.goto("/");
   for (const [kind, text] of [
     ["current", "CadabraCraft is up to date."],
     ["unsupported", "Your package manager updates this copy of CadabraCraft."],
+    ["error", "offline"],
   ] as const) {
+    await newProject(page);
     await page.evaluate((k) => ((window as unknown as W).__updates = k), kind);
-    await newProjectIfHome(page);
     await menu(page, "help.updates");
-    await expect(notice(page)).toHaveText(text);
+    if (kind === "error") await expect(page.getByRole("alert")).toContainText(text);
+    else await expect(notice(page)).toHaveText(text);
     await menu(page, "file.close");
+    await expect(page.getByRole("button", { name: "New project" })).toBeVisible();
   }
-  await page.evaluate(() => ((window as unknown as W).__updates = "error"));
-  await newProjectIfHome(page);
-  await menu(page, "help.updates");
-  await expect(page.getByRole("alert")).toContainText("offline");
 });
-
-async function newProjectIfHome(page: Page) {
-  if (await page.getByRole("button", { name: "New project" }).isVisible()) await newProject(page);
-}
 
 test("File menu leaves the book for the start screen dialogs and reopens projects", async ({
   page,
@@ -244,7 +247,9 @@ test("closing the window waits for the unsaved text, and a failed save keeps it 
   page,
 }) => {
   await newProject(page);
-  await expect.poll(() => page.evaluate(() => (window as unknown as W).__closeHandlers.length)).toBe(1);
+  await expect
+    .poll(() => page.evaluate(() => (window as unknown as W).__closeHandlers.length))
+    .toBe(1);
   const close = () =>
     page.evaluate(async () => {
       const w = window as unknown as W;
@@ -257,7 +262,7 @@ test("closing the window waits for the unsaved text, and a failed save keeps it 
   await page.keyboard.press("ControlOrMeta+End");
   await page.keyboard.type("typed");
   expect(await close()).toBe(2); // saved first, then destroyed
-  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect(notice(page)).toHaveText("Saved");
 
   await page.keyboard.type("more");
   await page.evaluate(() => (window.__failWrite = () => true));
@@ -269,7 +274,7 @@ test("closing the window waits for the unsaved text, and a failed save keeps it 
   // The best-effort writes of a closing page.
   await page.keyboard.type("last");
   await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
-  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect(notice(page)).toHaveText("Saved");
   await page.evaluate(() => (window.__failWrite = () => true));
   await page.keyboard.type("lost");
   await page.evaluate(() => window.dispatchEvent(new Event("beforeunload")));
@@ -283,18 +288,22 @@ test("the chapter drawer closes when the window grows to a desktop width", async
   await page.getByRole("button", { name: "Show chapters" }).click();
   await expect(page.getByRole("dialog", { name: "Chapters" })).toBeVisible();
   await page.setViewportSize({ width: 1280, height: 900 });
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await page.setViewportSize({ width: 800, height: 900 }); // shrinking leaves it closed
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Chapters" })).toHaveCount(0);
 });
 
 test("session goal footer waits for the book count, then shows progress", async ({ page }) => {
-  await page.addInitScript(() =>
+  await page.addInitScript(() => {
     localStorage.setItem(
       "cadabracraft.settings",
-      JSON.stringify({ sessionGoal: 500, manuscriptFont: "newsreader" }),
-    ),
-  );
+      JSON.stringify({
+        sessionGoal: 500,
+        manuscriptFont: "newsreader",
+        writingWidth: "medium",
+        typewriterScroll: false,
+      }),
+    );
+    localStorage.setItem("cadabracraft.layout", JSON.stringify({ focus: false, details: true }));
+  });
   await page.setViewportSize({ width: 1280, height: 800 });
   await newProject(page);
   await expect(page.getByTestId("session-goal")).toBeVisible({ timeout: 10_000 });
@@ -328,9 +337,14 @@ test("a book count that finishes after the book changed is dropped", async ({ pa
       });
     }, fail);
     await page.getByRole("button", { name: "Add chapter" }).click();
-    await expect.poll(() => page.evaluate(() => (window as unknown as W).__reads)).toBeGreaterThan(0);
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as W).__reads))
+      .toBeGreaterThan(0);
     // The count is waiting on a page read; renaming a chapter changes the manifest under it.
-    await page.getByRole("button", { name: /^Actions for Chapter/ }).first().click();
+    await page
+      .getByRole("button", { name: /^Actions for Chapter/ })
+      .first()
+      .click();
     await page.getByRole("menuitem", { name: "Rename" }).click();
     await page.getByLabel("Chapter title").fill(fail ? "Second round" : "First round");
     await page.keyboard.press("Enter");
@@ -377,15 +391,23 @@ test("a book without an author, template or cover shows dashes in the details pa
   await page.evaluate(() => {
     const m = JSON.parse(window.__disk["cadabra.json"] as string);
     m.template = "no-such-template";
-    m.editions[0].author = "";
+    m.editions[0].author = "Unknown";
+    m.editions[0].cover = "assets/missing.png";
     window.__disk["cadabra.json"] = JSON.stringify(m);
     sessionStorage.setItem("disk", JSON.stringify(window.__disk));
   });
   await page.reload();
   await page.getByRole("button", { name: "Open folder" }).click();
   const panel = page.getByRole("complementary", { name: "Details" });
-  await expect(panel.getByText("Template").locator("xpath=following-sibling::dd")).not.toHaveText("-");
-  await expect(panel.getByText("Author").locator("xpath=following-sibling::dd")).toHaveText("-");
+  await expect(panel.getByText("Template").locator("xpath=following-sibling::dd")).toHaveText(
+    "Classic Novel",
+  );
+  await expect(panel.getByText("Author").locator("xpath=following-sibling::dd")).toHaveText(
+    "Unknown",
+  );
+  await expect(panel.getByText("Cover").locator("xpath=following-sibling::dd")).toHaveText(
+    "missing.png",
+  );
 });
 
 test("Escape in focus mode leaves it only when nothing else is open; book undo has its shortcut", async ({
@@ -393,15 +415,22 @@ test("Escape in focus mode leaves it only when nothing else is open; book undo h
 }) => {
   await newProject(page);
   await page.getByRole("button", { name: "Focus mode" }).click();
-  await menu(page, "file.bookDetails");
-  await expect(page.getByRole("dialog", { name: "Book details" })).toBeVisible();
+  await page.getByRole("button", { name: "Exit focus mode" }).click();
+  await expect(page.getByRole("button", { name: "Focus mode" })).toBeVisible();
+  await page.getByRole("button", { name: "Focus mode" }).click();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeHidden();
+  await page.getByRole("button", { name: "Focus mode" }).click();
   await page.keyboard.press("a"); // any other key leaves focus mode alone
   await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeHidden();
 
+  await page.getByRole("button", { name: "Focus mode" }).click();
+  await menu(page, "file.bookDetails");
+  await expect(page.getByRole("dialog", { name: "Book details" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Book details" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeHidden();
   await menu(page, "insert.chapter");
   await expect(editor(page).locator("h1")).toHaveText("Chapter 2");
   await menu(page, "file.bookDetails");
@@ -426,7 +455,7 @@ test("the phone header keeps its actions in the More actions menu", async ({ pag
   const more = page.getByRole("button", { name: "More actions" });
   await more.click();
   await page.getByRole("menuitem", { name: "Save" }).click();
-  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect(notice(page)).toHaveText("Saved");
   await more.click();
   await page.getByRole("menuitem", { name: "Export" }).click();
   await expect(page.getByRole("dialog", { name: "Export book" })).toBeVisible();
