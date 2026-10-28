@@ -4,7 +4,7 @@ import { writeFileSync } from "node:fs";
 
 type Reply = { id: string; success?: boolean; error?: string; data?: unknown };
 
-/** What the webview returns is whatever the injected script produced, so results are `any` and callers narrow them. */
+/** What the webview returns is whatever the injected script produced, so `js` and `call` results are `unknown` unless the caller names the type. */
 export type Snapshot = {
   buttons: string[];
   fields: { type: string; label: string | null; value: string }[];
@@ -37,20 +37,21 @@ export async function connect({
       );
   });
 
-  const call = (command: string, args: unknown): Promise<any> =>
+  const call = <T = unknown>(command: string, args: unknown): Promise<T> =>
     new Promise((resolve, reject) => {
       const id = String(++next);
       const timer = setTimeout(() => reject(new Error(`timeout: ${command}`)), timeoutMs);
       pending.set(id, (m) => {
         clearTimeout(timer);
         pending.delete(id);
-        m.success === false ? reject(new Error(m.error ?? `${command} failed`)) : resolve(m.data);
+        if (m.success === false) reject(new Error(m.error ?? `${command} failed`));
+        else resolve(m.data as T);
       });
       ws.send(JSON.stringify({ id, command, args }));
     });
 
   /** Runs JavaScript in the app's webview. The expression may return a promise. */
-  const js = (script: string): Promise<any> => call("execute_js", { script });
+  const js = <T = unknown>(script: string): Promise<T> => call<T>("execute_js", { script });
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const q = (v: unknown) => JSON.stringify(v);
 
@@ -61,9 +62,9 @@ export async function connect({
     close: () => ws.close(),
     /** Calls one of the app's own Tauri commands (needs withGlobalTauri, set by tauri.automation.conf.json). */
     invoke: (command: string, args: unknown = {}) =>
-      js(
+      js<string>(
         `window.__TAURI__.core.invoke(${q(command)}, ${q(args)}).then((r) => JSON.stringify(r ?? null))`,
-      ).then((s: string) => JSON.parse(s)),
+      ).then((s) => JSON.parse(s) as unknown),
     /** Pre-answers the next native file/folder dialogs, in order. Use null to cancel one. */
     queueDialogs: (answers: (string | null)[]) =>
       js(
@@ -71,7 +72,10 @@ export async function connect({
       ),
     /** Saves a PNG of the webview (no Screen Recording permission needed). Returns the path. */
     screenshot: async (path: string, maxWidth = 1000) => {
-      const r = await call("capture_native_screenshot", { format: "png", maxWidth });
+      const r = await call<{ dataUrl: string }>("capture_native_screenshot", {
+        format: "png",
+        maxWidth,
+      });
       writeFileSync(path, Buffer.from(r.dataUrl.replace(/^data:image\/\w+;base64,/, ""), "base64"));
       return path;
     },
@@ -90,14 +94,14 @@ export async function connect({
         el.dispatchEvent(new Event("input", { bubbles: true })); return el.value; })()`),
     /** Compact view of what is on screen: buttons, fields, headings, dialogs, editor text. */
     snapshot: (): Promise<Snapshot> =>
-      js(`JSON.stringify({
+      js<string>(`JSON.stringify({
         buttons: [...document.querySelectorAll("button")].map((b) => (b.textContent.trim() || b.getAttribute("aria-label") || "")),
         fields: [...document.querySelectorAll("input,textarea,select")].map((e) => ({ type: e.type, label: e.getAttribute("aria-label"), value: e.value })),
         headings: [...document.querySelectorAll("h1,h2,h3")].map((h) => h.textContent.trim()),
         dialogs: [...document.querySelectorAll("[role=dialog]")].map((d) => d.textContent.trim().slice(0, 300)),
         status: [...document.querySelectorAll("[role=status],[role=alert]")].map((s) => s.textContent.trim()),
-        editor: document.querySelector(".ProseMirror")?.innerText ?? null })`).then((s: string) =>
-        JSON.parse(s),
+        editor: document.querySelector(".ProseMirror")?.innerText ?? null })`).then(
+        (s) => JSON.parse(s) as Snapshot,
       ),
   };
 }
