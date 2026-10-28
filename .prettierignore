@@ -1,0 +1,12 @@
+dist
+node_modules
+target
+pnpm-lock.yaml
+*.po
+*.pen
+apps/desktop/src-tauri
+apps/website
+fixtures
+tools
+.claude
+**/vendor

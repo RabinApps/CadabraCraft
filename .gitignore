@@ -15,3 +15,5 @@ playwright-report/
 
 # Fetched by scripts/fetch-typst.sh
 /apps/desktop/src-tauri/binaries/
+
+.claude/worktrees/

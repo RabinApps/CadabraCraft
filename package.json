@@ -9,11 +9,22 @@
     "typecheck:scripts": "tsc -p scripts/automation/tsconfig.json",
     "dev": "pnpm --filter @cadabracraft/desktop dev",
     "tauri": "pnpm --filter @cadabracraft/desktop tauri",
-    "automation:scenario": "node scripts/automation/scenario.ts --launch"
+    "automation:scenario": "node scripts/automation/scenario.ts --launch",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.5",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-import-x": "^4.17.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
     "typescript": "^7.0.2",
+    "typescript-eslint": "^8.72.1",
     "vitest": "^5.0.5"
   }
 }
