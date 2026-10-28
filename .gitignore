@@ -17,3 +17,4 @@ playwright-report/
 /apps/desktop/src-tauri/binaries/
 
 .claude/worktrees/
+coverage/
