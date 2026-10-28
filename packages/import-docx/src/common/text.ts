@@ -41,8 +41,8 @@ export function sortMarks(marks: Mark[]): Mark[] | undefined {
  * Text that XML 1.0 (EPUB) and UTF-8 files can hold: C0 controls other than tab and newline, U+FFFE/U+FFFF and the BOM-like
  * U+FEFF inside text are removed, and a lone surrogate becomes U+FFFD. NUL, form feed and friends would make the XHTML invalid.
  */
-// eslint-disable-next-line no-control-regex
 const BAD_CHARS =
+  // eslint-disable-next-line no-control-regex -- intentional: strips control characters XML 1.0 cannot carry
   /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 export function cleanText(text: string): string {
   return text.replace(BAD_CHARS, (c) => (c >= "\uD800" && c <= "\uDFFF" ? "\uFFFD" : ""));

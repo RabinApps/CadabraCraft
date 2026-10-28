@@ -47,7 +47,7 @@ export async function runEpubcheck(ctx: Ctx, file: string): Promise<EpubcheckRes
     // Any failure to run `java -version` means EPUBCheck cannot run; report it as a skipped check, not an error.
     return { ran: false, messages: [], reason: "java was not found or does not work" };
   }
-  let out = "";
+  let out: string;
   let code = 0;
   try {
     const r = await run("java", ["-jar", jar, file], {

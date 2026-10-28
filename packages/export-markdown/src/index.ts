@@ -1,5 +1,5 @@
 import type { ChapterDoc, DocNode, MatterKind, Section } from "@cadabracraft/shared";
-import { MarkdownExportError, renderChapter, type MarkdownOptions } from "./markdown";
+import { renderChapter, type MarkdownOptions } from "./markdown";
 
 export { MarkdownExportError, type MarkdownOptions } from "./markdown";
 

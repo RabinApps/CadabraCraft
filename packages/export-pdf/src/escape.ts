@@ -22,6 +22,7 @@ export interface EscapeOptions {
 function normalise(s: string): string {
   return (
     s
+      // eslint-disable-next-line no-control-regex -- intentional: vertical tab and form feed become newlines
       .replace(/\r\n?|[\u000b\u000c\u0085\u2028\u2029]/g, "\n")
       // eslint-disable-next-line no-control-regex
       .replace(/[\u0000-\u0008\u000e-\u001f\u007f]/g, "")

@@ -29,12 +29,12 @@ function runMarks(rPr: XNode | undefined, ctx: DCtx): Mark[] {
   const b = child(rPr, "b");
   if (b) {
     if (on(b)) marks.push({ type: "bold" });
-    else return marks.filter((m) => m.type !== "bold").concat(rest(rPr, ctx));
+    else return marks.filter((m) => m.type !== "bold").concat(rest(rPr));
   }
-  return marks.concat(rest(rPr, ctx));
+  return marks.concat(rest(rPr));
 }
 
-function rest(rPr: XNode, ctx: DCtx): Mark[] {
+function rest(rPr: XNode): Mark[] {
   const m: Mark[] = [];
   const i = child(rPr, "i");
   if (i && on(i)) m.push({ type: "italic" });

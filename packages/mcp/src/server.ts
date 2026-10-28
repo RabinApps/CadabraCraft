@@ -37,7 +37,7 @@ export function createServer(opts: ServerOptions): McpServer {
   try {
     ws = openWorkspace(opts.root);
   } catch (e) {
-    throw new Error(`Invalid workspace root: ${errMsg(e)}`);
+    throw new Error(`Invalid workspace root: ${errMsg(e)}`, { cause: e });
   }
   const ctx: Ctx = {
     ws,

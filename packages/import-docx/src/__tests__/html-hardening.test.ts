@@ -63,7 +63,6 @@ describe("HTML input robustness", () => {
       "<p>a\u0000b\u0001c\u000Bd\u001Fe￾f￿g</p><pre>x\u0000y\u0002z</pre><p><span class='footnote'>n\u0003ote</span></p>",
     );
     const all = json(r.chapters);
-    // eslint-disable-next-line no-control-regex
     expect(all).not.toMatch(/\\u00(0[0-8bBcC]|1[0-9a-fA-F])|\\ufff[ef]/i);
     expect(texts(r.chapters).join("")).toContain("abcdefg");
     expect(all).toContain("xyz");
