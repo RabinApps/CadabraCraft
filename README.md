@@ -72,7 +72,7 @@ pnpm tauri dev                # full desktop app
 
 ```
 apps/
-  desktop/          Tauri app (src/ React UI, src-tauri/ Rust, e2e/ Playwright)
+  desktop/          Tauri app (src/ React UI: app/ screens, editor/, state/, lib/, ui/; src-tauri/ Rust; e2e/ Playwright). Tests sit in __tests__/ beside the code
   website/          Marketing site (Next.js static export, cadabracraft.com)
 packages/
   shared/           Shared types (chapter JSON, metadata)

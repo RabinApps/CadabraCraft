@@ -86,7 +86,7 @@ Spike caveat: output was checked via `pdffonts`/`pdftotext` and page size, not v
 - `packages/format` (TypeScript, pure): manifest validation, migrations, chapter-tree edits, file naming. No disk access.
 - `src-tauri/src/project` (Rust): safe file IO only. Paths are validated relative to the project root; writes are temp file + rename; a write carrying a stale base hash first keeps the on-disk version as a `.conflict-YYYYMMDD-HHMM` copy; iCloud placeholders read as an error, never an empty chapter; "delete" moves to `.cadabra/trash/<stamp>-<path with / as __>` (never overwriting an earlier trashed file), and "restore" (`list_project_trash`, `restore_project_trash`) moves a page back to its original path, or to `<name>-2.json`, `-3`... when that path is taken; the store then re-adds it to the end of its section (matter pages come back as kind `custom`).
 - `src-tauri/src/fs_watch.rs`: debounced (400 ms) watcher emitting `project-changed` for files changed outside the app, ignoring `.cadabra/`, `exports/` and temp files.
-- `apps/desktop/src/app/store.ts` (Zustand): project state, unsaved draft, and reaction to external changes (reload if clean, warn if there are unsaved edits, ignore echoes of our own writes via content hash).
+- `apps/desktop/src/state/project/` (Zustand slices behind `useProject`): project state, unsaved draft, and reaction to external changes (reload if clean, warn if there are unsaved edits, ignore echoes of our own writes via content hash).
 
 ### Rejected: hashing with mtime
 
@@ -134,7 +134,7 @@ The schema has StarterKit's `codeBlock` node (plain text, no marks, optional `la
 
 ### Book-level undo and redo (chapter-tree edits)
 
-**Decision:** `useProject` (`apps/desktop/src/app/store.ts`) keeps `history: { undo, redo }`, stacks of plain-data `HistoryEntry` values (label, tree before, tree after, and for add/remove/restore the page file plus where it sits in the trash). A "tree" is `{ frontMatter, chapters, backMatter }` (`treeOf`, `withTree`, `sameTree`, `retargetFile` in `packages/format/src/edit.ts`, next to the pure edit functions that produce the new manifests). Add, add page, rename, move, move to trash and trash restore each record one entry after they succeed; a new edit drops the redo stack; depth is 100.
+**Decision:** `useProject` (`apps/desktop/src/state/project/`) keeps `history: { undo, redo }`, stacks of plain-data `HistoryEntry` values (label, tree before, tree after, and for add/remove/restore the page file plus where it sits in the trash). A "tree" is `{ frontMatter, chapters, backMatter }` (`treeOf`, `withTree`, `sameTree`, `retargetFile` in `packages/format/src/edit.ts`, next to the pure edit functions that produce the new manifests). Add, add page, rename, move, move to trash and trash restore each record one entry after they succeed; a new edit drops the redo stack; depth is 100.
 
 - Undo/redo writes the stored tree onto the _current_ manifest, so title, template and the other fields never roll back.
 - Files follow the rule "never lose a page": undoing an add (or redoing a remove) calls `trashFile`, undoing a remove (or redoing an add) calls `restoreTrash` with the recorded trash path. Order keeps the manifest from naming a missing file: restore, then save the manifest; save the manifest, then trash. If the restored file had to take a `-2` name, every entry that mentions the old name is rewritten.
@@ -350,7 +350,7 @@ CI lessons (from the macOS failure in run 40399041624):
 - **A JVM start can take over 5 s on CI.** Two EPUBCheck tests on the self-hosted macOS runner took 5.2 s and 5.3 s and failed under vitest's 5 s default, while the same file's later tests passed with a 60 s timeout. Every test that spawns `java` now has an explicit `60_000` timeout (`export-epub` and `mcp`).
 - **`pnpm -r test` stops at the first failing package.** The failing run never reached `mcp`, `format`, `import-docx` or `desktop`. To see every failure locally, run `pnpm -r --no-bail test`.
 - **A failure on one OS cancels the others.** The matrix uses the default `fail-fast`, so the Windows job was cancelled and its result is unknown. A green macOS run says nothing about Windows. Open follow-up: consider `fail-fast: false` in `ci.yml`.
-- **Windows-only branches can be tested on any OS** by stubbing `process.platform` with `Object.defineProperty` and restoring it afterwards (`packages/project-fs/test/paths.test.ts`).
+- **Windows-only branches can be tested on any OS** by stubbing `process.platform` with `Object.defineProperty` and restoring it afterwards (`packages/project-fs/src/__tests__/paths.test.ts`).
 - **macOS has no `timeout` command.** Use `pnpm` directly or a background run with a log file.
 
 ## Updates and releases
@@ -531,7 +531,7 @@ Throwaway script `scripts/audio-spike/kokoro.mjs` (setup in `tools/audio-spike/`
 
 ## Performance budgets (large manuscripts)
 
-**Decision:** a novel is 90-120k words in 30-60 chapters, and some chapters reach 20k words. `apps/desktop/e2e/bigBook.ts` generates such books deterministically (seeded PRNG, headings, dialogue, marks, footnotes, scene breaks; nothing stored in git). Vitest (`src/lib/perf.test.ts`, `src/app/store.bookwords.test.ts`) and one Playwright test (typing in a 20k-word chapter) assert hard ceilings. The ceilings are 10x or more above what was measured, so slow CI passes but a quadratic step or a whole-book pass per keystroke fails.
+**Decision:** a novel is 90-120k words in 30-60 chapters, and some chapters reach 20k words. `apps/desktop/src/test/bigBook.ts` generates such books deterministically (seeded PRNG, headings, dialogue, marks, footnotes, scene breaks; nothing stored in git). Vitest (`src/editor/search/__tests__/perf.test.ts`, `src/state/project/__tests__/bookwords.test.ts`) and one Playwright test (typing in a 20k-word chapter) assert hard ceilings. The ceilings are 10x or more above what was measured, so slow CI passes but a quadratic step or a whole-book pass per keystroke fails.
 
 **Measured** (Apple-silicon Mac, Node, in-memory file layer, 100k words in 40 chapters, 20k-word chapter = 243 KiB of JSON):
 
@@ -596,7 +596,7 @@ The in-memory layer has no disk cost, so the real saving is the file reads, whic
 
 The webview side of the audiobook export. It is a new "Audiobook" format in the Export dialog (`app/ExportDialog.tsx`, `app/AudioExport.tsx`), a File > Export > Audiobook… menu entry and a header chip, following the screens in `docs/design.md`.
 
-**Decision:** the job lives in the store (`audio` in `app/store.ts`), not in the dialog. `exportAudio` runs `renderAudiobook` from `@cadabracraft/export-audio` with a Tauri runner (`lib/audioRunner.ts`), so the dialog can close ("Keep working") while a render continues and a header chip shows the percentage. The render itself is on a Rust worker thread, so the page stays responsive; the webview only awaits a `Channel` of progress numbers.
+**Decision:** the job lives in the store (`audio` in `state/project/audio.ts`), not in the dialog. `exportAudio` runs `renderAudiobook` from `@cadabracraft/export-audio` with a Tauri runner (`lib/audioRunner.ts`), so the dialog can close ("Keep working") while a render continues and a header chip shows the percentage. The render itself is on a Rust worker thread, so the page stays responsive; the webview only awaits a `Channel` of progress numbers.
 **Errors:** render failures do not throw; they set `audio.status = "error"` with an `AudioUiError` (`lib/audioErrors.ts`: a translated message and a code, plus the chapter index so the dialog can mark the chapter that stopped). Cancel aborts an `AbortController`; the runner then calls `audio_cancel`, Rust kills the engine, and the result is a `cancelled` state, not a failure. `exportAudio` throws only when it cannot start (another export is running, no chapters).
 **Choices:** only chapters are read (not front or back matter); Opus is the default format and at least one format always stays chosen; output is `exports/audio/NN-slug.<format>`; the Export dialog is now 560px wide (the pen's size) so five format segments fit.
 **Rejected:** keeping progress in dialog state (it would be lost when the dialog closes), a Web Worker (the work is already off-thread in Rust), a polling loop for progress (a Channel pushes it).
@@ -628,3 +628,15 @@ The audiobook export runs `sherpa-onnx-offline-tts` (see "Audiobook rendering in
 **CI:** the Rust job runs `fetch-sherpa.sh`, and a new step runs the end-to-end test on all three runners (`CADABRA_NET_TESTS=full CADABRA_NET_PACKS=piper`, 148 MB of voices), so the Windows and Linux engine builds and the TLS download are exercised for the first time there. The release job fetches with `--all` on macOS. Each run downloads 217 to 407 MB per runner; there is no cache yet.
 **Not verified:** the Windows and Linux builds (nothing there has run yet; the Linux build links glibc dynamically, so its minimum glibc is unknown), the `lipo` universal binary, signing and notarisation of the sidecar on a release build, and the size of the Windows and Linux programs.
 **Rejected:** the shared builds (20 to 28 MB archives, but the libraries would have to travel as resources and be found through a library path, and each one signed), building sherpa-onnx ourselves (a C++ toolchain and long CI), and the `universal2-static` archive (542 MB in one download; two thinner archives and `lipo` cost less).
+
+## Code layout and tests
+
+**Decision:** tests live in a `__tests__/` folder beside the code they test (`src/__tests__/` in every package, `app/__tests__`, `state/project/__tests__`, `lib/__tests__` and so on in the desktop app). Playwright specs stay in `apps/desktop/e2e/`, one file per topic, sharing `e2e/support/fakeTauri.ts`. Store tests share the in-memory bridge in `apps/desktop/src/test/fakeBridge.ts`. Fixtures stay in the root `fixtures/` folder.
+
+Source files stay under about 400 lines (ESLint `max-lines` warns; tests are exempt). A file that grows past that is split by concern into a folder with an `index.ts` that keeps the public exports unchanged.
+
+Desktop layers import downward only: `app/` (screens, dialogs, shell, hooks) uses `editor/`, `state/` (stores, preferences, commands), `lib/` (pure helpers, the Tauri `bridge/`, error mapping) and `ui/` (primitives). `editor/` and `lib/` never import `app/`. `import-x/no-cycle` enforces cycles; `packages/*` importing `apps/desktop` is a lint error. Preferences use `lib/persisted.ts` (`createPersistedStore`).
+
+**Rejected:** `test/` folders per package (three packages used them and the rest colocated, so we had two layouts); `app/store/` for the project store (the editor imports it, so it sits in the lower `state/` layer); a Rust `tests/` directory for unit tests (most helpers are `pub(crate)`, so tests stay inside their module).
+
+**Tooling:** ESLint 10 and Prettier run from the repo root (`pnpm lint`, `pnpm format:check`). typescript-eslint does not support TypeScript 7 yet, so `.pnpmfile.cjs` gives the lint toolchain its own TypeScript 6.0.3 while the repo compiles on 7. Remove it when typescript-eslint supports 7.1 (typescript-eslint#10940).

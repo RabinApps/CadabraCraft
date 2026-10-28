@@ -30,6 +30,8 @@ jobs:
       - run: bash scripts/fetch-epubcheck.sh
       - run: bash scripts/fetch-enwik8.sh
       - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
       - run: pnpm test
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/desktop
