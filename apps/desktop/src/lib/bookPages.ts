@@ -1,22 +1,17 @@
-import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
+import type { TrimSize } from "@cadabracraft/export-pdf";
 import type { Manifest } from "@cadabracraft/format";
-import {
-  DEFAULT_TEMPLATE_ID,
-  getTemplate,
-  hasTemplate,
-  resolveTrimSize,
-} from "@cadabracraft/templates";
-import { estimatePages, wordsPerPage } from "./printEstimate";
+import { resolveTrimSize } from "@cadabracraft/templates";
+import { bookPageCount } from "./pageNumbering";
 
-/** The book's print page size and the estimated page count for `words`, from its template's margins and type size. An estimate: the PDF is the reference. */
+/**
+ * The book's print page size and page count, counted like Page view does (see `firstPageNumber`): `words` is each chapter's word
+ * count in order, `measured` the pages Page view measured for some of them (chapter index to count). `exact` is false while any
+ * chapter is only estimated from its words: the PDF is the reference.
+ */
 export function bookPages(
-  manifest: Pick<Manifest, "template" | "trimSize" | "chapters">,
-  words: number,
-): { trimSize: TrimSize; pages: number } {
-  const trimSize = resolveTrimSize(manifest);
-  const print = getTemplate(
-    hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID,
-  ).print;
-  const perPage = wordsPerPage(TRIM_SIZES[trimSize], print.defaults.marginsIn, print.fontSizePt);
-  return { trimSize, pages: estimatePages(words, manifest.chapters.length, perPage) };
+  manifest: Pick<Manifest, "template" | "trimSize">,
+  words: number[],
+  measured?: ReadonlyMap<number, number>,
+): { trimSize: TrimSize; pages: number; exact: boolean } {
+  return { trimSize: resolveTrimSize(manifest), ...bookPageCount(manifest, words, measured) };
 }

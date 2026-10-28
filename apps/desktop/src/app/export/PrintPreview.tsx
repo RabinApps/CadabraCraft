@@ -14,7 +14,8 @@ import {
 import { countWords } from "@cadabracraft/shared";
 import { assetUrl } from "../../lib/assets";
 import { errText } from "../../lib/projectError";
-import { estimatePages, plainBlocks, wordsPerPage, type Margins } from "../../lib/printEstimate";
+import { bookPageCount } from "../../lib/pageNumbering";
+import { plainBlocks, type Margins } from "../../lib/printEstimate";
 import { trimLabel } from "../../lib/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
 import { Select } from "../../ui/Select";
@@ -190,8 +191,8 @@ export function PrintPreview({ onBack, onExport }: Props) {
     readPages().then(setPages, (e: unknown) => setError(errText(e)));
   }, [readPages]);
   // Counting walks every page's document; only redo it when the pages are read again, not on each option change.
-  const words = useMemo(
-    () => (pages ?? []).reduce((sum, p) => sum + countWords(p.doc), 0),
+  const chapterWords = useMemo(
+    () => (pages ?? []).filter((p) => p.section === "chapter").map((p) => countWords(p.doc)),
     [pages],
   );
 
@@ -200,8 +201,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
   const margins = template.print.defaults.marginsIn;
   const scale = PAGE_PX / size.w; // px per inch
   const heightPx = PAGE_PX * (size.h / size.w);
-  const perPage = wordsPerPage(size, margins, template.print.fontSizePt);
-  const estimate = estimatePages(words, manifest.chapters.length, perPage);
+  const estimate = bookPageCount({ template: template.id, trimSize: trim }, chapterWords).pages;
   const first = (pages ?? []).find((p) => p.section === "chapter") ?? pages?.[0];
   const blocks = first ? plainBlocks(first.doc).filter((b) => b !== first.title) : [];
   const bodyFont = /serif/i.test(template.print.bodyFonts[0] ?? "")
