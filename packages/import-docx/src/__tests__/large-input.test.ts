@@ -9,7 +9,7 @@ import {
   importMarkdown,
   looksLikeHtml,
 } from "..";
-import { expectValid } from "./helpers";
+import { budget, expectValid } from "./helpers";
 
 /**
  * enwik8: the first 100,000,000 bytes of an English Wikipedia XML dump (Matt Mahoney's Large Text Compression
@@ -39,7 +39,7 @@ describe("the 50,000,000 character limit (generated input, always runs)", () => 
     expect(code(() => importHtml(over))).toBe("input-too-large");
     expect(code(() => htmlToBlocks(over))).toBe("input-too-large");
     expect(code(() => htmlToInline(over))).toBe("input-too-large");
-    expect(Date.now() - t).toBeLessThan(2000);
+    expect(Date.now() - t).toBeLessThan(budget(2000));
   });
   it("looksLikeHtml answers false instead of throwing on over-limit text", () => {
     expect(() => looksLikeHtml(over)).not.toThrow();
@@ -70,7 +70,7 @@ describe("enwik8, 100 MB of real Wikipedia markup (needs tools/enwik8)", () => {
     const t = Date.now();
     expect(code(() => importMarkdown(text))).toBe("input-too-large");
     expect(code(() => importHtml(text))).toBe("input-too-large");
-    expect(Date.now() - t).toBeLessThan(2000);
+    expect(Date.now() - t).toBeLessThan(budget(2000));
   });
 
   real(
@@ -104,7 +104,7 @@ describe("enwik8, 100 MB of real Wikipedia markup (needs tools/enwik8)", () => {
       const t = Date.now();
       expect(() => looksLikeHtml(slice)).not.toThrow();
       expect(() => htmlToBlocks(slice)).not.toThrow();
-      expect(Date.now() - t).toBeLessThan(30_000);
+      expect(Date.now() - t).toBeLessThan(budget(30_000));
     },
     60_000,
   );

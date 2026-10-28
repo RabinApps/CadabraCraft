@@ -105,6 +105,7 @@ describe("normalizeLinkUrl", () => {
     "",
     "  ",
     "two words.com",
+    "http://",
   ])("refuses %j", (v) => {
     expect(normalizeLinkUrl(v)).toBeNull();
   });
@@ -203,6 +204,12 @@ describe("tables", () => {
   it("rejects an empty table or row", () => {
     expect(chapterDocProblem(table())).not.toBeNull();
     expect(chapterDocProblem(table([]))).not.toBeNull();
+    expect(
+      chapterDocProblem({
+        type: "doc",
+        content: [{ type: "table", content: [{ type: "tableRow" }] }],
+      }),
+    ).toBe("table row 1 has no cells");
   });
 });
 

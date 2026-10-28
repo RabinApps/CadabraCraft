@@ -6,3 +6,9 @@ export const coverage = {
   exclude: ["**/__tests__/**", "**/*.d.ts", "**/*.test.*"],
   reporter: ["text-summary", "lcov", "json-summary"],
 };
+
+/** For packages that have reached 100%: any drop fails the run. */
+export const strictCoverage = {
+  ...coverage,
+  thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 },
+};

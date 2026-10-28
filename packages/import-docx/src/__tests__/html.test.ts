@@ -8,7 +8,7 @@ import {
   looksLikeHtml,
   type ImportResult,
 } from "..";
-import { expectValid } from "./helpers";
+import { budget, expectValid } from "./helpers";
 
 const blocks = (html: string) => htmlToBlocks(html).blocks;
 const text = (n: unknown) => JSON.stringify(n);
@@ -370,7 +370,7 @@ describe("hostile input", () => {
       } catch (e) {
         expect(e, tag).toBeInstanceOf(ImportError);
       }
-      expect(Date.now() - t0, tag).toBeLessThan(2000);
+      expect(Date.now() - t0, tag).toBeLessThan(budget(2000));
     }
   }, 60_000);
 

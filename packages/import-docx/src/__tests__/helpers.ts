@@ -104,3 +104,14 @@ export const PNG = Uint8Array.from(
     .split("")
     .map((c) => c.charCodeAt(0)),
 );
+
+/**
+ * Wall-clock budget for performance tests. v8 coverage instrumentation makes the hostile-input
+ * tests several times slower, so the budget is scaled up when coverage is collecting.
+ */
+export function budget(ms: number): number {
+  const worker = (
+    globalThis as { __vitest_worker__?: { config?: { coverage?: { enabled?: boolean } } } }
+  ).__vitest_worker__;
+  return worker?.config?.coverage?.enabled ? ms * 5 : ms;
+}

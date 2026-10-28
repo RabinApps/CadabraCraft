@@ -146,6 +146,8 @@ export function inlines(
           if (!h.close) openMarks.push({ tag: h.tag, mark: h.mark });
           else {
             const at = openMarks.map((o) => o.tag).lastIndexOf(h.tag);
+            // pairedHtmlMarks only pairs a close tag with an earlier open tag of the same name, so `at` is always found.
+            /* v8 ignore else -- @preserve */
             if (at >= 0) openMarks.splice(at, 1);
           }
           marks = [...baseMarks, ...openMarks.map((o) => o.mark)];
@@ -205,6 +207,8 @@ function footnoteNode(def: FootnoteDefinition, ctx: Ctx): DocNode {
     if (parts.length) parts.push({ type: "text", text: " " });
     if (child.type === "paragraph") {
       for (const it of inlines(child.children, ctx, [], true)) {
+        // Inlines inside a note are only text or separators, so the final "otherwise" is unreachable.
+        /* v8 ignore else -- @preserve */
         if (isSep(it)) {
           complex = true;
           if (it.sep === "break") parts.push({ type: "text", text: " " });

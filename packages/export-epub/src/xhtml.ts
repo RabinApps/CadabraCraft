@@ -32,11 +32,8 @@ function at<T>(ctx: Ctx, n: DocNode, i: number, fn: () => T): T {
   }
 }
 
-const fail = (ctx: Ctx, code: EpubErrorCode, detail: string, nodeType?: string): EpubExportError =>
-  new EpubExportError(code, detail, {
-    ...(nodeType ? { nodeType } : {}),
-    ...(ctx.path.length ? { path: ctx.path.join(" > ") } : {}),
-  });
+const fail = (ctx: Ctx, code: EpubErrorCode, detail: string, nodeType: string): EpubExportError =>
+  new EpubExportError(code, detail, { nodeType, path: ctx.path.join(" > ") });
 
 const blocks = (kids: DocNode[] | undefined, ctx: Ctx): string =>
   (kids ?? []).map((k, i) => at(ctx, k, i, () => block(k, ctx))).join("");

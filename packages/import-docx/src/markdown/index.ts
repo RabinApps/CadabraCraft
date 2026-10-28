@@ -57,6 +57,8 @@ export function importMarkdown(text: string, opts: ImportOptions = {}): ImportRe
       warn.at(
         "footnote-unreferenced",
         "warning",
+        // remark always sets a label on footnote definitions, so the identifier fallback is unreachable.
+        /* v8 ignore next -- @preserve */
         `Footnote [^${def.label ?? id}] is defined but never referenced; its text was not imported.`,
         lineOf(def),
       );

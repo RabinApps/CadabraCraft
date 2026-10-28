@@ -19,7 +19,6 @@ export function normalizeRelative(rel: string): string {
     if (p === "..") throw bad();
     if (p !== "" && p !== ".") out.push(p);
   }
-  if (out.length === 0) throw bad();
   return out.join("/");
 }
 

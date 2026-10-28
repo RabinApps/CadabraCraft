@@ -11,7 +11,7 @@ import {
   looksLikeHtml,
   type ImportResult,
 } from "..";
-import { schema } from "./helpers";
+import { budget, schema } from "./helpers";
 
 /** Every doc must pass both the app's validator and a strict ProseMirror check. */
 function assertValidDoc(doc: unknown, label: string): void {
@@ -337,7 +337,7 @@ describe("Result invariants and error handling", () => {
     );
     expect(looksLikeHtml(`<p ${attrs(200_000)}>x</p>`)).toBe(true);
     expect(importErrorCode(() => importHtml(`<p ${attrs(4_000)}>x</p>`))).toBeUndefined();
-    expect(performance.now() - start).toBeLessThan(5000);
+    expect(performance.now() - start).toBeLessThan(budget(5000));
   });
 
   it("looksLikeHtml never throws, even on 300,000 sibling elements or hostile nesting", () => {
@@ -411,7 +411,7 @@ describe("Performance bounds", () => {
   const within = (ms: number, fn: () => void) => {
     const t0 = performance.now();
     fn();
-    expect(performance.now() - t0).toBeLessThan(ms);
+    expect(performance.now() - t0).toBeLessThan(budget(ms));
   };
 
   it("imports a million tiny inline elements in a few seconds", () => {

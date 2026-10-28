@@ -291,8 +291,8 @@ function table(
   const rows: { tr: PElement; head: boolean }[] = [];
   for (const c of el.childNodes) {
     if (!isElement(c)) continue;
-    if (c.tagName === "tr") rows.push({ tr: c, head: false });
-    else if (c.tagName === "thead" || c.tagName === "tbody" || c.tagName === "tfoot") {
+    // parse5 wraps loose rows in an implied <tbody>, so a <tr> is never a direct child of <table>.
+    if (c.tagName === "thead" || c.tagName === "tbody" || c.tagName === "tfoot") {
       for (const r of c.childNodes)
         if (isElement(r) && r.tagName === "tr") rows.push({ tr: r, head: c.tagName === "thead" });
     } else if (c.tagName === "caption")

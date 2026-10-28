@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { chapterDocProblem } from "@cadabracraft/editor-schema";
 import type { DocNode } from "@cadabracraft/shared";
 import { importMarkdown } from "..";
+import { budget } from "./helpers";
 
 const doc = (md: string) => {
   const r = importMarkdown(md);
@@ -123,6 +124,6 @@ describe("inline HTML marks in Markdown", () => {
       "<u>a</u>".repeat(50_000) + " " + "<sup>".repeat(20_000) + "x" + "</sup>".repeat(20_000);
     const d = doc(md);
     expect(d.content.length).toBe(1);
-    expect(performance.now() - t0).toBeLessThan(6000);
+    expect(performance.now() - t0).toBeLessThan(budget(6000));
   });
 });

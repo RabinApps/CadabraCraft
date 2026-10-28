@@ -103,6 +103,8 @@ export function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[]
             const prefix = textNode(li.checked ? "[x] " : "[ ] ")!;
             const first = inner[0];
             if (first && first.type === "paragraph")
+              // paragraphs() only emits paragraphs that have content, so the fallback is unreachable.
+              /* v8 ignore next -- @preserve */
               inner = [paragraphOf([prefix, ...(first.content ?? [])]), ...inner.slice(1)];
             else inner = [{ type: "paragraph", content: [prefix] }, ...inner];
           }
