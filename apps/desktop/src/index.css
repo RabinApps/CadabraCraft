@@ -374,7 +374,50 @@ body {
   margin: var(--page-h1-above) 0 var(--page-h1-below);
 }
 .prose-page .ProseMirror > h1:first-child {
+  position: relative;
   margin-top: calc(var(--page-chapter-sink) + var(--page-chapter-extra));
+}
+/* Chapter ornament and label sit in the space --page-chapter-extra reserves above the title (as the PDF's chapter-start). */
+.prose-page .ProseMirror > h1:first-child::before,
+.prose-page .ProseMirror > h1:first-child::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  font-family: var(--page-font);
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  pointer-events: none;
+  user-select: none;
+}
+.prose-page .ProseMirror > h1:first-child::before {
+  content: var(--page-chapter-ornament);
+  top: var(--page-chapter-ornament-top);
+  height: var(--page-chapter-ornament-h);
+  font-size: var(--page-chapter-ornament-size);
+  line-height: var(--page-chapter-ornament-h);
+  text-align: center;
+}
+.prose-page .ProseMirror > h1:first-child::after {
+  content: var(--page-chapter-label);
+  top: var(--page-chapter-label-top);
+  height: var(--page-chapter-label-h);
+  font-size: var(--page-chapter-label-size);
+  line-height: var(--page-chapter-label-h);
+  letter-spacing: 0.12em;
+  text-align: var(--page-h1-align);
+}
+/* Drop cap on a chapter's first paragraph; min-height is the reservation when the paragraph is shorter than the cap. */
+.prose-page .ProseMirror > h1:first-child + p {
+  display: flow-root;
+  min-height: var(--page-dropcap-height);
+}
+.prose-page .ProseMirror > h1:first-child + p::first-letter {
+  float: var(--page-dropcap-float);
+  font-size: var(--page-dropcap-size);
+  line-height: var(--page-dropcap-lh);
+  padding-right: var(--page-dropcap-gap);
+  margin-bottom: -0.06em; /* the float must not reach the 4th line */
 }
 .prose-page .ProseMirror h2 {
   font-size: var(--page-h2-size);

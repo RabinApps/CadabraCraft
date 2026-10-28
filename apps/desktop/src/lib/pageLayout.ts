@@ -112,6 +112,30 @@ const rd = (n: number): number => Math.round(n * 1000) / 1000;
 const px = (n: number): string => `${rd(n)}px`;
 const emStr = (n: number): string => `${rd(n)}em`;
 
+/** Sizes of the chapter label and ornament relative to the body, as in the PDF preamble (`chapter-start`). */
+const LABEL_SIZE_EM = 0.85;
+const ORNAMENT_SIZE_EM = 1.2;
+/** Lines a drop cap spans (the PDF uses `dropcap(height: 3)`). */
+export const DROP_CAP_LINES = 3;
+
+/**
+ * Drop cap of the first paragraph: `lines` is 0 when the template has none. Like droplet, the letter's cap height spans the lines
+ * (n caps + n-1 leadings), so `sizeEm` is that over the font's cap height; `lineHeight` makes the float box exactly `lines` pitches
+ * tall, which is also the height the paragraph reserves (`--page-dropcap-height`) when it is shorter than that.
+ */
+export function dropCapMetrics(book: BookLike): {
+  lines: number;
+  sizeEm: number;
+  lineHeight: number;
+} {
+  const p = getTemplate(book.template).print;
+  if (!p.chapterOpening.dropCap) return { lines: 0, sizeEm: 1, lineHeight: 1 };
+  const cap = CAP_HEIGHT_EM[fontKindOf(book.template)];
+  const n = DROP_CAP_LINES;
+  const sizeEm = (n * cap + (n - 1) * p.leadingEm) / cap;
+  return { lines: n, sizeEm, lineHeight: (n * linePitchEm(book)) / sizeEm };
+}
+
 /** Line pitch of the body text, in em of the body font size. */
 export function linePitchEm(book: BookLike): number {
   const p = getTemplate(book.template).print;
@@ -156,7 +180,7 @@ function headingVars(
  * `--page-line-height` is unitless (the line pitch in em), `--page-para-space` is the gap between paragraphs net of the trailing
  * leading a CSS line box already contains (negative when the template's spacing is smaller than its leading), so DOM heights and Typst heights agree.
  */
-export function pageCssVars(book: BookLike): Record<string, string> {
+export function pageCssVars(book: BookLike, chapterNumber?: number): Record<string, string> {
   const t = getTemplate(book.template);
   const p = t.print;
   const g = pageGeometry(book);
@@ -165,9 +189,16 @@ export function pageCssVars(book: BookLike): Record<string, string> {
   const spacingEm = indent ? p.leadingEm : p.paragraph.spacingEm;
   const q = p.blockQuote;
   const o = p.chapterOpening;
-  const extraEm =
-    (o.ornament === null ? 0 : 1.2 * CAP_HEIGHT_EM[fontKindOf(book.template)] + 0.6) +
-    (o.label === null ? 0 : 0.85 * CAP_HEIGHT_EM[fontKindOf(book.template)] + 0.8);
+  const cap = CAP_HEIGHT_EM[fontKindOf(book.template)];
+  // Typst stacks, below the sink: ornament (1.2em text, one cap tall) + 0.6em gap, label (0.85em text) + 0.8em gap, then the title.
+  const labelBlockEm = o.label === null ? 0 : LABEL_SIZE_EM * cap + 0.8;
+  const ornamentBlockEm = o.ornament === null ? 0 : ORNAMENT_SIZE_EM * cap + 0.6;
+  const extraEm = ornamentBlockEm + labelBlockEm;
+  const label =
+    o.label === null || chapterNumber === undefined
+      ? "none"
+      : JSON.stringify(o.label.replace("{n}", String(chapterNumber)).toUpperCase());
+  const drop = dropCapMetrics(book);
   return {
     "--page-w": px(g.page.w),
     "--page-h": px(g.page.h),
@@ -184,6 +215,21 @@ export function pageCssVars(book: BookLike): Record<string, string> {
     ...headingVars(3, p.headings[3], fontPx),
     "--page-chapter-sink": px(o.sinkEm * fontPx),
     "--page-chapter-extra": px(extraEm * fontPx),
+    // Drawn in the space `--page-chapter-extra` reserves, as pseudo-elements of the chapter title (offsets are from the title's top).
+    "--page-chapter-ornament": o.ornament === null ? "none" : JSON.stringify(o.ornament),
+    "--page-chapter-ornament-size": px(ORNAMENT_SIZE_EM * fontPx),
+    "--page-chapter-ornament-h": px(ORNAMENT_SIZE_EM * cap * fontPx),
+    "--page-chapter-ornament-top": px(-(ornamentBlockEm + labelBlockEm) * fontPx),
+    "--page-chapter-label": label,
+    "--page-chapter-label-size": px(LABEL_SIZE_EM * fontPx),
+    "--page-chapter-label-h": px(LABEL_SIZE_EM * cap * fontPx),
+    "--page-chapter-label-top": px(-labelBlockEm * fontPx),
+    "--page-dropcap-lines": String(drop.lines),
+    "--page-dropcap-float": drop.lines === 0 ? "none" : "left",
+    "--page-dropcap-size": emStr(drop.sizeEm),
+    "--page-dropcap-lh": drop.lines === 0 ? "inherit" : String(rd(drop.lineHeight)),
+    "--page-dropcap-gap": drop.lines === 0 ? "0em" : "0.12em",
+    "--page-dropcap-height": px(drop.lines * linePitchEm(book) * fontPx),
     "--page-bq-indent": px(q.indentEm * fontPx),
     "--page-bq-size": emStr(q.sizeEm),
     "--page-bq-space": px(q.spaceEm * fontPx),

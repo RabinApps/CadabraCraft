@@ -81,3 +81,58 @@ test("it is not offered on a phone, and the preference stays for the desktop", a
   await expect(toggle(page)).toHaveAttribute("aria-pressed", "true");
   await expect(zoom(page)).toBeVisible();
 });
+
+// Chapter opening (novel: ornament above the title, drop cap on the first paragraph). The pseudo-elements fill the space
+// `--page-chapter-extra` reserves, so the title keeps its place and the first paragraph keeps at least three lines of height.
+test("a novel chapter draws its ornament and a drop cap in Page view, and not in the normal editor", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.evaluate(() => {
+    window.__disk["manuscript/001-chapter-one.json"] = JSON.stringify({
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Chapter One" }] },
+        { type: "paragraph", content: [{ type: "text", text: "Short opening." }] },
+      ],
+    });
+    sessionStorage.setItem("disk", JSON.stringify(window.__disk));
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Open folder" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+  const style = () =>
+    page.evaluate(() => {
+      const h1 = document.querySelector(".ProseMirror h1")!;
+      const p = h1.nextElementSibling!;
+      const orn = getComputedStyle(h1, "::before");
+      return {
+        ornament: orn.content,
+        ornamentPos: orn.position,
+        ornamentTop: parseFloat(orn.top),
+        label: getComputedStyle(h1, "::after").content,
+        capFloat: getComputedStyle(p, "::first-letter").float,
+        paraH: p.getBoundingClientRect().height,
+        linePitch: parseFloat(getComputedStyle(p).lineHeight),
+        extra: parseFloat(
+          getComputedStyle(h1.closest(".page-stack") ?? document.body).getPropertyValue(
+            "--page-chapter-extra",
+          ),
+        ),
+      };
+    });
+  await toggle(page).click();
+  await zoom(page).selectOption({ label: "100%" });
+  await expect(page.locator(".page").first()).toBeVisible();
+  const on = await style();
+  expect(on.ornament).toContain("⁂");
+  expect(on.ornamentPos).toBe("absolute");
+  expect(on.label).toBe("none"); // the novel has no chapter label
+  expect(on.capFloat).toBe("left");
+  expect(on.paraH).toBeGreaterThanOrEqual(3 * on.linePitch - 1); // a one-line paragraph still holds the cap
+  expect(-on.ornamentTop).toBeCloseTo(on.extra, 0); // drawn inside the reserved space
+  await toggle(page).click();
+  const off = await style();
+  expect(off.ornament).not.toContain("⁂");
+  expect(off.capFloat).toBe("none");
+});
