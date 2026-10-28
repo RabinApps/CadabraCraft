@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, chapterAction, sidebar, seedSnapshot } from "./support/helpers";
+import { newProject, chapterAction, seedSnapshot } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);

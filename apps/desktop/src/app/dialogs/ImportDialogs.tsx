@@ -10,8 +10,9 @@ import { Badge } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
 import { Modal, overlayClass, panelClass } from "../../ui/Dialog";
 import { Field } from "../../ui/Input";
-import { baseName, formatReport, groupWarnings, loadImport, parseImport, titleFromFile, type ChapterEdit, type ImportChoices, type LoadedSource } from "../../lib/importBook";
+import { formatReport, groupWarnings, loadImport, parseImport, titleFromFile, type ChapterEdit, type ImportChoices, type LoadedSource } from "../../lib/importBook";
 import { useProject } from "../../state/project/index";
+import { baseName } from "../../lib/paths";
 import { errText } from "../../lib/projectError";
 
 interface ImportProps {

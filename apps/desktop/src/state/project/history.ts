@@ -1,0 +1,89 @@
+import { plural, t } from "@lingui/core/macro";
+import { readingOrder, retargetFile, withTree } from "@cadabracraft/format";
+import { bridge } from "../../lib/bridge";
+import { errText } from "../../lib/projectError";
+import { PartialWrite, retargetEntry } from "./util";
+import type { HistoryEntry, HistoryActions } from "./types";
+import type { Ctx } from "./context";
+
+/** Undo and redo of chapter-tree edits (and book-wide replaces). */
+export const createHistoryActions = (ctx: Ctx): HistoryActions => {
+  const { set, get, need, entryOf, saveManifest, writePages, reloadCurrent, flush, load } = ctx;
+  let historyBusy = false;
+  /** Undoes (`from` = "undo") or redoes (`from` = "redo") the latest entry of that stack. */
+  const travel = async (from: "undo" | "redo"): Promise<boolean> => {
+    if (historyBusy) return false;
+    historyBusy = true;
+    try {
+      await flush();
+      const entry = get().history[from].at(-1);
+      if (!entry) return false;
+      const { root } = need();
+      const undoing = from === "undo";
+      if (entry.docs) {
+        // A text edit across pages: write each page's saved text back (no tree change).
+        // Pages removed from the book since (trashed) are skipped: writing them would bring back a file the book no longer lists.
+        const listed = new Set(readingOrder(need().manifest).map((e) => e.file));
+        const live = entry.docs.filter((d) => listed.has(d.file));
+        const skipped = entry.docs.length - live.length;
+        const conflicts = await writePages(live.map((d) => ({ file: d.file, from: undoing ? d.after : d.before, to: undoing ? d.before : d.after })));
+        const { history } = get();
+        const kept = history[from].slice(0, -1);
+        const other = undoing ? history.redo : history.undo;
+        set({ history: undoing ? { undo: kept, redo: [...other, entry] } : { undo: [...other, entry], redo: kept } });
+        await reloadCurrent();
+        const done = undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}`;
+        const skip = skipped ? plural(skipped, { one: "# page is no longer in the book and was left out", other: "# pages are no longer in the book and were left out" }) : "";
+        set({ notice: [done, skip, ...conflicts].filter(Boolean).join(". ") });
+        return true;
+      }
+      let target = undoing ? entry.before : entry.after;
+      const present = entry.file ? entry.file.added !== undoing : false; // should the page file exist when we are done?
+      let file = entry.file?.path;
+      let trashPath = entry.trashPath;
+      // Files first when bringing one back, manifest first when sending one away: the manifest never names a missing file.
+      if (file && present) {
+        if (!trashPath) throw new Error(t`the page is no longer in the trash`);
+        const back = await bridge.restoreTrash(root, trashPath); // comes back as -2 when its name was taken since
+        if (back !== file) target = retargetFile(target, file, back);
+        file = back;
+        trashPath = undefined;
+      }
+      await saveManifest(withTree(need().manifest, target));
+      if (file && !present) trashPath = await bridge.trashFile(root, file); // never a hard delete
+      const was = entry.file?.path;
+      const fix = (e: HistoryEntry) => (was && file && was !== file ? retargetEntry(e, was, file) : e);
+      const { history } = get();
+      const { trashPath: _old, ...rest } = fix(entry);
+      const moved: HistoryEntry = trashPath ? { ...rest, trashPath } : rest;
+      const kept = history[from].slice(0, -1).map(fix);
+      const other = (undoing ? history.redo : history.undo).map(fix);
+      set({ history: undoing ? { undo: kept, redo: [...other, moved] } : { undo: [...other, moved], redo: kept } });
+      // Show a page that came back; otherwise keep the open page unless it no longer exists.
+      const next = need().manifest;
+      const shown = file && present ? readingOrder(next).find((e) => e.file === file) : undefined;
+      const cur = get().currentId;
+      if (shown) await load(shown.id);
+      else if (cur && !entryOf(next, cur)) {
+        set({ currentId: null, currentDoc: null });
+        const fallback = next.chapters[0] ?? readingOrder(next)[0];
+        if (fallback) await load(fallback.id);
+      }
+      set({ notice: undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}` });
+      if (get().trash.length) void get().actions.refreshTrash().catch(() => {});
+      return true;
+    } catch (e) {
+      const why = errText(e);
+      const stuck = e instanceof PartialWrite ? e.stuck.length : 0;
+      const base = from === "undo" ? t`Could not undo: ${why}` : t`Could not redo: ${why}`;
+      set({ notice: stuck ? `${base}. ${plural(stuck, { one: "# page could not be put back and is now in the other state", other: "# pages could not be put back and are now in the other state" })}` : base });
+      return false;
+    } finally {
+      historyBusy = false;
+    }
+  };
+  return {
+    undo: () => travel("undo"),
+    redo: () => travel("redo"),
+  };
+};

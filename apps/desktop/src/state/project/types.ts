@@ -1,0 +1,264 @@
+import type { Manifest, Tree } from "@cadabracraft/format";
+import type { AudioFormat } from "@cadabracraft/export-audio";
+import type { TrimSize } from "@cadabracraft/export-pdf";
+import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
+import type { ImportChoices, ImportReport } from "../../lib/importBook";
+import type { BookSearchOptions } from "../../lib/search/bookSearch";
+import type { ManuscriptFont } from "@cadabracraft/export-docx";
+import type { AudioUiError } from "../../lib/audioErrors";
+
+export interface PdfExportOptions {
+  trimSize: TrimSize;
+  pdfA: boolean;
+  /** Template id; saved in the manifest when it differs from the current one. */
+  template: string;
+  /** Put the book's cover (if it has one) first, as a full-page image. Default true. */
+  cover?: boolean;
+  /** User-configured location of the typst program (an app preference, never stored in the project). */
+  typstPath?: string;
+}
+
+export interface AudioExportOptions {
+  voice: string;
+  /** 0.5 to 2; 1 is normal. */
+  speed: number;
+  formats: AudioFormat[];
+  /** Only these chapters (default: every chapter, not front or back matter). */
+  chapterIds?: string[];
+}
+
+export interface AudioChapterState {
+  id: string;
+  title: string;
+  state: "waiting" | "rendering" | "done" | "empty" | "failed";
+  /** 0..1 while rendering. */
+  progress: number;
+}
+
+/** The audiobook export in progress or just finished. It lives in the store, not the dialog, so the dialog can close while it runs. */
+export interface AudioJob {
+  status: "running" | "done" | "error";
+  chapters: AudioChapterState[];
+  /** 0..1 across all chapters. */
+  overall: number;
+  /** Cancel was pressed and the engine is being stopped. */
+  cancelling: boolean;
+  durationSec: number;
+  files: number;
+  error: AudioUiError | null;
+}
+
+/** A voice download in progress or just failed. It lives in the store so the dialog can be closed and reopened while it runs. */
+export interface VoiceDownload {
+  status: "running" | "error";
+  /** Bytes present of everything being downloaded. */
+  done: number;
+  total: number;
+  cancelling: boolean;
+  error: AudioUiError | null;
+}
+
+/** A page in the project trash, with a title for the list. */
+export interface TrashItem {
+  path: string;
+  original: string;
+  title: string;
+  /** `YYYYMMDD-HHMM` (UTC). */
+  trashedAt: string;
+}
+
+/**
+ * One undoable chapter-tree edit: the tree before and after, and the page file it created or removed (if any).
+ * Plain data. While the file is in the trash, `trashPath` says where, so undo and redo can move it back.
+ */
+export interface HistoryEntry {
+  label: string;
+  before: Tree;
+  after: Tree;
+  /** `added`: the edit made the page exist (add, add page, restore); otherwise it moved the page to the trash. */
+  file?: { path: string; added: boolean };
+  trashPath?: string;
+  /** A text edit across pages (Replace all in the whole book): the pages' file text before and after. `before` and `after` trees are equal. */
+  docs?: { file: string; before: string; after: string }[];
+}
+
+export interface History {
+  undo: HistoryEntry[];
+  redo: HistoryEntry[];
+}
+
+
+/** A page whose newest snapshot is newer than the saved page and differs from it (see `find_stale_pages`). */
+export interface Recovery {
+  id: string;
+  title: string;
+  file: string;
+  /** Project-relative path of the newer snapshot. */
+  snapshot: string;
+}
+
+/** The book fields the Book details dialog edits. */
+export interface BookDetails {
+  title: string;
+  author: string;
+  language: string;
+  isbn: string;
+  identifier: string;
+  cover: string | null;
+}
+
+/** Cover images the exporters can place: png, jpg, jpeg and webp (not gif or svg). */
+export const COVER_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
+
+export type PdfStage = "preparing" | "rendering" | "saving";
+
+/** A page of the book in reading order, with its chapter document. */
+export interface BookPage {
+  id: string;
+  title: string;
+  doc: ChapterDoc;
+  section: "front" | "chapter" | "back";
+  kind?: MatterKind;
+}
+/** The whole project store: the open book, what is in progress, and the actions that change them. */
+export interface ProjectState {
+  root: string | null;
+  manifest: Manifest | null;
+  currentId: string | null;
+  /** Loaded content of the current chapter; the editor owns edits until saveCurrent. */
+  currentDoc: ChapterDoc | null;
+  notice: string;
+  hashes: Record<string, string>;
+  /** Unsaved editor content for the current chapter; flushed before switching chapters or exporting. */
+  draft: ChapterDoc | null;
+  /** Bumped when the current chapter is reloaded from disk so the editor remounts with the new content. */
+  reloadCount: number;
+  /** Result of the last import, shown in a dialog until dismissed. */
+  importReport: ImportReport | null;
+  /** Set while an EPUB or PDF export runs. */
+  exportStage: PdfStage | null;
+  /** The audiobook export (running, finished or failed); null when none has run or it was dismissed. */
+  audio: AudioJob | null;
+  /** The voice download (running, or failed and waiting for a retry); null when none is active. */
+  voiceDownload: VoiceDownload | null;
+  /** Restorable pages in the project trash, newest first (filled by `refreshTrash`). */
+  trash: TrashItem[];
+  /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
+  history: History;
+  /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
+  recovery: Recovery[];
+  actions: ProjectActions & PageActions & HistoryActions & TrashActions & SnapshotActions & ReplaceActions & AssetActions & ExportActions & AudioActions & VoiceActions;
+}
+
+export interface ProjectActions {
+  externalChange: (path: string) => Promise<void>;
+  openProject: (root: string) => Promise<void>;
+  /** Saves unsaved typing, then leaves the open book (back to the start screen). Nothing on disk changes. */
+  closeProject: () => Promise<void>;
+  createProject: (root: string, title: string, author: string) => Promise<void>;
+  /** Imports a .docx/.md file into a NEW project in `root` (the source is only read), opens it and sets `importReport`. Throws, having created nothing, when the file cannot be imported. */
+  importBook: (sourcePath: string, root: string, title: string, author: string, opts?: ImportChoices) => Promise<void>;
+  dismissImportReport: () => void;
+  /** Sets the book's template (cadabra.json). A no-op when it is already set. */
+  setTemplate: (id: string) => Promise<void>;
+  /** Saves the book details (cadabra.json). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
+  updateDetails: (details: BookDetails) => Promise<void>;
+}
+
+export interface PageActions {
+  /** Saves unsaved typing, if any, without reloading the chapter. */
+  flush: () => Promise<void>;
+  /** Opens any page (front matter, chapter or back matter) in the editor. */
+  selectChapter: (id: string) => Promise<void>;
+  setDraft: (doc: ChapterDoc) => void;
+  saveCurrent: (doc: ChapterDoc) => Promise<void>;
+  add: (title: string) => Promise<void>;
+  /** Adds a front or back matter page of `kind` with generated starter content and opens it. Throws when a limited kind (title page, copyright) already exists. */
+  addMatter: (section: "front" | "back", kind: MatterKind, title?: string) => Promise<void>;
+  /** Rename, move and remove work on chapters, front matter and back matter alike (`id` decides). */
+  rename: (id: string, title: string) => Promise<void>;
+  move: (id: string, delta: number) => Promise<void>;
+  remove: (id: string) => Promise<void>;
+  /** Every page in reading order with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
+  readPages: () => Promise<BookPage[]>;
+  /** Words in all chapters (front and back matter excluded). Pages whose file is unchanged since they were last counted are not read again; the open page is counted from memory. */
+  bookWords: () => Promise<number>;
+}
+
+export interface HistoryActions {
+  /** Reverts the latest chapter-tree edit (add, rename, move, trash, add page, restore). Added pages go to the trash, trashed pages come back from it. Resolves to false when there is nothing to undo or it failed (see `notice`). */
+  undo: () => Promise<boolean>;
+  redo: () => Promise<boolean>;
+}
+
+export interface TrashActions {
+  /** Reloads `trash` from the project folder. */
+  refreshTrash: () => Promise<void>;
+  /** Moves a trashed page back, adds it to the end of its section and opens it. Never overwrites an existing page (a taken file name gets a `-2` suffix). */
+  restoreTrash: (path: string) => Promise<void>;
+}
+
+export interface SnapshotActions {
+  /** Puts an earlier version of a page back and opens the page. The text it replaces is kept as a snapshot first, so this can be undone from History. */
+  restoreSnapshot: (id: string, snapshot: string) => Promise<void>;
+  /** Stops offering a page for recovery until the book is opened again. */
+  dismissRecovery: (id: string) => void;
+}
+
+export interface ReplaceActions {
+  /**
+   * Replaces every match in every page (front and back matter too) and returns how many were replaced. Saves unsaved
+   * typing first, writes the changed pages through the normal save path (backup, temp file and rename), reloads the open
+   * page, and records ONE book undo step (Undo/Redo, Mod+Alt+Z) that restores or reapplies all of those pages.
+   */
+  replaceInBook: (opts: BookSearchOptions, replacement: string) => Promise<number>;
+}
+
+export interface AssetActions {
+  /** Asks for a cover image (png, jpg or webp), copies it into assets/ and returns `assets/<name>`. Null if cancelled or refused (refusals set `notice`). Does not change the manifest. */
+  importCover: () => Promise<string | null>;
+  /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
+  importImage: () => Promise<string | null>;
+}
+
+export interface ExportActions {
+  exportEpub: () => Promise<void>;
+  /** Writes the whole book as exports/book.md. With `htmlMarks` false it throws `MarkdownExportError` (naming the chapter) at the first underline, small caps, superscript or subscript. */
+  exportMarkdown: (options: { htmlMarks: boolean }) => Promise<void>;
+  /** Writes the whole book as exports/manuscript.docx in standard manuscript format. Throws a `DocxExportError` message that names the page (and node) it cannot write. */
+  exportDocx: (options: { font: ManuscriptFont }) => Promise<void>;
+  /** Builds exports/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
+  exportPdf: (options: PdfExportOptions) => Promise<void>;
+}
+
+export interface AudioActions {
+  /**
+   * Reads every chapter aloud with a local voice into exports/audio/, one chapter at a time on a worker thread (the page stays
+   * responsive). Progress and the outcome are in `audio`; a render failure does not throw, it sets `audio.error` (and `audio.status`).
+   * Throws only when it cannot start: another export is running, or the book has no chapters.
+   */
+  exportAudio: (options: AudioExportOptions) => Promise<void>;
+  /**
+   * Renders a few sentences of the first chosen chapter and resolves to WAV bytes, or null when stopped. Nothing is
+   * written to the project. Rejects with a readable message (no voice, no text, engine failure).
+   */
+  hearAudioSample: (options: { voice: string; speed: number; chapterIds?: string[] }) => Promise<Uint8Array | null>;
+  /** Stops a running sample. */
+  cancelAudioSample: () => void;
+  /** Stops the audiobook: the engine is killed and finished chapters are kept. */
+  cancelAudio: () => void;
+  /** Clears a finished or failed audiobook from `audio`. A running one is left alone. */
+  dismissAudio: () => void;
+}
+
+export interface VoiceActions {
+  /**
+   * Downloads the given voice packs (skipping files already there; a stopped or failed download resumes). Progress and failure are
+   * in `voiceDownload`. Resolves true when every pack finished; false when it was stopped or failed (not an exception).
+   */
+  downloadVoices: (packs: { id: string; bytes: number }[]) => Promise<boolean>;
+  /** Stops the voice download; what was fetched is kept for a retry. */
+  cancelVoiceDownload: () => void;
+  /** Clears a failed or stopped voice download. A running one is left alone. */
+  dismissVoiceDownload: () => void;
+}

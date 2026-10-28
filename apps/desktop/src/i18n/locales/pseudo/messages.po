@@ -20,7 +20,7 @@ msgid "“{page}”: {detail}"
 msgstr ""
 
 #. placeholder {0}: stuck.length
-#: src/state/project/index.ts
+#: src/state/project/replace.ts
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 msgstr ""
 
@@ -43,13 +43,13 @@ msgid "{0} About {1} MB."
 msgstr ""
 
 #. placeholder {0}: entry.title
-#: src/state/project/index.ts
+#: src/state/project/project.ts
 msgid "{0} changed outside the app; saving will keep both versions"
 msgstr ""
 
 #. placeholder {0}: entry.title
 #. placeholder {1}: w.conflict_copy
-#: src/state/project/index.ts
+#: src/state/project/pages.ts
 msgid "{0} changed outside the app; the other version was kept as {1}"
 msgstr ""
 
@@ -125,7 +125,7 @@ msgid "{0} of {1} MB"
 msgstr ""
 
 #. placeholder {0}: entry.title
-#: src/state/project/index.ts
+#: src/state/project/project.ts
 msgid "{0} was updated from outside the app"
 msgstr ""
 
@@ -142,15 +142,15 @@ msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr ""
 
 #. placeholder {0}: w.conflict_copy
-#: src/state/project/index.ts
+#: src/state/project/context.ts
 msgid "{file} changed outside the app; the other version was kept as {0}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/util.ts
 msgid "{file} is not a valid chapter, so it was not opened. The file was left untouched."
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/util.ts
 msgid "{file} is not valid JSON, so it was not opened. The file was left untouched."
 msgstr ""
 
@@ -182,11 +182,11 @@ msgstr ""
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/history.ts
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/history.ts
 msgid "{stuck, plural, one {# page could not be put back and is now in the other state} other {# pages could not be put back and are now in the other state}}"
 msgstr ""
 
@@ -210,11 +210,11 @@ msgstr ""
 msgid "3 mm"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image."
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/voices.ts
 msgid "A download is already running"
 msgstr ""
 
@@ -222,7 +222,7 @@ msgstr ""
 msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/exports.ts
 msgid "A PDF export is already running"
 msgstr ""
 
@@ -230,7 +230,7 @@ msgstr ""
 msgid "A project already exists in this folder"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/audio.ts
 msgid "A sample is already being made"
 msgstr ""
 
@@ -253,11 +253,11 @@ msgstr ""
 msgid "Actions for {0}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/pages.ts
 msgid "Add {name}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/pages.ts
 msgid "Add {title}"
 msgstr ""
 
@@ -294,7 +294,7 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr ""
 
@@ -315,11 +315,12 @@ msgstr ""
 msgid "Also by"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/audio.ts
+#: src/state/project/exports.ts
 msgid "An export is already running"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/project.ts
 msgid "An import is already running"
 msgstr ""
 
@@ -389,7 +390,7 @@ msgstr ""
 msgid "Back matter: {0}"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Back to options"
 msgstr ""
 
@@ -468,11 +469,11 @@ msgid "Bulleted List"
 msgstr ""
 
 #. placeholder {0}: w.conflict_copy
-#: src/state/project/index.ts
+#: src/state/project/context.ts
 msgid "cadabra.json changed outside the app; your previous copy was kept as {0}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/project.ts
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
 msgstr ""
 
@@ -491,6 +492,7 @@ msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/export/AudioFooter.tsx
 #: src/app/export/ExportDialog.tsx
 #: src/app/home/Home.tsx
 #: src/editor/TableCommands.tsx
@@ -499,11 +501,11 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Cancel download"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Cancel export"
 msgstr ""
 
@@ -549,11 +551,11 @@ msgstr ""
 msgid "Chapter {n}, {0}, stopped: {text}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/project.ts
 msgid "Chapter list updated from outside the app"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/project.ts
 msgid "Chapter One"
 msgstr ""
 
@@ -585,7 +587,7 @@ msgstr ""
 msgid "Check for Updates…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/EpubPanel.tsx
 msgid "Checks"
 msgstr ""
 
@@ -619,7 +621,7 @@ msgid "Clear Menu"
 msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 #: src/editor/FindBar.tsx
 msgid "Close"
 msgstr ""
@@ -693,12 +695,12 @@ msgid "Copyright page"
 msgstr ""
 
 #. placeholder {0}: errText(e)
-#: src/state/project/index.ts
+#: src/state/project/assets.ts
 msgid "Could not add the cover: {0}"
 msgstr ""
 
 #. placeholder {0}: errText(e)
-#: src/state/project/index.ts
+#: src/state/project/assets.ts
 msgid "Could not add the image: {0}"
 msgstr ""
 
@@ -723,16 +725,16 @@ msgstr ""
 msgid "Could not open {SPONSOR_URL}: {0}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/history.ts
 msgid "Could not redo: {why}"
 msgstr ""
 
 #. placeholder {0}: errText(e)
-#: src/state/project/index.ts
+#: src/state/project/pages.ts
 msgid "Could not save: {0}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/history.ts
 msgid "Could not undo: {why}"
 msgstr ""
 
@@ -832,7 +834,7 @@ msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/AudioExport.tsx
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Done"
 msgstr ""
 
@@ -850,7 +852,7 @@ msgid "Download progress"
 msgstr ""
 
 #. placeholder {0}: mb(chosenPacks.reduce((n, p) => n + p.bytes, 0))
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Download selected ({0} MB)"
 msgstr ""
 
@@ -882,7 +884,7 @@ msgstr ""
 msgid "Editor"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 msgid "Embeds everything needed to open the file in the future."
 msgstr ""
 
@@ -925,7 +927,7 @@ msgstr ""
 msgid "Export"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Export audiobook"
 msgstr ""
 
@@ -946,23 +948,23 @@ msgstr ""
 msgid "Exported {0}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/exports.ts
 msgid "Exported exports/book.epub"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/exports.ts
 msgid "Exported exports/book.md"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/exports.ts
 msgid "Exported exports/book.pdf"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/exports.ts
 msgid "Exported exports/manuscript.docx"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/audio.ts
 msgid "Exported the audiobook to exports/audio"
 msgstr ""
 
@@ -995,7 +997,7 @@ msgstr ""
 msgid "Find…"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "FLAC"
 msgstr ""
 
@@ -1019,7 +1021,7 @@ msgstr ""
 msgid "Follow the system or pick one."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/DocxPanel.tsx
 msgid "Font"
 msgstr ""
 
@@ -1091,7 +1093,7 @@ msgstr ""
 msgid "Heading 3"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Hear a sample"
 msgstr ""
 
@@ -1181,7 +1183,7 @@ msgid "Importing…"
 msgstr ""
 
 #. placeholder {0}: e.message
-#: src/state/project/index.ts
+#: src/state/project/exports.ts
 msgid "In “{where}”: {0}"
 msgstr ""
 
@@ -1202,7 +1204,7 @@ msgstr ""
 msgid "Include chapter {0}"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 msgid "Include the cover"
 msgstr ""
 
@@ -1276,15 +1278,15 @@ msgstr ""
 msgid "Keep the line you are writing centered."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/MarkdownPanel.tsx
 msgid "Keep underline and small caps"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Keep working"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "Kokoro · Heart (best quality)"
 msgstr ""
 
@@ -1315,7 +1317,7 @@ msgstr ""
 msgid "Later"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 msgid "Leave empty to use the Typst that comes with the app."
 msgstr ""
 
@@ -1344,11 +1346,11 @@ msgstr ""
 msgid "Looks for a new version when the app starts. Nothing else is sent."
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "Lossless and large: about 1.7 GB per 10 hours."
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "Lossless, about 60% of the size of WAV."
 msgstr ""
 
@@ -1356,7 +1358,7 @@ msgstr ""
 msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Making sample… (stop)"
 msgstr ""
 
@@ -1372,7 +1374,7 @@ msgstr ""
 msgid "Markdown"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/MarkdownPanel.tsx
 msgid "Markdown has no syntax for them, so they are written as HTML tags. Leave this off and the export stops at the first one, naming the chapter."
 msgstr ""
 
@@ -1397,7 +1399,7 @@ msgid "Minimize"
 msgstr ""
 
 #. placeholder {0}: c.file
-#: src/state/project/index.ts
+#: src/state/project/context.ts
 msgid "Missing chapter file {0}"
 msgstr ""
 
@@ -1406,7 +1408,7 @@ msgstr ""
 msgid "Missing image file {0}"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/context.ts
 msgid "Missing image file {src}"
 msgstr ""
 
@@ -1424,12 +1426,12 @@ msgid "Move “{0}” to trash?"
 msgstr ""
 
 #. placeholder {0}: entryOf(m, id)?.title ?? ""
-#: src/state/project/index.ts
+#: src/state/project/pages.ts
 msgid "Move {0}"
 msgstr ""
 
 #. placeholder {0}: removed.title
-#: src/state/project/index.ts
+#: src/state/project/pages.ts
 msgid "Move {0} to trash"
 msgstr ""
 
@@ -1493,7 +1495,7 @@ msgstr ""
 msgid "Next Page"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/project.ts
 msgid "No cadabra.json in that folder"
 msgstr ""
 
@@ -1601,7 +1603,7 @@ msgstr ""
 msgid "Optional. Shown below the image."
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "Opus"
 msgstr ""
 
@@ -1633,7 +1635,7 @@ msgstr ""
 msgid "Paste as styled text?"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 msgid "PDF/A (archival)"
 msgstr ""
 
@@ -1641,11 +1643,11 @@ msgstr ""
 msgid "Pick or create an empty folder. The imported book is stored there."
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "Piper · Amy (fast)"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "Piper · LibriTTS (fast)"
 msgstr ""
 
@@ -1679,7 +1681,7 @@ msgstr ""
 msgid "Previous Page"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 msgid "Print checks"
 msgstr ""
 
@@ -1701,7 +1703,7 @@ msgid "Print Preview…"
 msgstr ""
 
 #. placeholder {0}: parsed.fromVersion
-#: src/state/project/index.ts
+#: src/state/project/project.ts
 msgid "Project upgraded from format {0}; backup saved to {backup}"
 msgstr ""
 
@@ -1752,7 +1754,7 @@ msgid "Recover newer text for “{0}”?"
 msgstr ""
 
 #. placeholder {0}: entry.label
-#: src/state/project/index.ts
+#: src/state/project/history.ts
 msgid "Redid: {0}"
 msgstr ""
 
@@ -1801,7 +1803,7 @@ msgid "Rename"
 msgstr ""
 
 #. placeholder {0}: entryOf(m, id)?.title ?? ""
-#: src/state/project/index.ts
+#: src/state/project/pages.ts
 msgid "Rename {0}"
 msgstr ""
 
@@ -1814,15 +1816,15 @@ msgid "Replace all"
 msgstr ""
 
 #. placeholder {0}: opts.query
-#: src/state/project/index.ts
+#: src/state/project/replace.ts
 msgid "Replace all “{0}”"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/replace.ts
 msgid "Replace all stopped: {why}."
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/replace.ts
 msgid "Replace all stopped: {why}. Nothing was changed."
 msgstr ""
 
@@ -1830,7 +1832,7 @@ msgstr ""
 msgid "Replace with"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/replace.ts
 msgid "Replaced {count} in the book"
 msgstr ""
 
@@ -1841,7 +1843,7 @@ msgstr ""
 #. placeholder {0}: entry.title
 #. placeholder {0}: x.title
 #: src/app/shell/Sidebar.tsx
-#: src/state/project/index.ts
+#: src/state/project/trash.ts
 msgid "Restore {0}"
 msgstr ""
 
@@ -1850,7 +1852,7 @@ msgid "Restore this version"
 msgstr ""
 
 #. placeholder {0}: entry.title
-#: src/state/project/index.ts
+#: src/state/project/snapshots.ts
 msgid "Restored an earlier version of {0}. The text it replaced is kept in History."
 msgstr ""
 
@@ -1884,7 +1886,7 @@ msgid "Save details"
 msgstr ""
 
 #: src/app/shell/AppHeader.tsx
-#: src/state/project/index.ts
+#: src/state/project/pages.ts
 msgid "Saved"
 msgstr ""
 
@@ -1987,7 +1989,7 @@ msgstr ""
 msgid "Small Caps"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "Small files, about 14 MB per hour. Plays on phones and modern players."
 msgstr ""
 
@@ -2032,7 +2034,7 @@ msgstr ""
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Stop sample"
 msgstr ""
 
@@ -2076,7 +2078,7 @@ msgstr ""
 msgid "Table…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 #: src/app/shell/Details.tsx
 msgid "Template"
 msgstr ""
@@ -2109,11 +2111,11 @@ msgstr ""
 msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/audio.ts
 msgid "The book has no chapters to read aloud yet. Add a chapter first."
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/exports.ts
 msgid "The book has no pages to export yet. Add a chapter first."
 msgstr ""
 
@@ -2126,7 +2128,7 @@ msgid "The book uses a text style the EPUB export cannot write: {kind} (at {plac
 msgstr ""
 
 #. placeholder {0}: manifest.cover
-#: src/state/project/index.ts
+#: src/state/project/context.ts
 msgid "The cover image {0} could not be read. Choose it again in Book details, or remove the cover."
 msgstr ""
 
@@ -2173,11 +2175,11 @@ msgstr ""
 msgid "The only thing sent is the update check. Nothing about your books is sent."
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/replace.ts
 msgid "The page changed while searching, so nothing was replaced. Try again."
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/history.ts
 msgid "the page is no longer in the trash"
 msgstr ""
 
@@ -2239,7 +2241,7 @@ msgstr ""
 msgid "there is not enough disk space"
 msgstr ""
 
-#: src/state/project/index.ts
+#: src/state/project/audio.ts
 msgid "There is nothing to read aloud in this chapter."
 msgstr ""
 
@@ -2305,7 +2307,7 @@ msgstr ""
 msgid "This version has the same words as the current text."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/DocxPanel.tsx
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer."
 msgstr ""
 
@@ -2338,13 +2340,13 @@ msgstr ""
 msgid "Trash"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 msgid "Trim size"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/AudioFooter.tsx
 msgid "Try again"
 msgstr ""
 
@@ -2362,7 +2364,7 @@ msgid "Typst could not build the PDF:\n"
 "{0}"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/PdfPanel.tsx
 msgid "Typst location (optional)"
 msgstr ""
 
@@ -2377,7 +2379,7 @@ msgid "Underline"
 msgstr ""
 
 #. placeholder {0}: entry.label
-#: src/state/project/index.ts
+#: src/state/project/history.ts
 msgid "Undid: {0}"
 msgstr ""
 
@@ -2484,7 +2486,7 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/hooks/useAudioLabels.ts
 msgid "WAV"
 msgstr ""
 

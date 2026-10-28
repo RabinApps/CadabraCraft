@@ -29,7 +29,7 @@ test.describe("pasting HTML text", () => {
     await newProject(page);
     await toEnd(page);
   }
-  const convertCommand = (page: Page) => page.evaluate(async () => { (await import("/src/app/commands.ts" as string)).runCommand("edit.convertHtml"); });
+  const convertCommand = (page: Page) => page.evaluate(async () => { (await import("/src/state/commands.ts" as string)).runCommand("edit.convertHtml"); });
 
   test("asks, converts to styled text, and one Undo restores", async ({ page }) => {
     await ready(page);

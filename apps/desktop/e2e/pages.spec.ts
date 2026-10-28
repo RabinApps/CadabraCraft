@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { fakeTauri } from "./support/fakeTauri";
 import { newProject, titles, chapterAction, addPage, manifestOf, sidebar, exportBook } from "./support/helpers";
 

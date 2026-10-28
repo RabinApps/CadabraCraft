@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { strFromU8, unzipSync } from "fflate";
-import { disk, hashOf as h, trashMethods, writeFileWithConflictCopy } from "../../../test/fakeBridge";
+import { disk, trashMethods, writeFileWithConflictCopy } from "../../../test/fakeBridge";
 
 // In-memory stand-in for the Rust project layer, including its conflict-copy rule.
 const assets = new Map<string, Uint8Array>();

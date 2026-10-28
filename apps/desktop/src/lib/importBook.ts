@@ -4,6 +4,7 @@ import { addChapter, createManifest, serializeManifest } from "@cadabracraft/for
 import { ImportError, importDocx, importHtml, importMarkdown, type ImportResult, type ImportWarning } from "@cadabracraft/import-docx";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "./bridge";
+import { baseName, stem } from "./paths";
 import { errText } from "./projectError";
 
 export interface ImportReport {
@@ -28,8 +29,6 @@ export interface WarningGroup {
   examples: string[];
 }
 
-export const baseName = (path: string): string => path.split(/[\\/]/).pop() ?? path;
-const stem = (name: string): string => name.replace(/\.[^.]*$/, "");
 
 /** Groups warnings by code: counts occurrences and keeps a few examples (located warnings show their line). */
 export function groupWarnings(warnings: ImportWarning[]): WarningGroup[] {
