@@ -63,6 +63,20 @@ function sectPr(headerRel: string, o: { restart?: boolean; type?: boolean }): st
   return `<w:sectPr><w:headerReference w:type="default" r:id="${headerRel}"/>${o.type ? '<w:type w:val="nextPage"/>' : ""}<w:pgSz w:w="${PAGE.width}" w:h="${PAGE.height}"/><w:pgMar w:top="${PAGE.margin}" w:right="${PAGE.margin}" w:bottom="${PAGE.margin}" w:left="${PAGE.margin}" w:header="${PAGE.header}" w:footer="${PAGE.header}" w:gutter="0"/>${o.restart ? '<w:pgNumType w:start="1"/>' : ""}<w:cols w:space="720"/></w:sectPr>`;
 }
 
+/** The Word font name for the `font` option: a preset, or the given family (trimmed, XML-escaped). */
+function manuscriptFontName(font: string | undefined): string {
+  if (font === undefined) return FONT_NAMES.times;
+  if (font === "times" || font === "courier") return FONT_NAMES[font];
+  const family = font.trim();
+  if (family === "") throw new DocxExportError("The font name is empty");
+  const bad = illegalXmlChar(family);
+  if (bad)
+    throw new DocxExportError(
+      `The font name contains the character ${bad}, which a Word file cannot hold`,
+    );
+  return esc(family);
+}
+
 const startsWithTitle = (doc: ChapterDoc): boolean => {
   const first = doc.content[0];
   return first?.type === "heading" && first.attrs?.level === 1;
@@ -91,7 +105,7 @@ export function buildDocx(
   };
   const title = bookCtxCheck(book.title.trim(), "book title");
   const author = bookCtxCheck(book.author.trim(), "author name");
-  const fontName = FONT_NAMES[options.font ?? "times"];
+  const fontName = manuscriptFontName(options.font);
   const s: Shared = {
     assets: options.assets ?? new Map(),
     font: fontName,

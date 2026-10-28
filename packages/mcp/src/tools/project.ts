@@ -38,13 +38,15 @@ export const projectCreate = defineTool({
     language: z.string().min(2).optional().describe('BCP 47 language tag, default "en".'),
     template: z.string().optional().describe('Template id (see cadabra_list_templates), default "novel".'),
     trimSize: z.enum(TRIM_SIZE_IDS).optional().describe("Print page size in inches, stored in the manifest; default is the template's."),
+    bodyFont: z.string().trim().min(1).max(100).optional().describe("Body font family name, stored in the manifest (cadabra.json `fonts.body`); default is the template's. The PDF export refuses the book when the font is not installed."),
+    headingFont: z.string().trim().min(1).max(100).optional().describe("Heading font family name, stored in the manifest (`fonts.heading`); default is the template's."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
-  run: ({ path, title, author, language, template, trimSize }, ctx) => {
+  run: ({ path, title, author, language, template, trimSize, bodyFont, headingFont }, ctx) => {
     if (language !== undefined && !validLanguage(language)) throw new ToolError("invalid_input", `"${language}" is not a valid BCP 47 language tag`);
     if (template !== undefined && !hasTemplate(template)) getTemplate(template); // throws template_unknown with the available ids
     const root = resolveInWorkspace(ctx.ws, path);
-    const manifest = createManifest({ title, author, language, template: template ?? DEFAULT_TEMPLATE_ID, ...(trimSize ? { trimSize } : {}), identifier: `urn:uuid:${randomUUID()}` });
+    const manifest = createManifest({ title, author, language, template: template ?? DEFAULT_TEMPLATE_ID, ...(trimSize ? { trimSize } : {}), ...(bodyFont || headingFont ? { fonts: { ...(bodyFont ? { body: bodyFont } : {}), ...(headingFont ? { heading: headingFont } : {}) } } : {}), identifier: `urn:uuid:${randomUUID()}` });
     createProject(root, serializeManifest(manifest));
     return { summary: `Created project "${title}" at ${root}`, data: { root, manifest } };
   },

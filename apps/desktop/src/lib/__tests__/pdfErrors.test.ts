@@ -22,6 +22,12 @@ describe("describePdfError", () => {
     expect(r.code).toBe("font");
     expect(r.message).toContain('"A", "B"');
   });
+  it("names one missing font in plain words and points at Settings, Fonts", () => {
+    const r = describePdfError(new FontNotAvailableError(["Lora"], "body"));
+    expect(r.message).toBe(
+      "The font “Lora” is not on this computer. Download it in Settings, Fonts, or pick another font.",
+    );
+  });
   it("shows the compiler output", () => {
     const r = describePdfError(new TypstCompileError(" oops \n"));
     expect(r.code).toBe("compile");

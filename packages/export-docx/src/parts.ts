@@ -1,8 +1,9 @@
 import { esc, XML_HEAD } from "./xml";
 
-export type ManuscriptFont = "times" | "courier";
+/** "times" or "courier" (the presets), or any font family name, written as the document's font name. */
+export type ManuscriptFont = "times" | "courier" | (string & {});
 
-export const FONT_NAMES: Record<ManuscriptFont, string> = {
+export const FONT_NAMES: Record<"times" | "courier", string> = {
   times: "Times New Roman",
   courier: "Courier New",
 };

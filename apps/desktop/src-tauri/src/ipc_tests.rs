@@ -2,7 +2,7 @@
 //! generated handler code (argument decoding, `State` and `Channel` injection, response encoding) runs, with the same
 //! command names and wire format the webview uses. The command bodies are tested next to their definitions.
 use crate::audio::AudioJobs;
-use crate::{audio, commands, typst}; // the `app_handlers!` macro (lib.rs) names these modules
+use crate::{audio, commands, fonts, typst}; // the `app_handlers!` macro (lib.rs) names these modules
 use crate::commands::testutil::{project, root, text};
 use crate::platform::fs_watch::WatchState;
 use serde_json::{json, Value};
@@ -295,6 +295,11 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("audio_build_m4b", json!({ "request": { "jobId": "m", "root": "/r", "base": "b", "title": "T", "author": "A", "chapters": [] } })),
         ("audio_download_pack", json!({ "pack": "nope", "jobId": "d", "onProgress": "__CHANNEL__:2" })),
         ("audio_delete_pack", json!({ "pack": "nope" })),
+        ("fonts_download", json!({ "fontId": "nope", "jobId": "d", "onProgress": "__CHANNEL__:3" })),
+        ("fonts_cancel", json!({ "jobId": "j" })),
+        ("fonts_import", json!({ "srcPath": "/no/such/font.woff2" })),
+        ("fonts_delete", json!({ "fontId": "../nope" })),
+        ("fonts_data", json!({ "fontId": "../nope", "file": "x.ttf" })),
     ]
 }
 
@@ -330,7 +335,7 @@ fn an_optional_argument_may_be_absent_or_null_but_not_mistyped() {
 fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
     let (_app, w) = build_app(false);
     for (cmd, args) in every_command() {
-        let needs_state = matches!(cmd, "watch_project" | "reference_stream_url" | "audio_cancel" | "audio_forget" | "audio_render_chapter" | "audio_sample" | "audio_build_m4b" | "audio_download_pack");
+        let needs_state = matches!(cmd, "watch_project" | "reference_stream_url" | "audio_cancel" | "audio_forget" | "audio_render_chapter" | "audio_sample" | "audio_build_m4b" | "audio_download_pack" | "fonts_download" | "fonts_cancel");
         if needs_state { // (the others are not called: their arguments are placeholders for paths that must never be touched)
             let err = call(&w, cmd, args).expect_err(cmd);
             assert!(err.as_str().is_some_and(|m| m.contains("state not managed")), "{cmd}: {err}");

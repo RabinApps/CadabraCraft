@@ -2,6 +2,7 @@ import { assetsBridge } from "./assets";
 import { audioBridge } from "./audio";
 import { dialogBridge } from "./dialog";
 import { exportBridge } from "./export";
+import { fontsBridge } from "./fonts";
 import { projectBridge } from "./project";
 import { referencesBridge } from "./references";
 import { systemBridge } from "./system";
@@ -19,5 +20,6 @@ export const bridge = {
   ...watchBridge,
   ...exportBridge,
   ...audioBridge,
+  ...fontsBridge,
 };
 export type Bridge = typeof bridge;

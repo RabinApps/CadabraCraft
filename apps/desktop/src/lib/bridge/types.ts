@@ -65,3 +65,23 @@ export const toBytes = (r: RawBytes): Uint8Array =>
 
 /** Awaits a binary `invoke` and returns its bytes. */
 export const binary = async (p: Promise<RawBytes>): Promise<Uint8Array> => toBytes(await p);
+
+/** A font family in the download catalog (`FontPackInfo` in src-tauri/src/fonts/catalog.rs). `bytes` is the download size. */
+export interface FontPack {
+  id: string;
+  family: string;
+  styles: string[];
+  bytes: number;
+  installed: boolean;
+  /** Short licence name, for example "OFL-1.1". */
+  licence: string;
+  licenceUrl: string;
+}
+
+/** A font family kept by the app, downloaded or imported (`InstalledFont` in src-tauri/src/fonts/store.rs). `files` are names, never paths. */
+export interface InstalledFont {
+  id: string;
+  family: string;
+  source: "downloaded" | "imported";
+  files: string[];
+}

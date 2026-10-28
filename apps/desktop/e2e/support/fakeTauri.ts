@@ -5,6 +5,15 @@ import type { Page } from "@playwright/test";
 // Backend behaviour is covered by the Rust tests in src-tauri/src/project.
 export async function fakeTauri(page: Page) {
   await page.addInitScript(() => {
+    const FONT_CATALOG = [
+      { id: "lora", family: "Lora", styles: ["Regular", "Italic"], bytes: 2400000 },
+      { id: "eb-garamond", family: "EB Garamond", styles: ["Regular"], bytes: 1300000 },
+    ].map((f) => ({
+      ...f,
+      installed: false,
+      licence: "OFL-1.1",
+      licenceUrl: `https://example.test/${f.id}/OFL.txt`,
+    }));
     const PIXEL =
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
     // UI language is an app preference; specs assert English text unless a test picks another locale first.
@@ -54,6 +63,10 @@ export async function fakeTauri(page: Page) {
           // The image picker passes extension filters; the folder picker does not.
           case "plugin:dialog|open":
             if (a?.options?.multiple === true) return window.__pickedRefs ?? [];
+            if (a?.options?.filters?.[0]?.extensions?.includes("ttf"))
+              return window.__pickedFont === undefined
+                ? "/fonts/Custom Sans.ttf"
+                : window.__pickedFont;
             return a?.options?.filters ? "/pics/pic.png" : "/proj";
           case "plugin:opener|open_url":
             (window.__opened ??= []).push(a.url);
@@ -132,7 +145,63 @@ export async function fakeTauri(page: Page) {
             return null;
           case "typst_list_fonts":
             if (window.__typstError) throw window.__typstError;
-            return ["Libertinus Serif", "New Computer Modern"];
+            return [
+              "Libertinus Serif",
+              "New Computer Modern",
+              ...(window.__fontsInstalled ?? []).map((f) => f.family),
+            ];
+          case "fonts_catalog": {
+            const kept = window.__fontsInstalled ?? [];
+            return FONT_CATALOG.map((f) => ({ ...f, installed: kept.some((k) => k.id === f.id) }));
+          }
+          case "fonts_installed":
+            return window.__fontsInstalled ?? [];
+          case "fonts_download": {
+            const w = window;
+            (w.__fontDownloads ??= []).push(a.fontId);
+            const f = FONT_CATALOG.find((c) => c.id === a.fontId)!;
+            a.onProgress?.onmessage?.({ done: 800000, total: f.bytes });
+            if (w.__fontError) {
+              const e = w.__fontError;
+              w.__fontError = undefined;
+              throw e;
+            }
+            if (w.__fontHold)
+              await new Promise((_, reject) => {
+                w.__fontReject = reject;
+              });
+            (w.__fontsInstalled ??= []).push({
+              id: f.id,
+              family: f.family,
+              source: "downloaded",
+              files: [`${f.family}.ttf`, "OFL.txt"],
+            });
+            return null;
+          }
+          case "fonts_cancel":
+            window.__fontReject?.({ kind: "cancelled" });
+            return null;
+          case "fonts_import": {
+            if (window.__fontImportError) throw window.__fontImportError;
+            const file = (a.srcPath as string).split("/").pop()!;
+            const family = file.replace(/\.[^.]*$/, "");
+            const font = {
+              id: `imported-${family.toLowerCase().replaceAll(" ", "-")}`,
+              family,
+              source: "imported",
+              files: [file],
+            };
+            (window.__fontsInstalled ??= []).push(font);
+            return font;
+          }
+          case "fonts_delete":
+            window.__fontsInstalled = (window.__fontsInstalled ?? []).filter(
+              (f) => f.id !== a.fontId,
+            );
+            return null;
+          case "fonts_data":
+            (window.__fontDataCalls ??= []).push(`${a.fontId}/${a.file}`);
+            return []; // not a font: the editor falls back to its default stack
           case "typst_compile":
             {
               // The body is one binary frame: u32 LE header length, header JSON (typstPath, source, pdfA, files), file bytes.

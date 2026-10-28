@@ -14,22 +14,15 @@ import type { Manifest } from "@cadabracraft/format";
 import type { ExportScope } from "../../state/project/types";
 import { pdfChecks } from "../../lib/exportChecks";
 import { estimatePages, wordsPerPage } from "../../lib/printEstimate";
-import { readStored, removeStored, writeStored } from "../../lib/persisted";
 import { trimLabel } from "../../lib/trimLabels";
+import { readTypstPath } from "../../lib/typstPath";
 import type { PdfUiError } from "../../lib/pdfErrors";
 import { Checkbox } from "../../ui/Checkbox";
 import { Field } from "../../ui/Input";
 import { Select } from "../../ui/Select";
 import { useProject } from "../../state/project";
+import { useFontList } from "../hooks/useFontList";
 import { CheckList } from "./CheckList";
-
-const TYPST_PATH_KEY = "cadabracraft.typstPath";
-/** App preference only (an absolute path), never stored in project files. */
-const readTypstPath = (): string => readStored(TYPST_PATH_KEY) ?? "";
-export const saveTypstPath = (p: string): void => {
-  if (p) writeStored(TYPST_PATH_KEY, p);
-  else removeStored(TYPST_PATH_KEY);
-};
 
 /** The print PDF choices, owned by the dialog so it can pass them to the export. */
 export function usePdfOptions(manifest: Manifest | null) {
@@ -76,6 +69,8 @@ export function PdfPanel({
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const readPages = useProject((s) => s.actions.readPages);
+  const setBookFonts = useProject((s) => s.actions.setBookFonts);
+  const { families } = useFontList();
   const {
     trimSize,
     pdfA,
@@ -117,6 +112,16 @@ export function PdfPanel({
       hasCover: edition?.cover != null,
     });
   }, [manifest, words, current, trimSize, edition]);
+  const bodyFont = manifest?.fonts?.body ?? "";
+  const headingFont = manifest?.fonts?.heading ?? "";
+  // The book's own choice stays in the list when this computer lacks it, so the select shows it instead of the wrong font.
+  const familyOptions = (chosen: string) =>
+    chosen && !families.includes(chosen) ? [chosen, ...families] : families;
+  const pickFont = (key: "body" | "heading", value: string) =>
+    void setBookFonts({ body: bodyFont, heading: headingFont, [key]: value }).catch(
+      () => undefined,
+    );
+  const templateBody = getTemplate(current).print.bodyFonts[0] ?? "";
   return (
     <>
       {pdfCheckList.length > 0 && <CheckList checks={pdfCheckList} label={t`Print checks`} />}
@@ -146,6 +151,34 @@ export function PdfPanel({
         {templates.map((x) => (
           <option key={x.id} value={x.id}>
             {x.name}
+          </option>
+        ))}
+      </Select>
+      <Select
+        label={t`Body font`}
+        value={bodyFont}
+        disabled={running}
+        onChange={(e) => pickFont("body", e.target.value)}
+        hint={t`The font of the running text. It is saved with the book; the font file is not.`}
+      >
+        <option value="">{t`Template default (${templateBody})`}</option>
+        {familyOptions(bodyFont).map((f) => (
+          <option key={f} value={f}>
+            {f}
+          </option>
+        ))}
+      </Select>
+      <Select
+        label={t`Heading font`}
+        value={headingFont}
+        disabled={running}
+        onChange={(e) => pickFont("heading", e.target.value)}
+        hint={t`The font of titles and headings. Settings, Fonts has more.`}
+      >
+        <option value="">{t`Same as body`}</option>
+        {familyOptions(headingFont).map((f) => (
+          <option key={f} value={f}>
+            {f}
           </option>
         ))}
       </Select>

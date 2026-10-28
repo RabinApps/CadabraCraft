@@ -22,7 +22,7 @@ import { SPONSOR_URL } from "../../state/sponsor";
 import type { ExportFormat } from "../export/exportFormat";
 import { useProject } from "../../state/project/index";
 
-type View = "book" | "settings" | "templates" | "print";
+type View = "book" | "settings" | "fonts" | "templates" | "print";
 
 export interface AppMenuHooks {
   view: View;
@@ -88,7 +88,10 @@ export function useAppMenu(h: AppMenuHooks): void {
 
   const commands: Record<string, Commands[string]> = {
     "app.quit": { run: guard(quitApp), global: true },
-    "app.settings": { run: () => h.setView("settings"), enabled: h.view !== "settings" },
+    "app.settings": {
+      run: () => h.setView("settings"),
+      enabled: h.view !== "settings" && h.view !== "fonts",
+    },
     "file.new": {
       run: guard(async () => {
         await leave();

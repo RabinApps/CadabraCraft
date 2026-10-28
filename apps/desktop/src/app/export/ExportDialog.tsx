@@ -17,7 +17,8 @@ import { EditionsChecklist, untranslatedIn } from "./EditionsChecklist";
 import { nativeName } from "../shell/EditionSwitcher";
 import { EpubPanel } from "./EpubPanel";
 import { MarkdownPanel } from "./MarkdownPanel";
-import { PdfPanel, saveTypstPath, usePdfOptions } from "./PdfPanel";
+import { saveTypstPath } from "../../lib/typstPath";
+import { PdfPanel, usePdfOptions } from "./PdfPanel";
 import { useAudioExport } from "./useAudioExport";
 import type { ExportFormat } from "./exportFormat";
 import { Notice } from "../../ui/Notice";
@@ -31,6 +32,8 @@ interface Props {
   onPreview?: () => void;
   /** Opens Book details, where the trim size is set. Omitted when the dialog is already in the print preview. */
   onChangeTrimSize?: () => void;
+  /** Opens Settings, Fonts, where missing print fonts are downloaded. */
+  onOpenFonts?: () => void;
 }
 
 /** Export the book as EPUB 3, a print PDF (Typst), Markdown, Word or an audiobook. Each format's panel shows its checks or options before building. */
@@ -41,6 +44,7 @@ export function ExportDialog({
   onFormatChange,
   onPreview,
   onChangeTrimSize,
+  onOpenFonts,
 }: Props) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
@@ -233,9 +237,19 @@ export function ExportDialog({
           </div>
         )}
         {error && (
-          <Notice role="alert" className="whitespace-pre-wrap wrap-break-word">
-            {error.message}
-          </Notice>
+          <div className="flex flex-col items-start gap-2.5">
+            <Notice role="alert" className="w-full whitespace-pre-wrap wrap-break-word">
+              {error.message}
+            </Notice>
+            {error.code === "font" && onOpenFonts && (
+              <Button
+                onClick={() => {
+                  change(false);
+                  onOpenFonts();
+                }}
+              >{t`Open Fonts`}</Button>
+            )}
+          </div>
         )}
         {format === "audiobook" ? (
           <AudioFooter

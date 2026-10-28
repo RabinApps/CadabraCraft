@@ -251,6 +251,27 @@ describe("manuscript format", () => {
     expect(files["word/header1.xml"]).not.toContain("PAGE");
   });
 
+  it("writes any family name as the document font, escaped, and keeps code in Courier New", () => {
+    const doc = chapter("One", p(t("x"), t("y", m("code"))));
+    const c = parts(buildDocx(book, [doc], { font: "EB Garamond" }));
+    expect(c["word/styles.xml"]).toContain(
+      'w:ascii="EB Garamond" w:hAnsi="EB Garamond" w:eastAsia="EB Garamond" w:cs="EB Garamond"',
+    );
+    expect(c["word/styles.xml"]).toContain('w:ascii="Courier New"');
+    expect(c["word/styles.xml"]).not.toContain("Times New Roman");
+    expect(c["word/document.xml"]).toContain('w:ascii="Courier New"');
+    const odd = parts(buildDocx(book, [doc], { font: ' Q"&<A> ' }));
+    expect(odd["word/styles.xml"]).toContain('w:ascii="Q&quot;&amp;&lt;A&gt;"');
+    const times = parts(buildDocx(book, [doc], { font: "times" }));
+    expect(times["word/styles.xml"]).toContain('w:ascii="Times New Roman"');
+  });
+
+  it("refuses an empty or unrepresentable font name", () => {
+    const doc = chapter("One", p(t("x")));
+    expect(() => buildDocx(book, [doc], { font: "  " })).toThrow(/font name is empty/);
+    expect(() => buildDocx(book, [doc], { font: "A\u0001B" })).toThrow(/font name/);
+  });
+
   it("can use Courier New", () => {
     const c = parts(buildDocx(book, [chapter("One", p(t("x")))], { font: "courier" }));
     expect(c["word/styles.xml"]).toContain(

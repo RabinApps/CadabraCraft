@@ -85,6 +85,39 @@ describe("manifest", () => {
     expect("trimSize" in validateManifest(plain)).toBe(false);
     expect(() => validateManifest({ ...base(), trimSize: "9x9" })).toThrow(/trimSize/);
   });
+  it("keeps optional fonts through a round trip, and an old manifest without them is unchanged", () => {
+    const withFonts = createManifest({
+      title: "T",
+      author: "A",
+      identifier: "urn:uuid:x",
+      fonts: { body: "EB Garamond", heading: "Inter" },
+    });
+    const back = validateManifest(JSON.parse(serializeManifest(withFonts)));
+    expect(back.fonts).toEqual({ body: "EB Garamond", heading: "Inter" });
+    const bodyOnly = { ...base(), fonts: { body: "Lora" } };
+    expect(validateManifest(bodyOnly).fonts).toEqual({ body: "Lora" });
+    const plain = base();
+    expect("fonts" in plain).toBe(false);
+    expect("fonts" in validateManifest(plain)).toBe(false);
+    expect("fonts" in createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" })).toBe(
+      false,
+    );
+  });
+  it("refuses bad fonts values", () => {
+    const bad = (fonts: unknown) => () => validateManifest({ ...base(), fonts });
+    expect(bad("Lora")).toThrow(/fonts/);
+    expect(bad(null)).toThrow(/fonts/);
+    expect(bad(["Lora"])).toThrow(/fonts/);
+    expect(bad({ body: "" })).toThrow(/fonts\.body/);
+    expect(bad({ body: "   " })).toThrow(/fonts\.body/);
+    expect(bad({ body: " Lora" })).toThrow(/fonts\.body/);
+    expect(bad({ heading: 7 })).toThrow(/fonts\.heading/);
+    expect(bad({ body: "A".repeat(101) })).toThrow(/fonts\.body/);
+    expect(bad({ body: "Lo\nra" })).toThrow(/fonts\.body/);
+    expect(bad({ body: "Lo\u0000ra" })).toThrow(/fonts\.body/);
+    expect(bad({ mono: "Courier" })).toThrow(/fonts\.mono/);
+    expect(() => validateManifest({ ...base(), fonts: { body: "A".repeat(100) } })).not.toThrow();
+  });
   it("rejects an entry without a source title or file, and titles for unknown editions", () => {
     const m = base();
     m.chapters[0]!.titles = {};

@@ -9,6 +9,9 @@ export interface InvokeArgs {
   root: string;
   url: string;
   pack: string;
+  fontId: string;
+  srcPath: string;
+  file: string;
   snapshot: string;
   reference: string;
   manifestJson: string;
@@ -70,6 +73,13 @@ export interface FakeVoice {
   installed: boolean;
 }
 
+export interface FakeFont {
+  id: string;
+  family: string;
+  source: string;
+  files: string[];
+}
+
 export interface FakePack {
   id: string;
   voices: string[];
@@ -123,6 +133,15 @@ declare global {
     __downloads?: string[];
     __downloadHold?: boolean;
     __downloadReject?: (reason: unknown) => void;
+    /** Font library: the installed families, the picked file, failures and a held download (cancelled by `fonts_cancel`). */
+    __fontsInstalled?: FakeFont[];
+    __pickedFont?: string | null;
+    __fontError?: FakeError;
+    __fontImportError?: FakeError;
+    __fontHold?: boolean;
+    __fontReject?: (reason: unknown) => void;
+    __fontDownloads?: string[];
+    __fontDataCalls?: string[];
     __sampleCalls: SampleCall[];
     __m4bCalls: M4bCall[];
     __sampleError?: FakeError;

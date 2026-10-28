@@ -20,7 +20,7 @@ export interface DocxChapter {
 export interface DocxOptions {
   /** Bytes of every image the chapters use, keyed by the project-relative path stored in the chapter (`assets/a.png`). */
   assets?: ReadonlyMap<string, Uint8Array>;
-  /** "times" (Times New Roman 12, default) or "courier" (Courier New 12). */
+  /** "times" (Times New Roman 12, default), "courier" (Courier New 12) or any non-empty font family name (12 pt). Code blocks stay Courier New. */
   font?: ManuscriptFont;
   /** Written to the document properties. Default 2020-01-01 UTC, so output is deterministic for a given input. */
   modified?: Date;

@@ -8,7 +8,7 @@ import { bookToMarkdown } from "@cadabracraft/export-markdown";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import { createNodeRunner } from "@cadabracraft/export-pdf/node";
 import { ProjectFsError, writeBytes } from "@cadabracraft/project-fs";
-import { getTemplate, hasTemplate, resolveTrimSize } from "@cadabracraft/templates";
+import { getTemplate, hasTemplate, resolveBookFonts, resolveTrimSize } from "@cadabracraft/templates";
 import { exportDir } from "@cadabracraft/format";
 import { loadBook } from "../book";
 import { ToolError } from "../errors";
@@ -74,28 +74,31 @@ export const exportMarkdown = defineTool({
 export const exportPdf = defineTool({
   name: "cadabra_export_pdf",
   title: "Export PDF",
-  description: "Build exports/<language>/book.pdf (print PDF via Typst) from one edition of the book. trimSize/template/pdfA override the book's settings for this export only; the manifest is not changed. Needs typst installed. Only writes under exports/.",
+  description: "Build exports/<language>/book.pdf (print PDF via Typst) from one edition of the book. trimSize/template/pdfA override the book's settings for this export only; the manifest is not changed. Fonts default to the book's own (`fonts` in cadabra.json), else the template's; bodyFont/headingFont override per key, and a font that is not installed fails with font_missing instead of being substituted. Needs typst installed. Only writes under exports/.",
   input: {
     path: PATH,
     trimSize: z.enum(["4.25x6.87", "5x8", "5.25x8", "5.5x8.5", "6x9", "7x10", "8.5x11"]).optional().describe("Page size in inches for this export; default is the book's own trim size (cadabra.json `trimSize`), else the template's."),
     template: z.string().optional().describe("Template id for this export; default is the book's template."),
+    bodyFont: z.string().trim().min(1).max(100).optional().describe("Body font family for this export; default is the book's own (`fonts.body`), else the template's."),
+    headingFont: z.string().trim().min(1).max(100).optional().describe("Heading font family for this export; default is the book's own (`fonts.heading`), else the template's."),
     pdfA: z.boolean().optional().describe("Produce PDF/A-2b (archival)."),
     language: LANGUAGE,
     skipUntranslated: SKIP,
   },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
-  run: ({ path, trimSize, template, pdfA, language, skipUntranslated }, ctx) =>
+  run: ({ path, trimSize, template, bodyFont, headingFont, pdfA, language, skipUntranslated }, ctx) =>
     withLock(projectRoot(ctx, path), async () => {
       if (template !== undefined && !hasTemplate(template)) getTemplate(template); // throws template_unknown listing the ids
       const { root, manifest, edition, dir, skipped, chapters, assets, templateId } = loadBook(ctx, path, { language, skipUntranslated });
       const PDF = `${dir}/book.pdf`;
       const id = template ?? templateId;
       const size: TrimSize = trimSize ?? resolveTrimSize({ template: id, ...(manifest.trimSize ? { trimSize: manifest.trimSize } : {}) });
+      const bookFonts = { ...resolveBookFonts(manifest), ...(bodyFont ? { body: bodyFont } : {}), ...(headingFont ? { heading: headingFont } : {}) };
       const runner = createNodeRunner({ typstPath: typstPath(ctx) });
       const { pdf, fonts } = await renderPdf(
         { title: edition.title, author: edition.author, language: edition.language },
         chapters,
-        { template: id, trimSize: size, assets: Object.fromEntries(assets), pdfA: pdfA === true },
+        { template: id, trimSize: size, assets: Object.fromEntries(assets), pdfA: pdfA === true, ...(Object.keys(bookFonts).length ? { fonts: bookFonts } : {}) },
         runner,
       );
       writeBytes(root, PDF, pdf);

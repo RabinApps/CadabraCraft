@@ -28,10 +28,13 @@ export function describePdfError(e: unknown): PdfUiError {
   const cause = { cause: e };
   if (e instanceof TypstNotFoundError) return new PdfUiError("typst-missing", e.message, cause);
   if (e instanceof FontNotAvailableError) {
+    const only = e.families[0] ?? "";
     const fonts = e.families.map((f) => `"${f}"`).join(", ");
     return new PdfUiError(
       "font",
-      t`The font ${fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have.`,
+      e.families.length === 1
+        ? t`The font “${only}” is not on this computer. Download it in Settings, Fonts, or pick another font.`
+        : t`None of the fonts ${fonts} are on this computer. Download one in Settings, Fonts, or pick another font.`,
       cause,
     );
   }

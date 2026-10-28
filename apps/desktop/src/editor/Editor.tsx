@@ -11,7 +11,8 @@ import {
 import { extensions } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { sizes, widths, type Width } from "../state/reading";
-import { editorFonts, useSettings, writingWidths } from "../state/editorPrefs";
+import { editorFontStack, useSettings, writingWidths } from "../state/editorPrefs";
+import { ensureFontLoaded } from "../lib/loadFont";
 import { dirFor } from "../i18n/locales";
 import { Toolbar } from "./Toolbar";
 import { Search } from "./search/plugin";
@@ -146,6 +147,11 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
     },
   });
   const { manuscriptFont, writingWidth } = useSettings();
+  // A downloaded or imported family is registered from its bytes; if that fails the default serif behind it in the stack is used.
+  useEffect(() => {
+    if (manuscriptFont !== "newsreader" && manuscriptFont !== "inter")
+      void ensureFontLoaded(manuscriptFont);
+  }, [manuscriptFont]);
   const findOpen = useFind((s) => s.open);
   const insertRef = useRef<
     (content: ReturnType<typeof literalContent>, range: { from: number; to: number }) => boolean
@@ -317,7 +323,7 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
         <div className="mx-auto md:p-8" style={{ maxWidth: writingWidths[writingWidth] }}>
           <div
             className="prose-manuscript p-4 md:rounded-md md:border md:border-border md:bg-paper md:px-14 md:py-12"
-            style={{ fontFamily: editorFonts[manuscriptFont] }}
+            style={{ fontFamily: editorFontStack(manuscriptFont) }}
           >
             <EditorContent editor={editor} />
           </div>

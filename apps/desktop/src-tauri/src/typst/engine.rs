@@ -19,9 +19,19 @@ pub fn set_font_dir(dir: PathBuf) {
     }
 }
 
-/// `--font-path <dir>`; Typst accepts it only after the subcommand (`typst fonts --font-path d`).
-fn font_args(dir: Option<&Path>) -> Vec<String> {
-    dir.map(|d| vec!["--font-path".to_string(), d.to_string_lossy().into_owned()]).unwrap_or_default()
+/// `--font-path <dir>` for each folder; Typst accepts it only after the subcommand (`typst fonts --font-path d`).
+fn font_args(dirs: &[PathBuf]) -> Vec<String> {
+    dirs.iter().flat_map(|d| ["--font-path".to_string(), d.to_string_lossy().into_owned()]).collect()
+}
+
+/// The bundled fonts, then the author's downloaded and imported ones (`fonts/` in the app data folder) when that folder
+/// exists. Looked up on every call: the folder appears with the first download.
+fn font_dirs() -> Vec<PathBuf> {
+    ordered_dirs(FONT_DIR.get().cloned(), crate::fonts::typst_font_dir())
+}
+
+fn ordered_dirs(bundled: Option<PathBuf>, user: Option<PathBuf>) -> Vec<PathBuf> {
+    bundled.into_iter().chain(user).collect()
 }
 
 /// Finds `typst`: `explicit` (a user-configured path), then `TYPST_BIN`, then the bundled sidecar, then PATH, then
@@ -69,12 +79,12 @@ pub fn version(bin: &Path) -> Result<String, TypstError> {
 
 /// Font family names from `typst fonts` (system and bundled).
 pub fn list_fonts(bin: &Path) -> Result<Vec<String>, TypstError> {
-    list_fonts_with(bin, FONT_DIR.get().map(PathBuf::as_path))
+    list_fonts_with(bin, &font_dirs())
 }
 
-fn list_fonts_with(bin: &Path, font_dir: Option<&Path>) -> Result<Vec<String>, TypstError> {
+fn list_fonts_with(bin: &Path, font_dirs: &[PathBuf]) -> Result<Vec<String>, TypstError> {
     let mut args = vec!["fonts".to_string()];
-    args.extend(font_args(font_dir));
+    args.extend(font_args(font_dirs));
     let r = run_capture(bin, &args, Path::new("."), FONTS_TIMEOUT)?;
     if !r.success {
         return Err(other(format!("typst fonts failed: {}", r.stderr.trim())));
@@ -112,7 +122,7 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
     }
     fs::write(dir.path().join("main.typ"), source).map_err(other)?;
     let mut args: Vec<String> = vec!["compile".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
-    args.extend(font_args(FONT_DIR.get().map(PathBuf::as_path)));
+    args.extend(font_args(&font_dirs()));
     if pdf_a {
         args.extend(["--pdf-standard".into(), "a-2b".into()]);
     }
@@ -211,7 +221,7 @@ mod tests {
             assert!(!required, "binaries/fonts missing; run scripts/fetch-typst.sh");
             return;
         }
-        assert!(list_fonts_with(bin, Some(fonts)).unwrap().iter().any(|f| f == "Inter"));
+        assert!(list_fonts_with(bin, &[fonts.to_path_buf()]).unwrap().iter().any(|f| f == "Inter"));
     }
 
     #[test]
@@ -237,6 +247,17 @@ mod tests {
         let fonts = tempfile::tempdir().unwrap();
         set_font_dir(fonts.path().to_path_buf());
         assert!(FONT_DIR.get().is_some());
+    }
+
+    #[test]
+    fn every_font_folder_gets_its_own_font_path_after_the_subcommand() {
+        assert!(font_args(&[]).is_empty());
+        assert_eq!(font_args(&[PathBuf::from("/a"), PathBuf::from("/b")]), ["--font-path", "/a", "--font-path", "/b"]);
+        let (bundled, user) = (PathBuf::from("/bundled"), PathBuf::from("/user"));
+        assert_eq!(ordered_dirs(Some(bundled.clone()), Some(user.clone())), [bundled.clone(), user.clone()]);
+        assert_eq!(ordered_dirs(Some(bundled.clone()), None), [bundled]);
+        assert_eq!(ordered_dirs(None, Some(user.clone())), [user]);
+        assert!(ordered_dirs(None, None).is_empty());
     }
 
     #[cfg(unix)]

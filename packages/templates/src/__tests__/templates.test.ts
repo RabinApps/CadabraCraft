@@ -5,6 +5,7 @@ import {
   getTemplate,
   hasTemplate,
   listTemplates,
+  resolveBookFonts,
   resolveTrimSize,
   TemplateError,
   validateTemplate,
@@ -190,6 +191,19 @@ describe("resolveTrimSize", () => {
     expect(resolveTrimSize({ template: "gone" })).toBe(
       getTemplate(DEFAULT_TEMPLATE_ID).print.defaults.trimSize,
     );
+  });
+});
+
+describe("resolveBookFonts", () => {
+  it("returns only the keys that are set", () => {
+    expect(resolveBookFonts({})).toEqual({});
+    expect(resolveBookFonts({ fonts: {} })).toEqual({});
+    expect(resolveBookFonts({ fonts: { body: "Lora" } })).toEqual({ body: "Lora" });
+    expect("body" in resolveBookFonts({ fonts: { heading: "Inter" } })).toBe(false);
+    expect(resolveBookFonts({ fonts: { body: "Lora", heading: "Inter" } })).toEqual({
+      body: "Lora",
+      heading: "Inter",
+    });
   });
 });
 

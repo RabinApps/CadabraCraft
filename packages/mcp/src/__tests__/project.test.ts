@@ -57,6 +57,38 @@ describe("project_create / project_info", () => {
     expect(bad.isError).toBe(true);
   });
 
+  it("stores chosen fonts in the manifest, and refuses an empty or too long name", async () => {
+    s = await connect();
+    const created = await s.ok("cadabra_project_create", {
+      path: "Fonted",
+      title: "T",
+      author: "A",
+      bodyFont: "EB Garamond",
+      headingFont: "Inter",
+    });
+    expect(created.manifest.fonts).toEqual({ body: "EB Garamond", heading: "Inter" });
+    const info = await s.ok("cadabra_project_info", { path: "Fonted" });
+    expect(info.manifest.fonts).toEqual({ body: "EB Garamond", heading: "Inter" });
+    const one = await s.ok("cadabra_project_create", {
+      path: "One",
+      title: "T",
+      author: "A",
+      headingFont: "Inter",
+    });
+    expect(one.manifest.fonts).toEqual({ heading: "Inter" });
+    const plain = await s.ok("cadabra_project_create", { path: "Plain2", title: "T", author: "A" });
+    expect("fonts" in plain.manifest).toBe(false);
+    for (const bodyFont of ["", "x".repeat(101)]) {
+      const bad = await s.call("cadabra_project_create", {
+        path: "Bad2",
+        title: "T",
+        author: "A",
+        bodyFont,
+      });
+      expect(bad.isError).toBe(true);
+    }
+  });
+
   it("honours language and template, refuses an existing project, unknown templates and bad languages", async () => {
     s = await connect();
     const c = await s.ok("cadabra_project_create", {

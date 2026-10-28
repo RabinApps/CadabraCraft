@@ -4,6 +4,7 @@ import { createAudioActions } from "./audio";
 import { createContext } from "./context";
 import { createEditionActions } from "./editions";
 import { createExportActions } from "./exports";
+import { createFontActions } from "./fonts";
 import { createHistoryActions } from "./history";
 import { createPageActions } from "./pages";
 import { createProjectActions } from "./project";
@@ -24,6 +25,7 @@ export type {
   BookPage,
   History,
   HistoryEntry,
+  FontDownload,
   PdfExportOptions,
   PdfStage,
   Recovery,
@@ -54,6 +56,7 @@ export const useProject = create<ProjectState>((set, get) => {
     exportStage: null,
     audio: null,
     voiceDownload: null,
+    fontDownloads: {},
     trash: [],
     history: NO_HISTORY,
     recovery: [],
@@ -73,6 +76,7 @@ export const useProject = create<ProjectState>((set, get) => {
       ...createExportActions(ctx),
       ...createAudioActions(ctx),
       ...createVoiceActions(ctx),
+      ...createFontActions(ctx),
     },
   };
 });

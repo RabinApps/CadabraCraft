@@ -52,7 +52,8 @@ import { Notice } from "../../ui/Notice";
 import { ProgressBar } from "../../ui/ProgressBar";
 
 /** Full-page views. "book" is the editor (or Home when no project is open). */
-type View = "book" | "settings" | "templates" | "print";
+/** `fonts` is Settings scrolled to Fonts (from the "font missing" notice in the export dialog). */
+type View = "book" | "settings" | "fonts" | "templates" | "print";
 
 export function App() {
   const { t } = useLingui();
@@ -123,9 +124,7 @@ export function App() {
   }, []);
   useEffect(() => {
     const mq = window.matchMedia(LG_QUERY);
-    const close = () => {
-      if (mq.matches) setDrawer(false);
-    };
+    const close = () => mq.matches && setDrawer(false);
     mq.addEventListener("change", close);
     return () => mq.removeEventListener("change", close);
   }, []);
@@ -144,10 +143,10 @@ export function App() {
     fail: setError,
   });
   const backToBook = () => setView("book");
-  if (view === "settings") {
+  if (view === "settings" || view === "fonts") {
     return (
       <>
-        <Settings onBack={backToBook} />
+        <Settings onBack={backToBook} initialSection={view === "fonts" ? "fonts" : undefined} />
         <UpdateDialog />
       </>
     );
@@ -162,6 +161,7 @@ export function App() {
           onOpenChange={setExportOpen}
           format={exportFormat}
           onFormatChange={setExportFormat}
+          onOpenFonts={() => setView("fonts")}
         />
         <SponsorDialog />
         <UpdateDialog />
@@ -350,6 +350,7 @@ export function App() {
           setExportOpen(false);
           setDetailsOpen(true);
         }}
+        onOpenFonts={() => setView("fonts")}
       />
       <D.Root open={drawer} onOpenChange={setDrawer}>
         <D.Portal>

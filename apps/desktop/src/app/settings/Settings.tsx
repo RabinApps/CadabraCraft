@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft } from "lucide-react";
 import { useLocale } from "../../i18n/i18n";
@@ -13,19 +13,29 @@ import { Switch } from "../../ui/Switch";
 import { useTheme, type Theme } from "../../state/theme";
 import { useUpdates } from "../../state/updates";
 import {
+  BUNDLED_EDITOR_FONTS,
   MAX_SESSION_GOAL,
   useSettings,
   type EditorFont,
   type RawHtmlPaste,
   type WritingWidth,
 } from "../../state/editorPrefs";
+import { useFontList } from "../hooks/useFontList";
 import { AudioSection } from "./AudioSection";
+import { FontsSection } from "./FontsSection";
 import { KeepField, Row, Section } from "./SettingsParts";
 
-const sections = ["appearance", "general", "editor", "audio", "backups"] as const;
+const sections = ["appearance", "general", "editor", "fonts", "audio", "backups"] as const;
 
 /** Preferences page. Every control saves immediately, so there is no primary action. */
-export function Settings({ onBack }: { onBack: () => void }) {
+export function Settings({
+  onBack,
+  initialSection,
+}: {
+  onBack: () => void;
+  /** Scroll to this section when the page opens. */
+  initialSection?: (typeof sections)[number];
+}) {
   const { t } = useLingui();
   const { theme, setTheme } = useTheme();
   const {
@@ -46,10 +56,15 @@ export function Settings({ onBack }: { onBack: () => void }) {
     appearance: t`Appearance`,
     general: t`General`,
     editor: t`Editor`,
+    fonts: t`Fonts`,
     audio: t`Audio`,
     backups: t`Backups`,
   };
-  const [active, setActive] = useState<(typeof sections)[number]>("appearance");
+  const [active, setActive] = useState<(typeof sections)[number]>(initialSection ?? "appearance");
+  const { fonts } = useFontList();
+  useEffect(() => {
+    if (initialSection) document.getElementById(initialSection)?.scrollIntoView({ block: "start" });
+  }, [initialSection]);
   const jump = (id: (typeof sections)[number]) => {
     setActive(id);
     document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" });
@@ -147,7 +162,7 @@ export function Settings({ onBack }: { onBack: () => void }) {
             <Section id="editor" title={navLabels.editor}>
               <Row
                 title={t`Manuscript font`}
-                hint={t`Used while writing and reading.`}
+                hint={t`Used while writing. Your book's print fonts are set in Export.`}
                 control={
                   <div className="w-56 max-sm:w-full">
                     <Select
@@ -159,6 +174,18 @@ export function Settings({ onBack }: { onBack: () => void }) {
                     >
                       <option value="newsreader">Newsreader</option>
                       <option value="inter">Inter</option>
+                      {/* A chosen font that was deleted stays listed, so the select does not show a different one. */}
+                      {!BUNDLED_EDITOR_FONTS.includes(manuscriptFont as "inter") &&
+                        !fonts.some((f) => f.family === manuscriptFont) && (
+                          <option value={manuscriptFont}>{manuscriptFont}</option>
+                        )}
+                      {fonts
+                        .filter((f) => f.source !== "bundled")
+                        .map((f) => (
+                          <option key={f.family} value={f.family}>
+                            {f.family}
+                          </option>
+                        ))}
                     </Select>
                   </div>
                 }
@@ -229,6 +256,7 @@ export function Settings({ onBack }: { onBack: () => void }) {
                 }
               />
             </Section>
+            <FontsSection title={navLabels.fonts} />
             <AudioSection
               voice={audioVoice}
               formats={audioFormats}

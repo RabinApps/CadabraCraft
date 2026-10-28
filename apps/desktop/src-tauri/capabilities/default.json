@@ -2,5 +2,5 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "windows": ["main"],
-  "permissions": ["core:default", "core:window:allow-destroy", "dialog:default", "updater:default", "process:allow-restart", { "identifier": "opener:allow-open-url", "allow": [{ "url": "https://github.com/sponsors/RabinApps" }] }]
+  "permissions": ["core:default", "core:window:allow-destroy", "dialog:default", "updater:default", "process:allow-restart", { "identifier": "opener:allow-open-url", "allow": [{ "url": "https://github.com/sponsors/RabinApps" }, { "url": "https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/*/OFL.txt" }] }]
 }

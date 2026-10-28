@@ -6,6 +6,7 @@ import type { ImportChoices, ImportReport } from "../../lib/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import type { AudioUiError } from "../../lib/audioErrors";
+import type { FontUiError } from "../../lib/fontErrors";
 import type { RemovedReference } from "../../lib/referenceKinds";
 
 export interface PdfExportOptions extends ExportScope {
@@ -17,6 +18,8 @@ export interface PdfExportOptions extends ExportScope {
   cover?: boolean;
   /** User-configured location of the typst program (an app preference, never stored in the project). */
   typstPath?: string;
+  /** Print fonts for this export. Default: the book's own choice (`manifest.fonts`). */
+  fonts?: { body?: string; heading?: string };
 }
 
 export interface AudioExportOptions {
@@ -59,6 +62,16 @@ export interface VoiceDownload {
   total: number;
   cancelling: boolean;
   error: AudioUiError | null;
+}
+
+/** A font download in progress or just failed, by catalog id. It lives in the store so the catalog can be closed and reopened while it runs. */
+export interface FontDownload {
+  status: "running" | "error";
+  /** Bytes present of the whole family. */
+  done: number;
+  total: number;
+  cancelling: boolean;
+  error: FontUiError | null;
 }
 
 /** A page in the project trash, with a title for the list. */
@@ -164,6 +177,8 @@ export interface ProjectState {
   audio: AudioJob | null;
   /** The voice download (running, or failed and waiting for a retry); null when none is active. */
   voiceDownload: VoiceDownload | null;
+  /** The font downloads that are running or failed (waiting for a retry), by catalog id. */
+  fontDownloads: Record<string, FontDownload>;
   /** Restorable pages in the project trash, newest first (filled by `refreshTrash`). */
   trash: TrashItem[];
   /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
@@ -189,6 +204,7 @@ export interface ProjectState {
     ExportActions &
     AudioActions &
     VoiceActions &
+    FontActions &
     EditionActions;
 }
 
@@ -240,6 +256,8 @@ export interface ProjectActions {
   dismissImportReport: () => void;
   /** Sets the book's template (cadabra.json). A no-op when it is already set. */
   setTemplate: (id: string) => Promise<void>;
+  /** Saves the book's print fonts (`manifest.fonts`). A missing or empty key means the template's own font; no key at all removes `fonts`. A no-op when nothing changes. */
+  setBookFonts: (fonts: { body?: string; heading?: string }) => Promise<void>;
   /** Saves the book details (cadabra.json) of `edition` (default: the source; a translation keeps its language). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
   updateDetails: (details: BookDetails, edition?: string) => Promise<void>;
 }
@@ -350,4 +368,16 @@ export interface VoiceActions {
   cancelVoiceDownload: () => void;
   /** Clears a failed or stopped voice download. A running one is left alone. */
   dismissVoiceDownload: () => void;
+}
+
+export interface FontActions {
+  /**
+   * Downloads a catalog family (a stopped or failed download resumes). Progress and failure are in `fontDownloads[id]`; a stopped one
+   * leaves no entry. Resolves true when the family is installed; false when it was stopped, failed or already running (not an exception).
+   */
+  downloadFont: (id: string, bytes: number) => Promise<boolean>;
+  /** Stops the family's download; what was fetched is kept for a retry. */
+  cancelFontDownload: (id: string) => void;
+  /** Clears a failed download. A running one is left alone. */
+  dismissFontDownload: (id: string) => void;
 }

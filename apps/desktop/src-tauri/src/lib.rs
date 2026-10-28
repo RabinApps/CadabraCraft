@@ -2,6 +2,7 @@
 mod automation;
 mod audio;
 mod commands;
+mod fonts;
 mod import_src;
 mod platform;
 mod project;
@@ -49,6 +50,13 @@ macro_rules! app_handlers {
             audio::commands::audio_packs,
             audio::commands::audio_download_pack,
             audio::commands::audio_delete_pack,
+            fonts::commands::fonts_catalog,
+            fonts::commands::fonts_installed,
+            fonts::commands::fonts_download,
+            fonts::commands::fonts_cancel,
+            fonts::commands::fonts_import,
+            fonts::commands::fonts_delete,
+            fonts::commands::fonts_data,
             commands::updates_supported
             $(, $extra)*
         ]
@@ -95,6 +103,7 @@ pub fn run() {
             }
             if let Ok(dir) = app.path().app_data_dir() {
                 audio::set_voices_dir(dir.join("voices"));
+                fonts::set_fonts_dir(dir.join("fonts"));
             }
             Ok(())
         })

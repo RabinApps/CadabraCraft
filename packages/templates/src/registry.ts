@@ -101,5 +101,16 @@ export function resolveTrimSize(book: { template: string; trimSize?: TrimSizeId 
   );
 }
 
+/** The font families a book chose, as `PdfOptions.fonts`: only the keys that are set (empty when it chose none). */
+export function resolveBookFonts(book: { fonts?: { body?: string; heading?: string } }): {
+  body?: string;
+  heading?: string;
+} {
+  return {
+    ...(book.fonts?.body ? { body: book.fonts.body } : {}),
+    ...(book.fonts?.heading ? { heading: book.fonts.heading } : {}),
+  };
+}
+
 export const listTemplates = (): Template[] => [...REGISTRY.values()];
 export const hasTemplate = (id: string): boolean => REGISTRY.has(id);

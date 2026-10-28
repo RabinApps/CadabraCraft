@@ -159,6 +159,8 @@ The **trim size** (page size) is a setting of the book: you pick it when you cre
 
 Above the options a list of **Print checks** compares your book with Amazon KDP paperback rules: a page count of 24 to 828, the minimum inside (gutter) margin for your page count and a 0.25 inch minimum outer margin. These use an estimated page count, so treat them as early warnings, not a guarantee. KDP's own previewer has the final say. The PDF has no bleed or crop marks. **Print preview** shows an approximate layout; it is not the PDF.
 
+Below the template, **Body font** and **Heading font** let you pick the fonts of the PDF. "Template default" uses the template's own font, and "Same as body" sets headings in the body font. The choice is saved with the book. The font file is not: if you open the book on a computer that does not have the font, the export stops and says so, with an **Open Fonts** button that takes you to Settings, Fonts (see [Fonts](#fonts)). CadabraCraft never swaps in a different font for you.
+
 The PDF is built by Typst. Installers are meant to ship with it (see Troubleshooting for builds from source).
 
 ### Markdown
@@ -166,6 +168,24 @@ The PDF is built by Typst. Installers are meant to ship with it (see Troubleshoo
 Writes the whole book as one Markdown file in reading order. Underline, small caps, superscript and subscript have no Markdown form, so by default the export stops and names the chapter; tick **Keep underline and small caps** to write them as HTML tags instead.
 
 After an export finishes the app may offer a sponsor dialog; you can say "Maybe later" or "Don't show again".
+
+## Fonts
+
+Settings, Fonts lists every font you can use, each in its own typeface, with a badge saying where it comes from:
+
+- **Installed**: fonts that come with CadabraCraft (Newsreader and Inter) and the fonts already installed on your computer.
+- **Downloaded**: free fonts you fetched from the catalog.
+- **Imported**: `.ttf` or `.otf` files you chose with **Choose file…**.
+
+**Browse fonts…** opens a catalog of open-licence families from Google Fonts (SIL Open Font Licence, free for books). This is the only place CadabraCraft asks for fonts online, and only when you click **Download** on a font; nothing else is sent. You can **Cancel** a download and try it again later, and **Delete** removes a downloaded or imported font from this computer. **Choose file…** copies a font file into the app, never into your book.
+
+Use fonts in three places:
+
+- **Settings, Editor, Manuscript font** changes the font you write in. It is an app preference and does not change your book.
+- **Export, Print PDF** has a Body font and a Heading font for the book (see [Print PDF](#print-pdf)).
+- **Export, Word** lists the same fonts next to Times New Roman and Courier New. Word shows the font only on computers that have it.
+
+The name of a print font is saved in your book, but font files do not travel with it. If you move the book to another computer, download or install the same font there before exporting the PDF.
 
 ## Using CadabraCraft for books you sell
 
@@ -218,7 +238,7 @@ Everything else is in the menus. There is no way to change shortcuts yet.
 
 **PDF export says Typst is missing.** Print PDF is built by a program called Typst. Packaged installers are meant to include it, so a release build needs nothing else. If you built the app from source, run `scripts/fetch-typst.sh` once before building (see the [README](../README.md)), or install Typst yourself (for example with Homebrew) and, if the app still cannot find it, type its location into the **Typst location** field of the Export dialog. Note that the Export dialog's own wording still says Typst must be installed; that text is out of date for packaged builds.
 
-**PDF export says a font is missing.** The Modern template uses Inter, which ships with the app. If you pointed the app at your own Typst, make sure the fonts of the template you chose are installed on your computer.
+**PDF export says a font is missing.** The font chosen for the book (or the template's own font) is not on this computer. Click **Open Fonts** to download it or import a file, or pick another font in the Export dialog. The Modern template uses Inter, which ships with the app. If you pointed the app at your own Typst, make sure the fonts of the template you chose are installed on your computer.
 
 **A store rejects my EPUB.** Check the title, author, language and cover in Book Details. If you still have trouble, see [the project README](../README.md) for how to run the EPUBCheck validator and send the output with a bug report.
 

@@ -25,6 +25,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 - [Audiobook rendering in Rust (sherpa-onnx)](#audiobook-rendering-in-rust-sherpa-onnx)
 - [Audiobook export (app)](#audiobook-export-app)
 - [Voice download](#voice-download)
+- [Font download](#font-download)
 - [Bundled voice engine (sherpa-onnx sidecar)](#bundled-voice-engine-sherpa-onnx-sidecar)
 - [M4B audiobook (ffmpeg sidecar)](#m4b-audiobook-ffmpeg-sidecar)
 
@@ -768,3 +769,18 @@ Desktop layers import downward only: `app/` (screens, dialogs, shell, hooks) use
 **Rejected:** `test/` folders per package (three packages used them and the rest colocated, so we had two layouts); `app/store/` for the project store (the editor imports it, so it sits in the lower `state/` layer); a Rust `tests/` directory for unit tests (most helpers are `pub(crate)`, so tests stay inside their module).
 
 **Tooling:** ESLint 10 and Prettier run from the repo root (`pnpm lint`, `pnpm format:check`). typescript-eslint does not support TypeScript 7 yet, so `.pnpmfile.cjs` gives the lint toolchain its own TypeScript 6.0.3 while the repo compiles on 7. Remove it when typescript-eslint supports 7.1 (typescript-eslint#10940).
+
+## Font download
+
+**This is the third network use in the app, after the update check and the voice download** (CLAUDE.md names all three). It only happens after the author clicks Download on a font in Settings, Fonts, and the panel says so. Fonts the author already has (installed on the computer, or imported from a file) never touch the network.
+
+**Decision:** a curated catalog of open-licence (SIL OFL) families, each a list of single files pinned to a commit of the `google/fonts` GitHub repository (never a branch), with a pinned size and sha256 per file, using the same download code as the voices (`download_file`: HTTPS only, `.part` then rename after the hash matches, resume, cancel, `disk_full`). Files and each family's licence text go to `<app data>/fonts/<id>/`. Imported `.ttf`/`.otf` files go to `<app data>/fonts/imported/`. Typst gets that folder as a second `--font-path`, so PDF export sees downloaded and imported fonts; the editor reads a family's bytes through a command and registers an `@font-face` from a `data:` URL (the CSP's `font-src 'self' data:` stays as it is).
+
+**Where the choice lives:** the editor font is an app preference. The print fonts are `manifest.fonts` (`{ body?, heading? }`, optional, no `formatVersion` bump, like `trimSize`), so the choice travels with the book; the files do not, and an export on a computer without the font fails with the existing `FontNotAvailableError` and points at Settings, Fonts. An explicit font is never substituted.
+
+**Rejected:**
+
+- **A live Google Fonts catalog** (the Fonts API needs a key; a repository listing has no pinned hashes, so only TLS would vouch for a file).
+- **Loading fonts in the webview from fonts.googleapis.com** (the CSP allows no outside hosts, and it would send the author's IP to a third party at every start).
+- **Embedding fonts in the project** (large files in the book folder; OFL allows it, so it can be added later).
+- **A font-enumeration crate** (`typst fonts` already lists what an export can use).

@@ -1,6 +1,15 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { unzipSync } from "fflate";
 import { afterEach, describe, expect, it } from "vitest";
 import { type Session, connect, epubcheckJar, hasPoppler, hasTypst, seedBook } from "./helpers";
@@ -140,6 +149,53 @@ describe("export_pdf / inspect_pdf", () => {
     expect(r.poppler).toBe("missing");
     expect(r.note).toContain("poppler_missing");
     expect(r.bytes).toBeGreaterThan(0);
+  });
+
+  // A fake typst: `fonts` lists a few families, `compile` writes the Typst source as the "PDF" so the chosen fonts can be read back.
+  const fakeTypst = (): string => {
+    const dir = mkdtempSync(join(tmpdir(), "cadabra-faketypst-"));
+    const bin = join(dir, "typst");
+    writeFileSync(
+      bin,
+      [
+        "#!/bin/sh",
+        'if [ "$1" = "fonts" ]; then printf "Libertinus Serif\\nEB Garamond\\nInter\\nLora\\n"; exit 0; fi',
+        'src=""; out=""; for a in "$@"; do src="$out"; out="$a"; done',
+        '(printf "%%PDF-fake\\n"; cat "$src") > "$out"',
+      ].join("\n"),
+    );
+    chmodSync(bin, 0o755);
+    return bin;
+  };
+  const pdfSource = (root: string, path: string): string =>
+    readFileSync(join(root, path, "exports/en-GB/book.pdf"), "utf8");
+
+  it("uses the manifest fonts for the PDF, per-key tool arguments win, and a missing font is refused, not substituted", async () => {
+    s = await connect({ typstBin: fakeTypst() });
+    const { path } = await seedBook(s);
+    const file = join(s.root, path, "cadabra.json");
+    const manifest = JSON.parse(readFileSync(file, "utf8"));
+    manifest.fonts = { body: "EB Garamond", heading: "Inter" };
+    writeFileSync(file, JSON.stringify(manifest));
+    const r = await s.ok("cadabra_export_pdf", { path });
+    expect(r.fonts).toEqual({ body: "EB Garamond", heading: "Inter" });
+    expect(pdfSource(s.root, path)).toContain("EB Garamond");
+    const o = await s.ok("cadabra_export_pdf", { path, bodyFont: "Lora" });
+    expect(o.fonts).toEqual({ body: "Lora", heading: "Inter" });
+
+    manifest.fonts = { body: "Not Installed Serif" };
+    writeFileSync(file, JSON.stringify(manifest));
+    const missing = await s.call("cadabra_export_pdf", { path });
+    expect(missing.isError).toBe(true);
+    expect(missing.data.error.code).toBe("font_missing");
+    expect(missing.data.error.details.families).toEqual(["Not Installed Serif"]);
+    const argMissing = await s.call("cadabra_export_pdf", {
+      path,
+      bodyFont: "Lora",
+      headingFont: "Nope",
+    });
+    expect(argMissing.data.error.code).toBe("font_missing");
+    expect(argMissing.data.error.details.role).toBe("heading");
   });
 
   const can = hasTypst() && hasPoppler();

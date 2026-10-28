@@ -5,6 +5,7 @@ import {
   parseManifest,
   readingOrder,
   serializeManifest,
+  validateFonts,
   validateManifest,
   updateEdition,
   type Manifest,
@@ -234,6 +235,19 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       const { manifest } = need();
       if (manifest.template === id) return;
       await saveManifest({ ...manifest, template: id });
+    },
+    async setBookFonts(fonts) {
+      const { manifest } = need();
+      const chosen = {
+        ...(fonts.body?.trim() ? { body: fonts.body.trim() } : {}),
+        ...(fonts.heading?.trim() ? { heading: fonts.heading.trim() } : {}),
+      };
+      const { fonts: _old, ...rest } = manifest;
+      const next: Manifest = Object.keys(chosen).length
+        ? { ...rest, fonts: validateFonts(chosen) }
+        : rest;
+      if (JSON.stringify(next) === JSON.stringify(manifest)) return;
+      await saveManifest(next);
     },
     async updateDetails(d, edition) {
       const { manifest } = need();

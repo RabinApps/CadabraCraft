@@ -3,16 +3,39 @@ import { AUDIO_FORMATS } from "../lib/audioFormats";
 import { createPersistedStore } from "../lib/persisted";
 
 /** The font of the manuscript in the editor (not the Word export font, which is `ManuscriptFont` in export-docx). */
-export type EditorFont = "newsreader" | "inter";
+export type EditorFont = "newsreader" | "inter" | (string & {});
+/** The two fonts that come with the app; any other value is a family name (installed, downloaded or imported). */
+export const BUNDLED_EDITOR_FONTS = ["newsreader", "inter"] as const;
 export type WritingWidth = "narrow" | "medium" | "wide";
 
 /** Writing column widths in px for the editor page card. */
 export const writingWidths: Record<WritingWidth, number> = { narrow: 620, medium: 780, wide: 960 };
 /** CSS font stacks for the manuscript, keyed by the stored choice. */
-export const editorFonts: Record<EditorFont, string> = {
+export const editorFonts: Record<(typeof BUNDLED_EDITOR_FONTS)[number], string> = {
   newsreader: "var(--font-book)",
   inter: "var(--font-ui)",
 };
+
+/** The CSS `font-family` for a stored choice: a bundled stack, or the family name with the default serif behind it. */
+export const editorFontStack = (font: EditorFont): string =>
+  Object.hasOwn(editorFonts, font)
+    ? editorFonts[font as keyof typeof editorFonts]
+    : `"${font.replace(/["\\]/g, "\\$&")}", ${editorFonts.newsreader}`;
+
+/** Longest family name the settings accept. */
+export const MAX_FONT_NAME = 100;
+// eslint-disable-next-line no-control-regex -- intentional: font names may not hold control characters
+const CONTROL = /[\u0000-\u001f\u007f]/;
+/** A stored manuscript font: "newsreader", "inter" or a family name; anything else (not a string, empty, padded, too long, control characters, an object-prototype key like "constructor") is rejected with null. */
+export const cleanManuscriptFont = (v: unknown): EditorFont | null =>
+  typeof v === "string" &&
+  v.trim() === v &&
+  v.length > 0 &&
+  v.length <= MAX_FONT_NAME &&
+  !CONTROL.test(v) &&
+  !(v in Object.prototype)
+    ? v
+    : null;
 
 /** Largest session goal the Settings field accepts. */
 export const MAX_SESSION_GOAL = 100000;
@@ -72,14 +95,13 @@ function parsePrefs(v: unknown): Prefs | null {
   const o = v as Partial<Record<keyof Prefs, unknown>> | null;
   if (
     o &&
-    typeof o.manuscriptFont === "string" &&
-    Object.hasOwn(editorFonts, o.manuscriptFont) &&
+    cleanManuscriptFont(o.manuscriptFont) !== null &&
     typeof o.writingWidth === "string" &&
     Object.hasOwn(writingWidths, o.writingWidth) &&
     typeof o.typewriterScroll === "boolean"
   ) {
     return {
-      manuscriptFont: o.manuscriptFont as EditorFont,
+      manuscriptFont: cleanManuscriptFont(o.manuscriptFont)!,
       writingWidth: o.writingWidth as WritingWidth,
       typewriterScroll: o.typewriterScroll,
       sessionGoal: cleanGoal(o.sessionGoal),
@@ -98,7 +120,7 @@ export const useSettings = createPersistedStore<Prefs>({
   defaults,
   parse: parsePrefs,
   clean: (p) => ({
-    manuscriptFont: p.manuscriptFont,
+    manuscriptFont: cleanManuscriptFont(p.manuscriptFont) ?? defaults.manuscriptFont,
     writingWidth: p.writingWidth,
     typewriterScroll: p.typewriterScroll,
     sessionGoal: cleanGoal(p.sessionGoal),

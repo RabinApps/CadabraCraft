@@ -54,4 +54,15 @@ export const dialogBridge = {
     const r = await open({ multiple: true, directory: false });
     return Array.isArray(r) ? r : typeof r === "string" ? [r] : [];
   },
+  /** Native file picker for one font file (.ttf or .otf); absolute path, only ever passed to `fontsImport`. */
+  pickFontFile: async (): Promise<string | null> => {
+    const queued = await queuedDialog();
+    if (queued !== undefined) return queued;
+    const r = await open({
+      multiple: false,
+      directory: false,
+      filters: [{ name: "Fonts", extensions: ["ttf", "otf"] }],
+    });
+    return typeof r === "string" ? r : null;
+  },
 };

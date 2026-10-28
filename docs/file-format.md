@@ -21,6 +21,7 @@ MyBook/
   "formatVersion": 5,
   "template": "novel",
   "trimSize": "5.5x8.5",
+  "fonts": { "body": "EB Garamond", "heading": "Inter" },
   "editions": [
     {
       "language": "en",
@@ -71,6 +72,7 @@ MyBook/
 - `formatVersion` is an integer. Readers reject versions newer than they know; older versions are migrated on open after a backup copy goes to `.cadabra/backups/`.
 - Reading order is the order of the `frontMatter`, `chapters` and `backMatter` arrays, never filenames.
 - `trimSize` (optional) is the print page size the book is written for: one of `4.25x6.87`, `5x8`, `5.25x8`, `5.5x8.5`, `6x9`, `7x10`, `8.5x11` (inches, width x height). Absent means the template's default size. It was added without a `formatVersion` bump (see architecture.md): older apps ignore it, and an unknown value is refused.
+- `fonts` (optional) holds the font families the author chose for the book: `body` and `heading`, either or both. Each is a family name (not a file path), a non-empty trimmed string of at most 100 characters without control characters; any other key inside `fonts`, or a `fonts` that is not an object, is refused. Absent (or a missing key) means the template's fonts. The PDF export uses a chosen family exactly and refuses the export when it is not installed instead of substituting another; the Word export writes `body` as the document font name. It was added without a `formatVersion` bump (see architecture.md): older apps ignore it.
 - `editions` lists the languages of the book. The first is the source edition. Each edition has its own `language`, `title`, `author`, `identifier`, `isbn` and `cover`. Languages are unique.
 - `id` values are unique across all three lists and shared by every edition. An `id` starts with a letter and holds only letters, digits, `-` and `_` (at most 64 characters), because exports use it as an XML id and a file name (`<id>.xhtml`); a manifest with any other id is refused. `titles` and `files` map a language to a title and a relative path using `/`, inside the project, with no `..`, no leading `/`, and no drive letters. Every entry has the source language in both; other languages are optional until the chapter is translated. A `files` or `titles` key that names no edition is refused.
 - `identifier` is a UUID URN or an ISBN. `language` is a BCP 47 tag. `isbn` is free text; the EPUB export writes it as an extra `urn:isbn:` identifier only when it is a valid ISBN-10 or ISBN-13, and skips it otherwise.

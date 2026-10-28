@@ -8,7 +8,12 @@ import {
   MarkdownExportError,
 } from "@cadabracraft/export-markdown";
 import { renderPdf } from "@cadabracraft/export-pdf";
-import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate } from "@cadabracraft/templates";
+import {
+  DEFAULT_TEMPLATE_ID,
+  getTemplate,
+  hasTemplate,
+  resolveBookFonts,
+} from "@cadabracraft/templates";
 import { bridge } from "../../lib/bridge";
 import { describePdfError } from "../../lib/pdfErrors";
 import { describeEpubError } from "../../lib/epubErrors";
@@ -144,6 +149,8 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         if (cover) assets.set(cover.path, cover.bytes);
         set({ exportStage: "rendering" });
         const runner = createTauriRunner(bridge, options.typstPath);
+        // The book's own choice unless the caller names fonts; only the keys that are set (the rest follow the template).
+        const fonts = options.fonts ?? resolveBookFonts(manifest);
         const { pdf } = await renderPdf(
           { title: edition.title, author: edition.author, language: edition.language },
           chapters,
@@ -153,6 +160,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             mirrored: true,
             pageNumbers: true,
             pdfA: options.pdfA,
+            ...(Object.keys(fonts).length ? { fonts } : {}),
             assets: Object.fromEntries(assets),
             ...(cover ? { cover: cover.path } : {}),
           },

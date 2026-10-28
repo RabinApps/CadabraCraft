@@ -7,6 +7,10 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: pseudo\n"
 
+#: src/app/settings/FontsSection.tsx
+msgid ".ttf and .otf files. A copy is kept in the app, never in your book."
+msgstr ""
+
 #: src/lib/epubErrors.ts
 msgid "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
 msgstr ""
@@ -249,6 +253,10 @@ msgstr ""
 
 #: src/state/project/history.ts
 msgid "{stuck, plural, one {# page could not be put back and is now in the other state} other {# pages could not be put back and are now in the other state}}"
+msgstr ""
+
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "{styleCount} styles · {size} MB"
 msgstr ""
 
 #: src/lib/exportChecks.ts
@@ -519,6 +527,7 @@ msgstr ""
 msgid "Block Quote"
 msgstr ""
 
+#: src/app/export/PdfPanel.tsx
 #: src/app/export/Templates.tsx
 msgid "Body font"
 msgstr ""
@@ -558,6 +567,10 @@ msgstr ""
 msgid "Bring All to Front"
 msgstr ""
 
+#: src/app/settings/FontsSection.tsx
+msgid "Browse fonts…"
+msgstr ""
+
 #: src/app/export/ExportDialog.tsx
 msgid "Building EPUB…"
 msgstr ""
@@ -588,7 +601,7 @@ msgstr ""
 msgid "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 msgstr ""
 
-#: src/app/shell/useAppMenu.ts
+#: src/app/hooks/useAppMenu.ts
 msgid "CadabraCraft is up to date."
 msgstr ""
 
@@ -598,6 +611,7 @@ msgstr ""
 #: src/app/export/AudioFooter.tsx
 #: src/app/export/ExportDialog.tsx
 #: src/app/home/Home.tsx
+#: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/TableCommands.tsx
 #: src/editor/ToolbarDialogs.tsx
 #: src/ui/Dialog.tsx
@@ -610,6 +624,11 @@ msgstr ""
 
 #: src/app/export/AudioFooter.tsx
 msgid "Cancel export"
+msgstr ""
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Cancel the download of {0}"
 msgstr ""
 
 #. placeholder {0}: e.path
@@ -636,9 +655,9 @@ msgstr ""
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: manifest!.chapters.length + 1
 #. placeholder {0}: manifest.chapters.length + 1
+#: src/app/hooks/useAppMenu.ts
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
-#: src/app/shell/useAppMenu.ts
 msgid "Chapter {0}"
 msgstr ""
 
@@ -721,6 +740,7 @@ msgid "Choose a look for your book"
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/settings/FontsSection.tsx
 msgid "Choose file…"
 msgstr ""
 
@@ -748,6 +768,7 @@ msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/export/AudioFooter.tsx
+#: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/FindBar.tsx
 msgid "Close"
 msgstr ""
@@ -988,6 +1009,11 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
+#. placeholder {0}: f.family
+#: src/app/settings/FontsSection.tsx
+msgid "Delete {0}"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Delete Column"
 msgstr ""
@@ -1039,6 +1065,20 @@ msgstr ""
 msgid "Done"
 msgstr ""
 
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Download"
+msgstr ""
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Download {0}"
+msgstr ""
+
+#: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/settings/FontsSection.tsx
+msgid "Download fonts"
+msgstr ""
+
 #: src/app/export/AudioExport.tsx
 msgid "Download more voices"
 msgstr ""
@@ -1057,8 +1097,23 @@ msgstr ""
 msgid "Download selected ({0} MB)"
 msgstr ""
 
+#: src/app/settings/FontsSection.tsx
+msgid "Downloaded"
+msgstr ""
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Downloading {0}"
+msgstr ""
+
 #: src/app/export/AudioExport.tsx
 msgid "Downloading…"
+msgstr ""
+
+#. placeholder {0}: formatMb(d.done)
+#. placeholder {1}: formatMb(d.total || f.bytes)
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Downloading… {0} MB of {1} MB"
 msgstr ""
 
 #. placeholder {0}: reference.title
@@ -1273,6 +1328,14 @@ msgstr ""
 msgid "Font"
 msgstr ""
 
+#: src/app/settings/Settings.tsx
+msgid "Fonts"
+msgstr ""
+
+#: src/app/settings/FontsSection.tsx
+msgid "Fonts are downloaded from Google Fonts only when you click Download. Nothing else is sent."
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Footnote"
@@ -1339,6 +1402,10 @@ msgstr ""
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 3"
+msgstr ""
+
+#: src/app/export/PdfPanel.tsx
+msgid "Heading font"
 msgstr ""
 
 #: src/app/export/AudioFooter.tsx
@@ -1415,6 +1482,10 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
+#: src/app/settings/FontsSection.tsx
+msgid "Import a font file"
+msgstr ""
+
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Import a manuscript"
 msgstr ""
@@ -1433,6 +1504,10 @@ msgstr ""
 
 #: src/app/home/Home.tsx
 msgid "Import…"
+msgstr ""
+
+#: src/app/settings/FontsSection.tsx
+msgid "Imported"
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
@@ -1481,6 +1556,11 @@ msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Install now"
+msgstr ""
+
+#: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/settings/FontsSection.tsx
+msgid "Installed"
 msgstr ""
 
 #. placeholder {0}: mb(p.bytes)
@@ -1882,6 +1962,10 @@ msgstr ""
 msgid "None"
 msgstr ""
 
+#: src/lib/pdfErrors.ts
+msgid "None of the fonts {fonts} are on this computer. Download one in Settings, Fonts, or pick another font."
+msgstr ""
+
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
 msgid "Not a page in the trash: {0}"
@@ -1968,6 +2052,10 @@ msgstr ""
 
 #: src/app/home/Home.tsx
 msgid "Open folder"
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
+msgid "Open Fonts"
 msgstr ""
 
 #: src/app/references/ReferenceViewer.tsx
@@ -2368,6 +2456,10 @@ msgstr ""
 msgid "Rows"
 msgstr ""
 
+#: src/app/export/PdfPanel.tsx
+msgid "Same as body"
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "same as now"
 msgstr ""
@@ -2505,6 +2597,10 @@ msgstr ""
 msgid "Shown in this preview only. The PDF does not include bleed or crop marks yet."
 msgstr ""
 
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "SIL Open Font Licence 1.1"
+msgstr ""
+
 #: src/app/export/EditionsChecklist.tsx
 msgid "Skip untranslated chapters"
 msgstr ""
@@ -2599,6 +2695,7 @@ msgid "Stopped. What was downloaded is kept, so the next download carries on fro
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
+#: src/app/settings/FontsCatalogDialog.tsx
 msgid "Stopping…"
 msgstr ""
 
@@ -2647,6 +2744,10 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
+#: src/app/export/PdfPanel.tsx
+msgid "Template default ({templateBody})"
+msgstr ""
+
 #: src/app/export/Templates.tsx
 msgid "Templates"
 msgstr ""
@@ -2657,6 +2758,10 @@ msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "That address can't be used as a link."
+msgstr ""
+
+#: src/lib/fontErrors.ts
+msgid "That file is not a usable font. Choose a .ttf or .otf file."
 msgstr ""
 
 #: src/lib/projectError.ts
@@ -2704,8 +2809,16 @@ msgstr ""
 msgid "the download failed: {0}. What was downloaded is kept, so you can try again."
 msgstr ""
 
+#: src/lib/fontErrors.ts
+msgid "The download failed. Check your connection and try again."
+msgstr ""
+
 #: src/app/export/AudioExport.tsx
 msgid "The download stopped"
+msgstr ""
+
+#: src/lib/fontErrors.ts
+msgid "The download was cancelled."
 msgstr ""
 
 #. placeholder {0}: e.file
@@ -2713,12 +2826,24 @@ msgstr ""
 msgid "the downloaded file {0} was damaged and was deleted. Try the download again"
 msgstr ""
 
+#: src/lib/fontErrors.ts
+msgid "The downloaded file was damaged and was deleted. Try the download again."
+msgstr ""
+
 #: src/editor/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr ""
 
 #: src/lib/pdfErrors.ts
-msgid "The font {fonts} is not installed, so the PDF was not created. Install it, or choose a template whose fonts you have."
+msgid "The font “{only}” is not on this computer. Download it in Settings, Fonts, or pick another font."
+msgstr ""
+
+#: src/app/export/PdfPanel.tsx
+msgid "The font of the running text. It is saved with the book; the font file is not."
+msgstr ""
+
+#: src/app/export/PdfPanel.tsx
+msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -2808,6 +2933,10 @@ msgstr ""
 msgid "there is not enough disk space"
 msgstr ""
 
+#: src/lib/fontErrors.ts
+msgid "There is not enough disk space for this font."
+msgstr ""
+
 #: src/state/project/audio.ts
 msgid "There is nothing to read aloud in this chapter."
 msgstr ""
@@ -2818,6 +2947,10 @@ msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "These are routine adjustments; nothing was lost."
+msgstr ""
+
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "These fonts come from Google Fonts and are free to use under the SIL Open Font Licence. A font is downloaded only when you click Download; nothing else is sent."
 msgstr ""
 
 #: src/lib/importBook.ts
@@ -2869,6 +3002,10 @@ msgstr ""
 msgid "This file is too large to import."
 msgstr ""
 
+#: src/lib/fontErrors.ts
+msgid "This font is not available any more."
+msgstr ""
+
 #. placeholder {0}: e.reference
 #: src/lib/projectError.ts
 msgid "This image path is not allowed: {0}"
@@ -2883,7 +3020,7 @@ msgid "This version has the same words as the current text."
 msgstr ""
 
 #: src/app/export/DocxPanel.tsx
-msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer."
+msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -2934,7 +3071,13 @@ msgid "Trim size"
 msgstr ""
 
 #: src/app/export/AudioFooter.tsx
+#: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again"
+msgstr ""
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Try again to download {0}"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
@@ -3042,7 +3185,7 @@ msgid "Use template"
 msgstr ""
 
 #: src/app/settings/Settings.tsx
-msgid "Used while writing and reading."
+msgid "Used while writing. Your book's print fonts are set in Export."
 msgstr ""
 
 #. placeholder {0}: update.version
@@ -3185,6 +3328,10 @@ msgstr ""
 msgid "Your books"
 msgstr ""
 
+#: src/app/settings/FontsSection.tsx
+msgid "Your fonts"
+msgstr ""
+
 #: src/app/shell/quit.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
 msgstr ""
@@ -3193,7 +3340,7 @@ msgstr ""
 msgid "Your last changes were saved if possible."
 msgstr ""
 
-#: src/app/shell/useAppMenu.ts
+#: src/app/hooks/useAppMenu.ts
 msgid "Your package manager updates this copy of CadabraCraft."
 msgstr ""
 
