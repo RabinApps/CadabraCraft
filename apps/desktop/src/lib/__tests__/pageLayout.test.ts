@@ -154,6 +154,20 @@ describe("pageCssVars", () => {
     "--page-h3-variant",
     "--page-chapter-sink",
     "--page-chapter-extra",
+    "--page-chapter-ornament",
+    "--page-chapter-ornament-size",
+    "--page-chapter-ornament-h",
+    "--page-chapter-ornament-top",
+    "--page-chapter-label",
+    "--page-chapter-label-size",
+    "--page-chapter-label-h",
+    "--page-chapter-label-top",
+    "--page-dropcap-lines",
+    "--page-dropcap-float",
+    "--page-dropcap-size",
+    "--page-dropcap-lh",
+    "--page-dropcap-gap",
+    "--page-dropcap-height",
     "--page-bq-indent",
     "--page-bq-size",
     "--page-bq-space",
@@ -233,6 +247,41 @@ describe("pageCssVars", () => {
     expect(px(pageCssVars({ template: "novel" })["--page-chapter-extra"])).toBeGreaterThan(0); // ornament
     expect(px(pageCssVars({ template: "nonfiction" })["--page-chapter-extra"])).toBeGreaterThan(0); // label
     expect(pageCssVars({ template: "modern" })["--page-chapter-extra"]).toBe("0px");
+  });
+
+  it("draws the ornament above the label and reserves exactly their height", () => {
+    const v = pageCssVars({ template: "novel" }, 2);
+    expect(v["--page-chapter-ornament"]).toBe('"⁂"');
+    expect(v["--page-chapter-label"]).toBe("none"); // novel has no label
+    expect(px(v["--page-chapter-ornament-top"])).toBeCloseTo(-px(v["--page-chapter-extra"]), 2);
+    const n = pageCssVars({ template: "nonfiction" }, 3);
+    expect(n["--page-chapter-ornament"]).toBe("none");
+    expect(n["--page-chapter-label"]).toBe('"CHAPTER 3"'); // {n} filled, uppercase as the PDF
+    expect(px(n["--page-chapter-label-top"])).toBeCloseTo(-px(n["--page-chapter-extra"]), 2);
+  });
+
+  it("shows no label without a chapter number (front and back matter)", () => {
+    expect(pageCssVars({ template: "nonfiction" })["--page-chapter-label"]).toBe("none");
+    expect(pageCssVars({ template: "modern" }, 1)["--page-chapter-label"]).toBe("none");
+  });
+
+  it("spans the drop cap over 3 line pitches and turns it off for templates without one", () => {
+    const v = pageCssVars({ template: "novel" });
+    expect(v["--page-dropcap-float"]).toBe("left");
+    const fontPx = px(v["--page-font-size"]);
+    expect(px(v["--page-dropcap-height"])).toBeCloseTo(
+      3 * linePitchEm({ template: "novel" }) * fontPx,
+      1,
+    );
+    // box height (size x line-height) equals the reservation
+    expect(px(v["--page-dropcap-size"]) * Number(v["--page-dropcap-lh"]) * fontPx).toBeCloseTo(
+      px(v["--page-dropcap-height"]),
+      0,
+    );
+    const off = pageCssVars({ template: "modern" });
+    expect(off["--page-dropcap-float"]).toBe("none");
+    expect(off["--page-dropcap-height"]).toBe("0px");
+    expect(off["--page-dropcap-lh"]).toBe("inherit");
   });
 
   it("follows the page size when the trim changes", () => {
