@@ -123,7 +123,7 @@ export function looksLikeHtml(text: string): boolean {
 export function importHtml(html: string, opts: ImportOptions = {}): ImportResult {
   guardSize(html, opts);
   const ctx = newCtx(opts);
-  const doc = guarded(() => parse(html.replace(/^﻿/, "")));
+  const doc = guarded(() => parse(html.replace(/^\ufeff/, "")));
   const top = convert(doc.childNodes, ctx);
   const firstHeading = top.find((b) => b.type === "heading");
   const untitled =

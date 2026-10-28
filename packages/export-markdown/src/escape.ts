@@ -34,6 +34,7 @@ export function linkDestination(href: string): string {
   }
   if (depth !== 0) balanced = false;
   const esc = href.replace(/[\\]/g, "\\\\").replace(ENTITY, "\\&");
+  // eslint-disable-next-line no-control-regex -- intentional: control characters force the <...> link form
   if (href === "" || /[\s<>]/.test(href) || !balanced || /[\u0000-\u001f]/.test(href))
     return `<${esc.replace(/[<>]/g, "\\$&")}>`;
   return esc;

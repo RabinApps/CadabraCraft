@@ -1,9 +1,5 @@
-import { parse, type DefaultTreeAdapterMap } from "parse5";
 import type { DocNode, Mark } from "@cadabracraft/shared";
 import {
-  AssetRegistry,
-  Warnings,
-  type Item,
   cellParagraphs,
   flattenItems,
   imageItems,
@@ -15,215 +11,39 @@ import {
   tableOf,
   textNode,
 } from "../common";
-import { ImportError, type ImportOptions } from "../types";
+import { ImportError } from "../types";
 import { MAX_DOM_DEPTH, guarded, refuseHostileShape } from "./guards";
+import {
+  CONTAINERS,
+  MARK_TAGS,
+  PLAIN_INLINE,
+  SKIP,
+  attr,
+  collapse,
+  hasClass,
+  isElement,
+  isText,
+  parseSnippet,
+  preText,
+  textOf,
+  withMark,
+  type HtmlCtx,
+  type PElement,
+  type PNode,
+} from "./dom";
+import { flush, newFlow, trimRun, type Flow } from "./run";
 
-export type PNode = DefaultTreeAdapterMap["node"];
-export type PElement = DefaultTreeAdapterMap["element"];
-export type PText = DefaultTreeAdapterMap["textNode"];
-
-/** Dropped with their content. `head` is skipped here because the file importer reads `<title>` separately. */
-const SKIP = new Set([
-  "script",
-  "style",
-  "iframe",
-  "object",
-  "svg",
-  "noscript",
-  "template",
-  "head",
-  "title",
-  "meta",
-  "link",
-  "base",
-  "embed",
-  "applet",
-  "frame",
-  "frameset",
-  "col",
-  "colgroup",
-  "wbr",
-  "select",
-  "datalist",
-]);
-/** Block containers with no formatting of their own: their children are laid out as if they were not there. */
-const CONTAINERS = new Set([
-  "html",
-  "body",
-  "div",
-  "section",
-  "article",
-  "main",
-  "header",
-  "footer",
-  "nav",
-  "aside",
-  "figure",
-  "figcaption",
-  "details",
-  "summary",
-  "center",
-  "form",
-  "fieldset",
-  "legend",
-  "address",
-  "hgroup",
-  "dl",
-  "dt",
-  "dd",
-  "li",
-  "tr",
-  "td",
-  "th",
-  "thead",
-  "tbody",
-  "tfoot",
-  "caption",
-]);
-/** Inline wrappers that carry nothing we keep and are not worth a warning. */
-const PLAIN_INLINE = new Set([
-  "span",
-  "font",
-  "abbr",
-  "cite",
-  "time",
-  "label",
-  "bdi",
-  "bdo",
-  "data",
-]);
-const MARK_TAGS: Record<string, Mark> = {
-  strong: { type: "bold" },
-  b: { type: "bold" },
-  em: { type: "italic" },
-  i: { type: "italic" },
-  u: { type: "underline" },
-  s: { type: "strike" },
-  del: { type: "strike" },
-  strike: { type: "strike" },
-  code: { type: "code" },
-  sup: { type: "superscript" },
-  sub: { type: "subscript" },
-};
-
-export const isElement = (n: PNode): n is PElement => "tagName" in n;
-const isText = (n: PNode): n is PText => n.nodeName === "#text";
-const attr = (el: PElement, name: string): string | undefined =>
-  el.attrs.find((a) => a.name === name)?.value;
-const hasClass = (el: PElement, cls: string): boolean =>
-  (attr(el, "class") ?? "").split(/\s+/).includes(cls);
-const collapse = (s: string): string => s.replace(/[ \t\r\n\f]+/g, " ");
-
-export interface HtmlCtx {
-  warn: Warnings;
-  assets: AssetRegistry;
-  maxDepth: number;
-}
-
-/** Inline items collected for the paragraph being built, and the finished blocks before it. */
-interface Flow {
-  out: DocNode[];
-  run: Item[];
-}
-const newFlow = (): Flow => ({ out: [], run: [] });
-
-/** Adding a mark drops the one it excludes in the schema (super- and subscript exclude each other). */
-function withMark(marks: Mark[], m: Mark): Mark[] {
-  const drop =
-    m.type === "superscript" ? "subscript" : m.type === "subscript" ? "superscript" : null;
-  return [...marks.filter((x) => x.type !== drop), m];
-}
-
-/** All text below a node, whitespace collapsed. Iterative: hostile nesting must not blow the stack. */
-function textOf(root: PNode): string {
-  let s = "";
-  const stack: PNode[] = [root];
-  while (stack.length) {
-    const n = stack.pop()!;
-    if (isText(n)) s += n.value;
-    else if (isElement(n)) {
-      if (n !== root && SKIP.has(n.tagName)) continue;
-      if (n.tagName === "br") s += " ";
-      for (let i = n.childNodes.length - 1; i >= 0; i--) stack.push(n.childNodes[i]!);
-    }
-  }
-  return collapse(s).trim();
-}
-
-/** Text of a `<pre>`: newlines kept, `<br>` as a newline. */
-function preText(root: PElement): string {
-  let s = "";
-  const stack: PNode[] = [root];
-  while (stack.length) {
-    const n = stack.pop()!;
-    if (isText(n)) s += n.value;
-    else if (isElement(n)) {
-      if (SKIP.has(n.tagName)) continue;
-      if (n.tagName === "br") s += "\n";
-      for (let i = n.childNodes.length - 1; i >= 0; i--) stack.push(n.childNodes[i]!);
-    }
-  }
-  return s.replace(/\n$/, "");
-}
-
-/** Trim the run for one paragraph: no leading, trailing or doubled spaces; breaks end a line. */
-function trimRun(items: Item[]): Item[] {
-  const out: Item[] = [];
-  let atStart = true;
-  const trimEnd = () => {
-    const last = out[out.length - 1];
-    if (last && !isSep(last) && last.type === "text") {
-      const t: string = last.text.replace(/ +$/, "");
-      if (t === "") out.pop();
-      else out[out.length - 1] = { ...last, text: t };
-    }
-  };
-  for (const it of items) {
-    if (isSep(it)) {
-      trimEnd();
-      out.push(it);
-      atStart = true;
-    } else if (it.type === "text") {
-      const t: string = atStart ? it.text.replace(/^ +/, "") : it.text;
-      if (t === "") continue;
-      out.push({ ...it, text: t });
-      atStart = t.endsWith(" ");
-    } else {
-      out.push(it);
-      atStart = false;
-    }
-  }
-  trimEnd();
-  return out;
-}
-
-/** Turn the pending inline run into paragraphs (split at `<br>`, lifted images as their own blocks). */
-function flush(f: Flow, ctx: HtmlCtx): void {
-  const items = trimRun(f.run);
-  f.run = [];
-  let cur: DocNode[] = [];
-  let breaks = false;
-  const end = () => {
-    // A paragraph of only spaces or no-break spaces (a Word-style spacer) is not content.
-    const blank = cur.every((n) => n.type === "text" && n.text.trim() === "");
-    const p = paragraphOf(cur);
-    if (!blank && p.type === "paragraph" && p.content) f.out.push(p);
-    cur = [];
-  };
-  for (const it of items) {
-    if (!isSep(it)) cur.push(it);
-    else if (it.sep === "break") {
-      breaks = true;
-      end();
-    } else {
-      end();
-      f.out.push(it.node);
-    }
-  }
-  end();
-  if (breaks)
-    ctx.warn.at("line-break", "info", "Line breaks split the paragraph into separate paragraphs.");
-}
+// The helpers below moved to ./dom; they are re-exported so importers of this module are unaffected.
+export {
+  documentTitle,
+  isElement,
+  newCtx,
+  parseSnippet,
+  type HtmlCtx,
+  type PElement,
+  type PNode,
+  type PText,
+} from "./dom";
 
 function blocksIn(
   nodes: readonly PNode[],
@@ -517,13 +337,6 @@ function table(
   if (node) f.out.push(node);
 }
 
-export function parseSnippet(html: string): readonly PNode[] {
-  const doc = parse(`<!DOCTYPE html><body>${html}`);
-  const root = doc.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "html");
-  const body = root?.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "body");
-  return body?.childNodes ?? [];
-}
-
 /** Convert parsed nodes into top-level blocks. */
 export const convert = (nodes: readonly PNode[], ctx: HtmlCtx): DocNode[] =>
   guarded(() => blocksIn(nodes, ctx, [], 0, 0));
@@ -535,18 +348,4 @@ export function htmlSnippetBlocks(html: string, ctx: HtmlCtx): DocNode[] {
     guarded(() => parseSnippet(html)),
     ctx,
   );
-}
-
-export const newCtx = (opts: ImportOptions): HtmlCtx => ({
-  warn: new Warnings(),
-  assets: new AssetRegistry(),
-  maxDepth: opts.maxNestingDepth ?? 32,
-});
-
-/** The `<title>` text of a parsed document, if any. */
-export function documentTitle(doc: { childNodes: readonly PNode[] }): string {
-  const html = doc.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "html");
-  const head = html?.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "head");
-  const title = head?.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "title");
-  return title ? textOf(title) : "";
 }

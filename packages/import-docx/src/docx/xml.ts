@@ -24,7 +24,7 @@ const xml = new XMLParser({
 });
 
 export function parseXml(bytes: Uint8Array, name: string): XNode[] {
-  const s = strFromU8(bytes).replace(/^﻿/, "");
+  const s = strFromU8(bytes).replace(/^\ufeff/, "");
   const ok = XMLValidator.validate(s);
   if (ok !== true)
     throw new ImportError("invalid-xml", `${name} is not well-formed XML (${ok.err.msg}).`);

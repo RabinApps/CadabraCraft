@@ -214,7 +214,6 @@ describe("chapter_write_markdown with hostile inline and block HTML", () => {
     expect(doc).not.toMatch(/SECRET|onerror|onload|iframe/);
     // Inline tags other than the four mark tags stay literal text (never a link, never active markup).
     expect(doc).not.toMatch(/"type":"link"|"href"/);
-    // eslint-disable-next-line no-control-regex
     expect(doc).not.toMatch(/\\u0000|\\ud800/i);
     expect(doc).toContain("cell");
     expect(doc).toContain("underline");

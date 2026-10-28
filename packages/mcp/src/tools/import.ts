@@ -47,7 +47,7 @@ export function decodeSourceText(bytes: Uint8Array, name: string): string {
     if (b0 === 0xff && b1 === 0xfe) return new TextDecoder("utf-16le", { fatal: true }).decode(bytes.subarray(2));
     if (b0 === 0xfe && b1 === 0xff) return new TextDecoder("utf-16be", { fatal: true }).decode(bytes.subarray(2));
     if (bytes.subarray(0, 4096).includes(0)) throw new Error("it contains NUL bytes (probably UTF-16 without a byte order mark)");
-    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes).replace(/^﻿/, "");
+    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes).replace(/^\ufeff/, "");
   } catch (e) {
     const why = e instanceof Error && e.message.startsWith("it contains") ? e.message : "it is not valid UTF-8 or UTF-16 text";
     throw new ToolError("invalid_file", `${name} cannot be read as text: ${why}. Save the file as UTF-8 and try again.`);
