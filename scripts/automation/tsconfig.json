@@ -5,5 +5,5 @@
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["*.ts", "../../apps/desktop/e2e/fixtures.ts"]
+  "include": ["*.ts", "scenario/*.ts", "../../apps/desktop/e2e/fixtures.ts"]
 }

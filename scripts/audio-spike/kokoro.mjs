@@ -1,6 +1,6 @@
 // Throwaway spike (not shipped): render fixtures/manuscripts/full-book.json to one WAV per chapter with Kokoro-82M.
 // Setup: cd tools/audio-spike && npm i kokoro-js (gitignored). Usage: node scripts/audio-spike/kokoro.mjs [maxChars]
-import { readFileSync, writeFileSync, mkdirSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 
