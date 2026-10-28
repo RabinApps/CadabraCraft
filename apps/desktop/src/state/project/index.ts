@@ -1,0 +1,43 @@
+import { create } from "zustand";
+import { createAssetActions } from "./assets";
+import { createAudioActions } from "./audio";
+import { createContext } from "./context";
+import { createExportActions } from "./exports";
+import { createHistoryActions } from "./history";
+import { createPageActions } from "./pages";
+import { createProjectActions } from "./project";
+import { createReplaceActions } from "./replace";
+import { createSnapshotActions } from "./snapshots";
+import { createTrashActions } from "./trash";
+import { NO_HISTORY } from "./util";
+import { createVoiceActions } from "./voices";
+import type { ProjectState } from "./types";
+
+export { COVER_EXTENSIONS } from "./types";
+export type {
+  AudioChapterState, AudioExportOptions, AudioJob, BookDetails, BookPage, History, HistoryEntry, PdfExportOptions, PdfStage, Recovery, TrashItem, VoiceDownload,
+} from "./types";
+export { AUTOSAVE_MS } from "./util";
+
+/**
+ * The open book and everything in progress around it. One zustand store, built from slices that each own a group of
+ * actions (project, pages, history, trash, snapshots, replace, assets, exports, audio, voices) over shared helpers in `context.ts`.
+ */
+export const useProject = create<ProjectState>((set, get) => {
+  const ctx = createContext(set, get);
+  return {
+    root: null, manifest: null, currentId: null, currentDoc: null, notice: "", hashes: {}, draft: null, reloadCount: 0, importReport: null, exportStage: null, audio: null, voiceDownload: null, trash: [], history: NO_HISTORY, recovery: [],
+    actions: {
+      ...createProjectActions(ctx),
+      ...createPageActions(ctx),
+      ...createHistoryActions(ctx),
+      ...createTrashActions(ctx),
+      ...createSnapshotActions(ctx),
+      ...createReplaceActions(ctx),
+      ...createAssetActions(ctx),
+      ...createExportActions(ctx),
+      ...createAudioActions(ctx),
+      ...createVoiceActions(ctx),
+    },
+  };
+});

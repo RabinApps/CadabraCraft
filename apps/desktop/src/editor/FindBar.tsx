@@ -8,12 +8,12 @@ import { Button, IconButton } from "../ui/Button";
 import { cx } from "../ui/cx";
 import { Field } from "../ui/Input";
 import { readingOrder } from "@cadabracraft/format";
-import { useProject } from "../app/store";
+import { useProject } from "../state/project/index";
 import { errText } from "../lib/projectError";
-import { bookPosition, bookStep, countLabel, isComposing, resultRows, type PageCounts, type ResultRow } from "./findHelpers";
+import { bookPosition, bookStep, countLabel, isComposing, resultRows, type PageCounts, type ResultRow } from "../lib/search/findHelpers";
 import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "./findStore";
-import { searchBook } from "./search/bookSearch";
-import { isInvalidRegex } from "./search/match";
+import { searchBook } from "../lib/search/bookSearch";
+import { isInvalidRegex } from "../lib/search/match";
 import { getSearchInfo, searchCommands, searchKey } from "./search/plugin";
 
 const DEBOUNCE_MS = 100;

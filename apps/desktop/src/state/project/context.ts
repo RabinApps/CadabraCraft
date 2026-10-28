@@ -1,0 +1,173 @@
+import type { StoreApi } from "zustand";
+import { t } from "@lingui/core/macro";
+import { readingOrder, sameTree, sectionOf, serializeManifest, treeOf, type Manifest, type ManuscriptEntry } from "@cadabracraft/format";
+import { collectImageSources } from "@cadabracraft/export-epub";
+import { countWords, type ChapterDoc } from "@cadabracraft/shared";
+import { bridge } from "../../lib/bridge";
+import { errText } from "../../lib/projectError";
+import { emptyDoc, parseChapter, PartialWrite, HISTORY_LIMIT } from "./util";
+import type { HistoryEntry, ProjectState } from "./types";
+
+type Set = StoreApi<ProjectState>["setState"];
+type Get = StoreApi<ProjectState>["getState"];
+
+/** What every slice of the project store shares: the open book's helpers, built once over the store's `set` and `get`. */
+export function createContext(set: Set, get: Get) {
+  const need = () => {
+    const { root, manifest } = get();
+    if (!root || !manifest) throw new Error("no project open");
+    return { root, manifest };
+  };
+  const entryOf = (manifest: Manifest, id: string): ManuscriptEntry | undefined => readingOrder(manifest).find((e) => e.id === id);
+  const saveManifest = async (manifest: Manifest) => {
+    const { root } = need();
+    const base = get().hashes["cadabra.json"] ?? null;
+    const w = await bridge.writeFile(root, "cadabra.json", serializeManifest(manifest), base);
+    set({ manifest, hashes: { ...get().hashes, "cadabra.json": w.hash }, notice: w.conflict_copy ? t`cadabra.json changed outside the app; your previous copy was kept as ${w.conflict_copy}` : get().notice });
+  };
+  /** Remembers a finished tree edit. A new edit drops the redo stack. */
+  const record = (entry: Omit<HistoryEntry, "before" | "after">, before: Manifest, after: Manifest) => {
+    const tree = { before: treeOf(before), after: treeOf(after) };
+    if (sameTree(tree.before, tree.after)) return; // e.g. moving the first page up
+    set({ history: { undo: [...get().history.undo, { ...entry, ...tree }].slice(-HISTORY_LIMIT), redo: [] } });
+  };
+  /** Writes a page's file text through the normal save path (backup, temp file and rename in the Rust layer). */
+  const writePage = async (file: string, contents: string) => {
+    const { root } = need();
+    const w = await bridge.writeFile(root, file, contents, get().hashes[file] ?? null);
+    set({ hashes: { ...get().hashes, [file]: w.hash }, ...(w.conflict_copy ? { notice: t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}` } : {}) });
+    return w.conflict_copy ? t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}` : null;
+  };
+  /**
+   * Writes several pages as a group: when one write fails, the pages already written are put back, so a failure does
+   * not leave the book half changed. Throws a `PartialWrite` naming the pages that could not be put back (empty when
+   * everything was restored). Returns the conflict messages of pages that changed outside the app.
+   */
+  const writePages = async (pages: { file: string; from: string; to: string }[]): Promise<string[]> => {
+    const done: typeof pages = [];
+    const conflicts: string[] = [];
+    try {
+      for (const p of pages) {
+        const c = await writePage(p.file, p.to);
+        if (c) conflicts.push(c);
+        done.push(p);
+      }
+    } catch (e) {
+      const stuck: typeof pages = [];
+      for (const p of done.reverse()) {
+        try { await writePage(p.file, p.from); } catch { stuck.push(p); }
+      }
+      throw new PartialWrite(errText(e), stuck);
+    }
+    return conflicts;
+  };
+  /** Loads the open page again from disk and remounts its editor. */
+  const reloadCurrent = async () => {
+    const id = get().currentId;
+    if (!id) return;
+    await load(id);
+    set({ reloadCount: get().reloadCount + 1 });
+  };
+  const flushNow = async () => {
+    const d = get().draft;
+    if (!d) return;
+    await get().actions.saveCurrent(d);
+    // Typing that arrived while the write was running stays a draft (and is saved by the next flush).
+    set(get().draft === d ? { draft: null, currentDoc: d } : { currentDoc: d });
+  };
+  /** Flushes run one after another so two saves of the same chapter never overlap. */
+  let flushTail: Promise<void> | null = null;
+  /** Saves unsaved edits so switching chapters never loses typing. Starts the write synchronously when idle (it is also called as the window closes). */
+  const flush = (): Promise<void> => {
+    const run = flushTail ? flushTail.then(flushNow) : flushNow();
+    const tail: Promise<void> = run.then(() => {}, () => {}).then(() => { if (flushTail === tail) flushTail = null; });
+    flushTail = tail;
+    return run;
+  };
+  const load = async (id: string) => {
+    await flush();
+    const { root, manifest } = need();
+    const entry = entryOf(manifest, id);
+    if (!entry) return;
+    const r = await bridge.readFile(root, entry.file);
+    let doc: ChapterDoc;
+    try {
+      doc = r ? parseChapter(r.contents, entry.file) : emptyDoc(entry.title);
+    } catch (e) {
+      // Show no editor for a corrupt page, so nothing can be typed over it and saved.
+      set({ currentId: null, currentDoc: null, draft: null, notice: errText(e) });
+      return;
+    }
+    set({ currentId: id, currentDoc: doc, draft: null, hashes: r ? { ...get().hashes, [entry.file]: r.hash } : get().hashes });
+  };
+
+  /** Every page in reading order (front matter, chapters, back matter), read from disk. */
+  const loadChapters = async () => {
+    const { root, manifest } = need();
+    const pages = [];
+    const sectionFor = (e: ManuscriptEntry) => sectionOf(manifest, e.id) ?? "chapter";
+    for (const c of readingOrder(manifest)) {
+      const r = await bridge.readFile(root, c.file);
+      if (!r) throw new Error(t`Missing chapter file ${c.file}`);
+      pages.push({ id: c.id, title: c.title, doc: parseChapter(r.contents, c.file), section: sectionFor(c), ...(c.kind ? { kind: c.kind } : {}) });
+    }
+    return pages;
+  };
+  /** Word count per chapter file, valid while the store's hash for that file is the one it was counted under. */
+  let wordCache = new Map<string, { hash: string | undefined; words: number }>();
+  /** Words in the book's chapters, reading only pages that changed since they were last counted. The open page is counted from the draft or the loaded doc. */
+  const countBook = async () => {
+    const { root, manifest } = need();
+    const currentId = get().currentId;
+    let total = 0;
+    for (const c of readingOrder(manifest)) {
+      if (sectionOf(manifest, c.id) !== "chapter") continue;
+      if (c.id === currentId) {
+        const open = get().draft ?? get().currentDoc;
+        if (open) { total += countWords(open); continue; }
+      }
+      const hash = get().hashes[c.file];
+      const hit = wordCache.get(c.file);
+      if (hit && hit.hash === hash) { total += hit.words; continue; }
+      const r = await bridge.readFile(root, c.file);
+      if (!r) throw new Error(t`Missing chapter file ${c.file}`);
+      const words = countWords(parseChapter(r.contents, c.file));
+      wordCache.set(c.file, { hash, words });
+      total += words;
+    }
+    return total;
+  };
+  /** Bytes of every image the chapters use. */
+  const loadAssets = async (chapters: { doc: ChapterDoc }[]) => {
+    const { root } = need();
+    const assets = new Map<string, Uint8Array>();
+    for (const src of chapters.flatMap((c) => collectImageSources(c.doc))) {
+      if (assets.has(src)) continue;
+      try {
+        assets.set(src, await bridge.readAsset(root, src));
+      } catch {
+        throw new Error(t`Missing image file ${src}`);
+      }
+    }
+    return assets;
+  };
+
+  /** Bytes of the cover image, or undefined when the book has none. A cover that cannot be read stops the export instead of leaving it out. */
+  const loadCover = async (): Promise<{ path: string; bytes: Uint8Array } | undefined> => {
+    const { root, manifest } = need();
+    if (!manifest.cover) return undefined;
+    try {
+      return { path: manifest.cover, bytes: await bridge.readAsset(root, manifest.cover) };
+    } catch {
+      throw new Error(t`The cover image ${manifest.cover} could not be read. Choose it again in Book details, or remove the cover.`);
+    }
+  };
+  /** Forget every counted page (a different book was opened or the book was closed). */
+  const resetWordCache = () => { wordCache = new Map(); };
+  /** Forget one page's count (its file changed outside the app). */
+  const forgetWords = (path: string) => { wordCache.delete(path); };
+
+  return { set, get, need, entryOf, saveManifest, record, writePage, writePages, reloadCurrent, flush, load, loadChapters, countBook, loadAssets, loadCover, resetWordCache, forgetWords };
+}
+
+export type Ctx = ReturnType<typeof createContext>;

@@ -5,16 +5,16 @@ import { WandSparkles } from "lucide-react";
 import { EditorContent, useEditor, useEditorState, type Editor as TipTapEditor } from "@tiptap/react";
 import { extensions } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
-import { sizes, widths, type Width } from "../app/reading";
-import { manuscriptFonts, useSettings, writingWidths } from "../app/editorPrefs";
+import { sizes, widths, type Width } from "../state/reading";
+import { editorFonts, useSettings, writingWidths } from "../state/editorPrefs";
 import { dirFor } from "../i18n/locales";
 import { Toolbar } from "./Toolbar";
 import { Search } from "./search/plugin";
 import { FindBar } from "./FindBar";
-import { prefillQuery } from "./findHelpers";
+import { prefillQuery } from "../lib/search/findHelpers";
 import { useFind } from "./findStore";
-import { modalOpen, useRegisterCommands } from "../app/commands";
-import { useProject } from "../app/store";
+import { modalOpen, useRegisterCommands } from "../state/commands";
+import { useProject } from "../state/project/index";
 import { Modal } from "../ui/Dialog";
 import { Button } from "../ui/Button";
 import { Checkbox } from "../ui/Checkbox";
@@ -206,7 +206,7 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
       </Modal>
       <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first">
         <div className="mx-auto md:p-8" style={{ maxWidth: writingWidths[writingWidth] }}>
-          <div className="prose-manuscript p-4 md:rounded-md md:border md:border-border md:bg-paper md:px-14 md:py-12" style={{ fontFamily: manuscriptFonts[manuscriptFont] }}>
+          <div className="prose-manuscript p-4 md:rounded-md md:border md:border-border md:bg-paper md:px-14 md:py-12" style={{ fontFamily: editorFonts[manuscriptFont] }}>
             <EditorContent editor={editor} />
           </div>
         </div>

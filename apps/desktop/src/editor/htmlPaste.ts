@@ -2,7 +2,7 @@ import { htmlToBlocks, looksLikeHtml } from "@cadabracraft/import-docx";
 import type { DocNode } from "@cadabracraft/shared";
 import { Fragment, Node as PMNode, Slice, type Schema } from "@tiptap/pm/model";
 import type { EditorState, Transaction } from "@tiptap/pm/state";
-import type { RawHtmlPaste } from "../app/editorPrefs";
+import type { RawHtmlPaste } from "../state/editorPrefs";
 
 /** How many characters of the pasted text and of the result the dialog shows. */
 export const PREVIEW_CHARS = 120;

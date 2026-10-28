@@ -3,7 +3,7 @@ import type { Editor } from "@tiptap/react";
 import { Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import type { Node as PMNode } from "@tiptap/pm/model";
-import { findInText, expandReplacement, MAX_MATCHES, type TextRange } from "./match";
+import { findInText, expandReplacement, MAX_MATCHES, type TextRange } from "../../lib/search/match";
 
 export interface SearchSettings {
   query: string;
