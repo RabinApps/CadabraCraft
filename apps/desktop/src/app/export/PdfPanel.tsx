@@ -2,7 +2,7 @@ import { sourceEdition } from "@cadabracraft/format";
 import { useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { countWords } from "@cadabracraft/shared";
-import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
+import type { TrimSize } from "@cadabracraft/export-pdf";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
@@ -13,7 +13,7 @@ import {
 import type { Manifest } from "@cadabracraft/format";
 import type { ExportScope } from "../../state/project/types";
 import { pdfChecks } from "../../lib/exportChecks";
-import { estimatePages, wordsPerPage } from "../../lib/printEstimate";
+import { bookPageCount } from "../../lib/pageNumbering";
 import { trimLabel } from "../../lib/trimLabels";
 import { readTypstPath } from "../../lib/typstPath";
 import type { PdfUiError } from "../../lib/pdfErrors";
@@ -83,12 +83,13 @@ export function PdfPanel({
     current,
   } = options;
   const templates = listTemplates();
-  const [words, setWords] = useState<number | null>(null);
+  const [words, setWords] = useState<number[] | null>(null);
   useEffect(() => {
     let live = true;
     readPages(language).then(
       (pages) => {
-        if (live) setWords(pages.reduce((sum, p) => sum + countWords(p.doc), 0));
+        if (live)
+          setWords(pages.filter((p) => p.section === "chapter").map((p) => countWords(p.doc)));
       },
       () => {
         if (live) setWords(null);
@@ -105,9 +106,8 @@ export function PdfPanel({
     if (!manifest || !edition || words === null) return [];
     const print = getTemplate(current).print;
     const margins = print.defaults.marginsIn;
-    const perPage = wordsPerPage(TRIM_SIZES[trimSize], margins, print.fontSizePt);
     return pdfChecks({
-      estimatedPages: estimatePages(words, manifest.chapters.length, perPage),
+      estimatedPages: bookPageCount({ template: current, trimSize }, words).pages,
       margins,
       hasCover: edition?.cover != null,
     });

@@ -1,5 +1,40 @@
 import { describe, expect, it } from "vitest";
-import { chapterStart, firstPageNumber } from "../pageNumbering";
+import {
+  bookPageCount,
+  bookWordsPerPage,
+  chapterPageCount,
+  chapterStart,
+  firstPageNumber,
+} from "../pageNumbering";
+
+describe("measured pages and book totals", () => {
+  const book = { template: "modern" };
+
+  it("replaces a chapter's estimate with its measured count", () => {
+    expect(firstPageNumber(book, [0, 0, 0], new Map([[1, 5]]))).toBe(1 + 1 + 5 + 1);
+  });
+
+  it("counts a book's pages with the recto skips, and none for no chapters", () => {
+    expect(bookPageCount({ template: "novel" }, [0, 0])).toEqual({ pages: 3, exact: false });
+    expect(bookPageCount(book, [0, 0])).toEqual({ pages: 2, exact: false });
+    expect(bookPageCount(book, [])).toEqual({ pages: 0, exact: false });
+  });
+
+  it("is exact only when every chapter is measured", () => {
+    expect(bookPageCount(book, [10, 10], new Map([[0, 4]])).exact).toBe(false);
+    const both = new Map([
+      [0, 4],
+      [1, 3],
+    ]);
+    expect(bookPageCount(book, [10, 10], both)).toEqual({ pages: 7, exact: true });
+  });
+
+  it("gives a words-per-page and a one-page minimum per chapter", () => {
+    expect(bookWordsPerPage(book)).toBeGreaterThanOrEqual(50);
+    expect(chapterPageCount(0, 250)).toBe(1);
+    expect(chapterPageCount(251, 250)).toBe(2);
+  });
+});
 
 describe("firstPageNumber", () => {
   it("is page 1 for the first chapter", () => {
