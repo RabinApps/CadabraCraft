@@ -1,5 +1,5 @@
 import { bridge } from "./bridge";
-import { referenceMediaType } from "./referenceKinds";
+import { referenceKind, referenceMediaType } from "./referenceKinds";
 
 /** Bytes asked for per read; the backend caps one call at 16 MB. */
 const CHUNK = 8 * 1024 * 1024;
@@ -29,18 +29,30 @@ export async function readReferenceBytes(root: string, file: string): Promise<Ui
   return out;
 }
 
-// Object URLs per project + file, so reopening a viewer does not read a large file again.
+// URLs per project + file, so reopening a viewer does not look a file up (or read a large one) again.
 const cache = new Map<string, Promise<string>>();
 const keyOf = (root: string, file: string) => `${root}\u0000${file}`;
 
-/** A blob URL for a reference file, for `<img>`, `<video>` and `<audio>`. A failed read is not cached. */
+/**
+ * Audio and video stream from the `cadabra-ref` scheme, so a large file never sits in memory and seeking works. When
+ * the host has no such scheme (the dev server, tests) every file is read into a `Blob` instead.
+ */
+async function loadUrl(root: string, file: string): Promise<string> {
+  const kind = referenceKind(file);
+  if (kind === "video" || kind === "audio") {
+    const stream = await bridge.referenceStreamUrl(root, file);
+    if (stream) return stream;
+  }
+  const parts = await readReferenceParts(root, file);
+  return URL.createObjectURL(new Blob(parts as BlobPart[], { type: referenceMediaType(file) }));
+}
+
+/** A URL for a reference file, for `<img>`, `<video>` and `<audio>`. A failed load is not cached. */
 export function referenceUrl(root: string, file: string): Promise<string> {
   const key = keyOf(root, file);
   let hit = cache.get(key);
   if (!hit) {
-    hit = readReferenceParts(root, file).then((parts) =>
-      URL.createObjectURL(new Blob(parts as BlobPart[], { type: referenceMediaType(file) })),
-    );
+    hit = loadUrl(root, file);
     hit.catch(() => cache.delete(key));
     cache.set(key, hit);
   }

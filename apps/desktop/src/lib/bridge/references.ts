@@ -28,6 +28,12 @@ export const referencesBridge = {
     length: number,
   ): Promise<Uint8Array> =>
     binary(invoke<RawBytes>("read_reference", { root, path, offset, length })),
+  /**
+   * A URL a `<video>` or `<audio>` can stream from (the `cadabra-ref` scheme, which answers range requests), or null
+   * when the host has no such scheme (the browser dev server and the Playwright fake backend). Audio and video only.
+   */
+  referenceStreamUrl: (root: string, path: string) =>
+    invoke<string | null>("reference_stream_url", { root, path }),
   /** Moves the file to `.cadabra/trash`; resolves to the trash path. */
   trashReference: (root: string, path: string) => invoke<string>("trash_reference", { root, path }),
   /** Opens the file in the operating system's default app (never a program, script, web page or SVG). */

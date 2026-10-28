@@ -58,6 +58,7 @@ export const useProject = create<ProjectState>((set, get) => {
     history: NO_HISTORY,
     recovery: [],
     referenceNotices: [],
+    removedReferences: [],
     referenceImport: null,
     actions: {
       ...createProjectActions(ctx),

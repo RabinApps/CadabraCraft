@@ -6,13 +6,20 @@ const trashed: string[] = [];
 let pickResult: string[] = [];
 let trashError: unknown = null;
 let failWrite = false;
+let trashList: null | { path: string; original: string; trashed_at: string }[] = [];
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
     ...trashMethods,
+    listTrash: async () => {
+      if (!trashList) throw new Error("no trash");
+      return trashList;
+    },
     restoreTrash: async (r: string, p: string) =>
-      p.startsWith(".cadabra/trash/x-")
-        ? p.slice(".cadabra/trash/x-".length)
-        : trashMethods.restoreTrash(r, p),
+      p.includes("gone")
+        ? Promise.reject({ kind: "not_found", path: p })
+        : p.startsWith(".cadabra/trash/x-")
+          ? p.slice(".cadabra/trash/x-".length)
+          : trashMethods.restoreTrash(r, p),
     writeFile: async (_r: string, path: string, contents: string) => {
       if (failWrite) throw new Error("disk full");
       disk.set(path, contents);
@@ -48,6 +55,7 @@ beforeEach(async () => {
   pickResult = [];
   trashError = null;
   failWrite = false;
+  trashList = [];
   useProject.setState({
     root: null,
     manifest: null,
@@ -204,5 +212,48 @@ describe("reference actions", () => {
     await a().addReferences(["/x/b.pdf"]); // takes ref-1 again
     await a().undo();
     expect(s().manifest!.references.map((r) => r.id)).toEqual(["ref-2", "ref-1"]);
+  });
+
+  it("lists removed reference files and restores one as a new reference", async () => {
+    trashList = [
+      {
+        path: ".cadabra/trash/20261001-0900-manuscript__001.json",
+        original: "manuscript/001.json",
+        trashed_at: "20261001-0900",
+      },
+      {
+        path: ".cadabra/trash/x-references/old-map.png",
+        original: "references/old-map.png",
+        trashed_at: "20261002-0900",
+      },
+      {
+        path: ".cadabra/trash/x-references/gone.pdf",
+        original: "references/gone.pdf",
+        trashed_at: "20261003-0900",
+      },
+    ];
+    await a().refreshRemovedReferences();
+    expect(s().removedReferences.map((r) => r.original)).toEqual([
+      "references/gone.pdf",
+      "references/old-map.png",
+    ]);
+    expect(await a().restoreReference(".cadabra/trash/x-references/old-map.png")).toBeNull();
+    expect(s().manifest!.references.map((r) => [r.file, r.title])).toEqual([
+      ["references/old-map.png", "old-map"],
+    ]);
+    expect(s().removedReferences.map((r) => r.original)).toEqual(["references/gone.pdf"]);
+    const text = await a().restoreReference(".cadabra/trash/x-references/gone.pdf");
+    expect(text).toMatch(/^Could not restore gone: /);
+    expect(s().removedReferences).toHaveLength(1);
+    expect(s().manifest!.references).toHaveLength(1);
+  });
+
+  it("keeps the list when the trash cannot be read", async () => {
+    useProject.setState({
+      removedReferences: [{ path: "p", original: "references/a.pdf", stamp: "20261001-0900" }],
+    });
+    trashList = null;
+    await a().refreshRemovedReferences();
+    expect(s().removedReferences).toHaveLength(1);
   });
 });

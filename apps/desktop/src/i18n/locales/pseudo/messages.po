@@ -30,6 +30,11 @@ msgstr ""
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 msgstr ""
 
+#. placeholder {0}: shown.length
+#: src/app/references/ReferencesPanel.tsx
+msgid "{0, plural, one {# reference} other {# references}}"
+msgstr ""
+
 #. placeholder {0}: countWords(c.doc)
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
@@ -42,6 +47,12 @@ msgstr ""
 #. placeholder {0}: picked ? picked.length : chapters.length
 #: src/app/export/AudioExport.tsx
 msgid "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
+msgstr ""
+
+#. placeholder {0}: label(kind)
+#. placeholder {1}: ago(r.stamp)
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "{0} · Removed {1}"
 msgstr ""
 
 #. placeholder {0}: info(p.id).hint
@@ -881,6 +892,11 @@ msgstr ""
 
 #. placeholder {0}: errText(e)
 #: src/state/project/references.ts
+msgid "Could not restore {name}: {0}"
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/state/project/references.ts
 msgid "Could not save the reference: {0}"
 msgstr ""
 
@@ -1525,6 +1541,10 @@ msgstr ""
 msgid "Keep your research close"
 msgstr ""
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Kind"
+msgstr ""
+
 #: src/app/hooks/useAudioLabels.ts
 msgid "Kokoro · Heart (best quality)"
 msgstr ""
@@ -1631,6 +1651,10 @@ msgstr ""
 
 #: src/app/export/AudioFooter.tsx
 msgid "Making sample… (stop)"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Manual order"
 msgstr ""
 
 #: src/app/settings/Settings.tsx
@@ -1759,6 +1783,10 @@ msgstr ""
 msgid "New Project…"
 msgstr ""
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Newest first"
+msgstr ""
+
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Next"
 msgstr ""
@@ -1883,6 +1911,10 @@ msgstr ""
 msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 msgstr ""
 
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Nothing removed"
+msgstr ""
+
 #: src/app/dialogs/ImportParts.tsx
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
@@ -1902,6 +1934,10 @@ msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Oldest first"
 msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
@@ -2186,6 +2222,10 @@ msgstr ""
 msgid "References Panel"
 msgstr ""
 
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "References you remove from the book show up here, so you can bring them back."
+msgstr ""
+
 #: src/editor/FindBar.tsx
 msgid "Regex"
 msgstr ""
@@ -2219,6 +2259,18 @@ msgstr ""
 
 #: src/app/references/ReferenceDetails.tsx
 msgid "Remove tag {name}"
+msgstr ""
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Removed files live in .cadabra/trash inside your book folder. Nothing is deleted for good."
+msgstr ""
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Removed references"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Removed references ({removedCount})"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
@@ -2259,12 +2311,15 @@ msgstr ""
 msgid "Replaced {count} in the book"
 msgstr ""
 
+#: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
 msgid "Restore"
 msgstr ""
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
+#. placeholder {0}: titleFromFile(name)
 #. placeholder {0}: x.title
+#: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
 #: src/state/project/trash.ts
 msgid "Restore {0}"
@@ -2279,8 +2334,16 @@ msgstr ""
 msgid "Restored an earlier version of {0}. The text it replaced is kept in History."
 msgstr ""
 
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Restoring adds the file back as a new reference, titled from its file name. The note, tags and chapter links it had are not kept."
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Restoring keeps the current text as a new snapshot, so you can undo it."
+msgstr ""
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Restoring…"
 msgstr ""
 
 #: src/editor/FindResults.tsx
@@ -2465,6 +2528,10 @@ msgstr ""
 msgid "Something went wrong"
 msgstr ""
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Sort references"
+msgstr ""
+
 #: src/app/export/AudioExport.tsx
 msgid "Speed"
 msgstr ""
@@ -2534,6 +2601,10 @@ msgstr ""
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Superscript"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Switch to Manual order to reorder"
 msgstr ""
 
 #: src/app/settings/Settings.tsx
@@ -2801,6 +2872,10 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Title A-Z"
+msgstr ""
+
 #. placeholder {0}: i + 1
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Title of chapter {0}"
@@ -2809,6 +2884,10 @@ msgstr ""
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Title page"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Title Z-A"
 msgstr ""
 
 #: src/app/shell/menuModel.ts

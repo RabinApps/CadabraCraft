@@ -33,6 +33,11 @@ describe("reference commands", () => {
       root: "/p",
       path: "references/a.pdf",
     });
+    await bridge.referenceStreamUrl("/p", "references/a.mp4");
+    expect(invoke).toHaveBeenLastCalledWith("reference_stream_url", {
+      root: "/p",
+      path: "references/a.mp4",
+    });
     await bridge.openReference("/p", "references/a.pdf");
     expect(invoke).toHaveBeenLastCalledWith("open_reference", {
       root: "/p",

@@ -104,6 +104,8 @@ declare global {
     __pickedRefs?: string[];
     __refFiles?: Record<string, number[]>;
     __refErrors?: Record<string, unknown>;
+    /** Makes every restore from the project trash fail with "not found". */
+    __restoreFails?: boolean;
     /** Sends an event to the listeners the app registered (a file drop, for example). */
     __emit?: (event: string, payload: unknown) => void;
     __failWrite?: (path: string) => boolean;

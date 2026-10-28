@@ -117,6 +117,8 @@ export async function fakeTauri(page: Page) {
           case "read_reference":
             if (!Array.isArray(disk[a.path])) throw { kind: "not_found", path: a.path };
             return (disk[a.path] as number[]).slice(a.offset, a.offset + a.length);
+          case "reference_stream_url":
+            return null; // no cadabra-ref scheme in a browser: the viewer falls back to a Blob URL
           case "trash_reference": {
             const to = `.cadabra/trash/20260101-1200-${a.path.replaceAll("/", "__")}`;
             disk[to] = disk[a.path]!;
@@ -246,6 +248,7 @@ export async function fakeTauri(page: Page) {
                 trashed_at: "20260101-1200",
               }));
           case "restore_project_trash": {
+            if (window.__restoreFails) throw { kind: "not_found", path: a.path };
             let to = a.path.slice(29).replaceAll("__", "/");
             for (let n = 2; to in disk; n++)
               to = a.path

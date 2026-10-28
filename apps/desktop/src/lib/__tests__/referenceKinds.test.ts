@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { Reference } from "@cadabracraft/format";
 import {
   NO_FILTER,
+  removedReferences,
+  sortReferences,
+  stampDate,
+  titleFromFile,
   canReorder,
   dropPosition,
   insertionIndex,
@@ -110,5 +114,43 @@ describe("reordering helpers", () => {
     expect(dropPosition(1, 1)).toBe(1);
     expect(dropPosition(1, 2)).toBe(1);
     expect(dropPosition(1, 3)).toBe(2);
+  });
+});
+
+describe("sorting and removed references", () => {
+  const mk = (id: string, file: string, title: string, addedAt: string) =>
+    ref({ id, file, title, addedAt });
+  const list = [
+    mk("ref-1", "references/b.pdf", "Beta 10", "2026-10-02T00:00:00.000Z"),
+    mk("ref-2", "references/a.png", "alpha", "2026-10-03T00:00:00.000Z"),
+    mk("ref-3", "references/c.mp4", "Beta 9", "2026-10-01T00:00:00.000Z"),
+    mk("ref-4", "references/d.png", "Gamma", "2026-10-01T00:00:00.000Z"),
+  ];
+  const ids = (k: Parameters<typeof sortReferences>[1]) => sortReferences(list, k).map((r) => r.id);
+  it("sorts by title, date and kind without touching the saved order", () => {
+    expect(ids("manual")).toEqual(["ref-1", "ref-2", "ref-3", "ref-4"]);
+    expect(ids("title-asc")).toEqual(["ref-2", "ref-3", "ref-1", "ref-4"]);
+    expect(ids("title-desc")).toEqual(["ref-4", "ref-1", "ref-3", "ref-2"]);
+    expect(ids("newest")).toEqual(["ref-2", "ref-1", "ref-3", "ref-4"]);
+    expect(ids("oldest")).toEqual(["ref-3", "ref-4", "ref-1", "ref-2"]);
+    expect(ids("kind")).toEqual(["ref-2", "ref-4", "ref-3", "ref-1"]);
+    expect(list.map((r) => r.id)).toEqual(["ref-1", "ref-2", "ref-3", "ref-4"]);
+  });
+  it("finds the reference files in the trash, newest first", () => {
+    const entries = [
+      { path: ".cadabra/trash/a", original: "references/a.pdf", trashed_at: "20261001-0900" },
+      { path: ".cadabra/trash/b", original: "manuscript/001.json", trashed_at: "20261002-0900" },
+      { path: ".cadabra/trash/c", original: "references/c.png", trashed_at: "20261003-1000" },
+    ];
+    expect(removedReferences(entries)).toEqual([
+      { path: ".cadabra/trash/c", original: "references/c.png", stamp: "20261003-1000" },
+      { path: ".cadabra/trash/a", original: "references/a.pdf", stamp: "20261001-0900" },
+    ]);
+  });
+  it("reads a trash stamp and makes a title from a file name", () => {
+    expect(stampDate("20261003-1015")?.getTime()).toBe(new Date(2026, 9, 3, 10, 15).getTime());
+    expect(stampDate("soon")).toBeNull();
+    expect(titleFromFile("references/Lighthouse-history.pdf")).toBe("Lighthouse-history");
+    expect(titleFromFile("noext")).toBe("noext");
   });
 });

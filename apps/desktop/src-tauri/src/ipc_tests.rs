@@ -18,10 +18,10 @@ fn mock_app() -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     build_app(true)
 }
 
-/// `with_state: false` leaves `WatchState` and `AudioJobs` unmanaged, as a build that forgot `.manage` would be.
+/// `with_state: false` leaves `WatchState`, `AudioJobs` and `MediaRoots` unmanaged, as a build that forgot `.manage` would be.
 fn build_app(with_state: bool) -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     let builder = mock_builder();
-    let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()) } else { builder };
+    let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()) } else { builder };
     let app = builder
         .invoke_handler(app_handlers![])
         .build(mock_context(noop_assets()))
@@ -158,6 +158,27 @@ fn reference_commands_work_through_the_ipc() {
 }
 
 #[test]
+fn a_video_reference_gets_a_stream_url_the_scheme_then_serves() {
+    use tauri::Manager;
+    let (app, w) = mock_app();
+    let book = project();
+    std::fs::create_dir(book.path().join("references")).unwrap();
+    std::fs::write(book.path().join("references/clip.mp4"), b"0123456789").unwrap();
+    std::fs::write(book.path().join("references/pic.png"), b"x").unwrap();
+    let r = root(&book);
+    let url = json_of(call(&w, "reference_stream_url", json!({ "root": r, "path": "references/clip.mp4" })));
+    let url = url.as_str().unwrap();
+    assert!(url.starts_with(if cfg!(windows) { "http://cadabra-ref.localhost/" } else { "cadabra-ref://localhost/" }), "{url}");
+    assert!(!url.contains(&r), "the URL holds a token, not the folder");
+    assert_eq!(kind_of(call(&w, "reference_stream_url", json!({ "root": r, "path": "references/pic.png" }))), "unsupported_reference");
+    assert_eq!(kind_of(call(&w, "reference_stream_url", json!({ "root": r, "path": "assets/a.mp4" }))), "not_reference");
+    assert_eq!(kind_of(call(&w, "reference_stream_url", json!({ "root": "/not/a/project", "path": "references/clip.mp4" }))), "not_a_project");
+    let req = tauri::http::Request::builder().uri(url).header("range", "bytes=1-3").body(vec![]).unwrap();
+    let res = commands::respond(&app.state::<commands::MediaRoots>(), &req);
+    assert_eq!((res.status().as_u16(), res.body().as_slice()), (206, &b"123"[..]));
+}
+
+#[test]
 fn updates_supported_answers_a_bool() {
     let (_app, w) = mock_app();
     assert_eq!(json_of(call(&w, "updates_supported", json!({}))), json!(crate::commands::updates_supported()));
@@ -262,6 +283,7 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("read_reference", json!({ "root": "/r", "path": "p", "offset": 0, "length": 1 })),
         ("trash_reference", json!({ "root": "/r", "path": "p" })),
         ("open_reference", json!({ "root": "/r", "path": "p" })),
+        ("reference_stream_url", json!({ "root": "/r", "path": "p" })),
         ("read_import_source", json!({ "path": "/p" })),
         ("read_import_image", json!({ "sourceFile": "/p", "reference": "r" })),
         ("watch_project", json!({ "root": "/r" })),
@@ -308,7 +330,7 @@ fn an_optional_argument_may_be_absent_or_null_but_not_mistyped() {
 fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
     let (_app, w) = build_app(false);
     for (cmd, args) in every_command() {
-        let needs_state = matches!(cmd, "watch_project" | "audio_cancel" | "audio_forget" | "audio_render_chapter" | "audio_sample" | "audio_build_m4b" | "audio_download_pack");
+        let needs_state = matches!(cmd, "watch_project" | "reference_stream_url" | "audio_cancel" | "audio_forget" | "audio_render_chapter" | "audio_sample" | "audio_build_m4b" | "audio_download_pack");
         if needs_state { // (the others are not called: their arguments are placeholders for paths that must never be touched)
             let err = call(&w, cmd, args).expect_err(cmd);
             assert!(err.as_str().is_some_and(|m| m.contains("state not managed")), "{cmd}: {err}");

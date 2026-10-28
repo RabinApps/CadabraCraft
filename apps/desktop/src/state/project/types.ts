@@ -6,6 +6,7 @@ import type { ImportChoices, ImportReport } from "../../lib/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import type { AudioUiError } from "../../lib/audioErrors";
+import type { RemovedReference } from "../../lib/referenceKinds";
 
 export interface PdfExportOptions extends ExportScope {
   trimSize: TrimSize;
@@ -169,6 +170,8 @@ export interface ProjectState {
   activeLanguage: string | null;
   /** What the last reference import said about files it reused or refused; empty when nothing is pending. */
   referenceNotices: ReferenceNotice[];
+  /** Reference files in the project trash (removed from the book), newest first; refreshed by `refreshRemovedReferences`. */
+  removedReferences: RemovedReference[];
   /** The reference import in progress, or null. */
   referenceImport: ReferenceImport | null;
   /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
@@ -191,6 +194,10 @@ export interface ReferenceActions {
   /** Imports files into `references/` and lists them in the book. Without `paths` it asks the author to pick files. Duplicates and refused files become `referenceNotices`; nothing throws. */
   addReferences: (paths?: string[]) => Promise<void>;
   /** Changes a reference's title, note, tags or linked pages. Failures set `notice`. */
+  /** Reads the project trash for removed reference files. Failures leave the list as it was. */
+  refreshRemovedReferences: () => Promise<void>;
+  /** Moves a removed reference file back and lists it again, titled from its file name. Returns the error text to show, or null when it worked. */
+  restoreReference: (trashPath: string) => Promise<string | null>;
   /** Puts a reference at position `to` of the list and saves. */
   moveReference: (id: string, to: number) => Promise<void>;
   updateReference: (

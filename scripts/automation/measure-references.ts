@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Measures reference files in the REAL app (not part of the normal scenario, it writes ~1 GB of scratch files):
-//   (a) <video> seeking through a blob URL (the way the viewer plays a video),
+//   (a) <video> seeking through the URL the viewer gives it (the cadabra-ref stream),
 //   (b) importing a file near the 500 MB video cap: time, bytes/s, UI responsiveness, progress, memory, sha256.
 // Usage: node scripts/automation/measure-references.ts [--launch] [--out <dir>] [--big-mb 495] [--keep]
 //   needs ffmpeg on PATH (or the repo's sidecar in apps/desktop/src-tauri/binaries); nothing is downloaded.

@@ -53,6 +53,7 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
           forgetReference(root, item.file);
           moved = await bridge.trashReference(root, item.file);
         }
+        void get().actions.refreshRemovedReferences();
         const flipped: HistoryEntry = {
           ...entry,
           reference: { item, index, ...(moved ? { trashPath: moved } : {}) },

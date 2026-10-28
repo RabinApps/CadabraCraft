@@ -4,6 +4,7 @@
 mod app;
 mod assets;
 mod import;
+mod media;
 mod project;
 mod references;
 mod snapshots;
@@ -12,6 +13,7 @@ mod wire;
 pub use app::*;
 pub use assets::*;
 pub use import::*;
+pub use media::*;
 pub use project::*;
 pub use references::*;
 pub use snapshots::*;

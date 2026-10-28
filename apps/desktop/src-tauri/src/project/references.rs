@@ -12,7 +12,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 
 /// `io_error` as a method, so every IO failure on a named file maps to its typed error through one function.
-trait IoCtx<T> {
+pub(super) trait IoCtx<T> {
     fn ctx(self, label: &str) -> Result<T>;
 }
 
@@ -75,7 +75,7 @@ fn too_large(name: &str, kind: ReferenceKind) -> ProjectError {
 }
 
 /// Lowercase extension, or "" for none. Anything other than 1 to 10 ASCII letters and digits is refused.
-fn extension(name: &str) -> Result<String> {
+pub(super) fn extension(name: &str) -> Result<String> {
     let Some((_, ext)) = name.rsplit_once('.') else { return Ok(String::new()) };
     let ext = ext.to_ascii_lowercase();
     if ext.is_empty() || ext.len() > 10 || !ext.bytes().all(|b| b.is_ascii_alphanumeric()) {
@@ -230,7 +230,7 @@ pub fn reference_path(root: &Path, rel: &str) -> Result<PathBuf> {
     resolve(root, rel)
 }
 
-fn open_regular(root: &Path, rel: &str) -> Result<(File, u64)> {
+pub(super) fn open_regular(root: &Path, rel: &str) -> Result<(File, u64)> {
     let path = reference_path(root, rel)?;
     let file = File::open(&path).map_err(|e| open_error(e, &path, rel))?;
     let meta = file.metadata().ctx(rel)?;

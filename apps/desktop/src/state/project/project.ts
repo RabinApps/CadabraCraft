@@ -42,6 +42,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     trash: [],
     recovery: [],
     referenceNotices: [],
+    removedReferences: [],
     referenceImport: null,
     importReport: null,
     audio: null,
@@ -69,6 +70,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       trash: [],
       recovery: [],
       referenceNotices: [],
+      removedReferences: [],
       referenceImport: null,
     });
     try {
@@ -190,6 +192,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         trash: [],
         recovery: [],
         referenceNotices: [],
+        removedReferences: [],
         referenceImport: null,
         importReport: null,
         audio: null,

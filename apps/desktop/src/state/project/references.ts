@@ -10,6 +10,7 @@ import { bridge } from "../../lib/bridge";
 import { baseName } from "../../lib/paths";
 import { forgetReference } from "../../lib/references";
 import { errText, isProjectError } from "../../lib/projectError";
+import { removedReferences, titleFromFile } from "../../lib/referenceKinds";
 import { HISTORY_LIMIT } from "./util";
 import type { ReferenceActions, ReferenceNotice } from "./types";
 import type { Ctx } from "./context";
@@ -55,6 +56,30 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
         set({ notice: t`Could not save the reference: ${errText(e)}` });
       }
     },
+    async refreshRemovedReferences() {
+      const { root } = need();
+      const entries = await bridge.listTrash(root).catch(() => null);
+      if (entries && get().root === root) set({ removedReferences: removedReferences(entries) });
+    },
+    async restoreReference(trashPath) {
+      const { root } = need();
+      const name = titleFromFile(
+        get().removedReferences.find((r) => r.path === trashPath)?.original ?? trashPath,
+      );
+      try {
+        const file = await bridge.restoreTrash(root, trashPath);
+        const added = addReference(need().manifest, {
+          file,
+          title: titleFromFile(file),
+          addedAt: new Date().toISOString(),
+        });
+        await saveManifest(added.manifest);
+      } catch (e) {
+        return t`Could not restore ${name}: ${errText(e)}`;
+      }
+      set({ removedReferences: get().removedReferences.filter((r) => r.path !== trashPath) });
+      return null;
+    },
     async moveReference(id, to) {
       try {
         await saveManifest(moveInManifest(need().manifest, id, to));
@@ -75,6 +100,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       forgetReference(root, ref.file);
       try {
         const trashPath = await bridge.trashReference(root, ref.file);
+        void get().actions.refreshRemovedReferences();
         // Book Undo brings it back (file from the trash, list entry at its old place).
         const tree = treeOf(manifest);
         set({

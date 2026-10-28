@@ -30,6 +30,11 @@ msgstr "{0, plural, one {# chapter} other {# chapters}} · {1, plural, one {# wo
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 msgstr "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 
+#. placeholder {0}: shown.length
+#: src/app/references/ReferencesPanel.tsx
+msgid "{0, plural, one {# reference} other {# references}}"
+msgstr "{0, plural, one {# reference} other {# references}}"
+
 #. placeholder {0}: countWords(c.doc)
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
@@ -43,6 +48,12 @@ msgstr "{0, plural, one {# word} other {# words}}"
 #: src/app/export/AudioExport.tsx
 msgid "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
 msgstr "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
+
+#. placeholder {0}: label(kind)
+#. placeholder {1}: ago(r.stamp)
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "{0} · Removed {1}"
+msgstr "{0} · Removed {1}"
 
 #. placeholder {0}: info(p.id).hint
 #. placeholder {1}: mb(p.bytes)
@@ -882,6 +893,11 @@ msgstr "Could not reorder the references: {0}"
 
 #. placeholder {0}: errText(e)
 #: src/state/project/references.ts
+msgid "Could not restore {name}: {0}"
+msgstr "Could not restore {name}: {0}"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/references.ts
 msgid "Could not save the reference: {0}"
 msgstr "Could not save the reference: {0}"
 
@@ -1526,6 +1542,10 @@ msgstr "Keep working"
 msgid "Keep your research close"
 msgstr "Keep your research close"
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Kind"
+msgstr "Kind"
+
 #: src/app/hooks/useAudioLabels.ts
 msgid "Kokoro · Heart (best quality)"
 msgstr "Kokoro · Heart (best quality)"
@@ -1633,6 +1653,10 @@ msgstr "Makes one audio file per chapter with a voice that runs on your computer
 #: src/app/export/AudioFooter.tsx
 msgid "Making sample… (stop)"
 msgstr "Making sample… (stop)"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Manual order"
+msgstr "Manual order"
 
 #: src/app/settings/Settings.tsx
 msgid "Manuscript font"
@@ -1760,6 +1784,10 @@ msgstr "New project"
 msgid "New Project…"
 msgstr "New Project…"
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Newest first"
+msgstr "Newest first"
+
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Next"
 msgstr "Next"
@@ -1884,6 +1912,10 @@ msgstr "Note"
 msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 msgstr "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Nothing removed"
+msgstr "Nothing removed"
+
 #: src/app/dialogs/ImportParts.tsx
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
@@ -1904,6 +1936,10 @@ msgstr "Numbered List"
 #: src/app/settings/Settings.tsx
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr "Older snapshots are removed, but anything from the last 30 days stays."
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Oldest first"
+msgstr "Oldest first"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
@@ -2187,6 +2223,10 @@ msgstr "References"
 msgid "References Panel"
 msgstr "References Panel"
 
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "References you remove from the book show up here, so you can bring them back."
+msgstr "References you remove from the book show up here, so you can bring them back."
+
 #: src/editor/FindBar.tsx
 msgid "Regex"
 msgstr "Regex"
@@ -2221,6 +2261,18 @@ msgstr "Remove from book"
 #: src/app/references/ReferenceDetails.tsx
 msgid "Remove tag {name}"
 msgstr "Remove tag {name}"
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Removed files live in .cadabra/trash inside your book folder. Nothing is deleted for good."
+msgstr "Removed files live in .cadabra/trash inside your book folder. Nothing is deleted for good."
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Removed references"
+msgstr "Removed references"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Removed references ({removedCount})"
+msgstr "Removed references ({removedCount})"
 
 #: src/app/shell/EntryList.tsx
 msgid "Rename"
@@ -2260,12 +2312,15 @@ msgstr "Replace with"
 msgid "Replaced {count} in the book"
 msgstr "Replaced {count} in the book"
 
+#: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
 msgid "Restore"
 msgstr "Restore"
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
+#. placeholder {0}: titleFromFile(name)
 #. placeholder {0}: x.title
+#: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
 #: src/state/project/trash.ts
 msgid "Restore {0}"
@@ -2280,9 +2335,17 @@ msgstr "Restore this version"
 msgid "Restored an earlier version of {0}. The text it replaced is kept in History."
 msgstr "Restored an earlier version of {0}. The text it replaced is kept in History."
 
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Restoring adds the file back as a new reference, titled from its file name. The note, tags and chapter links it had are not kept."
+msgstr "Restoring adds the file back as a new reference, titled from its file name. The note, tags and chapter links it had are not kept."
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Restoring keeps the current text as a new snapshot, so you can undo it."
 msgstr "Restoring keeps the current text as a new snapshot, so you can undo it."
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Restoring…"
+msgstr "Restoring…"
 
 #: src/editor/FindResults.tsx
 msgid "Results by page"
@@ -2466,6 +2529,10 @@ msgstr "Some content or formatting could not be kept. Review these before you co
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Sort references"
+msgstr "Sort references"
+
 #: src/app/export/AudioExport.tsx
 msgid "Speed"
 msgstr "Speed"
@@ -2536,6 +2603,10 @@ msgstr "Subscript"
 #: src/editor/Toolbar.tsx
 msgid "Superscript"
 msgstr "Superscript"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Switch to Manual order to reorder"
+msgstr "Switch to Manual order to reorder"
 
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
@@ -2803,6 +2874,10 @@ msgstr "Times New Roman 12 pt is what most agents and editors ask for. Courier N
 msgid "Title"
 msgstr "Title"
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Title A-Z"
+msgstr "Title A-Z"
+
 #. placeholder {0}: i + 1
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Title of chapter {0}"
@@ -2812,6 +2887,10 @@ msgstr "Title of chapter {0}"
 #: src/app/shell/Sidebar.tsx
 msgid "Title page"
 msgstr "Title page"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Title Z-A"
+msgstr "Title Z-A"
 
 #: src/app/shell/menuModel.ts
 msgid "Toggle Header Row"

@@ -449,6 +449,83 @@ test.describe("reference files", () => {
     ]);
   });
 
+  test("sorts the list as a view and allows reordering only in manual order", async ({ page }) => {
+    await withReferences(page, {
+      "/refs/zebra.png": PIXEL,
+      "/refs/apple.png": PIXEL.slice(0, 60).concat([1]),
+      "/refs/notes.md": bytes("# notes"),
+    });
+    const titles = () =>
+      panel(page)
+        .getByRole("listitem")
+        .evaluateAll((li) =>
+          li.map((x) => x.querySelector("button[aria-label]")!.getAttribute("aria-label")),
+        );
+    await expect(panel(page).getByText("3 references")).toBeVisible();
+    await expect(panel(page).locator("[data-grip]")).toHaveCount(3);
+    await panel(page).getByRole("button", { name: "Sort references" }).click();
+    await page.getByRole("menuitemradio", { name: "Title A-Z" }).click();
+    await expect.poll(titles).toEqual(["apple", "notes", "zebra"]);
+    await expect(panel(page).getByText("Switch to Manual order to reorder")).toBeVisible();
+    await expect(panel(page).locator("[data-grip]")).toHaveCount(0);
+    await panel(page).getByRole("button", { name: "Sort references" }).click();
+    await page.getByRole("menuitemradio", { name: "Title Z-A" }).click();
+    await expect.poll(titles).toEqual(["zebra", "notes", "apple"]);
+    await panel(page).getByRole("button", { name: "Sort references" }).click();
+    await page.getByRole("menuitemradio", { name: "Kind" }).click();
+    await expect.poll(titles).toEqual(["apple", "zebra", "notes"]); // images first, each kind by title
+    await panel(page).getByRole("button", { name: "Sort references" }).click();
+    await page.getByRole("menuitemradio", { name: "Newest first" }).click();
+    await expect.poll(titles).toHaveLength(3);
+    await panel(page).getByRole("button", { name: "Sort references" }).click();
+    await page.getByRole("menuitemradio", { name: "Oldest first" }).click();
+    await expect.poll(titles).toHaveLength(3);
+    await panel(page).getByRole("button", { name: "Sort references" }).click();
+    await page.getByRole("menuitemradio", { name: "Manual order" }).click();
+    await expect.poll(titles).toEqual(["zebra", "apple", "notes"]);
+    await expect(panel(page).locator("[data-grip]")).toHaveCount(3);
+    // The saved order was never changed by sorting.
+    expect((await manifestOf(page)).references.map((r: { title: string }) => r.title)).toEqual([
+      "zebra",
+      "apple",
+      "notes",
+    ]);
+  });
+
+  test("a removed reference can be restored from the removed list", async ({ page }) => {
+    await withReferences(page, { "/refs/one.png": PIXEL });
+    await expect(panel(page).getByRole("button", { name: /Removed references/ })).toHaveCount(0);
+    await panel(page).getByRole("button", { name: "Actions for one" }).click();
+    await page.getByRole("menuitem", { name: "Remove from book" }).click();
+    await expect(panel(page).getByRole("listitem")).toHaveCount(0);
+    await panel(page).getByRole("button", { name: "Removed references (1)" }).click();
+    const dialog = page.getByRole("dialog", { name: "Removed references" });
+    await expect(dialog.getByText("one.png")).toBeVisible();
+    await expect(dialog.getByText(/Image · Removed/)).toBeVisible();
+    await dialog.getByRole("button", { name: "Restore one" }).click();
+    await expect(dialog.getByText("Nothing removed")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(panel(page).getByRole("listitem")).toHaveCount(1);
+    await expect(panel(page).getByRole("button", { name: /Removed references/ })).toHaveCount(0);
+    expect((await manifestOf(page)).references.map((r: { file: string }) => r.file)).toEqual([
+      "references/one.png",
+    ]);
+  });
+
+  test("a restore that fails says so under its row and can be retried", async ({ page }) => {
+    await withReferences(page, { "/refs/one.png": PIXEL });
+    await panel(page).getByRole("button", { name: "Actions for one" }).click();
+    await page.getByRole("menuitem", { name: "Remove from book" }).click();
+    await panel(page).getByRole("button", { name: "Removed references (1)" }).click();
+    const dialog = page.getByRole("dialog", { name: "Removed references" });
+    await page.evaluate(() => (window.__restoreFails = true));
+    await dialog.getByRole("button", { name: "Restore one" }).click();
+    await expect(dialog.getByRole("alert")).toContainText("Could not restore one");
+    await page.evaluate(() => (window.__restoreFails = false));
+    await dialog.getByRole("button", { name: "Restore one" }).click();
+    await expect(dialog.getByText("Nothing removed")).toBeVisible();
+  });
+
   test("removes a reference from its row menu", async ({ page }) => {
     await withReferences(page, { "/refs/one.png": PIXEL });
     await panel(page).getByRole("button", { name: "Actions for one" }).click();

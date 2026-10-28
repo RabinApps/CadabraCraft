@@ -34,6 +34,7 @@ macro_rules! app_handlers {
             commands::read_reference,
             commands::trash_reference,
             commands::open_reference,
+            commands::reference_stream_url,
             commands::watch_project,
             typst::commands::typst_find,
             typst::commands::typst_list_fonts,
@@ -57,10 +58,19 @@ macro_rules! app_handlers {
 #[cfg(test)]
 mod ipc_tests;
 
+/// The `cadabra-ref` scheme's handler: the file read runs on the blocking pool, off the UI thread.
+fn serve_media<R: tauri::Runtime>(app: &tauri::AppHandle<R>, req: tauri::http::Request<Vec<u8>>, responder: tauri::UriSchemeResponder) {
+    use tauri::Manager;
+    let roots = app.state::<commands::MediaRoots>().inner().clone();
+    tauri::async_runtime::spawn_blocking(move || responder.respond(commands::respond(&roots, &req).map(std::borrow::Cow::Owned)));
+}
+
 pub fn run() {
     let builder = tauri::Builder::default()
         .manage(platform::fs_watch::WatchState::default())
         .manage(audio::AudioJobs::default())
+        .manage(commands::MediaRoots::default())
+        .register_asynchronous_uri_scheme_protocol(commands::MEDIA_SCHEME, |ctx, req, responder| serve_media(ctx.app_handle(), req, responder))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())

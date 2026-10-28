@@ -103,3 +103,55 @@ export const insertionIndex = (middles: number[], y: number): number =>
 
 /** The list position a row ends up at when it is dropped at insertion point `at` (the row's own removal shifts later points up). */
 export const dropPosition = (from: number, at: number): number => (at > from ? at - 1 : at);
+
+/** How the list is shown. "manual" is the saved order (the one reordering changes); the others are views and never change it. */
+export type SortKey = "manual" | "title-asc" | "title-desc" | "newest" | "oldest" | "kind";
+
+const KIND_ORDER: ReferenceKind[] = ["image", "video", "pdf", "audio", "text", "other"];
+const byTitle = (a: Reference, b: Reference) =>
+  a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: "base" });
+
+/** The references in the order of `key`; ties keep the saved order. */
+export function sortReferences(list: Reference[], key: SortKey): Reference[] {
+  const cmp: Record<SortKey, (a: Reference, b: Reference) => number> = {
+    manual: () => 0,
+    "title-asc": byTitle,
+    "title-desc": (a, b) => byTitle(b, a),
+    newest: (a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt),
+    oldest: (a, b) => Date.parse(a.addedAt) - Date.parse(b.addedAt),
+    kind: (a, b) =>
+      KIND_ORDER.indexOf(referenceKind(a.file)) - KIND_ORDER.indexOf(referenceKind(b.file)) ||
+      byTitle(a, b),
+  };
+  return [...list].sort(cmp[key]);
+}
+
+/** A removed reference file found in the project trash. */
+export interface RemovedReference {
+  /** Where it is in `.cadabra/trash`. */
+  path: string;
+  /** The name it had, `references/<name>`. */
+  original: string;
+  /** The trash time stamp (`YYYYMMDD-HHMM`). */
+  stamp: string;
+}
+
+/** The reference files among the trash entries, newest removal first. */
+export function removedReferences(
+  entries: { path: string; original: string; trashed_at: string }[],
+): RemovedReference[] {
+  return entries
+    .filter((e) => e.original.startsWith("references/"))
+    .map((e) => ({ path: e.path, original: e.original, stamp: e.trashed_at }))
+    .sort((a, b) => b.stamp.localeCompare(a.stamp));
+}
+
+/** The moment a trash stamp (`YYYYMMDD-HHMM`) names, or null when it is not one. */
+export function stampDate(stamp: string): Date | null {
+  const m = /^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})/.exec(stamp);
+  return m ? new Date(+m[1]!, +m[2]! - 1, +m[3]!, +m[4]!, +m[5]!) : null;
+}
+
+/** A title for a restored file: its name without the extension. */
+export const titleFromFile = (file: string): string =>
+  (file.split("/").pop() ?? file).replace(/\.[^.]+$/, "");

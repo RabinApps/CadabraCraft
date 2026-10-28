@@ -1,6 +1,18 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowUpDown, Grid2x2, List, Plus, Upload, X } from "lucide-react";
+import { plural } from "@lingui/core/macro";
+import * as M from "@radix-ui/react-dropdown-menu";
+import {
+  ArchiveRestore,
+  ArrowUpDown,
+  Check,
+  ChevronDown,
+  Grid2x2,
+  List,
+  Plus,
+  Upload,
+  X,
+} from "lucide-react";
 import {
   allTags,
   canReorder,
@@ -8,7 +20,9 @@ import {
   filterReferences,
   insertionIndex,
   NO_FILTER,
+  sortReferences,
   type ReferenceKind,
+  type SortKey,
 } from "../../lib/referenceKinds";
 import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
@@ -18,7 +32,9 @@ import { Field } from "../../ui/Input";
 import { Notice } from "../../ui/Notice";
 import { cx } from "../../ui/cx";
 import { ProgressBar } from "../../ui/ProgressBar";
+import { menuContentClass, menuItemClass } from "../../ui/Menu";
 import { ReferenceRow } from "./ReferenceRow";
+import { RemovedReferencesDialog } from "./RemovedReferencesDialog";
 import { useReferenceDrop } from "./useReferenceDrop";
 
 interface Props {
@@ -36,11 +52,11 @@ function DropLine({ below }: { below?: boolean }) {
       aria-hidden
       data-drop-line
       className={cx(
-        "pointer-events-none absolute inset-x-0 h-[3px] rounded-full bg-accent",
-        below ? "-bottom-[5.5px]" : "-top-[5.5px]",
+        "pointer-events-none absolute inset-x-0 h-0.75 rounded-full bg-accent",
+        below ? "bottom-[-5.5px]" : "top-[-5.5px]",
       )}
     >
-      <span className="absolute -start-1 -top-[3px] size-[9px] rounded-full bg-accent" />
+      <span className="absolute -inset-s-1 -top-0.75 size-2.25 rounded-full bg-accent" />
     </span>
   );
 }
@@ -55,7 +71,14 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
   const [filter, setFilter] = useState(NO_FILTER);
   const [grid, setGrid] = useState(false);
   useReferenceDrop();
-  const reorderable = canReorder(filter) && !grid;
+  const [sort, setSort] = useState<SortKey>("manual");
+  const [removedOpen, setRemovedOpen] = useState(false);
+  const removedCount = useProject((s) => s.removedReferences.length);
+  useEffect(() => {
+    void actions.refreshRemovedReferences();
+  }, [actions]);
+  const manual = sort === "manual";
+  const reorderable = canReorder(filter) && !grid && manual;
   /** The row being dragged and the insertion point (0 = before the first row) under the pointer. */
   const [drag, setDrag] = useState<{ id: string; at: number } | null>(null);
   const at = useRef(0);
@@ -92,7 +115,18 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
     setDrag({ id, at: index });
   };
   const tags = useMemo(() => allTags(references), [references]);
-  const shown = useMemo(() => filterReferences(references, filter), [references, filter]);
+  const shown = useMemo(
+    () => sortReferences(filterReferences(references, filter), sort),
+    [references, filter, sort],
+  );
+  const sorts: [SortKey, string][] = [
+    ["manual", t`Manual order`],
+    ["title-asc", t`Title A-Z`],
+    ["title-desc", t`Title Z-A`],
+    ["newest", t`Newest first`],
+    ["oldest", t`Oldest first`],
+    ["kind", t`Kind`],
+  ];
   const kinds: [ReferenceKind | "all", string][] = [
     ["all", t`All`],
     ["image", t`Images`],
@@ -129,10 +163,47 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
           onClick={() => setGrid(!grid)}
         />
       </div>
-      {!reorderable && !grid && references.length > 1 && (
+      <div className="flex items-center justify-between gap-2">
+        <M.Root>
+          <M.Trigger asChild>
+            <button
+              type="button"
+              aria-label={t`Sort references`}
+              className="flex h-8 items-center gap-1.5 rounded-md border border-border-strong px-2.5 text-xs font-semibold text-ink data-[state=open]:border-accent data-[state=open]:bg-accent-soft data-[state=open]:text-accent focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              <ArrowUpDown size={14} aria-hidden />
+              {sorts.find(([k]) => k === sort)![1]}
+              <ChevronDown size={14} aria-hidden />
+            </button>
+          </M.Trigger>
+          <M.Portal>
+            <M.Content align="start" className={menuContentClass("min-w-52")}>
+              <M.RadioGroup value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                {sorts.map(([key, text]) => (
+                  <Fragment key={key}>
+                    {key === "title-asc" && <M.Separator className="my-1 h-px bg-border" />}
+                    <M.RadioItem value={key} className={menuItemClass()}>
+                      <span className="flex size-3.5 items-center justify-center text-accent">
+                        <M.ItemIndicator>
+                          <Check size={14} aria-hidden />
+                        </M.ItemIndicator>
+                      </span>
+                      <span className={key === sort ? "font-semibold" : ""}>{text}</span>
+                    </M.RadioItem>
+                  </Fragment>
+                ))}
+              </M.RadioGroup>
+            </M.Content>
+          </M.Portal>
+        </M.Root>
+        <span className="text-xs text-ink-muted">
+          {plural(shown.length, { one: "# reference", other: "# references" })}
+        </span>
+      </div>
+      {!grid && references.length > 1 && !reorderable && (
         <p className="flex items-center gap-1.5 text-xs text-ink-muted">
           <ArrowUpDown size={14} aria-hidden />
-          {t`Clear search and filters to reorder`}
+          {manual ? t`Clear search and filters to reorder` : t`Switch to Manual order to reorder`}
         </p>
       )}
       <div role="group" aria-label={t`Filter by type`} className="flex flex-wrap gap-1.5">
@@ -237,6 +308,12 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
         <Upload size={18} aria-hidden />
         {t`Drop files here to add them`}
       </button>
+      {removedCount > 0 && (
+        <Button variant="ghost" icon={ArchiveRestore} onClick={() => setRemovedOpen(true)}>
+          {t`Removed references (${removedCount})`}
+        </Button>
+      )}
+      <RemovedReferencesDialog open={removedOpen} onOpenChange={setRemovedOpen} />
     </section>
   );
 }

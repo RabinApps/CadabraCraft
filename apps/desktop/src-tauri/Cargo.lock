@@ -399,6 +399,7 @@ dependencies = [
  "notify-debouncer-mini",
  "ogg",
  "opus-rs",
+ "percent-encoding",
  "reqwest",
  "rustls",
  "serde",

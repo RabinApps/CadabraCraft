@@ -19,7 +19,7 @@ export const createTrashActions = (ctx: Ctx): TrashActions => {
       const isTranslation = (original: string) =>
         languages.some((l) => original.split("/")[1] === l && original.split("/").length === 3);
       for (const e of entries) {
-        if (isTranslation(e.original)) continue;
+        if (isTranslation(e.original) || e.original.startsWith("references/")) continue; // reference files have their own list
         const r = await bridge.readFile(root, e.path).catch(() => null);
         let doc: unknown = null;
         try {

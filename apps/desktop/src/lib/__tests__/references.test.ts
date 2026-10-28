@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { stat, read } = vi.hoisted(() => ({ stat: vi.fn(), read: vi.fn() }));
-vi.mock("../bridge", () => ({ bridge: { statReference: stat, readReference: read } }));
+const { stat, read, stream } = vi.hoisted(() => ({
+  stat: vi.fn(),
+  read: vi.fn(),
+  stream: vi.fn(),
+}));
+vi.mock("../bridge", () => ({
+  bridge: { statReference: stat, readReference: read, referenceStreamUrl: stream },
+}));
 
 import {
   forgetProjectReferences,
@@ -16,6 +22,8 @@ const revoked: string[] = [];
 beforeEach(async () => {
   stat.mockReset();
   read.mockReset();
+  stream.mockReset();
+  stream.mockResolvedValue(null);
   created.length = 0;
   revoked.length = 0;
   let n = 0;
@@ -55,6 +63,36 @@ describe("reading a reference file", () => {
   it("an empty file has no parts", async () => {
     stat.mockResolvedValue({ size: 0, kind: "other" });
     expect(await readReferenceBytes("/p", "references/a.bin")).toEqual(new Uint8Array());
+  });
+});
+
+describe("referenceUrl for audio and video", () => {
+  it("streams from the scheme URL without reading the file", async () => {
+    stream.mockResolvedValue("cadabra-ref://localhost/tok/a.mp4");
+    expect(await referenceUrl("/p", "references/a.mp4")).toBe("cadabra-ref://localhost/tok/a.mp4");
+    expect(await referenceUrl("/p", "references/a.mp4")).toBe("cadabra-ref://localhost/tok/a.mp4");
+    expect(stream).toHaveBeenCalledTimes(1);
+    expect(stream).toHaveBeenCalledWith("/p", "references/a.mp4");
+    expect(stat).not.toHaveBeenCalled();
+    expect(created).toEqual([]);
+    forgetReference("/p", "references/a.mp4");
+  });
+  it("streams audio too, but never images, PDFs or text", async () => {
+    stream.mockResolvedValue("cadabra-ref://localhost/tok/x");
+    expect(await referenceUrl("/p", "references/a.mp3")).toBe("cadabra-ref://localhost/tok/x");
+    serve([1, 2]);
+    for (const f of ["a.png", "a.pdf", "a.txt"]) await referenceUrl("/p", `references/${f}`);
+    expect(stream).toHaveBeenCalledTimes(1);
+    expect(created.length).toBe(3);
+  });
+  it("falls back to a Blob when the host has no scheme, and when the lookup fails nothing is cached", async () => {
+    serve([1, 2, 3]);
+    expect(await referenceUrl("/p", "references/a.webm")).toBe("blob:1");
+    expect(created[0]!.type).toBe("video/webm");
+    forgetReference("/p", "references/a.webm");
+    stream.mockRejectedValueOnce(new Error("refused"));
+    await expect(referenceUrl("/p", "references/a.webm")).rejects.toThrow("refused");
+    expect(await referenceUrl("/p", "references/a.webm")).toBe("blob:2");
   });
 });
 
