@@ -12,7 +12,7 @@ import { useProject } from "../../state/project/index";
 const item =
   "flex cursor-default items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-accent-soft";
 
-const nativeName = (code: string): string =>
+export const nativeName = (code: string): string =>
   LOCALES.find((l) => l.code === code)?.nativeName ?? code;
 
 /** The edition chip in the editor's top bar: shows the edition being written and switches or adds editions. */

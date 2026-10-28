@@ -24,16 +24,6 @@ msgstr "“{page}”: {detail}"
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 msgstr "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 
-#. placeholder {0}: missing.length
-#: src/lib/exportChecks.ts
-msgid "{0, plural, one {# page is not translated and will be left out: {names}} other {# pages are not translated and will be left out: {names}}}"
-msgstr "{0, plural, one {# page is not translated and will be left out: {names}} other {# pages are not translated and will be left out: {names}}}"
-
-#. placeholder {0}: missing.length
-#: src/lib/exportChecks.ts
-msgid "{0, plural, one {# page is not translated yet and stops the export: {names}} other {# pages are not translated yet and stop the export: {names}}}"
-msgstr "{0, plural, one {# page is not translated yet and stops the export: {names}} other {# pages are not translated yet and stop the export: {names}}}"
-
 #. placeholder {0}: countWords(c.doc)
 #. placeholder {0}: v.words
 #: src/app/dialogs/HistoryDialog.tsx
@@ -131,6 +121,7 @@ msgstr "{0} leaves the project folder through a symbolic link"
 
 #. placeholder {0}: p.translated
 #. placeholder {1}: p.total
+#: src/app/export/EditionsChecklist.tsx
 #: src/app/shell/EditionSwitcher.tsx
 msgid "{0} of {1} chapters"
 msgstr "{0} of {1} chapters"
@@ -643,6 +634,11 @@ msgstr "Choose a look for your book"
 msgid "Choose file…"
 msgstr "Choose file…"
 
+#. placeholder {0}: nativeName(blocked)
+#: src/app/export/ExportDialog.tsx
+msgid "Choose how to handle {0} to export it."
+msgstr "Choose how to handle {0} to export it."
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Choose image…"
 msgstr "Choose image…"
@@ -804,6 +800,10 @@ msgstr "Creates an EPUB 3 e-book in the exports folder."
 msgid "Crop marks"
 msgstr "Crop marks"
 
+#: src/app/export/EditionsChecklist.tsx
+msgid "Current"
+msgstr "Current"
+
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Custom page"
@@ -920,6 +920,10 @@ msgstr "Edit details"
 #: src/app/shell/EditionSwitcher.tsx
 msgid "Edition: {0}"
 msgstr "Edition: {0}"
+
+#: src/app/export/EditionsChecklist.tsx
+msgid "Editions"
+msgstr "Editions"
 
 #: src/app/settings/Settings.tsx
 msgid "Editor"
@@ -1350,7 +1354,6 @@ msgstr "Kokoro: Heart"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/export/ExportDialog.tsx
 #: src/app/shell/Details.tsx
 #: src/ui/LanguagePicker.tsx
 msgid "Language"
@@ -1372,9 +1375,9 @@ msgstr "Later"
 msgid "Leave empty to use the Typst that comes with the app."
 msgstr "Leave empty to use the Typst that comes with the app."
 
-#: src/app/export/ExportDialog.tsx
-msgid "Leaves out pages that are still a copy or blank, and says which. Without this, an edition with untranslated pages cannot be exported."
-msgstr "Leaves out pages that are still a copy or blank, and says which. Without this, an edition with untranslated pages cannot be exported."
+#: src/app/export/EditionsChecklist.tsx
+msgid "Leaves them out of this export; the list above says which."
+msgstr "Leaves them out of this export; the list above says which."
 
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
@@ -1617,6 +1620,12 @@ msgstr "Not installed. Download it from the Audiobook export."
 msgid "Not translated yet"
 msgstr "Not translated yet"
 
+#. placeholder {0}: nativeName(e.language)
+#. placeholder {1}: missing .map( (m) => m.titles[e.language] ?? m.titles[manifest.editions[0]!.language] ?? m.id, ) .join(", ")
+#: src/app/export/EditionsChecklist.tsx
+msgid "Not translated yet in {0}: {1}"
+msgstr "Not translated yet in {0}: {1}"
+
 #: src/app/dialogs/ImportReportDialog.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
@@ -1714,6 +1723,10 @@ msgstr "Paste as styled text?"
 #: src/app/export/PdfPanel.tsx
 msgid "PDF/A (archival)"
 msgstr "PDF/A (archival)"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Pick an edition to export."
+msgstr "Pick an edition to export."
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Pick or create an empty folder. The imported book is stored there."
@@ -2057,7 +2070,7 @@ msgstr "Show margins"
 msgid "Shown in this preview only. The PDF does not include bleed or crop marks yet."
 msgstr "Shown in this preview only. The PDF does not include bleed or crop marks yet."
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/EditionsChecklist.tsx
 msgid "Skip untranslated chapters"
 msgstr "Skip untranslated chapters"
 
@@ -2240,10 +2253,6 @@ msgstr "The download stopped"
 #: src/lib/audioErrors.ts
 msgid "the downloaded file {0} was damaged and was deleted. Try the download again"
 msgstr "the downloaded file {0} was damaged and was deleted. Try the download again"
-
-#: src/app/export/ExportDialog.tsx
-msgid "The edition to export. Files go to {dir}."
-msgstr "The edition to export. Files go to {dir}."
 
 #: src/editor/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."

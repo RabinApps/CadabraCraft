@@ -7,7 +7,7 @@ import type { ExportScope } from "../../state/project/types";
 import { CheckList } from "./CheckList";
 
 /** The EPUB format: the accessibility checks for the book as it is now. Mounted only while the dialog shows EPUB. */
-export function EpubPanel({ language, skipUntranslated }: ExportScope) {
+export function EpubPanel({ language }: ExportScope) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const readPages = useProject((s) => s.actions.readPages);
@@ -29,6 +29,6 @@ export function EpubPanel({ language, skipUntranslated }: ExportScope) {
       live = false;
     };
   }, [readPages, manifest, language]);
-  const checks = manifest ? epubChecks(manifest, altPages, { language, skipUntranslated }) : [];
+  const checks = manifest ? epubChecks(manifest, altPages, { language }) : [];
   return <CheckList checks={checks} label={t`Checks`} />;
 }

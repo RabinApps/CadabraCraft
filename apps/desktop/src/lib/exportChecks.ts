@@ -1,4 +1,4 @@
-import { isTranslated, readingOrder, sourceEdition, sourceTitle } from "@cadabracraft/format";
+import { sourceEdition, sourceTitle } from "@cadabracraft/format";
 import { plural, t } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { imageAltStats } from "@cadabracraft/export-epub";
@@ -75,35 +75,6 @@ export function pdfChecks({ estimatedPages, margins, hasCover }: PdfCheckInput):
   return checks;
 }
 
-/** Pages not translated into `language`: they stop the export, or (with skip) are left out and said so. */
-export function untranslatedChecks(
-  manifest: Manifest,
-  language: string,
-  skip: boolean,
-): ExportCheck[] {
-  const missing = readingOrder(manifest).filter(
-    (e) => !isTranslated(e, language, manifest.editions),
-  );
-  if (missing.length === 0) return [];
-  const names = missing
-    .map((e) => e.titles[language] ?? sourceTitle(e, manifest.editions))
-    .join(", ");
-  return [
-    {
-      tone: "warn",
-      text: skip
-        ? plural(missing.length, {
-            one: `# page is not translated and will be left out: ${names}`,
-            other: `# pages are not translated and will be left out: ${names}`,
-          })
-        : plural(missing.length, {
-            one: `# page is not translated yet and stops the export: ${names}`,
-            other: `# pages are not translated yet and stop the export: ${names}`,
-          }),
-    },
-  ];
-}
-
 /** A page of the book as the checks see it: `file` names a page with no title. */
 export interface CheckPage {
   title: string;
@@ -115,7 +86,7 @@ export interface CheckPage {
 export function epubChecks(
   manifest: Manifest,
   pages: CheckPage[] = [],
-  scope: { language?: string; skipUntranslated?: boolean } = {},
+  scope: { language?: string } = {},
 ): ExportCheck[] {
   const checks: ExportCheck[] = [];
   const language = scope.language ?? sourceEdition(manifest.editions).language;
@@ -141,7 +112,6 @@ export function epubChecks(
       }),
     });
   }
-  checks.push(...untranslatedChecks(manifest, language, scope.skipUntranslated ?? false));
   if (checks.length === 0) checks.push({ tone: "ok", text: t`No problems found` });
   return checks;
 }

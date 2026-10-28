@@ -33,7 +33,7 @@ test("add a French edition, write it, switch back and forth", async ({ page }) =
   await expect(page.locator(".ProseMirror")).toContainText("Bonjour");
 });
 
-test("export a French edition: blocked while untranslated, then left out with skip", async ({
+test("export editions: a French edition is blocked until its untranslated chapters are skipped, and several editions export together", async ({
   page,
 }) => {
   await newProject(page);
@@ -45,16 +45,23 @@ test("export a French edition: blocked while untranslated, then left out with sk
   await expect(page.getByRole("button", { name: /Edition: Français/ })).toBeVisible();
 
   await page.getByRole("button", { name: "Export", exact: true }).click();
-  const exportDialog = page.getByRole("dialog", { name: "Export book" });
-  await exportDialog.getByRole("radio", { name: "EPUB 3" }).click();
-  await expect(exportDialog.getByLabel("Language")).toHaveValue("fr");
-  await exportDialog.getByRole("button", { name: "Export", exact: true }).click();
-  await expect(exportDialog.getByRole("alert")).toContainText("not translated");
+  const ex = page.getByRole("dialog", { name: "Export book" });
+  await ex.getByRole("radio", { name: "EPUB 3" }).click();
+  // The open edition starts checked and tagged Current; its untranslated chapter stops the export.
+  await expect(ex.getByLabel("Français")).toBeChecked();
+  await expect(ex.getByText("Current")).toBeVisible();
+  await expect(ex.getByText("Choose how to handle Français to export it.")).toBeVisible();
+  const submit = ex.getByRole("button", { name: "Export", exact: true });
+  await expect(submit).toBeDisabled();
 
-  await exportDialog.getByLabel("Skip untranslated chapters").check();
-  await exportDialog.getByRole("button", { name: "Export", exact: true }).click();
-  await expect(page.getByRole("status")).toContainText("Exported exports/fr/book.epub");
-  expect(await page.evaluate(() => "exports/fr/book.epub" in window.__disk)).toBe(true);
+  await ex.getByLabel("Skip untranslated chapters").check();
+  await expect(submit).toBeEnabled();
+  await ex.getByLabel("English").check();
+  await submit.click();
+  await expect(ex).toHaveCount(0);
+  const disk = await page.evaluate(() => Object.keys(window.__disk));
+  expect(disk).toContain("exports/fr/book.epub");
+  expect(disk).toContain("exports/en/book.epub");
 });
 
 test("book details belong to the open edition", async ({ page }) => {

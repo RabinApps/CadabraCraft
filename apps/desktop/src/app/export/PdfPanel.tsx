@@ -11,7 +11,7 @@ import {
 } from "@cadabracraft/templates";
 import type { Manifest } from "@cadabracraft/format";
 import type { ExportScope } from "../../state/project/types";
-import { pdfChecks, untranslatedChecks } from "../../lib/exportChecks";
+import { pdfChecks } from "../../lib/exportChecks";
 import { estimatePages, wordsPerPage } from "../../lib/printEstimate";
 import { readStored, removeStored, writeStored } from "../../lib/persisted";
 import { trimLabel } from "../../lib/trimLabels";
@@ -62,7 +62,6 @@ export function PdfPanel({
   running,
   error,
   language,
-  skipUntranslated,
 }: {
   options: PdfOptions;
   running: boolean;
@@ -107,15 +106,12 @@ export function PdfPanel({
     const print = getTemplate(current).print;
     const margins = print.defaults.marginsIn;
     const perPage = wordsPerPage(TRIM_SIZES[trimSize], margins, print.fontSizePt);
-    return [
-      ...pdfChecks({
-        estimatedPages: estimatePages(words, manifest.chapters.length, perPage),
-        margins,
-        hasCover: edition?.cover != null,
-      }),
-      ...untranslatedChecks(manifest, edition!.language, skipUntranslated ?? false),
-    ];
-  }, [manifest, words, current, trimSize, edition, skipUntranslated]);
+    return pdfChecks({
+      estimatedPages: estimatePages(words, manifest.chapters.length, perPage),
+      margins,
+      hasCover: edition?.cover != null,
+    });
+  }, [manifest, words, current, trimSize, edition]);
   return (
     <>
       {pdfCheckList.length > 0 && <CheckList checks={pdfCheckList} label={t`Print checks`} />}
