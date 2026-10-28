@@ -27,6 +27,8 @@ pub fn start<R: Runtime>(app: AppHandle<R>, root: PathBuf, state: &WatchState) -
 
 /// `start` with the debounce and the notification sink injectable, so the watcher can be tested without an app.
 fn start_with(root: PathBuf, debounce: Duration, mut notify: Box<dyn FnMut(String) + Send>, state: &WatchState) -> Result<(), String> {
+    // FSEvents reports real paths: a root given through a link (macOS /var, a linked sync folder) would match nothing.
+    let root = std::fs::canonicalize(&root).unwrap_or(root);
     let r = root.clone();
     let mut debouncer = new_debouncer(debounce, move |res: notify_debouncer_mini::DebounceEventResult| {
         for e in res.into_iter().flatten() {
@@ -95,6 +97,20 @@ mod tests {
         assert_eq!(rx.try_recv(), Err(TryRecvError::Disconnected), "the replaced watcher is gone");
         fs::write(root.join("manuscript/002-b.json"), "{}").unwrap();
         wait_for(&rx2, "manuscript/002-b.json");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_root_given_through_a_link_still_reports_changes() {
+        let d = tempfile::tempdir().unwrap();
+        let real = fs::canonicalize(d.path()).unwrap();
+        fs::create_dir_all(real.join("book/manuscript")).unwrap();
+        std::os::unix::fs::symlink(real.join("book"), real.join("linked")).unwrap();
+        let state = WatchState::default();
+        let (tx, rx) = channel();
+        start_with(real.join("linked"), SHORT, Box::new(move |rel| drop(tx.send(rel))), &state).unwrap();
+        fs::write(real.join("book/manuscript/001-a.json"), "{}").unwrap();
+        wait_for(&rx, "manuscript/001-a.json");
     }
 
     #[test]
