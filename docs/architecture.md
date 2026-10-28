@@ -13,6 +13,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 - [Menu bar](#menu-bar)
 - [Sponsor dialog after an export](#sponsor-dialog-after-an-export)
 - [Internationalization (UI)](#internationalization-ui)
+- [Editions (translations in one book)](#editions-translations-in-one-book)
 - [Safety follow-ups (window close, project root, CSP, binary compile request)](#safety-follow-ups-window-close-project-root-csp-binary-compile-request)
 - [Code review refactors (Rust scope, errors, autosave)](#code-review-refactors-rust-scope-errors-autosave)
 - [Chapter snapshots and History](#chapter-snapshots-and-history)
@@ -217,6 +218,34 @@ Rust returns error codes with params, not English sentences; the UI translates t
 ### Follow-ups / caveats
 
 Only English strings exist; he/ar/ja layout and fonts are unverified until catalogs land. Lingui and the Babel pipeline add a build step and about 100 dev dependencies (mostly Babel). Non-English catalogs need native-speaker review before a locale is enabled in the picker.
+
+## Editions (translations in one book)
+
+Status: decided 2026-10-27; formatVersion 4 is active. The editor switcher, Add language and per-edition chapter text are in the desktop app; export per language, per-edition book details and MCP `language` arguments are still open (see the roadmap, "Editions"). Scope: one book holds the same book in several languages (translation editions) for v1. It does not cover mixed-language passages inside one edition; that stays out until a `lang` mark is designed.
+
+### Decision: one project, shared structure, per-language text
+
+- A project has an `editions` list. Each edition has its own `language`, `title`, `author`, `identifier`, `isbn` and `cover`. The first edition is the source. The top-level `title`, `author`, `language`, `identifier`, `isbn` and `cover` move into it.
+- Chapter and matter entries keep one `id` and `kind` across editions. Their text and title are per language: `files` and `titles` map a language to a file or title. The `template` stays shared.
+- Structure changes (add, remove, reorder) apply to every edition. A new chapter is "not translated yet" in the other editions until its file exists.
+- Export runs per edition into `exports/<lang>/`. An edition with an untranslated chapter cannot be exported unless the author picks "skip untranslated" (the chapter is left out and listed).
+- The v3 to v4 migration does not move files: the source edition keeps the old paths (`files.en` points at `manuscript/001-…json`), and new editions write under `manuscript/<lang>/` and `front-matter/<lang>/`. Keeping the files in place means the migration only rewrites `cadabra.json`, so it cannot lose or misplace text.
+
+Rejected:
+
+- **One project folder per language, linked by an id.** Chapter order and structure drift apart, and every structural change must be repeated by hand in each project.
+- **Falling back to the source text for an untranslated chapter at export.** It would publish English text in a French book without the author noticing.
+- **Moving every existing file into a language folder during the migration.** It touches every chapter file and breaks any tool that already points at them; the in-place mapping gets the same result with a manifest-only change.
+
+### How the editor works in an edition
+
+- The store has `activeLanguage` (null means the source). Opening a chapter reads its file in that language; a file that does not exist yet opens as a blank page with the edition's title. Autosave writes to the same file, and the first save of a chapter added after the edition was made creates its file and records it in the manifest.
+- A translation file is untranslated while its entry lists the language in `untranslated`. Add language marks every chapter that way, because its files are copies or blank pages. The first save in that language clears the mark, so typing is the way a chapter becomes translated. There is no separate button. Rejected: a manual "Mark as translated" action, which the pen design does not show and which is easy to forget.
+- Sidebar and page rows show the active language's title and a "Not translated yet" badge. Renaming in a translation changes only that language's title and is not in the undo history.
+- The editor switcher lists the editions with "N of M chapters" and adds a language from the same list the book details language field uses (`LOCALES`). The pen design says "enabled languages only"; that list is the UI locales, which only English has, so a book could never gain a French edition. This is a deliberate difference from the pen until the user confirms it.
+- Export, audiobook, find and replace all, and the word count of the export still read the source edition. Removing a chapter moves only its source file to the trash; undo restores only that file. Both are open (see the roadmap).
+
+Consequences: the MCP tools (which take `language`, defaulting to the source), per-edition export and snapshot paths still change. The pen design for the switcher and the Add Language dialog is drawn (`00fefda`).
 
 ## Safety follow-ups (window close, project root, CSP, binary compile request)
 

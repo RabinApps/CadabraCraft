@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { addChapter, moveChapter, removeChapter, renameChapter, type ManuscriptEntry } from "@cadabracraft/format";
+import { addChapter, moveChapter, removeChapter, renameChapter, sourceFile, sourceTitle, type Edition, type EditionEntry } from "@cadabracraft/format";
 import { importMarkdown, type ImportWarning } from "@cadabracraft/import-docx";
 import { ProjectFsError, backupFile, countWords, imageExt, looksLike, readAsset, readProjectFile, trashFile, writeProjectFile } from "@cadabracraft/project-fs";
 import { isAssetPath, type ChapterDoc } from "@cadabracraft/shared";
@@ -12,7 +12,7 @@ import { PATH } from "./project";
 const CHAPTER_ID = z.string().min(1).describe("Chapter id from cadabra_project_info (e.g. ch-1).");
 const BASE_HASH = z.string().regex(/^[0-9a-f]{64}$/).optional().describe("hash from cadabra_chapter_read. If the file changed on disk since then, that version is kept as a .conflict- copy before yours is written.");
 
-const brief = (e: ManuscriptEntry) => ({ id: e.id, title: e.title, file: e.file });
+const brief = (e: EditionEntry, editions: Edition[]) => ({ id: e.id, title: sourceTitle(e, editions), file: sourceFile(e, editions) });
 const json = (doc: unknown): string => JSON.stringify(doc, null, 2);
 
 export const chapterAdd = defineTool({
@@ -25,10 +25,11 @@ export const chapterAdd = defineTool({
     withLock(projectRoot(ctx, path), () => {
       const { root, manifest, hash } = loadProject(ctx, path);
       const { manifest: next, entry } = addChapter(manifest, title);
-      if (readProjectFile(root, entry.file)) throw new ToolError("io_error", `${entry.file} already exists on disk but is not listed in the book; refusing to overwrite it`);
-      writeProjectFile(root, entry.file, json(emptyChapterDoc(title)));
+      const file = sourceFile(entry, next.editions);
+      if (readProjectFile(root, file)) throw new ToolError("io_error", `${file} already exists on disk but is not listed in the book; refusing to overwrite it`);
+      writeProjectFile(root, file, json(emptyChapterDoc(title)));
       const w = saveManifest(root, next, hash);
-      return { summary: `Added chapter ${entry.id} "${title}" (${entry.file})`, data: { chapter: entry, position: next.chapters.length, manifestHash: w.hash, conflictCopy: w.conflictCopy } };
+      return { summary: `Added chapter ${entry.id} "${title}" (${file})`, data: { chapter: brief(entry, next.editions), position: next.chapters.length, manifestHash: w.hash, conflictCopy: w.conflictCopy } };
     }),
 });
 
@@ -44,7 +45,7 @@ export const chapterRename = defineTool({
       const next = chaptersOnly(() => renameChapter(manifest, chapterId, title), chapterId);
       saveManifest(root, next, hash);
       const chapter = next.chapters.find((c) => c.id === chapterId)!;
-      return { summary: `Renamed ${chapterId} to "${title}"`, data: { chapter: brief(chapter) } };
+      return { summary: `Renamed ${chapterId} to "${title}"`, data: { chapter: brief(chapter, manifest.editions) } };
     }),
 });
 
@@ -60,7 +61,7 @@ export const chapterMove = defineTool({
       const next = chaptersOnly(() => moveChapter(manifest, chapterId, delta), chapterId);
       saveManifest(root, next, hash);
       const position = next.chapters.findIndex((c) => c.id === chapterId) + 1;
-      return { summary: `Moved ${chapterId} to position ${position}`, data: { position, order: next.chapters.map((c) => ({ id: c.id, title: c.title })) } };
+      return { summary: `Moved ${chapterId} to position ${position}`, data: { position, order: next.chapters.map((c) => ({ id: c.id, title: sourceTitle(c, next.editions) })) } };
     }),
 });
 
@@ -77,11 +78,11 @@ export const chapterRemove = defineTool({
       saveManifest(root, next, hash);
       let trashedTo: string | null = null;
       try {
-        trashedTo = trashFile(root, removed.file);
+        trashedTo = trashFile(root, sourceFile(removed, manifest.editions));
       } catch (e) {
         if (!(e instanceof ProjectFsError && e.code === "not_found")) throw e;
       }
-      return { summary: `Removed ${chapterId} "${removed.title}"${trashedTo ? `; file moved to ${trashedTo}` : " (its file was already missing)"}`, data: { removed: brief(removed), trashedTo } };
+      return { summary: `Removed ${chapterId} "${sourceTitle(removed, manifest.editions)}"${trashedTo ? `; file moved to ${trashedTo}` : " (its file was already missing)"}`, data: { removed: brief(removed, manifest.editions), trashedTo } };
     }),
 });
 
@@ -104,9 +105,9 @@ export const chapterRead = defineTool({
   run: ({ path, chapterId }, ctx) => {
     const { root, manifest } = loadProject(ctx, path);
     const { entry, section } = findEntry(manifest, chapterId);
-    const { doc, hash } = readChapterFile(root, entry);
+    const { doc, hash } = readChapterFile(root, sourceFile(entry, manifest.editions));
     const words = countWords(doc);
-    return { summary: `${entry.title}: ${words} words`, data: { chapter: { ...brief(entry), section }, doc, text: docToText(doc), words, hash } };
+    return { summary: `${sourceTitle(entry, manifest.editions)}: ${words} words`, data: { chapter: { ...brief(entry, manifest.editions), section }, doc, text: docToText(doc), words, hash } };
   },
 });
 
@@ -117,12 +118,12 @@ interface Written {
 }
 
 /** Replaces a chapter file. The previous version is kept: as a conflict copy when baseHash shows it changed outside, else as a backup. */
-function replaceChapter(root: string, entry: ManuscriptEntry, doc: unknown, baseHash: string | undefined): Written {
+function replaceChapter(root: string, file: string, doc: unknown, baseHash: string | undefined): Written {
   const text = json(doc);
-  const existing = readProjectFile(root, entry.file);
+  const existing = readProjectFile(root, file);
   const conflicts = !!(baseHash && existing && existing.hash !== baseHash);
-  const backup = existing && !conflicts && existing.contents !== text ? backupFile(root, entry.file) : null;
-  const w = writeProjectFile(root, entry.file, text, baseHash);
+  const backup = existing && !conflicts && existing.contents !== text ? backupFile(root, file) : null;
+  const w = writeProjectFile(root, file, text, baseHash);
   return { hash: w.hash, conflictCopy: w.conflictCopy, backup };
 }
 
@@ -140,9 +141,9 @@ export const chapterWriteJson = defineTool({
       if (problem) throw new ToolError("invalid_chapter_doc", `the document is not valid in the editor schema: ${problem}`);
       const bad = badImageSources(doc);
       if (bad.length) throw new ToolError("invalid_chapter_doc", `image sources must be project-relative assets/<file> paths: ${bad.join(", ")}`, { sources: bad });
-      const w = replaceChapter(root, entry, doc, baseHash);
+      const w = replaceChapter(root, sourceFile(entry, manifest.editions), doc, baseHash);
       const words = countWords(doc);
-      return { summary: `Wrote ${entry.id} "${entry.title}": ${words} words${w.conflictCopy ? `; the outside version was kept as ${w.conflictCopy}` : ""}`, data: { chapter: brief(entry), ...w, words } };
+      return { summary: `Wrote ${entry.id} "${sourceTitle(entry, manifest.editions)}": ${words} words${w.conflictCopy ? `; the outside version was kept as ${w.conflictCopy}` : ""}`, data: { chapter: brief(entry, manifest.editions), ...w, words } };
     }),
 });
 
@@ -183,9 +184,9 @@ export const chapterWriteMarkdown = defineTool({
       const merged: ChapterDoc = remapImages({ type: "doc", content: result.chapters.flatMap((c) => c.doc.content) }, map);
       const problem = schemaProblem(merged);
       if (problem) throw new ToolError("invalid_chapter_doc", `the converted document is not valid in the editor schema: ${problem}`);
-      const w = replaceChapter(root, entry, merged, baseHash);
+      const w = replaceChapter(root, sourceFile(entry, manifest.editions), merged, baseHash);
       const words = countWords(merged);
-      return { summary: `Wrote ${entry.id} "${entry.title}" from Markdown: ${words} words, ${warnings.length} warning(s)`, data: { chapter: brief(entry), ...w, words, warnings } };
+      return { summary: `Wrote ${entry.id} "${sourceTitle(entry, manifest.editions)}" from Markdown: ${words} words, ${warnings.length} warning(s)`, data: { chapter: brief(entry, manifest.editions), ...w, words, warnings } };
     }),
 });
 

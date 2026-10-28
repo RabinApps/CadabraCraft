@@ -1,3 +1,4 @@
+import { sourceFile } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, hashOf as h } from "../../../test/fakeBridge";
 
@@ -65,7 +66,7 @@ describe("opening a book", () => {
   });
 
   it("offers a page whose newest snapshot is newer than the saved page, by title", async () => {
-    const file = s().manifest!.chapters[0]!.file;
+    const file = sourceFile(s().manifest!.chapters[0]!, s().manifest!.editions);
     stale = [
       { path: file, snapshot: ".cadabra/backups/x" },
       { path: "manuscript/not-in-book.json", snapshot: ".cadabra/backups/y" },
@@ -101,10 +102,10 @@ describe("restoring a snapshot", () => {
     const entry = s().manifest!.chapters[0]!;
     await a().saveCurrent(text("old words"));
     await a().saveCurrent(text("new words"));
-    const snapshot = snaps.get(entry.file)![0]!.path;
+    const snapshot = snaps.get(sourceFile(entry, s().manifest!.editions))![0]!.path;
     const before = s().reloadCount;
     await a().restoreSnapshot(entry.id, snapshot);
-    expect(calls).toContain(`restore ${entry.file} ${snapshot}`);
+    expect(calls).toContain(`restore ${sourceFile(entry, s().manifest!.editions)} ${snapshot}`);
     expect(JSON.stringify(s().currentDoc)).toContain("old words");
     expect(s().reloadCount).toBe(before + 1);
     expect(s().notice).toMatch(/Restored an earlier version of Chapter One/);
@@ -125,12 +126,15 @@ describe("restoring a snapshot", () => {
         {
           id: second.id,
           title: "Second",
-          file: second.file,
-          snapshot: snaps.get(second.file)![0]!.path,
+          file: sourceFile(second, s().manifest!.editions),
+          snapshot: snaps.get(sourceFile(second, s().manifest!.editions))![0]!.path,
         },
       ],
     });
-    await a().restoreSnapshot(second.id, snaps.get(second.file)![0]!.path);
+    await a().restoreSnapshot(
+      second.id,
+      snaps.get(sourceFile(second, s().manifest!.editions))![0]!.path,
+    );
     expect(s().currentId).toBe(second.id);
     expect(s().recovery).toEqual([]);
     expect(JSON.stringify(s().currentDoc)).toContain("two v1");

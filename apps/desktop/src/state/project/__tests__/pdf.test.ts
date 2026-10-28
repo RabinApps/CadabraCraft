@@ -41,6 +41,7 @@ vi.mock("../../../lib/bridge", async () =>
 );
 
 import { PdfUiError } from "../../../lib/pdfErrors";
+import { sourceEdition } from "@cadabracraft/format";
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;
@@ -80,8 +81,17 @@ const fail = async (): Promise<PdfUiError> => {
 };
 
 describe("exportPdf with a cover", () => {
-  const setCover = () =>
-    a().updateDetails({ ...s().manifest!, isbn: "", cover: "assets/front.png" });
+  const setCover = () => {
+    const e = sourceEdition(s().manifest!.editions);
+    return a().updateDetails({
+      title: e.title,
+      author: e.author,
+      language: e.language,
+      identifier: e.identifier,
+      isbn: "",
+      cover: "assets/front.png",
+    });
+  };
   const source = () => typst.compiles.at(-1)!.source;
   it("sends the cover image to Typst as the first page", async () => {
     assets.set("assets/front.png", new Uint8Array([1, 2, 3]));

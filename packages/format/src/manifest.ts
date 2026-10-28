@@ -1,37 +1,42 @@
 import { isBackMatterKind, isFrontMatterKind, type MatterKind } from "@cadabracraft/shared";
+import { FormatError } from "./errors";
+import { validateEditions } from "./editions";
 
-export const CURRENT_FORMAT_VERSION = 3;
+export { FormatError, isSafeRelativePath } from "./errors";
 
-export interface ManuscriptEntry {
-  id: string;
-  /** Relative path inside the project, using "/". */
-  file: string;
+export const CURRENT_FORMAT_VERSION = 4;
+
+/** One language version of the book (formatVersion 4). The first edition is the source. */
+export interface Edition {
+  language: string;
   title: string;
-  /** Front and back matter pages only (formatVersion 2): what the page is, for starter content and export semantics. */
+  author: string;
+  identifier: string;
+  isbn: string | null;
+  /** Relative `assets/<name>` path of this edition's cover image, or null. */
+  cover: string | null;
+}
+
+/** A chapter or matter page, shared by every edition. Text and titles are per language. */
+export interface EditionEntry {
+  id: string;
+  /** Front and back matter pages only: what the page is, for starter content and export semantics. */
   kind?: MatterKind;
+  /** Language to chapter title. Has the source language. */
+  titles: Record<string, string>;
+  /** Language to relative project path, using "/". Has the source language. */
+  files: Record<string, string>;
+  /** Languages whose text is still a copy of the source or blank, waiting for translation. Absent means none. */
+  untranslated?: string[];
 }
 
 export interface Manifest {
   formatVersion: number;
-  title: string;
-  author: string;
-  language: string;
-  identifier: string;
+  editions: Edition[];
   template: string;
-  isbn: string | null;
-  /** Relative `assets/<name>` path of the cover image, or null (formatVersion 3). */
-  cover: string | null;
-  frontMatter: ManuscriptEntry[];
-  chapters: ManuscriptEntry[];
-  backMatter: ManuscriptEntry[];
-}
-
-export class FormatError extends Error {}
-
-/** True for paths that stay inside the project: relative, "/" separated, no "..", no drive letters. */
-export function isSafeRelativePath(p: string): boolean {
-  if (!p || p.startsWith("/") || p.includes("\\") || /^[A-Za-z]:/.test(p)) return false;
-  return p.split("/").every((seg) => seg !== "" && seg !== ".." && seg !== ".");
+  frontMatter: EditionEntry[];
+  chapters: EditionEntry[];
+  backMatter: EditionEntry[];
 }
 
 export function createManifest(init: {
@@ -43,13 +48,17 @@ export function createManifest(init: {
 }): Manifest {
   return {
     formatVersion: CURRENT_FORMAT_VERSION,
-    title: init.title,
-    author: init.author,
-    language: init.language ?? "en",
-    identifier: init.identifier,
+    editions: [
+      {
+        language: init.language ?? "en",
+        title: init.title,
+        author: init.author,
+        identifier: init.identifier,
+        isbn: null,
+        cover: null,
+      },
+    ],
     template: init.template ?? "novel",
-    isbn: null,
-    cover: null,
     frontMatter: [],
     chapters: [],
     backMatter: [],
@@ -57,7 +66,7 @@ export function createManifest(init: {
 }
 
 /** Reading order: front matter, chapters, back matter. */
-export function readingOrder(m: Manifest): ManuscriptEntry[] {
+export function readingOrder(m: Manifest): EditionEntry[] {
   return [...m.frontMatter, ...m.chapters, ...m.backMatter];
 }
 
@@ -69,8 +78,8 @@ const str = (v: unknown, name: string): string => {
   return v;
 };
 
-function cover(v: unknown): string {
-  const p = str(v, "cover");
+function cover(v: unknown, name = "cover"): string {
+  const p = str(v, name);
   if (!COVER_PATH.test(p))
     throw new FormatError(
       `manifest: cover must be assets/<name> with a png, jpg or webp extension, got "${p}"`,
@@ -78,22 +87,45 @@ function cover(v: unknown): string {
   return p;
 }
 
-function entries(
-  v: unknown,
-  name: string,
-  section: "front" | "chapter" | "back",
-): ManuscriptEntry[] {
+function editions(v: unknown): Edition[] {
+  if (!Array.isArray(v)) throw new FormatError(`manifest: "editions" must be an array`);
+  return v.map((e, i) => {
+    const o = (e ?? {}) as Record<string, unknown>;
+    const name = `editions[${i}]`;
+    return {
+      language: str(o.language, `${name}.language`),
+      title: str(o.title, `${name}.title`),
+      author: str(o.author, `${name}.author`),
+      identifier: str(o.identifier, `${name}.identifier`),
+      isbn: o.isbn == null ? null : str(o.isbn, `${name}.isbn`),
+      cover: o.cover == null ? null : cover(o.cover, `${name}.cover`),
+    };
+  });
+}
+
+const stringMap = (v: unknown, name: string): Record<string, string> => {
+  if (typeof v !== "object" || v === null || Array.isArray(v))
+    throw new FormatError(`manifest: "${name}" must be an object`);
+  return Object.fromEntries(Object.entries(v).map(([k, s]) => [k, str(s, `${name}.${k}`)]));
+};
+
+function entries(v: unknown, name: string, section: "front" | "chapter" | "back"): EditionEntry[] {
   if (!Array.isArray(v)) throw new FormatError(`manifest: "${name}" must be an array`);
   return v.map((e, i) => {
     const o = (e ?? {}) as Record<string, unknown>;
-    const file = str(o.file, `${name}[${i}].file`);
-    if (!isSafeRelativePath(file))
-      throw new FormatError(`manifest: unsafe path "${file}" in ${name}[${i}]`);
-    const entry: ManuscriptEntry = {
+    const entry: EditionEntry = {
       id: str(o.id, `${name}[${i}].id`),
-      file,
-      title: str(o.title, `${name}[${i}].title`),
+      titles: stringMap(o.titles, `${name}[${i}].titles`),
+      files: stringMap(o.files, `${name}[${i}].files`),
     };
+    if (o.untranslated !== undefined) {
+      if (
+        !Array.isArray(o.untranslated) ||
+        !o.untranslated.every((l) => typeof l === "string" && l)
+      )
+        throw new FormatError(`manifest: "${name}[${i}].untranslated" must be a list of languages`);
+      entry.untranslated = o.untranslated as string[];
+    }
     if (o.kind !== undefined) {
       const ok =
         section === "front"
@@ -114,17 +146,13 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     throw new FormatError(`manifest: unsupported formatVersion ${String(o.formatVersion)}`);
   const m: Manifest = {
     formatVersion: version,
-    title: str(o.title, "title"),
-    author: str(o.author, "author"),
-    language: str(o.language, "language"),
-    identifier: str(o.identifier, "identifier"),
+    editions: editions(o.editions),
     template: str(o.template, "template"),
-    isbn: o.isbn == null ? null : str(o.isbn, "isbn"),
-    cover: o.cover == null ? null : cover(o.cover),
     frontMatter: entries(o.frontMatter, "frontMatter", "front"),
     chapters: entries(o.chapters, "chapters", "chapter"),
     backMatter: entries(o.backMatter, "backMatter", "back"),
   };
+  validateEditions(m.editions, readingOrder(m));
   const seen = new Set<string>();
   for (const e of readingOrder(m)) {
     if (seen.has(e.id)) throw new FormatError(`manifest: duplicate id "${e.id}"`);

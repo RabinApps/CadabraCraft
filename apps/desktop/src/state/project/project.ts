@@ -7,6 +7,8 @@ import {
   serializeManifest,
   validateManifest,
   type Manifest,
+  sourceFile,
+  sourceTitle,
 } from "@cadabracraft/format";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
@@ -44,10 +46,12 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         }
         return;
       }
-      const entry = readingOrder(manifest).find((c) => c.file === path);
+      const entry = readingOrder(manifest).find((c) => sourceFile(c, manifest.editions) === path);
       if (!entry || entry.id !== get().currentId) return; // other chapters load fresh when opened
       if (get().draft) {
-        set({ notice: t`${entry.title} changed outside the app; saving will keep both versions` });
+        set({
+          notice: t`${sourceTitle(entry, manifest.editions)} changed outside the app; saving will keep both versions`,
+        });
         return;
       }
       let doc: ChapterDoc;
@@ -62,7 +66,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         currentDoc: doc,
         hashes: { ...get().hashes, [path]: r.hash },
         reloadCount: get().reloadCount + 1,
-        notice: t`${entry.title} was updated from outside the app`,
+        notice: t`${sourceTitle(entry, manifest.editions)} was updated from outside the app`,
       });
     },
     async openProject(root) {
@@ -77,17 +81,31 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         hashes: { "cadabra.json": r.hash },
         currentId: null,
         currentDoc: null,
+        activeLanguage: null,
         notice: "",
         history: NO_HISTORY,
         trash: [],
         recovery: [],
       });
-      const pageFiles = readingOrder(parsed.manifest).map((e) => e.file);
+      const pageFiles = readingOrder(parsed.manifest).map((e) =>
+        sourceFile(e, parsed.manifest.editions),
+      );
       // Offered before any page is opened: a page that was put back to older text by a sync folder is easy to miss otherwise.
       const stale = await bestEffort(() => bridge.findStalePages(root, pageFiles), []);
       const recovery = stale.flatMap((x) => {
-        const e = readingOrder(parsed.manifest).find((m) => m.file === x.path);
-        return e ? [{ id: e.id, title: e.title, file: e.file, snapshot: x.snapshot }] : [];
+        const e = readingOrder(parsed.manifest).find(
+          (m) => sourceFile(m, parsed.manifest.editions) === x.path,
+        );
+        return e
+          ? [
+              {
+                id: e.id,
+                title: sourceTitle(e, parsed.manifest.editions),
+                file: sourceFile(e, parsed.manifest.editions),
+                snapshot: x.snapshot,
+              },
+            ]
+          : [];
       });
       set({ recovery });
       if (parsed.migrated) {
@@ -113,6 +131,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         manifest: null,
         currentId: null,
         currentDoc: null,
+        activeLanguage: null,
         draft: null,
         hashes: {},
         notice: "",
@@ -156,14 +175,46 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     },
     async updateDetails(d) {
       const { manifest } = need();
+      const [source, ...translations] = manifest.editions;
+      const language = d.language.trim();
+      // Changing the source language re-keys every title and file of the source edition.
+      const rekey = <T>(map: Record<string, T>): Record<string, T> =>
+        Object.fromEntries(
+          Object.entries(map).map(([k, v]) => [k === source!.language ? language : k, v]),
+        );
       const next: Manifest = {
         ...manifest,
-        title: d.title.trim(),
-        author: d.author.trim(),
-        language: d.language.trim(),
-        identifier: d.identifier.trim(),
-        isbn: d.isbn.trim() || null,
-        cover: d.cover,
+        editions: [
+          {
+            ...source!,
+            language,
+            title: d.title.trim(),
+            author: d.author.trim(),
+            identifier: d.identifier.trim(),
+            isbn: d.isbn.trim() || null,
+            cover: d.cover,
+          },
+          ...translations,
+        ],
+        ...(language === source!.language
+          ? {}
+          : {
+              frontMatter: manifest.frontMatter.map((e) => ({
+                ...e,
+                titles: rekey(e.titles),
+                files: rekey(e.files),
+              })),
+              chapters: manifest.chapters.map((e) => ({
+                ...e,
+                titles: rekey(e.titles),
+                files: rekey(e.files),
+              })),
+              backMatter: manifest.backMatter.map((e) => ({
+                ...e,
+                titles: rekey(e.titles),
+                files: rekey(e.files),
+              })),
+            }),
       };
       // validateManifest owns the rules; it names the field, which is enough for the dialog to show.
       validateManifest(next);

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import { createManifest, parseManifest, readingOrder, serializeManifest } from "@cadabracraft/format";
+import { createManifest, parseManifest, readingOrder, serializeManifest, sourceEdition, sourceFile, sourceTitle } from "@cadabracraft/format";
 import { MANIFEST, ProjectFsError, countWords, createProject, imageExt, looksLike, readAsset, readProjectFile, resolveInWorkspace } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
 import { isAssetPath, errMsg } from "@cadabracraft/shared";
@@ -58,9 +58,9 @@ export const projectInfo = defineTool({
   run: ({ path }, ctx) => {
     const { root, manifest, hash } = loadProject(ctx, path);
     const entries = sectionOf(manifest).map(({ entry, section }) => {
-      const base = { id: entry.id, title: entry.title, file: entry.file, section };
+      const base = { id: entry.id, title: sourceTitle(entry, manifest.editions), file: sourceFile(entry, manifest.editions), section };
       try {
-        const words = countWords(readChapterFile(root, entry).doc);
+        const words = countWords(readChapterFile(root, sourceFile(entry, manifest.editions)).doc);
         return { ...base, words };
       } catch (e) {
         const err = e instanceof ToolError ? e : null;
@@ -70,7 +70,7 @@ export const projectInfo = defineTool({
     const chapters = manifest.chapters.length;
     const words = entries.reduce((n, e) => n + e.words, 0);
     return {
-      summary: `"${manifest.title}" by ${manifest.author}: ${chapters} chapter(s), ${words} words`,
+      summary: `"${sourceEdition(manifest.editions).title}" by ${sourceEdition(manifest.editions).author}: ${chapters} chapter(s), ${words} words`,
       data: { root, manifest, manifestHash: hash, entries, totals: { chapters, words }, assets: assetNames(root) },
     };
   },
@@ -106,7 +106,7 @@ export const projectValidate = defineTool({
     for (const e of readingOrder(manifest)) {
       let doc: unknown;
       try {
-        doc = readChapterFile(root, e).doc;
+        doc = readChapterFile(root, sourceFile(e, manifest.editions)).doc;
       } catch (err) {
         const code = err instanceof ToolError && err.code === "chapter_missing" ? "chapter_missing" : err instanceof ToolError ? err.code : "chapter_unreadable";
         add("error", code, e.id, errMsg(err));
@@ -114,12 +114,12 @@ export const projectValidate = defineTool({
       }
       const problem = schemaProblem(doc);
       if (problem) {
-        add("error", "chapter_schema_invalid", e.id, `${e.file}: ${problem}`);
+        add("error", "chapter_schema_invalid", e.id, `${sourceFile(e, manifest.editions)}: ${problem}`);
         continue;
       }
       for (const src of imageSources(doc)) {
         if (!isAssetPath(src) || !imageExt(src)) {
-          add("error", "asset_path_invalid", e.id, `${e.file}: image source "${src}" is not a project-relative assets/<image> path`);
+          add("error", "asset_path_invalid", e.id, `${sourceFile(e, manifest.editions)}: image source "${src}" is not a project-relative assets/<image> path`);
           continue;
         }
         if (!checkedAssets.has(src)) {
@@ -133,8 +133,8 @@ export const projectValidate = defineTool({
           checkedAssets.set(src, problemText);
         }
         const status = checkedAssets.get(src);
-        if (status === "missing") add("error", "asset_missing", e.id, `${e.file}: image ${src} does not exist`);
-        else if (status === "invalid") add("error", "asset_invalid", e.id, `${e.file}: image ${src} is not a valid ${imageExt(src)} image`);
+        if (status === "missing") add("error", "asset_missing", e.id, `${sourceFile(e, manifest.editions)}: image ${src} does not exist`);
+        else if (status === "invalid") add("error", "asset_invalid", e.id, `${sourceFile(e, manifest.editions)}: image ${src} is not a valid ${imageExt(src)} image`);
       }
     }
     return report(issues);

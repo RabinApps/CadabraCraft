@@ -6,7 +6,7 @@ import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { Button, IconButton } from "../ui/Button";
 import { cx } from "../ui/cx";
 import { Field } from "../ui/Input";
-import { readingOrder } from "@cadabracraft/format";
+import { readingOrder, entryRows } from "@cadabracraft/format";
 import { useProject } from "../state/project/index";
 import { errText } from "../lib/projectError";
 import {
@@ -158,7 +158,16 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
   const noResults = f.query !== "" && info.total === 0;
   const rows =
     f.allChapters && !invalid && manifest
-      ? resultRows(manifest, counts, currentId, editorInfo)
+      ? resultRows(
+          {
+            frontMatter: entryRows(manifest.frontMatter, manifest.editions),
+            chapters: entryRows(manifest.chapters, manifest.editions),
+            backMatter: entryRows(manifest.backMatter, manifest.editions),
+          },
+          counts,
+          currentId,
+          editorInfo,
+        )
       : [];
   const rowTitle = (r: ResultRow) =>
     r.section === "front"

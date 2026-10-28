@@ -86,7 +86,11 @@ describe("pdfChecks", () => {
 
 const book = (titles: string[]): Manifest => ({
   ...createManifest({ title: "Book", author: "", identifier: "id-1" }),
-  chapters: titles.map((title, i) => ({ id: `c${i}`, file: `chapters/c${i}.json`, title })),
+  chapters: titles.map((title, i) => ({
+    id: `c${i}`,
+    titles: { en: title },
+    files: { en: `chapters/c${i}.json` },
+  })),
 });
 
 describe("epubChecks", () => {

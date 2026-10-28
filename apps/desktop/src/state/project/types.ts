@@ -146,6 +146,8 @@ export interface ProjectState {
   trash: TrashItem[];
   /** Undo and redo stacks for chapter-tree edits (the editor's own text undo is separate). Cleared on open and external reload. */
   history: History;
+  /** The edition the editor shows and writes (a BCP 47 tag); null means the source edition. Reset when a book opens or closes. */
+  activeLanguage: string | null;
   /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
   recovery: Recovery[];
   actions: ProjectActions &
@@ -157,7 +159,15 @@ export interface ProjectState {
     AssetActions &
     ExportActions &
     AudioActions &
-    VoiceActions;
+    VoiceActions &
+    EditionActions;
+}
+
+export interface EditionActions {
+  /** Shows another edition in the editor and the chapter list. Unsaved typing is saved first. Throws when the book has no such edition. */
+  setLanguage: (language: string) => Promise<void>;
+  /** Adds an edition in `language` and switches to it. `copy` starts every chapter as the source text, `empty` as blank pages; either way every chapter is untranslated until the author writes it. */
+  addLanguage: (language: string, mode: "copy" | "empty") => Promise<void>;
 }
 
 export interface ProjectActions {

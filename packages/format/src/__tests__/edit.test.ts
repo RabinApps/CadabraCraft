@@ -20,17 +20,17 @@ describe("history snapshots", () => {
     const before = treeOf(one);
     const two = addChapter(one, "Two").manifest;
     const back = withTree({ ...two, template: "modern" }, before);
-    expect(back.chapters.map((c) => c.title)).toEqual(["One"]);
+    expect(back.chapters.map((c) => c.titles.en)).toEqual(["One"]);
     expect(back.template).toBe("modern");
     expect(sameTree(treeOf(back), before)).toBe(true);
     expect(sameTree(treeOf(two), before)).toBe(false);
   });
   it("retargets the entry for a file that came back under another name, without mutating", () => {
     const m = addChapter(base(), "One").manifest;
-    const file = m.chapters[0]!.file;
-    const t = retargetFile(treeOf(m), file, "manuscript/x-2.json");
-    expect(t.chapters[0]!.file).toBe("manuscript/x-2.json");
-    expect(m.chapters[0]!.file).toBe(file);
+    const file = m.chapters[0]!.files.en!;
+    const t = retargetFile(treeOf(m), "en", file, "manuscript/x-2.json");
+    expect(t.chapters[0]!.files.en).toBe("manuscript/x-2.json");
+    expect(m.chapters[0]!.files.en).toBe(file);
   });
 });
 
@@ -46,7 +46,7 @@ describe("chapter tree edits", () => {
   it("adds chapters with unique ids and files, staying valid", () => {
     const m = three();
     expect(ids(m)).toEqual(["ch-1", "ch-2", "ch-3"]);
-    expect(m.chapters[1]!.file).toBe("manuscript/002-two.json");
+    expect(m.chapters[1]!.files.en).toBe("manuscript/002-two.json");
     expect(() => validateManifest(m)).not.toThrow();
   });
   it("never reuses an id or file after a removal", () => {
@@ -54,12 +54,16 @@ describe("chapter tree edits", () => {
     m = removeChapter(m, "ch-1").manifest;
     const { manifest, entry } = addChapter(m, "Four");
     expect(entry.id).not.toBe("ch-2");
-    expect(new Set(manifest.chapters.map((c) => c.file)).size).toBe(manifest.chapters.length);
+    expect(new Set(manifest.chapters.map((c) => c.files.en)).size).toBe(manifest.chapters.length);
     expect(() => validateManifest(manifest)).not.toThrow();
   });
   it("renames the title only", () => {
     const m = renameChapter(three(), "ch-2", "Second");
-    expect(m.chapters[1]).toEqual({ id: "ch-2", file: "manuscript/002-two.json", title: "Second" });
+    expect(m.chapters[1]).toEqual({
+      id: "ch-2",
+      files: { en: "manuscript/002-two.json" },
+      titles: { en: "Second" },
+    });
   });
   it("moves and clamps", () => {
     expect(ids(moveChapter(three(), "ch-3", -1))).toEqual(["ch-1", "ch-3", "ch-2"]);
@@ -82,13 +86,18 @@ describe("restoreEntry", () => {
     expect(c.manifest.chapters.map((e) => e.id)).toEqual(["ch-1", "ch-2", "ch-3", "ch-4"]);
     const b = restoreEntry(m, "back-matter/01-colophon.json", "Colophon");
     expect(b.manifest.backMatter).toEqual([
-      { id: "bm-1", file: "back-matter/01-colophon.json", title: "Colophon", kind: "custom" },
+      {
+        id: "bm-1",
+        files: { en: "back-matter/01-colophon.json" },
+        titles: { en: "Colophon" },
+        kind: "custom",
+      },
     ]);
     expect(validateManifest(JSON.parse(JSON.stringify(b.manifest)))).toBeTruthy();
   });
   it("refuses a file already in the book or outside the page folders", () => {
     const m = three();
-    expect(() => restoreEntry(m, m.chapters[0]!.file, "x")).toThrow();
+    expect(() => restoreEntry(m, m.chapters[0]!.files.en!, "x")).toThrow();
     expect(() => restoreEntry(m, "assets/a.json", "x")).toThrow();
   });
 });

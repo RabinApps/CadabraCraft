@@ -1,3 +1,4 @@
+import { sourceEdition } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import {
   BookOpen,
@@ -15,6 +16,7 @@ import { ReadingSettings } from "../../editor/ReadingSettings";
 import { Badge } from "../../ui/Badge";
 import { Button, IconButton } from "../../ui/Button";
 import { Segmented } from "../../ui/Segmented";
+import { EditionSwitcher } from "./EditionSwitcher";
 import { HeaderMenu } from "./HeaderMenu";
 import { useLayout } from "../../state/layout";
 import { useProject } from "../../state/project/index";
@@ -44,7 +46,9 @@ export function AppHeader({
   run,
 }: Props) {
   const { t } = useLingui();
-  const title = useProject((s) => s.manifest?.title);
+  const title = useProject((s) =>
+    s.manifest ? sourceEdition(s.manifest.editions).title : undefined,
+  );
   const unsaved = useProject((s) => s.draft !== null);
   const notice = useProject((s) => s.notice);
   const audio = useProject((s) => s.audio);
@@ -70,6 +74,7 @@ export function AppHeader({
         onClick={onShowChapters}
       />
       <h1 className="min-w-0 truncate font-book text-base font-semibold">{title}</h1>
+      <EditionSwitcher />
       <Badge tone={unsaved ? "warn" : "success"}>{unsaved ? t`Unsaved` : t`Saved`}</Badge>
       <span
         role="status"

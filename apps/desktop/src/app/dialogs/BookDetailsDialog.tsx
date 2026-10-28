@@ -1,3 +1,4 @@
+import { sourceEdition } from "@cadabracraft/format";
 import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ImagePlus, Image as ImageIcon, Save, Trash2 } from "lucide-react";
@@ -18,12 +19,12 @@ interface Props {
 const detailsOf = (
   m: NonNullable<ReturnType<typeof useProject.getState>["manifest"]>,
 ): BookDetails => ({
-  title: m.title,
-  author: m.author,
-  language: m.language,
-  isbn: m.isbn ?? "",
-  identifier: m.identifier,
-  cover: m.cover,
+  title: sourceEdition(m.editions).title,
+  author: sourceEdition(m.editions).author,
+  language: sourceEdition(m.editions).language,
+  isbn: sourceEdition(m.editions).isbn ?? "",
+  identifier: sourceEdition(m.editions).identifier,
+  cover: sourceEdition(m.editions).cover,
 });
 
 /** Cover preview: the picked image, or a placeholder showing the title and author as they would sit on the cover. */

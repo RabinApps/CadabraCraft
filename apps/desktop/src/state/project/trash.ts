@@ -1,5 +1,5 @@
 import { t } from "@lingui/core/macro";
-import { restoreEntry } from "@cadabracraft/format";
+import { restoreEntry, sourceTitle } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { titleOfDoc } from "./util";
 import type { TrashItem, TrashActions } from "./types";
@@ -45,7 +45,10 @@ export const createTrashActions = (ctx: Ctx): TrashActions => {
       if (r) set({ hashes: { ...get().hashes, [file]: r.hash } });
       await saveManifest(next);
       record(
-        { label: t`Restore ${entry.title}`, file: { path: file, added: true } },
+        {
+          label: t`Restore ${sourceTitle(entry, manifest.editions)}`,
+          file: { path: file, added: true },
+        },
         manifest,
         next,
       );

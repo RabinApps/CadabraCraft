@@ -1,3 +1,4 @@
+import { sourceEdition } from "@cadabracraft/format";
 import { useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { countWords } from "@cadabracraft/shared";
@@ -103,7 +104,7 @@ export function PdfPanel({
     return pdfChecks({
       estimatedPages: estimatePages(words, manifest.chapters.length, perPage),
       margins,
-      hasCover: manifest.cover !== null,
+      hasCover: sourceEdition(manifest.editions).cover !== null,
     });
   }, [manifest, words, current, trimSize]);
   return (
@@ -141,7 +142,7 @@ export function PdfPanel({
         disabled={running}
         onChange={(e) => setPdfA(e.target.checked)}
       />
-      {manifest?.cover && (
+      {manifest && sourceEdition(manifest.editions).cover && (
         <Checkbox
           label={t`Include the cover`}
           hint={t`Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file.`}

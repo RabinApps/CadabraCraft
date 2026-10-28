@@ -1,3 +1,4 @@
+import { sourceTitle } from "@cadabracraft/format";
 import { plural, t } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { imageAltStats } from "@cadabracraft/export-epub";
@@ -86,7 +87,9 @@ export function epubChecks(manifest: Manifest, pages: CheckPage[] = []): ExportC
   const checks: ExportCheck[] = [];
   if (manifest.chapters.length === 0)
     checks.push({ tone: "warn", text: t`This book has no chapters yet.` });
-  const untitled = manifest.chapters.filter((c) => c.title.trim() === "").length;
+  const untitled = manifest.chapters.filter(
+    (c) => sourceTitle(c, manifest.editions).trim() === "",
+  ).length;
   if (untitled > 0)
     checks.push({
       tone: "warn",

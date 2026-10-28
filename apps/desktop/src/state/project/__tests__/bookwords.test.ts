@@ -1,3 +1,4 @@
+import { sourceFile } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { countWords } from "@cadabracraft/shared";
 import { bigBook } from "../../../test/bigBook";
@@ -41,7 +42,9 @@ async function openBigBook() {
   });
   await a().createProject("/p", "Big", "Me");
   for (let i = 1; i < 40; i++) await a().add(`Chapter ${i + 1}`);
-  s().manifest!.chapters.forEach((c, i) => disk.set(c.file, JSON.stringify(BOOK[i], null, 2)));
+  s().manifest!.chapters.forEach((c, i) =>
+    disk.set(sourceFile(c, s().manifest!.editions), JSON.stringify(BOOK[i], null, 2)),
+  );
   await a().openProject("/p");
   await a().selectChapter(s().manifest!.chapters[0]!.id);
   reads.length = 0;
@@ -53,7 +56,9 @@ describe("bookWords is incremental", () => {
   it("first count reads each chapter other than the open one once, and matches the real total", async () => {
     expect(await a().bookWords()).toBe(BOOK_WORDS);
     expect(chapterReads()).toHaveLength(39);
-    expect(chapterReads()).not.toContain(s().manifest!.chapters[0]!.file);
+    expect(chapterReads()).not.toContain(
+      sourceFile(s().manifest!.chapters[0]!, s().manifest!.editions),
+    );
   });
 
   it("a second count with nothing changed reads nothing", async () => {
@@ -84,7 +89,9 @@ describe("bookWords is incremental", () => {
     const was = countWords(BOOK[1]);
     // The first chapter is no longer open, so it is read once; the edited chapter is the open one and is counted from memory.
     expect(await a().bookWords()).toBe(BOOK_WORDS - was + 4);
-    expect(chapterReads()).toEqual([s().manifest!.chapters[0]!.file]);
+    expect(chapterReads()).toEqual([
+      sourceFile(s().manifest!.chapters[0]!, s().manifest!.editions),
+    ]);
     reads.length = 0;
     expect(await a().bookWords()).toBe(BOOK_WORDS - was + 4);
     expect(reads).toEqual([]);
@@ -109,16 +116,19 @@ describe("bookWords is incremental", () => {
     await a().bookWords();
     const other = s().manifest!.chapters[5]!;
     const was = countWords(BOOK[5]);
-    disk.set(other.file, JSON.stringify(para("one two"), null, 2));
-    await a().externalChange(other.file);
+    disk.set(sourceFile(other, s().manifest!.editions), JSON.stringify(para("one two"), null, 2));
+    await a().externalChange(sourceFile(other, s().manifest!.editions));
     reads.length = 0;
     expect(await a().bookWords()).toBe(BOOK_WORDS - was + 2);
-    expect(chapterReads()).toEqual([other.file]);
+    expect(chapterReads()).toEqual([sourceFile(other, s().manifest!.editions)]);
   });
 
   it("still rejects a corrupt chapter instead of counting it", async () => {
     const other = s().manifest!.chapters[3]!;
-    disk.set(other.file, '{"type":"doc","content":[{"type":"mystery"}]}');
+    disk.set(
+      sourceFile(other, s().manifest!.editions),
+      '{"type":"doc","content":[{"type":"mystery"}]}',
+    );
     await expect(a().bookWords()).rejects.toThrow();
   });
 

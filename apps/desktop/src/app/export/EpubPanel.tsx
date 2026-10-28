@@ -1,3 +1,4 @@
+import { sourceFileById } from "@cadabracraft/format";
 import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { epubChecks, type CheckPage } from "../../lib/exportChecks";
@@ -13,10 +14,7 @@ export function EpubPanel() {
   useEffect(() => {
     if (!manifest) return;
     let live = true;
-    const fileOf = (id: string) =>
-      [...manifest.frontMatter, ...manifest.chapters, ...manifest.backMatter].find(
-        (e) => e.id === id,
-      )?.file;
+    const fileOf = (id: string) => sourceFileById(manifest, id);
     readPages().then(
       (pages) => {
         if (live)

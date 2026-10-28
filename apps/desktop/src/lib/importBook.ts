@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
-import { addChapter, createManifest, serializeManifest } from "@cadabracraft/format";
+import { addChapter, createManifest, serializeManifest, sourceFile } from "@cadabracraft/format";
 import {
   ImportError,
   importDocx,
@@ -308,7 +308,7 @@ export async function writeImport(opts: {
       manifest = next.manifest;
       await bridge.writeFile(
         opts.root,
-        next.entry.file,
+        sourceFile(next.entry, manifest.editions),
         JSON.stringify(remapImages(c.doc, map), null, 2),
         null,
       );

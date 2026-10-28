@@ -1,3 +1,4 @@
+import { sourceEdition, sourceFile, sourceTitle } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { strFromU8, unzipSync } from "fflate";
 import { disk, trashMethods, writeFileWithConflictCopy } from "../../../test/fakeBridge";
@@ -32,6 +33,27 @@ vi.mock("../../../lib/bridge", async () =>
 
 import { useProject } from "../index";
 
+/** The source edition's details as the Book details dialog submits them. */
+const detailsOf = () => {
+  const e = sourceEdition(s().manifest!.editions);
+  return {
+    title: e.title,
+    author: e.author,
+    language: e.language,
+    identifier: e.identifier,
+    isbn: e.isbn ?? "",
+    cover: e.cover,
+  };
+};
+/** The manifest with its source edition patched (what the Book details dialog saves). */
+const withEdition = (patch: Record<string, unknown>) => ({
+  ...s().manifest!,
+  editions: [
+    { ...sourceEdition(s().manifest!.editions), ...patch },
+    ...s().manifest!.editions.slice(1),
+  ],
+});
+
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
 const text = (t: string) => ({
@@ -59,7 +81,9 @@ beforeEach(async () => {
 
 describe("project store", () => {
   it("creates a project with a first chapter on disk", () => {
-    expect(s().manifest!.chapters.map((c) => c.title)).toEqual(["Chapter One"]);
+    expect(s().manifest!.chapters.map((c) => sourceTitle(c, s().manifest!.editions))).toEqual([
+      "Chapter One",
+    ]);
     expect(disk.has("manuscript/001-chapter-one.json")).toBe(true);
   });
   it("flushes unsaved edits when switching chapters", async () => {
@@ -103,9 +127,13 @@ describe("project store", () => {
     expect(s().trash.map((x) => x.title)).toEqual(["Two"]);
     await a().restoreTrash(s().trash[0]!.path);
     const chapters = s().manifest!.chapters;
-    expect(chapters.map((c) => c.title)).toEqual(["Chapter One", "Two", "Two"]);
-    expect(new Set(chapters.map((c) => c.file)).size).toBe(3);
-    expect(disk.get(chapters[2]!.file)).toContain("precious");
+    expect(chapters.map((c) => sourceTitle(c, s().manifest!.editions))).toEqual([
+      "Chapter One",
+      "Two",
+      "Two",
+    ]);
+    expect(new Set(chapters.map((c) => sourceFile(c, s().manifest!.editions))).size).toBe(3);
+    expect(disk.get(sourceFile(chapters[2]!, s().manifest!.editions))).toContain("precious");
     expect(JSON.parse(disk.get("cadabra.json")!).chapters).toHaveLength(3);
     expect(s().trash).toEqual([]);
     expect(s().currentId).toBe(chapters[2]!.id);
@@ -115,7 +143,9 @@ describe("project store", () => {
     await a().remove("bm-1");
     await a().refreshTrash();
     await a().restoreTrash(s().trash[0]!.path);
-    expect(s().manifest!.backMatter.map((e) => e.file)).toEqual(["back-matter/01-colophon.json"]);
+    expect(s().manifest!.backMatter.map((e) => sourceFile(e, s().manifest!.editions))).toEqual([
+      "back-matter/01-colophon.json",
+    ]);
     expect(s().manifest!.chapters).toHaveLength(1);
   });
   it("keeps both versions when a chapter changed outside the app", async () => {
@@ -158,7 +188,7 @@ describe("project store", () => {
     expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
   });
   it("puts the cover in the EPUB and refuses to export when its file is missing", async () => {
-    await a().updateDetails({ ...s().manifest!, isbn: "", cover: "assets/front.png" });
+    await a().updateDetails({ ...detailsOf(), isbn: "", cover: "assets/front.png" });
     await expect(a().exportEpub()).rejects.toThrow(
       /cover image assets\/front\.png could not be read/,
     );
@@ -182,7 +212,7 @@ describe("project store", () => {
     expect(disk.get("manuscript/001-chapter-one.json")).toContain("last words"); // flushed before closing
     expect(disk.get("cadabra.json")).toBeDefined();
     await a().openProject("/p"); // and it opens again
-    expect(s().manifest!.title).toBe("Book");
+    expect(sourceEdition(s().manifest!.editions).title).toBe("Book");
   });
   it("reopens a project from disk", async () => {
     const json = disk.get("cadabra.json")!;
@@ -218,13 +248,17 @@ describe("project store", () => {
     });
     it("picks up a manifest changed outside, and survives a corrupt one", async () => {
       const m = JSON.parse(disk.get("cadabra.json")!);
-      m.chapters[0].title = "Renamed elsewhere";
+      m.chapters[0].titles.en = "Renamed elsewhere";
       disk.set("cadabra.json", JSON.stringify(m));
       await a().externalChange("cadabra.json");
-      expect(s().manifest!.chapters[0]!.title).toBe("Renamed elsewhere");
+      expect(sourceTitle(s().manifest!.chapters[0]!, s().manifest!.editions)).toBe(
+        "Renamed elsewhere",
+      );
       disk.set("cadabra.json", "{broken");
       await a().externalChange("cadabra.json");
-      expect(s().manifest!.chapters[0]!.title).toBe("Renamed elsewhere");
+      expect(sourceTitle(s().manifest!.chapters[0]!, s().manifest!.editions)).toBe(
+        "Renamed elsewhere",
+      );
       expect(s().notice).toMatch(/could not be read/);
     });
   });
@@ -237,8 +271,8 @@ describe("project store", () => {
       expect(entry).toMatchObject({
         id: "fm-1",
         kind: "title-page",
-        title: "Title Page",
-        file: "front-matter/01-title-page.json",
+        titles: { en: "Title Page" },
+        files: { en: "front-matter/01-title-page.json" },
       });
       expect(s().currentId).toBe("fm-1");
       const doc = JSON.parse(disk.get("front-matter/01-title-page.json")!);
@@ -248,7 +282,7 @@ describe("project store", () => {
       expect(JSON.stringify(s().currentDoc)).toContain("Me");
     });
     it("fills the copyright page from the manifest, including the ISBN when set", async () => {
-      useProject.setState({ manifest: { ...s().manifest!, isbn: "978-3-16-148410-0" } });
+      useProject.setState({ manifest: withEdition({ isbn: "978-3-16-148410-0" }) });
       await a().addMatter("front", "copyright");
       const text = disk.get("front-matter/01-copyright.json")!;
       expect(text).toContain(`© ${new Date().getFullYear()} Me`);
@@ -267,8 +301,11 @@ describe("project store", () => {
       expect(s().manifest!.backMatter.map((e) => e.id)).toEqual(["bm-1", "bm-2"]);
       await a().rename("bm-2", "About Me");
       await a().move("bm-2", -1);
-      expect(s().manifest!.backMatter.map((e) => e.title)).toEqual(["About Me", "Acknowledgments"]);
-      expect(manifestOnDisk().backMatter[0].title).toBe("About Me");
+      expect(s().manifest!.backMatter.map((e) => sourceTitle(e, s().manifest!.editions))).toEqual([
+        "About Me",
+        "Acknowledgments",
+      ]);
+      expect(manifestOnDisk().backMatter[0].titles.en).toBe("About Me");
       expect(s().manifest!.chapters.map((c) => c.id)).toEqual(["ch-1"]);
     });
     it("saves typing into the matter page and flushes it when switching", async () => {
@@ -327,28 +364,37 @@ describe("project store", () => {
       await a().openProject("/p");
       expect(s().currentId).toBe("fm-1");
     });
-    it("upgrades a v1 project on open: backs up first, then saves as v3", async () => {
+    it("upgrades a v1 project on open: backs up first, then saves as v4", async () => {
       const v1 = { ...manifestOnDisk(), formatVersion: 1 };
       disk.set("cadabra.json", JSON.stringify(v1));
       useProject.setState({ manifest: null, currentId: null, currentDoc: null, hashes: {} });
       await a().openProject("/p");
       expect(s().notice).toMatch(/upgraded from format 1/);
-      expect(manifestOnDisk().formatVersion).toBe(3);
+      expect(manifestOnDisk().formatVersion).toBe(4);
     });
   });
   describe("book details and cover", () => {
-    const onDisk = () => JSON.parse(disk.get("cadabra.json")!);
+    const onDisk = () => JSON.parse(disk.get("cadabra.json")!).editions[0];
     const form = () => {
       const m = s().manifest!;
       return {
-        title: m.title,
-        author: m.author,
-        language: m.language,
-        isbn: m.isbn ?? "",
-        identifier: m.identifier,
-        cover: m.cover,
+        title: sourceEdition(m.editions).title,
+        author: sourceEdition(m.editions).author,
+        language: sourceEdition(m.editions).language,
+        isbn: sourceEdition(m.editions).isbn ?? "",
+        identifier: sourceEdition(m.editions).identifier,
+        cover: sourceEdition(m.editions).cover,
       };
     };
+    it("changing the source language re-keys every title and file of the source edition", async () => {
+      await a().updateDetails({ ...form(), language: "de" });
+      const m = s().manifest!;
+      expect(m.editions.map((e) => e.language)).toEqual(["de"]);
+      expect(Object.keys(m.chapters[0]!.titles)).toEqual(["de"]);
+      expect(Object.keys(m.chapters[0]!.files)).toEqual(["de"]);
+      expect(onDisk().language).toBe("de");
+      expect(disk.has("manuscript/001-chapter-one.json")).toBe(true); // no file moved
+    });
     it("saves edited details, trims text and turns an empty ISBN into null", async () => {
       await a().updateDetails({
         ...form(),
@@ -387,7 +433,7 @@ describe("project store", () => {
       picked = "/pics/front.JPG";
       const path = await a().importCover();
       expect(path).toBe("assets/front.JPG");
-      expect(s().manifest!.cover).toBeNull(); // picking alone does not change the book
+      expect(sourceEdition(s().manifest!.editions).cover).toBeNull(); // picking alone does not change the book
       await a().updateDetails({ ...form(), cover: "assets/front.jpg" });
       expect(onDisk().cover).toBe("assets/front.jpg");
     });

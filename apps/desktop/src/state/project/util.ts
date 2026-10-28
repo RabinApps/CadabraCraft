@@ -40,11 +40,16 @@ export const NO_HISTORY: History = { undo: [], redo: [] };
 export const HISTORY_LIMIT = 100;
 
 /** Rewrites every mention of page file `from` as `to` (a restored page that had to take another name). */
-export function retargetEntry(e: HistoryEntry, from: string, to: string): HistoryEntry {
+export function retargetEntry(
+  e: HistoryEntry,
+  language: string,
+  from: string,
+  to: string,
+): HistoryEntry {
   return {
     ...e,
-    before: retargetFile(e.before, from, to),
-    after: retargetFile(e.after, from, to),
+    before: retargetFile(e.before, language, from, to),
+    after: retargetFile(e.after, language, from, to),
     ...(e.file?.path === from ? { file: { ...e.file, path: to } } : {}),
   };
 }

@@ -1,3 +1,4 @@
+import { sourceEdition } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
@@ -65,9 +66,9 @@ export function Details({
           className="text-xs font-semibold uppercase tracking-wide text-ink-muted"
         >{t`Book`}</h2>
         <dl>
-          <Row label={t`Title`} value={manifest.title} />
-          <Row label={t`Author`} value={manifest.author || "-"} />
-          <Row label={t`Language`} value={manifest.language} />
+          <Row label={t`Title`} value={sourceEdition(manifest.editions).title} />
+          <Row label={t`Author`} value={sourceEdition(manifest.editions).author || "-"} />
+          <Row label={t`Language`} value={sourceEdition(manifest.editions).language} />
           <Row
             label={t`Template`}
             value={
@@ -75,10 +76,10 @@ export function Details({
                 .name
             }
           />
-          <Row label={t`ISBN`} value={manifest.isbn ?? "-"} />
+          <Row label={t`ISBN`} value={sourceEdition(manifest.editions).isbn ?? "-"} />
           <Row
             label={t`Cover`}
-            value={manifest.cover ? manifest.cover.replace("assets/", "") : "-"}
+            value={sourceEdition(manifest.editions).cover?.replace("assets/", "") ?? "-"}
           />
           <Row label={t`Chapters`} value={String(manifest.chapters.length)} />
         </dl>

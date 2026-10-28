@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { createAssetActions } from "./assets";
 import { createAudioActions } from "./audio";
 import { createContext } from "./context";
+import { createEditionActions } from "./editions";
 import { createExportActions } from "./exports";
 import { createHistoryActions } from "./history";
 import { createPageActions } from "./pages";
@@ -41,6 +42,7 @@ export const useProject = create<ProjectState>((set, get) => {
     manifest: null,
     currentId: null,
     currentDoc: null,
+    activeLanguage: null,
     notice: "",
     hashes: {},
     draft: null,
@@ -55,6 +57,7 @@ export const useProject = create<ProjectState>((set, get) => {
     actions: {
       ...createProjectActions(ctx),
       ...createPageActions(ctx),
+      ...createEditionActions(ctx),
       ...createHistoryActions(ctx),
       ...createTrashActions(ctx),
       ...createSnapshotActions(ctx),

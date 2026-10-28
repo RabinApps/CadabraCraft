@@ -1,3 +1,4 @@
+import { sourceEdition } from "@cadabracraft/format";
 import { t } from "@lingui/core/macro";
 import {
   CancelledError,
@@ -148,13 +149,14 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           if (ctrl.signal.aborted) stop();
           else ctrl.signal.addEventListener("abort", stop, { once: true });
           try {
+            const cover = sourceEdition(manifest.editions).cover;
             await bridge.audioBuildM4b({
               jobId,
               root,
-              base: bookBase(manifest.title),
-              title: manifest.title,
-              author: manifest.author,
-              cover: manifest.cover && isCoverImage(manifest.cover) ? manifest.cover : null,
+              base: bookBase(sourceEdition(manifest.editions).title),
+              title: sourceEdition(manifest.editions).title,
+              author: sourceEdition(manifest.editions).author,
+              cover: cover && isCoverImage(cover) ? cover : null,
               chapters,
             });
           } catch (e) {

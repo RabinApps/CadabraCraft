@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 3)
+# CadabraCraft project file format (formatVersion 4)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -17,29 +17,39 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 2,
-  "title": "My Book",
-  "author": "A. Writer",
-  "language": "en",
-  "identifier": "urn:uuid:...",
+  "formatVersion": 4,
   "template": "novel",
-  "isbn": null,
-  "cover": "assets/cover.jpg",
+  "editions": [
+    {
+      "language": "en",
+      "title": "My Book",
+      "author": "A. Writer",
+      "identifier": "urn:uuid:...",
+      "isbn": null,
+      "cover": "assets/cover.jpg"
+    }
+  ],
   "frontMatter": [
     {
       "id": "fm-1",
-      "file": "front-matter/01-title-page.json",
-      "title": "Title Page",
-      "kind": "title-page"
+      "kind": "title-page",
+      "titles": { "en": "Title Page" },
+      "files": { "en": "front-matter/01-title-page.json" }
     }
   ],
-  "chapters": [{ "id": "ch-1", "file": "manuscript/001-chapter-one.json", "title": "Chapter One" }],
+  "chapters": [
+    {
+      "id": "ch-1",
+      "titles": { "en": "Chapter One" },
+      "files": { "en": "manuscript/001-chapter-one.json" }
+    }
+  ],
   "backMatter": [
     {
       "id": "bm-1",
-      "file": "back-matter/01-about-the-author.json",
-      "title": "About the Author",
-      "kind": "about-the-author"
+      "kind": "about-the-author",
+      "titles": { "en": "About the Author" },
+      "files": { "en": "back-matter/01-about-the-author.json" }
     }
   ]
 }
@@ -47,9 +57,10 @@ MyBook/
 
 - `formatVersion` is an integer. Readers reject versions newer than they know; older versions are migrated on open after a backup copy goes to `.cadabra/backups/`.
 - Reading order is the order of the `frontMatter`, `chapters` and `backMatter` arrays, never filenames.
-- `id` values are unique across all three lists. `file` is a relative path using `/`, inside the project, with no `..`, no leading `/`, and no drive letters.
+- `editions` lists the languages of the book. The first is the source edition. Each edition has its own `language`, `title`, `author`, `identifier`, `isbn` and `cover`. Languages are unique.
+- `id` values are unique across all three lists and shared by every edition. `titles` and `files` map a language to a title and a relative path using `/`, inside the project, with no `..`, no leading `/`, and no drive letters. Every entry has the source language in both; other languages are optional until the chapter is translated. A `files` or `titles` key that names no edition is refused.
 - `identifier` is a UUID URN or an ISBN. `language` is a BCP 47 tag. `isbn` is free text; the EPUB export writes it as an extra `urn:isbn:` identifier only when it is a valid ISBN-10 or ISBN-13, and skips it otherwise.
-- `cover` (added in formatVersion 3) is `null` or the relative path of the cover image, always `assets/<name>` with a png, jpg, jpeg or webp extension (same naming rules as other assets). The file is a copy inside the project, never a link to the original. Removing the cover sets `null` and leaves the file in `assets/`.
+- `cover` (added in formatVersion 3, per edition since 4) is `null` or the relative path of the cover image, always `assets/<name>` with a png, jpg, jpeg or webp extension (same naming rules as other assets). The file is a copy inside the project, never a link to the original. Removing the cover sets `null` and leaves the file in `assets/`.
 - Exports: EPUB gets a cover page first in the reading order (`epub:type="cover"`, left out of the contents list), the image as the `cover-image` manifest item, a `cover` landmark and the EPUB 2 `<meta name="cover">`. Print PDF puts the image on a full-bleed first page with no header or number, then a blank page behind it, so the book starts on page 3 and its numbering and left/right pages are as without a cover (the Export dialog can leave the cover out). An export stops with a message when the cover file cannot be read.
 
 ## Front and back matter
@@ -83,8 +94,20 @@ Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 sc
 
 - Before a chapter save replaces different text, the old text is copied to `.cadabra/backups/<YYYYMMDD-HHMM>-<path with / as __>.json` (`-2`, `-3`... when taken). Local state, excluded from sync, safe to delete; the app keeps the newest 50 per page by default and never removes one under 30 days old. Nothing in `cadabra.json` or the chapter files refers to them, so the format version does not change.
 
+## Editions (formatVersion 4)
+
+Active: the app and the MCP server read and write version 4. The design is in [architecture.md](architecture.md), "Editions".
+
+- `untranslated` (optional, on an entry): the languages whose file is still a copy of the source or blank. An entry is translated in a language when it has a file there and is not listed. The first save in a language removes it from the list. Absent means none.
+
+- `editions`: `[{ "language", "title", "author", "identifier", "isbn", "cover" }]`, first is the source. Replaces the top-level `title`, `author`, `language`, `identifier`, `isbn` and `cover`.
+- Each chapter and matter entry has `id`, `kind` (matter only), `titles` (language to title) and `files` (language to relative path). A migrated v3 entry has only the source language in both.
+- The source edition keeps its v3 file paths. New editions use `manuscript/<lang>/` and `front-matter/<lang>/`, `back-matter/<lang>/`.
+- Export writes to `exports/<lang>/`.
+
 ## Versioning
 
+- Version 3 -> 4: moves `title`, `author`, `language`, `identifier`, `isbn` and `cover` into `editions` (the first is the source), and turns each entry's `title` and `file` into `titles` and `files` maps keyed by language. No file moves. The migration backs up `cadabra.json` to `.cadabra/backups/` before it writes.
 - Version 2 -> 3: adds `cover` (`null` when absent). The migration sets `cover: null` and changes nothing else.
 - Version 1 -> 2: front and back matter entries may carry `kind`. The migration changes nothing else; older entries keep no kind.
 

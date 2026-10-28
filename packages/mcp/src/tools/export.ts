@@ -9,6 +9,7 @@ import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import { createNodeRunner } from "@cadabracraft/export-pdf/node";
 import { ProjectFsError, writeBytes } from "@cadabracraft/project-fs";
 import { getTemplate, hasTemplate } from "@cadabracraft/templates";
+import { sourceEdition } from "@cadabracraft/format";
 import { loadBook } from "../book";
 import { ToolError } from "../errors";
 import { poppler, runEpubcheck, typstPath } from "../external";
@@ -32,7 +33,7 @@ export const exportEpub = defineTool({
       const { root, manifest, chapters, assets, templateId } = loadBook(ctx, path);
       let bytes: Uint8Array;
       try {
-        bytes = buildEpub({ title: manifest.title, author: manifest.author, language: manifest.language, identifier: manifest.identifier, isbn: manifest.isbn, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css });
+        bytes = buildEpub({ title: sourceEdition(manifest.editions).title, author: sourceEdition(manifest.editions).author, language: sourceEdition(manifest.editions).language, identifier: sourceEdition(manifest.editions).identifier, isbn: sourceEdition(manifest.editions).isbn, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css });
       } catch (e) {
         throw new ToolError("epub_error", errMsg(e));
       }
@@ -55,7 +56,7 @@ export const exportMarkdown = defineTool({
       const { root, manifest, chapters } = loadBook(ctx, path);
       let markdown: string;
       try {
-        markdown = bookToMarkdown({ title: manifest.title, author: manifest.author }, chapters, { htmlMarks: htmlMarks === true, imageBase: "../" });
+        markdown = bookToMarkdown({ title: sourceEdition(manifest.editions).title, author: sourceEdition(manifest.editions).author }, chapters, { htmlMarks: htmlMarks === true, imageBase: "../" });
       } catch (e) {
         throw new ToolError("markdown_error", errMsg(e));
       }
@@ -84,7 +85,7 @@ export const exportPdf = defineTool({
       const size: TrimSize = trimSize ?? getTemplate(id).print.defaults.trimSize;
       const runner = createNodeRunner({ typstPath: typstPath(ctx) });
       const { pdf, fonts } = await renderPdf(
-        { title: manifest.title, author: manifest.author, language: manifest.language },
+        { title: sourceEdition(manifest.editions).title, author: sourceEdition(manifest.editions).author, language: sourceEdition(manifest.editions).language },
         chapters,
         { template: id, trimSize: size, assets: Object.fromEntries(assets), pdfA: pdfA === true },
         runner,

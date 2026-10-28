@@ -166,3 +166,38 @@ fn contract_image_dimensions() {
         assert_eq!(image_size(s(&c["ext"]), &hex(s(&c["hex"]))), want, "{}", s(&c["name"]));
     }
 }
+
+/// The v3 and v4 manifest vectors (`fixtures/contract/manifest-*.json`), also read by `packages/format` tests. Rust does not
+/// parse the manifest; it checks that every recorded path passes the same `resolve` rule, the editions are consistent, and
+/// the v3 chapter paths are the v4 source paths (the migration moves no file).
+#[test]
+fn contract_manifest_fixtures() {
+    let root = Path::new("/p");
+    let v3 = vectors("manifest-v3");
+    assert_eq!(v3["formatVersion"], 3);
+    let v4 = vectors("manifest-v4");
+    assert_eq!(v4["formatVersion"], 4);
+
+    let editions = v4["editions"].as_array().unwrap();
+    let langs: Vec<&str> = editions.iter().map(|e| s(&e["language"])).collect();
+    assert_eq!(langs[0], "en", "the first edition is the source");
+    assert_eq!(langs.len(), langs.iter().collect::<std::collections::HashSet<_>>().len(), "unique languages");
+
+    for section in ["frontMatter", "chapters", "backMatter"] {
+        for e in v4[section].as_array().unwrap() {
+            for map in ["titles", "files"] {
+                for (lang, value) in e[map].as_object().unwrap() {
+                    assert!(langs.contains(&lang.as_str()), "{map}.{lang} has no edition");
+                    if map == "files" {
+                        resolve(root, s(value)).unwrap_or_else(|err| panic!("{lang}: {value}: {err}"));
+                    }
+                }
+            }
+            assert!(e["titles"]["en"].is_string() && e["files"]["en"].is_string(), "source title and file");
+        }
+    }
+
+    let v3_chapter_files: Vec<&str> = v3["chapters"].as_array().unwrap().iter().map(|c| s(&c["file"])).collect();
+    let v4_source_files: Vec<&str> = v4["chapters"].as_array().unwrap().iter().map(|c| s(&c["files"]["en"])).collect();
+    assert_eq!(v3_chapter_files, v4_source_files, "the migration keeps every source file in place");
+}

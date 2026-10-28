@@ -42,12 +42,12 @@ msgstr ""
 msgid "{0} About {1} MB."
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/project.ts
 msgid "{0} changed outside the app; saving will keep both versions"
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: titleIn(entry, manifest, lang)
 #. placeholder {1}: w.conflict_copy
 #: src/state/project/pages.ts
 msgid "{0} changed outside the app; the other version was kept as {1}"
@@ -118,13 +118,19 @@ msgstr ""
 msgid "{0} leaves the project folder through a symbolic link"
 msgstr ""
 
+#. placeholder {0}: p.translated
+#. placeholder {1}: p.total
+#: src/app/shell/EditionSwitcher.tsx
+msgid "{0} of {1} chapters"
+msgstr ""
+
 #. placeholder {0}: mb(download.done)
 #. placeholder {1}: mb(download.total)
 #: src/app/export/AudioExport.tsx
 msgid "{0} of {1} MB"
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/project.ts
 msgid "{0} was updated from outside the app"
 msgstr ""
@@ -272,6 +278,11 @@ msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Add image"
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+#: src/app/shell/EditionSwitcher.tsx
+msgid "Add language"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -490,6 +501,7 @@ msgstr ""
 msgid "CadabraCraft is up to date."
 msgstr ""
 
+#: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/AudioFooter.tsx
@@ -573,6 +585,10 @@ msgstr ""
 #: src/app/shell/Details.tsx
 #: src/app/shell/Sidebar.tsx
 msgid "Chapters"
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Chapters start as English copies, marked Not translated yet."
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
@@ -880,6 +896,11 @@ msgstr ""
 msgid "Edit details"
 msgstr ""
 
+#. placeholder {0}: nativeName(active)
+#: src/app/shell/EditionSwitcher.tsx
+msgid "Edition: {0}"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Editor"
 msgstr ""
@@ -915,6 +936,14 @@ msgstr ""
 
 #: src/lib/exportChecks.ts
 msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Every chapter starts blank."
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Every language is already in this book."
 msgstr ""
 
 #: src/app/shell/App.tsx
@@ -1299,6 +1328,7 @@ msgstr ""
 msgid "Kokoro: Heart"
 msgstr ""
 
+#: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/Details.tsx
 #: src/ui/LanguagePicker.tsx
@@ -1402,9 +1432,13 @@ msgstr ""
 msgid "Minimize"
 msgstr ""
 
-#. placeholder {0}: c.file
-#: src/state/project/context.ts
+#. placeholder {0}: f.from
+#: src/state/project/editions.ts
 msgid "Missing chapter file {0}"
+msgstr ""
+
+#: src/state/project/context.ts
+msgid "Missing chapter file {file}"
 msgstr ""
 
 #. placeholder {0}: e.srcs.join(", ")
@@ -1429,12 +1463,12 @@ msgstr ""
 msgid "Move “{0}” to trash?"
 msgstr ""
 
-#. placeholder {0}: entryOf(m, id)?.title ?? ""
+#. placeholder {0}: sourceTitleById(m, id) ?? ""
 #: src/state/project/pages.ts
 msgid "Move {0}"
 msgstr ""
 
-#. placeholder {0}: removed.title
+#. placeholder {0}: sourceTitle(removed, manifest.editions)
 #: src/state/project/pages.ts
 msgid "Move {0} to trash"
 msgstr ""
@@ -1552,6 +1586,10 @@ msgstr ""
 
 #: src/app/settings/AudioSection.tsx
 msgid "Not installed. Download it from the Audiobook export."
+msgstr ""
+
+#: src/app/shell/Sidebar.tsx
+msgid "Not translated yet"
 msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
@@ -1815,7 +1853,7 @@ msgstr ""
 msgid "Rename"
 msgstr ""
 
-#. placeholder {0}: entryOf(m, id)?.title ?? ""
+#. placeholder {0}: sourceTitleById(m, id) ?? ""
 #: src/state/project/pages.ts
 msgid "Rename {0}"
 msgstr ""
@@ -1853,7 +1891,7 @@ msgstr ""
 msgid "Restore"
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
 #. placeholder {0}: x.title
 #: src/app/shell/Sidebar.tsx
 #: src/state/project/trash.ts
@@ -1864,7 +1902,7 @@ msgstr ""
 msgid "Restore this version"
 msgstr ""
 
-#. placeholder {0}: entry.title
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/snapshots.ts
 msgid "Restored an earlier version of {0}. The text it replaced is kept in History."
 msgstr ""
@@ -2047,6 +2085,18 @@ msgstr ""
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr ""
 
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start empty"
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start from a copy of the source"
+msgstr ""
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start the new edition"
+msgstr ""
+
 #: src/app/export/AudioFooter.tsx
 msgid "Stop sample"
 msgstr ""
@@ -2140,9 +2190,8 @@ msgstr ""
 msgid "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
 msgstr ""
 
-#. placeholder {0}: manifest.cover
 #: src/state/project/context.ts
-msgid "The cover image {0} could not be read. Choose it again in Book details, or remove the cover."
+msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -2268,6 +2317,10 @@ msgstr ""
 
 #: src/lib/importBook.ts
 msgid "This .docx file has no document body. It may be damaged or not a Word document."
+msgstr ""
+
+#: src/state/project/editions.ts
+msgid "This book has no {language} edition."
 msgstr ""
 
 #: src/app/shell/App.tsx

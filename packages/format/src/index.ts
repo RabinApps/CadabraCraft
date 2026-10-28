@@ -3,3 +3,6 @@ export * from "./migrate";
 export * from "./names";
 export * from "./edit";
 export * from "./starter";
+export * from "./editions";
+export * from "./lookup";
+export * from "./translations";

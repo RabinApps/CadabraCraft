@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
-import { readingOrder, sectionOf } from "@cadabracraft/format";
+import { readingOrder, sectionOf, sourceEdition, entryRowsIn } from "@cadabracraft/format";
 import { Minimize2, Plus } from "lucide-react";
 import { Editor } from "../../editor/Editor";
 import { ReadingFooter } from "../../editor/ReadingFooter";
@@ -45,13 +45,16 @@ type View = "book" | "settings" | "templates" | "print";
 export function App() {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
+  const activeLanguage = useProject(
+    (s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "",
+  );
   const currentId = useProject((s) => s.currentId);
   const currentDoc = useProject((s) => s.currentDoc);
   const reloadCount = useProject((s) => s.reloadCount);
   const actions = useProject((s) => s.actions);
   const open = manifest !== null;
   const root = useProject((s) => s.root);
-  const title = manifest?.title;
+  const title = manifest ? sourceEdition(manifest.editions).title : undefined;
   const addRecent = useRecents((s) => s.add);
   // Any successful open, create or import lands here.
   useEffect(() => {
@@ -163,7 +166,7 @@ export function App() {
     );
   }
   const chapters = manifest.chapters;
-  const pages = readingOrder(manifest);
+  const pages = entryRowsIn(readingOrder(manifest), manifest.editions, activeLanguage);
   const index = pages.findIndex((c) => c.id === currentId);
   const section = currentId ? sectionOf(manifest, currentId) : null;
   const chapterNo = chapters.findIndex((c) => c.id === currentId) + 1;
@@ -173,7 +176,7 @@ export function App() {
         <IconButton
           icon={Minimize2}
           label={t`Exit focus mode`}
-          className="fixed end-3 top-3 z-10 bg-surface/80 backdrop-blur"
+          className="fixed inset-e-3 top-3 z-10 bg-surface/80 backdrop-blur"
           onClick={() => setLayout({ focus: false })}
         />
       )}
@@ -191,10 +194,7 @@ export function App() {
       )}
       <div className="flex min-h-0 flex-1">
         <aside
-          className={cx(
-            "hidden w-[264px] shrink-0 overflow-y-auto bg-sidebar",
-            focus ? "" : "lg:block",
-          )}
+          className={cx("hidden w-66 shrink-0 overflow-y-auto bg-sidebar", focus ? "" : "lg:block")}
         >
           <Sidebar />
         </aside>
@@ -209,14 +209,14 @@ export function App() {
               <Editor
                 key={`${currentId}:read:${reloadCount}`}
                 initial={currentDoc}
-                language={manifest.language}
+                language={activeLanguage}
                 reading={reading}
               />
             ) : (
               <Editor
                 key={`${currentId}:${reloadCount}`}
                 initial={currentDoc}
-                language={manifest.language}
+                language={activeLanguage}
                 onChange={actions.setDraft}
                 focus={focus}
               />
@@ -287,7 +287,7 @@ export function App() {
         {!focus && !reader && details && (
           <aside
             aria-label={t`Details`}
-            className="hidden w-[280px] shrink-0 overflow-y-auto border-s border-border bg-surface xl:block"
+            className="hidden w-70 shrink-0 overflow-y-auto border-s border-border bg-surface xl:block"
           >
             <Details
               manifest={manifest}
@@ -318,7 +318,7 @@ export function App() {
             className={cx(
               panelClass,
               "inset-x-0 bottom-0 max-h-[80dvh] overflow-y-auto rounded-t-2xl bg-sidebar lg:hidden",
-              "md:inset-y-0 md:start-0 md:end-auto md:max-h-none md:w-80 md:rounded-none",
+              "md:inset-y-0 md:inset-s-0 md:inset-e-auto md:max-h-none md:w-80 md:rounded-none",
             )}
           >
             <D.Title className="sr-only">{t`Chapters`}</D.Title>

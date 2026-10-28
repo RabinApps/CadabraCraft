@@ -1,3 +1,4 @@
+import { sourceFile } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk } from "../../../test/fakeBridge";
 
@@ -45,13 +46,15 @@ beforeEach(async () => {
 describe("exportMarkdown failure handling", () => {
   it("shows the file name when the failing page has an empty title", async () => {
     const entry = s().manifest!.chapters[0]!;
-    useProject.setState({ manifest: { ...s().manifest!, chapters: [{ ...entry, title: "" }] } });
+    useProject.setState({
+      manifest: { ...s().manifest!, chapters: [{ ...entry, titles: { en: "" } }] },
+    });
     a().setDraft(doc(p("bold", [{ type: "underline" }])));
     await a().saveCurrent(doc(p("x", [{ type: "underline" }])));
     const err = await a()
       .exportMarkdown({ htmlMarks: false })
       .catch((e: Error) => e);
-    expect((err as Error).message).toContain(entry.file);
+    expect((err as Error).message).toContain(sourceFile(entry, s().manifest!.editions));
     expect((err as Error).message).not.toContain("“”");
     expect(s().exportStage).toBeNull();
     expect(s().notice).not.toMatch(/Exported/);
@@ -81,13 +84,13 @@ describe("exportMarkdown failure handling", () => {
     expect(s().exportStage).toBeNull();
   });
   it("an unreadable chapter file stops the export before anything is written", async () => {
-    disk.set(s().manifest!.chapters[0]!.file, "{ corrupt");
+    disk.set(sourceFile(s().manifest!.chapters[0]!, s().manifest!.editions), "{ corrupt");
     await expect(a().exportMarkdown({ htmlMarks: false })).rejects.toThrow(/not valid JSON/);
     expect(exported).toBeNull();
     expect(s().exportStage).toBeNull();
   });
   it("a missing chapter file stops the export with its name", async () => {
-    const file = s().manifest!.chapters[0]!.file;
+    const file = sourceFile(s().manifest!.chapters[0]!, s().manifest!.editions);
     disk.delete(file);
     await expect(a().exportMarkdown({ htmlMarks: false })).rejects.toThrow(file);
   });
@@ -106,10 +109,10 @@ describe("exportMarkdown failure handling", () => {
     const words = "lorem ipsum dolor sit amet ".repeat(200);
     const chapters = Array.from({ length: 150 }, (_, i) => ({
       id: `big-${i}`,
-      file: `manuscript/${String(i + 2).padStart(3, "0")}-big.json`,
-      title: `Big ${i}`,
+      files: { en: `manuscript/${String(i + 2).padStart(3, "0")}-big.json` },
+      titles: { en: `Big ${i}` },
     }));
-    for (const c of chapters) disk.set(c.file, JSON.stringify(doc(p(words), p(words))));
+    for (const c of chapters) disk.set(c.files.en, JSON.stringify(doc(p(words), p(words))));
     useProject.setState({
       manifest: { ...s().manifest!, chapters: [...s().manifest!.chapters, ...chapters] },
     });

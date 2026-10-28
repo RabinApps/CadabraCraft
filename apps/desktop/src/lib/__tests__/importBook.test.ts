@@ -1,3 +1,4 @@
+import { sourceFile, sourceTitle } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PNG_BYTES, TINY_MD, tinyDocx } from "../../../e2e/fixtures";
 import { disk, writeFile } from "../../test/fakeBridge";
@@ -63,12 +64,18 @@ describe("importBook", () => {
     sources.set("/src/My_Book.md", enc(TINY_MD));
     images.set("/src/My_Book.md|img/pixel.png", PNG_BYTES);
     await a().importBook("/src/My_Book.md", "/new", "My Book", "Me");
-    expect(s().manifest!.chapters.map((c) => c.title)).toEqual(["Alpha", "Beta"]);
-    expect(s().manifest!.chapters.map((c) => c.file)).toEqual([
+    expect(s().manifest!.chapters.map((c) => sourceTitle(c, s().manifest!.editions))).toEqual([
+      "Alpha",
+      "Beta",
+    ]);
+    expect(s().manifest!.chapters.map((c) => sourceFile(c, s().manifest!.editions))).toEqual([
       "manuscript/001-alpha.json",
       "manuscript/002-beta.json",
     ]);
-    expect(JSON.parse(disk.get("cadabra.json")!)).toMatchObject({ title: "My Book", author: "Me" });
+    expect(JSON.parse(disk.get("cadabra.json")!).editions[0]).toMatchObject({
+      title: "My Book",
+      author: "Me",
+    });
     expect(JSON.parse(disk.get("cadabra.json")!).chapters).toHaveLength(2);
     expect(s().currentId).toBe("ch-1");
     expect(assets.has("assets/pixel.png")).toBe(true);
@@ -85,7 +92,10 @@ describe("importBook", () => {
   it("imports a DOCX, storing embedded image bytes under assets/", async () => {
     sources.set("/src/book.docx", tinyDocx({ image: true }));
     await a().importBook("/src/book.docx", "/new", "Book", "Me");
-    expect(s().manifest!.chapters.map((c) => c.title)).toEqual(["Dawn", "Dusk"]);
+    expect(s().manifest!.chapters.map((c) => sourceTitle(c, s().manifest!.editions))).toEqual([
+      "Dawn",
+      "Dusk",
+    ]);
     expect([...assets.keys()]).toHaveLength(1);
     const [path, bytes] = [...assets.entries()][0]!;
     expect(bytes).toEqual(PNG_BYTES);
@@ -171,7 +181,9 @@ describe("html import", () => {
     );
     images.set("/src/page.html|img/pixel.png", PNG_BYTES);
     await a().importBook("/src/page.html", "/new", "Page", "Me");
-    expect(s().manifest!.chapters.map((c) => c.title)).toEqual(["Alpha"]);
+    expect(s().manifest!.chapters.map((c) => sourceTitle(c, s().manifest!.editions))).toEqual([
+      "Alpha",
+    ]);
     const doc = disk.get("manuscript/001-alpha.json")!;
     expect(doc).toContain("bold");
     expect(doc).not.toContain("evil");

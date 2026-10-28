@@ -27,7 +27,9 @@ describe("import_file (markdown)", () => {
       author: "Me",
     });
     expect(r).toMatchObject({ chapterCount: 2, imageCount: 1 });
-    expect(r.manifest).toMatchObject({ title: "Imported", author: "Me", language: "en" });
+    expect(r.manifest).toMatchObject({
+      editions: [{ title: "Imported", author: "Me", language: "en" }],
+    });
     expect(r.warnings.some((g: { code: string }) => g.code === "html")).toBe(true);
     expect(r.warnings[0]).toMatchObject({
       code: expect.any(String),
@@ -39,12 +41,12 @@ describe("import_file (markdown)", () => {
     expect(readdirSync(join(s.root, "src")).sort()).toEqual(["book.md", "img"]);
 
     const m = JSON.parse(readFileSync(join(s.root, "out/cadabra.json"), "utf8"));
-    expect(m.chapters.map((c: { title: string }) => c.title)).toEqual([
+    expect(m.chapters.map((c: { titles: { en: string } }) => c.titles.en)).toEqual([
       "Chapter One",
       "Chapter Two",
     ]);
     expect(readdirSync(join(s.root, "out/assets"))).toEqual(["grad.png"]);
-    const doc = JSON.parse(readFileSync(join(s.root, "out", m.chapters[0].file), "utf8"));
+    const doc = JSON.parse(readFileSync(join(s.root, "out", m.chapters[0].files.en), "utf8"));
     expect(JSON.stringify(doc)).toContain('"src":"assets/grad.png"');
     expect((await s.ok("cadabra_project_validate", { path: "out" })).valid).toBe(true);
   });
@@ -60,12 +62,12 @@ describe("import_file (markdown)", () => {
       source: "src/my_great-book.md",
       destination: "out",
     });
-    expect(r.manifest.title).toBe("my great book");
+    expect(r.manifest.editions[0].title).toBe("my great book");
     expect(r.imageCount).toBe(0);
     const notImported = r.warnings.find((g: { code: string }) => g.code === "image-not-imported");
     expect(notImported.count).toBe(2);
     const m = JSON.parse(readFileSync(join(s.root, "out/cadabra.json"), "utf8"));
-    const text = readFileSync(join(s.root, "out", m.chapters[0].file), "utf8");
+    const text = readFileSync(join(s.root, "out", m.chapters[0].files.en), "utf8");
     expect(text).toContain("[Image: Missing]");
     expect(text).not.toContain('"image"');
   });

@@ -1,10 +1,12 @@
+import { entryRows } from "@cadabracraft/format";
 import { useProject } from "../../state/project";
 import { AudioFields, AudioJobView, VoiceDownloadPanel } from "./AudioExport";
 import type { AudioExport } from "./useAudioExport";
 
 /** The Audiobook format: the running or finished job, the voice download offer, or the options. */
 export function AudioPanel({ audio }: { audio: AudioExport }) {
-  const chapters = useProject((s) => s.manifest)?.chapters ?? [];
+  const book = useProject((s) => s.manifest);
+  const chapters = book ? entryRows(book.chapters, book.editions) : [];
   const { job, showDownload, missing, chosen, setPicked, download, hasVoices } = audio;
   if (job) return <AudioJobView job={job} />;
   if (showDownload)

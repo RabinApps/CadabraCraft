@@ -44,9 +44,7 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   await expect(dialog).toBeHidden();
   await expect(page.getByRole("heading", { level: 1, name: "Renamed Book" })).toBeVisible();
   expect(await manifest()).toMatchObject({
-    title: "Renamed Book",
-    isbn: "978-3-16-148410-0",
-    cover: "assets/pic.png",
+    editions: [{ title: "Renamed Book", isbn: "978-3-16-148410-0", cover: "assets/pic.png" }],
   });
 
   await page.getByRole("button", { name: "Book details" }).click();
@@ -57,7 +55,7 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   await dialog.getByRole("button", { name: "Remove cover" }).click();
   await dialog.getByRole("button", { name: "Save details" }).click();
   await expect(dialog).toBeHidden();
-  expect((await manifest()).cover).toBeNull();
+  expect((await manifest()).editions[0].cover).toBeNull();
 });
 
 test("print preview shows the cover, and the PDF dialog offers to include it only when there is one", async ({

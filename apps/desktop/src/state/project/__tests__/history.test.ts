@@ -1,3 +1,4 @@
+import { sourceFile, sourceTitle } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, trashMethods } from "../../../test/fakeBridge";
 
@@ -16,7 +17,7 @@ const text = (t: string) => ({
   type: "doc" as const,
   content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
 });
-const titles = () => s().manifest!.chapters.map((c) => c.title);
+const titles = () => s().manifest!.chapters.map((c) => sourceTitle(c, s().manifest!.editions));
 const firstText = () => JSON.stringify(s().currentDoc).match(/"text":"([^"]*)"/)?.[1];
 const trashed = () => [...disk.keys()].filter((k) => k.startsWith(".cadabra/trash/"));
 
@@ -53,7 +54,7 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     await a().redo();
     await a().redo();
     expect(titles()).toEqual(["Deux", "Chapter One"]);
-    expect(JSON.parse(disk.get("cadabra.json")!).chapters[0].title).toBe("Deux");
+    expect(JSON.parse(disk.get("cadabra.json")!).chapters[0].titles.en).toBe("Deux");
   });
   it("does not record a move that changes nothing", async () => {
     await a().move("ch-1", -1);
@@ -63,7 +64,7 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     await a().add("Two");
     a().setDraft(text("keep me"));
     await a().flush();
-    const file = s().manifest!.chapters[1]!.file;
+    const file = sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions);
     await a().undo();
     expect(titles()).toEqual(["Chapter One"]);
     expect(disk.has(file)).toBe(false);
@@ -84,7 +85,9 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     expect(trashed()).toHaveLength(1);
     await a().undo();
     expect(s().manifest!.chapters.map((c) => c.id)).toEqual(ids);
-    expect(disk.get(s().manifest!.chapters[1]!.file)).toContain("precious");
+    expect(disk.get(sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions))).toContain(
+      "precious",
+    );
     expect(trashed()).toEqual([]);
     expect(s().currentId).toBe("ch-2");
     await a().redo();
@@ -132,17 +135,17 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
   });
   it("a restored page that had to take another name stays consistent through redo and undo", async () => {
     await a().add("Two");
-    const file = s().manifest!.chapters[1]!.file;
+    const file = sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions);
     await a().remove("ch-2");
     disk.set(file, "squatter"); // something outside the app took the name
     await a().undo();
-    const back = s().manifest!.chapters[1]!.file;
+    const back = sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions);
     expect(back).not.toBe(file);
     expect(disk.get(file)).toBe("squatter");
     await a().redo();
     expect(titles()).toEqual(["Chapter One"]);
     await a().undo();
-    expect(disk.has(s().manifest!.chapters[1]!.file)).toBe(true);
+    expect(disk.has(sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions))).toBe(true);
     expect(disk.get(file)).toBe("squatter");
   });
   it("reports the problem and keeps the history when the trashed file is gone", async () => {
@@ -171,7 +174,10 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     a().setDraft(text("cat and cat"));
     await a().addMatter("back", "about-the-author");
     await a().selectChapter("ch-1");
-    const files = [s().manifest!.chapters[0]!.file, s().manifest!.chapters[1]!.file];
+    const files = [
+      sourceFile(s().manifest!.chapters[0]!, s().manifest!.editions),
+      sourceFile(s().manifest!.chapters[1]!, s().manifest!.editions),
+    ];
     const undoBefore = s().history.undo.length;
     const n = await a().replaceInBook({ query: "cat", matchCase: false, wholeWord: false }, "dog");
     expect(n).toBe(3);

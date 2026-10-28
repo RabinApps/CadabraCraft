@@ -19,7 +19,7 @@ test("book undo and redo: sidebar buttons and shortcut, trash round trip, separa
   const chapters = () =>
     page.evaluate(() =>
       JSON.parse(window.__disk["cadabra.json"] as string).chapters.map(
-        (c: { title: string }) => c.title,
+        (c: { titles: { en: string } }) => c.titles.en,
       ),
     );
   const trashCount = () =>

@@ -1,3 +1,4 @@
+import { sourceFile } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { unzipSync, strFromU8 } from "fflate";
 import { disk } from "../../../test/fakeBridge";
@@ -73,12 +74,14 @@ describe("exportDocx", () => {
   });
   it("names the file when the failing page has an empty title", async () => {
     const entry = s().manifest!.chapters[0]!;
-    useProject.setState({ manifest: { ...s().manifest!, chapters: [{ ...entry, title: "" }] } });
+    useProject.setState({
+      manifest: { ...s().manifest!, chapters: [{ ...entry, titles: { en: "" } }] },
+    });
     await a().saveCurrent(doc({ type: "image", attrs: { src: "assets/a.svg", alt: "x" } }));
     const err = await a()
       .exportDocx({ font: "times" })
       .catch((e: Error) => e);
-    expect((err as Error).message).toContain(entry.file);
+    expect((err as Error).message).toContain(sourceFile(entry, s().manifest!.editions));
   });
   it("a missing image stops the export with its name", async () => {
     await a().saveCurrent(doc({ type: "image", attrs: { src: "assets/x.png", alt: "x" } }));

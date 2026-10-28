@@ -35,7 +35,7 @@ export async function exportSteps({
     await app.sleep(1500);
     assert((await editorH1()) === "About the Author", "about-the-author page did not open");
     const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
-    assert(manifest.formatVersion === 3, "manifest is not format 3");
+    assert(manifest.formatVersion === 4, "manifest is not format 4");
     assert(
       manifest.frontMatter[0]?.kind === "title-page" &&
         manifest.backMatter[0]?.kind === "about-the-author",
@@ -149,11 +149,12 @@ export async function exportSteps({
       );
       const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
       assert(
-        manifest.cover === "assets/pixel.png" && manifest.isbn === "978-3-16-148410-0",
-        `manifest wrong: cover=${manifest.cover} isbn=${manifest.isbn}`,
+        manifest.editions[0].cover === "assets/pixel.png" &&
+          manifest.editions[0].isbn === "978-3-16-148410-0",
+        `manifest wrong: cover=${manifest.editions[0].cover} isbn=${manifest.editions[0].isbn}`,
       );
       assert(
-        manifest.title === "Scenario Book" && manifest.chapters.length === 1,
+        manifest.editions[0].title === "Scenario Book" && manifest.chapters.length === 1,
         "other fields changed",
       );
       return "cover assets/pixel.png, ISBN saved";

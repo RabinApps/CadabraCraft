@@ -63,7 +63,7 @@ describe.skipIf(skip)("native smoke", () => {
 
     // Rust wrote real files.
     const manifest = JSON.parse(readFileSync(join(root, "cadabra.json"), "utf8"));
-    expect(manifest).toMatchObject({ title: "Native Book", author: "Tester" });
+    expect(manifest).toMatchObject({ editions: [{ title: "Native Book", author: "Tester" }] });
     const files = readdirSync(root, { recursive: true, encoding: "utf8" }).filter(
       (f) => f.replaceAll("\\", "/").endsWith(".json") && f !== "cadabra.json",
     );

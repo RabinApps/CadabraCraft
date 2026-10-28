@@ -1,3 +1,4 @@
+import { sourceEdition, sourceFileById } from "@cadabracraft/format";
 import { t } from "@lingui/core/macro";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { buildDocx } from "@cadabracraft/export-docx";
@@ -17,7 +18,7 @@ import type { Ctx } from "./context";
 
 /** The one-shot exports: EPUB, Markdown, Word and the print PDF. */
 export const createExportActions = (ctx: Ctx): ExportActions => {
-  const { set, get, need, entryOf, saveManifest, flush, loadChapters, loadAssets, loadCover } = ctx;
+  const { set, get, need, saveManifest, flush, loadChapters, loadAssets, loadCover } = ctx;
   return {
     async exportEpub() {
       if (get().exportStage) throw new Error(t`An export is already running`);
@@ -31,11 +32,11 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         set({ exportStage: "rendering" });
         const bytes = buildEpub(
           {
-            title: manifest.title,
-            author: manifest.author,
-            language: manifest.language,
-            identifier: manifest.identifier,
-            isbn: manifest.isbn,
+            title: sourceEdition(manifest.editions).title,
+            author: sourceEdition(manifest.editions).author,
+            language: sourceEdition(manifest.editions).language,
+            identifier: sourceEdition(manifest.editions).identifier,
+            isbn: sourceEdition(manifest.editions).isbn,
             modified: new Date(),
           },
           chapters,
@@ -52,7 +53,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         set({ notice: t`Exported exports/book.epub` });
       } catch (e) {
         const manifest = get().manifest;
-        throw describeEpubError(e, (id) => (manifest ? entryOf(manifest, id)?.file : undefined));
+        throw describeEpubError(e, (id) => (manifest ? sourceFileById(manifest, id) : undefined));
       } finally {
         set({ exportStage: null });
       }
@@ -72,7 +73,10 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         let markdown: string;
         try {
           markdown = bookToMarkdown(
-            { title: manifest.title, author: manifest.author },
+            {
+              title: sourceEdition(manifest.editions).title,
+              author: sourceEdition(manifest.editions).author,
+            },
             chapters,
             opts,
           );
@@ -88,7 +92,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             }
           });
           // A page with an empty title is named by its file instead.
-          const where = bad ? bad.title.trim() || entryOf(manifest, bad.id)?.file || "" : "";
+          const where = bad ? bad.title.trim() || sourceFileById(manifest, bad.id) || "" : "";
           throw new Error(where ? t`In “${where}”: ${e.message}` : e.message, { cause: e });
         }
         set({ exportStage: "saving" });
@@ -111,9 +115,13 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         const assets = await loadAssets(chapters);
         set({ exportStage: "rendering" });
         // A page with an empty title is named by its file in error messages.
-        const pages = chapters.map((c) => ({ ...c, id: entryOf(manifest, c.id)?.file ?? c.id }));
+        const pages = chapters.map((c) => ({ ...c, id: sourceFileById(manifest, c.id) ?? c.id }));
         const bytes = buildDocx(
-          { title: manifest.title, author: manifest.author, language: manifest.language },
+          {
+            title: sourceEdition(manifest.editions).title,
+            author: sourceEdition(manifest.editions).author,
+            language: sourceEdition(manifest.editions).language,
+          },
           pages,
           { assets, font, modified: new Date() },
         );
@@ -139,7 +147,11 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         set({ exportStage: "rendering" });
         const runner = createTauriRunner(bridge, options.typstPath);
         const { pdf } = await renderPdf(
-          { title: manifest.title, author: manifest.author, language: manifest.language },
+          {
+            title: sourceEdition(manifest.editions).title,
+            author: sourceEdition(manifest.editions).author,
+            language: sourceEdition(manifest.editions).language,
+          },
           chapters,
           {
             template,
