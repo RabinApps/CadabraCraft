@@ -66,7 +66,12 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 - Export a 1200x630 OG image and real light/dark editor screenshots from the pen's `Website / ...` frames into `apps/website/public/og` and `public/screens`; `src/lib/seo.ts` already points at `/og/cadabracraft-og.png`.
 - Verify every competitor fact in `apps/website/src/data/competitors.ts` against its source and update `checkedOn`; several fields say "See vendor" until confirmed.
-- Draw the Compare index, Features, Download and tablet widths in the pen; link the LICENSE once the licensing question is settled; add a real download link once a GitHub Release exists.
+- Link the LICENSE once the licensing question is settled; add a real download link once a GitHub Release exists.
+- Build the pages now drawn in the pen (see [seo-plan.md](seo-plan.md) for the order): rebuild Features with alternating text and screenshot rows, Compare index with the at-a-glance table, Download with the released state, the Home "How it works" strip, footer links to Formats and Guides, and new `/formats/`, `/guides/` (index and article template), `/changelog/` routes. Add them to `sitemap.ts`.
+- Technical SEO from [seo-plan.md](seo-plan.md), section 4: `summary_large_image` and per-page images, `lastModified` in the sitemap, `FAQPage`, `BreadcrumbList` and `Article` JSON-LD, `noindex` on the 404 page, `SoftwareApplication` after the first release, performance budgets checked with Lighthouse.
+- Update site copy (Home, Features, FAQ, metadata descriptions) to mention Word and Markdown export, audiobooks and language editions; it still says only EPUB3 and PDF.
+- Write the first guides (EPUB, Word to EPUB) and verify the remaining competitor facts; re-check compare pages every 90 days.
+- Not drawn yet: Formats, Guides, Guide article, Changelog and 404 at tablet and mobile widths (they follow the same responsive rules as the drawn pages).
 
 ## Done
 
