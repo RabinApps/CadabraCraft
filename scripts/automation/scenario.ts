@@ -13,12 +13,14 @@ import { pdfAndDetailsSteps } from "./scenario/pdf-and-details.ts";
 import { findAndHistorySteps } from "./scenario/find-and-history.ts";
 import { editionsSteps } from "./scenario/editions.ts";
 import { importAndCloseSteps } from "./scenario/import-and-close.ts";
+import { referencesSteps } from "./scenario/references.ts";
 
 const ctx = await createContext(process.argv.slice(2));
 const { app, child, out, results } = ctx;
 
 try {
   await editingSteps(ctx);
+  await referencesSteps(ctx);
   await exportSteps(ctx);
   await pdfAndDetailsSteps(ctx);
   await findAndHistorySteps(ctx);

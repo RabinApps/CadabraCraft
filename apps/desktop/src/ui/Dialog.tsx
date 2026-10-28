@@ -17,13 +17,14 @@ interface ModalProps {
   size?: ModalSize;
 }
 
-export type ModalSize = "sm" | "md" | "wide" | "xl";
+export type ModalSize = "sm" | "md" | "wide" | "xl" | "full";
 
 const sizeClass: Record<ModalSize, string> = {
   sm: "w-[min(92vw,460px)]",
   md: "max-h-[92dvh] w-[min(92vw,560px)] overflow-y-auto",
   wide: "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto",
   xl: "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto",
+  full: "max-h-[92dvh] w-[min(96vw,1120px)] overflow-y-auto",
 };
 
 export const overlayClass = "motion-overlay fixed inset-0 z-(--z-overlay) bg-scrim";

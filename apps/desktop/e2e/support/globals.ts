@@ -14,7 +14,12 @@ export interface InvokeArgs {
   manifestJson: string;
   contents: string;
   paths: string[];
-  options?: { filters?: { extensions?: string[] }[] };
+  options?: { filters?: { extensions?: string[] }[]; multiple?: boolean };
+  source: string;
+  offset: number;
+  length: number;
+  event: string;
+  handler: number;
   request: AudioCall & SampleCall & M4bCall;
   name: string;
   bytes: number[];
@@ -86,8 +91,21 @@ export interface RecordedCall {
 declare global {
   interface Window {
     __disk: Record<string, string | number[]>;
-    __TAURI_INTERNALS__: { transformCallback: () => number; invoke: Invoke };
+    __TAURI_INTERNALS__: {
+      metadata: unknown;
+      transformCallback: (cb: (e: unknown) => void) => number;
+      invoke: Invoke;
+    };
+    __TAURI_EVENT_PLUGIN_INTERNALS__: {
+      unregisterListener: (event: string, eventId: number) => void;
+    };
     __opened?: string[];
+    /** Reference files: what the picker returns, the bytes behind each source path, and per-name import failures. */
+    __pickedRefs?: string[];
+    __refFiles?: Record<string, number[]>;
+    __refErrors?: Record<string, unknown>;
+    /** Sends an event to the listeners the app registered (a file drop, for example). */
+    __emit?: (event: string, payload: unknown) => void;
     __failWrite?: (path: string) => boolean;
     __failBytes?: boolean;
     __importError?: string;

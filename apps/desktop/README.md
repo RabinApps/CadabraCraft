@@ -286,7 +286,7 @@ My Book/
   front-matter/       title page, copyright, dedication, ...
   back-matter/        acknowledgments, about the author, ...
   assets/             images (png, jpg, jpeg, gif, webp, svg; max 25 MB each, checked by magic bytes)
-  references/         research files kept beside the book (not built yet, see docs/roadmap.md)
+  references/         research files kept beside the book: images, video, audio, PDFs, text, other (max 5-500 MB by type)
   exports/            EPUB, PDF, Markdown, DOCX, audio written here
   .cadabra/           this computer only: trash/, backups/ (chapter snapshots), audio/ cache (keep out of sync)
 ```

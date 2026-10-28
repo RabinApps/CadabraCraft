@@ -4,6 +4,7 @@ import {
   BookOpen,
   BookText,
   Download,
+  Library,
   LoaderCircle,
   Maximize2,
   Menu,
@@ -30,6 +31,8 @@ interface Props {
   onAudio: () => void;
   onSettings: () => void;
   onDetails: () => void;
+  /** Opens the References panel as a dialog (below the xl breakpoint, where there is no side panel). */
+  onReferences: () => void;
   /** Runs an action, clearing the shown error first and showing its failure. */
   run: (f: () => Promise<void>) => () => void;
 }
@@ -43,6 +46,7 @@ export function AppHeader({
   onAudio,
   onSettings,
   onDetails,
+  onReferences,
   run,
 }: Props) {
   const { t } = useLingui();
@@ -58,7 +62,7 @@ export function AppHeader({
   const notice = useProject((s) => s.notice);
   const audio = useProject((s) => s.audio);
   const actions = useProject((s) => s.actions);
-  const { details, set: setLayout } = useLayout();
+  const { details, references, set: setLayout } = useLayout();
   const reader = mode === "read";
   const save = run(actions.flush);
   // Saving first means the export and the reader show what was typed.
@@ -121,11 +125,28 @@ export function AppHeader({
         )}
         {!reader && (
           <IconButton
+            icon={Library}
+            label={t`References`}
+            active={references}
+            className="max-xl:hidden"
+            onClick={() => setLayout({ references: !references })}
+          />
+        )}
+        {!reader && (
+          <IconButton
+            icon={Library}
+            label={t`References`}
+            className="xl:hidden"
+            onClick={onReferences}
+          />
+        )}
+        {!reader && (
+          <IconButton
             icon={PanelRight}
             label={t`Details`}
-            active={details}
+            active={details && !references}
             className="max-xl:hidden"
-            onClick={() => setLayout({ details: !details })}
+            onClick={() => setLayout({ details: references ? true : !details, references: false })}
           />
         )}
         {!reader && <Button icon={Save} className="max-sm:hidden" onClick={save}>{t`Save`}</Button>}

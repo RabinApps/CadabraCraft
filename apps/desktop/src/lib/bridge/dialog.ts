@@ -47,4 +47,11 @@ export const dialogBridge = {
     });
     return typeof r === "string" ? r : null;
   },
+  /** Native file picker for reference files (any type, several at once); absolute paths, only ever passed to `importReference`. */
+  pickReferenceFiles: async (): Promise<string[]> => {
+    const queued = await queuedDialog();
+    if (queued !== undefined) return queued === null ? [] : [queued];
+    const r = await open({ multiple: true, directory: false });
+    return Array.isArray(r) ? r : typeof r === "string" ? [r] : [];
+  },
 };

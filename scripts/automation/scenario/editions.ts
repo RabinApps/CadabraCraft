@@ -63,6 +63,8 @@ export async function editionsSteps({ app, book, shot, dlg, step, status }: Cont
         readFileSync(join(book, chapter.files.en), "utf8") === source,
         "the source file changed",
       );
+      // The page is written first and the manifest (which drops the "untranslated" mark) right after it.
+      for (let i = 0; i < 10 && manifest().chapters[0].untranslated; i++) await app.sleep(500);
       assert(!manifest().chapters[0].untranslated, "the chapter is still marked untranslated");
       await shot("08-french-edition");
       return chapter.files.fr;

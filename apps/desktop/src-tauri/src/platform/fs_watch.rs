@@ -15,7 +15,7 @@ pub fn relevant(root: &Path, changed: &Path) -> Option<String> {
     let parts: Vec<String> = rel.components().map(|c| c.as_os_str().to_string_lossy().into_owned()).collect();
     let first = parts.first()?;
     let name = parts.last()?;
-    if first == ".cadabra" || first == "exports" || name.starts_with('.') && name.ends_with(".tmp") {
+    if first == ".cadabra" || first == "exports" || first == "references" || name.starts_with('.') && name.ends_with(".tmp") {
         return None;
     }
     Some(parts.join("/"))
@@ -53,6 +53,7 @@ mod tests {
         assert_eq!(relevant(root, Path::new("/p/cadabra.json")).as_deref(), Some("cadabra.json"));
         assert_eq!(relevant(root, Path::new("/p/.cadabra/trash/x")), None);
         assert_eq!(relevant(root, Path::new("/p/exports/book.epub")), None);
+        assert_eq!(relevant(root, Path::new("/p/references/map.png")), None);
         assert_eq!(relevant(root, Path::new("/p/manuscript/.001-a.json.tmp")), None);
         assert_eq!(relevant(root, Path::new("/other/x.json")), None);
     }

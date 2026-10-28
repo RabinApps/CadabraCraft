@@ -8,6 +8,7 @@ import { readingMinutes } from "../../lib/readingTime";
 import { Button } from "../../ui/Button";
 import { useProject } from "../../state/project";
 import { SectionHeading } from "../../ui/SectionHeading";
+import { ChapterReferences } from "../references/ChapterReferences";
 
 interface Props {
   manifest: Manifest;
@@ -19,6 +20,8 @@ interface Props {
   onChangeTemplate: () => void;
   /** Opens the Book details dialog. */
   onEditDetails: () => void;
+  /** Opens a linked reference in the viewer. */
+  onOpenReference: (id: string) => void;
 }
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -40,6 +43,7 @@ export function Details({
   words,
   onChangeTemplate,
   onEditDetails,
+  onOpenReference,
 }: Props) {
   const { t } = useLingui();
   const minutes = readingMinutes(words);
@@ -87,6 +91,7 @@ export function Details({
         >{t`Edit details`}</Button>
         <Button className="mt-2 w-full" onClick={onChangeTemplate}>{t`Change template`}</Button>
       </section>
+      <ChapterReferences onOpen={onOpenReference} />
     </div>
   );
 }

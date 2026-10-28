@@ -139,6 +139,25 @@ fn asset_and_import_commands_work_through_the_ipc() {
 }
 
 #[test]
+fn reference_commands_work_through_the_ipc() {
+    let (_app, w) = mock_app();
+    let (book, src) = (project(), tempfile::tempdir().unwrap());
+    let r = root(&book);
+    std::fs::write(src.path().join("notes.md"), "# Notes").unwrap();
+    std::fs::write(src.path().join("run.exe"), "MZ").unwrap();
+    let notes = src.path().join("notes.md").to_string_lossy().into_owned();
+    let got = json_of(call(&w, "import_reference", json!({ "root": r, "source": notes })));
+    assert_eq!(got, json!({ "file": "references/notes.md", "title": "notes", "size": 7, "kind": "text", "reused": false }));
+    assert_eq!(json_of(call(&w, "stat_reference", json!({ "root": r, "path": "references/notes.md" }))), json!({ "size": 7, "kind": "text" }));
+    assert_eq!(raw_of(call(&w, "read_reference", json!({ "root": r, "path": "references/notes.md", "offset": 2, "length": 99 }))), b"Notes");
+    let exe = src.path().join("run.exe").to_string_lossy().into_owned();
+    assert_eq!(kind_of(call(&w, "import_reference", json!({ "root": r, "source": exe }))), "unsupported_reference");
+    assert_eq!(kind_of(call(&w, "open_reference", json!({ "root": r, "path": "assets/a.png" }))), "not_reference");
+    assert!(json_of(call(&w, "trash_reference", json!({ "root": r, "path": "references/notes.md" }))).as_str().unwrap().starts_with(".cadabra/trash/"));
+    assert_eq!(kind_of(call(&w, "stat_reference", json!({ "root": r, "path": "references/notes.md" }))), "not_found");
+}
+
+#[test]
 fn updates_supported_answers_a_bool() {
     let (_app, w) = mock_app();
     assert_eq!(json_of(call(&w, "updates_supported", json!({}))), json!(crate::commands::updates_supported()));
@@ -238,6 +257,11 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("import_asset", json!({ "root": "/r", "source": "/s" })),
         ("import_asset_bytes", json!({ "root": "/r", "name": "n", "bytes": [] })),
         ("read_asset", json!({ "root": "/r", "path": "p" })),
+        ("import_reference", json!({ "root": "/r", "source": "/s" })),
+        ("stat_reference", json!({ "root": "/r", "path": "p" })),
+        ("read_reference", json!({ "root": "/r", "path": "p", "offset": 0, "length": 1 })),
+        ("trash_reference", json!({ "root": "/r", "path": "p" })),
+        ("open_reference", json!({ "root": "/r", "path": "p" })),
         ("read_import_source", json!({ "path": "/p" })),
         ("read_import_image", json!({ "sourceFile": "/p", "reference": "r" })),
         ("watch_project", json!({ "root": "/r" })),

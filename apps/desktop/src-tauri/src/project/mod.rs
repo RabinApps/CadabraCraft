@@ -6,6 +6,7 @@ mod fsio;
 mod layout;
 mod pages;
 mod paths;
+mod references;
 pub mod snapshots;
 mod trash;
 
@@ -21,6 +22,7 @@ pub use fsio::{atomic_write, hash_bytes, is_audio_part, write_audio_part, write_
 pub(crate) use fsio::{icloud_pending, open_error, read_regular};
 pub use layout::{backup_manifest, create_project, MANIFEST};
 pub(crate) use pages::write_file_with;
+pub use references::{import_reference, read_reference_range, reference_open_path, stat_reference, trash_reference, ImportedReference, ReferenceStat};
 pub use pages::{read_file, write_file, FileRead, WriteResult};
 pub(crate) use paths::free_name;
 pub use paths::{require_absolute, require_project, resolve};

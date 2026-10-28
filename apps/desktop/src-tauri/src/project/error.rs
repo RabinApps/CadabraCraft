@@ -31,6 +31,12 @@ pub enum ProjectError {
     /// A document whose extension is not `.docx`, `.md`, `.markdown` or `.txt`.
     UnsupportedDocument { name: String },
     NotImageAsset { path: String },
+    /// A reference file whose type is never imported (programs, scripts and web pages that could run when opened).
+    UnsupportedReference { name: String },
+    /// A reference file whose bytes do not match its extension.
+    InvalidReference { name: String, ext: String },
+    /// A path that is not `references/<name>`.
+    NotReference { path: String },
     NotTrashPath { path: String },
     CannotRestore { path: String },
     /// A Markdown image reference that is absolute, has `..`, a backslash or a NUL byte.
@@ -65,6 +71,9 @@ impl fmt::Display for ProjectError {
             InvalidImage { name, ext } => write!(f, "{name} is not a valid {ext} image"),
             UnsupportedDocument { name } => write!(f, "{name} is not a .docx, .md, .markdown, .html, .htm or .txt file"),
             NotImageAsset { path } => write!(f, "not an image asset: {path}"),
+            UnsupportedReference { name } => write!(f, "{name} is a type of file that cannot be added as a reference"),
+            InvalidReference { name, ext } => write!(f, "{name} is not a valid {ext} file"),
+            NotReference { path } => write!(f, "not a reference file: {path}"),
             NotTrashPath { path } => write!(f, "not a trash path: {path}"),
             CannotRestore { path } => write!(f, "cannot restore {path}"),
             ImageRefNotAllowed { reference } => write!(f, "image path is not allowed: {reference}"),
@@ -165,6 +174,9 @@ mod tests {
             (InvalidImage { name: p(), ext: "png".into() }, "p is not a valid png image"),
             (UnsupportedDocument { name: p() }, "p is not a .docx, .md, .markdown, .html, .htm or .txt file"),
             (NotImageAsset { path: p() }, "not an image asset: p"),
+            (UnsupportedReference { name: p() }, "p is a type of file that cannot be added as a reference"),
+            (InvalidReference { name: p(), ext: "pdf".into() }, "p is not a valid pdf file"),
+            (NotReference { path: p() }, "not a reference file: p"),
             (NotTrashPath { path: p() }, "not a trash path: p"),
             (CannotRestore { path: p() }, "cannot restore p"),
             (ImageRefNotAllowed { reference: p() }, "image path is not allowed: p"),

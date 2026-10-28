@@ -78,6 +78,11 @@ msgstr ""
 msgid "{0} files, {minutes} min. Saved in the exports folder, in audio."
 msgstr ""
 
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "{0} is a type of file that cannot be added as a reference"
+msgstr ""
+
 #. placeholder {0}: e.path
 #. placeholder {1}: e.max_mb
 #: src/lib/projectError.ts
@@ -103,6 +108,12 @@ msgstr ""
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
 msgid "{0} is not a file"
+msgstr ""
+
+#. placeholder {0}: e.name
+#. placeholder {1}: e.ext
+#: src/lib/projectError.ts
+msgid "{0} is not a valid {1} file"
 msgstr ""
 
 #. placeholder {0}: e.name
@@ -143,6 +154,12 @@ msgstr ""
 #. placeholder {1}: mb(download.total)
 #: src/app/export/AudioExport.tsx
 msgid "{0} of {1} MB"
+msgstr ""
+
+#. placeholder {0}: ref.title
+#. placeholder {1}: errText(e)
+#: src/state/project/references.ts
+msgid "{0} was removed, but its file could not be moved to the trash: {1}"
 msgstr ""
 
 #. placeholder {0}: ctx.titleIn(entry, manifest, language)
@@ -201,6 +218,14 @@ msgstr ""
 
 #: src/state/project/exports.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
+msgstr ""
+
+#: src/state/project/references.ts
+msgid "{name} is already in this book. Using the existing file."
+msgstr ""
+
+#: src/app/references/PdfPreview.tsx
+msgid "{page} / {pages}"
 msgstr ""
 
 #: src/app/shell/App.tsx
@@ -286,6 +311,10 @@ msgstr ""
 msgid "Add {title}"
 msgstr ""
 
+#: src/app/references/ReferenceDetails.tsx
+msgid "Add a tag"
+msgstr ""
+
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
 msgid "Add chapter"
@@ -295,8 +324,16 @@ msgstr ""
 msgid "Add Column After"
 msgstr ""
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Add files"
+msgstr ""
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Add image"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Add images, videos, PDFs, audio and notes you want to look at while you write. They stay in the book folder."
 msgstr ""
 
 #: src/app/dialogs/AddLanguageDialog.tsx
@@ -320,12 +357,21 @@ msgstr ""
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
 msgstr ""
 
+#. placeholder {0}: importing.name
+#: src/app/references/ReferencesPanel.tsx
+msgid "Adding {0}"
+msgstr ""
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Address"
 msgstr ""
 
 #: src/app/export/PdfPanel.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "All"
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
@@ -370,6 +416,8 @@ msgstr ""
 msgid "Ask each time"
 msgstr ""
 
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferencesPanel.tsx
 #: src/app/settings/Settings.tsx
 msgid "Audio"
 msgstr ""
@@ -685,6 +733,10 @@ msgstr ""
 msgid "Close Project"
 msgstr ""
 
+#: src/app/references/ReferenceViewer.tsx
+msgid "Close viewer"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Close Window"
 msgstr ""
@@ -754,6 +806,11 @@ msgid "Copyright page"
 msgstr ""
 
 #. placeholder {0}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not add {name}: {0}"
+msgstr ""
+
+#. placeholder {0}: errText(e)
 #: src/state/project/assets.ts
 msgid "Could not add the cover: {0}"
 msgstr ""
@@ -784,6 +841,10 @@ msgstr ""
 msgid "Could not open {SPONSOR_URL}: {0}"
 msgstr ""
 
+#: src/app/references/Previews.tsx
+msgid "Could not open {title}: {error}"
+msgstr ""
+
 #. placeholder {0}: errText(e)
 #: src/app/home/Home.tsx
 msgid "Could not open this book: {0}"
@@ -793,9 +854,24 @@ msgstr ""
 msgid "Could not redo: {why}"
 msgstr ""
 
+#. placeholder {0}: ref.title
+#. placeholder {1}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not remove {0}: {1}"
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not save the reference: {0}"
+msgstr ""
+
 #. placeholder {0}: errText(e)
 #: src/state/project/pages.ts
 msgid "Could not save: {0}"
+msgstr ""
+
+#: src/app/references/PdfPreview.tsx
+msgid "Could not show this PDF: {error}"
 msgstr ""
 
 #: src/state/project/history.ts
@@ -896,6 +972,18 @@ msgstr ""
 msgid "Details Panel"
 msgstr ""
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Dismiss"
+msgstr ""
+
+#: src/app/references/ReferenceRow.tsx
+msgid "Document"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Documents"
+msgstr ""
+
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Don't show again"
 msgstr ""
@@ -926,6 +1014,10 @@ msgstr ""
 
 #: src/app/export/AudioExport.tsx
 msgid "Downloading…"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Drop files here to add them"
 msgstr ""
 
 #: src/app/home/Home.tsx
@@ -1066,8 +1158,17 @@ msgid "Fast and clear."
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/references/ReferenceRow.tsx
 #: src/app/shell/menuModel.ts
 msgid "File"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Filter by tag"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Filter by type"
 msgstr ""
 
 #: src/editor/FindBar.tsx
@@ -1215,6 +1316,7 @@ msgstr ""
 msgid "Identifier"
 msgstr ""
 
+#: src/app/references/ReferenceRow.tsx
 #: src/editor/Toolbar.tsx
 msgid "Image"
 msgstr ""
@@ -1241,6 +1343,10 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Image…"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Images"
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
@@ -1337,6 +1443,10 @@ msgstr ""
 msgid "ISBN"
 msgstr ""
 
+#: src/app/references/Previews.tsx
+msgid "It is stored with your book. Open it in another app to read it."
+msgstr ""
+
 #: src/app/shell/Sidebar.tsx
 msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
 msgstr ""
@@ -1373,6 +1483,10 @@ msgstr ""
 
 #: src/app/export/AudioFooter.tsx
 msgid "Keep working"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Keep your research close"
 msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
@@ -1427,8 +1541,32 @@ msgstr ""
 msgid "Link"
 msgstr ""
 
+#: src/app/references/ChapterReferences.tsx
+msgid "Link a reference"
+msgstr ""
+
+#: src/app/references/ChapterReferences.tsx
+msgid "Link a reference…"
+msgstr ""
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Link to a chapter"
+msgstr ""
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Link to a chapter…"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Link…"
+msgstr ""
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Linked chapters"
+msgstr ""
+
+#: src/app/references/Previews.tsx
+msgid "Loading…"
 msgstr ""
 
 #: src/app/home/Home.tsx
@@ -1594,6 +1732,7 @@ msgstr ""
 msgid "Next match"
 msgstr ""
 
+#: src/app/references/PdfPreview.tsx
 #: src/editor/ReadingFooter.tsx
 msgid "Next page"
 msgstr ""
@@ -1628,12 +1767,20 @@ msgstr ""
 msgid "No HTML found in the selection"
 msgstr ""
 
+#: src/app/references/Previews.tsx
+msgid "No preview for this file type"
+msgstr ""
+
 #: src/lib/exportChecks.ts
 msgid "No problems found"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "No Recent Projects"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "No references match."
 msgstr ""
 
 #: src/lib/search/findHelpers.ts
@@ -1651,6 +1798,11 @@ msgstr ""
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
 msgid "Not a page in the trash: {0}"
+msgstr ""
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Not a reference file: {0}"
 msgstr ""
 
 #. placeholder {0}: e.path
@@ -1673,6 +1825,7 @@ msgid "Not translated yet in {0}: {1}"
 msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/references/ReferenceDetails.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
 msgstr ""
@@ -1718,6 +1871,10 @@ msgstr ""
 msgid "Open folder"
 msgstr ""
 
+#: src/app/references/ReferenceViewer.tsx
+msgid "Open in default app"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Open Project…"
 msgstr ""
@@ -1736,6 +1893,10 @@ msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "Opus"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Other"
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
@@ -1772,6 +1933,19 @@ msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "Paste as styled text?"
+msgstr ""
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferencesPanel.tsx
+msgid "PDF"
+msgstr ""
+
+#: src/app/references/PdfPreview.tsx
+msgid "PDF controls"
+msgstr ""
+
+#: src/app/references/PdfPreview.tsx
+msgid "PDF page {page}"
 msgstr ""
 
 #: src/app/export/PdfPanel.tsx
@@ -1825,6 +1999,7 @@ msgstr ""
 msgid "Previous match"
 msgstr ""
 
+#: src/app/references/PdfPreview.tsx
 #: src/editor/ReadingFooter.tsx
 msgid "Previous page"
 msgstr ""
@@ -1942,6 +2117,17 @@ msgstr ""
 msgid "Redo: {0}"
 msgstr ""
 
+#: src/app/references/ReferenceViewer.tsx
+msgid "Reference details"
+msgstr ""
+
+#: src/app/references/ChapterReferences.tsx
+#: src/app/references/ReferencesPanel.tsx
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "References"
+msgstr ""
+
 #: src/editor/FindBar.tsx
 msgid "Regex"
 msgstr ""
@@ -1961,6 +2147,14 @@ msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Remove cover"
+msgstr ""
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Remove from book"
+msgstr ""
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Remove tag {name}"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
@@ -2080,6 +2274,10 @@ msgstr ""
 msgid "Scene Break"
 msgstr ""
 
+#: src/app/references/ReferencesPanel.tsx
+msgid "Search references"
+msgstr ""
+
 #: src/app/shell/Details.tsx
 msgid "Section"
 msgstr ""
@@ -2132,6 +2330,14 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Show All"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Show as grid"
+msgstr ""
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Show as list"
 msgstr ""
 
 #: src/app/shell/AppHeader.tsx
@@ -2269,6 +2475,10 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Table…"
+msgstr ""
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Tags"
 msgstr ""
 
 #: src/app/export/PdfPanel.tsx
@@ -2514,6 +2724,7 @@ msgstr ""
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/home/Home.tsx
+#: src/app/references/ReferenceDetails.tsx
 #: src/app/shell/Details.tsx
 msgid "Title"
 msgstr ""
@@ -2616,6 +2827,11 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
+#. placeholder {0}: titleOf(id)
+#: src/app/references/ReferenceDetails.tsx
+msgid "Unlink {0}"
+msgstr ""
+
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
 msgid "Unsafe project path: {0}"
@@ -2657,6 +2873,11 @@ msgstr ""
 #. placeholder {0}: update.version
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Version {0} is available"
+msgstr ""
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferencesPanel.tsx
+msgid "Video"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -2803,4 +3024,12 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Zoom"
+msgstr ""
+
+#: src/app/references/PdfPreview.tsx
+msgid "Zoom in"
+msgstr ""
+
+#: src/app/references/PdfPreview.tsx
+msgid "Zoom out"
 msgstr ""

@@ -16,6 +16,9 @@ export type ProjectError =
   | { kind: "invalid_image"; name: string; ext: string }
   | { kind: "unsupported_document"; name: string }
   | { kind: "not_image_asset"; path: string }
+  | { kind: "unsupported_reference"; name: string }
+  | { kind: "invalid_reference"; name: string; ext: string }
+  | { kind: "not_reference"; path: string }
   | { kind: "not_trash_path"; path: string }
   | { kind: "cannot_restore"; path: string }
   | { kind: "image_ref_not_allowed"; reference: string }
@@ -41,6 +44,9 @@ const KINDS = new Set<string>([
   "invalid_image",
   "unsupported_document",
   "not_image_asset",
+  "unsupported_reference",
+  "invalid_reference",
+  "not_reference",
   "not_trash_path",
   "cannot_restore",
   "image_ref_not_allowed",
@@ -90,6 +96,12 @@ export function projectErrorMessage(e: ProjectError): string {
       return t`${e.name} is not a .docx, .md, .markdown, .html, .htm or .txt file`;
     case "not_image_asset":
       return t`Not an image in the assets folder: ${e.path}`;
+    case "unsupported_reference":
+      return t`${e.name} is a type of file that cannot be added as a reference`;
+    case "invalid_reference":
+      return t`${e.name} is not a valid ${e.ext} file`;
+    case "not_reference":
+      return t`Not a reference file: ${e.path}`;
     case "not_trash_path":
       return t`Not a page in the trash: ${e.path}`;
     case "cannot_restore":

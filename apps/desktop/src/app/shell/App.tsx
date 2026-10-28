@@ -15,9 +15,11 @@ import { ReadingFooter } from "../../editor/ReadingFooter";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { Button, IconButton } from "../../ui/Button";
-import { overlayClass, panelClass } from "../../ui/Dialog";
+import { Modal, overlayClass, panelClass } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
 import { Details } from "./Details";
+import { ReferencesPanel } from "../references/ReferencesPanel";
+import { ReferenceViewer } from "../references/ReferenceViewer";
 import { BookDetailsDialog } from "../dialogs/BookDetailsDialog";
 import { ExportDialog } from "../export/ExportDialog";
 import type { ExportFormat } from "../export/exportFormat";
@@ -73,6 +75,8 @@ export function App() {
   const [mode, setMode] = useState<"write" | "read">("write");
   const [view, setView] = useState<View>("book");
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [refsSheet, setRefsSheet] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("epub");
   const openExport = (format: ExportFormat) => {
@@ -80,7 +84,7 @@ export function App() {
     setExportOpen(true);
   };
   const reading = useReading();
-  const { focus: focusPref, details, set: setLayout } = useLayout();
+  const { focus: focusPref, details, references, set: setLayout } = useLayout();
   const reader = mode === "read";
   // Focus mode is for writing; reading mode already has its own bare layout.
   const focus = focusPref && !reader && open;
@@ -217,6 +221,7 @@ export function App() {
           onAudio={() => openExport("audiobook")}
           onSettings={() => setView("settings")}
           onDetails={() => setDetailsOpen(true)}
+          onReferences={() => setRefsSheet(true)}
           run={run}
         />
       )}
@@ -306,19 +311,27 @@ export function App() {
             </footer>
           )}
         </main>
-        {!focus && !reader && details && (
+        {!focus && !reader && (details || references) && (
           <aside
-            aria-label={t`Details`}
-            className="hidden w-70 shrink-0 overflow-y-auto border-s border-border bg-surface xl:block"
+            aria-label={references ? t`References` : t`Details`}
+            className={cx(
+              "hidden shrink-0 overflow-y-auto border-s border-border bg-surface xl:block",
+              references ? "w-80" : "w-70",
+            )}
           >
-            <Details
-              manifest={manifest}
-              pageTitle={pages[index]?.title ?? null}
-              section={section}
-              words={words}
-              onChangeTemplate={() => setView("templates")}
-              onEditDetails={() => setDetailsOpen(true)}
-            />
+            {references ? (
+              <ReferencesPanel openId={viewingId} onOpen={setViewingId} />
+            ) : (
+              <Details
+                manifest={manifest}
+                pageTitle={pages[index]?.title ?? null}
+                section={section}
+                words={words}
+                onChangeTemplate={() => setView("templates")}
+                onEditDetails={() => setDetailsOpen(true)}
+                onOpenReference={setViewingId}
+              />
+            )}
           </aside>
         )}
       </div>
@@ -354,6 +367,18 @@ export function App() {
         </D.Portal>
       </D.Root>
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
+      <Modal open={refsSheet} onOpenChange={setRefsSheet} title={t`References`} size="wide">
+        <div className="-m-4 h-[65dvh]">
+          <ReferencesPanel
+            openId={viewingId}
+            onOpen={(id) => {
+              setRefsSheet(false);
+              setViewingId(id);
+            }}
+          />
+        </div>
+      </Modal>
+      <ReferenceViewer id={viewingId} onClose={() => setViewingId(null)} />
       <RecoverDialog />
       <SponsorDialog />
       <UpdateDialog />

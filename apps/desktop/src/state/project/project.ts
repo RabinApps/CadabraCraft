@@ -14,6 +14,7 @@ import {
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
 import { forgetProjectAssets } from "../../lib/assets";
+import { forgetProjectReferences } from "../../lib/references";
 import { runImport } from "../../lib/importBook";
 import { errText, noManifestMessage } from "../../lib/projectError";
 import { useSettings } from "../editorPrefs";
@@ -40,6 +41,8 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     history: NO_HISTORY,
     trash: [],
     recovery: [],
+    referenceNotices: [],
+    referenceImport: null,
     importReport: null,
     audio: null,
   };
@@ -50,7 +53,10 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     const parsed = parseManifest(r.contents);
     resetWordCache();
     const previous = get().root;
-    if (previous && previous !== root) forgetProjectAssets(previous);
+    if (previous && previous !== root) {
+      forgetProjectAssets(previous);
+      forgetProjectReferences(previous);
+    }
     set({
       root,
       manifest: parsed.manifest,
@@ -62,6 +68,8 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       history: NO_HISTORY,
       trash: [],
       recovery: [],
+      referenceNotices: [],
+      referenceImport: null,
     });
     try {
       await finishOpen(root, parsed);
@@ -165,7 +173,10 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       await flush();
       resetWordCache();
       const root = get().root;
-      if (root) forgetProjectAssets(root);
+      if (root) {
+        forgetProjectAssets(root);
+        forgetProjectReferences(root);
+      }
       set({
         root: null,
         manifest: null,
@@ -178,6 +189,8 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         history: NO_HISTORY,
         trash: [],
         recovery: [],
+        referenceNotices: [],
+        referenceImport: null,
         importReport: null,
         audio: null,
       });

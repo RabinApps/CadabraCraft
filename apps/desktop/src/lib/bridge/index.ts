@@ -3,6 +3,7 @@ import { audioBridge } from "./audio";
 import { dialogBridge } from "./dialog";
 import { exportBridge } from "./export";
 import { projectBridge } from "./project";
+import { referencesBridge } from "./references";
 import { systemBridge } from "./system";
 import { watchBridge } from "./watch";
 
@@ -12,6 +13,7 @@ export * from "./types";
 export const bridge = {
   ...dialogBridge,
   ...assetsBridge,
+  ...referencesBridge,
   ...systemBridge,
   ...projectBridge,
   ...watchBridge,

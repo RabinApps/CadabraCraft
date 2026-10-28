@@ -728,7 +728,16 @@ The predefined native Quit item ends the process without a window close request,
 | A freeform board or canvas                      | Much larger scope (layout model, zoom, undo); moved to the roadmap.                                         |
 | Embed references in chapter JSON                | Large binary content in text files, sync conflicts, and exporters would have to learn a new node.           |
 
-**Follow-ups / caveats:** `pdfjs-dist` 6.4.299 (Apache-2.0, pinned, no install scripts) was added to `apps/desktop` with the author's approval; it is not used yet. The repo has no third-party notices file yet (see the licensing item in the roadmap), so pdfjs goes on that list when it is generated. The CSP still needs `worker-src 'self' blob:`, which lands with the viewer. Per-type size caps (video up to 500 MB) and the video seek behaviour through ranged blob reads are not measured; revisit the asset protocol only if seeking is unusable. The watcher must ignore `references/*.tmp`.
+**Built (2026-10-28):** `references/` and the manifest list (format v5, see file-format.md), five Rust commands in `src-tauri/src/commands/references.rs` (`import_reference`, `stat_reference`, `read_reference`, `trash_reference`, `open_reference`), a References panel that takes the Details panel's place from `xl` (a dialog below it), a viewer dialog (image, video, audio, PDF with pdf.js, text, and a "no preview" fallback), chapter links in the Details panel, and a `/drive-app` scenario step.
+
+- **Import** streams the file into a hidden `.tmp` file in `references/` while hashing it, checks the type, the per-kind size cap (video 500 MB, audio and PDF 200 MB, image and other 100 MB, text 5 MB) and the signature of the first 64 KB, then renames it. Programs, scripts, installers and web pages (`exe`, `sh`, `js`, `html`...) are never imported, and are never opened in the default app either (nor is SVG, which a browser would run with scripts on).
+- **Reading** is `stat_reference` plus `read_reference(offset, length)` in chunks of 8 MB (the backend caps a call at 16 MB), assembled into a `Blob` in the webview. No asset protocol and no CSP change beyond `worker-src 'self' blob:` for the pdf.js worker.
+- **Removal** takes the reference out of the manifest first, then moves the file to `.cadabra/trash/`. There is no restore button for references yet; the file is kept so it can be moved back by hand.
+- **Links** to a chapter that is removed are dropped by `removeChapter` and `removeMatter`. Undo of a chapter removal brings the chapter back without its reference links (the history snapshots only the chapter tree, not the references).
+- **The file watcher** ignores `references/` (the manifest change is what the app reacts to).
+- **Not built:** PDF text search (the pen shows a search button), image zoom and pan, a native menu item, a tablet layout of the panel (it opens as a dialog, like the Chapters drawer), reordering, and per-type caps measured on real files. Video seeking through blob URLs and large-file import time were not measured in the native app.
+
+**Follow-ups / caveats:** `pdfjs-dist` 6.4.299 (Apache-2.0, pinned, no install scripts) was added to `apps/desktop` with the author's approval. The repo has no third-party notices file yet (see the licensing item in the roadmap), so pdf.js goes on that list when it is generated.
 
 ## Code layout and tests
 

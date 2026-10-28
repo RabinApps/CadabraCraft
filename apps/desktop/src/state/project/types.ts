@@ -1,4 +1,4 @@
-import type { Manifest, Tree } from "@cadabracraft/format";
+import type { Manifest, Reference, Tree } from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
@@ -100,6 +100,19 @@ export interface Recovery {
   snapshot: string;
 }
 
+/** A message about a reference import that stays until dismissed: a duplicate that was reused (`warn`) or a file that was refused (`danger`). */
+export interface ReferenceNotice {
+  tone: "warn" | "danger";
+  text: string;
+}
+
+/** The file being imported right now (1-based `index` of `total`), shown as progress in the References panel. */
+export interface ReferenceImport {
+  name: string;
+  index: number;
+  total: number;
+}
+
 /** The book fields the Book details dialog edits. */
 export interface BookDetails {
   title: string;
@@ -150,6 +163,10 @@ export interface ProjectState {
   history: History;
   /** The edition the editor shows and writes (a BCP 47 tag); null means the source edition. Reset when a book opens or closes. */
   activeLanguage: string | null;
+  /** What the last reference import said about files it reused or refused; empty when nothing is pending. */
+  referenceNotices: ReferenceNotice[];
+  /** The reference import in progress, or null. */
+  referenceImport: ReferenceImport | null;
   /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
   recovery: Recovery[];
   actions: ProjectActions &
@@ -159,10 +176,24 @@ export interface ProjectState {
     SnapshotActions &
     ReplaceActions &
     AssetActions &
+    ReferenceActions &
     ExportActions &
     AudioActions &
     VoiceActions &
     EditionActions;
+}
+
+export interface ReferenceActions {
+  /** Imports files into `references/` and lists them in the book. Without `paths` it asks the author to pick files. Duplicates and refused files become `referenceNotices`; nothing throws. */
+  addReferences: (paths?: string[]) => Promise<void>;
+  /** Changes a reference's title, note, tags or linked pages. Failures set `notice`. */
+  updateReference: (
+    id: string,
+    patch: Partial<Pick<Reference, "title" | "note" | "tags" | "chapters">>,
+  ) => Promise<void>;
+  /** Takes a reference out of the book and moves its file to the project trash. */
+  removeReference: (id: string) => Promise<void>;
+  dismissReferenceNotices: () => void;
 }
 
 export interface EditionActions {

@@ -5,6 +5,7 @@ mod app;
 mod assets;
 mod import;
 mod project;
+mod references;
 mod snapshots;
 mod wire;
 
@@ -12,6 +13,7 @@ pub use app::*;
 pub use assets::*;
 pub use import::*;
 pub use project::*;
+pub use references::*;
 pub use snapshots::*;
 
 /// Helpers shared by the tests of the command layers (`commands`, `typst::commands`, `audio::commands`).

@@ -7,6 +7,7 @@ import { createExportActions } from "./exports";
 import { createHistoryActions } from "./history";
 import { createPageActions } from "./pages";
 import { createProjectActions } from "./project";
+import { createReferenceActions } from "./references";
 import { createReplaceActions } from "./replace";
 import { createSnapshotActions } from "./snapshots";
 import { createTrashActions } from "./trash";
@@ -26,6 +27,8 @@ export type {
   PdfExportOptions,
   PdfStage,
   Recovery,
+  ReferenceImport,
+  ReferenceNotice,
   TrashItem,
   VoiceDownload,
 } from "./types";
@@ -54,6 +57,8 @@ export const useProject = create<ProjectState>((set, get) => {
     trash: [],
     history: NO_HISTORY,
     recovery: [],
+    referenceNotices: [],
+    referenceImport: null,
     actions: {
       ...createProjectActions(ctx),
       ...createPageActions(ctx),
@@ -63,6 +68,7 @@ export const useProject = create<ProjectState>((set, get) => {
       ...createSnapshotActions(ctx),
       ...createReplaceActions(ctx),
       ...createAssetActions(ctx),
+      ...createReferenceActions(ctx),
       ...createExportActions(ctx),
       ...createAudioActions(ctx),
       ...createVoiceActions(ctx),

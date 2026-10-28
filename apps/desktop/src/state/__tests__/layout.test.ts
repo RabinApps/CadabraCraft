@@ -10,13 +10,21 @@ const { useLayout } = await import("../layout");
 describe("useLayout", () => {
   beforeEach(() => {
     store.clear();
-    useLayout.setState({ focus: false, details: true });
+    useLayout.setState({ focus: false, details: true, references: false });
   });
   it("persists focus and details", () => {
     useLayout.getState().set({ focus: true });
-    expect(JSON.parse(store.get("cadabracraft.layout")!)).toEqual({ focus: true, details: true });
+    expect(JSON.parse(store.get("cadabracraft.layout")!)).toEqual({
+      focus: true,
+      details: true,
+      references: false,
+    });
     useLayout.getState().set({ details: false });
-    expect(JSON.parse(store.get("cadabracraft.layout")!)).toEqual({ focus: true, details: false });
+    expect(JSON.parse(store.get("cadabracraft.layout")!)).toEqual({
+      focus: true,
+      details: false,
+      references: false,
+    });
   });
   it("ignores stored values of the wrong shape", async () => {
     for (const bad of ["null", '{"focus":1,"details":true}', "not json"]) {
@@ -25,6 +33,16 @@ describe("useLayout", () => {
       const { useLayout: fresh } = await import("../layout");
       expect(fresh.getState()).toMatchObject({ focus: false, details: true });
     }
+  });
+  it("remembers the references panel and treats an older stored value as closed", async () => {
+    useLayout.getState().set({ references: true });
+    expect(JSON.parse(store.get("cadabracraft.layout")!).references).toBe(true);
+    store.set("cadabracraft.layout", '{"focus":false,"details":true,"references":true}');
+    vi.resetModules();
+    expect((await import("../layout")).useLayout.getState().references).toBe(true);
+    store.set("cadabracraft.layout", '{"focus":false,"details":true}');
+    vi.resetModules();
+    expect((await import("../layout")).useLayout.getState().references).toBe(false);
   });
   it("reads a valid stored value", async () => {
     store.set("cadabracraft.layout", '{"focus":true,"details":false}');
