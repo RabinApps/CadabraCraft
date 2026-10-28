@@ -430,7 +430,7 @@ mod tests {
             return;
         };
         for voice in crate::audio::voices::VOICES.iter().filter(|v| expected.contains(&v.id)) {
-            let req = crate::audio::render::ChapterRequest { job_id: "dl".into(), root: book.to_string_lossy().into_owned(), base: format!("exports/audio/{}", voice.id), chunks: vec![crate::audio::batch::Chunk { text: "The quay was empty. A gull cried once.".into(), pause_after_ms: 600 }], voice: voice.id.into(), speed: 1.0, formats: vec!["opus".into(), "flac".into()] };
+            let req = crate::audio::render::ChapterRequest { job_id: "dl".into(), root: book.to_string_lossy().into_owned(), base: format!("exports/audio/{}", voice.id), chunks: vec![crate::audio::batch::Chunk { text: "The quay was empty. A gull cried once.".into(), pause_after_ms: 600 }], voice: voice.id.into(), speed: 1.0, formats: vec!["opus".into(), "flac".into()], part: None };
             let done = crate::audio::render::render_chapter(&req, &bin, Some(&voices), &AtomicBool::new(false), &|_| {}).unwrap();
             assert!(done.duration_sec > 1.0 && done.duration_sec < 30.0, "{}: {}", voice.id, done.duration_sec);
             assert!(book.join(format!("exports/audio/{}.opus", voice.id)).is_file());

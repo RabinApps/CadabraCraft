@@ -49502,7 +49502,6 @@
                   "type": "frame",
                   "id": "z13jR",
                   "name": "M4B with chapters",
-                  "opacity": 0.45,
                   "width": "fill_container",
                   "gap": 10,
                   "children": [
@@ -49532,7 +49531,7 @@
                           "id": "MRnXB",
                           "name": "M4B with chapters",
                           "fill": "$ink",
-                          "content": "M4B with chapters",
+                          "content": "M4B audiobook",
                           "fontFamily": "$font-ui",
                           "fontSize": 14,
                           "fontWeight": "600"
@@ -49544,7 +49543,7 @@
                           "fill": "$ink-muted",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "One file with chapter marks. Coming later.",
+                          "content": "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores.",
                           "lineHeight": 1.5,
                           "fontFamily": "$font-ui",
                           "fontSize": 12,
@@ -52258,7 +52257,6 @@
                   "type": "frame",
                   "id": "MGsqT",
                   "name": "M4B with chapters",
-                  "opacity": 0.45,
                   "width": "fill_container",
                   "gap": 10,
                   "children": [
@@ -52288,7 +52286,7 @@
                           "id": "i1OkUk",
                           "name": "M4B with chapters",
                           "fill": "$ink",
-                          "content": "M4B with chapters",
+                          "content": "M4B audiobook",
                           "fontFamily": "$font-ui",
                           "fontSize": 14,
                           "fontWeight": "600"
@@ -52300,7 +52298,7 @@
                           "fill": "$ink-muted",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "One file with chapter marks. Coming later.",
+                          "content": "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores.",
                           "lineHeight": 1.5,
                           "fontFamily": "$font-ui",
                           "fontSize": 12,

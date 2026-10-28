@@ -8,16 +8,21 @@ import {
   type AudioFormat,
 } from "@cadabracraft/export-audio";
 import { bridge } from "../../lib/bridge";
-import { createTauriAudioRunner, mapAudioError } from "../../lib/audioRunner";
+import { bookBase, createTauriAudioRunner, mapAudioError } from "../../lib/audioRunner";
 import { describeAudioError } from "../../lib/audioErrors";
 import type { AudioChapterState, AudioJob, AudioActions } from "./types";
 import type { Ctx } from "./context";
+
+/** The M4B can only carry a PNG or JPEG cover; any other cover image (for example WebP) is left out. */
+const isCoverImage = (path: string): boolean => /\.(png|jpe?g)$/i.test(path);
 
 const AUDIO_CACHE = ".cadabra/audio/cache.json";
 interface AudioCacheEntry {
   hash: string;
   files: { format: AudioFormat; path: string }[];
   durationSec: number;
+  /** The lossless part kept for the M4B; a cached chapter is only reused while it is still on disk too. */
+  part?: string;
 }
 
 /** The per-chapter audio cache: local to this computer (`.cadabra/`), never needed to open the book. A missing or damaged file is an empty cache. */
@@ -35,11 +40,22 @@ async function readAudioCache(root: string): Promise<Record<string, AudioCacheEn
 
 async function saveAudioCache(
   root: string,
-  r: { id: string; hash: string; files: AudioCacheEntry["files"]; durationSec: number },
+  r: {
+    id: string;
+    hash: string;
+    files: AudioCacheEntry["files"];
+    durationSec: number;
+    part?: string;
+  },
 ): Promise<void> {
   const f = await bridge.readFile(root, AUDIO_CACHE).catch(() => null);
   const all = await readAudioCache(root);
-  all[r.id] = { hash: r.hash, files: r.files, durationSec: r.durationSec };
+  all[r.id] = {
+    hash: r.hash,
+    files: r.files,
+    durationSec: r.durationSec,
+    ...(r.part ? { part: r.part } : {}),
+  };
   await bridge.writeFile(root, AUDIO_CACHE, JSON.stringify(all), f?.hash ?? null);
 }
 
@@ -53,7 +69,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
       if (get().audio?.status === "running" || get().exportStage)
         throw new Error(t`An export is already running`);
       await flush();
-      const { root } = need();
+      const { root, manifest } = need();
       const pages = (await loadChapters()).filter(
         (p) =>
           p.section === "chapter" && (!options.chapterIds || options.chapterIds.includes(p.id)),
@@ -75,11 +91,12 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           cancelling: false,
           durationSec: 0,
           files: 0,
+          packing: false,
           error: null,
         },
       });
       try {
-        await renderAudiobook(
+        const results = await renderAudiobook(
           pages.map(({ id, title, doc }) => ({ id, title, doc })),
           { voice: options.voice, speed: options.speed, formats: options.formats },
           createTauriAudioRunner(bridge, root, jobId),
@@ -87,14 +104,14 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
             cached: async (id, hash) => {
               const hit = (await readAudioCache(root))[id];
               if (!hit || hit.hash !== hash) return undefined;
-              const there = await bridge
-                .audioFilesExist(
-                  root,
-                  hit.files.map((f) => f.path),
-                )
-                .catch(() => []);
-              return there.length === hit.files.length && there.every(Boolean)
-                ? { files: hit.files, durationSec: hit.durationSec }
+              const paths = [...hit.files.map((f) => f.path), ...(hit.part ? [hit.part] : [])];
+              const there = await bridge.audioFilesExist(root, paths).catch(() => []);
+              return there.length === paths.length && there.every(Boolean)
+                ? {
+                    files: hit.files,
+                    durationSec: hit.durationSec,
+                    ...(hit.part ? { part: hit.part } : {}),
+                  }
                 : undefined;
             },
             onChapterStart: (i) =>
@@ -120,12 +137,40 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           },
           ctrl.signal,
         );
+        if (options.formats.includes("m4b")) {
+          const chapters = results.flatMap((r) =>
+            r.part ? [{ title: r.title, part: r.part, durationSec: r.durationSec }] : [],
+          );
+          if (chapters.length === 0)
+            throw new Error(t`There is nothing to read aloud, so there is no audiobook to build.`);
+          update((j) => ({ ...j, packing: true }));
+          const stop = () => void bridge.audioCancel(jobId).catch(() => undefined);
+          if (ctrl.signal.aborted) stop();
+          else ctrl.signal.addEventListener("abort", stop, { once: true });
+          try {
+            await bridge.audioBuildM4b({
+              jobId,
+              root,
+              base: bookBase(manifest.title),
+              title: manifest.title,
+              author: manifest.author,
+              cover: manifest.cover && isCoverImage(manifest.cover) ? manifest.cover : null,
+              chapters,
+            });
+          } catch (e) {
+            throw mapAudioError(e);
+          } finally {
+            ctrl.signal.removeEventListener("abort", stop);
+          }
+          update((j) => ({ ...j, packing: false, files: j.files + 1 }));
+        }
         update((j) => ({ ...j, status: "done", overall: 1 }));
         set({ notice: t`Exported the audiobook to exports/audio` });
       } catch (e) {
         const error = describeAudioError(e);
         update((j) => ({
           ...j,
+          packing: false,
           status: "error",
           error,
           chapters:

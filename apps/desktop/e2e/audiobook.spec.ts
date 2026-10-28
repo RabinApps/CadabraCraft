@@ -31,6 +31,27 @@ test("Export audiobook renders the chapters with the chosen voice and formats an
   await expect(dialog).toHaveCount(0);
 });
 
+test("M4B packs the whole book into one file with chapters, after the chapters are rendered", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await dialog.getByLabel("Voice").selectOption("piper-amy");
+  await dialog.getByLabel("M4B audiobook").check();
+  await dialog.getByRole("button", { name: "Export audiobook" }).click();
+  await expect(dialog.getByText("Your audiobook is ready")).toBeVisible();
+  const chapter = await page.evaluate(() => window.__audioCalls[0]!);
+  expect(chapter.formats).toEqual(["opus"]);
+  expect(chapter.part).toMatch(/^\.cadabra\/audio\/parts\/.+\.flac$/);
+  const m4b = await page.evaluate(() => window.__m4bCalls);
+  expect(m4b).toHaveLength(1);
+  expect(m4b[0]!.base).toMatch(/^exports\/audio\/[a-z0-9-]+$/);
+  expect(m4b[0]!.chapters.map((c) => c.part)).toEqual([chapter.part]);
+  await expect(dialog.getByText(/2 files/)).toBeVisible();
+});
+
 test("Hear a sample renders a few sentences with the chosen voice, writes nothing and shows failures", async ({
   page,
 }) => {

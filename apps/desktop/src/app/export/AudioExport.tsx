@@ -184,7 +184,11 @@ export function AudioJobView({ job }: { job: AudioJob }) {
         <div className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between gap-2">
             <p role="status" className="text-sm font-semibold">
-              {job.cancelling ? t`Stopping…` : t`Chapter ${current} of ${total}`}
+              {job.cancelling
+                ? t`Stopping…`
+                : job.packing
+                  ? t`Packing the audiobook…`
+                  : t`Chapter ${current} of ${total}`}
             </p>
             <span className="text-sm text-ink-muted">{percent}%</span>
           </div>

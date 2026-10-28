@@ -21,6 +21,10 @@ pub struct ChapterRequest {
     pub voice: String,
     pub speed: f64,
     pub formats: Vec<String>,
+    /// Also keep a lossless FLAC of this chapter here (`.cadabra/audio/parts/<name>.flac`) for the M4B, which is built
+    /// from the parts of all chapters. Not an export: it is never listed in `files`.
+    #[serde(default)]
+    pub part: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -44,6 +48,9 @@ pub struct RenderedFile {
 pub struct RenderedChapter {
     pub files: Vec<RenderedFile>,
     pub duration_sec: f64,
+    /// The part written for the M4B, when one was asked for.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub part: Option<String>,
 }
 
 /// Formats this build can write. There is no MP3 on purpose (see docs/architecture.md, "Audio encoders").
@@ -56,8 +63,13 @@ fn check_request(req: &ChapterRequest) -> Result<(), AudioError> {
     if !(0.5..=2.0).contains(&req.speed) {
         return Err(other("speed must be between 0.5 and 2"));
     }
-    if req.formats.is_empty() {
+    if req.formats.is_empty() && req.part.is_none() {
         return Err(other("choose at least one audio format"));
+    }
+    if let Some(part) = &req.part {
+        if !project::is_audio_part(part) {
+            return Err(AudioError::from(ProjectError::UnsafePath { path: part.clone() }));
+        }
     }
     for f in &req.formats {
         if !WRITABLE.contains(&f.as_str()) {
@@ -97,6 +109,9 @@ pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>
     for f in &req.formats {
         project::resolve(&root, &format!("{}.{f}", req.base))?;
     }
+    if let Some(part) = &req.part {
+        project::resolve(&root, part)?;
+    }
     let (samples, rate) = synthesize(&req.chunks, &req.voice, req.speed, sherpa, voices, cancel, progress)?;
     if cancel.load(Ordering::Relaxed) {
         return Err(AudioError::Cancelled);
@@ -116,7 +131,14 @@ pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>
         project::write_bytes(&root, &path, &bytes)?;
         files.push(RenderedFile { format: f.clone(), path });
     }
-    Ok(RenderedChapter { files, duration_sec: samples.len() as f64 / rate as f64 })
+    if let Some(part) = &req.part {
+        if cancel.load(Ordering::Relaxed) {
+            return Err(AudioError::Cancelled);
+        }
+        let bytes = encode::encode_flac(rate, &samples).map_err(|message| AudioError::Encode { format: "flac".into(), message })?;
+        project::write_audio_part(&root, part, &bytes)?;
+    }
+    Ok(RenderedChapter { files, duration_sec: samples.len() as f64 / rate as f64, part: req.part.clone() })
 }
 
 #[cfg(test)]
@@ -171,7 +193,7 @@ mod tests {
         }
 
         fn request(f: &Fixture, chunks: Vec<Chunk>) -> ChapterRequest {
-            ChapterRequest { job_id: "j".into(), root: f.project.to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()] }
+            ChapterRequest { job_id: "j".into(), root: f.project.to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None }
         }
 
         fn copy(wav: &Path) -> String {
@@ -209,6 +231,23 @@ mod tests {
             assert!(render_sample(&mk("a".repeat(SAMPLE_MAX_CHARS + 1), 1.0, "piper-amy"), &f.engine, Some(&f.voices), &off).is_err());
             assert!(render_sample(&mk("Hi.".into(), 3.0, "piper-amy"), &f.engine, Some(&f.voices), &off).is_err());
             assert!(matches!(render_sample(&mk("Hi.".into(), 1.0, "kokoro-heart"), &f.engine, Some(&f.voices), &off), Err(AudioError::VoiceMissing { .. })));
+        }
+
+        #[test]
+        fn a_part_is_a_flac_under_the_parts_folder_and_not_an_export() {
+            let f = fixture(copy);
+            let mut r = request(&f, vec![chunk("Hello there.", 600)]);
+            r.formats = vec![];
+            r.part = Some(".cadabra/audio/parts/ch-1.flac".into());
+            let done = render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {}).unwrap();
+            assert!(done.files.is_empty());
+            assert_eq!(done.part.as_deref(), Some(".cadabra/audio/parts/ch-1.flac"));
+            assert!(fs::read(f.project.join(".cadabra/audio/parts/ch-1.flac")).unwrap().starts_with(b"fLaC"));
+            assert!(!f.project.join("exports").exists());
+            for bad in ["exports/ch.flac", ".cadabra/audio/parts/x.wav", ".cadabra/audio/parts/../x.flac"] {
+                r.part = Some(bad.into());
+                assert!(render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {}).is_err(), "{bad}");
+            }
         }
 
         #[test]
@@ -308,7 +347,7 @@ mod tests {
         }
         let dir = tempfile::tempdir().unwrap();
         fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
-        let req = ChapterRequest { job_id: "real".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-real".into(), chunks: vec![chunk("The quay was empty. A gull cried once.", 600)], voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()] };
+        let req = ChapterRequest { job_id: "real".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-real".into(), chunks: vec![chunk("The quay was empty. A gull cried once.", 600)], voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None };
         let r = render_chapter(&req, &bin, Some(&voices), &AtomicBool::new(false), &|_| {}).unwrap();
         assert!(r.duration_sec > 1.0 && r.duration_sec < 30.0, "{}", r.duration_sec);
         assert!(dir.path().join("exports/audio/01-real.wav").is_file());

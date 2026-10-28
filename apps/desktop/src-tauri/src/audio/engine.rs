@@ -27,6 +27,27 @@ pub fn find_sherpa_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: O
     find_executable(&[BINARY], &search_dirs(bundled, path_var, &[])).ok_or_else(|| AudioError::NotFound { message: format!("The voice engine was not found. {INSTALL_ADVICE}") })
 }
 
+const FFMPEG: &str = if cfg!(windows) { "ffmpeg.exe" } else { "ffmpeg" };
+const FFMPEG_ADVICE: &str = "The audio encoder that ships with CadabraCraft (ffmpeg) is missing; reinstall the app.";
+
+/// Finds the encoder used for M4B: `FFMPEG_BIN`, then the folder of the app executable (the bundled sidecar), then PATH.
+pub fn find_ffmpeg() -> Result<PathBuf, AudioError> {
+    find_ffmpeg_in(std::env::var("FFMPEG_BIN").ok().as_deref(), sidecar::bundled_dir().as_deref(), std::env::var_os("PATH").as_deref())
+}
+
+pub fn find_ffmpeg_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>) -> Result<PathBuf, AudioError> {
+    if let Some(g) = env_bin.map(str::trim).filter(|g| !g.is_empty()) {
+        let p = PathBuf::from(g);
+        return if is_executable(&p) { Ok(p) } else { Err(AudioError::NotFound { message: format!("No runnable encoder at {g} (from FFMPEG_BIN). {FFMPEG_ADVICE}") }) };
+    }
+    find_executable(&[FFMPEG], &search_dirs(bundled, path_var, &[])).ok_or_else(|| AudioError::NotFound { message: format!("The audio encoder was not found. {FFMPEG_ADVICE}") })
+}
+
+/// Runs ffmpeg in `cwd` with a timeout and the cancel flag (the same process rules as the voice engine).
+pub(crate) fn run_ffmpeg(bin: &Path, args: &[String], cwd: &Path, timeout: Duration, cancel: &AtomicBool) -> Result<Captured, AudioError> {
+    Ok(sidecar::run(&Run { bin, args, cwd: Some(cwd), timeout, cancel: Some(cancel), shared_libs: false, install_advice: FFMPEG_ADVICE })?)
+}
+
 /// Runs `bin args` with output captured through files (no pipe deadlocks), a hard timeout and a cancel flag. Either
 /// one kills the process and waits for it, so nothing is left running.
 pub(crate) fn run_cancellable(bin: &Path, args: &[String], timeout: Duration, cancel: &AtomicBool) -> Result<Captured, AudioError> {
@@ -88,6 +109,22 @@ mod tests {
         assert_eq!(find_sherpa_in(None, Some(dir.path()), None).unwrap(), bin);
         assert_eq!(find_sherpa_in(Some(bin.to_str().unwrap()), None, None).unwrap(), bin);
         assert!(find_sherpa_in(Some("/nope/engine"), Some(dir.path()), None).is_err());
+    }
+
+    #[test]
+    fn find_ffmpeg_prefers_the_env_path_and_does_not_fall_back_from_a_wrong_one() {
+        let dir = tempfile::tempdir().unwrap();
+        assert!(matches!(find_ffmpeg_in(None, Some(dir.path()), None), Err(AudioError::NotFound { .. })));
+        let bin = dir.path().join(FFMPEG);
+        fs::write(&bin, b"#!/bin/sh\n").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            fs::set_permissions(&bin, fs::Permissions::from_mode(0o755)).unwrap();
+        }
+        assert_eq!(find_ffmpeg_in(None, Some(dir.path()), None).unwrap(), bin);
+        assert_eq!(find_ffmpeg_in(Some(bin.to_str().unwrap()), None, None).unwrap(), bin);
+        assert!(find_ffmpeg_in(Some("/nope/ffmpeg"), Some(dir.path()), None).is_err());
     }
 
     #[cfg(unix)]

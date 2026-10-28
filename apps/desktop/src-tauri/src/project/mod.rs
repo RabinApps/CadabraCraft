@@ -16,7 +16,7 @@ mod contract_tests;
 pub use assets::{import_image, read_asset, sanitize_asset_stem, store_image, IMAGE_EXTENSIONS, MAX_IMAGE_BYTES, MAX_IMAGE_PIXELS};
 pub(crate) use assets::{check_image, image_ext, image_too_large};
 pub use error::{io_error, ProjectError};
-pub use fsio::{atomic_write, hash_bytes, write_bytes};
+pub use fsio::{atomic_write, hash_bytes, is_audio_part, write_audio_part, write_bytes, AUDIO_PARTS_DIR};
 pub(crate) use fsio::{icloud_pending, open_error, read_regular};
 pub use layout::{backup_manifest, create_project, MANIFEST};
 pub(crate) use pages::write_file_with;

@@ -9,7 +9,13 @@ import {
   SynthesisError,
   VoiceNotInstalledError,
 } from "@cadabracraft/export-audio";
-import { chapterBase, createTauriAudioRunner, mapAudioError } from "../audioRunner";
+import {
+  bookBase,
+  chapterBase,
+  chapterPart,
+  createTauriAudioRunner,
+  mapAudioError,
+} from "../audioRunner";
 
 describe("mapAudioError", () => {
   it("maps every error shape the Rust side sends", () => {
@@ -40,6 +46,16 @@ describe("chapterBase", () => {
     expect(chapterBase(11, "Café: ünder/the \\ sea?")).toBe("exports/audio/12-cafe-under-the-sea");
     expect(chapterBase(2, "日本語")).toBe("exports/audio/03-chapter");
     expect(chapterBase(0, "a".repeat(80))).toBe(`exports/audio/01-${"a".repeat(40)}`);
+  });
+});
+
+describe("bookBase and chapterPart", () => {
+  it("name the book file and the chapter part with characters the Rust side accepts", () => {
+    expect(bookBase("My Book: Part 1")).toBe("exports/audio/my-book-part-1");
+    expect(bookBase("???")).toBe("exports/audio/audiobook");
+    expect(chapterPart("ch-1")).toBe(".cadabra/audio/parts/ch-1.flac");
+    expect(chapterPart("a b/../c")).toBe(".cadabra/audio/parts/a_b_c.flac");
+    expect(chapterPart("???")).toBe(".cadabra/audio/parts/_.flac");
   });
 });
 
@@ -78,6 +94,27 @@ describe("createTauriAudioRunner", () => {
       formats: ["opus"],
     });
     expect(seen).toEqual([0.4]);
+  });
+
+  it("never asks for an m4b file per chapter: it asks for a lossless part instead", async () => {
+    const audioRenderChapter = vi.fn(async (_r: unknown) => rendered);
+    const runner = createTauriAudioRunner(
+      { audioVoices: async () => [], audioRenderChapter, audioCancel: async () => {} },
+      "/book",
+      "job1",
+    );
+    const out = await runner.renderChapter(
+      { ...req, formats: ["opus" as const, "m4b" as const] },
+      () => {},
+      new AbortController().signal,
+    );
+    expect(audioRenderChapter.mock.calls[0]![0]).toMatchObject({
+      formats: ["opus"],
+      part: ".cadabra/audio/parts/c.flac",
+    });
+    expect(out.part).toBe(".cadabra/audio/parts/c.flac");
+    await runner.renderChapter(req, () => {}, new AbortController().signal);
+    expect(audioRenderChapter.mock.calls[1]![0]).not.toHaveProperty("part");
   });
 
   it("asks Rust to cancel when the signal aborts, and maps what comes back", async () => {

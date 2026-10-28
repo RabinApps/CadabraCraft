@@ -15,7 +15,18 @@ const audio = {
     formats: string[];
     speed: number;
     chunks: { text: string }[];
+    part?: string;
   }[],
+  m4bBuilds: [] as {
+    jobId: string;
+    base: string;
+    title: string;
+    author: string;
+    cover: string | null;
+    chapters: { title: string; part: string; durationSec: number }[];
+  }[],
+  /** Decides what the M4B build does; set per test. */
+  m4b: null as null | ((req: { jobId: string }) => Promise<unknown>),
   /** Files that exist on the fake disk; filled by renders unless a test removes them. */
   present: new Set<string>(),
   samples: [] as { jobId: string; chunks: { text: string }[]; voice: string; speed: number }[],
@@ -43,7 +54,13 @@ vi.mock("../../../lib/bridge", async () =>
       onProgress(0.5);
       const files = req.formats.map((format) => ({ format, path: `${req.base}.${format}` }));
       files.forEach((f) => audio.present.add(f.path));
+      if (req.part) audio.present.add(req.part);
       return { files, durationSec: 90 };
+    },
+    audioBuildM4b: async (req: (typeof audio.m4bBuilds)[number]) => {
+      audio.m4bBuilds.push(req);
+      if (audio.m4b) return audio.m4b(req);
+      return { path: `${req.base}.m4b`, durationSec: 180 };
     },
     audioSample: async (req: {
       jobId: string;
@@ -85,6 +102,8 @@ beforeEach(async () => {
   disk.clear();
   audio.voices = [{ id: "piper-amy", engine: "piper", installed: true }];
   audio.requests = [];
+  audio.m4bBuilds = [];
+  audio.m4b = null;
   audio.cancelled = [];
   audio.samples = [];
   audio.sample = null;
@@ -272,6 +291,101 @@ describe("hearAudioSample", () => {
     expect(audio.cancelled).toEqual([audio.samples[0]!.jobId]);
     release(new Uint8Array([9]));
     await first;
+  });
+});
+
+describe("exportAudio M4B", () => {
+  const m4b = { voice: "piper-amy", speed: 1, formats: ["m4b" as const] };
+
+  it("keeps a lossless part per chapter and builds one book file from them, in order", async () => {
+    await a().exportAudio(m4b);
+    expect(audio.requests.map((r) => r.formats)).toEqual([[], []]);
+    expect(audio.requests.map((r) => r.part)).toEqual([
+      expect.stringMatching(/^\.cadabra\/audio\/parts\/[A-Za-z0-9_-]+\.flac$/),
+      expect.stringMatching(/^\.cadabra\/audio\/parts\/[A-Za-z0-9_-]+\.flac$/),
+    ]);
+    expect(audio.m4bBuilds).toHaveLength(1);
+    const build = audio.m4bBuilds[0]!;
+    expect(build).toMatchObject({
+      base: "exports/audio/book",
+      title: "Book",
+      author: "Me",
+      cover: null,
+    });
+    expect(build.chapters.map((c) => c.title)).toEqual(["Chapter One", "Second chapter"]);
+    expect(build.chapters.map((c) => c.part)).toEqual(audio.requests.map((r) => r.part));
+    expect(build.chapters.map((c) => c.durationSec)).toEqual([90, 90]);
+    expect(audio.forgotten).toContain(build.jobId);
+    expect(s().audio).toMatchObject({ status: "done", packing: false, files: 1, error: null });
+  });
+
+  it("writes the per-chapter files too when other formats are ticked, and counts the book file", async () => {
+    await a().exportAudio({ ...m4b, formats: ["opus", "m4b"] });
+    expect(audio.requests.map((r) => r.formats)).toEqual([["opus"], ["opus"]]);
+    expect(s().audio?.files).toBe(3);
+  });
+
+  it("shows the packing stage while the book file is built", async () => {
+    let release: (v: unknown) => void = () => {};
+    audio.m4b = () =>
+      new Promise((r) => {
+        release = r;
+      });
+    const run = a().exportAudio(m4b);
+    await vi.waitFor(() => expect(s().audio?.packing).toBe(true));
+    expect(s().audio?.status).toBe("running");
+    release({ path: "exports/audio/book.m4b", durationSec: 180 });
+    await run;
+    expect(s().audio).toMatchObject({ status: "done", packing: false });
+  });
+
+  it("reuses finished chapters on a second export but still builds the book file", async () => {
+    await a().exportAudio(m4b);
+    a().dismissAudio();
+    await a().exportAudio(m4b);
+    expect(audio.requests).toHaveLength(2);
+    expect(audio.m4bBuilds).toHaveLength(2);
+    expect(audio.m4bBuilds[1]!.chapters.map((c) => c.part)).toEqual(
+      audio.m4bBuilds[0]!.chapters.map((c) => c.part),
+    );
+  });
+
+  it("renders a chapter again when its part is gone from the disk", async () => {
+    await a().exportAudio(m4b);
+    a().dismissAudio();
+    audio.present.delete(audio.requests[0]!.part!);
+    await a().exportAudio(m4b);
+    expect(audio.requests).toHaveLength(3);
+  });
+
+  it("reports a build failure as an error, with packing off, and keeps the chapters", async () => {
+    audio.m4b = async () => {
+      throw { kind: "encode", format: "m4b", message: "bad input" };
+    };
+    await a().exportAudio(m4b);
+    const job = s().audio!;
+    expect(job).toMatchObject({ status: "error", packing: false });
+    expect(job.error?.message).toMatch(/M4B could not be written/);
+    expect(job.chapters.map((c) => c.state)).toEqual(["done", "done"]);
+  });
+
+  it("tells Rust to stop the build when Cancel is pressed while packing", async () => {
+    audio.m4b = (req) =>
+      new Promise((_, reject) => {
+        const poll = setInterval(() => {
+          if (audio.cancelled.includes(req.jobId)) {
+            clearInterval(poll);
+            reject({ kind: "cancelled" });
+          }
+        }, 5);
+      });
+    const run = a().exportAudio(m4b);
+    await vi.waitFor(() => expect(s().audio?.packing).toBe(true));
+    a().cancelAudio();
+    await run;
+    expect(audio.cancelled).toContain(audio.m4bBuilds[0]!.jobId);
+    expect(s().audio?.status).toBe("error");
+    expect(s().audio?.error?.code).toBe("cancelled");
   });
 });
 

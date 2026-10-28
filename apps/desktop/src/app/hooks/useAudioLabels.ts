@@ -20,6 +20,11 @@ export function useAudioLabels() {
         }
       : f === "flac"
         ? { label: t`FLAC`, hint: t`Lossless, about 60% of the size of WAV.` }
-        : { label: t`WAV`, hint: t`Lossless and large: about 1.7 GB per 10 hours.` };
+        : f === "wav"
+          ? { label: t`WAV`, hint: t`Lossless and large: about 1.7 GB per 10 hours.` }
+          : {
+              label: t`M4B audiobook`,
+              hint: t`One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores.`,
+            };
   return { voice, format };
 }
