@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import {
+  addChapter,
+  addEdition,
+  createManifest,
+  exportDir,
+  exportPlan,
+  markTranslated,
+  updateEdition,
   entryFile,
   FormatError,
   migrateV3ToV4,
@@ -134,5 +141,41 @@ describe("translationFile", () => {
     expect(() => translationFile("manuscript/a/b.json", "fr")).toThrow(FormatError);
     expect(() => translationFile("manuscript/001-a.json", "../x")).toThrow(/language/);
     expect(() => translationFile("manuscript/001-a.json", "")).toThrow(/language/);
+  });
+});
+
+describe("export plan and edition details", () => {
+  const book = () => {
+    let m = createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" });
+    for (const t of ["One", "Two"]) m = addChapter(m, t).manifest;
+    const fr = {
+      language: "fr",
+      title: "T",
+      author: "A",
+      identifier: "urn:uuid:y",
+      isbn: null,
+      cover: null,
+    };
+    m = addEdition(m, fr, "copy").manifest;
+    return markTranslated(m, "ch-1", "fr");
+  };
+  it("blocks an export with untranslated pages unless skip is set", () => {
+    const m = book();
+    expect(() => exportPlan(m, "fr", false)).toThrow(/Two/);
+    const p = exportPlan(m, "fr", true);
+    expect(p.included.map((e) => e.id)).toEqual(["ch-1"]);
+    expect(p.skipped.map((e) => e.id)).toEqual(["ch-2"]);
+    expect(exportPlan(m, "en", false).skipped).toEqual([]);
+    expect(() => exportPlan(m, "de", true)).toThrow(FormatError);
+  });
+  it("names the export folder per language and refuses odd codes", () => {
+    expect(exportDir("fr")).toBe("exports/fr");
+    expect(() => exportDir("../x")).toThrow(FormatError);
+  });
+  it("updates one edition's details only", () => {
+    const m = updateEdition(book(), "fr", { title: "Titre", isbn: "123" });
+    expect(m.editions[1]).toMatchObject({ title: "Titre", isbn: "123", language: "fr" });
+    expect(m.editions[0]!.title).toBe("T");
+    expect(() => updateEdition(m, "de", {})).toThrow(FormatError);
   });
 });

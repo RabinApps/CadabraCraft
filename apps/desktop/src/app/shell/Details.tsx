@@ -6,6 +6,7 @@ import { getTemplate, hasTemplate, DEFAULT_TEMPLATE_ID } from "@cadabracraft/tem
 import { Pencil } from "lucide-react";
 import { readingMinutes } from "../../lib/readingTime";
 import { Button } from "../../ui/Button";
+import { useProject } from "../../state/project";
 
 interface Props {
   manifest: Manifest;
@@ -41,6 +42,10 @@ export function Details({
 }: Props) {
   const { t } = useLingui();
   const minutes = readingMinutes(words);
+  const activeLanguage = useProject((s) => s.activeLanguage);
+  const edition =
+    manifest.editions.find((e) => e.language === activeLanguage) ??
+    sourceEdition(manifest.editions);
   const sectionLabel =
     section === "front" ? t`Front matter` : section === "back" ? t`Back matter` : t`Chapter`;
   return (
@@ -66,9 +71,9 @@ export function Details({
           className="text-xs font-semibold uppercase tracking-wide text-ink-muted"
         >{t`Book`}</h2>
         <dl>
-          <Row label={t`Title`} value={sourceEdition(manifest.editions).title} />
-          <Row label={t`Author`} value={sourceEdition(manifest.editions).author || "-"} />
-          <Row label={t`Language`} value={sourceEdition(manifest.editions).language} />
+          <Row label={t`Title`} value={edition.title} />
+          <Row label={t`Author`} value={edition.author || "-"} />
+          <Row label={t`Language`} value={edition.language} />
           <Row
             label={t`Template`}
             value={
@@ -76,11 +81,8 @@ export function Details({
                 .name
             }
           />
-          <Row label={t`ISBN`} value={sourceEdition(manifest.editions).isbn ?? "-"} />
-          <Row
-            label={t`Cover`}
-            value={sourceEdition(manifest.editions).cover?.replace("assets/", "") ?? "-"}
-          />
+          <Row label={t`ISBN`} value={edition.isbn ?? "-"} />
+          <Row label={t`Cover`} value={edition.cover?.replace("assets/", "") ?? "-"} />
           <Row label={t`Chapters`} value={String(manifest.chapters.length)} />
         </dl>
         <Button

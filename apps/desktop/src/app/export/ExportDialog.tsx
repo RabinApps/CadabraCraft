@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { exportDir, isTranslated, readingOrder, sourceEdition } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { FileText, Printer } from "lucide-react";
 import type { ManuscriptFont as DocxFont } from "@cadabracraft/export-docx";
@@ -6,6 +7,8 @@ import { PdfUiError } from "../../lib/pdfErrors";
 import { errText } from "../../lib/projectError";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
+import { Checkbox } from "../../ui/Checkbox";
+import { Select } from "../../ui/Select";
 import { Segmented } from "../../ui/Segmented";
 import { useSponsor } from "../../state/sponsor";
 import { useProject } from "../../state/project";
@@ -36,9 +39,26 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   const exportMarkdown = useProject((s) => s.actions.exportMarkdown);
   const exportDocx = useProject((s) => s.actions.exportDocx);
   const exportPdf = useProject((s) => s.actions.exportPdf);
+  const activeLanguage = useProject((s) => s.activeLanguage);
   const [htmlMarks, setHtmlMarks] = useState(false);
   const [font, setFont] = useState<DocxFont>("times");
   const [error, setError] = useState<PdfUiError | null>(null);
+  const sourceLanguage = manifest ? sourceEdition(manifest.editions).language : "";
+  // The edition to export; it starts as the one open in the editor each time the dialog opens.
+  const [chosen, setChosen] = useState<string | null>(null);
+  const [skip, setSkip] = useState(false);
+  useEffect(() => {
+    if (open) {
+      setChosen(null);
+      setSkip(false);
+    }
+  }, [open]);
+  const language = chosen ?? activeLanguage ?? sourceLanguage;
+  const scope = { language, skipUntranslated: skip };
+  const dir = language ? exportDir(language) : "exports";
+  const untranslatedCount = manifest
+    ? readingOrder(manifest).filter((e) => !isTranslated(e, language, manifest.editions)).length
+    : 0;
   const pdf = usePdfOptions(manifest);
   const audio = useAudioExport({ active: open && format === "audiobook", setError });
   const running = stage !== null;
@@ -47,24 +67,24 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
       ? {
           preparing: t`Reading your chapters…`,
           rendering: t`Building EPUB…`,
-          saving: t`Saving exports/book.epub…`,
+          saving: t`Saving ${dir}/book.epub…`,
         }
       : format === "markdown"
         ? {
             preparing: t`Reading your chapters…`,
             rendering: t`Writing Markdown…`,
-            saving: t`Saving exports/book.md…`,
+            saving: t`Saving ${dir}/book.md…`,
           }
         : format === "docx"
           ? {
               preparing: t`Reading your chapters…`,
               rendering: t`Writing the Word file…`,
-              saving: t`Saving exports/manuscript.docx…`,
+              saving: t`Saving ${dir}/manuscript.docx…`,
             }
           : {
               preparing: t`Reading your chapters…`,
               rendering: t`Typesetting the book with Typst…`,
-              saving: t`Saving exports/book.pdf…`,
+              saving: t`Saving ${dir}/book.pdf…`,
             };
 
   const change = (o: boolean) => {
@@ -81,11 +101,11 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
     try {
       if (format === "audiobook") return audio.submit();
       if (format === "epub") {
-        await exportEpub();
+        await exportEpub(scope);
       } else if (format === "markdown") {
-        await exportMarkdown({ htmlMarks });
+        await exportMarkdown({ htmlMarks, ...scope });
       } else if (format === "docx") {
-        await exportDocx({ font });
+        await exportDocx({ font, ...scope });
       } else {
         saveTypstPath(pdf.typstPath.trim());
         await exportPdf({
@@ -94,6 +114,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
           cover: pdf.withCover,
           template: pdf.current,
           typstPath: pdf.typstPath.trim() || undefined,
+          ...scope,
         });
       }
       change(false);
@@ -101,12 +122,12 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
         .getState()
         .offer(
           format === "epub"
-            ? "exports/book.epub"
+            ? `${dir}/book.epub`
             : format === "markdown"
-              ? "exports/book.md"
+              ? `${dir}/book.md`
               : format === "docx"
-                ? "exports/manuscript.docx"
-                : "exports/book.pdf",
+                ? `${dir}/manuscript.docx`
+                : `${dir}/book.pdf`,
         );
     } catch (e) {
       setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
@@ -152,16 +173,42 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
             { value: "audiobook", label: t`Audiobook` },
           ]}
         />
+        {format !== "audiobook" && manifest && manifest.editions.length > 1 && (
+          <>
+            <Select
+              label={t`Language`}
+              value={language}
+              disabled={running}
+              onChange={(e) => setChosen(e.target.value)}
+              hint={t`The edition to export. Files go to ${dir}.`}
+            >
+              {manifest.editions.map((e) => (
+                <option key={e.language} value={e.language}>
+                  {e.language}
+                </option>
+              ))}
+            </Select>
+            {untranslatedCount > 0 && (
+              <Checkbox
+                label={t`Skip untranslated chapters`}
+                hint={t`Leaves out pages that are still a copy or blank, and says which. Without this, an edition with untranslated pages cannot be exported.`}
+                checked={skip}
+                disabled={running}
+                onChange={(e) => setSkip(e.target.checked)}
+              />
+            )}
+          </>
+        )}
         {format === "audiobook" ? (
           <AudioPanel audio={audio} />
         ) : format === "epub" ? (
-          <EpubPanel />
+          <EpubPanel {...scope} />
         ) : format === "docx" ? (
           <DocxPanel font={font} onFont={setFont} disabled={running} />
         ) : format === "markdown" ? (
           <MarkdownPanel htmlMarks={htmlMarks} onHtmlMarks={setHtmlMarks} disabled={running} />
         ) : (
-          <PdfPanel options={pdf} running={running} error={error} />
+          <PdfPanel options={pdf} running={running} error={error} {...scope} />
         )}
         {running && (
           <div className="flex flex-col gap-2">

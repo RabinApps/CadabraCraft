@@ -47,7 +47,12 @@ export function AppHeader({
 }: Props) {
   const { t } = useLingui();
   const title = useProject((s) =>
-    s.manifest ? sourceEdition(s.manifest.editions).title : undefined,
+    s.manifest
+      ? (
+          s.manifest.editions.find((e) => e.language === s.activeLanguage) ??
+          sourceEdition(s.manifest.editions)
+        ).title
+      : undefined,
   );
   const unsaved = useProject((s) => s.draft !== null);
   const notice = useProject((s) => s.notice);

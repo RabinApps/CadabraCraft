@@ -2,13 +2,13 @@ import { randomUUID } from "node:crypto";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import { createManifest, parseManifest, readingOrder, serializeManifest, sourceEdition, sourceFile, sourceTitle } from "@cadabracraft/format";
+import { createManifest, entryFile, isTranslated, parseManifest, readingOrder, serializeManifest, sourceTitle, translationProgress } from "@cadabracraft/format";
 import { MANIFEST, ProjectFsError, countWords, createProject, imageExt, looksLike, readAsset, readProjectFile, resolveInWorkspace } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
 import { isAssetPath, errMsg } from "@cadabracraft/shared";
 import { imageSources, schemaProblem } from "../doc";
 import { ToolError } from "../errors";
-import { loadProject, projectRoot, readChapterFile, saveManifest, sectionOf } from "../project";
+import { editionOf, loadProject, projectRoot, readChapterFile, saveManifest, sectionOf } from "../project";
 import { type ToolDef, defineTool, withLock } from "../tooling";
 
 export const PATH = z.string().min(1).describe("Project folder: relative to the workspace root, or an absolute path inside it.");
@@ -52,15 +52,20 @@ export const projectCreate = defineTool({
 export const projectInfo = defineTool({
   name: "cadabra_project_info",
   title: "Project info",
-  description: "Read a project's manifest, its chapters in reading order with word counts, and the image files in assets/.",
-  input: { path: PATH },
+  description: "Read a project's manifest, its chapters in reading order with word counts, and the image files in assets/. With language, titles, files and word counts are those of that edition (a page with no text there yet has no file and 0 words). Each entry lists its translations with whether they are translated yet, and `editions` gives the progress per language.",
+  input: { path: PATH, language: z.string().min(1).optional().describe("Edition to report (language code); default is the source edition.") },
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
-  run: ({ path }, ctx) => {
+  run: ({ path, language }, ctx) => {
     const { root, manifest, hash } = loadProject(ctx, path);
+    const edition = editionOf(manifest, language);
+    const lang = edition.language;
     const entries = sectionOf(manifest).map(({ entry, section }) => {
-      const base = { id: entry.id, title: sourceTitle(entry, manifest.editions), file: sourceFile(entry, manifest.editions), section };
+      const file = entryFile(entry, lang);
+      const translations = Object.fromEntries(manifest.editions.map((e) => [e.language, { file: entryFile(entry, e.language) ?? null, translated: isTranslated(entry, e.language, manifest.editions) }]));
+      const base = { id: entry.id, title: entry.titles[lang] ?? sourceTitle(entry, manifest.editions), file: file ?? null, section, translations };
+      if (!file) return { ...base, words: 0 };
       try {
-        const words = countWords(readChapterFile(root, sourceFile(entry, manifest.editions)).doc);
+        const words = countWords(readChapterFile(root, file).doc);
         return { ...base, words };
       } catch (e) {
         const err = e instanceof ToolError ? e : null;
@@ -70,8 +75,8 @@ export const projectInfo = defineTool({
     const chapters = manifest.chapters.length;
     const words = entries.reduce((n, e) => n + e.words, 0);
     return {
-      summary: `"${sourceEdition(manifest.editions).title}" by ${sourceEdition(manifest.editions).author}: ${chapters} chapter(s), ${words} words`,
-      data: { root, manifest, manifestHash: hash, entries, totals: { chapters, words }, assets: assetNames(root) },
+      summary: `"${edition.title}" by ${edition.author}${manifest.editions.length > 1 ? ` (${lang})` : ""}: ${chapters} chapter(s), ${words} words`,
+      data: { root, manifest, manifestHash: hash, language: lang, entries, totals: { chapters, words }, editions: manifest.editions.map((e) => ({ language: e.language, title: e.title, ...translationProgress(manifest, e.language) })), assets: assetNames(root) },
     };
   },
 });
@@ -103,10 +108,12 @@ export const projectValidate = defineTool({
     }
     if (!hasTemplate(manifest.template)) add("error", "template_unknown", "manifest", `unknown template "${manifest.template}"`);
     const checkedAssets = new Map<string, string | null>();
-    for (const e of readingOrder(manifest)) {
+    // Every page file of every edition (a translation that has no file yet is just untranslated, not an error).
+    const files = readingOrder(manifest).flatMap((e) => Object.values(e.files).map((file) => ({ e, file })));
+    for (const { e, file } of files) {
       let doc: unknown;
       try {
-        doc = readChapterFile(root, sourceFile(e, manifest.editions)).doc;
+        doc = readChapterFile(root, file).doc;
       } catch (err) {
         const code = err instanceof ToolError && err.code === "chapter_missing" ? "chapter_missing" : err instanceof ToolError ? err.code : "chapter_unreadable";
         add("error", code, e.id, errMsg(err));
@@ -114,12 +121,12 @@ export const projectValidate = defineTool({
       }
       const problem = schemaProblem(doc);
       if (problem) {
-        add("error", "chapter_schema_invalid", e.id, `${sourceFile(e, manifest.editions)}: ${problem}`);
+        add("error", "chapter_schema_invalid", e.id, `${file}: ${problem}`);
         continue;
       }
       for (const src of imageSources(doc)) {
         if (!isAssetPath(src) || !imageExt(src)) {
-          add("error", "asset_path_invalid", e.id, `${sourceFile(e, manifest.editions)}: image source "${src}" is not a project-relative assets/<image> path`);
+          add("error", "asset_path_invalid", e.id, `${file}: image source "${src}" is not a project-relative assets/<image> path`);
           continue;
         }
         if (!checkedAssets.has(src)) {
@@ -133,8 +140,8 @@ export const projectValidate = defineTool({
           checkedAssets.set(src, problemText);
         }
         const status = checkedAssets.get(src);
-        if (status === "missing") add("error", "asset_missing", e.id, `${sourceFile(e, manifest.editions)}: image ${src} does not exist`);
-        else if (status === "invalid") add("error", "asset_invalid", e.id, `${sourceFile(e, manifest.editions)}: image ${src} is not a valid ${imageExt(src)} image`);
+        if (status === "missing") add("error", "asset_missing", e.id, `${file}: image ${src} does not exist`);
+        else if (status === "invalid") add("error", "asset_invalid", e.id, `${file}: image ${src} is not a valid ${imageExt(src)} image`);
       }
     }
     return report(issues);

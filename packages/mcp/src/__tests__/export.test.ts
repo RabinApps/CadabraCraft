@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { unzipSync } from "fflate";
 import { afterEach, describe, expect, it } from "vitest";
@@ -12,20 +12,22 @@ const requireEpubcheck = process.env.REQUIRE_EPUBCHECK === "1";
 const requireTypst = process.env.REQUIRE_TYPST === "1";
 
 describe("export_epub / inspect_epub", () => {
-  it("writes exports/book.epub with template CSS and images, and inspect_epub reads it back", async () => {
+  it("writes exports/en-GB/book.epub with template CSS and images, and inspect_epub reads it back", async () => {
     s = await connect({ epubcheckJar: null });
     const { path, ids } = await seedBook(s);
     await s.ok("cadabra_set_template", { path, template: "nonfiction" });
     const r = await s.ok("cadabra_export_epub", { path });
-    expect(r.file).toBe("exports/book.epub");
+    expect(r.file).toBe("exports/en-GB/book.epub");
     expect(r.bytes).toBeGreaterThan(1000);
     expect(r.chapterCount).toBe(ids.length);
     expect(r.epubcheck).toMatchObject({ ran: false });
-    const zip = unzipSync(new Uint8Array(readFileSync(join(s.root, path, "exports/book.epub"))));
+    const zip = unzipSync(
+      new Uint8Array(readFileSync(join(s.root, path, "exports/en-GB/book.epub"))),
+    );
     expect(Object.keys(zip)[0]).toBe("mimetype");
     expect(Object.keys(zip)).toContain("OEBPS/assets/gradient.png");
     expect(new TextDecoder().decode(zip["OEBPS/style.css"])).toContain("counter-reset:chapter"); // nonfiction template css
-    expect(readdirSync(join(s.root, path, "exports"))).toEqual(["book.epub"]);
+    expect(readdirSync(join(s.root, path, "exports/en-GB"))).toEqual(["book.epub"]);
 
     const info = await s.ok("cadabra_inspect_epub", { path });
     expect(info).toMatchObject({
@@ -81,9 +83,13 @@ describe("export_epub / inspect_epub", () => {
       const r = await s.ok("cadabra_export_epub", { path });
       expect(r.epubcheck).toMatchObject({ ran: true, passed: true, messages: [] });
       // independent run of the real tool on the written file
-      const out = execFileSync("java", ["-jar", jar!, join(s.root, path, "exports/book.epub")], {
-        encoding: "utf8",
-      });
+      const out = execFileSync(
+        "java",
+        ["-jar", jar!, join(s.root, path, "exports/en-GB/book.epub")],
+        {
+          encoding: "utf8",
+        },
+      );
       expect(out).toContain("No errors or warnings detected");
     },
     60_000,
@@ -105,7 +111,7 @@ describe("export_pdf / inspect_pdf", () => {
     const { path } = await seedBook(s);
     const r = await s.call("cadabra_export_pdf", { path });
     expect(r.data.error.code).toBe("typst_missing");
-    expect(existsSync(join(s.root, path, "exports/book.pdf"))).toBe(false);
+    expect(existsSync(join(s.root, path, "exports/en-GB/book.pdf"))).toBe(false);
   });
 
   it("reports asset_missing and empty_book before running typst", async () => {
@@ -128,7 +134,8 @@ describe("export_pdf / inspect_pdf", () => {
   it("inspect_pdf notes poppler_missing instead of failing when poppler is not on PATH", async () => {
     s = await connect({ popplerDir: null });
     await s.ok("cadabra_project_create", { path: "e", title: "T", author: "A" });
-    writeFileSync(join(s.root, "e/exports/book.pdf"), "%PDF-1.4 fake");
+    mkdirSync(join(s.root, "e/exports/en"), { recursive: true });
+    writeFileSync(join(s.root, "e/exports/en/book.pdf"), "%PDF-1.4 fake");
     const r = await s.ok("cadabra_inspect_pdf", { path: "e" });
     expect(r.poppler).toBe("missing");
     expect(r.note).toContain("poppler_missing");
@@ -148,15 +155,15 @@ describe("export_pdf / inspect_pdf", () => {
         template: "novel",
         pdfA: true,
       });
-      expect(r.file).toBe("exports/book.pdf");
+      expect(r.file).toBe("exports/en-GB/book.pdf");
       expect(r.options).toMatchObject({ trimSize: "6x9", template: "novel", pdfA: true });
       expect(r.fonts.body).toBeTruthy();
       expect(
-        readFileSync(join(s.root, path, "exports/book.pdf"))
+        readFileSync(join(s.root, path, "exports/en-GB/book.pdf"))
           .subarray(0, 5)
           .toString(),
       ).toBe("%PDF-");
-      expect(readdirSync(join(s.root, path, "exports"))).toEqual(["book.pdf"]);
+      expect(readdirSync(join(s.root, path, "exports/en-GB"))).toEqual(["book.pdf"]);
 
       const info = await s.ok("cadabra_inspect_pdf", { path });
       expect(info.poppler).toBe("ok");
@@ -185,21 +192,25 @@ describe("export_pdf / inspect_pdf", () => {
 });
 
 describe("export_markdown", () => {
-  it("writes exports/book.md for the whole book; marks without syntax fail unless htmlMarks is set", async () => {
+  it("writes exports/en-GB/book.md for the whole book; marks without syntax fail unless htmlMarks is set", async () => {
     s = await connect({ epubcheckJar: null });
     const { path, ids } = await seedBook(s);
     const failed = await s.call("cadabra_export_markdown", { path });
     expect(failed.isError).toBe(true);
     expect(failed.data.error.code).toBe("markdown_error");
     expect(failed.data.error.message).toMatch(/htmlMarks/);
-    expect(existsSync(join(s.root, path, "exports/book.md"))).toBe(false);
+    expect(existsSync(join(s.root, path, "exports/en-GB/book.md"))).toBe(false);
 
     const r = await s.ok("cadabra_export_markdown", { path, htmlMarks: true });
-    expect(r).toMatchObject({ file: "exports/book.md", chapterCount: ids.length, htmlMarks: true });
-    const md = readFileSync(join(s.root, path, "exports/book.md"), "utf8");
+    expect(r).toMatchObject({
+      file: "exports/en-GB/book.md",
+      chapterCount: ids.length,
+      htmlMarks: true,
+    });
+    const md = readFileSync(join(s.root, path, "exports/en-GB/book.md"), "utf8");
     expect(md.startsWith("# ")).toBe(true);
     expect(md).toContain("](../assets/gradient.png");
-    expect(readdirSync(join(s.root, path, "exports"))).toEqual(["book.md"]);
+    expect(readdirSync(join(s.root, path, "exports/en-GB"))).toEqual(["book.md"]);
   });
 
   it("writes plain Markdown for a simple chapter and refuses an empty book", async () => {
@@ -216,6 +227,6 @@ describe("export_markdown", () => {
       markdown: md,
     });
     await s.ok("cadabra_export_markdown", { path: "m" });
-    expect(readFileSync(join(s.root, "m/exports/book.md"), "utf8")).toBe(md);
+    expect(readFileSync(join(s.root, "m/exports/en/book.md"), "utf8")).toBe(md);
   });
 });

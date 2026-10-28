@@ -26,7 +26,7 @@ import {
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { emptyDoc, AUTOSAVE_MS } from "./util";
-import type { PageActions } from "./types";
+import type { HistoryEntry, PageActions } from "./types";
 import type { Ctx } from "./context";
 
 /** The chapter list and the open page: select, type, save, add, rename, move, remove, and reading pages and word counts. */
@@ -172,11 +172,19 @@ export const createPageActions = (ctx: Ctx): PageActions => {
           : removeMatter(manifest, id);
       await saveManifest(next);
       const trashPath = await bridge.trashFile(root, sourceFile(removed, manifest.editions)); // moved to .cadabra/trash, never permanently deleted
+      // The page's translations go with it (a translation file may not exist yet: the page was added after the edition).
+      const sourceLang = sourceEdition(manifest.editions).language;
+      const others: NonNullable<HistoryEntry["others"]> = [];
+      for (const [language, path] of Object.entries(removed.files)) {
+        if (language === sourceLang || !(await bridge.readFile(root, path))) continue;
+        others.push({ language, path, trashPath: await bridge.trashFile(root, path) });
+      }
       record(
         {
           label: t`Move ${sourceTitle(removed, manifest.editions)} to trash`,
           file: { path: sourceFile(removed, manifest.editions), added: false },
           trashPath,
+          ...(others.length ? { others } : {}),
         },
         manifest,
         next,
@@ -187,9 +195,9 @@ export const createPageActions = (ctx: Ctx): PageActions => {
         if (fallback) await load(fallback.id);
       }
     },
-    async readPages() {
+    async readPages(language) {
       await flush();
-      return loadChaptersIn(langOf(need().manifest));
+      return loadChaptersIn(language ?? langOf(need().manifest));
     },
     async bookWords() {
       return countBook();

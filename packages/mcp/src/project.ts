@@ -5,6 +5,8 @@ import {
   parseManifest,
   readingOrder,
   serializeManifest,
+  sourceEdition,
+  type Edition,
   type EditionEntry,
   type Manifest,
 } from "@cadabracraft/format";
@@ -94,3 +96,17 @@ export const sectionOf = (m: Manifest): { section: Section; entry: EditionEntry 
         ? "backMatter"
         : "chapters") as Section,
   }));
+
+/** The edition a tool works on: the one named by `language`, or the source edition when it is left out. */
+export function editionOf(m: Manifest, language?: string): Edition {
+  const edition =
+    language === undefined
+      ? sourceEdition(m.editions)
+      : m.editions.find((e) => e.language === language);
+  if (!edition)
+    throw new ToolError(
+      "language_not_found",
+      `the book has no "${language}" edition (editions: ${m.editions.map((e) => e.language).join(", ")})`,
+    );
+  return edition;
+}

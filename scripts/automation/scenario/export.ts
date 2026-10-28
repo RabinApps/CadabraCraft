@@ -56,10 +56,10 @@ export async function exportSteps({
 
   await step("EPUB export passes EPUBCheck and contains the matter pages", async () => {
     await exportVia("EPUB 3");
-    for (let i = 0; i < 15 && !(await status()).includes("exports/book.epub"); i++)
+    for (let i = 0; i < 15 && !(await status()).includes("exports/en/book.epub"); i++)
       await app.sleep(1000);
-    assert((await status()).includes("exports/book.epub"), "no export notice");
-    const listing = execFileSync("unzip", ["-l", join(book, "exports/book.epub")], {
+    assert((await status()).includes("exports/en/book.epub"), "no export notice");
+    const listing = execFileSync("unzip", ["-l", join(book, "exports/en/book.epub")], {
       encoding: "utf8",
     });
     assert(
@@ -68,13 +68,13 @@ export async function exportSteps({
     );
     const titleXhtml = execFileSync(
       "unzip",
-      ["-p", join(book, "exports/book.epub"), "OEBPS/fm-1.xhtml"],
+      ["-p", join(book, "exports/en/book.epub"), "OEBPS/fm-1.xhtml"],
       { encoding: "utf8" },
     );
     assert(titleXhtml.includes('epub:type="frontmatter titlepage"'), "title page lacks epub:type");
     const jar = join(repo, "tools/epubcheck-5.4.0/epubcheck.jar");
     if (!existsSync(jar)) return "exported (EPUBCheck jar not installed, validation skipped)";
-    const o = execFileSync("java", ["-jar", jar, join(book, "exports/book.epub")], {
+    const o = execFileSync("java", ["-jar", jar, join(book, "exports/en/book.epub")], {
       encoding: "utf8",
     });
     assert(o.includes("No errors or warnings detected"), o.slice(-300));
@@ -84,13 +84,13 @@ export async function exportSteps({
   await step("PDF export produces a 6x9 PDF with embedded fonts", async () => {
     await exportVia("Print PDF");
     await app.sleep(1000);
-    for (let i = 0; i < 40 && !(await status()).includes("exports/book.pdf"); i++)
+    for (let i = 0; i < 40 && !(await status()).includes("exports/en/book.pdf"); i++)
       await app.sleep(1000);
     assert(
-      (await status()).includes("exports/book.pdf"),
+      (await status()).includes("exports/en/book.pdf"),
       "PDF export did not finish (is Typst installed?)",
     );
-    const pdf = join(book, "exports/book.pdf");
+    const pdf = join(book, "exports/en/book.pdf");
     try {
       const info = execFileSync("pdfinfo", [pdf], { encoding: "utf8" });
       assert(/Page size:\s+432 x 648/.test(info), "wrong page size");
@@ -166,9 +166,9 @@ export async function exportSteps({
     async () => {
       await exportVia("EPUB 3");
       await app.sleep(1500);
-      for (let i = 0; i < 15 && !(await status()).includes("exports/book.epub"); i++)
+      for (let i = 0; i < 15 && !(await status()).includes("exports/en/book.epub"); i++)
         await app.sleep(1000);
-      const epub = join(book, "exports/book.epub");
+      const epub = join(book, "exports/en/book.epub");
       const opf = execFileSync("unzip", ["-p", epub, "OEBPS/content.opf"], { encoding: "utf8" });
       assert(
         opf.includes('properties="cover-image"') &&
@@ -197,7 +197,7 @@ export async function exportSteps({
         execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" })
           .split("\f")
           .slice(0, -1);
-      const pdf = join(book, "exports/book.pdf");
+      const pdf = join(book, "exports/en/book.pdf");
       const exportPdf = async (include: boolean) => {
         await app.click("Export");
         await app.sleep(800);

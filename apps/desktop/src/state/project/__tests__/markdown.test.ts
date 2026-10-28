@@ -73,7 +73,7 @@ describe("exportMarkdown failure handling", () => {
     expect(s().notice).not.toMatch(/Exported/);
     writeBytesError = null;
     await a().exportMarkdown({ htmlMarks: false });
-    expect(s().notice).toMatch(/Exported exports\/book\.md/);
+    expect(s().notice).toMatch(/Exported exports\/en\/book\.md/);
   });
   it("a permission error that is a plain object (Rust ProjectError) is readable in the rejection", async () => {
     writeBytesError = { kind: "io", message: "Permission denied (os error 13)" } as never;

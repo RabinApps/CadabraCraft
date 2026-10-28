@@ -1,5 +1,5 @@
-import { sourceEdition, sourceFileById } from "@cadabracraft/format";
-import { t } from "@lingui/core/macro";
+import { sourceFileById } from "@cadabracraft/format";
+import { plural, t } from "@lingui/core/macro";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { buildDocx } from "@cadabracraft/export-docx";
 import {
@@ -18,25 +18,30 @@ import type { Ctx } from "./context";
 
 /** The one-shot exports: EPUB, Markdown, Word and the print PDF. */
 export const createExportActions = (ctx: Ctx): ExportActions => {
-  const { set, get, need, saveManifest, flush, loadChapters, loadAssets, loadCover } = ctx;
+  const { set, get, need, saveManifest, flush, loadExportPages, loadAssets, loadCover } = ctx;
+  /** " (N untranslated pages left out)" for the notice, or nothing when every page was exported. */
+  const left = (n: number) =>
+    n
+      ? ` (${plural(n, { one: "# untranslated page left out", other: "# untranslated pages left out" })})`
+      : "";
   return {
-    async exportEpub() {
+    async exportEpub(scope) {
       if (get().exportStage) throw new Error(t`An export is already running`);
       set({ exportStage: "preparing" });
       try {
         await flush();
         const { root, manifest } = need();
-        const chapters = await loadChapters();
+        const { edition, pages: chapters, dir, skipped } = await loadExportPages(scope);
         const assets = await loadAssets(chapters);
-        const cover = await loadCover();
+        const cover = await loadCover(edition.cover);
         set({ exportStage: "rendering" });
         const bytes = buildEpub(
           {
-            title: sourceEdition(manifest.editions).title,
-            author: sourceEdition(manifest.editions).author,
-            language: sourceEdition(manifest.editions).language,
-            identifier: sourceEdition(manifest.editions).identifier,
-            isbn: sourceEdition(manifest.editions).isbn,
+            title: edition.title,
+            author: edition.author,
+            language: edition.language,
+            identifier: edition.identifier,
+            isbn: edition.isbn,
             modified: new Date(),
           },
           chapters,
@@ -49,8 +54,8 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
           },
         );
         set({ exportStage: "saving" });
-        await bridge.writeBytes(root, "exports/book.epub", bytes);
-        set({ notice: t`Exported exports/book.epub` });
+        await bridge.writeBytes(root, `${dir}/book.epub`, bytes);
+        set({ notice: t`Exported ${dir}/book.epub` + left(skipped.length) });
       } catch (e) {
         const manifest = get().manifest;
         throw describeEpubError(e, (id) => (manifest ? sourceFileById(manifest, id) : undefined));
@@ -58,13 +63,13 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         set({ exportStage: null });
       }
     },
-    async exportMarkdown({ htmlMarks }) {
+    async exportMarkdown({ htmlMarks, ...scope }) {
       if (get().exportStage) throw new Error(t`An export is already running`);
       set({ exportStage: "preparing" });
       try {
         await flush();
         const { root, manifest } = need();
-        const chapters = await loadChapters();
+        const { edition, pages: chapters, dir, skipped } = await loadExportPages(scope);
         // An empty book would write an empty file and still report success.
         if (!chapters.length)
           throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
@@ -73,10 +78,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         let markdown: string;
         try {
           markdown = bookToMarkdown(
-            {
-              title: sourceEdition(manifest.editions).title,
-              author: sourceEdition(manifest.editions).author,
-            },
+            { title: edition.title, author: edition.author },
             chapters,
             opts,
           );
@@ -96,19 +98,19 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
           throw new Error(where ? t`In “${where}”: ${e.message}` : e.message, { cause: e });
         }
         set({ exportStage: "saving" });
-        await bridge.writeBytes(root, "exports/book.md", new TextEncoder().encode(markdown));
-        set({ notice: t`Exported exports/book.md` });
+        await bridge.writeBytes(root, `${dir}/book.md`, new TextEncoder().encode(markdown));
+        set({ notice: t`Exported ${dir}/book.md` + left(skipped.length) });
       } finally {
         set({ exportStage: null });
       }
     },
-    async exportDocx({ font }) {
+    async exportDocx({ font, ...scope }) {
       if (get().exportStage) throw new Error(t`An export is already running`);
       set({ exportStage: "preparing" });
       try {
         await flush();
         const { root, manifest } = need();
-        const chapters = await loadChapters();
+        const { edition, pages: chapters, dir, skipped } = await loadExportPages(scope);
         // An empty book would write a title page only and still report success.
         if (!chapters.length)
           throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
@@ -117,17 +119,13 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         // A page with an empty title is named by its file in error messages.
         const pages = chapters.map((c) => ({ ...c, id: sourceFileById(manifest, c.id) ?? c.id }));
         const bytes = buildDocx(
-          {
-            title: sourceEdition(manifest.editions).title,
-            author: sourceEdition(manifest.editions).author,
-            language: sourceEdition(manifest.editions).language,
-          },
+          { title: edition.title, author: edition.author, language: edition.language },
           pages,
           { assets, font, modified: new Date() },
         );
         set({ exportStage: "saving" });
-        await bridge.writeBytes(root, "exports/manuscript.docx", bytes);
-        set({ notice: t`Exported exports/manuscript.docx` });
+        await bridge.writeBytes(root, `${dir}/manuscript.docx`, bytes);
+        set({ notice: t`Exported ${dir}/manuscript.docx` + left(skipped.length) });
       } finally {
         set({ exportStage: null });
       }
@@ -140,18 +138,14 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         const { root, manifest } = need();
         const templateId = hasTemplate(options.template) ? options.template : DEFAULT_TEMPLATE_ID;
         const template = getTemplate(templateId);
-        const chapters = await loadChapters();
+        const { edition, pages: chapters, dir, skipped } = await loadExportPages(options);
         const assets = await loadAssets(chapters);
-        const cover = options.cover === false ? undefined : await loadCover();
+        const cover = options.cover === false ? undefined : await loadCover(edition.cover);
         if (cover) assets.set(cover.path, cover.bytes);
         set({ exportStage: "rendering" });
         const runner = createTauriRunner(bridge, options.typstPath);
         const { pdf } = await renderPdf(
-          {
-            title: sourceEdition(manifest.editions).title,
-            author: sourceEdition(manifest.editions).author,
-            language: sourceEdition(manifest.editions).language,
-          },
+          { title: edition.title, author: edition.author, language: edition.language },
           chapters,
           {
             template,
@@ -165,10 +159,10 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
           runner,
         );
         set({ exportStage: "saving" });
-        await bridge.writeBytes(root, "exports/book.pdf", pdf);
+        await bridge.writeBytes(root, `${dir}/book.pdf`, pdf);
         if (manifest.template !== templateId)
           await saveManifest({ ...need().manifest, template: templateId });
-        set({ notice: t`Exported exports/book.pdf` });
+        set({ notice: t`Exported ${dir}/book.pdf` + left(skipped.length) });
       } catch (e) {
         throw describePdfError(e);
       } finally {

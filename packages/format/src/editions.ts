@@ -84,7 +84,7 @@ export function validateEditions(editions: Edition[], entries: EditionEntry[]): 
   }
 }
 
-const LANGUAGE_CODE = /^[A-Za-z0-9-]+$/;
+export const LANGUAGE_CODE = /^[A-Za-z0-9-]+$/;
 
 /**
  * Relative path for a new translation of an entry: the source file moved into the language's own folder, e.g.

@@ -166,6 +166,10 @@ export function PrintPreview({ onBack, onExport }: Props) {
   const manifest = useProject((s) => s.manifest);
   const root = useProject((s) => s.root);
   const readPages = useProject((s) => s.actions.readPages);
+  const activeLanguage = useProject((s) => s.activeLanguage);
+  const activeEdition =
+    manifest?.editions.find((e) => e.language === activeLanguage) ??
+    sourceEdition(manifest!.editions);
   const [pages, setPages] = useState<BookPage[] | null>(null);
   const [error, setError] = useState("");
   const [bleed, setBleed] = useState<"none" | "3mm">("none");
@@ -230,8 +234,8 @@ export function PrintPreview({ onBack, onExport }: Props) {
       )}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <aside className="hidden w-[140px] shrink-0 flex-col items-center gap-3 overflow-y-auto bg-sidebar p-4 md:flex">
-          {root && sourceEdition(manifest.editions).cover && (
-            <CoverThumb root={root} cover={sourceEdition(manifest.editions).cover ?? ""} />
+          {root && activeEdition.cover && (
+            <CoverThumb root={root} cover={activeEdition.cover ?? ""} />
           )}
           {(pages ?? []).slice(0, 6).map((p, i) => (
             <div key={p.id} className="flex flex-col items-center gap-1.5" aria-hidden>
@@ -290,7 +294,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
                 : plural(estimate, { one: "About # page", other: "About # pages" })}
             </span>
           </div>
-          {sourceEdition(manifest.editions).cover && (
+          {activeEdition.cover && (
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-ink-muted">{t`Cover`}</span>
               <span className="text-sm">{t`Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them.`}</span>

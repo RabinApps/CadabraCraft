@@ -6,6 +6,7 @@ import {
   readingOrder,
   serializeManifest,
   validateManifest,
+  updateEdition,
   type Manifest,
   sourceFile,
   sourceTitle,
@@ -46,11 +47,13 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         }
         return;
       }
-      const entry = readingOrder(manifest).find((c) => sourceFile(c, manifest.editions) === path);
-      if (!entry || entry.id !== get().currentId) return; // other chapters load fresh when opened
+      // Any edition's file can change outside the app; only the open page in the open edition needs a reload.
+      const language = ctx.langOf(manifest);
+      const entry = readingOrder(manifest).find((c) => c.files[language] === path);
+      if (!entry || entry.id !== get().currentId) return; // other chapters and editions load fresh when opened
       if (get().draft) {
         set({
-          notice: t`${sourceTitle(entry, manifest.editions)} changed outside the app; saving will keep both versions`,
+          notice: t`${ctx.titleIn(entry, manifest, language)} changed outside the app; saving will keep both versions`,
         });
         return;
       }
@@ -66,7 +69,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         currentDoc: doc,
         hashes: { ...get().hashes, [path]: r.hash },
         reloadCount: get().reloadCount + 1,
-        notice: t`${sourceTitle(entry, manifest.editions)} was updated from outside the app`,
+        notice: t`${ctx.titleIn(entry, manifest, language)} was updated from outside the app`,
       });
     },
     async openProject(root) {
@@ -173,9 +176,22 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       if (manifest.template === id) return;
       await saveManifest({ ...manifest, template: id });
     },
-    async updateDetails(d) {
+    async updateDetails(d, edition) {
       const { manifest } = need();
       const [source, ...translations] = manifest.editions;
+      if (edition && edition !== source!.language) {
+        // A translation edition: its own title, author, identifier, ISBN and cover. Its language is its key and does not change here.
+        const next = updateEdition(manifest, edition, {
+          title: d.title.trim(),
+          author: d.author.trim(),
+          identifier: d.identifier.trim(),
+          isbn: d.isbn.trim() || null,
+          cover: d.cover,
+        });
+        validateManifest(next);
+        if (JSON.stringify(next) !== JSON.stringify(manifest)) await saveManifest(next);
+        return;
+      }
       const language = d.language.trim();
       // Changing the source language re-keys every title and file of the source edition.
       const rekey = <T>(map: Record<string, T>): Record<string, T> =>

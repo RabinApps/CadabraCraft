@@ -1,5 +1,5 @@
 import { FormatError } from "./errors";
-import { sourceEdition, sourceFile, translationFile } from "./editions";
+import { LANGUAGE_CODE, sourceEdition, sourceFile, translationFile } from "./editions";
 import { readingOrder, type Edition, type EditionEntry, type Manifest } from "./manifest";
 
 /** True when the entry's text in `language` is written by a translator (or is the source). Missing files and copies are not translated. */
@@ -109,5 +109,51 @@ export function setTranslationFile(
     frontMatter: m.frontMatter.map(set),
     chapters: m.chapters.map(set),
     backMatter: m.backMatter.map(set),
+  };
+}
+
+/** Folder an edition's exports go to: `exports/<lang>`. Throws FormatError for a code that is not a plain folder name. */
+export function exportDir(language: string): string {
+  if (!LANGUAGE_CODE.test(language))
+    throw new FormatError(`manifest: bad language code "${language}"`);
+  return `exports/${language}`;
+}
+
+/**
+ * What an export of `language` contains, in reading order. Entries that are not translated (copies, blank pages, or no
+ * file yet) block the export unless `skip` is set, then they are left out and returned in `skipped`. The source
+ * edition is always complete. Throws FormatError naming the untranslated entries.
+ */
+export function exportPlan(
+  m: Manifest,
+  language: string,
+  skip: boolean,
+): { included: EditionEntry[]; skipped: EditionEntry[] } {
+  if (!m.editions.some((e) => e.language === language))
+    throw new FormatError(`manifest: no edition "${language}"`);
+  const all = readingOrder(m);
+  const included = all.filter((e) => isTranslated(e, language, m.editions));
+  const skipped = all.filter((e) => !included.includes(e));
+  if (skipped.length && !skip) {
+    const names = skipped.map((e) => e.titles[language] ?? sourceTitleOf(e, m)).join(", ");
+    throw new FormatError(`not translated into ${language}: ${names}`);
+  }
+  return { included, skipped };
+}
+
+const sourceTitleOf = (e: EditionEntry, m: Manifest): string =>
+  e.titles[sourceEdition(m.editions).language] ?? e.id;
+
+/** Changes one edition's details (title, author, identifier, isbn, cover). The language itself is not changed here. */
+export function updateEdition(
+  m: Manifest,
+  language: string,
+  patch: Partial<Omit<Edition, "language">>,
+): Manifest {
+  if (!m.editions.some((e) => e.language === language))
+    throw new FormatError(`manifest: no edition "${language}"`);
+  return {
+    ...m,
+    editions: m.editions.map((e) => (e.language === language ? { ...e, ...patch } : e)),
   };
 }

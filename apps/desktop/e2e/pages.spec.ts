@@ -120,9 +120,9 @@ test("EPUB and PDF exports include the matter pages", async ({ page }) => {
   await addPage(page, "Title page");
   await addPage(page, "Acknowledgments");
   await exportBook(page, "EPUB 3");
-  await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+  await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.epub");
   const names = await page.evaluate(() => {
-    const b = window.__disk["exports/book.epub"] as number[];
+    const b = window.__disk["exports/en/book.epub"] as number[];
     return String.fromCharCode(...b).match(/OEBPS\/(fm|bm|ch)-\d+\.xhtml/g);
   });
   expect([...new Set(names)].sort()).toEqual([
@@ -139,7 +139,7 @@ test("EPUB and PDF exports include the matter pages", async ({ page }) => {
     .getByRole("dialog", { name: "Export book" })
     .getByRole("button", { name: "Export", exact: true })
     .click();
-  await expect(page.getByRole("status")).toHaveText("Exported exports/book.pdf");
+  await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.pdf");
   const source: string = await page.evaluate(() => window.__typstCalls[0]!.source);
   expect(source).toContain("#title-page[");
   expect(source).toContain('#chapter-start("Acknowledgments", none)');

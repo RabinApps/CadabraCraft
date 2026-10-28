@@ -46,13 +46,13 @@ beforeEach(async () => {
 });
 
 describe("exportDocx", () => {
-  it("writes exports/manuscript.docx and reports it", async () => {
+  it("writes exports/en/manuscript.docx and reports it", async () => {
     await a().saveCurrent(doc(p("Hello manuscript")));
     await a().exportDocx({ font: "times" });
-    expect(exported!.path).toBe("exports/manuscript.docx");
+    expect(exported!.path).toBe("exports/en/manuscript.docx");
     expect(part("word/document.xml")).toContain("Hello manuscript");
     expect(part("word/header2.xml")).toContain("Lovelace / BOOK / ");
-    expect(s().notice).toBe("Exported exports/manuscript.docx");
+    expect(s().notice).toBe("Exported exports/en/manuscript.docx");
     expect(s().exportStage).toBeNull();
   });
   it("passes the font choice through", async () => {
@@ -95,7 +95,7 @@ describe("exportDocx", () => {
     expect(s().notice).not.toMatch(/Exported/);
     writeBytesError = null;
     await a().exportDocx({ font: "times" });
-    expect(s().notice).toMatch(/Exported exports\/manuscript\.docx/);
+    expect(s().notice).toMatch(/Exported exports\/en\/manuscript\.docx/);
   });
   it("refuses a second export while one runs", async () => {
     const first = a().exportDocx({ font: "times" });

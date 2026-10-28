@@ -158,7 +158,7 @@ describe("project store", () => {
   it("exports every chapter into exports/", async () => {
     await a().add("Two");
     await a().exportEpub();
-    expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
+    expect(disk.get("exports/en/book.epub")).toMatch(/^bytes:/);
   });
   it("imports a picked image and returns its relative asset path", async () => {
     expect(await a().importImage()).toBe("assets/cover.png");
@@ -185,17 +185,17 @@ describe("project store", () => {
     await expect(a().exportEpub()).rejects.toThrow(/Missing image file assets\/cover\.png/);
     assets.set("assets/cover.png", new Uint8Array([1, 2, 3]));
     await a().exportEpub();
-    expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
+    expect(disk.get("exports/en/book.epub")).toMatch(/^bytes:/);
   });
   it("puts the cover in the EPUB and refuses to export when its file is missing", async () => {
     await a().updateDetails({ ...detailsOf(), isbn: "", cover: "assets/front.png" });
     await expect(a().exportEpub()).rejects.toThrow(
       /cover image assets\/front\.png could not be read/,
     );
-    expect(disk.has("exports/book.epub")).toBe(false);
+    expect(disk.has("exports/en/book.epub")).toBe(false);
     assets.set("assets/front.png", new Uint8Array([1, 2, 3]));
     await a().exportEpub();
-    const files = unzipSync(written["exports/book.epub"]!);
+    const files = unzipSync(written["exports/en/book.epub"]!);
     expect(files["OEBPS/assets/front.png"]).toBeDefined();
     expect(strFromU8(files["OEBPS/content.opf"]!)).toContain('properties="cover-image"');
     expect(strFromU8(files["OEBPS/content.opf"]!)).toMatch(
@@ -345,8 +345,8 @@ describe("project store", () => {
       await a().addMatter("front", "title-page");
       await a().addMatter("back", "about-the-author");
       await a().exportEpub();
-      expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
-      const files = unzipSync(written["exports/book.epub"]!);
+      expect(disk.get("exports/en/book.epub")).toMatch(/^bytes:/);
+      const files = unzipSync(written["exports/en/book.epub"]!);
       const opf = strFromU8(files["OEBPS/content.opf"]!);
       expect([...opf.matchAll(/<itemref idref="([^"]+)"/g)].map((m) => m[1])).toEqual([
         "fm-1",

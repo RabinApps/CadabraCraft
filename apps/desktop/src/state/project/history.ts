@@ -63,6 +63,10 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
       const present = entry.file ? entry.file.added !== undoing : false; // should the page file exist when we are done?
       let file = entry.file?.path;
       let trashPath = entry.trashPath;
+      const sourceLang = sourceEdition(need().manifest.editions).language;
+      /** The translation files that came back under another name (every restored file is retargeted in the history). */
+      const renames: { language: string; from: string; to: string }[] = [];
+      let others = entry.others ?? [];
       // Files first when bringing one back, manifest first when sending one away: the manifest never names a missing file.
       if (file && present) {
         if (!trashPath) throw new Error(t`the page is no longer in the trash`);
@@ -76,17 +80,40 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
           );
         file = back;
         trashPath = undefined;
+        const restored: typeof others = [];
+        for (const o of others) {
+          if (!o.trashPath) {
+            restored.push(o);
+            continue;
+          }
+          const to = await bridge.restoreTrash(root, o.trashPath);
+          if (to !== o.path) {
+            target = retargetFile(target, o.language, o.path, to);
+            renames.push({ language: o.language, from: o.path, to });
+          }
+          restored.push({ language: o.language, path: to });
+        }
+        others = restored;
       }
       await saveManifest(withTree(need().manifest, target));
-      if (file && !present) trashPath = await bridge.trashFile(root, file); // never a hard delete
+      if (file && !present) {
+        trashPath = await bridge.trashFile(root, file); // never a hard delete
+        const gone: typeof others = [];
+        for (const o of others)
+          gone.push({ ...o, trashPath: await bridge.trashFile(root, o.path) });
+        others = gone;
+      }
       const was = entry.file?.path;
+      if (was && file && was !== file) renames.push({ language: sourceLang, from: was, to: file });
       const fix = (e: HistoryEntry) =>
-        was && file && was !== file
-          ? retargetEntry(e, sourceEdition(need().manifest.editions).language, was, file)
-          : e;
+        renames.reduce((acc, r) => retargetEntry(acc, r.language, r.from, r.to), e);
       const { history } = get();
-      const { trashPath: _old, ...rest } = fix(entry);
-      const moved: HistoryEntry = trashPath ? { ...rest, trashPath } : rest;
+      const { trashPath: _old, others: _others, ...rest } = fix(entry);
+      const moved: HistoryEntry = {
+        ...rest,
+        ...(trashPath ? { trashPath } : {}),
+        ...(others.length ? { others } : {}),
+      };
       const kept = history[from].slice(0, -1).map(fix);
       const other = (undoing ? history.redo : history.undo).map(fix);
       set({

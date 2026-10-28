@@ -60,7 +60,7 @@ test.describe("formatting toolbar", () => {
     await tb(page, "Footnote").click();
     await expect(ed(page).locator("span.footnote")).toHaveCount(1);
     await exportBook(page, "EPUB 3");
-    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.epub");
     const saved = await page.evaluate(() => window.__disk["manuscript/001-chapter-one.json"]);
     expect(saved).toContain("sceneBreak");
     expect(saved).toContain("footnote");
@@ -103,7 +103,7 @@ test.describe("formatting toolbar", () => {
     await expect(cells("tr").first().locator("th")).toHaveCount(2);
 
     await exportBook(page, "EPUB 3");
-    await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
+    await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.epub");
     const saved = await page.evaluate(() => window.__disk["manuscript/001-chapter-one.json"]);
     expect(saved).toContain('"type": "tableHeader"');
     expect(saved).toContain("Cost & note");

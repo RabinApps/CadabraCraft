@@ -198,15 +198,19 @@ function sectionOfFile(file: string): MatterSection | "chapters" | null {
 /**
  * Puts a restored source file back in the manifest: at the end of the section its folder says (chapters, front matter or
  * back matter), under a fresh id. Matter pages come back as "custom" because the kind is not stored in the file.
+ * `translations` are the entry's files in other languages that came back with it.
  */
 export function restoreEntry(
   m: Manifest,
   file: string,
   title: string,
+  translations: { language: string; file: string; title: string; untranslated?: boolean }[] = [],
 ): { manifest: Manifest; entry: EditionEntry } {
   const section = sectionOfFile(file);
   if (!section) throw new Error(`cannot restore ${file}`);
-  if (usedFiles(m).has(file)) throw new Error(`${file} is already in the book`);
+  const taken = usedFiles(m);
+  if ([file, ...translations.map((x) => x.file)].some((f) => taken.has(f)))
+    throw new Error(`${file} is already in the book`);
   const used = allEntries(m);
   const lang = sourceOf(m);
   const prefix = section === "chapters" ? "ch" : section === "frontMatter" ? "fm" : "bm";
@@ -214,10 +218,15 @@ export function restoreEntry(
   while (used.some((e) => e.id === `${prefix}-${n}`)) n++;
   const entry: EditionEntry = {
     id: `${prefix}-${n}`,
-    titles: { [lang]: title },
-    files: { [lang]: file },
+    titles: {
+      [lang]: title,
+      ...Object.fromEntries(translations.map((x) => [x.language, x.title])),
+    },
+    files: { [lang]: file, ...Object.fromEntries(translations.map((x) => [x.language, x.file])) },
     ...(section === "chapters" ? {} : { kind: "custom" as MatterKind }),
   };
+  const marked = translations.filter((x) => x.untranslated).map((x) => x.language);
+  if (marked.length) entry.untranslated = marked;
   return { manifest: { ...m, [section]: [...m[section], entry] }, entry };
 }
 

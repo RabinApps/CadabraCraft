@@ -46,6 +46,7 @@ mod tests {
     fn filters_internal_and_foreign_paths() {
         let root = Path::new("/p");
         assert_eq!(relevant(root, Path::new("/p/manuscript/001-a.json")).as_deref(), Some("manuscript/001-a.json"));
+        assert_eq!(relevant(root, Path::new("/p/manuscript/fr/001-a.json")).as_deref(), Some("manuscript/fr/001-a.json"));
         assert_eq!(relevant(root, Path::new("/p/cadabra.json")).as_deref(), Some("cadabra.json"));
         assert_eq!(relevant(root, Path::new("/p/.cadabra/trash/x")), None);
         assert_eq!(relevant(root, Path::new("/p/exports/book.epub")), None);

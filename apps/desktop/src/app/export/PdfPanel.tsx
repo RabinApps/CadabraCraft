@@ -10,7 +10,8 @@ import {
   listTemplates,
 } from "@cadabracraft/templates";
 import type { Manifest } from "@cadabracraft/format";
-import { pdfChecks } from "../../lib/exportChecks";
+import type { ExportScope } from "../../state/project/types";
+import { pdfChecks, untranslatedChecks } from "../../lib/exportChecks";
 import { estimatePages, wordsPerPage } from "../../lib/printEstimate";
 import { readStored, removeStored, writeStored } from "../../lib/persisted";
 import { trimLabel } from "../../lib/trimLabels";
@@ -60,11 +61,13 @@ export function PdfPanel({
   options,
   running,
   error,
+  language,
+  skipUntranslated,
 }: {
   options: PdfOptions;
   running: boolean;
   error: PdfUiError | null;
-}) {
+} & ExportScope) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const readPages = useProject((s) => s.actions.readPages);
@@ -84,7 +87,7 @@ export function PdfPanel({
   const [words, setWords] = useState<number | null>(null);
   useEffect(() => {
     let live = true;
-    readPages().then(
+    readPages(language).then(
       (pages) => {
         if (live) setWords(pages.reduce((sum, p) => sum + countWords(p.doc), 0));
       },
@@ -95,18 +98,24 @@ export function PdfPanel({
     return () => {
       live = false;
     };
-  }, [readPages]);
+  }, [readPages, language]);
+  const edition = manifest?.editions.find(
+    (e) => e.language === (language ?? sourceEdition(manifest.editions).language),
+  );
   const pdfCheckList = useMemo(() => {
-    if (!manifest || words === null) return [];
+    if (!manifest || !edition || words === null) return [];
     const print = getTemplate(current).print;
     const margins = print.defaults.marginsIn;
     const perPage = wordsPerPage(TRIM_SIZES[trimSize], margins, print.fontSizePt);
-    return pdfChecks({
-      estimatedPages: estimatePages(words, manifest.chapters.length, perPage),
-      margins,
-      hasCover: sourceEdition(manifest.editions).cover !== null,
-    });
-  }, [manifest, words, current, trimSize]);
+    return [
+      ...pdfChecks({
+        estimatedPages: estimatePages(words, manifest.chapters.length, perPage),
+        margins,
+        hasCover: edition?.cover != null,
+      }),
+      ...untranslatedChecks(manifest, edition!.language, skipUntranslated ?? false),
+    ];
+  }, [manifest, words, current, trimSize, edition, skipUntranslated]);
   return (
     <>
       {pdfCheckList.length > 0 && <CheckList checks={pdfCheckList} label={t`Print checks`} />}
@@ -142,7 +151,7 @@ export function PdfPanel({
         disabled={running}
         onChange={(e) => setPdfA(e.target.checked)}
       />
-      {manifest && sourceEdition(manifest.editions).cover && (
+      {edition?.cover && (
         <Checkbox
           label={t`Include the cover`}
           hint={t`Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file.`}

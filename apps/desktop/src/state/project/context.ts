@@ -1,6 +1,8 @@
 import type { StoreApi } from "zustand";
 import { t } from "@lingui/core/macro";
 import {
+  exportDir,
+  exportPlan,
   readingOrder,
   sameTree,
   sectionOf,
@@ -182,8 +184,21 @@ export function createContext(set: Set, get: Get) {
     }
     return pages;
   };
-  /** The source edition's pages (export, audiobook and find and replace all read the source for now). */
+  /** The source edition's pages (audiobook and find and replace all read the source for now). */
   const loadChapters = () => loadChaptersIn(sourceEdition(need().manifest.editions).language);
+  /**
+   * What an export of `language` (default: the source) reads: its edition, its pages and the output folder.
+   * Untranslated pages stop the export unless `skipUntranslated`; then they are left out and listed in `skipped`.
+   */
+  const loadExportPages = async (scope: { language?: string; skipUntranslated?: boolean } = {}) => {
+    const { manifest } = need();
+    const language = scope.language ?? sourceEdition(manifest.editions).language;
+    const plan = exportPlan(manifest, language, scope.skipUntranslated ?? false);
+    const keep = new Set(plan.included.map((e) => e.id));
+    const pages = (await loadChaptersIn(language)).filter((p) => keep.has(p.id));
+    const edition = manifest.editions.find((e) => e.language === language)!;
+    return { edition, pages, dir: exportDir(language), skipped: plan.skipped };
+  };
   /** Word count per chapter file, valid while the store's hash for that file is the one it was counted under. */
   let wordCache = new Map<string, { hash: string | undefined; words: number }>();
   /** Words in the book's chapters, reading only pages that changed since they were last counted. The open page is counted from the draft or the loaded doc. */
@@ -233,9 +248,10 @@ export function createContext(set: Set, get: Get) {
   };
 
   /** Bytes of the cover image, or undefined when the book has none. A cover that cannot be read stops the export instead of leaving it out. */
-  const loadCover = async (): Promise<{ path: string; bytes: Uint8Array } | undefined> => {
-    const { root, manifest } = need();
-    const cover = sourceEdition(manifest.editions).cover;
+  const loadCover = async (
+    cover: string | null,
+  ): Promise<{ path: string; bytes: Uint8Array } | undefined> => {
+    const { root } = need();
     if (!cover) return undefined;
     try {
       return { path: cover, bytes: await bridge.readAsset(root, cover) };
@@ -270,6 +286,7 @@ export function createContext(set: Set, get: Get) {
     load,
     loadChapters,
     loadChaptersIn,
+    loadExportPages,
     countBook,
     loadAssets,
     loadCover,

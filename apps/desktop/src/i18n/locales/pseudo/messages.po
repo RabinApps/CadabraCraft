@@ -24,6 +24,16 @@ msgstr ""
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 msgstr ""
 
+#. placeholder {0}: missing.length
+#: src/lib/exportChecks.ts
+msgid "{0, plural, one {# page is not translated and will be left out: {names}} other {# pages are not translated and will be left out: {names}}}"
+msgstr ""
+
+#. placeholder {0}: missing.length
+#: src/lib/exportChecks.ts
+msgid "{0, plural, one {# page is not translated yet and stops the export: {names}} other {# pages are not translated yet and stop the export: {names}}}"
+msgstr ""
+
 #. placeholder {0}: countWords(c.doc)
 #. placeholder {0}: v.words
 #: src/app/dialogs/HistoryDialog.tsx
@@ -42,7 +52,7 @@ msgstr ""
 msgid "{0} About {1} MB."
 msgstr ""
 
-#. placeholder {0}: sourceTitle(entry, manifest.editions)
+#. placeholder {0}: ctx.titleIn(entry, manifest, language)
 #: src/state/project/project.ts
 msgid "{0} changed outside the app; saving will keep both versions"
 msgstr ""
@@ -130,7 +140,7 @@ msgstr ""
 msgid "{0} of {1} MB"
 msgstr ""
 
-#. placeholder {0}: sourceTitle(entry, manifest.editions)
+#. placeholder {0}: ctx.titleIn(entry, manifest, language)
 #: src/state/project/project.ts
 msgid "{0} was updated from outside the app"
 msgstr ""
@@ -182,6 +192,10 @@ msgstr ""
 
 #: src/editor/FindBar.tsx
 msgid "{n, plural, one {# match} other {# matches}}"
+msgstr ""
+
+#: src/state/project/exports.ts
+msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr ""
 
 #: src/app/shell/App.tsx
@@ -449,6 +463,11 @@ msgstr ""
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Book details"
+msgstr ""
+
+#. placeholder {0}: form.language
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Book details ({0})"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -978,19 +997,19 @@ msgid "Exported {0}"
 msgstr ""
 
 #: src/state/project/exports.ts
-msgid "Exported exports/book.epub"
+msgid "Exported {dir}/book.epub"
 msgstr ""
 
 #: src/state/project/exports.ts
-msgid "Exported exports/book.md"
+msgid "Exported {dir}/book.md"
 msgstr ""
 
 #: src/state/project/exports.ts
-msgid "Exported exports/book.pdf"
+msgid "Exported {dir}/book.pdf"
 msgstr ""
 
 #: src/state/project/exports.ts
-msgid "Exported exports/manuscript.docx"
+msgid "Exported {dir}/manuscript.docx"
 msgstr ""
 
 #: src/state/project/audio.ts
@@ -1330,6 +1349,7 @@ msgstr ""
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/export/ExportDialog.tsx
 #: src/app/shell/Details.tsx
 #: src/ui/LanguagePicker.tsx
 msgid "Language"
@@ -1349,6 +1369,10 @@ msgstr ""
 
 #: src/app/export/PdfPanel.tsx
 msgid "Leave empty to use the Typst that comes with the app."
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
+msgid "Leaves out pages that are still a copy or blank, and says which. Without this, an edition with untranslated pages cannot be exported."
 msgstr ""
 
 #: src/app/settings/Settings.tsx
@@ -1942,19 +1966,19 @@ msgid "Saved"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
-msgid "Saving exports/book.epub…"
+msgid "Saving {dir}/book.epub…"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
-msgid "Saving exports/book.md…"
+msgid "Saving {dir}/book.md…"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
-msgid "Saving exports/book.pdf…"
+msgid "Saving {dir}/book.pdf…"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
-msgid "Saving exports/manuscript.docx…"
+msgid "Saving {dir}/manuscript.docx…"
 msgstr ""
 
 #: src/app/export/Templates.tsx
@@ -2030,6 +2054,10 @@ msgstr ""
 
 #: src/app/export/PrintPreview.tsx
 msgid "Shown in this preview only. The PDF does not include bleed or crop marks yet."
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
+msgid "Skip untranslated chapters"
 msgstr ""
 
 #: src/editor/Toolbar.tsx
@@ -2210,6 +2238,10 @@ msgstr ""
 #. placeholder {0}: e.file
 #: src/lib/audioErrors.ts
 msgid "the downloaded file {0} was damaged and was deleted. Try the download again"
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
+msgid "The edition to export. Files go to {dir}."
 msgstr ""
 
 #: src/editor/TableCommands.tsx

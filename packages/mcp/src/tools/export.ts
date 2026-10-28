@@ -9,38 +9,42 @@ import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import { createNodeRunner } from "@cadabracraft/export-pdf/node";
 import { ProjectFsError, writeBytes } from "@cadabracraft/project-fs";
 import { getTemplate, hasTemplate } from "@cadabracraft/templates";
-import { sourceEdition } from "@cadabracraft/format";
+import { exportDir } from "@cadabracraft/format";
 import { loadBook } from "../book";
 import { ToolError } from "../errors";
 import { poppler, runEpubcheck, typstPath } from "../external";
-import { projectRoot } from "../project";
+import { editionOf, loadProject, projectRoot } from "../project";
 import { type ToolDef, defineTool, withLock } from "../tooling";
 import { PATH } from "./project";
 import { errMsg } from "@cadabracraft/shared";
 
-const EPUB = "exports/book.epub";
-const PDF = "exports/book.pdf";
-const MARKDOWN = "exports/book.md";
+const LANGUAGE = z.string().min(1).optional().describe('Edition to export or inspect (a language code from cadabra_project_info); default is the source edition. Files go to exports/<language>/.');
+const SKIP = z.boolean().optional().describe("Leave out pages that are not translated yet instead of failing with chapter_not_translated. Ignored for the source edition.");
+/** Where an edition's export files are: `exports/<language>/…`. */
+const out = (language: string, file: string): string => `${exportDir(language)}/${file}`;
+const skippedNote = (skipped: { id: string }[]): string => (skipped.length ? `; ${skipped.length} untranslated page(s) left out` : "");
+const skippedData = (skipped: { id: string }[]) => skipped.map((e) => e.id);
 
 export const exportEpub = defineTool({
   name: "cadabra_export_epub",
   title: "Export EPUB",
-  description: "Build exports/book.epub (EPUB 3) from the book, using the project's template CSS and its images. Runs EPUBCheck when the jar and java are available and returns its messages. Only writes under exports/.",
-  input: { path: PATH },
+  description: "Build exports/<language>/book.epub (EPUB 3) from one edition of the book, using the project's template CSS and its images. Runs EPUBCheck when the jar and java are available and returns its messages. Only writes under exports/.",
+  input: { path: PATH, language: LANGUAGE, skipUntranslated: SKIP },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
-  run: ({ path }, ctx) =>
+  run: ({ path, language, skipUntranslated }, ctx) =>
     withLock(projectRoot(ctx, path), async () => {
-      const { root, manifest, chapters, assets, templateId } = loadBook(ctx, path);
+      const { root, edition, dir, skipped, chapters, assets, templateId } = loadBook(ctx, path, { language, skipUntranslated });
+      const EPUB = `${dir}/book.epub`;
       let bytes: Uint8Array;
       try {
-        bytes = buildEpub({ title: sourceEdition(manifest.editions).title, author: sourceEdition(manifest.editions).author, language: sourceEdition(manifest.editions).language, identifier: sourceEdition(manifest.editions).identifier, isbn: sourceEdition(manifest.editions).isbn, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css });
+        bytes = buildEpub({ title: edition.title, author: edition.author, language: edition.language, identifier: edition.identifier, isbn: edition.isbn, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css });
       } catch (e) {
         throw new ToolError("epub_error", errMsg(e));
       }
       writeBytes(root, EPUB, bytes);
       const epubcheck = await runEpubcheck(ctx, join(root, EPUB));
       const check = !epubcheck.ran ? `EPUBCheck not run (${epubcheck.reason})` : epubcheck.passed ? "EPUBCheck passed" : `EPUBCheck reported ${epubcheck.messages.length} message(s)`;
-      return { summary: `Wrote ${EPUB} (${bytes.length} bytes, ${chapters.length} chapters). ${check}`, data: { file: EPUB, bytes: bytes.length, chapterCount: chapters.length, template: templateId, epubcheck } };
+      return { summary: `Wrote ${EPUB} (${bytes.length} bytes, ${chapters.length} chapters). ${check}${skippedNote(skipped)}`, data: { file: EPUB, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), template: templateId, epubcheck } };
     }),
 });
 
@@ -48,50 +52,54 @@ export const exportMarkdown = defineTool({
   name: "cadabra_export_markdown",
   title: "Export Markdown",
   description:
-    "Write exports/book.md (CommonMark + GFM: footnotes, tables, strikethrough) with every page in reading order; chapters without a level-1 heading get '# Title'. Image paths are written relative to exports/ (../assets/x.png). Underline, small caps, superscript and subscript have no Markdown syntax: the export fails (markdown_error) unless htmlMarks is true, which writes them as inline HTML. Only writes under exports/.",
-  input: { path: PATH, htmlMarks: z.boolean().optional().describe("Write underline, small caps, superscript and subscript as inline HTML instead of failing.") },
+    "Write exports/<language>/book.md (CommonMark + GFM: footnotes, tables, strikethrough) with every page in reading order; chapters without a level-1 heading get '# Title'. Image paths are written relative to exports/ (../assets/x.png). Underline, small caps, superscript and subscript have no Markdown syntax: the export fails (markdown_error) unless htmlMarks is true, which writes them as inline HTML. Only writes under exports/.",
+  input: { path: PATH, htmlMarks: z.boolean().optional().describe("Write underline, small caps, superscript and subscript as inline HTML instead of failing."), language: LANGUAGE, skipUntranslated: SKIP },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
-  run: ({ path, htmlMarks }, ctx) =>
+  run: ({ path, htmlMarks, language, skipUntranslated }, ctx) =>
     withLock(projectRoot(ctx, path), async () => {
-      const { root, manifest, chapters } = loadBook(ctx, path);
+      const { root, edition, dir, skipped, chapters } = loadBook(ctx, path, { language, skipUntranslated });
+      const MARKDOWN = `${dir}/book.md`;
       let markdown: string;
       try {
-        markdown = bookToMarkdown({ title: sourceEdition(manifest.editions).title, author: sourceEdition(manifest.editions).author }, chapters, { htmlMarks: htmlMarks === true, imageBase: "../" });
+        markdown = bookToMarkdown({ title: edition.title, author: edition.author }, chapters, { htmlMarks: htmlMarks === true, imageBase: "../" });
       } catch (e) {
         throw new ToolError("markdown_error", errMsg(e));
       }
       const bytes = new TextEncoder().encode(markdown);
       writeBytes(root, MARKDOWN, bytes);
-      return { summary: `Wrote ${MARKDOWN} (${bytes.length} bytes, ${chapters.length} chapters)`, data: { file: MARKDOWN, bytes: bytes.length, chapterCount: chapters.length, htmlMarks: htmlMarks === true } };
+      return { summary: `Wrote ${MARKDOWN} (${bytes.length} bytes, ${chapters.length} chapters)${skippedNote(skipped)}`, data: { file: MARKDOWN, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), htmlMarks: htmlMarks === true } };
     }),
 });
 
 export const exportPdf = defineTool({
   name: "cadabra_export_pdf",
   title: "Export PDF",
-  description: "Build exports/book.pdf (print PDF via Typst) from the book. trimSize/template/pdfA are used for this export only; the manifest is not changed. Needs typst installed. Only writes under exports/.",
+  description: "Build exports/<language>/book.pdf (print PDF via Typst) from one edition of the book. trimSize/template/pdfA are used for this export only; the manifest is not changed. Needs typst installed. Only writes under exports/.",
   input: {
     path: PATH,
     trimSize: z.enum(["4.25x6.87", "5x8", "5.25x8", "5.5x8.5", "6x9", "7x10", "8.5x11"]).optional().describe("Page size in inches; default is the template's."),
     template: z.string().optional().describe("Template id for this export; default is the book's template."),
     pdfA: z.boolean().optional().describe("Produce PDF/A-2b (archival)."),
+    language: LANGUAGE,
+    skipUntranslated: SKIP,
   },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
-  run: ({ path, trimSize, template, pdfA }, ctx) =>
+  run: ({ path, trimSize, template, pdfA, language, skipUntranslated }, ctx) =>
     withLock(projectRoot(ctx, path), async () => {
       if (template !== undefined && !hasTemplate(template)) getTemplate(template); // throws template_unknown listing the ids
-      const { root, manifest, chapters, assets, templateId } = loadBook(ctx, path);
+      const { root, edition, dir, skipped, chapters, assets, templateId } = loadBook(ctx, path, { language, skipUntranslated });
+      const PDF = `${dir}/book.pdf`;
       const id = template ?? templateId;
       const size: TrimSize = trimSize ?? getTemplate(id).print.defaults.trimSize;
       const runner = createNodeRunner({ typstPath: typstPath(ctx) });
       const { pdf, fonts } = await renderPdf(
-        { title: sourceEdition(manifest.editions).title, author: sourceEdition(manifest.editions).author, language: sourceEdition(manifest.editions).language },
+        { title: edition.title, author: edition.author, language: edition.language },
         chapters,
         { template: id, trimSize: size, assets: Object.fromEntries(assets), pdfA: pdfA === true },
         runner,
       );
       writeBytes(root, PDF, pdf);
-      return { summary: `Wrote ${PDF} (${pdf.length} bytes, ${size}, template ${id}${pdfA ? ", PDF/A-2b" : ""})`, data: { file: PDF, bytes: pdf.length, options: { trimSize: size, template: id, pdfA: pdfA === true }, fonts } };
+      return { summary: `Wrote ${PDF} (${pdf.length} bytes, ${size}, template ${id}${pdfA ? ", PDF/A-2b" : ""})${skippedNote(skipped)}`, data: { file: PDF, language: edition.language, skipped: skippedData(skipped), bytes: pdf.length, options: { trimSize: size, template: id, pdfA: pdfA === true }, fonts } };
     }),
 });
 
@@ -108,11 +116,12 @@ const POPPLER_NOTE = "poppler_missing: poppler (pdfinfo, pdffonts, pdftotext) wa
 export const inspectPdf = defineTool({
   name: "cadabra_inspect_pdf",
   title: "Inspect PDF",
-  description: "Inspect exports/book.pdf with poppler: page count, page size, fonts (with embedding) and the text of the first page. If poppler is not installed the result says poppler_missing instead of failing.",
-  input: { path: PATH },
+  description: "Inspect exports/<language>/book.pdf with poppler: page count, page size, fonts (with embedding) and the text of the first page. If poppler is not installed the result says poppler_missing instead of failing.",
+  input: { path: PATH, language: LANGUAGE },
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
-  run: async ({ path }, ctx) => {
-    const root = projectRoot(ctx, path);
+  run: async ({ path, language }, ctx) => {
+    const { root, manifest } = loadProject(ctx, path);
+    const PDF = out(editionOf(manifest, language).language, "book.pdf");
     const file = join(root, PDF);
     const bytes = sizeOf(file, PDF, "run cadabra_export_pdf first");
     try {
@@ -151,11 +160,12 @@ const list = <T>(v: T | T[] | undefined): T[] => (v === undefined ? [] : Array.i
 export const inspectEpub = defineTool({
   name: "cadabra_inspect_epub",
   title: "Inspect EPUB",
-  description: "Inspect exports/book.epub: zip entries, OPF title/author/language/identifier and the number of chapters in the spine.",
-  input: { path: PATH },
+  description: "Inspect exports/<language>/book.epub: zip entries, OPF title/author/language/identifier and the number of chapters in the spine.",
+  input: { path: PATH, language: LANGUAGE },
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
-  run: ({ path }, ctx) => {
-    const root = projectRoot(ctx, path);
+  run: ({ path, language }, ctx) => {
+    const { root, manifest } = loadProject(ctx, path);
+    const EPUB = out(editionOf(manifest, language).language, "book.epub");
     const bytes = sizeOf(join(root, EPUB), EPUB, "run cadabra_export_epub first");
     const entries: string[] = [];
     let zip: Record<string, Uint8Array>;

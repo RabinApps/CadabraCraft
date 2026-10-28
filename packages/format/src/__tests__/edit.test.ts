@@ -101,3 +101,18 @@ describe("restoreEntry", () => {
     expect(() => restoreEntry(m, "assets/a.json", "x")).toThrow();
   });
 });
+
+describe("restoreEntry with translations", () => {
+  it("brings back every language's file and title, and the untranslated marks", () => {
+    const m = three();
+    const r = restoreEntry(m, "manuscript/009-old.json", "Old", [
+      { language: "fr", file: "manuscript/fr/009-old.json", title: "Vieux", untranslated: true },
+    ]);
+    expect(r.entry.files).toEqual({
+      en: "manuscript/009-old.json",
+      fr: "manuscript/fr/009-old.json",
+    });
+    expect(r.entry.titles.fr).toBe("Vieux");
+    expect(r.entry.untranslated).toEqual(["fr"]);
+  });
+});

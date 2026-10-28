@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
 });
 
-test("Export PDF sends the chosen options to Typst and writes exports/book.pdf", async ({
+test("Export PDF sends the chosen options to Typst and writes exports/en/book.pdf", async ({
   page,
 }) => {
   await newProject(page);
@@ -24,13 +24,13 @@ test("Export PDF sends the chosen options to Typst and writes exports/book.pdf",
   await dialog.getByLabel("PDF/A (archival)").check();
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByRole("status")).toHaveText("Exported exports/book.pdf");
+  await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.pdf");
 
   const call = await page.evaluate(() => window.__typstCalls[0]!);
   expect(call.pdfA).toBe(true);
   expect(call.source).toContain("Typeset me"); // unsaved typing was flushed first
   expect(call.source).toMatch(/#set page\(width: 5in, height: 8in/); // 5x8 trim
-  const pdf = await page.evaluate(() => window.__disk["exports/book.pdf"]);
+  const pdf = await page.evaluate(() => window.__disk["exports/en/book.pdf"]);
   expect(pdf).toEqual([0x25, 0x50, 0x44, 0x46, 0x2d]);
   const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   expect(manifest.template).toBe("nonfiction");
@@ -66,7 +66,7 @@ test("Export PDF explains when Typst is missing and offers a location field", as
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("brew install typst");
   await expect(dialog.getByLabel("Typst location (optional)")).toBeVisible();
-  expect(await page.evaluate(() => window.__disk["exports/book.pdf"])).toBeUndefined();
+  expect(await page.evaluate(() => window.__disk["exports/en/book.pdf"])).toBeUndefined();
 });
 
 test("Export PDF shows Typst's compile error", async ({ page }) => {

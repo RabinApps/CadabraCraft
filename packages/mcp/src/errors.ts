@@ -29,6 +29,8 @@ export type ErrorCode =
   | "invalid_file"
   | "chapter_not_found"
   | "chapter_missing"
+  | "chapter_not_translated"
+  | "language_not_found"
   | "chapter_json_invalid"
   | "invalid_chapter_doc"
   | "empty_input"

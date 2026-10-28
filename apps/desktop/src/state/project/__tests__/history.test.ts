@@ -24,6 +24,7 @@ const trashed = () => [...disk.keys()].filter((k) => k.startsWith(".cadabra/tras
 beforeEach(async () => {
   disk.clear();
   useProject.setState({
+    activeLanguage: null,
     root: null,
     manifest: null,
     currentId: null,
@@ -199,5 +200,50 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
   it("does nothing with an empty history", async () => {
     expect(await a().undo()).toBe(false);
     expect(await a().redo()).toBe(false);
+  });
+});
+
+describe("removing a page that has translations", () => {
+  const typeFrench = async () => {
+    a().setDraft(text("Texte"));
+    await a().saveCurrent(s().draft!);
+  };
+  it("trashes every language's file, and undo and redo move all of them", async () => {
+    await a().addLanguage("fr", "copy");
+    await typeFrench();
+    const en = "manuscript/001-chapter-one.json";
+    const fr = "manuscript/fr/001-chapter-one.json";
+    await a().remove("ch-1");
+    expect(disk.has(en) || disk.has(fr)).toBe(false);
+    expect(trashed()).toHaveLength(2);
+    await a().undo();
+    expect(disk.has(en) && disk.has(fr)).toBe(true);
+    expect(trashed()).toHaveLength(0);
+    expect(s().manifest!.chapters[0]!.files).toEqual({ en, fr });
+    await a().redo();
+    expect(disk.has(en) || disk.has(fr)).toBe(false);
+    expect(trashed()).toHaveLength(2);
+    await a().undo();
+    expect(disk.get(fr)).toContain("Texte");
+  });
+  it("restoring the source file from the trash list brings the translation back too", async () => {
+    await a().addLanguage("fr", "copy");
+    await typeFrench();
+    await a().remove("ch-1");
+    await a().refreshTrash();
+    expect(s().trash).toHaveLength(1); // the translation is listed with its page
+    await a().restoreTrash(s().trash[0]!.path);
+    const c = s().manifest!.chapters.at(-1)!;
+    expect(Object.keys(c.files).sort()).toEqual(["en", "fr"]);
+    expect(disk.get(c.files.fr!)).toContain("Texte");
+    expect(trashed()).toHaveLength(0);
+  });
+  it("a page added after the edition has no translation file to trash", async () => {
+    await a().addLanguage("fr", "copy");
+    await a().add("Two");
+    await a().remove("ch-2");
+    expect(trashed()).toHaveLength(1);
+    await a().undo();
+    expect(s().manifest!.chapters.map((c) => c.id)).toEqual(["ch-1", "ch-2"]);
   });
 });
