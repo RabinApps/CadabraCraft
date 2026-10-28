@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { disk } from "../../../test/fakeBridge";
+import { disk, trashMethods } from "../../../test/fakeBridge";
 
 const files = new Map<string, number>();
 const trashed: string[] = [];
@@ -8,6 +8,7 @@ let trashError: unknown = null;
 let failWrite = false;
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
+    ...trashMethods,
     writeFile: async (_r: string, path: string, contents: string) => {
       if (failWrite) throw new Error("disk full");
       disk.set(path, contents);
@@ -156,5 +157,20 @@ describe("reference actions", () => {
     const ch = s().manifest!.chapters[0]!.id;
     await a().updateReference("ref-1", { chapters: [ch] });
     expect(s().manifest!.references[0]!.chapters).toEqual([ch]);
+  });
+
+  it("removing a chapter drops its links, undo puts them back and redo drops them again", async () => {
+    await a().addReferences(["/x/a.pdf", "/x/b.pdf"]);
+    await a().add("Two");
+    const ch = s().manifest!.chapters[1]!.id;
+    await a().updateReference("ref-1", { chapters: [ch] });
+    await a().remove(ch);
+    expect(s().manifest!.references[0]!.chapters).toEqual([]);
+    await a().removeReference("ref-2"); // gone before the undo: its link (none here) cannot come back
+    await a().undo();
+    expect(s().manifest!.chapters.map((c) => c.id)).toContain(ch);
+    expect(s().manifest!.references.map((r) => r.chapters)).toEqual([[ch]]);
+    await a().redo();
+    expect(s().manifest!.references[0]!.chapters).toEqual([]);
   });
 });

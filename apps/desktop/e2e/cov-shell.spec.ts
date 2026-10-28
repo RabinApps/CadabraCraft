@@ -128,6 +128,16 @@ test("book menu commands act on the open book", async ({ page }) => {
   await menu(page, "view.details");
   await expect(details).toBeVisible();
 
+  await menu(page, "view.references");
+  await expect(page.getByRole("complementary", { name: "References" })).toBeVisible();
+  await menu(page, "view.references");
+  await expect(details).toBeVisible();
+
+  await menu(page, "view.references");
+  await expect(page.getByRole("complementary", { name: "References" })).toBeVisible();
+  await menu(page, "view.references");
+  await expect(details).toBeVisible();
+
   await menu(page, "view.focus");
   await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeVisible();
   await menu(page, "view.focus");

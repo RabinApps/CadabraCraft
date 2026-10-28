@@ -7,6 +7,8 @@ import {
   addReference,
   createManifest,
   danglingLinks,
+  linksOf,
+  relink,
   migrateV4ToV5,
   nextReferenceId,
   parseManifest,
@@ -203,5 +205,21 @@ describe("links to chapters", () => {
   it("unlinkEntry returns the same manifest when nothing is linked", () => {
     const m = linked();
     expect(unlinkEntry(m, "ch-3")).toBe(m);
+  });
+  it("linksOf and relink bring the links of a removed chapter back", () => {
+    const before = linked();
+    const links = linksOf(before, "ch-1");
+    expect(links.length).toBeGreaterThan(0);
+    const { manifest } = removeChapter(before, "ch-1");
+    expect(referencesFor(manifest, "ch-1")).toEqual([]);
+    const sorted = (m: Manifest) => m.references.map((r) => [r.id, [...r.chapters].sort()]);
+    expect(sorted(relink(manifest, links))).toEqual(sorted(before));
+    // already linked: not doubled; reference removed since: skipped; nothing to add: same objects
+    expect(relink(before, links).references).toEqual(before.references);
+    const first = before.references[0]!.id;
+    expect(
+      relink(removeReference(manifest, first).manifest, links).references.map((r) => r.id),
+    ).not.toContain(first);
+    expect(linksOf(before, "ch-3")).toEqual([]);
   });
 });

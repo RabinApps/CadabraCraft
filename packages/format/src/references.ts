@@ -155,3 +155,18 @@ export function unlinkEntry(m: Manifest, entryId: string): Manifest {
     ),
   };
 }
+
+/** The `reference -> chapter` links an entry has, to put back if its removal is undone. */
+export const linksOf = (m: Manifest, entryId: string): { reference: string; chapter: string }[] =>
+  referencesFor(m, entryId).map((r) => ({ reference: r.id, chapter: entryId }));
+
+/** Puts links back (an undone removal). A reference that was removed since is skipped; links already there are not doubled. */
+export function relink(m: Manifest, links: { reference: string; chapter: string }[]): Manifest {
+  return {
+    ...m,
+    references: m.references.map((r) => {
+      const add = links.filter((l) => l.reference === r.id && !r.chapters.includes(l.chapter));
+      return add.length ? { ...r, chapters: [...r.chapters, ...add.map((l) => l.chapter)] } : r;
+    }),
+  };
+}

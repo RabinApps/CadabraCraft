@@ -5,6 +5,7 @@ import type { ReferenceKind } from "../../lib/referenceKinds";
 import { errText } from "../../lib/projectError";
 import { readReferenceBytes, referenceUrl } from "../../lib/references";
 import { Notice } from "../../ui/Notice";
+import { ImagePreview } from "./ImagePreview";
 import { PdfPreview } from "./PdfPreview";
 
 interface Props {
@@ -49,12 +50,7 @@ function Media({ root, file, title, kind }: Props) {
         <p className="text-sm text-ink-muted" role="status">{t`Loading…`}</p>
       </Stage>
     );
-  if (kind === "image")
-    return (
-      <Stage>
-        <img src={url} alt={title} className="max-h-full max-w-full object-contain" />
-      </Stage>
-    );
+  if (kind === "image") return <ImagePreview url={url} title={title} />;
   if (kind === "video")
     return (
       <div className="flex min-h-0 flex-1 bg-black">

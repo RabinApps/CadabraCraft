@@ -1187,6 +1187,10 @@ msgstr ""
 msgid "Find…"
 msgstr ""
 
+#: src/app/references/ImagePreview.tsx
+msgid "Fit to window"
+msgstr ""
+
 #: src/app/hooks/useAudioLabels.ts
 msgid "FLAC"
 msgstr ""
@@ -1339,6 +1343,10 @@ msgstr ""
 #. placeholder {0}: e.reference
 #: src/lib/projectError.ts
 msgid "Image not found: {0}"
+msgstr ""
+
+#: src/app/references/ImagePreview.tsx
+msgid "Image zoom"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -2126,6 +2134,10 @@ msgstr ""
 #: src/app/shell/App.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "References"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "References Panel"
 msgstr ""
 
 #: src/editor/FindBar.tsx
@@ -3026,10 +3038,12 @@ msgstr ""
 msgid "Zoom"
 msgstr ""
 
+#: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom in"
 msgstr ""
 
+#: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom out"
 msgstr ""

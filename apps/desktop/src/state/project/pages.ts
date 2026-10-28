@@ -22,6 +22,7 @@ import {
   renameIn,
   setTranslationFile,
   translationFile,
+  linksOf,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
@@ -182,6 +183,7 @@ export const createPageActions = (ctx: Ctx): PageActions => {
         sectionOf(manifest, id) === "chapter"
           ? removeChapter(manifest, id)
           : removeMatter(manifest, id);
+      const links = linksOf(manifest, id);
       await saveManifest(next);
       const trashPath = await bridge.trashFile(root, sourceFile(removed, manifest.editions)); // moved to .cadabra/trash, never permanently deleted
       // The page's translations go with it (a translation file may not exist yet: the page was added after the edition).
@@ -197,6 +199,7 @@ export const createPageActions = (ctx: Ctx): PageActions => {
           file: { path: sourceFile(removed, manifest.editions), added: false },
           trashPath,
           ...(others.length ? { others } : {}),
+          ...(links.length ? { links } : {}),
         },
         manifest,
         next,

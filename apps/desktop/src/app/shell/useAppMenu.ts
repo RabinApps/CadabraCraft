@@ -68,7 +68,7 @@ export function useAppMenu(h: AppMenuHooks): void {
   const actions = useProject((s) => s.actions);
   const recents = useRecents((s) => s.recents);
   const clearRecents = useRecents((s) => s.clear);
-  const { focus, details, set: setLayout } = useLayout();
+  const { focus, details, references, set: setLayout } = useLayout();
   const setCreating = useStartDialogs((s) => s.setCreating);
   const setImporting = useStartDialogs((s) => s.setImporting);
 
@@ -179,6 +179,11 @@ export function useAppMenu(h: AppMenuHooks): void {
       "view.details": {
         run: () => setLayout({ details: !details }),
         checked: details,
+        enabled: h.mode === "write",
+      },
+      "view.references": {
+        run: () => setLayout({ references: !references }),
+        checked: references,
         enabled: h.mode === "write",
       },
       "go.previous": {

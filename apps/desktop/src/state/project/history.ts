@@ -5,6 +5,8 @@ import {
   withTree,
   sourceFile,
   sourceEdition,
+  relink,
+  unlinkEntry,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
@@ -95,7 +97,16 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
         }
         others = restored;
       }
-      await saveManifest(withTree(need().manifest, target));
+      const tree = withTree(need().manifest, target);
+      const linked = entry.links ?? [];
+      // The links a removed page had come back with it (a reference removed since is skipped) and go again on redo.
+      await saveManifest(
+        !linked.length
+          ? tree
+          : present
+            ? relink(tree, linked)
+            : unlinkEntry(tree, linked[0]!.chapter),
+      );
       if (file && !present) {
         trashPath = await bridge.trashFile(root, file); // never a hard delete
         const gone: typeof others = [];

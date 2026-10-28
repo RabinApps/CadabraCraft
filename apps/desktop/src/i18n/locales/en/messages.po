@@ -1188,6 +1188,10 @@ msgstr "Find and Replace…"
 msgid "Find…"
 msgstr "Find…"
 
+#: src/app/references/ImagePreview.tsx
+msgid "Fit to window"
+msgstr "Fit to window"
+
 #: src/app/hooks/useAudioLabels.ts
 msgid "FLAC"
 msgstr "FLAC"
@@ -1341,6 +1345,10 @@ msgstr "Image file"
 #: src/lib/projectError.ts
 msgid "Image not found: {0}"
 msgstr "Image not found: {0}"
+
+#: src/app/references/ImagePreview.tsx
+msgid "Image zoom"
+msgstr "Image zoom"
 
 #: src/app/shell/menuModel.ts
 msgid "Image…"
@@ -2128,6 +2136,10 @@ msgstr "Reference details"
 #: src/app/shell/AppHeader.tsx
 msgid "References"
 msgstr "References"
+
+#: src/app/shell/menuModel.ts
+msgid "References Panel"
+msgstr "References Panel"
 
 #: src/editor/FindBar.tsx
 msgid "Regex"
@@ -3029,10 +3041,12 @@ msgstr "Your package manager updates this copy of CadabraCraft."
 msgid "Zoom"
 msgstr "Zoom"
 
+#: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom in"
 msgstr "Zoom in"
 
+#: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom out"
 msgstr "Zoom out"

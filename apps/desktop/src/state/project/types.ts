@@ -82,6 +82,8 @@ export interface HistoryEntry {
   trashPath?: string;
   /** The removed page's files in other languages (the translation editions), moved to the trash with it. */
   others?: { language: string; path: string; trashPath?: string }[];
+  /** The reference links the removed page had (`reference` -> `chapter` is the page's id), put back by undo and dropped again by redo. */
+  links?: { reference: string; chapter: string }[];
   /** A text edit across pages (Replace all in the whole book): the pages' file text before and after. `before` and `after` trees are equal. */
   docs?: { file: string; before: string; after: string }[];
 }

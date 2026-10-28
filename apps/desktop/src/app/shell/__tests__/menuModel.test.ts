@@ -58,6 +58,7 @@ const BOOK: Commands = Object.fromEntries(
     "view.read",
     "view.focus",
     "view.details",
+    "view.references",
     "editor.bold",
     "editor.sceneBreak",
     "edit.find",

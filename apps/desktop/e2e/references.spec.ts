@@ -109,6 +109,18 @@ test.describe("reference files", () => {
     const img = viewer.getByRole("img", { name: "map" });
     await expect(img).toHaveAttribute("src", /^blob:/);
     await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBe(1);
+    const fit = await img.evaluate((i: HTMLImageElement) => i.clientWidth);
+    await viewer.getByRole("button", { name: "Zoom in" }).click();
+    await expect
+      .poll(() => img.evaluate((i: HTMLImageElement) => i.clientWidth))
+      .toBeGreaterThan(fit);
+    await expect(viewer.getByRole("button", { name: "Fit to window" })).toBeEnabled();
+    // A one-pixel image can be shown up to 48 px wide: Zoom in then has nothing left, and so does Zoom out.
+    await expect(viewer.getByRole("button", { name: "Zoom in" })).toBeDisabled();
+    await expect(viewer.getByRole("button", { name: "Zoom out" })).toBeDisabled();
+    await viewer.getByRole("button", { name: "Fit to window" }).click();
+    await expect(viewer.getByRole("button", { name: "Fit to window" })).toBeDisabled();
+    await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.clientWidth)).toBe(fit);
     await expect(viewer).toContainText("Image · 70 B");
     await viewer.getByRole("button", { name: "Close viewer" }).click();
     await row(page, "notes").click();
