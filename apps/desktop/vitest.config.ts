@@ -17,6 +17,8 @@ export default defineConfig({
         "**/*.tsx",
         "**/use[A-Z]*.ts",
         "src/editor/findHooks.ts",
+        "src/editor/pagination/dom.ts",
+        "src/editor/pagination/plugin.ts",
         "src/i18n/locales/**",
         "src/test/**",
         "src/i18n/test-setup.ts",

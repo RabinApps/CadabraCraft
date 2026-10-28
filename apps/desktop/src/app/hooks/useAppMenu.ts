@@ -13,6 +13,7 @@ import {
   type Commands,
 } from "../../state/commands";
 import { useLayout } from "../../state/layout";
+import { usePageView } from "./usePageView";
 import { buildMenuModel } from "../shell/menuModel";
 import { quitApp } from "../shell/quit";
 import { showNativeMenu } from "../shell/nativeMenu";
@@ -69,6 +70,7 @@ export function useAppMenu(h: AppMenuHooks): void {
   const recents = useRecents((s) => s.recents);
   const clearRecents = useRecents((s) => s.clear);
   const { focus, details, references, set: setLayout } = useLayout();
+  const pageView = usePageView();
   const setCreating = useStartDialogs((s) => s.setCreating);
   const setImporting = useStartDialogs((s) => s.setImporting);
 
@@ -215,7 +217,15 @@ export function useAppMenu(h: AppMenuHooks): void {
         enabled: canAddMatter(manifest!, k),
       };
   }
-  if (writing) commands["view.focus"] = { run: () => setLayout({ focus: !focus }), checked: focus };
+  if (writing) {
+    commands["view.focus"] = { run: () => setLayout({ focus: !focus }), checked: focus };
+    // Page view is not offered on phones.
+    commands["view.pageView"] = {
+      run: pageView.toggle,
+      checked: pageView.on,
+      enabled: pageView.available,
+    };
+  }
   useRegisterCommands(commands);
 
   // The native menu follows the registry: same structure, different availability and a few labels.

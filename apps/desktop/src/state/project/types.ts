@@ -280,6 +280,8 @@ export interface PageActions {
   readPages: (language?: string) => Promise<BookPage[]>;
   /** Words in all chapters (front and back matter excluded). Pages whose file is unchanged since they were last counted are not read again; the open page is counted from memory. */
   bookWords: () => Promise<number>;
+  /** Words of each chapter before the entry `id` in reading order (front and back matter excluded), for Page view's page numbers. */
+  chapterWordsBefore: (id: string) => Promise<number[]>;
 }
 
 export interface HistoryActions {

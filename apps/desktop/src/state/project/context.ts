@@ -220,18 +220,23 @@ export function createContext(set: Set, get: Get) {
   };
   /** Word count per chapter file, valid while the store's hash for that file is the one it was counted under. */
   let wordCache = new Map<string, { hash: string | undefined; words: number }>();
-  /** Words in the book's chapters, reading only pages that changed since they were last counted. The open page is counted from the draft or the loaded doc. */
-  const countBook = async () => {
+  /**
+   * Words of each chapter in reading order (front and back matter excluded), reading only pages that changed since they were last
+   * counted. The open page is counted from the draft or the loaded doc. With `before`, stops at that entry (its own words and the
+   * ones after it are left out).
+   */
+  const countChapters = async (before?: string) => {
     const { root, manifest } = need();
     const currentId = get().currentId;
     const lang = langOf(manifest);
-    let total = 0;
+    const counts: number[] = [];
     for (const c of readingOrder(manifest)) {
+      if (c.id === before) break;
       if (sectionOf(manifest, c.id) !== "chapter") continue;
       if (c.id === currentId) {
         const open = get().draft ?? get().currentDoc;
         if (open) {
-          total += countWords(open);
+          counts.push(countWords(open));
           continue;
         }
       }
@@ -240,17 +245,19 @@ export function createContext(set: Set, get: Get) {
       const hash = get().hashes[file];
       const hit = wordCache.get(file);
       if (hit && hit.hash === hash) {
-        total += hit.words;
+        counts.push(hit.words);
         continue;
       }
       const r = await bridge.readFile(root, file);
       if (!r) throw new Error(t`Missing chapter file ${file}`);
       const words = countWords(parseChapter(r.contents, file));
       wordCache.set(file, { hash, words });
-      total += words;
+      counts.push(words);
     }
-    return total;
+    return counts;
   };
+  /** Words in the book's chapters. */
+  const countBook = async () => (await countChapters()).reduce((a, b) => a + b, 0);
   /** Bytes of every image the chapters use. */
   const loadAssets = async (chapters: { doc: ChapterDoc }[]) => {
     const { root } = need();
@@ -307,6 +314,7 @@ export function createContext(set: Set, get: Get) {
     loadChaptersIn,
     loadExportPages,
     countBook,
+    countChapters,
     loadAssets,
     loadCover,
     resetWordCache,

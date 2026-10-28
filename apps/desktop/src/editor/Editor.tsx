@@ -16,6 +16,9 @@ import { ensureFontLoaded } from "../lib/loadFont";
 import { dirFor } from "../i18n/locales";
 import { Toolbar } from "./Toolbar";
 import { Search } from "./search/plugin";
+import { Pagination } from "./pagination/plugin";
+import { PageFrame } from "./PageFrame";
+import { usePageView } from "../app/hooks/usePageView";
 import { FindBar } from "./FindBar";
 import { prefillQuery } from "../lib/search/findHelpers";
 import { useFind } from "./findStore";
@@ -88,7 +91,7 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
     setPending({ text, converted, from, to });
   };
   const editor = useEditor({
-    extensions: reading ? extensions : [...extensions, Search],
+    extensions: reading ? extensions : [...extensions, Search, Pagination],
     editorProps: {
       attributes: { lang: language, dir: dirFor(language), "aria-label": t`Page text` },
       // Only text/plain that looks like HTML is handled here; a real HTML clipboard keeps ProseMirror's own path.
@@ -147,6 +150,7 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
     },
   });
   const { manuscriptFont, writingWidth } = useSettings();
+  const pageView = usePageView();
   // A downloaded or imported family is registered from its bytes; if that fails the default serif behind it in the stack is used.
   useEffect(() => {
     if (manuscriptFont !== "newsreader" && manuscriptFont !== "inter")
@@ -319,16 +323,22 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
           </div>
         </div>
       </Modal>
-      <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first">
-        <div className="mx-auto md:p-8" style={{ maxWidth: writingWidths[writingWidth] }}>
-          <div
-            className="prose-manuscript p-4 md:rounded-md md:border md:border-border md:bg-paper md:px-14 md:py-12"
-            style={{ fontFamily: editorFontStack(manuscriptFont) }}
-          >
-            <EditorContent editor={editor} />
+      {pageView.on ? (
+        <PageFrame editor={editor} manuscriptFont={manuscriptFont}>
+          <EditorContent editor={editor} />
+        </PageFrame>
+      ) : (
+        <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first">
+          <div className="mx-auto md:p-8" style={{ maxWidth: writingWidths[writingWidth] }}>
+            <div
+              className="prose-manuscript p-4 md:rounded-md md:border md:border-border md:bg-paper md:px-14 md:py-12"
+              style={{ fontFamily: editorFontStack(manuscriptFont) }}
+            >
+              <EditorContent editor={editor} />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

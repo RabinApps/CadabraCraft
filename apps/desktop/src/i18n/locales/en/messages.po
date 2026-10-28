@@ -188,7 +188,7 @@ msgstr "{0} was removed, but its file could not be moved to the trash: {1}"
 msgid "{0} was updated from outside the app"
 msgstr "{0} was updated from outside the app"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "{bookWords} in the book"
 msgstr "{bookWords} in the book"
 
@@ -249,7 +249,7 @@ msgstr "{name} is already in this book. Using the existing file."
 msgid "{page} / {pages}"
 msgstr "{page} / {pages}"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} of {sessionGoal} words this session"
 
@@ -273,11 +273,11 @@ msgstr "{untitled, plural, one {# chapter has no title} other {# chapters have n
 msgid "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
 msgstr "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr "{words, plural, one {# word on this page} other {# words on this page}}"
 
@@ -484,9 +484,9 @@ msgstr "Author"
 msgid "Back"
 msgstr "Back"
 
-#: src/app/shell/App.tsx
 #: src/app/shell/Details.tsx
 #: src/app/shell/Sidebar.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "Back matter"
 msgstr "Back matter"
 
@@ -671,9 +671,13 @@ msgstr "Chapter {0}"
 msgid "Chapter {0} · {1}"
 msgstr "Chapter {0} · {1}"
 
+#. placeholder {0}: p.chapterNo
+#. placeholder {1}: p.chapterCount
+#: src/app/shell/StatusBar.tsx
+msgid "Chapter {0} of {1}"
+msgstr "Chapter {0} of {1}"
+
 #. placeholder {0}: chapterIds.length
-#. placeholder {0}: chapters.length
-#: src/app/shell/App.tsx
 #: src/editor/ReadingFooter.tsx
 msgid "Chapter {chapterNo} of {0}"
 msgstr "Chapter {chapterNo} of {0}"
@@ -1304,6 +1308,10 @@ msgstr "Find…"
 msgid "Fit to window"
 msgstr "Fit to window"
 
+#: src/app/shell/PageZoomSelect.tsx
+msgid "Fit width"
+msgstr "Fit width"
+
 #: src/app/hooks/useAudioLabels.ts
 msgid "FLAC"
 msgstr "FLAC"
@@ -1363,9 +1371,9 @@ msgstr "Formats"
 msgid "Formatting"
 msgstr "Formatting"
 
-#: src/app/shell/App.tsx
 #: src/app/shell/Details.tsx
 #: src/app/shell/Sidebar.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "Front matter"
 msgstr "Front matter"
 
@@ -2094,6 +2102,14 @@ msgstr "Other"
 msgid "Packing the audiobook…"
 msgstr "Packing the audiobook…"
 
+#: src/app/shell/PageEstimate.tsx
+msgid "Page {current} of ≈ {count}"
+msgstr "Page {current} of ≈ {count}"
+
+#: src/editor/PageFrame.tsx
+msgid "Page breaks are approximate: the PDF is the reference."
+msgstr "Page breaks are approximate: the PDF is the reference."
+
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
 msgstr "Page setup"
@@ -2106,9 +2122,25 @@ msgstr "Page text"
 msgid "Page title"
 msgstr "Page title"
 
+#: src/app/shell/AppHeader.tsx
+msgid "Page view"
+msgstr "Page view"
+
+#: src/app/shell/menuModel.ts
+msgid "Page View"
+msgstr "Page View"
+
+#: src/editor/PageFrame.tsx
+msgid "Page view · {size} · approximate"
+msgstr "Page view · {size} · approximate"
+
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
 msgstr "Page width"
+
+#: src/app/shell/PageZoomSelect.tsx
+msgid "Page zoom"
+msgstr "Page zoom"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Pages"
@@ -2543,7 +2575,7 @@ msgstr "Selected chapters"
 msgid "Services"
 msgstr "Services"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "Session goal"
 msgstr "Session goal"
 
@@ -2756,6 +2788,10 @@ msgstr "Template default ({templateBody})"
 msgid "Templates"
 msgstr "Templates"
 
+#: src/editor/PageFrame.tsx
+msgid "Text is set in {family}, the font the PDF uses for this template."
+msgstr "Text is set in {family}, the font the PDF uses for this template."
+
 #: src/editor/ReadingSettings.tsx
 msgid "Text size"
 msgstr "Text size"
@@ -2882,6 +2918,10 @@ msgstr "The page size of the print PDF. Changing it reflows the book and changes
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
 msgstr "The selection is too large to convert"
+
+#: src/editor/PageFrame.tsx
+msgid "The template's print font is not installed here, so your manuscript font is used."
+msgstr "The template's print font is not installed here, so your manuscript font is used."
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."

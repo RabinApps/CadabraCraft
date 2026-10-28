@@ -187,7 +187,7 @@ msgstr ""
 msgid "{0} was updated from outside the app"
 msgstr ""
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "{bookWords} in the book"
 msgstr ""
 
@@ -248,7 +248,7 @@ msgstr ""
 msgid "{page} / {pages}"
 msgstr ""
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr ""
 
@@ -272,11 +272,11 @@ msgstr ""
 msgid "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
 msgstr ""
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
 msgstr ""
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr ""
 
@@ -483,9 +483,9 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: src/app/shell/App.tsx
 #: src/app/shell/Details.tsx
 #: src/app/shell/Sidebar.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "Back matter"
 msgstr ""
 
@@ -670,9 +670,13 @@ msgstr ""
 msgid "Chapter {0} · {1}"
 msgstr ""
 
+#. placeholder {0}: p.chapterNo
+#. placeholder {1}: p.chapterCount
+#: src/app/shell/StatusBar.tsx
+msgid "Chapter {0} of {1}"
+msgstr ""
+
 #. placeholder {0}: chapterIds.length
-#. placeholder {0}: chapters.length
-#: src/app/shell/App.tsx
 #: src/editor/ReadingFooter.tsx
 msgid "Chapter {chapterNo} of {0}"
 msgstr ""
@@ -1303,6 +1307,10 @@ msgstr ""
 msgid "Fit to window"
 msgstr ""
 
+#: src/app/shell/PageZoomSelect.tsx
+msgid "Fit width"
+msgstr ""
+
 #: src/app/hooks/useAudioLabels.ts
 msgid "FLAC"
 msgstr ""
@@ -1362,9 +1370,9 @@ msgstr ""
 msgid "Formatting"
 msgstr ""
 
-#: src/app/shell/App.tsx
 #: src/app/shell/Details.tsx
 #: src/app/shell/Sidebar.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "Front matter"
 msgstr ""
 
@@ -2093,6 +2101,14 @@ msgstr ""
 msgid "Packing the audiobook…"
 msgstr ""
 
+#: src/app/shell/PageEstimate.tsx
+msgid "Page {current} of ≈ {count}"
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "Page breaks are approximate: the PDF is the reference."
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
 msgstr ""
@@ -2105,8 +2121,24 @@ msgstr ""
 msgid "Page title"
 msgstr ""
 
+#: src/app/shell/AppHeader.tsx
+msgid "Page view"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Page View"
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "Page view · {size} · approximate"
+msgstr ""
+
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
+msgstr ""
+
+#: src/app/shell/PageZoomSelect.tsx
+msgid "Page zoom"
 msgstr ""
 
 #: src/app/export/PrintPreview.tsx
@@ -2542,7 +2574,7 @@ msgstr ""
 msgid "Services"
 msgstr ""
 
-#: src/app/shell/App.tsx
+#: src/app/shell/StatusBar.tsx
 msgid "Session goal"
 msgstr ""
 
@@ -2755,6 +2787,10 @@ msgstr ""
 msgid "Templates"
 msgstr ""
 
+#: src/editor/PageFrame.tsx
+msgid "Text is set in {family}, the font the PDF uses for this template."
+msgstr ""
+
 #: src/editor/ReadingSettings.tsx
 msgid "Text size"
 msgstr ""
@@ -2880,6 +2916,10 @@ msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "The template's print font is not installed here, so your manuscript font is used."
 msgstr ""
 
 #: src/editor/Editor.tsx

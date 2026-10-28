@@ -65,6 +65,15 @@ export const cleanAudioFormats = (v: unknown): AudioFormat[] => {
 export const cleanAudioVoice = (v: unknown): string =>
   typeof v === "string" && v.length <= 64 ? v : "";
 
+/** Page view zoom: "fit" fills the pane width; the numbers are fixed scales. */
+export type PageZoom = "fit" | 0.75 | 1 | 1.25;
+export const PAGE_ZOOM_CHOICES: readonly PageZoom[] = ["fit", 0.75, 1, 1.25];
+/** A stored Page view zoom, or "fit" when it is missing or not one of the offered values. */
+export const cleanPageZoom = (v: unknown): PageZoom =>
+  PAGE_ZOOM_CHOICES.includes(v as PageZoom) ? (v as PageZoom) : "fit";
+/** Page view is on only for a stored `true`. */
+export const cleanPageView = (v: unknown): boolean => v === true;
+
 interface Prefs {
   /** Voice id preselected in the audiobook export; "" picks the first installed. */ audioVoice: string;
   /** Formats preselected in the audiobook export. */ audioFormats: AudioFormat[];
@@ -74,6 +83,8 @@ interface Prefs {
   /** Words to write per session; 0 turns the goal off. */ sessionGoal: number;
   /** What pasting text that contains HTML tags does. */ rawHtmlPaste: RawHtmlPaste;
   /** Snapshots kept per page. */ snapshotKeep: number;
+  /** Show the manuscript as real pages (Write mode, md+ width only). */ pageView: boolean;
+  /** Zoom of the pages in Page view. */ pageZoom: PageZoom;
 }
 const defaults: Prefs = {
   manuscriptFont: "newsreader",
@@ -84,6 +95,8 @@ const defaults: Prefs = {
   snapshotKeep: SNAPSHOT_KEEP_DEFAULT,
   audioVoice: "",
   audioFormats: ["opus"],
+  pageView: false,
+  pageZoom: "fit",
 };
 
 /** A whole number in 0..MAX_SESSION_GOAL; anything else becomes 0 (off). */
@@ -109,6 +122,8 @@ function parsePrefs(v: unknown): Prefs | null {
       snapshotKeep: cleanSnapshotKeep(o.snapshotKeep),
       audioVoice: cleanAudioVoice(o.audioVoice),
       audioFormats: cleanAudioFormats(o.audioFormats),
+      pageView: cleanPageView(o.pageView),
+      pageZoom: cleanPageZoom(o.pageZoom),
     };
   }
   return null;
@@ -128,5 +143,7 @@ export const useSettings = createPersistedStore<Prefs>({
     snapshotKeep: cleanSnapshotKeep(p.snapshotKeep),
     audioVoice: cleanAudioVoice(p.audioVoice),
     audioFormats: cleanAudioFormats(p.audioFormats),
+    pageView: cleanPageView(p.pageView),
+    pageZoom: cleanPageZoom(p.pageZoom),
   }),
 });

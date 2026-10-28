@@ -161,3 +161,16 @@ describe("bookWords is incremental", () => {
     expect(ms).toBeLessThan(2000);
   });
 });
+
+describe("chapterWordsBefore", () => {
+  it("is the words of each chapter before the entry, from the same cache as the book count", async () => {
+    const ids = s().manifest!.chapters.map((c) => c.id);
+    expect(await a().chapterWordsBefore(ids[0]!)).toEqual([]);
+    const before = await a().chapterWordsBefore(ids[3]!);
+    expect(before).toEqual(BOOK.slice(0, 3).map((d) => countWords(d)));
+    // Counting the whole book afterwards reads only what the first call did not.
+    reads.length = 0;
+    expect(await a().bookWords()).toBe(BOOK_WORDS);
+    expect(chapterReads()).toHaveLength(37);
+  });
+});

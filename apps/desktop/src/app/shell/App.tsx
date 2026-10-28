@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
-import { plural } from "@lingui/core/macro";
 import {
   readingOrder,
   sectionOf,
@@ -14,7 +13,7 @@ import { Editor } from "../../editor/Editor";
 import { ReadingFooter } from "../../editor/ReadingFooter";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
-import { PageEstimate } from "./PageEstimate";
+import { StatusBar } from "./StatusBar";
 import { Button, IconButton } from "../../ui/Button";
 import { overlayClass, panelClass } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
@@ -49,7 +48,7 @@ import { useSessionWords } from "../hooks/useSessionWords";
 import { useSettings } from "../../state/editorPrefs";
 import { LG_QUERY } from "./breakpoints";
 import { Notice } from "../../ui/Notice";
-import { ProgressBar } from "../../ui/ProgressBar";
+import { useViewMode } from "../../state/viewMode";
 
 /** Full-page views. "book" is the editor (or Home when no project is open). */
 /** `fonts` is Settings scrolled to Fonts (from the "font missing" notice in the export dialog). */
@@ -74,7 +73,7 @@ export function App() {
     if (root && title !== undefined) addRecent(root, title);
   }, [root, title, addRecent]);
   const [drawer, setDrawer] = useState(false);
-  const [mode, setMode] = useState<"write" | "read">("write");
+  const { mode, setMode } = useViewMode();
   const [view, setView] = useState<View>("book");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
@@ -276,41 +275,16 @@ export function App() {
               onSelect={(id) => attempt(actions.selectChapter(id))}
             />
           ) : (
-            <footer
-              className={cx(
-                "hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex",
-                focus && "md:hidden",
-              )}
-            >
-              {sessionGoal > 0 && sessionWritten !== null && (
-                <span className="flex items-center gap-2" data-testid="session-goal">
-                  <ProgressBar
-                    label={t`Session goal`}
-                    value={Math.min(sessionWritten, sessionGoal)}
-                    max={sessionGoal}
-                    className="h-1.5 w-24 bg-border"
-                  />
-                  {t`${sessionWritten} of ${sessionGoal} words this session`}
-                </span>
-              )}
-              <span>
-                {section === "chapter"
-                  ? plural(words, {
-                      one: "# word in this chapter",
-                      other: "# words in this chapter",
-                    })
-                  : plural(words, { one: "# word on this page", other: "# words on this page" })}
-                {bookWords !== null && ` · ${t`${bookWords} in the book`}`}
-                <PageEstimate words={bookWords} />
-              </span>
-              <span>
-                {section === "front"
-                  ? t`Front matter`
-                  : section === "back"
-                    ? t`Back matter`
-                    : t`Chapter ${chapterNo} of ${chapters.length}`}
-              </span>
-            </footer>
+            <StatusBar
+              words={words}
+              bookWords={bookWords}
+              section={section}
+              chapterNo={chapterNo}
+              chapterCount={chapters.length}
+              sessionWritten={sessionWritten}
+              sessionGoal={sessionGoal}
+              focus={focus}
+            />
           )}
         </main>
         {!focus && !reader && (details || references) && (

@@ -3,7 +3,12 @@
  * Vitest covers pure TypeScript; Playwright (instrumented, `pnpm test:e2e:coverage`) covers everything that needs a DOM.
  * Paths are relative to apps/desktop.
  */
-const E2E_TS = [/\/use[A-Z][^/]*\.ts$/, /^src\/editor\/findHooks\.ts$/];
+const E2E_TS = [
+  /\/use[A-Z][^/]*\.ts$/,
+  /^src\/editor\/findHooks\.ts$/,
+  // Page view pagination: the part that reads layout from the editor's DOM and the plugin that schedules it.
+  /^src\/editor\/pagination\/(dom|plugin)\.ts$/,
+];
 
 /** True when the file is measured by the Playwright run (React components, hooks, the entry point). */
 export const isE2eScope = (path: string): boolean =>

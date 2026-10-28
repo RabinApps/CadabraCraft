@@ -1,0 +1,172 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { Schema } from "@tiptap/pm/model";
+import type { Decoration } from "@tiptap/pm/view";
+import { buildDecorations, gapSpecs } from "../decorations";
+import { layoutPages, type FlowBlock } from "../core";
+
+const schema = new Schema({
+  nodes: {
+    doc: { content: "block+" },
+    paragraph: { group: "block", content: "text*", toDOM: () => ["p", 0] },
+    text: { group: "inline" },
+  },
+});
+const p = (len: number) => schema.node("paragraph", null, [schema.text("x".repeat(len))]);
+
+const LH = 20;
+const block = (top: number, lines: number): FlowBlock => ({
+  kind: "paragraph",
+  top,
+  height: lines * LH,
+  lines,
+  lineHeight: LH,
+  marginTop: 0,
+  marginBottom: 0,
+});
+const layoutOf = (counts: number[], firstPage: number) => {
+  let top = 0;
+  const blocks = counts.map((n) => {
+    const b = block(top, n);
+    top += n * LH;
+    return b;
+  });
+  return layoutPages({
+    blocks,
+    page: { h: 400 },
+    margins: { top: 40, bottom: 40 },
+    textHeight: 320,
+    gap: 24,
+    firstPage,
+    startsOn: "any",
+    opensChapter: false,
+  });
+};
+const classes = (decos: Decoration[]) =>
+  decos.map((d) => ({
+    from: d.from,
+    to: d.to,
+    cls: (d as unknown as { type: { attrs?: { class?: string } } }).type.attrs?.class,
+  }));
+
+const isGap = (spec: { pvGap?: unknown }) => spec.pvGap !== undefined;
+
+describe("buildDecorations", () => {
+  // Blocks of 15 and 3 lines: the second moves to page 2; 30 lines: the paragraph splits at line 16.
+  it("puts a block-level gap at the start of the block a page starts in", () => {
+    const doc = schema.node("doc", null, [p(10), p(20)]);
+    const layout = layoutOf([15, 3], 1);
+    const set = buildDecorations(doc, layout, 1, () => null);
+    const gaps = gapSpecs(set, doc);
+    expect(gaps).toHaveLength(1);
+    expect(gaps[0]).toMatchObject({ inline: false, index: 0, height: layout.gaps[0]!.height });
+    // block 1 starts after the 12 positions of the first paragraph (10 characters + 2 tokens)
+    expect(set.find(12, 12, isGap)).toHaveLength(1);
+  });
+
+  it("places a split's gap inside the paragraph at the resolved position, inline", () => {
+    const doc = schema.node("doc", null, [p(100)]);
+    const layout = layoutOf([30], 1);
+    const set = buildDecorations(doc, layout, 1, (b, n) => (b === 0 && n === 16 ? 50 : null));
+    const gaps = gapSpecs(set, doc);
+    expect(gaps.map((g) => g.inline)).toEqual([true]);
+    expect(set.find(50, 50, isGap)).toHaveLength(1);
+  });
+
+  it("leaves a split out when no text position was found", () => {
+    const doc = schema.node("doc", null, [p(100)]);
+    const set = buildDecorations(doc, layoutOf([30], 1), 1, () => null);
+    expect(gapSpecs(set, doc)).toEqual([]);
+  });
+
+  it("shifts whole blocks that sit on left-hand pages with a node decoration", () => {
+    const doc = schema.node("doc", null, [p(10), p(20)]);
+    // first page is page 1 (right-hand); block 1 lands on page 2 (left-hand)
+    const set = buildDecorations(doc, layoutOf([15, 3], 1), 1, () => null);
+    const shifted = classes(set.find()).filter((d) => d.cls === "pv-verso");
+    expect(shifted).toEqual([{ from: 12, to: 34, cls: "pv-verso" }]);
+    // starting on page 2 flips which block is shifted
+    const flipped = buildDecorations(doc, layoutOf([15, 3], 2), 2, () => null);
+    expect(classes(flipped.find()).filter((d) => d.cls === "pv-verso")).toEqual([
+      { from: 0, to: 12, cls: "pv-verso" },
+    ]);
+  });
+
+  it("shifts only the piece of a split paragraph that is on a left-hand page", () => {
+    const doc = schema.node("doc", null, [p(100)]);
+    const set = buildDecorations(doc, layoutOf([30], 1), 1, (b, n) =>
+      b === 0 && n === 16 ? 50 : null,
+    );
+    expect(classes(set.find()).filter((d) => d.cls === "pv-verso")).toEqual([
+      { from: 50, to: 101, cls: "pv-verso" },
+    ]);
+    // on a left-hand first page it is the first piece
+    const first = buildDecorations(doc, layoutOf([30], 2), 2, (b, n) =>
+      b === 0 && n === 16 ? 50 : null,
+    );
+    expect(classes(first.find()).filter((d) => d.cls === "pv-verso")).toEqual([
+      { from: 1, to: 50, cls: "pv-verso" },
+    ]);
+  });
+
+  it("builds the spacer element with its height and margins", () => {
+    const doc = schema.node("doc", null, [p(100)]);
+    const set = buildDecorations(doc, layoutOf([30], 1), 1, () => 50);
+    const spec = gapSpecs(set, doc)[0]!;
+    expect(spec.key).toContain("pv:0:i:");
+  });
+
+  it("draws the spacer as a hidden, non-editable element sized by the layout", () => {
+    // No DOM in Vitest: a tiny stand-in for createElement is enough to see what the element is given.
+    const made: Record<string, unknown>[] = [];
+    vi.stubGlobal("document", {
+      createElement: (tag: string) => {
+        const el = {
+          tag,
+          className: "",
+          contentEditable: "",
+          dataset: {} as Record<string, string>,
+          attrs: {} as Record<string, string>,
+          style: {} as Record<string, string>,
+          setAttribute(k: string, v: string) {
+            this.attrs[k] = v;
+          },
+        };
+        made.push(el);
+        return el;
+      },
+    });
+    const doc = schema.node("doc", null, [p(100), p(20)]);
+    const inline = buildDecorations(doc, layoutOf([30], 1), 1, () => 50);
+    const inlineEl = (
+      inline.find(50, 50, isGap)[0] as unknown as { type: { toDOM: () => unknown } }
+    ).type.toDOM() as Record<string, unknown>;
+    expect(inlineEl).toMatchObject({
+      tag: "span",
+      className: "pv-gap pv-gap-inline",
+      contentEditable: "false",
+      dataset: { gap: "0" },
+      attrs: { "aria-hidden": "true" },
+    });
+    expect((inlineEl.style as Record<string, string>).marginTop).toBeUndefined();
+    const layout = layoutOf([15, 3], 1);
+    const block = buildDecorations(doc, layout, 1, () => null);
+    const el = (
+      block.find(0, 200, isGap)[0] as unknown as { type: { toDOM: () => unknown } }
+    ).type.toDOM() as Record<string, unknown>;
+    expect(el).toMatchObject({ tag: "div", className: "pv-gap" });
+    expect((el.style as Record<string, string>).height).toBe(`${layout.gaps[0]!.height}px`);
+    // margins that cancel a neighbour's are set when there are some
+    const margins = buildDecorations(
+      doc,
+      { ...layout, gaps: [{ ...layout.gaps[0]!, marginTop: -6, marginBottom: -9 }] },
+      1,
+      () => null,
+    );
+    const m = (
+      margins.find(0, 200, isGap)[0] as unknown as { type: { toDOM: () => unknown } }
+    ).type.toDOM() as { style: Record<string, string> };
+    expect(m.style).toMatchObject({ marginTop: "-6px", marginBottom: "-9px" });
+  });
+});
+
+afterEach(() => vi.unstubAllGlobals());

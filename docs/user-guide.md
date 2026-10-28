@@ -87,6 +87,12 @@ Replacing works on text within one paragraph at a time; a match cannot run acros
 
 Use the **Read** switch at the top to see your book the way a reader would, without the toolbar. You can change the text size, page width and theme from the reading settings button, and move between chapters with the buttons at the bottom. Reading mode is for looking, not editing; switch back to **Write** to change the text. (Find is available in Write mode only.)
 
+### Page view
+
+Turn on **Page view** (the page button in the header, or View, Page View, Cmd/Ctrl+Shift+P) to see the open chapter as pages at your book's trim size, with the template's margins, running heads (the book title on left-hand pages, the chapter title on right-hand pages, none on a chapter's first page), page numbers and a chapter opening that starts on a new page (a blank left-hand page appears first where your template starts chapters on the right). You keep typing in the same text; nothing about the pages is saved in your chapter. Choose **Fit width**, 75%, 100% or 125% in the status bar. The status bar also shows "Page 3 of ≈ 12" for the page your cursor is on.
+
+Page breaks are approximate, which is why the chip above the pages says so: the PDF is the reference, and its breaks can differ by a line or two (and a few pages in a long book). The pages are set in your template's print font when that font is on this computer; otherwise your manuscript font is used, and the chip's tooltip tells you which. Page numbers count from the word counts of the chapters before this one. Page view is for Write mode on a computer-sized window, not on a phone and not in Read mode.
+
 ## Organising your book
 
 The list on the left has three parts: front matter, chapters and back matter. Reading order is simply the order of this list.
@@ -225,6 +231,7 @@ On Windows and Linux use Ctrl where the table says Cmd.
 | Find and replace          | Cmd/Ctrl+Alt+F                            |
 | New chapter               | Cmd/Ctrl+Shift+N                          |
 | Focus mode                | Cmd/Ctrl+Shift+F                          |
+| Page view                 | Cmd/Ctrl+Shift+P                          |
 | Previous page / next page | Cmd/Ctrl+[ and Cmd/Ctrl+]                 |
 | Undo / redo typing        | the usual Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z |
 | Undo / redo book change   | Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z   |
