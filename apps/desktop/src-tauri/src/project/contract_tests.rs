@@ -1,6 +1,9 @@
 //! Runs the shared test vectors in `fixtures/contract/*.json`. The TypeScript twin is
 //! `packages/project-fs/test/contract.test.ts`; both must agree so the Rust app and the MCP server follow the same rules.
+use super::assets::{image_size, looks_like};
+use super::trash::parse_trash_name;
 use super::*;
+use std::{fs, path::Path};
 use serde_json::Value;
 
 fn vectors(name: &str) -> Value {

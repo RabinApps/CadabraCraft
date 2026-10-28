@@ -1,0 +1,301 @@
+//! Atomic file writes, bounded reads and iCloud placeholder detection.
+use super::paths::resolve;
+use super::{io_error, ProjectError, Result};
+use sha2::{Digest, Sha256};
+use std::fs;
+use std::io::{Read, Write};
+use std::path::Path;
+
+pub fn hash_bytes(b: &[u8]) -> String {
+    Sha256::digest(b).iter().map(|x| format!("{x:02x}")).collect()
+}
+
+/// Write to a uniquely named temp file in the same directory, then rename, so a crash or sync never leaves a half-written
+/// file. The temp file is removed if anything fails, and concurrent writers never share a temp name.
+///
+/// Failures are typed (`permission_denied`, `disk_full`, `not_a_file` for a folder where the file should go or a file
+/// where a folder should be) and name only the file, never an absolute path.
+pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<()> {
+    retry_transient(|| atomic_write_once(path, bytes))
+}
+
+/// Windows refuses to replace a file that another handle has open or is replacing at that moment (antivirus and
+/// indexers do this too), reporting `PermissionDenied`, or `NotFound` while the other rename is in flight. Those are
+/// transient, so retry a bounded number of times with a short growing pause; a real denial (read-only folder) still
+/// fails, after about a second. Other platforms make a single attempt.
+pub(crate) fn retry_transient<T>(mut attempt: impl FnMut() -> Result<T>) -> Result<T> {
+    #[cfg(windows)]
+    {
+        let mut pause_ms = 2u64;
+        for _ in 0..24 {
+            match attempt() {
+                Err(ProjectError::PermissionDenied { .. } | ProjectError::NotFound { .. }) => {
+                    std::thread::sleep(std::time::Duration::from_millis(pause_ms));
+                    pause_ms = (pause_ms * 2).min(50);
+                }
+                done => return done,
+            }
+        }
+    }
+    attempt()
+}
+
+fn atomic_write_once(path: &Path, bytes: &[u8]) -> Result<()> {
+    let dir = path.parent().ok_or(ProjectError::InvalidFileName)?;
+    let label = path.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
+    let io = |e: std::io::Error| io_error(e, label);
+    // A folder in the way: rename-over-directory fails with an OS-specific error, so say it plainly (and early).
+    if fs::symlink_metadata(path).map(|m| m.is_dir()).unwrap_or(false) {
+        return Err(ProjectError::NotAFile { path: label.to_string() });
+    }
+    // An existing *file* where a folder is needed (`exports` is a file) reports `AlreadyExists` on some platforms.
+    fs::create_dir_all(dir).map_err(|e| match e.kind() {
+        std::io::ErrorKind::AlreadyExists => ProjectError::NotAFile { path: dir.file_name().and_then(|n| n.to_str()).unwrap_or(label).to_string() },
+        _ => io(e),
+    })?;
+    // `.<random>.tmp`: dot-prefixed and `.tmp`-suffixed, which the file watcher ignores.
+    let mut tmp = tempfile::Builder::new().prefix(".").suffix(".tmp").tempfile_in(dir).map_err(io)?;
+    tmp.write_all(bytes).map_err(io)?;
+    tmp.as_file().sync_all().map_err(io)?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        // tempfile creates 0600; keep the existing file's mode, or the usual 0644 for a new one.
+        let mode = fs::metadata(path).map(|m| m.permissions().mode() & 0o7777).unwrap_or(0o644);
+        fs::set_permissions(tmp.path(), fs::Permissions::from_mode(mode)).map_err(io)?;
+    }
+    tmp.persist(path).map_err(|e| io(e.error))?; // on failure `e.file` drops and deletes the temp file
+    Ok(())
+}
+
+/// True when `path` is an iCloud placeholder that has not been downloaded: the real name is missing and macOS left
+/// `.<name>.icloud` beside it.
+pub(crate) fn icloud_pending(path: &Path) -> bool {
+    path.file_name().and_then(|n| n.to_str()).is_some_and(|name| path.with_file_name(format!(".{name}.icloud")).exists())
+}
+
+/// An IO failure while opening something that may be missing: a placeholder, a plain absence, or any other typed error.
+pub(crate) fn open_error(e: std::io::Error, path: &Path, label: &str) -> ProjectError {
+    use std::io::ErrorKind::{NotADirectory, NotFound};
+    if matches!(e.kind(), NotFound | NotADirectory) {
+        return if icloud_pending(path) { ProjectError::IcloudPending { path: label.to_string() } } else { ProjectError::NotFound { path: label.to_string() } };
+    }
+    io_error(e, label)
+}
+
+/// Reads a regular file of at most `cap` bytes. A folder, fifo or device is `not_a_file` without being opened (a fifo
+/// would block forever); the size is checked on the opened handle too, and the read itself is capped at `cap + 1`, so a
+/// file that grows while it is read can never use unbounded memory. Links are followed (the user picked the link).
+pub(crate) fn read_regular(path: &Path, cap: u64, label: &str, too_large: impl Fn() -> ProjectError) -> Result<Vec<u8>> {
+    let not_file = || ProjectError::NotAFile { path: label.to_string() };
+    let meta = fs::metadata(path).map_err(|e| open_error(e, path, label))?;
+    if !meta.is_file() {
+        return Err(not_file());
+    }
+    if meta.len() > cap {
+        return Err(too_large());
+    }
+    let mut file = fs::File::open(path).map_err(|e| open_error(e, path, label))?;
+    let meta = file.metadata().map_err(|e| io_error(e, label))?;
+    if !meta.is_file() {
+        return Err(not_file());
+    }
+    if meta.len() > cap {
+        return Err(too_large());
+    }
+    let mut bytes = Vec::with_capacity(meta.len() as usize);
+    (&mut file).take(cap + 1).read_to_end(&mut bytes).map_err(|e| io_error(e, label))?;
+    if bytes.len() as u64 > cap {
+        return Err(too_large());
+    }
+    Ok(bytes)
+}
+
+pub(crate) fn stamp() -> String {
+    chrono::Utc::now().format("%Y%m%d-%H%M").to_string()
+}
+
+/// Writes binary output (EPUB, PDF, Markdown) under `exports/` of the project, atomically. Only `exports/<name>` is
+/// accepted: the webview has no reason to rewrite the manifest or chapters as raw bytes, which would skip their backups.
+pub fn write_bytes(root: &Path, rel: &str, bytes: &[u8]) -> Result<()> {
+    // `resolve` looks at the target too, so a concurrent replace can fail it transiently on Windows; see `retry_transient`.
+    retry_transient(|| {
+        let target = resolve(root, rel)?;
+        if !rel.starts_with("exports/") || rel.ends_with('/') {
+            return Err(ProjectError::UnsafePath { path: rel.to_string() });
+        }
+        atomic_write_once(&target, bytes)
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::project::*;
+    use std::path::Path;
+
+    fn tmp() -> tempfile::TempDir {
+        tempfile::tempdir().unwrap()
+    }
+
+    #[test]
+    fn atomic_write_replaces_and_leaves_no_temp() {
+        let d = tmp();
+        let p = d.path().join("a.json");
+        atomic_write(&p, b"one").unwrap();
+        atomic_write(&p, b"two").unwrap();
+        assert_eq!(fs::read(&p).unwrap(), b"two");
+        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn atomic_write_uses_unique_temp_names_and_never_touches_foreign_temp_files() {
+        let d = tmp();
+        let p = d.path().join("a.json");
+        fs::write(d.path().join(".a.json.tmp"), "someone else's").unwrap();
+        atomic_write(&p, b"mine").unwrap();
+        assert_eq!(fs::read(&p).unwrap(), b"mine");
+        assert_eq!(fs::read_to_string(d.path().join(".a.json.tmp")).unwrap(), "someone else's");
+    }
+
+    #[test]
+    fn atomic_write_cleans_up_its_temp_file_on_failure() {
+        let d = tmp();
+        let target = d.path().join("taken");
+        fs::create_dir(&target).unwrap(); // renaming a file over a directory fails
+        assert!(atomic_write(&target, b"x").is_err());
+        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 1, "only the directory is left");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn atomic_write_keeps_the_mode_of_an_existing_file_and_defaults_to_0644() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        let p = d.path().join("a.json");
+        atomic_write(&p, b"1").unwrap();
+        assert_eq!(fs::metadata(&p).unwrap().permissions().mode() & 0o777, 0o644);
+        fs::set_permissions(&p, fs::Permissions::from_mode(0o600)).unwrap();
+        atomic_write(&p, b"2").unwrap();
+        assert_eq!(fs::metadata(&p).unwrap().permissions().mode() & 0o777, 0o600);
+    }
+
+    fn no_temp_files(dir: &Path) {
+        let left: Vec<_> = fs::read_dir(dir).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).filter(|n| n.ends_with(".tmp")).collect();
+        assert!(left.is_empty(), "leftover temp files in {}: {left:?}", dir.display());
+    }
+
+    #[test]
+    fn write_bytes_only_writes_under_exports() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("exports")).unwrap();
+        for bad in [MANIFEST, "manuscript/ch1.json", "assets/a.png", "exports", "exports/", ".cadabra/x", "exportsx/a.pdf", "exports/../cadabra.json"] {
+            assert!(matches!(write_bytes(d.path(), bad, b"x"), Err(ProjectError::UnsafePath { .. })), "{bad}");
+        }
+        assert!(!d.path().join(MANIFEST).exists());
+        write_bytes(d.path(), "exports/book.epub", b"ok").unwrap();
+        write_bytes(d.path(), "exports/sub/book.pdf", b"ok").unwrap();
+        assert_eq!(fs::read(d.path().join("exports/sub/book.pdf")).unwrap(), b"ok");
+    }
+
+    #[test]
+    fn write_bytes_replaces_an_existing_export_and_keeps_no_temp() {
+        let d = tmp();
+        write_bytes(d.path(), "exports/book.pdf", b"first").unwrap();
+        write_bytes(d.path(), "exports/book.pdf", b"second, longer").unwrap();
+        write_bytes(d.path(), "exports/book.pdf", b"").unwrap(); // an empty file is a valid write
+        assert_eq!(fs::read(d.path().join("exports/book.pdf")).unwrap(), b"");
+        no_temp_files(&d.path().join("exports"));
+    }
+
+    #[test]
+    fn write_bytes_onto_a_directory_is_not_a_file_and_leaves_nothing_behind() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("exports/book.epub")).unwrap();
+        fs::write(d.path().join("exports/book.epub/keep.txt"), "x").unwrap();
+        assert_eq!(write_bytes(d.path(), "exports/book.epub", b"x").unwrap_err(), ProjectError::NotAFile { path: "book.epub".into() });
+        assert!(d.path().join("exports/book.epub/keep.txt").exists());
+        no_temp_files(&d.path().join("exports"));
+    }
+
+    #[test]
+    fn write_bytes_when_exports_is_a_file_is_not_a_file() {
+        let d = tmp();
+        fs::write(d.path().join("exports"), "i am a file").unwrap();
+        assert_eq!(write_bytes(d.path(), "exports/book.epub", b"x").unwrap_err(), ProjectError::NotAFile { path: "exports".into() });
+        assert_eq!(fs::read_to_string(d.path().join("exports")).unwrap(), "i am a file");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn write_bytes_into_a_read_only_folder_is_permission_denied_and_leaves_nothing() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        let exports = d.path().join("exports");
+        fs::create_dir_all(&exports).unwrap();
+        fs::set_permissions(&exports, fs::Permissions::from_mode(0o555)).unwrap();
+        let probe = fs::File::create(exports.join("probe"));
+        let result = write_bytes(d.path(), "exports/book.epub", b"x");
+        fs::set_permissions(&exports, fs::Permissions::from_mode(0o755)).unwrap();
+        if probe.is_ok() {
+            return; // running as root: permissions do not apply
+        }
+        assert_eq!(result.unwrap_err(), ProjectError::PermissionDenied { path: "book.epub".into() });
+        assert!(!exports.join("book.epub").exists());
+        no_temp_files(&exports);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn write_bytes_over_a_read_only_existing_file_replaces_it_and_keeps_its_mode() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        write_bytes(d.path(), "exports/book.pdf", b"old").unwrap();
+        fs::set_permissions(d.path().join("exports/book.pdf"), fs::Permissions::from_mode(0o444)).unwrap();
+        write_bytes(d.path(), "exports/book.pdf", b"new").unwrap();
+        assert_eq!(fs::read(d.path().join("exports/book.pdf")).unwrap(), b"new");
+        assert_eq!(fs::metadata(d.path().join("exports/book.pdf")).unwrap().permissions().mode() & 0o777, 0o444);
+        no_temp_files(&d.path().join("exports"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn write_bytes_never_follows_a_link_out_of_exports() {
+        let d = tmp();
+        let (proj, outside) = (d.path().join("p"), d.path().join("outside"));
+        fs::create_dir_all(proj.join("exports")).unwrap();
+        fs::create_dir_all(&outside).unwrap();
+        std::os::unix::fs::symlink(outside.join("victim.pdf"), proj.join("exports/book.pdf")).unwrap(); // dangling
+        fs::write(outside.join("real.pdf"), "keep").unwrap();
+        std::os::unix::fs::symlink(outside.join("real.pdf"), proj.join("exports/book.epub")).unwrap();
+        assert!(matches!(write_bytes(&proj, "exports/book.pdf", b"x"), Err(ProjectError::PathEscape { .. })));
+        assert!(matches!(write_bytes(&proj, "exports/book.epub", b"x"), Err(ProjectError::PathEscape { .. })));
+        assert!(!outside.join("victim.pdf").exists());
+        assert_eq!(fs::read_to_string(outside.join("real.pdf")).unwrap(), "keep");
+    }
+
+    #[test]
+    fn concurrent_writes_to_one_export_never_mix_or_leave_temp_files() {
+        let d = tmp();
+        let root = d.path().to_path_buf();
+        let payloads: Vec<Vec<u8>> = (0u8..8).map(|i| vec![i; 64 * 1024 + usize::from(i) * 977]).collect();
+        let handles: Vec<_> = payloads
+            .iter()
+            .cloned()
+            .map(|p| {
+                let root = root.clone();
+                std::thread::spawn(move || {
+                    for _ in 0..15 {
+                        write_bytes(&root, "exports/book.epub", &p).unwrap();
+                    }
+                })
+            })
+            .collect();
+        for h in handles {
+            h.join().unwrap();
+        }
+        let got = fs::read(root.join("exports/book.epub")).unwrap();
+        assert!(payloads.contains(&got), "the file must be exactly one writer's bytes, not a mix");
+        no_temp_files(&root.join("exports"));
+    }
+}
