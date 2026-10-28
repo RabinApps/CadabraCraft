@@ -44,17 +44,7 @@ A book is a plain folder you choose: one file per chapter, your images, and a `c
 - **Export:** EPUB 3 (passes EPUBCheck), print PDF through Typst (trim sizes, templates, PDF/A, cover, footnotes), Markdown, and Word (`.docx`) in standard manuscript format for agents and editors.
 - **Templates and settings:** novel, nonfiction and modern templates, an approximate print preview, and a Settings page.
 - **Book details:** title, author, language, ISBN, identifier and cover image.
-- **Headless MCP server:** create, edit, import and export books (EPUB, PDF, Markdown) from an AI agent or script. See [docs/mcp.md](docs/mcp.md).
-
-## Status
-
-| Milestone | Scope                                             | State                                                                                                         |
-| --------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| M0        | Spike: stack, chapter pipeline, PDF engine        | Done                                                                                                          |
-| M1        | File format and editor                            | Done (native WebDriver suite written, not yet run on Linux or Windows CI)                                     |
-| M2        | Templates, Settings, Export dialog, print preview | Built                                                                                                         |
-| M3        | Book details, cover, sponsor dialog               | Done (real-client sync checklist is manual and not yet run, see [docs/sync-testing.md](docs/sync-testing.md)) |
-| M4        | `.docx` import wizard                             | Done                                                                                                          |
+- **Headless MCP server:** create, edit, import and export books (EPUB, PDF, Markdown) from an AI agent or script. See [docs/mcp.md](docs/mcp.md). |
 
 Ideas outside the current milestone live in [docs/roadmap.md](docs/roadmap.md).
 
