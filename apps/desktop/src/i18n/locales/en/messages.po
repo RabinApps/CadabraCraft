@@ -19,15 +19,23 @@ msgstr "“{page}” uses a text style the EPUB export cannot write: {kind} (at 
 msgid "“{page}”: {detail}"
 msgstr "“{page}”: {detail}"
 
+#. placeholder {0}: r.stats.chapters
+#. placeholder {1}: r.stats.words
+#: src/app/home/Dashboard.tsx
+msgid "{0, plural, one {# chapter} other {# chapters}} · {1, plural, one {# word} other {# words}}"
+msgstr "{0, plural, one {# chapter} other {# chapters}} · {1, plural, one {# word} other {# words}}"
+
 #. placeholder {0}: stuck.length
 #: src/state/project/replace.ts
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 msgstr "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 
 #. placeholder {0}: countWords(c.doc)
+#. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Dashboard.tsx
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# word} other {# words}}"
 
@@ -118,6 +126,12 @@ msgstr "{0} is still downloading from iCloud; try again in a moment"
 #: src/lib/projectError.ts
 msgid "{0} leaves the project folder through a symbolic link"
 msgstr "{0} leaves the project folder through a symbolic link"
+
+#. placeholder {0}: here.chapterNo
+#. placeholder {1}: here.chapters
+#: src/app/home/Dashboard.tsx
+msgid "{0} of {1, plural, one {# chapter} other {# chapters}}"
+msgstr "{0} of {1, plural, one {# chapter} other {# chapters}}"
 
 #. placeholder {0}: p.translated
 #. placeholder {1}: p.total
@@ -558,6 +572,12 @@ msgstr "Chapter"
 msgid "Chapter {0}"
 msgstr "Chapter {0}"
 
+#. placeholder {0}: here.chapterNo
+#. placeholder {1}: here.chapterTitle
+#: src/app/home/Dashboard.tsx
+msgid "Chapter {0} · {1}"
+msgstr "Chapter {0} · {1}"
+
 #. placeholder {0}: chapterIds.length
 #. placeholder {0}: chapters.length
 #: src/app/shell/App.tsx
@@ -700,6 +720,10 @@ msgstr "Compared with the current text"
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Comparison"
 msgstr "Comparison"
+
+#: src/app/home/Dashboard.tsx
+msgid "Continue writing"
+msgstr "Continue writing"
 
 #: src/editor/Editor.tsx
 msgid "Convert"
@@ -924,6 +948,10 @@ msgstr "Edit"
 #: src/app/shell/Details.tsx
 msgid "Edit details"
 msgstr "Edit details"
+
+#: src/app/home/Dashboard.tsx
+msgid "Edited {when}"
+msgstr "Edited {when}"
 
 #. placeholder {0}: nativeName(active)
 #: src/app/shell/EditionSwitcher.tsx
@@ -1699,6 +1727,10 @@ msgstr "Open Project…"
 msgid "Open Recent"
 msgstr "Open Recent"
 
+#: src/app/home/Dashboard.tsx
+msgid "Opened {when}"
+msgstr "Opened {when}"
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Optional. Shown below the image."
 msgstr "Optional. Shown below the image."
@@ -1767,6 +1799,10 @@ msgstr "Piper · LibriTTS (fast)"
 #: src/app/settings/AudioSection.tsx
 msgid "Piper voices: Amy and LibriTTS"
 msgstr "Piper voices: Amy and LibriTTS"
+
+#: src/app/home/Dashboard.tsx
+msgid "Place in the book"
+msgstr "Place in the book"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
@@ -1867,6 +1903,10 @@ msgid "Reading…"
 msgstr "Reading…"
 
 #: src/app/home/Home.tsx
+msgid "Recent"
+msgstr "Recent"
+
+#: src/app/home/Home.tsx
 msgid "Recent projects"
 msgstr "Recent projects"
 
@@ -1915,8 +1955,8 @@ msgstr "Reload"
 msgid "Remember my choice"
 msgstr "Remember my choice"
 
-#. placeholder {0}: r.title || r.root
-#: src/app/home/Home.tsx
+#. placeholder {0}: recent.title || recent.root
+#: src/app/home/Dashboard.tsx
 msgid "Remove {0} from recent projects"
 msgstr "Remove {0} from recent projects"
 
@@ -2160,6 +2200,10 @@ msgstr "Sponsor"
 msgid "Sponsor CadabraCraft…"
 msgstr "Sponsor CadabraCraft…"
 
+#: src/app/home/Dashboard.tsx
+msgid "Start a new book"
+msgstr "Start a new book"
+
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Start a new chapter at"
 msgstr "Start a new chapter at"
@@ -2195,6 +2239,10 @@ msgstr "Stopped. What was downloaded is kept, so the next download carries on fr
 #: src/app/export/AudioExport.tsx
 msgid "Stopping…"
 msgstr "Stopping…"
+
+#: src/app/home/Home.tsx
+msgid "Stored on this computer. No account needed."
+msgstr "Stored on this computer. No account needed."
 
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -2585,7 +2633,7 @@ msgstr "Unsaved"
 msgid "Unsupported image type: {0}"
 msgstr "Unsupported image type: {0}"
 
-#: src/app/home/Home.tsx
+#: src/app/home/Dashboard.tsx
 msgid "Untitled"
 msgstr "Untitled"
 
@@ -2739,6 +2787,10 @@ msgstr "You have {0}. Your books and settings stay as they are."
 #: src/app/export/AudioExport.tsx
 msgid "Your audiobook is ready"
 msgstr "Your audiobook is ready"
+
+#: src/app/home/Home.tsx
+msgid "Your books"
+msgstr "Your books"
 
 #: src/app/shell/quit.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."

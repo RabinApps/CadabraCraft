@@ -696,6 +696,21 @@ An M4B is one MP4 file for the whole book: AAC audio, a chapter list and the cov
 The predefined native Quit item ends the process without a window close request, so `onCloseRequested` never ran and the last two seconds of typing were lost. Quit is now an ordinary `app.quit` command (`CmdOrCtrl+Q`, registered as global so it works with a dialog open) that flushes through the same handler as the window close, then calls `window.destroy()` (already allowed in the capabilities file). If the save fails the app stays open with the notice; a second Quit leaves anyway. `updates.install` flushes before `downloadAndInstall` and before `relaunch`, and aborts on failure.
 **Rejected:** a Rust `RunEvent::ExitRequested` hook that waits for the webview (two-way handshake, hard to test), and `window.close()` (needs the extra `core:window:allow-close` permission).
 
+## Home dashboard (2026-10-28)
+
+**Decision:** the recent-projects entry in `localStorage` (`cadabracraft.recents`) also carries what the Home dashboard shows: `stats` (`author`, `chapters`, `words`, `chapterNo`, `chapterTitle`) and `editedAt`. `App.tsx` records the stats of the open book one second after typing pauses (`useRecents.setStats`), and `setStats` writes nothing when they are unchanged. `editedAt` is set when the book's word count changes, so "Edited 3 days ago" means the last time the words changed; a book opened before stats existed says "Opened ...". Covers are title blocks tinted from a hash of the folder (`accent-soft`, `success-soft`, `warn-soft`), as drawn in the pen. Like the rest of the entry this is an app preference: nothing is written to the project folder and the absolute path stays out of project files.
+
+**Why:** the dashboard has to show facts about books that are not open, and reading every recent book's manifest and chapters on launch would touch many folders (some on slow or offline sync drives) before the first paint. Recording the facts while the book is open costs one small localStorage write per pause in typing and keeps Home instant and offline.
+
+**Rejected:**
+
+| Option                                          | Why not                                                                                                                  |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Read each recent book's files when Home opens   | Slow on sync drives, fails for missing folders, and needs a Rust command that reads outside the open project.            |
+| Store the stats in the project (`cadabra.json`) | A word count would change the file on every edit and sync as a conflict; the format would need a change for a UI detail. |
+| Thumbnails or cover images on the cards         | Needs image decoding and size limits in localStorage; typographic covers match the pen and cost nothing.                 |
+| A "Last edited" sort control                    | The list is already newest first, so the control would do nothing until there is a second order to offer.                |
+
 ## Code layout and tests
 
 **Decision:** tests live in a `__tests__/` folder beside the code they test (`src/__tests__/` in every package, `app/__tests__`, `state/project/__tests__`, `lib/__tests__` and so on in the desktop app). Playwright specs stay in `apps/desktop/e2e/`, one file per topic, sharing `e2e/support/fakeTauri.ts`. Store tests share the in-memory bridge in `apps/desktop/src/test/fakeBridge.ts`. Fixtures stay in the root `fixtures/` folder.

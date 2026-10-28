@@ -2,7 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
-import { readingOrder, sectionOf, sourceEdition, entryRowsIn } from "@cadabracraft/format";
+import {
+  readingOrder,
+  sectionOf,
+  sourceEdition,
+  entryRows,
+  entryRowsIn,
+} from "@cadabracraft/format";
 import { Minimize2, Plus, X } from "lucide-react";
 import { Editor } from "../../editor/Editor";
 import { ReadingFooter } from "../../editor/ReadingFooter";
@@ -83,6 +89,23 @@ export function App() {
   useSaveOnClose();
   const words = useWordCount();
   const bookWords = useBookWordCount();
+  const setStats = useRecents((s) => s.setStats);
+  // What the Home dashboard shows about this book, refreshed shortly after typing pauses.
+  useEffect(() => {
+    if (!root || !manifest || bookWords === null) return;
+    const source = sourceEdition(manifest.editions);
+    const rows = entryRows(manifest.chapters, manifest.editions);
+    const at = rows.findIndex((r) => r.id === currentId);
+    const stats = {
+      author: source.author,
+      chapters: rows.length,
+      words: bookWords,
+      chapterNo: at + 1,
+      chapterTitle: rows[at]?.title ?? "",
+    };
+    const id = setTimeout(() => setStats(root, stats), 1000);
+    return () => clearTimeout(id);
+  }, [root, manifest, currentId, bookWords, setStats]);
   const sessionWritten = useSessionWords(root, activeLanguage, bookWords);
   const sessionGoal = useSettings((s) => s.sessionGoal);
   useEffect(() => {

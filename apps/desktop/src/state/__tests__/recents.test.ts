@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { addRecent, parseRecents, removeRecent, type Recent } from "../recents";
+import {
+  addRecent,
+  parseRecents,
+  removeRecent,
+  updateStats,
+  type BookStats,
+  type Recent,
+} from "../recents";
 
 const r = (root: string, openedAt = 1, title = root): Recent => ({ root, title, openedAt });
 
@@ -26,6 +33,47 @@ describe("recent projects list", () => {
         (x) => x.root,
       ),
     ).toEqual(["/a", "/b"]);
+  });
+});
+
+const stats = (words: number, over: Partial<BookStats> = {}): BookStats => ({
+  author: "Mara",
+  chapters: 12,
+  words,
+  chapterNo: 7,
+  chapterTitle: "The Orchard Wall",
+  ...over,
+});
+
+describe("recent book stats", () => {
+  it("keeps what is known about a book when it is opened again", () => {
+    const withStats = updateStats([r("/a")], "/a", stats(100), 9);
+    const next = addRecent(withStats, r("/a", 5, "Renamed"));
+    expect(next[0]).toMatchObject({ title: "Renamed", openedAt: 5, stats: stats(100) });
+  });
+  it("records the first stats without calling the book edited", () => {
+    const [first] = updateStats([r("/a")], "/a", stats(100), 9);
+    expect(first).toMatchObject({ stats: stats(100) });
+    expect(first?.editedAt).toBeUndefined();
+  });
+  it("marks the book edited when the word count changes, not when only the chapter does", () => {
+    const base = updateStats([r("/a")], "/a", stats(100), 9);
+    expect(updateStats(base, "/a", stats(120), 50)[0]?.editedAt).toBe(50);
+    const moved = updateStats(base, "/a", stats(100, { chapterNo: 8 }), 50);
+    expect(moved[0]).toMatchObject({ stats: stats(100, { chapterNo: 8 }) });
+    expect(moved[0]?.editedAt).toBeUndefined();
+  });
+  it("returns the same list when nothing changed or the book is not listed", () => {
+    const base = updateStats([r("/a")], "/a", stats(100), 9);
+    expect(updateStats(base, "/a", stats(100), 99)).toBe(base);
+    expect(updateStats(base, "/zzz", stats(1), 99)).toBe(base);
+  });
+  it("parses stored stats and drops malformed ones", () => {
+    const good = { ...r("/a"), editedAt: 4, stats: stats(10) };
+    const bad = { ...r("/b"), stats: { author: 1 } };
+    const parsed = parseRecents(JSON.stringify([good, bad]));
+    expect(parsed[0]).toEqual(good);
+    expect(parsed[1]).toEqual(r("/b"));
   });
 });
 
@@ -64,5 +112,13 @@ describe("useRecents store", () => {
     expect(useRecents.getState().recents).toEqual([]);
     expect(data.get("cadabracraft.recents")).toBe("[]");
     vi.restoreAllMocks();
+  });
+  it("stores new stats once and ignores repeats", async () => {
+    const { useRecents, data } = await fresh(JSON.stringify([r("/a")]));
+    useRecents.getState().setStats("/a", stats(100));
+    const first = useRecents.getState().recents;
+    expect(JSON.parse(data.get("cadabracraft.recents")!)[0].stats).toEqual(stats(100));
+    useRecents.getState().setStats("/a", stats(100));
+    expect(useRecents.getState().recents).toBe(first);
   });
 });
