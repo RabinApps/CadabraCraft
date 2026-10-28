@@ -13,7 +13,7 @@ test("templates page sets the book's template from the details panel", async ({ 
   await page.getByRole("button", { name: /^Poetry/ }).click();
   await page.getByRole("button", { name: "Use template" }).click();
   await expect(page.getByRole("navigation", { name: "Chapters" })).toBeVisible();
-  const manifest = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
+  const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   expect(manifest.template).toBe("poetry");
 });
 
@@ -33,7 +33,7 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   page,
 }) => {
   await newProject(page);
-  const manifest = () => page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
+  const manifest = () => page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   await page.getByRole("button", { name: "Book details" }).click();
   const dialog = page.getByRole("dialog", { name: "Book details" });
   await dialog.getByLabel("Title").fill("Renamed Book");

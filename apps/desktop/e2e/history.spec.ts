@@ -18,12 +18,13 @@ test("book undo and redo: sidebar buttons and shortcut, trash round trip, separa
   await expect(redo).toBeDisabled();
   const chapters = () =>
     page.evaluate(() =>
-      JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title),
+      JSON.parse(window.__disk["cadabra.json"] as string).chapters.map(
+        (c: { title: string }) => c.title,
+      ),
     );
   const trashCount = () =>
     page.evaluate(
-      () =>
-        Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")).length,
+      () => Object.keys(window.__disk).filter((k) => k.startsWith(".cadabra/trash/")).length,
     );
 
   await page.getByRole("button", { name: "Add chapter" }).click();
@@ -87,7 +88,7 @@ test("History compares an earlier version with the current text and restores it"
   await expect(dialog).toBeHidden();
   await expect(page.locator(".ProseMirror")).toContainText("Ilse walked home");
   const kept = await page.evaluate(
-    (f) => (window as any).__disk[`.cadabra/backups/20261027-2359-${f.replaceAll("/", "__")}`],
+    (f) => window.__disk[`.cadabra/backups/20261027-2359-${f.replaceAll("/", "__")}`],
     file,
   );
   expect(kept).toContain("Marta walked home");

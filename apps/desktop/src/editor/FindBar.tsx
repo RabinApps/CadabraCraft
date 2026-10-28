@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import type { Editor } from "@tiptap/react";
-import { TextSelection } from "@tiptap/pm/state";
 import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
@@ -16,99 +15,14 @@ import {
   countLabel,
   isComposing,
   resultRows,
-  type PageCounts,
   type ResultRow,
 } from "../lib/search/findHelpers";
 import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "./findStore";
-import { searchBook } from "../lib/search/bookSearch";
 import { isInvalidRegex } from "../lib/search/match";
-import { getSearchInfo, searchCommands, searchKey } from "./search/plugin";
+import { getSearchInfo, searchCommands } from "./search/plugin";
+import { revealCurrent, useBookCounts, useSearchInfo } from "./findHooks";
 
 const DEBOUNCE_MS = 100;
-
-/**
- * Matches per page for the whole book (read from disk after saving unsaved typing), while "All chapters" is on.
- * Recounted when the search or the open page's own count changes; the open page itself is counted live by the editor.
- */
-function useBookCounts(
-  on: boolean,
-  query: string,
-  matchCase: boolean,
-  wholeWord: boolean,
-  regex: boolean,
-  editorTotal: number,
-): PageCounts {
-  const readPages = useProject((s) => s.actions.readPages);
-  // A book-wide replace (or its undo) changes pages other than the open one, so it also triggers a recount.
-  const history = useProject((s) => s.history);
-  // Another book (or the same one after pages were added or removed) invalidates the counts too.
-  const root = useProject((s) => s.root);
-  const manifest = useProject((s) => s.manifest);
-  const [counts, setCounts] = useState<PageCounts>({});
-  useEffect(() => {
-    if (!on || !query) {
-      setCounts({});
-      return;
-    }
-    let live = true;
-    const id = setTimeout(() => {
-      readPages()
-        .then((pages) => {
-          if (live)
-            setCounts(
-              Object.fromEntries(
-                searchBook(pages, { query, matchCase, wholeWord, regex }).pages.map((p) => [
-                  p.id,
-                  p.count,
-                ]),
-              ),
-            );
-        })
-        .catch((e) => {
-          if (!live) return;
-          // A page that cannot be read is not silently "no results": say so (the same text is not set twice).
-          setCounts({});
-          const why = errText(e);
-          if (useProject.getState().notice !== why) useProject.setState({ notice: why });
-        });
-    }, 150);
-    return () => {
-      live = false;
-      clearTimeout(id);
-    };
-  }, [on, query, matchCase, wholeWord, regex, editorTotal, history, root, manifest, readPages]);
-  return counts;
-}
-
-/** Total and 1-based current index, kept in step with the document without re-rendering when nothing changed. */
-function useSearchInfo(editor: Editor) {
-  const [info, setInfo] = useState(() => getSearchInfo(editor));
-  useEffect(() => {
-    const update = () => {
-      const next = getSearchInfo(editor);
-      setInfo((prev) => (prev.total === next.total && prev.index === next.index ? prev : next));
-    };
-    update();
-    editor.on("transaction", update);
-    return () => {
-      editor.off("transaction", update);
-    };
-  }, [editor]);
-  return info;
-}
-
-/** Selects the current match and scrolls to it (after a replace, when no step happened). The editor does not take focus. */
-function revealCurrent(editor: Editor) {
-  const s = searchKey.getState(editor.state);
-  const m = s?.matches[s.current];
-  if (!m) return;
-  editor.view.dispatch(
-    editor.state.tr
-      .setSelection(TextSelection.create(editor.state.doc, m.from, m.to))
-      .scrollIntoView()
-      .setMeta("addToHistory", false),
-  );
-}
 
 const chip =
   "rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";

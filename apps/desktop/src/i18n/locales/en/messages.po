@@ -134,7 +134,7 @@ msgstr "{0} was updated from outside the app"
 msgid "{bookWords} in the book"
 msgstr "{bookWords} in the book"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 
@@ -155,7 +155,7 @@ msgstr "{file} is not a valid chapter, so it was not opened. The file was left u
 msgid "{file} is not valid JSON, so it was not opened. The file was left untouched."
 msgstr "{file} is not valid JSON, so it was not opened. The file was left untouched."
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgstr "{imageCount, plural, one {# image added.} other {# images added.}}"
 
@@ -163,7 +163,7 @@ msgstr "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgid "{index} of {total}"
 msgstr "{index} of {total}"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportParts.tsx
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 
@@ -407,7 +407,7 @@ msgstr "Becomes"
 msgid "Before a save replaces different text, at most once every 10 minutes per chapter."
 msgstr "Before a save replaces different text, at most once every 10 minutes per chapter."
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Best installed voice"
 msgstr "Best installed voice"
 
@@ -678,7 +678,7 @@ msgstr "Convert HTML in Selection to Styled Text"
 msgid "Convert to styled text"
 msgstr "Convert to styled text"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copied"
 msgstr "Copied"
 
@@ -686,7 +686,7 @@ msgstr "Copied"
 msgid "Copy"
 msgstr "Copy"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copy report"
 msgstr "Copy report"
 
@@ -788,15 +788,15 @@ msgstr "Dark"
 msgid "Dedication"
 msgstr "Dedication"
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Default formats"
 msgstr "Default formats"
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Default voice"
 msgstr "Default voice"
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Delete"
 msgstr "Delete"
 
@@ -812,7 +812,7 @@ msgstr "Delete Row"
 msgid "Delete Table"
 msgstr "Delete Table"
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Delete voices"
 msgstr "Delete voices"
 
@@ -833,7 +833,7 @@ msgstr "Details Panel"
 msgid "Don't show again"
 msgstr "Don't show again"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 #: src/app/export/AudioExport.tsx
 #: src/app/export/AudioFooter.tsx
 msgid "Done"
@@ -1167,11 +1167,11 @@ msgstr "Import a manuscript"
 msgid "Import Manuscript…"
 msgstr "Import Manuscript…"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import report"
 msgstr "Import report"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import warnings"
 msgstr "Import warnings"
 
@@ -1228,7 +1228,7 @@ msgid "Install now"
 msgstr "Install now"
 
 #. placeholder {0}: mb(p.bytes)
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Installed, about {0} MB on this computer."
 msgstr "Installed, about {0} MB on this computer."
 
@@ -1258,7 +1258,7 @@ msgstr "It moves to the project trash inside your book folder. Nothing is perman
 msgid "Italic"
 msgstr "Italic"
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Keep"
 msgstr "Keep"
 
@@ -1296,7 +1296,7 @@ msgid "Kokoro sounds the most natural but is slower: roughly 20 minutes of work 
 msgstr "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster."
 
 #: src/app/export/AudioExport.tsx
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Kokoro: Heart"
 msgstr "Kokoro: Heart"
 
@@ -1547,11 +1547,11 @@ msgstr "Not a page in the trash: {0}"
 msgid "Not an image in the assets folder: {0}"
 msgstr "Not an image in the assets folder: {0}"
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Not installed. Download it from the Audiobook export."
 msgstr "Not installed. Download it from the Audiobook export."
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 #: src/editor/Toolbar.tsx
 msgid "Note"
 msgstr "Note"
@@ -1560,7 +1560,8 @@ msgstr "Note"
 msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 msgstr "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportParts.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
 msgstr "Nothing was lost or changed."
 
@@ -1653,7 +1654,7 @@ msgid "Piper · LibriTTS (fast)"
 msgstr "Piper · LibriTTS (fast)"
 
 #: src/app/export/AudioExport.tsx
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "Piper voices: Amy and LibriTTS"
 msgstr "Piper voices: Amy and LibriTTS"
 
@@ -2007,11 +2008,11 @@ msgid "Some audiobook stores do not accept synthetic voices. Check their rules b
 msgstr "Some audiobook stores do not accept synthetic voices. Check their rules before you upload."
 
 #. placeholder {0}: lost.map((g) => g.code).join(", ")
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportParts.tsx
 msgid "Some content could not be kept: {0}. A full report follows the import."
 msgstr "Some content could not be kept: {0}. A full report follows the import."
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "Some content or formatting could not be kept. Review these before you continue."
 msgstr "Some content or formatting could not be kept. Review these before you continue."
 
@@ -2100,7 +2101,7 @@ msgstr "That address can't be used as a link."
 msgid "That file name is not valid"
 msgstr "That file name is not valid"
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
 msgstr "The audio formats ticked when you open the export."
 
@@ -2217,7 +2218,7 @@ msgstr "the voice engine that comes with CadabraCraft is missing. Reinstall the 
 msgid "the voice engine took longer than {0} seconds and was stopped"
 msgstr "the voice engine took longer than {0} seconds and was stopped"
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/AudioSection.tsx
 msgid "The voice the audiobook export starts with. Only installed voices can be picked."
 msgstr "The voice the audiobook export starts with. Only installed voices can be picked."
 
@@ -2247,7 +2248,7 @@ msgstr "there is not enough disk space"
 msgid "There is nothing to read aloud in this chapter."
 msgstr "There is nothing to read aloud in this chapter."
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "These are routine adjustments; nothing was lost."
 msgstr "These are routine adjustments; nothing was lost."
 
@@ -2485,7 +2486,7 @@ msgstr "Voices to download"
 msgid "Waiting"
 msgstr "Waiting"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
 msgid "Warning"
 msgstr "Warning"
 

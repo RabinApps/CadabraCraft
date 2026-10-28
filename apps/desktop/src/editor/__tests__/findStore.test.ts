@@ -13,12 +13,10 @@ beforeEach(() => useFind.setState({ open: false, query: "", replacement: "" }));
 
 describe("find store limits", () => {
   it("cuts a query and a replacement that are too long, however they arrive", () => {
-    useFind
-      .getState()
-      .set({
-        query: "q".repeat(MAX_QUERY_CHARS + 50),
-        replacement: "r".repeat(MAX_REPLACEMENT_CHARS + 50),
-      });
+    useFind.getState().set({
+      query: "q".repeat(MAX_QUERY_CHARS + 50),
+      replacement: "r".repeat(MAX_REPLACEMENT_CHARS + 50),
+    });
     expect(useFind.getState().query).toHaveLength(MAX_QUERY_CHARS);
     expect(useFind.getState().replacement).toHaveLength(MAX_REPLACEMENT_CHARS);
     useFind.getState().show({ query: "z".repeat(5000) });

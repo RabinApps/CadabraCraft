@@ -23,11 +23,11 @@ export async function chapterAction(page: Page, chapter: string, item: string) {
 }
 
 export const noVoices = () => {
-  (window as any).__audioVoices = [
+  window.__audioVoices = [
     { id: "kokoro-heart", engine: "kokoro", installed: false },
     { id: "piper-amy", engine: "piper", installed: false },
   ];
-  (window as any).__audioPacks = [
+  window.__audioPacks = [
     { id: "piper", voices: ["piper-amy"], bytes: 147993194, installed: false },
     { id: "kokoro", voices: ["kokoro-heart"], bytes: 359719088, installed: false },
   ];
@@ -38,7 +38,7 @@ export async function addPage(page: Page, name: string) {
   await page.getByRole("menuitem", { name, exact: true }).click();
 }
 export const manifestOf = (page: Page) =>
-  page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
+  page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
 export const sidebar = (page: Page) => page.getByRole("navigation", { name: "Chapters" });
 
 export async function exportBook(page: Page, format: "EPUB 3" | "Print PDF") {
@@ -51,8 +51,8 @@ export async function exportBook(page: Page, format: "EPUB 3" | "Print PDF") {
 
 export async function seedSnapshot(page: Page, words: string) {
   return page.evaluate((w) => {
-    const disk = (window as any).__disk;
-    const file = JSON.parse(disk["cadabra.json"]).chapters[0].file as string;
+    const disk = window.__disk;
+    const file = JSON.parse(disk["cadabra.json"] as string).chapters[0].file as string;
     const doc = {
       type: "doc",
       content: [

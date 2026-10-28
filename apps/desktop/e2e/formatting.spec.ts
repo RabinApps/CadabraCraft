@@ -61,9 +61,7 @@ test.describe("formatting toolbar", () => {
     await expect(ed(page).locator("span.footnote")).toHaveCount(1);
     await exportBook(page, "EPUB 3");
     await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
-    const saved = await page.evaluate(
-      () => (window as any).__disk["manuscript/001-chapter-one.json"],
-    );
+    const saved = await page.evaluate(() => window.__disk["manuscript/001-chapter-one.json"]);
     expect(saved).toContain("sceneBreak");
     expect(saved).toContain("footnote");
   });
@@ -73,8 +71,8 @@ test.describe("formatting toolbar", () => {
   }) => {
     // The native menu cannot be clicked in a browser; the dev build exposes its command runner (what each menu item calls).
     const menu = async (id: string) => {
-      await page.waitForFunction(() => Boolean((window as any).__cadabraMenu));
-      return page.evaluate((i) => (window as any).__cadabraMenu.run(i) as boolean, id);
+      await page.waitForFunction(() => Boolean(window.__cadabraMenu));
+      return page.evaluate((i) => window.__cadabraMenu.run(i) as boolean, id);
     };
     const cells = (sel: string) => ed(page).locator(`table ${sel}`);
     expect(await menu("editor.tableAddRow")).toBe(false); // not in a table yet
@@ -106,9 +104,7 @@ test.describe("formatting toolbar", () => {
 
     await exportBook(page, "EPUB 3");
     await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
-    const saved = await page.evaluate(
-      () => (window as any).__disk["manuscript/001-chapter-one.json"],
-    );
+    const saved = await page.evaluate(() => window.__disk["manuscript/001-chapter-one.json"]);
     expect(saved).toContain('"type": "tableHeader"');
     expect(saved).toContain("Cost & note");
 

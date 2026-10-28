@@ -198,10 +198,10 @@ export function parseImport(src: LoadedSource, splitHeadingLevel: 1 | 2 | 3 = 1)
           ? importHtml(text(), { splitHeadingLevel })
           : importMarkdown(text(), { splitHeadingLevel });
   } catch (e) {
-    if (e instanceof ImportError) throw new Error(describeImportError(e));
+    if (e instanceof ImportError) throw new Error(describeImportError(e), { cause: e });
     // A stack overflow or out-of-range string from a pathological file: the same advice as for deep nesting.
     if (e instanceof RangeError)
-      throw new Error(t`This file is too large or too deeply nested to import.`);
+      throw new Error(t`This file is too large or too deeply nested to import.`, { cause: e });
     throw e;
   }
   if (result.chapters.length === 0) throw new Error(t`There is no text to import in this file.`);
@@ -316,7 +316,7 @@ export async function writeImport(opts: {
     }
     await bridge.writeFile(opts.root, "cadabra.json", serializeManifest(manifest), null);
   } catch (e) {
-    throw new Error(`${errText(e)} ${wrote()}`);
+    throw new Error(`${errText(e)} ${wrote()}`, { cause: e });
   }
   return {
     fileName,

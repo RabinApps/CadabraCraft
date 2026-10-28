@@ -10,15 +10,13 @@ export function assetUrl(root: string, src: string): Promise<string> {
   const key = `${root}\u0000${src}`;
   let hit = cache.get(key);
   if (!hit) {
-    hit = bridge
-      .readAsset(root, src)
-      .then((bytes) =>
-        URL.createObjectURL(
-          new Blob([bytes as BlobPart], {
-            type: imageMediaType(src) ?? "application/octet-stream",
-          }),
-        ),
-      );
+    hit = bridge.readAsset(root, src).then((bytes) =>
+      URL.createObjectURL(
+        new Blob([bytes as BlobPart], {
+          type: imageMediaType(src) ?? "application/octet-stream",
+        }),
+      ),
+    );
     hit.catch(() => cache.delete(key)); // a missing file may appear later (sync), so do not cache the failure
     cache.set(key, hit);
   }

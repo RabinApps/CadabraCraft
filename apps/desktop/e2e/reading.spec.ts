@@ -38,7 +38,7 @@ test("reading mode is read-only, shows unsaved typing and moves between chapters
   await page.getByRole("radio", { name: "Write" }).click();
   await expect(page.getByRole("toolbar", { name: "Formatting" })).toBeVisible();
   const saved = await page.evaluate(() =>
-    Object.values((window as any).__disk)
+    Object.values(window.__disk)
       .filter((v) => typeof v === "string")
       .join("\n"),
   );

@@ -1,18 +1,14 @@
 import { useRef, useState } from "react";
-import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
-import { ArrowLeft, ArrowRight, Copy, FileUp, FolderOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileUp, FolderOpen } from "lucide-react";
 import { countWords } from "@cadabracraft/shared";
 import type { ImportResult } from "@cadabracraft/import-docx";
 import { Segmented } from "../../ui/Segmented";
-import { Badge } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
-import { Modal, overlayClass, panelClass } from "../../ui/Dialog";
+import { Modal } from "../../ui/Dialog";
 import { Field } from "../../ui/Input";
 import {
-  formatReport,
-  groupWarnings,
   loadImport,
   parseImport,
   titleFromFile,
@@ -20,9 +16,11 @@ import {
   type ImportChoices,
   type LoadedSource,
 } from "../../lib/importBook";
-import { useProject } from "../../state/project/index";
 import { baseName } from "../../lib/paths";
 import { errText } from "../../lib/projectError";
+import { PickRow, Summary } from "./ImportParts";
+
+export { ImportReportDialog } from "./ImportReportDialog";
 
 interface ImportProps {
   open: boolean;
@@ -263,154 +261,5 @@ export function ImportDialog({
         </form>
       )}
     </Modal>
-  );
-}
-
-function Summary({ result, kept }: { result: ImportResult; kept: number }) {
-  const { t } = useLingui();
-  const groups = groupWarnings(result.warnings);
-  const lost = groups.filter((g) => g.severity === "warning");
-  return (
-    <p className="text-sm text-ink-muted" role="status">
-      {plural(kept, { one: "# chapter will be imported.", other: "# chapters will be imported." })}{" "}
-      {lost.length > 0
-        ? t`Some content could not be kept: ${lost.map((g) => g.code).join(", ")}. A full report follows the import.`
-        : t`Nothing was lost or changed.`}
-    </p>
-  );
-}
-
-function PickRow({
-  label,
-  value,
-  placeholder,
-  button,
-  icon,
-  onPick,
-  hint,
-  disabled,
-}: {
-  label: string;
-  value: string;
-  placeholder: string;
-  button: string;
-  icon: typeof FileUp;
-  onPick: () => void;
-  hint?: string;
-  disabled?: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-xs font-semibold text-ink-muted">{label}</span>
-      <div className="flex gap-2">
-        <input
-          aria-label={label}
-          readOnly
-          value={value}
-          placeholder={placeholder}
-          className="min-w-0 flex-1 rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink-muted placeholder:text-ink-muted"
-        />
-        <Button icon={icon} onClick={onPick} disabled={disabled}>
-          {button}
-        </Button>
-      </div>
-      {hint && <p className="text-xs text-ink-muted">{hint}</p>}
-    </div>
-  );
-}
-
-/** Shown after an import: chapter and image counts, and warnings grouped by code. */
-export function ImportReportDialog() {
-  const { t } = useLingui();
-  const report = useProject((s) => s.importReport);
-  const dismiss = useProject((s) => s.actions.dismissImportReport);
-  const [copied, setCopied] = useState(false);
-  if (!report) return null;
-  const { fileName, chapterCount, imageCount } = report;
-  const groups = groupWarnings(report.warnings);
-  const lost = groups.filter((g) => g.severity === "warning").length;
-  const copy = () =>
-    navigator.clipboard.writeText(formatReport(report)).then(
-      () => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      },
-      () => {},
-    );
-  return (
-    <D.Root
-      open
-      onOpenChange={(o) => {
-        if (!o) {
-          setCopied(false);
-          dismiss();
-        }
-      }}
-    >
-      <D.Portal>
-        <D.Overlay className={overlayClass} />
-        <D.Content
-          className={`${panelClass} left-1/2 top-1/2 flex max-h-[85dvh] w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg p-6`}
-        >
-          <D.Title className="font-book text-xl font-semibold">{t`Import report`}</D.Title>
-          <D.Description className="mt-2 text-sm text-ink-muted">
-            {plural(chapterCount, {
-              one: `Imported # chapter from ${fileName}.`,
-              other: `Imported # chapters from ${fileName}.`,
-            })}{" "}
-            {plural(imageCount, { one: "# image added.", other: "# images added." })}
-          </D.Description>
-          <div
-            className="mt-4 min-h-0 flex-1 overflow-y-auto rounded-md border border-border bg-surface p-3"
-            tabIndex={0}
-            role="region"
-            aria-label={t`Import warnings`}
-          >
-            {groups.length === 0 ? (
-              <p className="text-sm text-ink-muted">{t`Nothing was lost or changed.`}</p>
-            ) : (
-              <>
-                <p className="mb-3 text-sm text-ink-muted">
-                  {lost > 0
-                    ? t`Some content or formatting could not be kept. Review these before you continue.`
-                    : t`These are routine adjustments; nothing was lost.`}
-                </p>
-                <ul className="flex flex-col gap-3">
-                  {groups.map((g) => (
-                    <li key={g.code} className="text-sm">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone={g.severity === "warning" ? "warn" : "success"}>
-                          {g.severity === "warning" ? t`Warning` : t`Note`}
-                        </Badge>
-                        <code className="text-xs">{g.code}</code>
-                        <span className="text-xs text-ink-muted">×{g.count}</span>
-                      </div>
-                      <p className="mt-1 break-words">{g.message}</p>
-                      {g.examples.length > 0 && (
-                        <ul className="mt-1 list-disc ps-5 text-xs text-ink-muted">
-                          {g.examples.map((e) => (
-                            <li key={e} className="break-words">
-                              {e}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-          <div className="mt-4 flex justify-end gap-2.5">
-            <Button icon={Copy} onClick={() => void copy()}>
-              {copied ? t`Copied` : t`Copy report`}
-            </Button>
-            <D.Close asChild>
-              <Button variant="primary">{t`Done`}</Button>
-            </D.Close>
-          </div>
-        </D.Content>
-      </D.Portal>
-    </D.Root>
   );
 }

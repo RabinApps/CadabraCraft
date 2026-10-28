@@ -76,7 +76,7 @@ test.describe("sponsor dialog after an export", () => {
     await exportEpub(page);
     await sponsor(page).getByRole("button", { name: "Sponsor", exact: true }).click();
     await expect(sponsor(page)).toHaveCount(0);
-    expect(await page.evaluate(() => (window as any).__opened)).toEqual([
+    expect(await page.evaluate(() => window.__opened)).toEqual([
       "https://github.com/sponsors/RabinApps",
     ]);
   });
@@ -87,7 +87,7 @@ test.describe("sponsor dialog after an export", () => {
     const dialog = page.getByRole("dialog", { name: "Export book" });
     await dialog.getByRole("radio", { name: "Print PDF" }).click();
     await page.evaluate(() => {
-      (window as any).__compileError = { kind: "compile", message: "main.typ:1:1: error: boom" };
+      window.__compileError = { kind: "compile", message: "main.typ:1:1: error: boom" };
     });
     await dialog.getByRole("button", { name: "Export", exact: true }).click();
     await expect(dialog.getByRole("alert")).toBeVisible();
