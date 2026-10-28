@@ -114020,6 +114020,74 @@
                 },
                 {
                   "type": "frame",
+                  "id": "U1x50N",
+                  "name": "Sort row",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "eNCf9",
+                      "name": "Sort control",
+                      "opacity": 0.5,
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border-strong",
+                      "strokeWidth": 1,
+                      "gap": 6,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "suDjw",
+                          "name": "Sort icon",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "arrow-up-down",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "jpwf6",
+                          "name": "Sort value",
+                          "fill": "$ink-muted",
+                          "content": "Manual order",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "icon",
+                          "id": "p5ezd",
+                          "name": "Chevron",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "chevron-down",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "gZ8Xl",
+                      "name": "Count",
+                      "fill": "$ink-muted",
+                      "content": "0 references",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "lz8Y0",
                   "name": "Type filters",
                   "width": "fill_container",
@@ -115168,6 +115236,73 @@
                 },
                 {
                   "type": "frame",
+                  "id": "y4TpYh",
+                  "name": "Sort row",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "eaVmt",
+                      "name": "Sort control",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border-strong",
+                      "strokeWidth": 1,
+                      "gap": 6,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "XYdsx",
+                          "name": "Sort icon",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "arrow-up-down",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "J8KmT",
+                          "name": "Sort value",
+                          "fill": "$ink",
+                          "content": "Manual order",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "icon",
+                          "id": "TFfUL",
+                          "name": "Chevron",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "chevron-down",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "T9TliR",
+                      "name": "Count",
+                      "fill": "$ink-muted",
+                      "content": "5 references",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "Miwst",
                   "name": "Type filters",
                   "width": "fill_container",
@@ -115299,26 +115434,6 @@
                       }
                     },
                     {
-                      "id": "oQL9r",
-                      "type": "ref",
-                      "ref": "dVA4M",
-                      "name": "Reference 2",
-                      "width": "fill_container",
-                      "stroke": "$accent",
-                      "fill": "$accent-soft",
-                      "descendants": {
-                        "fzr2J": {
-                          "icon": "file-text"
-                        },
-                        "Jqvbp": {
-                          "content": "Lighthouse history.pdf"
-                        },
-                        "TW3x7": {
-                          "content": "PDF · 3.2 MB · 24 pages"
-                        }
-                      }
-                    },
-                    {
                       "type": "frame",
                       "id": "OwasO",
                       "name": "Importing row",
@@ -115446,6 +115561,21 @@
                       "fontWeight": "normal"
                     }
                   ]
+                },
+                {
+                  "id": "P7K36x",
+                  "type": "ref",
+                  "ref": "FV6WE",
+                  "name": "Removed references",
+                  "width": "fill_container",
+                  "descendants": {
+                    "GD0DK": {
+                      "icon": "archive-restore"
+                    },
+                    "FYP6F": {
+                      "content": "Removed references (3)"
+                    }
+                  }
                 }
               ]
             }
@@ -119240,6 +119370,73 @@
             },
             {
               "type": "frame",
+              "id": "umYEl",
+              "name": "Sort row",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "cOkWn",
+                  "name": "Sort control",
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border-strong",
+                  "strokeWidth": 1,
+                  "gap": 6,
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "j8Ogr7",
+                      "name": "Sort icon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "arrow-up-down",
+                      "library": "lucide",
+                      "fill": "$ink-muted"
+                    },
+                    {
+                      "type": "text",
+                      "id": "JtcyN",
+                      "name": "Sort value",
+                      "fill": "$ink",
+                      "content": "Manual order",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "icon",
+                      "id": "walgx",
+                      "name": "Chevron",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "chevron-down",
+                      "library": "lucide",
+                      "fill": "$ink-muted"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "g8HCQd",
+                  "name": "Count",
+                  "fill": "$ink-muted",
+                  "content": "5 references",
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "xiym8",
               "name": "Type filters",
               "gap": 6,
@@ -119401,6 +119598,21 @@
                   }
                 }
               ]
+            },
+            {
+              "id": "tJigO",
+              "type": "ref",
+              "ref": "FV6WE",
+              "name": "Removed references",
+              "width": "fill_container",
+              "descendants": {
+                "GD0DK": {
+                  "icon": "archive-restore"
+                },
+                "FYP6F": {
+                  "content": "Removed references (3)"
+                }
+              }
             }
           ]
         }
@@ -120146,6 +120358,73 @@
             },
             {
               "type": "frame",
+              "id": "lbMih",
+              "name": "Sort row",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "stjkK",
+                  "name": "Sort control",
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border-strong",
+                  "strokeWidth": 1,
+                  "gap": 6,
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "SxnYB",
+                      "name": "Sort icon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "arrow-up-down",
+                      "library": "lucide",
+                      "fill": "$ink-muted"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SC3Yk",
+                      "name": "Sort value",
+                      "fill": "$ink",
+                      "content": "Manual order",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "icon",
+                      "id": "rQHLD",
+                      "name": "Chevron",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "chevron-down",
+                      "library": "lucide",
+                      "fill": "$ink-muted"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "yolPH",
+                  "name": "Count",
+                  "fill": "$ink-muted",
+                  "content": "5 references",
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "ZqwUN",
               "name": "Type filters",
               "width": "fill_container",
@@ -120392,6 +120671,21 @@
                   "fontWeight": "normal"
                 }
               ]
+            },
+            {
+              "id": "AKTta",
+              "type": "ref",
+              "ref": "FV6WE",
+              "name": "Removed references",
+              "width": "fill_container",
+              "descendants": {
+                "GD0DK": {
+                  "icon": "archive-restore"
+                },
+                "FYP6F": {
+                  "content": "Removed references (3)"
+                }
+              }
             }
           ]
         }
@@ -121447,6 +121741,73 @@
                 },
                 {
                   "type": "frame",
+                  "id": "q5fG4G",
+                  "name": "Sort row",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "F1RPx",
+                      "name": "Sort control",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border-strong",
+                      "strokeWidth": 1,
+                      "gap": 6,
+                      "padding": [
+                        5,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "e0H2q",
+                          "name": "Sort icon",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "arrow-up-down",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "YnR7R",
+                          "name": "Sort value",
+                          "fill": "$ink",
+                          "content": "Manual order",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "icon",
+                          "id": "Q9EK6x",
+                          "name": "Chevron",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "chevron-down",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "aeXER",
+                      "name": "Count",
+                      "fill": "$ink-muted",
+                      "content": "5 references",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "KtoWS",
                   "name": "Type filters",
                   "width": "fill_container",
@@ -121686,6 +122047,21 @@
                       "fontWeight": "normal"
                     }
                   ]
+                },
+                {
+                  "id": "lsVhV",
+                  "type": "ref",
+                  "ref": "FV6WE",
+                  "name": "Removed references",
+                  "width": "fill_container",
+                  "descendants": {
+                    "GD0DK": {
+                      "icon": "archive-restore"
+                    },
+                    "FYP6F": {
+                      "content": "Removed references (3)"
+                    }
+                  }
                 }
               ]
             }
@@ -121775,7 +122151,7 @@
           "id": "lW3WR",
           "layoutPosition": "absolute",
           "x": 980,
-          "y": 436,
+          "y": 473,
           "name": "Drop indicator",
           "fill": "$accent",
           "width": 280,
@@ -121786,7 +122162,7 @@
           "id": "I8wmBF",
           "layoutPosition": "absolute",
           "x": 972,
-          "y": 433,
+          "y": 470,
           "name": "Drop indicator dot",
           "fill": "$accent",
           "width": 9,
@@ -121799,7 +122175,7 @@
           "name": "Dragging row",
           "layoutPosition": "absolute",
           "x": 984,
-          "y": 472,
+          "y": 509,
           "width": 288,
           "fill": "$raised",
           "stroke": "$accent",
@@ -121834,7 +122210,7 @@
           "id": "o2JCn8",
           "layoutPosition": "absolute",
           "x": 1044,
-          "y": 583,
+          "y": 613,
           "name": "Row menu",
           "width": 220,
           "fill": "$raised",
