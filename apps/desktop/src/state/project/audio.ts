@@ -162,7 +162,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
       } catch (e) {
         const mapped = mapAudioError(e);
         if (mapped instanceof CancelledError) return null;
-        throw new Error(describeAudioError(mapped).message);
+        throw new Error(describeAudioError(mapped).message, { cause: e });
       } finally {
         sampleJob = null;
         bridge.audioForget(jobId).catch(() => undefined);

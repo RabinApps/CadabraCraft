@@ -92,7 +92,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
       setForm(detailsOf(manifest));
       setError("");
     }
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]);
   if (!manifest || !form) return null;
   const set = (patch: Partial<BookDetails>) => setForm({ ...form, ...patch });
   const languages = LOCALES.some((l) => l.code === form.language)

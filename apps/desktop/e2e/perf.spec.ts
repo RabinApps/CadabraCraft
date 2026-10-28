@@ -11,8 +11,8 @@ test("typing stays responsive in a 20,000-word chapter", async ({ page }) => {
   await newProject(page);
   const big = JSON.stringify(bigChapter(20_000, 99, "Long"), null, 2);
   await page.evaluate((json) => {
-    (window as any).__disk["manuscript/001-chapter-one.json"] = json;
-    sessionStorage.setItem("disk", JSON.stringify((window as any).__disk));
+    window.__disk["manuscript/001-chapter-one.json"] = json;
+    sessionStorage.setItem("disk", JSON.stringify(window.__disk));
   }, big);
   await page.reload();
   await page.getByRole("button", { name: "Open folder" }).click();
@@ -22,7 +22,7 @@ test("typing stays responsive in a 20,000-word chapter", async ({ page }) => {
   // Time from each keydown to the second frame after it, as the author would feel it.
   await page.evaluate(() => {
     const lat: number[] = [];
-    (window as any).__lat = lat;
+    window.__lat = lat;
     window.addEventListener(
       "keydown",
       () => {
@@ -33,10 +33,8 @@ test("typing stays responsive in a 20,000-word chapter", async ({ page }) => {
     );
   });
   for (let i = 0; i < 40; i++) await page.keyboard.type("x");
-  await expect.poll(() => page.evaluate(() => (window as any).__lat.length)).toBe(40);
-  const sorted = [...(await page.evaluate(() => (window as any).__lat as number[]))].sort(
-    (a, b) => a - b,
-  );
+  await expect.poll(() => page.evaluate(() => window.__lat.length)).toBe(40);
+  const sorted = [...(await page.evaluate(() => window.__lat as number[]))].sort((a, b) => a - b);
   console.info(
     `[perf] typing in a 20k-word chapter: median ${sorted[20]!.toFixed(1)} ms, worst ${sorted[39]!.toFixed(1)} ms`,
   );

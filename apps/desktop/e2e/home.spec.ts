@@ -14,7 +14,7 @@ test("recent projects: listed after opening, reopenable, removable, and missing 
   const recent = page.getByRole("region", { name: "Recent projects" });
   await expect(recent.getByText("E2E Book")).toBeVisible();
   // Never written into the project file.
-  expect(await page.evaluate(() => (window as any).__disk["cadabra.json"])).not.toContain("/proj");
+  expect(await page.evaluate(() => window.__disk["cadabra.json"])).not.toContain("/proj");
   await recent
     .getByRole("button", { name: /E2E Book/ })
     .first()

@@ -18,16 +18,16 @@ export async function fakeTauri(page: Page) {
     );
     const persist = () => sessionStorage.setItem("disk", JSON.stringify(disk));
     const h = (s: string) => `${s.length}:${s.slice(0, 50)}`;
-    (window as any).__disk = disk;
-    (window as any).__TAURI_INTERNALS__ = {
+    window.__disk = disk;
+    window.__TAURI_INTERNALS__ = {
       transformCallback: () => 0,
-      invoke: async (cmd: string, a: any, opts?: any) => {
+      invoke: async (cmd, a, opts) => {
         switch (cmd) {
           // The image picker passes extension filters; the folder picker does not.
           case "plugin:dialog|open":
             return a?.options?.filters ? "/pics/pic.png" : "/proj";
           case "plugin:opener|open_url":
-            ((window as any).__opened ??= []).push(a.url);
+            (window.__opened ??= []).push(a.url);
             return null;
           case "plugin:event|listen":
             return 1;
@@ -46,20 +46,19 @@ export async function fakeTauri(page: Page) {
               : null;
           case "write_project_file":
             // A test can make chosen chapter writes fail (disk full) with `__failWrite = (path) => boolean`.
-            if (a.path !== "cadabra.json" && (window as any).__failWrite?.(a.path))
+            if (a.path !== "cadabra.json" && window.__failWrite?.(a.path))
               throw { kind: "io", message: "No space left on device" };
             disk[a.path] = a.contents;
             persist();
             return { hash: h(a.contents), conflict_copy: null };
           // Raw bytes as the body, root and path in percent-encoded headers (like the Rust command).
           case "write_project_bytes":
-            if ((window as any).__failBytes)
-              throw { kind: "io", message: "No space left on device" };
-            disk[decodeURIComponent(opts.headers.path)] = Array.from(a as Uint8Array);
+            if (window.__failBytes) throw { kind: "io", message: "No space left on device" };
+            disk[decodeURIComponent(opts.headers.path!)] = Array.from(a as unknown as Uint8Array);
             persist();
             return null;
           case "import_asset":
-            if ((window as any).__importError) throw (window as any).__importError;
+            if (window.__importError) throw window.__importError;
             disk["assets/pic.png"] = Array.from(atob(PIXEL), (c) => c.charCodeAt(0));
             persist();
             return "assets/pic.png";
@@ -67,28 +66,28 @@ export async function fakeTauri(page: Page) {
             if (!Array.isArray(disk[a.path])) throw `missing ${a.path}`;
             return disk[a.path];
           case "typst_list_fonts":
-            if ((window as any).__typstError) throw (window as any).__typstError;
+            if (window.__typstError) throw window.__typstError;
             return ["Libertinus Serif", "New Computer Modern"];
           case "typst_compile":
             {
               // The body is one binary frame: u32 LE header length, header JSON (typstPath, source, pdfA, files), file bytes.
               const n = new DataView(a.buffer, a.byteOffset).getUint32(0, true);
-              ((window as any).__typstCalls ??= []).push(
+              (window.__typstCalls ??= []).push(
                 JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n))),
               );
             }
-            if ((window as any).__compileError) throw (window as any).__compileError;
+            if (window.__compileError) throw window.__compileError;
             return new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]).buffer;
           case "audio_voices":
             return (
-              (window as any).__audioVoices ?? [
+              window.__audioVoices ?? [
                 { id: "kokoro-heart", engine: "kokoro", installed: true },
                 { id: "piper-amy", engine: "piper", installed: true },
               ]
             );
           case "audio_packs":
             return (
-              (window as any).__audioPacks ?? [
+              window.__audioPacks ?? [
                 {
                   id: "piper",
                   voices: ["piper-amy", "piper-libritts-0"],
@@ -99,19 +98,19 @@ export async function fakeTauri(page: Page) {
               ]
             );
           case "audio_download_pack": {
-            const w = window as any;
+            const w = window;
             (w.__downloads ??= []).push(a.pack);
             a.onProgress?.onmessage?.({ done: 74000000, total: 147993194 });
             if (w.__downloadHold)
               await new Promise((_, reject) => {
                 w.__downloadReject = reject;
               });
-            w.__audioVoices = (w.__audioVoices ?? []).map((v: any) => ({ ...v, installed: true }));
-            w.__audioPacks = (w.__audioPacks ?? []).map((p: any) => ({ ...p, installed: true }));
+            w.__audioVoices = (w.__audioVoices ?? []).map((v) => ({ ...v, installed: true }));
+            w.__audioPacks = (w.__audioPacks ?? []).map((p) => ({ ...p, installed: true }));
             return null;
           }
           case "audio_render_chapter": {
-            const w = window as any;
+            const w = window;
             (w.__audioCalls ??= []).push(a.request);
             a.onProgress?.onmessage?.(0.5);
             if (w.__audioHold)
@@ -127,11 +126,11 @@ export async function fakeTauri(page: Page) {
             };
           }
           case "audio_cancel":
-            (window as any).__audioReject?.({ kind: "cancelled" });
-            (window as any).__downloadReject?.({ kind: "cancelled" });
+            window.__audioReject?.({ kind: "cancelled" });
+            window.__downloadReject?.({ kind: "cancelled" });
             return null;
           case "audio_sample": {
-            const w = window as any;
+            const w = window;
             (w.__sampleCalls ??= []).push(a.request);
             if (w.__sampleError) throw w.__sampleError;
             // 0.3 s of silence at 8 kHz, 16-bit mono.

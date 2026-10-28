@@ -18,6 +18,7 @@ export interface MatchOptions {
 }
 
 const wordChar = /[\p{L}\p{N}\p{M}]/u;
+// eslint-disable-next-line no-control-regex -- the range is the ASCII check on purpose
 const ascii = /^[\x00-\x7f]*$/;
 
 /**
@@ -101,7 +102,7 @@ export function compileRegex(query: string, matchCase: boolean): RE2JS | null {
   if (!query) return null;
   const key = `${matchCase ? 1 : 0}${query}`;
   if (cached?.key === key) return cached.re;
-  let re: RE2JS | null = null;
+  let re: RE2JS | null;
   try {
     re = RE2JS.compile(query, matchCase ? 0 : RE2JS.CASE_INSENSITIVE);
   } catch {

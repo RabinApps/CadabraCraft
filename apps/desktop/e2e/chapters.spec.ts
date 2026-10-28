@@ -10,7 +10,7 @@ test("creating a project shows a first chapter in the editor", async ({ page }) 
   await newProject(page);
   expect(await titles(page)).toEqual(["Chapter One"]);
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
-  const manifest = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
+  const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   expect(manifest).toMatchObject({ formatVersion: 3, title: "E2E Book", author: "Tester" });
 });
 
@@ -47,7 +47,9 @@ test("rename, reorder and delete chapters", async ({ page }) => {
 
   await chapterAction(page, "Second", "Move up");
   const order = await page.evaluate(() =>
-    JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title),
+    JSON.parse(window.__disk["cadabra.json"] as string).chapters.map(
+      (c: { title: string }) => c.title,
+    ),
   );
   expect(order).toEqual(["Second", "Chapter One"]);
 
@@ -55,7 +57,7 @@ test("rename, reorder and delete chapters", async ({ page }) => {
   await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
   await expect(page.getByRole("button", { name: "Second", exact: true })).toHaveCount(0);
   const trashed = await page.evaluate(() =>
-    Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")),
+    Object.keys(window.__disk).filter((k) => k.startsWith(".cadabra/trash/")),
   );
   expect(trashed).toHaveLength(1);
 });

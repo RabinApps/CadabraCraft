@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PNG_BYTES, TINY_MD, tinyDocx } from "./fixtures";
 import { fakeTauri } from "./support/fakeTauri";
+import type { RecordedCall } from "./support/globals";
 
 // The shared fakeTauri (support/fakeTauri.ts) fakes the project commands. On top of it, the import specs fake the
 // "source files" that the native picker would have returned, and record every command so we can assert the source is never written.
@@ -39,12 +40,12 @@ async function fakeImportTauri(page: Page, pick: "md" | "docx" | "html" | "broke
             : which === "html"
               ? "/src/page.html"
               : "/src/broken.docx";
-      const calls: { cmd: string; args: any }[] = [];
-      const w = window as any;
+      const calls: RecordedCall[] = [];
+      const w = window;
       w.__calls = calls;
       w.__sources = sources;
       const base = w.__TAURI_INTERNALS__.invoke;
-      w.__TAURI_INTERNALS__.invoke = async (cmd: string, a: any, opts?: any) => {
+      w.__TAURI_INTERNALS__.invoke = async (cmd, a, opts) => {
         calls.push({ cmd, args: a });
         switch (cmd) {
           case "plugin:dialog|open":
@@ -106,11 +107,11 @@ test("importing Markdown creates a new project with chapters, shows the report, 
   await expect(page.locator(".ProseMirror img")).toHaveCount(1);
 
   const result = await page.evaluate(() => {
-    const w = window as any;
+    const w = window;
     return {
       sources: w.__sources as Record<string, number[]>,
       files: Object.keys(w.__disk) as string[],
-      sourceWrites: (w.__calls as { cmd: string; args: any }[]).filter(
+      sourceWrites: w.__calls!.filter(
         (c) =>
           /^(write|create|import_asset|trash)/.test(c.cmd) &&
           JSON.stringify(c.args).includes("/src/"),
@@ -160,7 +161,7 @@ test("importing an HTML file keeps headings and bold text, drops scripts and rep
   await expect(chapterNav(page).getByRole("button", { name: "Gamma", exact: true })).toBeVisible();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Gamma");
   await expect(page.locator(".ProseMirror strong")).toHaveText("strong");
-  const saved = await page.evaluate(() => JSON.stringify((window as any).__disk));
+  const saved = await page.evaluate(() => JSON.stringify(window.__disk));
   expect(saved).not.toContain("stealCookies");
 });
 
@@ -171,7 +172,7 @@ test("an unreadable file shows the error in the dialog and creates no project", 
   const dialog = await startImport(page);
   await expect(dialog.getByRole("alert")).toContainText("does not look like a valid .docx");
   await expect(dialog).toBeVisible();
-  const created = await page.evaluate(() => Object.keys((window as any).__disk).length);
+  const created = await page.evaluate(() => Object.keys(window.__disk).length);
   expect(created).toBe(0);
 });
 
@@ -181,7 +182,7 @@ test("the preview step lets the author rename and skip chapters before anything 
   await fakeImportTauri(page, "md");
   const dialog = await startImport(page);
   await expect(dialog.getByLabel("Title of chapter 1")).toHaveValue("Alpha");
-  expect(await page.evaluate(() => Object.keys((window as any).__disk).length)).toBe(0); // nothing written yet
+  expect(await page.evaluate(() => Object.keys(window.__disk).length)).toBe(0); // nothing written yet
   await dialog.getByLabel("Title of chapter 1").fill("Prologue");
   await dialog.getByLabel("Include chapter 2").uncheck();
   await dialog.getByRole("button", { name: "Import", exact: true }).click();

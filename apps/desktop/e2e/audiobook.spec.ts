@@ -19,7 +19,7 @@ test("Export audiobook renders the chapters with the chosen voice and formats an
   await dialog.getByLabel("FLAC").check();
   await dialog.getByRole("button", { name: "Export audiobook" }).click();
   await expect(dialog.getByText("Your audiobook is ready")).toBeVisible();
-  const call = await page.evaluate(() => (window as any).__audioCalls[0]);
+  const call = await page.evaluate(() => window.__audioCalls[0]!);
   expect(call).toMatchObject({
     voice: "piper-amy",
     speed: 1.1,
@@ -40,18 +40,16 @@ test("Hear a sample renders a few sentences with the chosen voice, writes nothin
   await dialog.getByRole("radio", { name: "Audiobook" }).click();
   await dialog.getByLabel("Voice").selectOption("piper-amy");
   await dialog.getByRole("button", { name: "Hear a sample" }).click();
-  await expect.poll(() => page.evaluate(() => (window as any).__sampleCalls?.length ?? 0)).toBe(1);
-  const call = await page.evaluate(() => (window as any).__sampleCalls[0]);
+  await expect.poll(() => page.evaluate(() => window.__sampleCalls?.length ?? 0)).toBe(1);
+  const call = await page.evaluate(() => window.__sampleCalls[0]!);
   expect(call).toMatchObject({ voice: "piper-amy", speed: 1 });
   expect(call.chunks.length).toBeGreaterThan(0);
   await expect(dialog.getByRole("button", { name: "Hear a sample" })).toBeVisible();
   expect(
-    await page.evaluate(() =>
-      Object.keys((window as any).__disk).filter((k) => k.startsWith("exports/")),
-    ),
+    await page.evaluate(() => Object.keys(window.__disk).filter((k) => k.startsWith("exports/"))),
   ).toEqual([]);
   await page.evaluate(() => {
-    (window as any).__sampleError = { kind: "synth", message: "engine broke" };
+    window.__sampleError = { kind: "synth", message: "engine broke" };
   });
   await dialog.getByRole("button", { name: "Hear a sample" }).click();
   await expect(dialog.getByRole("alert")).toContainText("engine broke");
@@ -61,7 +59,7 @@ test("Audiobook can be closed while it runs, shows a header chip, and Cancel sto
   page,
 }) => {
   await page.addInitScript(() => {
-    (window as any).__audioHold = true;
+    window.__audioHold = true;
   });
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();
@@ -94,17 +92,17 @@ test("Audiobook offers to download the voices when none are installed, then show
   await expect(dialog.getByLabel(/Kokoro/)).not.toBeChecked();
   await dialog.getByRole("button", { name: "Download selected (148 MB)" }).click();
   await expect(dialog.getByLabel("Voice")).toBeVisible();
-  expect(await page.evaluate(() => (window as any).__downloads)).toEqual(["piper"]);
+  expect(await page.evaluate(() => window.__downloads)).toEqual(["piper"]);
   await expect(dialog.getByRole("button", { name: "Export audiobook" })).toBeEnabled();
 });
 
 test("A voice download shows progress and can be cancelled, then tried again", async ({ page }) => {
   await page.addInitScript(() => {
     noVoicesInit();
-    (window as any).__downloadHold = true;
+    window.__downloadHold = true;
     function noVoicesInit() {
-      (window as any).__audioVoices = [{ id: "piper-amy", engine: "piper", installed: false }];
-      (window as any).__audioPacks = [
+      window.__audioVoices = [{ id: "piper-amy", engine: "piper", installed: false }];
+      window.__audioPacks = [
         { id: "piper", voices: ["piper-amy"], bytes: 147993194, installed: false },
       ];
     }

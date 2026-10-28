@@ -127,7 +127,7 @@ test.describe("find and replace", () => {
     await expect(page.locator(".ProseMirror")).toContainText("dog two");
     const disk = () =>
       page.evaluate(() =>
-        Object.entries((window as any).__disk)
+        Object.entries(window.__disk)
           .filter(([k]) => /\.json$/.test(k) && !k.includes(".cadabra") && k !== "cadabra.json")
           .map(([, v]) => v as string)
           .join("\n"),
@@ -220,7 +220,7 @@ test.describe("find and replace", () => {
     await expect(bar(page).getByText("No results")).toBeVisible();
     const disk = () =>
       page.evaluate(() =>
-        Object.entries((window as any).__disk)
+        Object.entries(window.__disk)
           .filter(([k]) => /\.json$/.test(k) && !k.includes(".cadabra") && k !== "cadabra.json")
           .map(([, v]) => v as string)
           .join("\n"),

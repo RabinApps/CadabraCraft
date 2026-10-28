@@ -215,7 +215,6 @@ export function useAppMenu(h: AppMenuHooks): void {
   const model = useMemo(
     () => buildMenuModel({ mac: isMac(), commands: registry, recents, undoLabel, redoLabel }),
     // The labels come from the current language, so a language change rebuilds the menu too.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [registry, recents, undoLabel, redoLabel, i18n.locale],
   );
   useEffect(() => {

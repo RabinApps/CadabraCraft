@@ -49,6 +49,7 @@ export function pasteAction({
 export function truncate(s: string, max = PREVIEW_CHARS): string {
   // Only the head is needed: do not scan a multi-megabyte string.
   const head = s.length > max * 8 ? s.slice(0, max * 8) : s;
+  // eslint-disable-next-line no-control-regex -- control characters are stripped on purpose
   const flat = head.replace(/[\s\u0000-\u001f\u007f-\u009f]+/g, " ").trim();
   const chars = [...flat];
   return chars.length > max || head.length < s.length

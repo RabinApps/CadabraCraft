@@ -89,7 +89,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
           });
           // A page with an empty title is named by its file instead.
           const where = bad ? bad.title.trim() || entryOf(manifest, bad.id)?.file || "" : "";
-          throw new Error(where ? t`In “${where}”: ${e.message}` : e.message);
+          throw new Error(where ? t`In “${where}”: ${e.message}` : e.message, { cause: e });
         }
         set({ exportStage: "saving" });
         await bridge.writeBytes(root, "exports/book.md", new TextEncoder().encode(markdown));

@@ -33,9 +33,12 @@ test.describe("images", () => {
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page.getByRole("status")).toHaveText("Saved");
     const saved = await page.evaluate(
-      () => (window as any).__disk["manuscript/001-chapter-one.json"] as string,
+      () => window.__disk["manuscript/001-chapter-one.json"] as string,
     );
-    expect(JSON.parse(saved).content.find((n: any) => n.type === "image").attrs).toMatchObject({
+    expect(
+      JSON.parse(saved).content.find((n: { type: string; attrs?: object }) => n.type === "image")
+        .attrs,
+    ).toMatchObject({
       src: "assets/pic.png",
       alt: "A single pixel",
       title: "Figure one",
@@ -45,7 +48,7 @@ test.describe("images", () => {
     await exportBook(page, "EPUB 3");
     await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
     const zipText = await page.evaluate(() =>
-      String.fromCharCode(...((window as any).__disk["exports/book.epub"] as number[])),
+      String.fromCharCode(...(window.__disk["exports/book.epub"] as number[])),
     );
     expect(zipText).toContain("OEBPS/assets/pic.png");
 
@@ -58,7 +61,7 @@ test.describe("images", () => {
   test("a refused image shows a message and inserts nothing", async ({ page }) => {
     await newProject(page);
     await page.evaluate(() => {
-      (window as any).__importError = "pic.png is larger than 25 MB";
+      window.__importError = "pic.png is larger than 25 MB";
     });
     await tb(page, "Image").click();
     await expect(page.getByRole("status")).toContainText(

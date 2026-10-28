@@ -58,12 +58,14 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
         } catch (e) {
           const why = errText(e);
           const stuck = e instanceof PartialWrite ? e.stuck : [];
-          if (!stuck.length) throw new Error(t`Replace all stopped: ${why}. Nothing was changed.`);
+          if (!stuck.length)
+            throw new Error(t`Replace all stopped: ${why}. Nothing was changed.`, { cause: e });
           // Some pages could not be put back: keep one undo step for exactly those, so Undo finishes the job.
           record(docs.filter((d) => stuck.some((p) => p.file === d.file)));
           await reloadCurrent().catch(() => {});
           throw new Error(
             `${t`Replace all stopped: ${why}.`} ${plural(stuck.length, { one: "# page could not be put back and keeps the replacement; Undo restores it.", other: "# pages could not be put back and keep the replacement; Undo restores them." })}`,
+            { cause: e },
           );
         }
         record(docs);
