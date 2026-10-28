@@ -26,9 +26,9 @@ const sizeClass: Record<ModalSize, string> = {
   xl: "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto",
 };
 
-export const overlayClass = "fixed inset-0 z-(--z-overlay) bg-scrim";
+export const overlayClass = "motion-overlay fixed inset-0 z-(--z-overlay) bg-scrim";
 export const panelClass =
-  "fixed z-(--z-dialog) border border-border bg-raised text-ink shadow-dialog focus:outline-none";
+  "motion-panel fixed z-(--z-dialog) border border-border bg-raised text-ink shadow-dialog focus:outline-none";
 
 export function Modal({
   open,

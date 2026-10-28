@@ -16,6 +16,9 @@ UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 
 - M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
 - M2+: shortcuts settings (disabled nav item for now), command palette, outline navigator.
+- Home as a dashboard, as drawn in the pen (`Home / size / mode`): "Your books" heading, a continue-writing card with cover, chapter and progress, a grid of book cards with last-edited time and word count, and a "Start a new book" tile. The app still shows the first-run layout with a plain recent list because recents store only the root and title; this needs the recent-projects record to carry the last chapter, word count and cover (an app preference, not a project file).
+- Loading skeleton (`Loading / desktop / mode` in the pen) is designed but not built: opening a project still shows the previous screen until the manifest arrives.
+- Keyboard-open mobile editor frame and a phone header at 390px that keeps Focus mode and Details out of the way are not drawn or checked yet.
 - Snapshots follow-ups: Backups settings for tablet and mobile in the pen, whole-book and named snapshots, a diff that shows formatting changes, run the History dialog and recovery on the native app and a real sync folder (`/drive-app`).
 - Print checks: the gutter bands, 24-828 page range and 0.25 in outer margin in `lib/exportChecks.ts` match KDP's "Set Trim Size, Bleed, and Margins" page (checked 2026-10-26). Not covered yet: the 0.375 in outer minimum when the interior has bleed (we do not export bleed), and per-trim-size page limits.
 - Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
@@ -80,7 +83,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - M4: import wizard (source step, then a preview of the detected chapters with split level, rename and skip), see import.md.
 - M1: apply the design system (Tailwind v4 + Radix), restyle Home, editor, reading mode, dialogs and toasts.
 - M2: Settings page (its Backups and Shortcuts sections are not built), templates gallery, Export dialog, approximate print preview (see architecture.md, "M2 UI").
-- M2+: focus mode.
+- M2+: focus mode (designed in the pen as `Focus mode / desktop / mode`).
 - M3: front/back matter (built in M1), metadata editor and cover picker (see architecture.md, "Book cover"); the cover is also shown in the print preview.
 - Rust project errors return codes with params, translated in `lib/projectError.ts`.
 - Wait for the final save on window close; convert `typst_compile` to raw-bytes IPC; restrict `root` and set a real CSP; run `/drive-app` on the native IPC (see architecture.md, "Safety follow-ups").

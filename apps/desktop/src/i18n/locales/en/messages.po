@@ -2145,8 +2145,8 @@ msgid "Some content or formatting could not be kept. Review these before you con
 msgstr "Some content or formatting could not be kept. Review these before you continue."
 
 #: src/app/shell/ErrorBoundary.tsx
-msgid "Something went wrong. Your last changes were saved if possible."
-msgstr "Something went wrong. Your last changes were saved if possible."
+msgid "Something went wrong"
+msgstr "Something went wrong"
 
 #: src/app/export/AudioExport.tsx
 msgid "Speed"
@@ -2743,6 +2743,10 @@ msgstr "Your audiobook is ready"
 #: src/app/shell/quit.ts
 msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
 msgstr "Your last changes could not be saved ({message}). Close the window again to leave without them."
+
+#: src/app/shell/ErrorBoundary.tsx
+msgid "Your last changes were saved if possible."
+msgstr "Your last changes were saved if possible."
 
 #: src/app/shell/useAppMenu.ts
 msgid "Your package manager updates this copy of CadabraCraft."

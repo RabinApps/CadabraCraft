@@ -2,7 +2,10 @@ import { cx } from "./cx";
 
 /** Class for a Radix dropdown-menu content panel; `min-w-*` and other sizing go in `extra`. */
 export const menuContentClass = (extra?: string | false) =>
-  cx("z-(--z-menu) rounded-md border border-border bg-raised p-1 text-ink shadow-popover", extra);
+  cx(
+    "motion-panel z-(--z-menu) rounded-md border border-border bg-raised p-1 text-ink shadow-popover",
+    extra,
+  );
 
 /** Class for a Radix dropdown-menu item. */
 export const menuItemClass = (extra?: string | false) =>

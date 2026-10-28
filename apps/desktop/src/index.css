@@ -71,6 +71,27 @@
   }
 }
 
+/* Open animations for overlays; skipped when the system asks for reduced motion. Closing is instant. */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-overlay[data-state="open"] {
+    animation: overlay-in 150ms ease-out;
+  }
+  .motion-panel[data-state="open"] {
+    animation: panel-in 160ms ease-out;
+  }
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
 html,
 body {
   background: var(--bg);
