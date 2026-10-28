@@ -2,12 +2,14 @@ import { t } from "@lingui/core/macro";
 import {
   addReference,
   removeReference as removeFromManifest,
+  treeOf,
   updateReference as updateInManifest,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { baseName } from "../../lib/paths";
 import { forgetReference } from "../../lib/references";
 import { errText, isProjectError } from "../../lib/projectError";
+import { HISTORY_LIMIT } from "./util";
 import type { ReferenceActions, ReferenceNotice } from "./types";
 import type { Ctx } from "./context";
 
@@ -64,7 +66,23 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       }
       forgetReference(root, ref.file);
       try {
-        await bridge.trashReference(root, ref.file);
+        const trashPath = await bridge.trashReference(root, ref.file);
+        // Book Undo brings it back (file from the trash, list entry at its old place).
+        const tree = treeOf(manifest);
+        set({
+          history: {
+            undo: [
+              ...get().history.undo,
+              {
+                label: t`Remove ${ref.title}`,
+                before: tree,
+                after: tree,
+                reference: { item: ref, index: manifest.references.indexOf(ref), trashPath },
+              },
+            ].slice(-HISTORY_LIMIT),
+            redo: [],
+          },
+        });
       } catch (e) {
         // A file that is already gone needs nothing; any other failure leaves the file behind, which is harmless.
         if (!(isProjectError(e) && e.kind === "not_found"))

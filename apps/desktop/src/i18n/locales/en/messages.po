@@ -734,6 +734,10 @@ msgstr "Close chapters"
 msgid "Close Project"
 msgstr "Close Project"
 
+#: src/app/references/PdfSearch.tsx
+msgid "Close search"
+msgstr "Close search"
+
 #: src/app/references/ReferenceViewer.tsx
 msgid "Close viewer"
 msgstr "Close viewer"
@@ -1183,6 +1187,10 @@ msgstr "Find and replace"
 #: src/app/shell/menuModel.ts
 msgid "Find and Replace…"
 msgstr "Find and Replace…"
+
+#: src/app/references/PdfSearch.tsx
+msgid "Find in this PDF"
+msgstr "Find in this PDF"
 
 #: src/app/shell/menuModel.ts
 msgid "Find…"
@@ -1737,6 +1745,7 @@ msgstr "Next chapter"
 msgid "Next chapter: {0}"
 msgstr "Next chapter: {0}"
 
+#: src/app/references/PdfSearch.tsx
 #: src/editor/FindBar.tsx
 msgid "Next match"
 msgstr "Next match"
@@ -1775,6 +1784,10 @@ msgstr "No folder chosen"
 #: src/editor/Editor.tsx
 msgid "No HTML found in the selection"
 msgstr "No HTML found in the selection"
+
+#: src/app/references/PdfSearch.tsx
+msgid "No matches"
+msgstr "No matches"
 
 #: src/app/references/Previews.tsx
 msgid "No preview for this file type"
@@ -1912,6 +1925,13 @@ msgstr "Other"
 msgid "Packing the audiobook…"
 msgstr "Packing the audiobook…"
 
+#. placeholder {0}: hits[at]
+#. placeholder {1}: at + 1
+#. placeholder {2}: hits.length
+#: src/app/references/PdfSearch.tsx
+msgid "Page {0}, {1} of {2}"
+msgstr "Page {0}, {1} of {2}"
+
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
 msgstr "Page setup"
@@ -2004,6 +2024,7 @@ msgstr "Previous chapter"
 msgid "Previous chapter: {0}"
 msgstr "Previous chapter: {0}"
 
+#: src/app/references/PdfSearch.tsx
 #: src/editor/FindBar.tsx
 msgid "Previous match"
 msgstr "Previous match"
@@ -2153,6 +2174,11 @@ msgstr "Reload"
 msgid "Remember my choice"
 msgstr "Remember my choice"
 
+#. placeholder {0}: ref.title
+#: src/state/project/references.ts
+msgid "Remove {0}"
+msgstr "Remove {0}"
+
 #. placeholder {0}: recent.title || recent.root
 #: src/app/home/Dashboard.tsx
 msgid "Remove {0} from recent projects"
@@ -2287,9 +2313,17 @@ msgstr "Scene break"
 msgid "Scene Break"
 msgstr "Scene Break"
 
+#: src/app/references/PdfSearch.tsx
+msgid "Search in PDF"
+msgstr "Search in PDF"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Search references"
 msgstr "Search references"
+
+#: src/app/references/PdfSearch.tsx
+msgid "Search text"
+msgstr "Search text"
 
 #: src/app/shell/Details.tsx
 msgid "Section"

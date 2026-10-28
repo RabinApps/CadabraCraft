@@ -6,9 +6,12 @@ import {
   sourceFile,
   sourceEdition,
   relink,
+  nextReferenceId,
+  removeReference,
   unlinkEntry,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
+import { forgetReference } from "../../lib/references";
 import { errText } from "../../lib/projectError";
 import { PartialWrite, retargetEntry } from "./util";
 import type { HistoryEntry, HistoryActions } from "./types";
@@ -28,6 +31,43 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
       if (!entry) return false;
       const { root } = need();
       const undoing = from === "undo";
+      if (entry.reference) {
+        const { index, trashPath } = entry.reference;
+        let item = entry.reference.item;
+        const { manifest } = need();
+        let after: typeof manifest;
+        let moved: string | undefined;
+        if (undoing) {
+          // The file first, then the list: the manifest never names a missing file. Comes back under another name when its own was taken since.
+          item = { ...item, file: await bridge.restoreTrash(root, trashPath!) };
+          if (manifest.references.some((r) => r.id === item.id))
+            item = { ...item, id: nextReferenceId(manifest) };
+          const list = [...manifest.references];
+          list.splice(index, 0, item);
+          after = { ...manifest, references: list };
+        } else {
+          after = removeReference(manifest, item.id).manifest;
+        }
+        await saveManifest(after);
+        if (!undoing) {
+          forgetReference(root, item.file);
+          moved = await bridge.trashReference(root, item.file);
+        }
+        const flipped: HistoryEntry = {
+          ...entry,
+          reference: { item, index, ...(moved ? { trashPath: moved } : {}) },
+        };
+        const { history } = get();
+        const kept = history[from].slice(0, -1);
+        const other = undoing ? history.redo : history.undo;
+        set({
+          history: undoing
+            ? { undo: kept, redo: [...other, flipped] }
+            : { undo: [...other, flipped], redo: kept },
+          notice: undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}`,
+        });
+        return true;
+      }
       if (entry.docs) {
         // A text edit across pages: write each page's saved text back (no tree change).
         // Pages removed from the book since (trashed) are skipped: writing them would bring back a file the book no longer lists.

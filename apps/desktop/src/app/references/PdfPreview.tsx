@@ -6,6 +6,7 @@ import { errText } from "../../lib/projectError";
 import { readReferenceBytes } from "../../lib/references";
 import { IconButton } from "../../ui/Button";
 import { Notice } from "../../ui/Notice";
+import { PdfSearch } from "./PdfSearch";
 
 const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 
@@ -97,6 +98,7 @@ export function PdfPreview({ root, file }: { root: string; file: string }) {
           disabled={zoom >= ZOOMS.length - 1}
           onClick={() => setZoom(zoom + 1)}
         />
+        <PdfSearch doc={doc} onGo={setPage} />
       </div>
       <div className="flex min-h-0 flex-1 justify-center overflow-auto bg-sidebar p-4">
         <canvas

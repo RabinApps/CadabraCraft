@@ -10,6 +10,21 @@ const bytes = (s: string) => Array.from(s, (c) => c.charCodeAt(0));
 const PDF = bytes(
   "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R 4 0 R]/Count 2>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]>>endobj\n4 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]>>endobj\ntrailer<</Root 1 0 R/Size 5>>\n%%EOF",
 );
+/** Two pages with text: "Storm on the third" and "Calm seas, storm warning". */
+const TEXT_PDF = (() => {
+  const page = (n: number, text: string) => {
+    const body = `BT /F1 12 Tf 10 50 Td (${text}) Tj ET`;
+    return `${n} 0 obj<</Length ${body.length}>>stream\n${body}\nendstream endobj\n`;
+  };
+  return bytes(
+    "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R 4 0 R]/Count 2>>endobj\n" +
+      "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]/Contents 5 0 R/Resources<</Font<</F1 7 0 R>>>>>>endobj\n" +
+      "4 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]/Contents 6 0 R/Resources<</Font<</F1 7 0 R>>>>>>endobj\n" +
+      page(5, "Storm on the third") +
+      page(6, "Calm seas, storm warning") +
+      "7 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\ntrailer<</Root 1 0 R/Size 8>>\n%%EOF",
+  );
+})();
 const PIXEL = Array.from(
   atob(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
@@ -160,6 +175,37 @@ test.describe("reference files", () => {
     await expect
       .poll(() => canvas.evaluate((c: HTMLCanvasElement) => c.width))
       .toBeGreaterThan(100);
+  });
+
+  test("searches the text of a PDF and steps between the pages that match", async ({ page }) => {
+    await withReferences(page, { "/refs/log.pdf": TEXT_PDF });
+    await row(page, "log").click();
+    const viewer = page.getByRole("dialog");
+    await expect(viewer.getByText("1 / 2")).toBeVisible();
+    await viewer.getByRole("button", { name: "Search in PDF" }).click();
+    const box = viewer.getByLabel("Search text");
+    await box.fill("calm");
+    await box.press("Enter");
+    await expect(viewer.getByText("Page 2, 1 of 1")).toBeVisible();
+    await expect(viewer.getByText("2 / 2")).toBeVisible();
+    await box.fill("storm");
+    await box.press("Enter");
+    await expect(viewer.getByText("Page 1, 1 of 2")).toBeVisible();
+    await expect(viewer.getByRole("button", { name: "Previous match" })).toBeDisabled();
+    await viewer.getByRole("button", { name: "Next match" }).click();
+    await expect(viewer.getByText("Page 2, 2 of 2")).toBeVisible();
+    await expect(viewer.getByText("2 / 2")).toBeVisible();
+    await viewer.getByRole("button", { name: "Previous match" }).click();
+    await expect(viewer.getByText("1 / 2")).toBeVisible();
+    await box.fill("gale");
+    await box.press("Enter");
+    await expect(viewer.getByText("No matches")).toBeVisible();
+    await viewer.getByRole("button", { name: "Close search" }).click();
+    await expect(box).toBeHidden();
+    await viewer.getByRole("button", { name: "Search in PDF" }).click(); // open again, then close with the same button
+    await expect(box).toBeVisible();
+    await viewer.getByRole("button", { name: "Search in PDF" }).click();
+    await expect(box).toBeHidden();
   });
 
   test("says so when a PDF cannot be drawn or a file cannot be read", async ({ page }) => {

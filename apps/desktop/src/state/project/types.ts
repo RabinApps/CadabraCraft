@@ -84,6 +84,8 @@ export interface HistoryEntry {
   others?: { language: string; path: string; trashPath?: string }[];
   /** The reference links the removed page had (`reference` -> `chapter` is the page's id), put back by undo and dropped again by redo. */
   links?: { reference: string; chapter: string }[];
+  /** A removed reference: what it was and where in the list, and while its file is in the trash, where (undo moves it back). `before` and `after` trees are equal. */
+  reference?: { item: Reference; index: number; trashPath?: string };
   /** A text edit across pages (Replace all in the whole book): the pages' file text before and after. `before` and `after` trees are equal. */
   docs?: { file: string; before: string; after: string }[];
 }

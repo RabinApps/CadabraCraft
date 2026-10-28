@@ -733,6 +733,10 @@ msgstr ""
 msgid "Close Project"
 msgstr ""
 
+#: src/app/references/PdfSearch.tsx
+msgid "Close search"
+msgstr ""
+
 #: src/app/references/ReferenceViewer.tsx
 msgid "Close viewer"
 msgstr ""
@@ -1181,6 +1185,10 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Find and Replace…"
+msgstr ""
+
+#: src/app/references/PdfSearch.tsx
+msgid "Find in this PDF"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -1736,6 +1744,7 @@ msgstr ""
 msgid "Next chapter: {0}"
 msgstr ""
 
+#: src/app/references/PdfSearch.tsx
 #: src/editor/FindBar.tsx
 msgid "Next match"
 msgstr ""
@@ -1773,6 +1782,10 @@ msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "No HTML found in the selection"
+msgstr ""
+
+#: src/app/references/PdfSearch.tsx
+msgid "No matches"
 msgstr ""
 
 #: src/app/references/Previews.tsx
@@ -1911,6 +1924,13 @@ msgstr ""
 msgid "Packing the audiobook…"
 msgstr ""
 
+#. placeholder {0}: hits[at]
+#. placeholder {1}: at + 1
+#. placeholder {2}: hits.length
+#: src/app/references/PdfSearch.tsx
+msgid "Page {0}, {1} of {2}"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
 msgstr ""
@@ -2003,6 +2023,7 @@ msgstr ""
 msgid "Previous chapter: {0}"
 msgstr ""
 
+#: src/app/references/PdfSearch.tsx
 #: src/editor/FindBar.tsx
 msgid "Previous match"
 msgstr ""
@@ -2152,6 +2173,11 @@ msgstr ""
 msgid "Remember my choice"
 msgstr ""
 
+#. placeholder {0}: ref.title
+#: src/state/project/references.ts
+msgid "Remove {0}"
+msgstr ""
+
 #. placeholder {0}: recent.title || recent.root
 #: src/app/home/Dashboard.tsx
 msgid "Remove {0} from recent projects"
@@ -2286,8 +2312,16 @@ msgstr ""
 msgid "Scene Break"
 msgstr ""
 
+#: src/app/references/PdfSearch.tsx
+msgid "Search in PDF"
+msgstr ""
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Search references"
+msgstr ""
+
+#: src/app/references/PdfSearch.tsx
+msgid "Search text"
 msgstr ""
 
 #: src/app/shell/Details.tsx

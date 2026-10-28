@@ -9,6 +9,10 @@ let failWrite = false;
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
     ...trashMethods,
+    restoreTrash: async (r: string, p: string) =>
+      p.startsWith(".cadabra/trash/x-")
+        ? p.slice(".cadabra/trash/x-".length)
+        : trashMethods.restoreTrash(r, p),
     writeFile: async (_r: string, path: string, contents: string) => {
       if (failWrite) throw new Error("disk full");
       disk.set(path, contents);
@@ -166,11 +170,39 @@ describe("reference actions", () => {
     await a().updateReference("ref-1", { chapters: [ch] });
     await a().remove(ch);
     expect(s().manifest!.references[0]!.chapters).toEqual([]);
-    await a().removeReference("ref-2"); // gone before the undo: its link (none here) cannot come back
+    await a().removeReference("ref-2"); // removed after the chapter: the first undo brings it back, the second the chapter and its link
+    await a().undo(); // the reference first, then the chapter
     await a().undo();
     expect(s().manifest!.chapters.map((c) => c.id)).toContain(ch);
-    expect(s().manifest!.references.map((r) => r.chapters)).toEqual([[ch]]);
-    await a().redo();
+    expect(s().manifest!.references.map((r) => r.chapters)).toEqual([[ch], []]);
+    await a().redo(); // the chapter again, without its link
     expect(s().manifest!.references[0]!.chapters).toEqual([]);
+  });
+
+  it("Book Undo puts a removed reference back at its place and redo removes it again", async () => {
+    await a().addReferences(["/x/a.pdf", "/x/b.pdf", "/x/c.pdf"]);
+    await a().updateReference("ref-2", { note: "keep" });
+    await a().removeReference("ref-2");
+    expect(s().manifest!.references.map((r) => r.id)).toEqual(["ref-1", "ref-3"]);
+    await a().undo();
+    expect(s().manifest!.references.map((r) => [r.id, r.note])).toEqual([
+      ["ref-1", ""],
+      ["ref-2", "keep"],
+      ["ref-3", ""],
+    ]);
+    expect(s().notice).toMatch(/Undid: Remove b/);
+    await a().redo();
+    expect(s().manifest!.references.map((r) => r.id)).toEqual(["ref-1", "ref-3"]);
+    expect(s().notice).toMatch(/Redid: Remove b/);
+    await a().undo();
+    expect(s().manifest!.references).toHaveLength(3);
+  });
+
+  it("an undone removal takes a fresh id when its id was reused meanwhile", async () => {
+    await a().addReferences(["/x/a.pdf"]);
+    await a().removeReference("ref-1");
+    await a().addReferences(["/x/b.pdf"]); // takes ref-1 again
+    await a().undo();
+    expect(s().manifest!.references.map((r) => r.id)).toEqual(["ref-2", "ref-1"]);
   });
 });
