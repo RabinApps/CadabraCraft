@@ -21,9 +21,7 @@ test.beforeEach(async ({ page }) => {
       if (cmd === "audio_delete_pack") {
         if (w.__deleteError) throw { kind: "io", message: "Could not delete" };
         const packs = (await orig("audio_packs", a, opts)) as NonNullable<typeof w.__audioPacks>;
-        w.__audioPacks = packs.map((p) =>
-          p.id === a.pack ? { ...p, installed: false } : p,
-        );
+        w.__audioPacks = packs.map((p) => (p.id === a.pack ? { ...p, installed: false } : p));
         return null;
       }
       if (cmd === "audio_voices") {
