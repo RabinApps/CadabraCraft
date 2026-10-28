@@ -7,4 +7,4 @@ description: Click through the real CadabraCraft desktop app (create, edit, imag
 2. Report each PASS or FAIL line verbatim and the artifact folder it prints. Look at the screenshots there (Read tool) before claiming the UI looks right; assertions only cover what they check.
 3. To investigate or extend: start `pnpm --filter @cadabracraft/desktop tauri:automate` in the background and use `node scripts/automation/cli.ts snapshot|screenshot|click|fill|queue-dialog|invoke|js` (see docs/agent-testing.md). Native dialogs cannot be clicked: queue their answers first with `queue-dialog`.
 4. If the bridge is unreachable, say so. Never report the real window as verified when only Playwright or unit tests ran. Always stop the app when done.
-5. New UI flows should get a step in `scripts/automation/scenario.ts` with assertions on both the UI and the files on disk.
+5. New UI flows should get a step in the matching module under `scripts/automation/scenario/` (run in order by `scenario.ts`) with assertions on both the UI and the files on disk.
