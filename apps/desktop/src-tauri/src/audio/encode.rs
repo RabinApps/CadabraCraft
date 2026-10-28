@@ -1,6 +1,6 @@
 //! Audio file encoders for the audiobook export: FLAC (`flacenc`, lossless) and Ogg Opus (`opus-rs` plus `ogg`).
 //! Both are pure Rust, so they need no extra binaries and run on the same worker thread as the rest of a render.
-//! Input is 16-bit mono PCM, which is what the voice engine writes. Errors are plain strings; `audio.rs` wraps them
+//! Input is 16-bit mono PCM, which is what the voice engine writes. Errors are plain strings; `render.rs` wraps them
 //! in `AudioError::Encode` with the format name.
 use flacenc::bitsink::ByteSink;
 use flacenc::component::BitRepr;

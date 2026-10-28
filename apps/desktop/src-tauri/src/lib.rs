@@ -1,8 +1,6 @@
 #[cfg(feature = "dev-automation")]
 mod automation;
 mod audio;
-mod audio_encode;
-mod audio_voices;
 mod commands;
 mod fs_watch;
 mod import_src;
@@ -35,15 +33,15 @@ macro_rules! app_handlers {
             typst::typst_find,
             typst::typst_list_fonts,
             typst::typst_compile,
-            audio::audio_voices,
-            audio::audio_render_chapter,
-            audio::audio_cancel,
-            audio::audio_forget,
-            audio::audio_files_exist,
-            audio::audio_sample,
-            audio_voices::audio_packs,
-            audio_voices::audio_download_pack,
-            audio_voices::audio_delete_pack,
+            audio::commands::audio_voices,
+            audio::commands::audio_render_chapter,
+            audio::commands::audio_cancel,
+            audio::commands::audio_forget,
+            audio::commands::audio_files_exist,
+            audio::commands::audio_sample,
+            audio::commands::audio_packs,
+            audio::commands::audio_download_pack,
+            audio::commands::audio_delete_pack,
             commands::updates_supported
             $(, $extra)*
         ]
