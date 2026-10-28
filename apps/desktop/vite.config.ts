@@ -12,5 +12,6 @@ export default defineConfig({
     tailwindcss(),
   ],
   clearScreen: false,
-  server: { port: 1420, strictPort: true },
+  // E2E_PORT lets parallel Playwright runs (e.g. several agents) use their own dev server.
+  server: { port: Number(process.env.E2E_PORT) || 1420, strictPort: true },
 });

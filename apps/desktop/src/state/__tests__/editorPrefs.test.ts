@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  cleanGoal,
+  MAX_SESSION_GOAL,
   cleanSnapshotKeep,
   SNAPSHOT_KEEP_DEFAULT,
   SNAPSHOT_KEEP_MAX,
@@ -21,5 +23,14 @@ describe("cleanSnapshotKeep", () => {
     expect(cleanSnapshotKeep(100000)).toBe(SNAPSHOT_KEEP_MAX);
     for (const bad of [NaN, 2.5, "50", null, undefined])
       expect(cleanSnapshotKeep(bad)).toBe(SNAPSHOT_KEEP_DEFAULT);
+  });
+});
+
+describe("cleanGoal", () => {
+  it("keeps whole numbers up to the maximum and turns everything else into off", () => {
+    expect(cleanGoal(500)).toBe(500);
+    expect(cleanGoal(0)).toBe(0);
+    expect(cleanGoal(MAX_SESSION_GOAL + 1)).toBe(MAX_SESSION_GOAL);
+    for (const bad of [-1, 2.5, NaN, "5", null, undefined]) expect(cleanGoal(bad)).toBe(0);
   });
 });

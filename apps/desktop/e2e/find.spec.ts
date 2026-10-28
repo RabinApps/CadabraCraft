@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { newProject, addPage } from "./support/helpers";
 

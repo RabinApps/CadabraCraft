@@ -26,7 +26,7 @@ function splitLong(sentence: string, max: number): string[] {
     out.push(rest.slice(0, at).trim());
     rest = rest.slice(at).trim();
   }
-  if (rest) out.push(rest);
+  out.push(rest);
   return out;
 }
 

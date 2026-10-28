@@ -132,10 +132,10 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     ...(arg === undefined ? {} : { arg }),
   });
   const sep: MenuEntry = { kind: "separator" };
-  const pre = (item: PredefinedKind, text?: string): MenuEntry => ({
+  const pre = (item: PredefinedKind, text: string): MenuEntry => ({
     kind: "predefined",
     item,
-    ...(text ? { text } : {}),
+    text,
   });
   const sub = (text: string, items: MenuEntry[]): MenuEntry => ({ kind: "submenu", text, items });
 

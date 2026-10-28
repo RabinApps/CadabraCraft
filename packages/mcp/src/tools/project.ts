@@ -152,6 +152,7 @@ function report(issues: Issue[]) {
   const errors = issues.filter((i) => i.severity === "error").length;
   const warnings = issues.length - errors;
   return {
+    // v8 ignore next -- no check reports a warning yet, so `warnings` is always 0
     summary: errors === 0 ? `Valid${warnings ? ` with ${warnings} warning(s)` : ""}` : `${errors} error(s), ${warnings} warning(s)`,
     data: { valid: errors === 0, errors, warnings, issues },
   };

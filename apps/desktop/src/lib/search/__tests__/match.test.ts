@@ -191,3 +191,14 @@ describe("expandReplacement", () => {
     expect(expandReplacement({ from: 0, to: 1 }, "$1 $& $$", false)).toBe("$1 $& $$");
   });
 });
+
+describe("expandReplacement with incomplete captures", () => {
+  it("uses an empty string for a missing whole match or group", () => {
+    const range = { from: 0, to: 1, captures: [] as string[] };
+    expect(expandReplacement(range, "[$&]", true)).toBe("[]");
+    expect(expandReplacement({ ...range, captures: ["x"] }, "$1", true)).toBe("$1");
+    expect(expandReplacement({ ...range, captures: ["x", undefined as never] }, "[$1]", true)).toBe(
+      "[]",
+    );
+  });
+});

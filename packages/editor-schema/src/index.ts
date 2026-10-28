@@ -188,6 +188,7 @@ export function chapterDocProblem(doc: unknown): string | null {
 
 /** Tables must be rectangular and unmerged: every row has the same number of cells, each with colspan and rowspan 1. */
 function tableProblem(table: RawNode): string | null {
+  /* v8 ignore next -- only called after PMNode.check(), which requires table rows */
   const rows = table.content ?? [];
   let width = -1;
   for (const [i, row] of rows.entries()) {

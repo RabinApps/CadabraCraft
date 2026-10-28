@@ -154,14 +154,14 @@ export const createPageActions = (ctx: Ctx): PageActions => {
       const next =
         sectionOf(m, id) === "chapter" ? renameChapter(m, id, title) : renameMatter(m, id, title);
       await saveManifest(next);
-      record({ label: t`Rename ${sourceTitleById(m, id) ?? ""}` }, m, next);
+      record({ label: t`Rename ${sourceTitleById(m, id)!}` }, m, next);
     },
     async move(id, delta) {
       const m = need().manifest;
       const next =
         sectionOf(m, id) === "chapter" ? moveChapter(m, id, delta) : moveMatter(m, id, delta);
       await saveManifest(next);
-      record({ label: t`Move ${sourceTitleById(m, id) ?? ""}` }, m, next);
+      record({ label: t`Move ${sourceTitleById(m, id)!}` }, m, next);
     },
     async remove(id) {
       const { root, manifest } = need();

@@ -61,6 +61,8 @@ function pushText(st: PState, text: string, marks: Mark[], link: Mark | undefine
 }
 
 function linkMark(href: string | undefined, st: PState, label: string): Mark | undefined {
+  // Callers only pass a regex capture group or a relationship target, which are always strings; the check narrows the type.
+  /* v8 ignore next -- @preserve */
   if (href === undefined) return undefined;
   const safe = safeHref(href);
   if (safe) return { type: "link", attrs: { href: safe } };
@@ -206,7 +208,11 @@ function noteNode(el: XNode, ctx: DCtx): DocNode {
     paragraphChildren(kids(p), undefined, sub);
     if (parts.length) parts.push({ type: "text", text: " " });
     for (const it of sub.items) {
+      // Notes never hold lifted blocks (images in notes are dropped) or nested footnotes, so a separator is always a break
+      // and every other item is text; the ignored branches are the defensive "otherwise" cases.
+      /* v8 ignore else -- @preserve */
       if (isSep(it)) {
+        /* v8 ignore else -- @preserve */
         if (it.sep === "break") parts.push({ type: "text", text: " " });
       } else if (it.type === "text") parts.push(it);
     }

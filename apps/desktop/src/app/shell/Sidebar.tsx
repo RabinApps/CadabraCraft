@@ -399,7 +399,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         title={t`Move “${deleting?.title ?? ""}” to trash?`}
         description={t`It moves to the project trash inside your book folder. Nothing is permanently deleted.`}
         confirmLabel={t`Move to trash`}
-        danger
         onConfirm={() => {
           if (deleting) void actions.remove(deleting.id);
         }}

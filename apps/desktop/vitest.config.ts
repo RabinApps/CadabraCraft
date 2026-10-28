@@ -8,6 +8,19 @@ export default defineConfig({
   test: {
     setupFiles: ["./src/i18n/test-setup.ts"],
     exclude: ["e2e/**", "e2e-native/**", "node_modules/**"],
-    coverage,
+    // Pure TypeScript only: components and hooks are measured through Playwright (see coverageScopes.ts).
+    coverage: {
+      ...coverage,
+      exclude: [
+        ...coverage.exclude,
+        "src/main.tsx",
+        "**/*.tsx",
+        "**/use[A-Z]*.ts",
+        "src/editor/findHooks.ts",
+        "src/i18n/locales/**",
+        "src/test/**",
+        "src/i18n/test-setup.ts",
+      ],
+    },
   },
 });

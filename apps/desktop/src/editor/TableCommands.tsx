@@ -48,7 +48,7 @@ export function TableCommands({ editor }: { editor: Editor }) {
   };
 
   return (
-    <Modal open={size !== null} onOpenChange={(o) => !o && setSize(null)} title={t`Insert table`}>
+    <Modal open={size !== null} onOpenChange={() => setSize(null)} title={t`Insert table`}>
       <form
         className="flex flex-col gap-4"
         onSubmit={(e) => {

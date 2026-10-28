@@ -50,4 +50,30 @@ mod tests {
         jobs.forget("a");
         assert!(!jobs.flag("a").load(Ordering::Relaxed));
     }
+
+    #[test]
+    fn a_poisoned_lock_does_not_lose_the_flags() {
+        let jobs = std::sync::Arc::new(AudioJobs::default());
+        jobs.cancel("a");
+        let held = jobs.clone();
+        assert!(std::thread::spawn(move || {
+            let _guard = held.0.lock().unwrap();
+            panic!("poison the lock");
+        })
+        .join()
+        .is_err());
+        assert!(jobs.flag("a").load(Ordering::Relaxed));
+        jobs.forget("a");
+        assert!(!jobs.flag("a").load(Ordering::Relaxed));
+    }
+
+    #[test]
+    fn the_voices_folder_is_set_once_and_the_development_override_wins() {
+        let first = std::env::temp_dir().join("cadabracraft-test-voices");
+        set_voices_dir(first.clone());
+        set_voices_dir(std::env::temp_dir().join("cadabracraft-other-voices")); // the first one stays
+        assert_eq!(VOICES_DIR.get(), Some(&first));
+        let expected = std::env::var_os("CADABRA_VOICES_DIR").map(PathBuf::from).unwrap_or(first);
+        assert_eq!(voices_root(), Some(expected));
+    }
 }

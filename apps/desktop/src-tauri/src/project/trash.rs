@@ -220,4 +220,16 @@ mod tests {
         assert!(matches!(restore_trash(d.path(), "manuscript/a.json").unwrap_err(), ProjectError::NotTrashPath { .. }));
         assert!(matches!(restore_trash(d.path(), ".cadabra/trash/x.json").unwrap_err(), ProjectError::CannotRestore { .. }));
     }
+
+    #[test]
+    fn listing_without_a_trash_folder_is_empty_and_skips_folders_and_reports_a_file_in_the_way() {
+        let d = tmp();
+        assert!(list_trash(d.path()).unwrap().is_empty());
+        fs::create_dir_all(d.path().join(".cadabra/trash/a-folder")).unwrap();
+        assert!(list_trash(d.path()).unwrap().is_empty());
+        let e = tmp();
+        fs::create_dir_all(e.path().join(".cadabra")).unwrap();
+        fs::write(e.path().join(".cadabra/trash"), "a file").unwrap();
+        assert!(matches!(list_trash(e.path()), Err(ProjectError::Io { .. })));
+    }
 }

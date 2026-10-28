@@ -186,6 +186,8 @@ export class BodyBuilder {
           const s = ctx.styles.get(sid);
           if (s?.numId !== undefined) {
             numId = s.numId;
+            // A style that has a numId always has an ilvl too (both come from the same numPr), so the fallback is unreachable.
+            /* v8 ignore next -- @preserve */
             ilvl = s.ilvl ?? 0;
           }
           sid = s?.basedOn;

@@ -38,3 +38,44 @@ describe("dev-automation dialog queue", () => {
     expect(await bridge.pickFolder()).toBe("/picked");
   });
 });
+
+describe("native pickers", () => {
+  it("pickFolder returns a string path and null for a cancel", async () => {
+    invoke.mockResolvedValue(null);
+    open.mockResolvedValueOnce("/f").mockResolvedValueOnce(null);
+    expect(await bridge.pickFolder()).toBe("/f");
+    expect(await bridge.pickFolder()).toBeNull();
+    expect(open).toHaveBeenCalledWith({ directory: true, multiple: false });
+  });
+  it("pickImage filters to images and returns null for a cancel", async () => {
+    invoke.mockResolvedValue(null);
+    open.mockResolvedValueOnce("/i.png").mockResolvedValueOnce(null);
+    expect(await bridge.pickImage()).toBe("/i.png");
+    expect(await bridge.pickImage()).toBeNull();
+    expect(open.mock.calls[0]![0].filters[0].name).toBe("Images");
+  });
+  it("pickImportSource filters to documents and returns null for a cancel", async () => {
+    invoke.mockResolvedValue(null);
+    open.mockResolvedValueOnce(null);
+    expect(await bridge.pickImportSource()).toBeNull();
+    expect(open.mock.calls[0]![0].filters[0].name).toBe("Documents");
+  });
+  it("pickImage and pickImportSource use a queued answer too", async () => {
+    invoke.mockResolvedValueOnce({ answer: "/q.png" }).mockResolvedValueOnce({ answer: null });
+    expect(await bridge.pickImage()).toBe("/q.png");
+    expect(await bridge.pickImportSource()).toBeNull();
+    expect(open).not.toHaveBeenCalled();
+  });
+});
+
+describe("outside development", () => {
+  it("never asks the automation queue", async () => {
+    vi.resetModules();
+    vi.stubEnv("DEV", false);
+    const { bridge: prod } = await import("../bridge");
+    open.mockResolvedValueOnce("/p");
+    expect(await prod.pickFolder()).toBe("/p");
+    expect(invoke).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
+});

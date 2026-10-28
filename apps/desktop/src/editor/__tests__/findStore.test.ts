@@ -24,6 +24,11 @@ describe("find store limits", () => {
     useFind.getState().toggleReplace("y".repeat(5000));
     expect(useFind.getState().query).toHaveLength(MAX_QUERY_CHARS);
   });
+  it("preserves values when non-string input is forced past the type boundary", () => {
+    useFind.getState().set({ query: null as never, replacement: 42 as never });
+    expect(useFind.getState().query).toBeNull();
+    expect(useFind.getState().replacement).toBe(42);
+  });
   it("keeps a whitespace-only query as typed (it searches for that whitespace)", () => {
     useFind.getState().set({ query: "   " });
     expect(useFind.getState().query).toBe("   ");
@@ -76,5 +81,38 @@ describe("book helpers with nothing to find", () => {
       total: 1,
       index: 0,
     });
+  });
+});
+
+describe("find store actions", () => {
+  it("show keeps the replace row and query unless told otherwise, and bumps the focus tick", () => {
+    useFind.setState({ replace: false, query: "keep", focusTick: 0 });
+    useFind.getState().show({ query: null });
+    expect(useFind.getState().query).toBe("keep");
+    useFind.getState().show({ query: "" });
+    expect(useFind.getState().query).toBe("keep");
+    useFind.getState().show({ query: undefined });
+    expect(useFind.getState().query).toBe("keep");
+    useFind.getState().show({});
+    expect(useFind.getState()).toMatchObject({
+      open: true,
+      replace: false,
+      query: "keep",
+      focusTick: 4,
+    });
+    useFind.getState().show({ replace: true, query: "new" });
+    expect(useFind.getState()).toMatchObject({ replace: true, query: "new", focusTick: 5 });
+  });
+  it("toggleReplace opens the bar with the replace row, then flips the row", () => {
+    useFind.setState({ open: false, replace: false });
+    useFind.getState().toggleReplace();
+    expect(useFind.getState()).toMatchObject({ open: true, replace: true });
+    useFind.getState().toggleReplace();
+    expect(useFind.getState().replace).toBe(false);
+  });
+  it("close hides the bar", () => {
+    useFind.setState({ open: true });
+    useFind.getState().close();
+    expect(useFind.getState().open).toBe(false);
   });
 });

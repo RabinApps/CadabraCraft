@@ -135,3 +135,34 @@ describe("platform support", () => {
     expect(store.getState().dialogOpen).toBe(false);
   });
 });
+
+describe("guards", () => {
+  it("setCheckOnLaunch(true) stores on", async () => {
+    const { data, store } = await fresh("off");
+    store.getState().setCheckOnLaunch(true);
+    expect(data.get(KEY)).toBe("on");
+  });
+
+  it("ignores a check while one is running or an install is in progress", async () => {
+    const { store } = await fresh(null);
+    store.setState({ status: { kind: "checking" } });
+    await store.getState().check(true);
+    store.setState({ status: { kind: "installing" } });
+    await store.getState().check(true);
+    expect(bridge.updatesSupported).not.toHaveBeenCalled();
+  });
+
+  it("install does nothing unless an update is available", async () => {
+    const { store } = await fresh(null);
+    await store.getState().install();
+    expect(store.getState().status.kind).toBe("idle");
+  });
+
+  it("reports unsupported packages", async () => {
+    const { store } = await fresh(null);
+    bridge.updatesSupported.mockResolvedValue(false);
+    await store.getState().check(true);
+    expect(store.getState().status.kind).toBe("unsupported");
+    expect(bridge.checkForUpdate).not.toHaveBeenCalled();
+  });
+});

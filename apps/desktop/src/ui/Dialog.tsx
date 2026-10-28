@@ -56,17 +56,16 @@ interface ConfirmProps {
   title: string;
   description: string;
   confirmLabel: string;
-  danger?: boolean;
   onConfirm: () => void;
 }
 
+/** A confirmation for a destructive action: the confirm button is the danger style. */
 export function Confirm({
   open,
   onOpenChange,
   title,
   description,
   confirmLabel,
-  danger,
   onConfirm,
 }: ConfirmProps) {
   const { t } = useLingui();
@@ -75,7 +74,7 @@ export function Confirm({
       <div className="flex justify-end gap-2.5">
         <Button onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>
         <Button
-          variant={danger ? "danger" : "primary"}
+          variant="danger"
           onClick={() => {
             onOpenChange(false);
             onConfirm();

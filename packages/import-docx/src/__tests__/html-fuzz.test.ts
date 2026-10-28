@@ -10,7 +10,7 @@ import {
   looksLikeHtml,
   type ImportResult,
 } from "..";
-import { schema } from "./helpers";
+import { budget, schema } from "./helpers";
 
 /** Small seeded PRNG (mulberry32) so a failure reproduces from its seed. */
 function rng(seed: number): () => number {
@@ -225,7 +225,7 @@ describe("HTML fuzz", () => {
         ),
       );
     }
-    expect(performance.now() - start).toBeLessThan(30_000);
+    expect(performance.now() - start).toBeLessThan(budget(30_000));
   }, 60_000);
 
   it("mutated real-world snippets", () => {
@@ -244,7 +244,7 @@ describe("HTML fuzz", () => {
       check(label, () => importMarkdown(html));
       expect(typeof looksLikeHtml(html), label).toBe("boolean");
     }
-    expect(performance.now() - start).toBeLessThan(30_000);
+    expect(performance.now() - start).toBeLessThan(budget(30_000));
   }, 60_000);
 
   it("random markdown with inline HTML marks: valid docs, balanced pairs become marks, nothing throws but ImportError", () => {

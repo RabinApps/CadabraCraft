@@ -82,3 +82,34 @@ describe("narrate", () => {
     expect(() => narrate(doc(inline))).toThrow(/mystery/);
   });
 });
+
+describe("narrate edge cases", () => {
+  it("reads a hard break as a space", () => {
+    const para = {
+      type: "paragraph" as const,
+      content: [
+        { type: "text" as const, text: "a" },
+        { type: "hardBreak" } as never,
+        { type: "text" as const, text: "b" },
+      ],
+    };
+    expect(narrate(doc(para)).blocks).toEqual([{ type: "paragraph", text: "a b" }]);
+  });
+
+  it("tolerates empty containers and paragraphs, and stray text nodes between blocks", () => {
+    const stray = { type: "text" as const, text: "loose" };
+    const { blocks } = narrate(
+      doc(
+        { type: "paragraph" } as never,
+        { type: "blockquote" } as never,
+        { type: "blockquote", content: [stray] } as never,
+        p("kept"),
+      ),
+    );
+    expect(blocks).toEqual([{ type: "paragraph", text: "kept" }]);
+  });
+
+  it("tolerates a document with no content", () => {
+    expect(narrate({ type: "doc" } as never).blocks).toEqual([]);
+  });
+});

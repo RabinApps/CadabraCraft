@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   GALLERY_TEMPLATE_IDS,
   getTemplate,
@@ -70,5 +70,132 @@ describe("gallery", () => {
     for (const id of GALLERY_TEMPLATE_IDS) expect(hasTemplate(id)).toBe(true);
     expect(getTemplate("poetry").name).toBe("Poetry");
     expect(getTemplate("poetry").epub.css).toContain("text-align:center");
+  });
+});
+
+describe("validation of malformed templates", () => {
+  const novel = () => structuredClone(getTemplate("novel"));
+  const junk = (v: unknown) => v as never;
+
+  it("reports a missing print block and missing fields on an empty object", () => {
+    const errs = validateTemplate({} as Template);
+    expect(errs).toContain("id must be lowercase kebab-case");
+    expect(errs).toContain("name required");
+    expect(errs).toContain("description required");
+    expect(errs).toContain("print settings missing");
+  });
+
+  it("reports every field of an empty print and epub block", () => {
+    const errs = validateTemplate({
+      id: "x",
+      name: "n",
+      description: "d",
+      print: {},
+      epub: {},
+    } as never);
+    expect(errs).toEqual(
+      expect.arrayContaining([
+        "print.bodyFonts needs at least one family",
+        "print.headingFonts must be a list of families",
+        "print.fontSizePt out of range",
+        "print.leadingEm out of range",
+        "print.paragraph.style must be indent or spaced",
+        "print.paragraph.indentEm out of range",
+        "print.paragraph.spacingEm out of range",
+        "print.headings.1 missing",
+        "print.headings.2 missing",
+        "print.headings.3 missing",
+        "print.chapterOpening.startOn must be recto or any",
+        "print.chapterOpening.sinkEm out of range",
+        "print.chapterOpening.label must be null or contain {n}",
+        "print.chapterOpening.dropCap must be true or false",
+        "print.chapterOpening.ornament must be null or a single character",
+        "print.blockQuote.indentEm out of range",
+        "print.blockQuote.sizeEm out of range",
+        "print.blockQuote.spaceEm out of range",
+        "print.sceneBreak.glyph required",
+        "print.sceneBreak.spaceEm out of range",
+        "print.runningText.sizePt out of range",
+        "print.footnoteSizeEm out of range",
+        "print.defaults.marginsIn.top out of range",
+        "print.defaults.marginsIn.inside out of range",
+        "epub.css required",
+      ]),
+    );
+    expect(errs.some((e) => e.startsWith("print.defaults.trimSize"))).toBe(true);
+  });
+
+  it("reports a heading style with every field out of range", () => {
+    const t = novel();
+    t.print.headings[2] = junk({ sizeEm: 99, spaceAboveEm: 99, spaceBelowEm: 99, align: "right" });
+    const errs = validateTemplate(t);
+    expect(errs).toEqual([
+      "print.headings.2.sizeEm out of range",
+      "print.headings.2.spaceAboveEm out of range",
+      "print.headings.2.spaceBelowEm out of range",
+      "print.headings.2.align must be left or center",
+    ]);
+  });
+
+  it("rejects non-array fonts, blank fonts, non-finite and non-numeric numbers", () => {
+    const t = novel();
+    t.print.bodyFonts = junk("serif");
+    t.print.headingFonts = junk(["ok", ""]);
+    t.print.fontSizePt = junk(Number.NaN);
+    t.print.leadingEm = junk("1.4");
+    const errs = validateTemplate(t);
+    expect(errs).toContain("print.bodyFonts needs at least one family");
+    expect(errs).toContain("print.headingFonts must be a list of families");
+    expect(errs).toContain("print.fontSizePt out of range");
+    expect(errs).toContain("print.leadingEm out of range");
+  });
+
+  it("rejects non-string and blank names and descriptions, and a non-string label or ornament", () => {
+    const t = novel();
+    t.name = junk(5);
+    t.description = "   ";
+    t.print.chapterOpening.label = junk(3);
+    t.print.chapterOpening.ornament = junk(3);
+    t.print.chapterOpening.dropCap = junk("yes");
+    const errs = validateTemplate(t);
+    expect(errs).toEqual(
+      expect.arrayContaining([
+        "name required",
+        "description required",
+        "print.chapterOpening.label must be null or contain {n}",
+        "print.chapterOpening.ornament must be null or a single character",
+        "print.chapterOpening.dropCap must be true or false",
+      ]),
+    );
+  });
+
+  it("accepts a null label and ornament, and rejects remote url() in epub css", () => {
+    const t = novel();
+    t.print.chapterOpening.label = null;
+    t.print.chapterOpening.ornament = null;
+    expect(validateTemplate(t)).toEqual([]);
+    t.epub.css = "a{background:url( 'https://x.test/a.png')}";
+    expect(validateTemplate(t)).toContain("epub.css must not load remote resources");
+  });
+});
+
+describe("registry construction", () => {
+  const loadWith = async (list: unknown[]) => {
+    vi.resetModules();
+    vi.doMock("../builtin", () => ({ BUILTIN_TEMPLATES: list, GALLERY_TEMPLATE_IDS: [] }));
+    try {
+      return await import("../registry");
+    } finally {
+      vi.doUnmock("../builtin");
+      vi.resetModules();
+    }
+  };
+  it("refuses a duplicate built-in id", async () => {
+    const t = getTemplate("novel");
+    await expect(loadWith([t, t])).rejects.toThrow(/Duplicate template id "novel"/);
+  });
+  it("refuses an invalid built-in template", async () => {
+    const bad = { ...structuredClone(getTemplate("novel")), name: "" };
+    await expect(loadWith([bad])).rejects.toThrow(/Invalid template "novel": name required/);
   });
 });

@@ -70,4 +70,35 @@ mod tests {
         streamed[40..44].copy_from_slice(&u32::MAX.to_le_bytes());
         assert_eq!(parse_wav(&streamed).unwrap().samples, vec![5, 6, 7]);
     }
+
+    fn chunk(id: &[u8; 4], body: &[u8]) -> Vec<u8> {
+        let mut out = id.to_vec();
+        out.extend((body.len() as u32).to_le_bytes());
+        out.extend(body);
+        out.extend(std::iter::repeat_n(0, body.len() & 1)); // chunks are padded to an even size
+        out
+    }
+
+    fn riff(chunks: &[Vec<u8>]) -> Vec<u8> {
+        let body: Vec<u8> = chunks.concat();
+        [b"RIFF".to_vec(), (4 + body.len() as u32).to_le_bytes().to_vec(), b"WAVE".to_vec(), body].concat()
+    }
+
+    fn fmt() -> Vec<u8> {
+        chunk(b"fmt ", &[1, 0, 1, 0, 0x80, 0x3e, 0, 0, 0, 0x7d, 0, 0, 2, 0, 16, 0]) // PCM, mono, 16000 Hz, 16 bit
+    }
+
+    #[test]
+    fn unknown_chunks_are_skipped_and_odd_sized_ones_are_padded() {
+        let wav = riff(&[chunk(b"LIST", b"odd"), fmt(), chunk(b"data", &[9, 0, 8, 0])]);
+        let pcm = parse_wav(&wav).unwrap();
+        assert_eq!((pcm.rate, pcm.samples), (16000, vec![9, 8]));
+    }
+
+    #[test]
+    fn a_file_without_samples_or_with_a_broken_layout_is_refused() {
+        assert!(matches!(parse_wav(&riff(&[fmt()])), Err(AudioError::Synth { message }) if message.contains("no data chunk")));
+        assert!(matches!(parse_wav(&riff(&[chunk(b"data", &[1, 0]), fmt()])), Err(AudioError::Synth { message }) if message.contains("data before fmt")));
+        assert!(matches!(parse_wav(&riff(&[chunk(b"fmt ", &[1, 0, 1, 0])])), Err(AudioError::Synth { message }) if message.contains("short fmt chunk")));
+    }
 }

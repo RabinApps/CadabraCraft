@@ -148,6 +148,8 @@ export function parseSnippet(html: string): readonly PNode[] {
   const doc = parse(`<!DOCTYPE html><body>${html}`);
   const root = doc.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "html");
   const body = root?.childNodes.find((n): n is PElement => isElement(n) && n.tagName === "body");
+  // parse5 always builds <html> and <body> for a document, so the fallback is only there for the type checker.
+  /* v8 ignore next -- @preserve */
   return body?.childNodes ?? [];
 }
 

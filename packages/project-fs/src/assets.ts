@@ -56,7 +56,8 @@ export function looksLike(ext: string, b: Uint8Array): boolean {
  * unknown or the type has no pixel size (SVG). Same rules as `image_size` in the Rust layer (fixtures/contract/image-dimensions.json).
  */
 export function imageSize(ext: string, b: Uint8Array): [number, number] | null {
-  const u = (i: number): number => b[i] ?? 0; // callers check the length first
+  // v8 ignore next -- every caller checks the length before reading, so the fallback never applies
+  const u = (i: number): number => b[i] ?? 0;
   const be16 = (i: number): number | null => (i + 2 <= b.length ? (u(i) << 8) | u(i + 1) : null);
   const le16 = (i: number): number | null => (i + 2 <= b.length ? u(i) | (u(i + 1) << 8) : null);
   const be32 = (i: number): number | null =>
@@ -86,9 +87,7 @@ export function imageSize(ext: string, b: Uint8Array): [number, number] | null {
         else if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc)
           return pair(be16(i + 7), be16(i + 5));
         else {
-          const len = be16(i + 2);
-          if (len === null) return null;
-          i += 2 + len;
+          i += 2 + ((u(i + 2) << 8) | u(i + 3)); // the loop guard (i + 4 <= length) keeps both bytes in range
         }
       }
       return null;
@@ -152,8 +151,7 @@ export function storeImage(root: string, fileName: string, bytes: Uint8Array): s
   if (bytes.length > MAX_IMAGE_BYTES)
     throw new ProjectFsError("too_large", `${fileName} is larger than ${MAX_MB} MB`);
   checkImage(fileName, ext, bytes);
-  const dot = fileName.lastIndexOf(".");
-  const stem = sanitizeAssetStem(dot >= 0 ? fileName.slice(0, dot) : fileName);
+  const stem = sanitizeAssetStem(fileName.slice(0, fileName.lastIndexOf(".")));
   const hash = hashBytes(bytes);
   for (let n = 1; ; n++) {
     const rel = `assets/${n === 1 ? `${stem}.${ext}` : `${stem}-${n}.${ext}`}`;

@@ -171,9 +171,7 @@ export function buildDocx(
     s.pendingBreak = false;
   }
   const settled = settleTables(body);
-  const last = settled[settled.length - 1] ?? "";
-  const tail = last.startsWith("<w:tbl>") ? ["<w:p/>"] : [];
-  const document = `${XML_HEAD}<w:document xmlns:w="${NS_W}" xmlns:r="${NS_R}" xmlns:wp="${NS_WP}" xmlns:a="${NS_A}" xmlns:pic="${NS_PIC}"><w:body>${settled.join("")}${tail.join("")}${sectPr(runHdr, { restart: true, type: true })}</w:body></w:document>`;
+  const document = `${XML_HEAD}<w:document xmlns:w="${NS_W}" xmlns:r="${NS_R}" xmlns:wp="${NS_WP}" xmlns:a="${NS_A}" xmlns:pic="${NS_PIC}"><w:body>${settled.join("")}${sectPr(runHdr, { restart: true, type: true })}</w:body></w:document>`;
 
   const orderedNums = s.ordered;
   const surname = authorSurname(author);

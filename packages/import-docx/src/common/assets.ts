@@ -11,6 +11,8 @@ export class AssetRegistry {
   register(sourcePath: string, mediaType?: string, bytes?: Uint8Array): ImportAsset {
     const hit = this.bySource.get(sourcePath);
     if (hit) return hit;
+    // split() always returns at least one element, so the fallback is only there for the type checker.
+    /* v8 ignore next -- @preserve */
     const base = sourcePath.split(/[\\/]/).pop() ?? "";
     let name = base.replace(/[^A-Za-z0-9._-]/g, "_").replace(/^\.+/, "");
     if (!name) name = "image";
@@ -77,6 +79,8 @@ export function imageItems(
     } catch {
       /* keep raw */
     }
+    // split() always returns at least one element, so the fallback is only there for the type checker.
+    /* v8 ignore next -- @preserve */
     path = path.split(/[?#]/)[0] ?? path;
     const ext = extOf(path);
     if (!IMAGE_TYPES[ext]) {

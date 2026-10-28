@@ -133,15 +133,13 @@ export function buildEpub(
     throw new EpubExportError("unsupported-cover", `Unsupported cover image: ${cover.path}`);
   if (cover) files[`OEBPS/${cover.path}`] = cover.bytes;
   // A chapter may use the cover file too; it is one file and one manifest item.
-  const imagePaths = [...new Set(chapters.flatMap((c) => collectImageSources(c.doc)))].filter(
-    (src) => src !== cover?.path,
-  );
-  const imageItems = imagePaths.map((src, i) => {
+  const imageOwners = new Map<string, (typeof chapters)[number]>();
+  for (const c of chapters)
+    for (const src of collectImageSources(c.doc))
+      if (src !== cover?.path && !imageOwners.has(src)) imageOwners.set(src, c);
+  const imageItems = [...imageOwners].map(([src, owner], i) => {
     const type = isAssetPath(src) ? imageMediaType(src) : null;
-    const owner = chapters.find((c) => collectImageSources(c.doc).includes(src));
-    const where = owner
-      ? { chapter: { id: owner.id, title: owner.title }, nodeType: "image" }
-      : { nodeType: "image" };
+    const where = { chapter: { id: owner.id, title: owner.title }, nodeType: "image" };
     if (!type)
       throw new EpubExportError(
         "unsupported-image",
@@ -229,7 +227,7 @@ export function buildEpub(
     images: stats.reduce((n, s) => n + s.total, 0),
     imagesMissingAlt: stats.reduce((n, s) => n + s.missingAlt, 0),
     hasCover: cover !== undefined,
-    hasGif: imagePaths.some((p) => p.toLowerCase().endsWith(".gif")),
+    hasGif: [...imageOwners.keys()].some((p) => p.toLowerCase().endsWith(".gif")),
   });
   files["OEBPS/content.opf"] = strToU8(
     `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier>${isbnUrn}<dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language><meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta>${a11y}${cover ? '<meta name="cover" content="epub-cover-image"/>' : ""}</metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}${cover ? `<item id="epub-cover-image" href="${esc(cover.path)}" media-type="${coverType}" properties="cover-image"/>` : ""}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,

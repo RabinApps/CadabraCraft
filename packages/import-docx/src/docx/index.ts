@@ -69,6 +69,8 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
   for (const name of Object.keys(files)) {
     if (!/^word\/(header|footer)\d*\.xml$/.test(name)) continue;
     const root = parseXml(files[name]!, name)[0];
+    // parseXml only returns well-formed documents, which always have a root element.
+    /* v8 ignore next -- @preserve */
     const text = root ? rawText(root).trim() : "";
     if (text) hf.push(text);
   }

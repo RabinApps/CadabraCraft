@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EditorState, type Transaction } from "@tiptap/pm/state";
+import { DecorationSet } from "@tiptap/pm/view";
 import { history, undo } from "@tiptap/pm/history";
 import { getSchema } from "@tiptap/react";
 import type { Node as PMNode } from "@tiptap/pm/model";
@@ -80,6 +81,8 @@ describe("search plugin", () => {
     expect(apply(s, stepTransaction(s, 1, false)).selection.from).toBe(sel);
     s = apply(s, stepTransaction(s, 1, true));
     expect(s.doc.textBetween(s.selection.from, s.selection.to)).toBe("two");
+    expect(stepTransaction(s, 1, true)!.selection.empty).toBe(false);
+    expect(stepTransaction(s, 1, true)!.selection.from).toBe(s.selection.from);
   });
 
   it("keeps matches in place when typing before them", () => {
@@ -146,6 +149,15 @@ describe("search plugin", () => {
       .decorations.find()
       .map((d) => (d as unknown as { type: { attrs: { class: string } } }).type.attrs.class);
     expect(classes).toEqual(["search-match search-match-current", "search-match"]);
+    const plugin = Search.config.addProseMirrorPlugins!.call({} as never)[0]!;
+    const decorationProp = plugin.props.decorations!.bind(plugin);
+    expect(decorationProp(s)).toBe(get(s).decorations);
+    const empty = make([p(t("nothing"))]);
+    expect(decorationProp(empty)).toBe(DecorationSet.empty);
+    const noSearchPlugin = EditorState.create({
+      doc: schema.nodeFromJSON({ type: "doc", content: [p(t("nothing"))] }),
+    });
+    expect(decorationProp(noSearchPlugin)).toBeUndefined();
   });
 
   it("searches a 100k-word chapter well under the bound", () => {

@@ -60,3 +60,18 @@ describe("sampleChunks", () => {
     expect(sampleChunks([])).toEqual([]);
   });
 });
+
+describe("chunkBlocks edge cases", () => {
+  it("cuts a word longer than the limit where the window ends", () => {
+    const chunks = chunkBlocks([{ type: "paragraph", text: "abcdefghij" }], 4);
+    expect(chunks.map((c) => c.text)).toEqual(["abcd", "efgh", "ij"]);
+  });
+
+  it("keeps text that has no sentence ending, or only punctuation", () => {
+    expect(chunkBlocks([{ type: "paragraph", text: "..." }]).map((c) => c.text)).toEqual(["..."]);
+  });
+
+  it("makes no chunk for a block with nothing to read", () => {
+    expect(chunkBlocks([{ type: "paragraph", text: "   " }])).toEqual([]);
+  });
+});

@@ -94,7 +94,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             }
           });
           // A page with an empty title is named by its file instead.
-          const where = bad ? bad.title.trim() || sourceFileById(manifest, bad.id) || "" : "";
+          const where = bad && (bad.title.trim() || sourceFileById(manifest, bad.id)!);
           throw new Error(where ? t`In “${where}”: ${e.message}` : e.message, { cause: e });
         }
         set({ exportStage: "saving" });
@@ -117,7 +117,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         const assets = await loadAssets(chapters);
         set({ exportStage: "rendering" });
         // A page with an empty title is named by its file in error messages.
-        const pages = chapters.map((c) => ({ ...c, id: sourceFileById(manifest, c.id) ?? c.id }));
+        const pages = chapters.map((c) => ({ ...c, id: sourceFileById(manifest, c.id)! }));
         const bytes = buildDocx(
           { title: edition.title, author: edition.author, language: edition.language },
           pages,

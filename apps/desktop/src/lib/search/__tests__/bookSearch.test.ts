@@ -156,3 +156,26 @@ describe("regex mode", () => {
     expect(findInDoc(d, { ...rx, query: "c.t", matchCase: true })).toHaveLength(1);
   });
 });
+
+describe("gaps: empty queries, text nodes without text, the regex match cap", () => {
+  it("an empty query finds and replaces nothing and returns the same doc", () => {
+    const d = doc(p(t("a")));
+    expect(findInDoc(d, { ...o, query: "" })).toEqual([]);
+    expect(replaceInDoc(d, { ...o, query: "" }, "x")).toEqual({ doc: d, count: 0 });
+    expect(searchBook([{ id: "1", title: "T", doc: d }], { ...o, query: "" })).toEqual({
+      total: 0,
+      pages: [],
+    });
+  });
+  it("treats a text node without text as empty", () => {
+    const d = doc(p({ type: "text" }, t("cat")));
+    expect(findInDoc(d, o)).toEqual([{ path: [0], from: 0, to: 3 }]);
+    expect(replaceInDoc(d, o, "dog").count).toBe(1);
+  });
+  it("caps regex matches across the whole page but not literal ones", () => {
+    const many = "a".repeat(6000);
+    const d = doc(p(t(many)), p(t(many)));
+    expect(findInDoc(d, { ...o, query: "a", regex: true })).toHaveLength(10000);
+    expect(findInDoc(d, { ...o, query: "a" })).toHaveLength(12000);
+  });
+});

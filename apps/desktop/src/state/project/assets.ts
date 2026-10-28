@@ -12,7 +12,7 @@ export const createAssetActions = (ctx: Ctx): AssetActions => {
       const { root } = need();
       const picked = await bridge.pickImage();
       if (!picked) return null;
-      const ext = picked.split(".").pop()?.toLowerCase() ?? "";
+      const ext = picked.slice(picked.lastIndexOf(".") + 1).toLowerCase();
       if (!COVER_EXTENSIONS.includes(ext)) {
         set({ notice: t`A cover must be a PNG, JPEG or WebP image.` });
         return null;

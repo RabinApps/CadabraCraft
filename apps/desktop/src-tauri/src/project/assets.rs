@@ -285,4 +285,33 @@ mod tests {
         fs::write(src.join("edge.png"), &at_limit).unwrap();
         assert_eq!(import_image(&proj, &src.join("edge.png")).unwrap(), "assets/edge.png");
     }
+
+    #[test]
+    fn image_size_reads_jpeg_fill_bytes_and_every_webp_flavour() {
+        // A JPEG marker that is not preceded by 0xff is not a frame header search we can continue.
+        assert_eq!(image_size("jpg", &[0xff, 0xd8, 0, 0, 0, 0, 0, 0]), None);
+        // A fill byte (0xff 0xff) before the SOF0 marker is skipped.
+        let fill = [0xff, 0xd8, 0xff, 0xff, 0xc0, 0, 0x11, 8, 0, 0x10, 0, 0x20, 0, 0, 0, 0];
+        assert_eq!(image_size("jpg", &fill), Some((32, 16)));
+        let riff = |kind: &[u8; 4], tail: &[u8]| {
+            let mut v = b"RIFF\0\0\0\0WEBP".to_vec();
+            v.extend_from_slice(kind);
+            v.extend_from_slice(tail);
+            v
+        };
+        // Lossless: 14-bit width-1 and height-1 packed after the 0x2f signature byte.
+        let bits: u32 = 99 | 49 << 14;
+        let mut lossless = vec![0, 0, 0, 0, 0x2f];
+        lossless.extend_from_slice(&bits.to_le_bytes());
+        assert_eq!(image_size("webp", &riff(b"VP8L", &lossless)), Some((100, 50)));
+        assert_eq!(image_size("webp", &riff(b"VP8L", &[0, 0])), None, "too short for the size field");
+        assert_eq!(image_size("webp", &riff(b"ABCD", &[0; 16])), None, "unknown chunk");
+    }
+
+    #[test]
+    fn storing_an_image_where_the_name_is_taken_by_a_folder_is_an_io_error() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("assets/a.png")).unwrap();
+        assert!(matches!(store_image(d.path(), "a.png", &PNG), Err(ProjectError::Io { .. })));
+    }
 }

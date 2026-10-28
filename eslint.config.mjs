@@ -12,6 +12,7 @@ export default tseslint.config(
       "**/node_modules/**",
       "**/target/**",
       "**/test-results/**",
+      "**/coverage/**",
       "**/playwright-report/**",
       "apps/desktop/src-tauri/**",
       "apps/website/**",

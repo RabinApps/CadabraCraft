@@ -19,7 +19,7 @@ import { countWords, type ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { emptyDoc, parseChapter, PartialWrite, HISTORY_LIMIT } from "./util";
-import type { HistoryEntry, ProjectState } from "./types";
+import type { BookPage, HistoryEntry, ProjectState } from "./types";
 
 type Set = StoreApi<ProjectState>["setState"];
 type Get = StoreApi<ProjectState>["getState"];
@@ -169,7 +169,12 @@ export function createContext(set: Set, get: Get) {
   const loadChaptersIn = async (lang: string) => {
     const { root, manifest } = need();
     const pages = [];
-    const sectionFor = (e: EditionEntry) => sectionOf(manifest, e.id) ?? "chapter";
+    const sectionFor = (e: EditionEntry): BookPage["section"] =>
+      manifest.frontMatter.some((f) => f.id === e.id)
+        ? "front"
+        : manifest.backMatter.some((b) => b.id === e.id)
+          ? "back"
+          : "chapter";
     for (const c of readingOrder(manifest)) {
       const file = entryFile(c, lang);
       const r = file ? await bridge.readFile(root, file) : null;

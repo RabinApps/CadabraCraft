@@ -274,11 +274,9 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
       {!focus && <Toolbar editor={editor} />}
       <Modal
         open={pending !== null}
-        onOpenChange={(o) => {
-          if (!o) {
-            close();
-            editor.commands.focus();
-          }
+        onOpenChange={() => {
+          close();
+          editor.commands.focus();
         }}
         title={t`Paste as styled text?`}
         description={t`The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text.`}

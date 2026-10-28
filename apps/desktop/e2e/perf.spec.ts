@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/coverage";
 import { bigChapter } from "../src/test/bigBook";
 import { fakeTauri } from "./support/fakeTauri";
 import { newProject } from "./support/helpers";

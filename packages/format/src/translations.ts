@@ -22,8 +22,9 @@ export const translationProgress = (
 /** Marks one entry's text in `language` as translated (the author has written it). Returns the manifest unchanged when it already is. */
 export function markTranslated(m: Manifest, id: string, language: string): Manifest {
   const touch = (e: EditionEntry): EditionEntry => {
-    if (e.id !== id || !(e.untranslated ?? []).includes(language)) return e;
-    const rest = (e.untranslated ?? []).filter((l) => l !== language);
+    const pending = e.untranslated;
+    if (e.id !== id || !pending?.includes(language)) return e;
+    const rest = pending.filter((l) => l !== language);
     const { untranslated: _drop, ...plain } = e;
     return rest.length ? { ...plain, untranslated: rest } : plain;
   };

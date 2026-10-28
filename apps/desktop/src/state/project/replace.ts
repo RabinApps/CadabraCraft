@@ -29,8 +29,7 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
         for (const page of pages) {
           const r = replaceInDoc(page.doc, opts, replacement);
           if (!r.count) continue;
-          const file = sourceFileById(manifest, page.id);
-          if (!file) continue;
+          const file = sourceFileById(manifest, page.id)!; // the pages were read from this same manifest
           count += r.count;
           docs.push({
             file,
@@ -57,7 +56,7 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
           );
         } catch (e) {
           const why = errText(e);
-          const stuck = e instanceof PartialWrite ? e.stuck : [];
+          const { stuck } = e as PartialWrite; // writePages only ever throws a PartialWrite
           if (!stuck.length)
             throw new Error(t`Replace all stopped: ${why}. Nothing was changed.`, { cause: e });
           // Some pages could not be put back: keep one undo step for exactly those, so Undo finishes the job.

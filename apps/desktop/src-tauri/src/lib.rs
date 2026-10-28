@@ -49,6 +49,9 @@ macro_rules! app_handlers {
     };
 }
 
+#[cfg(test)]
+mod ipc_tests;
+
 pub fn run() {
     let builder = tauri::Builder::default()
         .manage(platform::fs_watch::WatchState::default())

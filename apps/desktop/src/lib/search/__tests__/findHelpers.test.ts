@@ -140,3 +140,12 @@ describe("countLabel", () => {
     expect(countLabel("", 0, 0)).toBe("");
   });
 });
+
+describe("mergeAdjacentText with text nodes lacking text", () => {
+  it("joins them as empty strings", () => {
+    const merged = mergeAdjacentText({
+      content: [{ type: "text" }, { type: "text", text: "a" }, { type: "text" }],
+    });
+    expect(merged.content).toEqual([{ type: "text", text: "a" }]);
+  });
+});

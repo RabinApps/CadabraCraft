@@ -47,6 +47,19 @@ The plugin authors publish an MCP server (`@hypothesi/tauri-mcp-server`) with hi
 - The bridge has no authentication. Only run `tauri:automate` on a machine you trust, and don't run it with real manuscripts open that you cannot afford to modify.
 - macOS screenshots use the webview's own snapshot API, so no Screen Recording permission is needed. Native dialogs and menus are not part of the snapshot.
 
+## Coverage
+
+Run `pnpm test:coverage` for all workspace Vitest suites, the instrumented Playwright suite, and the combined desktop coverage gate. Rust is separate: install `cargo-llvm-cov` and the `llvm-tools-preview` rustup component (one-time local setup), then run `pnpm test:coverage:rust` from the repository root. Both commands write reports under the gitignored `coverage/` tree; Rust's raw LCOV is also left under `apps/desktop/src-tauri/target/`.
+
+CI runs JavaScript coverage in the Linux JS job and Rust coverage in the Linux Rust job, uploading each LCOV/report as an artifact. Coverage policy and interim floors live in [coverage-gaps.md](coverage-gaps.md).
+
+Reviewed exclusions:
+
+- Generated files (`*.d.ts`, `gen/`, Lingui catalogs) and tests/helpers are excluded by the coverage configs.
+- `src/main.tsx` is startup wiring and the bridge shims are exercised through the native scenario; see `coverageScopes.ts` for the source ownership split.
+- Rust excludes `src/lib.rs` (Tauri builder wiring) and `src/main.rs` (binary entry point). The only line-level exclusions are Tauri command macro-generated glue: `src/commands/project.rs:58` and `src/typst/commands.rs:46`; command behavior remains covered at the logic/IPC layer.
+- `/* v8 ignore */` comments are reserved for defensive/unreachable paths with an adjacent explanation; they are not a general way to meet a threshold.
+
 ## Troubleshooting
 
 - "Cannot reach the app bridge": the app isn't running with `tauri:automate` (a plain `tauri dev` has no bridge), or another app holds port 9223 (the plugin scans upward; pass `{ port }` to `connect`).

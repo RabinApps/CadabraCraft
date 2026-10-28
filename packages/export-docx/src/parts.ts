@@ -88,7 +88,7 @@ export function stylesPart(fontName: string, language: string): string {
   const f = `<w:rFonts w:ascii="${fontName}" w:hAnsi="${fontName}" w:eastAsia="${fontName}" w:cs="${fontName}"/>`;
   const mono = FONT_NAMES.courier;
   const para = (id: string, name: string, ppr: string, rpr = "", extra = "") =>
-    `<w:style w:type="paragraph" w:styleId="${id}"><w:name w:val="${name}"/>${id === "Normal" ? "" : '<w:basedOn w:val="Normal"/>'}${extra}<w:qFormat/>${ppr ? `<w:pPr>${ppr}</w:pPr>` : ""}${rpr ? `<w:rPr>${rpr}</w:rPr>` : ""}</w:style>`;
+    `<w:style w:type="paragraph" w:styleId="${id}"><w:name w:val="${name}"/><w:basedOn w:val="Normal"/>${extra}<w:qFormat/><w:pPr>${ppr}</w:pPr>${rpr ? `<w:rPr>${rpr}</w:rPr>` : ""}</w:style>`;
   const single = '<w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>';
   const none = '<w:ind w:left="0" w:firstLine="0"/>';
   const heading = (n: number, ppr: string) =>

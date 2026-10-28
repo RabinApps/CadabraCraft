@@ -86,17 +86,22 @@ pub fn ffmetadata(title: &str, author: &str, chapters: &[M4bChapter]) -> String 
     out
 }
 
+/// On Windows the separators become `/`, which ffmpeg accepts and which keeps backslashes out of the list file.
+fn forward_slashes(path: &str, windows: bool) -> String {
+    if windows {
+        path.replace('\\', "/")
+    } else {
+        path.to_string()
+    }
+}
+
 /// The concat demuxer's list: one `file` line per part, in order, with absolute paths (the demuxer resolves relative
 /// ones against the list's own folder). A single quote in a path is written as `'\''`; on Windows the separators become
 /// `/`, which ffmpeg accepts and which keeps backslashes out of the file.
 pub fn concat_list(paths: &[PathBuf]) -> String {
     paths
         .iter()
-        .map(|p| {
-            let text = p.to_string_lossy();
-            let text = if cfg!(windows) { text.replace('\\', "/") } else { text.into_owned() };
-            format!("file '{}'\n", text.replace('\'', "'\\''"))
-        })
+        .map(|p| format!("file '{}'\n", forward_slashes(&p.to_string_lossy(), cfg!(windows)).replace('\'', "'\\''")))
         .collect()
 }
 
@@ -198,6 +203,12 @@ mod tests {
     }
 
     #[test]
+    fn windows_paths_use_forward_slashes_in_the_list() {
+        assert_eq!(forward_slashes("C:\\Books\\a.flac", true), "C:/Books/a.flac");
+        assert_eq!(forward_slashes("/p/a\\b.flac", false), "/p/a\\b.flac");
+    }
+
+    #[test]
     fn arguments_map_the_audio_chapters_and_the_cover_as_an_attached_picture() {
         let (l, m, o, c) = (Path::new("/t/l"), Path::new("/t/m"), Path::new("/t/o"), Path::new("/p/assets/c.png"));
         let with = ffmpeg_args(l, m, Some(c), o).join(" ");
@@ -275,6 +286,13 @@ mod tests {
             let e = build_m4b(&request(&f), &f.ffmpeg, &AtomicBool::new(false)).unwrap_err();
             assert_eq!(e, AudioError::Encode { format: "m4b".into(), message: "bad input".into() });
             assert!(!f.project.join("exports").exists());
+        }
+
+        #[test]
+        fn a_tool_that_fails_silently_still_gets_a_message() {
+            let f = fixture("exit 1");
+            let e = build_m4b(&request(&f), &f.ffmpeg, &AtomicBool::new(false)).unwrap_err();
+            assert!(matches!(e, AudioError::Encode { format, message } if format == "m4b" && message.contains("no message")));
         }
 
         #[test]

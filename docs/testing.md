@@ -1,0 +1,43 @@
+# Testing and coverage
+
+## Checks
+
+From the repository root:
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm test                     # Vitest in every package
+pnpm --filter @cadabracraft/desktop test:e2e
+cd apps/desktop/src-tauri && cargo test
+```
+
+## Coverage
+
+```bash
+pnpm test:coverage             # all workspace Vitest coverage + instrumented Playwright + desktop report/gates
+pnpm test:coverage:unit        # only workspace Vitest coverage
+pnpm test:coverage:rust        # Rust LCOV and Rust ratchet (needs cargo-llvm-cov + llvm-tools-preview)
+```
+
+Reports are written under the gitignored `coverage/` tree; raw Rust LCOV and LLVM artifacts remain under `apps/desktop/src-tauri/target/`. The desktop report merges Vitest and Playwright LCOV, while desktop unit and e2e totals are gated separately. The current interim floors are:
+
+| Scope                        | Lines | Statements | Functions | Branches |
+| ---------------------------- | ----: | ---------: | --------: | -------: |
+| Each package already at goal |  100% |       100% |      100% |     100% |
+| Desktop Vitest               |   99% |        99% |       99% |      98% |
+| Desktop Playwright           |   98% |        97% |       95% |      90% |
+| Rust crate                   |   99% |        n/a |       98% |      n/a |
+
+These ratchets are intentionally below the project goal until the remaining function and component gaps are covered. The latest measured numbers and historical baseline are in [coverage-gaps.md](coverage-gaps.md). CI runs JavaScript coverage in the Linux JS job and Rust coverage in the Linux Rust job, and uploads their reports as artifacts.
+
+### Scope and exclusions
+
+- `packages/*`: all source under `src/**`, excluding tests and declaration files. Twelve packages currently enforce 100% for lines, statements, functions and branches through the shared strict coverage config.
+- Desktop pure TypeScript in `src/state` and `src/lib` plus other explicitly unit-tested logic is measured with Vitest. React components, DOM-dependent hooks and the entry UI are measured with Playwright's V8 coverage. File-to-run ownership is defined in `apps/desktop/coverageScopes.ts`.
+- Tauri builder wiring in Rust `src/lib.rs` and the binary entry point `src/main.rs` are excluded. The `#[tauri::command]` generated wrapper lines `src/commands/project.rs:58` and `src/typst/commands.rs:46` are the only line-level source exclusions; the underlying behavior remains tested at the logic/IPC layer.
+- Generated code (`*.d.ts`, `gen/`) and Lingui catalogs, test files and test helpers are excluded. The bridge shims are exercised by `pnpm automation:scenario` rather than browser coverage.
+- `/* v8 ignore */` comments are allowed only for documented unreachable or defensive cases, with the reason next to the pragma. They are not substitutes for tests.
+- `apps/website` is not in the current coverage gate: its current pages are static marketing content and it has no application logic in the stated coverage scope. `scripts/automation` is test harness code; it is not included in product coverage.
+
+For the coverage status and remaining measured gaps, see [coverage-gaps.md](coverage-gaps.md). For the history of the tool choices, see the coverage decision in [architecture.md](architecture.md).

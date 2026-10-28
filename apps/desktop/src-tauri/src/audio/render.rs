@@ -113,30 +113,33 @@ pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>
         project::resolve(&root, part)?;
     }
     let (samples, rate) = synthesize(&req.chunks, &req.voice, req.speed, sherpa, voices, cancel, progress)?;
-    if cancel.load(Ordering::Relaxed) {
-        return Err(AudioError::Cancelled);
-    }
+    write_outputs(req, &root, rate, &samples, cancel)
+}
+
+/// Encodes the rendered samples into every requested format and the part, writing each file atomically under the project.
+/// The cancel flag is checked before each file, so a Cancel between two encodes stops the rest (earlier files stay).
+fn write_outputs(req: &ChapterRequest, root: &Path, rate: u32, samples: &[i16], cancel: &AtomicBool) -> Result<RenderedChapter, AudioError> {
     let mut files = Vec::new();
     for f in &req.formats {
         if cancel.load(Ordering::Relaxed) {
             return Err(AudioError::Cancelled);
         }
         let encoded = match f.as_str() {
-            "wav" => Ok(write_wav(rate, &samples)),
-            "flac" => encode::encode_flac(rate, &samples),
-            _ => encode::encode_opus(rate, &samples),
+            "wav" => Ok(write_wav(rate, samples)),
+            "flac" => encode::encode_flac(rate, samples),
+            _ => encode::encode_opus(rate, samples),
         };
         let bytes = encoded.map_err(|message| AudioError::Encode { format: f.clone(), message })?;
         let path = format!("{}.{f}", req.base);
-        project::write_bytes(&root, &path, &bytes)?;
+        project::write_bytes(root, &path, &bytes)?;
         files.push(RenderedFile { format: f.clone(), path });
     }
     if let Some(part) = &req.part {
         if cancel.load(Ordering::Relaxed) {
             return Err(AudioError::Cancelled);
         }
-        let bytes = encode::encode_flac(rate, &samples).map_err(|message| AudioError::Encode { format: "flac".into(), message })?;
-        project::write_audio_part(&root, part, &bytes)?;
+        let bytes = encode::encode_flac(rate, samples).map_err(|message| AudioError::Encode { format: "flac".into(), message })?;
+        project::write_audio_part(root, part, &bytes)?;
     }
     Ok(RenderedChapter { files, duration_sec: samples.len() as f64 / rate as f64, part: req.part.clone() })
 }
@@ -151,6 +154,8 @@ mod tests {
     use std::fs;
     use std::sync::{Arc, Mutex};
     use std::time::{Duration, Instant};
+
+    fn ignore(_: f64) {}
 
     fn chunk(text: &str, pause: u32) -> Chunk {
         Chunk { text: text.into(), pause_after_ms: pause }
@@ -224,6 +229,13 @@ mod tests {
         }
 
         #[test]
+        fn a_sample_with_nothing_to_read_is_refused() {
+            let f = fixture(copy);
+            let req = SampleRequest { job_id: "s".into(), chunks: vec![chunk("   ", 0)], voice: "piper-amy".into(), speed: 1.0 };
+            assert!(matches!(render_sample(&req, &f.engine, Some(&f.voices), &AtomicBool::new(false)), Err(AudioError::Other { message }) if message.contains("nothing to read")));
+        }
+
+        #[test]
         fn a_sample_refuses_long_text_bad_speed_and_a_missing_voice() {
             let f = fixture(copy);
             let mk = |text: String, speed: f64, voice: &str| SampleRequest { job_id: "s".into(), chunks: vec![chunk(&text, 0)], voice: voice.into(), speed };
@@ -239,14 +251,14 @@ mod tests {
             let mut r = request(&f, vec![chunk("Hello there.", 600)]);
             r.formats = vec![];
             r.part = Some(".cadabra/audio/parts/ch-1.flac".into());
-            let done = render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {}).unwrap();
+            let done = render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore).unwrap();
             assert!(done.files.is_empty());
             assert_eq!(done.part.as_deref(), Some(".cadabra/audio/parts/ch-1.flac"));
             assert!(fs::read(f.project.join(".cadabra/audio/parts/ch-1.flac")).unwrap().starts_with(b"fLaC"));
             assert!(!f.project.join("exports").exists());
             for bad in ["exports/ch.flac", ".cadabra/audio/parts/x.wav", ".cadabra/audio/parts/../x.flac"] {
                 r.part = Some(bad.into());
-                assert!(render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {}).is_err(), "{bad}");
+                assert!(render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore).is_err(), "{bad}");
             }
         }
 
@@ -255,7 +267,7 @@ mod tests {
             let f = fixture(copy);
             let mut r = request(&f, vec![chunk("Hello there.", 600)]);
             r.formats = vec!["opus".into(), "flac".into(), "wav".into()];
-            let done = render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {}).unwrap();
+            let done = render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore).unwrap();
             assert_eq!(done.files.iter().map(|x| (x.format.as_str(), x.path.as_str())).collect::<Vec<_>>(), vec![("opus", "exports/audio/01-one.opus"), ("flac", "exports/audio/01-one.flac"), ("wav", "exports/audio/01-one.wav")]);
             let read = |n: &str| fs::read(f.project.join(format!("exports/audio/01-one.{n}"))).unwrap();
             assert_eq!(&read("opus")[..4], b"OggS");
@@ -273,7 +285,7 @@ mod tests {
                 c.store(true, Ordering::Relaxed);
             });
             let started = Instant::now();
-            let r = render_chapter(&request(&f, vec![chunk("Hello there.", 600)]), &f.engine, Some(&f.voices), &cancel, &|_| {});
+            let r = render_chapter(&request(&f, vec![chunk("Hello there.", 600)]), &f.engine, Some(&f.voices), &cancel, &ignore);
             t.join().unwrap();
             assert_eq!(r, Err(AudioError::Cancelled));
             assert!(started.elapsed() < Duration::from_secs(5));
@@ -283,14 +295,45 @@ mod tests {
         #[test]
         fn a_cancel_that_arrived_earlier_stops_before_the_engine_starts() {
             let f = fixture(copy);
-            let r = render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(true), &|_| {});
+            let r = render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(true), &ignore);
             assert_eq!(r, Err(AudioError::Cancelled));
+        }
+
+        #[test]
+        fn an_engine_that_changes_its_sample_rate_part_way_is_a_synth_error() {
+            let f = fixture(|wav| {
+                let other = wav.with_file_name("fixture16k.wav");
+                fs::write(&other, write_wav(16000, &vec![1000i16; 1600])).unwrap();
+                let seen = wav.with_file_name("seen");
+                format!("if [ -f '{seen}' ]; then cp '{other}' \"$out\"; else touch '{seen}'; cp '{wav}' \"$out\"; fi", seen = seen.display(), other = other.display(), wav = wav.display())
+            });
+            let r = render_chapter(&request(&f, vec![chunk("Title", 1000), chunk("Body.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore);
+            assert!(matches!(&r, Err(AudioError::Synth { message }) if message.contains("sample rate")), "{r:?}");
+            assert!(!f.project.join("exports").exists());
+        }
+
+        #[test]
+        fn a_cancel_that_arrives_after_the_last_batch_still_cancels_and_writes_nothing() {
+            let f = fixture(copy);
+            let cancel = AtomicBool::new(false);
+            let r = render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &cancel, &|_| cancel.store(true, Ordering::Relaxed));
+            assert_eq!(r, Err(AudioError::Cancelled));
+            assert!(!f.project.join("exports").exists());
+        }
+
+        #[test]
+        fn the_short_chapter_check_runs_against_a_stand_in_engine() {
+            let f = fixture(copy);
+            render_short_chapter(Some((f.engine.clone(), f.voices.clone())), 0.5);
+            // A voices folder without piper-amy skips the render; no engine at all skips it too.
+            render_short_chapter(Some((f.engine.clone(), f.voices.join("none"))), 0.5);
+            render_short_chapter(None, 0.5);
         }
 
         #[test]
         fn engine_failure_reports_its_message_and_writes_nothing() {
             let f = fixture(|_| "echo 'model file is corrupt' >&2; exit 3".into());
-            let r = render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {});
+            let r = render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore);
             assert!(matches!(&r, Err(AudioError::Synth { message }) if message.contains("model file is corrupt")), "{r:?}");
             assert!(!f.project.join("exports").exists());
         }
@@ -298,9 +341,9 @@ mod tests {
         #[test]
         fn a_missing_output_file_or_garbage_wav_is_a_synth_error() {
             let f = fixture(|_| "true".into());
-            assert!(matches!(render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {}), Err(AudioError::Synth { .. })));
+            assert!(matches!(render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore), Err(AudioError::Synth { .. })));
             let g = fixture(|_| "echo garbage > \"$out\"".into());
-            assert!(matches!(render_chapter(&request(&g, vec![chunk("Hello.", 600)]), &g.engine, Some(&g.voices), &AtomicBool::new(false), &|_| {}), Err(AudioError::Synth { .. })));
+            assert!(matches!(render_chapter(&request(&g, vec![chunk("Hello.", 600)]), &g.engine, Some(&g.voices), &AtomicBool::new(false), &ignore), Err(AudioError::Synth { .. })));
         }
 
         #[test]
@@ -309,7 +352,7 @@ mod tests {
             let run = |mutate: &dyn Fn(&mut ChapterRequest)| {
                 let mut r = request(&f, vec![chunk("Hello.", 600)]);
                 mutate(&mut r);
-                render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {})
+                render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore)
             };
             assert!(matches!(run(&|r| r.voice = "kokoro-heart".into()), Err(AudioError::VoiceMissing { .. })));
             assert!(matches!(run(&|r| r.voice = "nope".into()), Err(AudioError::VoiceMissing { .. })));
@@ -323,24 +366,41 @@ mod tests {
             }
             assert!(matches!(run(&|r| r.root = "relative/book".into()), Err(AudioError::Other { .. })));
             assert!(!f.engine.parent().unwrap().join("ran").exists());
-            assert!(matches!(render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, None, &AtomicBool::new(false), &|_| {}), Err(AudioError::VoiceMissing { .. })));
+            assert!(matches!(render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, None, &AtomicBool::new(false), &ignore), Err(AudioError::VoiceMissing { .. })));
         }
     }
 
     /// The real engine and voices, or None (test skipped) unless `REQUIRE_SHERPA=1`. Set `SHERPA_TTS_BIN` and
     /// `CADABRA_VOICES_DIR` (a folder holding the extracted sherpa model archives and `lexicon-en-us.txt`).
     fn real_engine() -> Option<(PathBuf, PathBuf)> {
-        let found = find_sherpa().ok().zip(voices_root());
+        real_engine_from(find_sherpa().ok().zip(voices_root()), std::env::var("REQUIRE_SHERPA").as_deref() == Ok("1"))
+    }
+
+    fn real_engine_from(found: Option<(PathBuf, PathBuf)>, required: bool) -> Option<(PathBuf, PathBuf)> {
         if found.is_none() {
-            assert!(std::env::var("REQUIRE_SHERPA").as_deref() != Ok("1"), "REQUIRE_SHERPA=1 but the engine or voices were not found");
+            assert!(!required, "REQUIRE_SHERPA=1 but the engine or voices were not found");
             eprintln!("skipping: voice engine not installed");
         }
         found
     }
 
     #[test]
+    fn a_missing_engine_skips_the_real_tests_unless_it_is_required() {
+        assert_eq!(real_engine_from(None, false), None);
+        let here = Some((PathBuf::from("/e"), PathBuf::from("/v")));
+        assert_eq!(real_engine_from(here.clone(), true), here);
+        assert!(std::panic::catch_unwind(|| real_engine_from(None, true)).is_err());
+    }
+
+    #[test]
     fn real_engine_renders_a_short_chapter_with_a_piper_voice() {
-        let Some((bin, voices)) = real_engine() else { return };
+        render_short_chapter(real_engine(), 1.0);
+    }
+
+    /// Renders a sentence with piper-amy through `found` (engine, voices folder) and checks the length (at least
+    /// `min_secs`). Does nothing when there is no engine or the voice is not installed.
+    fn render_short_chapter(found: Option<(PathBuf, PathBuf)>, min_secs: f64) {
+        let Some((bin, voices)) = found else { return };
         if !list_voices(Some(&voices)).iter().any(|v| v.id == "piper-amy" && v.installed) {
             eprintln!("skipping: piper-amy is not installed");
             return;
@@ -348,8 +408,37 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
         let req = ChapterRequest { job_id: "real".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-real".into(), chunks: vec![chunk("The quay was empty. A gull cried once.", 600)], voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None };
-        let r = render_chapter(&req, &bin, Some(&voices), &AtomicBool::new(false), &|_| {}).unwrap();
-        assert!(r.duration_sec > 1.0 && r.duration_sec < 30.0, "{}", r.duration_sec);
+        let r = render_chapter(&req, &bin, Some(&voices), &AtomicBool::new(false), &ignore).unwrap();
+        assert!(r.duration_sec > min_secs && r.duration_sec < 30.0, "{}", r.duration_sec);
         assert!(dir.path().join("exports/audio/01-real.wav").is_file());
+    }
+
+    fn outputs(formats: &[&str], part: Option<&str>) -> (tempfile::TempDir, ChapterRequest) {
+        let dir = tempfile::tempdir().unwrap();
+        fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
+        let req = ChapterRequest { job_id: "j".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks: vec![], voice: "piper-amy".into(), speed: 1.0, formats: formats.iter().map(|f| f.to_string()).collect(), part: part.map(str::to_string) };
+        (dir, req)
+    }
+
+    #[test]
+    fn a_cancel_between_files_stops_the_remaining_outputs() {
+        let samples = vec![500i16; 2400];
+        let (dir, req) = outputs(&["wav"], None);
+        let r = write_outputs(&req, dir.path(), 24000, &samples, &AtomicBool::new(true));
+        assert_eq!(r, Err(AudioError::Cancelled));
+        assert!(!dir.path().join("exports").exists());
+        let (dir, req) = outputs(&[], Some(".cadabra/audio/parts/ch-1.flac"));
+        assert_eq!(write_outputs(&req, dir.path(), 24000, &samples, &AtomicBool::new(true)), Err(AudioError::Cancelled));
+        assert!(!dir.path().join(".cadabra").exists());
+    }
+
+    #[test]
+    fn an_encoder_failure_names_the_format() {
+        let (dir, req) = outputs(&["flac"], None);
+        assert!(matches!(write_outputs(&req, dir.path(), 24000, &[], &AtomicBool::new(false)), Err(AudioError::Encode { format, .. }) if format == "flac"));
+        let (dir, req) = outputs(&["opus"], None);
+        assert!(matches!(write_outputs(&req, dir.path(), 24000, &[], &AtomicBool::new(false)), Err(AudioError::Encode { format, .. }) if format == "opus"));
+        let (dir, req) = outputs(&[], Some(".cadabra/audio/parts/ch-1.flac"));
+        assert!(matches!(write_outputs(&req, dir.path(), 24000, &[], &AtomicBool::new(false)), Err(AudioError::Encode { format, .. }) if format == "flac"));
     }
 }

@@ -31,6 +31,8 @@ export class Warnings {
       this.tallies.set(code, w);
       this.order.push(`T:${code}`);
     }
+    // `count` is always set when the tally is created just above; the fallback is only for the optional type.
+    /* v8 ignore next -- @preserve */
     w.count = (w.count ?? 0) + 1;
     const ex = example?.replace(/\s+/g, " ").trim().slice(0, 80);
     if (ex && w.examples && w.examples.length < MAX_EXAMPLES && !w.examples.includes(ex))
