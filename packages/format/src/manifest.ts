@@ -34,7 +34,13 @@ export function isSafeRelativePath(p: string): boolean {
   return p.split("/").every((seg) => seg !== "" && seg !== ".." && seg !== ".");
 }
 
-export function createManifest(init: { title: string; author: string; language?: string; identifier: string; template?: string }): Manifest {
+export function createManifest(init: {
+  title: string;
+  author: string;
+  language?: string;
+  identifier: string;
+  template?: string;
+}): Manifest {
   return {
     formatVersion: CURRENT_FORMAT_VERSION,
     title: init.title,
@@ -58,26 +64,43 @@ export function readingOrder(m: Manifest): ManuscriptEntry[] {
 const COVER_PATH = /^assets\/[A-Za-z0-9_-]+\.(png|jpe?g|webp)$/;
 
 const str = (v: unknown, name: string): string => {
-  if (typeof v !== "string" || v === "") throw new FormatError(`manifest: "${name}" must be a non-empty string`);
+  if (typeof v !== "string" || v === "")
+    throw new FormatError(`manifest: "${name}" must be a non-empty string`);
   return v;
 };
 
 function cover(v: unknown): string {
   const p = str(v, "cover");
-  if (!COVER_PATH.test(p)) throw new FormatError(`manifest: cover must be assets/<name> with a png, jpg or webp extension, got "${p}"`);
+  if (!COVER_PATH.test(p))
+    throw new FormatError(
+      `manifest: cover must be assets/<name> with a png, jpg or webp extension, got "${p}"`,
+    );
   return p;
 }
 
-function entries(v: unknown, name: string, section: "front" | "chapter" | "back"): ManuscriptEntry[] {
+function entries(
+  v: unknown,
+  name: string,
+  section: "front" | "chapter" | "back",
+): ManuscriptEntry[] {
   if (!Array.isArray(v)) throw new FormatError(`manifest: "${name}" must be an array`);
   return v.map((e, i) => {
     const o = (e ?? {}) as Record<string, unknown>;
     const file = str(o.file, `${name}[${i}].file`);
-    if (!isSafeRelativePath(file)) throw new FormatError(`manifest: unsafe path "${file}" in ${name}[${i}]`);
-    const entry: ManuscriptEntry = { id: str(o.id, `${name}[${i}].id`), file, title: str(o.title, `${name}[${i}].title`) };
+    if (!isSafeRelativePath(file))
+      throw new FormatError(`manifest: unsafe path "${file}" in ${name}[${i}]`);
+    const entry: ManuscriptEntry = {
+      id: str(o.id, `${name}[${i}].id`),
+      file,
+      title: str(o.title, `${name}[${i}].title`),
+    };
     if (o.kind !== undefined) {
-      const ok = section === "front" ? isFrontMatterKind(o.kind) : section === "back" && isBackMatterKind(o.kind);
-      if (!ok) throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
+      const ok =
+        section === "front"
+          ? isFrontMatterKind(o.kind)
+          : section === "back" && isBackMatterKind(o.kind);
+      if (!ok)
+        throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
       entry.kind = o.kind as MatterKind;
     }
     return entry;
@@ -87,7 +110,8 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
 /** Validates an already-migrated manifest object. Throws FormatError on any problem. */
 export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION): Manifest {
   const o = (raw ?? {}) as Record<string, unknown>;
-  if (o.formatVersion !== version) throw new FormatError(`manifest: unsupported formatVersion ${String(o.formatVersion)}`);
+  if (o.formatVersion !== version)
+    throw new FormatError(`manifest: unsupported formatVersion ${String(o.formatVersion)}`);
   const m: Manifest = {
     formatVersion: version,
     title: str(o.title, "title"),

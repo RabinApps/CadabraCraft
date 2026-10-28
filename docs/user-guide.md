@@ -191,26 +191,26 @@ Be honest with yourself about the limits:
 
 On Windows and Linux use Ctrl where the table says Cmd.
 
-| Action | Shortcut |
-|---|---|
-| New project | Cmd/Ctrl+N |
-| Open project | Cmd/Ctrl+O |
-| Import manuscript | Cmd/Ctrl+Shift+I |
-| Save | Cmd/Ctrl+S |
-| Export EPUB | Cmd/Ctrl+Alt+E |
-| Export print PDF | Cmd/Ctrl+Shift+E |
-| Close project | Cmd/Ctrl+Shift+W |
-| Settings | Cmd/Ctrl+, |
-| Find | Cmd/Ctrl+F |
-| Find and replace | Cmd/Ctrl+Alt+F |
-| New chapter | Cmd/Ctrl+Shift+N |
-| Focus mode | Cmd/Ctrl+Shift+F |
-| Previous page / next page | Cmd/Ctrl+[ and Cmd/Ctrl+] |
-| Undo / redo typing | the usual Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z |
-| Undo / redo book change | Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z |
-| Leave focus mode | Escape |
-| Bold, italic, underline | Cmd/Ctrl+B, Cmd/Ctrl+I, Cmd/Ctrl+U |
-| Inline code | Cmd/Ctrl+E |
+| Action                    | Shortcut                                  |
+| ------------------------- | ----------------------------------------- |
+| New project               | Cmd/Ctrl+N                                |
+| Open project              | Cmd/Ctrl+O                                |
+| Import manuscript         | Cmd/Ctrl+Shift+I                          |
+| Save                      | Cmd/Ctrl+S                                |
+| Export EPUB               | Cmd/Ctrl+Alt+E                            |
+| Export print PDF          | Cmd/Ctrl+Shift+E                          |
+| Close project             | Cmd/Ctrl+Shift+W                          |
+| Settings                  | Cmd/Ctrl+,                                |
+| Find                      | Cmd/Ctrl+F                                |
+| Find and replace          | Cmd/Ctrl+Alt+F                            |
+| New chapter               | Cmd/Ctrl+Shift+N                          |
+| Focus mode                | Cmd/Ctrl+Shift+F                          |
+| Previous page / next page | Cmd/Ctrl+[ and Cmd/Ctrl+]                 |
+| Undo / redo typing        | the usual Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z |
+| Undo / redo book change   | Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z   |
+| Leave focus mode          | Escape                                    |
+| Bold, italic, underline   | Cmd/Ctrl+B, Cmd/Ctrl+I, Cmd/Ctrl+U        |
+| Inline code               | Cmd/Ctrl+E                                |
 
 Everything else is in the menus. There is no way to change shortcuts yet.
 

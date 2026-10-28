@@ -2,16 +2,48 @@ import { openingCss, MODERN_CSS, NONFICTION_CSS, NOVEL_CSS, POETRY_CSS } from ".
 import type { PrintChapterOpening, PrintHeadingStyle, Template } from "./types";
 
 const h = (o: Partial<PrintHeadingStyle>): PrintHeadingStyle => ({
-  sizeEm: 1, bold: false, italic: false, smallCaps: false, align: "left", spaceAboveEm: 1.5, spaceBelowEm: 0.6, ...o,
+  sizeEm: 1,
+  bold: false,
+  italic: false,
+  smallCaps: false,
+  align: "left",
+  spaceAboveEm: 1.5,
+  spaceBelowEm: 0.6,
+  ...o,
 });
 
 /** Template CSS plus the rules for the template's own chapter opening. */
-const epubCss = (css: string, o: { dropCap: boolean; ornament: string | null }): string => `${css}\n${openingCss(o)}`;
+const epubCss = (css: string, o: { dropCap: boolean; ornament: string | null }): string =>
+  `${css}\n${openingCss(o)}`;
 
-const novelOpening: PrintChapterOpening = { startOn: "recto", sinkEm: 8, label: null, dropCap: true, ornament: "⁂" };
-const nonfictionOpening: PrintChapterOpening = { startOn: "recto", sinkEm: 5, label: "Chapter {n}", dropCap: false, ornament: null };
-const modernOpening: PrintChapterOpening = { startOn: "any", sinkEm: 6, label: null, dropCap: false, ornament: null };
-const poetryOpening: PrintChapterOpening = { startOn: "recto", sinkEm: 10, label: null, dropCap: false, ornament: null };
+const novelOpening: PrintChapterOpening = {
+  startOn: "recto",
+  sinkEm: 8,
+  label: null,
+  dropCap: true,
+  ornament: "⁂",
+};
+const nonfictionOpening: PrintChapterOpening = {
+  startOn: "recto",
+  sinkEm: 5,
+  label: "Chapter {n}",
+  dropCap: false,
+  ornament: null,
+};
+const modernOpening: PrintChapterOpening = {
+  startOn: "any",
+  sinkEm: 6,
+  label: null,
+  dropCap: false,
+  ornament: null,
+};
+const poetryOpening: PrintChapterOpening = {
+  startOn: "recto",
+  sinkEm: 10,
+  label: null,
+  dropCap: false,
+  ornament: null,
+};
 
 const SERIF = ["Libertinus Serif"];
 
@@ -37,7 +69,10 @@ export const novel: Template = {
     sceneBreak: { glyph: "*   *   *", spaceEm: 1 },
     runningText: { sizePt: 9, smallCaps: true, italic: false },
     footnoteSizeEm: 0.85,
-    defaults: { trimSize: "5.5x8.5", marginsIn: { top: 0.8, bottom: 0.9, inside: 0.9, outside: 0.65 } },
+    defaults: {
+      trimSize: "5.5x8.5",
+      marginsIn: { top: 0.8, bottom: 0.9, inside: 0.9, outside: 0.65 },
+    },
   },
   epub: { css: epubCss(NOVEL_CSS, novelOpening) },
 };
@@ -45,7 +80,8 @@ export const novel: Template = {
 export const nonfiction: Template = {
   id: "nonfiction",
   name: "Nonfiction",
-  description: "Spaced paragraphs, numbered chapter labels, bold left-aligned headings and set-off block quotes that work as callouts.",
+  description:
+    "Spaced paragraphs, numbered chapter labels, bold left-aligned headings and set-off block quotes that work as callouts.",
   print: {
     bodyFonts: SERIF,
     headingFonts: [],
@@ -119,7 +155,10 @@ export const poetry: Template = {
     sceneBreak: { glyph: "*   *   *", spaceEm: 1.2 },
     runningText: { sizePt: 9, smallCaps: false, italic: true },
     footnoteSizeEm: 0.85,
-    defaults: { trimSize: "5.5x8.5", marginsIn: { top: 1.1, bottom: 1.2, inside: 1.1, outside: 1 } },
+    defaults: {
+      trimSize: "5.5x8.5",
+      marginsIn: { top: 1.1, bottom: 1.2, inside: 1.1, outside: 1 },
+    },
   },
   epub: { css: epubCss(POETRY_CSS, poetryOpening) },
 };

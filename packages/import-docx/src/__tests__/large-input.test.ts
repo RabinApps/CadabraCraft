@@ -1,7 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { ImportError, htmlToBlocks, htmlToInline, importHtml, importMarkdown, looksLikeHtml } from "..";
+import {
+  ImportError,
+  htmlToBlocks,
+  htmlToInline,
+  importHtml,
+  importMarkdown,
+  looksLikeHtml,
+} from "..";
 import { expectValid } from "./helpers";
 
 /**
@@ -11,11 +18,16 @@ import { expectValid } from "./helpers";
  */
 const ENWIK8 = fileURLToPath(new URL("../../../../tools/enwik8/enwik8", import.meta.url));
 const have = existsSync(ENWIK8);
-if (!have && process.env.REQUIRE_ENWIK8 === "1") throw new Error("tools/enwik8/enwik8 is missing; run scripts/fetch-enwik8.sh");
+if (!have && process.env.REQUIRE_ENWIK8 === "1")
+  throw new Error("tools/enwik8/enwik8 is missing; run scripts/fetch-enwik8.sh");
 const real = have ? it : it.skip;
 
 const code = (f: () => unknown): string | undefined => {
-  try { f(); } catch (e) { return e instanceof ImportError ? e.code : `other:${String(e)}`; }
+  try {
+    f();
+  } catch (e) {
+    return e instanceof ImportError ? e.code : `other:${String(e)}`;
+  }
   return undefined;
 };
 
@@ -34,9 +46,15 @@ describe("the 50,000,000 character limit (generated input, always runs)", () => 
   });
   it("accepts input exactly at a lowered limit and refuses one over it", () => {
     expect(code(() => importMarkdown("x".repeat(1000), { maxInputChars: 1000 }))).toBeUndefined();
-    expect(code(() => importMarkdown("x".repeat(1001), { maxInputChars: 1000 }))).toBe("input-too-large");
-    expect(code(() => importHtml("<p>" + "x".repeat(993) + "</p>", { maxInputChars: 1000 }))).toBeUndefined();
-    expect(code(() => importHtml("<p>" + "x".repeat(994) + "</p>", { maxInputChars: 1000 }))).toBe("input-too-large");
+    expect(code(() => importMarkdown("x".repeat(1001), { maxInputChars: 1000 }))).toBe(
+      "input-too-large",
+    );
+    expect(
+      code(() => importHtml("<p>" + "x".repeat(993) + "</p>", { maxInputChars: 1000 })),
+    ).toBeUndefined();
+    expect(code(() => importHtml("<p>" + "x".repeat(994) + "</p>", { maxInputChars: 1000 }))).toBe(
+      "input-too-large",
+    );
   });
 });
 
@@ -55,27 +73,39 @@ describe("enwik8, 100 MB of real Wikipedia markup (needs tools/enwik8)", () => {
     expect(Date.now() - t).toBeLessThan(2000);
   });
 
-  real("a 5,000,000 character slice imports as Markdown into valid chapters with capped warnings", () => {
-    const r = importMarkdown(text.slice(0, 5_000_000));
-    expect(r.chapters.length).toBeGreaterThan(0);
-    expectValid(r);
-    const perCode = new Map<string, number>();
-    for (const w of r.warnings) perCode.set(w.code, (perCode.get(w.code) ?? 0) + 1);
-    expect(Math.max(...perCode.values())).toBeLessThanOrEqual(26);
-  }, 120_000);
+  real(
+    "a 5,000,000 character slice imports as Markdown into valid chapters with capped warnings",
+    () => {
+      const r = importMarkdown(text.slice(0, 5_000_000));
+      expect(r.chapters.length).toBeGreaterThan(0);
+      expectValid(r);
+      const perCode = new Map<string, number>();
+      for (const w of r.warnings) perCode.set(w.code, (perCode.get(w.code) ?? 0) + 1);
+      expect(Math.max(...perCode.values())).toBeLessThanOrEqual(26);
+    },
+    120_000,
+  );
 
-  real("a 5,000,000 character slice imports as HTML (XML read as unknown elements) into valid chapters", () => {
-    const r = importHtml(text.slice(0, 5_000_000));
-    expect(r.chapters.length).toBeGreaterThan(0);
-    expectValid(r);
-    expect(JSON.stringify(r.chapters)).toContain("Anarchism");
-  }, 120_000);
+  real(
+    "a 5,000,000 character slice imports as HTML (XML read as unknown elements) into valid chapters",
+    () => {
+      const r = importHtml(text.slice(0, 5_000_000));
+      expect(r.chapters.length).toBeGreaterThan(0);
+      expectValid(r);
+      expect(JSON.stringify(r.chapters)).toContain("Anarchism");
+    },
+    120_000,
+  );
 
-  real("looksLikeHtml and the paste converter stay fast and never throw on a 1,000,000 character slice", () => {
-    const slice = text.slice(0, 1_000_000);
-    const t = Date.now();
-    expect(() => looksLikeHtml(slice)).not.toThrow();
-    expect(() => htmlToBlocks(slice)).not.toThrow();
-    expect(Date.now() - t).toBeLessThan(30_000);
-  }, 60_000);
+  real(
+    "looksLikeHtml and the paste converter stay fast and never throw on a 1,000,000 character slice",
+    () => {
+      const slice = text.slice(0, 1_000_000);
+      const t = Date.now();
+      expect(() => looksLikeHtml(slice)).not.toThrow();
+      expect(() => htmlToBlocks(slice)).not.toThrow();
+      expect(Date.now() - t).toBeLessThan(30_000);
+    },
+    60_000,
+  );
 });

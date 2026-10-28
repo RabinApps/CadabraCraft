@@ -1,6 +1,16 @@
 import type { DocNode, Mark } from "@cadabracraft/shared";
 import { isSep, mergeInline, safeHref, textNode } from "../common";
-import { attr, child, childrenNamed, descendants, kids, on, rawText, tagOf, type XNode } from "./xml";
+import {
+  attr,
+  child,
+  childrenNamed,
+  descendants,
+  kids,
+  on,
+  rawText,
+  tagOf,
+  type XNode,
+} from "./xml";
 import { drawing, pict } from "./drawings";
 import type { DCtx, PState } from "./types";
 
@@ -54,7 +64,12 @@ function linkMark(href: string | undefined, st: PState, label: string): Mark | u
   if (href === undefined) return undefined;
   const safe = safeHref(href);
   if (safe) return { type: "link", attrs: { href: safe } };
-  st.ctx.warn.tally("unsafe-link", "warning", "Links are only kept for http, https and mailto; other links became plain text.", `${href.slice(0, 60)} (${label})`);
+  st.ctx.warn.tally(
+    "unsafe-link",
+    "warning",
+    "Links are only kept for http, https and mailto; other links became plain text.",
+    `${href.slice(0, 60)} (${label})`,
+  );
   return undefined;
 }
 
@@ -75,7 +90,14 @@ function runChildren(list: XNode[], marks: Mark[], link: Mark | undefined, st: P
     const t = tagOf(c);
     switch (t) {
       case "t":
-        pushText(st, kids(c).map((x) => String(x["#text"] ?? "")).join(""), marks, link);
+        pushText(
+          st,
+          kids(c)
+            .map((x) => String(x["#text"] ?? ""))
+            .join(""),
+          marks,
+          link,
+        );
         break;
       case "tab":
         pushText(st, " ", marks, link);
@@ -85,7 +107,12 @@ function runChildren(list: XNode[], marks: Mark[], link: Mark | undefined, st: P
         break;
       case "br": {
         const ty = attr(c, "type");
-        if (ty === "page" || ty === "column") ctx.warn.tally("page-break", "info", "Page and column breaks are ignored; use scene breaks for separations.");
+        if (ty === "page" || ty === "column")
+          ctx.warn.tally(
+            "page-break",
+            "info",
+            "Page and column breaks are ignored; use scene breaks for separations.",
+          );
         else st.items.push({ sep: "break" });
         break;
       }
@@ -101,14 +128,23 @@ function runChildren(list: XNode[], marks: Mark[], link: Mark | undefined, st: P
             f.phase = "result";
             const m = /^\s*HYPERLINK\s+"([^"]+)"/i.exec(f.instr);
             if (m) f.link = linkMark(m[1], st, "field");
-            else if (!/^\s*HYPERLINK/i.test(f.instr)) ctx.warn.tally("field", "info", "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.", f.instr.trim().split(/\s+/)[0]);
+            else if (!/^\s*HYPERLINK/i.test(f.instr))
+              ctx.warn.tally(
+                "field",
+                "info",
+                "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+                f.instr.trim().split(/\s+/)[0],
+              );
           }
         } else if (ty === "end") st.fields.pop();
         break;
       }
       case "instrText": {
         const f = st.fields[st.fields.length - 1];
-        if (f && f.phase === "instr") f.instr += kids(c).map((x) => String(x["#text"] ?? "")).join("");
+        if (f && f.phase === "instr")
+          f.instr += kids(c)
+            .map((x) => String(x["#text"] ?? ""))
+            .join("");
         break;
       }
       case "footnoteReference":
@@ -122,7 +158,11 @@ function runChildren(list: XNode[], marks: Mark[], link: Mark | undefined, st: P
         pict(c, st);
         break;
       case "object":
-        ctx.warn.tally("embedded-object", "warning", "Embedded objects (OLE, charts, equations editors) were skipped.");
+        ctx.warn.tally(
+          "embedded-object",
+          "warning",
+          "Embedded objects (OLE, charts, equations editors) were skipped.",
+        );
         break;
       case "AlternateContent": {
         const choice = child(c, "Choice") ?? child(c, "Fallback");
@@ -147,7 +187,12 @@ function noteRef(c: XNode, kind: "footnote" | "endnote", st: PState): void {
   }
   const note = id !== undefined ? ctx.notes.get(`${kind}:${id}`) : undefined;
   if (!note) {
-    ctx.warn.tally("footnote-missing", "warning", "A footnote or endnote reference pointed at a missing note and was dropped.", id);
+    ctx.warn.tally(
+      "footnote-missing",
+      "warning",
+      "A footnote or endnote reference pointed at a missing note and was dropped.",
+      id,
+    );
     return;
   }
   if (kind === "endnote") ctx.warn.tally("endnote", "info", "Endnotes are imported as footnotes.");
@@ -166,11 +211,13 @@ function noteNode(el: XNode, ctx: DCtx): DocNode {
       } else if (it.type === "text") parts.push(it);
     }
   }
-  if (childrenNamed(el, "tbl").length) ctx.warn.tally("note-table", "warning", "A table inside a footnote was dropped.");
+  if (childrenNamed(el, "tbl").length)
+    ctx.warn.tally("note-table", "warning", "A table inside a footnote was dropped.");
   const content = mergeInline(parts);
   while (content[0]?.type === "text" && content[0].text.trim() === "") content.shift();
   const first = content[0];
-  if (first && first.type === "text") content[0] = { ...first, text: first.text.replace(/^\s+/, "") };
+  if (first && first.type === "text")
+    content[0] = { ...first, text: first.text.replace(/^\s+/, "") };
   return content.length ? { type: "footnote", content } : { type: "footnote" };
 }
 
@@ -187,7 +234,13 @@ export function paragraphChildren(list: XNode[], link: Mark | undefined, st: PSt
         const rel = rid ? ctx.rels.get(rid) : undefined;
         let m: Mark | undefined;
         if (rel?.external) m = linkMark(rel.target, st, "hyperlink");
-        else if (attr(c, "anchor") !== undefined) ctx.warn.tally("internal-link", "info", "Links to bookmarks inside the document were kept as plain text.", attr(c, "anchor"));
+        else if (attr(c, "anchor") !== undefined)
+          ctx.warn.tally(
+            "internal-link",
+            "info",
+            "Links to bookmarks inside the document were kept as plain text.",
+            attr(c, "anchor"),
+          );
         paragraphChildren(kids(c), m ?? link, st);
         break;
       }
@@ -196,18 +249,34 @@ export function paragraphChildren(list: XNode[], link: Mark | undefined, st: PSt
         const h = /^\s*HYPERLINK\s+"([^"]+)"/i.exec(instr);
         let m: Mark | undefined;
         if (h) m = linkMark(h[1], st, "field");
-        else ctx.warn.tally("field", "info", "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.", instr.trim().split(/\s+/)[0]);
+        else
+          ctx.warn.tally(
+            "field",
+            "info",
+            "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+            instr.trim().split(/\s+/)[0],
+          );
         paragraphChildren(kids(c), m ?? link, st);
         break;
       }
       case "ins":
       case "moveTo":
-        ctx.warn.tally("tracked-changes", "warning", "The file has tracked changes: insertions were accepted (kept), deletions were dropped.", rawText(c));
+        ctx.warn.tally(
+          "tracked-changes",
+          "warning",
+          "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+          rawText(c),
+        );
         paragraphChildren(kids(c), link, st);
         break;
       case "del":
       case "moveFrom":
-        ctx.warn.tally("tracked-changes", "warning", "The file has tracked changes: insertions were accepted (kept), deletions were dropped.", rawText(c));
+        ctx.warn.tally(
+          "tracked-changes",
+          "warning",
+          "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+          rawText(c),
+        );
         break;
       case "sdt":
         paragraphChildren(kids(child(c, "sdtContent") ?? {}), link, st);
@@ -221,8 +290,15 @@ export function paragraphChildren(list: XNode[], link: Mark | undefined, st: PSt
         break;
       case "oMath":
       case "oMathPara": {
-        const txt = descendants(c, "t").map((x) => rawText(x)).join("");
-        ctx.warn.tally("equation", "warning", "Equations are not supported; their text was kept without layout.", txt);
+        const txt = descendants(c, "t")
+          .map((x) => rawText(x))
+          .join("");
+        ctx.warn.tally(
+          "equation",
+          "warning",
+          "Equations are not supported; their text was kept without layout.",
+          txt,
+        );
         pushText(st, txt, [], link);
         break;
       }

@@ -15,7 +15,9 @@ test("word count follows typing", async ({ page }) => {
   await expect(page.getByText("5 words in this chapter")).toBeVisible();
 });
 
-test("reading mode is read-only, shows unsaved typing and moves between chapters", async ({ page }) => {
+test("reading mode is read-only, shows unsaved typing and moves between chapters", async ({
+  page,
+}) => {
   await newProject(page);
   await page.getByRole("button", { name: "Add chapter" }).click();
   await page.getByRole("button", { name: "Chapter One", exact: true }).click();
@@ -35,6 +37,10 @@ test("reading mode is read-only, shows unsaved typing and moves between chapters
   await page.keyboard.press("Escape");
   await page.getByRole("radio", { name: "Write" }).click();
   await expect(page.getByRole("toolbar", { name: "Formatting" })).toBeVisible();
-  const saved = await page.evaluate(() => Object.values((window as any).__disk).filter((v) => typeof v === "string").join("\n"));
+  const saved = await page.evaluate(() =>
+    Object.values((window as any).__disk)
+      .filter((v) => typeof v === "string")
+      .join("\n"),
+  );
   expect(saved).toContain("Hello reading");
 });

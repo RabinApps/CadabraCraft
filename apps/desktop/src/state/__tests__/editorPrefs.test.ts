@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { cleanSnapshotKeep, SNAPSHOT_KEEP_DEFAULT, SNAPSHOT_KEEP_MAX, SNAPSHOT_KEEP_MIN, cleanRawHtmlPaste } from "../editorPrefs";
+import {
+  cleanSnapshotKeep,
+  SNAPSHOT_KEEP_DEFAULT,
+  SNAPSHOT_KEEP_MAX,
+  SNAPSHOT_KEEP_MIN,
+  cleanRawHtmlPaste,
+} from "../editorPrefs";
 
 describe("cleanRawHtmlPaste", () => {
   it("keeps the three choices and falls back to ask", () => {
@@ -13,6 +19,7 @@ describe("cleanSnapshotKeep", () => {
     expect(cleanSnapshotKeep(20)).toBe(20);
     expect(cleanSnapshotKeep(1)).toBe(SNAPSHOT_KEEP_MIN);
     expect(cleanSnapshotKeep(100000)).toBe(SNAPSHOT_KEEP_MAX);
-    for (const bad of [NaN, 2.5, "50", null, undefined]) expect(cleanSnapshotKeep(bad)).toBe(SNAPSHOT_KEEP_DEFAULT);
+    for (const bad of [NaN, 2.5, "50", null, undefined])
+      expect(cleanSnapshotKeep(bad)).toBe(SNAPSHOT_KEEP_DEFAULT);
   });
 });

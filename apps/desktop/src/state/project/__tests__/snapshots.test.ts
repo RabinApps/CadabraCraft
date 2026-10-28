@@ -5,36 +5,47 @@ import { disk, hashOf as h } from "../../../test/fakeBridge";
 const snaps = new Map<string, { path: string; at: string }[]>();
 const calls: string[] = [];
 let stale: { path: string; snapshot: string }[] = [];
-vi.mock("../../../lib/bridge", async () => (await import("../../../test/fakeBridge")).fakeBridge({
-  writeFile: async (_r: string, p: string, c: string) => {
-    const old = disk.get(p);
-    if (old !== undefined && old !== c && p.startsWith("manuscript/")) {
-      const list = snaps.get(p) ?? [];
-      const path = `.cadabra/backups/${20261027}-${1000 + list.length}-${p.replaceAll("/", "__")}`;
-      disk.set(path, old);
-      snaps.set(p, [{ path, at: "20261027-1000" }, ...list]);
-    }
-    disk.set(p, c);
-    return { hash: h(c), conflict_copy: null };
-  },
-  listSnapshots: async (_r: string, p: string) => snaps.get(p) ?? [],
-  readSnapshot: async (_r: string, _p: string, s: string) => ({ contents: disk.get(s)!, hash: h(disk.get(s)!) }),
-  restoreSnapshot: async (_r: string, p: string, s: string) => {
-    const text = disk.get(s)!;
-    calls.push(`restore ${p} ${s}`);
-    disk.set(p, text);
-    return { hash: h(text), conflict_copy: null };
-  },
-  findStalePages: async () => stale,
-  pruneSnapshots: async (_r: string, paths: string[], keep: number) => { calls.push(`prune ${paths.join(",")} ${keep}`); return 0; },
-}));
+vi.mock("../../../lib/bridge", async () =>
+  (await import("../../../test/fakeBridge")).fakeBridge({
+    writeFile: async (_r: string, p: string, c: string) => {
+      const old = disk.get(p);
+      if (old !== undefined && old !== c && p.startsWith("manuscript/")) {
+        const list = snaps.get(p) ?? [];
+        const path = `.cadabra/backups/${20261027}-${1000 + list.length}-${p.replaceAll("/", "__")}`;
+        disk.set(path, old);
+        snaps.set(p, [{ path, at: "20261027-1000" }, ...list]);
+      }
+      disk.set(p, c);
+      return { hash: h(c), conflict_copy: null };
+    },
+    listSnapshots: async (_r: string, p: string) => snaps.get(p) ?? [],
+    readSnapshot: async (_r: string, _p: string, s: string) => ({
+      contents: disk.get(s)!,
+      hash: h(disk.get(s)!),
+    }),
+    restoreSnapshot: async (_r: string, p: string, s: string) => {
+      const text = disk.get(s)!;
+      calls.push(`restore ${p} ${s}`);
+      disk.set(p, text);
+      return { hash: h(text), conflict_copy: null };
+    },
+    findStalePages: async () => stale,
+    pruneSnapshots: async (_r: string, paths: string[], keep: number) => {
+      calls.push(`prune ${paths.join(",")} ${keep}`);
+      return 0;
+    },
+  }),
+);
 
 import { useProject } from "../index";
 import { useSettings } from "../../editorPrefs";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
-const text = (t: string) => ({ type: "doc" as const, content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }] });
+const text = (t: string) => ({
+  type: "doc" as const,
+  content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
+});
 
 beforeEach(async () => {
   disk.clear();
@@ -55,9 +66,19 @@ describe("opening a book", () => {
 
   it("offers a page whose newest snapshot is newer than the saved page, by title", async () => {
     const file = s().manifest!.chapters[0]!.file;
-    stale = [{ path: file, snapshot: ".cadabra/backups/x" }, { path: "manuscript/not-in-book.json", snapshot: ".cadabra/backups/y" }];
+    stale = [
+      { path: file, snapshot: ".cadabra/backups/x" },
+      { path: "manuscript/not-in-book.json", snapshot: ".cadabra/backups/y" },
+    ];
     await a().openProject("/proj");
-    expect(s().recovery).toEqual([{ id: s().manifest!.chapters[0]!.id, title: "Chapter One", file, snapshot: ".cadabra/backups/x" }]);
+    expect(s().recovery).toEqual([
+      {
+        id: s().manifest!.chapters[0]!.id,
+        title: "Chapter One",
+        file,
+        snapshot: ".cadabra/backups/x",
+      },
+    ]);
     a().dismissRecovery(s().recovery[0]!.id);
     expect(s().recovery).toEqual([]);
   });
@@ -65,7 +86,9 @@ describe("opening a book", () => {
   it("opens normally when the recovery check fails", async () => {
     const { bridge } = await import("../../../lib/bridge");
     const original = bridge.findStalePages;
-    bridge.findStalePages = () => { throw new Error("boom"); };
+    bridge.findStalePages = () => {
+      throw new Error("boom");
+    };
     await a().openProject("/proj");
     expect(s().manifest).not.toBeNull();
     expect(s().recovery).toEqual([]);
@@ -97,7 +120,16 @@ describe("restoring a snapshot", () => {
     await a().saveCurrent(text("two v1"));
     await a().saveCurrent(text("two v2"));
     await a().selectChapter(first.id);
-    useProject.setState({ recovery: [{ id: second.id, title: "Second", file: second.file, snapshot: snaps.get(second.file)![0]!.path }] });
+    useProject.setState({
+      recovery: [
+        {
+          id: second.id,
+          title: "Second",
+          file: second.file,
+          snapshot: snaps.get(second.file)![0]!.path,
+        },
+      ],
+    });
     await a().restoreSnapshot(second.id, snaps.get(second.file)![0]!.path);
     expect(s().currentId).toBe(second.id);
     expect(s().recovery).toEqual([]);

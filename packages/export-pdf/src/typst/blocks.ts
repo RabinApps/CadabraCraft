@@ -11,7 +11,10 @@ export function imagePath(src: string, ctx: Ctx): string {
   const known = ctx.images.get(src);
   if (known) return known;
   const ext = /\.([A-Za-z0-9]+)(?:[?#].*)?$/.exec(src)?.[1]?.toLowerCase() ?? "";
-  if (!IMAGE_EXT.has(ext)) throw new PdfExportError(`Unsupported image type for "${src}" (use png, jpg, gif, svg or webp)`);
+  if (!IMAGE_EXT.has(ext))
+    throw new PdfExportError(
+      `Unsupported image type for "${src}" (use png, jpg, gif, svg or webp)`,
+    );
   const path = `assets/img-${ctx.images.size + 1}.${ext === "jpeg" ? "jpg" : ext}`;
   ctx.images.set(src, path);
   return path;
@@ -35,12 +38,15 @@ function tableRows(n: DocNode): DocNode[][] {
     const cells = ("content" in row ? row.content : undefined) ?? [];
     for (const c of cells) {
       if (c.type !== "tableCell" && c.type !== "tableHeader") return unsupported(c.type);
-      for (const k of ("content" in c ? c.content : undefined) ?? []) if (k.type !== "paragraph") throw new PdfExportError(`Unsupported node in a table cell: ${k.type}`);
+      for (const k of ("content" in c ? c.content : undefined) ?? [])
+        if (k.type !== "paragraph")
+          throw new PdfExportError(`Unsupported node in a table cell: ${k.type}`);
     }
     return cells;
   });
   const width = out[0]!.length;
-  if (width === 0 || out.some((r) => r.length !== width)) throw new PdfExportError("Table rows must all have the same, non-zero number of cells");
+  if (width === 0 || out.some((r) => r.length !== width))
+    throw new PdfExportError("Table rows must all have the same, non-zero number of cells");
   return out;
 }
 
@@ -69,21 +75,31 @@ function block(n: DocNode, ctx: Ctx): string {
       const level = Math.min(3, Math.max(1, Number(n.attrs?.level ?? 1)));
       return `#heading(level: ${level})[${inline(kids, ctx, true)}]`;
     }
-    case "blockquote": return `#quote(block: true)[\n${blocks(kids, ctx)}\n]`;
-    case "bulletList": return `#list(\n${listItems(kids, ctx)},\n)`;
+    case "blockquote":
+      return `#quote(block: true)[\n${blocks(kids, ctx)}\n]`;
+    case "bulletList":
+      return `#list(\n${listItems(kids, ctx)},\n)`;
     case "orderedList": {
-      const start = typeof n.attrs?.start === "number" && Number.isInteger(n.attrs.start) ? `start: ${n.attrs.start}, ` : "";
+      const start =
+        typeof n.attrs?.start === "number" && Number.isInteger(n.attrs.start)
+          ? `start: ${n.attrs.start}, `
+          : "";
       return `#enum(${start}\n${listItems(kids, ctx)},\n)`;
     }
     case "codeBlock": {
-      const text = (kids ?? []).map((k) => {
-        if (k.type !== "text") throw new PdfExportError(`Unsupported node type in code block: ${k.type}`);
-        return k.text;
-      }).join("");
+      const text = (kids ?? [])
+        .map((k) => {
+          if (k.type !== "text")
+            throw new PdfExportError(`Unsupported node type in code block: ${k.type}`);
+          return k.text;
+        })
+        .join("");
       return `#raw(block: true, ${typstString(text)})`;
     }
-    case "table": return tableBlock(n, ctx);
-    case "sceneBreak": return "#scene-break()";
+    case "table":
+      return tableBlock(n, ctx);
+    case "sceneBreak":
+      return "#scene-break()";
     case "image": {
       const a = n.attrs ?? {};
       const src = String(a.src ?? "");
@@ -92,13 +108,19 @@ function block(n: DocNode, ctx: Ctx): string {
       const path = imagePath(src, ctx);
       const alt = a.alt ? typstString(String(a.alt)) : "none";
       const img = `fit-image(${typstString(path)}, ${alt}, ${inch(ctx.maxImageIn)})`;
-      const cap = a.title ? `, caption: [${escapeMarkup(String(a.title), { lineStart: true })}]` : "";
+      const cap = a.title
+        ? `, caption: [${escapeMarkup(String(a.title), { lineStart: true })}]`
+        : "";
       return `#figure(${img}${cap})`;
     }
-    default: return unsupported(n.type);
+    default:
+      return unsupported(n.type);
   }
 }
 
 export function blocks(nodes: DocNode[] | undefined, ctx: Ctx): string {
-  return (nodes ?? []).map((n) => block(n, ctx)).filter((s) => s !== "").join("\n\n");
+  return (nodes ?? [])
+    .map((n) => block(n, ctx))
+    .filter((s) => s !== "")
+    .join("\n\n");
 }

@@ -19,19 +19,36 @@ export interface VoicePack {
   installed: boolean;
 }
 
-export interface FileRead { contents: string; hash: string }
-export interface TrashEntry { path: string; original: string; trashed_at: string }
+export interface FileRead {
+  contents: string;
+  hash: string;
+}
+export interface TrashEntry {
+  path: string;
+  original: string;
+  trashed_at: string;
+}
 /** An earlier version of a page: `path` is its file under `.cadabra/backups`, `at` is `YYYYMMDD-HHMM` in UTC. */
-export interface SnapshotEntry { path: string; at: string }
+export interface SnapshotEntry {
+  path: string;
+  at: string;
+}
 /** A page whose newest snapshot is newer than the page itself and differs from it. */
-export interface StalePage { path: string; snapshot: string }
-export interface WriteResult { hash: string; conflict_copy: string | null }
+export interface StalePage {
+  path: string;
+  snapshot: string;
+}
+export interface WriteResult {
+  hash: string;
+  conflict_copy: string | null;
+}
 
 /** What `invoke` hands back for binary commands: an ArrayBuffer for raw responses, a number array for JSON ones. */
 export type RawBytes = ArrayBuffer | ArrayLike<number>;
 
 /** The one place that turns an `invoke` byte result into a `Uint8Array`. */
-export const toBytes = (r: RawBytes): Uint8Array => (r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r));
+export const toBytes = (r: RawBytes): Uint8Array =>
+  r instanceof ArrayBuffer ? new Uint8Array(r) : Uint8Array.from(r);
 
 /** Awaits a binary `invoke` and returns its bytes. */
 export const binary = async (p: Promise<RawBytes>): Promise<Uint8Array> => toBytes(await p);

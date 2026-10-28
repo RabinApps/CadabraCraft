@@ -34,16 +34,26 @@ export function mapAudioError(e: unknown): Error {
   if (e && typeof e === "object" && "kind" in e) {
     const r = e as RustError;
     switch (r.kind) {
-      case "not_found": return new EngineNotFoundError(r.message);
-      case "voice_missing": return new VoiceNotInstalledError(r.voice);
-      case "synth": return new SynthesisError(r.message);
-      case "encode": return new EncodeError(r.format, r.message);
-      case "disk_full": return new DiskFullError();
-      case "timeout": return new AudioTimeoutError(r.seconds);
-      case "cancelled": return new CancelledError();
-      case "download": return new DownloadError(r.message);
-      case "checksum": return new ChecksumError(r.file);
-      default: return new AudioExportError(r.message);
+      case "not_found":
+        return new EngineNotFoundError(r.message);
+      case "voice_missing":
+        return new VoiceNotInstalledError(r.voice);
+      case "synth":
+        return new SynthesisError(r.message);
+      case "encode":
+        return new EncodeError(r.format, r.message);
+      case "disk_full":
+        return new DiskFullError();
+      case "timeout":
+        return new AudioTimeoutError(r.seconds);
+      case "cancelled":
+        return new CancelledError();
+      case "download":
+        return new DownloadError(r.message);
+      case "checksum":
+        return new ChecksumError(r.file);
+      default:
+        return new AudioExportError(r.message);
     }
   }
   return new AudioExportError(errText(e));
@@ -51,7 +61,14 @@ export function mapAudioError(e: unknown): Error {
 
 /** `exports/audio/03-hostile-characters`: ordered, ASCII and safe in any file system (the Rust side checks the path again). */
 export function chapterBase(index: number, title: string): string {
-  const slug = title.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/, "");
+  const slug = title
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40)
+    .replace(/-+$/, "");
   return `exports/audio/${String(index + 1).padStart(2, "0")}-${slug || "chapter"}`;
 }
 
@@ -59,7 +76,11 @@ export function chapterBase(index: number, title: string): string {
  * An `AudioRunner` over the Tauri commands. Synthesis and encoding run in Rust on a worker thread, so the webview only
  * awaits. Aborting the signal asks Rust to kill the engine; `renderChapter` then rejects with `CancelledError`.
  */
-export function createTauriAudioRunner(bridge: Pick<Bridge, "audioVoices" | "audioRenderChapter" | "audioCancel">, root: string, jobId: string): AudioRunner {
+export function createTauriAudioRunner(
+  bridge: Pick<Bridge, "audioVoices" | "audioRenderChapter" | "audioCancel">,
+  root: string,
+  jobId: string,
+): AudioRunner {
   return {
     async listVoices() {
       try {
@@ -73,7 +94,18 @@ export function createTauriAudioRunner(bridge: Pick<Bridge, "audioVoices" | "aud
       if (signal.aborted) stop();
       else signal.addEventListener("abort", stop, { once: true });
       try {
-        return await bridge.audioRenderChapter({ jobId, root, base: chapterBase(req.chapterIndex, req.title), chunks: req.chunks, voice: req.voice, speed: req.speed, formats: req.formats }, onProgress);
+        return await bridge.audioRenderChapter(
+          {
+            jobId,
+            root,
+            base: chapterBase(req.chapterIndex, req.title),
+            chunks: req.chunks,
+            voice: req.voice,
+            speed: req.speed,
+            formats: req.formats,
+          },
+          onProgress,
+        );
       } catch (e) {
         throw mapAudioError(e);
       } finally {

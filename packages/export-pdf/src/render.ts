@@ -11,17 +11,26 @@ export type RenderPdfOptions = PdfOptions;
  * Render chapters to a print PDF using `runner` (see `TypstRunner`; `createNodeRunner` in `./node` for Node).
  * Refuses (FontNotAvailableError) when a requested font is not installed; never substitutes one.
  */
-export async function renderPdf(book: PdfBook, chapters: PdfChapter[], options: RenderPdfOptions, runner: TypstRunner): Promise<RenderResult> {
+export async function renderPdf(
+  book: PdfBook,
+  chapters: PdfChapter[],
+  options: RenderPdfOptions,
+  runner: TypstRunner,
+): Promise<RenderResult> {
   const available = await runner.listFonts();
   const fonts = resolveFonts(options, available);
   const doc = buildTypstDocument(book, chapters, options, fonts);
 
-  const missing = [...doc.images.keys()].filter((src) => !options.assets || !(src in options.assets));
+  const missing = [...doc.images.keys()].filter(
+    (src) => !options.assets || !(src in options.assets),
+  );
   if (missing.length) throw new MissingAssetError(missing);
 
   const files = new Map<string, Uint8Array>();
   for (const [src, rel] of doc.images) files.set(rel, options.assets![src]!);
-  if (doc.usesDropCap) for (const [rel, text] of Object.entries(DROPLET_FILES)) files.set(rel, new TextEncoder().encode(text));
+  if (doc.usesDropCap)
+    for (const [rel, text] of Object.entries(DROPLET_FILES))
+      files.set(rel, new TextEncoder().encode(text));
   let pdf: Uint8Array;
   try {
     pdf = await runner.compile(doc.source, files, { pdfA: options.pdfA === true });

@@ -1,7 +1,13 @@
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { errMsg } from "@cadabracraft/shared";
 import { chunkBlocks, type Chunk } from "./chunk";
-import { AudioExportError, CancelledError, ChapterRenderError, SynthesisError, VoiceNotInstalledError } from "./errors";
+import {
+  AudioExportError,
+  CancelledError,
+  ChapterRenderError,
+  SynthesisError,
+  VoiceNotInstalledError,
+} from "./errors";
 import { contentHash } from "./hash";
 import { narrate } from "./narrate";
 
@@ -56,7 +62,11 @@ export interface RenderedChapter {
 export interface AudioRunner {
   listVoices(): Promise<VoiceInfo[]>;
   /** Render one chapter. Reports 0..1 progress and must stop promptly (throwing `CancelledError`) when `signal` aborts. */
-  renderChapter(request: RenderRequest, onProgress: (fraction: number) => void, signal: AbortSignal): Promise<RenderedChapter>;
+  renderChapter(
+    request: RenderRequest,
+    onProgress: (fraction: number) => void,
+    signal: AbortSignal,
+  ): Promise<RenderedChapter>;
 }
 
 export interface ChapterResult extends RenderedChapter {
@@ -78,9 +88,11 @@ export interface RenderHooks {
 }
 
 function validate(options: AudioOptions): void {
-  if (!(options.speed >= 0.5 && options.speed <= 2)) throw new AudioExportError("Speed must be between 0.5 and 2.");
+  if (!(options.speed >= 0.5 && options.speed <= 2))
+    throw new AudioExportError("Speed must be between 0.5 and 2.");
   if (options.formats.length === 0) throw new AudioExportError("Choose at least one audio format.");
-  if (new Set(options.formats).size !== options.formats.length) throw new AudioExportError("Each audio format can be chosen once.");
+  if (new Set(options.formats).size !== options.formats.length)
+    throw new AudioExportError("Each audio format can be chosen once.");
 }
 
 /**
@@ -101,13 +113,21 @@ export async function renderAudiobook(
   const voice = (await runner.listVoices()).find((v) => v.id === options.voice);
   if (!voice?.installed) throw new VoiceNotInstalledError(options.voice);
 
-  const picked = options.chapterIds ? chapters.filter((c) => options.chapterIds?.includes(c.id)) : chapters;
-  if (picked.length === 0) throw new AudioExportError("There are no chapters to turn into audio. Add a chapter first.");
+  const picked = options.chapterIds
+    ? chapters.filter((c) => options.chapterIds?.includes(c.id))
+    : chapters;
+  if (picked.length === 0)
+    throw new AudioExportError("There are no chapters to turn into audio. Add a chapter first.");
 
   const plan = picked.map((c, chapterIndex) => {
     const { blocks, skipped } = narrate(c.doc, c.title);
     const chunks = chunkBlocks(blocks);
-    const hash = contentHash(options.voice, String(options.speed), options.formats.join(","), ...chunks.map((k) => `${k.pauseAfterMs}:${k.text}`));
+    const hash = contentHash(
+      options.voice,
+      String(options.speed),
+      options.formats.join(","),
+      ...chunks.map((k) => `${k.pauseAfterMs}:${k.text}`),
+    );
     return { chapter: c, chapterIndex, chunks, hash, skipped };
   });
 
@@ -115,21 +135,59 @@ export async function renderAudiobook(
   for (const { chapter, chapterIndex, chunks, hash, skipped } of plan) {
     if (signal.aborted) throw new CancelledError();
     const total = plan.length;
-    const report = (fraction: number) => hooks.onProgress?.({ chapterIndex, total, fraction, overall: (chapterIndex + fraction) / total });
+    const report = (fraction: number) =>
+      hooks.onProgress?.({
+        chapterIndex,
+        total,
+        fraction,
+        overall: (chapterIndex + fraction) / total,
+      });
     hooks.onChapterStart?.(chapterIndex, total, chapter.title);
     let result: ChapterResult;
     if (chunks.length === 0) {
-      result = { id: chapter.id, title: chapter.title, status: "empty", hash, files: [], durationSec: 0, skipped };
+      result = {
+        id: chapter.id,
+        title: chapter.title,
+        status: "empty",
+        hash,
+        files: [],
+        durationSec: 0,
+        skipped,
+      };
     } else {
       try {
         const hit = await hooks.cached?.(chapter.id, hash);
         const rendered =
           hit ??
-          (await runner.renderChapter({ chapterId: chapter.id, chapterIndex, title: chapter.title, chunks, hash, voice: options.voice, speed: options.speed, formats: options.formats }, report, signal));
-        result = { id: chapter.id, title: chapter.title, status: hit ? "cached" : "done", hash, ...rendered, skipped };
+          (await runner.renderChapter(
+            {
+              chapterId: chapter.id,
+              chapterIndex,
+              title: chapter.title,
+              chunks,
+              hash,
+              voice: options.voice,
+              speed: options.speed,
+              formats: options.formats,
+            },
+            report,
+            signal,
+          ));
+        result = {
+          id: chapter.id,
+          title: chapter.title,
+          status: hit ? "cached" : "done",
+          hash,
+          ...rendered,
+          skipped,
+        };
       } catch (e) {
         if (e instanceof CancelledError || signal.aborted) throw new CancelledError();
-        throw new ChapterRenderError(chapterIndex, chapter.title, e instanceof AudioExportError ? e : new SynthesisError(errMsg(e)));
+        throw new ChapterRenderError(
+          chapterIndex,
+          chapter.title,
+          e instanceof AudioExportError ? e : new SynthesisError(errMsg(e)),
+        );
       }
     }
     report(1);

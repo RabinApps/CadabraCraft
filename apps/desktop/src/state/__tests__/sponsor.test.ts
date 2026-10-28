@@ -7,7 +7,9 @@ async function fresh(stored: string | null) {
   const data = new Map<string, string>(stored === null ? [] : [[KEY, stored]]);
   vi.stubGlobal("localStorage", {
     getItem: (k: string) => data.get(k) ?? null,
-    setItem: (k: string, v: string) => { data.set(k, v); },
+    setItem: (k: string, v: string) => {
+      data.set(k, v);
+    },
   });
   vi.resetModules();
   const { useSponsor } = await import("../sponsor");
@@ -57,7 +59,14 @@ describe("sponsor dialog state", () => {
   });
 
   it("works when storage is unavailable", async () => {
-    vi.stubGlobal("localStorage", { getItem: () => { throw new Error("denied"); }, setItem: () => { throw new Error("denied"); } });
+    vi.stubGlobal("localStorage", {
+      getItem: () => {
+        throw new Error("denied");
+      },
+      setItem: () => {
+        throw new Error("denied");
+      },
+    });
     vi.resetModules();
     const { useSponsor } = await import("../sponsor");
     useSponsor.getState().offer("exports/book.epub");

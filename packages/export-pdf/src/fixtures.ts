@@ -16,5 +16,9 @@ export function loadFullBook(): FullBook {
   const assets: Record<string, Uint8Array> = {
     "assets/gradient.png": new Uint8Array(readFileSync(new URL("assets/gradient.png", root))),
   };
-  return { book: { title: raw.title, author: raw.author, language: raw.language }, chapters: raw.chapters, assets };
+  return {
+    book: { title: raw.title, author: raw.author, language: raw.language },
+    chapters: raw.chapters,
+    assets,
+  };
 }

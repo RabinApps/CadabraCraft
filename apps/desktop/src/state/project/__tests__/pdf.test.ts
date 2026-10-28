@@ -6,21 +6,39 @@ const assets = new Map<string, Uint8Array>();
 const typst = {
   fonts: ["Libertinus Serif", "New Computer Modern"],
   failWith: null as unknown,
-  compiles: [] as { path: string | null; source: string; files: [string, Uint8Array][]; pdfA: boolean }[],
+  compiles: [] as {
+    path: string | null;
+    source: string;
+    files: [string, Uint8Array][];
+    pdfA: boolean;
+  }[],
 };
-vi.mock("../../../lib/bridge", async () => (await import("../../../test/fakeBridge")).fakeBridge({
-  writeBytes: async (_r: string, p: string, b: Uint8Array) => { bytesOnDisk.set(p, b); },
-  readAsset: async (_r: string, p: string) => { const b = assets.get(p); if (!b) throw new Error("missing"); return b; },
-  typstListFonts: async () => {
-    if (typst.failWith) throw typst.failWith;
-    return typst.fonts;
-  },
-  typstCompile: async (path: string | null, source: string, files: [string, Uint8Array][], pdfA: boolean) => {
-    typst.compiles.push({ path, source, files, pdfA });
-    if (typst.failWith) throw typst.failWith;
-    return new Uint8Array([0x25, 0x50, 0x44, 0x46]);
-  },
-}));
+vi.mock("../../../lib/bridge", async () =>
+  (await import("../../../test/fakeBridge")).fakeBridge({
+    writeBytes: async (_r: string, p: string, b: Uint8Array) => {
+      bytesOnDisk.set(p, b);
+    },
+    readAsset: async (_r: string, p: string) => {
+      const b = assets.get(p);
+      if (!b) throw new Error("missing");
+      return b;
+    },
+    typstListFonts: async () => {
+      if (typst.failWith) throw typst.failWith;
+      return typst.fonts;
+    },
+    typstCompile: async (
+      path: string | null,
+      source: string,
+      files: [string, Uint8Array][],
+      pdfA: boolean,
+    ) => {
+      typst.compiles.push({ path, source, files, pdfA });
+      if (typst.failWith) throw typst.failWith;
+      return new Uint8Array([0x25, 0x50, 0x44, 0x46]);
+    },
+  }),
+);
 
 import { PdfUiError } from "../../../lib/pdfErrors";
 import { useProject } from "../index";
@@ -36,18 +54,34 @@ beforeEach(async () => {
   typst.fonts = ["Libertinus Serif", "New Computer Modern"];
   typst.failWith = null;
   typst.compiles = [];
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, exportStage: null });
+  useProject.setState({
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    reloadCount: 0,
+    exportStage: null,
+  });
   await a().createProject("/p", "Book", "Me");
 });
 
 const fail = async (): Promise<PdfUiError> => {
-  const e = await a().exportPdf(options).then(() => null, (x: unknown) => x);
+  const e = await a()
+    .exportPdf(options)
+    .then(
+      () => null,
+      (x: unknown) => x,
+    );
   expect(e).toBeInstanceOf(PdfUiError);
   return e as PdfUiError;
 };
 
 describe("exportPdf with a cover", () => {
-  const setCover = () => a().updateDetails({ ...s().manifest!, isbn: "", cover: "assets/front.png" });
+  const setCover = () =>
+    a().updateDetails({ ...s().manifest!, isbn: "", cover: "assets/front.png" });
   const source = () => typst.compiles.at(-1)!.source;
   it("sends the cover image to Typst as the first page", async () => {
     assets.set("assets/front.png", new Uint8Array([1, 2, 3]));
@@ -71,7 +105,10 @@ describe("exportPdf with a cover", () => {
 
 describe("exportPdf", () => {
   it("flushes the draft, compiles with the chosen options and writes exports/book.pdf", async () => {
-    a().setDraft({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "typed but not saved" }] }] });
+    a().setDraft({
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "typed but not saved" }] }],
+    });
     await a().exportPdf({ ...options, typstPath: " /opt/typst " });
     expect(typst.compiles).toHaveLength(1);
     const c = typst.compiles[0]!;
@@ -102,18 +139,31 @@ describe("exportPdf", () => {
     expect(src).toContain("#centered-page[");
     expect(src).toContain('numbering: "i"');
     expect(src).toContain('#chapter-start("About the Author", none)');
-    expect(src.indexOf("#title-page[")).toBeLessThan(src.indexOf('#chapter-start("Chapter One", 1)'));
-    expect(src.indexOf('#chapter-start("Chapter One", 1)')).toBeLessThan(src.indexOf('#chapter-start("About the Author", none)'));
+    expect(src.indexOf("#title-page[")).toBeLessThan(
+      src.indexOf('#chapter-start("Chapter One", 1)'),
+    );
+    expect(src.indexOf('#chapter-start("Chapter One", 1)')).toBeLessThan(
+      src.indexOf('#chapter-start("About the Author", none)'),
+    );
   });
   it("sends image files to the compiler", async () => {
     assets.set("assets/pic.png", new Uint8Array([9, 8, 7]));
-    disk.set("manuscript/001-chapter-one.json", JSON.stringify({ type: "doc", content: [{ type: "image", attrs: { src: "assets/pic.png" } }] }));
+    disk.set(
+      "manuscript/001-chapter-one.json",
+      JSON.stringify({
+        type: "doc",
+        content: [{ type: "image", attrs: { src: "assets/pic.png" } }],
+      }),
+    );
     await a().exportPdf(options);
     expect(typst.compiles[0]!.files).toHaveLength(1);
     expect([...typst.compiles[0]!.files[0]![1]]).toEqual([9, 8, 7]);
   });
   it("reports typst missing with install advice and writes nothing", async () => {
-    typst.failWith = { kind: "not_found", message: 'The "typst" program was not found. Install Typst (brew install typst).' };
+    typst.failWith = {
+      kind: "not_found",
+      message: 'The "typst" program was not found. Install Typst (brew install typst).',
+    };
     const e = await fail();
     expect(e.code).toBe("typst-missing");
     expect(e.message).toContain("brew install typst");
@@ -133,7 +183,9 @@ describe("exportPdf", () => {
     const orig = typst.compiles;
     // listFonts succeeds; compile fails
     const bridgeMod = await import("../../../lib/bridge");
-    const spy = vi.spyOn(bridgeMod.bridge, "typstCompile").mockRejectedValueOnce({ kind: "compile", message: "main.typ:3:1: error: unknown variable" });
+    const spy = vi
+      .spyOn(bridgeMod.bridge, "typstCompile")
+      .mockRejectedValueOnce({ kind: "compile", message: "main.typ:3:1: error: unknown variable" });
     const e = await fail();
     spy.mockRestore();
     expect(e.code).toBe("compile");
@@ -142,14 +194,22 @@ describe("exportPdf", () => {
   });
   it("reports a timeout", async () => {
     const bridgeMod = await import("../../../lib/bridge");
-    const spy = vi.spyOn(bridgeMod.bridge, "typstCompile").mockRejectedValueOnce({ kind: "timeout", seconds: 120 });
+    const spy = vi
+      .spyOn(bridgeMod.bridge, "typstCompile")
+      .mockRejectedValueOnce({ kind: "timeout", seconds: 120 });
     const e = await fail();
     spy.mockRestore();
     expect(e.code).toBe("timeout");
     expect(e.message).toContain("120 seconds");
   });
   it("fails clearly when an image file is missing", async () => {
-    disk.set("manuscript/001-chapter-one.json", JSON.stringify({ type: "doc", content: [{ type: "image", attrs: { src: "assets/gone.png" } }] }));
+    disk.set(
+      "manuscript/001-chapter-one.json",
+      JSON.stringify({
+        type: "doc",
+        content: [{ type: "image", attrs: { src: "assets/gone.png" } }],
+      }),
+    );
     const e = await fail();
     expect(e.message).toContain("assets/gone.png");
     expect(typst.compiles).toHaveLength(0);
@@ -162,10 +222,24 @@ describe("exportPdf", () => {
 });
 
 describe("exportMarkdown", () => {
-  const underlined = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Hi", marks: [{ type: "underline" }] }] }] };
+  const underlined = {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "Hi", marks: [{ type: "underline" }] }],
+      },
+    ],
+  };
   const text = () => new TextDecoder().decode(bytesOnDisk.get("exports/book.md")!);
   it("writes exports/book.md and sets the notice", async () => {
-    disk.set("manuscript/001-chapter-one.json", JSON.stringify({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Hello there" }] }] }));
+    disk.set(
+      "manuscript/001-chapter-one.json",
+      JSON.stringify({
+        type: "doc",
+        content: [{ type: "paragraph", content: [{ type: "text", text: "Hello there" }] }],
+      }),
+    );
     await a().exportMarkdown({ htmlMarks: false });
     expect(text()).toContain("Hello there");
     expect(s().notice).toBe("Exported exports/book.md");
@@ -173,7 +247,12 @@ describe("exportMarkdown", () => {
   });
   it("stops at an underline, naming the chapter, when htmlMarks is off, and writes nothing", async () => {
     disk.set("manuscript/001-chapter-one.json", JSON.stringify(underlined));
-    const e = await a().exportMarkdown({ htmlMarks: false }).then(() => null, (x: unknown) => x);
+    const e = await a()
+      .exportMarkdown({ htmlMarks: false })
+      .then(
+        () => null,
+        (x: unknown) => x,
+      );
     expect((e as Error).message).toContain("Chapter One");
     expect(bytesOnDisk.has("exports/book.md")).toBe(false);
     expect(s().exportStage).toBeNull();

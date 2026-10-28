@@ -5,7 +5,10 @@ const MAX_EXAMPLES = 5;
 
 /** Collects warnings. `at` keeps per-location warnings (capped per code); `tally` aggregates counts and examples. */
 export class Warnings {
-  private located = new Map<string, { list: ImportWarning[]; extra: number; sev: WarningSeverity }>();
+  private located = new Map<
+    string,
+    { list: ImportWarning[]; extra: number; sev: WarningSeverity }
+  >();
   private tallies = new Map<string, ImportWarning>();
   private order: string[] = [];
 
@@ -16,7 +19,8 @@ export class Warnings {
       this.located.set(code, e);
       this.order.push(`L:${code}`);
     }
-    if (e.list.length < MAX_INDIVIDUAL) e.list.push({ code, severity, message, ...(line ? { line } : {}) });
+    if (e.list.length < MAX_INDIVIDUAL)
+      e.list.push({ code, severity, message, ...(line ? { line } : {}) });
     else e.extra++;
   }
 
@@ -29,7 +33,8 @@ export class Warnings {
     }
     w.count = (w.count ?? 0) + 1;
     const ex = example?.replace(/\s+/g, " ").trim().slice(0, 80);
-    if (ex && w.examples && w.examples.length < MAX_EXAMPLES && !w.examples.includes(ex)) w.examples.push(ex);
+    if (ex && w.examples && w.examples.length < MAX_EXAMPLES && !w.examples.includes(ex))
+      w.examples.push(ex);
   }
 
   list(): ImportWarning[] {
@@ -40,7 +45,12 @@ export class Warnings {
         const e = this.located.get(code)!;
         out.push(...e.list);
         if (e.extra > 0)
-          out.push({ code, severity: e.sev, message: `${e.extra} more occurrences of this warning were omitted`, count: e.extra });
+          out.push({
+            code,
+            severity: e.sev,
+            message: `${e.extra} more occurrences of this warning were omitted`,
+            count: e.extra,
+          });
       } else {
         const w = { ...this.tallies.get(code)! };
         if (w.examples?.length === 0) delete w.examples;

@@ -5,26 +5,40 @@ import { disk, readFile } from "../../../test/fakeBridge";
 
 // In-memory project layer that counts reads, so the tests can prove which pages the word count touches.
 const reads: string[] = [];
-vi.mock("../../../lib/bridge", async () => (await import("../../../test/fakeBridge")).fakeBridge({
-  readFile: async (r: string, p: string) => {
-    reads.push(p);
-    return readFile(r, p);
-  },
-}));
+vi.mock("../../../lib/bridge", async () =>
+  (await import("../../../test/fakeBridge")).fakeBridge({
+    readFile: async (r: string, p: string) => {
+      reads.push(p);
+      return readFile(r, p);
+    },
+  }),
+);
 
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
 const chapterReads = () => reads.filter((p) => p.startsWith("manuscript/"));
-const para = (t: string) => ({ type: "doc" as const, content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }] });
+const para = (t: string) => ({
+  type: "doc" as const,
+  content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
+});
 const BOOK = bigBook(100_000, 40, 5);
 const BOOK_WORDS = BOOK.reduce((n, d) => n + countWords(d), 0);
 
 /** Opens a 40-chapter, ~100k-word book whose first chapter is open. */
 async function openBigBook() {
   disk.clear();
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0 });
+  useProject.setState({
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    reloadCount: 0,
+  });
   await a().createProject("/p", "Big", "Me");
   for (let i = 1; i < 40; i++) await a().add(`Chapter ${i + 1}`);
   s().manifest!.chapters.forEach((c, i) => disk.set(c.file, JSON.stringify(BOOK[i], null, 2)));
@@ -121,7 +135,9 @@ describe("bookWords is incremental", () => {
     const t0 = performance.now();
     const pages = await a().readPages();
     const ms = performance.now() - t0;
-    console.info(`[perf] readPages 40 chapters (the pre-fix cost of every word-count refresh): ${ms.toFixed(1)} ms`);
+    console.info(
+      `[perf] readPages 40 chapters (the pre-fix cost of every word-count refresh): ${ms.toFixed(1)} ms`,
+    );
     expect(pages).toHaveLength(40);
     expect(chapterReads()).toHaveLength(40);
     expect(ms).toBeLessThan(3000);

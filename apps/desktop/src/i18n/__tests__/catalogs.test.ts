@@ -5,11 +5,16 @@ import { LOCALES, PSEUDO_LOCALE } from "../locales";
 const dir = new URL("../locales/", import.meta.url);
 const read = (code: string) => readFileSync(new URL(`${code}/messages.po`, dir), "utf8");
 const ids = (code: string) =>
-  [...read(code).matchAll(/^msgid "(.*)"$/gm)].map((m) => m[1]!).filter(Boolean).sort();
+  [...read(code).matchAll(/^msgid "(.*)"$/gm)]
+    .map((m) => m[1]!)
+    .filter(Boolean)
+    .sort();
 const placeholders = (s: string) => [...s.matchAll(/\{(\w+)/g)].map((m) => m[1]!).sort();
 
 describe("message catalogs", () => {
-  const codes = readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
+  const codes = readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
   const known = new Set([...LOCALES.map((l) => l.code), PSEUDO_LOCALE]);
   const source = ids("en");
 

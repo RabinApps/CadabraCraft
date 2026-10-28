@@ -1,11 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import {
-  CURRENT_FORMAT_VERSION, FormatError, chapterFileName, conflictFileName, createManifest, isSafeRelativePath,
-  parseManifest, readingOrder, serializeManifest, validateManifest, type Migration,
+  CURRENT_FORMAT_VERSION,
+  FormatError,
+  chapterFileName,
+  conflictFileName,
+  createManifest,
+  isSafeRelativePath,
+  parseManifest,
+  readingOrder,
+  serializeManifest,
+  validateManifest,
+  type Migration,
 } from "../index";
 
-const base = () => ({ ...createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" }), chapters: [{ id: "c1", file: "manuscript/001-a.json", title: "A" }] });
+const base = () => ({
+  ...createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" }),
+  chapters: [{ id: "c1", file: "manuscript/001-a.json", title: "A" }],
+});
 
 describe("manifest", () => {
   it("round-trips through serialize and parse without migration", () => {
@@ -15,12 +27,19 @@ describe("manifest", () => {
     expect(r.migrated).toBe(false);
   });
   it("orders front matter, chapters, back matter", () => {
-    const m = { ...base(), frontMatter: [{ id: "f", file: "front-matter/t.json", title: "T" }], backMatter: [{ id: "b", file: "back-matter/a.json", title: "B" }] };
+    const m = {
+      ...base(),
+      frontMatter: [{ id: "f", file: "front-matter/t.json", title: "T" }],
+      backMatter: [{ id: "b", file: "back-matter/a.json", title: "B" }],
+    };
     expect(readingOrder(m).map((e) => e.id)).toEqual(["f", "c1", "b"]);
   });
-  it.each(["/abs.json", "../x.json", "a/../b.json", "C:/x.json", "a\\b.json", "a//b.json", ""])("rejects unsafe path %j", (p) => {
-    expect(isSafeRelativePath(p)).toBe(false);
-  });
+  it.each(["/abs.json", "../x.json", "a/../b.json", "C:/x.json", "a\\b.json", "a//b.json", ""])(
+    "rejects unsafe path %j",
+    (p) => {
+      expect(isSafeRelativePath(p)).toBe(false);
+    },
+  );
   it("rejects unsafe file paths in the manifest", () => {
     const m = base();
     m.chapters[0]!.file = "../../etc/passwd";
@@ -35,7 +54,9 @@ describe("manifest", () => {
   it("rejects bad JSON and missing or newer versions", () => {
     expect(() => parseManifest("{nope")).toThrow(/invalid JSON/);
     expect(() => parseManifest("{}")).toThrow(/formatVersion/);
-    expect(() => parseManifest(JSON.stringify({ ...base(), formatVersion: CURRENT_FORMAT_VERSION + 1 }))).toThrow(/newer/);
+    expect(() =>
+      parseManifest(JSON.stringify({ ...base(), formatVersion: CURRENT_FORMAT_VERSION + 1 })),
+    ).toThrow(/newer/);
   });
 });
 
@@ -53,7 +74,12 @@ describe("migration v1 -> v2 (front/back matter kinds)", () => {
     const { formatVersion: _b, ...after } = r.manifest;
     expect(after).toEqual({ ...before, cover: null }); // only cover is added: no kind, every field and entry kept
     expect(r.manifest.frontMatter[0]).not.toHaveProperty("kind");
-    expect(readingOrder(r.manifest).map((e) => e.id)).toEqual(["title-page", "ch-1", "ch-2", "about"]);
+    expect(readingOrder(r.manifest).map((e) => e.id)).toEqual([
+      "title-page",
+      "ch-1",
+      "ch-2",
+      "about",
+    ]);
   });
   it("serializes as v3 and reopens without migrating again", () => {
     const again = parseManifest(serializeManifest(parseManifest(v1Json).manifest));
@@ -62,11 +88,32 @@ describe("migration v1 -> v2 (front/back matter kinds)", () => {
   });
   it("validates kinds: unknown kinds, wrong section and kinds on chapters are rejected", () => {
     const m = base();
-    expect(() => validateManifest({ ...m, frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "bogus" }] })).toThrow(/kind/);
-    expect(() => validateManifest({ ...m, frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "colophon" }] })).toThrow(/kind/);
-    expect(() => validateManifest({ ...m, backMatter: [{ id: "b", file: "back-matter/a.json", title: "A", kind: "title-page" }] })).toThrow(/kind/);
-    expect(() => validateManifest({ ...m, chapters: [{ ...m.chapters[0]!, kind: "custom" }] })).toThrow(/kind/);
-    const ok = validateManifest({ ...m, frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "custom" }], backMatter: [{ id: "b", file: "back-matter/a.json", title: "A", kind: "custom" }] });
+    expect(() =>
+      validateManifest({
+        ...m,
+        frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "bogus" }],
+      }),
+    ).toThrow(/kind/);
+    expect(() =>
+      validateManifest({
+        ...m,
+        frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "colophon" }],
+      }),
+    ).toThrow(/kind/);
+    expect(() =>
+      validateManifest({
+        ...m,
+        backMatter: [{ id: "b", file: "back-matter/a.json", title: "A", kind: "title-page" }],
+      }),
+    ).toThrow(/kind/);
+    expect(() =>
+      validateManifest({ ...m, chapters: [{ ...m.chapters[0]!, kind: "custom" }] }),
+    ).toThrow(/kind/);
+    const ok = validateManifest({
+      ...m,
+      frontMatter: [{ id: "f", file: "front-matter/a.json", title: "A", kind: "custom" }],
+      backMatter: [{ id: "b", file: "back-matter/a.json", title: "A", kind: "custom" }],
+    });
     expect(ok.frontMatter[0]!.kind).toBe("custom");
   });
 });
@@ -94,11 +141,27 @@ describe("migration v2 -> v3 (cover)", () => {
 describe("cover", () => {
   it("accepts null and assets/<name> images", () => {
     expect(validateManifest(base()).cover).toBeNull();
-    for (const c of ["assets/cover.jpg", "assets/cover-2.PNG".toLowerCase(), "assets/my_cover.webp", "assets/c.jpeg"]) {
+    for (const c of [
+      "assets/cover.jpg",
+      "assets/cover-2.PNG".toLowerCase(),
+      "assets/my_cover.webp",
+      "assets/c.jpeg",
+    ]) {
       expect(validateManifest({ ...base(), cover: c }).cover).toBe(c);
     }
   });
-  it.each(["cover.jpg", "/assets/cover.jpg", "../assets/cover.jpg", "assets/sub/cover.jpg", "assets/cover.gif", "assets/cover.svg", "assets/cover", "https://x.test/c.jpg", "C:/c.jpg", ""])("rejects cover %j", (c) => {
+  it.each([
+    "cover.jpg",
+    "/assets/cover.jpg",
+    "../assets/cover.jpg",
+    "assets/sub/cover.jpg",
+    "assets/cover.gif",
+    "assets/cover.svg",
+    "assets/cover",
+    "https://x.test/c.jpg",
+    "C:/c.jpg",
+    "",
+  ])("rejects cover %j", (c) => {
     expect(() => validateManifest({ ...base(), cover: c })).toThrow(FormatError);
   });
 });
@@ -136,6 +199,8 @@ describe("names", () => {
     expect(chapterFileName(1, `${"a".repeat(47)} b`)).toBe(`001-${"a".repeat(47)}.json`);
   });
   it("builds conflict file names", () => {
-    expect(conflictFileName("manuscript/001-a.json", new Date(Date.UTC(2026, 9, 25, 17, 44)))).toBe("manuscript/001-a.conflict-20261025-1744.json");
+    expect(conflictFileName("manuscript/001-a.json", new Date(Date.UTC(2026, 9, 25, 17, 44)))).toBe(
+      "manuscript/001-a.conflict-20261025-1744.json",
+    );
   });
 });

@@ -7,7 +7,14 @@ import { conflictPath, firstFree, stamp } from "./naming";
 
 export const MANIFEST = "cadabra.json";
 /** Folders created in a new project (docs/file-format.md). */
-export const PROJECT_DIRS = ["manuscript", "front-matter", "back-matter", "assets", "exports", ".cadabra"] as const;
+export const PROJECT_DIRS = [
+  "manuscript",
+  "front-matter",
+  "back-matter",
+  "assets",
+  "exports",
+  ".cadabra",
+] as const;
 
 export interface FileRead {
   contents: string;
@@ -25,7 +32,8 @@ const utf8 = new TextEncoder();
 
 /** Creates the folder layout and writes the manifest. Refuses to touch an existing project. */
 export function createProject(root: string, manifestJson: string): void {
-  if (existsSync(join(root, MANIFEST))) throw new ProjectFsError("already_exists", "a project already exists in this folder");
+  if (existsSync(join(root, MANIFEST)))
+    throw new ProjectFsError("already_exists", "a project already exists in this folder");
   try {
     for (const d of PROJECT_DIRS) mkdirSync(join(root, d), { recursive: true });
   } catch (e) {
@@ -43,7 +51,10 @@ export function readProjectFile(root: string, rel: string): FileRead | null {
   } catch (e) {
     if (!isNotFound(e)) throw fsError(e);
     if (existsSync(join(dirname(path), `.${basename(path)}.icloud`))) {
-      throw new ProjectFsError("icloud_placeholder", `${rel} is still downloading from iCloud; try again in a moment`);
+      throw new ProjectFsError(
+        "icloud_placeholder",
+        `${rel} is still downloading from iCloud; try again in a moment`,
+      );
     }
     return null;
   }
@@ -60,7 +71,13 @@ export function readProjectFile(root: string, rel: string): FileRead | null {
  * Writes a project file. When `baseHash` is given and the file on disk no longer matches it (changed outside, e.g. by
  * sync), the on-disk version is kept first as a conflict copy. An existing conflict copy is never overwritten.
  */
-export function writeProjectFile(root: string, rel: string, contents: string, baseHash?: string | null, at: Date = new Date()): WriteResult {
+export function writeProjectFile(
+  root: string,
+  rel: string,
+  contents: string,
+  baseHash?: string | null,
+  at: Date = new Date(),
+): WriteResult {
   const path = resolveSafe(root, rel);
   const normalized = normalizeRelative(rel);
   let conflictCopy: string | null = null;
@@ -85,6 +102,7 @@ export function writeProjectFile(root: string, rel: string, contents: string, ba
 /** Writes binary output (EPUB, PDF, Markdown) under `exports/` of the project, atomically. Anything outside `exports/<name>` is `unsafe_path`. */
 export function writeBytes(root: string, rel: string, bytes: Uint8Array): void {
   const path = resolveSafe(root, rel);
-  if (!rel.startsWith("exports/") || rel.endsWith("/")) throw new ProjectFsError("unsafe_path", `unsafe project path: ${rel}`);
+  if (!rel.startsWith("exports/") || rel.endsWith("/"))
+    throw new ProjectFsError("unsafe_path", `unsafe project path: ${rel}`);
   atomicWrite(path, bytes);
 }

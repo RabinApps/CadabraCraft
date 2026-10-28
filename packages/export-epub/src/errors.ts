@@ -1,4 +1,12 @@
-export type EpubErrorCode = "unsupported-node" | "unsupported-mark" | "malformed-table" | "unsupported-image" | "missing-image" | "unsupported-cover" | "invalid-section" | "other";
+export type EpubErrorCode =
+  | "unsupported-node"
+  | "unsupported-mark"
+  | "malformed-table"
+  | "unsupported-image"
+  | "missing-image"
+  | "unsupported-cover"
+  | "invalid-section"
+  | "other";
 
 export interface EpubErrorWhere {
   /** The page (chapter or matter page) the problem is in. */
@@ -25,7 +33,9 @@ export class EpubExportError extends Error {
 
   /** The same error with the page it happened in (kept when it already names one). */
   inChapter(chapter: { id: string; title: string }): EpubExportError {
-    return this.where.chapter ? this : new EpubExportError(this.code, this.detail, { ...this.where, chapter });
+    return this.where.chapter
+      ? this
+      : new EpubExportError(this.code, this.detail, { ...this.where, chapter });
   }
 }
 

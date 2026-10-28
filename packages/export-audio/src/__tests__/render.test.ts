@@ -1,9 +1,25 @@
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { describe, expect, it, vi } from "vitest";
-import { AudioExportError, CancelledError, ChapterRenderError, DiskFullError, SynthesisError, VoiceNotInstalledError } from "../errors";
-import { renderAudiobook, type AudioChapter, type AudioOptions, type AudioRunner, type RenderRequest } from "../render";
+import {
+  AudioExportError,
+  CancelledError,
+  ChapterRenderError,
+  DiskFullError,
+  SynthesisError,
+  VoiceNotInstalledError,
+} from "../errors";
+import {
+  renderAudiobook,
+  type AudioChapter,
+  type AudioOptions,
+  type AudioRunner,
+  type RenderRequest,
+} from "../render";
 
-const doc = (text: string): ChapterDoc => ({ type: "doc", content: text ? [{ type: "paragraph", content: [{ type: "text", text }] }] : [] });
+const doc = (text: string): ChapterDoc => ({
+  type: "doc",
+  content: text ? [{ type: "paragraph", content: [{ type: "text", text }] }] : [],
+});
 const book: AudioChapter[] = [
   { id: "a", title: "One", doc: doc("First chapter.") },
   { id: "b", title: "Two", doc: doc("Second chapter.") },
@@ -19,7 +35,10 @@ function fakeRunner(over: Partial<AudioRunner> = {}): AudioRunner & { requests: 
     renderChapter: async (req, onProgress) => {
       requests.push(req);
       onProgress(0.5);
-      return { files: [{ format: "opus", path: `exports/audio/${req.chapterId}.opus` }], durationSec: 10 };
+      return {
+        files: [{ format: "opus", path: `exports/audio/${req.chapterId}.opus` }],
+        durationSec: 10,
+      };
     },
     ...over,
   };
@@ -30,7 +49,10 @@ describe("renderAudiobook", () => {
     const runner = fakeRunner();
     const progress: number[] = [];
     const done: string[] = [];
-    const results = await renderAudiobook(book, options, runner, { onProgress: (p) => progress.push(p.overall), onChapterDone: (_, r) => done.push(r.id) });
+    const results = await renderAudiobook(book, options, runner, {
+      onProgress: (p) => progress.push(p.overall),
+      onChapterDone: (_, r) => done.push(r.id),
+    });
     expect(runner.requests.map((r) => r.chapterId)).toEqual(["a", "b", "c"]);
     expect(results.map((r) => r.status)).toEqual(["done", "done", "done"]);
     expect(done).toEqual(["a", "b", "c"]);
@@ -40,22 +62,36 @@ describe("renderAudiobook", () => {
 
   it("refuses bad options before any rendering", async () => {
     const runner = fakeRunner();
-    await expect(renderAudiobook(book, { ...options, speed: 3 }, runner)).rejects.toThrow(AudioExportError);
-    await expect(renderAudiobook(book, { ...options, formats: [] }, runner)).rejects.toThrow(/at least one/);
-    await expect(renderAudiobook(book, { ...options, formats: ["opus", "opus"] }, runner)).rejects.toThrow(/once/);
+    await expect(renderAudiobook(book, { ...options, speed: 3 }, runner)).rejects.toThrow(
+      AudioExportError,
+    );
+    await expect(renderAudiobook(book, { ...options, formats: [] }, runner)).rejects.toThrow(
+      /at least one/,
+    );
+    await expect(
+      renderAudiobook(book, { ...options, formats: ["opus", "opus"] }, runner),
+    ).rejects.toThrow(/once/);
     await expect(renderAudiobook([], options, runner)).rejects.toThrow(/no chapters/);
     expect(runner.requests).toEqual([]);
   });
 
   it("refuses a voice that is not installed", async () => {
-    const runner = fakeRunner({ listVoices: async () => [{ id: "kokoro", engine: "kokoro", installed: false }] });
+    const runner = fakeRunner({
+      listVoices: async () => [{ id: "kokoro", engine: "kokoro", installed: false }],
+    });
     await expect(renderAudiobook(book, options, runner)).rejects.toThrow(VoiceNotInstalledError);
-    await expect(renderAudiobook(book, { ...options, voice: "nope" }, fakeRunner())).rejects.toThrow(VoiceNotInstalledError);
+    await expect(
+      renderAudiobook(book, { ...options, voice: "nope" }, fakeRunner()),
+    ).rejects.toThrow(VoiceNotInstalledError);
   });
 
   it("fails on an unknown node before rendering anything", async () => {
     const runner = fakeRunner();
-    const bad = { id: "x", title: "Bad", doc: { type: "doc", content: [{ type: "mystery" }] } as unknown as ChapterDoc };
+    const bad = {
+      id: "x",
+      title: "Bad",
+      doc: { type: "doc", content: [{ type: "mystery" }] } as unknown as ChapterDoc,
+    };
     await expect(renderAudiobook([book[0]!, bad], options, runner)).rejects.toThrow(/mystery/);
     expect(runner.requests).toEqual([]);
   });
@@ -68,14 +104,22 @@ describe("renderAudiobook", () => {
 
   it("marks a chapter with nothing to read as empty and keeps going", async () => {
     const runner = fakeRunner();
-    const results = await renderAudiobook([{ id: "e", title: "", doc: doc("") }, book[0]!], options, runner);
+    const results = await renderAudiobook(
+      [{ id: "e", title: "", doc: doc("") }, book[0]!],
+      options,
+      runner,
+    );
     expect(results.map((r) => r.status)).toEqual(["empty", "done"]);
     expect(runner.requests).toHaveLength(1);
   });
 
   it("reuses a cached chapter and uses a different hash when voice, speed or formats change", async () => {
     const runner = fakeRunner();
-    const cached = vi.fn(async (id: string) => (id === "a" ? { files: [{ format: "opus" as const, path: "exports/audio/a.opus" }], durationSec: 5 } : undefined));
+    const cached = vi.fn(async (id: string) =>
+      id === "a"
+        ? { files: [{ format: "opus" as const, path: "exports/audio/a.opus" }], durationSec: 5 }
+        : undefined,
+    );
     const results = await renderAudiobook(book, options, runner, { cached });
     expect(results.map((r) => r.status)).toEqual(["cached", "done", "done"]);
     expect(runner.requests.map((r) => r.chapterId)).toEqual(["b", "c"]);
@@ -92,7 +136,9 @@ describe("renderAudiobook", () => {
         return { files: [], durationSec: 1 };
       },
     });
-    const err = await renderAudiobook(book, options, runner, { onChapterDone: (_, r) => done.push(r.id) }).catch((e) => e);
+    const err = await renderAudiobook(book, options, runner, {
+      onChapterDone: (_, r) => done.push(r.id),
+    }).catch((e) => e);
     expect(err).toBeInstanceOf(ChapterRenderError);
     expect(err.chapterIndex).toBe(1);
     expect(err.cause).toBeInstanceOf(DiskFullError);
@@ -109,13 +155,21 @@ describe("renderAudiobook", () => {
   it("stops on cancel, between chapters and inside one, without wrapping it", async () => {
     const ctl = new AbortController();
     const runner = fakeRunner();
-    const err = await renderAudiobook(book, options, runner, { onChapterDone: () => ctl.abort() }, ctl.signal).catch((e) => e);
+    const err = await renderAudiobook(
+      book,
+      options,
+      runner,
+      { onChapterDone: () => ctl.abort() },
+      ctl.signal,
+    ).catch((e) => e);
     expect(err).toBeInstanceOf(CancelledError);
     expect(runner.requests).toHaveLength(1);
     const inner = fakeRunner({ renderChapter: async () => Promise.reject(new CancelledError()) });
     await expect(renderAudiobook(book, options, inner)).rejects.toBeInstanceOf(CancelledError);
     const before = new AbortController();
     before.abort();
-    await expect(renderAudiobook(book, options, fakeRunner(), {}, before.signal)).rejects.toBeInstanceOf(CancelledError);
+    await expect(
+      renderAudiobook(book, options, fakeRunner(), {}, before.signal),
+    ).rejects.toBeInstanceOf(CancelledError);
   });
 });

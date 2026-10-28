@@ -17,7 +17,10 @@ export function openWorkspace(root: string): Workspace {
     if (!statSync(real).isDirectory()) throw new Error("not a directory");
     return { root: real };
   } catch (e) {
-    throw new ProjectFsError("workspace_invalid", `workspace root is not a usable directory: ${root} (${errMsg(e)})`);
+    throw new ProjectFsError(
+      "workspace_invalid",
+      `workspace root is not a usable directory: ${root} (${errMsg(e)})`,
+    );
   }
 }
 
@@ -27,10 +30,16 @@ export function openWorkspace(root: string): Workspace {
  * (also when the target does not exist yet). The returned path is canonical, so later operations act on it directly.
  */
 export function resolveInWorkspace(ws: Workspace, input: string): string {
-  if (!input || input.includes("\0")) throw new ProjectFsError("path_escape", "path is empty or contains a NUL byte");
+  if (!input || input.includes("\0"))
+    throw new ProjectFsError("path_escape", "path is empty or contains a NUL byte");
   const abs = resolve(ws.root, input);
-  if (!isInside(ws.root, abs)) throw new ProjectFsError("path_escape", `path is outside the workspace: ${input}`);
+  if (!isInside(ws.root, abs))
+    throw new ProjectFsError("path_escape", `path is outside the workspace: ${input}`);
   const real = resolveReal(abs);
-  if (!isInside(ws.root, real)) throw new ProjectFsError("path_escape", `path leaves the workspace through a symbolic link: ${input}`);
+  if (!isInside(ws.root, real))
+    throw new ProjectFsError(
+      "path_escape",
+      `path leaves the workspace through a symbolic link: ${input}`,
+    );
   return real;
 }

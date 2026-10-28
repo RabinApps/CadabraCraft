@@ -3,14 +3,33 @@ import { chunkBlocks, PAUSE_MS, sampleChunks } from "../chunk";
 
 describe("chunkBlocks", () => {
   it("groups sentences up to the limit and never crosses a block", () => {
-    const chunks = chunkBlocks([{ type: "paragraph", text: "One. Two. Three." }, { type: "paragraph", text: "Four." }], 12);
+    const chunks = chunkBlocks(
+      [
+        { type: "paragraph", text: "One. Two. Three." },
+        { type: "paragraph", text: "Four." },
+      ],
+      12,
+    );
     expect(chunks.map((c) => c.text)).toEqual(["One. Two.", "Three.", "Four."]);
-    expect(chunks.map((c) => c.pauseAfterMs)).toEqual([PAUSE_MS.sentence, PAUSE_MS.paragraph, PAUSE_MS.paragraph]);
+    expect(chunks.map((c) => c.pauseAfterMs)).toEqual([
+      PAUSE_MS.sentence,
+      PAUSE_MS.paragraph,
+      PAUSE_MS.paragraph,
+    ]);
   });
 
   it("uses a longer pause after headings and scene breaks", () => {
-    const chunks = chunkBlocks([{ type: "heading", text: "Title" }, { type: "paragraph", text: "Body." }, { type: "pause", text: "" }, { type: "paragraph", text: "Next." }]);
-    expect(chunks.map((c) => c.pauseAfterMs)).toEqual([PAUSE_MS.heading, PAUSE_MS.scene, PAUSE_MS.paragraph]);
+    const chunks = chunkBlocks([
+      { type: "heading", text: "Title" },
+      { type: "paragraph", text: "Body." },
+      { type: "pause", text: "" },
+      { type: "paragraph", text: "Next." },
+    ]);
+    expect(chunks.map((c) => c.pauseAfterMs)).toEqual([
+      PAUSE_MS.heading,
+      PAUSE_MS.scene,
+      PAUSE_MS.paragraph,
+    ]);
   });
 
   it("splits a sentence longer than the limit at a comma or space", () => {
@@ -21,7 +40,9 @@ describe("chunkBlocks", () => {
   });
 
   it("keeps closing quotes with their sentence and handles text without punctuation", () => {
-    expect(chunkBlocks([{ type: "paragraph", text: "He said \"go.\" She went" }], 14).map((c) => c.text)).toEqual(["He said \"go.\"", "She went"]);
+    expect(
+      chunkBlocks([{ type: "paragraph", text: 'He said "go." She went' }], 14).map((c) => c.text),
+    ).toEqual(['He said "go."', "She went"]);
   });
 
   it("yields nothing for a pause alone", () => {

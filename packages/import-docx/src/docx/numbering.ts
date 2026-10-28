@@ -9,7 +9,8 @@ export function parseNumbering(root: XNode[] | undefined): Numbering {
     const id = attr(a, "abstractNumId");
     if (id === undefined) continue;
     const lv = new Map<number, string>();
-    for (const l of childrenNamed(a, "lvl")) lv.set(Number(attr(l, "ilvl") ?? 0), attr(child(l, "numFmt") ?? {}, "val") ?? "decimal");
+    for (const l of childrenNamed(a, "lvl"))
+      lv.set(Number(attr(l, "ilvl") ?? 0), attr(child(l, "numFmt") ?? {}, "val") ?? "decimal");
     out.abstracts.set(id, lv);
   }
   for (const num of childrenNamed(n, "num")) {

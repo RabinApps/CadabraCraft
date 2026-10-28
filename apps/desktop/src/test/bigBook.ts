@@ -12,12 +12,28 @@ export function prng(seed: number): () => number {
   };
 }
 
-const WORDS = ("the of and to a in that he she it was for on with as his her at by from they had but not said you one all would there their what out up about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us night door hand eyes face stood walked turned silence light rain window road house long dark quiet moment heart voice remember never always something nothing together lost found morning evening garden river stone letter shadow whisper").split(" ");
+const WORDS =
+  "the of and to a in that he she it was for on with as his her at by from they had but not said you one all would there their what out up about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us night door hand eyes face stood walked turned silence light rain window road house long dark quiet moment heart voice remember never always something nothing together lost found morning evening garden river stone letter shadow whisper".split(
+    " ",
+  );
 const NAMES = ["Mara", "Idris", "Colm", "Perrin", "Odile", "Tamsin"];
 
-export interface BigNode { type: string; attrs?: Record<string, unknown>; content?: BigNode[]; text?: string; marks?: { type: string }[] }
-export interface BigDoc { type: "doc"; content: BigNode[] }
-const text = (s: string, marks?: string[]): BigNode => ({ type: "text", text: s, ...(marks ? { marks: marks.map((type) => ({ type })) } : {}) });
+export interface BigNode {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: BigNode[];
+  text?: string;
+  marks?: { type: string }[];
+}
+export interface BigDoc {
+  type: "doc";
+  content: BigNode[];
+}
+const text = (s: string, marks?: string[]): BigNode => ({
+  type: "text",
+  text: s,
+  ...(marks ? { marks: marks.map((type) => ({ type })) } : {}),
+});
 
 function sentence(rand: () => number): string {
   const n = 6 + Math.floor(rand() * 14);
@@ -28,7 +44,8 @@ function sentence(rand: () => number): string {
 
 function paragraph(rand: () => number): BigNode {
   const parts: BigNode[] = [];
-  if (rand() < 0.3) parts.push(text(`“${sentence(rand)}” ${NAMES[Math.floor(rand() * NAMES.length)]} said. `));
+  if (rand() < 0.3)
+    parts.push(text(`“${sentence(rand)}” ${NAMES[Math.floor(rand() * NAMES.length)]} said. `));
   const n = 2 + Math.floor(rand() * 4);
   for (let i = 0; i < n; i++) {
     const s = `${sentence(rand)} `;
@@ -50,7 +67,12 @@ export function bigChapter(words: number, seed: number, title = "Chapter"): BigD
   let n = 0;
   while (n < words) {
     const r = rand();
-    if (r < 0.01) content.push({ type: "heading", attrs: { level: 2 }, content: [text(sentence(rand).slice(0, -1))] });
+    if (r < 0.01)
+      content.push({
+        type: "heading",
+        attrs: { level: 2 },
+        content: [text(sentence(rand).slice(0, -1))],
+      });
     else if (r < 0.03) content.push({ type: "sceneBreak" });
     else {
       const p = paragraph(rand);
@@ -66,5 +88,7 @@ export function bigBook(words = 100_000, chapters = 40, seed = 1): BigDoc[] {
   const rand = prng(seed);
   const weights = Array.from({ length: chapters }, () => 0.5 + rand());
   const total = weights.reduce((a, b) => a + b, 0);
-  return weights.map((w, i) => bigChapter(Math.round((w / total) * words), seed * 1000 + i, `Chapter ${i + 1}`));
+  return weights.map((w, i) =>
+    bigChapter(Math.round((w / total) * words), seed * 1000 + i, `Chapter ${i + 1}`),
+  );
 }

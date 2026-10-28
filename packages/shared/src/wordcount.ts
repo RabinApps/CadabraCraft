@@ -10,7 +10,8 @@ function collect(node: CountNode, out: string[]) {
   // Every non-text node (blocks, footnotes, breaks) separates words; marks only wrap text nodes.
   const split = node.type !== undefined && node.type !== "text";
   if (split) out.push(" ");
-  if (Array.isArray(node.content)) for (const child of node.content) if (child && typeof child === "object") collect(child, out);
+  if (Array.isArray(node.content))
+    for (const child of node.content) if (child && typeof child === "object") collect(child, out);
   if (split) out.push(" ");
 }
 

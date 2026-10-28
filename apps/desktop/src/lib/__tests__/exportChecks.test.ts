@@ -3,7 +3,20 @@ import { createManifest, type Manifest } from "@cadabracraft/format";
 import { epubChecks, kdpGutterMinIn, pdfChecks } from "../exportChecks";
 
 describe("kdpGutterMinIn", () => {
-  it.each([[23, null], [24, 0.375], [150, 0.375], [151, 0.5], [300, 0.5], [301, 0.625], [500, 0.625], [501, 0.75], [700, 0.75], [701, 0.875], [828, 0.875], [829, null]])("%i pages -> %j", (pages, min) => {
+  it.each([
+    [23, null],
+    [24, 0.375],
+    [150, 0.375],
+    [151, 0.5],
+    [300, 0.5],
+    [301, 0.625],
+    [500, 0.625],
+    [501, 0.75],
+    [700, 0.75],
+    [701, 0.875],
+    [828, 0.875],
+    [829, null],
+  ])("%i pages -> %j", (pages, min) => {
     expect(kdpGutterMinIn(pages)).toBe(min);
   });
 });
@@ -11,7 +24,8 @@ describe("kdpGutterMinIn", () => {
 describe("pdfChecks", () => {
   const ok = { top: 0.8, bottom: 0.9, inside: 0.9, outside: 0.65 };
   const fine = [{ tone: "ok", text: "No problems found" }];
-  const run = (estimatedPages: number, margins = ok, hasCover = true) => pdfChecks({ estimatedPages, margins, hasCover });
+  const run = (estimatedPages: number, margins = ok, hasCover = true) =>
+    pdfChecks({ estimatedPages, margins, hasCover });
 
   it("reports no problems for a normal book", () => {
     expect(run(200)).toEqual(fine);
@@ -31,7 +45,16 @@ describe("pdfChecks", () => {
     expect(run(0)).toEqual(fine);
   });
   it.each([
-    [24, 0.375], [150, 0.375], [151, 0.5], [300, 0.5], [301, 0.625], [500, 0.625], [501, 0.75], [700, 0.75], [701, 0.875], [828, 0.875],
+    [24, 0.375],
+    [150, 0.375],
+    [151, 0.5],
+    [300, 0.5],
+    [301, 0.625],
+    [500, 0.625],
+    [501, 0.75],
+    [700, 0.75],
+    [701, 0.875],
+    [828, 0.875],
   ])("at %i pages the inside margin needs %f in", (pages, min) => {
     expect(run(pages, { ...ok, inside: min })).toEqual(fine);
     const low = run(pages, { ...ok, inside: min - 0.01 });
@@ -54,7 +77,9 @@ describe("pdfChecks", () => {
     expect(run(0, { ...ok, top: 0.1 })[0]?.tone).toBe("warn");
   });
   it("adds an info note when there is no cover, without hiding other checks", () => {
-    expect(run(200, ok, false)).toEqual([{ tone: "info", text: expect.stringContaining("no cover image") }]);
+    expect(run(200, ok, false)).toEqual([
+      { tone: "info", text: expect.stringContaining("no cover image") },
+    ]);
     expect(run(10, ok, false).map((x) => x.tone)).toEqual(["error", "info"]);
   });
 });
@@ -66,10 +91,14 @@ const book = (titles: string[]): Manifest => ({
 
 describe("epubChecks", () => {
   it("warns about untitled chapters and counts them", () => {
-    expect(epubChecks(book(["", "One", " "]))).toEqual([{ tone: "warn", text: "2 chapters have no title" }]);
+    expect(epubChecks(book(["", "One", " "]))).toEqual([
+      { tone: "warn", text: "2 chapters have no title" },
+    ]);
   });
   it("warns when the book has no chapters", () => {
-    expect(epubChecks(book([]))).toEqual([{ tone: "warn", text: "This book has no chapters yet." }]);
+    expect(epubChecks(book([]))).toEqual([
+      { tone: "warn", text: "This book has no chapters yet." },
+    ]);
   });
   it("reports no problems when every chapter has a title", () => {
     expect(epubChecks(book(["One", "Two"]))).toEqual([{ tone: "ok", text: "No problems found" }]);

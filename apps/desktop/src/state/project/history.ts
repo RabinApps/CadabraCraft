@@ -26,14 +26,29 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
         const listed = new Set(readingOrder(need().manifest).map((e) => e.file));
         const live = entry.docs.filter((d) => listed.has(d.file));
         const skipped = entry.docs.length - live.length;
-        const conflicts = await writePages(live.map((d) => ({ file: d.file, from: undoing ? d.after : d.before, to: undoing ? d.before : d.after })));
+        const conflicts = await writePages(
+          live.map((d) => ({
+            file: d.file,
+            from: undoing ? d.after : d.before,
+            to: undoing ? d.before : d.after,
+          })),
+        );
         const { history } = get();
         const kept = history[from].slice(0, -1);
         const other = undoing ? history.redo : history.undo;
-        set({ history: undoing ? { undo: kept, redo: [...other, entry] } : { undo: [...other, entry], redo: kept } });
+        set({
+          history: undoing
+            ? { undo: kept, redo: [...other, entry] }
+            : { undo: [...other, entry], redo: kept },
+        });
         await reloadCurrent();
         const done = undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}`;
-        const skip = skipped ? plural(skipped, { one: "# page is no longer in the book and was left out", other: "# pages are no longer in the book and were left out" }) : "";
+        const skip = skipped
+          ? plural(skipped, {
+              one: "# page is no longer in the book and was left out",
+              other: "# pages are no longer in the book and were left out",
+            })
+          : "";
         set({ notice: [done, skip, ...conflicts].filter(Boolean).join(". ") });
         return true;
       }
@@ -52,13 +67,18 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
       await saveManifest(withTree(need().manifest, target));
       if (file && !present) trashPath = await bridge.trashFile(root, file); // never a hard delete
       const was = entry.file?.path;
-      const fix = (e: HistoryEntry) => (was && file && was !== file ? retargetEntry(e, was, file) : e);
+      const fix = (e: HistoryEntry) =>
+        was && file && was !== file ? retargetEntry(e, was, file) : e;
       const { history } = get();
       const { trashPath: _old, ...rest } = fix(entry);
       const moved: HistoryEntry = trashPath ? { ...rest, trashPath } : rest;
       const kept = history[from].slice(0, -1).map(fix);
       const other = (undoing ? history.redo : history.undo).map(fix);
-      set({ history: undoing ? { undo: kept, redo: [...other, moved] } : { undo: [...other, moved], redo: kept } });
+      set({
+        history: undoing
+          ? { undo: kept, redo: [...other, moved] }
+          : { undo: [...other, moved], redo: kept },
+      });
       // Show a page that came back; otherwise keep the open page unless it no longer exists.
       const next = need().manifest;
       const shown = file && present ? readingOrder(next).find((e) => e.file === file) : undefined;
@@ -70,13 +90,20 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
         if (fallback) await load(fallback.id);
       }
       set({ notice: undoing ? t`Undid: ${entry.label}` : t`Redid: ${entry.label}` });
-      if (get().trash.length) void get().actions.refreshTrash().catch(() => {});
+      if (get().trash.length)
+        void get()
+          .actions.refreshTrash()
+          .catch(() => {});
       return true;
     } catch (e) {
       const why = errText(e);
       const stuck = e instanceof PartialWrite ? e.stuck.length : 0;
       const base = from === "undo" ? t`Could not undo: ${why}` : t`Could not redo: ${why}`;
-      set({ notice: stuck ? `${base}. ${plural(stuck, { one: "# page could not be put back and is now in the other state", other: "# pages could not be put back and are now in the other state" })}` : base });
+      set({
+        notice: stuck
+          ? `${base}. ${plural(stuck, { one: "# page could not be put back and is now in the other state", other: "# pages could not be put back and are now in the other state" })}`
+          : base,
+      });
       return false;
     } finally {
       historyBusy = false;

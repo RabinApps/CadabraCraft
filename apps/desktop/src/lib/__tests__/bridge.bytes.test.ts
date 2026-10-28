@@ -29,7 +29,9 @@ describe("binary commands", () => {
   });
   it("typstCompile sends one binary body and converts the raw response", async () => {
     invoke.mockResolvedValueOnce(Uint8Array.of(0x25, 0x50).buffer);
-    expect(await bridge.typstCompile(null, "src", [["assets/x.png", Uint8Array.of(1, 2)]], true)).toEqual(Uint8Array.of(0x25, 0x50));
+    expect(
+      await bridge.typstCompile(null, "src", [["assets/x.png", Uint8Array.of(1, 2)]], true),
+    ).toEqual(Uint8Array.of(0x25, 0x50));
     const [cmd, body, ...rest] = invoke.mock.calls[0]!;
     expect(cmd).toBe("typst_compile");
     expect(body).toBeInstanceOf(Uint8Array);
@@ -46,7 +48,9 @@ describe("writeBytes", () => {
     const [cmd, body, options] = invoke.mock.calls[0]!;
     expect(cmd).toBe("write_project_bytes");
     expect(body).toBe(bytes);
-    expect(options).toEqual({ headers: { root: "%2FUsers%2Fme%2FMy%20Book%20%C3%A9", path: "exports%2Fbook.epub" } });
+    expect(options).toEqual({
+      headers: { root: "%2FUsers%2Fme%2FMy%20Book%20%C3%A9", path: "exports%2Fbook.epub" },
+    });
     expect(decodeURIComponent(options.headers.root)).toBe("/Users/me/My Book é");
   });
 });

@@ -17,16 +17,22 @@ test.describe("sponsor dialog after an export", () => {
   });
   const exportEpub = async (page: Page) => {
     await page.getByRole("button", { name: "Export", exact: true }).click();
-    await page.getByRole("dialog", { name: "Export book" }).getByRole("button", { name: "Export", exact: true }).click();
+    await page
+      .getByRole("dialog", { name: "Export book" })
+      .getByRole("button", { name: "Export", exact: true })
+      .click();
   };
   const sponsor = (page: Page) => page.getByRole("dialog", { name: "Enjoying CadabraCraft?" });
 
-  test("appears after a successful export with the file name and three choices", async ({ page }) => {
+  test("appears after a successful export with the file name and three choices", async ({
+    page,
+  }) => {
     await newProject(page);
     await exportEpub(page);
     await expect(sponsor(page)).toBeVisible();
     await expect(sponsor(page).getByText("Exported exports/book.epub")).toBeVisible();
-    for (const name of ["Don't show again", "Maybe later", "Sponsor"]) await expect(sponsor(page).getByRole("button", { name })).toBeVisible();
+    for (const name of ["Don't show again", "Maybe later", "Sponsor"])
+      await expect(sponsor(page).getByRole("button", { name })).toBeVisible();
   });
 
   test("Maybe later hides it for the rest of the session only", async ({ page }) => {
@@ -63,12 +69,16 @@ test.describe("sponsor dialog after an export", () => {
     await expect(sponsor(page)).toHaveCount(0);
   });
 
-  test("Sponsor opens only the sponsor page in the browser and closes the dialog", async ({ page }) => {
+  test("Sponsor opens only the sponsor page in the browser and closes the dialog", async ({
+    page,
+  }) => {
     await newProject(page);
     await exportEpub(page);
     await sponsor(page).getByRole("button", { name: "Sponsor", exact: true }).click();
     await expect(sponsor(page)).toHaveCount(0);
-    expect(await page.evaluate(() => (window as any).__opened)).toEqual(["https://github.com/sponsors/RabinApps"]);
+    expect(await page.evaluate(() => (window as any).__opened)).toEqual([
+      "https://github.com/sponsors/RabinApps",
+    ]);
   });
 
   test("does not appear when the export fails", async ({ page }) => {
@@ -76,7 +86,9 @@ test.describe("sponsor dialog after an export", () => {
     await page.getByRole("button", { name: "Export", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: "Export book" });
     await dialog.getByRole("radio", { name: "Print PDF" }).click();
-    await page.evaluate(() => { (window as any).__compileError = { kind: "compile", message: "main.typ:1:1: error: boom" }; });
+    await page.evaluate(() => {
+      (window as any).__compileError = { kind: "compile", message: "main.typ:1:1: error: boom" };
+    });
     await dialog.getByRole("button", { name: "Export", exact: true }).click();
     await expect(dialog.getByRole("alert")).toBeVisible();
     await expect(sponsor(page)).toHaveCount(0);

@@ -15,10 +15,16 @@ const MAX_H_EMU = ((PAGE.height - 2 * PAGE.margin) / 1440) * 914400;
 
 export function drawing(src: string, alt: string, title: string, ctx: Ctx): string {
   const s = ctx.s;
-  if (!isAssetPath(src)) fail(ctx, `The image source "${src}" is not a project image (assets/<file>)`, "image");
+  if (!isAssetPath(src))
+    fail(ctx, `The image source "${src}" is not a project image (assets/<file>)`, "image");
   const type = imageMediaType(src);
   if (!type) fail(ctx, `The image ${src} has an unsupported type`, "image");
-  if (type === "image/svg+xml") fail(ctx, `The image ${src} is an SVG, which cannot be embedded in a Word file. Use a PNG or JPEG instead`, "image");
+  if (type === "image/svg+xml")
+    fail(
+      ctx,
+      `The image ${src} is an SVG, which cannot be embedded in a Word file. Use a PNG or JPEG instead`,
+      "image",
+    );
   const bytes = s.assets.get(src);
   if (!bytes) fail(ctx, `The image file ${src} is missing`, "image");
   const { width, height } = imageSize(bytes, type, src, ctx.chapter);

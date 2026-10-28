@@ -1,6 +1,6 @@
 import type { Where } from "./types";
 
-export const ENTITY =/&(?=#?[A-Za-z0-9]+;)/g;
+export const ENTITY = /&(?=#?[A-Za-z0-9]+;)/g;
 
 /** Backslash-escape everything in `text` that Markdown (CommonMark + GFM) could read as syntax. */
 export function escapeText(text: string, atStart: boolean, where: Where): string {
@@ -34,6 +34,7 @@ export function linkDestination(href: string): string {
   }
   if (depth !== 0) balanced = false;
   const esc = href.replace(/[\\]/g, "\\\\").replace(ENTITY, "\\&");
-  if (href === "" || /[\s<>]/.test(href) || !balanced || /[\u0000-\u001f]/.test(href)) return `<${esc.replace(/[<>]/g, "\\$&")}>`;
+  if (href === "" || /[\s<>]/.test(href) || !balanced || /[\u0000-\u001f]/.test(href))
+    return `<${esc.replace(/[<>]/g, "\\$&")}>`;
   return esc;
 }

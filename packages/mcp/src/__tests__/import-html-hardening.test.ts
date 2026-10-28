@@ -1,4 +1,11 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, truncateSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  truncateSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { decodeSourceText } from "../tools/import";
@@ -10,8 +17,10 @@ afterEach(async () => {
   s = undefined as unknown as Session;
 });
 
-const page = (body: string) => `<!doctype html><html><head><title>Hostile</title></head><body>${body}</body></html>`;
-const utf16le = (text: string, bom = true) => Buffer.concat([bom ? Buffer.from([0xff, 0xfe]) : Buffer.alloc(0), Buffer.from(text, "utf16le")]);
+const page = (body: string) =>
+  `<!doctype html><html><head><title>Hostile</title></head><body>${body}</body></html>`;
+const utf16le = (text: string, bom = true) =>
+  Buffer.concat([bom ? Buffer.from([0xff, 0xfe]) : Buffer.alloc(0), Buffer.from(text, "utf16le")]);
 const utf16be = (text: string) => {
   const le = Buffer.from(text, "utf16le");
   for (let i = 0; i + 1 < le.length; i += 2) [le[i], le[i + 1]] = [le[i + 1]!, le[i]!];
@@ -24,14 +33,28 @@ describe("decodeSourceText", () => {
     expect(decodeSourceText(utf16le("<p>é €</p>"), "a.html")).toBe("<p>é €</p>");
     expect(decodeSourceText(utf16be("<p>é €</p>"), "a.html")).toBe("<p>é €</p>");
     expect(decodeSourceText(Buffer.alloc(0), "a.html")).toBe("");
-    for (const bad of [Buffer.from([0x3c, 0x70, 0x3e, 0xe9, 0x3c]), Buffer.from([0xff, 0x00]), utf16le("<p>x</p>", false), Buffer.from([0x61, 0x00, 0x62]), Buffer.from([0xc0, 0xaf]), Buffer.from([0xff, 0xfe, 0x00])]) {
-      expect(() => decodeSourceText(bad, "a.html"), bad.toString("hex")).toThrow(/cannot be read as text/);
+    for (const bad of [
+      Buffer.from([0x3c, 0x70, 0x3e, 0xe9, 0x3c]),
+      Buffer.from([0xff, 0x00]),
+      utf16le("<p>x</p>", false),
+      Buffer.from([0x61, 0x00, 0x62]),
+      Buffer.from([0xc0, 0xaf]),
+      Buffer.from([0xff, 0xfe, 0x00]),
+    ]) {
+      expect(() => decodeSourceText(bad, "a.html"), bad.toString("hex")).toThrow(
+        /cannot be read as text/,
+      );
     }
   });
 });
 
 describe("import_file (html) failures create nothing and carry stable codes", () => {
-  const fails = async (file: string, bytes: Buffer | string, code: string, extra?: (r: { data: { error: { code: string; details?: Record<string, unknown> } } }) => void) => {
+  const fails = async (
+    file: string,
+    bytes: Buffer | string,
+    code: string,
+    extra?: (r: { data: { error: { code: string; details?: Record<string, unknown> } } }) => void,
+  ) => {
     writeFileSync(join(s.root, file), bytes);
     const before = snapshot(s.root);
     const r = await s.call("cadabra_import_file", { source: file, destination: "out" });
@@ -59,15 +82,23 @@ describe("import_file (html) failures create nothing and carry stable codes", ()
 
   it("refuses over-nested and over-complex HTML with import_failed and the importer's code", async () => {
     s = await connect();
-    await fails("deep.html", page("<div>".repeat(3000)), "import_failed", (r) => expect(r.data.error.details).toMatchObject({ importCode: "too-deeply-nested" }));
-    await fails("deep2.html", "<template>".repeat(200_000), "import_failed", (r) => expect(r.data.error.details).toMatchObject({ importCode: "too-deeply-nested" }));
+    await fails("deep.html", page("<div>".repeat(3000)), "import_failed", (r) =>
+      expect(r.data.error.details).toMatchObject({ importCode: "too-deeply-nested" }),
+    );
+    await fails("deep2.html", "<template>".repeat(200_000), "import_failed", (r) =>
+      expect(r.data.error.details).toMatchObject({ importCode: "too-deeply-nested" }),
+    );
     const attrs = Array.from({ length: 100_000 }, (_, i) => `a${i}=1`).join(" ");
-    await fails("attrs.html", page(`<p ${attrs}>x</p>`), "import_failed", (r) => expect(r.data.error.details).toMatchObject({ importCode: "input-too-large" }));
+    await fails("attrs.html", page(`<p ${attrs}>x</p>`), "import_failed", (r) =>
+      expect(r.data.error.details).toMatchObject({ importCode: "input-too-large" }),
+    );
   });
 
   it("refuses a file over the character limit and a file over the size limit", async () => {
     s = await connect();
-    await fails("big.html", page(`<p>${"a".repeat(50_000_100)}</p>`), "import_failed", (r) => expect(r.data.error.details).toMatchObject({ importCode: "input-too-large" }));
+    await fails("big.html", page(`<p>${"a".repeat(50_000_100)}</p>`), "import_failed", (r) =>
+      expect(r.data.error.details).toMatchObject({ importCode: "input-too-large" }),
+    );
     writeFileSync(join(s.root, "huge.html"), "");
     truncateSync(join(s.root, "huge.html"), 201 * 1024 * 1024);
     const r = await s.call("cadabra_import_file", { source: "huge.html", destination: "out" });
@@ -120,7 +151,7 @@ describe("import_file (html) content edge cases", () => {
     mkdirSync(join(s.root, "src/img"), { recursive: true });
     writeFileSync(join(s.root, "src/img/grad.png"), gradientPng());
     const hostile = [
-      '<h1>Ünïcödé 日本語</h1><p>a\u0000b ‮ rtl</p>',
+      "<h1>Ünïcödé 日本語</h1><p>a\u0000b ‮ rtl</p>",
       '<img src="img/grad.png" alt="ok"><img src="../secret.png"><img src="img/../../x.png"><img src="/etc/passwd.png"><img src="img\\x.png"><img src="img/missing.png">',
       '<a href="java\tscript:alert(1)">x</a>'.repeat(5000),
       "<unknown-el>t</unknown-el>".repeat(5000),
@@ -150,10 +181,15 @@ describe("chapter_write_markdown with hostile inline and block HTML", () => {
     s = await connect();
     await s.ok("cadabra_project_create", { path: "p", title: "T", author: "A" });
     const a = await s.ok("cadabra_chapter_add", { path: "p", title: "One" });
-    await s.ok("cadabra_chapter_write_markdown", { path: "p", chapterId: a.chapter.id, markdown: "# One\n\noriginal text" });
+    await s.ok("cadabra_chapter_write_markdown", {
+      path: "p",
+      chapterId: a.chapter.id,
+      markdown: "# One\n\noriginal text",
+    });
     return a.chapter.id as string;
   };
-  const read = async (id: string) => JSON.stringify((await s.ok("cadabra_chapter_read", { path: "p", chapterId: id })).doc);
+  const read = async (id: string) =>
+    JSON.stringify((await s.ok("cadabra_chapter_read", { path: "p", chapterId: id })).doc);
 
   it("never keeps script or style, event handlers or javascript: links, and the chapter stays valid", async () => {
     const id = await setup();
@@ -168,7 +204,11 @@ describe("chapter_write_markdown with hostile inline and block HTML", () => {
       "<table><tr><td><script>SECRET</script>cell</td></tr></table>",
       "<svg onload='x'>\n<text>SECRET</text>\n</svg>",
     ].join("\n\n");
-    const r = await s.ok("cadabra_chapter_write_markdown", { path: "p", chapterId: id, markdown: md });
+    const r = await s.ok("cadabra_chapter_write_markdown", {
+      path: "p",
+      chapterId: id,
+      markdown: md,
+    });
     expect(r.warnings.length).toBeLessThan(30);
     const doc = await read(id);
     expect(doc).not.toMatch(/SECRET|onerror|onload|iframe/);
@@ -189,7 +229,11 @@ describe("chapter_write_markdown with hostile inline and block HTML", () => {
       ["<div>".repeat(5000), "too-deeply-nested"],
       [`<div ${attrs}>x</div>`, "input-too-large"],
     ] as const) {
-      const r = await s.call("cadabra_chapter_write_markdown", { path: "p", chapterId: id, markdown });
+      const r = await s.call("cadabra_chapter_write_markdown", {
+        path: "p",
+        chapterId: id,
+        markdown,
+      });
       expect(r.isError).toBe(true);
       expect(r.data.error.code).toBe("import_failed");
       expect(r.data.error.details).toMatchObject({ importCode });
@@ -200,7 +244,11 @@ describe("chapter_write_markdown with hostile inline and block HTML", () => {
   it("empty and whitespace-only or html-comment-only markdown is empty_input", async () => {
     const id = await setup();
     for (const markdown of ["", "  \n\n", "<!-- c -->", "<script>x</script>"]) {
-      const r = await s.call("cadabra_chapter_write_markdown", { path: "p", chapterId: id, markdown });
+      const r = await s.call("cadabra_chapter_write_markdown", {
+        path: "p",
+        chapterId: id,
+        markdown,
+      });
       expect(r.data.error.code, markdown).toBe("empty_input");
     }
   });

@@ -13,9 +13,22 @@ export function EpubPanel() {
   useEffect(() => {
     if (!manifest) return;
     let live = true;
-    const fileOf = (id: string) => [...manifest.frontMatter, ...manifest.chapters, ...manifest.backMatter].find((e) => e.id === id)?.file;
-    readPages().then((pages) => { if (live) setAltPages(pages.map((p) => ({ title: p.title, file: fileOf(p.id), doc: p.doc }))); }, () => { if (live) setAltPages([]); });
-    return () => { live = false; };
+    const fileOf = (id: string) =>
+      [...manifest.frontMatter, ...manifest.chapters, ...manifest.backMatter].find(
+        (e) => e.id === id,
+      )?.file;
+    readPages().then(
+      (pages) => {
+        if (live)
+          setAltPages(pages.map((p) => ({ title: p.title, file: fileOf(p.id), doc: p.doc })));
+      },
+      () => {
+        if (live) setAltPages([]);
+      },
+    );
+    return () => {
+      live = false;
+    };
   }, [readPages, manifest]);
   const checks = manifest ? epubChecks(manifest, altPages) : [];
   return <CheckList checks={checks} label={t`Checks`} />;

@@ -2,22 +2,37 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, trashMethods } from "../../../test/fakeBridge";
 
 // The shared fake has the real trash naming and the -2 restore rule.
-vi.mock("../../../lib/bridge", async () => (await import("../../../test/fakeBridge")).fakeBridge({
-  ...trashMethods,
-}));
+vi.mock("../../../lib/bridge", async () =>
+  (await import("../../../test/fakeBridge")).fakeBridge({
+    ...trashMethods,
+  }),
+);
 
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
-const text = (t: string) => ({ type: "doc" as const, content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }] });
+const text = (t: string) => ({
+  type: "doc" as const,
+  content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
+});
 const titles = () => s().manifest!.chapters.map((c) => c.title);
 const firstText = () => JSON.stringify(s().currentDoc).match(/"text":"([^"]*)"/)?.[1];
-const trashed =() => [...disk.keys()].filter((k) => k.startsWith(".cadabra/trash/"));
+const trashed = () => [...disk.keys()].filter((k) => k.startsWith(".cadabra/trash/"));
 
 beforeEach(async () => {
   disk.clear();
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, trash: [] });
+  useProject.setState({
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    reloadCount: 0,
+    trash: [],
+  });
   await a().createProject("/p", "Book", "Me");
 });
 
@@ -170,7 +185,9 @@ describe("book history (undo and redo of chapter-tree edits)", () => {
     expect(firstText()).toBe("a cat here");
     expect(await a().redo()).toBe(true);
     expect(disk.get(files[1]!)).toContain("dog and dog");
-    expect(await a().replaceInBook({ query: "zzz", matchCase: false, wholeWord: false }, "x")).toBe(0);
+    expect(await a().replaceInBook({ query: "zzz", matchCase: false, wholeWord: false }, "x")).toBe(
+      0,
+    );
     expect(s().history.undo).toHaveLength(undoBefore + 1);
   });
   it("does nothing with an empty history", async () => {

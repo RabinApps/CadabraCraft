@@ -29,15 +29,27 @@ Read cadabra://docs/file-format and cadabra://docs/import for the format and the
 
 /** Builds the MCP server (not yet connected). Throws a clear Error when the root is missing or unusable. */
 export function createServer(opts: ServerOptions): McpServer {
-  if (!opts.root) throw new Error("A workspace root is required: set CADABRA_MCP_ROOT or pass the folder as the first argument");
+  if (!opts.root)
+    throw new Error(
+      "A workspace root is required: set CADABRA_MCP_ROOT or pass the folder as the first argument",
+    );
   let ws;
   try {
     ws = openWorkspace(opts.root);
   } catch (e) {
     throw new Error(`Invalid workspace root: ${errMsg(e)}`);
   }
-  const ctx: Ctx = { ws, repo: opts.repo ?? null, epubcheckJar: opts.epubcheckJar, typstBin: opts.typstBin, popplerDir: opts.popplerDir };
-  const server = new McpServer({ name: "cadabracraft", version: "0.0.0" }, { instructions: INSTRUCTIONS });
+  const ctx: Ctx = {
+    ws,
+    repo: opts.repo ?? null,
+    epubcheckJar: opts.epubcheckJar,
+    typstBin: opts.typstBin,
+    popplerDir: opts.popplerDir,
+  };
+  const server = new McpServer(
+    { name: "cadabracraft", version: "0.0.0" },
+    { instructions: INSTRUCTIONS },
+  );
   registerTools(server, ctx, [...projectTools, ...chapterTools, ...importTools, ...exportTools]);
   registerResources(server, ctx);
   return server;

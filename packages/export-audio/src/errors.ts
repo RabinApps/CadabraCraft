@@ -22,7 +22,9 @@ export class VoiceNotInstalledError extends AudioExportError {
 
 export class EngineNotFoundError extends AudioExportError {
   constructor(searched: string) {
-    super(`The voice engine was not found (${searched}). Reinstall CadabraCraft or set its location.`);
+    super(
+      `The voice engine was not found (${searched}). Reinstall CadabraCraft or set its location.`,
+    );
     this.name = "EngineNotFoundError";
   }
 }

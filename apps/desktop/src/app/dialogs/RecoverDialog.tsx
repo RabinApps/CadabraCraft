@@ -13,13 +13,34 @@ export function RecoverDialog() {
   const actions = useProject((s) => s.actions);
   const [error, setError] = useState("");
   if (!next) return null;
-  const keep = () => { setError(""); actions.dismissRecovery(next.id); };
+  const keep = () => {
+    setError("");
+    actions.dismissRecovery(next.id);
+  };
   return (
-    <Modal open onOpenChange={(o) => { if (!o) keep(); }} title={t`Recover newer text for “${next.title}”?`} description={t`A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way.`}>
-      {error && <p role="alert" className="mb-3 text-sm text-danger">{error}</p>}
+    <Modal
+      open
+      onOpenChange={(o) => {
+        if (!o) keep();
+      }}
+      title={t`Recover newer text for “${next.title}”?`}
+      description={t`A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way.`}
+    >
+      {error && (
+        <p role="alert" className="mb-3 text-sm text-danger">
+          {error}
+        </p>
+      )}
       <div className="flex justify-end gap-2.5">
         <Button onClick={keep}>{t`Keep saved text`}</Button>
-        <Button variant="primary" icon={History} onClick={() => { setError(""); void actions.restoreSnapshot(next.id, next.snapshot).catch((e) => setError(errText(e))); }}>{t`Use newer text`}</Button>
+        <Button
+          variant="primary"
+          icon={History}
+          onClick={() => {
+            setError("");
+            void actions.restoreSnapshot(next.id, next.snapshot).catch((e) => setError(errText(e)));
+          }}
+        >{t`Use newer text`}</Button>
       </div>
     </Modal>
   );

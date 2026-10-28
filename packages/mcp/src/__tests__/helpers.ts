@@ -1,7 +1,15 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, statSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  readdirSync,
+  statSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,9 +18,14 @@ import { createServer, type ServerOptions } from "../server";
 
 export const REPO = fileURLToPath(new URL("../../../../", import.meta.url)).replace(/[\\/]$/, "");
 export const FIXTURES = join(REPO, "fixtures/manuscripts");
-export const fullBook = (): { title: string; author: string; language: string; chapters: { id: string; title: string; doc: unknown }[] } =>
-  JSON.parse(readFileSync(join(FIXTURES, "full-book.json"), "utf8"));
-export const sampleChapter = (): unknown => JSON.parse(readFileSync(join(FIXTURES, "sample-chapter.json"), "utf8"));
+export const fullBook = (): {
+  title: string;
+  author: string;
+  language: string;
+  chapters: { id: string; title: string; doc: unknown }[];
+} => JSON.parse(readFileSync(join(FIXTURES, "full-book.json"), "utf8"));
+export const sampleChapter = (): unknown =>
+  JSON.parse(readFileSync(join(FIXTURES, "sample-chapter.json"), "utf8"));
 export const gradientPng = (): Buffer => readFileSync(join(FIXTURES, "assets/gradient.png"));
 
 export const tmpRoot = (): string => realpathSync(mkdtempSync(join(tmpdir(), "cadabra-mcp-")));
@@ -33,7 +46,9 @@ export interface Session {
   close: () => Promise<void>;
 }
 
-export async function connect(opts: Partial<ServerOptions> & { root?: string } = {}): Promise<Session> {
+export async function connect(
+  opts: Partial<ServerOptions> & { root?: string } = {},
+): Promise<Session> {
   const root = opts.root ?? tmpRoot();
   const server = createServer({ repo: REPO, ...opts, root });
   const [ct, st] = InMemoryTransport.createLinkedPair();
@@ -55,9 +70,17 @@ export async function connect(opts: Partial<ServerOptions> & { root?: string } =
 }
 
 /** Creates a project with the full-book chapters and its image, through the tools. */
-export async function seedBook(s: Session, path = "book"): Promise<{ path: string; ids: string[] }> {
+export async function seedBook(
+  s: Session,
+  path = "book",
+): Promise<{ path: string; ids: string[] }> {
   const book = fullBook();
-  await s.ok("cadabra_project_create", { path, title: book.title, author: book.author, language: book.language });
+  await s.ok("cadabra_project_create", {
+    path,
+    title: book.title,
+    author: book.author,
+    language: book.language,
+  });
   mkdirSync(join(s.root, path, "assets"), { recursive: true });
   const { storeImage } = await import("@cadabracraft/project-fs");
   storeImage(join(s.root, path), "gradient.png", gradientPng());
@@ -78,7 +101,10 @@ export function snapshot(dir: string): string[] {
       const p = join(d, n);
       const st = statSync(p);
       if (st.isDirectory()) walk(p);
-      else out.push(`${relative(dir, p).split(sep).join("/")}:${st.size}:${readFileSync(p).toString("hex").slice(0, 64)}`);
+      else
+        out.push(
+          `${relative(dir, p).split(sep).join("/")}:${st.size}:${readFileSync(p).toString("hex").slice(0, 64)}`,
+        );
     }
   };
   walk(dir);
@@ -86,14 +112,29 @@ export function snapshot(dir: string): string[] {
 }
 
 /** Minimal valid .docx with the given body XML. */
-export function makeDocx(body: string, media: Record<string, Uint8Array> = {}, rels = ""): Uint8Array {
-  const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+export function makeDocx(
+  body: string,
+  media: Record<string, Uint8Array> = {},
+  rels = "",
+): Uint8Array {
+  const NS =
+    'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
   return zipSync({
-    "[Content_Types].xml": strToU8('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/></Types>'),
-    "_rels/.rels": strToU8('<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'),
-    "word/document.xml": strToU8(`<?xml version="1.0" encoding="UTF-8"?><w:document ${NS}><w:body>${body}<w:sectPr/></w:body></w:document>`),
-    "word/styles.xml": strToU8(`<?xml version="1.0"?><w:styles ${NS}><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/></w:style></w:styles>`),
-    "word/_rels/document.xml.rels": strToU8(`<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels}</Relationships>`),
+    "[Content_Types].xml": strToU8(
+      '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/></Types>',
+    ),
+    "_rels/.rels": strToU8(
+      '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+    ),
+    "word/document.xml": strToU8(
+      `<?xml version="1.0" encoding="UTF-8"?><w:document ${NS}><w:body>${body}<w:sectPr/></w:body></w:document>`,
+    ),
+    "word/styles.xml": strToU8(
+      `<?xml version="1.0"?><w:styles ${NS}><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/></w:style></w:styles>`,
+    ),
+    "word/_rels/document.xml.rels": strToU8(
+      `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels}</Relationships>`,
+    ),
     ...Object.fromEntries(Object.entries(media).map(([k, v]) => [`word/media/${k}`, v])),
   });
 }
@@ -108,7 +149,8 @@ export const has = (cmd: string, args: string[] = ["--version"]): boolean => {
   }
 };
 export const hasTypst = (): boolean => has("typst") || existsSync("/opt/homebrew/bin/typst");
-export const hasPoppler = (): boolean => has("pdfinfo", ["-v"]) || existsSync("/opt/homebrew/bin/pdfinfo");
+export const hasPoppler = (): boolean =>
+  has("pdfinfo", ["-v"]) || existsSync("/opt/homebrew/bin/pdfinfo");
 export const epubcheckJar = (): string | null => {
   const jar = process.env.EPUBCHECK_JAR ?? join(REPO, "tools/epubcheck-5.4.0/epubcheck.jar");
   return existsSync(jar) ? jar : null;

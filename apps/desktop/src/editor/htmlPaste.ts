@@ -27,11 +27,20 @@ export interface PasteFacts {
 /** `looksLikeHtml` that never throws (the converter can throw on pathological input) and skips text over the limit. */
 export function safeLooksLikeHtml(text: string): boolean {
   if (text.length > MAX_HTML_CHARS) return false;
-  try { return looksLikeHtml(text); } catch { return false; }
+  try {
+    return looksLikeHtml(text);
+  } catch {
+    return false;
+  }
 }
 
 /** What the paste handler does: leave it to the default paste, convert right away, or ask first. */
-export function pasteAction({ text, hasHtml, inCode, pref }: PasteFacts): "default" | "convert" | "ask" {
+export function pasteAction({
+  text,
+  hasHtml,
+  inCode,
+  pref,
+}: PasteFacts): "default" | "convert" | "ask" {
   if (hasHtml || inCode || pref === "text" || !text || !safeLooksLikeHtml(text)) return "default";
   return pref;
 }
@@ -42,10 +51,20 @@ export function truncate(s: string, max = PREVIEW_CHARS): string {
   const head = s.length > max * 8 ? s.slice(0, max * 8) : s;
   const flat = head.replace(/[\s\u0000-\u001f\u007f-\u009f]+/g, " ").trim();
   const chars = [...flat];
-  return chars.length > max || head.length < s.length ? `${chars.slice(0, max).join("").trimEnd()}…` : flat;
+  return chars.length > max || head.length < s.length
+    ? `${chars.slice(0, max).join("").trimEnd()}…`
+    : flat;
 }
 
-const BLOCKS = new Set(["paragraph", "heading", "listItem", "tableCell", "tableHeader", "blockquote", "codeBlock"]);
+const BLOCKS = new Set([
+  "paragraph",
+  "heading",
+  "listItem",
+  "tableCell",
+  "tableHeader",
+  "blockquote",
+  "codeBlock",
+]);
 
 /** The text of nodes with no formatting; blocks are separated by a space. */
 export function plainOf(nodes: readonly DocNode[]): string {
@@ -70,25 +89,35 @@ export interface Converted {
 export function convertHtmlText(text: string): Converted {
   const { blocks, warnings } = htmlToBlocks(text);
   const only = blocks.length === 1 && blocks[0]!.type === "paragraph" ? blocks[0]! : null;
-  return { content: only ? (only.content ?? []) : blocks, warnings: warnings.length, preview: truncate(plainOf(blocks)) };
+  return {
+    content: only ? (only.content ?? []) : blocks,
+    warnings: warnings.length,
+    preview: truncate(plainOf(blocks)),
+  };
 }
 
 /** `convertHtmlText` that returns null instead of throwing (too deeply nested, too large, or any other failure). */
 export function tryConvertHtmlText(text: string): Converted | null {
   if (text.length > MAX_HTML_CHARS) return null;
-  try { return convertHtmlText(text); } catch { return null; }
+  try {
+    return convertHtmlText(text);
+  } catch {
+    return null;
+  }
 }
 
 /** The nearest table cell or footnote around a position, as its start; null at the top level or in plain blocks. */
 function isolatingStart(state: EditorState, pos: number): number | null {
   const $p = state.doc.resolve(pos);
-  for (let d = $p.depth; d > 0; d--) if ($p.node(d).type.spec.isolating || $p.node(d).type.name === "footnote") return $p.before(d);
+  for (let d = $p.depth; d > 0; d--)
+    if ($p.node(d).type.spec.isolating || $p.node(d).type.name === "footnote") return $p.before(d);
   return null;
 }
 
 function inTableCell(state: EditorState, pos: number): boolean {
   const $p = state.doc.resolve(pos);
-  for (let d = $p.depth; d > 0; d--) if ($p.node(d).type.name === "tableCell" || $p.node(d).type.name === "tableHeader") return true;
+  for (let d = $p.depth; d > 0; d--)
+    if ($p.node(d).type.name === "tableCell" || $p.node(d).type.name === "tableHeader") return true;
   return false;
 }
 
@@ -108,7 +137,10 @@ function textParagraphs(nodes: readonly DocNode[]): DocNode[] {
   for (const n of nodes) {
     if (n.type === "paragraph") out.push(n);
     else if (n.type === "text") out.push({ type: "paragraph", content: [n] });
-    else { const t = flatText([n]); if (t) out.push({ type: "paragraph", content: [{ type: "text", text: t }] }); }
+    else {
+      const t = flatText([n]);
+      if (t) out.push({ type: "paragraph", content: [{ type: "text", text: t }] });
+    }
   }
   return out;
 }
@@ -117,11 +149,16 @@ function textParagraphs(nodes: readonly DocNode[]): DocNode[] {
  * The content reshaped so it satisfies the schema where it lands: inside a footnote, heading or code block only inline
  * text; inside a table cell only paragraphs. Elsewhere it is kept as is (the editor splits the paragraph around blocks).
  */
-export function fitContent(state: EditorState, content: readonly DocNode[], pos: number): DocNode[] {
+export function fitContent(
+  state: EditorState,
+  content: readonly DocNode[],
+  pos: number,
+): DocNode[] {
   const parent = state.doc.resolve(pos).parent.type.name;
   if (parent === "footnote" || parent === "heading" || parent === "codeBlock") {
     // Styled text stays styled in a heading or footnote; only blocks and other nodes are flattened to one text run.
-    if (parent !== "codeBlock" && content.length && content.every((n) => n.type === "text")) return [...content];
+    if (parent !== "codeBlock" && content.length && content.every((n) => n.type === "text"))
+      return [...content];
     const t = flatText(content);
     return t ? [{ type: "text", text: t }] : [];
   }
@@ -140,7 +177,11 @@ function toFragment(schema: Schema, content: readonly DocNode[]): Fragment {
  * fitted insert would be invalid it falls back to the content's plain text, so a conversion can never leave the
  * document invalid. One transaction is one undo step.
  */
-export function insertConverted(state: EditorState, content: readonly DocNode[], range: { from: number; to: number }): Transaction | null {
+export function insertConverted(
+  state: EditorState,
+  content: readonly DocNode[],
+  range: { from: number; to: number },
+): Transaction | null {
   const size = state.doc.content.size;
   const from = Math.max(0, Math.min(range.from, size));
   const to = Math.max(from, Math.min(range.to, size));
@@ -151,10 +192,14 @@ export function insertConverted(state: EditorState, content: readonly DocNode[],
       const tr = state.tr.replaceRange(from, to, new Slice(toFragment(state.schema, nodes), 0, 0));
       tr.doc.check();
       return tr;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   };
   const flat = flatText(content);
-  return attempt(fitContent(state, content, from)) ?? attempt(flat ? [{ type: "text", text: flat }] : []);
+  return (
+    attempt(fitContent(state, content, from)) ?? attempt(flat ? [{ type: "text", text: flat }] : [])
+  );
 }
 
 /** The raw text as editor content the way a default paste lands it: one text run, or one paragraph per line. */

@@ -16,7 +16,9 @@ await build({
   sourcemap: false,
   legalComments: "none",
   // Some bundled CommonJS dependencies call require() for Node built-ins.
-  banner: { js: '#!/usr/bin/env node\nimport { createRequire as __cadabraCreateRequire } from "node:module";\nconst require = __cadabraCreateRequire(import.meta.url);' },
+  banner: {
+    js: '#!/usr/bin/env node\nimport { createRequire as __cadabraCreateRequire } from "node:module";\nconst require = __cadabraCreateRequire(import.meta.url);',
+  },
   logLevel: "warning",
 });
 chmodSync(`${pkg}dist/cli.js`, 0o755);

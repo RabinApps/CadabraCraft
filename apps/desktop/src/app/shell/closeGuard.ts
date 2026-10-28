@@ -19,7 +19,10 @@ interface CloseEvent {
  * back until the last typing is on disk, then the window is destroyed. If the save fails the window stays open and the
  * author is told; asking to close again then closes it anyway, so a permanent write error never traps the window.
  */
-export function createCloseHandler(guard: CloseGuard, destroy: () => Promise<void>): (e: CloseEvent) => Promise<void> {
+export function createCloseHandler(
+  guard: CloseGuard,
+  destroy: () => Promise<void>,
+): (e: CloseEvent) => Promise<void> {
   let failed = false;
   return async (e) => {
     if (!guard.hasUnsaved()) {

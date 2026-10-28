@@ -22,7 +22,9 @@ describe("command registry", () => {
   });
 
   it("does nothing while a dialog is open, so a shortcut cannot act on the page behind it", () => {
-    vi.stubGlobal("document", { querySelector: (s: string) => (s === "[role=dialog]" ? {} : null) });
+    vi.stubGlobal("document", {
+      querySelector: (s: string) => (s === "[role=dialog]" ? {} : null),
+    });
     const run = vi.fn();
     const off = registerCommands({ "file.save": { run } });
     expect(runCommand("file.save")).toBe(false);

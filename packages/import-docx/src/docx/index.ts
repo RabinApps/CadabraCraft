@@ -16,9 +16,15 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
   const warn = new Warnings();
   const topRels = parseRels(files["_rels/.rels"], "_rels/.rels");
   let docPath = "word/document.xml";
-  for (const r of topRels.values()) if (/\/(word\/)?document\.xml$/i.test(r.target) && !r.external) docPath = r.target.replace(/^\//, "");
+  for (const r of topRels.values())
+    if (/\/(word\/)?document\.xml$/i.test(r.target) && !r.external)
+      docPath = r.target.replace(/^\//, "");
   const docBytes = files[docPath] ?? files["word/document.xml"];
-  if (!docBytes) throw new ImportError("missing-document", "The file has no word/document.xml, so it is not a Word document.");
+  if (!docBytes)
+    throw new ImportError(
+      "missing-document",
+      "The file has no word/document.xml, so it is not a Word document.",
+    );
 
   const docXml = parseXml(docBytes, "word/document.xml");
   const body = child(docXml.find((n) => tagOf(n) === "document") ?? {}, "body");
@@ -30,8 +36,12 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
     warn,
     assets: new AssetRegistry(),
     rels: parseRels(files["word/_rels/document.xml.rels"], "word/_rels/document.xml.rels"),
-    styles: files["word/styles.xml"] ? parseStyles(parseXml(files["word/styles.xml"], "word/styles.xml")) : new Map(),
-    numbering: files["word/numbering.xml"] ? parseNumbering(parseXml(files["word/numbering.xml"], "word/numbering.xml")) : { nums: new Map(), abstracts: new Map() },
+    styles: files["word/styles.xml"]
+      ? parseStyles(parseXml(files["word/styles.xml"], "word/styles.xml"))
+      : new Map(),
+    numbering: files["word/numbering.xml"]
+      ? parseNumbering(parseXml(files["word/numbering.xml"], "word/numbering.xml"))
+      : { nums: new Map(), abstracts: new Map() },
     files,
     notes,
     commentRefs: 0,
@@ -44,10 +54,17 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
   // comments, headers and footers live in other parts: report them so nothing disappears silently
   let comments = ctx.commentRefs;
   if (files["word/comments.xml"]) {
-    const root = parseXml(files["word/comments.xml"], "word/comments.xml").find((n) => tagOf(n) === "comments");
+    const root = parseXml(files["word/comments.xml"], "word/comments.xml").find(
+      (n) => tagOf(n) === "comments",
+    );
     comments = Math.max(comments, root ? childrenNamed(root, "comment").length : 0);
   }
-  if (comments > 0) warn.tally("comments", "warning", `The file has ${comments} comment(s); comments are not imported.`);
+  if (comments > 0)
+    warn.tally(
+      "comments",
+      "warning",
+      `The file has ${comments} comment(s); comments are not imported.`,
+    );
   const hf: string[] = [];
   for (const name of Object.keys(files)) {
     if (!/^word\/(header|footer)\d*\.xml$/.test(name)) continue;
@@ -56,7 +73,8 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
     if (text) hf.push(text);
   }
   if (hf.length) {
-    for (const t of hf) warn.tally("header-footer", "warning", "Headers and footers are not imported.", t);
+    for (const t of hf)
+      warn.tally("header-footer", "warning", "Headers and footers are not imported.", t);
   }
 
   const chapters = splitChapters(builder.out, opts, warn);

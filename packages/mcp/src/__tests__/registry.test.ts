@@ -5,13 +5,33 @@ let s: Session;
 afterEach(() => s.close());
 
 const EXPECTED = [
-  "cadabra_project_create", "cadabra_project_info", "cadabra_project_validate",
-  "cadabra_chapter_add", "cadabra_chapter_rename", "cadabra_chapter_move", "cadabra_chapter_remove",
-  "cadabra_chapter_read", "cadabra_chapter_write_markdown", "cadabra_chapter_write_json",
-  "cadabra_import_file", "cadabra_export_epub", "cadabra_export_pdf", "cadabra_export_markdown", "cadabra_inspect_pdf", "cadabra_inspect_epub",
-  "cadabra_list_templates", "cadabra_set_template",
+  "cadabra_project_create",
+  "cadabra_project_info",
+  "cadabra_project_validate",
+  "cadabra_chapter_add",
+  "cadabra_chapter_rename",
+  "cadabra_chapter_move",
+  "cadabra_chapter_remove",
+  "cadabra_chapter_read",
+  "cadabra_chapter_write_markdown",
+  "cadabra_chapter_write_json",
+  "cadabra_import_file",
+  "cadabra_export_epub",
+  "cadabra_export_pdf",
+  "cadabra_export_markdown",
+  "cadabra_inspect_pdf",
+  "cadabra_inspect_epub",
+  "cadabra_list_templates",
+  "cadabra_set_template",
 ];
-const READ_ONLY = ["project_info", "project_validate", "chapter_read", "inspect_pdf", "inspect_epub", "list_templates"].map((n) => `cadabra_${n}`);
+const READ_ONLY = [
+  "project_info",
+  "project_validate",
+  "chapter_read",
+  "inspect_pdf",
+  "inspect_epub",
+  "list_templates",
+].map((n) => `cadabra_${n}`);
 
 describe("tool registry", () => {
   it("exposes exactly the documented tools, each with a description, schema and full annotations", async () => {
@@ -23,7 +43,9 @@ describe("tool registry", () => {
       expect(t.inputSchema.type).toBe("object");
       const a = t.annotations!;
       expect(typeof a.readOnlyHint, t.name).toBe("boolean");
-      expect(a.readOnlyHint ? undefined : typeof a.destructiveHint, t.name).toBe(a.readOnlyHint ? undefined : "boolean");
+      expect(a.readOnlyHint ? undefined : typeof a.destructiveHint, t.name).toBe(
+        a.readOnlyHint ? undefined : "boolean",
+      );
       expect(typeof a.idempotentHint, t.name).toBe("boolean");
       expect(a.openWorldHint, t.name).toBe(false);
       expect(a.readOnlyHint, t.name).toBe(READ_ONLY.includes(t.name));
@@ -41,7 +63,10 @@ describe("tool registry", () => {
   it("serves the two docs as resources", async () => {
     s = await connect();
     const { resources } = await s.client.listResources();
-    expect(resources.map((r) => r.uri).sort()).toEqual(["cadabra://docs/file-format", "cadabra://docs/import"]);
+    expect(resources.map((r) => r.uri).sort()).toEqual([
+      "cadabra://docs/file-format",
+      "cadabra://docs/import",
+    ]);
     const ff = await s.client.readResource({ uri: "cadabra://docs/file-format" });
     expect(String((ff.contents[0] as { text: string }).text)).toContain("formatVersion");
     const imp = await s.client.readResource({ uri: "cadabra://docs/import" });

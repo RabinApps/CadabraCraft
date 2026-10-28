@@ -5,9 +5,7 @@ import { DEFAULT_LOCALE, dirFor, isLoadable, resolveLocale } from "./locales";
 
 const KEY = "cadabracraft.locale";
 
-const catalogs = import.meta.glob<{ messages: Messages }>(
-  "./locales/*/messages.po",
-);
+const catalogs = import.meta.glob<{ messages: Messages }>("./locales/*/messages.po");
 
 /** App preference only; never stored in project files. */
 export function readLocale(): string {

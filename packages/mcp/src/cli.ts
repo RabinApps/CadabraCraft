@@ -5,12 +5,20 @@ import { createServer } from "./server";
 import { errMsg } from "@cadabracraft/shared";
 
 const fail = (msg: string): never => {
-  process.stderr.write(`cadabracraft-mcp: ${msg}\nUsage: cadabracraft-mcp <workspace-root>   (or set CADABRA_MCP_ROOT)\n`);
+  process.stderr.write(
+    `cadabracraft-mcp: ${msg}\nUsage: cadabracraft-mcp <workspace-root>   (or set CADABRA_MCP_ROOT)\n`,
+  );
   process.exit(1);
 };
 
-process.on("unhandledRejection", (e) => process.stderr.write(`cadabracraft-mcp: unhandled rejection: ${e instanceof Error ? (e.stack ?? e.message) : String(e)}\n`));
-process.on("uncaughtException", (e) => process.stderr.write(`cadabracraft-mcp: uncaught exception: ${e.stack ?? e.message}\n`));
+process.on("unhandledRejection", (e) =>
+  process.stderr.write(
+    `cadabracraft-mcp: unhandled rejection: ${e instanceof Error ? (e.stack ?? e.message) : String(e)}\n`,
+  ),
+);
+process.on("uncaughtException", (e) =>
+  process.stderr.write(`cadabracraft-mcp: uncaught exception: ${e.stack ?? e.message}\n`),
+);
 
 const root = process.argv[2] ?? process.env.CADABRA_MCP_ROOT ?? "";
 try {

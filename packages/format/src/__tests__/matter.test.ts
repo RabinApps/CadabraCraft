@@ -1,7 +1,20 @@
 import { describe, expect, it } from "vitest";
 import {
-  addBackMatter, addChapter, addFrontMatter, canAddMatter, createManifest, moveChapter, moveMatter, readingOrder,
-  removeChapter, removeMatter, renameChapter, renameMatter, sectionOf, validateManifest, FormatError,
+  addBackMatter,
+  addChapter,
+  addFrontMatter,
+  canAddMatter,
+  createManifest,
+  moveChapter,
+  moveMatter,
+  readingOrder,
+  removeChapter,
+  removeMatter,
+  renameChapter,
+  renameMatter,
+  sectionOf,
+  validateManifest,
+  FormatError,
 } from "../index";
 
 const empty = () => createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" });
@@ -14,25 +27,53 @@ describe("front matter edits", () => {
     m = addFrontMatter(m, "dedication", "Dedication").manifest;
     m = addFrontMatter(m, "foreword", "Foreword").manifest;
     const r = addFrontMatter(m, "custom", "A Note: to Readers!");
-    expect(r.entry).toMatchObject({ kind: "custom", title: "A Note: to Readers!", file: "front-matter/03-a-note-to-readers.json" });
-    expect(m.frontMatter.map((e) => e.file)).toEqual(["front-matter/01-dedication.json", "front-matter/02-foreword.json"]);
+    expect(r.entry).toMatchObject({
+      kind: "custom",
+      title: "A Note: to Readers!",
+      file: "front-matter/03-a-note-to-readers.json",
+    });
+    expect(m.frontMatter.map((e) => e.file)).toEqual([
+      "front-matter/01-dedication.json",
+      "front-matter/02-foreword.json",
+    ]);
     expect(new Set(readingOrder(r.manifest).map((e) => e.id)).size).toBe(4);
     expect(() => validateManifest(r.manifest)).not.toThrow();
   });
   it("places pages in conventional order but keeps customs at the end", () => {
     let m = book();
-    for (const k of ["preface", "custom", "dedication", "copyright", "title-page", "foreword"] as const) m = addFrontMatter(m, k, k).manifest;
-    expect(m.frontMatter.map((e) => e.kind)).toEqual(["title-page", "copyright", "dedication", "foreword", "preface", "custom"]);
+    for (const k of [
+      "preface",
+      "custom",
+      "dedication",
+      "copyright",
+      "title-page",
+      "foreword",
+    ] as const)
+      m = addFrontMatter(m, k, k).manifest;
+    expect(m.frontMatter.map((e) => e.kind)).toEqual([
+      "title-page",
+      "copyright",
+      "dedication",
+      "foreword",
+      "preface",
+      "custom",
+    ]);
   });
   it("allows at most one title page and one copyright page", () => {
-    const m = addFrontMatter(addFrontMatter(book(), "title-page", "Title").manifest, "copyright", "Copyright").manifest;
+    const m = addFrontMatter(
+      addFrontMatter(book(), "title-page", "Title").manifest,
+      "copyright",
+      "Copyright",
+    ).manifest;
     expect(canAddMatter(m, "title-page")).toBe(false);
     expect(canAddMatter(m, "copyright")).toBe(false);
     expect(canAddMatter(m, "dedication")).toBe(true);
     expect(() => addFrontMatter(m, "title-page", "Again")).toThrow(/title-page/);
     expect(() => addFrontMatter(m, "copyright", "Again")).toThrow(/copyright/);
     // multiples of the other kinds are fine
-    expect(() => addFrontMatter(addFrontMatter(m, "dedication", "D1").manifest, "dedication", "D2")).not.toThrow();
+    expect(() =>
+      addFrontMatter(addFrontMatter(m, "dedication", "D1").manifest, "dedication", "D2"),
+    ).not.toThrow();
   });
   it("frees the slot again after removal", () => {
     const { manifest, entry } = addFrontMatter(book(), "title-page", "Title");
@@ -77,7 +118,8 @@ describe("back matter edits", () => {
 describe("rename, move and remove matter", () => {
   const full = () => {
     let m = book();
-    for (const k of ["dedication", "foreword", "preface"] as const) m = addFrontMatter(m, k, k).manifest;
+    for (const k of ["dedication", "foreword", "preface"] as const)
+      m = addFrontMatter(m, k, k).manifest;
     for (const k of ["acknowledgments", "colophon"] as const) m = addBackMatter(m, k, k).manifest;
     return m;
   };
@@ -90,7 +132,12 @@ describe("rename, move and remove matter", () => {
   });
   it("renames the title only, keeping file and kind", () => {
     const m = renameMatter(full(), "fm-2", "Foreword by Someone");
-    expect(m.frontMatter[1]).toEqual({ id: "fm-2", file: "front-matter/02-foreword.json", title: "Foreword by Someone", kind: "foreword" });
+    expect(m.frontMatter[1]).toEqual({
+      id: "fm-2",
+      file: "front-matter/02-foreword.json",
+      title: "Foreword by Someone",
+      kind: "foreword",
+    });
   });
   it("moves within its own section only and clamps", () => {
     expect(ids(moveMatter(full(), "fm-3", -1).frontMatter)).toEqual(["fm-1", "fm-3", "fm-2"]);
@@ -127,7 +174,15 @@ describe("rename, move and remove matter", () => {
   it("chapter ids never collide with matter ids", () => {
     const m = full();
     const r = addChapter(m, "Two");
-    expect(readingOrder(r.manifest).map((e) => e.id)).toEqual(["fm-1", "fm-2", "fm-3", "ch-1", "ch-2", "bm-1", "bm-2"]);
+    expect(readingOrder(r.manifest).map((e) => e.id)).toEqual([
+      "fm-1",
+      "fm-2",
+      "fm-3",
+      "ch-1",
+      "ch-2",
+      "bm-1",
+      "bm-2",
+    ]);
   });
 });
 

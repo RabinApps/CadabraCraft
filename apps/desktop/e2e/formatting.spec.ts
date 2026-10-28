@@ -8,20 +8,30 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("formatting toolbar", () => {
   const ed = (page: Page) => page.locator(".ProseMirror");
-  const tb = (page: Page, name: string) => page.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name, exact: true });
+  const tb = (page: Page, name: string) =>
+    page.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name, exact: true });
   async function typeLine(page: Page, text: string) {
     // The new chapter ends with an empty paragraph; click it rather than rely on platform-specific End shortcuts.
     await ed(page).locator("p").last().click();
     await page.keyboard.type(text);
   }
   // Triple-click selects the paragraph; Shift+Home is platform-specific in Chromium.
-  const selectLine = async (page: Page) => { await ed(page).locator("p").last().click({ clickCount: 3 }); };
+  const selectLine = async (page: Page) => {
+    await ed(page).locator("p").last().click({ clickCount: 3 });
+  };
 
-  test.beforeEach(async ({ page }) => { await newProject(page); });
+  test.beforeEach(async ({ page }) => {
+    await newProject(page);
+  });
 
   test("bold, italic, underline and small caps wrap the selection", async ({ page }) => {
     await typeLine(page, "styled");
-    for (const [name, sel] of [["Bold", "strong"], ["Italic", "em"], ["Underline", "u"], ["Small caps", "span.small-caps"]] as const) {
+    for (const [name, sel] of [
+      ["Bold", "strong"],
+      ["Italic", "em"],
+      ["Underline", "u"],
+      ["Small caps", "span.small-caps"],
+    ] as const) {
       await selectLine(page);
       await tb(page, name).click();
       await expect(tb(page, name)).toHaveAttribute("aria-pressed", "true");
@@ -51,12 +61,16 @@ test.describe("formatting toolbar", () => {
     await expect(ed(page).locator("span.footnote")).toHaveCount(1);
     await exportBook(page, "EPUB 3");
     await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
-    const saved = await page.evaluate(() => (window as any).__disk["manuscript/001-chapter-one.json"]);
+    const saved = await page.evaluate(
+      () => (window as any).__disk["manuscript/001-chapter-one.json"],
+    );
     expect(saved).toContain("sceneBreak");
     expect(saved).toContain("footnote");
   });
 
-  test("tables: Insert > Table and the Format > Table commands edit rows, columns and the header, and export", async ({ page }) => {
+  test("tables: Insert > Table and the Format > Table commands edit rows, columns and the header, and export", async ({
+    page,
+  }) => {
     // The native menu cannot be clicked in a browser; the dev build exposes its command runner (what each menu item calls).
     const menu = async (id: string) => {
       await page.waitForFunction(() => Boolean((window as any).__cadabraMenu));
@@ -92,7 +106,9 @@ test.describe("formatting toolbar", () => {
 
     await exportBook(page, "EPUB 3");
     await expect(page.getByRole("status")).toHaveText("Exported exports/book.epub");
-    const saved = await page.evaluate(() => (window as any).__disk["manuscript/001-chapter-one.json"]);
+    const saved = await page.evaluate(
+      () => (window as any).__disk["manuscript/001-chapter-one.json"],
+    );
     expect(saved).toContain('"type": "tableHeader"');
     expect(saved).toContain("Cost & note");
 

@@ -14,11 +14,24 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
     case "paragraph": {
       const runs = inline(kids, ctx);
       if (runs === "") return [];
-      return [ctx.quote > 0 ? para(runs, { style: "BlockQuote", left: ctx.quote * INDENT, right: INDENT, firstLine: 0 }, ctx) : para(runs, {}, ctx)];
+      return [
+        ctx.quote > 0
+          ? para(
+              runs,
+              { style: "BlockQuote", left: ctx.quote * INDENT, right: INDENT, firstLine: 0 },
+              ctx,
+            )
+          : para(runs, {}, ctx),
+      ];
     }
     case "heading": {
       const level = Number(n.attrs?.level ?? 1);
-      if (![1, 2, 3].includes(level)) fail(ctx, `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`, "heading");
+      if (![1, 2, 3].includes(level))
+        fail(
+          ctx,
+          `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
+          "heading",
+        );
       const runs = inline(kids, ctx);
       return runs === "" ? [] : [para(runs, { style: `Heading${level}` }, ctx)];
     }
@@ -30,12 +43,21 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
     case "codeBlock": {
       const text = kids
         .map((k) => {
-          if (k.type !== "text") fail(ctx, `The node "${k.type}" cannot be written in a code block`, k.type);
+          if (k.type !== "text")
+            fail(ctx, `The node "${k.type}" cannot be written in a code block`, k.type);
           return checkText(k.text, ctx, "A code block");
         })
         .join("");
       const left = ctx.quote * INDENT;
-      return text.split("\n").map((line) => para(line === "" ? "" : `<w:r><w:t xml:space="preserve">${esc(line)}</w:t></w:r>`, { style: "CodeBlock", ...(left ? { left, firstLine: 0 } : {}) }, ctx));
+      return text
+        .split("\n")
+        .map((line) =>
+          para(
+            line === "" ? "" : `<w:r><w:t xml:space="preserve">${esc(line)}</w:t></w:r>`,
+            { style: "CodeBlock", ...(left ? { left, firstLine: 0 } : {}) },
+            ctx,
+          ),
+        );
     }
     case "sceneBreak":
       return [para("<w:r><w:t>#</w:t></w:r>", { style: "SceneBreak" }, ctx)];
@@ -43,8 +65,17 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
       const a = attrsOf(n);
       const alt = String(a.alt ?? "");
       const title = String(a.title ?? "");
-      const out = [para(drawing(String(a.src ?? ""), alt, title, ctx), { style: "Figure", keepNext: title !== "" }, ctx)];
-      if (title) out.push(para(textRuns(checkText(title, ctx, "An image caption"), ""), { style: "Caption" }, ctx));
+      const out = [
+        para(
+          drawing(String(a.src ?? ""), alt, title, ctx),
+          { style: "Figure", keepNext: title !== "" },
+          ctx,
+        ),
+      ];
+      if (title)
+        out.push(
+          para(textRuns(checkText(title, ctx, "An image caption"), ""), { style: "Caption" }, ctx),
+        );
       return out;
     }
     case "figcaption": {

@@ -1,8 +1,21 @@
 // Project-level helpers shared by the tools: resolving a project, manifest load/save, chapter lookup.
 import { lstatSync } from "node:fs";
 import { join } from "node:path";
-import { parseManifest, readingOrder, serializeManifest, type Manifest, type ManuscriptEntry } from "@cadabracraft/format";
-import { MANIFEST, backupManifest, readProjectFile, resolveInWorkspace, writeProjectFile, type WriteResult } from "@cadabracraft/project-fs";
+import {
+  parseManifest,
+  readingOrder,
+  serializeManifest,
+  type Manifest,
+  type ManuscriptEntry,
+} from "@cadabracraft/format";
+import {
+  MANIFEST,
+  backupManifest,
+  readProjectFile,
+  resolveInWorkspace,
+  writeProjectFile,
+  type WriteResult,
+} from "@cadabracraft/project-fs";
 import { ToolError } from "./errors";
 import type { Ctx } from "./tooling";
 import { errMsg } from "@cadabracraft/shared";
@@ -31,7 +44,8 @@ export interface Loaded {
 export function loadProject(ctx: Ctx, path: string): Loaded {
   const root = projectRoot(ctx, path);
   const read = readProjectFile(root, MANIFEST);
-  if (!read) throw new ToolError("not_a_project", `no CadabraCraft project (cadabra.json) at ${path}`);
+  if (!read)
+    throw new ToolError("not_a_project", `no CadabraCraft project (cadabra.json) at ${path}`);
   const parsed = parseManifest(read.contents);
   if (!parsed.migrated) return { root, manifest: parsed.manifest, hash: read.hash };
   backupManifest(root);
@@ -58,7 +72,10 @@ export function findEntry(m: Manifest, id: string): Found {
 }
 
 /** Reads and parses one chapter file. `chapter_missing` when the file is not there, `chapter_json_invalid` when it is not JSON. */
-export function readChapterFile(root: string, entry: ManuscriptEntry): { doc: unknown; hash: string; raw: string } {
+export function readChapterFile(
+  root: string,
+  entry: ManuscriptEntry,
+): { doc: unknown; hash: string; raw: string } {
   const r = readProjectFile(root, entry.file);
   if (!r) throw new ToolError("chapter_missing", `chapter file ${entry.file} is missing`);
   try {
@@ -69,4 +86,11 @@ export function readChapterFile(root: string, entry: ManuscriptEntry): { doc: un
 }
 
 export const sectionOf = (m: Manifest): { section: Section; entry: ManuscriptEntry }[] =>
-  readingOrder(m).map((entry) => ({ entry, section: (m.frontMatter.includes(entry) ? "frontMatter" : m.backMatter.includes(entry) ? "backMatter" : "chapters") as Section }));
+  readingOrder(m).map((entry) => ({
+    entry,
+    section: (m.frontMatter.includes(entry)
+      ? "frontMatter"
+      : m.backMatter.includes(entry)
+        ? "backMatter"
+        : "chapters") as Section,
+  }));

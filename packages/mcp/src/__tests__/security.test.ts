@@ -17,7 +17,10 @@ const PATH_TOOLS: [string, Record<string, unknown>][] = [
   ["cadabra_chapter_remove", { chapterId: "ch-1" }],
   ["cadabra_chapter_read", { chapterId: "ch-1" }],
   ["cadabra_chapter_write_markdown", { chapterId: "ch-1", markdown: "# x" }],
-  ["cadabra_chapter_write_json", { chapterId: "ch-1", doc: { type: "doc", content: [{ type: "paragraph" }] } }],
+  [
+    "cadabra_chapter_write_json",
+    { chapterId: "ch-1", doc: { type: "doc", content: [{ type: "paragraph" }] } },
+  ],
   ["cadabra_export_epub", {}],
   ["cadabra_export_pdf", {}],
   ["cadabra_export_markdown", {}],
@@ -35,10 +38,21 @@ describe("every path is confined to the workspace root", () => {
       writeFileSync(join(outside, "victim/cadabra.json"), "{}");
       symlinkSync(outside, join(s.root, "link"));
       const before = snapshot(outside);
-      for (const path of ["../" + "escape", "../../etc", outside, join(outside, "victim"), "link", "link/victim", "a/../../x", "\0"]) {
+      for (const path of [
+        "../" + "escape",
+        "../../etc",
+        outside,
+        join(outside, "victim"),
+        "link",
+        "link/victim",
+        "a/../../x",
+        "\0",
+      ]) {
         const r = await s.call(tool, { path, ...extra });
         expect(r.isError, `${tool} ${JSON.stringify(path)}`).toBe(true);
-        expect(r.data?.error?.code ?? "invalid_input", `${tool} ${JSON.stringify(path)}`).toMatch(/path_escape|invalid_input/);
+        expect(r.data?.error?.code ?? "invalid_input", `${tool} ${JSON.stringify(path)}`).toMatch(
+          /path_escape|invalid_input/,
+        );
       }
       expect(snapshot(outside)).toEqual(before);
       expect(readdirSync(outside)).toEqual(["victim"]);
@@ -79,7 +93,11 @@ describe("every path is confined to the workspace root", () => {
 
   it("allows an absolute path that is inside the root", async () => {
     s = await connect();
-    const r = await s.ok("cadabra_project_create", { path: join(s.root, "abs"), title: "T", author: "A" });
+    const r = await s.ok("cadabra_project_create", {
+      path: join(s.root, "abs"),
+      title: "T",
+      author: "A",
+    });
     expect(r.root).toBe(join(s.root, "abs"));
   });
 });

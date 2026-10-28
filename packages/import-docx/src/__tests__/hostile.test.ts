@@ -60,7 +60,32 @@ describe("hostile markdown", () => {
   });
 
   it("random fuzz stays valid", () => {
-    const pieces = ["# ", "## ", "#### ", "- ", "1. ", "> ", "**", "*", "_", "[a](", "https://x.y", ")", "![i](a.png)", "[^1]", "[^1]: n", "\n", "\n\n", "---", "|a|b|\n|-|-|", "`", "~~", "<b>", "text ", "\\\n"];
+    const pieces = [
+      "# ",
+      "## ",
+      "#### ",
+      "- ",
+      "1. ",
+      "> ",
+      "**",
+      "*",
+      "_",
+      "[a](",
+      "https://x.y",
+      ")",
+      "![i](a.png)",
+      "[^1]",
+      "[^1]: n",
+      "\n",
+      "\n\n",
+      "---",
+      "|a|b|\n|-|-|",
+      "`",
+      "~~",
+      "<b>",
+      "text ",
+      "\\\n",
+    ];
     let seed = 12345;
     const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
     for (let i = 0; i < 300; i++) {
@@ -71,15 +96,21 @@ describe("hostile markdown", () => {
   });
 
   it("rejects input over the size cap", () => {
-    expect(errCode(() => importMarkdown("x".repeat(100), { maxInputChars: 50 }))).toBe("input-too-large");
+    expect(errCode(() => importMarkdown("x".repeat(100), { maxInputChars: 50 }))).toBe(
+      "input-too-large",
+    );
   });
 });
 
 describe("hostile docx", () => {
   it("rejects empty and non-zip input with clear errors", () => {
     expect(errCode(() => importDocx(new Uint8Array(0)))).toBe("invalid-zip");
-    expect(errCode(() => importDocx(strToU8("hello world, not a zip file at all")))).toBe("invalid-zip");
-    expect(errCode(() => importDocx(Uint8Array.from([0x50, 0x4b, 3, 4, ...new Array(40).fill(7)])))).toBe("invalid-zip");
+    expect(errCode(() => importDocx(strToU8("hello world, not a zip file at all")))).toBe(
+      "invalid-zip",
+    );
+    expect(
+      errCode(() => importDocx(Uint8Array.from([0x50, 0x4b, 3, 4, ...new Array(40).fill(7)]))),
+    ).toBe("invalid-zip");
     const good = makeDocx({ body: para("x") });
     expect(errCode(() => importDocx(good.subarray(0, good.length - 30)))).toBe("invalid-zip");
   });
@@ -102,21 +133,31 @@ describe("hostile docx", () => {
   it("enforces the decompressed size cap on a zip bomb", () => {
     // ~210 MB of zeros compresses to ~200 KB.
     const big = new Uint8Array(210 * 1024 * 1024);
-    const z = zipSync({ "word/document.xml": strToU8("<w:document/>"), "word/media/bomb.png": big }, { level: 9 });
+    const z = zipSync(
+      { "word/document.xml": strToU8("<w:document/>"), "word/media/bomb.png": big },
+      { level: 9 },
+    );
     expect(z.length).toBeLessThan(5 * 1024 * 1024);
     expect(errCode(() => importDocx(z))).toBe("archive-too-large");
-    expect(errCode(() => importDocx(makeDocx({ body: para("x") }), { maxDecompressedBytes: 100 }))).toBe("archive-too-large");
+    expect(
+      errCode(() => importDocx(makeDocx({ body: para("x") }), { maxDecompressedBytes: 100 })),
+    ).toBe("archive-too-large");
   });
 
   it("enforces a decompressed size cap even when the declared size is forged", () => {
     const payload = new Uint8Array(5 * 1024 * 1024);
-    const z = zipSync({ "word/document.xml": strToU8("<w:document/>"), "word/media/a.png": payload });
+    const z = zipSync({
+      "word/document.xml": strToU8("<w:document/>"),
+      "word/media/a.png": payload,
+    });
     // Forge the declared uncompressed size (local header + central directory) to 10 bytes.
     const dv = new DataView(z.buffer, z.byteOffset, z.byteLength);
     for (let i = 0; i + 4 < z.length; i++) {
       const sig = dv.getUint32(i, true);
-      if (sig === 0x04034b50 && dv.getUint32(i + 22, true) === payload.length) dv.setUint32(i + 22, 10, true);
-      if (sig === 0x02014b50 && dv.getUint32(i + 24, true) === payload.length) dv.setUint32(i + 24, 10, true);
+      if (sig === 0x04034b50 && dv.getUint32(i + 22, true) === payload.length)
+        dv.setUint32(i + 22, 10, true);
+      if (sig === 0x02014b50 && dv.getUint32(i + 24, true) === payload.length)
+        dv.setUint32(i + 24, 10, true);
     }
     const c = errCode(() => importDocx(z, { maxDecompressedBytes: 1024 * 1024 }));
     // fflate truncates to the declared size, so memory stays bounded; the result is an error (here: no body), never a 5 MB read past the cap.
@@ -133,8 +174,12 @@ describe("hostile docx", () => {
     const huge = para("lorem ".repeat(300_000), "Heading1") + para("y");
     const r1 = importDocx(makeDocx({ body: huge }));
     expectValid(r1);
-    const items = Array.from({ length: 200 }, (_, i) => para(`i${i}`, undefined, `<w:numPr><w:ilvl w:val="${i}"/><w:numId w:val="1"/></w:numPr>`)).join("");
-    const r2 = importDocx(makeDocx({ body: para("T", "Heading1") + items, numbering: "<w:numbering/>" }));
+    const items = Array.from({ length: 200 }, (_, i) =>
+      para(`i${i}`, undefined, `<w:numPr><w:ilvl w:val="${i}"/><w:numId w:val="1"/></w:numPr>`),
+    ).join("");
+    const r2 = importDocx(
+      makeDocx({ body: para("T", "Heading1") + items, numbering: "<w:numbering/>" }),
+    );
     expectValid(r2);
     const r3 = importDocx(makeDocx({ body: para("T", "Heading1") + para("p").repeat(20_000) }));
     expect(r3.chapters[0]!.doc.content).toHaveLength(20_001);
@@ -151,10 +196,12 @@ describe("hostile docx", () => {
       ok = e instanceof ImportError;
     }
     expect(ok).toBe(true);
-    const nested = "<w:sdt><w:sdtContent>".repeat(500) + para("deep") + "</w:sdtContent></w:sdt>".repeat(500);
+    const nested =
+      "<w:sdt><w:sdtContent>".repeat(500) + para("deep") + "</w:sdtContent></w:sdt>".repeat(500);
     // 500 levels exceeds the XML parser's nesting limit: a clear ImportError is the expected outcome.
     expect(errCode(() => importDocx(makeDocx({ body: nested })))).toBe("invalid-xml");
-    const shallow = "<w:sdt><w:sdtContent>".repeat(30) + para("deep") + "</w:sdtContent></w:sdt>".repeat(30);
+    const shallow =
+      "<w:sdt><w:sdtContent>".repeat(30) + para("deep") + "</w:sdtContent></w:sdt>".repeat(30);
     expectValid(importDocx(makeDocx({ body: shallow })));
   });
 });

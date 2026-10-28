@@ -21,13 +21,23 @@ export interface A11yFacts {
 export function accessibilityMetadata(f: A11yFacts): string {
   const visual = f.images > 0 || f.hasCover;
   const allAlt = f.imagesMissingAlt === 0;
-  const features = ["tableOfContents", "readingOrder", "structuralNavigation", ...(visual && allAlt ? ["alternativeText"] : [])];
+  const features = [
+    "tableOfContents",
+    "readingOrder",
+    "structuralNavigation",
+    ...(visual && allAlt ? ["alternativeText"] : []),
+  ];
   const summary = [
     "This publication is reflowable text with a table of contents and a linear reading order.",
-    visual ? (allAlt ? "Every image has alternative text." : "Some images have no alternative text.") : "It has no images.",
+    visual
+      ? allAlt
+        ? "Every image has alternative text."
+        : "Some images have no alternative text."
+      : "It has no images.",
     "Its accessibility has not been formally evaluated against a standard.",
   ].join(" ");
-  const meta = (property: string, value: string, attrs = "") => `<meta property="schema:${property}"${attrs}>${esc(value)}</meta>`;
+  const meta = (property: string, value: string, attrs = "") =>
+    `<meta property="schema:${property}"${attrs}>${esc(value)}</meta>`;
   return [
     meta("accessMode", "textual"),
     ...(visual ? [meta("accessMode", "visual")] : []),

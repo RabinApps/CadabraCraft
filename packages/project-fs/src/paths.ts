@@ -24,7 +24,8 @@ export function normalizeRelative(rel: string): string {
 }
 
 /** Lexical join of a validated relative path onto `root`. */
-export const resolveRelative = (root: string, rel: string): string => join(root, normalizeRelative(rel));
+export const resolveRelative = (root: string, rel: string): string =>
+  join(root, normalizeRelative(rel));
 
 /** True when `p` is `root` or lies below it (component-wise, not a string prefix). */
 export function isInside(root: string, p: string): boolean {
@@ -64,12 +65,20 @@ export function resolveReal(p: string, depth = 0): string {
  */
 export function resolveSafe(root: string, rel: string): string {
   const abs = resolveRelative(root, rel);
-  if (!isInside(resolveReal(root), resolveReal(abs))) throw new ProjectFsError("path_escape", `${rel} leaves the project folder through a symbolic link`);
+  if (!isInside(resolveReal(root), resolveReal(abs)))
+    throw new ProjectFsError(
+      "path_escape",
+      `${rel} leaves the project folder through a symbolic link`,
+    );
   return abs;
 }
 
 /** Last component of an OS path: `\\` is a separator on Windows only (on POSIX it is a legal file-name character). */
-const lastComponent = (p: string): string => p.split(process.platform === "win32" ? /[\\/]/ : "/").filter(Boolean).pop() ?? "";
+const lastComponent = (p: string): string =>
+  p
+    .split(process.platform === "win32" ? /[\\/]/ : "/")
+    .filter(Boolean)
+    .pop() ?? "";
 
 const asciiLower = (s: string): string => s.replace(/[A-Z]/g, (c) => c.toLowerCase());
 

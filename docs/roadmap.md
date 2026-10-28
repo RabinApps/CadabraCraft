@@ -5,12 +5,15 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 ## Open
 
 ### Testing
+
 - Tauri WebDriver e2e covering the native window and Rust commands.
 - Visual regression checks for PDF output.
 - Run the manual real-client sync checklist ([sync-testing.md](sync-testing.md)).
 
 ### Editor and app UI
+
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
+
 - M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
 - M2+: shortcuts settings (disabled nav item for now), command palette, outline navigator.
 - Snapshots follow-ups: Backups settings for tablet and mobile in the pen, whole-book and named snapshots, a diff that shows formatting changes, run the History dialog and recovery on the native app and a real sync folder (`/drive-app`).
@@ -18,12 +21,15 @@ UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 - Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
 
 ### EPUB retail metadata
+
 - More OPF metadata needs new manifest fields (a format change, so `/change-file-format`): publisher, description, subjects/BISAC, series and number, rights, publication date. Today the EPUB writes identifier, ISBN, title, author, language, modified and accessibility metadata only.
 - Offer a "decorative image" choice so an intentionally empty alt does not trigger the alt-text warning; translate the accessibility summary; consider an evaluated `dcterms:conformsTo` claim only after an accessibility audit.
 - Show the alt-text row's counts in the Export dialog with a jump to the image (needs a pen design).
 
 ### Internationalization
+
 Infrastructure is in; see the Internationalization section of [architecture.md](architecture.md).
+
 - Translate the catalogs (he, ar, it, ja, ru, fr, de, es), get native-speaker review, then add each code to `ENABLED_LOCALES`.
 - `watch_project` still returns a plain string instead of a `ProjectError` code.
 - Toolbar button glyphs ("Sc", "H1", "• List", "Fn") are Latin text; replace with icons.
@@ -32,28 +38,34 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Add e2e for `he` RTL layout once its catalog exists; run `/validate-epub` with a Hebrew sample (EPUBCheck was not available in this worktree).
 
 ### Engineering
+
 - Licensing: have a lawyer review `LICENSE`, `NOTICE` and `LICENSE-CLARIFICATIONS.md` before the first release (see architecture.md, "License", for the open questions: hybrid publishers, editors who also format, the MCP server in paid pipelines, whether the pledge is enforceable and how to back it structurally, and the Commons Clause text having no stated license of its own). Also: ship `LICENSE`, `NOTICE`, the clarifications and generated third-party notices (Rust crates, npm bundle, Newsreader and Inter UI fonts, MPL and LGPL parts) in the installer with a Help > Licenses page, add a license allowlist check to CI, a trademark clearance search and policy, and a CLA or DCO if the project takes outside contributions.
 - Port `.docx` import (`packages/import-docx`) to Rust (`zip` + `quick-xml`) to stop the double XML pass and synchronous unzip; needs approval for the new crates and a contract-fixture set for the doc output.
 - Run the native pickers (`pickFolder`, `pickImage`, `pickImportSource`) in Rust and remember what the author picked, so `create_project`, `import_asset` and `read_import_source` only accept those paths (today the webview can name any absolute folder or file for them).
 - Large manuscripts (see architecture.md, "Performance budgets"): a Rust-side per-page word count kept in a small cache next to the snapshots (removes the first-open read of every chapter); virtualised or lazily mounted chapter rendering for reading mode and print preview (they still build every page); a cheaper cache for `readPages` (print preview, export checks, find bar) keyed by the same file hashes; measure typing and open time on a real disk and in the native webview with `/drive-app` and a 20k-word chapter.
 
 ### Audio
+
 - Audiobook export, remaining: M4B with chapter markers and cover (needs an LGPL ffmpeg sidecar per platform; ask before downloading binaries), the Settings Audio voices folder and licences rows, and a real run on Windows and Linux. Built: WAV, FLAC and Opus (no MP3), Kokoro and Piper through one sherpa-onnx sidecar, voice download, chapter select, per-chapter cache, Hear a sample. Retail platforms differ on synthetic voices; the dialog says so.
 
 ### Word export follow-ups
+
 - MCP tool `cadabra_export_docx` (the desktop app has the export; the headless server does not yet).
 - Open the generated `.docx` in Word, Pages, Google Docs and LibreOffice (headless `soffice --convert-to pdf` smoke test in CI) and fix whatever they disagree on.
 - RTF export; alternate templates (A4, other fonts and spacing, contact block on the title page, chapter title drop, shunn-style "approximately N words"); Word comments and tracked changes from the editor; right-to-left books.
 
 ### Format coverage
+
 - Task lists and definition lists are not supported and have no schema node; add them only on demand. Today the Markdown importer keeps task items as list items with a `[ ] ` / `[x] ` text prefix and a `task-list` warning, and definition-style content is plain paragraphs (`[^1]` definitions are footnotes, not definition lists). The DOCX importer has no definition-list handling: "Definition Term" / "Definition" style paragraphs fall back to normal paragraphs, and Word content-control checkboxes (`sdt`) import as their text content.
 
 ### Website (marketing and SEO pass)
+
 - Export a 1200x630 OG image and real light/dark editor screenshots from the pen's `Website / ...` frames into `apps/website/public/og` and `public/screens`; `src/lib/seo.ts` already points at `/og/cadabracraft-og.png`.
 - Verify every competitor fact in `apps/website/src/data/competitors.ts` against its source and update `checkedOn`; several fields say "See vendor" until confirmed.
 - Draw the Compare index, Features, Download and tablet widths in the pen; link the LICENSE once the licensing question is settled; add a real download link once a GitHub Release exists.
 
 ## Done
+
 - Chapter snapshots: automatic versions on save, History dialog (compare and restore), Backups settings, recovery offer on open; see architecture.md, "Chapter snapshots and History".
 - M4: import wizard (source step, then a preview of the detected chapters with split level, rename and skip), see import.md.
 - M1: apply the design system (Tailwind v4 + Radix), restyle Home, editor, reading mode, dialogs and toasts.

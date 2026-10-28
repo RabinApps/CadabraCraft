@@ -15,16 +15,28 @@ export function Select({ label, hideLabel, hint, className, id, children, ...res
   const selectId = id ?? auto;
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={selectId} className={cx("text-xs font-semibold text-ink-muted", hideLabel && "sr-only")}>{label}</label>
+      <label
+        htmlFor={selectId}
+        className={cx("text-xs font-semibold text-ink-muted", hideLabel && "sr-only")}
+      >
+        {label}
+      </label>
       <select
         id={selectId}
         aria-describedby={hint ? `${selectId}-hint` : undefined}
-        className={cx("w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-50", className)}
+        className={cx(
+          "w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-50",
+          className,
+        )}
         {...rest}
       >
         {children}
       </select>
-      {hint && <p id={`${selectId}-hint`} className="text-xs text-ink-muted">{hint}</p>}
+      {hint && (
+        <p id={`${selectId}-hint`} className="text-xs text-ink-muted">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }

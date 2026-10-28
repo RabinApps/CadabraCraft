@@ -1,6 +1,15 @@
 import type { DocNode, Mark } from "@cadabracraft/shared";
 import type { Definition, FootnoteDefinition, Nodes, PhrasingContent } from "mdast";
-import { AssetRegistry, Warnings, type Item, imageItems, isSep, mergeInline, safeHref, textNode } from "../common";
+import {
+  AssetRegistry,
+  Warnings,
+  type Item,
+  imageItems,
+  isSep,
+  mergeInline,
+  safeHref,
+  textNode,
+} from "../common";
 
 export interface Ctx {
   warn: Warnings;
@@ -11,13 +20,17 @@ export interface Ctx {
   maxDepth: number;
 }
 
-export const lineOf = (n: { position?: { start: { line: number } } | undefined }) => n.position?.start.line;
+export const lineOf = (n: { position?: { start: { line: number } } | undefined }) =>
+  n.position?.start.line;
 
 /** Flatten any mdast node to plain text. */
 export function toText(n: Nodes): string {
   if ("value" in n && typeof n.value === "string") return n.value;
   if (n.type === "image" || n.type === "imageReference") return n.alt ?? "";
-  if ("children" in n) return (n.children as Nodes[]).map(toText).join(n.type === "root" || n.type === "list" || n.type === "table" ? "\n" : "");
+  if ("children" in n)
+    return (n.children as Nodes[])
+      .map(toText)
+      .join(n.type === "root" || n.type === "list" || n.type === "table" ? "\n" : "");
   return "";
 }
 
@@ -28,9 +41,16 @@ function htmlMark(value: string): { close: boolean; tag: string; mark: Mark } | 
   if (!m) return null;
   const tag = m[2]!.toLowerCase();
   const close = !!m[1];
-  if (tag === "span") return /^\s+class\s*=\s*["']small-caps["']\s*$/i.test(m[3] ?? "") || (close && !m[3]) ? { close, tag, mark: { type: "smallCaps" } } : null;
+  if (tag === "span")
+    return /^\s+class\s*=\s*["']small-caps["']\s*$/i.test(m[3] ?? "") || (close && !m[3])
+      ? { close, tag, mark: { type: "smallCaps" } }
+      : null;
   if (m[3]) return null;
-  return { close, tag, mark: { type: tag === "u" ? "underline" : tag === "sup" ? "superscript" : "subscript" } };
+  return {
+    close,
+    tag,
+    mark: { type: tag === "u" ? "underline" : tag === "sup" ? "superscript" : "subscript" },
+  };
 }
 
 const MAX_OPEN_MARKS = 32;
@@ -55,7 +75,12 @@ function pairedHtmlMarks(nodes: PhrasingContent[]): Set<number> {
   return paired;
 }
 
-export function inlines(nodes: PhrasingContent[], ctx: Ctx, baseMarks: Mark[], inNote = false): Item[] {
+export function inlines(
+  nodes: PhrasingContent[],
+  ctx: Ctx,
+  baseMarks: Mark[],
+  inNote = false,
+): Item[] {
   const out: Item[] = [];
   const paired = pairedHtmlMarks(nodes);
   const openMarks: { tag: string; mark: Mark }[] = [];
@@ -85,9 +110,17 @@ export function inlines(nodes: PhrasingContent[], ctx: Ctx, baseMarks: Mark[], i
       case "linkReference": {
         const url = n.type === "link" ? n.url : ctx.defs.get(n.identifier.toLowerCase())?.url;
         const href = url === undefined ? null : safeHref(url);
-        if (href) out.push(...inlines(n.children, ctx, [...marks, { type: "link", attrs: { href } }], inNote));
+        if (href)
+          out.push(
+            ...inlines(n.children, ctx, [...marks, { type: "link", attrs: { href } }], inNote),
+          );
         else {
-          ctx.warn.at("unsafe-link", "warning", `Link removed (only http, https and mailto are kept): ${(url ?? "unresolved reference").slice(0, 80)}`, lineOf(n));
+          ctx.warn.at(
+            "unsafe-link",
+            "warning",
+            `Link removed (only http, https and mailto are kept): ${(url ?? "unresolved reference").slice(0, 80)}`,
+            lineOf(n),
+          );
           out.push(...inlines(n.children, ctx, marks, inNote));
         }
         break;
@@ -97,7 +130,8 @@ export function inlines(nodes: PhrasingContent[], ctx: Ctx, baseMarks: Mark[], i
         break;
       case "image":
       case "imageReference": {
-        const d = n.type === "imageReference" ? ctx.defs.get(n.identifier.toLowerCase()) : undefined;
+        const d =
+          n.type === "imageReference" ? ctx.defs.get(n.identifier.toLowerCase()) : undefined;
         const url = n.type === "image" ? n.url : d?.url;
         const title = n.type === "image" ? n.title : d?.title;
         if (url === undefined) {
@@ -117,7 +151,12 @@ export function inlines(nodes: PhrasingContent[], ctx: Ctx, baseMarks: Mark[], i
           marks = [...baseMarks, ...openMarks.map((o) => o.mark)];
           break;
         }
-        ctx.warn.at("html", "warning", "Raw HTML is not supported; its text was kept literally.", lineOf(n));
+        ctx.warn.at(
+          "html",
+          "warning",
+          "Raw HTML is not supported; its text was kept literally.",
+          lineOf(n),
+        );
         const t = textNode(n.value, marks);
         if (t) out.push(t);
         break;
@@ -125,9 +164,19 @@ export function inlines(nodes: PhrasingContent[], ctx: Ctx, baseMarks: Mark[], i
       case "footnoteReference": {
         const def = ctx.footnotes.get(n.identifier.toLowerCase());
         if (inNote) {
-          ctx.warn.at("footnote-nested", "warning", "A footnote reference inside a footnote was dropped.", lineOf(n));
+          ctx.warn.at(
+            "footnote-nested",
+            "warning",
+            "A footnote reference inside a footnote was dropped.",
+            lineOf(n),
+          );
         } else if (!def) {
-          ctx.warn.at("footnote-undefined", "warning", `Footnote [^${n.label ?? n.identifier}] has no definition.`, lineOf(n));
+          ctx.warn.at(
+            "footnote-undefined",
+            "warning",
+            `Footnote [^${n.label ?? n.identifier}] has no definition.`,
+            lineOf(n),
+          );
         } else {
           ctx.usedFootnotes.add(n.identifier.toLowerCase());
           out.push(footnoteNode(def, ctx));
@@ -135,7 +184,12 @@ export function inlines(nodes: PhrasingContent[], ctx: Ctx, baseMarks: Mark[], i
         break;
       }
       default: {
-        ctx.warn.at("unsupported-node", "warning", `Unsupported inline element "${(n as { type: string }).type}" was kept as text.`, lineOf(n));
+        ctx.warn.at(
+          "unsupported-node",
+          "warning",
+          `Unsupported inline element "${(n as { type: string }).type}" was kept as text.`,
+          lineOf(n),
+        );
         const t = textNode(toText(n), marks);
         if (t) out.push(t);
       }
@@ -162,7 +216,13 @@ function footnoteNode(def: FootnoteDefinition, ctx: Ctx): DocNode {
       if (t) parts.push(t);
     }
   }
-  if (complex) ctx.warn.at("footnote-complex", "info", `Footnote [^${def.label ?? def.identifier}] had non-paragraph content; it was flattened to text.`, lineOf(def));
+  if (complex)
+    ctx.warn.at(
+      "footnote-complex",
+      "info",
+      `Footnote [^${def.label ?? def.identifier}] had non-paragraph content; it was flattened to text.`,
+      lineOf(def),
+    );
   const content = mergeInline(parts);
   while (content[0]?.type === "text" && content[0].text.trim() === "") content.shift();
   return content.length ? { type: "footnote", content } : { type: "footnote" };

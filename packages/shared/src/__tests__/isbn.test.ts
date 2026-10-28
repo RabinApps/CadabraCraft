@@ -12,7 +12,19 @@ describe("normalizeIsbn", () => {
     expect(normalizeIsbn("0-8044-2957-x")).toBe("9780804429573");
   });
   it("returns null for empty, malformed or wrong-checksum text", () => {
-    for (const bad of [null, undefined, "", "  ", "978-3-16-148410-1", "0-306-40615-3", "12345", "9783161484100x", "ABC", "9793161484100", "1234567890123"]) {
+    for (const bad of [
+      null,
+      undefined,
+      "",
+      "  ",
+      "978-3-16-148410-1",
+      "0-306-40615-3",
+      "12345",
+      "9783161484100x",
+      "ABC",
+      "9793161484100",
+      "1234567890123",
+    ]) {
       expect(normalizeIsbn(bad), String(bad)).toBeNull();
     }
   });

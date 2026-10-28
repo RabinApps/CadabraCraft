@@ -16,7 +16,10 @@ export type Snapshot = {
 
 export type App = Awaited<ReturnType<typeof connect>>;
 
-export async function connect({ port = 9223, timeoutMs = 30000 }: { port?: number; timeoutMs?: number } = {}) {
+export async function connect({
+  port = 9223,
+  timeoutMs = 30000,
+}: { port?: number; timeoutMs?: number } = {}) {
   const ws = new WebSocket(`ws://127.0.0.1:${port}`);
   const pending = new Map<string, (m: Reply) => void>();
   let next = 0;
@@ -26,7 +29,12 @@ export async function connect({ port = 9223, timeoutMs = 30000 }: { port?: numbe
   };
   await new Promise<void>((resolve, reject) => {
     ws.onopen = () => resolve();
-    ws.onerror = () => reject(new Error(`Cannot reach the app bridge on 127.0.0.1:${port}. Start it with: pnpm --filter @cadabracraft/desktop tauri:automate`));
+    ws.onerror = () =>
+      reject(
+        new Error(
+          `Cannot reach the app bridge on 127.0.0.1:${port}. Start it with: pnpm --filter @cadabracraft/desktop tauri:automate`,
+        ),
+      );
   });
 
   const call = (command: string, args: unknown): Promise<any> =>
@@ -52,9 +60,15 @@ export async function connect({ port = 9223, timeoutMs = 30000 }: { port?: numbe
     sleep,
     close: () => ws.close(),
     /** Calls one of the app's own Tauri commands (needs withGlobalTauri, set by tauri.automation.conf.json). */
-    invoke: (command: string, args: unknown = {}) => js(`window.__TAURI__.core.invoke(${q(command)}, ${q(args)}).then((r) => JSON.stringify(r ?? null))`).then((s: string) => JSON.parse(s)),
+    invoke: (command: string, args: unknown = {}) =>
+      js(
+        `window.__TAURI__.core.invoke(${q(command)}, ${q(args)}).then((r) => JSON.stringify(r ?? null))`,
+      ).then((s: string) => JSON.parse(s)),
     /** Pre-answers the next native file/folder dialogs, in order. Use null to cancel one. */
-    queueDialogs: (answers: (string | null)[]) => js(`window.__TAURI__.core.invoke("automation_queue_dialog", { answers: ${q(answers)} }).then(() => "queued")`),
+    queueDialogs: (answers: (string | null)[]) =>
+      js(
+        `window.__TAURI__.core.invoke("automation_queue_dialog", { answers: ${q(answers)} }).then(() => "queued")`,
+      ),
     /** Saves a PNG of the webview (no Screen Recording permission needed). Returns the path. */
     screenshot: async (path: string, maxWidth = 1000) => {
       const r = await call("capture_native_screenshot", { format: "png", maxWidth });
@@ -82,6 +96,8 @@ export async function connect({ port = 9223, timeoutMs = 30000 }: { port?: numbe
         headings: [...document.querySelectorAll("h1,h2,h3")].map((h) => h.textContent.trim()),
         dialogs: [...document.querySelectorAll("[role=dialog]")].map((d) => d.textContent.trim().slice(0, 300)),
         status: [...document.querySelectorAll("[role=status],[role=alert]")].map((s) => s.textContent.trim()),
-        editor: document.querySelector(".ProseMirror")?.innerText ?? null })`).then((s: string) => JSON.parse(s)),
+        editor: document.querySelector(".ProseMirror")?.innerText ?? null })`).then((s: string) =>
+        JSON.parse(s),
+      ),
   };
 }

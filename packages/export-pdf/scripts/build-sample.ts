@@ -30,4 +30,6 @@ for (const [src, rel] of typ.images) {
   writeFileSync(target, assets[src]!);
 }
 writeFileSync(new URL(`sample-${name}.pdf`, out), res.pdf);
-console.log(`wrote out/sample-${name}.pdf (${res.pdf.length} bytes) fonts: ${res.fonts.body} / ${res.fonts.heading}`);
+console.log(
+  `wrote out/sample-${name}.pdf (${res.pdf.length} bytes) fonts: ${res.fonts.body} / ${res.fonts.heading}`,
+);

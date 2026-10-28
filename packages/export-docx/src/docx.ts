@@ -5,8 +5,21 @@ import { NS_A, NS_PIC, NS_WP } from "./drawing";
 import { DocxExportError } from "./errors";
 import { fail, kidsOf, checkText } from "./helpers";
 import {
-  appProps, contentTypes, coreProps, documentRels, emptyHeader, footnotesPart, FONT_NAMES, numberingPart, NS_R, NS_W, PAGE, packageRels,
-  runningHeader, settings, stylesPart,
+  appProps,
+  contentTypes,
+  coreProps,
+  documentRels,
+  emptyHeader,
+  footnotesPart,
+  FONT_NAMES,
+  numberingPart,
+  NS_R,
+  NS_W,
+  PAGE,
+  packageRels,
+  runningHeader,
+  settings,
+  stylesPart,
 } from "./parts";
 import { inline, para, textRuns } from "./paragraphs";
 import { settleTables } from "./tables";
@@ -21,7 +34,11 @@ const RIGHT_TO_LEFT_HINT = "Right-to-left languages are not supported in Word ex
 const readingOrder = (chapters: DocxChapter[]): DocxChapter[] =>
   chapters
     .map((c, i) => ({ c, i }))
-    .sort((a, b) => SECTION_RANK[a.c.section ?? "chapter"] - SECTION_RANK[b.c.section ?? "chapter"] || a.i - b.i)
+    .sort(
+      (a, b) =>
+        SECTION_RANK[a.c.section ?? "chapter"] - SECTION_RANK[b.c.section ?? "chapter"] ||
+        a.i - b.i,
+    )
     .map((x) => x.c);
 
 const SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv", "phd", "md"]);
@@ -29,7 +46,11 @@ const SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv", "phd", "md"]);
 /** Last word of the author name, ignoring a trailing generational suffix ("Jr.", "III"). Empty when there is no author. */
 export function authorSurname(author: string): string {
   const words = author.split(/[\s,]+/).filter(Boolean);
-  while (words.length > 1 && SUFFIXES.has(words[words.length - 1]!.replace(/\./g, "").toLowerCase())) words.pop();
+  while (
+    words.length > 1 &&
+    SUFFIXES.has(words[words.length - 1]!.replace(/\./g, "").toLowerCase())
+  )
+    words.pop();
   return words[words.length - 1] ?? "";
 }
 
@@ -53,18 +74,36 @@ const startsWithTitle = (doc: ChapterDoc): boolean => {
  * approximate word count, every chapter on a new page and scene breaks as a centred "#". Footnotes are real Word footnotes.
  * Output is deterministic for a given input. Throws `DocxExportError` (naming the page and node) on anything Word cannot hold.
  */
-export function buildDocx(book: DocxBook, chapters: DocxChapter[], options: DocxOptions = {}): Uint8Array {
+export function buildDocx(
+  book: DocxBook,
+  chapters: DocxChapter[],
+  options: DocxOptions = {},
+): Uint8Array {
   const language = book.language ?? "en";
   if (textDirection(language) === "rtl") throw new DocxExportError(RIGHT_TO_LEFT_HINT);
   const bookCtxCheck = (text: string, what: string) => {
     const bad = illegalXmlChar(text);
-    if (bad) throw new DocxExportError(`The ${what} contains the character ${bad}, which a Word file cannot hold`);
+    if (bad)
+      throw new DocxExportError(
+        `The ${what} contains the character ${bad}, which a Word file cannot hold`,
+      );
     return text;
   };
   const title = bookCtxCheck(book.title.trim(), "book title");
   const author = bookCtxCheck(book.author.trim(), "author name");
   const fontName = FONT_NAMES[options.font ?? "times"];
-  const s: Shared = { assets: options.assets ?? new Map(), font: fontName, notes: [], rels: [], media: new Map(), mediaTypes: new Map(), links: new Map(), ordered: [], drawingId: 0, pendingBreak: false };
+  const s: Shared = {
+    assets: options.assets ?? new Map(),
+    font: fontName,
+    notes: [],
+    rels: [],
+    media: new Map(),
+    mediaTypes: new Map(),
+    links: new Map(),
+    ordered: [],
+    drawingId: 0,
+    pendingBreak: false,
+  };
   const rel = (type: string, target: string): string => {
     const id = `rId${s.rels.length + 1}`;
     s.rels.push({ id, type, target });
@@ -81,13 +120,23 @@ export function buildDocx(book: DocxBook, chapters: DocxChapter[], options: Docx
   // The generated manuscript title page replaces a "title-page" matter page (which only holds the title and author).
   const body: string[] = [];
   const countable = pages.filter((c) => (c.section ?? "chapter") === "chapter");
-  const words = approximateWords((countable.length ? countable : pages).reduce((sum, c) => sum + countWords(c.doc), 0));
+  const words = approximateWords(
+    (countable.length ? countable : pages).reduce((sum, c) => sum + countWords(c.doc), 0),
+  );
 
   const tctx: Ctx = { s, chapter: "", quote: 0, list: 0, inNote: false, runProps: {} };
   body.push(
-    para(`<w:r><w:t>${esc(`About ${words.toLocaleString("en-US")} ${words === 1 ? "word" : "words"}`)}</w:t></w:r>`, { style: "TitlePageInfo" }, tctx),
+    para(
+      `<w:r><w:t>${esc(`About ${words.toLocaleString("en-US")} ${words === 1 ? "word" : "words"}`)}</w:t></w:r>`,
+      { style: "TitlePageInfo" },
+      tctx,
+    ),
     para(title === "" ? "" : textRuns(title, ""), { style: "Title", spaceBefore: 4320 }, tctx),
-    para(author === "" ? "" : textRuns(`by ${author}`, ""), { style: "TitlePageAuthor", sect: sectPr(emptyHdr, { restart: false }) }, tctx),
+    para(
+      author === "" ? "" : textRuns(`by ${author}`, ""),
+      { style: "TitlePageAuthor", sect: sectPr(emptyHdr, { restart: false }) },
+      tctx,
+    ),
   );
 
   let first = true;
@@ -96,13 +145,20 @@ export function buildDocx(book: DocxBook, chapters: DocxChapter[], options: Docx
     if (c.kind === "title-page") continue;
     const label = c.title.trim() || c.id || "(untitled page)";
     const ctx: Ctx = { s, chapter: label, quote: 0, list: 0, inNote: false, runProps: {} };
-    if (!c.doc || c.doc.type !== "doc" || !Array.isArray(c.doc.content)) fail(ctx, 'A chapter document must be an object with type "doc"');
+    if (!c.doc || c.doc.type !== "doc" || !Array.isArray(c.doc.content))
+      fail(ctx, 'A chapter document must be an object with type "doc"');
     s.pendingBreak = !first;
     first = false;
     const titled = startsWithTitle(c.doc);
     const nodes = c.doc.content;
     if (!titled && section === "chapter" && c.title.trim() !== "") {
-      body.push(para(textRuns(checkText(c.title.trim(), ctx, "The chapter title"), ""), { style: "Heading1", spaceBefore: 2880 }, ctx));
+      body.push(
+        para(
+          textRuns(checkText(c.title.trim(), ctx, "The chapter title"), ""),
+          { style: "Heading1", spaceBefore: 2880 },
+          ctx,
+        ),
+      );
     }
     nodes.forEach((n, i) => {
       if (i === 0 && titled) {
@@ -116,7 +172,7 @@ export function buildDocx(book: DocxBook, chapters: DocxChapter[], options: Docx
   }
   const settled = settleTables(body);
   const last = settled[settled.length - 1] ?? "";
-  const tail = last.startsWith("<w:tbl>") ? ['<w:p/>'] : [];
+  const tail = last.startsWith("<w:tbl>") ? ["<w:p/>"] : [];
   const document = `${XML_HEAD}<w:document xmlns:w="${NS_W}" xmlns:r="${NS_R}" xmlns:wp="${NS_WP}" xmlns:a="${NS_A}" xmlns:pic="${NS_PIC}"><w:body>${settled.join("")}${tail.join("")}${sectPr(runHdr, { restart: true, type: true })}</w:body></w:document>`;
 
   const orderedNums = s.ordered;

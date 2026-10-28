@@ -6,7 +6,11 @@ import { useProject } from "../../state/project";
 import type { AudioExport } from "./useAudioExport";
 
 /** The buttons of the Audiobook format: they change with the voice download, the running job and the options. */
-export function AudioFooter({ audio, onClose, onKeepWorking }: {
+export function AudioFooter({
+  audio,
+  onClose,
+  onKeepWorking,
+}: {
   audio: AudioExport;
   /** Closes the dialog (after clearing what a closed dialog should not keep). */
   onClose: () => void;
@@ -15,21 +19,51 @@ export function AudioFooter({ audio, onClose, onKeepWorking }: {
 }) {
   const { t } = useLingui();
   const chapterCount = useProject((s) => s.manifest)?.chapters.length ?? 0;
-  const { job, download, showDownload, hasVoices, chosenPacks, sample, voice, audioChapters, audioFormats } = audio;
+  const {
+    job,
+    download,
+    showDownload,
+    hasVoices,
+    chosenPacks,
+    sample,
+    voice,
+    audioChapters,
+    audioFormats,
+  } = audio;
   return (
     <div className="flex flex-wrap items-center justify-end gap-2.5">
       {showDownload ? (
         download?.status === "running" ? (
-          <Button disabled={download.cancelling} onClick={audio.cancelVoiceDownload}>{t`Cancel download`}</Button>
+          <Button
+            disabled={download.cancelling}
+            onClick={audio.cancelVoiceDownload}
+          >{t`Cancel download`}</Button>
         ) : download?.status === "error" ? (
           <>
-            <Button onClick={() => { audio.dismissVoiceDownload(); if (!hasVoices) onClose(); else audio.setGetMore(false); }}>{t`Close`}</Button>
-            <Button variant="primary" icon={Download} onClick={audio.startDownload}>{t`Try again`}</Button>
+            <Button
+              onClick={() => {
+                audio.dismissVoiceDownload();
+                if (!hasVoices) onClose();
+                else audio.setGetMore(false);
+              }}
+            >{t`Close`}</Button>
+            <Button
+              variant="primary"
+              icon={Download}
+              onClick={audio.startDownload}
+            >{t`Try again`}</Button>
           </>
         ) : (
           <>
-            <Button onClick={() => (hasVoices ? audio.setGetMore(false) : onClose())}>{t`Cancel`}</Button>
-            <Button type="submit" variant="primary" icon={Download} disabled={chosenPacks.length === 0}>{t`Download selected (${mb(chosenPacks.reduce((n, p) => n + p.bytes, 0))} MB)`}</Button>
+            <Button
+              onClick={() => (hasVoices ? audio.setGetMore(false) : onClose())}
+            >{t`Cancel`}</Button>
+            <Button
+              type="submit"
+              variant="primary"
+              icon={Download}
+              disabled={chosenPacks.length === 0}
+            >{t`Download selected (${mb(chosenPacks.reduce((n, p) => n + p.bytes, 0))} MB)`}</Button>
           </>
         )
       ) : job?.status === "running" ? (
@@ -46,11 +80,30 @@ export function AudioFooter({ audio, onClose, onKeepWorking }: {
         <Button variant="primary" onClick={onClose}>{t`Done`}</Button>
       ) : (
         <>
-          <Button className="me-auto" icon={sample === "making" ? LoaderCircle : sample === "playing" ? Square : Play} disabled={!voice || audioChapters?.length === 0} onClick={() => void audio.hear()}>
-            {sample === "making" ? t`Making sample… (stop)` : sample === "playing" ? t`Stop sample` : t`Hear a sample`}
+          <Button
+            className="me-auto"
+            icon={sample === "making" ? LoaderCircle : sample === "playing" ? Square : Play}
+            disabled={!voice || audioChapters?.length === 0}
+            onClick={() => void audio.hear()}
+          >
+            {sample === "making"
+              ? t`Making sample… (stop)`
+              : sample === "playing"
+                ? t`Stop sample`
+                : t`Hear a sample`}
           </Button>
           <Button onClick={onClose}>{t`Cancel`}</Button>
-          <Button type="submit" variant="primary" icon={Headphones} disabled={!voice || audioFormats.length === 0 || chapterCount === 0 || audioChapters?.length === 0}>{t`Export audiobook`}</Button>
+          <Button
+            type="submit"
+            variant="primary"
+            icon={Headphones}
+            disabled={
+              !voice ||
+              audioFormats.length === 0 ||
+              chapterCount === 0 ||
+              audioChapters?.length === 0
+            }
+          >{t`Export audiobook`}</Button>
         </>
       )}
     </div>

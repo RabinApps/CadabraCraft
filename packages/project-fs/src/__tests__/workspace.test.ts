@@ -34,7 +34,11 @@ describe("workspace", () => {
   it("refuses ../, absolute paths outside, and NUL", () => {
     const root = tmp();
     const ws = openWorkspace(root);
-    for (const bad of ["../x", "a/../../x", tmp(), "/etc/passwd", "a\0b", ""]) expect(code(() => resolveInWorkspace(ws, bad)), JSON.stringify(bad)).toBe("path_escape");
+    for (const bad of ["../x", "a/../../x", tmp(), "/etc/passwd", "a\0b", ""])
+      expect(
+        code(() => resolveInWorkspace(ws, bad)),
+        JSON.stringify(bad),
+      ).toBe("path_escape");
   });
   it("refuses symlinks that leave the root, even when the target does not exist yet", () => {
     const root = tmp();

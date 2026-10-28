@@ -54,14 +54,19 @@ export function App() {
   const title = manifest?.title;
   const addRecent = useRecents((s) => s.add);
   // Any successful open, create or import lands here.
-  useEffect(() => { if (root && title !== undefined) addRecent(root, title); }, [root, title, addRecent]);
+  useEffect(() => {
+    if (root && title !== undefined) addRecent(root, title);
+  }, [root, title, addRecent]);
   const [drawer, setDrawer] = useState(false);
   const [mode, setMode] = useState<"write" | "read">("write");
   const [view, setView] = useState<View>("book");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("epub");
-  const openExport = (format: ExportFormat) => { setExportFormat(format); setExportOpen(true); };
+  const openExport = (format: ExportFormat) => {
+    setExportFormat(format);
+    setExportOpen(true);
+  };
   const reading = useReading();
   const { focus: focusPref, details, set: setLayout } = useLayout();
   const reader = mode === "read";
@@ -84,13 +89,26 @@ export function App() {
   }, []);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
-    const close = () => { if (mq.matches) setDrawer(false); };
+    const close = () => {
+      if (mq.matches) setDrawer(false);
+    };
     mq.addEventListener("change", close);
     return () => mq.removeEventListener("change", close);
   }, []);
   const [error, setError] = useState("");
-  const run = (f: () => Promise<void>) => () => { setError(""); f().catch((e) => setError(errText(e))); };
-  useAppMenu({ view, setView, mode, setMode, openExport, openDetails: () => setDetailsOpen(true), fail: setError });
+  const run = (f: () => Promise<void>) => () => {
+    setError("");
+    f().catch((e) => setError(errText(e)));
+  };
+  useAppMenu({
+    view,
+    setView,
+    mode,
+    setMode,
+    openExport,
+    openDetails: () => setDetailsOpen(true),
+    fail: setError,
+  });
   const backToBook = () => setView("book");
   if (view === "settings") {
     return (
@@ -105,7 +123,12 @@ export function App() {
     return (
       <>
         <PrintPreview onBack={backToBook} onExport={openExport} />
-        <ExportDialog open={exportOpen} onOpenChange={setExportOpen} format={exportFormat} onFormatChange={setExportFormat} />
+        <ExportDialog
+          open={exportOpen}
+          onOpenChange={setExportOpen}
+          format={exportFormat}
+          onFormatChange={setExportFormat}
+        />
         <SponsorDialog />
         <UpdateDialog />
       </>
@@ -114,17 +137,28 @@ export function App() {
   if (!manifest) {
     return (
       <>
-      <Home
-        error={error}
-        onSettings={() => setView("settings")}
-        pickFolder={bridge.pickFolder}
-        pickImportSource={bridge.pickImportSource}
-        onImport={actions.importBook}
-        onCreate={(root, title, author) => run(() => actions.createProject(root, title, author))()}
-        onOpenRecent={(r) => { setError(""); return actions.openProject(r).catch((e) => { setError(errText(e)); throw e; }); }}
-        onOpen={run(async () => { const root = await bridge.pickFolder(); if (root) await actions.openProject(root); })}
-      />
-      <ImportReportDialog />
+        <Home
+          error={error}
+          onSettings={() => setView("settings")}
+          pickFolder={bridge.pickFolder}
+          pickImportSource={bridge.pickImportSource}
+          onImport={actions.importBook}
+          onCreate={(root, title, author) =>
+            run(() => actions.createProject(root, title, author))()
+          }
+          onOpenRecent={(r) => {
+            setError("");
+            return actions.openProject(r).catch((e) => {
+              setError(errText(e));
+              throw e;
+            });
+          }}
+          onOpen={run(async () => {
+            const root = await bridge.pickFolder();
+            if (root) await actions.openProject(root);
+          })}
+        />
+        <ImportReportDialog />
       </>
     );
   }
@@ -135,55 +169,157 @@ export function App() {
   const chapterNo = chapters.findIndex((c) => c.id === currentId) + 1;
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
-      {focus && <IconButton icon={Minimize2} label={t`Exit focus mode`} className="fixed end-3 top-3 z-10 bg-surface/80 backdrop-blur" onClick={() => setLayout({ focus: false })} />}
-      {!focus && <AppHeader mode={mode} onMode={setMode} onShowChapters={() => setDrawer(true)} onExport={() => openExport("epub")} onAudio={() => openExport("audiobook")} onSettings={() => setView("settings")} onDetails={() => setDetailsOpen(true)} run={run} />}
+      {focus && (
+        <IconButton
+          icon={Minimize2}
+          label={t`Exit focus mode`}
+          className="fixed end-3 top-3 z-10 bg-surface/80 backdrop-blur"
+          onClick={() => setLayout({ focus: false })}
+        />
+      )}
+      {!focus && (
+        <AppHeader
+          mode={mode}
+          onMode={setMode}
+          onShowChapters={() => setDrawer(true)}
+          onExport={() => openExport("epub")}
+          onAudio={() => openExport("audiobook")}
+          onSettings={() => setView("settings")}
+          onDetails={() => setDetailsOpen(true)}
+          run={run}
+        />
+      )}
       <div className="flex min-h-0 flex-1">
-        <aside className={cx("hidden w-[264px] shrink-0 overflow-y-auto bg-sidebar", focus ? "" : "lg:block")}>
+        <aside
+          className={cx(
+            "hidden w-[264px] shrink-0 overflow-y-auto bg-sidebar",
+            focus ? "" : "lg:block",
+          )}
+        >
           <Sidebar />
         </aside>
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-          {error && <p role="alert" className="m-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
-          {currentDoc && currentId ? (reader
-            ? <Editor key={`${currentId}:read:${reloadCount}`} initial={currentDoc} language={manifest.language} reading={reading} />
-            : <Editor key={`${currentId}:${reloadCount}`} initial={currentDoc} language={manifest.language} onChange={actions.setDraft} focus={focus} />) : (
+          {error && (
+            <p role="alert" className="m-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
+              {error}
+            </p>
+          )}
+          {currentDoc && currentId ? (
+            reader ? (
+              <Editor
+                key={`${currentId}:read:${reloadCount}`}
+                initial={currentDoc}
+                language={manifest.language}
+                reading={reading}
+              />
+            ) : (
+              <Editor
+                key={`${currentId}:${reloadCount}`}
+                initial={currentDoc}
+                language={manifest.language}
+                onChange={actions.setDraft}
+                focus={focus}
+              />
+            )
+          ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
-              <p className="text-sm text-ink-muted">{pages.length ? t`Choose a chapter to start.` : t`This book has no chapters yet.`}</p>
-              <Button variant="primary" icon={Plus} onClick={() => void actions.add(t`Chapter ${chapters.length + 1}`)}>{t`Add chapter`}</Button>
+              <p className="text-sm text-ink-muted">
+                {pages.length ? t`Choose a chapter to start.` : t`This book has no chapters yet.`}
+              </p>
+              <Button
+                variant="primary"
+                icon={Plus}
+                onClick={() => void actions.add(t`Chapter ${chapters.length + 1}`)}
+              >{t`Add chapter`}</Button>
             </div>
           )}
           {index < 0 ? null : reader ? (
-            <ReadingFooter index={index} pages={pages} chapterIds={chapters.map((c) => c.id)} onSelect={(id) => void actions.selectChapter(id)} />
+            <ReadingFooter
+              index={index}
+              pages={pages}
+              chapterIds={chapters.map((c) => c.id)}
+              onSelect={(id) => void actions.selectChapter(id)}
+            />
           ) : (
-            <footer className={cx("hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex", focus && "md:hidden")}>
+            <footer
+              className={cx(
+                "hidden shrink-0 items-center justify-between border-t border-border bg-surface px-4 py-1.5 text-xs text-ink-muted md:flex",
+                focus && "md:hidden",
+              )}
+            >
               {sessionGoal > 0 && sessionWritten !== null && (
                 <span className="flex items-center gap-2" data-testid="session-goal">
-                  <span role="progressbar" aria-label={t`Session goal`} aria-valuemin={0} aria-valuemax={sessionGoal} aria-valuenow={Math.min(sessionWritten, sessionGoal)} className="h-1.5 w-24 overflow-hidden rounded-full bg-border">
-                    <span className="block h-full bg-accent" style={{ width: `${goalProgress(sessionWritten, sessionGoal) * 100}%` }} />
+                  <span
+                    role="progressbar"
+                    aria-label={t`Session goal`}
+                    aria-valuemin={0}
+                    aria-valuemax={sessionGoal}
+                    aria-valuenow={Math.min(sessionWritten, sessionGoal)}
+                    className="h-1.5 w-24 overflow-hidden rounded-full bg-border"
+                  >
+                    <span
+                      className="block h-full bg-accent"
+                      style={{ width: `${goalProgress(sessionWritten, sessionGoal) * 100}%` }}
+                    />
                   </span>
                   {t`${sessionWritten} of ${sessionGoal} words this session`}
                 </span>
               )}
               <span>
-                {section === "chapter" ? plural(words, { one: "# word in this chapter", other: "# words in this chapter" }) : plural(words, { one: "# word on this page", other: "# words on this page" })}
+                {section === "chapter"
+                  ? plural(words, {
+                      one: "# word in this chapter",
+                      other: "# words in this chapter",
+                    })
+                  : plural(words, { one: "# word on this page", other: "# words on this page" })}
                 {bookWords !== null && ` · ${t`${bookWords} in the book`}`}
               </span>
-              <span>{section === "front" ? t`Front matter` : section === "back" ? t`Back matter` : t`Chapter ${chapterNo} of ${chapters.length}`}</span>
+              <span>
+                {section === "front"
+                  ? t`Front matter`
+                  : section === "back"
+                    ? t`Back matter`
+                    : t`Chapter ${chapterNo} of ${chapters.length}`}
+              </span>
             </footer>
           )}
         </main>
         {!focus && !reader && details && (
-          <aside aria-label={t`Details`} className="hidden w-[280px] shrink-0 overflow-y-auto border-s border-border bg-surface xl:block">
-            <Details manifest={manifest} pageTitle={pages[index]?.title ?? null} section={section} words={words} onChangeTemplate={() => setView("templates")} onEditDetails={() => setDetailsOpen(true)} />
+          <aside
+            aria-label={t`Details`}
+            className="hidden w-[280px] shrink-0 overflow-y-auto border-s border-border bg-surface xl:block"
+          >
+            <Details
+              manifest={manifest}
+              pageTitle={pages[index]?.title ?? null}
+              section={section}
+              words={words}
+              onChangeTemplate={() => setView("templates")}
+              onEditDetails={() => setDetailsOpen(true)}
+            />
           </aside>
         )}
       </div>
-      <ExportDialog open={exportOpen} onOpenChange={setExportOpen} format={exportFormat} onFormatChange={setExportFormat} onPreview={() => { setExportOpen(false); setView("print"); }} />
+      <ExportDialog
+        open={exportOpen}
+        onOpenChange={setExportOpen}
+        format={exportFormat}
+        onFormatChange={setExportFormat}
+        onPreview={() => {
+          setExportOpen(false);
+          setView("print");
+        }}
+      />
       <D.Root open={drawer} onOpenChange={setDrawer}>
         <D.Portal>
           <D.Overlay className={cx(overlayClass, "lg:hidden")} />
           <D.Content
             aria-describedby={undefined}
-            className={cx(panelClass, "inset-x-0 bottom-0 max-h-[80dvh] overflow-y-auto rounded-t-2xl bg-sidebar lg:hidden", "md:inset-y-0 md:start-0 md:end-auto md:max-h-none md:w-80 md:rounded-none")}
+            className={cx(
+              panelClass,
+              "inset-x-0 bottom-0 max-h-[80dvh] overflow-y-auto rounded-t-2xl bg-sidebar lg:hidden",
+              "md:inset-y-0 md:start-0 md:end-auto md:max-h-none md:w-80 md:rounded-none",
+            )}
           >
             <D.Title className="sr-only">{t`Chapters`}</D.Title>
             <Sidebar onNavigate={() => setDrawer(false)} />

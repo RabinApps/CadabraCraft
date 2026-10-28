@@ -42,11 +42,26 @@ export function classify(styleId: string | undefined, ctx: DCtx): Cls {
     const name = st.name.toLowerCase().trim();
     let m: RegExpExecArray | null;
     if ((m = /^heading ([1-9])$/.exec(name))) return { kind: "heading", level: Number(m[1]) };
-    if (["quote", "block quote", "intense quote", "block text"].includes(name)) return { kind: "quote" };
+    if (["quote", "block quote", "intense quote", "block text"].includes(name))
+      return { kind: "quote" };
     if (["code", "source code", "preformatted text"].includes(name)) return { kind: "code" };
-    if ((m = /^list bullet(?: (\d))?$/.exec(name))) return { kind: "list", ordered: false, level: m[1] ? Number(m[1]) - 1 : 0 };
-    if ((m = /^list number(?: (\d))?$/.exec(name))) return { kind: "list", ordered: true, level: m[1] ? Number(m[1]) - 1 : 0 };
-    if (["normal", "body text", "body text 2", "body text 3", "first paragraph", "no spacing", "plain text", "list paragraph", "default"].includes(name))
+    if ((m = /^list bullet(?: (\d))?$/.exec(name)))
+      return { kind: "list", ordered: false, level: m[1] ? Number(m[1]) - 1 : 0 };
+    if ((m = /^list number(?: (\d))?$/.exec(name)))
+      return { kind: "list", ordered: true, level: m[1] ? Number(m[1]) - 1 : 0 };
+    if (
+      [
+        "normal",
+        "body text",
+        "body text 2",
+        "body text 3",
+        "first paragraph",
+        "no spacing",
+        "plain text",
+        "list paragraph",
+        "default",
+      ].includes(name)
+    )
       return { kind: "normal" };
     id = st.basedOn;
   }

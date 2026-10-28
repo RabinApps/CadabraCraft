@@ -44,7 +44,9 @@ if (arg === "--check") {
   const versions = readVersions();
   const values = Object.values(versions);
   if (values.some((v) => v !== values[0])) {
-    fail(`versions disagree: tauri ${versions.tauri}, Cargo ${versions.cargo}, package ${versions.pkg}`);
+    fail(
+      `versions disagree: tauri ${versions.tauri}, Cargo ${versions.cargo}, package ${versions.pkg}`,
+    );
   }
   if (tag !== undefined && tag !== `v${versions.tauri}`) {
     fail(`tag ${tag} does not match version ${versions.tauri}`);

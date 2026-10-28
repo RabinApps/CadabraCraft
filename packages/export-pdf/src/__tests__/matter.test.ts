@@ -5,7 +5,10 @@ import { loadMatterBook, matterPages, page } from "../matterBook";
 import { buildTypst } from "../typst";
 
 const book = { title: "The Long Quay", author: "Test Author", language: "en" };
-const doc = (t: string): ChapterDoc => ({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: t }] }] });
+const doc = (t: string): ChapterDoc => ({
+  type: "doc",
+  content: [{ type: "paragraph", content: [{ type: "text", text: t }] }],
+});
 const chapter = (id: string, title: string) => ({ id, title, doc: doc(title) });
 
 describe("buildTypst with front and back matter", () => {
@@ -21,10 +24,11 @@ describe("buildTypst with front and back matter", () => {
   });
   it("numbers front matter in lowercase roman and restarts arabic numbering at the first chapter", () => {
     expect(src).toContain('numbering: "i"');
-    const restart = '#pagebreak(weak: true, to: "odd")\n#set page(numbering: "1")\n#counter(page).update(1)\n\n#chapter-start("The Quay", 1)';
+    const restart =
+      '#pagebreak(weak: true, to: "odd")\n#set page(numbering: "1")\n#counter(page).update(1)\n\n#chapter-start("The Quay", 1)';
     expect(src).toContain(restart);
     expect(src.split("#counter(page).update(1)")).toHaveLength(2); // exactly once
-    expect(src.indexOf(restart)).toBeGreaterThan(src.indexOf("#chapter-start(\"Preface\", none)"));
+    expect(src.indexOf(restart)).toBeGreaterThan(src.indexOf('#chapter-start("Preface", none)'));
   });
   it("uses dedicated layouts for title, copyright and dedication, and chapter openings for the rest", () => {
     expect(src).toContain("#title-page[");
@@ -44,12 +48,20 @@ describe("buildTypst with front and back matter", () => {
     expect(src).toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#title-page\[/);
     expect(src).toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#centered-page\[/);
     // the foreword follows the dedication: blank verso even for a template that starts chapters on any page
-    expect(buildTypst(book, all, { template: "modern", fonts: { body: "Libertinus Serif" } })).toMatch(/#centered-page\[[\s\S]*?\]\n\n#pagebreak\(weak: true, to: "odd"\)\n\n#chapter-start\("Foreword", none\)/);
+    expect(
+      buildTypst(book, all, { template: "modern", fonts: { body: "Libertinus Serif" } }),
+    ).toMatch(
+      /#centered-page\[[\s\S]*?\]\n\n#pagebreak\(weak: true, to: "odd"\)\n\n#chapter-start\("Foreword", none\)/,
+    );
     // the copyright page follows the title page on the back of it
     expect(src).toMatch(/#title-page\[[\s\S]*?\]\n\n#copyright-page\[/);
   });
   it("forces the first chapter onto a right-hand page after front matter, whatever the template", () => {
-    const modern = buildTypst(book, [...matterPages().front, chapter("c1", "One"), chapter("c2", "Two")], { template: "modern" });
+    const modern = buildTypst(
+      book,
+      [...matterPages().front, chapter("c1", "One"), chapter("c2", "Two")],
+      { template: "modern" },
+    );
     expect(modern).toContain('#pagebreak(weak: true, to: "odd")\n#set page(numbering: "1")');
     expect(modern.match(/to: "odd"/g)!.length).toBeGreaterThan(0);
     const noFront = buildTypst(book, [chapter("c1", "One")], { template: "modern" });
@@ -78,16 +90,22 @@ describe("buildTypst with front and back matter", () => {
     expect(s).toContain('#chapter-start("The Quay", 1)');
   });
   it("escapes matter titles and content", () => {
-    const s = buildTypst(book, [page("fm-1", 'He said "#hi"', "front", "foreword", doc("= #x $ y"))]);
+    const s = buildTypst(book, [
+      page("fm-1", 'He said "#hi"', "front", "foreword", doc("= #x $ y")),
+    ]);
     expect(s).toContain('#chapter-start("He said \\"#hi\\"", none)');
     expect(s).toContain("\\= \\#x \\$ y");
   });
   it("still throws on unsupported nodes inside matter pages", () => {
     const bad: ChapterDoc = { type: "doc", content: [{ type: "bogus" } as never] };
-    expect(() => buildTypst(book, [page("fm-1", "T", "front", "custom", bad)])).toThrow(/Unsupported node type/);
+    expect(() => buildTypst(book, [page("fm-1", "T", "front", "custom", bad)])).toThrow(
+      /Unsupported node type/,
+    );
   });
   it("rejects a kind in the wrong section", () => {
-    expect(() => buildTypst(book, [page("x", "X", "back", "dedication", doc("x"))])).toThrow(PdfExportError);
+    expect(() => buildTypst(book, [page("x", "X", "back", "dedication", doc("x"))])).toThrow(
+      PdfExportError,
+    );
     expect(() => buildTypst(book, [{ ...chapter("x", "X"), kind: "custom" }])).toThrow(/chapter/);
   });
 });

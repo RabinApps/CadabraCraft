@@ -10,11 +10,33 @@ import type { PdfChapter } from "../types";
 
 const book = { title: "Sample Book", author: "Test Author", language: "en" };
 const sample: ChapterDoc = JSON.parse(
-  readFileSync(new URL("../../../../fixtures/manuscripts/sample-chapter.json", import.meta.url), "utf8"),
+  readFileSync(
+    new URL("../../../../fixtures/manuscripts/sample-chapter.json", import.meta.url),
+    "utf8",
+  ),
 );
-const ch = (...content: DocNode[]): PdfChapter[] => [{ id: "c", title: "C", doc: { type: "doc", content } }];
-const text = (t: string, marks?: { type: "bold" | "italic" | "underline" | "smallCaps" | "strike" | "code" | "superscript" | "subscript" | "link"; attrs?: { href?: string } }[]): DocNode => ({
-  type: "text", text: t, ...(marks ? { marks } : {}),
+const ch = (...content: DocNode[]): PdfChapter[] => [
+  { id: "c", title: "C", doc: { type: "doc", content } },
+];
+const text = (
+  t: string,
+  marks?: {
+    type:
+      | "bold"
+      | "italic"
+      | "underline"
+      | "smallCaps"
+      | "strike"
+      | "code"
+      | "superscript"
+      | "subscript"
+      | "link";
+    attrs?: { href?: string };
+  }[],
+): DocNode => ({
+  type: "text",
+  text: t,
+  ...(marks ? { marks } : {}),
 });
 const para = (...c: DocNode[]): DocNode => ({ type: "paragraph", content: c });
 
@@ -35,7 +57,9 @@ describe("buildTypst content", () => {
     expect(buildTypst(book, [{ id: "ch1", title: "Chapter One", doc: sample }])).toBe(src);
   });
   it("renders tables with a repeating header row and escaped cells", () => {
-    expect(src).toContain("#table(\n  columns: (1fr, 1fr),\n  table.header([Item], [Cost & note]),");
+    expect(src).toContain(
+      "#table(\n  columns: (1fr, 1fr),\n  table.header([Item], [Cost & note]),",
+    );
     expect(src).toContain("[a\\<b], [Ten#footnote[In cells.]]");
   });
   it("renders marks, footnotes, quotes, scene breaks and lists", () => {
@@ -52,26 +76,53 @@ describe("buildTypst content", () => {
     expect(src).toContain('#chapter-start("Chapter One", 1)');
   });
   it("draws the template's chapter ornament above the title, only when it has one", () => {
-    expect(buildTypst(book, ch(), { template: "novel" })).toContain('align(center, text(size: 1.2em, "⁂"))');
+    expect(buildTypst(book, ch(), { template: "novel" })).toContain(
+      'align(center, text(size: 1.2em, "⁂"))',
+    );
     expect(buildTypst(book, ch(), { template: "poetry" })).not.toContain("size: 1.2em");
   });
   it("sets the first paragraph of a chapter as a drop cap when the template asks for it", () => {
-    const doc = buildTypstDocument(book, ch(para(text("Once upon a time.")), para(text("Second."))), { template: "novel" });
+    const doc = buildTypstDocument(
+      book,
+      ch(para(text("Once upon a time.")), para(text("Second."))),
+      { template: "novel" },
+    );
     expect(doc.usesDropCap).toBe(true);
     expect(doc.source).toContain('#import "typst-droplet/lib.typ": dropcap');
     expect(doc.source).toContain("#dropcap(height: 3, gap: 0.12em)[Once upon a time.]");
-    const plain = buildTypstDocument(book, ch(para(text("Once upon a time."))), { template: "poetry" });
+    const plain = buildTypstDocument(book, ch(para(text("Once upon a time."))), {
+      template: "poetry",
+    });
     expect(plain.usesDropCap).toBe(false);
     expect(plain.source).not.toContain("dropcap");
   });
   it("skips the drop cap when the chapter does not open with a plain-text paragraph", () => {
-    expect(buildTypstDocument(book, ch(para(text("Bold start", [{ type: "bold" }]))), { template: "novel" }).usesDropCap).toBe(false);
-    expect(buildTypstDocument(book, ch(para(text("1 is not a letter."))), { template: "novel" }).usesDropCap).toBe(false);
+    expect(
+      buildTypstDocument(book, ch(para(text("Bold start", [{ type: "bold" }]))), {
+        template: "novel",
+      }).usesDropCap,
+    ).toBe(false);
+    expect(
+      buildTypstDocument(book, ch(para(text("1 is not a letter."))), { template: "novel" })
+        .usesDropCap,
+    ).toBe(false);
   });
   it("renders ordered and nested lists", () => {
-    const item = (t: string, ...extra: DocNode[]): DocNode => ({ type: "listItem", content: [para(text(t)), ...extra] });
-    const out = buildTypst(book, ch({ type: "orderedList", attrs: { start: 3 }, content: [item("a", { type: "bulletList", content: [item("b")] })] }));
-    expect(out).toMatch(/#enum\(start: 3, \n {2}\[\na\n\n#list\(\n {2}\[\nb\n {2}\],\n\)\n {2}\],\n\)/);
+    const item = (t: string, ...extra: DocNode[]): DocNode => ({
+      type: "listItem",
+      content: [para(text(t)), ...extra],
+    });
+    const out = buildTypst(
+      book,
+      ch({
+        type: "orderedList",
+        attrs: { start: 3 },
+        content: [item("a", { type: "bulletList", content: [item("b")] })],
+      }),
+    );
+    expect(out).toMatch(
+      /#enum\(start: 3, \n {2}\[\na\n\n#list\(\n {2}\[\nb\n {2}\],\n\)\n {2}\],\n\)/,
+    );
   });
   it("starts every chapter via chapter-start and numbers them", () => {
     const { book: b, chapters } = loadFullBook();
@@ -81,17 +132,25 @@ describe("buildTypst content", () => {
     expect(out).toContain('lang: "en", region: "GB"');
   });
   it("makes only http(s) and mailto links; others keep their text", () => {
-    const out = buildTypst(book, ch(para(
-      text("ok", [{ type: "link", attrs: { href: "mailto:a@b.test" } }]),
-      text(" bad", [{ type: "link", attrs: { href: "javascript:alert(1)" } }]),
-      text(" none", [{ type: "link", attrs: {} }]),
-    )));
+    const out = buildTypst(
+      book,
+      ch(
+        para(
+          text("ok", [{ type: "link", attrs: { href: "mailto:a@b.test" } }]),
+          text(" bad", [{ type: "link", attrs: { href: "javascript:alert(1)" } }]),
+          text(" none", [{ type: "link", attrs: {} }]),
+        ),
+      ),
+    );
     expect(out).toContain('#link("mailto:a@b.test")[ok]');
     expect(out).not.toContain("javascript");
     expect(out).toContain(" bad none");
   });
   it("stacks marks", () => {
-    const out = buildTypst(book, ch(para(text("x", [{ type: "bold" }, { type: "italic" }, { type: "underline" }]))));
+    const out = buildTypst(
+      book,
+      ch(para(text("x", [{ type: "bold" }, { type: "italic" }, { type: "underline" }]))),
+    );
     expect(out).toContain("#underline[#emph[#strong[x]]]");
   });
   it("skips empty paragraphs and empty text", () => {
@@ -104,7 +163,11 @@ describe("buildTypst content", () => {
 describe("strike, code, superscript, subscript", () => {
   const src = (...c: DocNode[]) => buildTypst(book, ch(para(...c)));
   it("emits Typst calls", () => {
-    const out = src(text("a", [{ type: "strike" }]), text("b", [{ type: "superscript" }]), text("c", [{ type: "subscript" }]));
+    const out = src(
+      text("a", [{ type: "strike" }]),
+      text("b", [{ type: "superscript" }]),
+      text("c", [{ type: "subscript" }]),
+    );
     for (const s of ["#strike[a]", "#super[b]", "#sub[c]"]) expect(out).toContain(s);
   });
   it("passes inline code through a raw string so markup characters stay literal", () => {
@@ -115,21 +178,35 @@ describe("strike, code, superscript, subscript", () => {
 
 describe("code blocks", () => {
   it("emits a raw block from an escaped string and keeps newlines", () => {
-    const out = buildTypst(book, ch({ type: "codeBlock", content: [text('#let x = "y"\n  *z* \\')] }));
+    const out = buildTypst(
+      book,
+      ch({ type: "codeBlock", content: [text('#let x = "y"\n  *z* \\')] }),
+    );
     expect(out).toContain('#raw(block: true, "#let x = \\"y\\"\\n  *z* \\\\")');
   });
   it("rejects non-text children", () => {
-    expect(() => buildTypst(book, ch({ type: "codeBlock", content: [{ type: "footnote" } as never] }))).toThrow(/Unsupported/);
+    expect(() =>
+      buildTypst(book, ch({ type: "codeBlock", content: [{ type: "footnote" } as never] })),
+    ).toThrow(/Unsupported/);
   });
 });
 
 describe("escaping inside documents", () => {
   it("never leaks hostile text out of table cells", () => {
-    const cell = (type: "tableCell" | "tableHeader", h: string): DocNode => ({ type, content: [para(text(h))] });
-    const out = buildTypst(book, ch({ type: "table", content: [
-      { type: "tableRow", content: HOSTILE.slice(0, 2).map((h) => cell("tableHeader", h)) },
-      { type: "tableRow", content: HOSTILE.slice(0, 2).map((h) => cell("tableCell", h)) },
-    ] }));
+    const cell = (type: "tableCell" | "tableHeader", h: string): DocNode => ({
+      type,
+      content: [para(text(h))],
+    });
+    const out = buildTypst(
+      book,
+      ch({
+        type: "table",
+        content: [
+          { type: "tableRow", content: HOSTILE.slice(0, 2).map((h) => cell("tableHeader", h)) },
+          { type: "tableRow", content: HOSTILE.slice(0, 2).map((h) => cell("tableCell", h)) },
+        ],
+      }),
+    );
     const body = out.slice(out.indexOf("#table("));
     expect(body).not.toMatch(/(^|[^\\])#let x/);
     expect(body).not.toMatch(/(^|[^\\])\/\//m);
@@ -153,13 +230,19 @@ describe("escaping inside documents", () => {
     expect(body).toContain("1\\. not numbered");
   });
   it("escapes titles, link urls, captions and alt text", () => {
-    const out = buildTypst(
-      { title: 'He said "#hi"\\', author: "A $ B", language: "en" },
-      [{ id: "c", title: 'Ch "1" \\ #x', doc: { type: "doc", content: [
-        para(text("l", [{ type: "link", attrs: { href: 'https://x.test/"quote' } }])),
-        { type: "image", attrs: { src: "a.png", alt: 'alt "x"', title: "Cap #1 *b*" } },
-      ] } }],
-    );
+    const out = buildTypst({ title: 'He said "#hi"\\', author: "A $ B", language: "en" }, [
+      {
+        id: "c",
+        title: 'Ch "1" \\ #x',
+        doc: {
+          type: "doc",
+          content: [
+            para(text("l", [{ type: "link", attrs: { href: 'https://x.test/"quote' } }])),
+            { type: "image", attrs: { src: "a.png", alt: 'alt "x"', title: "Cap #1 *b*" } },
+          ],
+        },
+      },
+    ]);
     expect(out).toContain('#let book-title = "He said \\"#hi\\"\\\\"');
     expect(out).toContain('author: "A $ B"');
     expect(out).toContain('#chapter-start("Ch \\"1\\" \\\\ #x", 1)');
@@ -176,31 +259,50 @@ describe("escaping inside documents", () => {
 describe("unsupported input", () => {
   it("throws on unknown node types instead of dropping them", () => {
     expect(() => buildTypst(book, ch({ type: "figcaption" }))).toThrow(PdfExportError);
-    expect(() => buildTypst(book, ch({ type: "figcaption" }))).toThrow(/Unsupported node type in chapter: figcaption/);
-    expect(() => buildTypst(book, ch(para({ type: "hardBreak" } as unknown as DocNode)))).toThrow(/hardBreak/);
+    expect(() => buildTypst(book, ch({ type: "figcaption" }))).toThrow(
+      /Unsupported node type in chapter: figcaption/,
+    );
+    expect(() => buildTypst(book, ch(para({ type: "hardBreak" } as unknown as DocNode)))).toThrow(
+      /hardBreak/,
+    );
   });
   it("throws on malformed tables", () => {
     const cell = (t: string): DocNode => ({ type: "tableCell", content: [para(text(t))] });
     const row = (...c: DocNode[]): DocNode => ({ type: "tableRow", content: c });
     const table = (...r: DocNode[]): DocNode => ({ type: "table", content: r });
     expect(() => buildTypst(book, ch({ type: "table" }))).toThrow(/without rows/);
-    expect(() => buildTypst(book, ch(table(row(cell("a"), cell("b")), row(cell("c")))))).toThrow(/same, non-zero/);
+    expect(() => buildTypst(book, ch(table(row(cell("a"), cell("b")), row(cell("c")))))).toThrow(
+      /same, non-zero/,
+    );
     expect(() => buildTypst(book, ch(table(row())))).toThrow(PdfExportError);
     expect(() => buildTypst(book, ch(table(para(text("x")))))).toThrow(/paragraph/);
-    expect(() => buildTypst(book, ch(table(row({ type: "tableCell", content: [{ type: "bulletList", content: [] }] }))))).toThrow(/table cell/);
+    expect(() =>
+      buildTypst(
+        book,
+        ch(table(row({ type: "tableCell", content: [{ type: "bulletList", content: [] }] }))),
+      ),
+    ).toThrow(/table cell/);
   });
   it("throws on unknown marks", () => {
-    expect(() => buildTypst(book, ch(para(text("x", [{ type: "bogus" } as never]))))).toThrow(/bogus/);
+    expect(() => buildTypst(book, ch(para(text("x", [{ type: "bogus" } as never]))))).toThrow(
+      /bogus/,
+    );
   });
   it("throws on nested footnotes and unsupported image types", () => {
     const fn = (...c: DocNode[]): DocNode => ({ type: "footnote", content: c });
     expect(() => buildTypst(book, ch(para(fn(fn(text("x"))))))).toThrow(/nested/);
-    expect(() => buildTypst(book, ch({ type: "image", attrs: { src: "a.bmp" } }))).toThrow(/Unsupported image type/);
-    expect(() => buildTypst(book, ch({ type: "image", attrs: { src: "" } }))).toThrow(/without a source/);
+    expect(() => buildTypst(book, ch({ type: "image", attrs: { src: "a.bmp" } }))).toThrow(
+      /Unsupported image type/,
+    );
+    expect(() => buildTypst(book, ch({ type: "image", attrs: { src: "" } }))).toThrow(
+      /without a source/,
+    );
   });
   it("rejects bad geometry and unknown templates", () => {
     expect(() => buildTypst(book, ch(), { margins: { inside: 5 } })).toThrow(/margin/);
-    expect(() => buildTypst(book, ch(), { margins: { inside: 3, outside: 3 } })).toThrow(/too little room/);
+    expect(() => buildTypst(book, ch(), { margins: { inside: 3, outside: 3 } })).toThrow(
+      /too little room/,
+    );
     expect(() => buildTypst(book, ch(), { trimSize: "9x9" as never })).toThrow(/trim size/);
     expect(() => buildTypst(book, ch(), { template: "nope" })).toThrow(/Unknown template/);
     expect(() => buildTypst(book, ch(), { fontSizePt: 2 })).toThrow(/font size/);
@@ -208,25 +310,37 @@ describe("unsupported input", () => {
 });
 
 describe("images", () => {
-  const img: DocNode = { type: "image", attrs: { src: "pics/cover.JPEG", alt: "Cover", title: "The cover" } };
+  const img: DocNode = {
+    type: "image",
+    attrs: { src: "pics/cover.JPEG", alt: "Cover", title: "The cover" },
+  };
   it("maps sources to deterministic relative asset paths", () => {
     const doc = buildTypstDocument(book, ch(img, img, { type: "image", attrs: { src: "b.svg" } }));
-    expect([...doc.images]).toEqual([["pics/cover.JPEG", "assets/img-1.jpg"], ["b.svg", "assets/img-2.svg"]]);
+    expect([...doc.images]).toEqual([
+      ["pics/cover.JPEG", "assets/img-1.jpg"],
+      ["b.svg", "assets/img-2.svg"],
+    ]);
     expect(doc.source).toContain('fit-image("assets/img-1.jpg", "Cover"');
     expect(doc.source).toContain("caption: [The cover]");
   });
   it("never uses the original src as a file path", () => {
-    const doc = buildTypstDocument(book, ch({ type: "image", attrs: { src: "../../etc/passwd.png" } }));
+    const doc = buildTypstDocument(
+      book,
+      ch({ type: "image", attrs: { src: "../../etc/passwd.png" } }),
+    );
     expect(doc.source).not.toContain("etc/passwd");
   });
   it("checks supplied assets", () => {
     expect(() => buildTypst(book, ch(img), { assets: {} })).toThrow(MissingAssetError);
-    expect(() => buildTypst(book, ch(img), { assets: { "pics/cover.JPEG": new Uint8Array([1]) } })).not.toThrow();
+    expect(() =>
+      buildTypst(book, ch(img), { assets: { "pics/cover.JPEG": new Uint8Array([1]) } }),
+    ).not.toThrow();
   });
 });
 
 describe("page setup options", () => {
-  const page = (o: Parameters<typeof buildTypst>[2]): string => buildTypst(book, ch(), o).split("#set text")[0]!;
+  const page = (o: Parameters<typeof buildTypst>[2]): string =>
+    buildTypst(book, ch(), o).split("#set text")[0]!;
   it("supports the three trim sizes", () => {
     expect(page({ trimSize: "5x8" })).toContain("width: 5in, height: 8in");
     expect(page({ trimSize: "5.5x8.5" })).toContain("width: 5.5in, height: 8.5in");
@@ -250,7 +364,9 @@ describe("page setup options", () => {
   it("chapter opening: recto for novel, any for modern, overridable", () => {
     expect(buildTypst(book, ch())).toContain('pagebreak(weak: true, to: "odd")');
     expect(buildTypst(book, ch(), { template: "modern" })).not.toContain('to: "odd"');
-    expect(buildTypst(book, ch(), { template: "modern", chapterStart: "recto" })).toContain('to: "odd"');
+    expect(buildTypst(book, ch(), { template: "modern", chapterStart: "recto" })).toContain(
+      'to: "odd"',
+    );
     expect(buildTypst(book, ch(), { chapterStart: "any" })).not.toContain('to: "odd"');
   });
   it("every template produces a source with its own settings", () => {
@@ -278,14 +394,19 @@ describe("resolveFonts", () => {
     expect(resolveFonts({ template: "modern" }, ["Inter", "Arial"]).body).toBe("Inter");
   });
   it("refuses a missing explicit font and names it, with no fallback", () => {
-    const run = (): unknown => resolveFonts({ fonts: { body: "Nonexistent Sans" } }, ["Libertinus Serif"]);
+    const run = (): unknown =>
+      resolveFonts({ fonts: { body: "Nonexistent Sans" } }, ["Libertinus Serif"]);
     expect(run).toThrow(FontNotAvailableError);
     expect(run).toThrow(/"Nonexistent Sans" \(body\)/);
   });
   it("refuses a missing heading font", () => {
-    expect(() => resolveFonts({ fonts: { heading: "Fancy" } }, ["Libertinus Serif"])).toThrow(/"Fancy" \(heading\)/);
+    expect(() => resolveFonts({ fonts: { heading: "Fancy" } }, ["Libertinus Serif"])).toThrow(
+      /"Fancy" \(heading\)/,
+    );
   });
   it("names all candidates when none of a template's fonts exist", () => {
-    expect(() => resolveFonts({ template: "modern" }, ["Libertinus Serif"])).toThrow(/Inter.*Helvetica Neue.*Helvetica.*Arial/);
+    expect(() => resolveFonts({ template: "modern" }, ["Libertinus Serif"])).toThrow(
+      /Inter.*Helvetica Neue.*Helvetica.*Arial/,
+    );
   });
 });

@@ -17,7 +17,11 @@ export interface TypstRunner {
    * Compile `source` (the main file) with `files` (relative path -> bytes) available next to it.
    * File paths must stay inside the compile directory. Resolves to the PDF bytes.
    */
-  compile(source: string, files: Map<string, Uint8Array>, options: { pdfA: boolean }): Promise<Uint8Array>;
+  compile(
+    source: string,
+    files: Map<string, Uint8Array>,
+    options: { pdfA: boolean },
+  ): Promise<Uint8Array>;
 }
 
 /** Throws when `path` could escape the compile directory. Runners call this before writing files. */

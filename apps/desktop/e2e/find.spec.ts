@@ -15,7 +15,9 @@ test.describe("find and replace", () => {
     await page.keyboard.type(" The cat sat. The cat ran. A cat slept.");
   }
 
-  test("finds, steps, replaces one, replaces all in one undo step, and Escape clears it", async ({ page }) => {
+  test("finds, steps, replaces one, replaces all in one undo step, and Escape clears it", async ({
+    page,
+  }) => {
     await withText(page);
     await page.keyboard.press("ControlOrMeta+f");
     await expect(bar(page)).toBeVisible();
@@ -23,7 +25,10 @@ test.describe("find and replace", () => {
     await page.keyboard.type("cat");
     await expect(bar(page).getByText("1 of 3")).toBeVisible();
     await expect(page.locator(".search-match")).toHaveCount(3);
-    const current = () => page.locator(".search-match-current").evaluate((el) => Array.from(document.querySelectorAll(".search-match")).indexOf(el));
+    const current = () =>
+      page
+        .locator(".search-match-current")
+        .evaluate((el) => Array.from(document.querySelectorAll(".search-match")).indexOf(el));
     const first = await current();
     await page.keyboard.press("Enter");
     await expect(bar(page).getByText("2 of 3")).toBeVisible();
@@ -42,7 +47,9 @@ test.describe("find and replace", () => {
 
     await page.locator(".ProseMirror").click();
     await page.keyboard.press("ControlOrMeta+z");
-    await expect(page.locator(".ProseMirror")).toContainText("The dog sat. The cat ran. A cat slept."); // one step undid Replace all only
+    await expect(page.locator(".ProseMirror")).toContainText(
+      "The dog sat. The cat ran. A cat slept.",
+    ); // one step undid Replace all only
 
     await page.keyboard.press("ControlOrMeta+f");
     await page.keyboard.press("Escape");
@@ -51,13 +58,18 @@ test.describe("find and replace", () => {
     await expect(page.locator(".ProseMirror")).toBeFocused();
   });
 
-  test("toggles match case and whole word, and Cmd+Alt+F hides the replace row", async ({ page }) => {
+  test("toggles match case and whole word, and Cmd+Alt+F hides the replace row", async ({
+    page,
+  }) => {
     await withText(page);
     await page.keyboard.press("ControlOrMeta+f");
     await page.keyboard.type("the");
     await expect(page.locator(".search-match")).toHaveCount(2);
     await bar(page).getByRole("button", { name: "Match case" }).click();
-    await expect(bar(page).getByRole("button", { name: "Match case" })).toHaveAttribute("aria-pressed", "true");
+    await expect(bar(page).getByRole("button", { name: "Match case" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     await expect(bar(page).getByText("No results")).toBeVisible();
     await bar(page).getByRole("button", { name: "Match case" }).click();
     await bar(page).getByRole("button", { name: "Whole word" }).click();
@@ -67,7 +79,9 @@ test.describe("find and replace", () => {
     await expect(bar(page).getByLabel("Replace with")).toHaveCount(0);
   });
 
-  test("All chapters: counts the whole book, steps into other chapters, and replaces everywhere with one book undo", async ({ page }) => {
+  test("All chapters: counts the whole book, steps into other chapters, and replaces everywhere with one book undo", async ({
+    page,
+  }) => {
     await newProject(page);
     const typeInPage = async (text: string) => {
       await page.locator(".ProseMirror").click();
@@ -111,7 +125,13 @@ test.describe("find and replace", () => {
     await bar(page).getByRole("button", { name: "Replace all" }).click();
     await expect(bar(page).getByText("No results")).toBeVisible();
     await expect(page.locator(".ProseMirror")).toContainText("dog two");
-    const disk = () => page.evaluate(() => Object.entries((window as any).__disk).filter(([k]) => /\.json$/.test(k) && !k.includes(".cadabra") && k !== "cadabra.json").map(([, v]) => v as string).join("\n"));
+    const disk = () =>
+      page.evaluate(() =>
+        Object.entries((window as any).__disk)
+          .filter(([k]) => /\.json$/.test(k) && !k.includes(".cadabra") && k !== "cadabra.json")
+          .map(([, v]) => v as string)
+          .join("\n"),
+      );
     expect(await disk()).not.toContain("owl");
     expect((await disk()).match(/dog/g)).toHaveLength(4);
     await page.getByRole("button", { name: "Chapter One", exact: true }).click();
@@ -124,7 +144,9 @@ test.describe("find and replace", () => {
     await expect(page.locator(".ProseMirror")).toContainText("owl two");
   });
 
-  test("Regex: invalid pattern, captures, $& and $$, and literal replacement when off", async ({ page }) => {
+  test("Regex: invalid pattern, captures, $& and $$, and literal replacement when off", async ({
+    page,
+  }) => {
     await withText(page);
     await page.keyboard.press("ControlOrMeta+f");
     const find = bar(page).getByLabel("Find", { exact: true });
@@ -137,7 +159,9 @@ test.describe("find and replace", () => {
     await expect(bar(page).getByText("1 of 3")).toBeVisible();
 
     const errors: string[] = [];
-    page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+    });
     page.on("pageerror", (e) => errors.push(String(e)));
     await find.fill("(");
     await expect(bar(page).getByText("Invalid pattern")).toBeVisible();
@@ -154,10 +178,14 @@ test.describe("find and replace", () => {
     await expect(bar(page).getByText("1 of 2")).toBeVisible();
     await bar(page).getByLabel("Replace with").fill("$2 $1 [$&] $$5");
     await bar(page).getByRole("button", { name: "Replace all" }).click();
-    await expect(page.locator(".ProseMirror")).toContainText("sat cat [The cat sat.] $5 ran cat [The cat ran.] $5 A cat slept.");
+    await expect(page.locator(".ProseMirror")).toContainText(
+      "sat cat [The cat sat.] $5 ran cat [The cat ran.] $5 A cat slept.",
+    );
     await page.locator(".ProseMirror").click();
     await page.keyboard.press("ControlOrMeta+z");
-    await expect(page.locator(".ProseMirror")).toContainText("The cat sat. The cat ran. A cat slept.");
+    await expect(page.locator(".ProseMirror")).toContainText(
+      "The cat sat. The cat ran. A cat slept.",
+    );
 
     await regex.click();
     await find.fill("cat");
@@ -166,7 +194,9 @@ test.describe("find and replace", () => {
     await expect(page.locator(".ProseMirror")).toContainText("The $& sat. The $& ran. A $& slept.");
   });
 
-  test("Regex in All chapters: replaces book-wide with captures, one book undo", async ({ page }) => {
+  test("Regex in All chapters: replaces book-wide with captures, one book undo", async ({
+    page,
+  }) => {
     await newProject(page);
     const typeInPage = async (text: string) => {
       await page.locator(".ProseMirror").click();
@@ -188,7 +218,13 @@ test.describe("find and replace", () => {
     await bar(page).getByLabel("Replace with").fill("item$1");
     await bar(page).getByRole("button", { name: "Replace all" }).click();
     await expect(bar(page).getByText("No results")).toBeVisible();
-    const disk = () => page.evaluate(() => Object.entries((window as any).__disk).filter(([k]) => /\.json$/.test(k) && !k.includes(".cadabra") && k !== "cadabra.json").map(([, v]) => v as string).join("\n"));
+    const disk = () =>
+      page.evaluate(() =>
+        Object.entries((window as any).__disk)
+          .filter(([k]) => /\.json$/.test(k) && !k.includes(".cadabra") && k !== "cadabra.json")
+          .map(([, v]) => v as string)
+          .join("\n"),
+      );
     expect(await disk()).toContain("item1 item2");
     expect(await disk()).toContain("item3");
     expect(await disk()).not.toContain("id-");
@@ -217,7 +253,9 @@ test.describe("find and replace", () => {
     await expect(page.locator(".ProseMirror")).toContainText("owl one owl");
   }
 
-  test("All chapters: results list shows pages with counts, opens a page on click, and is absent when off", async ({ page }) => {
+  test("All chapters: results list shows pages with counts, opens a page on click, and is absent when off", async ({
+    page,
+  }) => {
     await owlBook(page);
     await page.keyboard.press("ControlOrMeta+f");
     await page.keyboard.type("owl");
@@ -226,16 +264,25 @@ test.describe("find and replace", () => {
     await bar(page).getByRole("button", { name: "All chapters" }).click();
     const rows = list.getByRole("button");
     await expect(rows).toHaveCount(3);
-    await expect(list.getByRole("button", { name: "Front matter: Dedication, 1 match", exact: true })).toBeVisible();
-    await expect(list.getByRole("button", { name: "Chapter One, 2 matches", exact: true })).toHaveAttribute("aria-current", "true");
-    await expect(list.getByRole("button", { name: "Chapter 2, 1 match", exact: true })).toBeVisible();
+    await expect(
+      list.getByRole("button", { name: "Front matter: Dedication, 1 match", exact: true }),
+    ).toBeVisible();
+    await expect(
+      list.getByRole("button", { name: "Chapter One, 2 matches", exact: true }),
+    ).toHaveAttribute("aria-current", "true");
+    await expect(
+      list.getByRole("button", { name: "Chapter 2, 1 match", exact: true }),
+    ).toBeVisible();
     await expect(list.getByRole("button", { name: "Chapter 3" })).toHaveCount(0);
 
     await list.getByRole("button", { name: "Chapter 2, 1 match" }).click();
     await expect(page.locator(".ProseMirror")).toContainText("owl two");
     await expect(page.locator(".search-match-current")).toHaveText("owl");
     await expect(bar(page).getByText("4 of 4")).toBeVisible();
-    await expect(list.getByRole("button", { name: "Chapter 2, 1 match" })).toHaveAttribute("aria-current", "true");
+    await expect(list.getByRole("button", { name: "Chapter 2, 1 match" })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
 
     await bar(page).getByLabel("Find", { exact: true }).fill("zzz");
     await expect(list).toHaveCount(0); // no matches
@@ -245,7 +292,9 @@ test.describe("find and replace", () => {
     await expect(list).toHaveCount(0);
   });
 
-  test("All chapters: results list works with Regex and refreshes after Replace all", async ({ page }) => {
+  test("All chapters: results list works with Regex and refreshes after Replace all", async ({
+    page,
+  }) => {
     await owlBook(page);
     await page.keyboard.press("ControlOrMeta+f");
     await bar(page).getByRole("button", { name: "All chapters" }).click();
@@ -268,12 +317,16 @@ test.describe("find and replace", () => {
     await expect(list.getByRole("button")).toHaveCount(3);
   });
 
-  test("All chapters: results list scrolls past its row limit and fits a phone", async ({ page }) => {
+  test("All chapters: results list scrolls past its row limit and fits a phone", async ({
+    page,
+  }) => {
     await newProject(page);
     for (let i = 0; i < 4; i++) {
       await page.locator(".ProseMirror").click();
       await page.keyboard.press("ControlOrMeta+End");
-      await page.keyboard.type(" owl with a rather long sentence so that nothing could possibly fit");
+      await page.keyboard.type(
+        " owl with a rather long sentence so that nothing could possibly fit",
+      );
       await page.getByRole("button", { name: "Add chapter", exact: true }).click();
       await expect(page.locator(".ProseMirror h1")).toHaveText(`Chapter ${i + 2}`);
     }
@@ -291,7 +344,9 @@ test.describe("find and replace", () => {
     expect(await list.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
     const bb = await bar(page).boundingBox();
     expect(bb!.x + bb!.width).toBeLessThanOrEqual(390);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
   });
 
   test("is not available while reading", async ({ page }) => {
@@ -310,7 +365,9 @@ test.describe("find and replace", () => {
     const box = await bar(page).boundingBox();
     expect(box!.x).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(390);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
     await expect(bar(page).getByRole("button", { name: "Close" })).toBeVisible();
   });
 });

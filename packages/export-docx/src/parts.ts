@@ -2,7 +2,10 @@ import { esc, XML_HEAD } from "./xml";
 
 export type ManuscriptFont = "times" | "courier";
 
-export const FONT_NAMES: Record<ManuscriptFont, string> = { times: "Times New Roman", courier: "Courier New" };
+export const FONT_NAMES: Record<ManuscriptFont, string> = {
+  times: "Times New Roman",
+  courier: "Courier New",
+};
 
 export const NS_W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 export const NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
@@ -36,7 +39,12 @@ export const documentRels = (rels: Rel[]): string =>
 
 const isoNoMs = (d: Date): string => d.toISOString().replace(/\.\d{3}Z$/, "Z");
 
-export const coreProps = (title: string, author: string, language: string, modified: Date): string =>
+export const coreProps = (
+  title: string,
+  author: string,
+  language: string,
+  modified: Date,
+): string =>
   `${XML_HEAD}<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${esc(title)}</dc:title><dc:creator>${esc(author)}</dc:creator><dc:language>${esc(language)}</dc:language><dcterms:created xsi:type="dcterms:W3CDTF">${isoNoMs(modified)}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${isoNoMs(modified)}</dcterms:modified></cp:coreProperties>`;
 
 export const appProps = (): string =>
@@ -49,14 +57,18 @@ export const footnotesPart = (notes: string[]): string =>
   `${XML_HEAD}<w:footnotes xmlns:w="${NS_W}" xmlns:r="${NS_R}"><w:footnote w:type="separator" w:id="-1"><w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:ind w:firstLine="0"/></w:pPr><w:r><w:separator/></w:r></w:p></w:footnote><w:footnote w:type="continuationSeparator" w:id="0"><w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:ind w:firstLine="0"/></w:pPr><w:r><w:continuationSeparator/></w:r></w:p></w:footnote>${notes.join("")}</w:footnotes>`;
 
 /** Empty header (used by the title page section). */
-export const emptyHeader = (): string => `${XML_HEAD}<w:hdr xmlns:w="${NS_W}"><w:p><w:pPr><w:pStyle w:val="Header"/></w:pPr></w:p></w:hdr>`;
+export const emptyHeader = (): string =>
+  `${XML_HEAD}<w:hdr xmlns:w="${NS_W}"><w:p><w:pPr><w:pStyle w:val="Header"/></w:pPr></w:p></w:hdr>`;
 
 /** Running header "Surname / TITLE / page", right aligned. `label` is "Surname / TITLE / " or "TITLE / ". */
 export const runningHeader = (label: string): string =>
   `${XML_HEAD}<w:hdr xmlns:w="${NS_W}"><w:p><w:pPr><w:pStyle w:val="Header"/></w:pPr><w:r><w:t xml:space="preserve">${esc(label)}</w:t></w:r><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>1</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p></w:hdr>`;
 
 /** Bullet (num 1) and numbered (abstract 1) list definitions; each numbered list gets its own `num` so it restarts. */
-export function numberingPart(font: string, orderedStarts: ReadonlyArray<{ numId: number; start: number }>): string {
+export function numberingPart(
+  font: string,
+  orderedStarts: ReadonlyArray<{ numId: number; start: number }>,
+): string {
   const lvl = (i: number, fmt: string, text: string) =>
     `<w:lvl w:ilvl="${i}"><w:start w:val="1"/><w:numFmt w:val="${fmt}"/><w:lvlText w:val="${text}"/><w:lvlJc w:val="left"/><w:pPr><w:ind w:left="${720 * (i + 1)}" w:hanging="360"/></w:pPr>${fmt === "bullet" ? `<w:rPr><w:rFonts w:ascii="${font}" w:hAnsi="${font}" w:cs="${font}" w:hint="default"/></w:rPr>` : ""}</w:lvl>`;
   const levels = Array.from({ length: 9 }, (_, i) => i);
@@ -64,7 +76,10 @@ export function numberingPart(font: string, orderedStarts: ReadonlyArray<{ numId
   const FORMATS = ["decimal", "lowerLetter", "lowerRoman"];
   const numbers = levels.map((i) => lvl(i, FORMATS[i % 3]!, `%${i + 1}.`)).join("");
   return `${XML_HEAD}<w:numbering xmlns:w="${NS_W}"><w:abstractNum w:abstractNumId="0"><w:multiLevelType w:val="hybridMultilevel"/>${bullets}</w:abstractNum><w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>${numbers}</w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>${orderedStarts
-    .map((o) => `<w:num w:numId="${o.numId}"><w:abstractNumId w:val="1"/>${levels.map((i) => `<w:lvlOverride w:ilvl="${i}"><w:startOverride w:val="${i === 0 ? o.start : 1}"/></w:lvlOverride>`).join("")}</w:num>`)
+    .map(
+      (o) =>
+        `<w:num w:numId="${o.numId}"><w:abstractNumId w:val="1"/>${levels.map((i) => `<w:lvlOverride w:ilvl="${i}"><w:startOverride w:val="${i === 0 ? o.start : 1}"/></w:lvlOverride>`).join("")}</w:num>`,
+    )
     .join("")}</w:numbering>`;
 }
 
@@ -77,28 +92,61 @@ export function stylesPart(fontName: string, language: string): string {
   const single = '<w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>';
   const none = '<w:ind w:left="0" w:firstLine="0"/>';
   const heading = (n: number, ppr: string) =>
-    para(`Heading${n}`, `heading ${n}`, `<w:keepNext/><w:keepLines/>${single.replace('w:line="240"', `w:line="${DOUBLE}"`)}${none}${ppr}<w:outlineLvl w:val="${n - 1}"/>`, "", '<w:next w:val="Normal"/>');
-  return `${XML_HEAD}<w:styles xmlns:w="${NS_W}"><w:docDefaults><w:rPrDefault><w:rPr>${f}<w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="${esc(language)}" w:eastAsia="${esc(language)}" w:bidi="ar-SA"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:widowControl/><w:spacing w:before="0" w:after="0" w:line="${DOUBLE}" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>`
-    + `<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/><w:pPr><w:ind w:firstLine="${INDENT}"/><w:jc w:val="left"/></w:pPr></w:style>`
-    + `<w:style w:type="character" w:default="1" w:styleId="DefaultParagraphFont"><w:name w:val="Default Paragraph Font"/><w:uiPriority w:val="1"/><w:semiHidden/></w:style>`
-    + `<w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:uiPriority w:val="99"/><w:semiHidden/><w:tblPr><w:tblInd w:w="0" w:type="dxa"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>`
-    + heading(1, '<w:jc w:val="center"/>')
-    + heading(2, "")
-    + heading(3, "")
-    + para("Header", "header", `${single}${none}<w:jc w:val="right"/>`)
-    + para("BlockQuote", "Block Quote", `<w:ind w:left="${INDENT}" w:right="${INDENT}" w:firstLine="0"/>`)
-    + para("ListParagraph", "List Paragraph", '<w:ind w:firstLine="0"/>')
-    + para("CodeBlock", "Code Block", `${single}${none}`, `<w:rFonts w:ascii="${mono}" w:hAnsi="${mono}" w:cs="${mono}"/><w:sz w:val="22"/><w:szCs w:val="22"/>`)
-    + para("SceneBreak", "Scene Break", `${none}<w:jc w:val="center"/>`)
-    + para("Figure", "Figure", `<w:keepNext/>${single}${none}<w:jc w:val="center"/>`)
-    + para("Caption", "caption", `${single}${none}<w:spacing w:before="120" w:after="240" w:line="240" w:lineRule="auto"/><w:jc w:val="center"/>`, "<w:i/><w:iCs/>")
-    + para("TableText", "Table Text", `${single}${none}`)
-    + para("TitlePageInfo", "Title Page Info", `${single}${none}<w:jc w:val="right"/>`)
-    + para("Title", "Title", `<w:spacing w:before="0" w:after="240" w:line="${DOUBLE}" w:lineRule="auto"/>${none}<w:jc w:val="center"/>`, "<w:b/><w:bCs/>", '<w:next w:val="Normal"/>')
-    + para("TitlePageAuthor", "Title Page Author", `${none}<w:jc w:val="center"/>`)
-    + para("FootnoteText", "footnote text", `${single}${none}`, '<w:sz w:val="20"/><w:szCs w:val="20"/>')
-    + `<w:style w:type="character" w:styleId="FootnoteReference"><w:name w:val="footnote reference"/><w:basedOn w:val="DefaultParagraphFont"/><w:rPr><w:vertAlign w:val="superscript"/></w:rPr></w:style>`
-    + `<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:basedOn w:val="DefaultParagraphFont"/><w:rPr><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr></w:style>`
-    + `<w:style w:type="table" w:styleId="TableGrid"><w:name w:val="Table Grid"/><w:basedOn w:val="TableNormal"/><w:tblPr><w:tblBorders>${["top", "left", "bottom", "right", "insideH", "insideV"].map((s) => `<w:${s} w:val="single" w:sz="4" w:space="0" w:color="auto"/>`).join("")}</w:tblBorders></w:tblPr></w:style>`
-    + "</w:styles>";
+    para(
+      `Heading${n}`,
+      `heading ${n}`,
+      `<w:keepNext/><w:keepLines/>${single.replace('w:line="240"', `w:line="${DOUBLE}"`)}${none}${ppr}<w:outlineLvl w:val="${n - 1}"/>`,
+      "",
+      '<w:next w:val="Normal"/>',
+    );
+  return (
+    `${XML_HEAD}<w:styles xmlns:w="${NS_W}"><w:docDefaults><w:rPrDefault><w:rPr>${f}<w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="${esc(language)}" w:eastAsia="${esc(language)}" w:bidi="ar-SA"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:widowControl/><w:spacing w:before="0" w:after="0" w:line="${DOUBLE}" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>` +
+    `<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/><w:pPr><w:ind w:firstLine="${INDENT}"/><w:jc w:val="left"/></w:pPr></w:style>` +
+    `<w:style w:type="character" w:default="1" w:styleId="DefaultParagraphFont"><w:name w:val="Default Paragraph Font"/><w:uiPriority w:val="1"/><w:semiHidden/></w:style>` +
+    `<w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:uiPriority w:val="99"/><w:semiHidden/><w:tblPr><w:tblInd w:w="0" w:type="dxa"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>` +
+    heading(1, '<w:jc w:val="center"/>') +
+    heading(2, "") +
+    heading(3, "") +
+    para("Header", "header", `${single}${none}<w:jc w:val="right"/>`) +
+    para(
+      "BlockQuote",
+      "Block Quote",
+      `<w:ind w:left="${INDENT}" w:right="${INDENT}" w:firstLine="0"/>`,
+    ) +
+    para("ListParagraph", "List Paragraph", '<w:ind w:firstLine="0"/>') +
+    para(
+      "CodeBlock",
+      "Code Block",
+      `${single}${none}`,
+      `<w:rFonts w:ascii="${mono}" w:hAnsi="${mono}" w:cs="${mono}"/><w:sz w:val="22"/><w:szCs w:val="22"/>`,
+    ) +
+    para("SceneBreak", "Scene Break", `${none}<w:jc w:val="center"/>`) +
+    para("Figure", "Figure", `<w:keepNext/>${single}${none}<w:jc w:val="center"/>`) +
+    para(
+      "Caption",
+      "caption",
+      `${single}${none}<w:spacing w:before="120" w:after="240" w:line="240" w:lineRule="auto"/><w:jc w:val="center"/>`,
+      "<w:i/><w:iCs/>",
+    ) +
+    para("TableText", "Table Text", `${single}${none}`) +
+    para("TitlePageInfo", "Title Page Info", `${single}${none}<w:jc w:val="right"/>`) +
+    para(
+      "Title",
+      "Title",
+      `<w:spacing w:before="0" w:after="240" w:line="${DOUBLE}" w:lineRule="auto"/>${none}<w:jc w:val="center"/>`,
+      "<w:b/><w:bCs/>",
+      '<w:next w:val="Normal"/>',
+    ) +
+    para("TitlePageAuthor", "Title Page Author", `${none}<w:jc w:val="center"/>`) +
+    para(
+      "FootnoteText",
+      "footnote text",
+      `${single}${none}`,
+      '<w:sz w:val="20"/><w:szCs w:val="20"/>',
+    ) +
+    `<w:style w:type="character" w:styleId="FootnoteReference"><w:name w:val="footnote reference"/><w:basedOn w:val="DefaultParagraphFont"/><w:rPr><w:vertAlign w:val="superscript"/></w:rPr></w:style>` +
+    `<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:basedOn w:val="DefaultParagraphFont"/><w:rPr><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr></w:style>` +
+    `<w:style w:type="table" w:styleId="TableGrid"><w:name w:val="Table Grid"/><w:basedOn w:val="TableNormal"/><w:tblPr><w:tblBorders>${["top", "left", "bottom", "right", "insideH", "insideV"].map((s) => `<w:${s} w:val="single" w:sz="4" w:space="0" w:color="auto"/>`).join("")}</w:tblBorders></w:tblPr></w:style>` +
+    "</w:styles>"
+  );
 }

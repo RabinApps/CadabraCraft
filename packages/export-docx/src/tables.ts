@@ -12,16 +12,24 @@ export function tableXml(n: DocNode, ctx: Ctx): string {
   const colW = Math.floor(TEXT_WIDTH / width);
   const cellCtx: Ctx = { ...ctx, quote: 0, list: 0 };
   const body = rows.map((row) => {
-    if (row.type !== "tableRow") fail(ctx, `The node "${row.type}" cannot be written in a table`, row.type);
+    if (row.type !== "tableRow")
+      fail(ctx, `The node "${row.type}" cannot be written in a table`, row.type);
     const cells = kidsOf(row);
-    if (cells.length !== width) fail(ctx, "Table rows must all have the same number of cells", "tableRow");
+    if (cells.length !== width)
+      fail(ctx, "Table rows must all have the same number of cells", "tableRow");
     const header = cells.every((c) => c.type === "tableHeader");
     const tcs = cells.map((c) => {
-      if (c.type !== "tableCell" && c.type !== "tableHeader") fail(ctx, `The node "${c.type}" cannot be written in a table row`, c.type);
+      if (c.type !== "tableCell" && c.type !== "tableHeader")
+        fail(ctx, `The node "${c.type}" cannot be written in a table row`, c.type);
       const props: RunProps = c.type === "tableHeader" ? { bold: true } : {};
       const ps = kidsOf(c).map((p) => {
-        if (p.type !== "paragraph") fail(ctx, `The node "${p.type}" cannot be written in a table cell`, p.type);
-        return para(inline(kidsOf(p), { ...cellCtx, runProps: props }), { style: "TableText" }, cellCtx);
+        if (p.type !== "paragraph")
+          fail(ctx, `The node "${p.type}" cannot be written in a table cell`, p.type);
+        return para(
+          inline(kidsOf(p), { ...cellCtx, runProps: props }),
+          { style: "TableText" },
+          cellCtx,
+        );
       });
       return `<w:tc><w:tcPr><w:tcW w:w="${colW}" w:type="dxa"/></w:tcPr>${ps.length ? ps.join("") : para("", { style: "TableText" }, cellCtx)}</w:tc>`;
     });
@@ -34,9 +42,13 @@ export function tableXml(n: DocNode, ctx: Ctx): string {
 export function settleTables(parts: string[]): string[] {
   const out: string[] = [];
   parts.forEach((p, i) => {
-    if (p !== "<!--after-table-->") { out.push(p); return; }
+    if (p !== "<!--after-table-->") {
+      out.push(p);
+      return;
+    }
     const next = parts[i + 1];
-    if (next === undefined || next.startsWith("<w:tbl>")) out.push('<w:p><w:pPr><w:pStyle w:val="TableText"/></w:pPr></w:p>');
+    if (next === undefined || next.startsWith("<w:tbl>"))
+      out.push('<w:p><w:pPr><w:pStyle w:val="TableText"/></w:pPr></w:p>');
   });
   return out;
 }

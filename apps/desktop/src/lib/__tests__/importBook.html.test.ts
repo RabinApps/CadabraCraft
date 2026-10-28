@@ -5,17 +5,21 @@ const sources = new Map<string, Uint8Array>();
 let readError: unknown = null;
 let gate: Promise<void> | null = null;
 const enc = (s: string) => new TextEncoder().encode(s);
-vi.mock("../bridge", async () => (await import("../../test/fakeBridge")).fakeBridge({
-  readImportSource: async (p: string) => {
-    if (gate) await gate;
-    if (readError) throw readError;
-    const b = sources.get(p);
-    if (!b) throw new Error(`cannot read ${p}`);
-    return b;
-  },
-  readImportImage: async () => { throw new Error("no image"); },
-  importAssetBytes: async () => "assets/x.png",
-}));
+vi.mock("../bridge", async () =>
+  (await import("../../test/fakeBridge")).fakeBridge({
+    readImportSource: async (p: string) => {
+      if (gate) await gate;
+      if (readError) throw readError;
+      const b = sources.get(p);
+      if (!b) throw new Error(`cannot read ${p}`);
+      return b;
+    },
+    readImportImage: async () => {
+      throw new Error("no image");
+    },
+    importAssetBytes: async () => "assets/x.png",
+  }),
+);
 
 import { useProject } from "../../state/project/index";
 import { decodeText, loadImport, parseImport } from "../importBook";
@@ -24,15 +28,34 @@ const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
 const utf16 = (str: string, le: boolean) => {
   const out = new Uint8Array(2 + str.length * 2);
-  out[0] = le ? 0xff : 0xfe; out[1] = le ? 0xfe : 0xff;
-  for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); out[2 + i * 2 + (le ? 0 : 1)] = c & 255; out[3 + i * 2 - (le ? 0 : 1)] = c >> 8; }
+  out[0] = le ? 0xff : 0xfe;
+  out[1] = le ? 0xfe : 0xff;
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charCodeAt(i);
+    out[2 + i * 2 + (le ? 0 : 1)] = c & 255;
+    out[3 + i * 2 - (le ? 0 : 1)] = c >> 8;
+  }
   return out;
 };
-const titles = (bytes: Uint8Array, ext = "html") => parseImport({ ext, bytes }).chapters.map((c) => c.title);
+const titles = (bytes: Uint8Array, ext = "html") =>
+  parseImport({ ext, bytes }).chapters.map((c) => c.title);
 
 beforeEach(() => {
-  sources.clear(); disk.clear(); readError = null; gate = null;
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, importReport: null });
+  sources.clear();
+  disk.clear();
+  readError = null;
+  gate = null;
+  useProject.setState({
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    reloadCount: 0,
+    importReport: null,
+  });
 });
 
 describe("HTML import: encodings and damaged files", () => {
@@ -46,7 +69,11 @@ describe("HTML import: encodings and damaged files", () => {
     expect(titles(bytes)).toEqual(["Alpha"]);
   });
   it("reads a declared legacy charset and falls back to Windows-1252 for invalid UTF-8", () => {
-    const latin = Uint8Array.from([...enc('<meta charset="iso-8859-1"><h1>Caf'), 0xe9, ...enc("</h1><p>x</p>")]);
+    const latin = Uint8Array.from([
+      ...enc('<meta charset="iso-8859-1"><h1>Caf'),
+      0xe9,
+      ...enc("</h1><p>x</p>"),
+    ]);
     expect(titles(latin)).toEqual(["Café"]);
     const undeclared = Uint8Array.from([...enc("<h1>Caf"), 0xe9, ...enc("</h1><p>x</p>")]);
     expect(titles(undeclared)).toEqual(["Café"]);
@@ -60,14 +87,23 @@ describe("HTML import: encodings and damaged files", () => {
   it("says there is no text for an empty or whitespace-only file", () => {
     expect(() => parseImport({ ext: "html", bytes: new Uint8Array() })).toThrow(/no text/);
     expect(() => parseImport({ ext: "html", bytes: enc("  \n\t ") })).toThrow(/no text/);
-    expect(() => parseImport({ ext: "html", bytes: enc("<html><head><title>x</title></head><body></body></html>") })).toThrow(/no text/);
+    expect(() =>
+      parseImport({
+        ext: "html",
+        bytes: enc("<html><head><title>x</title></head><body></body></html>"),
+      }),
+    ).toThrow(/no text/);
   });
   it("maps a pile of nested tags to a readable message", () => {
-    expect(() => parseImport({ ext: "html", bytes: enc("<div>".repeat(5000)) })).toThrow(/too deeply/);
+    expect(() => parseImport({ ext: "html", bytes: enc("<div>".repeat(5000)) })).toThrow(
+      /too deeply/,
+    );
   });
   it("copes with a mangled, unclosed and script-only file", () => {
     expect(titles(enc("<h1>Open<p>no close <b>bold")).length).toBeGreaterThan(0);
-    expect(() => parseImport({ ext: "html", bytes: enc("<script>alert(1)</script>") })).toThrow(/no text/);
+    expect(() => parseImport({ ext: "html", bytes: enc("<script>alert(1)</script>") })).toThrow(
+      /no text/,
+    );
   });
   it("accepts an upper-case extension and refuses unknown ones", async () => {
     sources.set("/s/A.HTML", enc("<h1>A</h1><p>x</p>"));
@@ -87,7 +123,9 @@ describe("HTML import: failures and concurrency", () => {
   it("refuses a second import while one is running", async () => {
     sources.set("/s/a.html", enc("<h1>A</h1><p>x</p>"));
     let release!: () => void;
-    gate = new Promise((r) => { release = r; });
+    gate = new Promise((r) => {
+      release = r;
+    });
     const first = a().importBook("/s/a.html", "/new", "T", "A");
     await expect(a().importBook("/s/a.html", "/new2", "T", "A")).rejects.toThrow(/already running/);
     release();

@@ -1,4 +1,11 @@
-import { TRIM_SIZES, type FontChoice, type PdfBook, type PdfChapter, type PdfOptions, type TypstDocument } from "../types";
+import {
+  TRIM_SIZES,
+  type FontChoice,
+  type PdfBook,
+  type PdfChapter,
+  type PdfOptions,
+  type TypstDocument,
+} from "../types";
 import { PdfExportError } from "../errors";
 import type { Ctx } from "./ctx";
 import { bodyOf, coverPage } from "./matter";
@@ -24,14 +31,35 @@ export function buildTypstDocument(
     maxImageIn: Math.max(1, trim.h - margins.top - margins.bottom - 1),
     assets: options.assets,
   };
-  const head = preamble(book, t, options, resolved, margins, chapters.some((c) => (c.section ?? "chapter") === "front"));
+  const head = preamble(
+    book,
+    t,
+    options,
+    resolved,
+    margins,
+    chapters.some((c) => (c.section ?? "chapter") === "front"),
+  );
   const cover = options.cover === undefined ? "" : coverPage(options.cover, ctx);
-  const body = bodyOf(chapters, ctx, t.print.chapterOpening.dropCap, t.print.paragraph.style === "indent" ? t.print.paragraph.indentEm : 0);
+  const body = bodyOf(
+    chapters,
+    ctx,
+    t.print.chapterOpening.dropCap,
+    t.print.paragraph.style === "indent" ? t.print.paragraph.indentEm : 0,
+  );
   const droplet = ctx.usesDropCap ? '#import "typst-droplet/lib.typ": dropcap\n' : "";
-  return { source: `${head}\n${droplet}${cover}${body}`, images: ctx.images, fonts: resolved, usesDropCap: ctx.usesDropCap === true };
+  return {
+    source: `${head}\n${droplet}${cover}${body}`,
+    images: ctx.images,
+    fonts: resolved,
+    usesDropCap: ctx.usesDropCap === true,
+  };
 }
 
 /** Pure: chapter JSON -> Typst source. No I/O, no font availability check (see `renderPdf`). */
-export function buildTypst(book: PdfBook, chapters: PdfChapter[], options: PdfOptions = {}): string {
+export function buildTypst(
+  book: PdfBook,
+  chapters: PdfChapter[],
+  options: PdfOptions = {},
+): string {
   return buildTypstDocument(book, chapters, options).source;
 }

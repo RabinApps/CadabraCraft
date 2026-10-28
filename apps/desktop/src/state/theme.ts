@@ -19,7 +19,9 @@ export function applyTheme(t: Theme) {
   document.documentElement.dataset.theme = t === "system" ? (dark().matches ? "dark" : "light") : t;
 }
 
-dark().addEventListener("change", () => { if (useTheme.getState().theme === "system") applyTheme("system"); });
+dark().addEventListener("change", () => {
+  if (useTheme.getState().theme === "system") applyTheme("system");
+});
 
 export const useTheme = create<{ theme: Theme; setTheme: (t: Theme) => void }>((set) => ({
   theme: readTheme(),

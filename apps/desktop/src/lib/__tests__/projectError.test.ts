@@ -12,7 +12,10 @@ describe("projectErrorMessage", () => {
     [{ kind: "icloud_pending", path: "a.json" }, /iCloud/],
     [{ kind: "permission_denied", path: "a.json" }, /permission.*a\.json/],
     [{ kind: "disk_full", path: "book.md" }, /no space.*book\.md/],
-    [{ kind: "image_dimensions", name: "huge.png", max_megapixels: 150 }, /huge\.png.*150 megapixels/],
+    [
+      { kind: "image_dimensions", name: "huge.png", max_megapixels: 150 },
+      /huge\.png.*150 megapixels/,
+    ],
     [{ kind: "too_large", path: "big.docx", max_mb: 200 }, /big\.docx.*200 MB/],
     [{ kind: "not_a_file", path: "dir" }, /dir/],
     [{ kind: "unsupported_image", name: "a.tiff" }, /a\.tiff/],
@@ -26,13 +29,17 @@ describe("projectErrorMessage", () => {
     [{ kind: "image_ref_outside", reference: "l.png" }, /l\.png/],
     [{ kind: "invalid_file_name" }, /not valid/],
   ];
-  for (const [e, re] of cases) it(`describes ${e.kind}`, () => expect(projectErrorMessage(e)).toMatch(re));
-  it("uses the operating system's message for io", () => expect(projectErrorMessage({ kind: "io", message: "disk full" })).toBe("disk full"));
+  for (const [e, re] of cases)
+    it(`describes ${e.kind}`, () => expect(projectErrorMessage(e)).toMatch(re));
+  it("uses the operating system's message for io", () =>
+    expect(projectErrorMessage({ kind: "io", message: "disk full" })).toBe("disk full"));
 });
 
 describe("errText", () => {
-  it("maps Rust file errors", () => expect(errText({ kind: "not_found", path: "a.json" })).toMatch(/a\.json/));
-  it("leaves Typst errors alone (not_found there carries a message, not a path)", () => expect(errText({ kind: "not_found", message: "install typst" })).toBe("install typst"));
+  it("maps Rust file errors", () =>
+    expect(errText({ kind: "not_found", path: "a.json" })).toMatch(/a\.json/));
+  it("leaves Typst errors alone (not_found there carries a message, not a path)", () =>
+    expect(errText({ kind: "not_found", message: "install typst" })).toBe("install typst"));
   it("handles Errors, strings and other values as before", () => {
     expect(errText(new Error("boom"))).toBe("boom");
     expect(errText("plain")).toBe("plain");

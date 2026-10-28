@@ -3,10 +3,12 @@
 Design: `cadabracraft.pen`, tokens in `docs/design.md` (keep in sync with `/sync-design`). Stack: Tailwind CSS v4 + Radix UI + lucide-react, all in `apps/desktop` only. Dependency additions approved by the user.
 
 ## Scope
+
 In: design tokens and dark mode, responsive shell, restyled Home/sidebar/toolbar/editor, Radix dialogs replacing `prompt()`/`confirm()`/`alert()`, status badge, word counts, read-only reading mode, theme switch.
 Out (roadmap): details panel, focus mode, anything needing new Rust commands.
 
 ## Steps
+
 1. **Deps and tooling**
    - `pnpm --filter @cadabracraft/desktop add tailwindcss @tailwindcss/vite @radix-ui/react-dialog @radix-ui/react-toggle-group @radix-ui/react-tooltip @radix-ui/react-dropdown-menu lucide-react`
    - Approve any new build script in `pnpm-workspace.yaml` `allowBuilds` (pnpm 11 fails otherwise).
@@ -33,13 +35,16 @@ Out (roadmap): details panel, focus mode, anything needing new Rust commands.
    - Update README stack line; run `/sync-design` if tokens changed.
 
 ## Order and checkpoints
+
 1 to 2 (app still works, unstyled), then 3 to 8. Run `pnpm typecheck && pnpm test` after each step and `pnpm test:e2e` after 5, 6 and 8. Commit only when asked.
 
 ## Risks
+
 - E2E uses browser `prompt` dialogs for new project and link; those are the main test rewrites.
 - Tailwind native packages may need `allowBuilds` entries.
 - TipTap focus: toolbar buttons must not steal selection.
 - Fonts bundled locally to respect the no-network rule.
 
 ## Verification
+
 `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `cargo test` (unchanged), manual pass in `pnpm dev` at 1280, 820 and 390 widths in light and dark against `cadabracraft.pen`.

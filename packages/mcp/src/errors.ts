@@ -1,5 +1,12 @@
 import { FormatError } from "@cadabracraft/format";
-import { FontNotAvailableError, MissingAssetError, PdfExportError, TypstCompileError, TypstNotFoundError, TypstTimeoutError } from "@cadabracraft/export-pdf";
+import {
+  FontNotAvailableError,
+  MissingAssetError,
+  PdfExportError,
+  TypstCompileError,
+  TypstNotFoundError,
+  TypstTimeoutError,
+} from "@cadabracraft/export-pdf";
 import { ImportError } from "@cadabracraft/import-docx";
 import { ProjectFsError } from "@cadabracraft/project-fs";
 import { TemplateError } from "@cadabracraft/templates";
@@ -78,14 +85,18 @@ export function toToolError(e: unknown): ToolError {
   if (e instanceof ToolError) return e;
   if (e instanceof ProjectFsError) return new ToolError(FS_CODES[e.code] ?? "io_error", e.message);
   if (e instanceof FormatError) return new ToolError("invalid_manifest", e.message);
-  if (e instanceof ImportError) return new ToolError("import_failed", e.message, { importCode: e.code });
+  if (e instanceof ImportError)
+    return new ToolError("import_failed", e.message, { importCode: e.code });
   if (e instanceof TemplateError) return new ToolError("template_unknown", e.message);
   // Subclasses before the PdfExportError base.
-  if (e instanceof FontNotAvailableError) return new ToolError("font_missing", e.message, { families: e.families, role: e.role });
+  if (e instanceof FontNotAvailableError)
+    return new ToolError("font_missing", e.message, { families: e.families, role: e.role });
   if (e instanceof TypstNotFoundError) return new ToolError("typst_missing", e.message);
   if (e instanceof TypstCompileError) return new ToolError("compile_error", e.message);
-  if (e instanceof TypstTimeoutError) return new ToolError("timeout", e.message, { seconds: e.seconds });
-  if (e instanceof MissingAssetError) return new ToolError("asset_missing", e.message, { assets: e.srcs });
+  if (e instanceof TypstTimeoutError)
+    return new ToolError("timeout", e.message, { seconds: e.seconds });
+  if (e instanceof MissingAssetError)
+    return new ToolError("asset_missing", e.message, { assets: e.srcs });
   if (e instanceof PdfExportError) return new ToolError("pdf_error", e.message);
   const err = e as NodeJS.ErrnoException | undefined;
   if (err?.code === "ENOENT") return new ToolError("not_found", err.message);

@@ -20,7 +20,13 @@ function useBookUndo(open: boolean) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey) || !e.altKey || e.code !== "KeyZ" || document.querySelector("[role=dialog]")) return;
+      if (
+        !(e.metaKey || e.ctrlKey) ||
+        !e.altKey ||
+        e.code !== "KeyZ" ||
+        document.querySelector("[role=dialog]")
+      )
+        return;
       e.preventDefault();
       void (e.shiftKey ? actions.redo() : actions.undo());
     };
@@ -30,7 +36,15 @@ function useBookUndo(open: boolean) {
 }
 
 /** Keyboard shortcuts that work anywhere in the window. */
-export function useGlobalShortcuts({ open, focus, exitFocus }: { open: boolean; focus: boolean; exitFocus: () => void }) {
+export function useGlobalShortcuts({
+  open,
+  focus,
+  exitFocus,
+}: {
+  open: boolean;
+  focus: boolean;
+  exitFocus: () => void;
+}) {
   useFocusEscape(focus, exitFocus);
   useBookUndo(open);
 }

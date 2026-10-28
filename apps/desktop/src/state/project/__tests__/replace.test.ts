@@ -6,28 +6,40 @@ let writes = 0;
 /** Fails the Nth chapter write from now (1-based), and optionally every write after it. */
 let failAt: { n: number; sticky: boolean } | null = null;
 let failReadOf: string | null = null;
-vi.mock("../../../lib/bridge", async () => (await import("../../../test/fakeBridge")).fakeBridge({
-  readFile: async (r: string, p: string) => {
-    if (failReadOf === p) throw new Error("disk read error");
-    return readFile(r, p);
-  },
-  writeFile: async (r: string, p: string, c: string, base: string | null) => {
-    if (p !== "cadabra.json") {
-      writes++;
-      if (failAt && (writes === failAt.n || (failAt.sticky && writes > failAt.n))) throw new Error("No space left on device");
-    }
-    return writeFileWithConflictCopy(r, p, c, base);
-  },
-  trashFile: async (_r: string, p: string) => { const c = disk.get(p)!; const to = `.cadabra/trash/20260101-1200-${p.replaceAll("/", "__")}`; disk.delete(p); disk.set(to, c); return to; },
-  listTrash: async () => [],
-  restoreTrash: async () => "x",
-}));
+vi.mock("../../../lib/bridge", async () =>
+  (await import("../../../test/fakeBridge")).fakeBridge({
+    readFile: async (r: string, p: string) => {
+      if (failReadOf === p) throw new Error("disk read error");
+      return readFile(r, p);
+    },
+    writeFile: async (r: string, p: string, c: string, base: string | null) => {
+      if (p !== "cadabra.json") {
+        writes++;
+        if (failAt && (writes === failAt.n || (failAt.sticky && writes > failAt.n)))
+          throw new Error("No space left on device");
+      }
+      return writeFileWithConflictCopy(r, p, c, base);
+    },
+    trashFile: async (_r: string, p: string) => {
+      const c = disk.get(p)!;
+      const to = `.cadabra/trash/20260101-1200-${p.replaceAll("/", "__")}`;
+      disk.delete(p);
+      disk.set(to, c);
+      return to;
+    },
+    listTrash: async () => [],
+    restoreTrash: async () => "x",
+  }),
+);
 
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
-const text = (t: string) => ({ type: "doc" as const, content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }] });
+const text = (t: string) => ({
+  type: "doc" as const,
+  content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
+});
 const opts = { query: "cat", matchCase: false, wholeWord: false };
 const file = (i: number) => s().manifest!.chapters[i]!.file;
 
@@ -46,7 +58,17 @@ beforeEach(async () => {
   writes = 0;
   failAt = null;
   failReadOf = null;
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, trash: [] });
+  useProject.setState({
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    reloadCount: 0,
+    trash: [],
+  });
   await a().createProject("/p", "Book", "Me");
 });
 
@@ -67,7 +89,9 @@ describe("replaceInBook failure handling", () => {
     writes = 0;
     failAt = { n: 2, sticky: true }; // the second write fails and so does the rollback of the first
     const undoBefore = s().history.undo.length;
-    const err = await a().replaceInBook(opts, "dog").catch((e: Error) => e);
+    const err = await a()
+      .replaceInBook(opts, "dog")
+      .catch((e: Error) => e);
     expect((err as Error).message).toMatch(/Undo/);
     expect(disk.get(file(0))).toContain("one dog");
     expect(disk.get(file(1))).toContain("two cat cat");
@@ -92,7 +116,10 @@ describe("replaceInBook failure handling", () => {
   });
   it("ignores a second Replace all while one is running", async () => {
     await threeChapters();
-    const [first, second] = await Promise.all([a().replaceInBook(opts, "dog"), a().replaceInBook(opts, "dog")]);
+    const [first, second] = await Promise.all([
+      a().replaceInBook(opts, "dog"),
+      a().replaceInBook(opts, "dog"),
+    ]);
     expect(first).toBe(4);
     expect(second).toBe(0);
     expect(s().history.undo.filter((e) => e.docs).length).toBe(1);
@@ -117,10 +144,17 @@ describe("replaceInBook failure handling", () => {
     const origSet = disk.set.bind(disk);
     let armed = true;
     disk.set = ((k: string, v: string) => {
-      if (armed && k === file(0)) { armed = false; origSet(file(1), `${real}\n`); }
+      if (armed && k === file(0)) {
+        armed = false;
+        origSet(file(1), `${real}\n`);
+      }
       return origSet(k, v);
     }) as typeof disk.set;
-    try { await a().replaceInBook(opts, "dog"); } finally { disk.set = origSet as typeof disk.set; }
+    try {
+      await a().replaceInBook(opts, "dog");
+    } finally {
+      disk.set = origSet as typeof disk.set;
+    }
     expect(s().notice).toMatch(/Replaced 4/);
     expect(s().notice).toMatch(/changed outside the app/);
     expect([...disk.keys()].some((k) => k.includes("conflict"))).toBe(true);

@@ -12,7 +12,13 @@ export function assetUrl(root: string, src: string): Promise<string> {
   if (!hit) {
     hit = bridge
       .readAsset(root, src)
-      .then((bytes) => URL.createObjectURL(new Blob([bytes as BlobPart], { type: imageMediaType(src) ?? "application/octet-stream" })));
+      .then((bytes) =>
+        URL.createObjectURL(
+          new Blob([bytes as BlobPart], {
+            type: imageMediaType(src) ?? "application/octet-stream",
+          }),
+        ),
+      );
     hit.catch(() => cache.delete(key)); // a missing file may appear later (sync), so do not cache the failure
     cache.set(key, hit);
   }
@@ -22,6 +28,9 @@ export function assetUrl(root: string, src: string): Promise<string> {
 /** Drops the cached URL for one asset, e.g. after it was replaced on disk. */
 export function forgetAsset(root: string, src: string): void {
   const key = `${root}\u0000${src}`;
-  cache.get(key)?.then((u) => URL.revokeObjectURL(u), () => {});
+  cache.get(key)?.then(
+    (u) => URL.revokeObjectURL(u),
+    () => {},
+  );
   cache.delete(key);
 }

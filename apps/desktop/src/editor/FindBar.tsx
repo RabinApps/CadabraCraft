@@ -10,7 +10,15 @@ import { Field } from "../ui/Input";
 import { readingOrder } from "@cadabracraft/format";
 import { useProject } from "../state/project/index";
 import { errText } from "../lib/projectError";
-import { bookPosition, bookStep, countLabel, isComposing, resultRows, type PageCounts, type ResultRow } from "../lib/search/findHelpers";
+import {
+  bookPosition,
+  bookStep,
+  countLabel,
+  isComposing,
+  resultRows,
+  type PageCounts,
+  type ResultRow,
+} from "../lib/search/findHelpers";
 import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "./findStore";
 import { searchBook } from "../lib/search/bookSearch";
 import { isInvalidRegex } from "../lib/search/match";
@@ -22,7 +30,14 @@ const DEBOUNCE_MS = 100;
  * Matches per page for the whole book (read from disk after saving unsaved typing), while "All chapters" is on.
  * Recounted when the search or the open page's own count changes; the open page itself is counted live by the editor.
  */
-function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord: boolean, regex: boolean, editorTotal: number): PageCounts {
+function useBookCounts(
+  on: boolean,
+  query: string,
+  matchCase: boolean,
+  wholeWord: boolean,
+  regex: boolean,
+  editorTotal: number,
+): PageCounts {
   const readPages = useProject((s) => s.actions.readPages);
   // A book-wide replace (or its undo) changes pages other than the open one, so it also triggers a recount.
   const history = useProject((s) => s.history);
@@ -31,11 +46,24 @@ function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord
   const manifest = useProject((s) => s.manifest);
   const [counts, setCounts] = useState<PageCounts>({});
   useEffect(() => {
-    if (!on || !query) { setCounts({}); return; }
+    if (!on || !query) {
+      setCounts({});
+      return;
+    }
     let live = true;
     const id = setTimeout(() => {
       readPages()
-        .then((pages) => { if (live) setCounts(Object.fromEntries(searchBook(pages, { query, matchCase, wholeWord, regex }).pages.map((p) => [p.id, p.count]))); })
+        .then((pages) => {
+          if (live)
+            setCounts(
+              Object.fromEntries(
+                searchBook(pages, { query, matchCase, wholeWord, regex }).pages.map((p) => [
+                  p.id,
+                  p.count,
+                ]),
+              ),
+            );
+        })
         .catch((e) => {
           if (!live) return;
           // A page that cannot be read is not silently "no results": say so (the same text is not set twice).
@@ -44,7 +72,10 @@ function useBookCounts(on: boolean, query: string, matchCase: boolean, wholeWord
           if (useProject.getState().notice !== why) useProject.setState({ notice: why });
         });
     }, 150);
-    return () => { live = false; clearTimeout(id); };
+    return () => {
+      live = false;
+      clearTimeout(id);
+    };
   }, [on, query, matchCase, wholeWord, regex, editorTotal, history, root, manifest, readPages]);
   return counts;
 }
@@ -59,7 +90,9 @@ function useSearchInfo(editor: Editor) {
     };
     update();
     editor.on("transaction", update);
-    return () => { editor.off("transaction", update); };
+    return () => {
+      editor.off("transaction", update);
+    };
   }, [editor]);
   return info;
 }
@@ -69,10 +102,16 @@ function revealCurrent(editor: Editor) {
   const s = searchKey.getState(editor.state);
   const m = s?.matches[s.current];
   if (!m) return;
-  editor.view.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, m.from, m.to)).scrollIntoView().setMeta("addToHistory", false));
+  editor.view.dispatch(
+    editor.state.tr
+      .setSelection(TextSelection.create(editor.state.doc, m.from, m.to))
+      .scrollIntoView()
+      .setMeta("addToHistory", false),
+  );
 }
 
-const chip = "rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+const chip =
+  "rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 const small = "px-3 py-1.5 text-xs";
 
 /**
@@ -86,7 +125,14 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
   const editorInfo = useSearchInfo(editor);
   const manifest = useProject((s) => s.manifest);
   const currentId = useProject((s) => s.currentId);
-  const counts = useBookCounts(f.allChapters, f.query, f.matchCase, f.wholeWord, f.regex, editorInfo.total);
+  const counts = useBookCounts(
+    f.allChapters,
+    f.query,
+    f.matchCase,
+    f.wholeWord,
+    f.regex,
+    editorInfo.total,
+  );
   const order = manifest ? readingOrder(manifest).map((e) => e.id) : [];
   const info = f.allChapters ? bookPosition(order, counts, currentId, editorInfo) : editorInfo;
   const findRef = useRef<HTMLInputElement>(null);
@@ -102,8 +148,14 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
     searchCommands(editor).setSearch({ query, replacement, matchCase, wholeWord, regex });
   }, [editor]);
   /** Applies only if typing is still waiting for its debounce: applying rescans and would reset the current match. */
-  const flush = () => { if (pending.current) apply(); };
-  const later = () => { clearTimeout(timer.current); pending.current = true; timer.current = setTimeout(apply, DEBOUNCE_MS); };
+  const flush = () => {
+    if (pending.current) apply();
+  };
+  const later = () => {
+    clearTimeout(timer.current);
+    pending.current = true;
+    timer.current = setTimeout(apply, DEBOUNCE_MS);
+  };
 
   // Opening (or reopening, or arriving in a new chapter's editor) applies the stored settings and focuses the input.
   useEffect(() => {
@@ -116,7 +168,8 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
       useFind.setState({ pendingReveal: null });
       requestAnimationFrame(() => {
         if (editor.isDestroyed) return;
-        if (reveal === "last") searchCommands(editor).findPrevious(true); // from the first match this wraps to the last
+        if (reveal === "last")
+          searchCommands(editor).findPrevious(true); // from the first match this wraps to the last
         else revealCurrent(editor);
       });
     }
@@ -129,7 +182,10 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
     f.close();
     editor.commands.focus();
   };
-  const stepInPage = (dir: 1 | -1) => { if (dir === 1) commands().findNext(true); else commands().findPrevious(true); };
+  const stepInPage = (dir: 1 | -1) => {
+    if (dir === 1) commands().findNext(true);
+    else commands().findPrevious(true);
+  };
   /** Moves to the next/previous match; in book scope this may open another page (its editor then reveals the match). */
   const step = (dir: 1 | -1) => {
     flush();
@@ -138,7 +194,10 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
     if (to?.to === "stay") stepInPage(dir);
     else if (to) {
       useFind.setState({ pendingReveal: to.at });
-      void useProject.getState().actions.selectChapter(to.id).catch((e) => useProject.setState({ notice: errText(e) }));
+      void useProject
+        .getState()
+        .actions.selectChapter(to.id)
+        .catch((e) => useProject.setState({ notice: errText(e) }));
     }
   };
   const replaceOne = () => {
@@ -151,30 +210,64 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
   };
   const replaceAll = () => {
     flush();
-    if (!f.allChapters) { commands().replaceAll(); return; }
+    if (!f.allChapters) {
+      commands().replaceAll();
+      return;
+    }
     // The store saves the open page first, rewrites every page that matches, records one undo step and reloads this page.
     const { query, replacement, matchCase, wholeWord, regex } = useFind.getState();
-    void useProject.getState().actions.replaceInBook({ query, matchCase, wholeWord, regex }, replacement).catch((e) => useProject.setState({ notice: errText(e) }));
+    void useProject
+      .getState()
+      .actions.replaceInBook({ query, matchCase, wholeWord, regex }, replacement)
+      .catch((e) => useProject.setState({ notice: errText(e) }));
   };
-  const toggle = (patch: { matchCase: boolean } | { wholeWord: boolean } | { allChapters: boolean } | { regex: boolean }) => { f.set(patch); queueMicrotask(apply); };
+  const toggle = (
+    patch:
+      | { matchCase: boolean }
+      | { wholeWord: boolean }
+      | { allChapters: boolean }
+      | { regex: boolean },
+  ) => {
+    f.set(patch);
+    queueMicrotask(apply);
+  };
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape" && !isComposing(e.nativeEvent)) {
       // Stop here so focus mode's own Escape does not also exit.
-      e.preventDefault(); e.stopPropagation(); close();
+      e.preventDefault();
+      e.stopPropagation();
+      close();
     }
   };
   const invalid = f.regex && isInvalidRegex(f.query, f.matchCase);
   const noResults = f.query !== "" && info.total === 0;
-  const rows = f.allChapters && !invalid && manifest ? resultRows(manifest, counts, currentId, editorInfo) : [];
-  const rowTitle = (r: ResultRow) => r.section === "front" ? t`Front matter: ${r.title}` : r.section === "back" ? t`Back matter: ${r.title}` : r.title;
+  const rows =
+    f.allChapters && !invalid && manifest
+      ? resultRows(manifest, counts, currentId, editorInfo)
+      : [];
+  const rowTitle = (r: ResultRow) =>
+    r.section === "front"
+      ? t`Front matter: ${r.title}`
+      : r.section === "back"
+        ? t`Back matter: ${r.title}`
+        : r.title;
   const rowCount = (n: number) => plural(n, { one: "# match", other: "# matches" });
   /** Opens that page and selects its first match (the same hand-over as stepping into another page). */
   const openRow = (id: string) => {
     flush();
-    if (id === currentId) { apply(); requestAnimationFrame(() => { if (!editor.isDestroyed) revealCurrent(editor); }); return; }
+    if (id === currentId) {
+      apply();
+      requestAnimationFrame(() => {
+        if (!editor.isDestroyed) revealCurrent(editor);
+      });
+      return;
+    }
     useFind.setState({ pendingReveal: "first" });
-    void useProject.getState().actions.selectChapter(id).catch((e) => useProject.setState({ notice: errText(e) }));
+    void useProject
+      .getState()
+      .actions.selectChapter(id)
+      .catch((e) => useProject.setState({ notice: errText(e) }));
   };
 
   return (
@@ -185,7 +278,8 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
       className={cx(
         "absolute z-20 flex flex-col gap-2 border border-border bg-raised p-2 text-ink shadow-xl",
         "max-md:inset-x-0 max-md:top-0 max-md:border-x-0 max-md:border-t-0",
-        "md:end-4 md:w-[380px] md:rounded-lg", focusMode ? "md:top-14" : "md:top-3",
+        "md:end-4 md:w-[380px] md:rounded-lg",
+        focusMode ? "md:top-14" : "md:top-3",
       )}
     >
       <div className="flex items-center gap-1">
@@ -198,15 +292,39 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
             value={f.query}
             maxLength={MAX_QUERY_CHARS}
             className="py-1.5"
-            onChange={(e) => { f.set({ query: e.target.value }); later(); }}
-            onKeyDown={(e) => { if (e.key === "Enter" && !isComposing(e.nativeEvent)) { e.preventDefault(); step(e.shiftKey ? -1 : 1); } }}
+            onChange={(e) => {
+              f.set({ query: e.target.value });
+              later();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !isComposing(e.nativeEvent)) {
+                e.preventDefault();
+                step(e.shiftKey ? -1 : 1);
+              }
+            }}
           />
         </div>
-        <span aria-live="polite" className={cx("min-w-14 shrink-0 text-end text-xs tabular-nums", noResults || invalid ? "text-danger" : "text-ink-muted")}>
+        <span
+          aria-live="polite"
+          className={cx(
+            "min-w-14 shrink-0 text-end text-xs tabular-nums",
+            noResults || invalid ? "text-danger" : "text-ink-muted",
+          )}
+        >
           {invalid ? t`Invalid pattern` : countLabel(f.query, info.total, info.index)}
         </span>
-        <IconButton icon={ChevronUp} label={t`Previous match`} onClick={() => step(-1)} disabled={info.total === 0} />
-        <IconButton icon={ChevronDown} label={t`Next match`} onClick={() => step(1)} disabled={info.total === 0} />
+        <IconButton
+          icon={ChevronUp}
+          label={t`Previous match`}
+          onClick={() => step(-1)}
+          disabled={info.total === 0}
+        />
+        <IconButton
+          icon={ChevronDown}
+          label={t`Next match`}
+          onClick={() => step(1)}
+          disabled={info.total === 0}
+        />
         <IconButton icon={X} label={t`Close`} onClick={close} />
       </div>
       {f.replace && (
@@ -219,22 +337,81 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
               value={f.replacement}
               maxLength={MAX_REPLACEMENT_CHARS}
               className="py-1.5"
-              onChange={(e) => { f.set({ replacement: e.target.value }); later(); }}
-              onKeyDown={(e) => { if (e.key === "Enter" && !isComposing(e.nativeEvent)) { e.preventDefault(); replaceOne(); } }}
+              onChange={(e) => {
+                f.set({ replacement: e.target.value });
+                later();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !isComposing(e.nativeEvent)) {
+                  e.preventDefault();
+                  replaceOne();
+                }
+              }}
             />
           </div>
-          <Button className={small} onClick={replaceOne} disabled={info.total === 0}>{t`Replace`}</Button>
-          <Button className={small} onClick={replaceAll} disabled={info.total === 0}>{t`Replace all`}</Button>
+          <Button
+            className={small}
+            onClick={replaceOne}
+            disabled={info.total === 0}
+          >{t`Replace`}</Button>
+          <Button
+            className={small}
+            onClick={replaceAll}
+            disabled={info.total === 0}
+          >{t`Replace all`}</Button>
         </div>
       )}
       <div className="flex items-center gap-1.5">
-        <button type="button" aria-pressed={f.matchCase} className={cx(chip, f.matchCase ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ matchCase: !f.matchCase })}>{t`Match case`}</button>
-        <button type="button" aria-pressed={f.wholeWord} className={cx(chip, f.wholeWord ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ wholeWord: !f.wholeWord })}>{t`Whole word`}</button>
-        <button type="button" aria-pressed={f.allChapters} className={cx(chip, f.allChapters ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ allChapters: !f.allChapters })}>{t`All chapters`}</button>
-        <button type="button" aria-pressed={f.regex} className={cx(chip, f.regex ? "border-accent bg-accent-soft text-accent" : "border-border text-ink hover:bg-accent-soft")} onClick={() => toggle({ regex: !f.regex })}>{t`Regex`}</button>
+        <button
+          type="button"
+          aria-pressed={f.matchCase}
+          className={cx(
+            chip,
+            f.matchCase
+              ? "border-accent bg-accent-soft text-accent"
+              : "border-border text-ink hover:bg-accent-soft",
+          )}
+          onClick={() => toggle({ matchCase: !f.matchCase })}
+        >{t`Match case`}</button>
+        <button
+          type="button"
+          aria-pressed={f.wholeWord}
+          className={cx(
+            chip,
+            f.wholeWord
+              ? "border-accent bg-accent-soft text-accent"
+              : "border-border text-ink hover:bg-accent-soft",
+          )}
+          onClick={() => toggle({ wholeWord: !f.wholeWord })}
+        >{t`Whole word`}</button>
+        <button
+          type="button"
+          aria-pressed={f.allChapters}
+          className={cx(
+            chip,
+            f.allChapters
+              ? "border-accent bg-accent-soft text-accent"
+              : "border-border text-ink hover:bg-accent-soft",
+          )}
+          onClick={() => toggle({ allChapters: !f.allChapters })}
+        >{t`All chapters`}</button>
+        <button
+          type="button"
+          aria-pressed={f.regex}
+          className={cx(
+            chip,
+            f.regex
+              ? "border-accent bg-accent-soft text-accent"
+              : "border-border text-ink hover:bg-accent-soft",
+          )}
+          onClick={() => toggle({ regex: !f.regex })}
+        >{t`Regex`}</button>
       </div>
       {rows.length > 0 && (
-        <ul aria-label={t`Results by page`} className="m-0 flex max-h-[132px] list-none flex-col gap-0.5 overflow-y-auto p-0 md:max-h-[128px]">
+        <ul
+          aria-label={t`Results by page`}
+          className="m-0 flex max-h-[132px] list-none flex-col gap-0.5 overflow-y-auto p-0 md:max-h-[128px]"
+        >
           {rows.map((r) => (
             <li key={r.id} className="min-w-0">
               <button
@@ -244,11 +421,20 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
                 onClick={() => openRow(r.id)}
                 className={cx(
                   "flex min-h-11 w-full min-w-0 items-center justify-between gap-3 rounded-md px-2.5 text-start text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:min-h-7",
-                  r.current ? "bg-accent-soft font-semibold text-accent" : "text-ink hover:bg-accent-soft",
+                  r.current
+                    ? "bg-accent-soft font-semibold text-accent"
+                    : "text-ink hover:bg-accent-soft",
                 )}
               >
                 <span className="min-w-0 flex-1 truncate">{rowTitle(r)}</span>
-                <span className={cx("shrink-0 tabular-nums", r.current ? "text-accent" : "text-ink-muted")}>{r.count}</span>
+                <span
+                  className={cx(
+                    "shrink-0 tabular-nums",
+                    r.current ? "text-accent" : "text-ink-muted",
+                  )}
+                >
+                  {r.count}
+                </span>
               </button>
             </li>
           ))}

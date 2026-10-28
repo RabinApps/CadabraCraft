@@ -11,7 +11,8 @@ const MAX_MB = MAX_IMAGE_BYTES / 1024 / 1024;
 /** Largest image accepted, in pixels (150 megapixels): a small PNG can declare 60000 x 60000 and need 14 GB to decode. */
 export const MAX_IMAGE_PIXELS = 150_000_000;
 
-export const imageTooLarge = (name: string): ProjectFsError => new ProjectFsError("too_large", `${name} is larger than ${MAX_MB} MB`);
+export const imageTooLarge = (name: string): ProjectFsError =>
+  new ProjectFsError("too_large", `${name} is larger than ${MAX_MB} MB`);
 
 /** Allowlisted image extension (lower-case) of a file name, or null. */
 export function imageExt(name: string): string | null {
@@ -19,7 +20,8 @@ export function imageExt(name: string): string | null {
   return ext && (IMAGE_EXTENSIONS as readonly string[]).includes(ext) ? ext : null;
 }
 
-const startsWith = (b: Uint8Array, sig: readonly number[]): boolean => b.length >= sig.length && sig.every((v, i) => b[i] === v);
+const startsWith = (b: Uint8Array, sig: readonly number[]): boolean =>
+  b.length >= sig.length && sig.every((v, i) => b[i] === v);
 const ascii = (s: string): number[] => Array.from(s, (c) => c.charCodeAt(0));
 
 /** Cheap signature check so a renamed non-image is refused. SVG must at least look like SVG text. */
@@ -33,10 +35,14 @@ export function looksLike(ext: string, b: Uint8Array): boolean {
     case "gif":
       return startsWith(b, ascii("GIF87a")) || startsWith(b, ascii("GIF89a"));
     case "webp":
-      return b.length > 12 && startsWith(b, ascii("RIFF")) && startsWith(b.subarray(8), ascii("WEBP"));
+      return (
+        b.length > 12 && startsWith(b, ascii("RIFF")) && startsWith(b.subarray(8), ascii("WEBP"))
+      );
     case "svg":
       try {
-        return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(b).includes("<svg");
+        return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
+          .decode(b)
+          .includes("<svg");
       } catch {
         return false;
       }
@@ -53,10 +59,14 @@ export function imageSize(ext: string, b: Uint8Array): [number, number] | null {
   const u = (i: number): number => b[i] ?? 0; // callers check the length first
   const be16 = (i: number): number | null => (i + 2 <= b.length ? (u(i) << 8) | u(i + 1) : null);
   const le16 = (i: number): number | null => (i + 2 <= b.length ? u(i) | (u(i + 1) << 8) : null);
-  const be32 = (i: number): number | null => (i + 4 <= b.length ? ((u(i) << 24) | (u(i + 1) << 16) | (u(i + 2) << 8) | u(i + 3)) >>> 0 : null);
-  const le24 = (i: number): number | null => (i + 3 <= b.length ? u(i) | (u(i + 1) << 8) | (u(i + 2) << 16) : null);
-  const tag = (i: number, s: string): boolean => i + s.length <= b.length && startsWith(b.subarray(i), ascii(s));
-  const pair = (w: number | null, h: number | null): [number, number] | null => (w === null || h === null ? null : [w, h]);
+  const be32 = (i: number): number | null =>
+    i + 4 <= b.length ? ((u(i) << 24) | (u(i + 1) << 16) | (u(i + 2) << 8) | u(i + 3)) >>> 0 : null;
+  const le24 = (i: number): number | null =>
+    i + 3 <= b.length ? u(i) | (u(i + 1) << 8) | (u(i + 2) << 16) : null;
+  const tag = (i: number, s: string): boolean =>
+    i + s.length <= b.length && startsWith(b.subarray(i), ascii(s));
+  const pair = (w: number | null, h: number | null): [number, number] | null =>
+    w === null || h === null ? null : [w, h];
   switch (ext) {
     case "png":
       return tag(12, "IHDR") ? pair(be32(16), be32(20)) : null;
@@ -68,10 +78,13 @@ export function imageSize(ext: string, b: Uint8Array): [number, number] | null {
       while (i + 4 <= b.length) {
         if (u(i) !== 0xff) return null;
         const m = u(i + 1);
-        if (m === 0xff) i += 1; // fill byte
+        if (m === 0xff)
+          i += 1; // fill byte
         else if (m === 0x01 || (m >= 0xd0 && m <= 0xd8)) i += 2;
-        else if (m === 0xd9 || m === 0xda) return null; // end of image / start of scan: no frame header seen
-        else if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return pair(be16(i + 7), be16(i + 5));
+        else if (m === 0xd9 || m === 0xda)
+          return null; // end of image / start of scan: no frame header seen
+        else if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc)
+          return pair(be16(i + 7), be16(i + 5));
         else {
           const len = be16(i + 2);
           if (len === null) return null;
@@ -105,10 +118,14 @@ export function imageSize(ext: string, b: Uint8Array): [number, number] | null {
 
 /** Signature and pixel-count check shared by every way an image enters the project (picker, document import, preview). */
 export function checkImage(name: string, ext: string, bytes: Uint8Array): void {
-  if (!looksLike(ext, bytes)) throw new ProjectFsError("bad_image", `${name} is not a valid ${ext} image`);
+  if (!looksLike(ext, bytes))
+    throw new ProjectFsError("bad_image", `${name} is not a valid ${ext} image`);
   const size = imageSize(ext, bytes);
   if (size && size[0] * size[1] > MAX_IMAGE_PIXELS) {
-    throw new ProjectFsError("image_dimensions", `${name} has more than ${MAX_IMAGE_PIXELS / 1_000_000} megapixels`);
+    throw new ProjectFsError(
+      "image_dimensions",
+      `${name} has more than ${MAX_IMAGE_PIXELS / 1_000_000} megapixels`,
+    );
   }
 }
 
@@ -132,7 +149,8 @@ export function sanitizeAssetStem(stem: string): string {
 export function storeImage(root: string, fileName: string, bytes: Uint8Array): string {
   const ext = imageExt(fileName);
   if (!ext) throw new ProjectFsError("unsupported_image", `unsupported image type: ${fileName}`);
-  if (bytes.length > MAX_IMAGE_BYTES) throw new ProjectFsError("too_large", `${fileName} is larger than ${MAX_MB} MB`);
+  if (bytes.length > MAX_IMAGE_BYTES)
+    throw new ProjectFsError("too_large", `${fileName} is larger than ${MAX_MB} MB`);
   checkImage(fileName, ext, bytes);
   const dot = fileName.lastIndexOf(".");
   const stem = sanitizeAssetStem(dot >= 0 ? fileName.slice(0, dot) : fileName);
@@ -154,13 +172,19 @@ export function storeImage(root: string, fileName: string, bytes: Uint8Array): s
 export function importImage(root: string, sourcePath: string): string {
   const fileName = fileBaseName(sourcePath);
   if (!fileName) throw new ProjectFsError("unsupported_image", "invalid file name");
-  if (!imageExt(fileName)) throw new ProjectFsError("unsupported_image", `unsupported image type: ${fileName}`);
-  return storeImage(root, fileName, readRegular(sourcePath, MAX_IMAGE_BYTES, fileName, () => imageTooLarge(fileName)));
+  if (!imageExt(fileName))
+    throw new ProjectFsError("unsupported_image", `unsupported image type: ${fileName}`);
+  return storeImage(
+    root,
+    fileName,
+    readRegular(sourcePath, MAX_IMAGE_BYTES, fileName, () => imageTooLarge(fileName)),
+  );
 }
 
 /** Reads an asset's bytes for display or export. Only `assets/<image>` paths are served. */
 export function readAsset(root: string, rel: string): Uint8Array {
-  if (!rel.startsWith("assets/") || !imageExt(rel)) throw new ProjectFsError("unsupported_image", `not an image asset: ${rel}`);
+  if (!rel.startsWith("assets/") || !imageExt(rel))
+    throw new ProjectFsError("unsupported_image", `not an image asset: ${rel}`);
   const path = resolveSafe(root, rel);
   return readRegular(path, MAX_IMAGE_BYTES, rel, () => imageTooLarge(rel));
 }

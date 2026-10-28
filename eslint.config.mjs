@@ -28,7 +28,10 @@ export default tseslint.config(
     settings: { "import-x/resolver-next": [createTypeScriptImportResolver()] },
     rules: {
       "import-x/no-cycle": "error",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
       // Guardrail against files regrowing into grab-bags.
       "max-lines": ["warn", { max: 400, skipBlankLines: true, skipComments: true }],
     },
@@ -41,7 +44,10 @@ export default tseslint.config(
         "error",
         {
           patterns: [
-            { group: ["**/apps/desktop/**", "@cadabracraft/desktop*"], message: "packages/* must not import from apps/desktop." },
+            {
+              group: ["**/apps/desktop/**", "@cadabracraft/desktop*"],
+              message: "packages/* must not import from apps/desktop.",
+            },
           ],
         },
       ],

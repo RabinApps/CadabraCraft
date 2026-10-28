@@ -6,7 +6,9 @@ test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
 });
 
-test("book undo and redo: sidebar buttons and shortcut, trash round trip, separate from editor undo", async ({ page }) => {
+test("book undo and redo: sidebar buttons and shortcut, trash round trip, separate from editor undo", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await newProject(page);
   const nav = page.getByRole("navigation", { name: "Chapters" });
@@ -14,8 +16,15 @@ test("book undo and redo: sidebar buttons and shortcut, trash round trip, separa
   const redo = nav.getByRole("button", { name: /^Redo/ });
   await expect(undo).toBeDisabled();
   await expect(redo).toBeDisabled();
-  const chapters = () => page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title));
-  const trashCount = () => page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")).length);
+  const chapters = () =>
+    page.evaluate(() =>
+      JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title),
+    );
+  const trashCount = () =>
+    page.evaluate(
+      () =>
+        Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")).length,
+    );
 
   await page.getByRole("button", { name: "Add chapter" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
@@ -55,7 +64,9 @@ test("book undo and redo: sidebar buttons and shortcut, trash round trip, separa
   await expect.poll(trashCount).toBe(2);
 });
 
-test("History compares an earlier version with the current text and restores it", async ({ page }) => {
+test("History compares an earlier version with the current text and restores it", async ({
+  page,
+}) => {
   await newProject(page);
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
@@ -68,22 +79,31 @@ test("History compares an earlier version with the current text and restores it"
   const dialog = page.getByRole("dialog", { name: "History · Chapter One" });
   await expect(dialog.locator("ins", { hasText: "Ilse" })).toBeVisible();
   await expect(dialog.locator("del", { hasText: "Marta" })).toBeVisible();
-  await expect(dialog.getByRole("list", { name: "Earlier versions" }).getByRole("button")).toHaveCount(1);
+  await expect(
+    dialog.getByRole("list", { name: "Earlier versions" }).getByRole("button"),
+  ).toHaveCount(1);
 
   await dialog.getByRole("button", { name: "Restore this version" }).click();
   await expect(dialog).toBeHidden();
   await expect(page.locator(".ProseMirror")).toContainText("Ilse walked home");
-  const kept = await page.evaluate((f) => (window as any).__disk[`.cadabra/backups/20261027-2359-${f.replaceAll("/", "__")}`], file);
+  const kept = await page.evaluate(
+    (f) => (window as any).__disk[`.cadabra/backups/20261027-2359-${f.replaceAll("/", "__")}`],
+    file,
+  );
   expect(kept).toContain("Marta walked home");
 });
 
 test("History says so when a page has no earlier versions", async ({ page }) => {
   await newProject(page);
   await chapterAction(page, "Chapter One", "History");
-  await expect(page.getByRole("dialog", { name: "History · Chapter One" })).toContainText("No earlier versions yet");
+  await expect(page.getByRole("dialog", { name: "History · Chapter One" })).toContainText(
+    "No earlier versions yet",
+  );
 });
 
-test("a page with a newer snapshot than its saved text is offered for recovery when the book opens", async ({ page }) => {
+test("a page with a newer snapshot than its saved text is offered for recovery when the book opens", async ({
+  page,
+}) => {
   await newProject(page);
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
@@ -91,7 +111,10 @@ test("a page with a newer snapshot than its saved text is offered for recovery w
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");
   const { file, path } = await seedSnapshot(page, "the newer text");
-  await page.evaluate((x) => sessionStorage.setItem("stale", JSON.stringify([x])), { path: file, snapshot: path });
+  await page.evaluate((x) => sessionStorage.setItem("stale", JSON.stringify([x])), {
+    path: file,
+    snapshot: path,
+  });
   await page.reload();
   await page.getByRole("button", { name: "Open folder" }).click();
 
@@ -104,6 +127,9 @@ test("a page with a newer snapshot than its saved text is offered for recovery w
   await page.evaluate(() => sessionStorage.setItem("stale", sessionStorage.getItem("stale")!));
   await page.reload();
   await page.getByRole("button", { name: "Open folder" }).click();
-  await page.getByRole("dialog", { name: "Recover newer text for “Chapter One”?" }).getByRole("button", { name: "Use newer text" }).click();
+  await page
+    .getByRole("dialog", { name: "Recover newer text for “Chapter One”?" })
+    .getByRole("button", { name: "Use newer text" })
+    .click();
   await expect(page.locator(".ProseMirror")).toContainText("the newer text");
 });

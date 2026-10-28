@@ -15,7 +15,11 @@ export const SceneBreak = Node.create({
 export const SmallCaps = Mark.create({
   name: "smallCaps",
   parseHTML: () => [{ tag: "span.small-caps" }],
-  renderHTML: ({ HTMLAttributes }) => ["span", mergeAttributes(HTMLAttributes, { class: "small-caps" }), 0],
+  renderHTML: ({ HTMLAttributes }) => [
+    "span",
+    mergeAttributes(HTMLAttributes, { class: "small-caps" }),
+    0,
+  ],
 });
 
 export const Superscript = Mark.create({
@@ -52,8 +56,14 @@ const singleSpanAttrs = () => ({
 });
 export const BookTable = Table.configure({ resizable: false });
 export const BookTableRow = TableRow;
-export const BookTableCell = TableCell.extend({ content: "paragraph+", addAttributes: singleSpanAttrs });
-export const BookTableHeader = TableHeader.extend({ content: "paragraph+", addAttributes: singleSpanAttrs });
+export const BookTableCell = TableCell.extend({
+  content: "paragraph+",
+  addAttributes: singleSpanAttrs,
+});
+export const BookTableHeader = TableHeader.extend({
+  content: "paragraph+",
+  addAttributes: singleSpanAttrs,
+});
 
 type AssetUrlResolver = (src: string) => Promise<string>;
 let assetUrlResolver: AssetUrlResolver | null = null;
@@ -84,7 +94,15 @@ export const CaptionedImage = Image.extend({
         if (src === shownSrc) return;
         shownSrc = src;
         if (assetUrlResolver && isAssetPath(src)) {
-          assetUrlResolver(src).then((url) => { if (shownSrc === src) img.src = url; }, () => { img.removeAttribute("src"); img.classList.add("missing-asset"); });
+          assetUrlResolver(src).then(
+            (url) => {
+              if (shownSrc === src) img.src = url;
+            },
+            () => {
+              img.removeAttribute("src");
+              img.classList.add("missing-asset");
+            },
+          );
         } else {
           img.src = src;
         }
@@ -147,7 +165,8 @@ interface RawNode {
 
 /** Why `doc` is not a valid chapter in the real editor schema (the one the app and exporters use), or null if it is valid. */
 export function chapterDocProblem(doc: unknown): string | null {
-  if (!doc || typeof doc !== "object" || (doc as { type?: unknown }).type !== "doc") return 'a chapter document must be an object with type "doc"';
+  if (!doc || typeof doc !== "object" || (doc as { type?: unknown }).type !== "doc")
+    return 'a chapter document must be an object with type "doc"';
   cachedSchema ??= getSchema(extensions);
   try {
     PMNode.fromJSON(cachedSchema, doc).check();
@@ -174,11 +193,13 @@ function tableProblem(table: RawNode): string | null {
   for (const [i, row] of rows.entries()) {
     const cells = row.content ?? [];
     for (const c of cells) {
-      if (Number(c.attrs?.colspan ?? 1) !== 1 || Number(c.attrs?.rowspan ?? 1) !== 1) return "merged table cells (colspan/rowspan) are not supported";
+      if (Number(c.attrs?.colspan ?? 1) !== 1 || Number(c.attrs?.rowspan ?? 1) !== 1)
+        return "merged table cells (colspan/rowspan) are not supported";
     }
     if (cells.length === 0) return `table row ${i + 1} has no cells`;
     if (width < 0) width = cells.length;
-    else if (cells.length !== width) return `table row ${i + 1} has ${cells.length} cells but the first row has ${width} (tables must be rectangular)`;
+    else if (cells.length !== width)
+      return `table row ${i + 1} has ${cells.length} cells but the first row has ${width} (tables must be rectangular)`;
   }
   return null;
 }

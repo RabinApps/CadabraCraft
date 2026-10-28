@@ -5,7 +5,16 @@ export * from "./isbn";
 
 /** TipTap/ProseMirror JSON, the on-disk chapter format and the editor/exporter contract. */
 export interface Mark {
-  type: "bold" | "italic" | "underline" | "smallCaps" | "strike" | "code" | "superscript" | "subscript" | "link";
+  type:
+    | "bold"
+    | "italic"
+    | "underline"
+    | "smallCaps"
+    | "strike"
+    | "code"
+    | "superscript"
+    | "subscript"
+    | "link";
   attrs?: { href?: string };
 }
 
@@ -13,9 +22,22 @@ export type DocNode =
   | { type: "text"; text: string; marks?: Mark[] }
   | {
       type:
-        | "doc" | "paragraph" | "heading" | "blockquote" | "bulletList" | "orderedList"
-        | "listItem" | "codeBlock" | "sceneBreak" | "image" | "figcaption" | "footnote"
-        | "table" | "tableRow" | "tableCell" | "tableHeader";
+        | "doc"
+        | "paragraph"
+        | "heading"
+        | "blockquote"
+        | "bulletList"
+        | "orderedList"
+        | "listItem"
+        | "codeBlock"
+        | "sceneBreak"
+        | "image"
+        | "figcaption"
+        | "footnote"
+        | "table"
+        | "tableRow"
+        | "tableCell"
+        | "tableHeader";
       attrs?: Record<string, string | number | null>;
       content?: DocNode[];
     };

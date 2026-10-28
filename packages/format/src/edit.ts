@@ -1,4 +1,11 @@
-import { BACK_MATTER_KINDS, FRONT_MATTER_KINDS, SINGLE_USE_KINDS, isBackMatterKind, isFrontMatterKind, type MatterKind } from "@cadabracraft/shared";
+import {
+  BACK_MATTER_KINDS,
+  FRONT_MATTER_KINDS,
+  SINGLE_USE_KINDS,
+  isBackMatterKind,
+  isFrontMatterKind,
+  type MatterKind,
+} from "@cadabracraft/shared";
 import { chapterFileName, matterFileName } from "./names";
 import type { Manifest, ManuscriptEntry } from "./manifest";
 
@@ -17,7 +24,10 @@ function freeFile(m: Manifest, title: string): string {
   }
 }
 
-export function addChapter(m: Manifest, title: string): { manifest: Manifest; entry: ManuscriptEntry } {
+export function addChapter(
+  m: Manifest,
+  title: string,
+): { manifest: Manifest; entry: ManuscriptEntry } {
   const entry = { id: uniqueId(m), file: freeFile(m, title), title };
   return { manifest: { ...m, chapters: [...m.chapters, entry] }, entry };
 }
@@ -39,7 +49,10 @@ export function moveChapter(m: Manifest, id: string, delta: number): Manifest {
   return { ...m, chapters: list };
 }
 
-export function removeChapter(m: Manifest, id: string): { manifest: Manifest; removed: ManuscriptEntry } {
+export function removeChapter(
+  m: Manifest,
+  id: string,
+): { manifest: Manifest; removed: ManuscriptEntry } {
   const removed = m.chapters.find((c) => c.id === id);
   if (!removed) throw new Error(`no chapter ${id}`);
   return { manifest: { ...m, chapters: m.chapters.filter((c) => c.id !== id) }, removed };
@@ -49,7 +62,11 @@ export function removeChapter(m: Manifest, id: string): { manifest: Manifest; re
 
 type MatterSection = "frontMatter" | "backMatter";
 
-const allEntries = (m: Manifest): ManuscriptEntry[] => [...m.frontMatter, ...m.chapters, ...m.backMatter];
+const allEntries = (m: Manifest): ManuscriptEntry[] => [
+  ...m.frontMatter,
+  ...m.chapters,
+  ...m.backMatter,
+];
 
 /** Which list holds `id`: "front", "chapter", "back", or null when it does not exist. */
 export function sectionOf(m: Manifest, id: string): "front" | "chapter" | "back" | null {
@@ -65,9 +82,15 @@ export function canAddMatter(m: Manifest, kind: MatterKind): boolean {
   return ![...m.frontMatter, ...m.backMatter].some((e) => e.kind === kind);
 }
 
-function addMatter(m: Manifest, section: MatterSection, kind: MatterKind, title: string): { manifest: Manifest; entry: ManuscriptEntry } {
+function addMatter(
+  m: Manifest,
+  section: MatterSection,
+  kind: MatterKind,
+  title: string,
+): { manifest: Manifest; entry: ManuscriptEntry } {
   const front = section === "frontMatter";
-  if (!(front ? isFrontMatterKind(kind) : isBackMatterKind(kind))) throw new Error(`"${kind}" is not a ${front ? "front" : "back"} matter kind`);
+  if (!(front ? isFrontMatterKind(kind) : isBackMatterKind(kind)))
+    throw new Error(`"${kind}" is not a ${front ? "front" : "back"} matter kind`);
   if (!canAddMatter(m, kind)) throw new Error(`The book already has a ${kind} page`);
   const used = allEntries(m);
   const prefix = front ? "fm" : "bm";
@@ -76,17 +99,26 @@ function addMatter(m: Manifest, section: MatterSection, kind: MatterKind, title:
   while (used.some((e) => e.id === `${prefix}-${n}`)) n++;
   let pos = m[section].length + 1;
   while (used.some((e) => e.file === `${folder}/${matterFileName(pos, title)}`)) pos++;
-  const entry: ManuscriptEntry = { id: `${prefix}-${n}`, file: `${folder}/${matterFileName(pos, title)}`, title, kind };
+  const entry: ManuscriptEntry = {
+    id: `${prefix}-${n}`,
+    file: `${folder}/${matterFileName(pos, title)}`,
+    title,
+    kind,
+  };
   const list = [...m[section]];
   // Front matter follows the conventional order (title page, copyright, dedication...); custom pages go last. Back matter is appended.
   const order: readonly MatterKind[] = front ? FRONT_MATTER_KINDS : BACK_MATTER_KINDS;
-  const at = front ? list.findIndex((e) => order.indexOf(e.kind ?? "custom") > order.indexOf(kind)) : -1;
+  const at = front
+    ? list.findIndex((e) => order.indexOf(e.kind ?? "custom") > order.indexOf(kind))
+    : -1;
   list.splice(at < 0 ? list.length : at, 0, entry);
   return { manifest: { ...m, [section]: list }, entry };
 }
 
-export const addFrontMatter = (m: Manifest, kind: MatterKind, title: string) => addMatter(m, "frontMatter", kind, title);
-export const addBackMatter = (m: Manifest, kind: MatterKind, title: string) => addMatter(m, "backMatter", kind, title);
+export const addFrontMatter = (m: Manifest, kind: MatterKind, title: string) =>
+  addMatter(m, "frontMatter", kind, title);
+export const addBackMatter = (m: Manifest, kind: MatterKind, title: string) =>
+  addMatter(m, "backMatter", kind, title);
 
 function matterSection(m: Manifest, id: string): MatterSection {
   if (m.frontMatter.some((e) => e.id === id)) return "frontMatter";
@@ -111,7 +143,10 @@ export function moveMatter(m: Manifest, id: string, delta: number): Manifest {
   return { ...m, [section]: list };
 }
 
-export function removeMatter(m: Manifest, id: string): { manifest: Manifest; removed: ManuscriptEntry } {
+export function removeMatter(
+  m: Manifest,
+  id: string,
+): { manifest: Manifest; removed: ManuscriptEntry } {
   const section = matterSection(m, id);
   const removed = m[section].find((e) => e.id === id)!;
   return { manifest: { ...m, [section]: m[section].filter((e) => e.id !== id) }, removed };
@@ -120,14 +155,24 @@ export function removeMatter(m: Manifest, id: string): { manifest: Manifest; rem
 /** Where a restored file goes, from its folder. Null for files outside manuscript, front-matter and back-matter. */
 function sectionOfFile(file: string): MatterSection | "chapters" | null {
   const dir = file.split("/")[0];
-  return dir === "manuscript" ? "chapters" : dir === "front-matter" ? "frontMatter" : dir === "back-matter" ? "backMatter" : null;
+  return dir === "manuscript"
+    ? "chapters"
+    : dir === "front-matter"
+      ? "frontMatter"
+      : dir === "back-matter"
+        ? "backMatter"
+        : null;
 }
 
 /**
  * Puts a restored file back in the manifest: at the end of the section its folder says (chapters, front matter or back
  * matter), under a fresh id. Matter pages come back as "custom" because the kind is not stored in the file.
  */
-export function restoreEntry(m: Manifest, file: string, title: string): { manifest: Manifest; entry: ManuscriptEntry } {
+export function restoreEntry(
+  m: Manifest,
+  file: string,
+  title: string,
+): { manifest: Manifest; entry: ManuscriptEntry } {
   const section = sectionOfFile(file);
   if (!section) throw new Error(`cannot restore ${file}`);
   const used = allEntries(m);
@@ -135,7 +180,12 @@ export function restoreEntry(m: Manifest, file: string, title: string): { manife
   const prefix = section === "chapters" ? "ch" : section === "frontMatter" ? "fm" : "bm";
   let n = m[section].length + 1;
   while (used.some((e) => e.id === `${prefix}-${n}`)) n++;
-  const entry: ManuscriptEntry = { id: `${prefix}-${n}`, file, title, ...(section === "chapters" ? {} : { kind: "custom" as MatterKind }) };
+  const entry: ManuscriptEntry = {
+    id: `${prefix}-${n}`,
+    file,
+    title,
+    ...(section === "chapters" ? {} : { kind: "custom" as MatterKind }),
+  };
   return { manifest: { ...m, [section]: [...m[section], entry] }, entry };
 }
 
@@ -148,7 +198,11 @@ export interface Tree {
   backMatter: ManuscriptEntry[];
 }
 
-export const treeOf = (m: Manifest): Tree => ({ frontMatter: m.frontMatter, chapters: m.chapters, backMatter: m.backMatter });
+export const treeOf = (m: Manifest): Tree => ({
+  frontMatter: m.frontMatter,
+  chapters: m.chapters,
+  backMatter: m.backMatter,
+});
 
 export const withTree = (m: Manifest, tree: Tree): Manifest => ({ ...m, ...tree });
 
@@ -156,6 +210,11 @@ export const sameTree = (a: Tree, b: Tree): boolean => JSON.stringify(a) === JSO
 
 /** Points the entry whose file is `from` at `to` (a restored file that had to take another name). */
 export function retargetFile(tree: Tree, from: string, to: string): Tree {
-  const fix = (list: ManuscriptEntry[]) => list.map((e) => (e.file === from ? { ...e, file: to } : e));
-  return { frontMatter: fix(tree.frontMatter), chapters: fix(tree.chapters), backMatter: fix(tree.backMatter) };
+  const fix = (list: ManuscriptEntry[]) =>
+    list.map((e) => (e.file === from ? { ...e, file: to } : e));
+  return {
+    frontMatter: fix(tree.frontMatter),
+    chapters: fix(tree.chapters),
+    backMatter: fix(tree.backMatter),
+  };
 }

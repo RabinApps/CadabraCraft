@@ -4,27 +4,41 @@ import { disk, hashOf as h } from "../../../test/fakeBridge";
 // Writes can be held back to test overlapping saves.
 const writes: { path: string; contents: string }[] = [];
 let hold: Promise<void> | null = null;
-vi.mock("../../../lib/bridge", async () => (await import("../../../test/fakeBridge")).fakeBridge({
-  writeFile: async (_r: string, p: string, c: string) => {
-    writes.push({ path: p, contents: c });
-    if (hold && p.startsWith("manuscript/")) await hold;
-    disk.set(p, c);
-    return { hash: h(c), conflict_copy: null };
-  },
-}));
+vi.mock("../../../lib/bridge", async () =>
+  (await import("../../../test/fakeBridge")).fakeBridge({
+    writeFile: async (_r: string, p: string, c: string) => {
+      writes.push({ path: p, contents: c });
+      if (hold && p.startsWith("manuscript/")) await hold;
+      disk.set(p, c);
+      return { hash: h(c), conflict_copy: null };
+    },
+  }),
+);
 
 import { AUTOSAVE_MS, useProject } from "../index";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
-const doc = (t: string) => ({ type: "doc" as const, content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }] });
+const doc = (t: string) => ({
+  type: "doc" as const,
+  content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
+});
 const FILE = "manuscript/001-chapter-one.json";
 
 beforeEach(async () => {
   disk.clear();
   writes.length = 0;
   hold = null;
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0 });
+  useProject.setState({
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    reloadCount: 0,
+  });
   await a().createProject("/p", "Book", "Me");
   writes.length = 0;
 });
@@ -46,7 +60,9 @@ describe("setDraft and flush", () => {
   });
   it("keeps typing that arrives while a save is running", async () => {
     let release!: () => void;
-    hold = new Promise((r) => { release = r; });
+    hold = new Promise((r) => {
+      release = r;
+    });
     a().setDraft(doc("first"));
     const saving = a().flush();
     a().setDraft(doc("second"));
@@ -60,7 +76,9 @@ describe("setDraft and flush", () => {
   });
   it("runs overlapping flushes one after another", async () => {
     let release!: () => void;
-    hold = new Promise((r) => { release = r; });
+    hold = new Promise((r) => {
+      release = r;
+    });
     a().setDraft(doc("one"));
     const first = a().flush();
     const second = a().flush();
@@ -87,7 +105,9 @@ describe("autosave", () => {
     vi.useFakeTimers();
     const { bridge } = await import("../../../lib/bridge");
     const original = bridge.writeFile;
-    (bridge as { writeFile: unknown }).writeFile = async () => { throw { kind: "io", message: "disk full" }; };
+    (bridge as { writeFile: unknown }).writeFile = async () => {
+      throw { kind: "io", message: "disk full" };
+    };
     try {
       a().setDraft(doc("keep me"));
       await vi.advanceTimersByTimeAsync(AUTOSAVE_MS + 10);
@@ -126,7 +146,11 @@ describe("corrupt chapter files", () => {
 });
 
 describe("externalChange", () => {
-  const external = (t: string) => { const c = JSON.stringify(doc(t)); disk.set(FILE, c); return c; };
+  const external = (t: string) => {
+    const c = JSON.stringify(doc(t));
+    disk.set(FILE, c);
+    return c;
+  };
   it("reloads the open chapter from disk when there is no draft", async () => {
     external("from outside");
     await a().externalChange(FILE);

@@ -87,7 +87,6 @@ export interface History {
   redo: HistoryEntry[];
 }
 
-
 /** A page whose newest snapshot is newer than the saved page and differs from it (see `find_stale_pages`). */
 export interface Recovery {
   id: string;
@@ -147,7 +146,16 @@ export interface ProjectState {
   history: History;
   /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
   recovery: Recovery[];
-  actions: ProjectActions & PageActions & HistoryActions & TrashActions & SnapshotActions & ReplaceActions & AssetActions & ExportActions & AudioActions & VoiceActions;
+  actions: ProjectActions &
+    PageActions &
+    HistoryActions &
+    TrashActions &
+    SnapshotActions &
+    ReplaceActions &
+    AssetActions &
+    ExportActions &
+    AudioActions &
+    VoiceActions;
 }
 
 export interface ProjectActions {
@@ -157,7 +165,13 @@ export interface ProjectActions {
   closeProject: () => Promise<void>;
   createProject: (root: string, title: string, author: string) => Promise<void>;
   /** Imports a .docx/.md file into a NEW project in `root` (the source is only read), opens it and sets `importReport`. Throws, having created nothing, when the file cannot be imported. */
-  importBook: (sourcePath: string, root: string, title: string, author: string, opts?: ImportChoices) => Promise<void>;
+  importBook: (
+    sourcePath: string,
+    root: string,
+    title: string,
+    author: string,
+    opts?: ImportChoices,
+  ) => Promise<void>;
   dismissImportReport: () => void;
   /** Sets the book's template (cadabra.json). A no-op when it is already set. */
   setTemplate: (id: string) => Promise<void>;
@@ -242,7 +256,11 @@ export interface AudioActions {
    * Renders a few sentences of the first chosen chapter and resolves to WAV bytes, or null when stopped. Nothing is
    * written to the project. Rejects with a readable message (no voice, no text, engine failure).
    */
-  hearAudioSample: (options: { voice: string; speed: number; chapterIds?: string[] }) => Promise<Uint8Array | null>;
+  hearAudioSample: (options: {
+    voice: string;
+    speed: number;
+    chapterIds?: string[];
+  }) => Promise<Uint8Array | null>;
   /** Stops a running sample. */
   cancelAudioSample: () => void;
   /** Stops the audiobook: the engine is killed and finished chapters are kept. */

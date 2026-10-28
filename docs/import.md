@@ -21,24 +21,24 @@ ImportResult = { chapters: { title, doc: ChapterDoc }[], warnings: ImportWarning
 
 ## Markdown mappings
 
-| Source | Result |
-|---|---|
-| `#`..`###` | heading 1-3 (`####`+ clamped to 3, `heading-clamped`) |
-| paragraph, `*em*`, `**strong**` | paragraph, italic, bold |
-| `[t](http/https/mailto)` | link mark. Other schemes and relative paths: plain text, `unsafe-link` |
-| `> quote` | blockquote |
-| `-`/`1.` lists, nested | bulletList/orderedList (start number kept) |
-| `***`, `---`, `___` | sceneBreak |
-| `[^1]` + definition | inline footnote node (definition flattened to text) |
-| `![alt](path)` | image block, path recorded in `assets`. Remote and non-image targets: `[Image: alt]` text, `remote-image` / `unsupported-image` |
-| hard break | splits paragraph (`line-break`, info) |
-| GFM table | table node, first row = header; short rows padded to a rectangle; images in cells become their alt text (`table-complex`) |
-| fenced or indented code block | codeBlock (text kept as is; the first word of the fence info becomes `language` when it is a plain token, otherwise dropped) |
-| inline code | `code` mark (replaces any other marks on that text) |
-| raw HTML, block level | converted by the HTML importer (see below) with the same warnings |
-| raw HTML, inline | exactly the pairs `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>` (what `htmlMarks` writes) become marks, across emphasis and links. Any other inline tag, or an unpaired one, stays literal text (`html`) |
-| `~~x~~` | `strike` mark |
-| `- [x]` | text prefix `[x] ` / `[ ] ` (`task-list`) |
+| Source                          | Result                                                                                                                                                                                                          |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#`..`###`                      | heading 1-3 (`####`+ clamped to 3, `heading-clamped`)                                                                                                                                                           |
+| paragraph, `*em*`, `**strong**` | paragraph, italic, bold                                                                                                                                                                                         |
+| `[t](http/https/mailto)`        | link mark. Other schemes and relative paths: plain text, `unsafe-link`                                                                                                                                          |
+| `> quote`                       | blockquote                                                                                                                                                                                                      |
+| `-`/`1.` lists, nested          | bulletList/orderedList (start number kept)                                                                                                                                                                      |
+| `***`, `---`, `___`             | sceneBreak                                                                                                                                                                                                      |
+| `[^1]` + definition             | inline footnote node (definition flattened to text)                                                                                                                                                             |
+| `![alt](path)`                  | image block, path recorded in `assets`. Remote and non-image targets: `[Image: alt]` text, `remote-image` / `unsupported-image`                                                                                 |
+| hard break                      | splits paragraph (`line-break`, info)                                                                                                                                                                           |
+| GFM table                       | table node, first row = header; short rows padded to a rectangle; images in cells become their alt text (`table-complex`)                                                                                       |
+| fenced or indented code block   | codeBlock (text kept as is; the first word of the fence info becomes `language` when it is a plain token, otherwise dropped)                                                                                    |
+| inline code                     | `code` mark (replaces any other marks on that text)                                                                                                                                                             |
+| raw HTML, block level           | converted by the HTML importer (see below) with the same warnings                                                                                                                                               |
+| raw HTML, inline                | exactly the pairs `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>` (what `htmlMarks` writes) become marks, across emphasis and links. Any other inline tag, or an unpaired one, stays literal text (`html`) |
+| `~~x~~`                         | `strike` mark                                                                                                                                                                                                   |
+| `- [x]`                         | text prefix `[x] ` / `[ ] ` (`task-list`)                                                                                                                                                                       |
 
 Markdown warnings carry a 1-based `line`. At most 25 located warnings per code are kept, then one summary with `count`.
 
@@ -46,22 +46,22 @@ Markdown warnings carry a 1-based `line`. At most 25 located warnings per code a
 
 `importHtml` (files, full document parse), `htmlToBlocks` and `htmlToInline` (snippets, fragment parse) share one converter (`src/html.ts`) built on `parse5` (no DOM, so it also runs in the headless MCP server). It never fetches anything and never puts parsed HTML into a live DOM.
 
-| Source | Result |
-|---|---|
-| `h1`..`h6` | heading 1-3 (deeper clamped, `heading-clamped`) |
-| `p`, `div`, `section`, `article` and other containers | paragraphs; bare text next to blocks is wrapped in a paragraph |
-| `blockquote`, `ul`, `ol` (`start` kept), `li`, nested | blockquote, lists (`nesting-too-deep` past `maxNestingDepth`) |
-| `pre` (+ `code.language-x`) | codeBlock, whitespace kept |
-| `table` | table node; first row is the header when it is in `thead` or all `th`; `colspan`/`rowspan` and ragged rows give `table-merged`, lists/images in cells `table-complex`; `caption` becomes a paragraph before the table |
-| `hr` (with or without `class="scene-break"`) | sceneBreak |
-| `br` | splits the paragraph (`line-break`, info) |
-| `strong`/`b`, `em`/`i`, `u`, `s`/`del`/`strike`, `code`, `sup`, `sub` | marks |
-| `span.small-caps`, `style="font-variant: small-caps"` | smallCaps mark |
-| `span.footnote` | footnote node (text only) |
-| `a[href]` | link mark for http, https, mailto; other schemes: text, `unsafe-link`. `#anchor` and `a[name]` links are plain text without a warning |
-| `img` | image block for a local path (recorded in `assets`, app copies it as for Markdown); remote and `data:` sources become `[Image: alt]` text (`remote-image`, `unsupported-image`) |
-| `script`, `style`, `iframe`, `object`, `svg`, `noscript`, `template`, `head` (except `<title>`), comments | dropped with their content, silently |
-| any other element (`mark`, `small`, `font`-like extras, custom tags) | its children are kept; one aggregated `unsupported-element` warning lists the tag names |
+| Source                                                                                                    | Result                                                                                                                                                                                                                |
+| --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `h1`..`h6`                                                                                                | heading 1-3 (deeper clamped, `heading-clamped`)                                                                                                                                                                       |
+| `p`, `div`, `section`, `article` and other containers                                                     | paragraphs; bare text next to blocks is wrapped in a paragraph                                                                                                                                                        |
+| `blockquote`, `ul`, `ol` (`start` kept), `li`, nested                                                     | blockquote, lists (`nesting-too-deep` past `maxNestingDepth`)                                                                                                                                                         |
+| `pre` (+ `code.language-x`)                                                                               | codeBlock, whitespace kept                                                                                                                                                                                            |
+| `table`                                                                                                   | table node; first row is the header when it is in `thead` or all `th`; `colspan`/`rowspan` and ragged rows give `table-merged`, lists/images in cells `table-complex`; `caption` becomes a paragraph before the table |
+| `hr` (with or without `class="scene-break"`)                                                              | sceneBreak                                                                                                                                                                                                            |
+| `br`                                                                                                      | splits the paragraph (`line-break`, info)                                                                                                                                                                             |
+| `strong`/`b`, `em`/`i`, `u`, `s`/`del`/`strike`, `code`, `sup`, `sub`                                     | marks                                                                                                                                                                                                                 |
+| `span.small-caps`, `style="font-variant: small-caps"`                                                     | smallCaps mark                                                                                                                                                                                                        |
+| `span.footnote`                                                                                           | footnote node (text only)                                                                                                                                                                                             |
+| `a[href]`                                                                                                 | link mark for http, https, mailto; other schemes: text, `unsafe-link`. `#anchor` and `a[name]` links are plain text without a warning                                                                                 |
+| `img`                                                                                                     | image block for a local path (recorded in `assets`, app copies it as for Markdown); remote and `data:` sources become `[Image: alt]` text (`remote-image`, `unsupported-image`)                                       |
+| `script`, `style`, `iframe`, `object`, `svg`, `noscript`, `template`, `head` (except `<title>`), comments | dropped with their content, silently                                                                                                                                                                                  |
+| any other element (`mark`, `small`, `font`-like extras, custom tags)                                      | its children are kept; one aggregated `unsupported-element` warning lists the tag names                                                                                                                               |
 
 Whitespace outside `pre` is collapsed and trimmed per paragraph; entities are decoded. `importHtml` names content before the first split heading, or a file with no such heading, after `<title>`, else the first heading, else `untitledTitle`. Nesting deeper than 512 elements, or a pile of unclosed block tags (parse5 is quadratic on those), throws `ImportError` `too-deeply-nested` before parsing. `looksLikeHtml` needs a well-formed tag whose element is one of p, div, span, b, strong, i, em, u, s, del, strike, a, h1-h6, ul, ol, li, blockquote, pre, code, table parts, br, hr, sup, sub, img; `a < b`, `<3`, `x<y>z` and `if (a<b && c>d)` are not HTML. Known gap: `a<b and y>c` reads as a `<b>` tag.
 
@@ -80,24 +80,25 @@ opts = { htmlMarks?, imageBase?, footnoteOffset? }
 
 A page whose document does not start with a level-1 heading gets `# Title` from its title. Footnote labels continue across pages so joined text has no clashes. Anything without a faithful form throws `MarkdownExportError`: unknown nodes or marks, headings outside 1-3, a code-block language with spaces, text with a raw newline, image paths containing `?` or `#`, ragged tables. Nothing is dropped silently.
 
-| Document | Markdown |
-|---|---|
-| paragraph, heading 1-3, blockquote | text, `#`..`###`, `> ` (nested) |
-| bullet / ordered list (nested, `start` kept) | `-` / `1.`, continuation lines indented to the marker. A list directly after a list of the same kind alternates `-`/`*` and `.`/`)` so they do not merge |
-| code block | fenced with backticks, the fence is longer than any backtick run inside; `language` is the info string |
-| hard break | backslash + newline (the importer turns it into two paragraphs) |
-| image | `![alt](path "caption")`; caption is the `title`; the path is percent-encoded and prefixed with `imageBase` when relative |
-| scene break | `* * *` |
-| footnote | `[^n]` and `[^n]: text` definitions after the last block |
-| table | GFM; the header row is the first row when all its cells are headers, otherwise an empty header row is written (GFM requires one) |
-| bold, italic, strike | `**x**`, `*x*` (`_x_` next to a bold/italic neighbour), `~~x~~` |
-| inline code | backtick span, padded when the text starts/ends with a backtick or space |
-| link | `[text](href)`, `<href>` form for spaces/unbalanced parentheses |
+| Document                                      | Markdown                                                                                                                                                                                                                                                                |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| paragraph, heading 1-3, blockquote            | text, `#`..`###`, `> ` (nested)                                                                                                                                                                                                                                         |
+| bullet / ordered list (nested, `start` kept)  | `-` / `1.`, continuation lines indented to the marker. A list directly after a list of the same kind alternates `-`/`*` and `.`/`)` so they do not merge                                                                                                                |
+| code block                                    | fenced with backticks, the fence is longer than any backtick run inside; `language` is the info string                                                                                                                                                                  |
+| hard break                                    | backslash + newline (the importer turns it into two paragraphs)                                                                                                                                                                                                         |
+| image                                         | `![alt](path "caption")`; caption is the `title`; the path is percent-encoded and prefixed with `imageBase` when relative                                                                                                                                               |
+| scene break                                   | `* * *`                                                                                                                                                                                                                                                                 |
+| footnote                                      | `[^n]` and `[^n]: text` definitions after the last block                                                                                                                                                                                                                |
+| table                                         | GFM; the header row is the first row when all its cells are headers, otherwise an empty header row is written (GFM requires one)                                                                                                                                        |
+| bold, italic, strike                          | `**x**`, `*x*` (`_x_` next to a bold/italic neighbour), `~~x~~`                                                                                                                                                                                                         |
+| inline code                                   | backtick span, padded when the text starts/ends with a backtick or space                                                                                                                                                                                                |
+| link                                          | `[text](href)`, `<href>` form for spaces/unbalanced parentheses                                                                                                                                                                                                         |
 | underline, small caps, superscript, subscript | **no Markdown syntax.** Default: throw, naming the mark. With `htmlMarks: true`: `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>`. `importMarkdown` reads exactly these four tags back as marks (round trip tested), but other Markdown tools may show them as text |
 
-Text is backslash-escaped (`\ ` * _ [ ] < > ~`, entity-like `&`, `|` in table cells, and `#`, `-`, `+`, `1.` at the start of a block), so it re-imports verbatim. Delimiters never touch whitespace (`x **bold** y`).
+Text is backslash-escaped (`\ ` * _ [ ] < > ~`, entity-like `&`, `|`in table cells, and`#`, `-`, `+`, `1.` at the start of a block), so it re-imports verbatim. Delimiters never touch whitespace (`x **bold** y`).
 
 Round trip (tests in `packages/export-markdown`, including 1000 seeded random documents and `fixtures/manuscripts/sample-chapter.json`): doc -> Markdown -> `importMarkdown` -> the same doc, with these known differences:
+
 - Underline, small caps, superscript and subscript (see above).
 - Hard breaks become separate paragraphs; empty paragraphs are not written; leading/trailing spaces of a paragraph are trimmed.
 - Several paragraphs in one table cell are joined with a space; header cells below the first row become normal cells; a table without header cells re-imports with its first row as header.
@@ -107,59 +108,60 @@ Round trip (tests in `packages/export-markdown`, including 1000 seeded random do
 
 ## DOCX mappings
 
-| Word | Result |
-|---|---|
-| Heading 1-3 (also styles based on them) | heading 1-3; Heading 4-9 clamped to 3 (`heading-clamped`) |
-| Normal, Body Text, List Paragraph, ... | paragraph |
-| Quote, Block Quote, Intense Quote | blockquote (consecutive paragraphs merge) |
-| List Bullet/Number (n), numbering (`numPr`, format from numbering.xml) | nested bullet/ordered lists |
-| bold, italic, underline, small caps (direct or character style `Strong`/`Emphasis`), strikethrough, superscript, subscript | marks |
-| hyperlink, `HYPERLINK` fields | link mark (http/https/mailto only) |
-| footnotes (endnotes too) | inline footnote node (flattened to text) |
-| centered paragraph `* * *` or `#` | sceneBreak. Uncentered `* * *` stays a paragraph |
-| page / section breaks | ignored (`page-break`, `section-break`, info) |
-| manual line break | splits paragraph (`line-break`, info) |
-| images (PNG, JPEG, GIF, WebP, SVG) | image block, bytes in `assets`, alt from `descr` |
-| paragraphs styled Code, Source Code or Preformatted Text (or a style based on one) | codeBlock; consecutive paragraphs merge, one line per paragraph. Fonts are never used to guess code. A paragraph with a footnote or image stays a normal paragraph |
-| tracked changes | insertions accepted, deletions dropped (`tracked-changes`) |
-| table (`w:tbl`) | table node; the first row is a header only when Word marks it as a repeating header row. Multi-paragraph cells keep their paragraphs. `gridSpan` / `vMerge` split into separate cells with empty padding (`table-merged`); nested tables, lists and images in a cell flattened to paragraphs (`table-complex`). A table inside a footnote is dropped (`note-table`) |
+| Word                                                                                                                       | Result                                                                                                                                                                                                                                                                                                                                                              |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Heading 1-3 (also styles based on them)                                                                                    | heading 1-3; Heading 4-9 clamped to 3 (`heading-clamped`)                                                                                                                                                                                                                                                                                                           |
+| Normal, Body Text, List Paragraph, ...                                                                                     | paragraph                                                                                                                                                                                                                                                                                                                                                           |
+| Quote, Block Quote, Intense Quote                                                                                          | blockquote (consecutive paragraphs merge)                                                                                                                                                                                                                                                                                                                           |
+| List Bullet/Number (n), numbering (`numPr`, format from numbering.xml)                                                     | nested bullet/ordered lists                                                                                                                                                                                                                                                                                                                                         |
+| bold, italic, underline, small caps (direct or character style `Strong`/`Emphasis`), strikethrough, superscript, subscript | marks                                                                                                                                                                                                                                                                                                                                                               |
+| hyperlink, `HYPERLINK` fields                                                                                              | link mark (http/https/mailto only)                                                                                                                                                                                                                                                                                                                                  |
+| footnotes (endnotes too)                                                                                                   | inline footnote node (flattened to text)                                                                                                                                                                                                                                                                                                                            |
+| centered paragraph `* * *` or `#`                                                                                          | sceneBreak. Uncentered `* * *` stays a paragraph                                                                                                                                                                                                                                                                                                                    |
+| page / section breaks                                                                                                      | ignored (`page-break`, `section-break`, info)                                                                                                                                                                                                                                                                                                                       |
+| manual line break                                                                                                          | splits paragraph (`line-break`, info)                                                                                                                                                                                                                                                                                                                               |
+| images (PNG, JPEG, GIF, WebP, SVG)                                                                                         | image block, bytes in `assets`, alt from `descr`                                                                                                                                                                                                                                                                                                                    |
+| paragraphs styled Code, Source Code or Preformatted Text (or a style based on one)                                         | codeBlock; consecutive paragraphs merge, one line per paragraph. Fonts are never used to guess code. A paragraph with a footnote or image stays a normal paragraph                                                                                                                                                                                                  |
+| tracked changes                                                                                                            | insertions accepted, deletions dropped (`tracked-changes`)                                                                                                                                                                                                                                                                                                          |
+| table (`w:tbl`)                                                                                                            | table node; the first row is a header only when Word marks it as a repeating header row. Multi-paragraph cells keep their paragraphs. `gridSpan` / `vMerge` split into separate cells with empty padding (`table-merged`); nested tables, lists and images in a cell flattened to paragraphs (`table-complex`). A table inside a footnote is dropped (`note-table`) |
 
 ## Warnings catalogue
 
 `warning` means content or formatting was lost or changed; `info` means a benign normalisation. DOCX warnings are aggregated: `count` plus up to 5 `examples`.
 
-| Code | Format | Meaning |
-|---|---|---|
-| `empty-input`, `no-headings`, `untitled-content` | both | chapter splitting outcomes |
-| `heading-clamped` | both | heading deeper than 3 |
-| `unsafe-link` | both | link scheme not allowed (text kept) |
-| `internal-link` | docx (info) | link to a bookmark, kept as text |
-| `line-break` | both (info) | break split into paragraphs |
-| `table-complex` | all | images, lists or nested tables inside a table cell flattened to paragraphs (nested tables become one ` | ` separated paragraph per row) |
-| `table-merged` | docx, html | merged cells (`gridSpan`, `vMerge`, `colspan`, `rowspan`) split; covered cells are empty so the table stays rectangular |
-| `html`, `task-list` | md | see table above (`html`: inline tag other than the four mark tags, or an unpaired one) |
-| `remote-image`, `unsupported-image` | md, html | image not imported |
-| `footnote-undefined`, `footnote-unreferenced`, `footnote-nested`, `footnote-complex` | md | footnote problems |
-| `nesting-too-deep` | md, html | list/quote deeper than `maxNestingDepth` flattened |
-| `unsupported-node` | md | unknown mdast node kept as text |
-| `style-fallback` | docx (info) | custom paragraph style imported as Normal (examples = style names) |
-| `text-box`, `unsupported-drawing`, `embedded-object` | docx | skipped; text-box text shown as example |
-| `comments`, `header-footer` | docx | not imported |
-| `tracked-changes` | docx | insertions kept, deletions dropped |
-| `equation` | docx | math text kept without layout |
-| `field` | docx (info) | field replaced by its current text |
-| `hidden-text` | docx (info) | hidden runs skipped |
-| `endnote` | docx (info) | endnotes become footnotes |
-| `missing-image`, `unsupported-image-format`, `note-image` | docx | image skipped |
-| `footnote-missing`, `note-table` | docx | note problems |
-| `page-break`, `section-break` | docx (info) | ignored |
-| `unsupported-element` | docx, html | docx: unknown body element skipped; html: unknown element ignored, its text kept (aggregated, examples = tag names) |
+| Code                                                                                 | Format      | Meaning                                                                                                                 |
+| ------------------------------------------------------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `empty-input`, `no-headings`, `untitled-content`                                     | both        | chapter splitting outcomes                                                                                              |
+| `heading-clamped`                                                                    | both        | heading deeper than 3                                                                                                   |
+| `unsafe-link`                                                                        | both        | link scheme not allowed (text kept)                                                                                     |
+| `internal-link`                                                                      | docx (info) | link to a bookmark, kept as text                                                                                        |
+| `line-break`                                                                         | both (info) | break split into paragraphs                                                                                             |
+| `table-complex`                                                                      | all         | images, lists or nested tables inside a table cell flattened to paragraphs (nested tables become one `                  | ` separated paragraph per row) |
+| `table-merged`                                                                       | docx, html  | merged cells (`gridSpan`, `vMerge`, `colspan`, `rowspan`) split; covered cells are empty so the table stays rectangular |
+| `html`, `task-list`                                                                  | md          | see table above (`html`: inline tag other than the four mark tags, or an unpaired one)                                  |
+| `remote-image`, `unsupported-image`                                                  | md, html    | image not imported                                                                                                      |
+| `footnote-undefined`, `footnote-unreferenced`, `footnote-nested`, `footnote-complex` | md          | footnote problems                                                                                                       |
+| `nesting-too-deep`                                                                   | md, html    | list/quote deeper than `maxNestingDepth` flattened                                                                      |
+| `unsupported-node`                                                                   | md          | unknown mdast node kept as text                                                                                         |
+| `style-fallback`                                                                     | docx (info) | custom paragraph style imported as Normal (examples = style names)                                                      |
+| `text-box`, `unsupported-drawing`, `embedded-object`                                 | docx        | skipped; text-box text shown as example                                                                                 |
+| `comments`, `header-footer`                                                          | docx        | not imported                                                                                                            |
+| `tracked-changes`                                                                    | docx        | insertions kept, deletions dropped                                                                                      |
+| `equation`                                                                           | docx        | math text kept without layout                                                                                           |
+| `field`                                                                              | docx (info) | field replaced by its current text                                                                                      |
+| `hidden-text`                                                                        | docx (info) | hidden runs skipped                                                                                                     |
+| `endnote`                                                                            | docx (info) | endnotes become footnotes                                                                                               |
+| `missing-image`, `unsupported-image-format`, `note-image`                            | docx        | image skipped                                                                                                           |
+| `footnote-missing`, `note-table`                                                     | docx        | note problems                                                                                                           |
+| `page-break`, `section-break`                                                        | docx (info) | ignored                                                                                                                 |
+| `unsupported-element`                                                                | docx, html  | docx: unknown body element skipped; html: unknown element ignored, its text kept (aggregated, examples = tag names)     |
 
 ## In the app
 
 Start screen, **Import…** opens a two-step wizard. Step 1: choose a `.docx`, `.md`, `.markdown`, `.html` or `.htm` file, a title and author (title defaults to the file name), and a destination folder (the native folder dialog can create one). **Next** reads and parses the file (nothing is written). Step 2 previews the chapters: pick the heading level that starts a chapter (Heading 1-3, the file is re-parsed), rename chapters, untick the ones to skip (images only they use are dropped), and see what could not be kept. **Import** then writes. Import always creates a NEW project in that folder and never modifies the source file.
 
 Order of work (`apps/desktop/src/app/importBook.ts`: `loadImport`, `parseImport`, `applyChapterEdits`, `writeImport`; `runImport` composes them):
+
 1. Read the source through the read-only `read_import_source` command (extensions docx/md/markdown/html/htm/txt, regular file, at most 200 MB) and run `importDocx` / `importMarkdown` / `importHtml` in the webview. An `ImportError`, an unreadable file or an empty result stops here with a message in the dialog; nothing has been created.
 2. Load images into memory. DOCX bytes come from the archive. Markdown references are read with `read_import_image(sourceFile, reference)`, resolved against the source file's folder; it rejects absolute paths, `..`, backslashes, symlinks that resolve outside that folder, non-image extensions, files over 25 MB and content that is not the claimed type. The raw reference is tried first, then its percent-decoded form without `?query`/`#fragment`.
 3. Only now write: `create_project` with an empty chapter list, images via `import_asset_bytes` (same sanitizing, de-duplication, allowlist and 25 MB rules as the image picker; it returns the final `assets/<name>`, and chapter docs are rewritten to it), one chapter file per chapter named with `chapterFileName`, then the manifest with the chapter list last. If a write fails, the error lists how many chapter files and images were already written and that the chapter list was not saved; chapters are never listed before their files exist.

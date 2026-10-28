@@ -13,10 +13,15 @@ export const createSnapshotActions = (ctx: Ctx): SnapshotActions => {
       const entry = entryOf(manifest, id);
       if (!entry) return;
       const w = await bridge.restoreSnapshot(root, entry.file, snapshot);
-      set({ hashes: { ...get().hashes, [entry.file]: w.hash }, recovery: get().recovery.filter((r) => r.id !== id) });
+      set({
+        hashes: { ...get().hashes, [entry.file]: w.hash },
+        recovery: get().recovery.filter((r) => r.id !== id),
+      });
       if (get().currentId === id) await reloadCurrent();
       else await load(id);
-      set({ notice: t`Restored an earlier version of ${entry.title}. The text it replaced is kept in History.` });
+      set({
+        notice: t`Restored an earlier version of ${entry.title}. The text it replaced is kept in History.`,
+      });
     },
     dismissRecovery(id) {
       set({ recovery: get().recovery.filter((r) => r.id !== id) });

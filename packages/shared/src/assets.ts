@@ -17,4 +17,5 @@ export function imageMediaType(path: string): string | null {
 }
 
 /** True for project-relative `assets/<file>` paths (one level, no `..`, no backslashes). */
-export const isAssetPath = (src: string): boolean => /^assets\/[^/\\]+$/.test(src) && !src.includes("..");
+export const isAssetPath = (src: string): boolean =>
+  /^assets\/[^/\\]+$/.test(src) && !src.includes("..");

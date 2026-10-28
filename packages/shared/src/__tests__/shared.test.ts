@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
-  BACK_MATTER_KINDS, FRONT_MATTER_KINDS, countWords, errMsg, imageMediaType, isAssetPath, isBackMatterKind, isFrontMatterKind, textDirection,
+  BACK_MATTER_KINDS,
+  FRONT_MATTER_KINDS,
+  countWords,
+  errMsg,
+  imageMediaType,
+  isAssetPath,
+  isBackMatterKind,
+  isFrontMatterKind,
+  textDirection,
 } from "../index";
 
 describe("isAssetPath", () => {
@@ -8,7 +16,16 @@ describe("isAssetPath", () => {
     expect(isAssetPath("assets/cover.png")).toBe(true);
   });
   it("rejects nesting, traversal, backslashes and other roots", () => {
-    for (const s of ["assets/a/b.png", "assets/..", "assets/a..b/", "assets\\a.png", "/assets/a.png", "manuscript/a.png", "assets/", "http://x/assets/a.png"]) {
+    for (const s of [
+      "assets/a/b.png",
+      "assets/..",
+      "assets/a..b/",
+      "assets\\a.png",
+      "/assets/a.png",
+      "manuscript/a.png",
+      "assets/",
+      "http://x/assets/a.png",
+    ]) {
       expect(isAssetPath(s), s).toBe(false);
     }
   });
@@ -52,7 +69,9 @@ describe("matter kind predicates", () => {
     expect(isBackMatterKind(3)).toBe(false);
   });
   it("share only the custom kind", () => {
-    expect(FRONT_MATTER_KINDS.filter((k) => (BACK_MATTER_KINDS as readonly string[]).includes(k))).toEqual(["custom"]);
+    expect(
+      FRONT_MATTER_KINDS.filter((k) => (BACK_MATTER_KINDS as readonly string[]).includes(k)),
+    ).toEqual(["custom"]);
   });
 });
 
@@ -68,6 +87,11 @@ describe("countWords", () => {
   it("ignores non-object input and malformed children", () => {
     expect(countWords(null)).toBe(0);
     expect(countWords("x")).toBe(0);
-    expect(countWords({ type: "doc", content: [null, 3, { type: "paragraph", content: [{ type: "text", text: "a b" }] }] })).toBe(2);
+    expect(
+      countWords({
+        type: "doc",
+        content: [null, 3, { type: "paragraph", content: [{ type: "text", text: "a b" }] }],
+      }),
+    ).toBe(2);
   });
 });

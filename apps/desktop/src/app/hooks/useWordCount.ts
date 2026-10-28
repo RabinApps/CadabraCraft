@@ -8,7 +8,10 @@ export function useWordCount(): number {
   const currentDoc = useProject((s) => s.currentDoc);
   const [words, setWords] = useState(0);
   useEffect(() => {
-    if (!draft) { setWords(countWords(currentDoc)); return; }
+    if (!draft) {
+      setWords(countWords(currentDoc));
+      return;
+    }
     const timer = setTimeout(() => setWords(countWords(draft)), 250);
     return () => clearTimeout(timer);
   }, [draft, currentDoc]);

@@ -1,8 +1,26 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, truncateSync, symlinkSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+  truncateSync,
+  symlinkSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { MAX_IMAGE_BYTES, MAX_IMPORT_BYTES, ProjectFsError, importImage, readAsset, readRelativeImage, readSource, storeImage, writeProjectFile } from "../index";
+import {
+  MAX_IMAGE_BYTES,
+  MAX_IMPORT_BYTES,
+  ProjectFsError,
+  importImage,
+  readAsset,
+  readRelativeImage,
+  readSource,
+  storeImage,
+  writeProjectFile,
+} from "../index";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 1]);
 const tmp = () => mkdtempSync(join(tmpdir(), "pfs-a-"));
@@ -43,7 +61,9 @@ describe("importImage", () => {
     const [proj, out] = [tmp(), tmp()];
     expect(msg(() => importImage(proj, src(out, "x.exe", PNG)))).toContain("unsupported");
     expect(msg(() => importImage(proj, src(out, "noext", PNG)))).toContain("unsupported");
-    expect(msg(() => importImage(proj, src(out, "fake.png", "not an image")))).toContain("not a valid");
+    expect(msg(() => importImage(proj, src(out, "fake.png", "not an image")))).toContain(
+      "not a valid",
+    );
     expect(msg(() => importImage(proj, join(out, "missing.png")))).toContain("not_found");
     mkdirSync(join(out, "d.png"));
     expect(msg(() => importImage(proj, join(out, "d.png")))).toContain("not a file");
@@ -54,7 +74,9 @@ describe("importImage", () => {
     expect(existsSync(join(proj, "assets"))).toBe(false);
   });
   it("rejects oversize bytes in storeImage", () => {
-    expect(msg(() => storeImage(tmp(), "big.png", new Uint8Array(MAX_IMAGE_BYTES + 1)))).toContain("larger");
+    expect(msg(() => storeImage(tmp(), "big.png", new Uint8Array(MAX_IMAGE_BYTES + 1)))).toContain(
+      "larger",
+    );
   });
   it("accepts every allowed type", () => {
     const proj = tmp();
@@ -77,8 +99,18 @@ describe("readAsset", () => {
     const rel = storeImage(proj, "a.png", PNG);
     expect(new Uint8Array(readAsset(proj, rel))).toEqual(PNG);
     writeProjectFile(proj, "manuscript/x.json", "{}");
-    for (const bad of ["manuscript/x.json", "assets/../cadabra.json", "assets/notes.txt", "../a.png", "/etc/a.png", "assets/missing.png"]) {
-      expect(msg(() => readAsset(proj, bad)), bad).not.toBe("none");
+    for (const bad of [
+      "manuscript/x.json",
+      "assets/../cadabra.json",
+      "assets/notes.txt",
+      "../a.png",
+      "/etc/a.png",
+      "assets/missing.png",
+    ]) {
+      expect(
+        msg(() => readAsset(proj, bad)),
+        bad,
+      ).not.toBe("none");
     }
   });
 });
@@ -122,8 +154,21 @@ describe("readRelativeImage", () => {
     writeFileSync(join(outer, "sub/notes.txt"), "hi");
     writeFileSync(join(outer, "sub/fake.png"), "not an image");
     const md = join(outer, "sub/book.md");
-    for (const bad of ["../secret.png", "a/../../secret.png", join(outer, "secret.png"), "", "..\\secret.png", "notes.txt", "fake.png", "missing.png", "sub"]) {
-      expect(msg(() => readRelativeImage(md, bad)), bad).not.toBe("none");
+    for (const bad of [
+      "../secret.png",
+      "a/../../secret.png",
+      join(outer, "secret.png"),
+      "",
+      "..\\secret.png",
+      "notes.txt",
+      "fake.png",
+      "missing.png",
+      "sub",
+    ]) {
+      expect(
+        msg(() => readRelativeImage(md, bad)),
+        bad,
+      ).not.toBe("none");
     }
   });
   it("rejects symlink escapes and allows symlinks that stay inside", () => {

@@ -8,7 +8,10 @@ vi.stubGlobal("localStorage", {
 const { useLayout } = await import("../layout");
 
 describe("useLayout", () => {
-  beforeEach(() => { store.clear(); useLayout.setState({ focus: false, details: true }); });
+  beforeEach(() => {
+    store.clear();
+    useLayout.setState({ focus: false, details: true });
+  });
   it("persists focus and details", () => {
     useLayout.getState().set({ focus: true });
     expect(JSON.parse(store.get("cadabracraft.layout")!)).toEqual({ focus: true, details: true });

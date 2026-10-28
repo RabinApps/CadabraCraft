@@ -3,15 +3,20 @@
  * Letters and digits from any script are kept (Hebrew, Arabic, CJK, Cyrillic...); only Latin accents are folded away.
  */
 function slugify(title: string): string {
-  return Array.from(
-    title
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .normalize("NFC")
-      .toLowerCase()
-      .replace(/[^\p{L}\p{N}\p{M}]+/gu, "-")
-      .replace(/^-+|-+$/g, ""),
-  ).slice(0, 48).join("").replace(/-+$/, "") || "untitled";
+  return (
+    Array.from(
+      title
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .normalize("NFC")
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}\p{M}]+/gu, "-")
+        .replace(/^-+|-+$/g, ""),
+    )
+      .slice(0, 48)
+      .join("")
+      .replace(/-+$/, "") || "untitled"
+  );
 }
 
 export function chapterFileName(position: number, title: string): string {

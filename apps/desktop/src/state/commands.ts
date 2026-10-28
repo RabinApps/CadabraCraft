@@ -24,7 +24,8 @@ export const useCommandRegistry = (): Commands => useRegistry((s) => s.commands)
 export const getCommands = (): Commands => useRegistry.getState().commands;
 
 /** True while a dialog is open: menu shortcuts must not act on the page behind it. */
-export const modalOpen = (): boolean => typeof document !== "undefined" && document.querySelector("[role=dialog]") !== null;
+export const modalOpen = (): boolean =>
+  typeof document !== "undefined" && document.querySelector("[role=dialog]") !== null;
 
 /** Runs a command if it is registered and enabled and no dialog is open. Returns whether it ran. */
 export function runCommand(id: string, arg?: string): boolean {
@@ -37,11 +38,12 @@ export function runCommand(id: string, arg?: string): boolean {
 /** Adds commands to the registry; returns the function that removes exactly those. */
 export function registerCommands(commands: Commands): () => void {
   useRegistry.setState((s) => ({ commands: { ...s.commands, ...commands } }));
-  return () => useRegistry.setState((s) => {
-    const next = { ...s.commands };
-    for (const id of Object.keys(commands)) delete next[id];
-    return { commands: next };
-  });
+  return () =>
+    useRegistry.setState((s) => {
+      const next = { ...s.commands };
+      for (const id of Object.keys(commands)) delete next[id];
+      return { commands: next };
+    });
 }
 
 /** Registers commands for as long as the component is mounted (and while they stay in `commands`). */
@@ -49,20 +51,31 @@ export function useRegisterCommands(commands: Commands): void {
   // Handlers change on every render; keep the latest ones behind stable wrappers so only availability triggers an update.
   const latest = useRef(commands);
   latest.current = commands;
-  const shape = JSON.stringify(Object.entries(commands).map(([id, c]) => [id, c.enabled ?? true, c.checked ?? null]));
+  const shape = JSON.stringify(
+    Object.entries(commands).map(([id, c]) => [id, c.enabled ?? true, c.checked ?? null]),
+  );
   useEffect(() => {
     const own = Object.keys(latest.current);
     const wrapped: Record<string, Command> = {};
     for (const id of own) {
       const c = latest.current[id]!;
-      wrapped[id] = { run: (arg) => latest.current[id]?.run(arg), ...(c.enabled === undefined ? {} : { enabled: c.enabled }), ...(c.checked === undefined ? {} : { checked: c.checked }) };
+      wrapped[id] = {
+        run: (arg) => latest.current[id]?.run(arg),
+        ...(c.enabled === undefined ? {} : { enabled: c.enabled }),
+        ...(c.checked === undefined ? {} : { checked: c.checked }),
+      };
     }
     return registerCommands(wrapped);
   }, [shape]);
 }
 
 /** Dialogs on the start screen that the File menu can also open from a book (it closes the book first). */
-export const useStartDialogs = create<{ creating: boolean; importing: boolean; setCreating: (v: boolean) => void; setImporting: (v: boolean) => void }>((set) => ({
+export const useStartDialogs = create<{
+  creating: boolean;
+  importing: boolean;
+  setCreating: (v: boolean) => void;
+  setImporting: (v: boolean) => void;
+}>((set) => ({
   creating: false,
   importing: false,
   setCreating: (creating) => set({ creating }),

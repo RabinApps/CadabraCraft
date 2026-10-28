@@ -23,14 +23,75 @@ export type PElement = DefaultTreeAdapterMap["element"];
 export type PText = DefaultTreeAdapterMap["textNode"];
 
 /** Dropped with their content. `head` is skipped here because the file importer reads `<title>` separately. */
-const SKIP = new Set(["script", "style", "iframe", "object", "svg", "noscript", "template", "head", "title", "meta", "link", "base", "embed", "applet", "frame", "frameset", "col", "colgroup", "wbr", "select", "datalist"]);
+const SKIP = new Set([
+  "script",
+  "style",
+  "iframe",
+  "object",
+  "svg",
+  "noscript",
+  "template",
+  "head",
+  "title",
+  "meta",
+  "link",
+  "base",
+  "embed",
+  "applet",
+  "frame",
+  "frameset",
+  "col",
+  "colgroup",
+  "wbr",
+  "select",
+  "datalist",
+]);
 /** Block containers with no formatting of their own: their children are laid out as if they were not there. */
 const CONTAINERS = new Set([
-  "html", "body", "div", "section", "article", "main", "header", "footer", "nav", "aside", "figure", "figcaption", "details", "summary",
-  "center", "form", "fieldset", "legend", "address", "hgroup", "dl", "dt", "dd", "li", "tr", "td", "th", "thead", "tbody", "tfoot", "caption",
+  "html",
+  "body",
+  "div",
+  "section",
+  "article",
+  "main",
+  "header",
+  "footer",
+  "nav",
+  "aside",
+  "figure",
+  "figcaption",
+  "details",
+  "summary",
+  "center",
+  "form",
+  "fieldset",
+  "legend",
+  "address",
+  "hgroup",
+  "dl",
+  "dt",
+  "dd",
+  "li",
+  "tr",
+  "td",
+  "th",
+  "thead",
+  "tbody",
+  "tfoot",
+  "caption",
 ]);
 /** Inline wrappers that carry nothing we keep and are not worth a warning. */
-const PLAIN_INLINE = new Set(["span", "font", "abbr", "cite", "time", "label", "bdi", "bdo", "data"]);
+const PLAIN_INLINE = new Set([
+  "span",
+  "font",
+  "abbr",
+  "cite",
+  "time",
+  "label",
+  "bdi",
+  "bdo",
+  "data",
+]);
 const MARK_TAGS: Record<string, Mark> = {
   strong: { type: "bold" },
   b: { type: "bold" },
@@ -47,8 +108,10 @@ const MARK_TAGS: Record<string, Mark> = {
 
 export const isElement = (n: PNode): n is PElement => "tagName" in n;
 const isText = (n: PNode): n is PText => n.nodeName === "#text";
-const attr = (el: PElement, name: string): string | undefined => el.attrs.find((a) => a.name === name)?.value;
-const hasClass = (el: PElement, cls: string): boolean => (attr(el, "class") ?? "").split(/\s+/).includes(cls);
+const attr = (el: PElement, name: string): string | undefined =>
+  el.attrs.find((a) => a.name === name)?.value;
+const hasClass = (el: PElement, cls: string): boolean =>
+  (attr(el, "class") ?? "").split(/\s+/).includes(cls);
 const collapse = (s: string): string => s.replace(/[ \t\r\n\f]+/g, " ");
 
 export interface HtmlCtx {
@@ -66,7 +129,8 @@ const newFlow = (): Flow => ({ out: [], run: [] });
 
 /** Adding a mark drops the one it excludes in the schema (super- and subscript exclude each other). */
 function withMark(marks: Mark[], m: Mark): Mark[] {
-  const drop = m.type === "superscript" ? "subscript" : m.type === "subscript" ? "superscript" : null;
+  const drop =
+    m.type === "superscript" ? "subscript" : m.type === "subscript" ? "superscript" : null;
   return [...marks.filter((x) => x.type !== drop), m];
 }
 
@@ -157,18 +221,33 @@ function flush(f: Flow, ctx: HtmlCtx): void {
     }
   }
   end();
-  if (breaks) ctx.warn.at("line-break", "info", "Line breaks split the paragraph into separate paragraphs.");
+  if (breaks)
+    ctx.warn.at("line-break", "info", "Line breaks split the paragraph into separate paragraphs.");
 }
 
-function blocksIn(nodes: readonly PNode[], ctx: HtmlCtx, marks: Mark[], depth: number, dom: number): DocNode[] {
+function blocksIn(
+  nodes: readonly PNode[],
+  ctx: HtmlCtx,
+  marks: Mark[],
+  depth: number,
+  dom: number,
+): DocNode[] {
   const f = newFlow();
   flow(nodes, ctx, marks, f, depth, dom);
   flush(f, ctx);
   return f.out;
 }
 
-function flow(nodes: readonly PNode[], ctx: HtmlCtx, marks: Mark[], f: Flow, depth: number, dom: number): void {
-  if (dom > MAX_DOM_DEPTH) throw new ImportError("too-deeply-nested", "The HTML is nested too deeply to import.");
+function flow(
+  nodes: readonly PNode[],
+  ctx: HtmlCtx,
+  marks: Mark[],
+  f: Flow,
+  depth: number,
+  dom: number,
+): void {
+  if (dom > MAX_DOM_DEPTH)
+    throw new ImportError("too-deeply-nested", "The HTML is nested too deeply to import.");
   for (const n of nodes) {
     if (isText(n)) {
       const t = textNode(collapse(n.value), marks);
@@ -177,7 +256,14 @@ function flow(nodes: readonly PNode[], ctx: HtmlCtx, marks: Mark[], f: Flow, dep
   }
 }
 
-function element(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: number, dom: number): void {
+function element(
+  el: PElement,
+  ctx: HtmlCtx,
+  marks: Mark[],
+  f: Flow,
+  depth: number,
+  dom: number,
+): void {
   const tag = el.tagName;
   if (SKIP.has(tag)) return;
   const mark = MARK_TAGS[tag];
@@ -197,24 +283,58 @@ function element(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: numb
       f.out.push({ type: "sceneBreak" });
       return;
     case "img":
-      f.run.push(...imageItems(attr(el, "src") ?? "", collapse(attr(el, "alt") ?? "").trim(), attr(el, "title"), undefined, ctx));
+      f.run.push(
+        ...imageItems(
+          attr(el, "src") ?? "",
+          collapse(attr(el, "alt") ?? "").trim(),
+          attr(el, "title"),
+          undefined,
+          ctx,
+        ),
+      );
       return;
     case "a": {
       const href = attr(el, "href");
-      if (href === undefined || href.trim().startsWith("#")) return flow(el.childNodes, ctx, marks, f, depth, dom);
+      if (href === undefined || href.trim().startsWith("#"))
+        return flow(el.childNodes, ctx, marks, f, depth, dom);
       const safe = safeHref(href);
-      if (safe) return flow(el.childNodes, ctx, [...marks, { type: "link", attrs: { href: safe } }], f, depth, dom);
-      ctx.warn.at("unsafe-link", "warning", `Link removed (only http, https and mailto are kept): ${href.slice(0, 80)}`);
+      if (safe)
+        return flow(
+          el.childNodes,
+          ctx,
+          [...marks, { type: "link", attrs: { href: safe } }],
+          f,
+          depth,
+          dom,
+        );
+      ctx.warn.at(
+        "unsafe-link",
+        "warning",
+        `Link removed (only http, https and mailto are kept): ${href.slice(0, 80)}`,
+      );
       return flow(el.childNodes, ctx, marks, f, depth, dom);
     }
     case "span": {
       if (hasClass(el, "footnote")) {
         const text = textOf(el);
-        f.run.push(text ? { type: "footnote", content: [{ type: "text", text: cleanText(text) }] } : { type: "footnote" });
+        f.run.push(
+          text
+            ? { type: "footnote", content: [{ type: "text", text: cleanText(text) }] }
+            : { type: "footnote" },
+        );
         return;
       }
-      const small = hasClass(el, "small-caps") || /font-variant(?:-caps)?\s*:\s*(?:all-)?small-caps/i.test(attr(el, "style") ?? "");
-      return flow(el.childNodes, ctx, small ? [...marks, { type: "smallCaps" }] : marks, f, depth, dom);
+      const small =
+        hasClass(el, "small-caps") ||
+        /font-variant(?:-caps)?\s*:\s*(?:all-)?small-caps/i.test(attr(el, "style") ?? "");
+      return flow(
+        el.childNodes,
+        ctx,
+        small ? [...marks, { type: "smallCaps" }] : marks,
+        f,
+        depth,
+        dom,
+      );
     }
     case "blockquote": {
       flush(f, ctx);
@@ -231,9 +351,15 @@ function element(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: numb
     case "pre": {
       flush(f, ctx);
       const code = el.childNodes.find((c): c is PElement => isElement(c) && c.tagName === "code");
-      const lang = /(?:^|\s)(?:language|lang)-([A-Za-z0-9_+#.-]{1,32})(?:\s|$)/.exec(attr(code ?? el, "class") ?? "")?.[1];
+      const lang = /(?:^|\s)(?:language|lang)-([A-Za-z0-9_+#.-]{1,32})(?:\s|$)/.exec(
+        attr(code ?? el, "class") ?? "",
+      )?.[1];
       const text = cleanText(preText(el));
-      f.out.push({ type: "codeBlock", ...(lang ? { attrs: { language: lang } } : {}), ...(text ? { content: [{ type: "text", text }] } : {}) });
+      f.out.push({
+        type: "codeBlock",
+        ...(lang ? { attrs: { language: lang } } : {}),
+        ...(text ? { content: [{ type: "text", text }] } : {}),
+      });
       return;
     }
     case "table":
@@ -246,17 +372,34 @@ function element(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: numb
     flush(f, ctx);
     return;
   }
-  if (!PLAIN_INLINE.has(tag)) ctx.warn.tally("unsupported-element", "warning", "Unsupported HTML elements were ignored; their text was kept.", `<${tag}>`);
+  if (!PLAIN_INLINE.has(tag))
+    ctx.warn.tally(
+      "unsupported-element",
+      "warning",
+      "Unsupported HTML elements were ignored; their text was kept.",
+      `<${tag}>`,
+    );
   flow(el.childNodes, ctx, marks, f, depth, dom);
 }
 
 function tooDeep(el: PElement, ctx: HtmlCtx, f: Flow): void {
-  ctx.warn.at("nesting-too-deep", "warning", `Nesting deeper than ${ctx.maxDepth} levels was flattened to text.`);
+  ctx.warn.at(
+    "nesting-too-deep",
+    "warning",
+    `Nesting deeper than ${ctx.maxDepth} levels was flattened to text.`,
+  );
   const t = textNode(textOf(el));
   if (t) f.out.push(paragraphOf([t]));
 }
 
-function heading(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: number, dom: number): void {
+function heading(
+  el: PElement,
+  ctx: HtmlCtx,
+  marks: Mark[],
+  f: Flow,
+  depth: number,
+  dom: number,
+): void {
   flush(f, ctx);
   let level = Number(el.tagName[1]);
   if (level > 3) {
@@ -267,12 +410,23 @@ function heading(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: numb
   flow(el.childNodes, ctx, marks, inner, depth, dom);
   const items = trimRun(inner.run);
   const content = flattenItems(items);
-  f.out.push(content.length ? { type: "heading", attrs: { level }, content } : { type: "heading", attrs: { level } });
+  f.out.push(
+    content.length
+      ? { type: "heading", attrs: { level }, content }
+      : { type: "heading", attrs: { level } },
+  );
   for (const i of items) if (isSep(i) && i.sep === "block") f.out.push(i.node);
   f.out.push(...inner.out);
 }
 
-function list(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: number, dom: number): void {
+function list(
+  el: PElement,
+  ctx: HtmlCtx,
+  marks: Mark[],
+  f: Flow,
+  depth: number,
+  dom: number,
+): void {
   const items: DocNode[] = [];
   let loose: Flow | null = null;
   const endLoose = () => {
@@ -295,36 +449,71 @@ function list(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: number,
   endLoose();
   if (el.tagName === "ol") {
     const start = Number.parseInt(attr(el, "start") ?? "", 10);
-    f.out.push({ type: "orderedList", ...(Number.isInteger(start) && start >= 0 && start <= 999_999 && start !== 1 ? { attrs: { start } } : {}), content: items });
+    f.out.push({
+      type: "orderedList",
+      ...(Number.isInteger(start) && start >= 0 && start <= 999_999 && start !== 1
+        ? { attrs: { start } }
+        : {}),
+      content: items,
+    });
   } else f.out.push({ type: "bulletList", content: items });
   if (items.length === 0) f.out.pop();
 }
 
-function table(el: PElement, ctx: HtmlCtx, marks: Mark[], f: Flow, depth: number, dom: number): void {
+function table(
+  el: PElement,
+  ctx: HtmlCtx,
+  marks: Mark[],
+  f: Flow,
+  depth: number,
+  dom: number,
+): void {
   const rows: { tr: PElement; head: boolean }[] = [];
   for (const c of el.childNodes) {
     if (!isElement(c)) continue;
     if (c.tagName === "tr") rows.push({ tr: c, head: false });
     else if (c.tagName === "thead" || c.tagName === "tbody" || c.tagName === "tfoot") {
-      for (const r of c.childNodes) if (isElement(r) && r.tagName === "tr") rows.push({ tr: r, head: c.tagName === "thead" });
-    } else if (c.tagName === "caption") f.out.push(...blocksIn(c.childNodes, ctx, marks, depth, dom + 1));
+      for (const r of c.childNodes)
+        if (isElement(r) && r.tagName === "tr") rows.push({ tr: r, head: c.tagName === "thead" });
+    } else if (c.tagName === "caption")
+      f.out.push(...blocksIn(c.childNodes, ctx, marks, depth, dom + 1));
   }
   let flattened = false;
   let merged = false;
-  const cellEls = rows.map(({ tr }) => tr.childNodes.filter((c): c is PElement => isElement(c) && (c.tagName === "td" || c.tagName === "th")));
+  const cellEls = rows.map(({ tr }) =>
+    tr.childNodes.filter(
+      (c): c is PElement => isElement(c) && (c.tagName === "td" || c.tagName === "th"),
+    ),
+  );
   const cells = cellEls.map((row) =>
     row.map((cell) => {
-      if ((Number.parseInt(attr(cell, "colspan") ?? "", 10) || 1) > 1 || (Number.parseInt(attr(cell, "rowspan") ?? "", 10) || 1) > 1) merged = true;
+      if (
+        (Number.parseInt(attr(cell, "colspan") ?? "", 10) || 1) > 1 ||
+        (Number.parseInt(attr(cell, "rowspan") ?? "", 10) || 1) > 1
+      )
+        merged = true;
       const r = cellParagraphs(blocksIn(cell.childNodes, ctx, marks, depth + 1, dom + 2));
       flattened ||= r.flattened;
       return r.paragraphs;
     }),
   );
   const first = rows[0];
-  const headerRow = !!first && (first.head || (cellEls[0]!.length > 0 && cellEls[0]!.every((c) => c.tagName === "th")));
+  const headerRow =
+    !!first &&
+    (first.head || (cellEls[0]!.length > 0 && cellEls[0]!.every((c) => c.tagName === "th")));
   const { node, padded } = tableOf(cells, headerRow);
-  if (flattened) ctx.warn.at("table-complex", "warning", "Lists, images and nested tables inside table cells were flattened to paragraphs.");
-  if (merged || padded) ctx.warn.at("table-merged", "warning", "Merged or missing table cells were replaced by empty cells so the table stays rectangular.");
+  if (flattened)
+    ctx.warn.at(
+      "table-complex",
+      "warning",
+      "Lists, images and nested tables inside table cells were flattened to paragraphs.",
+    );
+  if (merged || padded)
+    ctx.warn.at(
+      "table-merged",
+      "warning",
+      "Merged or missing table cells were replaced by empty cells so the table stays rectangular.",
+    );
   if (node) f.out.push(node);
 }
 
@@ -336,15 +525,23 @@ export function parseSnippet(html: string): readonly PNode[] {
 }
 
 /** Convert parsed nodes into top-level blocks. */
-export const convert = (nodes: readonly PNode[], ctx: HtmlCtx): DocNode[] => guarded(() => blocksIn(nodes, ctx, [], 0, 0));
+export const convert = (nodes: readonly PNode[], ctx: HtmlCtx): DocNode[] =>
+  guarded(() => blocksIn(nodes, ctx, [], 0, 0));
 
 /** Blocks for an HTML snippet, sharing the caller's warnings and asset registry (used by the Markdown importer). */
 export function htmlSnippetBlocks(html: string, ctx: HtmlCtx): DocNode[] {
   refuseHostileShape(html);
-  return convert(guarded(() => parseSnippet(html)), ctx);
+  return convert(
+    guarded(() => parseSnippet(html)),
+    ctx,
+  );
 }
 
-export const newCtx = (opts: ImportOptions): HtmlCtx => ({ warn: new Warnings(), assets: new AssetRegistry(), maxDepth: opts.maxNestingDepth ?? 32 });
+export const newCtx = (opts: ImportOptions): HtmlCtx => ({
+  warn: new Warnings(),
+  assets: new AssetRegistry(),
+  maxDepth: opts.maxNestingDepth ?? 32,
+});
 
 /** The `<title>` text of a parsed document, if any. */
 export function documentTitle(doc: { childNodes: readonly PNode[] }): string {

@@ -16,7 +16,10 @@ const CONTENTS: Record<string, string> = {
 /** Heading for the navigation document. Throws for languages we have no translation for, never falls back to English. */
 export function contentsHeading(language: string): string {
   const s = CONTENTS[primaryLanguage(language)];
-  if (!s) throw new Error(`export-epub: no "Contents" translation for language "${language}"; add one in strings.ts`);
+  if (!s)
+    throw new Error(
+      `export-epub: no "Contents" translation for language "${language}"; add one in strings.ts`,
+    );
   return s;
 }
 
@@ -58,15 +61,20 @@ const COVER: Record<string, string> = {
 
 function pick(table: Record<string, string>, what: string, language: string): string {
   const s = table[primaryLanguage(language)];
-  if (!s) throw new Error(`export-epub: no "${what}" translation for language "${language}"; add one in strings.ts`);
+  if (!s)
+    throw new Error(
+      `export-epub: no "${what}" translation for language "${language}"; add one in strings.ts`,
+    );
   return s;
 }
 
 /** Heading of the (hidden) landmarks navigation. Throws for languages without a translation. */
-export const landmarksHeading = (language: string): string => pick(LANDMARKS, "Landmarks", language);
+export const landmarksHeading = (language: string): string =>
+  pick(LANDMARKS, "Landmarks", language);
 
 /** Label of the "start of content" landmark. Throws for languages without a translation. */
-export const startOfContentLabel = (language: string): string => pick(START_OF_CONTENT, "Start of content", language);
+export const startOfContentLabel = (language: string): string =>
+  pick(START_OF_CONTENT, "Start of content", language);
 
 /** Label of the "cover" landmark and alt text prefix of the cover page. Throws for languages without a translation. */
 export const coverLabel = (language: string): string => pick(COVER, "Cover", language);

@@ -7,19 +7,33 @@ import type { HistoryEntry, History } from "./types";
 
 export const emptyDoc = (title: string): ChapterDoc => ({
   type: "doc",
-  content: [{ type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] }, { type: "paragraph" }],
+  content: [
+    { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] },
+    { type: "paragraph" },
+  ],
 });
 
 /** The first heading's text, else the first text found, else the file name without its number prefix and extension. */
 export function titleOfDoc(doc: unknown, file: string): string {
   const texts = (n: unknown): string => {
     const { text, content } = (n ?? {}) as { text?: unknown; content?: unknown };
-    return typeof text === "string" ? text : Array.isArray(content) ? content.map(texts).join("") : "";
+    return typeof text === "string"
+      ? text
+      : Array.isArray(content)
+        ? content.map(texts).join("")
+        : "";
   };
   const raw = (doc as { content?: unknown } | null)?.content;
   const nodes: unknown[] = Array.isArray(raw) ? raw : [];
-  const found = [nodes.find((n) => (n as { type?: unknown } | null)?.type === "heading"), ...nodes].map((n) => texts(n).trim()).find((x) => x);
-  return found?.slice(0, 80) || baseName(file).replace(/\.json$/, "").replace(/^\d+-/, "");
+  const found = [nodes.find((n) => (n as { type?: unknown } | null)?.type === "heading"), ...nodes]
+    .map((n) => texts(n).trim())
+    .find((x) => x);
+  return (
+    found?.slice(0, 80) ||
+    baseName(file)
+      .replace(/\.json$/, "")
+      .replace(/^\d+-/, "")
+  );
 }
 
 export const NO_HISTORY: History = { undo: [], redo: [] };
@@ -27,7 +41,12 @@ export const HISTORY_LIMIT = 100;
 
 /** Rewrites every mention of page file `from` as `to` (a restored page that had to take another name). */
 export function retargetEntry(e: HistoryEntry, from: string, to: string): HistoryEntry {
-  return { ...e, before: retargetFile(e.before, from, to), after: retargetFile(e.after, from, to), ...(e.file?.path === from ? { file: { ...e.file, path: to } } : {}) };
+  return {
+    ...e,
+    before: retargetFile(e.before, from, to),
+    after: retargetFile(e.after, from, to),
+    ...(e.file?.path === from ? { file: { ...e.file, path: to } } : {}),
+  };
 }
 
 /** How long typing may sit unsaved before it is written to disk. */
@@ -39,9 +58,14 @@ export function parseChapter(contents: string, file: string): ChapterDoc {
   try {
     raw = JSON.parse(contents);
   } catch {
-    throw new Error(t`${file} is not valid JSON, so it was not opened. The file was left untouched.`);
+    throw new Error(
+      t`${file} is not valid JSON, so it was not opened. The file was left untouched.`,
+    );
   }
-  if (!isChapterDoc(raw)) throw new Error(t`${file} is not a valid chapter, so it was not opened. The file was left untouched.`);
+  if (!isChapterDoc(raw))
+    throw new Error(
+      t`${file} is not a valid chapter, so it was not opened. The file was left untouched.`,
+    );
   return raw;
 }
 
@@ -56,5 +80,10 @@ export async function bestEffort<T>(run: () => Promise<T>, fallback: T): Promise
 
 /** A group of page writes failed; `stuck` are the pages that were written and could not be put back. */
 export class PartialWrite extends Error {
-  constructor(message: string, readonly stuck: { file: string; from: string; to: string }[]) { super(message); }
+  constructor(
+    message: string,
+    readonly stuck: { file: string; from: string; to: string }[],
+  ) {
+    super(message);
+  }
 }

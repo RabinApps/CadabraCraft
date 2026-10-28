@@ -17,7 +17,8 @@ const MAX_IMPORT_MB = MAX_IMPORT_BYTES / 1024 / 1024;
 
 /** A path from outside must be absolute: a relative one would resolve against wherever the process happens to run. */
 function requireAbsolute(path: string): void {
-  if (!isAbsolute(path)) throw new ProjectFsError("unsafe_path", `unsafe project path: ${fileBaseName(path) || path}`);
+  if (!isAbsolute(path))
+    throw new ProjectFsError("unsafe_path", `unsafe project path: ${fileBaseName(path) || path}`);
 }
 
 /**
@@ -30,9 +31,17 @@ export function readSource(path: string): Uint8Array {
   const name = fileBaseName(path);
   const ext = fileExtension(path) ?? "";
   if (!name || !(IMPORT_EXTENSIONS as readonly string[]).includes(ext)) {
-    throw new ProjectFsError("unsupported_source", `${name || path} is not a .docx, .md, .markdown, .html, .htm or .txt file`);
+    throw new ProjectFsError(
+      "unsupported_source",
+      `${name || path} is not a .docx, .md, .markdown, .html, .htm or .txt file`,
+    );
   }
-  return readRegular(path, MAX_IMPORT_BYTES, name, () => new ProjectFsError("too_large", `${name} is larger than ${MAX_IMPORT_MB} MB`));
+  return readRegular(
+    path,
+    MAX_IMPORT_BYTES,
+    name,
+    () => new ProjectFsError("too_large", `${name} is larger than ${MAX_IMPORT_MB} MB`),
+  );
 }
 
 /**
@@ -44,7 +53,11 @@ export function readRelativeImage(sourceFile: string, reference: string): Uint8A
   requireAbsolute(sourceFile);
   const shown = Array.from(reference).slice(0, 80).join("");
   const parts = reference.split("/");
-  const safe = reference !== "" && !/[\\:\0]/.test(reference) && parts[0] !== "" && parts.every((p) => p !== "..");
+  const safe =
+    reference !== "" &&
+    !/[\\:\0]/.test(reference) &&
+    parts[0] !== "" &&
+    parts.every((p) => p !== "..");
   if (!safe) throw new ProjectFsError("unsafe_path", `image path is not allowed: ${shown}`);
   const ext = imageExt(reference);
   if (!ext) throw new ProjectFsError("unsupported_image", `unsupported image type: ${shown}`);
@@ -61,10 +74,15 @@ export function readRelativeImage(sourceFile: string, reference: string): Uint8A
     full = realpathSync(wanted);
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code === "EACCES") throw fsError(e, shown);
-    if (icloudPending(wanted)) throw new ProjectFsError("icloud_placeholder", `${shown} is still downloading from iCloud; try again in a moment`);
+    if (icloudPending(wanted))
+      throw new ProjectFsError(
+        "icloud_placeholder",
+        `${shown} is still downloading from iCloud; try again in a moment`,
+      );
     throw new ProjectFsError("not_found", `image not found: ${shown}`); // missing, a loop, or a file where a folder should be
   }
-  if (!isInside(base, full)) throw new ProjectFsError("path_escape", `image is outside the document folder: ${shown}`);
+  if (!isInside(base, full))
+    throw new ProjectFsError("path_escape", `image is outside the document folder: ${shown}`);
   const bytes = readRegular(full, MAX_IMAGE_BYTES, shown, () => imageTooLarge(shown));
   checkImage(shown, ext, bytes);
   return bytes;

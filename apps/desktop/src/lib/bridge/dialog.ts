@@ -29,14 +29,22 @@ export const dialogBridge = {
   pickImage: async (): Promise<string | null> => {
     const queued = await queuedDialog();
     if (queued !== undefined) return queued;
-    const r = await open({ multiple: false, directory: false, filters: [{ name: "Images", extensions: IMAGE_EXTENSIONS }] });
+    const r = await open({
+      multiple: false,
+      directory: false,
+      filters: [{ name: "Images", extensions: IMAGE_EXTENSIONS }],
+    });
     return typeof r === "string" ? r : null;
   },
   /** Native file picker for a document to import; returns its absolute path (read-only, never stored in a project). */
   pickImportSource: async (): Promise<string | null> => {
     const queued = await queuedDialog();
     if (queued !== undefined) return queued;
-    const r = await open({ multiple: false, directory: false, filters: [{ name: "Documents", extensions: ["docx", "md", "markdown", "html", "htm"] }] });
+    const r = await open({
+      multiple: false,
+      directory: false,
+      filters: [{ name: "Documents", extensions: ["docx", "md", "markdown", "html", "htm"] }],
+    });
     return typeof r === "string" ? r : null;
   },
 };

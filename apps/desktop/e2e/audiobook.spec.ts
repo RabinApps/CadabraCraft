@@ -6,7 +6,9 @@ test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
 });
 
-test("Export audiobook renders the chapters with the chosen voice and formats and says when it is ready", async ({ page }) => {
+test("Export audiobook renders the chapters with the chosen voice and formats and says when it is ready", async ({
+  page,
+}) => {
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
@@ -18,13 +20,20 @@ test("Export audiobook renders the chapters with the chosen voice and formats an
   await dialog.getByRole("button", { name: "Export audiobook" }).click();
   await expect(dialog.getByText("Your audiobook is ready")).toBeVisible();
   const call = await page.evaluate(() => (window as any).__audioCalls[0]);
-  expect(call).toMatchObject({ voice: "piper-amy", speed: 1.1, formats: ["opus", "flac"], root: "/proj" });
+  expect(call).toMatchObject({
+    voice: "piper-amy",
+    speed: 1.1,
+    formats: ["opus", "flac"],
+    root: "/proj",
+  });
   expect(call.base).toMatch(/^exports\/audio\/01-/);
   await dialog.getByRole("button", { name: "Done" }).click();
   await expect(dialog).toHaveCount(0);
 });
 
-test("Hear a sample renders a few sentences with the chosen voice, writes nothing and shows failures", async ({ page }) => {
+test("Hear a sample renders a few sentences with the chosen voice, writes nothing and shows failures", async ({
+  page,
+}) => {
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
@@ -36,14 +45,24 @@ test("Hear a sample renders a few sentences with the chosen voice, writes nothin
   expect(call).toMatchObject({ voice: "piper-amy", speed: 1 });
   expect(call.chunks.length).toBeGreaterThan(0);
   await expect(dialog.getByRole("button", { name: "Hear a sample" })).toBeVisible();
-  expect(await page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith("exports/")))).toEqual([]);
-  await page.evaluate(() => { (window as any).__sampleError = { kind: "synth", message: "engine broke" }; });
+  expect(
+    await page.evaluate(() =>
+      Object.keys((window as any).__disk).filter((k) => k.startsWith("exports/")),
+    ),
+  ).toEqual([]);
+  await page.evaluate(() => {
+    (window as any).__sampleError = { kind: "synth", message: "engine broke" };
+  });
   await dialog.getByRole("button", { name: "Hear a sample" }).click();
   await expect(dialog.getByRole("alert")).toContainText("engine broke");
 });
 
-test("Audiobook can be closed while it runs, shows a header chip, and Cancel stops it", async ({ page }) => {
-  await page.addInitScript(() => { (window as any).__audioHold = true; });
+test("Audiobook can be closed while it runs, shows a header chip, and Cancel stops it", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    (window as any).__audioHold = true;
+  });
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
@@ -53,12 +72,17 @@ test("Audiobook can be closed while it runs, shows a header chip, and Cancel sto
   await dialog.getByRole("button", { name: "Keep working" }).click();
   await expect(dialog).toHaveCount(0);
   await page.getByRole("button", { name: /^Audiobook \d+%$/ }).click();
-  await page.getByRole("dialog", { name: "Export book" }).getByRole("button", { name: "Cancel export" }).click();
+  await page
+    .getByRole("dialog", { name: "Export book" })
+    .getByRole("button", { name: "Cancel export" })
+    .click();
   await expect(page.getByText("The audiobook was cancelled")).toBeVisible();
   await expect(page.getByRole("button", { name: /^Audiobook \d+%$/ })).toHaveCount(0);
 });
 
-test("Audiobook offers to download the voices when none are installed, then shows the options", async ({ page }) => {
+test("Audiobook offers to download the voices when none are installed, then shows the options", async ({
+  page,
+}) => {
   await page.addInitScript(noVoices);
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();
@@ -75,13 +99,25 @@ test("Audiobook offers to download the voices when none are installed, then show
 });
 
 test("A voice download shows progress and can be cancelled, then tried again", async ({ page }) => {
-  await page.addInitScript(() => { noVoicesInit(); (window as any).__downloadHold = true; function noVoicesInit() { (window as any).__audioVoices = [{ id: "piper-amy", engine: "piper", installed: false }]; (window as any).__audioPacks = [{ id: "piper", voices: ["piper-amy"], bytes: 147993194, installed: false }]; } });
+  await page.addInitScript(() => {
+    noVoicesInit();
+    (window as any).__downloadHold = true;
+    function noVoicesInit() {
+      (window as any).__audioVoices = [{ id: "piper-amy", engine: "piper", installed: false }];
+      (window as any).__audioPacks = [
+        { id: "piper", voices: ["piper-amy"], bytes: 147993194, installed: false },
+      ];
+    }
+  });
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
   await dialog.getByRole("radio", { name: "Audiobook" }).click();
   await dialog.getByRole("button", { name: /Download selected/ }).click();
-  await expect(dialog.getByRole("progressbar", { name: "Download progress" })).toHaveAttribute("aria-valuenow", "50");
+  await expect(dialog.getByRole("progressbar", { name: "Download progress" })).toHaveAttribute(
+    "aria-valuenow",
+    "50",
+  );
   await expect(dialog.getByText("74 of 148 MB")).toBeVisible();
   await dialog.getByRole("button", { name: "Cancel download" }).click();
   await expect(dialog.getByText(/Stopped\./)).toBeVisible();

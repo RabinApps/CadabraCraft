@@ -1,7 +1,13 @@
 import type { PrintHeadingStyle, Template } from "@cadabracraft/templates";
 import { typstString } from "../escape";
 import { PdfExportError } from "../errors";
-import { TRIM_SIZES, type FontChoice, type PdfBook, type PdfMargins, type PdfOptions } from "../types";
+import {
+  TRIM_SIZES,
+  type FontChoice,
+  type PdfBook,
+  type PdfMargins,
+  type PdfOptions,
+} from "../types";
 import { em, inch, num } from "./units";
 
 function headingRule(level: 1 | 2 | 3, s: PrintHeadingStyle, headingFont: string): string {
@@ -15,7 +21,14 @@ function headingRule(level: 1 | 2 | 3, s: PrintHeadingStyle, headingFont: string
 })`;
 }
 
-export function preamble(book: PdfBook, t: Template, options: PdfOptions, fonts: FontChoice, margins: PdfMargins, hasFront: boolean): string {
+export function preamble(
+  book: PdfBook,
+  t: Template,
+  options: PdfOptions,
+  fonts: FontChoice,
+  margins: PdfMargins,
+  hasFront: boolean,
+): string {
   const p = t.print;
   const trim = TRIM_SIZES[options.trimSize ?? p.defaults.trimSize];
   if (!trim) throw new PdfExportError(`Unknown trim size "${String(options.trimSize)}"`);
@@ -32,7 +45,9 @@ export function preamble(book: PdfBook, t: Template, options: PdfOptions, fonts:
     : `(top: ${inch(margins.top)}, bottom: ${inch(margins.bottom)}, left: ${inch(margins.inside)}, right: ${inch(margins.outside)})`;
 
   const langMatch = /^([A-Za-z]{2,3})(?:[-_]([A-Za-z]{2})(?![A-Za-z]))?/.exec(book.language ?? "");
-  const lang = langMatch ? `, lang: ${typstString(langMatch[1]!.toLowerCase())}${langMatch[2] ? `, region: ${typstString(langMatch[2].toUpperCase())}` : ""}` : "";
+  const lang = langMatch
+    ? `, lang: ${typstString(langMatch[1]!.toLowerCase())}${langMatch[2] ? `, region: ${typstString(langMatch[2].toUpperCase())}` : ""}`
+    : "";
 
   const r = p.runningText;
   const runStyle = `set text(size: ${num(r.sizePt)}pt${r.italic ? ', style: "italic"' : ""})`;
@@ -115,12 +130,12 @@ ${headingRule(3, p.headings[3], fonts.heading)}
   counter(footnote).update(0)
   v(${sink})
 ${
-    p.chapterOpening.ornament === null
-      ? ""
-      : `  align(center, text(size: 1.2em, ${typstString(p.chapterOpening.ornament)}))
+  p.chapterOpening.ornament === null
+    ? ""
+    : `  align(center, text(size: 1.2em, ${typstString(p.chapterOpening.ornament)}))
   v(0.6em)
 `
-  }${
+}${
     label === null
       ? ""
       : `  if n != none {

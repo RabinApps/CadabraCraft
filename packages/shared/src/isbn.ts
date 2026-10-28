@@ -5,7 +5,11 @@
  */
 export function normalizeIsbn(text: string | null | undefined): string | null {
   if (!text) return null;
-  const s = text.trim().replace(/^isbn(?:-1[03])?:?\s*/i, "").replace(/[\s-]/g, "").toUpperCase();
+  const s = text
+    .trim()
+    .replace(/^isbn(?:-1[03])?:?\s*/i, "")
+    .replace(/[\s-]/g, "")
+    .toUpperCase();
   if (/^\d{13}$/.test(s)) {
     if (!/^97[89]/.test(s)) return null;
     return isbn13Check(s.slice(0, 12)) === s[12] ? s : null;

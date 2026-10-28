@@ -8,14 +8,24 @@ export function useBookWordCount(): number | null {
   const bookWords = useProject((s) => s.actions.bookWords);
   const [words, setWords] = useState<number | null>(null);
   useEffect(() => {
-    if (!manifest) { setWords(null); return; }
+    if (!manifest) {
+      setWords(null);
+      return;
+    }
     let live = true;
     const timer = setTimeout(() => {
       bookWords()
-        .then((n) => { if (live) setWords(n); })
-        .catch(() => { if (live) setWords(null); });
+        .then((n) => {
+          if (live) setWords(n);
+        })
+        .catch(() => {
+          if (live) setWords(null);
+        });
     }, 1000);
-    return () => { live = false; clearTimeout(timer); };
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
   }, [manifest, currentDoc, bookWords]);
   return words;
 }

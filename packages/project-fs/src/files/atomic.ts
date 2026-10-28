@@ -1,5 +1,19 @@
 import { createHash, randomBytes } from "node:crypto";
-import { closeSync, existsSync, fchmodSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readSync, renameSync, rmSync, statSync, writeSync } from "node:fs";
+import {
+  closeSync,
+  existsSync,
+  fchmodSync,
+  fstatSync,
+  fsyncSync,
+  lstatSync,
+  mkdirSync,
+  openSync,
+  readSync,
+  renameSync,
+  rmSync,
+  statSync,
+  writeSync,
+} from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { ProjectFsError, fsError } from "../errors";
 
@@ -15,12 +29,14 @@ export function atomicWrite(path: string, bytes: Uint8Array): void {
   const dir = dirname(path);
   const label = basename(path);
   try {
-    if (lstatSync(path, { throwIfNoEntry: false })?.isDirectory()) throw new ProjectFsError("not_a_file", `${label} is not a file`);
+    if (lstatSync(path, { throwIfNoEntry: false })?.isDirectory())
+      throw new ProjectFsError("not_a_file", `${label} is not a file`);
     try {
       mkdirSync(dir, { recursive: true });
     } catch (e) {
       const code = (e as NodeJS.ErrnoException).code;
-      if (code === "EEXIST" || code === "ENOTDIR") throw new ProjectFsError("not_a_file", `${basename(dir)} is not a folder`);
+      if (code === "EEXIST" || code === "ENOTDIR")
+        throw new ProjectFsError("not_a_file", `${basename(dir)} is not a folder`);
       throw e;
     }
   } catch (e) {
@@ -58,14 +74,18 @@ export function atomicWrite(path: string, bytes: Uint8Array): void {
 }
 
 /** True when `path` is an iCloud placeholder that has not been downloaded: the real name is missing, `.<name>.icloud` is not. */
-export const icloudPending = (path: string): boolean => existsSync(join(dirname(path), `.${basename(path)}.icloud`));
+export const icloudPending = (path: string): boolean =>
+  existsSync(join(dirname(path), `.${basename(path)}.icloud`));
 
 /** Mirrors Rust `open_error`: a missing path is `icloud_placeholder` or `not_found`; anything else maps like `fsError`. */
 export function openError(e: unknown, path: string, label: string): ProjectFsError {
   const code = (e as NodeJS.ErrnoException | undefined)?.code;
   if (code === "ENOENT" || code === "ENOTDIR") {
     return icloudPending(path)
-      ? new ProjectFsError("icloud_placeholder", `${label} is still downloading from iCloud; try again in a moment`)
+      ? new ProjectFsError(
+          "icloud_placeholder",
+          `${label} is still downloading from iCloud; try again in a moment`,
+        )
       : new ProjectFsError("not_found", `${label} does not exist`);
   }
   return fsError(e, label);
@@ -76,7 +96,12 @@ export function openError(e: unknown, path: string, label: string): ProjectFsErr
  * without being opened (a fifo would block forever); the size is checked on the opened handle too, and the read is
  * capped at `cap + 1`, so a file that grows while it is read never uses unbounded memory. Links are followed.
  */
-export function readRegular(path: string, cap: number, label: string, tooLarge: () => ProjectFsError): Uint8Array {
+export function readRegular(
+  path: string,
+  cap: number,
+  label: string,
+  tooLarge: () => ProjectFsError,
+): Uint8Array {
   const notFile = () => new ProjectFsError("not_a_file", `${label} is not a file`);
   let st;
   try {

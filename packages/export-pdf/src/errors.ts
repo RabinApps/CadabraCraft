@@ -24,7 +24,10 @@ export class FontNotAvailableError extends PdfExportError {
 export class TypstNotFoundError extends PdfExportError {
   /** `message` replaces the default text when a runner already has its own wording (with install advice). */
   constructor(searched: string, message?: string) {
-    super(message ?? `The "typst" command was not found (${searched}). Install Typst (https://typst.app, e.g. "brew install typst") and make sure it is on PATH.`);
+    super(
+      message ??
+        `The "typst" command was not found (${searched}). Install Typst (https://typst.app, e.g. "brew install typst") and make sure it is on PATH.`,
+    );
     this.name = "TypstNotFoundError";
   }
 }
@@ -38,7 +41,9 @@ export class TypstCompileError extends PdfExportError {
 
 export class TypstTimeoutError extends PdfExportError {
   constructor(public readonly seconds: number) {
-    super(`Typst took longer than ${seconds} seconds and was stopped. Try a smaller book or check that Typst is not stuck.`);
+    super(
+      `Typst took longer than ${seconds} seconds and was stopped. Try a smaller book or check that Typst is not stuck.`,
+    );
     this.name = "TypstTimeoutError";
   }
 }

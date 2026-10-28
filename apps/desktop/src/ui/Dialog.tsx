@@ -18,9 +18,19 @@ interface ModalProps {
 }
 
 export const overlayClass = "fixed inset-0 z-40 bg-scrim";
-export const panelClass = "fixed z-50 border border-border bg-raised text-ink shadow-2xl focus:outline-none";
+export const panelClass =
+  "fixed z-50 border border-border bg-raised text-ink shadow-2xl focus:outline-none";
 
-export function Modal({ open, onOpenChange, title, description, children, md, wide, xl }: ModalProps) {
+export function Modal({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  md,
+  wide,
+  xl,
+}: ModalProps) {
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
@@ -30,7 +40,9 @@ export function Modal({ open, onOpenChange, title, description, children, md, wi
           className={`${panelClass} left-1/2 top-1/2 ${xl ? "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto" : wide ? "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto" : md ? "max-h-[92dvh] w-[min(92vw,560px)] overflow-y-auto" : "w-[min(92vw,460px)]"} -translate-x-1/2 -translate-y-1/2 rounded-lg p-6`}
         >
           <D.Title className="font-book text-xl font-semibold">{title}</D.Title>
-          {description ? <D.Description className="mt-2 text-sm text-ink-muted">{description}</D.Description> : null}
+          {description ? (
+            <D.Description className="mt-2 text-sm text-ink-muted">{description}</D.Description>
+          ) : null}
           <div className="mt-4">{children}</div>
         </D.Content>
       </D.Portal>
@@ -48,13 +60,29 @@ interface ConfirmProps {
   onConfirm: () => void;
 }
 
-export function Confirm({ open, onOpenChange, title, description, confirmLabel, danger, onConfirm }: ConfirmProps) {
+export function Confirm({
+  open,
+  onOpenChange,
+  title,
+  description,
+  confirmLabel,
+  danger,
+  onConfirm,
+}: ConfirmProps) {
   const { t } = useLingui();
   return (
     <Modal open={open} onOpenChange={onOpenChange} title={title} description={description}>
       <div className="flex justify-end gap-2.5">
         <Button onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>
-        <Button variant={danger ? "danger" : "primary"} onClick={() => { onOpenChange(false); onConfirm(); }}>{confirmLabel}</Button>
+        <Button
+          variant={danger ? "danger" : "primary"}
+          onClick={() => {
+            onOpenChange(false);
+            onConfirm();
+          }}
+        >
+          {confirmLabel}
+        </Button>
       </div>
     </Modal>
   );

@@ -63,17 +63,29 @@ export function makeDocx(p: DocxParts): Uint8Array {
     "_rels/.rels": strToU8(
       '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
     ),
-    "word/document.xml": strToU8(`<?xml version="1.0" encoding="UTF-8"?><w:document ${NS}><w:body>${p.body}<w:sectPr/></w:body></w:document>`),
+    "word/document.xml": strToU8(
+      `<?xml version="1.0" encoding="UTF-8"?><w:document ${NS}><w:body>${p.body}<w:sectPr/></w:body></w:document>`,
+    ),
     "word/styles.xml": strToU8(p.styles ?? STYLES),
     "word/_rels/document.xml.rels": strToU8(
       `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${p.rels ?? ""}</Relationships>`,
     ),
   };
-  if (p.footnotes !== undefined) files["word/footnotes.xml"] = strToU8(`<?xml version="1.0"?><w:footnotes ${NS}>${p.footnotes}</w:footnotes>`);
-  if (p.endnotes !== undefined) files["word/endnotes.xml"] = strToU8(`<?xml version="1.0"?><w:endnotes ${NS}>${p.endnotes}</w:endnotes>`);
+  if (p.footnotes !== undefined)
+    files["word/footnotes.xml"] = strToU8(
+      `<?xml version="1.0"?><w:footnotes ${NS}>${p.footnotes}</w:footnotes>`,
+    );
+  if (p.endnotes !== undefined)
+    files["word/endnotes.xml"] = strToU8(
+      `<?xml version="1.0"?><w:endnotes ${NS}>${p.endnotes}</w:endnotes>`,
+    );
   if (p.numbering !== undefined) files["word/numbering.xml"] = strToU8(p.numbering);
-  if (p.comments !== undefined) files["word/comments.xml"] = strToU8(`<?xml version="1.0"?><w:comments ${NS}>${p.comments}</w:comments>`);
-  if (p.header !== undefined) files["word/header1.xml"] = strToU8(`<?xml version="1.0"?><w:hdr ${NS}>${p.header}</w:hdr>`);
+  if (p.comments !== undefined)
+    files["word/comments.xml"] = strToU8(
+      `<?xml version="1.0"?><w:comments ${NS}>${p.comments}</w:comments>`,
+    );
+  if (p.header !== undefined)
+    files["word/header1.xml"] = strToU8(`<?xml version="1.0"?><w:hdr ${NS}>${p.header}</w:hdr>`);
   for (const [k, v] of Object.entries(p.media ?? {})) files[`word/media/${k}`] = v;
   Object.assign(files, p.extra ?? {});
   return zipSync(files);
@@ -81,11 +93,14 @@ export function makeDocx(p: DocxParts): Uint8Array {
 
 export const para = (text: string, style?: string, ppr = "") =>
   `<w:p><w:pPr>${style ? `<w:pStyle w:val="${style}"/>` : ""}${ppr}</w:pPr><w:r><w:t xml:space="preserve">${text}</w:t></w:r></w:p>`;
-export const run = (text: string, rpr = "") => `<w:r><w:rPr>${rpr}</w:rPr><w:t xml:space="preserve">${text}</w:t></w:r>`;
+export const run = (text: string, rpr = "") =>
+  `<w:r><w:rPr>${rpr}</w:rPr><w:t xml:space="preserve">${text}</w:t></w:r>`;
 
 // Smallest valid 1x1 PNG.
 export const PNG = Uint8Array.from(
-  atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==")
+  atob(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+  )
     .split("")
     .map((c) => c.charCodeAt(0)),
 );

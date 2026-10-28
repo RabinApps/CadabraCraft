@@ -1,8 +1,29 @@
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { PROJECT_DIRS, MANIFEST, ProjectFsError, atomicWrite, backupFile, backupManifest, createProject, hashBytes, readProjectFile, trashFile, writeBytes, writeProjectFile } from "../index";
+import {
+  PROJECT_DIRS,
+  MANIFEST,
+  ProjectFsError,
+  atomicWrite,
+  backupFile,
+  backupManifest,
+  createProject,
+  hashBytes,
+  readProjectFile,
+  trashFile,
+  writeBytes,
+  writeProjectFile,
+} from "../index";
 
 const tmp = () => mkdtempSync(join(tmpdir(), "pfs-"));
 const code = (fn: () => unknown): string => {
@@ -72,7 +93,13 @@ describe("read and write", () => {
     const d = tmp();
     const w1 = writeProjectFile(d, "manuscript/x.json", "v1");
     writeFileSync(join(d, "manuscript/x.json"), "external");
-    const w2 = writeProjectFile(d, "manuscript/x.json", "mine", w1.hash, new Date(Date.UTC(2026, 9, 5, 7, 3)));
+    const w2 = writeProjectFile(
+      d,
+      "manuscript/x.json",
+      "mine",
+      w1.hash,
+      new Date(Date.UTC(2026, 9, 5, 7, 3)),
+    );
     expect(w2.conflictCopy).toBe("manuscript/x.conflict-20261005-0703.json");
     expect(readFileSync(join(d, w2.conflictCopy!), "utf8")).toBe("external");
     expect(readFileSync(join(d, "manuscript/x.json"), "utf8")).toBe("mine");
@@ -83,7 +110,11 @@ describe("read and write", () => {
   });
   it("refuses unsafe relative paths", () => {
     const d = tmp();
-    for (const bad of ["../x", "/etc/x", "a\\b", ""]) expect(code(() => writeProjectFile(d, bad, "x")), bad).toBe("unsafe_path");
+    for (const bad of ["../x", "/etc/x", "a\\b", ""])
+      expect(
+        code(() => writeProjectFile(d, bad, "x")),
+        bad,
+      ).toBe("unsafe_path");
     expect(code(() => writeBytes(d, "../x", new Uint8Array()))).toBe("unsafe_path");
   });
   it("refuses to write through a symlinked folder that leaves the project", () => {

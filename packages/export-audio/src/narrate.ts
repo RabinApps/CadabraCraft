@@ -2,7 +2,8 @@ import type { ChapterDoc, DocNode } from "@cadabracraft/shared";
 import { UnsupportedNodeError } from "./errors";
 
 /** A unit of speech. A `pause` has no text; it is a longer silence (scene break). */
-export type NarrationBlock = { type: "paragraph" | "heading"; text: string } | { type: "pause"; text: "" };
+export type NarrationBlock =
+  { type: "paragraph" | "heading"; text: string } | { type: "pause"; text: "" };
 
 export interface Narration {
   blocks: NarrationBlock[];
@@ -13,7 +14,16 @@ export interface Narration {
 const SPOKEN_BLOCKS = new Set(["paragraph", "heading"]);
 const CONTAINERS = new Set(["doc", "blockquote", "bulletList", "orderedList", "listItem"]);
 /** Left out of the audio (not narratable) but known, so they are counted instead of rejected. */
-const SKIPPED = new Set(["footnote", "image", "figcaption", "codeBlock", "table", "tableRow", "tableCell", "tableHeader"]);
+const SKIPPED = new Set([
+  "footnote",
+  "image",
+  "figcaption",
+  "codeBlock",
+  "table",
+  "tableRow",
+  "tableCell",
+  "tableHeader",
+]);
 
 const squash = (s: string): string => s.replace(/\s+/g, " ").trim();
 

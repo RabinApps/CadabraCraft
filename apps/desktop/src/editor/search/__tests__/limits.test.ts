@@ -4,13 +4,25 @@ import { getSchema } from "@tiptap/react";
 import { extensions } from "@cadabracraft/editor-schema";
 import { Search, replaceAllTransaction, searchKey, setSearchTransaction } from "../plugin";
 import { replaceInDoc, searchBook } from "../../../lib/search/bookSearch";
-import { compileRegex, expandReplacement, findInText, isInvalidRegex, MAX_MATCHES } from "../../../lib/search/match";
+import {
+  compileRegex,
+  expandReplacement,
+  findInText,
+  isInvalidRegex,
+  MAX_MATCHES,
+} from "../../../lib/search/match";
 
 const schema = getSchema(extensions);
 const plugins = Search.config.addProseMirrorPlugins!.call({} as never);
-const para = (text: string) => ({ type: "paragraph", content: text ? [{ type: "text", text }] : [] });
+const para = (text: string) => ({
+  type: "paragraph",
+  content: text ? [{ type: "text", text }] : [],
+});
 const o = { matchCase: false, wholeWord: false };
-interface J { text?: string; content?: J[] }
+interface J {
+  text?: string;
+  content?: J[];
+}
 const textOf = (n: J): string => n.text ?? (n.content ?? []).map(textOf).join("");
 
 describe("regex caps", () => {
@@ -22,14 +34,21 @@ describe("regex caps", () => {
     expect(textOf(r.doc)).toBe("b".repeat(many.length));
   });
   it("Replace all in the open page replaces every match, while the display set stays capped", () => {
-    let s = EditorState.create({ doc: schema.nodeFromJSON({ type: "doc", content: [para(many)] }), plugins });
+    let s = EditorState.create({
+      doc: schema.nodeFromJSON({ type: "doc", content: [para(many)] }),
+      plugins,
+    });
     s = s.apply(setSearchTransaction(s, { query: "a", regex: true, replacement: "b" }));
     expect(searchKey.getState(s)!.matches.length).toBe(MAX_MATCHES);
     s = s.apply(replaceAllTransaction(s)!);
     expect(s.doc.textContent).toBe("b".repeat(many.length));
   });
   it("searchBook still reports a capped count for display", () => {
-    const r = searchBook([{ id: "x", title: "X", doc: { type: "doc", content: [para(many)] } }], { ...o, query: "a", regex: true });
+    const r = searchBook([{ id: "x", title: "X", doc: { type: "doc", content: [para(many)] } }], {
+      ...o,
+      query: "a",
+      regex: true,
+    });
     expect(r.total).toBe(MAX_MATCHES);
   });
 });

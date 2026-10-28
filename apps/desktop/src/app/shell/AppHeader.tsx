@@ -1,5 +1,16 @@
 import { useLingui } from "@lingui/react/macro";
-import { BookOpen, BookText, Download, LoaderCircle, Maximize2, Menu, PanelRight, PenLine, Save, Settings as SettingsIcon } from "lucide-react";
+import {
+  BookOpen,
+  BookText,
+  Download,
+  LoaderCircle,
+  Maximize2,
+  Menu,
+  PanelRight,
+  PenLine,
+  Save,
+  Settings as SettingsIcon,
+} from "lucide-react";
 import { ReadingSettings } from "../../editor/ReadingSettings";
 import { Badge } from "../../ui/Badge";
 import { Button, IconButton } from "../../ui/Button";
@@ -22,7 +33,16 @@ interface Props {
 }
 
 /** The top bar of an open book: title, save state, write/read switch and the main actions. */
-export function AppHeader({ mode, onMode, onShowChapters, onExport, onAudio, onSettings, onDetails, run }: Props) {
+export function AppHeader({
+  mode,
+  onMode,
+  onShowChapters,
+  onExport,
+  onAudio,
+  onSettings,
+  onDetails,
+  run,
+}: Props) {
   const { t } = useLingui();
   const title = useProject((s) => s.manifest?.title);
   const unsaved = useProject((s) => s.draft !== null);
@@ -33,34 +53,90 @@ export function AppHeader({ mode, onMode, onShowChapters, onExport, onAudio, onS
   const reader = mode === "read";
   const save = run(actions.flush);
   // Saving first means the export and the reader show what was typed.
-  const exportBook = run(async () => { await actions.flush(); onExport(); });
-  const toRead = run(async () => { await actions.flush(); onMode("read"); });
+  const exportBook = run(async () => {
+    await actions.flush();
+    onExport();
+  });
+  const toRead = run(async () => {
+    await actions.flush();
+    onMode("read");
+  });
   return (
     <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-surface px-2 py-2 md:px-4">
-      <IconButton icon={Menu} label={t`Show chapters`} className="lg:hidden" onClick={onShowChapters} />
+      <IconButton
+        icon={Menu}
+        label={t`Show chapters`}
+        className="lg:hidden"
+        onClick={onShowChapters}
+      />
       <h1 className="min-w-0 truncate font-book text-base font-semibold">{title}</h1>
       <Badge tone={unsaved ? "warn" : "success"}>{unsaved ? t`Unsaved` : t`Saved`}</Badge>
-      <span role="status" className="min-w-0 flex-1 truncate text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:empty:hidden">{notice}</span>
+      <span
+        role="status"
+        className="min-w-0 flex-1 truncate text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:empty:hidden"
+      >
+        {notice}
+      </span>
       <Segmented
         label={t`Write or read`}
         value={mode}
         onChange={(m) => (m === "read" ? toRead() : onMode("write"))}
-        items={[{ value: "write", label: t`Write`, icon: PenLine, collapse: true }, { value: "read", label: t`Read`, icon: BookOpen, collapse: true }]}
+        items={[
+          { value: "write", label: t`Write`, icon: PenLine, collapse: true },
+          { value: "read", label: t`Read`, icon: BookOpen, collapse: true },
+        ]}
       />
       <div className="ms-auto flex items-center gap-2">
         {audio?.status === "running" && (
-          <button type="button" onClick={onAudio} className="flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-sm font-semibold text-accent focus-visible:outline-2 focus-visible:outline-accent">
-            <LoaderCircle size={14} className="animate-spin motion-reduce:animate-none" aria-hidden />
+          <button
+            type="button"
+            onClick={onAudio}
+            className="flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-sm font-semibold text-accent focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            <LoaderCircle
+              size={14}
+              className="animate-spin motion-reduce:animate-none"
+              aria-hidden
+            />
             {t`Audiobook ${Math.round(audio.overall * 100)}%`}
           </button>
         )}
         {reader && <ReadingSettings />}
-        {!reader && <IconButton icon={Maximize2} label={t`Focus mode`} onClick={() => setLayout({ focus: true })} />}
-        {!reader && <IconButton icon={PanelRight} label={t`Details`} active={details} className="max-xl:hidden" onClick={() => setLayout({ details: !details })} />}
+        {!reader && (
+          <IconButton
+            icon={Maximize2}
+            label={t`Focus mode`}
+            onClick={() => setLayout({ focus: true })}
+          />
+        )}
+        {!reader && (
+          <IconButton
+            icon={PanelRight}
+            label={t`Details`}
+            active={details}
+            className="max-xl:hidden"
+            onClick={() => setLayout({ details: !details })}
+          />
+        )}
         {!reader && <Button icon={Save} className="max-sm:hidden" onClick={save}>{t`Save`}</Button>}
-        <Button variant="primary" icon={Download} className="max-sm:hidden" onClick={exportBook}>{t`Export`}</Button>
-        <IconButton icon={BookText} label={t`Book details`} className="max-sm:hidden" onClick={onDetails} />
-        <IconButton icon={SettingsIcon} label={t`Settings`} className="max-sm:hidden" onClick={onSettings} />
+        <Button
+          variant="primary"
+          icon={Download}
+          className="max-sm:hidden"
+          onClick={exportBook}
+        >{t`Export`}</Button>
+        <IconButton
+          icon={BookText}
+          label={t`Book details`}
+          className="max-sm:hidden"
+          onClick={onDetails}
+        />
+        <IconButton
+          icon={SettingsIcon}
+          label={t`Settings`}
+          className="max-sm:hidden"
+          onClick={onSettings}
+        />
         <HeaderMenu
           label={t`More actions`}
           items={[

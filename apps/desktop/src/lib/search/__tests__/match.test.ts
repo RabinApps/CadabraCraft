@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { compileRegex, expandReplacement, findInText, isInvalidRegex, MAX_MATCHES } from "../match";
 
 const base = { matchCase: false, wholeWord: false };
-const find = (text: string, q: string, o: Partial<typeof base> = {}) => findInText(text, q, { ...base, ...o }).map((r) => text.slice(r.from, r.to));
+const find = (text: string, q: string, o: Partial<typeof base> = {}) =>
+  findInText(text, q, { ...base, ...o }).map((r) => text.slice(r.from, r.to));
 
 describe("findInText", () => {
   it("finds nothing for an empty query", () => {
@@ -10,8 +11,14 @@ describe("findInText", () => {
   });
 
   it("ignores case unless asked, and keeps offsets", () => {
-    expect(findInText("Foo foo FOO", "foo", base)).toEqual([{ from: 0, to: 3 }, { from: 4, to: 7 }, { from: 8, to: 11 }]);
-    expect(findInText("Foo foo FOO", "foo", { ...base, matchCase: true })).toEqual([{ from: 4, to: 7 }]);
+    expect(findInText("Foo foo FOO", "foo", base)).toEqual([
+      { from: 0, to: 3 },
+      { from: 4, to: 7 },
+      { from: 8, to: 11 },
+    ]);
+    expect(findInText("Foo foo FOO", "foo", { ...base, matchCase: true })).toEqual([
+      { from: 4, to: 7 },
+    ]);
   });
 
   it("treats accents and curly quotes literally", () => {
@@ -27,7 +34,10 @@ describe("findInText", () => {
 
   it("finds non-overlapping matches left to right", () => {
     expect(findInText("aaa", "aa", base)).toEqual([{ from: 0, to: 2 }]);
-    expect(findInText("aaaa", "aa", base)).toEqual([{ from: 0, to: 2 }, { from: 2, to: 4 }]);
+    expect(findInText("aaaa", "aa", base)).toEqual([
+      { from: 0, to: 2 },
+      { from: 2, to: 4 },
+    ]);
   });
 
   it("matches whole words with Unicode boundaries", () => {
@@ -44,14 +54,19 @@ describe("findInText", () => {
   });
 
   it("folds case without changing length for characters like İ", () => {
-    expect(findInText("İx x", "x", base)).toEqual([{ from: 1, to: 2 }, { from: 3, to: 4 }]);
+    expect(findInText("İx x", "x", base)).toEqual([
+      { from: 1, to: 2 },
+      { from: 3, to: 4 },
+    ]);
   });
 });
 
 describe("findInText with regex", () => {
   const rx = { matchCase: false, wholeWord: false, regex: true };
-  const found = (text: string, q: string, o: Partial<typeof rx> = {}) => findInText(text, q, { ...rx, ...o });
-  const words = (text: string, q: string, o: Partial<typeof rx> = {}) => found(text, q, o).map((r) => text.slice(r.from, r.to));
+  const found = (text: string, q: string, o: Partial<typeof rx> = {}) =>
+    findInText(text, q, { ...rx, ...o });
+  const words = (text: string, q: string, o: Partial<typeof rx> = {}) =>
+    found(text, q, o).map((r) => text.slice(r.from, r.to));
 
   it("matches a pattern, case-insensitively unless Match case is on", () => {
     expect(words("Cat cot CUT", "c[ao]t")).toEqual(["Cat", "cot"]);
@@ -61,7 +76,10 @@ describe("findInText with regex", () => {
   it("captures the match and its groups", () => {
     const [m] = found("say hello world", "(\\w+) (\\w+)$");
     expect(m!.captures).toEqual(["hello world", "hello", "world"]);
-    expect(found("ab", "(a)|(b)").map((r) => r.captures)).toEqual([["a", "a", ""], ["b", "", "b"]]);
+    expect(found("ab", "(a)|(b)").map((r) => r.captures)).toEqual([
+      ["a", "a", ""],
+      ["b", "", "b"],
+    ]);
   });
 
   it("skips zero-length matches and does not loop", () => {
@@ -89,7 +107,19 @@ describe("findInText with regex", () => {
   });
 
   it("treats invalid patterns as no match, without throwing", () => {
-    for (const q of ["(", "[a", "a)(b", "*", "\\p{Nope}", "(?=a)a", "(?<=a)b", "(?<!a)b", "(?!a)b", "(a)\\1", "a{1001}"]) {
+    for (const q of [
+      "(",
+      "[a",
+      "a)(b",
+      "*",
+      "\\p{Nope}",
+      "(?=a)a",
+      "(?<=a)b",
+      "(?<!a)b",
+      "(?!a)b",
+      "(a)\\1",
+      "a{1001}",
+    ]) {
       expect(found("a(b", q)).toEqual([]);
       expect(isInvalidRegex(q, false)).toBe(true);
     }
@@ -98,10 +128,14 @@ describe("findInText with regex", () => {
   });
 
   it("accepts nested quantifiers and stays linear on catastrophic patterns", () => {
-    for (const q of ["(a+)+$", "(.*)*", "(\\w+\\s?)*", "(a{1,3})+", "(?:a*)+", "(a|aa)+$"]) expect(compileRegex(q, false)).not.toBeNull();
+    for (const q of ["(a+)+$", "(.*)*", "(\\w+\\s?)*", "(a{1,3})+", "(?:a*)+", "(a|aa)+$"])
+      expect(compileRegex(q, false)).not.toBeNull();
     for (const q of ["(a+)+$", "(a|aa)+$", "(a*)*b", "(\\w+\\s?)*$"]) {
       const start = performance.now();
-      expect(findInText("a".repeat(5000) + "!", q, { matchCase: false, wholeWord: false, regex: true }).length).toBeLessThanOrEqual(1);
+      expect(
+        findInText("a".repeat(5000) + "!", q, { matchCase: false, wholeWord: false, regex: true })
+          .length,
+      ).toBeLessThanOrEqual(1);
       expect(performance.now() - start).toBeLessThan(1000);
     }
   });
@@ -119,11 +153,25 @@ describe("findInText with regex", () => {
 
   it("returns UTF-16 offsets after emoji and combining marks", () => {
     const text = "😀😀 e\u0301t 😀 end";
-    const ranges = findInText(text, "(e)\\x{301}?t|end", { matchCase: false, wholeWord: false, regex: true });
+    const ranges = findInText(text, "(e)\\x{301}?t|end", {
+      matchCase: false,
+      wholeWord: false,
+      regex: true,
+    });
     expect(ranges.map((r) => text.slice(r.from, r.to))).toEqual(["e\u0301t", "end"]);
     expect(ranges[0]).toMatchObject({ from: 5, to: 8, captures: ["e\u0301t", "e"] });
-    expect(findInText("😀b", "b", { matchCase: false, wholeWord: false, regex: true })).toEqual([{ from: 2, to: 3, captures: ["b"] }]);
-    expect(findInText("a😀b😀", "😀", { matchCase: false, wholeWord: false, regex: true }).map((r) => [r.from, r.to])).toEqual([[1, 3], [4, 6]]);
+    expect(findInText("😀b", "b", { matchCase: false, wholeWord: false, regex: true })).toEqual([
+      { from: 2, to: 3, captures: ["b"] },
+    ]);
+    expect(
+      findInText("a😀b😀", "😀", { matchCase: false, wholeWord: false, regex: true }).map((r) => [
+        r.from,
+        r.to,
+      ]),
+    ).toEqual([
+      [1, 3],
+      [4, 6],
+    ]);
   });
 
   it("leaves the literal path alone: regex characters are plain text without the option", () => {

@@ -14,25 +14,60 @@ describe("schema contract", () => {
 
 describe("importMarkdown code blocks", () => {
   it("turns fenced and indented blocks into codeBlock nodes with their text and language", () => {
-    const md = ["# T", "", "```js title=x", "let a = 1;", "", "  <b>&</b>", "```", "", "para", "", "    indented", "    code", "", "```", "", "```"].join("\n");
+    const md = [
+      "# T",
+      "",
+      "```js title=x",
+      "let a = 1;",
+      "",
+      "  <b>&</b>",
+      "```",
+      "",
+      "para",
+      "",
+      "    indented",
+      "    code",
+      "",
+      "```",
+      "",
+      "```",
+    ].join("\n");
     const r = importMarkdown(md);
     expect(r.warnings).toEqual([]);
     const c = r.chapters[0]!.doc.content;
-    expect(c.map((n) => n.type)).toEqual(["heading", "codeBlock", "paragraph", "codeBlock", "codeBlock"]);
-    expect(c[1]).toEqual({ type: "codeBlock", attrs: { language: "js" }, content: [{ type: "text", text: "let a = 1;\n\n  <b>&</b>" }] });
-    expect(c[3]).toEqual({ type: "codeBlock", content: [{ type: "text", text: "indented\ncode" }] });
+    expect(c.map((n) => n.type)).toEqual([
+      "heading",
+      "codeBlock",
+      "paragraph",
+      "codeBlock",
+      "codeBlock",
+    ]);
+    expect(c[1]).toEqual({
+      type: "codeBlock",
+      attrs: { language: "js" },
+      content: [{ type: "text", text: "let a = 1;\n\n  <b>&</b>" }],
+    });
+    expect(c[3]).toEqual({
+      type: "codeBlock",
+      content: [{ type: "text", text: "indented\ncode" }],
+    });
     expect(c[4]).toEqual({ type: "codeBlock" });
     expectValid(r);
   });
   it("drops a language that is not a plain token", () => {
     const r = importMarkdown('# T\n\n```"><x\ncode\n```');
-    expect(r.chapters[0]!.doc.content[1]).toEqual({ type: "codeBlock", content: [{ type: "text", text: "code" }] });
+    expect(r.chapters[0]!.doc.content[1]).toEqual({
+      type: "codeBlock",
+      content: [{ type: "text", text: "code" }],
+    });
   });
 });
 
 describe("importMarkdown", () => {
   it("splits chapters on H1 and keeps the heading", () => {
-    const r = importMarkdown("# One\n\nHello **bold** and *it* and [a](https://x.com).\n\n# Two\n\nBye");
+    const r = importMarkdown(
+      "# One\n\nHello **bold** and *it* and [a](https://x.com).\n\n# Two\n\nBye",
+    );
     expect(r.chapters.map((c) => c.title)).toEqual(["One", "Two"]);
     expect(r.chapters[0]!.doc.content[0]).toMatchObject({ type: "heading", attrs: { level: 1 } });
     expect(r.warnings).toEqual([]);
@@ -65,19 +100,30 @@ describe("importMarkdown", () => {
   });
 
   it("keeps only http/https/mailto links", () => {
-    const r = importMarkdown("# A\n\n[ok](mailto:a@b.c) [bad](javascript:alert(1)) [rel](chapter.md)");
+    const r = importMarkdown(
+      "# A\n\n[ok](mailto:a@b.c) [bad](javascript:alert(1)) [rel](chapter.md)",
+    );
     const json = JSON.stringify(r.chapters[0]!.doc);
     expect(json).toContain("mailto:a@b.c");
     expect(json).not.toContain("javascript");
-    expect(json).not.toContain("chapter.md\"");
+    expect(json).not.toContain('chapter.md"');
     expect(r.warnings.filter((w) => w.code === "unsafe-link")).toHaveLength(2);
     expectValid(r);
   });
 
   it("handles quotes, nested lists, ordered start and scene breaks", () => {
-    const r = importMarkdown("# A\n\n> quote\n> more\n\n- a\n  - b\n    1. c\n- d\n\n3. x\n4. y\n\n***\n\n---\n");
+    const r = importMarkdown(
+      "# A\n\n> quote\n> more\n\n- a\n  - b\n    1. c\n- d\n\n3. x\n4. y\n\n***\n\n---\n",
+    );
     const types = r.chapters[0]!.doc.content.map((n) => n.type);
-    expect(types).toEqual(["heading", "blockquote", "bulletList", "orderedList", "sceneBreak", "sceneBreak"]);
+    expect(types).toEqual([
+      "heading",
+      "blockquote",
+      "bulletList",
+      "orderedList",
+      "sceneBreak",
+      "sceneBreak",
+    ]);
     expect(r.chapters[0]!.doc.content[3]).toMatchObject({ attrs: { start: 3 } });
     expectValid(r);
   });
@@ -97,7 +143,9 @@ describe("importMarkdown", () => {
   });
 
   it("records image references without reading disk and dedups targets", () => {
-    const r = importMarkdown("# A\n\n![cat](img/cat.png) text ![dog](other/cat.png)\n\n![r](https://x.com/a.png)\n\n![z](pic.bmp)");
+    const r = importMarkdown(
+      "# A\n\n![cat](img/cat.png) text ![dog](other/cat.png)\n\n![r](https://x.com/a.png)\n\n![z](pic.bmp)",
+    );
     expect(r.assets.map((a) => [a.sourcePath, a.targetPath])).toEqual([
       ["img/cat.png", "assets/cat.png"],
       ["other/cat.png", "assets/cat-2.png"],
@@ -129,7 +177,8 @@ describe("importMarkdown", () => {
     expect(codes(r)).not.toContain("strikethrough");
     expect(codes(r)).not.toContain("inline-code");
     const text = JSON.stringify(r.chapters[0]!.doc);
-    for (const s of ["let x = 1;", "raw", "gone", "code", "[x] done", "[ ] todo"]) expect(text).toContain(s);
+    for (const s of ["let x = 1;", "raw", "gone", "code", "[x] done", "[ ] todo"])
+      expect(text).toContain(s);
     expectValid(r);
   });
 
@@ -150,7 +199,10 @@ describe("importMarkdown", () => {
     const r = importMarkdown("# T\n\n~~gone~~ and `code` and **bold `both`**");
     const para = r.chapters[0]!.doc.content.find((n) => n.type === "paragraph");
     const kids = para && "content" in para ? (para.content ?? []) : [];
-    const marksOf = (t: string) => kids.find((n) => n.type === "text" && n.text === t && "marks" in n && n.marks)?.["marks" as never];
+    const marksOf = (t: string) =>
+      kids.find((n) => n.type === "text" && n.text === t && "marks" in n && n.marks)?.[
+        "marks" as never
+      ];
     expect(marksOf("gone")).toEqual([{ type: "strike" }]);
     expect(marksOf("code")).toEqual([{ type: "code" }]);
     expect(marksOf("both")).toEqual([{ type: "code" }]);
@@ -176,20 +228,31 @@ describe("HTML inside Markdown", () => {
   const mark = (type: string) => ({ type });
 
   it("converts block HTML through the HTML importer", () => {
-    const r = importMarkdown("# T\n\n<div><p>one <b>two</b></p>\n<ul><li>x</li></ul></div>\n\nafter\n");
+    const r = importMarkdown(
+      "# T\n\n<div><p>one <b>two</b></p>\n<ul><li>x</li></ul></div>\n\nafter\n",
+    );
     expect(codes(r)).toEqual([]);
-    expect(r.chapters[0]!.doc.content.map((n) => n.type)).toEqual(["heading", "paragraph", "bulletList", "paragraph"]);
+    expect(r.chapters[0]!.doc.content.map((n) => n.type)).toEqual([
+      "heading",
+      "paragraph",
+      "bulletList",
+      "paragraph",
+    ]);
     expectValid(r);
   });
 
   it("refuses unsafe links and remote images in block HTML", () => {
-    const r = importMarkdown('<p><a href="javascript:x">l</a></p>\n\n<img src="https://e.test/a.png" alt="r">\n');
+    const r = importMarkdown(
+      '<p><a href="javascript:x">l</a></p>\n\n<img src="https://e.test/a.png" alt="r">\n',
+    );
     expect(codes(r)).toEqual(["unsafe-link", "remote-image", "no-headings"]);
     expectValid(r);
   });
 
   it("reads <u>, small caps, <sup> and <sub> pairs as marks, across emphasis", () => {
-    const [p] = body('a <u>b</u> <span class="small-caps">c</span> x<sup>2</sup> H<sub>2</sub>O <u>**d**</u>');
+    const [p] = body(
+      'a <u>b</u> <span class="small-caps">c</span> x<sup>2</sup> H<sub>2</sub>O <u>**d**</u>',
+    );
     expect(p).toEqual({
       type: "paragraph",
       content: [
@@ -209,7 +272,14 @@ describe("HTML inside Markdown", () => {
   });
 
   it("keeps anything else, and unpaired mark tags, as literal text with an html warning", () => {
-    for (const md of ["a <u>b", "a </u> b", 'a <span class="other">b</span>', "a <mark>b</mark>", "<u>a</sup>", "x <br> y"]) {
+    for (const md of [
+      "a <u>b",
+      "a </u> b",
+      'a <span class="other">b</span>',
+      "a <mark>b</mark>",
+      "<u>a</sup>",
+      "x <br> y",
+    ]) {
       const r = importMarkdown(md);
       expect(codes(r), md).toContain("html");
       expect(JSON.stringify(r.chapters[0]!.doc), md).toContain("<");

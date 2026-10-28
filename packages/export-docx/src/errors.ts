@@ -5,7 +5,10 @@
 export class DocxExportError extends Error {
   readonly chapter: string | undefined;
   readonly node: string | undefined;
-  constructor(message: string, where: { chapter?: string | undefined; node?: string | undefined } = {}) {
+  constructor(
+    message: string,
+    where: { chapter?: string | undefined; node?: string | undefined } = {},
+  ) {
     super(where.chapter ? `In “${where.chapter}”: ${message}` : message);
     this.name = "DocxExportError";
     this.chapter = where.chapter;

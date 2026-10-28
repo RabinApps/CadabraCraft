@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { convertHtmlText, literalContent, pasteAction, truncate } from "../htmlPaste";
 
-const base = { text: "<p>The gate was <b>old</b></p>", hasHtml: false, inCode: false, pref: "ask" as const };
+const base = {
+  text: "<p>The gate was <b>old</b></p>",
+  hasHtml: false,
+  inCode: false,
+  pref: "ask" as const,
+};
 
 describe("pasteAction", () => {
   it("asks, converts or leaves it by preference", () => {

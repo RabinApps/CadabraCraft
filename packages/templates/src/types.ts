@@ -42,13 +42,22 @@ export interface PrintSettings {
   paragraph: { style: "indent" | "spaced"; indentEm: number; spacingEm: number };
   headings: { 1: PrintHeadingStyle; 2: PrintHeadingStyle; 3: PrintHeadingStyle };
   chapterOpening: PrintChapterOpening;
-  blockQuote: { indentEm: number; sizeEm: number; italic: boolean; ruleLeft: boolean; spaceEm: number };
+  blockQuote: {
+    indentEm: number;
+    sizeEm: number;
+    italic: boolean;
+    ruleLeft: boolean;
+    spaceEm: number;
+  };
   sceneBreak: { glyph: string; spaceEm: number };
   /** Running header and footer text. */
   runningText: { sizePt: number; smallCaps: boolean; italic: boolean };
   footnoteSizeEm: number;
   /** Defaults the app proposes for this template. */
-  defaults: { trimSize: TrimSizeId; marginsIn: { top: number; bottom: number; inside: number; outside: number } };
+  defaults: {
+    trimSize: TrimSizeId;
+    marginsIn: { top: number; bottom: number; inside: number; outside: number };
+  };
 }
 
 export interface EpubSettings {

@@ -46,13 +46,17 @@ test("rename, reorder and delete chapters", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Second", exact: true })).toBeVisible();
 
   await chapterAction(page, "Second", "Move up");
-  const order = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title));
+  const order = await page.evaluate(() =>
+    JSON.parse((window as any).__disk["cadabra.json"]).chapters.map((c: any) => c.title),
+  );
   expect(order).toEqual(["Second", "Chapter One"]);
 
   await chapterAction(page, "Second", "Move to trash");
   await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
   await expect(page.getByRole("button", { name: "Second", exact: true })).toHaveCount(0);
-  const trashed = await page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")));
+  const trashed = await page.evaluate(() =>
+    Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")),
+  );
   expect(trashed).toHaveLength(1);
 });
 

@@ -4,16 +4,32 @@ import { esc } from "./xml";
 import { checkText, fail, kidsOf } from "./helpers";
 import type { Ctx, ParaOpts, RunProps } from "./types";
 
-const MARK_TYPES: Mark["type"][] = ["bold", "italic", "underline", "smallCaps", "strike", "code", "superscript", "subscript", "link"];
+const MARK_TYPES: Mark["type"][] = [
+  "bold",
+  "italic",
+  "underline",
+  "smallCaps",
+  "strike",
+  "code",
+  "superscript",
+  "subscript",
+  "link",
+];
 
 export function para(inner: string, o: ParaOpts, ctx: Ctx): string {
   const pb = ctx.s.pendingBreak;
   ctx.s.pendingBreak = false;
-  const ind = o.left !== undefined || o.right !== undefined || o.firstLine !== undefined || o.hanging !== undefined
-    ? `<w:ind${o.left !== undefined ? ` w:left="${o.left}"` : ""}${o.right !== undefined ? ` w:right="${o.right}"` : ""}${o.hanging !== undefined ? ` w:hanging="${o.hanging}"` : ""}${o.firstLine !== undefined ? ` w:firstLine="${o.firstLine}"` : ""}/>`
-    : "";
+  const ind =
+    o.left !== undefined ||
+    o.right !== undefined ||
+    o.firstLine !== undefined ||
+    o.hanging !== undefined
+      ? `<w:ind${o.left !== undefined ? ` w:left="${o.left}"` : ""}${o.right !== undefined ? ` w:right="${o.right}"` : ""}${o.hanging !== undefined ? ` w:hanging="${o.hanging}"` : ""}${o.firstLine !== undefined ? ` w:firstLine="${o.firstLine}"` : ""}/>`
+      : "";
   const ppr = `${o.style ? `<w:pStyle w:val="${o.style}"/>` : ""}${o.keepNext ? "<w:keepNext/>" : ""}${pb ? "<w:pageBreakBefore/>" : ""}${
-    o.numId !== undefined ? `<w:numPr><w:ilvl w:val="${o.ilvl ?? 0}"/><w:numId w:val="${o.numId}"/></w:numPr>` : ""
+    o.numId !== undefined
+      ? `<w:numPr><w:ilvl w:val="${o.ilvl ?? 0}"/><w:numId w:val="${o.numId}"/></w:numPr>`
+      : ""
   }${o.spaceBefore !== undefined ? `<w:spacing w:before="${o.spaceBefore}"/>` : ""}${ind}${o.jc ? `<w:jc w:val="${o.jc}"/>` : ""}${o.sect ?? ""}`;
   return `<w:p>${ppr ? `<w:pPr>${ppr}</w:pPr>` : ""}${inner}</w:p>`;
 }
@@ -22,10 +38,12 @@ export function rPr(marks: Mark[], base: RunProps, ctx: Ctx, extraStyle?: string
   const types = new Set<string>();
   for (const m of marks) {
     const type = (m as { type?: unknown }).type;
-    if (!MARK_TYPES.includes(type as Mark["type"])) fail(ctx, `The mark "${String(type)}" has no Word form`, String(type));
+    if (!MARK_TYPES.includes(type as Mark["type"]))
+      fail(ctx, `The mark "${String(type)}" has no Word form`, String(type));
     types.add(m.type);
   }
-  if (types.has("superscript") && types.has("subscript")) fail(ctx, "Text cannot be both superscript and subscript", "superscript");
+  if (types.has("superscript") && types.has("subscript"))
+    fail(ctx, "Text cannot be both superscript and subscript", "superscript");
   const style = extraStyle ?? (types.has("link") ? "Hyperlink" : undefined);
   const mono = FONT_NAMES.courier;
   return (
@@ -36,7 +54,11 @@ export function rPr(marks: Mark[], base: RunProps, ctx: Ctx, extraStyle?: string
     (types.has("smallCaps") ? "<w:smallCaps/>" : "") +
     (types.has("strike") ? "<w:strike/>" : "") +
     (types.has("underline") ? '<w:u w:val="single"/>' : "") +
-    (types.has("superscript") ? '<w:vertAlign w:val="superscript"/>' : types.has("subscript") ? '<w:vertAlign w:val="subscript"/>' : "")
+    (types.has("superscript")
+      ? '<w:vertAlign w:val="superscript"/>'
+      : types.has("subscript")
+        ? '<w:vertAlign w:val="subscript"/>'
+        : "")
   );
 }
 
@@ -46,7 +68,13 @@ export function textRuns(text: string, props: string): string {
   const rp = props ? `<w:rPr>${props}</w:rPr>` : "";
   return parts
     .filter((p) => p !== "")
-    .map((p) => (p === "\n" ? `<w:r>${rp}<w:br/></w:r>` : p === "\t" ? `<w:r>${rp}<w:tab/></w:r>` : `<w:r>${rp}<w:t xml:space="preserve">${esc(p)}</w:t></w:r>`))
+    .map((p) =>
+      p === "\n"
+        ? `<w:r>${rp}<w:br/></w:r>`
+        : p === "\t"
+          ? `<w:r>${rp}<w:tab/></w:r>`
+          : `<w:r>${rp}<w:t xml:space="preserve">${esc(p)}</w:t></w:r>`,
+    )
     .join("");
 }
 
@@ -86,7 +114,8 @@ export function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
       const id = ctx.s.notes.length + 1;
       ctx.s.notes.push(""); // reserve the id before the content is rendered
       const body = inline(kidsOf(n), { ...ctx, inNote: true });
-      ctx.s.notes[id - 1] = `<w:footnote w:id="${id}"><w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteRef/></w:r><w:r><w:t xml:space="preserve"> </w:t></w:r>${body}</w:p></w:footnote>`;
+      ctx.s.notes[id - 1] =
+        `<w:footnote w:id="${id}"><w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteRef/></w:r><w:r><w:t xml:space="preserve"> </w:t></w:r>${body}</w:p></w:footnote>`;
       out += `<w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteReference w:id="${id}"/></w:r>`;
     } else if (type === "hardBreak") {
       out += "<w:r><w:br/></w:r>";

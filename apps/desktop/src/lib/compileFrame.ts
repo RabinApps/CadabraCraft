@@ -13,7 +13,14 @@ export interface CompileRequest {
  * src-tauri/src/typst.rs) reads the same layout.
  */
 export function packCompileRequest({ typstPath, source, files, pdfA }: CompileRequest): Uint8Array {
-  const header = new TextEncoder().encode(JSON.stringify({ typstPath, source, pdfA, files: files.map(([name, bytes]) => ({ name, len: bytes.length })) }));
+  const header = new TextEncoder().encode(
+    JSON.stringify({
+      typstPath,
+      source,
+      pdfA,
+      files: files.map(([name, bytes]) => ({ name, len: bytes.length })),
+    }),
+  );
   const out = new Uint8Array(4 + header.length + files.reduce((n, [, b]) => n + b.length, 0));
   new DataView(out.buffer).setUint32(0, header.length, true);
   out.set(header, 4);

@@ -26,7 +26,8 @@ const xml = new XMLParser({
 export function parseXml(bytes: Uint8Array, name: string): XNode[] {
   const s = strFromU8(bytes).replace(/^﻿/, "");
   const ok = XMLValidator.validate(s);
-  if (ok !== true) throw new ImportError("invalid-xml", `${name} is not well-formed XML (${ok.err.msg}).`);
+  if (ok !== true)
+    throw new ImportError("invalid-xml", `${name} is not well-formed XML (${ok.err.msg}).`);
   try {
     return xml.parse(s) as XNode[];
   } catch (e) {
@@ -44,8 +45,10 @@ export const kids = (n: XNode): XNode[] => {
   return Array.isArray(v) ? v : [];
 };
 export const attr = (n: XNode, name: string): string | undefined => n[":@"]?.[`@_${name}`];
-export const child = (n: XNode, name: string): XNode | undefined => kids(n).find((k) => tagOf(k) === name);
-export const childrenNamed = (n: XNode, name: string): XNode[] => kids(n).filter((k) => tagOf(k) === name);
+export const child = (n: XNode, name: string): XNode | undefined =>
+  kids(n).find((k) => tagOf(k) === name);
+export const childrenNamed = (n: XNode, name: string): XNode[] =>
+  kids(n).filter((k) => tagOf(k) === name);
 export const on = (n: XNode | undefined): boolean => {
   if (!n) return false;
   const v = attr(n, "val");
@@ -69,7 +72,10 @@ export function rawText(n: XNode, depth = 0): string {
   for (const k of kids(n)) {
     const t = tagOf(k);
     if (t === "#text") s += String(k["#text"] ?? "");
-    else if (t === "t") s += kids(k).map((x) => String(x["#text"] ?? "")).join("");
+    else if (t === "t")
+      s += kids(k)
+        .map((x) => String(x["#text"] ?? ""))
+        .join("");
     else if (t === "tab") s += " ";
     else if (t === "del" || t === "moveFrom" || t === "delText" || t === "instrText") continue;
     else if (t === "p" && s && !s.endsWith(" ")) s += " " + rawText(k, depth + 1);

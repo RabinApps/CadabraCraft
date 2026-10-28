@@ -8,7 +8,37 @@ export const MAX_DOM_DEPTH = 512;
  * seconds). So the raw text is scanned first: if the unclosed block-level tags outnumber the depth limit, refuse before parsing.
  * Formatting tags (`<b>`, `<span>`) and auto-closing ones (`<p>`, `<li>`) are not counted; they are cheap and the tree walk limits their depth.
  */
-const COSTLY = new Set(["div", "blockquote", "ul", "ol", "section", "article", "main", "header", "footer", "nav", "aside", "details", "table", "dl", "figure", "center", "form", "fieldset", "template", "address", "menu", "dir", "pre", "listing", "rp", "rt", "hgroup", "summary", "figcaption"]);
+const COSTLY = new Set([
+  "div",
+  "blockquote",
+  "ul",
+  "ol",
+  "section",
+  "article",
+  "main",
+  "header",
+  "footer",
+  "nav",
+  "aside",
+  "details",
+  "table",
+  "dl",
+  "figure",
+  "center",
+  "form",
+  "fieldset",
+  "template",
+  "address",
+  "menu",
+  "dir",
+  "pre",
+  "listing",
+  "rp",
+  "rt",
+  "hgroup",
+  "summary",
+  "figcaption",
+]);
 function tooNested(html: string): boolean {
   const open = new Map<string, number>();
   let total = 0;
@@ -51,7 +81,11 @@ function tooManyAttributes(html: string): boolean {
 /** Refuse input whose shape makes parse5 or the tree walk blow up (see `tooNested`, `tooManyAttributes`). */
 export function refuseHostileShape(html: string): void {
   if (tooNested(html)) throw new ImportError("too-deeply-nested", TOO_DEEP);
-  if (tooManyAttributes(html)) throw new ImportError("input-too-large", `The HTML has a tag with more than ${MAX_ATTRS_PER_TAG} attributes.`);
+  if (tooManyAttributes(html))
+    throw new ImportError(
+      "input-too-large",
+      `The HTML has a tag with more than ${MAX_ATTRS_PER_TAG} attributes.`,
+    );
 }
 
 const TOO_DEEP = "The HTML is nested too deeply to import.";
@@ -63,6 +97,9 @@ export function guarded<T>(step: () => T): T {
   } catch (e) {
     if (e instanceof ImportError) throw e;
     if (e instanceof RangeError) throw new ImportError("too-deeply-nested", TOO_DEEP);
-    throw new ImportError("invalid-xml", `The HTML could not be read: ${e instanceof Error ? e.message.slice(0, 200) : "unknown error"}`);
+    throw new ImportError(
+      "invalid-xml",
+      `The HTML could not be read: ${e instanceof Error ? e.message.slice(0, 200) : "unknown error"}`,
+    );
   }
 }

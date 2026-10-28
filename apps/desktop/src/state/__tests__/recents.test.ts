@@ -21,6 +21,10 @@ describe("recent projects list", () => {
     expect(parseRecents(null)).toEqual([]);
     expect(parseRecents("not json")).toEqual([]);
     expect(parseRecents('{"a":1}')).toEqual([]);
-    expect(parseRecents(JSON.stringify([r("/a"), { root: 3 }, null, r("/a", 2), r("/b")])).map((x) => x.root)).toEqual(["/a", "/b"]);
+    expect(
+      parseRecents(JSON.stringify([r("/a"), { root: 3 }, null, r("/a", 2), r("/b")])).map(
+        (x) => x.root,
+      ),
+    ).toEqual(["/a", "/b"]);
   });
 });

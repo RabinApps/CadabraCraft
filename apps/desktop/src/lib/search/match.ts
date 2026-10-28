@@ -39,7 +39,10 @@ const isWordAt = (text: string, index: number, before: boolean): boolean => {
   if (before) {
     if (index <= 0) return false;
     const low = text.charCodeAt(index - 1);
-    const ch = low >= 0xdc00 && low <= 0xdfff && index >= 2 ? text.slice(index - 2, index) : text.charAt(index - 1);
+    const ch =
+      low >= 0xdc00 && low <= 0xdfff && index >= 2
+        ? text.slice(index - 2, index)
+        : text.charAt(index - 1);
     return wordChar.test(ch);
   }
   if (index >= text.length) return false;
@@ -52,7 +55,11 @@ const isWordAt = (text: string, index: number, before: boolean): boolean => {
  * ("aa" in "aaa" gives one match at 0). An empty query matches nothing. Whole word means the characters just outside
  * the match are not letters, digits or combining marks (Unicode `\p{L}\p{N}\p{M}`).
  */
-export function findInText(text: string, query: string, { matchCase, wholeWord, regex, limit }: MatchOptions): TextRange[] {
+export function findInText(
+  text: string,
+  query: string,
+  { matchCase, wholeWord, regex, limit }: MatchOptions,
+): TextRange[] {
   if (regex) return findRegexInText(text, query, matchCase, wholeWord, limit ?? MAX_MATCHES);
   if (!query || query.length > text.length) return [];
   const haystack = matchCase ? text : fold(text);
@@ -105,9 +112,16 @@ export function compileRegex(query: string, matchCase: boolean): RE2JS | null {
 }
 
 /** Index just after the code point starting at `index`. */
-const nextCodePoint = (text: string, index: number): number => index + ((text.codePointAt(index) ?? 0) > 0xffff ? 2 : 1);
+const nextCodePoint = (text: string, index: number): number =>
+  index + ((text.codePointAt(index) ?? 0) > 0xffff ? 2 : 1);
 
-function findRegexInText(text: string, query: string, matchCase: boolean, wholeWord: boolean, limit: number): TextRange[] {
+function findRegexInText(
+  text: string,
+  query: string,
+  matchCase: boolean,
+  wholeWord: boolean,
+  limit: number,
+): TextRange[] {
   const re = compileRegex(query, matchCase);
   if (!re || !text) return [];
   const m = re.matcher(text);
@@ -131,14 +145,19 @@ function findRegexInText(text: string, query: string, matchCase: boolean, wholeW
 }
 
 /** Whether a regex-mode query is unusable (invalid or refused). An empty query is not "invalid". */
-export const isInvalidRegex = (query: string, matchCase: boolean): boolean => query !== "" && compileRegex(query, matchCase) === null;
+export const isInvalidRegex = (query: string, matchCase: boolean): boolean =>
+  query !== "" && compileRegex(query, matchCase) === null;
 
 /**
  * The replacement text for one match. Regex mode expands `$1`..`$9` (the capture, "" if it did not take part; a
  * number above the pattern's group count stays as typed), `$&` (the whole match) and `$$` (a dollar sign), like
  * String.prototype.replace; other `$` sequences stay literal. Literal mode returns the replacement unchanged.
  */
-export function expandReplacement(range: TextRange, replacement: string, regex: boolean | undefined): string {
+export function expandReplacement(
+  range: TextRange,
+  replacement: string,
+  regex: boolean | undefined,
+): string {
   const caps = range.captures;
   if (!regex || !caps || !replacement.includes("$")) return replacement;
   return replacement.replace(/\$([$&1-9])/g, (all, c: string) => {

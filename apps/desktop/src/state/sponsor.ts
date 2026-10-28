@@ -31,8 +31,13 @@ export const useSponsor = create<Sponsor>((set, get) => ({
   exported: null,
   later: false,
   hidden: readHidden(),
-  offer: (file) => { if (!get().hidden && !get().later) set({ exported: file }); },
+  offer: (file) => {
+    if (!get().hidden && !get().later) set({ exported: file });
+  },
   snooze: () => set({ exported: null, later: true }),
-  never: () => { writeHidden(); set({ exported: null, hidden: true }); },
+  never: () => {
+    writeHidden();
+    set({ exported: null, hidden: true });
+  },
   close: () => set({ exported: null }),
 }));

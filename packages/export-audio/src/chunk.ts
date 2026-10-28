@@ -17,7 +17,11 @@ function splitLong(sentence: string, max: number): string[] {
   let rest = sentence.trim();
   while (rest.length > max) {
     const window = rest.slice(0, max);
-    const cut = Math.max(window.lastIndexOf(", "), window.lastIndexOf("; "), window.lastIndexOf(" "));
+    const cut = Math.max(
+      window.lastIndexOf(", "),
+      window.lastIndexOf("; "),
+      window.lastIndexOf(" "),
+    );
     const at = cut > max / 2 ? cut + 1 : max;
     out.push(rest.slice(0, at).trim());
     rest = rest.slice(at).trim();
@@ -28,7 +32,10 @@ function splitLong(sentence: string, max: number): string[] {
 
 /** Sentences of one block, none longer than `max` characters. */
 function sentences(text: string, max: number): string[] {
-  return (text.match(SENTENCE) ?? [text]).map((s) => s.trim()).filter(Boolean).flatMap((s) => (s.length > max ? splitLong(s, max) : [s]));
+  return (text.match(SENTENCE) ?? [text])
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .flatMap((s) => (s.length > max ? splitLong(s, max) : [s]));
 }
 
 /**

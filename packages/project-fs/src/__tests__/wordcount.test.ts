@@ -10,13 +10,32 @@ describe("countWords (same rules as apps/desktop/src/lib/wordcount.ts)", () => {
     expect(countWords({ type: "doc", content: [{ type: "paragraph" }] })).toBe(0);
   });
   it("counts words across blocks without merging block edges", () => {
-    const doc = { type: "doc", content: [{ type: "heading", attrs: { level: 1 }, content: [t("Chapter One")] }, p(t("It was")), p(t("late."))] };
+    const doc = {
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 1 }, content: [t("Chapter One")] },
+        p(t("It was")),
+        p(t("late.")),
+      ],
+    };
     expect(countWords(doc)).toBe(5);
   });
   it("treats marks as part of the same word", () => {
-    expect(countWords({ type: "doc", content: [p(t("un"), { type: "text", text: "believ", marks: [{ type: "bold" }] }, t("able"))] })).toBe(1);
+    expect(
+      countWords({
+        type: "doc",
+        content: [
+          p(t("un"), { type: "text", text: "believ", marks: [{ type: "bold" }] }, t("able")),
+        ],
+      }),
+    ).toBe(1);
   });
   it("separates footnote text from the surrounding words", () => {
-    expect(countWords({ type: "doc", content: [p(t("word"), { type: "footnote", content: [t("A note")] }, t("more"))] })).toBe(4);
+    expect(
+      countWords({
+        type: "doc",
+        content: [p(t("word"), { type: "footnote", content: [t("A note")] }, t("more"))],
+      }),
+    ).toBe(4);
   });
 });

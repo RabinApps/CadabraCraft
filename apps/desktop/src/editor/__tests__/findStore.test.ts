@@ -1,12 +1,24 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "../findStore";
-import { bookPosition, bookStep, countLabel, isComposing, prefillQuery, resultRows } from "../../lib/search/findHelpers";
+import {
+  bookPosition,
+  bookStep,
+  countLabel,
+  isComposing,
+  prefillQuery,
+  resultRows,
+} from "../../lib/search/findHelpers";
 
 beforeEach(() => useFind.setState({ open: false, query: "", replacement: "" }));
 
 describe("find store limits", () => {
   it("cuts a query and a replacement that are too long, however they arrive", () => {
-    useFind.getState().set({ query: "q".repeat(MAX_QUERY_CHARS + 50), replacement: "r".repeat(MAX_REPLACEMENT_CHARS + 50) });
+    useFind
+      .getState()
+      .set({
+        query: "q".repeat(MAX_QUERY_CHARS + 50),
+        replacement: "r".repeat(MAX_REPLACEMENT_CHARS + 50),
+      });
     expect(useFind.getState().query).toHaveLength(MAX_QUERY_CHARS);
     expect(useFind.getState().replacement).toHaveLength(MAX_REPLACEMENT_CHARS);
     useFind.getState().show({ query: "z".repeat(5000) });
@@ -44,12 +56,27 @@ describe("book helpers with nothing to find", () => {
     expect(bookStep(["a"], {}, "a", { total: 0, index: 0 }, 1)).toBeNull();
   });
   it("ignores counts of pages that no longer exist", () => {
-    expect(bookPosition(order, { gone: 7, b: 2 }, "a", { total: 1, index: 1 })).toEqual({ total: 3, index: 1 });
-    const rows = resultRows({ frontMatter: [], chapters: [{ id: "a", title: "A" }], backMatter: [] }, { gone: 7, a: 1 }, null, { total: 0, index: 0 });
+    expect(bookPosition(order, { gone: 7, b: 2 }, "a", { total: 1, index: 1 })).toEqual({
+      total: 3,
+      index: 1,
+    });
+    const rows = resultRows(
+      { frontMatter: [], chapters: [{ id: "a", title: "A" }], backMatter: [] },
+      { gone: 7, a: 1 },
+      null,
+      { total: 0, index: 0 },
+    );
     expect(rows.map((r) => r.id)).toEqual(["a"]);
   });
   it("copes with a current page that is not in the book (deleted while open)", () => {
-    expect(bookStep(order, { b: 1 }, "deleted", { total: 0, index: 0 }, 1)).toEqual({ to: "page", id: "b", at: "first" });
-    expect(bookPosition(order, { b: 1 }, "deleted", { total: 0, index: 0 })).toEqual({ total: 1, index: 0 });
+    expect(bookStep(order, { b: 1 }, "deleted", { total: 0, index: 0 }, 1)).toEqual({
+      to: "page",
+      id: "b",
+      at: "first",
+    });
+    expect(bookPosition(order, { b: 1 }, "deleted", { total: 0, index: 0 })).toEqual({
+      total: 1,
+      index: 0,
+    });
   });
 });

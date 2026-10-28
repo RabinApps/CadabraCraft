@@ -7,38 +7,82 @@ function fakeApi() {
   const log: string[] = [];
   const items = new Map<string, { enabled: boolean; checked?: boolean; action: () => void }>();
   const api: MenuApi = {
-    newMenu: async () => ({ setAsAppMenu: async () => { log.push("setAsAppMenu"); } }),
-    newSubmenu: async (text) => { log.push(`submenu:${text}`); return { text }; },
+    newMenu: async () => ({
+      setAsAppMenu: async () => {
+        log.push("setAsAppMenu");
+      },
+    }),
+    newSubmenu: async (text) => {
+      log.push(`submenu:${text}`);
+      return { text };
+    },
     newItem: async (o) => {
       log.push(`item:${o.id}`);
       const rec = { enabled: o.enabled, action: o.action };
       items.set(o.id, rec);
-      return { setEnabled: async (v: boolean) => { log.push(`enabled:${o.id}=${v}`); rec.enabled = v; } };
+      return {
+        setEnabled: async (v: boolean) => {
+          log.push(`enabled:${o.id}=${v}`);
+          rec.enabled = v;
+        },
+      };
     },
     newCheckItem: async (o) => {
       log.push(`check:${o.id}`);
       const rec = { enabled: o.enabled, checked: o.checked, action: o.action };
       items.set(o.id, rec);
       return {
-        setEnabled: async (v: boolean) => { log.push(`enabled:${o.id}=${v}`); rec.enabled = v; },
-        setChecked: async (v: boolean) => { log.push(`checked:${o.id}=${v}`); rec.checked = v; },
+        setEnabled: async (v: boolean) => {
+          log.push(`enabled:${o.id}=${v}`);
+          rec.enabled = v;
+        },
+        setChecked: async (v: boolean) => {
+          log.push(`checked:${o.id}=${v}`);
+          rec.checked = v;
+        },
       };
     },
-    newPredefined: async (item) => { log.push(`predefined:${item}`); return { item }; },
+    newPredefined: async (item) => {
+      log.push(`predefined:${item}`);
+      return { item };
+    },
   };
   return { api, log, items };
 }
 
-const entries = (over: { saveEnabled?: boolean; writeChecked?: boolean; text?: string } = {}): MenuEntry[] => [
+const entries = (
+  over: { saveEnabled?: boolean; writeChecked?: boolean; text?: string } = {},
+): MenuEntry[] => [
   {
-    kind: "submenu", text: "File", items: [
-      { kind: "command", id: "file.save", text: over.text ?? "Save", enabled: over.saveEnabled ?? true, accelerator: "CmdOrCtrl+S" },
+    kind: "submenu",
+    text: "File",
+    items: [
+      {
+        kind: "command",
+        id: "file.save",
+        text: over.text ?? "Save",
+        enabled: over.saveEnabled ?? true,
+        accelerator: "CmdOrCtrl+S",
+      },
       { kind: "separator" },
       { kind: "command", id: "file.openRecent", arg: "/a", text: "A", enabled: true },
       { kind: "command", id: "file.openRecent", arg: "/b", text: "B", enabled: true },
     ],
   },
-  { kind: "submenu", text: "View", items: [{ kind: "command", id: "view.write", text: "Write", enabled: true, checked: over.writeChecked ?? true }, { kind: "predefined", item: "Fullscreen", text: "Enter Full Screen" }] },
+  {
+    kind: "submenu",
+    text: "View",
+    items: [
+      {
+        kind: "command",
+        id: "view.write",
+        text: "Write",
+        enabled: true,
+        checked: over.writeChecked ?? true,
+      },
+      { kind: "predefined", item: "Fullscreen", text: "Enter Full Screen" },
+    ],
+  },
 ];
 
 describe("native menu adapter", () => {
@@ -46,7 +90,18 @@ describe("native menu adapter", () => {
     const t = fakeApi();
     await createNativeMenu(t.api, vi.fn()).apply(entries());
     expect(t.log).toContain("setAsAppMenu");
-    expect(t.log).toEqual(expect.arrayContaining(["submenu:File", "submenu:View", "item:file.save", "item:file.openRecent:/a", "item:file.openRecent:/b", "check:view.write", "predefined:Fullscreen", "predefined:Separator"]));
+    expect(t.log).toEqual(
+      expect.arrayContaining([
+        "submenu:File",
+        "submenu:View",
+        "item:file.save",
+        "item:file.openRecent:/a",
+        "item:file.openRecent:/b",
+        "check:view.write",
+        "predefined:Fullscreen",
+        "predefined:Separator",
+      ]),
+    );
   });
 
   it("changes only the states that changed, without rebuilding", async () => {
@@ -89,7 +144,9 @@ describe("native menu adapter", () => {
 
   it("swallows failures, as in a browser without a native menu", async () => {
     const t = fakeApi();
-    t.api.newMenu = async () => { throw new Error("no native menu"); };
+    t.api.newMenu = async () => {
+      throw new Error("no native menu");
+    };
     await expect(createNativeMenu(t.api, vi.fn()).apply(entries())).resolves.toBeUndefined();
   });
 });
@@ -100,7 +157,12 @@ describe("structureOf", () => {
     expect(structureOf(entries({ saveEnabled: false, writeChecked: false }))).toBe(base);
     expect(structureOf(entries({ text: "Other" }))).not.toBe(base);
     const noTick = entries();
-    (noTick[1] as Extract<MenuEntry, { kind: "submenu" }>).items[0] = { kind: "command", id: "view.write", text: "Write", enabled: true };
+    (noTick[1] as Extract<MenuEntry, { kind: "submenu" }>).items[0] = {
+      kind: "command",
+      id: "view.write",
+      text: "Write",
+      enabled: true,
+    };
     expect(structureOf(noTick)).not.toBe(base);
   });
 });

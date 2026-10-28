@@ -5,21 +5,34 @@ import { getSchema } from "@tiptap/react";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { extensions } from "@cadabracraft/editor-schema";
 import {
-  Search, replaceAllTransaction, replaceCurrentTransaction, searchKey, setSearchTransaction, stepTransaction,
+  Search,
+  replaceAllTransaction,
+  replaceCurrentTransaction,
+  searchKey,
+  setSearchTransaction,
+  stepTransaction,
 } from "../plugin";
 
 // Headless: the plugin and transactions need no DOM (the repo has no jsdom), so tests drive a bare EditorState.
 const schema = getSchema(extensions);
 const p = (...c: unknown[]) => ({ type: "paragraph", content: c });
-const t = (text: string, marks?: string[]) => ({ type: "text", text, ...(marks && { marks: marks.map((type) => ({ type })) }) });
+const t = (text: string, marks?: string[]) => ({
+  type: "text",
+  text,
+  ...(marks && { marks: marks.map((type) => ({ type })) }),
+});
 const br = { type: "hardBreak" };
 
 const plugins = Search.config.addProseMirrorPlugins!.call({} as never);
 function make(content: unknown[]) {
-  return EditorState.create({ doc: schema.nodeFromJSON({ type: "doc", content }), plugins: [history(), ...plugins] });
+  return EditorState.create({
+    doc: schema.nodeFromJSON({ type: "doc", content }),
+    plugins: [history(), ...plugins],
+  });
 }
 const apply = (state: EditorState, tr: Transaction | null) => state.apply(tr!);
-const search = (state: EditorState, partial: Parameters<typeof setSearchTransaction>[1]) => apply(state, setSearchTransaction(state, partial));
+const search = (state: EditorState, partial: Parameters<typeof setSearchTransaction>[1]) =>
+  apply(state, setSearchTransaction(state, partial));
 const get = (s: EditorState) => searchKey.getState(s)!;
 const texts = (s: EditorState) => get(s).matches.map((m) => s.doc.textBetween(m.from, m.to));
 const info = (s: EditorState) => ({ total: get(s).matches.length, index: get(s).current + 1 });
@@ -36,11 +49,19 @@ describe("search plugin", () => {
   it("never matches across paragraphs or inline nodes", () => {
     expect(get(search(make([p(t("foo")), p(t("bar"))]), { query: "foobar" })).matches).toEqual([]);
     expect(get(search(make([p(t("fo"), br, t("o"))]), { query: "foo" })).matches).toEqual([]);
-    expect(texts(search(make([p(t("foo")), p(t("fo"), t("o", ["bold"]))]), { query: "foo" }))).toEqual(["foo", "foo"]);
+    expect(
+      texts(search(make([p(t("foo")), p(t("fo"), t("o", ["bold"]))]), { query: "foo" })),
+    ).toEqual(["foo", "foo"]);
   });
 
   it("searches code blocks and footnote text", () => {
-    const s = search(make([{ type: "codeBlock", content: [t("let cat")] }, p(t("x"), { type: "footnote", content: [t("a cat")] })]), { query: "cat" });
+    const s = search(
+      make([
+        { type: "codeBlock", content: [t("let cat")] },
+        p(t("x"), { type: "footnote", content: [t("a cat")] }),
+      ]),
+      { query: "cat" },
+    );
     expect(texts(s)).toEqual(["cat", "cat"]);
   });
 
@@ -76,14 +97,19 @@ describe("search plugin", () => {
   });
 
   it("replaceAll is one undo step and keeps the marks", () => {
-    let s = search(make([p(t("a "), t("cat", ["bold"]), t(" and a cat"))]), { query: "cat", replacement: "dog" });
+    let s = search(make([p(t("a "), t("cat", ["bold"]), t(" and a cat"))]), {
+      query: "cat",
+      replacement: "dog",
+    });
     const original = s.doc;
     s = apply(s, replaceAllTransaction(s));
     expect(s.doc.textContent).toBe("a dog and a dog");
     expect(s.doc.firstChild!.child(1).marks.map((m) => m.type.name)).toEqual(["bold"]);
     expect(get(s).matches).toEqual([]);
     let undone: PMNode = s.doc;
-    undo(s, (tr) => { undone = s.apply(tr).doc; });
+    undo(s, (tr) => {
+      undone = s.apply(tr).doc;
+    });
     expect(undone.eq(original)).toBe(true);
   });
 
@@ -116,7 +142,9 @@ describe("search plugin", () => {
 
   it("draws search-match and search-match-current decorations", () => {
     const s = search(make([p(t("a a"))]), { query: "a" });
-    const classes = get(s).decorations.find().map((d) => (d as unknown as { type: { attrs: { class: string } } }).type.attrs.class);
+    const classes = get(s)
+      .decorations.find()
+      .map((d) => (d as unknown as { type: { attrs: { class: string } } }).type.attrs.class);
     expect(classes).toEqual(["search-match search-match-current", "search-match"]);
   });
 
@@ -131,7 +159,11 @@ describe("search plugin", () => {
   });
 
   it("regex: finds, replaces the current match with captures and replaces all", () => {
-    let s = search(make([p(t("ab-12 cd-34"))]), { query: "([a-z]+)-(\\d+)", replacement: "$2:$1", regex: true });
+    let s = search(make([p(t("ab-12 cd-34"))]), {
+      query: "([a-z]+)-(\\d+)",
+      replacement: "$2:$1",
+      regex: true,
+    });
     expect(texts(s)).toEqual(["ab-12", "cd-34"]);
     s = apply(s, replaceCurrentTransaction(s));
     expect(s.doc.textContent).toBe("12:ab cd-34");
@@ -145,7 +177,10 @@ describe("search plugin", () => {
   });
 
   it("regex: catastrophic patterns finish quickly and offsets survive emoji", () => {
-    let s = search(make([p(t("😀 " + "a".repeat(3000) + "b 😀 end"))]), { query: "(a+)+$", regex: true });
+    let s = search(make([p(t("😀 " + "a".repeat(3000) + "b 😀 end"))]), {
+      query: "(a+)+$",
+      regex: true,
+    });
     const start = performance.now();
     expect(info(s).total).toBe(0);
     expect(performance.now() - start).toBeLessThan(1000);

@@ -1,5 +1,16 @@
 import { zipSync, strToU8 } from "fflate";
-import { imageMediaType, isAssetPath, isBackMatterKind, isFrontMatterKind, normalizeIsbn, textDirection, type BookMetadata, type ChapterDoc, type MatterKind, type Section } from "@cadabracraft/shared";
+import {
+  imageMediaType,
+  isAssetPath,
+  isBackMatterKind,
+  isFrontMatterKind,
+  normalizeIsbn,
+  textDirection,
+  type BookMetadata,
+  type ChapterDoc,
+  type MatterKind,
+  type Section,
+} from "@cadabracraft/shared";
 import { contentsHeading, coverLabel, landmarksHeading, startOfContentLabel } from "./strings";
 import { accessibilityMetadata } from "./a11y";
 import { EpubExportError } from "./errors";
@@ -29,16 +40,40 @@ export interface EpubChapter {
 }
 
 const FRONT_TYPES: Partial<Record<MatterKind, string>> = {
-  "title-page": "titlepage", copyright: "copyright-page", dedication: "dedication", epigraph: "epigraph", foreword: "foreword", preface: "preface",
+  "title-page": "titlepage",
+  copyright: "copyright-page",
+  dedication: "dedication",
+  epigraph: "epigraph",
+  foreword: "foreword",
+  preface: "preface",
 };
-const BACK_TYPES: Partial<Record<MatterKind, string>> = { acknowledgments: "acknowledgments", colophon: "colophon" };
+const BACK_TYPES: Partial<Record<MatterKind, string>> = {
+  acknowledgments: "acknowledgments",
+  colophon: "colophon",
+};
 /** Pages the table of contents leaves out: they are not places a reader navigates to. */
-const UNLISTED: readonly MatterKind[] = ["title-page", "copyright", "dedication", "epigraph", "colophon"];
+const UNLISTED: readonly MatterKind[] = [
+  "title-page",
+  "copyright",
+  "dedication",
+  "epigraph",
+  "colophon",
+];
 
 function checkSection(c: EpubChapter): Section {
   const section = c.section ?? "chapter";
-  const ok = c.kind === undefined ? true : section === "front" ? isFrontMatterKind(c.kind) : section === "back" && isBackMatterKind(c.kind);
-  if (!ok) throw new EpubExportError("invalid-section", `Page "${c.id}": kind "${String(c.kind)}" is not allowed in the ${section} section`, { chapter: { id: c.id, title: c.title } });
+  const ok =
+    c.kind === undefined
+      ? true
+      : section === "front"
+        ? isFrontMatterKind(c.kind)
+        : section === "back" && isBackMatterKind(c.kind);
+  if (!ok)
+    throw new EpubExportError(
+      "invalid-section",
+      `Page "${c.id}": kind "${String(c.kind)}" is not allowed in the ${section} section`,
+      { chapter: { id: c.id, title: c.title } },
+    );
   return section;
 }
 
@@ -49,7 +84,10 @@ function semantics(c: EpubChapter): { type: string; cls: string } {
   const kind = c.kind ?? "custom";
   const map = section === "front" ? FRONT_TYPES : BACK_TYPES;
   const extra = map[kind];
-  return { type: `${section === "front" ? "frontmatter" : "backmatter"}${extra ? ` ${extra}` : ""}`, cls: kind };
+  return {
+    type: `${section === "front" ? "frontmatter" : "backmatter"}${extra ? ` ${extra}` : ""}`,
+    cls: kind,
+  };
 }
 
 const listedInToc = (c: EpubChapter): boolean => c.kind === undefined || !UNLISTED.includes(c.kind);
@@ -70,7 +108,11 @@ export interface BuildOptions {
 const COVER_PAGE = "epub-cover";
 
 /** Builds an EPUB3 package as bytes. Output is deterministic for a given input. Throws an `EpubExportError` (naming the page and the place in it) for an unknown node or mark, a malformed table, or a referenced image that is not an allowed `assets/` image or has no bytes. */
-export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: BuildOptions = {}): Uint8Array {
+export function buildEpub(
+  meta: BookMetadata,
+  chapters: EpubChapter[],
+  options: BuildOptions = {},
+): Uint8Array {
   const lang = esc(meta.language);
   const rtl = textDirection(meta.language) === "rtl";
   const dir = rtl ? ' dir="rtl"' : "";
@@ -87,15 +129,25 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
   // Images keep their relative `assets/<name>` path inside OEBPS, so chapter srcs need no rewriting.
   const cover = options.cover;
   const coverType = cover ? (isAssetPath(cover.path) ? imageMediaType(cover.path) : null) : null;
-  if (cover && (!coverType || coverType === "image/gif" || coverType === "image/svg+xml")) throw new EpubExportError("unsupported-cover", `Unsupported cover image: ${cover.path}`);
+  if (cover && (!coverType || coverType === "image/gif" || coverType === "image/svg+xml"))
+    throw new EpubExportError("unsupported-cover", `Unsupported cover image: ${cover.path}`);
   if (cover) files[`OEBPS/${cover.path}`] = cover.bytes;
   // A chapter may use the cover file too; it is one file and one manifest item.
-  const imagePaths = [...new Set(chapters.flatMap((c) => collectImageSources(c.doc)))].filter((src) => src !== cover?.path);
+  const imagePaths = [...new Set(chapters.flatMap((c) => collectImageSources(c.doc)))].filter(
+    (src) => src !== cover?.path,
+  );
   const imageItems = imagePaths.map((src, i) => {
     const type = isAssetPath(src) ? imageMediaType(src) : null;
     const owner = chapters.find((c) => collectImageSources(c.doc).includes(src));
-    const where = owner ? { chapter: { id: owner.id, title: owner.title }, nodeType: "image" } : { nodeType: "image" };
-    if (!type) throw new EpubExportError("unsupported-image", `Unsupported image source in chapter: ${src}`, where);
+    const where = owner
+      ? { chapter: { id: owner.id, title: owner.title }, nodeType: "image" }
+      : { nodeType: "image" };
+    if (!type)
+      throw new EpubExportError(
+        "unsupported-image",
+        `Unsupported image source in chapter: ${src}`,
+        where,
+      );
     const bytes = options.assets?.get(src);
     if (!bytes) throw new EpubExportError("missing-image", `Missing image file for ${src}`, where);
     files[`OEBPS/${src}`] = bytes;
@@ -104,7 +156,11 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
   if (cover) {
     const alt = `${coverLabel(meta.language)}: ${meta.title}`;
     files[`OEBPS/${COVER_PAGE}.xhtml`] = strToU8(
-      page(alt, `<section epub:type="cover"><img src="${esc(cover.path)}" alt="${esc(alt)}" style="max-width:100%;max-height:100%"/></section>`, ' epub:type="cover" class="cover" style="margin:0;text-align:center"'),
+      page(
+        alt,
+        `<section epub:type="cover"><img src="${esc(cover.path)}" alt="${esc(alt)}" style="max-width:100%;max-height:100%"/></section>`,
+        ' epub:type="cover" class="cover" style="margin:0;text-align:center"',
+      ),
     );
   }
   for (const c of chapters) {
@@ -115,31 +171,59 @@ export function buildEpub(meta: BookMetadata, chapters: EpubChapter[], options: 
     } catch (e) {
       throw e instanceof EpubExportError ? e.inChapter({ id: c.id, title: c.title }) : e;
     }
-    files[`OEBPS/${c.id}.xhtml`] = strToU8(page(c.title, body, ` epub:type="${type}" class="${cls}"`));
+    files[`OEBPS/${c.id}.xhtml`] = strToU8(
+      page(c.title, body, ` epub:type="${type}" class="${cls}"`),
+    );
   }
 
   // The contents lists chapters and reading sections; if that leaves nothing (only a title page, say) it lists every page.
   const listed = chapters.filter(listedInToc);
-  const toc = (listed.length ? listed : chapters).map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`).join("");
-  const start = chapters.find((c) => (c.section ?? "chapter") === "chapter") ?? (listed.length ? listed : chapters)[0];
+  const toc = (listed.length ? listed : chapters)
+    .map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`)
+    .join("");
+  const start =
+    chapters.find((c) => (c.section ?? "chapter") === "chapter") ??
+    (listed.length ? listed : chapters)[0];
   const contents = contentsHeading(meta.language);
   const landmarks = `<nav epub:type="landmarks" hidden="hidden"><h2>${esc(landmarksHeading(meta.language))}</h2><ol>${
-    cover ? `<li><a epub:type="cover" href="${COVER_PAGE}.xhtml">${esc(coverLabel(meta.language))}</a></li>` : ""
+    cover
+      ? `<li><a epub:type="cover" href="${COVER_PAGE}.xhtml">${esc(coverLabel(meta.language))}</a></li>`
+      : ""
   }${
-    start ? `<li><a epub:type="bodymatter" href="${start.id}.xhtml">${esc(startOfContentLabel(meta.language))}</a></li>` : ""
+    start
+      ? `<li><a epub:type="bodymatter" href="${start.id}.xhtml">${esc(startOfContentLabel(meta.language))}</a></li>`
+      : ""
   }<li><a epub:type="toc" href="nav.xhtml#toc">${esc(contents)}</a></li></ol></nav>`;
   files["OEBPS/nav.xhtml"] = strToU8(
-    page(meta.title, `<nav epub:type="toc" id="toc"><h1>${esc(contents)}</h1><ol>${toc}</ol></nav>${landmarks}`),
+    page(
+      meta.title,
+      `<nav epub:type="toc" id="toc"><h1>${esc(contents)}</h1><ol>${toc}</ol></nav>${landmarks}`,
+    ),
   );
 
-  const manifest = (cover ? [`<item id="${COVER_PAGE}" href="${COVER_PAGE}.xhtml" media-type="application/xhtml+xml"/>`] : []).concat(chapters
-    .map((c) => `<item id="${c.id}" href="${c.id}.xhtml" media-type="application/xhtml+xml"/>`))
+  const manifest = (
+    cover
+      ? [`<item id="${COVER_PAGE}" href="${COVER_PAGE}.xhtml" media-type="application/xhtml+xml"/>`]
+      : []
+  )
+    .concat(
+      chapters.map(
+        (c) => `<item id="${c.id}" href="${c.id}.xhtml" media-type="application/xhtml+xml"/>`,
+      ),
+    )
     .join("");
   // The navigation document is a non-linear spine item: the landmarks link to it, and EPUB requires link targets to be in the spine.
-  const spine = [...(cover ? [`<itemref idref="${COVER_PAGE}"/>`] : []), ...chapters.map((c) => `<itemref idref="${c.id}"/>`), '<itemref idref="nav" linear="no"/>'].join("");
+  const spine = [
+    ...(cover ? [`<itemref idref="${COVER_PAGE}"/>`] : []),
+    ...chapters.map((c) => `<itemref idref="${c.id}"/>`),
+    '<itemref idref="nav" linear="no"/>',
+  ].join("");
   const isbn = normalizeIsbn(meta.isbn);
   // The unique identifier stays the book's own id; the ISBN is an additional identifier (skipped when it is the id already).
-  const isbnUrn = isbn && `urn:isbn:${isbn}` !== meta.identifier.trim().toLowerCase() ? `<dc:identifier>urn:isbn:${isbn}</dc:identifier>` : "";
+  const isbnUrn =
+    isbn && `urn:isbn:${isbn}` !== meta.identifier.trim().toLowerCase()
+      ? `<dc:identifier>urn:isbn:${isbn}</dc:identifier>`
+      : "";
   const stats = chapters.map((c) => imageAltStats(c.doc));
   const a11y = accessibilityMetadata({
     images: stats.reduce((n, s) => n + s.total, 0),

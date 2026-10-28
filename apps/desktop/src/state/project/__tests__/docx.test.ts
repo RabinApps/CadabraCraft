@@ -4,13 +4,18 @@ import { disk } from "../../../test/fakeBridge";
 
 let writeBytesError: Error | null = null;
 let exported: { path: string; bytes: Uint8Array } | null = null;
-vi.mock("../../../lib/bridge", async () => (await import("../../../test/fakeBridge")).fakeBridge({
-  writeBytes: async (_r: string, p: string, b: Uint8Array) => {
-    if (writeBytesError) throw writeBytesError;
-    exported = { path: p, bytes: b };
-  },
-  readAsset: async (_r: string, src: string) => { if (src.endsWith(".svg")) return new Uint8Array(4); throw new Error("missing"); },
-}));
+vi.mock("../../../lib/bridge", async () =>
+  (await import("../../../test/fakeBridge")).fakeBridge({
+    writeBytes: async (_r: string, p: string, b: Uint8Array) => {
+      if (writeBytesError) throw writeBytesError;
+      exported = { path: p, bytes: b };
+    },
+    readAsset: async (_r: string, src: string) => {
+      if (src.endsWith(".svg")) return new Uint8Array(4);
+      throw new Error("missing");
+    },
+  }),
+);
 
 import { useProject } from "../index";
 
@@ -24,7 +29,18 @@ beforeEach(async () => {
   disk.clear();
   exported = null;
   writeBytesError = null;
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0, trash: [], exportStage: null });
+  useProject.setState({
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    reloadCount: 0,
+    trash: [],
+    exportStage: null,
+  });
   await a().createProject("/p", "Book", "Ada Lovelace");
 });
 
@@ -40,11 +56,15 @@ describe("exportDocx", () => {
   });
   it("passes the font choice through", async () => {
     await a().exportDocx({ font: "courier" });
-    expect(part("word/styles.xml")).toContain('w:ascii="Courier New" w:hAnsi="Courier New" w:eastAsia');
+    expect(part("word/styles.xml")).toContain(
+      'w:ascii="Courier New" w:hAnsi="Courier New" w:eastAsia',
+    );
   });
   it("names the page that cannot be written and writes nothing", async () => {
     await a().saveCurrent(doc({ type: "image", attrs: { src: "assets/a.svg", alt: "x" } }));
-    const err = await a().exportDocx({ font: "times" }).catch((e: Error) => e);
+    const err = await a()
+      .exportDocx({ font: "times" })
+      .catch((e: Error) => e);
     expect((err as Error).message).toContain("Chapter One");
     expect((err as Error).message).toContain("SVG");
     expect(exported).toBeNull();
@@ -55,7 +75,9 @@ describe("exportDocx", () => {
     const entry = s().manifest!.chapters[0]!;
     useProject.setState({ manifest: { ...s().manifest!, chapters: [{ ...entry, title: "" }] } });
     await a().saveCurrent(doc({ type: "image", attrs: { src: "assets/a.svg", alt: "x" } }));
-    const err = await a().exportDocx({ font: "times" }).catch((e: Error) => e);
+    const err = await a()
+      .exportDocx({ font: "times" })
+      .catch((e: Error) => e);
     expect((err as Error).message).toContain(entry.file);
   });
   it("a missing image stops the export with its name", async () => {

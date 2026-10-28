@@ -14,7 +14,11 @@ test.describe("hardening: paste, find and export failures", () => {
     await page.evaluate((t) => {
       const dt = new DataTransfer();
       dt.setData("text/plain", t);
-      document.querySelector(".ProseMirror")!.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
+      document
+        .querySelector(".ProseMirror")!
+        .dispatchEvent(
+          new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }),
+        );
     }, text);
   }
   async function ready(page: Page) {
@@ -28,17 +32,23 @@ test.describe("hardening: paste, find and export failures", () => {
     return page.evaluate((i) => (window as any).__cadabraMenu.run(i) as boolean, id);
   };
 
-  test("pasting text the converter refuses (thousands of nested divs) pastes as text with a notice and the editor keeps working", async ({ page }) => {
+  test("pasting text the converter refuses (thousands of nested divs) pastes as text with a notice and the editor keeps working", async ({
+    page,
+  }) => {
     await ready(page);
     await paste(page, "<div>".repeat(3000));
     await expect(dlg(page)).toHaveCount(0);
-    await expect(page.getByRole("status").filter({ hasText: "Could not convert the HTML" })).toBeVisible();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Could not convert the HTML" }),
+    ).toBeVisible();
     await expect(ed(page)).toContainText("<div><div>");
     await page.keyboard.type("still typing");
     await expect(ed(page)).toContainText("still typing");
   });
 
-  test("a multi-megabyte paste is left to the normal paste without opening the dialog", async ({ page }) => {
+  test("a multi-megabyte paste is left to the normal paste without opening the dialog", async ({
+    page,
+  }) => {
     await ready(page);
     await paste(page, `<p>x</p> ${"word ".repeat(250_000)}`);
     await expect(dlg(page)).toHaveCount(0);
@@ -69,7 +79,10 @@ test.describe("hardening: paste, find and export failures", () => {
     await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter OneExtra Body");
     await page.locator(".ProseMirror p").last().click();
     expect(await menu(page, "editor.table")).toBe(true);
-    await page.getByRole("dialog", { name: "Insert table" }).getByRole("button", { name: "Insert" }).click();
+    await page
+      .getByRole("dialog", { name: "Insert table" })
+      .getByRole("button", { name: "Insert" })
+      .click();
     await expect(ed(page).locator("td").first()).toBeVisible();
     await ed(page).locator("td").first().click();
     await page.keyboard.type("Q");
@@ -80,7 +93,9 @@ test.describe("hardening: paste, find and export failures", () => {
     await expect(ed(page).locator("td").first()).toContainText("Cell");
   });
 
-  test("replacing across the book stops cleanly when a page cannot be written, and changes nothing", async ({ page }) => {
+  test("replacing across the book stops cleanly when a page cannot be written, and changes nothing", async ({
+    page,
+  }) => {
     await newProject(page);
     const typeInPage = async (text: string) => {
       await ed(page).click();
@@ -97,9 +112,13 @@ test.describe("hardening: paste, find and export failures", () => {
     await page.keyboard.type("owl");
     await bar(page).getByRole("button", { name: "All chapters" }).click();
     await bar(page).getByLabel("Replace with").fill("hen");
-    await page.evaluate(() => { (window as any).__failWrite = (p: string) => p.includes("002-"); });
+    await page.evaluate(() => {
+      (window as any).__failWrite = (p: string) => p.includes("002-");
+    });
     await bar(page).getByRole("button", { name: "Replace all" }).click();
-    await expect(page.getByRole("status").filter({ hasText: "Replace all stopped" })).toContainText("No space left on device");
+    await expect(page.getByRole("status").filter({ hasText: "Replace all stopped" })).toContainText(
+      "No space left on device",
+    );
     await expect(page.getByRole("status")).toContainText("Nothing was changed");
     const disk = await page.evaluate(() => (window as any).__disk as Record<string, string>);
     expect(disk["manuscript/001-chapter-one.json"]).toContain("owl one");
@@ -114,15 +133,21 @@ test.describe("hardening: paste, find and export failures", () => {
     await page.keyboard.press("ControlOrMeta+f");
     await page.keyboard.type("owl");
     await expect(bar(page).getByText("1 of 2")).toBeVisible();
-    await bar(page).getByLabel("Find", { exact: true }).dispatchEvent("keydown", { key: "Enter", isComposing: true, keyCode: 229, bubbles: true });
+    await bar(page)
+      .getByLabel("Find", { exact: true })
+      .dispatchEvent("keydown", { key: "Enter", isComposing: true, keyCode: 229, bubbles: true });
     await expect(bar(page).getByText("1 of 2")).toBeVisible();
     await bar(page).getByLabel("Find", { exact: true }).press("Enter");
     await expect(bar(page).getByText("2 of 2")).toBeVisible();
   });
 
-  test("Export Markdown: a write failure shows the reason, keeps the dialog usable and shows no success", async ({ page }) => {
+  test("Export Markdown: a write failure shows the reason, keeps the dialog usable and shows no success", async ({
+    page,
+  }) => {
     await newProject(page);
-    await page.evaluate(() => { (window as any).__failBytes = true; });
+    await page.evaluate(() => {
+      (window as any).__failBytes = true;
+    });
     await page.getByRole("button", { name: "Export", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: "Export book" });
     await dialog.getByRole("radio", { name: "Markdown" }).click();
@@ -130,7 +155,9 @@ test.describe("hardening: paste, find and export failures", () => {
     await expect(dialog.getByRole("alert")).toContainText("No space left on device");
     await expect(dialog.getByRole("button", { name: "Export", exact: true })).toBeEnabled();
     await expect(page.getByRole("status").filter({ hasText: "Exported" })).toHaveCount(0);
-    await page.evaluate(() => { (window as any).__failBytes = false; });
+    await page.evaluate(() => {
+      (window as any).__failBytes = false;
+    });
     await dialog.getByRole("button", { name: "Export", exact: true }).click();
     await expect(dialog).toHaveCount(0);
     await expect(page.getByRole("status")).toHaveText("Exported exports/book.md");
@@ -138,7 +165,9 @@ test.describe("hardening: paste, find and export failures", () => {
 
   test("Export Markdown: an unreadable chapter file is named in the error", async ({ page }) => {
     await newProject(page);
-    await page.evaluate(() => { (window as any).__disk["manuscript/001-chapter-one.json"] = "{ not json"; });
+    await page.evaluate(() => {
+      (window as any).__disk["manuscript/001-chapter-one.json"] = "{ not json";
+    });
     await page.getByRole("button", { name: "Export", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: "Export book" });
     await dialog.getByRole("radio", { name: "Markdown" }).click();

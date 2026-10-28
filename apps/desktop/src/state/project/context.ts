@@ -1,6 +1,14 @@
 import type { StoreApi } from "zustand";
 import { t } from "@lingui/core/macro";
-import { readingOrder, sameTree, sectionOf, serializeManifest, treeOf, type Manifest, type ManuscriptEntry } from "@cadabracraft/format";
+import {
+  readingOrder,
+  sameTree,
+  sectionOf,
+  serializeManifest,
+  treeOf,
+  type Manifest,
+  type ManuscriptEntry,
+} from "@cadabracraft/format";
 import { collectImageSources } from "@cadabracraft/export-epub";
 import { countWords, type ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
@@ -18,32 +26,59 @@ export function createContext(set: Set, get: Get) {
     if (!root || !manifest) throw new Error("no project open");
     return { root, manifest };
   };
-  const entryOf = (manifest: Manifest, id: string): ManuscriptEntry | undefined => readingOrder(manifest).find((e) => e.id === id);
+  const entryOf = (manifest: Manifest, id: string): ManuscriptEntry | undefined =>
+    readingOrder(manifest).find((e) => e.id === id);
   const saveManifest = async (manifest: Manifest) => {
     const { root } = need();
     const base = get().hashes["cadabra.json"] ?? null;
     const w = await bridge.writeFile(root, "cadabra.json", serializeManifest(manifest), base);
-    set({ manifest, hashes: { ...get().hashes, "cadabra.json": w.hash }, notice: w.conflict_copy ? t`cadabra.json changed outside the app; your previous copy was kept as ${w.conflict_copy}` : get().notice });
+    set({
+      manifest,
+      hashes: { ...get().hashes, "cadabra.json": w.hash },
+      notice: w.conflict_copy
+        ? t`cadabra.json changed outside the app; your previous copy was kept as ${w.conflict_copy}`
+        : get().notice,
+    });
   };
   /** Remembers a finished tree edit. A new edit drops the redo stack. */
-  const record = (entry: Omit<HistoryEntry, "before" | "after">, before: Manifest, after: Manifest) => {
+  const record = (
+    entry: Omit<HistoryEntry, "before" | "after">,
+    before: Manifest,
+    after: Manifest,
+  ) => {
     const tree = { before: treeOf(before), after: treeOf(after) };
     if (sameTree(tree.before, tree.after)) return; // e.g. moving the first page up
-    set({ history: { undo: [...get().history.undo, { ...entry, ...tree }].slice(-HISTORY_LIMIT), redo: [] } });
+    set({
+      history: {
+        undo: [...get().history.undo, { ...entry, ...tree }].slice(-HISTORY_LIMIT),
+        redo: [],
+      },
+    });
   };
   /** Writes a page's file text through the normal save path (backup, temp file and rename in the Rust layer). */
   const writePage = async (file: string, contents: string) => {
     const { root } = need();
     const w = await bridge.writeFile(root, file, contents, get().hashes[file] ?? null);
-    set({ hashes: { ...get().hashes, [file]: w.hash }, ...(w.conflict_copy ? { notice: t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}` } : {}) });
-    return w.conflict_copy ? t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}` : null;
+    set({
+      hashes: { ...get().hashes, [file]: w.hash },
+      ...(w.conflict_copy
+        ? {
+            notice: t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}`,
+          }
+        : {}),
+    });
+    return w.conflict_copy
+      ? t`${file} changed outside the app; the other version was kept as ${w.conflict_copy}`
+      : null;
   };
   /**
    * Writes several pages as a group: when one write fails, the pages already written are put back, so a failure does
    * not leave the book half changed. Throws a `PartialWrite` naming the pages that could not be put back (empty when
    * everything was restored). Returns the conflict messages of pages that changed outside the app.
    */
-  const writePages = async (pages: { file: string; from: string; to: string }[]): Promise<string[]> => {
+  const writePages = async (
+    pages: { file: string; from: string; to: string }[],
+  ): Promise<string[]> => {
     const done: typeof pages = [];
     const conflicts: string[] = [];
     try {
@@ -55,7 +90,11 @@ export function createContext(set: Set, get: Get) {
     } catch (e) {
       const stuck: typeof pages = [];
       for (const p of done.reverse()) {
-        try { await writePage(p.file, p.from); } catch { stuck.push(p); }
+        try {
+          await writePage(p.file, p.from);
+        } catch {
+          stuck.push(p);
+        }
       }
       throw new PartialWrite(errText(e), stuck);
     }
@@ -80,7 +119,14 @@ export function createContext(set: Set, get: Get) {
   /** Saves unsaved edits so switching chapters never loses typing. Starts the write synchronously when idle (it is also called as the window closes). */
   const flush = (): Promise<void> => {
     const run = flushTail ? flushTail.then(flushNow) : flushNow();
-    const tail: Promise<void> = run.then(() => {}, () => {}).then(() => { if (flushTail === tail) flushTail = null; });
+    const tail: Promise<void> = run
+      .then(
+        () => {},
+        () => {},
+      )
+      .then(() => {
+        if (flushTail === tail) flushTail = null;
+      });
     flushTail = tail;
     return run;
   };
@@ -98,7 +144,12 @@ export function createContext(set: Set, get: Get) {
       set({ currentId: null, currentDoc: null, draft: null, notice: errText(e) });
       return;
     }
-    set({ currentId: id, currentDoc: doc, draft: null, hashes: r ? { ...get().hashes, [entry.file]: r.hash } : get().hashes });
+    set({
+      currentId: id,
+      currentDoc: doc,
+      draft: null,
+      hashes: r ? { ...get().hashes, [entry.file]: r.hash } : get().hashes,
+    });
   };
 
   /** Every page in reading order (front matter, chapters, back matter), read from disk. */
@@ -109,7 +160,13 @@ export function createContext(set: Set, get: Get) {
     for (const c of readingOrder(manifest)) {
       const r = await bridge.readFile(root, c.file);
       if (!r) throw new Error(t`Missing chapter file ${c.file}`);
-      pages.push({ id: c.id, title: c.title, doc: parseChapter(r.contents, c.file), section: sectionFor(c), ...(c.kind ? { kind: c.kind } : {}) });
+      pages.push({
+        id: c.id,
+        title: c.title,
+        doc: parseChapter(r.contents, c.file),
+        section: sectionFor(c),
+        ...(c.kind ? { kind: c.kind } : {}),
+      });
     }
     return pages;
   };
@@ -124,11 +181,17 @@ export function createContext(set: Set, get: Get) {
       if (sectionOf(manifest, c.id) !== "chapter") continue;
       if (c.id === currentId) {
         const open = get().draft ?? get().currentDoc;
-        if (open) { total += countWords(open); continue; }
+        if (open) {
+          total += countWords(open);
+          continue;
+        }
       }
       const hash = get().hashes[c.file];
       const hit = wordCache.get(c.file);
-      if (hit && hit.hash === hash) { total += hit.words; continue; }
+      if (hit && hit.hash === hash) {
+        total += hit.words;
+        continue;
+      }
       const r = await bridge.readFile(root, c.file);
       if (!r) throw new Error(t`Missing chapter file ${c.file}`);
       const words = countWords(parseChapter(r.contents, c.file));
@@ -159,15 +222,39 @@ export function createContext(set: Set, get: Get) {
     try {
       return { path: manifest.cover, bytes: await bridge.readAsset(root, manifest.cover) };
     } catch {
-      throw new Error(t`The cover image ${manifest.cover} could not be read. Choose it again in Book details, or remove the cover.`);
+      throw new Error(
+        t`The cover image ${manifest.cover} could not be read. Choose it again in Book details, or remove the cover.`,
+      );
     }
   };
   /** Forget every counted page (a different book was opened or the book was closed). */
-  const resetWordCache = () => { wordCache = new Map(); };
+  const resetWordCache = () => {
+    wordCache = new Map();
+  };
   /** Forget one page's count (its file changed outside the app). */
-  const forgetWords = (path: string) => { wordCache.delete(path); };
+  const forgetWords = (path: string) => {
+    wordCache.delete(path);
+  };
 
-  return { set, get, need, entryOf, saveManifest, record, writePage, writePages, reloadCurrent, flush, load, loadChapters, countBook, loadAssets, loadCover, resetWordCache, forgetWords };
+  return {
+    set,
+    get,
+    need,
+    entryOf,
+    saveManifest,
+    record,
+    writePage,
+    writePages,
+    reloadCurrent,
+    flush,
+    load,
+    loadChapters,
+    countBook,
+    loadAssets,
+    loadCover,
+    resetWordCache,
+    forgetWords,
+  };
 }
 
 export type Ctx = ReturnType<typeof createContext>;

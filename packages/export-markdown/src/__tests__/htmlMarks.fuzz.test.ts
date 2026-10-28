@@ -17,9 +17,42 @@ function rng(seed: number): () => number {
 
 /** Text that looks like the importer's own syntax must survive as text, not become marks. */
 const PIECES = [
-  "word", "two words", " lead", "trail ", "<u>", "</u>", "<sup>x</sup>", '<span class="small-caps">', "</span>", "a<b", "&amp;", "&lt;", "*star*", "_under_", "~~s~~", "`tick`", "\\", "[l](rel)", "# h", "1. n", "- d", "é日本", "\u{1F600}", "<!-- c -->", "x2",
+  "word",
+  "two words",
+  " lead",
+  "trail ",
+  "<u>",
+  "</u>",
+  "<sup>x</sup>",
+  '<span class="small-caps">',
+  "</span>",
+  "a<b",
+  "&amp;",
+  "&lt;",
+  "*star*",
+  "_under_",
+  "~~s~~",
+  "`tick`",
+  "\\",
+  "[l](rel)",
+  "# h",
+  "1. n",
+  "- d",
+  "é日本",
+  "\u{1F600}",
+  "<!-- c -->",
+  "x2",
 ];
-const MARKS: Mark[] = [{ type: "bold" }, { type: "italic" }, { type: "strike" }, { type: "underline" }, { type: "smallCaps" }, { type: "superscript" }, { type: "subscript" }, { type: "link", attrs: { href: "https://a.test/" } }];
+const MARKS: Mark[] = [
+  { type: "bold" },
+  { type: "italic" },
+  { type: "strike" },
+  { type: "underline" },
+  { type: "smallCaps" },
+  { type: "superscript" },
+  { type: "subscript" },
+  { type: "link", attrs: { href: "https://a.test/" } },
+];
 
 function paragraph(r: () => number): DocNode {
   const content: DocNode[] = [];
@@ -28,7 +61,9 @@ function paragraph(r: () => number): DocNode {
     const marks: Mark[] = [];
     for (const m of MARKS) if (r() < 0.25) marks.push(m);
     // The schema lets superscript and subscript exclude each other.
-    const clean = marks.filter((m) => !(m.type === "subscript" && marks.some((x) => x.type === "superscript")));
+    const clean = marks.filter(
+      (m) => !(m.type === "subscript" && marks.some((x) => x.type === "superscript")),
+    );
     content.push(clean.length ? { type: "text", text, marks: clean } : { type: "text", text });
   }
   return { type: "paragraph", content };
@@ -42,7 +77,11 @@ function chars(d: ChapterDoc): string[] {
     if (n.type === "text") {
       // Only the four HTML marks are compared, and the delimiter characters `*`, `_` and `~` are skipped: whether `**` next to
       // punctuation counts as emphasis is the exporter's flanking-rule matter, not the HTML marks'.
-      const marks = (n.marks ?? []).map((m) => m.type).filter((t) => HTML_ONLY.has(t)).sort().join(",");
+      const marks = (n.marks ?? [])
+        .map((m) => m.type)
+        .filter((t) => HTML_ONLY.has(t))
+        .sort()
+        .join(",");
       for (const ch of n.text) if (!/[\s*_~]/.test(ch)) out.push(`${ch}|${marks}`);
     } else if ("content" in n) for (const c of n.content ?? []) walk(c);
   };
@@ -54,14 +93,20 @@ describe("htmlMarks export then import (property test)", () => {
   it("keeps every character and its marks, with literal tag-like text staying text", () => {
     for (let seed = 1; seed <= 800; seed++) {
       const r = rng(seed);
-      const d: ChapterDoc = { type: "doc", content: Array.from({ length: 1 + Math.floor(r() * 3) }, () => paragraph(r)) };
+      const d: ChapterDoc = {
+        type: "doc",
+        content: Array.from({ length: 1 + Math.floor(r() * 3) }, () => paragraph(r)),
+      };
       assertChapterDoc(d);
       const md = chapterToMarkdown(d, { htmlMarks: true });
       const res = importMarkdown(md);
       const back: ChapterDoc = { type: "doc", content: res.chapters.flatMap((c) => c.doc.content) };
       assertChapterDoc(back);
       expect(chars(back), `seed ${seed}\n${md}`).toEqual(chars(d));
-      expect(res.warnings.filter((w) => w.code === "html"), `seed ${seed}\n${md}`).toEqual([]);
+      expect(
+        res.warnings.filter((w) => w.code === "html"),
+        `seed ${seed}\n${md}`,
+      ).toEqual([]);
     }
   });
 });

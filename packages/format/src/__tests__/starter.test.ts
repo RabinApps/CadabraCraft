@@ -2,14 +2,27 @@ import { describe, expect, it } from "vitest";
 import { getSchema } from "@tiptap/core";
 import { Node } from "@tiptap/pm/model";
 import { extensions } from "@cadabracraft/editor-schema";
-import { BACK_MATTER_KINDS, FRONT_MATTER_KINDS, type ChapterDoc, type DocNode, type MatterKind } from "@cadabracraft/shared";
+import {
+  BACK_MATTER_KINDS,
+  FRONT_MATTER_KINDS,
+  type ChapterDoc,
+  type DocNode,
+  type MatterKind,
+} from "@cadabracraft/shared";
 import { starterDoc, starterTitle } from "../index";
 
 const schema = getSchema(extensions);
-const book = { title: "The Long Quay", author: "A. Writer", language: "en", isbn: null, year: 2026 };
+const book = {
+  title: "The Long Quay",
+  author: "A. Writer",
+  language: "en",
+  isbn: null,
+  year: 2026,
+};
 const ALL: MatterKind[] = [...new Set([...FRONT_MATTER_KINDS, ...BACK_MATTER_KINDS])];
 
-const textOf = (n: DocNode): string => ("text" in n ? n.text : "content" in n ? (n.content ?? []).map(textOf).join("") : "");
+const textOf = (n: DocNode): string =>
+  "text" in n ? n.text : "content" in n ? (n.content ?? []).map(textOf).join("") : "";
 const lines = (d: ChapterDoc): string[] => d.content.map(textOf);
 
 describe("starterDoc", () => {
@@ -34,12 +47,25 @@ describe("starterDoc", () => {
     expect(lines(doc)).toEqual(["The Long Quay", "A. Writer"]);
   });
   it("copyright page has the year, author and rights line, plus ISBN only when set", () => {
-    const rights = "No part of this book may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of the author, except for brief quotations in reviews.";
-    expect(lines(starterDoc("copyright", book))).toEqual(["© 2026 A. Writer", "All rights reserved.", rights]);
-    expect(lines(starterDoc("copyright", { ...book, isbn: "978-3-16-148410-0" }))).toEqual(["© 2026 A. Writer", "All rights reserved.", "ISBN 978-3-16-148410-0", rights]);
+    const rights =
+      "No part of this book may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of the author, except for brief quotations in reviews.";
+    expect(lines(starterDoc("copyright", book))).toEqual([
+      "© 2026 A. Writer",
+      "All rights reserved.",
+      rights,
+    ]);
+    expect(lines(starterDoc("copyright", { ...book, isbn: "978-3-16-148410-0" }))).toEqual([
+      "© 2026 A. Writer",
+      "All rights reserved.",
+      "ISBN 978-3-16-148410-0",
+      rights,
+    ]);
     expect(lines(starterDoc("copyright", { ...book, isbn: "" }))).toHaveLength(3);
     expect(lines(starterDoc("copyright", { ...book, isbn: "  " }))).toHaveLength(3);
-    expect(lines(starterDoc("copyright", { ...book, language: "de" }))).toEqual(["© 2026 A. Writer", "Alle Rechte vorbehalten."]);
+    expect(lines(starterDoc("copyright", { ...book, language: "de" }))).toEqual([
+      "© 2026 A. Writer",
+      "Alle Rechte vorbehalten.",
+    ]);
   });
   it("dedication is an italic placeholder paragraph", () => {
     const doc = starterDoc("dedication", book);
@@ -49,7 +75,15 @@ describe("starterDoc", () => {
     expect(p.content[0]!.marks).toEqual([{ type: "italic" }]);
   });
   it("acknowledgments, about the author and the others start with a heading and an empty paragraph to write in", () => {
-    for (const kind of ["foreword", "preface", "acknowledgments", "about-the-author", "also-by", "colophon", "custom"] as const) {
+    for (const kind of [
+      "foreword",
+      "preface",
+      "acknowledgments",
+      "about-the-author",
+      "also-by",
+      "colophon",
+      "custom",
+    ] as const) {
       const doc = starterDoc(kind, book);
       expect(doc.content[0], kind).toMatchObject({ type: "heading", attrs: { level: 1 } });
       expect(doc.content.length, kind).toBeGreaterThan(1);
@@ -58,9 +92,15 @@ describe("starterDoc", () => {
     expect(lines(starterDoc("acknowledgments", book))[0]).toBe("Acknowledgments");
   });
   it("localizes generated text to the book language and falls back to English", () => {
-    expect(lines(starterDoc("copyright", { ...book, language: "de" }))[1]).toBe("Alle Rechte vorbehalten.");
-    expect(lines(starterDoc("acknowledgments", { ...book, language: "fr-CA" }))[0]).toBe("Remerciements");
-    expect(lines(starterDoc("copyright", { ...book, language: "xx" }))[1]).toBe("All rights reserved.");
+    expect(lines(starterDoc("copyright", { ...book, language: "de" }))[1]).toBe(
+      "Alle Rechte vorbehalten.",
+    );
+    expect(lines(starterDoc("acknowledgments", { ...book, language: "fr-CA" }))[0]).toBe(
+      "Remerciements",
+    );
+    expect(lines(starterDoc("copyright", { ...book, language: "xx" }))[1]).toBe(
+      "All rights reserved.",
+    );
   });
   it("uses only v1 nodes and marks", () => {
     const allowed = new Set(["doc", "paragraph", "heading", "text"]);
@@ -73,7 +113,10 @@ describe("starterDoc", () => {
   it("does not share state between calls", () => {
     const a = starterDoc("title-page", book);
     (a.content[0] as unknown as { attrs: { level: number } }).attrs.level = 3;
-    expect((starterDoc("title-page", book).content[0] as unknown as { attrs: { level: number } }).attrs.level).toBe(1);
+    expect(
+      (starterDoc("title-page", book).content[0] as unknown as { attrs: { level: number } }).attrs
+        .level,
+    ).toBe(1);
   });
 });
 

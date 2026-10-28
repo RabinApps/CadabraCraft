@@ -1,11 +1,26 @@
 // Node-only: runs the `typst` CLI with child_process. Not importable from the webview; import from "@cadabracraft/export-pdf/node".
 import { execFile } from "node:child_process";
-import { accessSync, constants, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import {
+  accessSync,
+  constants,
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { PdfExportError, TypstCompileError, TypstNotFoundError, TypstTimeoutError } from "./errors";
-import { assertNoUnknownFont, assertSafeFilePath, COMPILE_TIMEOUT_MS, type TypstRunner } from "./runner";
+import {
+  assertNoUnknownFont,
+  assertSafeFilePath,
+  COMPILE_TIMEOUT_MS,
+  type TypstRunner,
+} from "./runner";
 import { errMsg } from "@cadabracraft/shared";
 
 const run = promisify(execFile);
@@ -16,7 +31,9 @@ export function findTypst(explicit?: string): string {
   const names = process.platform === "win32" ? ["typst.exe", "typst.cmd", "typst"] : ["typst"];
   const given = explicit ?? process.env.TYPST_BIN;
   if (given) candidates.push(given);
-  else for (const dir of (process.env.PATH ?? "").split(delimiter)) for (const n of names) if (dir) candidates.push(join(dir, n));
+  else
+    for (const dir of (process.env.PATH ?? "").split(delimiter))
+      for (const n of names) if (dir) candidates.push(join(dir, n));
   for (const c of candidates) {
     try {
       if (!statSync(c).isFile()) continue;
@@ -29,7 +46,8 @@ export function findTypst(explicit?: string): string {
   throw new TypstNotFoundError(given ? `looked for ${given}` : "searched PATH");
 }
 
-const fontArgs = (paths: string[] | undefined): string[] => (paths ?? []).flatMap((p) => ["--font-path", p]);
+const fontArgs = (paths: string[] | undefined): string[] =>
+  (paths ?? []).flatMap((p) => ["--font-path", p]);
 
 export interface NodeRunnerOptions {
   /** Path to the typst binary; default is `TYPST_BIN`, then `typst` on PATH. */
@@ -47,8 +65,13 @@ export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
     async listFonts() {
       const typst = findTypst(opts.typstPath);
       try {
-        const { stdout } = await run(typst, ["fonts", ...fontArgs(opts.fontPaths)], { maxBuffer: 16 * 1024 * 1024 });
-        return stdout.split("\n").map((l) => l.trim()).filter(Boolean);
+        const { stdout } = await run(typst, ["fonts", ...fontArgs(opts.fontPaths)], {
+          maxBuffer: 16 * 1024 * 1024,
+        });
+        return stdout
+          .split("\n")
+          .map((l) => l.trim())
+          .filter(Boolean);
       } catch (e) {
         throw new PdfExportError(`Could not list fonts with typst: ${errMsg(e)}`);
       }
@@ -66,8 +89,10 @@ export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
         writeFileSync(join(dir, "main.typ"), source);
         const args = [
           "compile",
-          "--root", dir,
-          "--diagnostic-format", "short",
+          "--root",
+          dir,
+          "--diagnostic-format",
+          "short",
           ...(pdfA ? ["--pdf-standard", "a-2b"] : []),
           ...fontArgs(opts.fontPaths),
           join(dir, "main.typ"),

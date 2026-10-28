@@ -3,10 +3,35 @@ import type { MatterKind } from "@cadabracraft/shared";
 import type { Commands } from "../../state/commands";
 
 /** What the native menu shows, as plain data. `nativeMenu.ts` turns it into the operating system's menu. */
-export type PredefinedKind = "Undo" | "Redo" | "Cut" | "Copy" | "Paste" | "SelectAll" | "Minimize" | "Maximize" | "Fullscreen" | "CloseWindow" | "Quit" | "Services" | "Hide" | "HideOthers" | "ShowAll" | "BringAllToFront" | "About";
+export type PredefinedKind =
+  | "Undo"
+  | "Redo"
+  | "Cut"
+  | "Copy"
+  | "Paste"
+  | "SelectAll"
+  | "Minimize"
+  | "Maximize"
+  | "Fullscreen"
+  | "CloseWindow"
+  | "Quit"
+  | "Services"
+  | "Hide"
+  | "HideOthers"
+  | "ShowAll"
+  | "BringAllToFront"
+  | "About";
 
 export type MenuEntry =
-  | { kind: "command"; id: string; arg?: string; text: string; enabled: boolean; checked?: boolean; accelerator?: string }
+  | {
+      kind: "command";
+      id: string;
+      arg?: string;
+      text: string;
+      enabled: boolean;
+      checked?: boolean;
+      accelerator?: string;
+    }
   | { kind: "predefined"; item: PredefinedKind; text?: string }
   | { kind: "separator" }
   | { kind: "submenu"; text: string; items: MenuEntry[] };
@@ -22,29 +47,65 @@ export interface MenuContext {
   redoLabel: string | null;
 }
 
-const FRONT: MatterKind[] = ["title-page", "copyright", "dedication", "epigraph", "foreword", "preface", "custom"];
+const FRONT: MatterKind[] = [
+  "title-page",
+  "copyright",
+  "dedication",
+  "epigraph",
+  "foreword",
+  "preface",
+  "custom",
+];
 const BACK: MatterKind[] = ["acknowledgments", "about-the-author", "also-by", "colophon", "custom"];
 
 function kindLabel(kind: MatterKind): string {
   switch (kind) {
-    case "title-page": return t`Title page`;
-    case "copyright": return t`Copyright page`;
-    case "dedication": return t`Dedication`;
-    case "epigraph": return t`Epigraph`;
-    case "foreword": return t`Foreword`;
-    case "preface": return t`Preface`;
-    case "custom": return t`Custom page`;
-    case "acknowledgments": return t`Acknowledgments`;
-    case "about-the-author": return t`About the author`;
-    case "also-by": return t`Also by`;
-    case "colophon": return t`Colophon`;
+    case "title-page":
+      return t`Title page`;
+    case "copyright":
+      return t`Copyright page`;
+    case "dedication":
+      return t`Dedication`;
+    case "epigraph":
+      return t`Epigraph`;
+    case "foreword":
+      return t`Foreword`;
+    case "preface":
+      return t`Preface`;
+    case "custom":
+      return t`Custom page`;
+    case "acknowledgments":
+      return t`Acknowledgments`;
+    case "about-the-author":
+      return t`About the author`;
+    case "also-by":
+      return t`Also by`;
+    case "colophon":
+      return t`Colophon`;
   }
 }
 
 /** Menu items with a tick: the mode switch, the layout toggles and the text formats that apply at the cursor. */
 const TOGGLES = new Set([
-  "view.write", "view.read", "view.focus", "view.details",
-  "editor.bold", "editor.italic", "editor.underline", "editor.smallCaps", "editor.strike", "editor.code", "editor.superscript", "editor.subscript", "editor.codeBlock", "editor.h1", "editor.h2", "editor.h3", "editor.quote", "editor.bullets", "editor.numbers",
+  "view.write",
+  "view.read",
+  "view.focus",
+  "view.details",
+  "editor.bold",
+  "editor.italic",
+  "editor.underline",
+  "editor.smallCaps",
+  "editor.strike",
+  "editor.code",
+  "editor.superscript",
+  "editor.subscript",
+  "editor.codeBlock",
+  "editor.h1",
+  "editor.h2",
+  "editor.h3",
+  "editor.quote",
+  "editor.bullets",
+  "editor.numbers",
 ]);
 
 export const FRONT_PRESET_IDS = FRONT.map((k) => `insert.front.${k}`);
@@ -61,20 +122,34 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
   const { commands } = ctx;
   const usable = (id: string) => commands[id] !== undefined && commands[id]!.enabled !== false;
   const cmd = (id: string, text: string, accelerator?: string, arg?: string): MenuEntry => ({
-    kind: "command", id, text, enabled: usable(id),
+    kind: "command",
+    id,
+    text,
+    enabled: usable(id),
     // Toggle items always carry a tick state, so their menu item keeps its type when the command appears or disappears.
     ...(TOGGLES.has(id) ? { checked: commands[id]?.checked ?? false } : {}),
     ...(accelerator ? { accelerator } : {}),
     ...(arg === undefined ? {} : { arg }),
   });
   const sep: MenuEntry = { kind: "separator" };
-  const pre = (item: PredefinedKind, text?: string): MenuEntry => ({ kind: "predefined", item, ...(text ? { text } : {}) });
+  const pre = (item: PredefinedKind, text?: string): MenuEntry => ({
+    kind: "predefined",
+    item,
+    ...(text ? { text } : {}),
+  });
   const sub = (text: string, items: MenuEntry[]): MenuEntry => ({ kind: "submenu", text, items });
 
   const settings = cmd("app.settings", t`Settings…`, "CmdOrCtrl+,");
 
-  const recent: MenuEntry[] = ctx.recents.slice(0, MENU_RECENTS).map((r) => ({ ...cmd("file.openRecent", r.title || r.root, undefined, r.root) }));
-  const openRecent = sub(t`Open Recent`, recent.length ? [...recent, sep, cmd("file.clearRecents", t`Clear Menu`)] : [{ kind: "command", id: "file.none", text: t`No Recent Projects`, enabled: false }]);
+  const recent: MenuEntry[] = ctx.recents
+    .slice(0, MENU_RECENTS)
+    .map((r) => ({ ...cmd("file.openRecent", r.title || r.root, undefined, r.root) }));
+  const openRecent = sub(
+    t`Open Recent`,
+    recent.length
+      ? [...recent, sep, cmd("file.clearRecents", t`Clear Menu`)]
+      : [{ kind: "command", id: "file.none", text: t`No Recent Projects`, enabled: false }],
+  );
 
   const app: MenuEntry = sub("CadabraCraft", [
     pre("About", t`About CadabraCraft`),
@@ -133,8 +208,14 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
 
   const insert = sub(t`Insert`, [
     cmd("insert.chapter", t`New Chapter`, "CmdOrCtrl+Shift+N"),
-    sub(t`Front Matter`, FRONT.map((k) => cmd(`insert.front.${k}`, kindLabel(k)))),
-    sub(t`Back Matter`, BACK.map((k) => cmd(`insert.back.${k}`, kindLabel(k)))),
+    sub(
+      t`Front Matter`,
+      FRONT.map((k) => cmd(`insert.front.${k}`, kindLabel(k))),
+    ),
+    sub(
+      t`Back Matter`,
+      BACK.map((k) => cmd(`insert.back.${k}`, kindLabel(k))),
+    ),
     sep,
     cmd("editor.sceneBreak", t`Scene Break`),
     cmd("editor.image", t`Image…`),
@@ -185,14 +266,26 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     pre("Fullscreen", t`Enter Full Screen`),
   ]);
 
-  const windowMenu = sub(t`Window`, [pre("Minimize", t`Minimize`), pre("Maximize", t`Zoom`), ...(ctx.mac ? [sep, pre("BringAllToFront", t`Bring All to Front`)] : []), sep, pre("CloseWindow", t`Close Window`)]);
+  const windowMenu = sub(t`Window`, [
+    pre("Minimize", t`Minimize`),
+    pre("Maximize", t`Zoom`),
+    ...(ctx.mac ? [sep, pre("BringAllToFront", t`Bring All to Front`)] : []),
+    sep,
+    pre("CloseWindow", t`Close Window`),
+  ]);
 
-  const help = sub(t`Help`, [cmd("help.updates", t`Check for Updates…`), sep, cmd("help.sponsor", t`Sponsor CadabraCraft…`)]);
+  const help = sub(t`Help`, [
+    cmd("help.updates", t`Check for Updates…`),
+    sep,
+    cmd("help.sponsor", t`Sponsor CadabraCraft…`),
+  ]);
 
   return [...(ctx.mac ? [app] : []), file, edit, insert, format, view, windowMenu, help];
 }
 
 /** Every command id the model refers to, in order. Used by tests to check that the structure and the registrations agree. */
 export function commandIds(entries: readonly MenuEntry[]): string[] {
-  return entries.flatMap((e) => (e.kind === "command" ? [e.id] : e.kind === "submenu" ? commandIds(e.items) : []));
+  return entries.flatMap((e) =>
+    e.kind === "command" ? [e.id] : e.kind === "submenu" ? commandIds(e.items) : [],
+  );
 }

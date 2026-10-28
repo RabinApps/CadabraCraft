@@ -1,6 +1,27 @@
 import type { DocNode } from "@cadabracraft/shared";
-import { SCENE_BREAK_TEXT, type Item, cellParagraphs, flattenItems, isSep, listItemOf, mergeInline, paragraphOf, plainText, tableOf } from "../common";
-import { MAX_XML_DEPTH, attr, child, childrenNamed, kids, on, rawText, tagOf, type XNode } from "./xml";
+import {
+  SCENE_BREAK_TEXT,
+  type Item,
+  cellParagraphs,
+  flattenItems,
+  isSep,
+  listItemOf,
+  mergeInline,
+  paragraphOf,
+  plainText,
+  tableOf,
+} from "../common";
+import {
+  MAX_XML_DEPTH,
+  attr,
+  child,
+  childrenNamed,
+  kids,
+  on,
+  rawText,
+  tagOf,
+  type XNode,
+} from "./xml";
 import { classify } from "./styles";
 import { numberingFor } from "./numbering";
 import { paragraphChildren } from "./runs";
@@ -30,7 +51,10 @@ function buildLists(entries: ListEntry[]): DocNode[] {
     }
     if (!top || top.level < level) {
       const frame: Frame = { level, ordered: e.ordered, items: [] };
-      const list: DocNode = { type: e.ordered ? "orderedList" : "bulletList", content: frame.items };
+      const list: DocNode = {
+        type: e.ordered ? "orderedList" : "bulletList",
+        content: frame.items,
+      };
       const parentItem = top?.items[top.items.length - 1];
       if (parentItem?.type === "listItem" && parentItem.content) parentItem.content.push(list);
       else root.push(list);
@@ -48,7 +72,8 @@ function splitItems(items: Item[]): { blocks: DocNode[]; brokeLines: boolean } {
   let brokeLines = false;
   const flush = () => {
     const c = mergeInline(cur);
-    if (plainText(c).trim() !== "" || c.some((n) => n.type === "footnote")) blocks.push(paragraphOf(c));
+    if (plainText(c).trim() !== "" || c.some((n) => n.type === "footnote"))
+      blocks.push(paragraphOf(c));
     cur = [];
   };
   for (const it of items) {
@@ -70,7 +95,10 @@ export class BodyBuilder {
   private list: ListEntry[] = [];
   private quote: DocNode[] = [];
   private code: string[] = [];
-  constructor(private ctx: DCtx, private maxLevel: number) {}
+  constructor(
+    private ctx: DCtx,
+    private maxLevel: number,
+  ) {}
 
   private flushList() {
     if (this.list.length) this.out.push(...buildLists(this.list));
@@ -101,17 +129,36 @@ export class BodyBuilder {
     paragraphChildren(kids(p), undefined, st);
 
     if (pPr) {
-      if (child(pPr, "sectPr")) ctx.warn.tally("section-break", "info", "Section breaks are ignored; use scene breaks for separations.");
-      if (on(child(pPr, "pageBreakBefore"))) ctx.warn.tally("page-break", "info", "Page and column breaks are ignored; use scene breaks for separations.");
+      if (child(pPr, "sectPr"))
+        ctx.warn.tally(
+          "section-break",
+          "info",
+          "Section breaks are ignored; use scene breaks for separations.",
+        );
+      if (on(child(pPr, "pageBreakBefore")))
+        ctx.warn.tally(
+          "page-break",
+          "info",
+          "Page and column breaks are ignored; use scene breaks for separations.",
+        );
     }
     const styleId = pPr ? attr(child(pPr, "pStyle") ?? {}, "val") : undefined;
     let cls = classify(styleId, ctx);
     if (cls.kind === "normal" && cls.fallback) {
-      ctx.warn.tally("style-fallback", "info", "Custom paragraph styles were imported as normal paragraphs.", cls.fallback);
+      ctx.warn.tally(
+        "style-fallback",
+        "info",
+        "Custom paragraph styles were imported as normal paragraphs.",
+        cls.fallback,
+      );
     }
 
     // Code paragraphs hold plain text only; one with a footnote or an image is kept as a normal paragraph instead of losing them.
-    if (cls.kind === "code" && st.items.some((i) => (isSep(i) ? i.sep === "block" : i.type === "footnote"))) cls = { kind: "normal" };
+    if (
+      cls.kind === "code" &&
+      st.items.some((i) => (isSep(i) ? i.sep === "block" : i.type === "footnote"))
+    )
+      cls = { kind: "normal" };
     if (cls.kind === "code") {
       this.flushList();
       this.flushQuote();
@@ -146,7 +193,8 @@ export class BodyBuilder {
       }
       if (numId !== undefined) {
         const ordered = numberingFor(numId, ilvl, ctx);
-        if (ordered !== null) cls = { kind: "list", ordered, level: Math.min(Math.max(ilvl, 0), this.maxLevel) };
+        if (ordered !== null)
+          cls = { kind: "list", ordered, level: Math.min(Math.max(ilvl, 0), this.maxLevel) };
       }
     }
 
@@ -154,7 +202,12 @@ export class BodyBuilder {
     const jc = pPr ? attr(child(pPr, "jc") ?? {}, "val") : undefined;
     const hasBlocks = st.items.some((i) => isSep(i) && i.sep === "block");
 
-    if (cls.kind === "normal" && jc === "center" && !hasBlocks && SCENE_BREAK_TEXT.test(text.trim())) {
+    if (
+      cls.kind === "normal" &&
+      jc === "center" &&
+      !hasBlocks &&
+      SCENE_BREAK_TEXT.test(text.trim())
+    ) {
       this.flush();
       this.out.push({ type: "sceneBreak" });
       return;
@@ -164,17 +217,28 @@ export class BodyBuilder {
       this.flush();
       let level = cls.level;
       if (level > 3) {
-        ctx.warn.tally("heading-clamped", "warning", "Headings deeper than level 3 were changed to level 3.", `Heading ${level}: ${text}`);
+        ctx.warn.tally(
+          "heading-clamped",
+          "warning",
+          "Headings deeper than level 3 were changed to level 3.",
+          `Heading ${level}: ${text}`,
+        );
         level = 3;
       }
       const flat = flattenItems(st.items);
-      if (plainText(flat).trim() !== "" || flat.some((n) => n.type === "footnote")) this.out.push({ type: "heading", attrs: { level }, content: flat });
+      if (plainText(flat).trim() !== "" || flat.some((n) => n.type === "footnote"))
+        this.out.push({ type: "heading", attrs: { level }, content: flat });
       for (const i of st.items) if (isSep(i) && i.sep === "block") this.out.push(i.node);
       return;
     }
 
     const { blocks, brokeLines } = splitItems(st.items);
-    if (brokeLines) ctx.warn.tally("line-break", "info", "Manual line breaks split the paragraph into separate paragraphs.");
+    if (brokeLines)
+      ctx.warn.tally(
+        "line-break",
+        "info",
+        "Manual line breaks split the paragraph into separate paragraphs.",
+      );
 
     if (cls.kind === "list") {
       this.flushQuote();
@@ -219,8 +283,20 @@ export class BodyBuilder {
     const trPr = trs[0] ? child(trs[0], "trPr") : undefined;
     const header = trPr ? on(child(trPr, "tblHeader")) : false;
     const { node, padded } = tableOf(rows, header);
-    if (complex) ctx.warn.tally("table-complex", "warning", "Nested tables, lists and images inside table cells were flattened to paragraphs.", rawText(t));
-    if (merged || padded) ctx.warn.tally("table-merged", "warning", "Merged table cells were split into separate cells (the covered cells are empty).", rawText(t));
+    if (complex)
+      ctx.warn.tally(
+        "table-complex",
+        "warning",
+        "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+        rawText(t),
+      );
+    if (merged || padded)
+      ctx.warn.tally(
+        "table-merged",
+        "warning",
+        "Merged table cells were split into separate cells (the covered cells are empty).",
+        rawText(t),
+      );
     if (node) this.out.push(node);
   }
 
@@ -246,7 +322,12 @@ export class BodyBuilder {
           break;
         case "del":
         case "moveFrom":
-          this.ctx.warn.tally("tracked-changes", "warning", "The file has tracked changes: insertions were accepted (kept), deletions were dropped.", rawText(n));
+          this.ctx.warn.tally(
+            "tracked-changes",
+            "warning",
+            "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+            rawText(n),
+          );
           break;
         case "sectPr":
         case "bookmarkStart":
@@ -259,7 +340,12 @@ export class BodyBuilder {
         case "#text":
           break;
         default:
-          this.ctx.warn.tally("unsupported-element", "warning", "Unrecognised document elements were skipped.", tagOf(n));
+          this.ctx.warn.tally(
+            "unsupported-element",
+            "warning",
+            "Unrecognised document elements were skipped.",
+            tagOf(n),
+          );
       }
     }
   }

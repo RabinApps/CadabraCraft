@@ -1,12 +1,22 @@
 import { expect, test } from "@playwright/test";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, titles, chapterAction, addPage, manifestOf, sidebar, exportBook } from "./support/helpers";
+import {
+  newProject,
+  titles,
+  chapterAction,
+  addPage,
+  manifestOf,
+  sidebar,
+  exportBook,
+} from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
 });
 
-test("add front and back matter pages with generated content, and they open in the editor", async ({ page }) => {
+test("add front and back matter pages with generated content, and they open in the editor", async ({
+  page,
+}) => {
   await newProject(page);
   await addPage(page, "Title page");
   await expect(page.locator(".ProseMirror h1")).toHaveText("E2E Book");
@@ -18,7 +28,10 @@ test("add front and back matter pages with generated content, and they open in t
   await expect(page.locator(".ProseMirror h1")).toHaveText("About the Author");
   await expect(sidebar(page).getByRole("heading", { name: "Back matter" })).toBeVisible();
   const m = await manifestOf(page);
-  expect(m.frontMatter.map((e: any) => [e.kind, e.file])).toEqual([["title-page", "front-matter/01-title-page.json"], ["copyright", "front-matter/02-copyright.json"]]);
+  expect(m.frontMatter.map((e: any) => [e.kind, e.file])).toEqual([
+    ["title-page", "front-matter/01-title-page.json"],
+    ["copyright", "front-matter/02-copyright.json"],
+  ]);
   expect(m.backMatter.map((e: any) => e.kind)).toEqual(["about-the-author"]);
   // selecting any entry opens the editor on it
   await sidebar(page).getByRole("button", { name: "Title Page", exact: true }).click();
@@ -30,9 +43,17 @@ test("title page and copyright page can only be added once", async ({ page }) =>
   await newProject(page);
   await addPage(page, "Title page");
   await page.getByRole("button", { name: "Add page" }).click();
-  await expect(page.getByRole("menuitem", { name: "Title page", exact: true })).toHaveAttribute("data-disabled", "");
-  await expect(page.getByRole("menuitem", { name: "Copyright page", exact: true })).not.toHaveAttribute("data-disabled", "");
-  await expect(page.getByRole("menuitem", { name: "Dedication", exact: true })).not.toHaveAttribute("data-disabled", "");
+  await expect(page.getByRole("menuitem", { name: "Title page", exact: true })).toHaveAttribute(
+    "data-disabled",
+    "",
+  );
+  await expect(
+    page.getByRole("menuitem", { name: "Copyright page", exact: true }),
+  ).not.toHaveAttribute("data-disabled", "");
+  await expect(page.getByRole("menuitem", { name: "Dedication", exact: true })).not.toHaveAttribute(
+    "data-disabled",
+    "",
+  );
 });
 
 test("rename, reorder and delete front and back matter", async ({ page }) => {
@@ -42,22 +63,37 @@ test("rename, reorder and delete front and back matter", async ({ page }) => {
   await chapterAction(page, "Foreword", "Rename");
   await page.getByLabel("Page title").fill("Words Before");
   await page.keyboard.press("Enter");
-  await expect(sidebar(page).getByRole("button", { name: "Words Before", exact: true })).toBeVisible();
+  await expect(
+    sidebar(page).getByRole("button", { name: "Words Before", exact: true }),
+  ).toBeVisible();
   await chapterAction(page, "Words Before", "Move up");
-  expect((await manifestOf(page)).frontMatter.map((e: any) => e.title)).toEqual(["Words Before", "Dedication"]);
+  expect((await manifestOf(page)).frontMatter.map((e: any) => e.title)).toEqual([
+    "Words Before",
+    "Dedication",
+  ]);
   await page.getByRole("button", { name: "Actions for Words Before" }).click();
-  await expect(page.getByRole("menuitem", { name: "Move up" })).toHaveAttribute("data-disabled", "");
+  await expect(page.getByRole("menuitem", { name: "Move up" })).toHaveAttribute(
+    "data-disabled",
+    "",
+  );
   await page.keyboard.press("Escape");
 
   await addPage(page, "Acknowledgments");
   await addPage(page, "Colophon");
   await chapterAction(page, "Colophon", "Move up");
-  expect((await manifestOf(page)).backMatter.map((e: any) => e.kind)).toEqual(["colophon", "acknowledgments"]);
+  expect((await manifestOf(page)).backMatter.map((e: any) => e.kind)).toEqual([
+    "colophon",
+    "acknowledgments",
+  ]);
 
   await chapterAction(page, "Dedication", "Move to trash");
   await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
-  await expect(sidebar(page).getByRole("button", { name: "Dedication", exact: true })).toHaveCount(0);
-  const trashed = await page.evaluate(() => Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")));
+  await expect(sidebar(page).getByRole("button", { name: "Dedication", exact: true })).toHaveCount(
+    0,
+  );
+  const trashed = await page.evaluate(() =>
+    Object.keys((window as any).__disk).filter((k) => k.startsWith(".cadabra/trash/")),
+  );
   expect(trashed).toEqual([".cadabra/trash/20260101-1200-front-matter__01-dedication.json"]);
   expect((await manifestOf(page)).chapters).toHaveLength(1); // chapters untouched
 });
@@ -86,10 +122,20 @@ test("EPUB and PDF exports include the matter pages", async ({ page }) => {
     const b = (window as any).__disk["exports/book.epub"] as number[];
     return String.fromCharCode(...b).match(/OEBPS\/(fm|bm|ch)-\d+\.xhtml/g);
   });
-  expect([...new Set(names)].sort()).toEqual(["OEBPS/bm-1.xhtml", "OEBPS/ch-1.xhtml", "OEBPS/fm-1.xhtml"]);
+  expect([...new Set(names)].sort()).toEqual([
+    "OEBPS/bm-1.xhtml",
+    "OEBPS/ch-1.xhtml",
+    "OEBPS/fm-1.xhtml",
+  ]);
   await page.getByRole("button", { name: "Export", exact: true }).click();
-  await page.getByRole("dialog", { name: "Export book" }).getByRole("radio", { name: "Print PDF" }).click();
-  await page.getByRole("dialog", { name: "Export book" }).getByRole("button", { name: "Export", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Export book" })
+    .getByRole("radio", { name: "Print PDF" })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Export book" })
+    .getByRole("button", { name: "Export", exact: true })
+    .click();
   await expect(page.getByRole("status")).toHaveText("Exported exports/book.pdf");
   const source: string = await page.evaluate(() => (window as any).__typstCalls[0].source);
   expect(source).toContain("#title-page[");
@@ -119,7 +165,11 @@ test("restoring a page from the trash puts it back at the end and opens it", asy
   await expect(dialog).toHaveCount(0);
 
   const manifest = await page.evaluate(() => JSON.parse((window as any).__disk["cadabra.json"]));
-  expect(manifest.chapters.map((c: any) => c.title)).toEqual(["Chapter One", "Chapter 2", "Chapter 2"]);
+  expect(manifest.chapters.map((c: any) => c.title)).toEqual([
+    "Chapter One",
+    "Chapter 2",
+    "Chapter 2",
+  ]);
   const files: string[] = manifest.chapters.map((c: any) => c.file);
   expect(new Set(files).size).toBe(3);
   const disk = await page.evaluate(() => (window as any).__disk as Record<string, string>);
@@ -129,5 +179,7 @@ test("restoring a page from the trash puts it back at the end and opens it", asy
   expect(await titles(page)).toEqual(["Chapter 2"]);
 
   await page.getByRole("button", { name: "Trash", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "Trash" }).getByText("The trash is empty.")).toBeVisible();
+  await expect(
+    page.getByRole("dialog", { name: "Trash" }).getByText("The trash is empty."),
+  ).toBeVisible();
 });

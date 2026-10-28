@@ -36,7 +36,9 @@ function wavBytes(pcm, rate) {
   buf.writeUInt16LE(16, 34);
   buf.write("data", 36);
   buf.writeUInt32LE(pcm.length * 2, 40);
-  pcm.forEach((v, i) => buf.writeInt16LE(Math.round(Math.max(-1, Math.min(1, v)) * 32767), 44 + i * 2));
+  pcm.forEach((v, i) =>
+    buf.writeInt16LE(Math.round(Math.max(-1, Math.min(1, v)) * 32767), 44 + i * 2),
+  );
   return buf;
 }
 
@@ -45,16 +47,28 @@ const maxChars = Number(process.argv[2] ?? 1500); // keep the spike short; 0 = w
 const outDir = new URL("tools/audio-spike/out/", root);
 mkdirSync(outDir, { recursive: true });
 
-const tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", { dtype: "q8", device: "cpu" });
+const tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
+  dtype: "q8",
+  device: "cpu",
+});
 
 let totalAudio = 0;
 let totalWall = 0;
 for (const [i, ch] of book.chapters.entries()) {
-  let text = `${ch.title}.\n` + narrate(ch.doc).join("").replace(/[ \t]+/g, " ").trim();
+  let text =
+    `${ch.title}.\n` +
+    narrate(ch.doc)
+      .join("")
+      .replace(/[ \t]+/g, " ")
+      .trim();
   if (maxChars) text = text.slice(0, maxChars);
   const t0 = performance.now();
   // One generate() call caps at ~510 tokens and silently drops the rest, so render sentence by sentence.
-  const sentences = text.match(/[^.!?\n]+[.!?]*/g)?.map((s) => s.trim()).filter(Boolean) ?? [];
+  const sentences =
+    text
+      .match(/[^.!?\n]+[.!?]*/g)
+      ?.map((s) => s.trim())
+      .filter(Boolean) ?? [];
   const parts = [];
   let rate = 24000;
   for (const s of sentences) {
@@ -73,6 +87,10 @@ for (const [i, ch] of book.chapters.entries()) {
   writeFileSync(new URL(`kokoro-${i + 1}.wav`, outDir), wavBytes(pcm, rate));
   totalAudio += secs;
   totalWall += wall;
-  console.log(`ch${i + 1} "${ch.title}": ${text.length} chars -> ${secs.toFixed(1)} s audio in ${wall.toFixed(1)} s (RTF ${(wall / secs).toFixed(2)})`);
+  console.log(
+    `ch${i + 1} "${ch.title}": ${text.length} chars -> ${secs.toFixed(1)} s audio in ${wall.toFixed(1)} s (RTF ${(wall / secs).toFixed(2)})`,
+  );
 }
-console.log(`total ${totalAudio.toFixed(1)} s audio, ${totalWall.toFixed(1)} s wall, RTF ${(totalWall / totalAudio).toFixed(2)}`);
+console.log(
+  `total ${totalAudio.toFixed(1)} s audio, ${totalWall.toFixed(1)} s wall, RTF ${(totalWall / totalAudio).toFixed(2)}`,
+);

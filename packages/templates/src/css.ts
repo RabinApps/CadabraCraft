@@ -56,7 +56,12 @@ ${BASE}`;
 
 /** Chapter-opening rules generated from template data, so the EPUB follows `chapterOpening.dropCap` and `.ornament`. */
 export function openingCss(o: { dropCap: boolean; ornament: string | null }): string {
-  const drop = o.dropCap ? "body.chapter h1+p::first-letter{float:left;font-size:3.2em;line-height:.8;padding:.05em .08em 0 0}" : "";
-  const orn = o.ornament === null ? "" : `body.chapter h1::before{content:"${o.ornament}";display:block;text-align:center;font-size:1.2em;margin-bottom:.6em}`;
+  const drop = o.dropCap
+    ? "body.chapter h1+p::first-letter{float:left;font-size:3.2em;line-height:.8;padding:.05em .08em 0 0}"
+    : "";
+  const orn =
+    o.ornament === null
+      ? ""
+      : `body.chapter h1::before{content:"${o.ornament}";display:block;text-align:center;font-size:1.2em;margin-bottom:.6em}`;
   return drop + orn;
 }

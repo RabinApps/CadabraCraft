@@ -11,7 +11,11 @@ export function resolveTemplate(options: PdfOptions): Template {
 export function requestedFonts(options: PdfOptions): { body: string[]; heading: string[] } {
   const p = resolveTemplate(options).print;
   const body = options.fonts?.body ? [options.fonts.body] : p.bodyFonts;
-  const heading = options.fonts?.heading ? [options.fonts.heading] : p.headingFonts.length ? p.headingFonts : body;
+  const heading = options.fonts?.heading
+    ? [options.fonts.heading]
+    : p.headingFonts.length
+      ? p.headingFonts
+      : body;
   return { body, heading };
 }
 
@@ -34,7 +38,8 @@ export function resolveFonts(options: PdfOptions, available?: Iterable<string>):
 export function resolveMargins(options: PdfOptions, t: Template): PdfMargins {
   const m = { ...t.print.defaults.marginsIn, ...options.margins };
   for (const [k, v] of Object.entries(m)) {
-    if (typeof v !== "number" || !Number.isFinite(v) || v < 0.2 || v > 3) throw new PdfExportError(`Invalid ${k} margin: ${v}`);
+    if (typeof v !== "number" || !Number.isFinite(v) || v < 0.2 || v > 3)
+      throw new PdfExportError(`Invalid ${k} margin: ${v}`);
   }
   return m;
 }

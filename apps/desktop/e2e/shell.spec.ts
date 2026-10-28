@@ -82,7 +82,11 @@ test("settings change the writing width and remember it", async ({ page }) => {
   await newProject(page);
   await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("radio", { name: "Wide" }).click();
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("cadabracraft.settings") ?? "{}").writingWidth)).toBe("wide");
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem("cadabracraft.settings") ?? "{}").writingWidth,
+    ),
+  ).toBe("wide");
   await page.getByRole("button", { name: "Back", exact: true }).click();
   await expect(page.locator(".ProseMirror")).toBeVisible();
 });

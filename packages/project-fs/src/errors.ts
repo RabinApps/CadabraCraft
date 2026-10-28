@@ -53,4 +53,5 @@ export function fsError(e: unknown, label?: string): ProjectFsError {
   }
 }
 
-export const isNotFound = (e: unknown): boolean => (e as NodeJS.ErrnoException | undefined)?.code === "ENOENT";
+export const isNotFound = (e: unknown): boolean =>
+  (e as NodeJS.ErrnoException | undefined)?.code === "ENOENT";

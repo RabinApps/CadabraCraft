@@ -1,4 +1,9 @@
-import { primaryLanguage, type ChapterDoc, type DocNode, type MatterKind } from "@cadabracraft/shared";
+import {
+  primaryLanguage,
+  type ChapterDoc,
+  type DocNode,
+  type MatterKind,
+} from "@cadabracraft/shared";
 
 /** What a starter page needs to know about the book. `year` is passed in so the function stays pure. */
 export interface StarterBook {
@@ -33,15 +38,143 @@ interface Words {
  * language rather than the app's. Languages without an entry get English; there is no error because the author can edit it.
  */
 const WORDS: Record<string, Words> = {
-  en: { titlePage: "Title Page", copyright: "Copyright", dedication: "Dedication", epigraph: "Epigraph", foreword: "Foreword", preface: "Preface", acknowledgments: "Acknowledgments", aboutTheAuthor: "About the Author", alsoBy: "Also by {author}", colophon: "Colophon", newPage: "New Page", rights: "All rights reserved.", reproduction: "No part of this book may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of the author, except for brief quotations in reviews.", dedicationText: "For …" },
-  he: { titlePage: "עמוד שער", copyright: "זכויות יוצרים", dedication: "הקדשה", epigraph: "מוטו", foreword: "הקדמה", preface: "פתח דבר", acknowledgments: "תודות", aboutTheAuthor: "על המחבר", alsoBy: "עוד מאת {author}", colophon: "קולופון", newPage: "עמוד חדש", rights: "כל הזכויות שמורות.", dedicationText: "ל…" },
-  ar: { titlePage: "صفحة العنوان", copyright: "حقوق النشر", dedication: "إهداء", epigraph: "اقتباس افتتاحي", foreword: "تقديم", preface: "مقدمة", acknowledgments: "شكر وتقدير", aboutTheAuthor: "عن المؤلف", alsoBy: "مؤلفات أخرى لـ {author}", colophon: "بيانات الإنتاج", newPage: "صفحة جديدة", rights: "جميع الحقوق محفوظة.", dedicationText: "إلى …" },
-  it: { titlePage: "Frontespizio", copyright: "Copyright", dedication: "Dedica", epigraph: "Epigrafe", foreword: "Prefazione", preface: "Premessa", acknowledgments: "Ringraziamenti", aboutTheAuthor: "Sull’autore", alsoBy: "Altri libri di {author}", colophon: "Colophon", newPage: "Nuova pagina", rights: "Tutti i diritti riservati.", dedicationText: "A …" },
-  ja: { titlePage: "扉", copyright: "著作権", dedication: "献辞", epigraph: "エピグラフ", foreword: "序文", preface: "まえがき", acknowledgments: "謝辞", aboutTheAuthor: "著者紹介", alsoBy: "{author}の他の作品", colophon: "奥付", newPage: "新しいページ", rights: "無断転載を禁じます。", dedicationText: "…へ" },
-  ru: { titlePage: "Титульный лист", copyright: "Авторские права", dedication: "Посвящение", epigraph: "Эпиграф", foreword: "Предисловие", preface: "Вступление", acknowledgments: "Благодарности", aboutTheAuthor: "Об авторе", alsoBy: "Другие книги автора: {author}", colophon: "Выходные данные", newPage: "Новая страница", rights: "Все права защищены.", dedicationText: "Для …" },
-  fr: { titlePage: "Page de titre", copyright: "Copyright", dedication: "Dédicace", epigraph: "Épigraphe", foreword: "Avant-propos", preface: "Préface", acknowledgments: "Remerciements", aboutTheAuthor: "À propos de l’auteur", alsoBy: "Autres livres de {author}", colophon: "Colophon", newPage: "Nouvelle page", rights: "Tous droits réservés.", dedicationText: "À …" },
-  de: { titlePage: "Titelseite", copyright: "Impressum", dedication: "Widmung", epigraph: "Motto", foreword: "Vorwort", preface: "Einleitung", acknowledgments: "Danksagung", aboutTheAuthor: "Über den Autor", alsoBy: "Weitere Bücher von {author}", colophon: "Kolophon", newPage: "Neue Seite", rights: "Alle Rechte vorbehalten.", dedicationText: "Für …" },
-  es: { titlePage: "Portada", copyright: "Derechos de autor", dedication: "Dedicatoria", epigraph: "Epígrafe", foreword: "Prólogo", preface: "Prefacio", acknowledgments: "Agradecimientos", aboutTheAuthor: "Sobre el autor", alsoBy: "Otros libros de {author}", colophon: "Colofón", newPage: "Nueva página", rights: "Todos los derechos reservados.", dedicationText: "Para …" },
+  en: {
+    titlePage: "Title Page",
+    copyright: "Copyright",
+    dedication: "Dedication",
+    epigraph: "Epigraph",
+    foreword: "Foreword",
+    preface: "Preface",
+    acknowledgments: "Acknowledgments",
+    aboutTheAuthor: "About the Author",
+    alsoBy: "Also by {author}",
+    colophon: "Colophon",
+    newPage: "New Page",
+    rights: "All rights reserved.",
+    reproduction:
+      "No part of this book may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of the author, except for brief quotations in reviews.",
+    dedicationText: "For …",
+  },
+  he: {
+    titlePage: "עמוד שער",
+    copyright: "זכויות יוצרים",
+    dedication: "הקדשה",
+    epigraph: "מוטו",
+    foreword: "הקדמה",
+    preface: "פתח דבר",
+    acknowledgments: "תודות",
+    aboutTheAuthor: "על המחבר",
+    alsoBy: "עוד מאת {author}",
+    colophon: "קולופון",
+    newPage: "עמוד חדש",
+    rights: "כל הזכויות שמורות.",
+    dedicationText: "ל…",
+  },
+  ar: {
+    titlePage: "صفحة العنوان",
+    copyright: "حقوق النشر",
+    dedication: "إهداء",
+    epigraph: "اقتباس افتتاحي",
+    foreword: "تقديم",
+    preface: "مقدمة",
+    acknowledgments: "شكر وتقدير",
+    aboutTheAuthor: "عن المؤلف",
+    alsoBy: "مؤلفات أخرى لـ {author}",
+    colophon: "بيانات الإنتاج",
+    newPage: "صفحة جديدة",
+    rights: "جميع الحقوق محفوظة.",
+    dedicationText: "إلى …",
+  },
+  it: {
+    titlePage: "Frontespizio",
+    copyright: "Copyright",
+    dedication: "Dedica",
+    epigraph: "Epigrafe",
+    foreword: "Prefazione",
+    preface: "Premessa",
+    acknowledgments: "Ringraziamenti",
+    aboutTheAuthor: "Sull’autore",
+    alsoBy: "Altri libri di {author}",
+    colophon: "Colophon",
+    newPage: "Nuova pagina",
+    rights: "Tutti i diritti riservati.",
+    dedicationText: "A …",
+  },
+  ja: {
+    titlePage: "扉",
+    copyright: "著作権",
+    dedication: "献辞",
+    epigraph: "エピグラフ",
+    foreword: "序文",
+    preface: "まえがき",
+    acknowledgments: "謝辞",
+    aboutTheAuthor: "著者紹介",
+    alsoBy: "{author}の他の作品",
+    colophon: "奥付",
+    newPage: "新しいページ",
+    rights: "無断転載を禁じます。",
+    dedicationText: "…へ",
+  },
+  ru: {
+    titlePage: "Титульный лист",
+    copyright: "Авторские права",
+    dedication: "Посвящение",
+    epigraph: "Эпиграф",
+    foreword: "Предисловие",
+    preface: "Вступление",
+    acknowledgments: "Благодарности",
+    aboutTheAuthor: "Об авторе",
+    alsoBy: "Другие книги автора: {author}",
+    colophon: "Выходные данные",
+    newPage: "Новая страница",
+    rights: "Все права защищены.",
+    dedicationText: "Для …",
+  },
+  fr: {
+    titlePage: "Page de titre",
+    copyright: "Copyright",
+    dedication: "Dédicace",
+    epigraph: "Épigraphe",
+    foreword: "Avant-propos",
+    preface: "Préface",
+    acknowledgments: "Remerciements",
+    aboutTheAuthor: "À propos de l’auteur",
+    alsoBy: "Autres livres de {author}",
+    colophon: "Colophon",
+    newPage: "Nouvelle page",
+    rights: "Tous droits réservés.",
+    dedicationText: "À …",
+  },
+  de: {
+    titlePage: "Titelseite",
+    copyright: "Impressum",
+    dedication: "Widmung",
+    epigraph: "Motto",
+    foreword: "Vorwort",
+    preface: "Einleitung",
+    acknowledgments: "Danksagung",
+    aboutTheAuthor: "Über den Autor",
+    alsoBy: "Weitere Bücher von {author}",
+    colophon: "Kolophon",
+    newPage: "Neue Seite",
+    rights: "Alle Rechte vorbehalten.",
+    dedicationText: "Für …",
+  },
+  es: {
+    titlePage: "Portada",
+    copyright: "Derechos de autor",
+    dedication: "Dedicatoria",
+    epigraph: "Epígrafe",
+    foreword: "Prólogo",
+    preface: "Prefacio",
+    acknowledgments: "Agradecimientos",
+    aboutTheAuthor: "Sobre el autor",
+    alsoBy: "Otros libros de {author}",
+    colophon: "Colofón",
+    newPage: "Nueva página",
+    rights: "Todos los derechos reservados.",
+    dedicationText: "Para …",
+  },
 };
 
 const words = (language: string): Words => WORDS[primaryLanguage(language)] ?? WORDS.en!;
@@ -51,22 +184,38 @@ const alsoByTitle = (w: Words, author: string): string => w.alsoBy.replace("{aut
 export function starterTitle(kind: MatterKind, language: string): string {
   const w = words(language);
   switch (kind) {
-    case "title-page": return w.titlePage;
-    case "copyright": return w.copyright;
-    case "dedication": return w.dedication;
-    case "epigraph": return w.epigraph;
-    case "foreword": return w.foreword;
-    case "preface": return w.preface;
-    case "acknowledgments": return w.acknowledgments;
-    case "about-the-author": return w.aboutTheAuthor;
-    case "also-by": return w.alsoBy.replace(/\s*\{author\}\s*/, " ").trim();
-    case "colophon": return w.colophon;
-    case "custom": return w.newPage;
+    case "title-page":
+      return w.titlePage;
+    case "copyright":
+      return w.copyright;
+    case "dedication":
+      return w.dedication;
+    case "epigraph":
+      return w.epigraph;
+    case "foreword":
+      return w.foreword;
+    case "preface":
+      return w.preface;
+    case "acknowledgments":
+      return w.acknowledgments;
+    case "about-the-author":
+      return w.aboutTheAuthor;
+    case "also-by":
+      return w.alsoBy.replace(/\s*\{author\}\s*/, " ").trim();
+    case "colophon":
+      return w.colophon;
+    case "custom":
+      return w.newPage;
   }
 }
 
-const text = (t: string, italic = false): DocNode => ({ type: "text", text: t, ...(italic ? { marks: [{ type: "italic" as const }] } : {}) });
-const para = (t = "", italic = false): DocNode => (t ? { type: "paragraph", content: [text(t, italic)] } : { type: "paragraph" });
+const text = (t: string, italic = false): DocNode => ({
+  type: "text",
+  text: t,
+  ...(italic ? { marks: [{ type: "italic" as const }] } : {}),
+});
+const para = (t = "", italic = false): DocNode =>
+  t ? { type: "paragraph", content: [text(t, italic)] } : { type: "paragraph" };
 const h1 = (t: string): DocNode => ({ type: "heading", attrs: { level: 1 }, content: [text(t)] });
 
 /**
@@ -77,13 +226,25 @@ export function starterDoc(kind: MatterKind, book: StarterBook): ChapterDoc {
   const w = words(book.language);
   const content = ((): DocNode[] => {
     switch (kind) {
-      case "title-page": return [h1(book.title), para(book.author)];
-      case "copyright": return [para(`© ${book.year} ${book.author}`), para(w.rights), ...(book.isbn?.trim() ? [para(`ISBN ${book.isbn.trim()}`)] : []), ...(w.reproduction ? [para(w.reproduction)] : [])];
-      case "dedication": return [para(w.dedicationText, true)];
-      case "epigraph": return [para("…", true), para("— …")];
-      case "also-by": return [h1(alsoByTitle(w, book.author)), para()];
-      case "custom": return [h1(w.newPage), para()];
-      default: return [h1(starterTitle(kind, book.language)), para()];
+      case "title-page":
+        return [h1(book.title), para(book.author)];
+      case "copyright":
+        return [
+          para(`© ${book.year} ${book.author}`),
+          para(w.rights),
+          ...(book.isbn?.trim() ? [para(`ISBN ${book.isbn.trim()}`)] : []),
+          ...(w.reproduction ? [para(w.reproduction)] : []),
+        ];
+      case "dedication":
+        return [para(w.dedicationText, true)];
+      case "epigraph":
+        return [para("…", true), para("— …")];
+      case "also-by":
+        return [h1(alsoByTitle(w, book.author)), para()];
+      case "custom":
+        return [h1(w.newPage), para()];
+      default:
+        return [h1(starterTitle(kind, book.language)), para()];
     }
   })();
   return { type: "doc", content };

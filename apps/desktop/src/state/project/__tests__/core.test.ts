@@ -7,32 +7,53 @@ const assets = new Map<string, Uint8Array>();
 const written: Record<string, Uint8Array> = {};
 let picked: string | null = "/pics/cover.png";
 let importError: string | null = null;
-vi.mock("../../../lib/bridge", async () => (await import("../../../test/fakeBridge")).fakeBridge({
-  writeFile: writeFileWithConflictCopy,
-  writeBytes: async (_r: string, p: string, b: Uint8Array) => { disk.set(p, `bytes:${b.length}`); written[p] = b; },
-  pickImage: async () => picked,
-  importAsset: async (_r: string, src: string) => {
-    if (importError) throw new Error(importError);
-    const rel = `assets/${src.split("/").pop()}`;
-    assets.set(rel, new Uint8Array([1, 2, 3]));
-    return rel;
-  },
-  readAsset: async (_r: string, p: string) => { const b = assets.get(p); if (!b) throw new Error("missing"); return b; },
-  ...trashMethods,
-}));
+vi.mock("../../../lib/bridge", async () =>
+  (await import("../../../test/fakeBridge")).fakeBridge({
+    writeFile: writeFileWithConflictCopy,
+    writeBytes: async (_r: string, p: string, b: Uint8Array) => {
+      disk.set(p, `bytes:${b.length}`);
+      written[p] = b;
+    },
+    pickImage: async () => picked,
+    importAsset: async (_r: string, src: string) => {
+      if (importError) throw new Error(importError);
+      const rel = `assets/${src.split("/").pop()}`;
+      assets.set(rel, new Uint8Array([1, 2, 3]));
+      return rel;
+    },
+    readAsset: async (_r: string, p: string) => {
+      const b = assets.get(p);
+      if (!b) throw new Error("missing");
+      return b;
+    },
+    ...trashMethods,
+  }),
+);
 
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
-const text = (t: string) => ({ type: "doc" as const, content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }] });
+const text = (t: string) => ({
+  type: "doc" as const,
+  content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
+});
 
 beforeEach(async () => {
   disk.clear();
   assets.clear();
   picked = "/pics/cover.png";
   importError = null;
-  useProject.setState({ root: null, manifest: null, currentId: null, currentDoc: null, draft: null, hashes: {}, notice: "", reloadCount: 0 });
+  useProject.setState({
+    root: null,
+    manifest: null,
+    currentId: null,
+    currentDoc: null,
+    draft: null,
+    hashes: {},
+    notice: "",
+    reloadCount: 0,
+  });
   await a().createProject("/p", "Book", "Me");
 });
 
@@ -60,11 +81,21 @@ describe("project store", () => {
     await a().saveCurrent(s().draft!);
     await a().remove("ch-2");
     expect(s().manifest!.chapters.map((c) => c.id)).toEqual(["ch-1"]);
-    expect([...disk.keys()].some((k) => k.startsWith(".cadabra/trash/") && disk.get(k)!.includes("precious"))).toBe(true);
+    expect(
+      [...disk.keys()].some(
+        (k) => k.startsWith(".cadabra/trash/") && disk.get(k)!.includes("precious"),
+      ),
+    ).toBe(true);
   });
   it("restores a trashed chapter to the end, never overwriting a chapter that took its file name", async () => {
     await a().add("Two");
-    a().setDraft({ type: "doc", content: [{ type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Two" }] }, ...text("precious").content] });
+    a().setDraft({
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Two" }] },
+        ...text("precious").content,
+      ],
+    });
     await a().flush();
     await a().remove("ch-2");
     await a().add("Two"); // reuses manuscript/002-two.json
@@ -114,7 +145,12 @@ describe("project store", () => {
     expect(s().notice).toMatch(/Could not add the image: cover\.png is larger/);
   });
   it("exports images that chapters reference and fails clearly when one is missing", async () => {
-    const withImage = { type: "doc" as const, content: [{ type: "image" as const, attrs: { src: "assets/cover.png", alt: "Cover", title: null } }] };
+    const withImage = {
+      type: "doc" as const,
+      content: [
+        { type: "image" as const, attrs: { src: "assets/cover.png", alt: "Cover", title: null } },
+      ],
+    };
     await a().saveCurrent(withImage);
     await expect(a().exportEpub()).rejects.toThrow(/Missing image file assets\/cover\.png/);
     assets.set("assets/cover.png", new Uint8Array([1, 2, 3]));
@@ -123,14 +159,18 @@ describe("project store", () => {
   });
   it("puts the cover in the EPUB and refuses to export when its file is missing", async () => {
     await a().updateDetails({ ...s().manifest!, isbn: "", cover: "assets/front.png" });
-    await expect(a().exportEpub()).rejects.toThrow(/cover image assets\/front\.png could not be read/);
+    await expect(a().exportEpub()).rejects.toThrow(
+      /cover image assets\/front\.png could not be read/,
+    );
     expect(disk.has("exports/book.epub")).toBe(false);
     assets.set("assets/front.png", new Uint8Array([1, 2, 3]));
     await a().exportEpub();
     const files = unzipSync(written["exports/book.epub"]!);
     expect(files["OEBPS/assets/front.png"]).toBeDefined();
     expect(strFromU8(files["OEBPS/content.opf"]!)).toContain('properties="cover-image"');
-    expect(strFromU8(files["OEBPS/content.opf"]!)).toMatch(/<spine><itemref idref="epub-cover"\/><itemref idref="ch-1"\/>/);
+    expect(strFromU8(files["OEBPS/content.opf"]!)).toMatch(
+      /<spine><itemref idref="epub-cover"\/><itemref idref="ch-1"\/>/,
+    );
   });
   it("closes the book after saving what was typed, leaving the files alone", async () => {
     a().setDraft(text("last words"));
@@ -194,7 +234,12 @@ describe("project store", () => {
     it("adds a title page with generated content, writes its file and opens it", async () => {
       await a().addMatter("front", "title-page");
       const entry = s().manifest!.frontMatter[0]!;
-      expect(entry).toMatchObject({ id: "fm-1", kind: "title-page", title: "Title Page", file: "front-matter/01-title-page.json" });
+      expect(entry).toMatchObject({
+        id: "fm-1",
+        kind: "title-page",
+        title: "Title Page",
+        file: "front-matter/01-title-page.json",
+      });
       expect(s().currentId).toBe("fm-1");
       const doc = JSON.parse(disk.get("front-matter/01-title-page.json")!);
       expect(JSON.stringify(doc)).toContain("Book");
@@ -240,7 +285,13 @@ describe("project store", () => {
       await a().remove("fm-1");
       expect(s().manifest!.frontMatter).toEqual([]);
       expect(disk.has("front-matter/01-foreword.json")).toBe(false);
-      expect([...disk.keys()].some((k) => k.startsWith(".cadabra/trash/20260101-1200-front-matter__") && disk.get(k)!.includes("precious foreword"))).toBe(true);
+      expect(
+        [...disk.keys()].some(
+          (k) =>
+            k.startsWith(".cadabra/trash/20260101-1200-front-matter__") &&
+            disk.get(k)!.includes("precious foreword"),
+        ),
+      ).toBe(true);
       expect(s().currentId).toBe("ch-1");
     });
     it("reloads the open matter page after an outside change and keeps conflicting edits", async () => {
@@ -260,7 +311,12 @@ describe("project store", () => {
       expect(disk.get("exports/book.epub")).toMatch(/^bytes:/);
       const files = unzipSync(written["exports/book.epub"]!);
       const opf = strFromU8(files["OEBPS/content.opf"]!);
-      expect([...opf.matchAll(/<itemref idref="([^"]+)"/g)].map((m) => m[1])).toEqual(["fm-1", "ch-1", "bm-1", "nav"]);
+      expect([...opf.matchAll(/<itemref idref="([^"]+)"/g)].map((m) => m[1])).toEqual([
+        "fm-1",
+        "ch-1",
+        "bm-1",
+        "nav",
+      ]);
       expect(strFromU8(files["OEBPS/fm-1.xhtml"]!)).toContain('epub:type="frontmatter titlepage"');
       expect(strFromU8(files["OEBPS/bm-1.xhtml"]!)).toContain('epub:type="backmatter"');
     });
@@ -282,18 +338,44 @@ describe("project store", () => {
   });
   describe("book details and cover", () => {
     const onDisk = () => JSON.parse(disk.get("cadabra.json")!);
-    const form = () => { const m = s().manifest!; return { title: m.title, author: m.author, language: m.language, isbn: m.isbn ?? "", identifier: m.identifier, cover: m.cover }; };
+    const form = () => {
+      const m = s().manifest!;
+      return {
+        title: m.title,
+        author: m.author,
+        language: m.language,
+        isbn: m.isbn ?? "",
+        identifier: m.identifier,
+        cover: m.cover,
+      };
+    };
     it("saves edited details, trims text and turns an empty ISBN into null", async () => {
-      await a().updateDetails({ ...form(), title: "  New Title ", author: "Ann", language: "fr", isbn: " 978-3-16-148410-0 " });
-      expect(onDisk()).toMatchObject({ title: "New Title", author: "Ann", language: "fr", isbn: "978-3-16-148410-0", cover: null });
+      await a().updateDetails({
+        ...form(),
+        title: "  New Title ",
+        author: "Ann",
+        language: "fr",
+        isbn: " 978-3-16-148410-0 ",
+      });
+      expect(onDisk()).toMatchObject({
+        title: "New Title",
+        author: "Ann",
+        language: "fr",
+        isbn: "978-3-16-148410-0",
+        cover: null,
+      });
       await a().updateDetails({ ...form(), isbn: "  " });
       expect(onDisk().isbn).toBeNull();
     });
     it("rejects an empty title or a cover outside assets/ and writes nothing", async () => {
       const before = disk.get("cadabra.json");
       await expect(a().updateDetails({ ...form(), title: " " })).rejects.toThrow(/title/);
-      await expect(a().updateDetails({ ...form(), cover: "/Users/me/cover.png" })).rejects.toThrow(/cover/);
-      await expect(a().updateDetails({ ...form(), cover: "assets/cover.gif" })).rejects.toThrow(/cover/);
+      await expect(a().updateDetails({ ...form(), cover: "/Users/me/cover.png" })).rejects.toThrow(
+        /cover/,
+      );
+      await expect(a().updateDetails({ ...form(), cover: "assets/cover.gif" })).rejects.toThrow(
+        /cover/,
+      );
       expect(disk.get("cadabra.json")).toBe(before);
     });
     it("does not rewrite the manifest when nothing changed", async () => {

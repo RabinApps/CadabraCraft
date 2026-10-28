@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { addChapter, restoreEntry, createManifest, moveChapter, removeChapter, renameChapter, retargetFile, sameTree, treeOf, validateManifest, withTree } from "../index";
+import {
+  addChapter,
+  restoreEntry,
+  createManifest,
+  moveChapter,
+  removeChapter,
+  renameChapter,
+  retargetFile,
+  sameTree,
+  treeOf,
+  validateManifest,
+  withTree,
+} from "../index";
 
 describe("history snapshots", () => {
   const base = () => createManifest({ title: "T", author: "A", identifier: "urn:uuid:1" });
@@ -69,7 +81,9 @@ describe("restoreEntry", () => {
     const c = restoreEntry(m, "manuscript/009-old.json", "Old");
     expect(c.manifest.chapters.map((e) => e.id)).toEqual(["ch-1", "ch-2", "ch-3", "ch-4"]);
     const b = restoreEntry(m, "back-matter/01-colophon.json", "Colophon");
-    expect(b.manifest.backMatter).toEqual([{ id: "bm-1", file: "back-matter/01-colophon.json", title: "Colophon", kind: "custom" }]);
+    expect(b.manifest.backMatter).toEqual([
+      { id: "bm-1", file: "back-matter/01-colophon.json", title: "Colophon", kind: "custom" },
+    ]);
     expect(validateManifest(JSON.parse(JSON.stringify(b.manifest)))).toBeTruthy();
   });
   it("refuses a file already in the book or outside the page folders", () => {

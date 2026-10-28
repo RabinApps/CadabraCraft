@@ -34,7 +34,9 @@ describe("generator", () => {
 
 describe("large manuscript budgets", () => {
   it("counts 100k words in under 250 ms", () => {
-    const { ms } = time("countWords 100k words, 40 chapters", () => book.reduce((n, d) => n + countWords(d), 0));
+    const { ms } = time("countWords 100k words, 40 chapters", () =>
+      book.reduce((n, d) => n + countWords(d), 0),
+    );
     expect(ms).toBeLessThan(250);
   });
 
@@ -46,7 +48,10 @@ describe("large manuscript budgets", () => {
   });
 
   it("parses a 20k-word chapter file in under 100 ms", () => {
-    const { value, ms } = time(`JSON.parse 20k-word chapter (${(chapter20kJson.length / 1024).toFixed(0)} KiB)`, () => JSON.parse(chapter20kJson));
+    const { value, ms } = time(
+      `JSON.parse 20k-word chapter (${(chapter20kJson.length / 1024).toFixed(0)} KiB)`,
+      () => JSON.parse(chapter20kJson),
+    );
     expect(value.type).toBe("doc");
     expect(ms).toBeLessThan(100);
   });
@@ -57,14 +62,20 @@ describe("large manuscript budgets", () => {
     const found = time("searchBook 100k words", () => searchBook(pages, opts));
     expect(found.value.total).toBeGreaterThan(0);
     expect(found.ms).toBeLessThan(500);
-    const rep = time("replaceInDoc 20k-word chapter", () => replaceInDoc(chapter20k, opts, "quiet"));
+    const rep = time("replaceInDoc 20k-word chapter", () =>
+      replaceInDoc(chapter20k, opts, "quiet"),
+    );
     expect(rep.value.count).toBeGreaterThan(0);
     expect(rep.ms).toBeLessThan(500);
     expect(findAfter(rep.value.doc)).toBe(0);
   });
 
   it("diffs two 20k-word versions of a chapter in under 1.5 s", () => {
-    const edited = replaceInDoc(chapter20k, { query: "silence", matchCase: false, wholeWord: true }, "hush").doc;
+    const edited = replaceInDoc(
+      chapter20k,
+      { query: "silence", matchCase: false, wholeWord: true },
+      "hush",
+    ).doc;
     const a = paragraphsOf(chapter20k as never);
     const b = paragraphsOf(edited as never);
     const { value, ms } = time(`diffChapters ${a.length} paragraphs`, () => diffChapters(a, b));
@@ -76,9 +87,16 @@ describe("large manuscript budgets", () => {
     const other = bigChapter(20_000, 1234, "Long");
     const a = paragraphsOf(chapter20k as never);
     const b = paragraphsOf(other as never);
-    const { ms } = time(`diffChapters rewrite ${a.length}x${b.length} paragraphs`, () => diffChapters(a, b));
+    const { ms } = time(`diffChapters rewrite ${a.length}x${b.length} paragraphs`, () =>
+      diffChapters(a, b),
+    );
     expect(ms).toBeLessThan(1500);
   });
 });
 
-const findAfter = (doc: unknown): number => searchBook([{ id: "x", title: "x", doc: doc as never }], { query: "silence", matchCase: false, wholeWord: true }).total;
+const findAfter = (doc: unknown): number =>
+  searchBook([{ id: "x", title: "x", doc: doc as never }], {
+    query: "silence",
+    matchCase: false,
+    wholeWord: true,
+  }).total;

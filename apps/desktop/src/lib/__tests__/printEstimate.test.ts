@@ -25,9 +25,18 @@ describe("plainBlocks", () => {
       type: "doc",
       content: [
         { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "One" }] },
-        { type: "paragraph", content: [{ type: "text", text: "Hello " }, { type: "text", text: "there", marks: [{ type: "bold" }] }] },
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "Hello " },
+            { type: "text", text: "there", marks: [{ type: "bold" }] },
+          ],
+        },
         { type: "paragraph" },
-        { type: "blockquote", content: [{ type: "paragraph", content: [{ type: "text", text: "Quoted" }] }] },
+        {
+          type: "blockquote",
+          content: [{ type: "paragraph", content: [{ type: "text", text: "Quoted" }] }],
+        },
         { type: "codeBlock", content: [{ type: "text", text: "let x = 1;" }] },
       ],
     } as unknown as ChapterDoc;

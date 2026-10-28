@@ -12,7 +12,8 @@ export function imageSources(doc: unknown): string[] {
 }
 
 /** Image sources that are not project-relative `assets/<file>` paths. */
-export const badImageSources = (doc: unknown): string[] => imageSources(doc).filter((s) => !isAssetPath(s));
+export const badImageSources = (doc: unknown): string[] =>
+  imageSources(doc).filter((s) => !isAssetPath(s));
 
 interface N {
   type?: string;
@@ -35,22 +36,42 @@ function block(n: N, indent = ""): string {
       return (n.content ?? [])
         .map((li, i) => {
           const mark = n.type === "bulletList" ? "- " : `${start + i}. `;
-          return (li.content ?? []).map((b, j) => (j === 0 ? `${indent}${mark}${block(b, indent + "  ").trimStart()}` : block(b, indent + "  "))).join("\n");
+          return (li.content ?? [])
+            .map((b, j) =>
+              j === 0
+                ? `${indent}${mark}${block(b, indent + "  ").trimStart()}`
+                : block(b, indent + "  "),
+            )
+            .join("\n");
         })
         .join("\n");
     }
     case "blockquote":
-      return (n.content ?? []).map((b) => block(b, indent)).join("\n\n").replace(/^/gm, `${indent}> `);
+      return (n.content ?? [])
+        .map((b) => block(b, indent))
+        .join("\n\n")
+        .replace(/^/gm, `${indent}> `);
     case "codeBlock": {
       const lang = typeof n.attrs?.language === "string" ? n.attrs.language : "";
-      return [`${indent}\`\`\`${lang}`, ...(n.content ?? []).map(inline).join("").split("\n").map((l) => indent + l), `${indent}\`\`\``].join("\n");
+      return [
+        `${indent}\`\`\`${lang}`,
+        ...(n.content ?? [])
+          .map(inline)
+          .join("")
+          .split("\n")
+          .map((l) => indent + l),
+        `${indent}\`\`\``,
+      ].join("\n");
     }
     case "sceneBreak":
       return `${indent}* * *`;
     case "table":
       // One line per row, cells separated by " | " (paragraphs within a cell are joined by a space).
       return (n.content ?? [])
-        .map((row) => `${indent}${(row.content ?? []).map((c) => (c.content ?? []).map(inline).join(" ").replace(/\s+/g, " ").trim()).join(" | ")}`)
+        .map(
+          (row) =>
+            `${indent}${(row.content ?? []).map((c) => (c.content ?? []).map(inline).join(" ").replace(/\s+/g, " ").trim()).join(" | ")}`,
+        )
         .join("\n");
     case "image":
       return `${indent}[Image: ${String(n.attrs?.alt ?? "")}]${n.attrs?.title ? ` ${String(n.attrs.title)}` : ""}`;
@@ -61,14 +82,21 @@ function block(n: N, indent = ""): string {
 
 /** Plain text of a chapter: blocks separated by blank lines, lists as "- " / "1. ", code blocks fenced, footnotes inline in [note: ...]. */
 export function docToText(doc: unknown): string {
-  return ((doc as N)?.content ?? []).map((n) => block(n)).join("\n\n").trim();
+  return ((doc as N)?.content ?? [])
+    .map((n) => block(n))
+    .join("\n\n")
+    .trim();
 }
 
 /** Replaces image sources per `map` (null removes the image and leaves its alt text), without mutating the input. */
 export function remapImages(doc: ChapterDoc, map: Map<string, string | null>): ChapterDoc {
   const walk = (n: unknown): unknown => {
     if (!n || typeof n !== "object") return n;
-    const node = n as { type?: string; attrs?: { src?: string; alt?: string | null }; content?: unknown[] };
+    const node = n as {
+      type?: string;
+      attrs?: { src?: string; alt?: string | null };
+      content?: unknown[];
+    };
     if (node.type === "image" && node.attrs?.src && map.has(node.attrs.src)) {
       const to = map.get(node.attrs.src);
       if (to) return { ...node, attrs: { ...node.attrs, src: to } };
@@ -82,5 +110,8 @@ export function remapImages(doc: ChapterDoc, map: Map<string, string | null>): C
 
 export const emptyChapterDoc = (title: string): ChapterDoc => ({
   type: "doc",
-  content: [{ type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] }, { type: "paragraph" }],
+  content: [
+    { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] },
+    { type: "paragraph" },
+  ],
 });

@@ -20,7 +20,12 @@ export class AssetRegistry {
       target = `assets/${dot > 0 ? `${name.slice(0, dot)}-${i}${name.slice(dot)}` : `${name}-${i}`}`;
     }
     this.used.add(target.toLowerCase());
-    const asset: ImportAsset = { sourcePath, targetPath: target, ...(mediaType ? { mediaType } : {}), ...(bytes ? { bytes } : {}) };
+    const asset: ImportAsset = {
+      sourcePath,
+      targetPath: target,
+      ...(mediaType ? { mediaType } : {}),
+      ...(bytes ? { bytes } : {}),
+    };
     this.bySource.set(sourcePath, asset);
     this.assets.push(asset);
     return asset;
@@ -52,9 +57,19 @@ export function imageItems(
   const u = url.trim();
   alt = cleanText(alt);
   if (/^https?:\/\//i.test(u) || u.startsWith("//")) {
-    ctx.warn.at("remote-image", "warning", `Remote image not imported (no network access): ${u.slice(0, 80)}`, line);
+    ctx.warn.at(
+      "remote-image",
+      "warning",
+      `Remote image not imported (no network access): ${u.slice(0, 80)}`,
+      line,
+    );
   } else if (/^[a-z][a-z0-9+.-]*:/i.test(u) && !/^[a-z]:[\\/]/i.test(u)) {
-    ctx.warn.at("unsupported-image", "warning", `Image with a ${u.split(":")[0]}: URL was not imported.`, line);
+    ctx.warn.at(
+      "unsupported-image",
+      "warning",
+      `Image with a ${u.split(":")[0]}: URL was not imported.`,
+      line,
+    );
   } else {
     let path = u;
     try {
@@ -65,10 +80,27 @@ export function imageItems(
     path = path.split(/[?#]/)[0] ?? path;
     const ext = extOf(path);
     if (!IMAGE_TYPES[ext]) {
-      ctx.warn.at("unsupported-image", "warning", `Image "${path.slice(0, 80)}" has an unsupported type and was not imported.`, line);
+      ctx.warn.at(
+        "unsupported-image",
+        "warning",
+        `Image "${path.slice(0, 80)}" has an unsupported type and was not imported.`,
+        line,
+      );
     } else {
       const a = ctx.assets.register(path, IMAGE_TYPES[ext]);
-      return [{ sep: "block", node: { type: "image", attrs: { src: a.targetPath, alt: alt || null, title: title == null ? null : cleanText(title) } } }];
+      return [
+        {
+          sep: "block",
+          node: {
+            type: "image",
+            attrs: {
+              src: a.targetPath,
+              alt: alt || null,
+              title: title == null ? null : cleanText(title),
+            },
+          },
+        },
+      ];
     }
   }
   const t = textNode(alt ? `[Image: ${alt}]` : "");

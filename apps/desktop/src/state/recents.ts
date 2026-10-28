@@ -4,7 +4,11 @@ import { readStored, writeStored } from "../lib/persisted";
 const KEY = "cadabracraft.recents";
 export const MAX_RECENTS = 8;
 
-export interface Recent { root: string; title: string; openedAt: number }
+export interface Recent {
+  root: string;
+  title: string;
+  openedAt: number;
+}
 
 /** Move (or add) a project to the front, replacing any entry for the same folder, and cap the list. */
 export function addRecent(list: Recent[], entry: Recent, max = MAX_RECENTS): Recent[] {
@@ -22,21 +26,46 @@ export function parseRecents(raw: string | null, max = MAX_RECENTS): Recent[] {
     if (!Array.isArray(v)) return [];
     const out: Recent[] = [];
     for (const e of v) {
-      if (e && typeof e.root === "string" && e.root !== "" && typeof e.title === "string" && Number.isFinite(e.openedAt) && !out.some((r) => r.root === e.root)) {
+      if (
+        e &&
+        typeof e.root === "string" &&
+        e.root !== "" &&
+        typeof e.title === "string" &&
+        Number.isFinite(e.openedAt) &&
+        !out.some((r) => r.root === e.root)
+      ) {
         out.push({ root: e.root, title: e.title, openedAt: e.openedAt });
       }
     }
     return out.slice(0, max);
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 const read = (): Recent[] => parseRecents(readStored(KEY));
 const write = (list: Recent[]) => writeStored(KEY, JSON.stringify(list));
 
 /** Recently opened projects. App preference only: absolute paths live here, never in project files. */
-export const useRecents = create<{ recents: Recent[]; add: (root: string, title: string) => void; remove: (root: string) => void; clear: () => void }>((set, get) => ({
+export const useRecents = create<{
+  recents: Recent[];
+  add: (root: string, title: string) => void;
+  remove: (root: string) => void;
+  clear: () => void;
+}>((set, get) => ({
   recents: read(),
-  add: (root, title) => { const next = addRecent(get().recents, { root, title, openedAt: Date.now() }); write(next); set({ recents: next }); },
-  remove: (root) => { const next = removeRecent(get().recents, root); write(next); set({ recents: next }); },
-  clear: () => { write([]); set({ recents: [] }); },
+  add: (root, title) => {
+    const next = addRecent(get().recents, { root, title, openedAt: Date.now() });
+    write(next);
+    set({ recents: next });
+  },
+  remove: (root) => {
+    const next = removeRecent(get().recents, root);
+    write(next);
+    set({ recents: next });
+  },
+  clear: () => {
+    write([]);
+    set({ recents: [] });
+  },
 }));

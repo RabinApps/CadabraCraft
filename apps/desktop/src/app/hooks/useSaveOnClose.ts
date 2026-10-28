@@ -12,7 +12,13 @@ import { useProject } from "../../state/project/index";
  */
 export function useSaveOnClose() {
   useEffect(() => {
-    const save = () => { if (useProject.getState().draft) void useProject.getState().actions.flush().catch(() => {}); };
+    const save = () => {
+      if (useProject.getState().draft)
+        void useProject
+          .getState()
+          .actions.flush()
+          .catch(() => {});
+    };
     window.addEventListener("beforeunload", save);
     window.addEventListener("pagehide", save);
 
@@ -24,11 +30,20 @@ export function useSaveOnClose() {
         {
           hasUnsaved: () => useProject.getState().draft !== null,
           flush: () => useProject.getState().actions.flush(),
-          onSaveFailed: (message) => useProject.setState({ notice: t`Your last changes could not be saved (${message}). Close the window again to leave without them.` }),
+          onSaveFailed: (message) =>
+            useProject.setState({
+              notice: t`Your last changes could not be saved (${message}). Close the window again to leave without them.`,
+            }),
         },
         () => win.destroy(),
       );
-      win.onCloseRequested(handle).then((un) => { if (gone) un(); else unlisten = un; }, () => {});
+      win.onCloseRequested(handle).then(
+        (un) => {
+          if (gone) un();
+          else unlisten = un;
+        },
+        () => {},
+      );
     } catch {
       // Not running inside Tauri.
     }

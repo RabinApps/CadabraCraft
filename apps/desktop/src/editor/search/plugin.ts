@@ -1,6 +1,12 @@
 import { Extension } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
-import { Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from "@tiptap/pm/state";
+import {
+  Plugin,
+  PluginKey,
+  TextSelection,
+  type EditorState,
+  type Transaction,
+} from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { findInText, expandReplacement, MAX_MATCHES, type TextRange } from "../../lib/search/match";
@@ -25,7 +31,13 @@ export interface SearchState extends SearchSettings {
 export const searchKey = new PluginKey<SearchState>("search");
 
 const initial: SearchState = {
-  query: "", replacement: "", matchCase: false, wholeWord: false, matches: [], current: -1, decorations: DecorationSet.empty,
+  query: "",
+  replacement: "",
+  matchCase: false,
+  wholeWord: false,
+  matches: [],
+  current: -1,
+  decorations: DecorationSet.empty,
 };
 
 /** `settings` merges new settings and rescans; `rescan` rescans with the current ones; `current` only moves the current match. */
@@ -67,10 +79,22 @@ export function findAll(doc: PMNode, s: SearchSettings, uncapped = false): TextR
 
 const decorate = (doc: PMNode, matches: TextRange[], current: number) =>
   matches.length
-    ? DecorationSet.create(doc, matches.map((m, i) => Decoration.inline(m.from, m.to, { class: i === current ? "search-match search-match-current" : "search-match" })))
+    ? DecorationSet.create(
+        doc,
+        matches.map((m, i) =>
+          Decoration.inline(m.from, m.to, {
+            class: i === current ? "search-match search-match-current" : "search-match",
+          }),
+        ),
+      )
     : DecorationSet.empty;
 
-function withMatches(doc: PMNode, base: SearchState, matches: TextRange[], wanted: number): SearchState {
+function withMatches(
+  doc: PMNode,
+  base: SearchState,
+  matches: TextRange[],
+  wanted: number,
+): SearchState {
   const current = matches.length ? Math.max(0, Math.min(wanted, matches.length - 1)) : -1;
   return { ...base, matches, current, decorations: decorate(doc, matches, current) };
 }
@@ -82,7 +106,11 @@ function mapState(prev: SearchState, tr: Transaction): SearchState {
   prev.matches.forEach((m, i) => {
     const from = tr.mapping.map(m.from, 1);
     const to = tr.mapping.map(m.to, -1);
-    if (to - from !== m.to - m.from || tr.doc.textBetween(from, to) !== tr.before.textBetween(m.from, m.to)) return;
+    if (
+      to - from !== m.to - m.from ||
+      tr.doc.textBetween(from, to) !== tr.before.textBetween(m.from, m.to)
+    )
+      return;
     if (i === prev.current) current = kept.length;
     kept.push({ from, to });
   });
@@ -102,8 +130,14 @@ const searchPlugin = new Plugin<SearchState>({
         const idx = matches.findIndex((m) => m.from >= next.selection.from);
         return withMatches(next.doc, state, matches, idx === -1 ? 0 : idx);
       }
-      if (meta?.rescan) return withMatches(next.doc, prev, findAll(next.doc, prev), meta.current ?? prev.current);
-      if (meta?.current !== undefined) return { ...prev, current: meta.current, decorations: decorate(next.doc, prev.matches, meta.current) };
+      if (meta?.rescan)
+        return withMatches(next.doc, prev, findAll(next.doc, prev), meta.current ?? prev.current);
+      if (meta?.current !== undefined)
+        return {
+          ...prev,
+          current: meta.current,
+          decorations: decorate(next.doc, prev.matches, meta.current),
+        };
       // Nothing searched: no scan, no mapping, no cost.
       if (!tr.docChanged || !prev.query) return prev;
       return mapState(prev, tr);
@@ -135,25 +169,37 @@ function replaceRanges(tr: Transaction, ranges: TextRange[], replacement: string
 function scrollTo(editor: Editor, pos: number) {
   try {
     const node = editor.view.domAtPos(pos).node;
-    (node instanceof Element ? node : node.parentElement)?.scrollIntoView({ block: "center", inline: "nearest" });
+    (node instanceof Element ? node : node.parentElement)?.scrollIntoView({
+      block: "center",
+      inline: "nearest",
+    });
   } catch {
     // No DOM (tests, detached view): nothing to scroll.
   }
 }
 
 /** Transaction that moves to the next or previous match (wrapping); `reveal` also selects it, otherwise the selection stays put. */
-export function stepTransaction(state: EditorState, dir: 1 | -1, reveal: boolean): Transaction | null {
+export function stepTransaction(
+  state: EditorState,
+  dir: 1 | -1,
+  reveal: boolean,
+): Transaction | null {
   const { matches, current } = get(state);
   const next = (current + dir + matches.length) % matches.length;
   const target = matches[next];
   if (!target) return null;
-  const tr = state.tr.setMeta(searchKey, { current: next } satisfies Meta).setMeta("addToHistory", false);
+  const tr = state.tr
+    .setMeta(searchKey, { current: next } satisfies Meta)
+    .setMeta("addToHistory", false);
   if (reveal) tr.setSelection(TextSelection.create(tr.doc, target.from, target.to));
   return tr;
 }
 
 /** Transaction replacing the current match (null when there is none). */
-export function replaceCurrentTransaction(state: EditorState, tr: Transaction = state.tr): Transaction | null {
+export function replaceCurrentTransaction(
+  state: EditorState,
+  tr: Transaction = state.tr,
+): Transaction | null {
   const s = get(state);
   const at = s.matches[s.current];
   // Rescan so a match edited in place is never replaced from stale positions.
@@ -167,7 +213,10 @@ export function replaceCurrentTransaction(state: EditorState, tr: Transaction = 
 }
 
 /** One transaction (one undo step) replacing every match (null when there are none). */
-export function replaceAllTransaction(state: EditorState, tr: Transaction = state.tr): Transaction | null {
+export function replaceAllTransaction(
+  state: EditorState,
+  tr: Transaction = state.tr,
+): Transaction | null {
   const s = get(state);
   const fresh = findAll(state.doc, s, true); // every match, not just the capped display set
   if (!fresh.length) return null;
@@ -175,7 +224,11 @@ export function replaceAllTransaction(state: EditorState, tr: Transaction = stat
   return tr.setMeta(searchKey, { rescan: true, current: 0 } satisfies Meta);
 }
 
-export const setSearchTransaction = (state: EditorState, partial: Partial<SearchSettings>, tr: Transaction = state.tr): Transaction =>
+export const setSearchTransaction = (
+  state: EditorState,
+  partial: Partial<SearchSettings>,
+  tr: Transaction = state.tr,
+): Transaction =>
   tr.setMeta(searchKey, { settings: partial } satisfies Meta).setMeta("addToHistory", false);
 
 function step(editor: Editor, dir: 1 | -1, reveal: boolean): boolean {
@@ -200,21 +253,43 @@ export interface SearchCommands {
   clearSearch: () => boolean;
 }
 
-export const searchCommands = (editor: Editor): SearchCommands => editor.commands as unknown as SearchCommands;
+export const searchCommands = (editor: Editor): SearchCommands =>
+  editor.commands as unknown as SearchCommands;
 
-interface Props { state: EditorState; tr: Transaction }
+interface Props {
+  state: EditorState;
+  tr: Transaction;
+}
 
 export const Search = Extension.create({
   name: "search",
   addProseMirrorPlugins: () => [searchPlugin],
   addCommands() {
     const commands = {
-      setSearch: (partial: Partial<SearchSettings>) => ({ state, tr }: Props) => setSearchTransaction(state, partial, tr) !== null,
-      findNext: (reveal = false) => () => step(this.editor, 1, reveal),
-      findPrevious: (reveal = false) => () => step(this.editor, -1, reveal),
-      replaceCurrent: () => ({ state, tr }: Props) => replaceCurrentTransaction(state, tr) !== null,
-      replaceAll: () => ({ state, tr }: Props) => replaceAllTransaction(state, tr) !== null,
-      clearSearch: () => ({ state, tr }: Props) => setSearchTransaction(state, { query: "", replacement: "" }, tr) !== null,
+      setSearch:
+        (partial: Partial<SearchSettings>) =>
+        ({ state, tr }: Props) =>
+          setSearchTransaction(state, partial, tr) !== null,
+      findNext:
+        (reveal = false) =>
+        () =>
+          step(this.editor, 1, reveal),
+      findPrevious:
+        (reveal = false) =>
+        () =>
+          step(this.editor, -1, reveal),
+      replaceCurrent:
+        () =>
+        ({ state, tr }: Props) =>
+          replaceCurrentTransaction(state, tr) !== null,
+      replaceAll:
+        () =>
+        ({ state, tr }: Props) =>
+          replaceAllTransaction(state, tr) !== null,
+      clearSearch:
+        () =>
+        ({ state, tr }: Props) =>
+          setSearchTransaction(state, { query: "", replacement: "" }, tr) !== null,
     };
     return commands as never;
   },

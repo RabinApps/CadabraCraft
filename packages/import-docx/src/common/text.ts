@@ -1,7 +1,17 @@
 import type { DocNode, Mark } from "@cadabracraft/shared";
 
 /** Marks in the editor schema's rank order (ProseMirror requires sorted mark sets). A test checks this against the real schema. */
-export const MARK_ORDER: Mark["type"][] = ["link", "bold", "code", "italic", "strike", "underline", "smallCaps", "superscript", "subscript"];
+export const MARK_ORDER: Mark["type"][] = [
+  "link",
+  "bold",
+  "code",
+  "italic",
+  "strike",
+  "underline",
+  "smallCaps",
+  "superscript",
+  "subscript",
+];
 
 export function sortMarks(marks: Mark[]): Mark[] | undefined {
   const seen = new Set<string>();
@@ -14,7 +24,13 @@ export function sortMarks(marks: Mark[]): Mark[] | undefined {
   if (out.length === 0) return undefined;
   // Super- and subscript exclude each other in the schema: the innermost (last added) wins.
   const script = marks.filter((m) => m.type === "superscript" || m.type === "subscript").pop();
-  if (script) for (let i = out.length - 1; i >= 0; i--) if ((out[i]!.type === "superscript" || out[i]!.type === "subscript") && out[i]!.type !== script.type) out.splice(i, 1);
+  if (script)
+    for (let i = out.length - 1; i >= 0; i--)
+      if (
+        (out[i]!.type === "superscript" || out[i]!.type === "subscript") &&
+        out[i]!.type !== script.type
+      )
+        out.splice(i, 1);
   // Inline code excludes every other mark in the schema, so it wins over whatever surrounds it.
   const code = out.find((m) => m.type === "code");
   if (code) return [code];
@@ -26,7 +42,8 @@ export function sortMarks(marks: Mark[]): Mark[] | undefined {
  * U+FEFF inside text are removed, and a lone surrogate becomes U+FFFD. NUL, form feed and friends would make the XHTML invalid.
  */
 // eslint-disable-next-line no-control-regex
-const BAD_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+const BAD_CHARS =
+  /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 export function cleanText(text: string): string {
   return text.replace(BAD_CHARS, (c) => (c >= "\uD800" && c <= "\uDFFF" ? "\uFFFD" : ""));
 }
@@ -45,7 +62,11 @@ export function mergeInline(nodes: DocNode[]): DocNode[] {
     if (n.type === "text") {
       if (n.text === "") continue;
       const prev = out[out.length - 1];
-      if (prev && prev.type === "text" && JSON.stringify(prev.marks ?? []) === JSON.stringify(n.marks ?? [])) {
+      if (
+        prev &&
+        prev.type === "text" &&
+        JSON.stringify(prev.marks ?? []) === JSON.stringify(n.marks ?? [])
+      ) {
         out[out.length - 1] = { ...prev, text: prev.text + n.text };
         continue;
       }

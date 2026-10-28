@@ -20,10 +20,26 @@
 import type { JSONContent } from "@tiptap/react";
 import { expandReplacement, findInText, MAX_MATCHES } from "./match";
 
-export interface BookPage { id: string; title: string; doc: JSONContent }
-export interface BookSearchOptions { query: string; matchCase: boolean; wholeWord: boolean; regex?: boolean }
-export interface BookSearchResult { total: number; pages: { id: string; title: string; count: number }[] }
-export interface DocMatch { path: number[]; from: number; to: number }
+export interface BookPage {
+  id: string;
+  title: string;
+  doc: JSONContent;
+}
+export interface BookSearchOptions {
+  query: string;
+  matchCase: boolean;
+  wholeWord: boolean;
+  regex?: boolean;
+}
+export interface BookSearchResult {
+  total: number;
+  pages: { id: string; title: string; count: number }[];
+}
+export interface DocMatch {
+  path: number[];
+  from: number;
+  to: number;
+}
 
 const isText = (n: JSONContent) => n.type === "text";
 
@@ -32,7 +48,10 @@ function runsOf(content: JSONContent[]): [number, number][] {
   const runs: [number, number][] = [];
   let i = 0;
   while (i < content.length) {
-    if (!isText(content[i]!)) { i++; continue; }
+    if (!isText(content[i]!)) {
+      i++;
+      continue;
+    }
     let j = i;
     while (j < content.length && isText(content[j]!)) j++;
     runs.push([i, j]);
@@ -50,9 +69,12 @@ export function findInDoc(doc: JSONContent, opts: BookSearchOptions): DocMatch[]
     const content = node.content;
     if (!content) return;
     for (const [a, b] of runsOf(content)) {
-      for (const r of findInText(runText(content.slice(a, b)), opts.query, opts)) if (!opts.regex || out.length < MAX_MATCHES) out.push({ path, from: r.from, to: r.to });
+      for (const r of findInText(runText(content.slice(a, b)), opts.query, opts))
+        if (!opts.regex || out.length < MAX_MATCHES) out.push({ path, from: r.from, to: r.to });
     }
-    content.forEach((child, i) => { if (!isText(child)) walk(child, [...path, i]); });
+    content.forEach((child, i) => {
+      if (!isText(child)) walk(child, [...path, i]);
+    });
   };
   walk(doc, []);
   return out;
@@ -71,12 +93,18 @@ export function searchBook(pages: BookPage[], opts: BookSearchOptions): BookSear
 }
 
 /** Rebuilds one run of text nodes with the matches replaced. */
-function replaceRun(nodes: JSONContent[], opts: BookSearchOptions, replacement: string): { nodes: JSONContent[]; count: number } {
+function replaceRun(
+  nodes: JSONContent[],
+  opts: BookSearchOptions,
+  replacement: string,
+): { nodes: JSONContent[]; count: number } {
   // No match cap when replacing: the cap is a display guard, and stopping at it would leave matches behind.
   const ranges = findInText(runText(nodes), opts.query, { ...opts, limit: Infinity });
   if (!ranges.length) return { nodes, count: 0 };
   const out: JSONContent[] = [];
-  const push = (src: JSONContent, t: string) => { if (t) out.push({ ...src, text: t }); };
+  const push = (src: JSONContent, t: string) => {
+    if (t) out.push({ ...src, text: t });
+  };
   let ri = 0;
   let start = 0;
   for (const node of nodes) {
@@ -85,18 +113,31 @@ function replaceRun(nodes: JSONContent[], opts: BookSearchOptions, replacement: 
     let at = start;
     while (at < end) {
       const r = ranges[ri];
-      if (!r || r.from >= end) { push(node, t.slice(at - start)); break; }
-      if (r.from > at) { push(node, t.slice(at - start, r.from - start)); at = r.from; }
+      if (!r || r.from >= end) {
+        push(node, t.slice(at - start));
+        break;
+      }
+      if (r.from > at) {
+        push(node, t.slice(at - start, r.from - start));
+        at = r.from;
+      }
       // `at` is inside a match: it starts here, or began in an earlier node (then nothing is emitted).
       if (at === r.from) push(node, expandReplacement(r, replacement, opts.regex));
-      if (r.to <= end) { at = r.to; ri++; } else at = end;
+      if (r.to <= end) {
+        at = r.to;
+        ri++;
+      } else at = end;
     }
     start = end;
   }
   return { nodes: out, count: ranges.length };
 }
 
-export function replaceInDoc(doc: JSONContent, opts: BookSearchOptions, replacement: string): { doc: JSONContent; count: number } {
+export function replaceInDoc(
+  doc: JSONContent,
+  opts: BookSearchOptions,
+  replacement: string,
+): { doc: JSONContent; count: number } {
   if (!opts.query) return { doc, count: 0 };
   let count = 0;
   const walk = (node: JSONContent): JSONContent => {
@@ -116,7 +157,10 @@ export function replaceInDoc(doc: JSONContent, opts: BookSearchOptions, replacem
     for (const run of runsOf(content)) {
       copyThrough(run[0]);
       const r = replaceRun(content.slice(run[0], run[1]), opts, replacement);
-      if (r.count) { changed = true; count += r.count; }
+      if (r.count) {
+        changed = true;
+        count += r.count;
+      }
       next.push(...r.nodes);
       cursor = run[1];
     }

@@ -1,4 +1,10 @@
-import { isBackMatterKind, isFrontMatterKind, type DocNode, type MatterKind, type Section } from "@cadabracraft/shared";
+import {
+  isBackMatterKind,
+  isFrontMatterKind,
+  type DocNode,
+  type MatterKind,
+  type Section,
+} from "@cadabracraft/shared";
 import { typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import type { PdfChapter } from "../types";
@@ -9,8 +15,16 @@ import { em } from "./units";
 
 function sectionOf(c: PdfChapter): Section {
   const section = c.section ?? "chapter";
-  const ok = c.kind === undefined ? true : section === "front" ? isFrontMatterKind(c.kind) : section === "back" && isBackMatterKind(c.kind);
-  if (!ok) throw new PdfExportError(`Page "${c.id}": kind "${String(c.kind)}" is not allowed in the ${section} section`);
+  const ok =
+    c.kind === undefined
+      ? true
+      : section === "front"
+        ? isFrontMatterKind(c.kind)
+        : section === "back" && isBackMatterKind(c.kind);
+  if (!ok)
+    throw new PdfExportError(
+      `Page "${c.id}": kind "${String(c.kind)}" is not allowed in the ${section} section`,
+    );
   return section;
 }
 
@@ -27,7 +41,8 @@ function dropCapOpening(doc: DocNode[] | undefined, ctx: Ctx, indentEm: number):
   const first = doc?.[0];
   const kids = first?.type === "paragraph" && "content" in first ? first.content : undefined;
   const lead = kids?.[0];
-  if (lead?.type !== "text" || (lead.marks?.length ?? 0) > 0 || !/^\p{L}.{1,}/u.test(lead.text)) return null;
+  if (lead?.type !== "text" || (lead.marks?.length ?? 0) > 0 || !/^\p{L}.{1,}/u.test(lead.text))
+    return null;
   const rest = blocks(doc!.slice(1), ctx);
   ctx.usesDropCap = true;
   // Typst treats the paragraph after the drop cap block as a first paragraph, so an indenting template needs its indent put back by hand.
@@ -48,20 +63,35 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
     const restart = sawFront && section !== "front" && !restarted;
     if (restart) {
       restarted = true;
-      out.push('#pagebreak(weak: true, to: "odd")\n#set page(numbering: "1")\n#counter(page).update(1)\n');
+      out.push(
+        '#pagebreak(weak: true, to: "odd")\n#set page(numbering: "1")\n#counter(page).update(1)\n',
+      );
     } else if (ALWAYS_RECTO.includes(kind) || BLANK_VERSO_AFTER.includes(prev)) {
       out.push('#pagebreak(weak: true, to: "odd")\n');
     }
     prev = kind;
-    const content = (kind === undefined && dropCap ? dropCapOpening(page.doc.content, ctx, indentEm) : null) ?? blocks(page.doc.content, ctx);
+    const content =
+      (kind === undefined && dropCap ? dropCapOpening(page.doc.content, ctx, indentEm) : null) ??
+      blocks(page.doc.content, ctx);
     const title = typstString(page.title);
     switch (kind) {
-      case "title-page": out.push(`#title-page[\n${content}\n]\n`); break;
-      case "copyright": out.push(`#copyright-page[\n${content}\n]\n`); break;
+      case "title-page":
+        out.push(`#title-page[\n${content}\n]\n`);
+        break;
+      case "copyright":
+        out.push(`#copyright-page[\n${content}\n]\n`);
+        break;
       case "dedication":
-      case "epigraph": out.push(`#centered-page[\n${content}\n]\n`); break;
-      case undefined: out.push(`#chapter-start(${title}, ${++chapterNo})\n\n${content}\n\n#mark("chapter-end")\n`); break;
-      default: out.push(`#chapter-start(${title}, none)\n\n${content}\n\n#mark("chapter-end")\n`);
+      case "epigraph":
+        out.push(`#centered-page[\n${content}\n]\n`);
+        break;
+      case undefined:
+        out.push(
+          `#chapter-start(${title}, ${++chapterNo})\n\n${content}\n\n#mark("chapter-end")\n`,
+        );
+        break;
+      default:
+        out.push(`#chapter-start(${title}, none)\n\n${content}\n\n#mark("chapter-end")\n`);
     }
   }
   return out.join("\n");
@@ -75,7 +105,8 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
 export function coverPage(src: string, ctx: Ctx): string {
   if (ctx.assets && !(src in ctx.assets)) throw new MissingAssetError([src]);
   const ext = /\.([A-Za-z0-9]+)$/.exec(src)?.[1]?.toLowerCase() ?? "";
-  if (!["png", "jpg", "jpeg", "webp"].includes(ext)) throw new PdfExportError(`Unsupported cover image "${src}" (use png, jpg or webp)`);
+  if (!["png", "jpg", "jpeg", "webp"].includes(ext))
+    throw new PdfExportError(`Unsupported cover image "${src}" (use png, jpg or webp)`);
   const path = imagePath(src, ctx);
   return `#page(margin: 0pt, header: none, footer: none)[#image(${typstString(path)}, width: 100%, height: 100%, fit: "cover", alt: "Cover")]\n#page(header: none, footer: none)[#counter(page).update(0)]\n\n`;
 }

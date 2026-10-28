@@ -1,11 +1,35 @@
 // Consumes fixtures/contract/*.json, the same vectors apps/desktop/src-tauri/src/project/contract_tests.rs runs.
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { MAX_IMAGE_PIXELS, ProjectFsError, conflictPath, imageExt, imageSize, looksLike, readRelativeImage, resolveRelative, resolveSafe, sanitizeAssetStem, storeImage, writeProjectFile } from "../index";
+import {
+  MAX_IMAGE_PIXELS,
+  ProjectFsError,
+  conflictPath,
+  imageExt,
+  imageSize,
+  looksLike,
+  readRelativeImage,
+  resolveRelative,
+  resolveSafe,
+  sanitizeAssetStem,
+  storeImage,
+  writeProjectFile,
+} from "../index";
 
-const vec = (name: string) => JSON.parse(readFileSync(new URL(`../../../../fixtures/contract/${name}.json`, import.meta.url), "utf8"));
+const vec = (name: string) =>
+  JSON.parse(
+    readFileSync(new URL(`../../../../fixtures/contract/${name}.json`, import.meta.url), "utf8"),
+  );
 const hex = (h: string) => Uint8Array.from(h.match(/../g) ?? [], (b) => parseInt(b, 16));
 const tmp = () => mkdtempSync(join(tmpdir(), "pfs-contract-"));
 const STAMP = /\d{8}-\d{4}/;
@@ -50,7 +74,13 @@ describe("contract: symlinks", () => {
       const root = build();
       if (c.ok) expect(() => resolveSafe(root, c.rel)).not.toThrow();
       else {
-        const err = (() => { try { resolveSafe(root, c.rel); } catch (e) { return e; } })();
+        const err = (() => {
+          try {
+            resolveSafe(root, c.rel);
+          } catch (e) {
+            return e;
+          }
+        })();
         expect(err).toBeInstanceOf(ProjectFsError);
         expect((err as ProjectFsError).code).toBe("path_escape");
       }
@@ -61,7 +91,8 @@ describe("contract: symlinks", () => {
 describe("contract: sanitize names", () => {
   const v = vec("sanitize-name");
   for (const c of v.stems as { stem: string; expected: string }[]) {
-    it(`stem ${JSON.stringify(c.stem.slice(0, 30))}`, () => expect(sanitizeAssetStem(c.stem)).toBe(c.expected));
+    it(`stem ${JSON.stringify(c.stem.slice(0, 30))}`, () =>
+      expect(sanitizeAssetStem(c.stem)).toBe(c.expected));
   }
   for (const c of v.extensions.cases as { name: string; expected: string | null }[]) {
     it(`extension of ${JSON.stringify(c.name)}`, () => expect(imageExt(c.name)).toBe(c.expected));
@@ -69,7 +100,12 @@ describe("contract: sanitize names", () => {
 });
 
 describe("contract: magic bytes", () => {
-  for (const c of vec("magic-bytes").cases as { name: string; ext: string; hex: string; expected: boolean }[]) {
+  for (const c of vec("magic-bytes").cases as {
+    name: string;
+    ext: string;
+    hex: string;
+    expected: boolean;
+  }[]) {
     it(c.name, () => expect(looksLike(c.ext, hex(c.hex))).toBe(c.expected));
   }
 });
@@ -77,7 +113,12 @@ describe("contract: magic bytes", () => {
 describe("contract: image dimensions", () => {
   const v = vec("image-dimensions");
   it("shares the pixel cap", () => expect(MAX_IMAGE_PIXELS).toBe(v.maxPixels));
-  for (const c of v.cases as { name: string; ext: string; hex: string; expected: [number, number] | null }[]) {
+  for (const c of v.cases as {
+    name: string;
+    ext: string;
+    hex: string;
+    expected: [number, number] | null;
+  }[]) {
     it(c.name, () => expect(imageSize(c.ext, hex(c.hex))).toEqual(c.expected));
   }
 });
@@ -103,16 +144,27 @@ describe("contract: conflict names", () => {
     const got: string[] = [];
     for (let i = 0; i < 3; i++) {
       writeFileSync(join(d, rel), `external ${i}`);
-      got.push(writeProjectFile(d, rel, "mine", "0".repeat(64)).conflictCopy!.replace(STAMP, "STAMP"));
+      got.push(
+        writeProjectFile(d, rel, "mine", "0".repeat(64)).conflictCopy!.replace(STAMP, "STAMP"),
+      );
     }
     expect(got).toEqual(v.collisions.expected);
-    const copies = readdirSync(join(d, "manuscript")).filter((n) => n.includes("conflict")).sort();
-    expect(copies.map((n) => readFileSync(join(d, "manuscript", n), "utf8")).sort()).toEqual(["external 0", "external 1", "external 2"]);
+    const copies = readdirSync(join(d, "manuscript"))
+      .filter((n) => n.includes("conflict"))
+      .sort();
+    expect(copies.map((n) => readFileSync(join(d, "manuscript", n), "utf8")).sort()).toEqual([
+      "external 0",
+      "external 1",
+      "external 2",
+    ]);
   });
 });
 
 describe("contract: asset collisions", () => {
-  for (const seq of vec("asset-collision").sequences as { name: string; steps: { file: string; hex: string; expected?: string; error?: string }[] }[]) {
+  for (const seq of vec("asset-collision").sequences as {
+    name: string;
+    steps: { file: string; hex: string; expected?: string; error?: string }[];
+  }[]) {
     it(seq.name, () => {
       const d = tmp();
       const contents = new Map<string, string>();

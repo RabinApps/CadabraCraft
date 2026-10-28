@@ -11,12 +11,19 @@ test.describe("pasting HTML text", () => {
   const dlg = (page: Page) => page.getByRole("dialog", { name: "Paste as styled text?" });
   /** A paste event the way a code editor sends it: text/plain only, unless `html` is given too. */
   async function paste(page: Page, text: string, html?: string) {
-    await page.evaluate(([t, h]) => {
-      const dt = new DataTransfer();
-      dt.setData("text/plain", t!);
-      if (h) dt.setData("text/html", h);
-      document.querySelector(".ProseMirror")!.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
-    }, [text, html ?? ""]);
+    await page.evaluate(
+      ([t, h]) => {
+        const dt = new DataTransfer();
+        dt.setData("text/plain", t!);
+        if (h) dt.setData("text/html", h);
+        document
+          .querySelector(".ProseMirror")!
+          .dispatchEvent(
+            new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }),
+          );
+      },
+      [text, html ?? ""],
+    );
   }
   /** Caret in the empty paragraph under the chapter title. */
   const toEnd = async (page: Page) => {
@@ -29,7 +36,10 @@ test.describe("pasting HTML text", () => {
     await newProject(page);
     await toEnd(page);
   }
-  const convertCommand = (page: Page) => page.evaluate(async () => { (await import("/src/state/commands.ts" as string)).runCommand("edit.convertHtml"); });
+  const convertCommand = (page: Page) =>
+    page.evaluate(async () => {
+      (await import("/src/state/commands.ts" as string)).runCommand("edit.convertHtml");
+    });
 
   test("asks, converts to styled text, and one Undo restores", async ({ page }) => {
     await ready(page);
@@ -65,12 +75,18 @@ test.describe("pasting HTML text", () => {
     await expect(page.locator(".ProseMirror")).toBeFocused();
   });
 
-  test("Remember my choice converts the next paste without asking and shows in Settings", async ({ page }) => {
+  test("Remember my choice converts the next paste without asking and shows in Settings", async ({
+    page,
+  }) => {
     await ready(page);
     await paste(page, HTML);
     await dlg(page).getByLabel("Remember my choice").check();
     await dlg(page).getByRole("button", { name: "Convert" }).click();
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem("cadabracraft.settings") ?? "{}").rawHtmlPaste)).toBe("convert");
+    expect(
+      await page.evaluate(
+        () => JSON.parse(localStorage.getItem("cadabracraft.settings") ?? "{}").rawHtmlPaste,
+      ),
+    ).toBe("convert");
     await page.keyboard.press("Enter");
     await paste(page, "<p>Second <i>one</i></p>");
     await expect(dlg(page)).toHaveCount(0);
@@ -109,7 +125,9 @@ test.describe("pasting HTML text", () => {
     await expect(dlg(page)).toHaveCount(0);
   });
 
-  test("Convert HTML in Selection replaces the selected tags, and says so when there are none", async ({ page }) => {
+  test("Convert HTML in Selection replaces the selected tags, and says so when there are none", async ({
+    page,
+  }) => {
     await ready(page);
     // Select the last paragraph's text explicitly (Shift+Home depends on where the caret landed), then let ProseMirror read the selection
     const selectLastParagraph = async (text: string) => {
@@ -122,7 +140,9 @@ test.describe("pasting HTML text", () => {
         sel.addRange(r);
       });
       await expect.poll(() => page.evaluate(() => getSelection()?.toString())).toBe(text);
-      await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+      await page.evaluate(
+        () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+      );
     };
     await page.keyboard.type("<u>mark</u>");
     await selectLastParagraph("<u>mark</u>");
@@ -134,7 +154,9 @@ test.describe("pasting HTML text", () => {
     }).toPass({ timeout: 10000 });
     await selectLastParagraph("mark");
     await convertCommand(page);
-    await expect(page.getByRole("status").filter({ hasText: "No HTML found in the selection" })).toBeVisible();
+    await expect(
+      page.getByRole("status").filter({ hasText: "No HTML found in the selection" }),
+    ).toBeVisible();
   });
 
   test("the dialog fits a phone", async ({ page }) => {
@@ -145,7 +167,9 @@ test.describe("pasting HTML text", () => {
     const box = await dlg(page).boundingBox();
     expect(box!.x).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(390);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
     await expect(dlg(page).getByRole("button", { name: "Convert" })).toBeVisible();
   });
 });

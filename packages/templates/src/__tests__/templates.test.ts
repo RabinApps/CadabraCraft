@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { GALLERY_TEMPLATE_IDS, getTemplate, hasTemplate, listTemplates, TemplateError, validateTemplate, type Template } from "../index";
+import {
+  GALLERY_TEMPLATE_IDS,
+  getTemplate,
+  hasTemplate,
+  listTemplates,
+  TemplateError,
+  validateTemplate,
+  type Template,
+} from "../index";
 
 describe("template registry", () => {
   it("ships novel, nonfiction, modern and poetry", () => {
@@ -16,7 +24,9 @@ describe("template registry", () => {
   it("rejects a multi-character ornament", () => {
     const bad = structuredClone(getTemplate("novel"));
     bad.print.chapterOpening.ornament = "ab";
-    expect(validateTemplate(bad)).toContain("print.chapterOpening.ornament must be null or a single character");
+    expect(validateTemplate(bad)).toContain(
+      "print.chapterOpening.ornament must be null or a single character",
+    );
   });
   it("getTemplate returns by id and errors on unknown ids", () => {
     expect(getTemplate("novel").name).toBe("Classic Novel");

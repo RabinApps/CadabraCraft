@@ -40,18 +40,32 @@ export interface ToolDef<S extends z.ZodRawShape = z.ZodRawShape> {
 }
 
 /** Type helper: infers the argument type of `run` from `input`. */
-export const defineTool = <S extends z.ZodRawShape>(def: ToolDef<S>): ToolDef => def as unknown as ToolDef;
+export const defineTool = <S extends z.ZodRawShape>(def: ToolDef<S>): ToolDef =>
+  def as unknown as ToolDef;
 
 const text = (t: string) => ({ type: "text" as const, text: t });
 
 export function success(out: ToolOutput): CallToolResult {
-  return { content: [text(out.summary), text(JSON.stringify(out.data, null, 2))], structuredContent: out.data };
+  return {
+    content: [text(out.summary), text(JSON.stringify(out.data, null, 2))],
+    structuredContent: out.data,
+  };
 }
 
 export function failure(e: unknown): CallToolResult {
   const err = toToolError(e);
-  const data = { error: { code: err.code, message: err.message, ...(err.details ? { details: err.details } : {}) } };
-  return { isError: true, content: [text(`${err.code}: ${err.message}`), text(JSON.stringify(data, null, 2))], structuredContent: data };
+  const data = {
+    error: {
+      code: err.code,
+      message: err.message,
+      ...(err.details ? { details: err.details } : {}),
+    },
+  };
+  return {
+    isError: true,
+    content: [text(`${err.code}: ${err.message}`), text(JSON.stringify(data, null, 2))],
+    structuredContent: data,
+  };
 }
 
 export function registerTools(server: McpServer, ctx: Ctx, defs: ToolDef[]): void {
