@@ -48,6 +48,11 @@ msgstr ""
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr ""
 
+#. placeholder {0}: estimate.pages
+#: src/app/shell/PageEstimate.tsx
+msgid "{0, plural, one {≈ # page} other {≈ # pages}}"
+msgstr ""
+
 #. placeholder {0}: picked ? picked.length : chapters.length
 #: src/app/export/AudioExport.tsx
 msgid "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
@@ -275,12 +280,6 @@ msgstr ""
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr ""
 
-#. placeholder {0}: estimate.pages
-#. placeholder {1}: trimLabel(estimate.trimSize)
-#: src/app/shell/PageEstimate.tsx
-msgid "≈ {0} pages at {1}"
-msgstr ""
-
 #: src/app/export/PrintPreview.tsx
 msgid "3 mm"
 msgstr ""
@@ -441,6 +440,10 @@ msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Ask each time"
+msgstr ""
+
+#: src/app/shell/PageEstimate.tsx
+msgid "at {size}"
 msgstr ""
 
 #: src/app/references/ReferenceRow.tsx

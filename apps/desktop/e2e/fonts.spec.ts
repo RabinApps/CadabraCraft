@@ -126,6 +126,8 @@ test("a downloaded font can be the manuscript font and is applied to the editor"
   await expect(page.getByLabel("Manuscript font")).toHaveValue("Lora");
   await page.getByRole("button", { name: "Back", exact: true }).click();
   await expect(page_).toHaveAttribute("style", /font-family: "?Lora"?, var\(--font-book\)/);
+  // The text itself takes the family (a stylesheet rule once pinned it to the default book font).
+  await expect(page.locator(".ProseMirror h1")).toHaveCSS("font-family", /^"?Lora"?,/);
   // Its bytes were asked for; the fake sends no real font, so the editor keeps the serif behind it.
   expect(await page.evaluate(() => window.__fontDataCalls)).toContain("lora/Lora.ttf");
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");

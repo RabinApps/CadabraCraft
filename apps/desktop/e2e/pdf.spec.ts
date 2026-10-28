@@ -58,7 +58,7 @@ test("the trim size is a book setting: chosen at creation, shown read-only in Ex
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
   await page.keyboard.type("Some words to count");
-  await expect(page.getByText(/in the book · ≈ \d+ pages at 6 × 9 in/)).toBeVisible();
+  await expect(page.getByText(/in the book · ≈ \d+ pages? at 6 × 9 in/)).toBeVisible();
 
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
@@ -70,7 +70,7 @@ test("the trim size is a book setting: chosen at creation, shown read-only in Ex
   await details.getByRole("button", { name: "Save details" }).click();
   await expect(details).toBeHidden();
   expect((await manifest()).trimSize).toBe("5x8");
-  await expect(page.getByText(/pages at 5 × 8 in/)).toBeVisible();
+  await expect(page.getByText(/pages? at 5 × 8 in/)).toBeVisible();
 });
 
 test("Export PDF dialog shows KDP print checks for a very short book", async ({ page }) => {

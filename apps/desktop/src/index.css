@@ -100,9 +100,13 @@ body {
 }
 
 /* Manuscript typography (editor and reading mode). Book content uses the serif tokens. */
+.prose-manuscript {
+  font-family: var(--font-book);
+}
+/* The editor card sets the author's chosen family inline; the text inherits it (not the default book font). */
 .prose-manuscript .ProseMirror {
   outline: none;
-  font-family: var(--font-book);
+  font-family: inherit;
   font-size: 1.0625rem;
   line-height: 1.65;
   min-height: 50dvh;

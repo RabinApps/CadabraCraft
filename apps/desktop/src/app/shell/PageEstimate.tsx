@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useLingui } from "@lingui/react/macro";
+import { plural } from "@lingui/core/macro";
 import { bookPages } from "../../lib/bookPages";
 import { trimLabel } from "../../lib/trimLabels";
 import { useProject } from "../../state/project/index";
@@ -13,5 +14,7 @@ export function PageEstimate({ words }: { words: number | null }) {
     [manifest, words],
   );
   if (!estimate) return null;
-  return <>{` · ${t`≈ ${estimate.pages} pages at ${trimLabel(estimate.trimSize)}`}`}</>;
+  const size = trimLabel(estimate.trimSize);
+  const pages = plural(estimate.pages, { one: "≈ # page", other: "≈ # pages" });
+  return <>{` · ${pages} ${t`at ${size}`}`}</>;
 }
