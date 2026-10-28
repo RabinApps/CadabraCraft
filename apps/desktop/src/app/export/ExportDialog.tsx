@@ -20,6 +20,7 @@ import { MarkdownPanel } from "./MarkdownPanel";
 import { PdfPanel, saveTypstPath, usePdfOptions } from "./PdfPanel";
 import { useAudioExport } from "./useAudioExport";
 import type { ExportFormat } from "./exportFormat";
+import { Notice } from "../../ui/Notice";
 
 interface Props {
   open: boolean;
@@ -146,7 +147,7 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
   };
   return (
     <Modal
-      md
+      size="md"
       open={open}
       onOpenChange={change}
       title={t`Export book`}
@@ -217,12 +218,9 @@ export function ExportDialog({ open, onOpenChange, format, onFormatChange, onPre
           </div>
         )}
         {error && (
-          <p
-            role="alert"
-            className="whitespace-pre-wrap break-words rounded-md bg-danger-soft px-3 py-2 text-sm text-danger"
-          >
+          <Notice role="alert" className="whitespace-pre-wrap break-words">
             {error.message}
-          </p>
+          </Notice>
         )}
         {format === "audiobook" ? (
           <AudioFooter

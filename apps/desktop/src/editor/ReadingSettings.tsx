@@ -4,9 +4,7 @@ import { useLingui } from "@lingui/react/macro";
 import { sizes, useReading, type Width } from "../state/reading";
 import { useTheme, type Theme } from "../state/theme";
 import { IconButton } from "../ui/Button";
-
-const item =
-  "flex cursor-default items-center gap-2 rounded-sm px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent-soft";
+import { menuContentClass, menuItemClass } from "../ui/Menu";
 
 /** Text size and page width for reading mode. Items keep the menu open so changes can be previewed. */
 export function ReadingSettings() {
@@ -23,13 +21,10 @@ export function ReadingSettings() {
         <IconButton icon={ALargeSmall} label={t`Reading settings`} />
       </M.Trigger>
       <M.Portal>
-        <M.Content
-          align="end"
-          className="z-(--z-menu) min-w-52 rounded-md border border-border bg-raised p-1 text-ink shadow-popover"
-        >
+        <M.Content align="end" className={menuContentClass("min-w-52")}>
           <M.Label className="px-2.5 py-1.5 text-xs font-semibold text-ink-muted">{t`Text size`}</M.Label>
           <M.Item
-            className={item}
+            className={menuItemClass()}
             disabled={size === 0}
             onSelect={keep(() => set({ size: size - 1 }))}
           >
@@ -37,7 +32,7 @@ export function ReadingSettings() {
             {t`Smaller text`}
           </M.Item>
           <M.Item
-            className={item}
+            className={menuItemClass()}
             disabled={size === sizes.length - 1}
             onSelect={keep(() => set({ size: size + 1 }))}
           >
@@ -49,7 +44,7 @@ export function ReadingSettings() {
           {(["narrow", "wide"] as Width[]).map((w) => (
             <M.CheckboxItem
               key={w}
-              className={item}
+              className={menuItemClass()}
               checked={width === w}
               onSelect={keep(() => set({ width: w }))}
             >
@@ -71,7 +66,12 @@ export function ReadingSettings() {
                 ["dark", t`Dark`],
               ] as const
             ).map(([v, l]) => (
-              <M.RadioItem key={v} value={v} className={item} onSelect={(e) => e.preventDefault()}>
+              <M.RadioItem
+                key={v}
+                value={v}
+                className={menuItemClass()}
+                onSelect={(e) => e.preventDefault()}
+              >
                 <span className="flex size-3.5 items-center justify-center">
                   <M.ItemIndicator>
                     <Check size={14} aria-hidden />

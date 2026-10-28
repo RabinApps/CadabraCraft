@@ -6,11 +6,8 @@ import { translationProgress } from "@cadabracraft/format";
 import { LOCALES } from "../../i18n/locales";
 import { errText } from "../../lib/projectError";
 import { AddLanguageDialog } from "../dialogs/AddLanguageDialog";
-import { cx } from "../../ui/cx";
 import { useProject } from "../../state/project/index";
-
-const item =
-  "flex cursor-default items-center gap-2 rounded-sm px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-accent-soft";
+import { menuContentClass, menuItemClass } from "../../ui/Menu";
 
 export const nativeName = (code: string): string =>
   LOCALES.find((l) => l.code === code)?.nativeName ?? code;
@@ -44,17 +41,14 @@ export function EditionSwitcher() {
           </button>
         </M.Trigger>
         <M.Portal>
-          <M.Content
-            align="start"
-            className="z-(--z-menu) min-w-64 rounded-md border border-border bg-raised p-1 text-ink shadow-popover"
-          >
+          <M.Content align="start" className={menuContentClass("min-w-64")}>
             {manifest.editions.map((e) => {
               const p = translationProgress(manifest, e.language);
               const isActive = e.language === active;
               return (
                 <M.Item
                   key={e.language}
-                  className={cx(item, isActive && "bg-accent-soft")}
+                  className={menuItemClass(isActive && "bg-accent-soft")}
                   onSelect={() => choose(e.language)}
                 >
                   <span className="flex min-w-0 flex-1 flex-col">
@@ -70,7 +64,7 @@ export function EditionSwitcher() {
               );
             })}
             <M.Separator className="my-1 h-px bg-border" />
-            <M.Item className={cx(item, "text-accent")} onSelect={() => setAdding(true)}>
+            <M.Item className={menuItemClass("text-accent")} onSelect={() => setAdding(true)}>
               <Plus size={14} aria-hidden />
               {t`Add language`}
             </M.Item>

@@ -442,6 +442,319 @@
               ]
             }
           ]
+        },
+        {
+          "type": "frame",
+          "id": "LXR7d",
+          "name": "Feedback and menus",
+          "gap": 32,
+          "children": [
+            {
+              "type": "frame",
+              "id": "VxXW6",
+              "name": "Notices",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ZADRI",
+                  "name": "Notice/Danger",
+                  "reusable": true,
+                  "width": 360,
+                  "fill": "$danger-soft",
+                  "cornerRadius": "$radius",
+                  "layout": "vertical",
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "nJlZW",
+                      "name": "Message",
+                      "fill": "$danger",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Could not save the page.",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "k4lpw4",
+                  "name": "Notice/Warn",
+                  "reusable": true,
+                  "width": 360,
+                  "fill": "$warn-soft",
+                  "cornerRadius": "$radius",
+                  "layout": "vertical",
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "n9XrLj",
+                      "name": "Message",
+                      "fill": "$warn",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Some stores do not accept synthetic voices.",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "zCHNU",
+                  "name": "Notice/Success",
+                  "reusable": true,
+                  "width": 360,
+                  "fill": "$success-soft",
+                  "cornerRadius": "$radius",
+                  "layout": "vertical",
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fPauf",
+                      "name": "Message",
+                      "fill": "$success",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Exported exports/book.epub",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "kCNkx",
+                  "name": "Notice/Accent",
+                  "reusable": true,
+                  "width": 360,
+                  "fill": "$accent-soft",
+                  "cornerRadius": "$radius",
+                  "layout": "vertical",
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "FVFyh",
+                      "name": "Message",
+                      "fill": "$accent",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "You have 0.1.0. Your books stay as they are.",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "oNZAy",
+              "name": "Chips",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Wz2oc",
+                  "name": "Chip",
+                  "reusable": true,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    4,
+                    10
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zvFoR",
+                      "name": "Label",
+                      "fill": "$ink",
+                      "content": "Match case",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "RQbE7",
+                  "name": "Chip/On",
+                  "reusable": true,
+                  "fill": "$accent-soft",
+                  "cornerRadius": "$radius",
+                  "stroke": "$accent",
+                  "strokeWidth": 1,
+                  "padding": [
+                    4,
+                    10
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ClilQ",
+                      "name": "Label",
+                      "fill": "$accent",
+                      "content": "Whole word",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bQx9p",
+              "name": "Progress",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Y5KiS",
+                  "name": "ProgressBar",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 240,
+                  "height": 8,
+                  "fill": "$border",
+                  "cornerRadius": "$radius-full",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "K9BdSN",
+                      "name": "Fill",
+                      "width": 120,
+                      "height": 8,
+                      "fill": "$accent",
+                      "cornerRadius": "$radius-full"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "B2lNKr",
+              "name": "Menu",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "P3qqF",
+                  "name": "MenuItem",
+                  "reusable": true,
+                  "width": 200,
+                  "cornerRadius": "$radius-sm",
+                  "gap": 8,
+                  "padding": [
+                    8,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kQiYl",
+                      "name": "Label",
+                      "fill": "$ink",
+                      "content": "Rename",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "gcCzj",
+                  "name": "MenuItem/Highlighted",
+                  "reusable": true,
+                  "width": 200,
+                  "fill": "$accent-soft",
+                  "cornerRadius": "$radius-sm",
+                  "gap": 8,
+                  "padding": [
+                    8,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Ovyxz",
+                      "name": "Label",
+                      "fill": "$ink",
+                      "content": "Move up",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "zuFis",
+                  "name": "Menu",
+                  "reusable": true,
+                  "width": 220,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 4,
+                  "children": [
+                    {
+                      "id": "w44H5",
+                      "type": "ref",
+                      "ref": "P3qqF"
+                    },
+                    {
+                      "id": "H52ZS",
+                      "type": "ref",
+                      "ref": "gcCzj"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },

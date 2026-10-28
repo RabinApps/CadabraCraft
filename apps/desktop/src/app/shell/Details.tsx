@@ -7,6 +7,7 @@ import { Pencil } from "lucide-react";
 import { readingMinutes } from "../../lib/readingTime";
 import { Button } from "../../ui/Button";
 import { useProject } from "../../state/project";
+import { SectionHeading } from "../../ui/SectionHeading";
 
 interface Props {
   manifest: Manifest;
@@ -51,10 +52,7 @@ export function Details({
   return (
     <div className="flex flex-col gap-6 p-4">
       <section aria-labelledby="details-page">
-        <h2
-          id="details-page"
-          className="text-xs font-semibold uppercase tracking-wide text-ink-muted"
-        >{t`This page`}</h2>
+        <SectionHeading id="details-page">{t`This page`}</SectionHeading>
         <dl>
           <Row label={t`Title`} value={pageTitle ?? "-"} />
           <Row label={t`Section`} value={section ? sectionLabel : "-"} />
@@ -66,10 +64,7 @@ export function Details({
         </dl>
       </section>
       <section aria-labelledby="details-book">
-        <h2
-          id="details-book"
-          className="text-xs font-semibold uppercase tracking-wide text-ink-muted"
-        >{t`Book`}</h2>
+        <SectionHeading id="details-book">{t`Book`}</SectionHeading>
         <dl>
           <Row label={t`Title`} value={edition.title} />
           <Row label={t`Author`} value={edition.author || "-"} />

@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLingui } from "@lingui/react/macro";
 import { dirFor } from "../i18n/locales";
 import { Button, IconButton } from "../ui/Button";
+import { ProgressBar } from "../ui/ProgressBar";
 
 interface Props {
   index: number;
@@ -51,16 +52,7 @@ export function ReadingFooter({ index, pages, chapterIds, onSelect, language }: 
         )}
       </div>
       <div className="flex items-center gap-3 text-xs text-ink-muted">
-        <div
-          className="h-1 w-24 rounded-full bg-border md:w-60"
-          role="progressbar"
-          aria-label={t`Book progress`}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={pct}
-        >
-          <div className="h-1 rounded-full bg-accent" style={{ width: `${pct}%` }} />
-        </div>
+        <ProgressBar label={t`Book progress`} value={pct} className="h-1 w-24 bg-border md:w-60" />
         <span>{chapterNo ? t`Chapter ${chapterNo} of ${chapterIds.length}` : here?.title}</span>
       </div>
       <div className="flex min-w-0 justify-end md:w-56">

@@ -2,6 +2,7 @@ import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { Button } from "./Button";
+import { cx } from "./cx";
 
 interface ModalProps {
   open: boolean;
@@ -9,13 +10,21 @@ interface ModalProps {
   title: string;
   description?: string;
   children?: ReactNode;
-  /** The Export dialog size (560px, as in the pen) instead of the 460px default. */
-  md?: boolean;
-  /** Two-column forms (about 680px) instead of the 460px default. */
-  wide?: boolean;
-  /** Side-by-side layouts (about 860px), such as the History dialog. */
-  xl?: boolean;
+  /**
+   * Width: `sm` 460px (default), `md` 560px (Export dialog, as in the pen), `wide` about 680px (two-column forms) or
+   * `xl` about 860px (side-by-side layouts such as History). Everything above `sm` scrolls inside the viewport.
+   */
+  size?: ModalSize;
 }
+
+export type ModalSize = "sm" | "md" | "wide" | "xl";
+
+const sizeClass: Record<ModalSize, string> = {
+  sm: "w-[min(92vw,460px)]",
+  md: "max-h-[92dvh] w-[min(92vw,560px)] overflow-y-auto",
+  wide: "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto",
+  xl: "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto",
+};
 
 export const overlayClass = "fixed inset-0 z-(--z-overlay) bg-scrim";
 export const panelClass =
@@ -27,9 +36,7 @@ export function Modal({
   title,
   description,
   children,
-  md,
-  wide,
-  xl,
+  size = "sm",
 }: ModalProps) {
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
@@ -37,7 +44,11 @@ export function Modal({
         <D.Overlay className={overlayClass} />
         <D.Content
           {...(description ? {} : { "aria-describedby": undefined })}
-          className={`${panelClass} left-1/2 top-1/2 ${xl ? "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto" : wide ? "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto" : md ? "max-h-[92dvh] w-[min(92vw,560px)] overflow-y-auto" : "w-[min(92vw,460px)]"} -translate-x-1/2 -translate-y-1/2 rounded-lg p-6`}
+          className={cx(
+            panelClass,
+            "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg p-6",
+            sizeClass[size],
+          )}
         >
           <D.Title className="font-book text-title font-semibold">{title}</D.Title>
           {description ? (

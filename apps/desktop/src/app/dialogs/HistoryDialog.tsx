@@ -141,7 +141,7 @@ export function HistoryDialog({
 
   return (
     <Modal
-      xl
+      size="xl"
       open={open}
       onOpenChange={onOpenChange}
       title={t`History · ${page?.title ?? ""}`}

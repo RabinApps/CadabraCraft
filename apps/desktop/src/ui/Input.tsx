@@ -4,11 +4,13 @@ import { cx } from "./cx";
 interface FieldProps extends ComponentPropsWithRef<"input"> {
   label: string;
   hint?: string;
+  /** An error message shown under the field; marks the input invalid and is read with it. */
+  error?: string;
   /** Keep the label for screen readers but do not show it. */
   hideLabel?: boolean;
 }
 
-export function Field({ label, hint, hideLabel, className, id, ...rest }: FieldProps) {
+export function Field({ label, hint, error, hideLabel, className, id, ...rest }: FieldProps) {
   const auto = useId();
   const inputId = id ?? auto;
   return (
@@ -21,13 +23,22 @@ export function Field({ label, hint, hideLabel, className, id, ...rest }: FieldP
       </label>
       <input
         id={inputId}
-        aria-describedby={hint ? `${inputId}-hint` : undefined}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={
+          [error && `${inputId}-error`, hint && `${inputId}-hint`].filter(Boolean).join(" ") ||
+          undefined
+        }
         className={cx(
           "w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus-visible:outline-2 focus-visible:outline-accent read-only:text-ink-muted",
           className,
         )}
         {...rest}
       />
+      {error && (
+        <p id={`${inputId}-error`} className="text-xs text-danger">
+          {error}
+        </p>
+      )}
       {hint && (
         <p id={`${inputId}-hint`} className="text-xs text-ink-muted">
           {hint}

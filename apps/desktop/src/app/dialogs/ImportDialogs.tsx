@@ -19,6 +19,7 @@ import {
 import { baseName } from "../../lib/paths";
 import { errText } from "../../lib/projectError";
 import { PickRow, Summary } from "./ImportParts";
+import { Notice } from "../../ui/Notice";
 
 export { ImportReportDialog } from "./ImportReportDialog";
 
@@ -140,12 +141,9 @@ export function ImportDialog({
       });
   };
   const errorBox = error && (
-    <p
-      role="alert"
-      className="max-h-40 overflow-y-auto break-words rounded-md bg-danger-soft px-3 py-2 text-sm text-danger"
-    >
+    <Notice role="alert" className="max-h-40 overflow-y-auto break-words">
       {error}
-    </p>
+    </Notice>
   );
   return (
     <Modal

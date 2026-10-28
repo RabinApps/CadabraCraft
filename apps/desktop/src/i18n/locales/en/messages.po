@@ -182,7 +182,7 @@ msgstr "{minutes, plural, one {# minute} other {# minutes}}"
 msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 
-#: src/editor/FindBar.tsx
+#: src/editor/FindResults.tsx
 msgid "{n, plural, one {# match} other {# matches}}"
 msgstr "{n, plural, one {# match} other {# matches}}"
 
@@ -261,7 +261,7 @@ msgid "Acknowledgments"
 msgstr "Acknowledgments"
 
 #. placeholder {0}: c.title
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/EntryList.tsx
 msgid "Actions for {0}"
 msgstr "Actions for {0}"
 
@@ -282,7 +282,7 @@ msgstr "Add chapter"
 msgid "Add Column After"
 msgstr "Add Column After"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Add image"
 msgstr "Add image"
 
@@ -291,7 +291,7 @@ msgstr "Add image"
 msgid "Add language"
 msgstr "Add language"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Add link"
 msgstr "Add link"
 
@@ -307,7 +307,7 @@ msgstr "Add Row Below"
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
 msgstr "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Address"
 msgstr "Address"
 
@@ -349,7 +349,7 @@ msgstr "Any page"
 msgid "Appearance"
 msgstr "Appearance"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Apply"
 msgstr "Apply"
 
@@ -403,7 +403,7 @@ msgid "Back Matter"
 msgstr "Back Matter"
 
 #. placeholder {0}: r.title
-#: src/editor/FindBar.tsx
+#: src/editor/FindResults.tsx
 msgid "Back matter: {0}"
 msgstr "Back matter: {0}"
 
@@ -519,7 +519,7 @@ msgstr "CadabraCraft is up to date."
 #: src/app/export/ExportDialog.tsx
 #: src/app/home/Home.tsx
 #: src/editor/TableCommands.tsx
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 #: src/ui/Dialog.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -537,7 +537,7 @@ msgstr "Cancel export"
 msgid "Cannot restore {0}"
 msgstr "Cannot restore {0}"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Caption"
 msgstr "Caption"
 
@@ -856,7 +856,7 @@ msgstr "Delete Table"
 msgid "Delete voices"
 msgstr "Delete voices"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Description (alt text)"
 msgstr "Description (alt text)"
 
@@ -1117,7 +1117,7 @@ msgid "Front Matter"
 msgstr "Front Matter"
 
 #. placeholder {0}: r.title
-#: src/editor/FindBar.tsx
+#: src/editor/FindResults.tsx
 msgid "Front matter: {0}"
 msgstr "Front matter: {0}"
 
@@ -1167,7 +1167,7 @@ msgstr "Hide CadabraCraft"
 msgid "Hide Others"
 msgstr "Hide Others"
 
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/EntryList.tsx
 msgid "History"
 msgstr "History"
 
@@ -1199,7 +1199,7 @@ msgstr "Image {0} could not be imported: {why}"
 msgid "Image {0} could not be stored: {1}"
 msgstr "Image {0} could not be stored: {1}"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Image file"
 msgstr "Image file"
 
@@ -1268,7 +1268,7 @@ msgstr "Include the cover"
 
 #: src/app/shell/menuModel.ts
 #: src/editor/TableCommands.tsx
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Insert"
 msgstr "Insert"
 
@@ -1505,15 +1505,16 @@ msgstr "Move {0}"
 msgid "Move {0} to trash"
 msgstr "Move {0} to trash"
 
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/EntryList.tsx
 msgid "Move down"
 msgstr "Move down"
 
+#: src/app/shell/EntryList.tsx
 #: src/app/shell/Sidebar.tsx
 msgid "Move to trash"
 msgstr "Move to trash"
 
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/EntryList.tsx
 msgid "Move up"
 msgstr "Move up"
 
@@ -1620,7 +1621,7 @@ msgstr "Not an image in the assets folder: {0}"
 msgid "Not installed. Download it from the Audiobook export."
 msgstr "Not installed. Download it from the Audiobook export."
 
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/EntryList.tsx
 msgid "Not translated yet"
 msgstr "Not translated yet"
 
@@ -1684,7 +1685,7 @@ msgstr "Open Project…"
 msgid "Open Recent"
 msgstr "Open Recent"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Optional. Shown below the image."
 msgstr "Optional. Shown below the image."
 
@@ -1712,7 +1713,7 @@ msgstr "Page width"
 msgid "Pages"
 msgstr "Pages"
 
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/TrashDialog.tsx
 msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
 msgstr "Pages you moved to the trash. Restoring puts a page back at the end of its section."
 
@@ -1817,7 +1818,7 @@ msgstr "Raw HTML tags in pasted text: ask each time, turn them into formatting, 
 msgid "Read"
 msgstr "Read"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Leave empty only for decoration."
 msgstr "Read aloud by screen readers. Leave empty only for decoration."
 
@@ -1895,7 +1896,7 @@ msgstr "Remove {0} from recent projects"
 msgid "Remove cover"
 msgstr "Remove cover"
 
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/EntryList.tsx
 msgid "Rename"
 msgstr "Rename"
 
@@ -1933,13 +1934,13 @@ msgstr "Replace with"
 msgid "Replaced {count} in the book"
 msgstr "Replaced {count} in the book"
 
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/TrashDialog.tsx
 msgid "Restore"
 msgstr "Restore"
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
 #. placeholder {0}: x.title
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/TrashDialog.tsx
 #: src/state/project/trash.ts
 msgid "Restore {0}"
 msgstr "Restore {0}"
@@ -1957,7 +1958,7 @@ msgstr "Restored an earlier version of {0}. The text it replaced is kept in Hist
 msgid "Restoring keeps the current text as a new snapshot, so you can undo it."
 msgstr "Restoring keeps the current text as a new snapshot, so you can undo it."
 
-#: src/editor/FindBar.tsx
+#: src/editor/FindResults.tsx
 msgid "Results by page"
 msgstr "Results by page"
 
@@ -2307,7 +2308,7 @@ msgstr "The selection is too large to convert"
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
 msgstr "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
 
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/TrashDialog.tsx
 msgid "The trash is empty."
 msgstr "The trash is empty."
 
@@ -2462,6 +2463,7 @@ msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in fo
 msgstr "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
 
 #: src/app/shell/Sidebar.tsx
+#: src/app/shell/TrashDialog.tsx
 msgid "Trash"
 msgstr "Trash"
 
@@ -2563,7 +2565,7 @@ msgstr "Untitled"
 msgid "Update available"
 msgstr "Update available"
 
-#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Use http, https or mailto."
 msgstr "Use http, https or mailto."
 

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import type { Editor } from "@tiptap/react";
-import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { Button, IconButton } from "../ui/Button";
@@ -15,18 +14,15 @@ import {
   countLabel,
   isComposing,
   resultRows,
-  type ResultRow,
 } from "../lib/search/findHelpers";
 import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "./findStore";
 import { isInvalidRegex } from "../lib/search/match";
 import { getSearchInfo, searchCommands } from "./search/plugin";
 import { revealCurrent, useBookCounts, useSearchInfo } from "./findHooks";
+import { Chip } from "../ui/Chip";
+import { FindResults } from "./FindResults";
 
 const DEBOUNCE_MS = 100;
-
-const chip =
-  "rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
-const small = "px-3 py-1.5 text-xs";
 
 /**
  * Find and replace bar, docked top-right of the writing area (full width under the top bar on phones). It is a toolbar,
@@ -169,13 +165,6 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
           editorInfo,
         )
       : [];
-  const rowTitle = (r: ResultRow) =>
-    r.section === "front"
-      ? t`Front matter: ${r.title}`
-      : r.section === "back"
-        ? t`Back matter: ${r.title}`
-        : r.title;
-  const rowCount = (n: number) => plural(n, { one: "# match", other: "# matches" });
   /** Opens that page and selects its first match (the same hand-over as stepping into another page). */
   const openRow = (id: string) => {
     flush();
@@ -273,97 +262,30 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
               }}
             />
           </div>
+          <Button size="sm" onClick={replaceOne} disabled={info.total === 0}>{t`Replace`}</Button>
           <Button
-            className={small}
-            onClick={replaceOne}
-            disabled={info.total === 0}
-          >{t`Replace`}</Button>
-          <Button
-            className={small}
+            size="sm"
             onClick={replaceAll}
             disabled={info.total === 0}
           >{t`Replace all`}</Button>
         </div>
       )}
       <div className="flex items-center gap-1.5">
-        <button
-          type="button"
-          aria-pressed={f.matchCase}
-          className={cx(
-            chip,
-            f.matchCase
-              ? "border-accent bg-accent-soft text-accent"
-              : "border-border text-ink hover:bg-accent-soft",
-          )}
+        <Chip
+          pressed={f.matchCase}
           onClick={() => toggle({ matchCase: !f.matchCase })}
-        >{t`Match case`}</button>
-        <button
-          type="button"
-          aria-pressed={f.wholeWord}
-          className={cx(
-            chip,
-            f.wholeWord
-              ? "border-accent bg-accent-soft text-accent"
-              : "border-border text-ink hover:bg-accent-soft",
-          )}
+        >{t`Match case`}</Chip>
+        <Chip
+          pressed={f.wholeWord}
           onClick={() => toggle({ wholeWord: !f.wholeWord })}
-        >{t`Whole word`}</button>
-        <button
-          type="button"
-          aria-pressed={f.allChapters}
-          className={cx(
-            chip,
-            f.allChapters
-              ? "border-accent bg-accent-soft text-accent"
-              : "border-border text-ink hover:bg-accent-soft",
-          )}
+        >{t`Whole word`}</Chip>
+        <Chip
+          pressed={f.allChapters}
           onClick={() => toggle({ allChapters: !f.allChapters })}
-        >{t`All chapters`}</button>
-        <button
-          type="button"
-          aria-pressed={f.regex}
-          className={cx(
-            chip,
-            f.regex
-              ? "border-accent bg-accent-soft text-accent"
-              : "border-border text-ink hover:bg-accent-soft",
-          )}
-          onClick={() => toggle({ regex: !f.regex })}
-        >{t`Regex`}</button>
+        >{t`All chapters`}</Chip>
+        <Chip pressed={f.regex} onClick={() => toggle({ regex: !f.regex })}>{t`Regex`}</Chip>
       </div>
-      {rows.length > 0 && (
-        <ul
-          aria-label={t`Results by page`}
-          className="m-0 flex max-h-[132px] list-none flex-col gap-0.5 overflow-y-auto p-0 md:max-h-[128px]"
-        >
-          {rows.map((r) => (
-            <li key={r.id} className="min-w-0">
-              <button
-                type="button"
-                aria-label={`${rowTitle(r)}, ${rowCount(r.count)}`}
-                aria-current={r.current ? "true" : undefined}
-                onClick={() => openRow(r.id)}
-                className={cx(
-                  "flex min-h-11 w-full min-w-0 items-center justify-between gap-3 rounded-md px-2.5 text-start text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:min-h-7",
-                  r.current
-                    ? "bg-accent-soft font-semibold text-accent"
-                    : "text-ink hover:bg-accent-soft",
-                )}
-              >
-                <span className="min-w-0 flex-1 truncate">{rowTitle(r)}</span>
-                <span
-                  className={cx(
-                    "shrink-0 tabular-nums",
-                    r.current ? "text-accent" : "text-ink-muted",
-                  )}
-                >
-                  {r.count}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <FindResults rows={rows} onOpen={openRow} />
     </div>
   );
 }

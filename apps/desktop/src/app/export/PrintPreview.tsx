@@ -20,6 +20,7 @@ import { Select } from "../../ui/Select";
 import { Switch } from "../../ui/Switch";
 import type { ExportFormat } from "./exportFormat";
 import { useProject, type BookPage } from "../../state/project/index";
+import { Notice } from "../../ui/Notice";
 
 /** Width of one preview page in px. Height and everything inside are scaled from the trim size against it. */
 const PAGE_PX = 300;
@@ -228,9 +229,9 @@ export function PrintPreview({ onBack, onExport }: Props) {
         </div>
       </header>
       {error && (
-        <p role="alert" className="m-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
+        <Notice role="alert" className="m-4">
           {error}
-        </p>
+        </Notice>
       )}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <aside className="hidden w-[140px] shrink-0 flex-col items-center gap-3 overflow-y-auto bg-sidebar p-4 md:flex">

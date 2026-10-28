@@ -6,6 +6,7 @@ import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
 import { SPONSOR_URL, useSponsor } from "../../state/sponsor";
 import { useProject } from "../../state/project/index";
+import { Notice } from "../../ui/Notice";
 
 /**
  * Shown after a successful export: a short thank-you with a link to sponsor the project. "Maybe later" stays quiet for the
@@ -33,10 +34,10 @@ export function SponsorDialog() {
       title={t`Enjoying CadabraCraft?`}
     >
       <div className="flex flex-col gap-4">
-        <p className="flex items-center gap-2 rounded-md bg-success-soft px-3 py-2 text-small font-semibold text-success">
+        <Notice tone="success" strong className="flex items-center gap-2">
           <CircleCheck size={16} aria-hidden />
           {t`Exported ${exported ?? ""}`}
-        </p>
+        </Notice>
         <p className="text-sm leading-relaxed">{t`CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it.`}</p>
         <p className="text-xs leading-relaxed text-ink-muted">{t`Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser.`}</p>
         <div className="flex flex-wrap items-center gap-2.5">

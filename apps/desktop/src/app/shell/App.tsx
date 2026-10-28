@@ -38,8 +38,9 @@ import { useWordCount } from "../hooks/useWordCount";
 import { useBookWordCount } from "../hooks/useBookWordCount";
 import { useSessionWords } from "../hooks/useSessionWords";
 import { useSettings } from "../../state/editorPrefs";
-import { goalProgress } from "../../lib/sessionWords";
 import { LG_QUERY } from "./breakpoints";
+import { Notice } from "../../ui/Notice";
+import { ProgressBar } from "../../ui/ProgressBar";
 
 /** Full-page views. "book" is the editor (or Home when no project is open). */
 type View = "book" | "settings" | "templates" | "print";
@@ -204,9 +205,9 @@ export function App() {
         </aside>
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           {error && (
-            <p role="alert" className="m-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
+            <Notice role="alert" className="m-4">
               {error}
-            </p>
+            </Notice>
           )}
           {currentDoc && currentId ? (
             reader ? (
@@ -254,19 +255,12 @@ export function App() {
             >
               {sessionGoal > 0 && sessionWritten !== null && (
                 <span className="flex items-center gap-2" data-testid="session-goal">
-                  <span
-                    role="progressbar"
-                    aria-label={t`Session goal`}
-                    aria-valuemin={0}
-                    aria-valuemax={sessionGoal}
-                    aria-valuenow={Math.min(sessionWritten, sessionGoal)}
-                    className="h-1.5 w-24 overflow-hidden rounded-full bg-border"
-                  >
-                    <span
-                      className="block h-full bg-accent"
-                      style={{ width: `${goalProgress(sessionWritten, sessionGoal) * 100}%` }}
-                    />
-                  </span>
+                  <ProgressBar
+                    label={t`Session goal`}
+                    value={Math.min(sessionWritten, sessionGoal)}
+                    max={sessionGoal}
+                    className="h-1.5 w-24 bg-border"
+                  />
                   {t`${sessionWritten} of ${sessionGoal} words this session`}
                 </span>
               )}

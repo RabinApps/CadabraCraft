@@ -3,6 +3,7 @@ import { CircleArrowUp, Download } from "lucide-react";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
 import { useUpdates } from "../../state/updates";
+import { Notice } from "../../ui/Notice";
 
 /**
  * Shown when GitHub Releases has a newer version. Nothing installs until the author presses Install now; "Later" waits for
@@ -26,10 +27,10 @@ export function UpdateDialog() {
     >
       <div className="flex flex-col gap-4">
         {update && (
-          <p className="flex items-center gap-2 rounded-md bg-accent-soft px-3 py-2 text-small font-semibold text-accent">
+          <Notice tone="accent" strong className="flex items-center gap-2">
             <CircleArrowUp size={16} aria-hidden />
             {t`You have ${update.currentVersion}. Your books and settings stay as they are.`}
-          </p>
+          </Notice>
         )}
         <p className="text-sm leading-relaxed">{t`The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version.`}</p>
         <p className="text-xs leading-relaxed text-ink-muted">{t`The only thing sent is the update check. Nothing about your books is sent.`}</p>

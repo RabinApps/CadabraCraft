@@ -23,13 +23,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
-import { Button, IconButton } from "../ui/Button";
-import { Modal } from "../ui/Dialog";
-import { Field } from "../ui/Input";
+import { IconButton } from "../ui/Button";
 import { useRegisterCommands } from "../state/commands";
 import { attempt } from "../state/attempt";
 import { useProject } from "../state/project/index";
 import { TableCommands } from "./TableCommands";
+import { ImageDialog, LinkDialog, type ImageDraft } from "./ToolbarDialogs";
 
 interface Item {
   id: string;
@@ -71,7 +70,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const [href, setHref] = useState("");
   const [linkError, setLinkError] = useState("");
 
-  const [image, setImage] = useState<{ src: string; alt: string; caption: string } | null>(null);
+  const [image, setImage] = useState<ImageDraft | null>(null);
   const importImage = useProject((p) => p.actions.importImage);
   const addImage = async () => {
     const src = await importImage();
@@ -304,64 +303,17 @@ export function Toolbar({ editor }: { editor: Editor }) {
           </div>
         ))}
       </div>
-      <Modal open={image !== null} onOpenChange={() => setImage(null)} title={t`Add image`}>
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            applyImage();
-          }}
-        >
-          <Field label={t`Image file`} value={image?.src ?? ""} readOnly />
-          <Field
-            label={t`Description (alt text)`}
-            value={image?.alt ?? ""}
-            onChange={(e) => setImage((i) => i && { ...i, alt: e.target.value })}
-            hint={t`Read aloud by screen readers. Leave empty only for decoration.`}
-            autoFocus
-          />
-          <Field
-            label={t`Caption`}
-            value={image?.caption ?? ""}
-            onChange={(e) => setImage((i) => i && { ...i, caption: e.target.value })}
-            hint={t`Optional. Shown below the image.`}
-          />
-          <div className="flex justify-end gap-2.5">
-            <Button onClick={() => setImage(null)}>{t`Cancel`}</Button>
-            <Button type="submit" variant="primary">{t`Insert`}</Button>
-          </div>
-        </form>
-      </Modal>
+      <ImageDialog image={image} setImage={setImage} onInsert={applyImage} />
       <TableCommands editor={editor} />
-      <Modal open={linkOpen} onOpenChange={setLinkOpen} title={t`Add link`}>
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            applyLink();
-          }}
-        >
-          <Field
-            label={t`Address`}
-            value={href}
-            onChange={(e) => {
-              setHref(e.target.value);
-              setLinkError("");
-            }}
-            hint={t`Use http, https or mailto.`}
-            autoFocus
-          />
-          {linkError && (
-            <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
-              {linkError}
-            </p>
-          )}
-          <div className="flex justify-end gap-2.5">
-            <Button onClick={() => setLinkOpen(false)}>{t`Cancel`}</Button>
-            <Button type="submit" variant="primary">{t`Apply`}</Button>
-          </div>
-        </form>
-      </Modal>
+      <LinkDialog
+        open={linkOpen}
+        onOpenChange={setLinkOpen}
+        href={href}
+        setHref={setHref}
+        error={linkError}
+        clearError={() => setLinkError("")}
+        onApply={applyLink}
+      />
     </>
   );
 }

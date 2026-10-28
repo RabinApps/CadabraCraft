@@ -9,6 +9,8 @@ import type { ImportChoices } from "../../lib/importBook";
 import { ImportDialog } from "../dialogs/ImportDialogs";
 import { useRecents } from "../../state/recents";
 import { errText, isMissingFolder } from "../../lib/projectError";
+import { Notice } from "../../ui/Notice";
+import { SectionHeading } from "../../ui/SectionHeading";
 
 interface Props {
   error: string;
@@ -85,20 +87,13 @@ export function Home({
           <Button icon={FolderOpen} onClick={onOpen}>{t`Open folder`}</Button>
           <Button icon={FileUp} onClick={() => setImporting(true)}>{t`Import…`}</Button>
         </div>
-        {error && (
-          <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
-            {error}
-          </p>
-        )}
+        {error && <Notice role="alert">{error}</Notice>}
         {recents.length > 0 && (
           <section
             aria-labelledby="recent-heading"
             className="mt-4 flex w-full flex-col gap-2 text-start"
           >
-            <h2
-              id="recent-heading"
-              className="text-xs font-semibold uppercase tracking-wide text-ink-muted"
-            >{t`Recent projects`}</h2>
+            <SectionHeading id="recent-heading">{t`Recent projects`}</SectionHeading>
             <ul className="flex flex-col gap-1.5">
               {recents.map((r) => (
                 <li
@@ -224,11 +219,7 @@ function NewProjectDialog({
             >{t`Choose…`}</Button>
           </div>
           <p className="text-xs text-ink-muted">{t`The book is stored in this folder. Nothing leaves your computer.`}</p>
-          {pickError && (
-            <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
-              {pickError}
-            </p>
-          )}
+          {pickError && <Notice role="alert">{pickError}</Notice>}
         </div>
         <div className="flex justify-end gap-2.5">
           <Button onClick={change}>{t`Cancel`}</Button>

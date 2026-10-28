@@ -11,16 +11,26 @@ const variants: Record<ButtonVariant, string> = {
   danger: "bg-danger text-accent-ink hover:brightness-110",
 };
 
+export type ButtonSize = "md" | "sm";
+
+const sizes: Record<ButtonSize, string> = {
+  md: "px-4 py-2.5 text-sm",
+  sm: "px-3 py-1.5 text-xs",
+};
+
 const focus = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  /** `sm` is the compact size used in toolbars and the Find bar. */
+  size?: ButtonSize;
   icon?: LucideIcon;
   children: ReactNode;
 }
 
 export function Button({
   variant = "secondary",
+  size = "md",
   icon: Icon,
   className,
   children,
@@ -31,7 +41,8 @@ export function Button({
     <button
       type={type}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50",
+        sizes[size],
         variants[variant],
         focus,
         className,

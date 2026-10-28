@@ -10,6 +10,7 @@ import { Modal } from "../../ui/Dialog";
 import { Field } from "../../ui/Input";
 import { Select } from "../../ui/Select";
 import { useProject, type BookDetails } from "../../state/project/index";
+import { Notice } from "../../ui/Notice";
 
 interface Props {
   open: boolean;
@@ -148,7 +149,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
         if (!busy) onOpenChange(o);
       }}
       title={isTranslation ? t`Book details (${form.language})` : t`Book details`}
-      wide
+      size="wide"
     >
       <form
         className="flex flex-col gap-5 sm:flex-row sm:gap-7"
@@ -215,11 +216,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
             onChange={(e) => set({ identifier: e.target.value })}
             hint={t`Unique id stored in the EPUB. Change it only if a store or library asked you to.`}
           />
-          {error && (
-            <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
-              {error}
-            </p>
-          )}
+          {error && <Notice role="alert">{error}</Notice>}
           <div className="mt-auto flex justify-end gap-2.5 pt-2">
             <Button disabled={busy} onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>
             <Button

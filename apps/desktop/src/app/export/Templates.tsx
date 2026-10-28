@@ -13,6 +13,7 @@ import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { useProject } from "../../state/project/index";
 import { errText } from "../../lib/projectError";
+import { Notice } from "../../ui/Notice";
 
 const PREVIEW_LINES = [0, 1, 2, 3, 4, 5, 6, 7];
 
@@ -86,12 +87,9 @@ export function Templates({ onBack }: { onBack: () => void }) {
         >{t`Use template`}</Button>
       </header>
       {error && (
-        <p
-          role="alert"
-          className="mx-4 mt-4 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger"
-        >
+        <Notice role="alert" className="mx-4 mt-4">
           {error}
-        </p>
+        </Notice>
       )}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8">

@@ -18,6 +18,8 @@ import type { VoicePack } from "../../lib/bridge";
 import { AUDIO_FORMATS, AUDIO_SPEEDS, mb, toggleAudioFormat } from "../../lib/audioFormats";
 import { useAudioLabels } from "../hooks/useAudioLabels";
 import type { AudioJob, VoiceDownload } from "../../state/project/index";
+import { Notice } from "../../ui/Notice";
+import { ProgressBar } from "../../ui/ProgressBar";
 
 /** The Audiobook mode of the Export dialog: voice, speed, formats and a note about stores. Matches "Export Audiobook" in the pen. */
 export function AudioFields({
@@ -139,10 +141,10 @@ export function AudioFields({
           other: "Reads # chapters, one audio file each. Front and back matter are not read.",
         })}
       </p>
-      <p className="flex items-start gap-2 rounded-md bg-warn-soft px-3 py-2 text-sm text-warn">
+      <Notice tone="warn" className="flex items-start gap-2">
         <Info size={16} className="mt-0.5 shrink-0" aria-hidden />
         {t`Some audiobook stores do not accept synthetic voices. Check their rules before you upload.`}
-      </p>
+      </Notice>
     </>
   );
 }
@@ -192,19 +194,11 @@ export function AudioJobView({ job }: { job: AudioJob }) {
             </p>
             <span className="text-sm text-ink-muted">{percent}%</span>
           </div>
-          <div
-            className="h-2 overflow-hidden rounded-full border border-border bg-bg"
-            role="progressbar"
-            aria-label={t`Audiobook progress`}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={percent}
-          >
-            <div
-              className="h-full rounded-full bg-accent transition-[width] motion-reduce:transition-none"
-              style={{ width: `${percent}%` }}
-            />
-          </div>
+          <ProgressBar
+            label={t`Audiobook progress`}
+            value={percent}
+            className="h-2 border border-border bg-bg"
+          />
         </div>
       )}
       {job.status === "done" && (
@@ -223,13 +217,10 @@ export function AudioJobView({ job }: { job: AudioJob }) {
             {job.error.message}
           </p>
         ) : (
-          <p
-            role="alert"
-            className="flex items-start gap-2 whitespace-pre-wrap break-words rounded-md bg-danger-soft px-3 py-2 text-sm text-danger"
-          >
+          <Notice role="alert" className="flex items-start gap-2 whitespace-pre-wrap break-words">
             <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
             {job.error.message}
-          </p>
+          </Notice>
         ))}
       <ul aria-label={t`Chapters`} className="flex flex-col rounded-lg border border-border">
         {job.chapters.map((c, i) => (
@@ -305,19 +296,11 @@ export function VoiceDownloadPanel({
             </p>
             <span className="text-sm text-ink-muted">{t`${mb(download.done)} of ${mb(download.total)} MB`}</span>
           </div>
-          <div
-            className="h-2 overflow-hidden rounded-full border border-border bg-raised"
-            role="progressbar"
-            aria-label={t`Download progress`}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={percent}
-          >
-            <div
-              className="h-full rounded-full bg-accent transition-[width] motion-reduce:transition-none"
-              style={{ width: `${percent}%` }}
-            />
-          </div>
+          <ProgressBar
+            label={t`Download progress`}
+            value={percent}
+            className="h-2 border border-border bg-raised"
+          />
           {download.status === "error" &&
             download.error &&
             (download.error.code === "cancelled" ? (
@@ -326,13 +309,13 @@ export function VoiceDownloadPanel({
                 className="text-sm text-ink-muted"
               >{t`Stopped. What was downloaded is kept, so the next download carries on from there.`}</p>
             ) : (
-              <p
+              <Notice
                 role="alert"
-                className="flex items-start gap-2 whitespace-pre-wrap break-words rounded-md bg-danger-soft px-3 py-2 text-sm text-danger"
+                className="flex items-start gap-2 whitespace-pre-wrap break-words"
               >
                 <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
                 {download.error.message}
-              </p>
+              </Notice>
             ))}
         </div>
       ) : (
