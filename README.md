@@ -50,7 +50,7 @@ Ideas outside the current milestone live in [docs/roadmap.md](docs/roadmap.md).
 
 ## Quick start
 
-Prerequisites: Node 24, pnpm 11, Rust (stable). Run `scripts/fetch-typst.sh` once (downloads the Typst sidecar and Inter fonts the app bundles; also needed before `cargo test`) and `scripts/fetch-sherpa.sh` (the text-to-speech program for audiobook export, one 200 to 400 MB download that leaves a 30 MB program; also needed before `cargo test`), Java 17 for EPUBCheck, poppler for the PDF integration tests, and Playwright's Chromium for e2e.
+Prerequisites: Node 26, pnpm 11, Rust (stable). Run `scripts/fetch-typst.sh` once (downloads the Typst sidecar and Inter fonts the app bundles; also needed before `cargo test`) and `scripts/fetch-sherpa.sh` (the text-to-speech program for audiobook export, one 200 to 400 MB download that leaves a 30 MB program; also needed before `cargo test`), Java 17 for EPUBCheck, poppler for the PDF integration tests, and Playwright's Chromium for e2e.
 
 ```bash
 pnpm install

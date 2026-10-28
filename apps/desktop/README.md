@@ -35,7 +35,7 @@ UI source of truth read [docs/design.md](../../docs/design.md).
 
 ## Quick start
 
-Prerequisites: Node 24, pnpm 11, stable Rust. The sidecar binaries are not in git, so fetch them
+Prerequisites: Node 26, pnpm 11, stable Rust. The sidecar binaries are not in git, so fetch them
 once (they are also needed before `cargo test`):
 
 ```bash

@@ -433,7 +433,7 @@ Rejected: MDX (a new dependency for content that is mostly structured data), ana
 
 ## Tests and harnesses are TypeScript
 
-Every test and test harness is TypeScript: Vitest and Playwright suites, the native smoke test, and the click-through in `scripts/automation/` (run by `pnpm automation:scenario`, typechecked by `pnpm typecheck:scripts`). The `.ts` files run directly on Node 24 (built-in type stripping), so the scripts avoid type-only syntax that needs a transform (enums, parameter properties, `<T>` casts; `erasableSyntaxOnly` enforces it).
+Every test and test harness is TypeScript: Vitest and Playwright suites, the native smoke test, and the click-through in `scripts/automation/` (run by `pnpm automation:scenario`, typechecked by `pnpm typecheck:scripts`). The `.ts` files run directly on Node 26 (built-in type stripping), so the scripts avoid type-only syntax that needs a transform (enums, parameter properties, `<T>` casts; `erasableSyntaxOnly` enforces it).
 
 Rejected: keeping `.mjs` scripts (no typechecking, and the scenario already imported a `.ts` fixture); adding `tsx` or `ts-node` (a new tool to download, and Node already does the job).
 
@@ -807,3 +807,19 @@ Desktop layers import downward only: `app/` (screens, dialogs, shell, hooks) use
 - **Padding each block by hand to fill the page** (no spacers): moves the text of a page into the foot margin when an edit changes a block above it before the next measurement.
 
 **Known limits:** breaks are estimates (the print font is not in the webview unless it is installed, footnotes and images are approximate, no drop cap, chapter label or ornament is drawn, only their height is reserved), a hyphenated word at a page break loses its hyphen, and a block that cannot split (a table, an image) taller than a page overflows its card.
+
+## Node 26 LTS (2026-10-28)
+
+**Decision:** development, CI and the MCP bundle run on Node 26 (26.13.0 "Lithium", the LTS line, supported to April 2029). Pinned by `.nvmrc` (`26`), `engines.node: ">=26"` in the root `package.json`, and `node-version: 26` in the CI, release and Pages workflows (the major, so CI follows LTS patch releases). Node is a dev and CI dependency only: the app is Tauri/Rust and bundles no Node.
+
+**Why:** Node 26 is the current LTS line, and `@types/node` was already on 26. Nothing in the repo uses an API removed in 25 or 26 (`fs.F_OK`, `--experimental-transform-types`, `_stream_*`, `module.register`). On 26.13.0 the unit tests, typecheck, Playwright e2e, Rust tests, the MCP bundle build and stdio smoke run, and the real-app scenario give the same results as on 24.
+
+**Rejected:**
+
+| Alternative                                           | Why not                                                               |
+| ----------------------------------------------------- | --------------------------------------------------------------------- |
+| Stay on Node 24                                       | Works, but ends its LTS sooner and leaves types ahead of the runtime. |
+| Node 25 (Current)                                     | Odd releases never become LTS and are unsupported after a few months. |
+| Keep the MCP bundle documented for "Node 24 or newer" | Only 26 is tested, so `docs/mcp.md` says Node 26.                     |
+
+**Follow-ups / caveats:** since Node 25 the official Linux binaries link against libatomic, which a runner image may need installed; the PR run on ubuntu will show whether it is missing. The scenario's "PDF export produces a 6x9 PDF" step fails on Node 24 and 26 alike (a poppler "Suspects object" message), so it is not caused by this change.

@@ -11,7 +11,7 @@ CADABRA_MCP_ROOT=/path/to/workspace node packages/mcp/dist/cli.js
 node packages/mcp/dist/cli.js /path/to/workspace   # the first argument wins over the env var
 ```
 
-`dist/` is gitignored; rebuild after changing the package. The bundle is self-contained (workspace packages are TypeScript source, so they are inlined), needs only Node 24, and talks MCP on stdin/stdout (diagnostics go to stderr). Without a usable root it prints the usage to stderr and exits with status 1.
+`dist/` is gitignored; rebuild after changing the package. The bundle is self-contained (workspace packages are TypeScript source, so they are inlined), needs only Node 26, and talks MCP on stdin/stdout (diagnostics go to stderr). Without a usable root it prints the usage to stderr and exits with status 1.
 
 ### Client configuration (`.mcp.json`)
 
