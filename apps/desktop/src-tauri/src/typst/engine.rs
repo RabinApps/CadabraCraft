@@ -233,9 +233,9 @@ mod tests {
         set_font_dir(missing.clone());
         assert_ne!(FONT_DIR.get(), Some(&missing));
         // An existing folder is remembered for the rest of the run (an empty one adds no fonts).
-        let fonts = std::env::temp_dir().join("cadabracraft-test-fonts");
-        fs::create_dir_all(&fonts).unwrap();
-        set_font_dir(fonts.clone());
+        // (The folder is deleted when this test ends; the tests that use the remembered path run fake programs that ignore it.)
+        let fonts = tempfile::tempdir().unwrap();
+        set_font_dir(fonts.path().to_path_buf());
         assert!(FONT_DIR.get().is_some());
     }
 

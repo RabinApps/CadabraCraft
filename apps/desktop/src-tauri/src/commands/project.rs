@@ -66,7 +66,7 @@ fn watch_root(root: String) -> Result<PathBuf, String> {
 }
 
 #[tauri::command]
-pub fn watch_project(app: tauri::AppHandle, state: tauri::State<crate::platform::fs_watch::WatchState>, root: String) -> Result<(), String> {
+pub fn watch_project<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: tauri::State<crate::platform::fs_watch::WatchState>, root: String) -> Result<(), String> {
     crate::platform::fs_watch::start(app, watch_root(root)?, &state)
 }
 

@@ -303,7 +303,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
           </div>
         ))}
       </div>
-      <Modal open={image !== null} onOpenChange={(o) => !o && setImage(null)} title={t`Add image`}>
+      <Modal open={image !== null} onOpenChange={() => setImage(null)} title={t`Add image`}>
         <form
           className="flex flex-col gap-4"
           onSubmit={(e) => {

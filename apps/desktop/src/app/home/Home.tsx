@@ -167,14 +167,13 @@ function NewProjectDialog({
   const [root, setRoot] = useState<string | null>(null);
   const [pickError, setPickError] = useState("");
   const ready = title.trim() !== "" && root !== null;
-  const change = (o: boolean) => {
-    if (!o) {
-      setTitle("");
-      setAuthor("");
-      setRoot(null);
-      setPickError("");
-    }
-    onOpenChange(o);
+  /** The dialog only ever closes from inside (it is opened from the store), so this resets the form and closes. */
+  const change = () => {
+    setTitle("");
+    setAuthor("");
+    setRoot(null);
+    setPickError("");
+    onOpenChange(false);
   };
   return (
     <Modal open={open} onOpenChange={change} title={t`New book`}>
@@ -184,7 +183,7 @@ function NewProjectDialog({
           e.preventDefault();
           if (!ready) return;
           const [bookTitle, bookAuthor, folder] = [title.trim(), author.trim() || t`Unknown`, root];
-          change(false);
+          change();
           onCreate(folder, bookTitle, bookAuthor);
         }}
       >
@@ -223,7 +222,7 @@ function NewProjectDialog({
           )}
         </div>
         <div className="flex justify-end gap-2.5">
-          <Button onClick={() => change(false)}>{t`Cancel`}</Button>
+          <Button onClick={change}>{t`Cancel`}</Button>
           <Button
             type="submit"
             variant="primary"

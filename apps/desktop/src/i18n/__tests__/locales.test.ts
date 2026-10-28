@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { LOCALES, dirFor, resolveLocale } from "../locales";
+import { describe, expect, it, vi } from "vitest";
+import { LOCALES, PSEUDO_LOCALE, dirFor, isLoadable, resolveLocale } from "../locales";
 
 describe("dirFor", () => {
   it("marks Hebrew and Arabic (with regions and scripts) as rtl", () => {
@@ -22,5 +22,20 @@ describe("resolveLocale", () => {
   });
   it("matches on the primary subtag", () => {
     expect(resolveLocale(["en-GB"])).toBe("en");
+  });
+});
+
+describe("isLoadable", () => {
+  it("accepts enabled locales and the pseudo locale only in development", () => {
+    expect(isLoadable("en")).toBe(true);
+    expect(isLoadable("fr")).toBe(false);
+    expect(isLoadable(PSEUDO_LOCALE)).toBe(import.meta.env.DEV);
+  });
+  it("treats the pseudo locale as not loadable outside development", () => {
+    vi.stubEnv("DEV", false);
+    expect(isLoadable(PSEUDO_LOCALE)).toBe(false);
+    vi.stubEnv("DEV", true);
+    expect(isLoadable(PSEUDO_LOCALE)).toBe(true);
+    vi.unstubAllEnvs();
   });
 });

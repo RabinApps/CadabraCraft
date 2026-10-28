@@ -1,11 +1,10 @@
 //! Reading and writing project text files (pages, manifest) with external-edit conflict copies.
-use super::fsio::{atomic_write, hash_bytes, stamp};
+use super::fsio::{atomic_write, hash_bytes, read_capped, stamp};
 use super::paths::resolve;
 use super::snapshots::{self, SnapshotMode};
 use super::{ProjectError, Result};
 use serde::Serialize;
 use std::fs;
-use std::io::Read;
 use std::path::Path;
 
 /// Largest text file `read_file` returns, in bytes. Chapters and the manifest are far smaller; this stops a huge or
@@ -46,17 +45,7 @@ pub fn read_file(root: &Path, rel: &str) -> Result<Option<FileRead>> {
         Err(e) => return Err(e.into()),
     };
     let meta = file.metadata()?;
-    if !meta.is_file() {
-        return Err(ProjectError::NotAFile { path: rel.to_string() });
-    }
-    if meta.len() > MAX_READ_BYTES {
-        return Err(too_large());
-    }
-    let mut bytes = Vec::with_capacity(meta.len() as usize);
-    (&mut file).take(MAX_READ_BYTES + 1).read_to_end(&mut bytes)?; // the file may have grown since `metadata`
-    if bytes.len() as u64 > MAX_READ_BYTES {
-        return Err(too_large());
-    }
+    let bytes = read_capped(&mut file, meta.is_file(), meta.len(), MAX_READ_BYTES).map_err(|e| e.into_project(rel, &too_large, &ProjectError::from))?;
     let hash = hash_bytes(&bytes);
     let contents = String::from_utf8(bytes).map_err(|_| ProjectError::NotUtf8 { path: rel.to_string() })?;
     Ok(Some(FileRead { contents, hash }))

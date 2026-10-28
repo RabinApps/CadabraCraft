@@ -78,3 +78,30 @@ describe("book helpers with nothing to find", () => {
     });
   });
 });
+
+describe("find store actions", () => {
+  it("show keeps the replace row and query unless told otherwise, and bumps the focus tick", () => {
+    useFind.setState({ replace: false, query: "keep", focusTick: 0 });
+    useFind.getState().show({ query: null });
+    expect(useFind.getState()).toMatchObject({
+      open: true,
+      replace: false,
+      query: "keep",
+      focusTick: 1,
+    });
+    useFind.getState().show({ replace: true, query: "new" });
+    expect(useFind.getState()).toMatchObject({ replace: true, query: "new", focusTick: 2 });
+  });
+  it("toggleReplace opens the bar with the replace row, then flips the row", () => {
+    useFind.setState({ open: false, replace: false });
+    useFind.getState().toggleReplace();
+    expect(useFind.getState()).toMatchObject({ open: true, replace: true });
+    useFind.getState().toggleReplace();
+    expect(useFind.getState().replace).toBe(false);
+  });
+  it("close hides the bar", () => {
+    useFind.setState({ open: true });
+    useFind.getState().close();
+    expect(useFind.getState().open).toBe(false);
+  });
+});

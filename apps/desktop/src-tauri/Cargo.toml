@@ -38,3 +38,5 @@ reqwest = { version = "0.13", default-features = false, features = ["rustls-no-p
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
 
 [dev-dependencies]
+# Mock runtime for testing the command layer through the IPC (tauri::test). Dev only: release builds do not get it.
+tauri = { version = "2", features = ["test"] }

@@ -97,16 +97,42 @@ pub(crate) fn read_regular(path: &Path, cap: u64, label: &str, too_large: impl F
     }
     let mut file = fs::File::open(path).map_err(|e| open_error(e, path, label))?;
     let meta = file.metadata().map_err(|e| io_error(e, label))?;
-    if !meta.is_file() {
-        return Err(not_file());
+    read_capped(&mut file, meta.is_file(), meta.len(), cap).map_err(|e| e.into_project(label, &too_large, &|e| io_error(e, label)))
+}
+
+/// Why `read_capped` refused.
+#[derive(Debug)]
+pub(crate) enum CappedError {
+    NotAFile,
+    TooLarge,
+    Io(std::io::Error),
+}
+
+impl CappedError {
+    /// The error the caller reports: `label` for a file that is not one, `too_large` for a file over the cap, `io` for a failed read.
+    pub(crate) fn into_project(self, label: &str, too_large: &dyn Fn() -> ProjectError, io: &dyn Fn(std::io::Error) -> ProjectError) -> ProjectError {
+        match self {
+            CappedError::NotAFile => ProjectError::NotAFile { path: label.to_string() },
+            CappedError::TooLarge => too_large(),
+            CappedError::Io(e) => io(e),
+        }
     }
-    if meta.len() > cap {
-        return Err(too_large());
+}
+
+/// Reads an already opened file of at most `cap` bytes, given its metadata (`is_file`, `len`). The checks are repeated on
+/// the opened handle because the path may have been swapped since it was first inspected, and the read is capped at
+/// `cap + 1` so a file that grows while it is read can never use unbounded memory.
+pub(crate) fn read_capped(reader: &mut dyn Read, is_file: bool, len: u64, cap: u64) -> std::result::Result<Vec<u8>, CappedError> {
+    if !is_file {
+        return Err(CappedError::NotAFile);
     }
-    let mut bytes = Vec::with_capacity(meta.len() as usize);
-    (&mut file).take(cap + 1).read_to_end(&mut bytes).map_err(|e| io_error(e, label))?;
+    if len > cap {
+        return Err(CappedError::TooLarge);
+    }
+    let mut bytes = Vec::with_capacity(len as usize);
+    reader.take(cap + 1).read_to_end(&mut bytes).map_err(CappedError::Io)?;
     if bytes.len() as u64 > cap {
-        return Err(too_large());
+        return Err(CappedError::TooLarge);
     }
     Ok(bytes)
 }
@@ -152,6 +178,55 @@ pub fn write_audio_part(root: &Path, rel: &str, bytes: &[u8]) -> Result<()> {
 mod tests {
     use super::*;
     use crate::project::*;
+
+    /// A reader that claims nothing and yields `n` bytes, to stand for a file that grew after its size was read.
+    fn bytes_of(n: usize) -> std::io::Cursor<Vec<u8>> {
+        std::io::Cursor::new(vec![7; n])
+    }
+
+    struct Broken;
+    impl Read for Broken {
+        fn read(&mut self, _: &mut [u8]) -> std::io::Result<usize> {
+            Err(std::io::Error::other("disk gone"))
+        }
+    }
+
+    #[test]
+    fn a_capped_read_returns_the_bytes_of_a_regular_file_within_the_cap() {
+        assert_eq!(read_capped(&mut bytes_of(4), true, 4, 4).unwrap(), vec![7; 4]);
+        assert_eq!(read_capped(&mut bytes_of(0), true, 0, 4).unwrap(), Vec::<u8>::new());
+    }
+
+    #[test]
+    fn a_capped_read_refuses_a_file_that_stopped_being_regular_or_is_too_large() {
+        assert!(matches!(read_capped(&mut bytes_of(1), false, 1, 4), Err(CappedError::NotAFile)));
+        assert!(matches!(read_capped(&mut bytes_of(5), true, 5, 4), Err(CappedError::TooLarge)));
+    }
+
+    #[test]
+    fn a_capped_read_stops_a_file_that_grew_after_its_size_was_read() {
+        // The size said 2, but 100 bytes are there: refused after reading at most cap + 1.
+        assert!(matches!(read_capped(&mut bytes_of(100), true, 2, 4), Err(CappedError::TooLarge)));
+        let mut reader = bytes_of(100);
+        let _ = read_capped(&mut reader, true, 2, 4);
+        assert_eq!(reader.position(), 5);
+        // Growing but still within the cap is fine.
+        assert_eq!(read_capped(&mut bytes_of(4), true, 1, 4).unwrap().len(), 4);
+    }
+
+    #[test]
+    fn a_capped_failure_becomes_the_error_of_the_caller() {
+        let big = || ProjectError::TooLarge { path: "p".into(), max_mb: 1 };
+        let io = |e: std::io::Error| ProjectError::Io { message: e.to_string() };
+        assert_eq!(CappedError::NotAFile.into_project("a.json", &big, &io), ProjectError::NotAFile { path: "a.json".into() });
+        assert_eq!(CappedError::TooLarge.into_project("a.json", &big, &io), big());
+        assert_eq!(CappedError::Io(std::io::Error::other("x")).into_project("a.json", &big, &io), ProjectError::Io { message: "x".into() });
+    }
+
+    #[test]
+    fn a_capped_read_reports_a_read_error() {
+        assert!(matches!(read_capped(&mut Broken, true, 1, 4), Err(CappedError::Io(e)) if e.to_string() == "disk gone"));
+    }
 
     #[test]
     fn audio_parts_are_only_flac_files_directly_under_the_parts_folder() {
