@@ -59,9 +59,8 @@ export function mapAudioError(e: unknown): Error {
   return new AudioExportError(errText(e));
 }
 
-/** `exports/audio/03-hostile-characters`: ordered, ASCII and safe in any file system (the Rust side checks the path again). */
-export function chapterBase(index: number, title: string): string {
-  const slug = title
+const slugOf = (title: string): string =>
+  title
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
@@ -69,7 +68,20 @@ export function chapterBase(index: number, title: string): string {
     .replace(/^-+|-+$/g, "")
     .slice(0, 40)
     .replace(/-+$/, "");
-  return `exports/audio/${String(index + 1).padStart(2, "0")}-${slug || "chapter"}`;
+
+/** `exports/audio/03-hostile-characters`: ordered, ASCII and safe in any file system (the Rust side checks the path again). */
+export function chapterBase(index: number, title: string): string {
+  return `exports/audio/${String(index + 1).padStart(2, "0")}-${slugOf(title) || "chapter"}`;
+}
+
+/** `exports/audio/my-book`: where the whole-book M4B goes (without the extension). */
+export function bookBase(title: string): string {
+  return `exports/audio/${slugOf(title) || "audiobook"}`;
+}
+
+/** Where a chapter's lossless part for the M4B is kept; the id is reduced to the characters the Rust side accepts. */
+export function chapterPart(chapterId: string): string {
+  return `.cadabra/audio/parts/${chapterId.replace(/[^A-Za-z0-9_-]+/g, "_") || "chapter"}.flac`;
 }
 
 /**
@@ -94,7 +106,9 @@ export function createTauriAudioRunner(
       if (signal.aborted) stop();
       else signal.addEventListener("abort", stop, { once: true });
       try {
-        return await bridge.audioRenderChapter(
+        // M4B is one file for the whole book: chapters only leave a lossless part for it, never a file of their own.
+        const part = req.formats.includes("m4b") ? chapterPart(req.chapterId) : undefined;
+        const rendered = await bridge.audioRenderChapter(
           {
             jobId,
             root,
@@ -102,10 +116,12 @@ export function createTauriAudioRunner(
             chunks: req.chunks,
             voice: req.voice,
             speed: req.speed,
-            formats: req.formats,
+            formats: req.formats.filter((f) => f !== "m4b"),
+            ...(part ? { part } : {}),
           },
           onProgress,
         );
+        return part ? { ...rendered, part } : rendered;
       } catch (e) {
         throw mapAudioError(e);
       } finally {

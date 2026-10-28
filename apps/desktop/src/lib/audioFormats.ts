@@ -1,7 +1,7 @@
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
 
 /** Display order of the audio formats; the order the files are written in too. The one list the app uses. */
-export const AUDIO_FORMATS: readonly AudioFormat[] = ["opus", "flac", "wav"];
+export const AUDIO_FORMATS: readonly AudioFormat[] = ["opus", "flac", "wav", "m4b"];
 
 export const AUDIO_SPEEDS = [0.9, 1, 1.1, 1.25] as const;
 

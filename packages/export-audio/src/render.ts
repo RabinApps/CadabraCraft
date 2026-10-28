@@ -11,7 +11,8 @@ import {
 import { contentHash } from "./hash";
 import { narrate } from "./narrate";
 
-export type AudioFormat = "opus" | "flac" | "wav";
+/** `m4b` is one file for the whole book (chapter markers, cover); the others are one file per chapter. */
+export type AudioFormat = "opus" | "flac" | "wav" | "m4b";
 
 export interface VoiceInfo {
   id: string;
@@ -50,6 +51,8 @@ export interface RenderedChapter {
   /** Paths relative to the book folder (for example `exports/audio/01-the-quay.opus`). */
   files: { format: AudioFormat; path: string }[];
   durationSec: number;
+  /** The lossless part kept for the book's M4B (`.cadabra/audio/parts/<id>.flac`), when `m4b` was asked for. */
+  part?: string;
 }
 
 /**

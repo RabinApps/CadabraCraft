@@ -15,7 +15,7 @@ export interface InvokeArgs {
   contents: string;
   paths: string[];
   options?: { filters?: { extensions?: string[] }[] };
-  request: AudioCall & SampleCall;
+  request: AudioCall & SampleCall & M4bCall;
   name: string;
   bytes: number[];
   onProgress?: { onmessage?: (value: unknown) => void };
@@ -35,6 +35,14 @@ export type Invoke = (cmd: string, args: InvokeArgs, opts: InvokeOptions) => Pro
 export interface AudioCall {
   base: string;
   formats: string[];
+  [field: string]: unknown;
+}
+
+/** An `audio_build_m4b` request as the app sent it. */
+export interface M4bCall {
+  base: string;
+  title: string;
+  chapters: { title: string; part: string; durationSec: number }[];
   [field: string]: unknown;
 }
 
@@ -96,6 +104,7 @@ declare global {
     __downloadHold?: boolean;
     __downloadReject?: (reason: unknown) => void;
     __sampleCalls: SampleCall[];
+    __m4bCalls: M4bCall[];
     __sampleError?: FakeError;
     __cadabraMenu: { run: (id: string) => boolean };
     __calls?: RecordedCall[];

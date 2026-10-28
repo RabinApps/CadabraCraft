@@ -125,6 +125,10 @@ export async function fakeTauri(page: Page) {
               durationSec: 60,
             };
           }
+          case "audio_build_m4b": {
+            (window.__m4bCalls ??= []).push(a.request);
+            return { path: `${a.request.base}.m4b`, durationSec: 120 };
+          }
           case "audio_cancel":
             window.__audioReject?.({ kind: "cancelled" });
             window.__downloadReject?.({ kind: "cancelled" });

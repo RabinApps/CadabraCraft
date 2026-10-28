@@ -1355,6 +1355,10 @@ msgstr "Lossless and large: about 1.7 GB per 10 hours."
 msgid "Lossless, about 60% of the size of WAV."
 msgstr "Lossless, about 60% of the size of WAV."
 
+#: src/app/hooks/useAudioLabels.ts
+msgid "M4B audiobook"
+msgstr "M4B audiobook"
+
 #: src/app/export/ExportDialog.tsx
 msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
 msgstr "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
@@ -1581,6 +1585,10 @@ msgstr "Numbered List"
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr "Older snapshots are removed, but anything from the last 30 days stays."
 
+#: src/app/hooks/useAudioLabels.ts
+msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
+msgstr "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Only in the current text"
 msgstr "Only in the current text"
@@ -1608,6 +1616,10 @@ msgstr "Optional. Shown below the image."
 #: src/app/hooks/useAudioLabels.ts
 msgid "Opus"
 msgstr "Opus"
+
+#: src/app/export/AudioExport.tsx
+msgid "Packing the audiobook…"
+msgstr "Packing the audiobook…"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
@@ -2247,6 +2259,10 @@ msgstr "there is not enough disk space"
 #: src/state/project/audio.ts
 msgid "There is nothing to read aloud in this chapter."
 msgstr "There is nothing to read aloud in this chapter."
+
+#: src/state/project/audio.ts
+msgid "There is nothing to read aloud, so there is no audiobook to build."
+msgstr "There is nothing to read aloud, so there is no audiobook to build."
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "These are routine adjustments; nothing was lost."

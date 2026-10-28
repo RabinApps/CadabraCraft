@@ -45,6 +45,8 @@ export interface AudioJob {
   cancelling: boolean;
   durationSec: number;
   files: number;
+  /** Every chapter is rendered and the book's M4B is being joined and encoded. */
+  packing: boolean;
   error: AudioUiError | null;
 }
 

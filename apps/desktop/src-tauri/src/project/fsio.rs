@@ -128,10 +128,45 @@ pub fn write_bytes(root: &Path, rel: &str, bytes: &[u8]) -> Result<()> {
     })
 }
 
+/// Where lossless chapter parts for the audiobook live: local to this computer, never synced or exported.
+pub const AUDIO_PARTS_DIR: &str = ".cadabra/audio/parts/";
+
+/// Whether `rel` is exactly `.cadabra/audio/parts/<name>.flac` with a plain file name.
+pub fn is_audio_part(rel: &str) -> bool {
+    rel.strip_prefix(AUDIO_PARTS_DIR).is_some_and(|name| name.len() > ".flac".len() && name.ends_with(".flac") && !name.contains('/'))
+}
+
+/// Writes one chapter part (see `is_audio_part`), atomically. Same rules as `write_bytes`, for the one other place the
+/// audiobook may write binary files.
+pub fn write_audio_part(root: &Path, rel: &str, bytes: &[u8]) -> Result<()> {
+    retry_transient(|| {
+        let target = resolve(root, rel)?;
+        if !is_audio_part(rel) {
+            return Err(ProjectError::UnsafePath { path: rel.to_string() });
+        }
+        atomic_write_once(&target, bytes)
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::project::*;
+
+    #[test]
+    fn audio_parts_are_only_flac_files_directly_under_the_parts_folder() {
+        for ok in [".cadabra/audio/parts/ch-1.flac", ".cadabra/audio/parts/a b.flac"] {
+            assert!(is_audio_part(ok), "{ok}");
+        }
+        for bad in [".cadabra/audio/parts/.flac", ".cadabra/audio/parts/x.wav", ".cadabra/audio/parts/sub/x.flac", ".cadabra/audio/x.flac", "exports/x.flac", ".cadabra/audio/parts/"] {
+            assert!(!is_audio_part(bad), "{bad}");
+        }
+        let d = tempfile::tempdir().unwrap();
+        write_audio_part(d.path(), ".cadabra/audio/parts/c.flac", b"x").unwrap();
+        assert_eq!(fs::read(d.path().join(".cadabra/audio/parts/c.flac")).unwrap(), b"x");
+        assert!(write_audio_part(d.path(), "exports/c.flac", b"x").is_err());
+        assert!(write_audio_part(d.path(), ".cadabra/audio/parts/../c.flac", b"x").is_err());
+    }
     use std::path::Path;
 
     fn tmp() -> tempfile::TempDir {

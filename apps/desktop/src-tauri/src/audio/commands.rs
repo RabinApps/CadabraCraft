@@ -1,6 +1,7 @@
 //! The Tauri command layer for the audiobook export and the voice packs. Work runs on Tauri's blocking pool.
 use super::download::{build_client, download_pack, DownloadProgress};
-use super::engine::find_sherpa;
+use super::engine::{find_ffmpeg, find_sherpa};
+use super::m4b::{build_m4b, BuiltM4b, M4bRequest};
 use super::error::{other, AudioError};
 use super::jobs::{voices_root, AudioJobs};
 use super::packs::{delete_pack, find_pack, list_packs, PackInfo};
@@ -33,6 +34,17 @@ pub async fn audio_sample(state: tauri::State<'_, AudioJobs>, request: SampleReq
     crate::platform::blocking(move || {
         let sherpa = find_sherpa()?;
         render_sample(&request, &sherpa, voices_root().as_deref(), &flag).map(tauri::ipc::Response::new)
+    })
+    .await
+}
+
+/// Builds the whole-book M4B from the chapter parts off the UI thread. Stop it with `audio_cancel`.
+#[tauri::command]
+pub async fn audio_build_m4b(state: tauri::State<'_, AudioJobs>, request: M4bRequest) -> Result<BuiltM4b, AudioError> {
+    let flag = state.flag(&request.job_id);
+    crate::platform::blocking(move || {
+        let ffmpeg = find_ffmpeg()?;
+        build_m4b(&request, &ffmpeg, &flag)
     })
     .await
 }

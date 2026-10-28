@@ -1,6 +1,12 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import type { Chunk, RenderedChapter, VoiceInfo } from "@cadabracraft/export-audio";
-import { binary, type AudioChapterRequest, type RawBytes, type VoicePack } from "./types";
+import {
+  binary,
+  type AudioChapterRequest,
+  type AudioM4bRequest,
+  type RawBytes,
+  type VoicePack,
+} from "./types";
 
 /** The local audiobook engine: voices, rendering, samples and voice downloads. */
 export const audioBridge = {
@@ -34,6 +40,9 @@ export const audioBridge = {
     voice: string;
     speed: number;
   }): Promise<Uint8Array> => binary(invoke<RawBytes>("audio_sample", { request })),
+  /** Builds the whole-book M4B from the chapters' parts (AAC through the bundled ffmpeg). Stop it with `audioCancel(jobId)`. */
+  audioBuildM4b: (request: AudioM4bRequest) =>
+    invoke<{ path: string; durationSec: number }>("audio_build_m4b", { request }),
   audioDeletePack: (pack: string) => invoke<void>("audio_delete_pack", { pack }),
   /** Stops the job's running chapter (the engine process is killed) and every later one. */
   audioCancel: (jobId: string) => invoke<void>("audio_cancel", { jobId }),
