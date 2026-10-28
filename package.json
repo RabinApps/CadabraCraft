@@ -12,11 +12,13 @@
     "automation:scenario": "node scripts/automation/scenario.ts --launch",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:coverage": "pnpm -r --workspace-concurrency=1 exec vitest run --passWithNoTests --coverage"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.5",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
