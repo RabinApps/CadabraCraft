@@ -42,7 +42,9 @@ export function ReadingFooter({ index, pages, chapterIds, onSelect, language }: 
             <Button
               variant="ghost"
               icon={PrevIcon}
-              aria-label={prevIsChapter ? t`Previous chapter` : t`Previous page`}
+              aria-label={
+                prevIsChapter ? t`Previous chapter: ${prev.title}` : t`Previous page: ${prev.title}`
+              }
               className="max-w-full max-md:hidden"
               onClick={() => onSelect(prev.id)}
             >
@@ -66,7 +68,9 @@ export function ReadingFooter({ index, pages, chapterIds, onSelect, language }: 
             />
             <Button
               variant="ghost"
-              aria-label={nextIsChapter ? t`Next chapter` : t`Next page`}
+              aria-label={
+                nextIsChapter ? t`Next chapter: ${next.title}` : t`Next page: ${next.title}`
+              }
               className="max-w-full max-md:hidden"
               onClick={() => onSelect(next.id)}
             >

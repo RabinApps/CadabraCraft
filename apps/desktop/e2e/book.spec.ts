@@ -10,7 +10,7 @@ test("templates page sets the book's template from the details panel", async ({ 
   await newProject(page);
   await page.getByRole("button", { name: "Change template" }).click();
   await expect(page.getByRole("heading", { name: "Choose a look for your book" })).toBeVisible();
-  await page.getByRole("button", { name: /^Poetry/ }).click();
+  await page.getByRole("radio", { name: /^Poetry/ }).click();
   await page.getByRole("button", { name: "Use template" }).click();
   await expect(page.getByRole("navigation", { name: "Chapters" })).toBeVisible();
   const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));

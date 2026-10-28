@@ -658,6 +658,10 @@ msgstr "Clear Menu"
 msgid "Close"
 msgstr "Close"
 
+#: src/app/shell/App.tsx
+msgid "Close chapters"
+msgstr "Close chapters"
+
 #: src/app/shell/menuModel.ts
 msgid "Close Project"
 msgstr "Close Project"
@@ -1554,6 +1558,11 @@ msgstr "Next"
 msgid "Next chapter"
 msgstr "Next chapter"
 
+#. placeholder {0}: next.title
+#: src/editor/ReadingFooter.tsx
+msgid "Next chapter: {0}"
+msgstr "Next chapter: {0}"
+
 #: src/editor/FindBar.tsx
 msgid "Next match"
 msgstr "Next match"
@@ -1565,6 +1574,11 @@ msgstr "Next page"
 #: src/app/shell/menuModel.ts
 msgid "Next Page"
 msgstr "Next Page"
+
+#. placeholder {0}: next.title
+#: src/editor/ReadingFooter.tsx
+msgid "Next page: {0}"
+msgstr "Next page: {0}"
 
 #: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
@@ -1701,6 +1715,10 @@ msgstr "Packing the audiobook…"
 msgid "Page setup"
 msgstr "Page setup"
 
+#: src/editor/Editor.tsx
+msgid "Page text"
+msgstr "Page text"
+
 #: src/app/shell/Sidebar.tsx
 msgid "Page title"
 msgstr "Page title"
@@ -1763,6 +1781,11 @@ msgstr "Preface"
 msgid "Previous chapter"
 msgstr "Previous chapter"
 
+#. placeholder {0}: prev.title
+#: src/editor/ReadingFooter.tsx
+msgid "Previous chapter: {0}"
+msgstr "Previous chapter: {0}"
+
 #: src/editor/FindBar.tsx
 msgid "Previous match"
 msgstr "Previous match"
@@ -1774,6 +1797,11 @@ msgstr "Previous page"
 #: src/app/shell/menuModel.ts
 msgid "Previous Page"
 msgstr "Previous Page"
+
+#. placeholder {0}: prev.title
+#: src/editor/ReadingFooter.tsx
+msgid "Previous page: {0}"
+msgstr "Previous page: {0}"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Print checks"

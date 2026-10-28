@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft } from "lucide-react";
 import { useLocale } from "../../i18n/i18n";
 import { PSEUDO_LOCALE } from "../../i18n/locales";
 import { IconButton } from "../../ui/Button";
+import { cx } from "../../ui/cx";
 import { Field } from "../../ui/Input";
 import { Segmented } from "../../ui/Segmented";
 import { Select } from "../../ui/Select";
@@ -47,8 +49,11 @@ export function Settings({ onBack }: { onBack: () => void }) {
     audio: t`Audio`,
     backups: t`Backups`,
   };
-  const jump = (id: string) =>
+  const [active, setActive] = useState<(typeof sections)[number]>("appearance");
+  const jump = (id: (typeof sections)[number]) => {
+    setActive(id);
     document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" });
+  };
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       <header className="flex items-center gap-3 border-b border-border bg-surface px-4 py-2">
@@ -64,8 +69,12 @@ export function Settings({ onBack }: { onBack: () => void }) {
             <button
               key={id}
               type="button"
+              aria-current={id === active ? "location" : undefined}
               onClick={() => jump(id)}
-              className="rounded-md px-3 py-2 text-start text-sm font-medium text-ink-muted hover:bg-accent-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+              className={cx(
+                "rounded-md px-3 py-2 text-start text-sm font-medium hover:bg-accent-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-accent",
+                id === active ? "bg-accent-soft text-ink" : "text-ink-muted",
+              )}
             >
               {navLabels[id]}
             </button>

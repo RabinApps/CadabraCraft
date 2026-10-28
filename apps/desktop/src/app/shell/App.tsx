@@ -3,7 +3,7 @@ import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { readingOrder, sectionOf, sourceEdition, entryRowsIn } from "@cadabracraft/format";
-import { Minimize2, Plus } from "lucide-react";
+import { Minimize2, Plus, X } from "lucide-react";
 import { Editor } from "../../editor/Editor";
 import { ReadingFooter } from "../../editor/ReadingFooter";
 import { bridge } from "../../lib/bridge";
@@ -321,6 +321,11 @@ export function App() {
             )}
           >
             <D.Title className="sr-only">{t`Chapters`}</D.Title>
+            <div className="flex justify-end px-2 pt-2">
+              <D.Close asChild>
+                <IconButton icon={X} label={t`Close chapters`} />
+              </D.Close>
+            </div>
             <Sidebar onNavigate={() => setDrawer(false)} />
           </D.Content>
         </D.Portal>

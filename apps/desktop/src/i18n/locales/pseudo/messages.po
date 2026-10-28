@@ -657,6 +657,10 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+#: src/app/shell/App.tsx
+msgid "Close chapters"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Close Project"
 msgstr ""
@@ -1553,6 +1557,11 @@ msgstr ""
 msgid "Next chapter"
 msgstr ""
 
+#. placeholder {0}: next.title
+#: src/editor/ReadingFooter.tsx
+msgid "Next chapter: {0}"
+msgstr ""
+
 #: src/editor/FindBar.tsx
 msgid "Next match"
 msgstr ""
@@ -1563,6 +1572,11 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Next Page"
+msgstr ""
+
+#. placeholder {0}: next.title
+#: src/editor/ReadingFooter.tsx
+msgid "Next page: {0}"
 msgstr ""
 
 #: src/lib/projectError.ts
@@ -1700,6 +1714,10 @@ msgstr ""
 msgid "Page setup"
 msgstr ""
 
+#: src/editor/Editor.tsx
+msgid "Page text"
+msgstr ""
+
 #: src/app/shell/Sidebar.tsx
 msgid "Page title"
 msgstr ""
@@ -1762,6 +1780,11 @@ msgstr ""
 msgid "Previous chapter"
 msgstr ""
 
+#. placeholder {0}: prev.title
+#: src/editor/ReadingFooter.tsx
+msgid "Previous chapter: {0}"
+msgstr ""
+
 #: src/editor/FindBar.tsx
 msgid "Previous match"
 msgstr ""
@@ -1772,6 +1795,11 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Previous Page"
+msgstr ""
+
+#. placeholder {0}: prev.title
+#: src/editor/ReadingFooter.tsx
+msgid "Previous page: {0}"
 msgstr ""
 
 #: src/app/export/PdfPanel.tsx

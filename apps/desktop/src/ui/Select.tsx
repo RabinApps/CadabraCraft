@@ -25,7 +25,7 @@ export function Select({ label, hideLabel, hint, className, id, children, ...res
         id={selectId}
         aria-describedby={hint ? `${selectId}-hint` : undefined}
         className={cx(
-          "w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-50",
+          "w-full rounded-md border border-border-strong bg-surface px-3 py-2.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-50",
           className,
         )}
         {...rest}

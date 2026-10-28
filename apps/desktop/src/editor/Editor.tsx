@@ -89,7 +89,7 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
   const editor = useEditor({
     extensions: reading ? extensions : [...extensions, Search],
     editorProps: {
-      attributes: { lang: language, dir: dirFor(language) },
+      attributes: { lang: language, dir: dirFor(language), "aria-label": t`Page text` },
       // Only text/plain that looks like HTML is handled here; a real HTML clipboard keeps ProseMirror's own path.
       // Nothing in here may throw or block: on any failure the default paste runs.
       handlePaste: reading

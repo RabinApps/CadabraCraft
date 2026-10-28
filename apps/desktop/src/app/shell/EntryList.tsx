@@ -66,12 +66,17 @@ export function EntryList({
                   className="min-w-0 flex-1 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
                   onBlur={(e) => {
                     setEditing(null);
+                    // Escape cancels: closing the field can still blur it, which must not save.
+                    if (e.target.dataset.cancelled) return;
                     if (e.target.value.trim() && e.target.value !== c.title)
                       attempt(actions.rename(c.id, e.target.value.trim()));
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") e.currentTarget.blur();
-                    if (e.key === "Escape") setEditing(null);
+                    if (e.key === "Escape") {
+                      e.currentTarget.dataset.cancelled = "true";
+                      setEditing(null);
+                    }
                   }}
                 />
               ) : (

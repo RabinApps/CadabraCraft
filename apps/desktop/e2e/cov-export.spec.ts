@@ -406,7 +406,7 @@ test("print preview: margins, crop marks, bleed, trim size and the way into the 
 
   // Another look: sans serif, paragraphs with space between them.
   await page.getByRole("button", { name: "Change template" }).click();
-  await page.getByRole("button", { name: /^Modern/ }).click();
+  await page.getByRole("radio", { name: /^Modern/ }).click();
   await expect(page.getByText("Any page")).toBeVisible();
   await page.getByRole("button", { name: "Use template" }).click();
   await page.getByRole("button", { name: "Export", exact: true }).click();
@@ -476,8 +476,8 @@ test("templates page: the book's own look, a failed save and a template that is 
     null,
   );
   await page.getByRole("button", { name: "Change template" }).click();
-  await expect(page.getByRole("button", { name: /^Nonfiction · In use/ })).toBeVisible();
-  await page.getByRole("button", { name: /^Poetry/ }).click();
+  await expect(page.getByRole("radio", { name: /^Nonfiction · In use/ })).toBeVisible();
+  await page.getByRole("radio", { name: /^Poetry/ }).click();
   await failOn(page, "write_project_file", { kind: "io", message: "No space left on device" });
   await page.getByRole("button", { name: "Use template" }).click();
   await expect(page.getByRole("alert")).toContainText("No space left on device");
@@ -495,7 +495,7 @@ test("templates page: the book's own look, a failed save and a template that is 
     null,
   );
   await page.getByRole("button", { name: "Change template" }).click();
-  await expect(page.getByRole("button", { name: /^Classic Novel · In use/ })).toBeVisible();
+  await expect(page.getByRole("radio", { name: /^Classic Novel · In use/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /^Nonfiction/ })).toHaveCount(0);
 });
 

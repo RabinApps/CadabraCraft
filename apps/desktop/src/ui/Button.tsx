@@ -6,7 +6,7 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-accent text-accent-ink hover:brightness-110",
-  secondary: "border border-border bg-surface text-ink hover:bg-accent-soft",
+  secondary: "border border-border-strong bg-surface text-ink hover:bg-accent-soft",
   ghost: "text-ink hover:bg-accent-soft",
   danger: "bg-danger text-accent-ink hover:brightness-110",
 };
@@ -15,7 +15,7 @@ export type ButtonSize = "md" | "sm";
 
 const sizes: Record<ButtonSize, string> = {
   md: "px-4 py-2.5 text-sm",
-  sm: "px-3 py-1.5 text-xs",
+  sm: "px-3 py-1.5 text-xs max-md:min-h-11",
 };
 
 const focus = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";

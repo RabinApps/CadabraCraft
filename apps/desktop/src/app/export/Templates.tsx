@@ -94,20 +94,42 @@ export function Templates({ onBack }: { onBack: () => void }) {
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8">
           <h2 className="font-book text-2xl font-semibold">{t`Choose a look for your book`}</h2>
-          <div role="group" aria-label={t`Templates`} className="flex flex-wrap gap-4">
+          <div
+            role="radiogroup"
+            aria-label={t`Templates`}
+            className="flex flex-wrap gap-4"
+            onKeyDown={(e) => {
+              const step =
+                e.key === "ArrowRight" || e.key === "ArrowDown"
+                  ? 1
+                  : e.key === "ArrowLeft" || e.key === "ArrowUp"
+                    ? -1
+                    : 0;
+              if (!step) return;
+              e.preventDefault();
+              const at = templates.findIndex((x) => x.id === selected);
+              const next = templates[(at + step + templates.length) % templates.length];
+              if (!next) return;
+              setSelected(next.id);
+              e.currentTarget.querySelector<HTMLElement>(`[data-template="${next.id}"]`)?.focus();
+            }}
+          >
             {templates.map((tpl) => {
               const on = tpl.id === selected;
               return (
                 <button
                   key={tpl.id}
                   type="button"
-                  aria-pressed={on}
+                  role="radio"
+                  aria-checked={on}
+                  tabIndex={on ? 0 : -1}
+                  data-template={tpl.id}
                   onClick={() => setSelected(tpl.id)}
                   className={cx(
                     "flex w-[250px] flex-col items-center gap-3 rounded-lg border bg-surface p-4 text-start transition-colors focus-visible:outline-2 focus-visible:outline-accent",
                     on
                       ? "border-accent bg-accent-soft/40"
-                      : "border-border hover:bg-accent-soft/40",
+                      : "border-border-strong hover:bg-accent-soft/40",
                   )}
                 >
                   <MiniPage template={tpl} />

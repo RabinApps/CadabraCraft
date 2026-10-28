@@ -13,10 +13,10 @@ export function Chip({ pressed, className, ...rest }: ChipProps) {
       type="button"
       aria-pressed={pressed}
       className={cx(
-        "rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "rounded-md border px-2.5 py-1 max-md:min-h-11 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
         pressed
           ? "border-accent bg-accent-soft text-accent"
-          : "border-border text-ink hover:bg-accent-soft",
+          : "border-border-strong text-ink hover:bg-accent-soft",
         className,
       )}
       {...rest}

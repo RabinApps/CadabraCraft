@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
@@ -276,11 +276,45 @@ export function Toolbar({ editor }: { editor: Editor }) {
     ),
   );
 
+  // One tab stop for the whole toolbar; arrow keys move between the buttons (the WAI-ARIA toolbar pattern).
+  const barRef = useRef<HTMLDivElement>(null);
+  const [stop, setStop] = useState<string | null>(null);
+  const all = groups.flat();
+  const stopId = (all.find((b) => b.id === stop && !b.disabled) ?? all.find((b) => !b.disabled))
+    ?.id;
+  const onBarKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"));
+    const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (at < 0) return;
+    const rtl = getComputedStyle(bar).direction === "rtl";
+    const to =
+      e.key === "ArrowRight"
+        ? at + (rtl ? -1 : 1)
+        : e.key === "ArrowLeft"
+          ? at + (rtl ? 1 : -1)
+          : e.key === "Home"
+            ? 0
+            : e.key === "End"
+              ? buttons.length - 1
+              : null;
+    if (to === null) return;
+    e.preventDefault();
+    buttons[(to + buttons.length) % buttons.length]?.focus();
+  };
+
   return (
     <>
       <div
+        ref={barRef}
         role="toolbar"
         aria-label={t`Formatting`}
+        onKeyDown={onBarKeyDown}
+        onFocus={(e) => {
+          const id = (e.target as HTMLElement).closest("button")?.dataset.toolbarId;
+          if (id) setStop(id);
+        }}
         className="flex shrink-0 items-center gap-1 overflow-x-auto border-border bg-surface px-2 py-1.5 max-md:border-t md:flex-wrap md:justify-center md:border-b md:px-4"
       >
         {groups.map((g, i) => (
@@ -296,6 +330,8 @@ export function Toolbar({ editor }: { editor: Editor }) {
                 label={b.label}
                 active={b.active ?? undefined}
                 disabled={b.disabled}
+                data-toolbar-id={b.id}
+                tabIndex={b.id === stopId ? 0 : -1}
                 onMouseDown={(e) => e.preventDefault() /* keep the editor selection */}
                 onClick={b.run}
               />

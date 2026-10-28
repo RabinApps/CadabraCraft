@@ -66,7 +66,7 @@
               "reusable": true,
               "fill": "$surface",
               "cornerRadius": "$radius",
-              "stroke": "$border",
+              "stroke": "$border-strong",
               "strokeWidth": 1,
               "gap": 8,
               "padding": [
@@ -233,7 +233,7 @@
               "width": 260,
               "fill": "$surface",
               "cornerRadius": "$radius",
-              "stroke": "$border",
+              "stroke": "$border-strong",
               "strokeWidth": 1,
               "layout": "vertical",
               "gap": 4,
@@ -584,7 +584,7 @@
                   "reusable": true,
                   "fill": "$surface",
                   "cornerRadius": "$radius",
-                  "stroke": "$border",
+                  "stroke": "$border-strong",
                   "strokeWidth": 1,
                   "padding": [
                     4,
@@ -109450,6 +109450,23 @@
     "radius-full": {
       "type": "number",
       "value": 999
+    },
+    "border-strong": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#7F8A9D",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#64748C",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
     }
   },
   "fileToken": "73f208a8-7c3b-4969-937c-bc3932b39468"
