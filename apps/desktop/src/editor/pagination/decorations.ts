@@ -15,6 +15,27 @@ export interface GapWidgetSpec {
   key: string;
 }
 
+const LETTER = /^\p{L}$/u;
+
+/** True when the document has a letter on both sides of `pos`: a line that breaks there breaks inside a word. */
+export function breaksMidWord(doc: PMNode, pos: number): boolean {
+  if (pos < 1 || pos >= doc.content.size) return false;
+  const [before, after] = [...doc.textBetween(pos - 1, pos + 1, "￼", "￼")];
+  return before !== undefined && after !== undefined && LETTER.test(before) && LETTER.test(after);
+}
+
+/** The hyphen drawn at the end of the last line of a page when a word is split across the page break (the spacer replaces the browser's own). */
+function hyphenElement(): HTMLElement {
+  const el = document.createElement("span");
+  el.className = "pv-hyphen";
+  el.contentEditable = "false";
+  el.setAttribute("aria-hidden", "true");
+  el.textContent = "-";
+  // Zero width: the hyphen hangs past the end of the line instead of taking room, so the line breaks exactly as it did without it.
+  el.style.cssText = "display:inline-block;width:0;overflow:visible;white-space:nowrap";
+  return el;
+}
+
 const px = (n: number): string => `${Math.round(n * 100) / 100}px`;
 
 /** The spacer element: not editable, not selectable, taller than whatever is left of the page so the next page's text starts on the next card. */
@@ -60,6 +81,7 @@ export function buildDecorations(
   layout: PageLayoutResult,
   firstPage: number,
   splitPos: SplitResolver,
+  hyphenate = false,
 ): DecorationSet {
   const out: Decoration[] = [];
   const starts: number[] = [];
@@ -70,6 +92,15 @@ export function buildDecorations(
     if (pos === undefined || pos === null) return;
     resolved.set(`${gap.block}:${gap.linesBefore}`, pos);
     out.push(widget(pos, gap, index));
+    // side -2: before the spacer, so the hyphen ends the line on the page the word starts on.
+    if (hyphenate && gap.linesBefore > 0 && breaksMidWord(doc, pos))
+      out.push(
+        Decoration.widget(pos, hyphenElement, {
+          side: -2,
+          key: `pv-hyphen:${index}`,
+          ignoreSelection: true,
+        }),
+      );
   });
 
   const fragments = blockFragments(layout.breaks, doc.childCount);

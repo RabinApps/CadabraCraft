@@ -88,6 +88,10 @@ export function createController() {
     cache.sync(c.layoutKey);
     const root = v.dom;
     root.classList.add("pv-natural");
+    // A hyphen belongs to the flow only once a page break is there, so it is left out of the natural measurement.
+    const hyphens = root.querySelectorAll<HTMLElement>(".pv-hyphen");
+    hyphens.forEach((h) => (h.style.display = "none"));
+    let hyphenate: boolean;
     let result: PageLayoutResult;
     const splits = new Map<string, number | null>();
     try {
@@ -102,6 +106,7 @@ export function createController() {
         startsOn: c.startsOn,
         opensChapter: c.opensChapter,
       });
+      hyphenate = getComputedStyle(root).hyphens === "auto";
       const starts: number[] = [];
       v.state.doc.forEach((_n, offset) => starts.push(offset));
       for (const gap of result.gaps)
@@ -120,12 +125,14 @@ export function createController() {
           );
     } finally {
       root.classList.remove("pv-natural");
+      hyphens.forEach((h) => (h.style.display = ""));
     }
     const set = buildDecorations(
       v.state.doc,
       result,
       c.firstPage,
       (block, n) => splits.get(`${block}:${n}`) ?? null,
+      hyphenate,
     );
     send({ type: "set", set });
     // The text now flows with the spacers in it: read where the cards must be so they match it exactly.

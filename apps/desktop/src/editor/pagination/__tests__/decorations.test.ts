@@ -169,4 +169,29 @@ describe("buildDecorations", () => {
   });
 });
 
+describe("hyphen at a split inside a word", () => {
+  const doc = schema.node("doc", null, [p(100)]);
+  const at50 = (b: number, n: number) => (b === 0 && n === 16 ? 50 : null);
+  const hyphensOf = (d: typeof doc, set: ReturnType<typeof buildDecorations>) =>
+    set.find(0, d.content.size, (s: { key?: string }) => !!s.key?.startsWith("pv-hyphen"));
+
+  it("adds a hyphen widget before the spacer when hyphenation is on and the break is mid-word", () => {
+    const found = hyphensOf(doc, buildDecorations(doc, layoutOf([30], 1), 1, at50, true));
+    expect(found.map((d) => d.from)).toEqual([50]);
+  });
+
+  it("adds none when hyphenation is off", () => {
+    expect(hyphensOf(doc, buildDecorations(doc, layoutOf([30], 1), 1, at50, false))).toHaveLength(
+      0,
+    );
+  });
+
+  it("adds none when the break is at a space or a hyphen", () => {
+    for (const text of ["a ".repeat(50), "a-".repeat(50)]) {
+      const d = schema.node("doc", null, [schema.node("paragraph", null, [schema.text(text)])]);
+      expect(hyphensOf(d, buildDecorations(d, layoutOf([30], 1), 1, at50, true))).toHaveLength(0);
+    }
+  });
+});
+
 afterEach(() => vi.unstubAllGlobals());

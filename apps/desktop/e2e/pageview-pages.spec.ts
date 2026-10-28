@@ -165,6 +165,42 @@ test("a paragraph is split across pages and the text stays one paragraph", async
   expect(widths.line).toBeGreaterThan(widths.p * 0.9);
 });
 
+test("a word split across a page break shows its hyphen", async ({ page }) => {
+  await newProject(page);
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  const words = [
+    "extraordinarily",
+    "incomprehensible",
+    "uncharacteristically",
+    "internationalization",
+  ];
+  const long = Array.from({ length: 700 }, (_, i) => words[i % 4]).join(" ");
+  await page.keyboard.insertText(long);
+  await pageViewAt100(page);
+  await expect(page.locator(".pv-gap-inline").first()).toBeAttached();
+  const hyphenated = await page.evaluate(
+    () => getComputedStyle(document.querySelector(".ProseMirror")!).hyphens === "auto",
+  );
+  test.skip(!hyphenated, "this template does not hyphenate");
+  // Every break that falls inside a word has a hyphen right before its spacer, and no break at a space has one.
+  const breaks = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>(".pv-gap-inline")].map((gap) => {
+      const before = gap.previousSibling;
+      const after = gap.nextSibling?.textContent?.[0] ?? "";
+      const prev = before instanceof HTMLElement ? before : null;
+      const text = (prev ? prev.previousSibling : before)?.textContent ?? "";
+      return {
+        midWord: /\p{L}$/u.test(text) && /\p{L}/u.test(after),
+        hyphen: !!prev?.matches(".pv-hyphen"),
+      };
+    }),
+  );
+  expect(breaks.length).toBeGreaterThan(0);
+  for (const b of breaks) expect(b.hyphen).toBe(b.midWord);
+  expect(breaks.some((b) => b.hyphen)).toBe(true);
+});
+
 test("typing a lot adds pages; nothing of the pagination reaches the saved chapter", async ({
   page,
 }) => {
