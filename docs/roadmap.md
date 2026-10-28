@@ -22,6 +22,10 @@ UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 - Print checks: the gutter bands, 24-828 page range and 0.25 in outer margin in `lib/exportChecks.ts` match KDP's "Set Trim Size, Bleed, and Margins" page (checked 2026-10-26). Not covered yet: the 0.375 in outer minimum when the interior has bleed (we do not export bleed), and per-trim-size page limits.
 - Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
 
+### Reference files (brainstorming library)
+
+Designs are in the pen (`References / ...`, `Reference viewer / ...`, `Editor with linked references / ...`), see [design.md](design.md). Decisions in [architecture.md](architecture.md), "Reference files". Plan, in order: format v5 (`references/` folder and manifest list), Rust import and ranged read commands, the panel, viewers (image, video, audio, PDF with pdfjs, text, no-preview fallback), chapter links, tests. Not planned for v1: a freeform board or canvas, anchoring a reference to a text selection, OCR or full-text search inside PDFs, web clippings, thumbnails generated from video frames.
+
 ### EPUB retail metadata
 
 - More OPF metadata needs new manifest fields (a format change, so `/change-file-format`): publisher, description, subjects/BISAC, series and number, rights, publication date. Today the EPUB writes identifier, ISBN, title, author, language, modified and accessibility metadata only.

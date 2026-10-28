@@ -6,10 +6,11 @@ import {
 } from "@cadabracraft/shared";
 import { FormatError } from "./errors";
 import { validateEditions } from "./editions";
+import { validateReferences } from "./references";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 4;
+export const CURRENT_FORMAT_VERSION = 5;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -35,6 +36,20 @@ export interface EditionEntry {
   untranslated?: string[];
 }
 
+/** A research file kept beside the book (formatVersion 5). The file lives in `references/`. */
+export interface Reference {
+  id: string;
+  /** Relative `references/<name>` path. */
+  file: string;
+  title: string;
+  note: string;
+  tags: string[];
+  /** Ids of the chapters or matter pages this reference is linked to. */
+  chapters: string[];
+  /** ISO 8601 date and time of the import. */
+  addedAt: string;
+}
+
 export interface Manifest {
   formatVersion: number;
   editions: Edition[];
@@ -42,6 +57,7 @@ export interface Manifest {
   frontMatter: EditionEntry[];
   chapters: EditionEntry[];
   backMatter: EditionEntry[];
+  references: Reference[];
 }
 
 export function createManifest(init: {
@@ -67,6 +83,7 @@ export function createManifest(init: {
     frontMatter: [],
     chapters: [],
     backMatter: [],
+    references: [],
   };
 }
 
@@ -161,6 +178,7 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     frontMatter: entries(o.frontMatter, "frontMatter", "front"),
     chapters: entries(o.chapters, "chapters", "chapter"),
     backMatter: entries(o.backMatter, "backMatter", "back"),
+    references: validateReferences(o.references),
   };
   validateEditions(m.editions, readingOrder(m));
   const seen = new Set<string>();

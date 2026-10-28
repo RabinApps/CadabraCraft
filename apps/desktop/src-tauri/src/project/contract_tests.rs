@@ -167,7 +167,7 @@ fn contract_image_dimensions() {
     }
 }
 
-/// The v3 and v4 manifest vectors (`fixtures/contract/manifest-*.json`), also read by `packages/format` tests. Rust does not
+/// The v3, v4 and v5 manifest vectors (`fixtures/contract/manifest-*.json`), also read by `packages/format` tests. Rust does not
 /// parse the manifest; it checks that every recorded path passes the same `resolve` rule, the editions are consistent, and
 /// the v3 chapter paths are the v4 source paths (the migration moves no file).
 #[test]
@@ -200,4 +200,17 @@ fn contract_manifest_fixtures() {
     let v3_chapter_files: Vec<&str> = v3["chapters"].as_array().unwrap().iter().map(|c| s(&c["file"])).collect();
     let v4_source_files: Vec<&str> = v4["chapters"].as_array().unwrap().iter().map(|c| s(&c["files"]["en"])).collect();
     assert_eq!(v3_chapter_files, v4_source_files, "the migration keeps every source file in place");
+
+    let v5 = vectors("manifest-v5");
+    assert_eq!(v5["formatVersion"], 5);
+    assert_eq!(v5["chapters"], v4["chapters"], "version 5 only adds references");
+    let ids: Vec<&str> = v5["chapters"].as_array().unwrap().iter().map(|c| s(&c["id"])).collect();
+    for r in v5["references"].as_array().unwrap() {
+        let file = s(&r["file"]);
+        assert!(file.starts_with("references/") && !file["references/".len()..].contains('/'), "{file} is flat");
+        resolve(root, file).unwrap_or_else(|err| panic!("{file}: {err}"));
+        for c in r["chapters"].as_array().unwrap() {
+            assert!(ids.contains(&s(c)), "link {c} names a chapter");
+        }
+    }
 }

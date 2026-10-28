@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 4)
+# CadabraCraft project file format (formatVersion 5)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -9,6 +9,7 @@ MyBook/
 ├── front-matter/         title page, copyright, dedication... (same JSON format, `NN-slug.json`)
 ├── back-matter/          acknowledgments, about the author... (same JSON format, `NN-slug.json`)
 ├── assets/               images, fonts
+├── references/           research files the author keeps beside the book (see References)
 ├── exports/              generated EPUB/PDF (safe to delete)
 └── .cadabra/             local state, cache, backups (exclude from sync)
 ```
@@ -17,7 +18,7 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 4,
+  "formatVersion": 5,
   "template": "novel",
   "editions": [
     {
@@ -50,6 +51,17 @@ MyBook/
       "kind": "about-the-author",
       "titles": { "en": "About the Author" },
       "files": { "en": "back-matter/01-about-the-author.json" }
+    }
+  ],
+  "references": [
+    {
+      "id": "ref-1",
+      "file": "references/lighthouse-history.pdf",
+      "title": "Lighthouse history",
+      "note": "Dates for the keeper dispute.",
+      "tags": ["history"],
+      "chapters": ["ch-1"],
+      "addedAt": "2026-10-28T09:30:00.000Z"
     }
   ]
 }
@@ -84,6 +96,17 @@ Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 sc
 - Image node attrs: `src` (required), `alt` (text for screen readers), `title` (shown as the caption). EPUB export copies referenced images to `OEBPS/assets/`.
 - The app never deletes assets; unreferenced ones are simply left in the folder.
 
+## References (formatVersion 5)
+
+Research files the author keeps next to the book to look at while writing: images, video, audio, PDFs, text and other files. They are never part of an export. The design is in [architecture.md](architecture.md), "Reference files".
+
+- Files live in `references/` (one level, no subfolders) and are always copies inside the project, never links to the original. Names contain only `A-Z a-z 0-9 _ -` and one lowercase extension. An import never overwrites: identical bytes reuse the existing file, different bytes get a `-2`, `-3`... suffix.
+- `references` is a list in the manifest, in the order the author sees it. Each item has `id` (starts with a letter, letters, digits, `-` and `_`, unique among references), `file` (`references/<name>`, unique), `title` (non-empty, free text), `note` (free text, may be empty), `tags` (list of unique non-empty strings), `chapters` (ids of chapters or matter pages the reference is linked to) and `addedAt` (ISO 8601 date and time).
+- A chapter id in `chapters` that no longer exists is ignored by the app and reported by `cadabra_project_validate`; the manifest still opens. Removing a chapter or matter page removes its links.
+- The app never deletes a reference file for good: removing a reference takes it out of the list and moves the file to `.cadabra/trash`. A file in `references/` that is not listed is simply left alone.
+- Allowed types and size limits are enforced when importing (see architecture.md); the manifest does not store them. Reading a reference never changes the file.
+- Why a version bump: an older app would rewrite the manifest without `references` and silently lose the list, so version 4 apps refuse a version 5 project.
+
 ## Writes and conflicts
 
 - Every write is temp file in the same folder, then rename.
@@ -107,6 +130,7 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 
 ## Versioning
 
+- Version 4 -> 5: adds `references` (an empty list when absent). The migration changes nothing else and moves no file; it backs up `cadabra.json` to `.cadabra/backups/` before it writes.
 - Version 3 -> 4: moves `title`, `author`, `language`, `identifier`, `isbn` and `cover` into `editions` (the first is the source), and turns each entry's `title` and `file` into `titles` and `files` maps keyed by language. No file moves. The migration backs up `cadabra.json` to `.cadabra/backups/` before it writes.
 - Version 2 -> 3: adds `cover` (`null` when absent). The migration sets `cover: null` and changes nothing else.
 - Version 1 -> 2: front and back matter entries may carry `kind`. The migration changes nothing else; older entries keep no kind.

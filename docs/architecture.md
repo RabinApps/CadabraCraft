@@ -711,6 +711,25 @@ The predefined native Quit item ends the process without a window close request,
 | Thumbnails or cover images on the cards         | Needs image decoding and size limits in localStorage; typographic covers match the pen and cost nothing.                 |
 | A "Last edited" sort control                    | The list is already newest first, so the control would do nothing until there is a second order to offer.                |
 
+## Reference files (2026-10-28)
+
+**Decision:** authors can import images, video, audio, PDFs, text and other files into a book as references to look at while writing (a "brainstorming" library). Each file is copied into a new flat `references/` folder in the project (sanitised names, `-2` suffix on a clash, identical sha256 content reuses the existing file, never an absolute path). The manifest gains `references: [{id, file, title, note, tags, chapters, addedAt}]`, so this is a format change (v4 to v5, `/change-file-format`). Files are shown through `blob:` URLs built from ranged reads over raw-body IPC, so `media-src 'self' blob:` stays as it is and no asset protocol is enabled. PDFs render on a canvas with `pdfjs-dist` (worker allowed through `worker-src 'self' blob:`). Types that cannot be previewed are stored and opened in the default app. References link to chapters by id; the chapter details panel lists them.
+
+**Why:** `assets/` is flat, image-only, capped at 25 MB and checked as images, so research files would weaken those guarantees. A folder plus a manifest list keeps files syncable and diffable, lets MCP validate them, and keeps blobs out of chapter JSON. Ranged reads avoid loading a 500 MB video into one IPC response. pdfjs gives the same rendering on macOS, Windows and Linux and needs no network.
+
+**Rejected:**
+
+| Option                                          | Why not                                                                                                     |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Store references in `assets/`                   | Mixes research with images the book prints; the image-only checks and size cap would need exceptions.       |
+| Tauri asset protocol (`convertFileSrc`)         | Opens a filesystem scope to the webview and a new CSP source; ranged IPC reads give seeking without either. |
+| PDF in an `<iframe>` or `<embed>`               | Viewer differs between WKWebView and WebView2, no page or search control, needs `frame-src blob:`.          |
+| Index file in `references/` instead of manifest | A second file to keep consistent on sync; the manifest already carries editions and chapters.               |
+| A freeform board or canvas                      | Much larger scope (layout model, zoom, undo); moved to the roadmap.                                         |
+| Embed references in chapter JSON                | Large binary content in text files, sync conflicts, and exporters would have to learn a new node.           |
+
+**Follow-ups / caveats:** `pdfjs-dist` 6.4.299 (Apache-2.0, pinned, no install scripts) was added to `apps/desktop` with the author's approval; it is not used yet. The repo has no third-party notices file yet (see the licensing item in the roadmap), so pdfjs goes on that list when it is generated. The CSP still needs `worker-src 'self' blob:`, which lands with the viewer. Per-type size caps (video up to 500 MB) and the video seek behaviour through ranged blob reads are not measured; revisit the asset protocol only if seeking is unusable. The watcher must ignore `references/*.tmp`.
+
 ## Code layout and tests
 
 **Decision:** tests live in a `__tests__/` folder beside the code they test (`src/__tests__/` in every package, `app/__tests__`, `state/project/__tests__`, `lib/__tests__` and so on in the desktop app). Playwright specs stay in `apps/desktop/e2e/`, one file per topic, sharing `e2e/support/fakeTauri.ts`. Store tests share the in-memory bridge in `apps/desktop/src/test/fakeBridge.ts`. Fixtures stay in the root `fixtures/` folder.

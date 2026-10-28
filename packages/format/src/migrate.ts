@@ -1,6 +1,7 @@
 import { CURRENT_FORMAT_VERSION, validateManifest, type Manifest } from "./manifest";
 import { FormatError } from "./errors";
 import { migrateV3ToV4 } from "./editions";
+import { migrateV4ToV5 } from "./references";
 import { errMsg } from "@cadabracraft/shared";
 
 /** A migration upgrades a raw manifest object from `from` to `from + 1`. */
@@ -17,6 +18,8 @@ export const MIGRATIONS: Migration[] = [
   { from: 2, up: (raw) => ({ ...raw, cover: null }) },
   // v3 -> v4: top-level edition metadata moves into `editions`; entries get titles and files maps. No file moves.
   { from: 3, up: migrateV3ToV4 },
+  // v4 -> v5: adds `references` (an empty list). Nothing else changes and no file moves.
+  { from: 4, up: migrateV4ToV5 },
 ];
 
 export interface MigrationResult {

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import { createManifest, entryFile, isTranslated, parseManifest, readingOrder, serializeManifest, sourceTitle, translationProgress } from "@cadabracraft/format";
+import { createManifest, danglingLinks, entryFile, isTranslated, parseManifest, readingOrder, serializeManifest, sourceTitle, translationProgress } from "@cadabracraft/format";
 import { MANIFEST, ProjectFsError, countWords, createProject, imageExt, looksLike, readAsset, readProjectFile, resolveInWorkspace } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
 import { isAssetPath, errMsg } from "@cadabracraft/shared";
@@ -91,7 +91,7 @@ export interface Issue {
 export const projectValidate = defineTool({
   name: "cadabra_project_validate",
   title: "Validate project",
-  description: "Check a project: manifest, every chapter file (JSON parses and matches the real editor schema), and that referenced images exist in assets/ and are valid images. Reports issues instead of failing.",
+  description: "Check a project: manifest, every chapter file (JSON parses and matches the real editor schema), that referenced images exist in assets/ and are valid images, and (as warnings) reference files that are missing and reference links to chapters that no longer exist. Reports issues instead of failing.",
   input: { path: PATH },
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
   run: ({ path }, ctx) => {
@@ -144,6 +144,10 @@ export const projectValidate = defineTool({
         else if (status === "invalid") add("error", "asset_invalid", e.id, `${file}: image ${src} is not a valid ${imageExt(src)} image`);
       }
     }
+    for (const r of manifest.references)
+      if (!existsSync(join(root, r.file))) add("warning", "reference_missing", r.id, `${r.file} does not exist`);
+    for (const l of danglingLinks(manifest))
+      add("warning", "reference_link_dangling", l.reference, `linked to ${l.chapter}, which is not in the book`);
     return report(issues);
   },
 });
@@ -152,7 +156,6 @@ function report(issues: Issue[]) {
   const errors = issues.filter((i) => i.severity === "error").length;
   const warnings = issues.length - errors;
   return {
-    // v8 ignore next -- no check reports a warning yet, so `warnings` is always 0
     summary: errors === 0 ? `Valid${warnings ? ` with ${warnings} warning(s)` : ""}` : `${errors} error(s), ${warnings} warning(s)`,
     data: { valid: errors === 0, errors, warnings, issues },
   };

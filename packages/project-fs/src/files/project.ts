@@ -12,6 +12,7 @@ export const PROJECT_DIRS = [
   "front-matter",
   "back-matter",
   "assets",
+  "references",
   "exports",
   ".cadabra",
 ] as const;

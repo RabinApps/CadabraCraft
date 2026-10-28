@@ -23,9 +23,10 @@ const base = (): Manifest => ({
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
 
 describe("manifest", () => {
-  it("creates a v4 book with one source edition", () => {
+  it("creates a v5 book with one source edition and no references", () => {
     const m = createManifest({ title: "T", author: "A", language: "fr", identifier: "urn:uuid:x" });
-    expect(m.formatVersion).toBe(4);
+    expect(m.formatVersion).toBe(5);
+    expect(m.references).toEqual([]);
     expect(m.editions).toEqual([
       {
         language: "fr",
@@ -94,10 +95,10 @@ describe("migration v1 -> v4 (front/back matter kinds, cover, editions)", () => 
     const v1 = JSON.parse(v1Json);
     expect(v1.formatVersion).toBe(1);
     const r = parseManifest(v1Json);
-    expect(CURRENT_FORMAT_VERSION).toBe(4);
+    expect(CURRENT_FORMAT_VERSION).toBe(5);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(1);
-    expect(r.manifest.formatVersion).toBe(4);
+    expect(r.manifest.formatVersion).toBe(5);
     expect(r.manifest.editions[0]).toMatchObject({ language: v1.language, title: v1.title });
     expect(readingOrder(r.manifest).map((e) => e.id)).toEqual([
       "title-page",
@@ -106,10 +107,10 @@ describe("migration v1 -> v4 (front/back matter kinds, cover, editions)", () => 
       "about",
     ]);
   });
-  it("serializes as v4 and reopens without migrating again", () => {
+  it("serializes as v5 and reopens without migrating again", () => {
     const again = parseManifest(serializeManifest(parseManifest(v1Json).manifest));
     expect(again.migrated).toBe(false);
-    expect(again.manifest.formatVersion).toBe(4);
+    expect(again.manifest.formatVersion).toBe(5);
   });
   it("validates kinds: unknown kinds, wrong section and kinds on chapters are rejected", () => {
     const m = base();
@@ -142,7 +143,7 @@ describe("migration v2 -> v4 (cover, then editions)", () => {
     const r = parseManifest(v2Json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(2);
-    expect(r.manifest.formatVersion).toBe(4);
+    expect(r.manifest.formatVersion).toBe(5);
     expect(r.manifest.editions).toEqual([
       {
         language: v2.language,
@@ -176,7 +177,7 @@ describe("migration v3 -> v4 (real v3 project file)", () => {
     const r = parseManifest(v3Json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(3);
-    expect(r.manifest.formatVersion).toBe(4);
+    expect(r.manifest.formatVersion).toBe(5);
     expect(r.manifest.editions).toHaveLength(1);
     expect(r.manifest.editions[0]).toEqual({
       language: "en",
@@ -219,13 +220,25 @@ describe("shared contract fixtures (also read by Rust)", () => {
     expect(r.migrated).toBe(true);
     expect(r.manifest.editions[0]!.language).toBe("en");
   });
-  it("accepts the v4 manifest with a French translated chapter, unchanged", () => {
+  it("migrates the v4 manifest with a French translated chapter and adds an empty reference list", () => {
     const json = read("../../../../fixtures/contract/manifest-v4.json");
     const r = parseManifest(json);
-    expect(r.migrated).toBe(false);
+    expect(r.migrated).toBe(true);
+    expect(r.fromVersion).toBe(4);
+    expect(r.manifest.references).toEqual([]);
     expect(r.manifest.editions.map((e) => e.language)).toEqual(["en", "fr"]);
     expect(r.manifest.chapters[0]!.files.fr).toBe("manuscript/fr/001-chapitre-un.json");
     expect(r.manifest.chapters[1]!.files.fr).toBeUndefined();
+  });
+  it("accepts the v5 manifest with references unchanged", () => {
+    const json = read("../../../../fixtures/contract/manifest-v5.json");
+    const r = parseManifest(json);
+    expect(r.migrated).toBe(false);
+    expect(r.manifest.references.map((x) => x.file)).toEqual([
+      "references/lighthouse-history.pdf",
+      "references/harbour-at-dusk.mp4",
+    ]);
+    expect(JSON.parse(serializeManifest(r.manifest))).toEqual(JSON.parse(json));
   });
 });
 

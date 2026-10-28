@@ -22,7 +22,15 @@ describe("project_create / project_info", () => {
       chapters: [],
     });
     expect(created.manifest.editions[0].identifier).toMatch(/^urn:uuid:[0-9a-f-]{36}$/);
-    for (const d of ["manuscript", "front-matter", "back-matter", "assets", "exports", ".cadabra"])
+    for (const d of [
+      "manuscript",
+      "front-matter",
+      "back-matter",
+      "assets",
+      "references",
+      "exports",
+      ".cadabra",
+    ])
       expect(existsSync(join(s.root, "My Book", d)), d).toBe(true);
     const info = await s.ok("cadabra_project_info", { path: "My Book" });
     expect(info.totals).toEqual({ chapters: 0, words: 0 });
@@ -104,6 +112,39 @@ describe("project_validate", () => {
     const { path } = await seedBook(s);
     const v = await s.ok("cadabra_project_validate", { path });
     expect(v).toMatchObject({ valid: true, errors: 0 });
+  });
+
+  it("warns about a missing reference file and a link to a removed chapter, but stays valid", async () => {
+    s = await connect();
+    const { path, ids } = await seedBook(s);
+    const file = join(s.root, path, "cadabra.json");
+    const manifest = JSON.parse(readFileSync(file, "utf8"));
+    manifest.references = [
+      {
+        id: "ref-1",
+        file: "references/gone.pdf",
+        title: "Gone",
+        note: "",
+        tags: [],
+        chapters: [ids[0], "ch-99"],
+        addedAt: "2026-10-28T09:30:00.000Z",
+      },
+      {
+        id: "ref-2",
+        file: "references/here.pdf",
+        title: "Here",
+        note: "",
+        tags: [],
+        chapters: [],
+        addedAt: "2026-10-28T09:30:00.000Z",
+      },
+    ];
+    writeFileSync(file, JSON.stringify(manifest));
+    writeFileSync(join(s.root, path, "references/here.pdf"), "%PDF-1.4");
+    const v = await s.ok("cadabra_project_validate", { path });
+    expect(v).toMatchObject({ valid: true, errors: 0, warnings: 2 });
+    const codes = v.issues.map((i: { code: string; where: string }) => `${i.code}@${i.where}`);
+    expect(codes).toEqual(["reference_missing@ref-1", "reference_link_dangling@ref-1"]);
   });
 
   it("reports an invalid manifest", async () => {

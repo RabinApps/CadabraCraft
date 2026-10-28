@@ -35,7 +35,7 @@ export async function exportSteps({
     await app.sleep(1500);
     assert((await editorH1()) === "About the Author", "about-the-author page did not open");
     const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
-    assert(manifest.formatVersion === 4, "manifest is not format 4");
+    assert(manifest.formatVersion === 5, "manifest is not format 5");
     assert(
       manifest.frontMatter[0]?.kind === "title-page" &&
         manifest.backMatter[0]?.kind === "about-the-author",

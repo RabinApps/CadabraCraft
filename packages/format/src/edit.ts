@@ -8,6 +8,7 @@ import {
 } from "@cadabracraft/shared";
 import { chapterFileName, matterFileName } from "./names";
 import { sourceEdition } from "./editions";
+import { unlinkEntry } from "./references";
 import type { Manifest, EditionEntry } from "./manifest";
 
 /**
@@ -84,7 +85,10 @@ export function removeChapter(
 ): { manifest: Manifest; removed: EditionEntry } {
   const removed = m.chapters.find((c) => c.id === id);
   if (!removed) throw new Error(`no chapter ${id}`);
-  return { manifest: { ...m, chapters: m.chapters.filter((c) => c.id !== id) }, removed };
+  return {
+    manifest: unlinkEntry({ ...m, chapters: m.chapters.filter((c) => c.id !== id) }, id),
+    removed,
+  };
 }
 
 // ---- front and back matter -------------------------------------------------------------------------
@@ -180,7 +184,10 @@ export function removeMatter(
 ): { manifest: Manifest; removed: EditionEntry } {
   const section = matterSection(m, id);
   const removed = m[section].find((e) => e.id === id)!;
-  return { manifest: { ...m, [section]: m[section].filter((e) => e.id !== id) }, removed };
+  return {
+    manifest: unlinkEntry({ ...m, [section]: m[section].filter((e) => e.id !== id) }, id),
+    removed,
+  };
 }
 
 /** Where a restored file goes, from its folder. Null for files outside manuscript, front-matter and back-matter. */

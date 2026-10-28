@@ -281,11 +281,12 @@ A book is a folder you choose (details in [docs/file-format.md](../../docs/file-
 
 ```
 My Book/
-  cadabra.json        title, author, language, ISBN, cover, template, chapter order (formatVersion 3)
+  cadabra.json        editions, template, chapter order, references (formatVersion 5)
   manuscript/         one TipTap JSON file per chapter
   front-matter/       title page, copyright, dedication, ...
   back-matter/        acknowledgments, about the author, ...
   assets/             images (png, jpg, jpeg, gif, webp, svg; max 25 MB each, checked by magic bytes)
+  references/         research files kept beside the book (not built yet, see docs/roadmap.md)
   exports/            EPUB, PDF, Markdown, DOCX, audio written here
   .cadabra/           this computer only: trash/, backups/ (chapter snapshots), audio/ cache (keep out of sync)
 ```

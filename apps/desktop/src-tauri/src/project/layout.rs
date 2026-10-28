@@ -6,7 +6,7 @@ use std::fs;
 use std::path::Path;
 
 pub const MANIFEST: &str = "cadabra.json";
-const DIRS: [&str; 6] = ["manuscript", "front-matter", "back-matter", "assets", "exports", ".cadabra"];
+const DIRS: [&str; 7] = ["manuscript", "front-matter", "back-matter", "assets", "references", "exports", ".cadabra"];
 
 /// Creates the folder layout and writes the manifest. Refuses to touch an existing project.
 pub fn create_project(root: &Path, manifest_json: &str) -> Result<()> {
