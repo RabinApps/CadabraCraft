@@ -11,6 +11,11 @@ msgstr ""
 msgid ".ttf and .otf files. A copy is kept in the app, never in your book."
 msgstr "קובצי ‎.ttf ו־‎.otf. עותק נשמר באפליקציה, אף פעם לא בספר שלך."
 
+#. placeholder {0}: chosen?.name ?? ""
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "“{0}” is removed from this computer. Your chapters are not changed."
+msgstr ""
+
 #: src/lib/epubErrors.ts
 msgid "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
 msgstr "ב־“{page}” יש “{kind}” שייצוא ה־EPUB אינו יכול לכתוב (ב־{place}). הייצוא נעצר כדי שלא יאבד דבר."
@@ -29,10 +34,30 @@ msgstr "“{page}”: {detail}"
 msgid "{0, plural, one {# chapter} other {# chapters}} · {1, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {פרק #} other {# פרקים}} · {1, plural, one {מילה #} other {# מילים}}"
 
+#. placeholder {0}: r.missing_assets.length
+#: src/state/project/snapshots.ts
+msgid "{0, plural, one {# image it used is no longer in the book folder.} other {# images it used are no longer in the book folder.}}"
+msgstr ""
+
+#. placeholder {0}: e.assets
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "{0, plural, one {# image} other {# images}}"
+msgstr ""
+
 #. placeholder {0}: stuck.length
 #: src/state/project/replace.ts
 msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
 msgstr "{0, plural, one {לא ניתן היה להחזיר עמוד # למקומו והוא שומר על ההחלפה; ביטול משחזר אותו.} other {לא ניתן היה להחזיר # עמודים למקומם והם שומרים על ההחלפה; ביטול משחזר אותם.}}"
+
+#. placeholder {0}: r.trashed.length
+#: src/state/project/snapshots.ts
+msgid "{0, plural, one {# page that was not in the snapshot is in the trash.} other {# pages that were not in the snapshot are in the trash.}}"
+msgstr ""
+
+#. placeholder {0}: e.pages.length
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "{0, plural, one {# page} other {# pages}}"
+msgstr ""
 
 #. placeholder {0}: shown.length
 #: src/app/references/ReferencesPanel.tsx
@@ -503,6 +528,10 @@ msgstr "ספר שמע…"
 msgid "Author"
 msgstr "מחבר"
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Automatic"
+msgstr ""
+
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
@@ -594,6 +623,11 @@ msgstr "היסטוריית הספר"
 #: src/editor/ReadingFooter.tsx
 msgid "Book progress"
 msgstr "התקדמות הספר"
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Book snapshots"
+msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Bring All to Front"
@@ -1082,9 +1116,17 @@ msgstr "מחיקת עמודה"
 msgid "Delete Row"
 msgstr "מחיקת שורה"
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Delete snapshot"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Delete Table"
 msgstr "מחיקת טבלה"
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Delete this snapshot?"
+msgstr ""
 
 #: src/app/settings/AudioSection.tsx
 msgid "Delete voices"
@@ -1278,6 +1320,11 @@ msgstr "אומדן של {estimatedPages} עמודים: ספרי כריכה רכ�
 msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
 msgstr "אומדן של {estimatedPages} עמודים: ספרי כריכה רכה של KDP דורשים לפחות {KDP_MIN_PAGES}. זהו אומדן."
 
+#. placeholder {0}: chosen?.name ?? ""
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Every chapter and the chapter list go back to “{0}”. The book as it is now is kept as an automatic snapshot first."
+msgstr ""
+
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Every chapter starts blank."
 msgstr "כל פרק מתחיל ריק."
@@ -1429,6 +1476,10 @@ msgstr "גופנים יורדים מ־Google Fonts רק כשאתה לוחץ על
 msgid "Footnote"
 msgstr "הערת שוליים"
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "For example, Before the rewrite"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "For example: © 2026 A. Writer. All rights reserved."
 msgstr "לדוגמה: ‏© 2026 א׳ כותב. כל הזכויות שמורות."
@@ -1525,10 +1576,18 @@ msgstr "הסתרת האחרות"
 msgid "History"
 msgstr "היסטוריה"
 
-#. placeholder {0}: page?.title ?? ""
+#. placeholder {0}: page.title
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "History · {0}"
 msgstr "היסטוריה · {0}"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "History · Whole book"
+msgstr ""
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "History of"
+msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "How wide the page is in the editor."
@@ -2059,6 +2118,10 @@ msgstr "העמוד הבא"
 #: src/editor/ReadingFooter.tsx
 msgid "Next page: {0}"
 msgstr "העמוד הבא: {0}"
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
+msgstr ""
 
 #: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
@@ -2650,14 +2713,35 @@ msgstr "שחזור"
 msgid "Restore {0}"
 msgstr "שחזור {0}"
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Restore the whole book?"
+msgstr ""
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Restore this page only"
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Restore this version"
 msgstr "שחזור גרסה זו"
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Restore whole book"
+msgstr ""
+
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
+#: src/state/project/snapshots.ts
+msgid "Restored {0} from a book snapshot. The text it replaced is kept in History."
+msgstr ""
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/snapshots.ts
 msgid "Restored an earlier version of {0}. The text it replaced is kept in History."
 msgstr "שוחזרה גרסה קודמת של {0}. הטקסט שהוחלף נשמר בהיסטוריה."
+
+#: src/state/project/snapshots.ts
+msgid "Restored the whole book. It is kept as an automatic snapshot as it was before."
+msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
 msgid "Restoring adds the file back as a new reference, titled from its file name. The note, tags and chapter links it had are not kept."
@@ -2666,6 +2750,10 @@ msgstr "שחזור מחזיר את הקובץ כהפניה חדשה, עם כות
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Restoring keeps the current text as a new snapshot, so you can undo it."
 msgstr "שחזור שומר את הטקסט הנוכחי כתצלום מצב חדש, כך שאפשר לבטל אותו."
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Restoring the whole book first keeps the book as it is now as an automatic snapshot. Pages the snapshot does not have go to the trash, and images are never removed."
+msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
 msgid "Restoring…"
@@ -2868,6 +2956,14 @@ msgstr "קבצים קטנים, כ־14 MB לשעה. מתנגן בטלפונים �
 msgid "Smaller text"
 msgstr "טקסט קטן יותר"
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Snapshot name"
+msgstr ""
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Snapshots of the whole book. Take one before a big change; restore it to bring every chapter back."
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Snapshots to keep per chapter"
 msgstr "תצלומי מצב לשמירה לכל פרק"
@@ -2998,6 +3094,10 @@ msgstr "טבלה…"
 #: src/app/references/ReferenceDetails.tsx
 msgid "Tags"
 msgstr "תגיות"
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Take snapshot"
+msgstr ""
 
 #: src/app/export/PdfPanel.tsx
 #: src/app/shell/Details.tsx
@@ -3284,6 +3384,7 @@ msgstr "הגופן הזה אינו זמין עוד."
 msgid "This image path is not allowed: {0}"
 msgstr "נתיב התמונה הזה אסור: {0}"
 
+#: src/app/dialogs/HistoryDialog.tsx
 #: src/app/shell/Details.tsx
 msgid "This page"
 msgstr "עמוד זה"
@@ -3536,6 +3637,10 @@ msgstr "מתי נוצרים תצלומי מצב"
 #: src/app/settings/Settings.tsx
 msgid "Where they are stored"
 msgstr "היכן הם נשמרים"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Whole book"
+msgstr ""
 
 #: src/editor/FindBar.tsx
 msgid "Whole word"

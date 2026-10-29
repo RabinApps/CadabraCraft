@@ -98,6 +98,42 @@ describe("project commands", () => {
       "find_stale_pages",
       { root: "/r", paths: ["a"] },
     ],
+    [
+      "listBookSnapshots",
+      () => bridge.listBookSnapshots("/r"),
+      "list_book_snapshots",
+      { root: "/r" },
+    ],
+    [
+      "createBookSnapshot",
+      () => bridge.createBookSnapshot("/r", "n"),
+      "create_book_snapshot",
+      { root: "/r", name: "n" },
+    ],
+    [
+      "readBookSnapshotPage",
+      () => bridge.readBookSnapshotPage("/r", "s", "a"),
+      "read_book_snapshot_page",
+      { root: "/r", snapshot: "s", path: "a" },
+    ],
+    [
+      "restoreBookSnapshot",
+      () => bridge.restoreBookSnapshot("/r", "s"),
+      "restore_book_snapshot",
+      { root: "/r", snapshot: "s" },
+    ],
+    [
+      "restorePageFromBookSnapshot",
+      () => bridge.restorePageFromBookSnapshot("/r", "s", "a"),
+      "restore_page_from_book_snapshot",
+      { root: "/r", snapshot: "s", path: "a" },
+    ],
+    [
+      "deleteBookSnapshot",
+      () => bridge.deleteBookSnapshot("/r", "s"),
+      "delete_book_snapshot",
+      { root: "/r", snapshot: "s" },
+    ],
   ];
   it.each(cases)("%s invokes its command", async (_n, fn, cmd, args) => {
     expect(await sent(fn)).toEqual([cmd, args]);

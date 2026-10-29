@@ -126,6 +126,17 @@ const SCREENS: Record<string, Open> = {
     await chapterAction(page, "Chapter One", "History");
     await expect(page.getByRole("dialog", { name: "History · Chapter One" })).toBeVisible();
   },
+  "book snapshots dialog": async (page) => {
+    await newProject(page);
+    await page.getByRole("button", { name: "Show chapters" }).click();
+    await page.getByRole("button", { name: "Book snapshots" }).click();
+    const dialog = page.getByRole("dialog", { name: "History · Whole book" });
+    await dialog.getByLabel("Snapshot name").fill("Before the rewrite of the second act");
+    await dialog.getByRole("button", { name: "Take snapshot" }).click();
+    await expect(dialog.getByRole("list", { name: "Book snapshots" })).toContainText(
+      "Before the rewrite",
+    );
+  },
   "find bar": async (page) => {
     await newProject(page);
     await page.locator(".ProseMirror").click();

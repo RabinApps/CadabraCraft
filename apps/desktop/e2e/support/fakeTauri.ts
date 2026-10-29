@@ -47,6 +47,56 @@ export async function fakeTauri(page: Page) {
       md: "text",
     };
     const refKind = (file: string) => REF_KINDS[file.split(".").pop()!.toLowerCase()] ?? "other";
+    interface BookFile {
+      name: string;
+      automatic: boolean;
+      manifest: string;
+      pages: Record<string, string>;
+      assets: string[];
+    }
+    const BOOK_DIR = ".cadabra/snapshots/";
+    const bookFile = (path: string): BookFile => {
+      if (!path.startsWith(BOOK_DIR) || typeof disk[path] !== "string")
+        throw { kind: "cannot_restore", path };
+      return JSON.parse(disk[path] as string) as BookFile;
+    };
+    /** Newest first; the stamp (and `~N`) is in the name. */
+    const bookSnaps = () =>
+      Object.keys(disk)
+        .filter((k) => k.startsWith(BOOK_DIR))
+        .sort()
+        .reverse()
+        .map((k): [string, BookFile] => [k, bookFile(k)]);
+    const bookEntry = (path: string, f: BookFile) => ({
+      path,
+      at: path.slice(BOOK_DIR.length, BOOK_DIR.length + 13),
+      name: f.name,
+      automatic: f.automatic,
+      pages: Object.keys(f.pages).sort(),
+      assets: f.assets.length,
+      bytes: JSON.stringify(f).length,
+    });
+    const bookPages = () =>
+      Object.keys(disk).filter(
+        (k) =>
+          /^(manuscript|front-matter|back-matter)\/.+\.json$/.test(k) && !k.includes(".conflict-"),
+      );
+    const makeBookSnap = (name: string, automatic: boolean): [string, BookFile] => {
+      const f: BookFile = {
+        name,
+        automatic,
+        manifest: disk["cadabra.json"] as string,
+        pages: Object.fromEntries(bookPages().map((p) => [p, disk[p] as string])),
+        assets: Object.keys(disk)
+          .filter((k) => k.startsWith("assets/"))
+          .sort(),
+      };
+      let path = `${BOOK_DIR}20261028-1000.json`;
+      for (let n = 2; path in disk; n++) path = `${BOOK_DIR}20261028-1000~${n}.json`;
+      disk[path] = JSON.stringify(f);
+      persist();
+      return [path, f];
+    };
     window.__TAURI_EVENT_PLUGIN_INTERNALS__ = { unregisterListener: () => {} };
     window.__TAURI_INTERNALS__ = {
       metadata: {
@@ -371,6 +421,51 @@ export async function fakeTauri(page: Page) {
             persist();
             return { hash: h(disk[a.path] as string), conflict_copy: null };
           }
+          // Whole-book snapshots live at .cadabra/snapshots/<YYYYMMDD-HHMM>[~N].json as JSON text, like the Rust layer.
+          case "list_book_snapshots":
+            return bookSnaps().map(([path, f]) => bookEntry(path, f));
+          case "create_book_snapshot": {
+            const name = String(a.name).trim();
+            if (!name || name.length > 100) throw { kind: "invalid_file_name" };
+            return bookEntry(...makeBookSnap(name, false));
+          }
+          case "read_book_snapshot_page": {
+            const text = bookFile(a.snapshot).pages[a.path];
+            if (text === undefined) throw { kind: "not_found", path: a.path };
+            return { contents: text, hash: h(text) };
+          }
+          case "restore_page_from_book_snapshot": {
+            const text = bookFile(a.snapshot).pages[a.path];
+            if (text === undefined) throw { kind: "not_found", path: a.path };
+            disk[`.cadabra/backups/20261027-2359-${a.path.replaceAll("/", "__")}`] = disk[a.path]!; // the replaced text is kept first
+            disk[a.path] = text;
+            persist();
+            return { hash: h(text), conflict_copy: null };
+          }
+          case "restore_book_snapshot": {
+            const f = bookFile(a.snapshot);
+            const [safety] = makeBookSnap(`Before restoring ${f.name}`, true);
+            const written: string[] = [];
+            for (const [p, text] of Object.entries(f.pages))
+              if (disk[p] !== text) {
+                disk[p] = text;
+                written.push(p);
+              }
+            disk["cadabra.json"] = f.manifest;
+            const trashed = bookPages().filter((p) => !(p in f.pages));
+            for (const p of trashed) {
+              disk[`.cadabra/trash/20260101-1200-${p.replaceAll("/", "__")}`] = disk[p]!;
+              delete disk[p];
+            }
+            const missing_assets = f.assets.filter((x: string) => !(x in disk));
+            persist();
+            return { safety, written, trashed, missing_assets };
+          }
+          case "delete_book_snapshot":
+            bookFile(a.snapshot);
+            delete disk[a.snapshot];
+            persist();
+            return null;
           case "prune_page_snapshots":
             return 0;
           case "find_stale_pages":

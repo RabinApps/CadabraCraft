@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { FilePlus, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
+import { Camera, FilePlus, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
 import { canAddMatter, entryRowsIn } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
 import { Confirm } from "../../ui/Dialog";
@@ -63,6 +63,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
   const [versionsOf, setVersionsOf] = useState<HistoryPage | null>(null);
+  const [bookHistory, setBookHistory] = useState(false);
   const kinds = useKindLabels();
   if (!manifest) return null;
   const shared = {
@@ -141,6 +142,12 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         className="justify-start"
         onClick={() => setTrashOpen(true)}
       >{t`Trash`}</Button>
+      <Button
+        variant="ghost"
+        icon={Camera}
+        className="justify-start"
+        onClick={() => setBookHistory(true)}
+      >{t`Book snapshots`}</Button>
       <div role="group" aria-label={t`Book history`} className="flex items-center gap-1">
         <IconButton
           icon={Undo2}
@@ -159,9 +166,12 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
       <HistoryDialog
         page={versionsOf}
-        open={versionsOf !== null}
+        open={versionsOf !== null || bookHistory}
         onOpenChange={(o) => {
-          if (!o) setVersionsOf(null);
+          if (!o) {
+            setVersionsOf(null);
+            setBookHistory(false);
+          }
         }}
         onNavigate={onNavigate}
       />

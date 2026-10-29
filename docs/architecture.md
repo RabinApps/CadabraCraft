@@ -17,6 +17,7 @@ Decisions, with the alternatives we rejected. Sections are grouped by area; add 
 - [Safety follow-ups (window close, project root, CSP, binary compile request)](#safety-follow-ups-window-close-project-root-csp-binary-compile-request)
 - [Code review refactors (Rust scope, errors, autosave)](#code-review-refactors-rust-scope-errors-autosave)
 - [Chapter snapshots and History](#chapter-snapshots-and-history)
+- [Whole-book snapshots](#whole-book-snapshots)
 
 **Export**
 
@@ -600,6 +601,35 @@ Rejected: importing `@preview/droplet` (Typst would download it at compile time,
 - A snapshot name `...-a-2.json` is ambiguous between a numbered copy of page `a` and the plain snapshot of page `a-2`; listing treats it as the sibling's when that page exists. Deleted siblings resolve the other way.
 - Snapshots of a page removed from the book are never pruned.
 - Not run on a real sync folder, on Windows or in the native app (`/drive-app` not run).
+
+## Whole-book snapshots
+
+**Decision:** the author can keep a named snapshot of the whole book: one file `.cadabra/snapshots/<YYYYMMDD-HHMM>[~N].json` holding the manifest text, the text of every page (including translation folders, not conflict copies) and the list of image paths (format in file-format.md, "Whole-book snapshots"). It is written by `project/book_snapshots.rs` (`create_book_snapshot`) with the same rules as every other write: relative paths only, `free_copy_name` for the name and `atomic_write` (temp file and rename), so a second snapshot in a minute never replaces the first. Commands: list, create, read one page of a snapshot, restore the book, restore one page, delete.
+
+- **Restore the whole book:** the snapshot must be one of the listed files (a path cannot name anything else) and every page path in it is checked before anything is written. Then, in order: an automatic snapshot "Before restoring <name>" of the book as it is (the safety net, listed with an Automatic badge); pages written through the normal write path (so each replaced page also gets its own page snapshot, and pages already equal are left alone); the manifest; pages that exist now but not in the snapshot go to `.cadabra/trash` (never deleted). Images are not part of it: the app never deletes assets, so a restored chapter still finds its images, and the ones listed but gone are counted in the result and in the notice. The UI then reopens the book (`openProject`) and shows the same chapter if it still exists. A failure midway leaves a mix of old and new files, which the safety snapshot repairs with one more restore; the error is shown in the dialog.
+- **Restore one chapter:** from a chapter's History, "Whole book" tab, "Restore this page only" writes that one page from the snapshot (page snapshot of the replaced text first, as for any restore). Translation pages have no per-page snapshots, so for those an automatic whole-book snapshot is taken first. No manifest change, so a chapter the snapshot has but the book no longer lists is not offered.
+- **Delete:** only a listed snapshot, only when the author asks; this is the one place besides pruning (page snapshots) where the app removes a file it wrote. Automatic snapshots can be deleted too. Nothing prunes book snapshots.
+- **UI:** the History dialog has a "This page / Whole book" switch (the same dialog from the chapter list's "Book snapshots" button shows only the book view). Take (name field, Enter submits), pick, restore (with a confirmation), restore this page only, delete (with a confirmation).
+
+**Why:** one self-contained JSON file per snapshot needs no index and no references between files, can be copied or deleted by hand, and keeps writing atomic with the existing helpers. Storing the texts rather than hard links or copies of the folder works the same on every file system and in a synced folder (`.cadabra` is excluded from sync). No new crate (`serde_json` was already used).
+
+**Rejected:**
+
+| Option                                          | Why not                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Copy the project folder or zip it               | Assets can be gigabytes; an archive needs a crate; images are never deleted by the app so the list is enough. |
+| A snapshot made of references to page snapshots | Page snapshots are pruned and throttled, so a book snapshot could silently lose pages.                        |
+| A folder per snapshot with one file per page    | Many small files to write non-atomically as a group; a half-written snapshot would look complete.             |
+| Deleting pages the snapshot does not have       | Breaks "nothing is deleted for good"; the trash keeps them.                                                   |
+| The name in the file name                       | Names hold any characters and 100 of them; the stamp is enough to order and the name lives in the file.       |
+
+**Caveats:**
+
+- Listing reads every snapshot file (names, page paths and counts are taken without keeping the texts, but the bytes are read). With very many snapshots of a big book the list is slow to open; pruning is open in the roadmap.
+- The file name is chosen by an exists check and written with `atomic_write`, so two snapshots taken in the same instant could race (the same limit as page snapshots).
+- Taking a snapshot reads the files on disk, after the editor saves its draft; restoring does not merge with edits made outside the app meanwhile.
+- A book over 256 MB of text (manifest and pages) is refused with `too_large`.
+- Not run in the native app or on a real sync folder (`/drive-app` not run). The pen has no frames for the Whole book view yet; the dialog follows the existing History dialog.
 
 ## Audiobook export spike (2026-10-27)
 

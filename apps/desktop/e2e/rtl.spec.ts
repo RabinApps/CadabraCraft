@@ -102,3 +102,26 @@ test("RTL: editor, chapter list, toolbar, details and dialogs mirror", async ({ 
   expect(await noOverflow(page)).toBe(true);
   await shot(page, "settings");
 });
+
+test("RTL: the book snapshots dialog mirrors and does not overflow", async ({ page }) => {
+  await newProject(page);
+  await forceRtl(page);
+  const vw = page.viewportSize()?.width ?? 1280;
+  await sidebar(page).getByRole("button", { name: "Book snapshots" }).click();
+  const dialog = page.getByRole("dialog", { name: "History · Whole book" });
+  await dialog.getByLabel("Snapshot name").fill("Before the rewrite");
+  await dialog.getByRole("button", { name: "Take snapshot" }).click();
+  const list = dialog.getByRole("list", { name: "Book snapshots" });
+  await expect(list).toContainText("Before the rewrite");
+  // The Take snapshot button sits to the left of the name field, and the list text starts at the right edge of its row.
+  const field = await dialog.getByLabel("Snapshot name").boundingBox();
+  const take = await dialog.getByRole("button", { name: "Take snapshot" }).boundingBox();
+  expect(field && take && take.x < field.x).toBe(true);
+  const item = await list.getByRole("button").first().boundingBox();
+  const name = await list.getByRole("button").first().locator("span").first().boundingBox();
+  expect(item && name && name.x + name.width > item.x + item.width - 20).toBe(true);
+  const box = await dialog.boundingBox();
+  expect(box && Math.abs(box.x + box.width / 2 - vw / 2) < 2).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "book-snapshots");
+});
