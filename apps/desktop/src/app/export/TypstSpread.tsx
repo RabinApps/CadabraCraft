@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, PenLine, ZoomIn, ZoomOut } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { type PageBox } from "@cadabracraft/export-pdf";
 import { errText } from "../../lib/projectError";
@@ -8,8 +8,10 @@ import { spreadCount, spreadLabel, spreadPages } from "../../lib/previewSpreads"
 import { IconButton } from "../../ui/Button";
 import { Notice } from "../../ui/Notice";
 
-/** Screen size of one inch of paper in the preview. */
+/** Screen size of one inch of paper in the preview at 100%. */
 const PX_PER_IN = 50;
+/** The zoom steps of the preview (a page is `PX_PER_IN` x zoom px per inch). */
+export const PREVIEW_ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3] as const;
 
 /** Opens `pdf` with pdf.js (loaded when the first preview opens) and reports its page count; null until it is ready. */
 function usePdfDocument(pdf: Uint8Array, onPages: (n: number) => void) {
@@ -48,10 +50,14 @@ interface PageProps {
   outline: { top: number; bottom: number; left: number; right: number } | null;
   /** Dim the page while a newer PDF is being typeset. */
   stale: boolean;
+  /** Screen px per inch of paper. */
+  pxPerIn: number;
+  /** Makes the page open its text in the editor; without it the page is only drawn. */
+  onOpen?: (page: number) => void;
 }
 
 /** One page of the PDF on a canvas, with the margins outlined when asked. */
-function PdfPage({ doc, page, outline, stale }: PageProps) {
+function PdfPage({ doc, page, outline, stale, pxPerIn, onOpen }: PageProps) {
   const { t } = useLingui();
   const canvas = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
@@ -61,7 +67,7 @@ function PdfPage({ doc, page, outline, stale }: PageProps) {
     (async () => {
       const p = await doc.getPage(page);
       const base = p.getViewport({ scale: 1 }); // points
-      const scale = PX_PER_IN / 72;
+      const scale = pxPerIn / 72;
       const ratio = window.devicePixelRatio || 1;
       const viewport = p.getViewport({ scale: scale * ratio * 2 });
       target.width = viewport.width;
@@ -73,7 +79,7 @@ function PdfPage({ doc, page, outline, stale }: PageProps) {
       // A render cancelled by a newer page rejects; a page that cannot be drawn stays blank.
     });
     return () => task?.cancel();
-  }, [doc, page]);
+  }, [doc, page, pxPerIn]);
   return (
     <div
       className="relative shrink-0 bg-white shadow-page transition-opacity"
@@ -86,12 +92,27 @@ function PdfPage({ doc, page, outline, stale }: PageProps) {
           data-testid="margin-outline"
           className="pointer-events-none absolute border border-dashed border-accent/60"
           style={{
-            top: outline.top * PX_PER_IN,
-            bottom: outline.bottom * PX_PER_IN,
-            left: outline.left * PX_PER_IN,
-            right: outline.right * PX_PER_IN,
+            top: outline.top * pxPerIn,
+            bottom: outline.bottom * pxPerIn,
+            left: outline.left * pxPerIn,
+            right: outline.right * pxPerIn,
           }}
         />
+      )}
+      {onOpen && (
+        <button
+          type="button"
+          aria-label={t`Open page ${page} in the editor`}
+          onClick={() => onOpen(page)}
+          className="group absolute inset-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          <span className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 pointer-coarse:opacity-100">
+            <span className="flex items-center gap-1 rounded-full bg-ink px-2.5 py-1 text-xs font-semibold text-bg shadow-page">
+              <PenLine size={12} aria-hidden />
+              {t`Edit this page`}
+            </span>
+          </span>
+        </button>
       )}
     </div>
   );
@@ -107,13 +128,25 @@ interface Props {
   /** A newer PDF is being typeset. */
   stale: boolean;
   onPages: (n: number) => void;
+  /** Open the editor at the text that starts this (physical) page. Without it pages are not clickable. */
+  onOpenPage?: (page: number) => void;
 }
 
 /** The typeset PDF as a spread of facing pages, with buttons to turn them. Page 1 sits alone on the right, as a book opens. */
-export function TypstSpread({ pdf, box, showMargins, hasCover, stale, onPages }: Props) {
+export function TypstSpread({
+  pdf,
+  box,
+  showMargins,
+  hasCover,
+  stale,
+  onPages,
+  onOpenPage,
+}: Props) {
   const { t } = useLingui();
   const { doc, error } = usePdfDocument(pdf, onPages);
   const [wanted, setIndex] = useState(0);
+  const [zoomAt, setZoomAt] = useState(PREVIEW_ZOOMS.indexOf(1));
+  const zoom = PREVIEW_ZOOMS[zoomAt]!;
   const total = doc?.numPages ?? 0;
   const spreads = spreadCount(total);
   // A shorter PDF (a different trim size) can have fewer spreads than the one that was open.
@@ -140,31 +173,53 @@ export function TypstSpread({ pdf, box, showMargins, hasCover, stale, onPages }:
       <div
         role="toolbar"
         aria-label={t`Spread controls`}
-        className="flex items-center justify-center gap-1 border-b border-border bg-surface px-3 py-1.5"
+        className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-border bg-surface px-3 py-1.5"
       >
-        <IconButton
-          icon={ChevronLeft}
-          label={t`Previous pages`}
-          disabled={index <= 0}
-          onClick={() => setIndex(index - 1)}
-        />
-        <span
-          data-testid="spread-label"
-          className="min-w-40 text-center text-sm font-semibold"
-          aria-live="polite"
-        >
-          {!doc
-            ? "…"
-            : first === last
-              ? t`Page ${first} of ${total}`
-              : t`Pages ${first} and ${last} of ${total}`}
-        </span>
-        <IconButton
-          icon={ChevronRight}
-          label={t`Next pages`}
-          disabled={index >= spreads - 1}
-          onClick={() => setIndex(index + 1)}
-        />
+        <div className="flex items-center gap-1">
+          <IconButton
+            icon={ChevronLeft}
+            label={t`Previous pages`}
+            disabled={index <= 0}
+            onClick={() => setIndex(index - 1)}
+          />
+          <span
+            data-testid="spread-label"
+            className="min-w-32 text-center text-sm font-semibold sm:min-w-40"
+            aria-live="polite"
+          >
+            {!doc
+              ? "…"
+              : first === last
+                ? t`Page ${first} of ${total}`
+                : t`Pages ${first} and ${last} of ${total}`}
+          </span>
+          <IconButton
+            icon={ChevronRight}
+            label={t`Next pages`}
+            disabled={index >= spreads - 1}
+            onClick={() => setIndex(index + 1)}
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          <IconButton
+            icon={ZoomOut}
+            label={t`Zoom out`}
+            disabled={zoomAt <= 0}
+            onClick={() => setZoomAt(zoomAt - 1)}
+          />
+          <span
+            data-testid="preview-zoom"
+            className="min-w-12 text-center text-sm font-semibold tabular-nums"
+          >
+            {Math.round(zoom * 100)}%
+          </span>
+          <IconButton
+            icon={ZoomIn}
+            label={t`Zoom in`}
+            disabled={zoomAt >= PREVIEW_ZOOMS.length - 1}
+            onClick={() => setZoomAt(zoomAt + 1)}
+          />
+        </div>
       </div>
       <div className="flex min-h-0 flex-1 items-start justify-center overflow-auto p-6">
         {doc && (
@@ -173,7 +228,15 @@ export function TypstSpread({ pdf, box, showMargins, hasCover, stale, onPages }:
               p === null ? (
                 <span key={i} aria-hidden className="w-0 sm:w-4" />
               ) : (
-                <PdfPage key={p} doc={doc} page={p} outline={outlineOf(p)} stale={stale} />
+                <PdfPage
+                  key={p}
+                  doc={doc}
+                  page={p}
+                  outline={outlineOf(p)}
+                  stale={stale}
+                  pxPerIn={PX_PER_IN * zoom}
+                  {...(onOpenPage ? { onOpen: onOpenPage } : {})}
+                />
               ),
             )}
           </div>

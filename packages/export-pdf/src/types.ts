@@ -68,6 +68,12 @@ export interface PdfOptions {
    * four sides, so it is no longer a KDP-style bleed file.
    */
   cropMarks?: boolean;
+  /**
+   * Put invisible marks in the source of every chapter: one at the start and end of each top-level block and one at each word of an
+   * ordinary paragraph, and let the `<page-report>` carry the page each one landed on (`PageReport.blocks`). The marks take no room,
+   * so the layout is the one without them; use it for `measurePages` only.
+   */
+  blockMarks?: boolean;
 }
 
 export interface FontChoice {

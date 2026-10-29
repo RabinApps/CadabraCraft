@@ -120,6 +120,19 @@ const SCREENS: Record<string, Open> = {
     await page.getByRole("button", { name: "Next pages" }).click();
     await expect(page.getByRole("img", { name: "Page 3", exact: true })).toBeVisible();
   },
+  "print preview zoomed in, with a page to open": async (page) => {
+    await exportFormat("Print PDF")(page);
+    await page
+      .getByRole("dialog", { name: "Export book" })
+      .getByRole("button", { name: "Print preview" })
+      .click();
+    await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
+    for (let i = 0; i < 3; i++) await page.getByRole("button", { name: "Zoom in" }).click();
+    await expect(page.getByTestId("preview-zoom")).toHaveText("200%");
+    // On a touch screen the way into the editor is drawn on the page, not shown on hover.
+    await expect(page.getByRole("button", { name: "Open page 1 in the editor" })).toBeVisible();
+    await expect(page.getByText("Edit this page")).toBeVisible();
+  },
   "print preview estimate": async (page) => {
     await exportFormat("Print PDF")(page);
     await page.evaluate(() => {

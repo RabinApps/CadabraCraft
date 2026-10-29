@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PageReport } from "@cadabracraft/export-pdf";
 import {
   reportBookPages,
+  reportChapterMarks,
   reportChapterPages,
   reportStartNumber,
   usableReport,
@@ -59,5 +60,16 @@ describe("reportChapterPages", () => {
     expect(reportChapterPages(withFront, "c2")).toBe(10);
     expect(reportChapterPages(withFront, "title")).toBe(1);
     expect(reportChapterPages(withFront, "nope")).toBeNull();
+  });
+});
+
+describe("reportChapterMarks", () => {
+  it("gives a chapter's blocks with where it starts and ends, or null without marks", () => {
+    const blocks = [{ block: 0, kind: "p" as const, page: 5, splits: [] }];
+    const report: PageReport = { ...withFront, blocks: { c1: blocks } };
+    expect(reportChapterMarks(report, "c1")).toEqual({ base: 5, end: 9, blocks });
+    expect(reportChapterMarks(report, "c2")).toBeNull();
+    expect(reportChapterMarks(report, "nope")).toBeNull();
+    expect(reportChapterMarks(withFront, "c1")).toBeNull();
   });
 });

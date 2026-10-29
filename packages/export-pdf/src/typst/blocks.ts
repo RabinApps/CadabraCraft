@@ -1,4 +1,4 @@
-import type { DocNode } from "@cadabracraft/shared";
+import { wordStarts, type DocNode } from "@cadabracraft/shared";
 import { escapeMarkup, typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import { unsupported, type Ctx } from "./ctx";
@@ -91,6 +91,18 @@ function tableBlock(n: DocNode, ctx: Ctx): string {
   return `#table(\n  columns: (${rows[0]!.map(() => "1fr").join(", ")}),\n${lines.join("\n")}\n)`;
 }
 
+/** A heading; with `mark` (the start mark call) the heading's text sits between it and an end mark. */
+function heading(n: Exclude<DocNode, { type: "text" }>, ctx: Ctx, mark?: string): string {
+  const kids = "content" in n ? n.content : undefined;
+  const level = Number(n.attrs?.level ?? 1);
+  if (![1, 2, 3].includes(level))
+    throw new PdfExportError(
+      `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
+    );
+  if (mark === undefined) return `#heading(level: ${level})[${inline(kids, ctx, true)}]`;
+  return `#heading(level: ${level})[${mark}${inline(kids, ctx, true, false, { starts: [] })}]`;
+}
+
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
@@ -98,14 +110,8 @@ function block(n: DocNode, ctx: Ctx): string {
       const s = inline(kids, ctx, true);
       return s.trim() === "" ? "" : s;
     }
-    case "heading": {
-      const level = Number(n.attrs?.level ?? 1);
-      if (![1, 2, 3].includes(level))
-        throw new PdfExportError(
-          `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
-        );
-      return `#heading(level: ${level})[${inline(kids, ctx, true)}]`;
-    }
+    case "heading":
+      return heading(n, ctx);
     case "blockquote":
       return `#quote(block: true)[\n${blocks(kids, ctx)}\n]`;
     case "bulletList":
@@ -156,6 +162,57 @@ function block(n: DocNode, ctx: Ctx): string {
 export function blocks(nodes: DocNode[] | undefined, ctx: Ctx): string {
   return (nodes ?? [])
     .map((n) => block(n, ctx))
+    .filter((s) => s !== "")
+    .join("\n\n");
+}
+
+/**
+ * What a marked block is, for the reader of the report to check the text it maps back to is the text that was typeset: `p` an ordinary
+ * paragraph (words are marked), `q` any other paragraph, `h` a heading, `s` a scene break, `o` anything else.
+ */
+export type BlockMarkKind = "p" | "q" | "h" | "s" | "o";
+
+/**
+ * The inline items of a paragraph as `wordStarts` takes them, or null when the paragraph is not ordinary (a footnote, code or any other
+ * inline node in it): its words cannot be told apart from the markup around them, so it is marked as one piece.
+ */
+export function plainItems(kids: DocNode[] | undefined): (string | null)[] | null {
+  const items: (string | null)[] = [];
+  for (const k of kids ?? []) {
+    if (k.type === "text") {
+      if ((k.marks ?? []).some((m) => m.type === "code")) return null;
+      items.push(k.text);
+    } else if (k.type === "hardBreak") items.push(null);
+    else return null;
+  }
+  return items;
+}
+
+/**
+ * Top-level blocks carrying page marks (`PdfOptions.blockMarks`): `#bm-s(chapter, index)` where a block starts and, for an ordinary
+ * paragraph, a `#wm(w)` at each word start after the first (see `wordStarts`). `first` is the index of the first node in the document.
+ * Paragraphs and headings carry their start mark inside their first line; any other block gets it as a paragraph of its own before it.
+ * There is no end mark: a mark after the last line of a block at the foot of a page is moved to the next page by Typst.
+ */
+export function markedBlocks(
+  nodes: DocNode[] | undefined,
+  ctx: Ctx,
+  chapter: number,
+  first = 0,
+): string {
+  const start = (i: number, kind: BlockMarkKind): string => `#bm-s(${chapter}, ${i}, "${kind}")`;
+  return (nodes ?? [])
+    .map((n, k) => {
+      const i = first + k;
+      const kids = "content" in n ? n.content : undefined;
+      if (n.type === "paragraph") {
+        const items = plainItems(kids);
+        const body = inline(kids, ctx, true, false, { starts: items ? wordStarts(items) : [] });
+        return body.trim() === "" ? "" : `${start(i, items ? "p" : "q")}${body}`;
+      }
+      if (n.type === "heading") return heading(n, ctx, start(i, "h"));
+      return `${start(i, n.type === "sceneBreak" ? "s" : "o")}\n\n${block(n, ctx)}`;
+    })
     .filter((s) => s !== "")
     .join("\n\n");
 }

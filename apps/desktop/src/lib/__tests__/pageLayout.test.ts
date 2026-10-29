@@ -335,6 +335,30 @@ describe("paginate: basics", () => {
     });
   });
 
+  it("uses forced breaks as they are, whatever the blocks would do, and still adds a blank verso", () => {
+    const forced = [
+      { block: 1, linesBefore: 0, blankBefore: false },
+      { block: 1, linesBefore: 2, blankBefore: false },
+    ];
+    // Three short paragraphs would fit one page.
+    expect(paginate([para(1), para(3), para(1)], H, { ...plain, forced })).toEqual({
+      breaks: forced,
+      pageCount: 3,
+    });
+    expect(paginate([para(1)], H, { ...plain, forced: [] })).toEqual({ breaks: [], pageCount: 1 });
+    expect(
+      paginate([para(1), para(1)], H, {
+        firstPage: 2,
+        startsOn: "recto",
+        opensChapter: true,
+        forced: forced.slice(0, 1),
+      }),
+    ).toEqual({
+      breaks: [{ block: 0, linesBefore: 0, blankBefore: true }, forced[0]],
+      pageCount: 3,
+    });
+  });
+
   it("keeps a short chapter on one page", () => {
     expect(paginate([para(3), para(2)], H, plain)).toEqual({ breaks: [], pageCount: 1 });
   });

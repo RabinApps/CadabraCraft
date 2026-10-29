@@ -61,12 +61,12 @@ export function PageEstimate({ words }: { words: number | null }) {
 
 /**
  * " · Page 3 of ≈ 12": where the cursor is among the open chapter's pages while Page view is on (measured from the text, so
- * approximate). While Typst's report is current the chapter's page count is its own, so the total loses the "≈" (" · Page ≈ 3 of 12");
- * the cursor's page is still the editor's layout.
+ * approximate). While Typst's report is current the chapter's page count is its own, so the total loses the "≈" (" · Page ≈ 3 of 12"),
+ * and when the editor's page breaks are Typst's too (its marks fit the text) the cursor's page is exact: " · Page 3 of 12".
  */
 export function PagePosition() {
   const { t } = useLingui();
-  const { count, current } = usePageCount();
+  const { count, current, exact: layoutExact } = usePageCount();
   const currentId = useProject((s) => s.currentId);
   const exact = usePageMeasure((s) => {
     const report = s.fresh ? usableReport(s.report) : null;
@@ -75,6 +75,9 @@ export function PagePosition() {
   if (count === 0) return null;
   if (exact !== null) {
     const shown = Math.min(current, exact);
+    // The cursor's page is Typst's too only when the editor's breaks are Typst's and the report is of this very text.
+    if (layoutExact)
+      return <span data-testid="page-position">{` · ${t`Page ${shown} of ${exact}`}`}</span>;
     return <span data-testid="page-position">{` · ${t`Page ≈ ${shown} of ${exact}`}`}</span>;
   }
   return <span data-testid="page-position">{` · ${t`Page ${current} of ≈ ${count}`}`}</span>;

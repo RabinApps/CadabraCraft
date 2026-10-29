@@ -3,9 +3,12 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { DecorationSet, type EditorView } from "@tiptap/pm/view";
 import type { PageGeometry } from "../../lib/pageLayout";
 import { createBlockCache } from "./cache";
-import { PAGE_GAP, layoutPages, withTops, type PageLayoutResult } from "./core";
+import { PAGE_GAP, layoutPages, withTops, type FlowBlock, type PageLayoutResult } from "./core";
 import { buildDecorations } from "./decorations";
-import { cursorPage, findSplitPos, measureFlow, readPageTops } from "./dom";
+import type { PageBreak } from "../../lib/pageLayout";
+import { exactBreaks, type ExactSource } from "../../lib/exactBreaks";
+import { cursorPage, findSplitPos, linesBeforePos, measureFlow, readPageTops } from "./dom";
+import { blockKinds, wordCountOf, wordOffset } from "./exact";
 
 /** What the pagination needs to know; set by the Page view frame, null (or `on: false`) when Page view is off. */
 export interface PageConfig {
@@ -17,6 +20,10 @@ export interface PageConfig {
   startsOn: "recto" | "any";
   opensChapter: boolean;
   zoom: number;
+  /** Typst's marks for this chapter: where its pages break. Null (or marks that do not fit the text) keeps the estimate. */
+  exact: ExactSource | null;
+  /** Changes whenever `exact` does (a new report), so a new measure re-paginates. */
+  exactKey: string;
   /** Everything else the text layout depends on (template, font, trim): a change re-paginates and drops the style cache. */
   layoutKey: string;
   /** Called with the cards after every pagination, and with the cursor's page (0-based) when it moves. */
@@ -37,10 +44,53 @@ const configKey = (c: PageConfig): string =>
     c.startsOn,
     c.opensChapter,
     c.layoutKey,
+    c.exactKey,
   ]);
 
 type Meta = { type: "set"; set: DecorationSet } | { type: "clear" };
 export const paginationKey = new PluginKey<DecorationSet>("pagination");
+
+/**
+ * Typst's page breaks for this text as `paginate` takes them, or undefined when its marks do not fit the text or a break cannot be
+ * placed (the estimate is used then). A break inside a paragraph is placed before the word Typst began the page with: `exactPos`
+ * gets its document position, and `linesBefore` is the webview's line it falls on, for the heights.
+ */
+function forcedBreaks(
+  v: EditorView,
+  c: PageConfig,
+  blocks: FlowBlock[],
+  starts: number[],
+  exactPos: Map<string, number>,
+): PageBreak[] | undefined {
+  const doc = v.state.doc;
+  const typst = exactBreaks(c.exact!, blockKinds(doc), (i) => wordCountOf(doc.child(i)));
+  if (!typst) return undefined;
+  const out: PageBreak[] = [];
+  let prev = { block: -1, lines: 0 };
+  for (const b of typst) {
+    if (b.word === null) {
+      out.push({ block: b.block, linesBefore: 0, blankBefore: false });
+      continue;
+    }
+    const node = doc.child(b.block);
+    const offset = wordOffset(node, b.word);
+    const flow = blocks[b.block];
+    if (offset === null || !flow) return undefined;
+    const pos = starts[b.block]! + 1 + offset;
+    const at = linesBeforePos(v, starts[b.block]!, node, pos, flow, c.zoom, c.geometry.margins.top);
+    if (at === null) return undefined;
+    // At least one line of the block on each page, and in the order of the document.
+    const lines = Math.min(
+      Math.max(at, prev.block === b.block ? prev.lines + 1 : 1),
+      flow.lines - 1,
+    );
+    if (lines < 1 || (prev.block === b.block && lines <= prev.lines)) return undefined;
+    out.push({ block: b.block, linesBefore: lines, blankBefore: false });
+    exactPos.set(`${b.block}:${lines}`, pos);
+    prev = { block: b.block, lines };
+  }
+  return out;
+}
 
 /**
  * Owns the pagination of one editor: when to measure, the block style cache, and the hand-off to `core.ts`. It only reads the DOM
@@ -71,10 +121,23 @@ export function createController() {
   const reportCursor = () => {
     if (!live() || !layout) return;
     try {
-      cfg!.onCursorPage(cursorPage(view!, cfg!.zoom, layout.pages));
+      cfg!.onCursorPage(
+        layout.exact ? exactCursorPage(view!, layout) : cursorPage(view!, cfg!.zoom, layout.pages),
+      );
     } catch {
       /* the cursor has no position yet */
     }
+  };
+
+  /** On an exact layout the cursor's page follows from the spacers' positions (they move with the text), not from where the line is drawn. */
+  const exactCursorPage = (v: EditorView, l: PageLayoutResult): number => {
+    const set = paginationKey.getState(v.state);
+    const head = v.state.selection.head;
+    const at = (set?.find(0, v.state.doc.content.size) ?? []).filter(
+      (d) => (d as unknown as { spec: { pvGap?: unknown } }).spec.pvGap !== undefined,
+    );
+    const page = at.filter((d) => d.from <= head).length;
+    return Math.min(page, l.pages.length - 1);
   };
 
   const run = () => {
@@ -94,34 +157,43 @@ export function createController() {
     let hyphenate: boolean;
     let result: PageLayoutResult;
     const splits = new Map<string, number | null>();
+    const exactPos = new Map<string, number>();
     try {
       const blocks = measureFlow(v, c.zoom, g.margins.top, cache);
+      const starts: number[] = [];
+      v.state.doc.forEach((_n, offset) => starts.push(offset));
+      // Typst's breaks, when its marks fit this text: pages are then the PDF's, to the word.
+      const forced = c.exact ? forcedBreaks(v, c, blocks, starts, exactPos) : undefined;
       result = layoutPages({
         blocks,
         page: { h: g.page.h },
         margins: g.margins,
-        textHeight: g.text.h + c.slackPx,
+        // Typst's page may hold a line more or less than the webview's wrapping makes of it: a line of leeway before a card grows.
+        textHeight:
+          g.text.h +
+          c.slackPx +
+          (forced ? (blocks.find((b) => b.kind === "paragraph")?.lineHeight ?? 0) : 0),
+        ...(forced ? { forced } : {}),
         gap: PAGE_GAP,
         firstPage: c.firstPage,
         startsOn: c.startsOn,
         opensChapter: c.opensChapter,
       });
       hyphenate = getComputedStyle(root).hyphens === "auto";
-      const starts: number[] = [];
-      v.state.doc.forEach((_n, offset) => starts.push(offset));
       for (const gap of result.gaps)
         if (gap.linesBefore > 0)
           splits.set(
             `${gap.block}:${gap.linesBefore}`,
-            findSplitPos(
-              v,
-              starts[gap.block]!,
-              v.state.doc.child(gap.block),
-              gap.linesBefore,
-              blocks[gap.block]!,
-              c.zoom,
-              g.margins.top,
-            ),
+            exactPos.get(`${gap.block}:${gap.linesBefore}`) ??
+              findSplitPos(
+                v,
+                starts[gap.block]!,
+                v.state.doc.child(gap.block),
+                gap.linesBefore,
+                blocks[gap.block]!,
+                c.zoom,
+                g.margins.top,
+              ),
           );
     } finally {
       root.classList.remove("pv-natural");

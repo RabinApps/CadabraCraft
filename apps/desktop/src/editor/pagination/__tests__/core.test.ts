@@ -42,6 +42,36 @@ const input = (blocks: FlowBlock[], over: Partial<LayoutInput> = {}): LayoutInpu
   ...over,
 });
 
+describe("layoutPages with forced breaks", () => {
+  it("follows the given breaks and says it is exact; the estimate says it is not", () => {
+    const blocks = flow([4, 6, 8]);
+    expect(layoutPages(input(blocks)).exact).toBe(false);
+    const forced = [{ block: 1, linesBefore: 0, blankBefore: false }];
+    const layout = layoutPages(input(blocks, { forced }));
+    expect(layout.exact).toBe(true);
+    expect(layout.breaks).toEqual(forced);
+    // The page before the break uses what is on it, the next starts at the next block.
+    expect(layout.pages.map((p) => p.number)).toEqual([1, 2]);
+    expect(layout.gaps).toHaveLength(1);
+    expect(layout.gaps[0]).toMatchObject({ block: 1, linesBefore: 0, height: 400 + 24 - 4 * LH });
+  });
+
+  it("breaks inside a block at the line it is given", () => {
+    const blocks = flow([10]);
+    const layout = layoutPages(
+      input(blocks, { forced: [{ block: 0, linesBefore: 3, blankBefore: false }] }),
+    );
+    expect(layout.gaps[0]).toMatchObject({ block: 0, linesBefore: 3, height: 400 + 24 - 3 * LH });
+    expect(layout.pages).toHaveLength(2);
+  });
+
+  it("an empty forced list is one exact page", () => {
+    const layout = layoutPages(input(flow([4]), { forced: [] }));
+    expect(layout).toMatchObject({ exact: true, gaps: [], breaks: [] });
+    expect(layout.pages).toHaveLength(1);
+  });
+});
+
 describe("blockKind", () => {
   it("maps ProseMirror nodes to block kinds; only the opening heading 1 is the chapter title", () => {
     expect(blockKind("heading", 1, 0)).toBe("chapterTitle");

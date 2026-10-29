@@ -9,6 +9,7 @@ import {
   isBackMatterKind,
   isFrontMatterKind,
   textDirection,
+  wordStarts,
 } from "../index";
 
 describe("isAssetPath", () => {
@@ -93,5 +94,16 @@ describe("countWords", () => {
         content: [null, 3, { type: "paragraph", content: [{ type: "text", text: "a b" }] }],
       }),
     ).toBe(2);
+  });
+});
+
+describe("wordStarts", () => {
+  it("finds the first character after spaces, tabs, leaves and the start", () => {
+    expect(wordStarts(["  Hello big\tworld "])).toEqual([2, 8, 12]);
+    expect(wordStarts(["ab", "cd ef"])).toEqual([0, 5]);
+    expect(wordStarts(["one", null, "two"])).toEqual([0, 4]);
+    expect(wordStarts(["a b\nc"])).toEqual([0]);
+    expect(wordStarts([])).toEqual([]);
+    expect(wordStarts(["   "])).toEqual([]);
   });
 });

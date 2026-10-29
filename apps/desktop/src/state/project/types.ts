@@ -9,6 +9,7 @@ import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import type { AudioUiError } from "../../lib/audioErrors";
 import type { FontUiError } from "../../lib/fontErrors";
 import type { RemovedReference } from "../../lib/referenceKinds";
+import type { PreviewTarget } from "../../lib/previewTarget";
 
 export interface PdfExportOptions extends ExportScope {
   trimSize: TrimSize;
@@ -371,6 +372,12 @@ export interface ExportActions {
    * the content and options are unchanged. Throws `PdfUiError`.
    */
   renderPreview: (options: PreviewOptions) => Promise<Uint8Array>;
+  /**
+   * Where the text at the top of page `page` of the preview's PDF is (a page entry, a block of it and perhaps a word), from a Typst
+   * layout of the same run with the same options. The last layout is reused while the content and options are unchanged. Null when
+   * the book has no pages. Throws `PdfUiError`.
+   */
+  previewTarget: (options: PreviewOptions & { page: number }) => Promise<PreviewTarget | null>;
 }
 
 export interface PreviewOptions {

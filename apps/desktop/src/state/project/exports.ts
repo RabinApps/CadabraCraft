@@ -91,6 +91,8 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             mirrored: true,
             pageNumbers: true,
             pdfA: false,
+            // Page view draws the pages Typst broke inside each chapter.
+            blockMarks: true,
             ...(Object.keys(fonts).length ? { fonts } : {}),
             assets: Object.fromEntries(assets),
           },
