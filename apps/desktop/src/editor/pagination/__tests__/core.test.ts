@@ -65,6 +65,62 @@ describe("layoutPages with forced breaks", () => {
     expect(layout.pages).toHaveLength(2);
   });
 
+  it("sizes the spacer of each cell of a row a page begins in by where that cell's own text was cut", () => {
+    // One table, 700 px tall; the row's first page is cut at 300 px in one cell and 320 in the other, the second page is cut once
+    // more in the first cell (340 px after its earlier cut) and the row ends there.
+    const table: FlowBlock = { ...para(0, 1), kind: "table", height: 700, lineHeight: 700 };
+    const row = {
+      from: 10,
+      to: 90,
+      cells: [
+        { from: 11, to: 50 },
+        { from: 51, to: 89 },
+      ],
+    };
+    const cut = (pos: number, y: number, prevY: number | null, cell: 0 | 1, inline = true) => ({
+      pos,
+      y,
+      prevY,
+      inline,
+      marginBottom: inline ? 0 : -5,
+      cell: row.cells[cell]!,
+      row,
+    });
+    const layout = layoutPages(
+      input([table], {
+        forced: [
+          {
+            block: 0,
+            linesBefore: 1,
+            blankBefore: false,
+            at: { y: 320, flow: true, cuts: [cut(20, 300, null, 0), cut(60, 320, null, 1, false)] },
+          },
+          {
+            block: 0,
+            linesBefore: 2,
+            blankBefore: false,
+            at: { y: 640, flow: true, cuts: [cut(30, 640, 300, 0)] },
+          },
+        ],
+      }),
+    );
+    const [one, two] = layout.gaps;
+    expect(one!.cuts).toEqual([
+      expect.objectContaining({ pos: 20, inline: true, height: 400 + 24 - 300, marginBottom: 0 }),
+      expect.objectContaining({ pos: 60, inline: false, height: 400 + 24 - 320, marginBottom: -5 }),
+    ]);
+    expect(one!.cuts![0]).not.toHaveProperty("y");
+    // 340 px of text on the page is more than the page holds: the spacer is as the card grows (margins and the gap).
+    expect(two!.cuts).toEqual([
+      expect.objectContaining({ pos: 30, height: 80 + 24, marginTop: 0 }),
+    ]);
+    // A gap that is not in a row has no cuts.
+    expect(
+      layoutPages(input(flow([10]), { forced: [{ block: 0, linesBefore: 3, blankBefore: false }] }))
+        .gaps[0],
+    ).not.toHaveProperty("cuts");
+  });
+
   it("an empty forced list is one exact page", () => {
     const layout = layoutPages(input(flow([4]), { forced: [] }));
     expect(layout).toMatchObject({ exact: true, gaps: [], breaks: [] });

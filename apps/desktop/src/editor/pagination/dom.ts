@@ -177,6 +177,19 @@ export function flowY(
   };
 }
 
+/** Where the node at `pos` ends in the flow: px below the top of `block` at zoom 1. Null when the node is not drawn. */
+export function nodeBottomY(
+  view: EditorView,
+  block: FlowBlock,
+  pos: number,
+  zoom: number,
+  columnTop: number,
+): number | null {
+  const el = view.nodeDOM(pos);
+  if (!(el instanceof HTMLElement)) return null;
+  return (el.getBoundingClientRect().bottom - blockTopPx(view, block, zoom, columnTop)) / zoom;
+}
+
 /** The top of every page card as the content actually flows: the bottom of each spacer minus the top margin. Null when a spacer is missing. */
 export function readPageTops(
   view: EditorView,

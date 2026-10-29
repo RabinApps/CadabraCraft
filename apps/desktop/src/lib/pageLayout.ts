@@ -275,7 +275,34 @@ export interface PageBreak {
    * items rather than a piece of a line; `marginBottom` is the margin it takes back from what follows it. `linesBefore` is then only the
    * number of this break among the block's (1, 2, ...).
    */
-  at?: { y: number; flow: boolean; marginBottom?: number };
+  at?: { y: number; flow: boolean; marginBottom?: number; cuts?: CellCut[] };
+}
+
+/** A range of the document (document positions). */
+export interface DocSpan {
+  from: number;
+  to: number;
+}
+
+/**
+ * Where a page begins inside one cell of a table row. A page that begins inside a row begins in every cell of it that runs on, each at
+ * its own place (Typst lays the cells of a row side by side and cuts each at the foot of the page), so such a break has one cut per
+ * cell, each with a spacer of its own. `y` is where the cell's text is cut, px below the top of the table block (zoom 1, the flow
+ * without spacers) and `prevY` where the cell's text on this page began when an earlier cut of the same cell did that (null: where the
+ * page began). `at.y` of the break is the page's end in the flow as the rest of the block sees it.
+ */
+export interface CellCut {
+  /** Document position of the spacer: a word of a paragraph of the cell, or the position before one. */
+  pos: number;
+  y: number;
+  prevY: number | null;
+  /** The spacer is a piece of a line (a word), not a block between two paragraphs of the cell. */
+  inline: boolean;
+  /** The margin the spacer takes back from the paragraph after it (a block spacer only). */
+  marginBottom: number;
+  cell: DocSpan;
+  /** The row's own range and the content range of each of its cells, for drawing which page each piece of text is on. */
+  row: DocSpan & { cells: DocSpan[] };
 }
 
 export interface PaginateOptions {

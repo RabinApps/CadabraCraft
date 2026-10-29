@@ -145,6 +145,8 @@ declare global {
     __typstQueryResultFor?: (source: string) => string | undefined;
     /** Text drawn on the pages of the PDF `typst_compile` answers with: the lines of each page, from the top, in 12 pt Helvetica at 72 pt from the left. */
     __typstPageText?: string[][];
+    /** A whole PDF (base64) that `typst_compile` answers with instead of the blank one, for pages with real fonts (right-to-left text). */
+    __typstPdf?: string;
     __typstQueryCalls: TypstQueryCall[];
     __audioVoices?: FakeVoice[];
     __audioPacks?: FakePack[];

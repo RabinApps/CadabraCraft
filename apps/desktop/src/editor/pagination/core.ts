@@ -1,4 +1,10 @@
-import { paginate, type BlockKind, type MeasuredBlock, type PageBreak } from "../../lib/pageLayout";
+import {
+  paginate,
+  type BlockKind,
+  type CellCut,
+  type MeasuredBlock,
+  type PageBreak,
+} from "../../lib/pageLayout";
 
 /**
  * The pure part of Page view pagination: no DOM, no ProseMirror view. The DOM adapter (`dom.ts`) measures the top-level blocks in
@@ -27,6 +33,17 @@ export interface GapSpec {
   /** Negative margins that cancel the neighbouring blocks' CSS margins, so a page never starts or ends with one. */
   marginTop: number;
   marginBottom: number;
+  /**
+   * A page that begins inside a table row: a spacer in each cell that runs onto it (see `CellCut`), each with its own height, in
+   * document order. The gap's own `height` is then the page's, for the cards.
+   */
+  cuts?: CutSpec[];
+}
+
+/** The spacer of one cell of a row that a page begins in. */
+export interface CutSpec extends Omit<CellCut, "y" | "prevY"> {
+  height: number;
+  marginTop: number;
 }
 
 export type PageKind = "blank" | "open" | "body";
@@ -201,13 +218,29 @@ export function layoutPages(input: LayoutInput): PageLayoutResult {
         : "body";
     pages.push({ index: k, number: input.firstPage + k, top, height, kind });
     if (!br) break;
-    const gapHeight = overflow
-      ? Math.max(page.h - u, margins.top + margins.bottom) + input.gap
-      : page.h + input.gap - u;
+    // The spacer that ends a page whose text used `used` px of it.
+    const spacer = (px: number): number =>
+      px > input.textHeight + OVERFLOW_PX
+        ? Math.max(page.h - px, margins.top + margins.bottom) + input.gap
+        : page.h + input.gap - px;
+    const gapHeight = spacer(u);
+    // A page that begins inside a table row: a spacer per cell, each sized by where its own text was cut.
+    const cuts = br.at?.cuts?.map((c) => ({
+      pos: c.pos,
+      inline: c.inline,
+      height: spacer(
+        blocks[br.block]!.top + c.y - (c.prevY === null ? start : blocks[br.block]!.top + c.prevY),
+      ),
+      marginTop: 0,
+      marginBottom: c.marginBottom,
+      cell: c.cell,
+      row: c.row,
+    }));
     const between = br.linesBefore === 0 && !blank;
     const prev = between ? blocks[br.block - 1] : undefined;
     const next = blocks[br.block];
     gaps.push({
+      ...(cuts ? { cuts } : {}),
       block: br.block,
       linesBefore: br.linesBefore,
       blank,

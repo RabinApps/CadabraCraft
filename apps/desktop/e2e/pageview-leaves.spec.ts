@@ -111,12 +111,196 @@ test("quotes, lists and tables: a page begins between items and rows, and inside
   expect(saved).not.toContain("pv-gap");
 });
 
-test("a table that Typst starts a page inside of falls back to the estimate for the whole chapter", async ({
+/**
+ * A table of one row and two cells under the chapter title, and a paragraph after it: cell A is one paragraph of 60 words, cell B has
+ * two, of 15 and 50. Typst cuts the row at the foot of page 1: A at its word 30, B inside its second paragraph at its word 20.
+ */
+const rowDoc = () => ({
+  type: "doc",
+  content: [
+    h1("Chapter One"),
+    {
+      type: "table",
+      content: [
+        {
+          type: "tableRow",
+          content: [
+            { type: "tableCell", content: [p(words(60, 1))] },
+            { type: "tableCell", content: [p(words(15, 2)), p(words(50, 3))] },
+          ],
+        },
+      ],
+    },
+    p(words(10, 4)),
+  ],
+});
+const rowReport = JSON.stringify({
+  total: 2,
+  starts: [{ id: "chapter-1", kind: "chapter", page: 1, end: 2, number: "1" }],
+  marks: [
+    ["s", 0, 0, "h", 1],
+    ["s", 0, 1, "p", 1],
+    ["w", 31, 2],
+    ["s", 0, 1, "p", 1],
+    ["s", 0, 1, "p", 1],
+    ["w", 21, 2],
+    ["s", 0, 2, "p", 2],
+  ],
+});
+
+/** Where the text after each spacer in the table begins, px from the top of the page card it is on, and which card that is. */
+const tails = (page: Page) =>
+  page.evaluate(() => {
+    const cards = [...document.querySelectorAll<HTMLElement>(".page")].map((c) =>
+      c.getBoundingClientRect(),
+    );
+    return [...document.querySelectorAll<HTMLElement>("td .pv-gap")].map((gap) => {
+      const next = gap.nextSibling ?? gap.nextElementSibling!;
+      const range = document.createRange();
+      if (next.nodeType === Node.TEXT_NODE) {
+        range.setStart(next, 0);
+        range.setEnd(next, 1);
+      } else range.selectNodeContents(next);
+      const top = range.getBoundingClientRect().top;
+      const card = cards.findIndex((c) => top >= c.top && top < c.bottom);
+      return {
+        cell: gap.closest("td")!.cellIndex,
+        inline: gap.classList.contains("pv-gap-inline"),
+        card,
+        fromTop: card < 0 ? -1 : top - cards[card]!.top,
+        text: (next.textContent ?? "").slice(0, 10),
+      };
+    });
+  });
+
+test("a page that begins inside a table row begins in each cell that runs onto it, at that cell's own word, on the next page", async ({
+  page,
+}) => {
+  await newProject(page);
+  await seedChapters(page, [rowDoc() as never]);
+  await answerWith(page, rowReport);
+  await toggle(page).click();
+  await page.getByLabel("Page zoom").selectOption({ label: "100%" });
+  await expect(page.locator(".page-chip")).toHaveText(
+    "Page view · 5.5 × 8.5 in · breaks as in the PDF",
+    { timeout: 10_000 },
+  );
+  await expect(cards(page)).toHaveCount(2);
+  // A spacer in each cell that runs over, in the paragraph the page begins in, right before that word.
+  await expect(page.locator("td .pv-gap")).toHaveCount(2);
+  const t = await tails(page);
+  expect(t.map((x) => [x.cell, x.inline, x.card, x.text])).toEqual([
+    [0, true, 1, words(60, 1).split(" ").slice(30).join(" ").slice(0, 10)],
+    [1, true, 1, words(50, 3).split(" ").slice(20).join(" ").slice(0, 10)],
+  ]);
+  // Both cells go on at the top of the same page, level with each other.
+  expect(Math.abs(t[0]!.fromTop - t[1]!.fromTop)).toBeLessThan(2);
+  // Cell A's first part and B's first paragraph are on the first card; the paragraph after the table, on the second.
+  const onCard = await page.evaluate(() => {
+    const cards = [...document.querySelectorAll<HTMLElement>(".page")].map((c) =>
+      c.getBoundingClientRect(),
+    );
+    const cardOf = (el: Element) => {
+      const r = el.getBoundingClientRect();
+      return cards.findIndex((c) => r.top >= c.top && r.top < c.bottom);
+    };
+    return {
+      b1: cardOf(document.querySelectorAll("td")[1]!.querySelector("p")!),
+      after: cardOf(document.querySelector(".ProseMirror")!.lastElementChild!),
+    };
+  });
+  expect(onCard).toEqual({ b1: 0, after: 1 });
+  // The caret's page follows the cell it is in: B's first paragraph is on page 1, the end of A on page 2.
+  await page.locator("td").nth(1).locator("p").first().click();
+  await expect(page.getByTestId("page-position")).toHaveText(/ · Page 1 of 2$/, { timeout: 5_000 });
+  // A click on the first word after cell A's spacer: the caret is past the break, in a cell whose neighbour was cut elsewhere.
+  const tail = await page.evaluate(() => {
+    const next = document.querySelector("td .pv-gap")!.nextSibling!;
+    (next.parentElement ?? document.body).scrollIntoView({ block: "center" });
+    // The text after the spacer may be wrapped (a left-hand page shifts it).
+    const text = document.createTreeWalker(next, NodeFilter.SHOW_TEXT).nextNode() ?? next;
+    const range = document.createRange();
+    range.setStart(text, 1);
+    range.setEnd(text, 2);
+    const r = range.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  });
+  await page.mouse.click(tail.x, tail.y);
+  await expect(page.getByTestId("page-position")).toHaveText(/ · Page 2 of 2$/, {
+    timeout: 5_000,
+  });
+  // The author's text is untouched.
+  expect(await page.evaluate(() => JSON.stringify(window.__disk))).not.toContain("pv-gap");
+});
+
+test("a table row cut for a cell that ends before the page does leaves that cell on the first page, and a row of three pages is drawn on three", async ({
+  page,
+}) => {
+  await newProject(page);
+  const long = {
+    type: "doc",
+    content: [
+      h1("Chapter One"),
+      {
+        type: "table",
+        content: [
+          {
+            type: "tableRow",
+            content: [
+              { type: "tableCell", content: [p(words(120, 1))] },
+              { type: "tableCell", content: [p(words(8, 2))] },
+              { type: "tableCell", content: [p(words(70, 3))] },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  await seedChapters(page, [long as never]);
+  // Cell 0 runs onto pages 2 and 3 (at its words 40 and 90), cell 1 ends on page 1, cell 2 runs onto page 2 only (at its word 30).
+  await answerWith(
+    page,
+    JSON.stringify({
+      total: 3,
+      starts: [{ id: "chapter-1", kind: "chapter", page: 1, end: 3, number: "1" }],
+      marks: [
+        ["s", 0, 0, "h", 1],
+        ["s", 0, 1, "p", 1],
+        ["w", 41, 2],
+        ["w", 91, 3],
+        ["s", 0, 1, "p", 1],
+        ["s", 0, 1, "p", 1],
+        ["w", 31, 2],
+      ],
+    }),
+  );
+  await toggle(page).click();
+  await page.getByLabel("Page zoom").selectOption({ label: "100%" });
+  await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
+  await expect(cards(page)).toHaveCount(3);
+  const t = await tails(page);
+  expect(t.map((x) => [x.cell, x.card])).toEqual([
+    [0, 1],
+    [0, 2],
+    [2, 1],
+  ]);
+  // The cell that ends first has no spacer and stays on the first card.
+  const short = await page.evaluate(() => {
+    const cards = [...document.querySelectorAll<HTMLElement>(".page")].map((c) =>
+      c.getBoundingClientRect(),
+    );
+    const r = document.querySelectorAll("td")[1]!.querySelector("p")!.getBoundingClientRect();
+    return cards.findIndex((c) => r.top >= c.top && r.top < c.bottom);
+  });
+  expect(short).toBe(0);
+});
+
+test("a table that Typst starts a page inside of, at a cell that is not at the top of its row, falls back to the estimate for the whole chapter", async ({
   page,
 }) => {
   await newProject(page);
   await seedChapters(page, [doc()]);
-  // A page begins at the second cell of the first row: nothing can be drawn there.
+  // A page begins at the second cell of the first row: Typst starts all the cells of a row together, so these marks cannot be right.
   const bad = JSON.parse(report("chapter-1"));
   const cells = bad.marks.filter((m: unknown[]) => m[0] === "s" && m[2] === 4);
   cells[1][4] = 5;

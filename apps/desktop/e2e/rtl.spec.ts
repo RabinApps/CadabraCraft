@@ -340,3 +340,65 @@ test("RTL: Page view breaks a list between its items where Typst did, and does n
   expect(await gap.evaluate((el) => el.nextElementSibling?.textContent)).toBe("five six");
   expect(await noOverflow(page)).toBe(true);
 });
+
+test("RTL: Page view cuts a table row in each cell where Typst did and does not overflow", async ({
+  page,
+}) => {
+  await newProject(page);
+  const p = (text: string) => ({ type: "paragraph", content: [{ type: "text", text }] });
+  await seedChapters(page, [
+    {
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Chapter One" }] },
+        {
+          type: "table",
+          content: [
+            {
+              type: "tableRow",
+              content: [
+                { type: "tableCell", content: [p("one two three four five six")] },
+                { type: "tableCell", content: [p("seven eight nine ten eleven twelve")] },
+              ],
+            },
+          ],
+        },
+      ],
+    } as never,
+  ]);
+  // Typst cuts the row at the foot of page 1: the first cell at its word 3, the second at its word 4.
+  const report = JSON.stringify({
+    total: 2,
+    starts: [{ id: "chapter-1", kind: "chapter", page: 1, end: 2, number: "1" }],
+    marks: [
+      ["s", 0, 0, "h", 1],
+      ["s", 0, 1, "p", 1],
+      ["w", 4, 2],
+      ["s", 0, 1, "p", 1],
+      ["w", 5, 2],
+    ],
+  });
+  await page.evaluate((r) => {
+    window.__typstQueryResultFor = (source) => (source.includes("bm-s(") ? r : undefined);
+  }, report);
+  await page.getByRole("button", { name: "Page view", exact: true }).click();
+  await forceRtl(page);
+  await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
+  await expect(page.locator(".page")).toHaveCount(2);
+  const gaps = page.locator("td .pv-gap");
+  await expect(gaps).toHaveCount(2);
+  const next = await gaps.evaluateAll((els) => els.map((el) => el.nextSibling?.textContent ?? ""));
+  expect(next.map((t) => t.slice(0, 5))).toEqual(["four ", "eleve"]);
+  // Both cells go on level at the top of the second page (the page itself is still laid out left to right, see "Right-to-left layout").
+  const tops = await gaps.evaluateAll((els) =>
+    els.map((el) => {
+      const r = document.createRange();
+      const text = document.createTreeWalker(el.nextSibling!, NodeFilter.SHOW_TEXT).nextNode()!;
+      r.setStart(text, 0);
+      r.setEnd(text, 1);
+      return r.getBoundingClientRect().top;
+    }),
+  );
+  expect(Math.abs(tops[0]! - tops[1]!)).toBeLessThan(2);
+  expect(await noOverflow(page)).toBe(true);
+});

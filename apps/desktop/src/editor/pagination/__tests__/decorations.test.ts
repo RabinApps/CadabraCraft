@@ -108,6 +108,118 @@ describe("buildDecorations", () => {
     ]);
   });
 
+  describe("a page that begins inside a table row", () => {
+    // One block of 100 characters (positions 1 to 101) standing in for a table with a row of two cells: positions 1-51 and 51-101.
+    const row = {
+      from: 0,
+      to: 102,
+      cells: [
+        { from: 1, to: 51 },
+        { from: 51, to: 101 },
+      ],
+    };
+    const cut = (pos: number, cell: 0 | 1, prevY: number | null, y: number, inline = true) => ({
+      pos,
+      y,
+      prevY,
+      inline,
+      marginBottom: 0,
+      cell: row.cells[cell]!,
+      row,
+    });
+    const table: FlowBlock = { ...block(0, 30), kind: "table", height: 700, lineHeight: 700 };
+    const layoutOfCuts = (firstPage: number, ...breaks: ReturnType<typeof cut>[][]) =>
+      layoutPages({
+        blocks: [table],
+        page: { h: 400 },
+        margins: { top: 40, bottom: 40 },
+        textHeight: 320,
+        gap: 24,
+        firstPage,
+        startsOn: "any",
+        opensChapter: false,
+        forced: breaks.map((cuts, k) => ({
+          block: 0,
+          linesBefore: k + 1,
+          blankBefore: false,
+          at: { y: Math.max(...cuts.map((c) => c.y)), flow: true, cuts },
+        })),
+      });
+    const doc = schema.node("doc", null, [p(100)]);
+    const verso = (set: ReturnType<typeof buildDecorations>) =>
+      classes(set.find()).filter((d) => d.cls === "pv-verso");
+
+    it("draws a spacer in each cell, with its own height, inline for a word and a block between paragraphs", () => {
+      const layout = layoutOfCuts(1, [cut(20, 0, null, 300), cut(60, 1, null, 320, false)]);
+      const set = buildDecorations(doc, layout, 1, () => null);
+      const specs = gapSpecs(set, doc);
+      expect(specs.map((s) => [s.index, s.inline, s.height, s.cell, s.row?.from])).toEqual([
+        [0, true, 124, row.cells[0], 0],
+        [0, false, 104, row.cells[1], 0],
+      ]);
+      expect(specs[0]!.key).not.toBe(specs[1]!.key);
+      expect(set.find(20, 20, isGap)).toHaveLength(1);
+      expect(set.find(60, 60, isGap)).toHaveLength(1);
+    });
+
+    it("puts the hyphen where a cell's word is cut in the middle", () => {
+      const made = buildDecorations(
+        doc,
+        layoutOfCuts(1, [cut(20, 0, null, 300)]),
+        1,
+        () => null,
+        true,
+      );
+      // The text is all one letter: a cut at 20 is inside a word.
+      expect(made.find(20, 20, (spec: { side?: number }) => spec.side !== undefined)).toHaveLength(
+        2,
+      );
+      // A spacer between paragraphs is no word cut.
+      const block = buildDecorations(
+        doc,
+        layoutOfCuts(1, [cut(20, 0, null, 300, false)]),
+        1,
+        () => null,
+        true,
+      );
+      expect(block.find(20, 20, (spec: { side?: number }) => spec.side !== undefined)).toHaveLength(
+        1,
+      );
+    });
+
+    it("shifts the text of each cell by the page it is on: the cell that runs over is on two pages, the one that ends is on the first", () => {
+      // The first page is a right-hand page: only what is on the second (left-hand) page is shifted, the tail of the first cell.
+      const set = buildDecorations(doc, layoutOfCuts(1, [cut(20, 0, null, 300)]), 1, () => null);
+      expect(verso(set)).toEqual([{ from: 20, to: 51, cls: "pv-verso" }]);
+      // The first page is a left-hand page: the first cell's head and the second cell are shifted, not its tail.
+      const flipped = buildDecorations(
+        doc,
+        layoutOfCuts(2, [cut(20, 0, null, 300)]),
+        2,
+        () => null,
+      );
+      expect(verso(flipped)).toEqual([
+        { from: 1, to: 20, cls: "pv-verso" },
+        { from: 51, to: 101, cls: "pv-verso" },
+      ]);
+    });
+
+    it("follows a cell over two page breaks, and a cell that starts running over later than its neighbour only on the break it is cut at", () => {
+      const layout = layoutOfCuts(
+        1,
+        [cut(20, 0, null, 300), cut(70, 1, null, 320)],
+        [cut(35, 0, 300, 640)],
+      );
+      const set = buildDecorations(doc, layout, 1, () => null);
+      // Pages 1, 2, 3 (right, left, right): cell 0 is on the left-hand page between 20 and 35; cell 1 from its cut on.
+      expect(verso(set)).toEqual([
+        { from: 20, to: 35, cls: "pv-verso" },
+        { from: 70, to: 101, cls: "pv-verso" },
+      ]);
+      expect(gapSpecs(set, doc).map((s) => s.index)).toEqual([0, 1, 0]);
+    });
+  });
+
   it("builds the spacer element with its height and margins", () => {
     const doc = schema.node("doc", null, [p(100)]);
     const set = buildDecorations(doc, layoutOf([30], 1), 1, () => 50);

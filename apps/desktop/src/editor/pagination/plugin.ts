@@ -4,11 +4,12 @@ import { DecorationSet, type EditorView } from "@tiptap/pm/view";
 import type { PageGeometry } from "../../lib/pageLayout";
 import { createBlockCache } from "./cache";
 import { PAGE_GAP, layoutPages, withTops, type FlowBlock, type PageLayoutResult } from "./core";
-import { buildDecorations } from "./decorations";
+import { buildDecorations, type GapWidgetSpec } from "./decorations";
+import { rowBreak } from "./rows";
 import type { PageBreak } from "../../lib/pageLayout";
 import { exactBreaks, type ExactSource } from "../../lib/exactBreaks";
 import { cursorPage, findSplitPos, flowY, measureFlow, readPageTops, splitY } from "./dom";
-import { docLeaves, insideCell, leafWordTexts, pageStartAt, wordOffset } from "./exact";
+import { docLeaves, insideCell, leafWordTexts, pageStartAt, rowAround, wordOffset } from "./exact";
 
 /** What the pagination needs to know; set by the Page view frame, null (or `on: false`) when Page view is off. */
 export interface PageConfig {
@@ -70,14 +71,35 @@ function forcedBreaks(
   const out: PageBreak[] = [];
   // Per block: the breaks made inside it so far and where the last one is.
   const inside = new Map<number, { n: number; y: number }>();
-  for (const b of typst) {
+  // Per cell of the table row being cut: where its text was cut last (the position of the cell's start is its identity).
+  let cellY = new Map<number, number>();
+  for (let k = 0; k < typst.length; k++) {
+    const b = typst[k]!;
     const flow = blocks[b.block];
     const leaf = leaves[b.block]?.[b.leaf];
     if (!flow || !leaf) return undefined;
     let pos: number;
     let at: NonNullable<PageBreak["at"]>;
+    if (b.cuts) {
+      // A page that begins inside a table row: it begins in each cell that runs onto it, at that cell's own place.
+      const sameRow = (o: (typeof typst)[number] | undefined): boolean =>
+        !!o?.cuts && o.block === b.block && o.row === b.row;
+      if (!sameRow(typst[k - 1])) cellY = new Map();
+      const last = !sameRow(typst[k + 1]);
+      const cut = rowBreak(v, c, doc, flow, leaves[b.block]!, b.cuts, cellY, last);
+      if (!cut) return undefined;
+      const prev = inside.get(b.block);
+      if (prev && cut.at.y <= prev.y) return undefined;
+      const n = (prev?.n ?? 0) + 1;
+      inside.set(b.block, { n, y: cut.at.y });
+      exactPos.set(`${b.block}:${n}`, cut.at.cuts![0]!.pos);
+      out.push({ block: b.block, linesBefore: n, blankBefore: false, at: cut.at });
+      continue;
+    }
     if (b.word === null) {
-      const start = pageStartAt(doc, leaf.pos);
+      // A page that begins at a row begins before it, whichever of its cells has the first text.
+      const rowFirst = b.rowStart ? rowAround(doc, leaf.pos)?.row.cells[0]?.from : undefined;
+      const start = pageStartAt(doc, rowFirst ?? leaf.pos);
       if (!start) return undefined;
       if (start.top) {
         out.push({ block: b.block, linesBefore: 0, blankBefore: false });
@@ -149,11 +171,19 @@ export function createController() {
   const exactCursorPage = (v: EditorView, l: PageLayoutResult): number => {
     const set = paginationKey.getState(v.state);
     const head = v.state.selection.head;
-    const at = (set?.find(0, v.state.doc.content.size) ?? []).filter(
-      (d) => (d as unknown as { spec: { pvGap?: unknown } }).spec.pvGap !== undefined,
-    );
-    const page = at.filter((d) => d.from <= head).length;
-    return Math.min(page, l.pages.length - 1);
+    // The page breaks the caret is past. A page break inside a table row has a spacer per cell: in the text of a cell only that
+    // cell's own spacers count (a cell that ended before the break is on the row's earlier page), after the row all of them do.
+    const passed = new Set<number>();
+    for (const d of set?.find(0, v.state.doc.content.size) ?? []) {
+      const g = (d as unknown as { spec: { pvGap?: GapWidgetSpec } }).spec.pvGap;
+      if (!g) continue;
+      const reached =
+        g.cell && g.row
+          ? head >= g.row.to || (head >= g.cell.from && head <= g.cell.to && d.from <= head)
+          : d.from <= head;
+      if (reached) passed.add(g.index);
+    }
+    return Math.min(passed.size, l.pages.length - 1);
   };
 
   const run = () => {
