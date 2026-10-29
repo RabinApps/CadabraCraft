@@ -1,16 +1,16 @@
 import { useLingui } from "@lingui/react/macro";
-import type { ManuscriptFont as DocxFont } from "@cadabracraft/export-docx";
+import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import { Select } from "../../ui/Select";
 import { useFontList } from "../hooks/useFontList";
 
-/** The Word format: the manuscript font. */
-export function DocxPanel({
+/** The Word and Rich Text formats: the manuscript font. */
+export function ManuscriptPanel({
   font,
   onFont,
   disabled,
 }: {
-  font: DocxFont;
-  onFont: (f: DocxFont) => void;
+  font: ManuscriptFont;
+  onFont: (f: ManuscriptFont) => void;
   disabled: boolean;
 }) {
   const { t } = useLingui();
@@ -21,7 +21,7 @@ export function DocxPanel({
       label={t`Font`}
       value={font}
       disabled={disabled}
-      onChange={(e) => onFont(e.target.value as DocxFont)}
+      onChange={(e) => onFont(e.target.value as ManuscriptFont)}
       hint={t`Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it.`}
     >
       <option value="times">Times New Roman</option>

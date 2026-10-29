@@ -1380,6 +1380,10 @@ msgstr "صُدِّر {dir}/book.pdf"
 msgid "Exported {dir}/manuscript.docx"
 msgstr "صُدِّر {dir}/manuscript.docx"
 
+#: src/state/project/exports.ts
+msgid "Exported {dir}/manuscript.rtf"
+msgstr ""
+
 #: src/state/project/audio.ts
 msgid "Exported the audiobook to exports/audio"
 msgstr "صُدِّر الكتاب الصوتي إلى exports/audio"
@@ -1459,7 +1463,7 @@ msgstr "المجلد غير موجود. أزله من القائمة أو أعد
 msgid "Follow the system or pick one."
 msgstr "اتبع النظام أو اختر واحدًا."
 
-#: src/app/export/DocxPanel.tsx
+#: src/app/export/ManuscriptPanel.tsx
 msgid "Font"
 msgstr "الخط"
 
@@ -2763,6 +2767,14 @@ msgstr "جارٍ الاستعادة…"
 msgid "Results by page"
 msgstr "النتائج حسب الصفحة"
 
+#: src/app/export/ExportDialog.tsx
+msgid "Rich Text (.rtf)"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Rich Text (.rtf)…"
+msgstr ""
+
 #: src/app/export/Templates.tsx
 msgid "Right-hand page"
 msgstr "الصفحة اليمنى"
@@ -2816,6 +2828,10 @@ msgstr "جارٍ حفظ {dir}/book.pdf…"
 #: src/app/export/ExportDialog.tsx
 msgid "Saving {dir}/manuscript.docx…"
 msgstr "جارٍ حفظ {dir}/manuscript.docx…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/manuscript.rtf…"
+msgstr ""
 
 #: src/app/export/Templates.tsx
 #: src/editor/Toolbar.tsx
@@ -3393,7 +3409,7 @@ msgstr "هذه الصفحة"
 msgid "This version has the same words as the current text."
 msgstr "لهذا الإصدار الكلمات نفسها الموجودة في النص الحالي."
 
-#: src/app/export/DocxPanel.tsx
+#: src/app/export/ManuscriptPanel.tsx
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
 msgstr "تطلب معظم الوكالات والمحررين خط Times New Roman بحجم 12 نقطة. أما Courier New فهو مظهر الآلة الكاتبة الذي لا يزال بعضهم يفضّله. يحتاج حاسوب القارئ إلى أي خط آخر لرؤيته."
 
@@ -3689,6 +3705,10 @@ msgid "Write your first book"
 msgstr "اكتب كتابك الأول"
 
 #: src/app/export/ExportDialog.tsx
+msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
 msgstr "يكتب الكتاب كله كملف Word بتنسيق المخطوطات القياسي في مجلد التصدير: تباعد مزدوج، 12 نقطة، هوامش بوصة واحدة، صفحة عنوان ورأس جارٍ بلقبك. لا يلزم شيء آخر على هذا الحاسوب."
 
@@ -3703,6 +3723,10 @@ msgstr "عرض عمود الكتابة"
 #: src/app/export/ExportDialog.tsx
 msgid "Writing Markdown…"
 msgstr "جارٍ كتابة Markdown…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writing the Rich Text file…"
+msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing the Word file…"

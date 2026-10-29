@@ -3,14 +3,16 @@ import { join } from "node:path";
 import { XMLParser } from "fast-xml-parser";
 import { unzipSync } from "fflate";
 import { z } from "zod";
+import { buildDocx } from "@cadabracraft/export-docx";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { bookToMarkdown } from "@cadabracraft/export-markdown";
 import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import { createNodeRunner } from "@cadabracraft/export-pdf/node";
+import { buildRtf } from "@cadabracraft/export-rtf";
 import { ProjectFsError, writeBytes } from "@cadabracraft/project-fs";
 import { getTemplate, hasTemplate, resolveBookFonts, resolveTrimSize } from "@cadabracraft/templates";
-import { exportDir } from "@cadabracraft/format";
-import { loadBook } from "../book";
+import { exportDir, readingOrder, sectionOf, type Manifest } from "@cadabracraft/format";
+import { loadBook, type Book } from "../book";
 import { ToolError } from "../errors";
 import { poppler, runEpubcheck, typstPath } from "../external";
 import { editionOf, loadProject, projectRoot } from "../project";
@@ -104,6 +106,68 @@ export const exportPdf = defineTool({
       writeBytes(root, PDF, pdf);
       return { summary: `Wrote ${PDF} (${pdf.length} bytes, ${size}, template ${id}${pdfA ? ", PDF/A-2b" : ""})${skippedNote(skipped)}`, data: { file: PDF, language: edition.language, skipped: skippedData(skipped), bytes: pdf.length, options: { trimSize: size, template: id, pdfA: pdfA === true }, fonts } };
     }),
+});
+
+const FONT = z
+  .string()
+  .trim()
+  .min(1)
+  .max(100)
+  .optional()
+  .describe('Manuscript font: "times" (Times New Roman 12 pt, the default), "courier" (Courier New 12 pt) or any font family name (12 pt; the reader\'s computer needs it installed to see it). Code blocks stay Courier New.');
+
+/** The pages with the front/back matter placement and kind the manuscript exporters need (the app passes the same). */
+function manuscriptPages(manifest: Manifest, chapters: Book["chapters"]) {
+  const entries = readingOrder(manifest);
+  return chapters.map((c) => {
+    const kind = entries.find((e) => e.id === c.id)?.kind;
+    return { ...c, section: sectionOf(manifest, c.id)!, ...(kind ? { kind } : {}) };
+  });
+}
+
+/** Word and RTF are the same tool with a different writer: standard manuscript format into exports/<language>/manuscript.<ext>. */
+function manuscriptTool(o: { name: string; title: string; ext: "docx" | "rtf"; describe: string; code: "docx_error" | "rtf_error"; build: (b: Book, font: string | undefined) => Uint8Array }) {
+  return defineTool({
+    name: o.name,
+    title: o.title,
+    description: `${o.describe} Standard manuscript format: US Letter, 1 inch margins, 12 pt, double spaced, a title page with the approximate word count, a running header "Surname / TITLE / page", every chapter on a new page, scene breaks as #, footnotes as real footnotes. Writes exports/<language>/manuscript.${o.ext}; an unknown node or an image that cannot be embedded fails with ${o.code}, naming the page. Only writes under exports/.`,
+    input: { path: PATH, font: FONT, language: LANGUAGE, skipUntranslated: SKIP },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+    run: ({ path, font, language, skipUntranslated }, ctx) =>
+      withLock(projectRoot(ctx, path), async () => {
+        const book = loadBook(ctx, path, { language, skipUntranslated });
+        const { root, edition, dir, skipped, chapters } = book;
+        const FILE = `${dir}/manuscript.${o.ext}`;
+        let bytes: Uint8Array;
+        try {
+          bytes = o.build(book, font);
+        } catch (e) {
+          throw new ToolError(o.code, errMsg(e));
+        }
+        writeBytes(root, FILE, bytes);
+        return { summary: `Wrote ${FILE} (${bytes.length} bytes, ${chapters.length} pages)${skippedNote(skipped)}`, data: { file: FILE, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), font: font ?? "times" } };
+      }),
+  });
+}
+
+export const exportDocx = manuscriptTool({
+  name: "cadabra_export_docx",
+  title: "Export Word manuscript",
+  describe: "Build a Word (.docx) manuscript from one edition of the book, the file agents and editors ask for.",
+  ext: "docx",
+  code: "docx_error",
+  build: ({ manifest, edition, chapters, assets }, font) =>
+    buildDocx({ title: edition.title, author: edition.author, language: edition.language }, manuscriptPages(manifest, chapters), { assets, ...(font ? { font } : {}), modified: new Date() }),
+});
+
+export const exportRtf = manuscriptTool({
+  name: "cadabra_export_rtf",
+  title: "Export RTF manuscript",
+  describe: "Build a Rich Text Format (.rtf) manuscript from one edition of the book, for word processors and submission systems that want RTF. Images must be PNG or JPEG.",
+  ext: "rtf",
+  code: "rtf_error",
+  build: ({ manifest, edition, chapters, assets }, font) =>
+    new TextEncoder().encode(buildRtf({ title: edition.title, author: edition.author, language: edition.language }, manuscriptPages(manifest, chapters), { assets, ...(font ? { font } : {}), modified: new Date() })),
 });
 
 function sizeOf(file: string, rel: string, hint: string): number {
@@ -210,4 +274,4 @@ export const inspectEpub = defineTool({
   },
 });
 
-export const exportTools: ToolDef[] = [exportEpub, exportPdf, exportMarkdown, inspectPdf, inspectEpub];
+export const exportTools: ToolDef[] = [exportEpub, exportPdf, exportMarkdown, exportDocx, exportRtf, inspectPdf, inspectEpub];

@@ -158,6 +158,12 @@ export function useAppMenu(h: AppMenuHooks): void {
           h.openExport("docx");
         }),
       },
+      "file.exportRtf": {
+        run: guard(async () => {
+          await actions.flush();
+          h.openExport("rtf");
+        }),
+      },
       "file.exportAudiobook": {
         run: guard(async () => {
           await actions.flush();

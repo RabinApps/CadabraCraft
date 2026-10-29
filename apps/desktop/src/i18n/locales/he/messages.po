@@ -1380,6 +1380,10 @@ msgstr "{dir}/book.pdf יוצא"
 msgid "Exported {dir}/manuscript.docx"
 msgstr "{dir}/manuscript.docx יוצא"
 
+#: src/state/project/exports.ts
+msgid "Exported {dir}/manuscript.rtf"
+msgstr ""
+
 #: src/state/project/audio.ts
 msgid "Exported the audiobook to exports/audio"
 msgstr "ספר השמע יוצא אל exports/audio"
@@ -1459,7 +1463,7 @@ msgstr "התיקייה לא נמצאה. הסר אותה מהרשימה או הח
 msgid "Follow the system or pick one."
 msgstr "לפי המערכת, או בחירה ידנית."
 
-#: src/app/export/DocxPanel.tsx
+#: src/app/export/ManuscriptPanel.tsx
 msgid "Font"
 msgstr "גופן"
 
@@ -2763,6 +2767,14 @@ msgstr "משחזר…"
 msgid "Results by page"
 msgstr "תוצאות לפי עמוד"
 
+#: src/app/export/ExportDialog.tsx
+msgid "Rich Text (.rtf)"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Rich Text (.rtf)…"
+msgstr ""
+
 #: src/app/export/Templates.tsx
 msgid "Right-hand page"
 msgstr "עמוד ימני"
@@ -2816,6 +2828,10 @@ msgstr "שומר את {dir}/book.pdf…"
 #: src/app/export/ExportDialog.tsx
 msgid "Saving {dir}/manuscript.docx…"
 msgstr "שומר את {dir}/manuscript.docx…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/manuscript.rtf…"
+msgstr ""
 
 #: src/app/export/Templates.tsx
 #: src/editor/Toolbar.tsx
@@ -3393,7 +3409,7 @@ msgstr "עמוד זה"
 msgid "This version has the same words as the current text."
 msgstr "בגרסה זו יש אותן מילים כמו בטקסט הנוכחי."
 
-#: src/app/export/DocxPanel.tsx
+#: src/app/export/ManuscriptPanel.tsx
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
 msgstr "Times New Roman 12 נקודות הוא מה שרוב הסוכנים והעורכים מבקשים. Courier New הוא מראה מכונת הכתיבה שחלק עדיין מעדיפים. במחשב של הקורא צריך להיות כל גופן אחר כדי לראות אותו."
 
@@ -3689,6 +3705,10 @@ msgid "Write your first book"
 msgstr "כתוב את הספר הראשון שלך"
 
 #: src/app/export/ExportDialog.tsx
+msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
 msgstr "כותב את כל הספר כקובץ Word בפורמט כתב יד סטנדרטי בתיקיית הייצוא: רווח כפול, 12 נקודות, שוליים של אינץ׳, עמוד שער וכותרת עליונה עם שם המשפחה שלך. אין צורך בדבר נוסף במחשב זה."
 
@@ -3703,6 +3723,10 @@ msgstr "רוחב עמודת הכתיבה"
 #: src/app/export/ExportDialog.tsx
 msgid "Writing Markdown…"
 msgstr "כותב Markdown…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writing the Rich Text file…"
+msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing the Word file…"

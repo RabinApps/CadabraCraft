@@ -346,6 +346,8 @@ export interface ExportActions {
   exportMarkdown: (options: { htmlMarks: boolean } & ExportScope) => Promise<void>;
   /** Writes the whole book as exports/<language>/manuscript.docx in standard manuscript format. Throws a `DocxExportError` message that names the page (and node) it cannot write. */
   exportDocx: (options: { font: ManuscriptFont } & ExportScope) => Promise<void>;
+  /** Writes the whole book as exports/<language>/manuscript.rtf in the same manuscript format. Throws an `RtfExportError` message that names the page (and node) it cannot write, for example a GIF, WebP or SVG image. */
+  exportRtf: (options: { font: ManuscriptFont } & ExportScope) => Promise<void>;
   /** Builds exports/<language>/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
   exportPdf: (options: PdfExportOptions) => Promise<void>;
   /**

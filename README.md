@@ -41,7 +41,7 @@ A book is a plain folder you choose: one file per chapter, your images, and a `c
 - **Editor:** chapters you can add, rename, reorder, trash and restore, with undo and redo for structure edits, autosave, per-chapter History (automatic snapshots you can compare and restore), focus mode and a reading mode.
 - **Front and back matter:** title page, copyright, dedication, epigraph, foreword, preface, acknowledgments, about the author, also by, colophon.
 - **Import:** Word (`.docx`), Markdown, HTML and plain-text manuscripts, with a report of anything that could not be kept. See [docs/import.md](docs/import.md).
-- **Export:** EPUB 3 (passes EPUBCheck), print PDF through Typst (trim sizes, templates, PDF/A, cover, footnotes), Markdown, and Word (`.docx`) in standard manuscript format for agents and editors.
+- **Export:** EPUB 3 (passes EPUBCheck), print PDF through Typst (trim sizes, templates, PDF/A, cover, footnotes), Markdown, and Word (`.docx`) and Rich Text (`.rtf`) in standard manuscript format for agents and editors.
 - **Templates and settings:** novel, nonfiction and modern templates, an approximate print preview, and a Settings page.
 - **Book details:** title, author, language, ISBN, identifier and cover image.
 - **Headless MCP server:** create, edit, import and export books (EPUB, PDF, Markdown) from an AI agent or script. See [docs/mcp.md](docs/mcp.md).
@@ -73,6 +73,7 @@ packages/
   export-pdf/       Print PDF via Typst
   export-markdown/  Chapter JSON to Markdown (inverse of the importer)
   export-docx/      Chapter JSON to a manuscript-format .docx (hand-written OOXML)
+  export-rtf/       Chapter JSON to a manuscript-format .rtf (hand-written RTF)
   import-docx/      Markdown and DOCX import with warnings
   export-audio/     Audiobook rendering plan and chapter audio helpers
   project-fs/       Node port of the project-folder rules

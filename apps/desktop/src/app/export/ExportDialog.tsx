@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { exportDir, sourceEdition } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { FileText, Printer } from "lucide-react";
-import type { ManuscriptFont as DocxFont } from "@cadabracraft/export-docx";
+import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import { PdfUiError } from "../../lib/pdfErrors";
 import { errText } from "../../lib/projectError";
 import { Button } from "../../ui/Button";
@@ -12,10 +12,10 @@ import { useSponsor } from "../../state/sponsor";
 import { useProject } from "../../state/project";
 import { AudioFooter } from "./AudioFooter";
 import { AudioPanel } from "./AudioPanel";
-import { DocxPanel } from "./DocxPanel";
 import { EditionsChecklist, untranslatedIn } from "./EditionsChecklist";
 import { nativeName } from "../shell/EditionSwitcher";
 import { EpubPanel } from "./EpubPanel";
+import { ManuscriptPanel } from "./ManuscriptPanel";
 import { MarkdownPanel } from "./MarkdownPanel";
 import { PdfPanel, usePdfOptions } from "./PdfPanel";
 import { useAudioExport } from "./useAudioExport";
@@ -35,7 +35,7 @@ interface Props {
   onOpenFonts?: () => void;
 }
 
-/** Export the book as EPUB 3, a print PDF (Typst), Markdown, Word or an audiobook. Each format's panel shows its checks or options before building. */
+/** Export the book as EPUB 3, a print PDF (Typst), Markdown, Word, Rich Text or an audiobook. Each format's panel shows its checks or options before building. */
 export function ExportDialog({
   open,
   onOpenChange,
@@ -51,10 +51,11 @@ export function ExportDialog({
   const exportEpub = useProject((s) => s.actions.exportEpub);
   const exportMarkdown = useProject((s) => s.actions.exportMarkdown);
   const exportDocx = useProject((s) => s.actions.exportDocx);
+  const exportRtf = useProject((s) => s.actions.exportRtf);
   const exportPdf = useProject((s) => s.actions.exportPdf);
   const activeLanguage = useProject((s) => s.activeLanguage);
   const [htmlMarks, setHtmlMarks] = useState(false);
-  const [font, setFont] = useState<DocxFont>("times");
+  const [font, setFont] = useState<ManuscriptFont>("times");
   const [error, setError] = useState<PdfUiError | null>(null);
   const current = activeLanguage ?? (manifest ? sourceEdition(manifest.editions).language : "");
   // The editions to export (the open one until the author picks others) and the ones whose untranslated pages are left out.
@@ -100,11 +101,17 @@ export function ExportDialog({
               rendering: t`Writing the Word file…`,
               saving: t`Saving ${dir}/manuscript.docx…`,
             }
-          : {
-              preparing: t`Reading your chapters…`,
-              rendering: t`Typesetting the book with Typst…`,
-              saving: t`Saving ${dir}/book.pdf…`,
-            };
+          : format === "rtf"
+            ? {
+                preparing: t`Reading your chapters…`,
+                rendering: t`Writing the Rich Text file…`,
+                saving: t`Saving ${dir}/manuscript.rtf…`,
+              }
+            : {
+                preparing: t`Reading your chapters…`,
+                rendering: t`Typesetting the book with Typst…`,
+                saving: t`Saving ${dir}/book.pdf…`,
+              };
 
   const change = (o: boolean) => {
     if (running) return; // an export cannot be cancelled; keep the dialog until it ends
@@ -127,6 +134,7 @@ export function ExportDialog({
         if (format === "epub") await exportEpub(s);
         else if (format === "markdown") await exportMarkdown({ htmlMarks, ...s });
         else if (format === "docx") await exportDocx({ font, ...s });
+        else if (format === "rtf") await exportRtf({ font, ...s });
         else
           await exportPdf({
             trimSize: pdf.trimSize,
@@ -147,7 +155,9 @@ export function ExportDialog({
               ? `${last}/book.md`
               : format === "docx"
                 ? `${last}/manuscript.docx`
-                : `${last}/book.pdf`,
+                : format === "rtf"
+                  ? `${last}/manuscript.rtf`
+                  : `${last}/book.pdf`,
         );
     } catch (e) {
       setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
@@ -170,7 +180,9 @@ export function ExportDialog({
               ? t`Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer.`
               : format === "docx"
                 ? t`Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer.`
-                : t`Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app.`
+                : format === "rtf"
+                  ? t`Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer.`
+                  : t`Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app.`
       }
     >
       <form
@@ -192,6 +204,7 @@ export function ExportDialog({
             { value: "pdf", label: t`Print PDF` },
             { value: "markdown", label: t`Markdown` },
             { value: "docx", label: t`Word (.docx)` },
+            { value: "rtf", label: t`Rich Text (.rtf)` },
             { value: "audiobook", label: t`Audiobook` },
           ]}
         />
@@ -210,8 +223,8 @@ export function ExportDialog({
           <AudioPanel audio={audio} />
         ) : format === "epub" ? (
           <EpubPanel {...scope} />
-        ) : format === "docx" ? (
-          <DocxPanel font={font} onFont={setFont} disabled={running} />
+        ) : format === "docx" || format === "rtf" ? (
+          <ManuscriptPanel font={font} onFont={setFont} disabled={running} />
         ) : format === "markdown" ? (
           <MarkdownPanel htmlMarks={htmlMarks} onHtmlMarks={setHtmlMarks} disabled={running} />
         ) : (
@@ -255,7 +268,7 @@ export function ExportDialog({
           />
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-2.5">
-            {onPreview && format !== "markdown" && format !== "docx" ? (
+            {onPreview && format !== "markdown" && format !== "docx" && format !== "rtf" ? (
               <Button
                 disabled={running}
                 onClick={onPreview}

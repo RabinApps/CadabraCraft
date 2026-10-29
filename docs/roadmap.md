@@ -61,9 +61,8 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ### Word export follow-ups
 
-- MCP tool `cadabra_export_docx` (the desktop app has the export; the headless server does not yet).
-- Open the generated `.docx` by hand in Word, Pages and Google Docs and fix whatever they disagree on. (The headless LibreOffice `soffice --convert-to pdf` smoke test in CI is built: `packages/export-docx/src/__tests__/libreoffice.test.ts`, see docs/testing.md; a manual LibreOffice look is still worth doing for layout.)
-- RTF export; alternate templates (A4, other fonts and spacing, contact block on the title page, chapter title drop, shunn-style "approximately N words"); Word comments and tracked changes from the editor; right-to-left books.
+- Open the generated `.docx` and `.rtf` by hand in Word, Pages and Google Docs and fix whatever they disagree on. (The headless LibreOffice `soffice --convert-to pdf` smoke test in CI is built: `packages/export-docx/src/__tests__/libreoffice.test.ts`, see docs/testing.md; a manual LibreOffice look is still worth doing for layout.)
+- Alternate templates (A4, other fonts and spacing, contact block on the title page, chapter title drop, shunn-style "approximately N words"); Word comments and tracked changes from the editor; right-to-left books.
 
 ### Format coverage
 
@@ -82,6 +81,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ## Done
 
+- RTF manuscript export: `packages/export-rtf`, File > Export > Rich Text and the Export dialog format, and MCP tools `cadabra_export_rtf` and `cadabra_export_docx` (see architecture.md, "Rich Text (.rtf) export").
 - Home dashboard, as drawn in the pen: continue-writing card, book cards with author, chapters, words and when they were last edited, and the new book tile. Recents carry these facts (see architecture.md, "Home dashboard"). Not built from the pen: the "Last edited" sort button (the list is always newest first) and cover images (covers are tinted title blocks).
 - Chapter snapshots: automatic versions on save, History dialog (compare and restore), Backups settings, recovery offer on open; see architecture.md, "Chapter snapshots and History".
 - Whole-book snapshots (2026-10-29): named snapshots of the manifest, every page and the image list, listed in History ("Whole book" tab, and a "Book snapshots" button in the chapter list), restore of the whole book (automatic safety snapshot first, new pages to the trash) or of one chapter, delete; see architecture.md, "Whole-book snapshots". Frames still to draw in the pen: see the Snapshots follow-ups.

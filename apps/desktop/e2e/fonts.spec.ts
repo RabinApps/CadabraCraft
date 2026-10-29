@@ -222,3 +222,20 @@ test("the Word format can use any available font", async ({ page }) => {
   const docx = await page.evaluate(() => window.__disk["exports/en/manuscript.docx"]);
   expect(Array.isArray(docx)).toBe(true);
 });
+
+test("the Rich Text format can use any available font", async ({ page }) => {
+  await withLora(page);
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Rich Text (.rtf)" }).click();
+  const font = dialog.getByLabel("Font");
+  await expect(font.locator("option")).toContainText(["Times New Roman", "Courier New", "Lora"]);
+  await font.selectOption("Lora");
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  const rtf = await page.evaluate(() =>
+    String.fromCharCode(...(window.__disk["exports/en/manuscript.rtf"] as number[])),
+  );
+  expect(rtf).toContain("\\fcharset0 Lora;");
+});
