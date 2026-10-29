@@ -65,7 +65,7 @@ async fn download_job(
     job_id: String,
     on_progress: tauri::ipc::Channel<DownloadProgress>,
     root: Option<PathBuf>,
-    client: impl FnOnce() -> Result<reqwest::Client, crate::audio::error::AudioError>,
+    client: fn() -> Result<reqwest::Client, crate::audio::error::AudioError>,
 ) -> Result<(), FontError> {
     let family = family.ok_or_else(|| FontError::UnknownFont {
         font: font_id.to_string(),

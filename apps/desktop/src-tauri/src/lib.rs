@@ -75,6 +75,12 @@ macro_rules! app_handlers {
     };
 }
 
+/// The handlers without extras, generic over the runtime so the real app and the IPC tests (mock runtime) share one
+/// expansion of every command's generated glue.
+fn handlers<R: tauri::Runtime>() -> impl Fn(tauri::ipc::Invoke<R>) -> bool + Send + Sync + 'static {
+    app_handlers![]
+}
+
 #[cfg(test)]
 mod ipc_tests;
 
@@ -106,7 +112,7 @@ pub fn run() {
     #[cfg(all(feature = "dev-automation", debug_assertions))]
     let builder = builder.invoke_handler(app_handlers![automation::automation_queue_dialog, automation::automation_take_dialog]);
     #[cfg(not(all(feature = "dev-automation", debug_assertions)))]
-    let builder = builder.invoke_handler(app_handlers![]);
+    let builder = builder.invoke_handler(handlers());
 
     builder
         .setup(|app| {

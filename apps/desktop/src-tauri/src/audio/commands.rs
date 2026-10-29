@@ -9,13 +9,16 @@ use super::render::{render_chapter, render_sample, ChapterRequest, RenderedChapt
 use super::voices::{list_voices, VoiceInfo};
 use std::path::PathBuf;
 
+/// Locates an external program (a box, so tests can point at a fake one without a second copy of each body).
+type Finder = Box<dyn FnOnce() -> Result<PathBuf, AudioError> + Send + 'static>;
+
 #[tauri::command]
 pub async fn audio_voices() -> Result<Vec<VoiceInfo>, AudioError> {
     crate::platform::blocking(|| Ok(list_voices(voices_root().as_deref()))).await
 }
 
 /// The body of `audio_render_chapter`. `find` locates the engine; `on_progress` gets 0..1 after every batch.
-async fn render_chapter_job(jobs: &AudioJobs, request: ChapterRequest, on_progress: tauri::ipc::Channel<f64>, find: impl FnOnce() -> Result<PathBuf, AudioError> + Send + 'static, voices: Option<PathBuf>) -> Result<RenderedChapter, AudioError> {
+async fn render_chapter_job(jobs: &AudioJobs, request: ChapterRequest, on_progress: tauri::ipc::Channel<f64>, find: Finder, voices: Option<PathBuf>) -> Result<RenderedChapter, AudioError> {
     let flag = jobs.flag(&request.job_id);
     crate::platform::blocking(move || {
         let sherpa = find()?;
@@ -29,11 +32,11 @@ async fn render_chapter_job(jobs: &AudioJobs, request: ChapterRequest, on_progre
 /// Renders one chapter off the UI thread and reports 0..1 progress on `on_progress`.
 #[tauri::command]
 pub async fn audio_render_chapter(state: tauri::State<'_, AudioJobs>, request: ChapterRequest, on_progress: tauri::ipc::Channel<f64>) -> Result<RenderedChapter, AudioError> {
-    render_chapter_job(&state, request, on_progress, find_sherpa, voices_root()).await
+    render_chapter_job(&state, request, on_progress, Box::new(find_sherpa), voices_root()).await
 }
 
 /// The body of `audio_sample`.
-async fn sample_job(jobs: &AudioJobs, request: SampleRequest, find: impl FnOnce() -> Result<PathBuf, AudioError> + Send + 'static, voices: Option<PathBuf>) -> Result<tauri::ipc::Response, AudioError> {
+async fn sample_job(jobs: &AudioJobs, request: SampleRequest, find: Finder, voices: Option<PathBuf>) -> Result<tauri::ipc::Response, AudioError> {
     let flag = jobs.flag(&request.job_id);
     crate::platform::blocking(move || {
         let sherpa = find()?;
@@ -45,11 +48,11 @@ async fn sample_job(jobs: &AudioJobs, request: SampleRequest, find: impl FnOnce(
 /// Renders a short sample off the UI thread and returns the WAV bytes (a raw IPC response, not JSON).
 #[tauri::command]
 pub async fn audio_sample(state: tauri::State<'_, AudioJobs>, request: SampleRequest) -> Result<tauri::ipc::Response, AudioError> {
-    sample_job(&state, request, find_sherpa, voices_root()).await
+    sample_job(&state, request, Box::new(find_sherpa), voices_root()).await
 }
 
 /// The body of `audio_build_m4b`.
-async fn build_m4b_job(jobs: &AudioJobs, request: M4bRequest, find: impl FnOnce() -> Result<PathBuf, AudioError> + Send + 'static) -> Result<BuiltM4b, AudioError> {
+async fn build_m4b_job(jobs: &AudioJobs, request: M4bRequest, find: Finder) -> Result<BuiltM4b, AudioError> {
     let flag = jobs.flag(&request.job_id);
     crate::platform::blocking(move || {
         let ffmpeg = find()?;
@@ -61,7 +64,7 @@ async fn build_m4b_job(jobs: &AudioJobs, request: M4bRequest, find: impl FnOnce(
 /// Builds the whole-book M4B from the chapter parts off the UI thread. Stop it with `audio_cancel`.
 #[tauri::command]
 pub async fn audio_build_m4b(state: tauri::State<'_, AudioJobs>, request: M4bRequest) -> Result<BuiltM4b, AudioError> {
-    build_m4b_job(&state, request, find_ffmpeg).await
+    build_m4b_job(&state, request, Box::new(find_ffmpeg)).await
 }
 
 #[tauri::command]
@@ -100,7 +103,7 @@ pub async fn audio_packs() -> Result<Vec<PackInfo>, AudioError> {
 
 /// The body of `audio_download_pack`. `pack` is the catalog lookup and `client` builds the HTTP client, so tests can use a
 /// stand-in pack and a client that talks to a loopback server.
-async fn download_pack_job(jobs: &AudioJobs, pack: Result<&Pack, AudioError>, job_id: String, on_progress: tauri::ipc::Channel<DownloadProgress>, voices: Option<PathBuf>, client: impl FnOnce() -> Result<reqwest::Client, AudioError>) -> Result<(), AudioError> {
+async fn download_pack_job(jobs: &AudioJobs, pack: Result<&Pack, AudioError>, job_id: String, on_progress: tauri::ipc::Channel<DownloadProgress>, voices: Option<PathBuf>, client: fn() -> Result<reqwest::Client, AudioError>) -> Result<(), AudioError> {
     let pack = pack?;
     let root = require_root(voices)?;
     let _running = jobs.begin_download(pack.id).ok_or_else(|| other("this voice pack is already downloading"))?;
@@ -270,9 +273,9 @@ mod tests {
             Fixture { _dir: dir, project, voices, engine }
         }
 
-        fn found(f: &Fixture) -> impl FnOnce() -> Result<PathBuf, AudioError> + Send + 'static {
+        fn found(f: &Fixture) -> Finder {
             let engine = f.engine.clone();
-            move || Ok(engine)
+            Box::new(move || Ok(engine))
         }
 
         fn chapter_request(f: &Fixture) -> ChapterRequest {
@@ -293,8 +296,8 @@ mod tests {
         fn a_chapter_job_reports_a_missing_engine_and_honours_an_earlier_cancel() {
             let f = fixture("cp \"$WAV\" \"$out\"");
             let (progress, _) = collect::<f64>();
-            let missing = || Err(AudioError::NotFound { message: "no engine".into() });
-            let r = run(render_chapter_job(&AudioJobs::default(), chapter_request(&f), progress, missing, Some(f.voices.clone())));
+            let missing = || -> Finder { Box::new(|| Err(AudioError::NotFound { message: "no engine".into() })) };
+            let r = run(render_chapter_job(&AudioJobs::default(), chapter_request(&f), progress, missing(), Some(f.voices.clone())));
             assert_eq!(r, Err(AudioError::NotFound { message: "no engine".into() }));
             let jobs = AudioJobs::default();
             jobs.cancel("j");
@@ -311,8 +314,8 @@ mod tests {
             let f = fixture("cp \"$WAV\" \"$out\"");
             let wav = raw(run(sample_job(&AudioJobs::default(), sample_request(), found(&f), Some(f.voices.clone()))).unwrap());
             assert_eq!(parse_wav(&wav).unwrap().samples.len(), 2400);
-            let missing = || Err(AudioError::NotFound { message: "no engine".into() });
-            assert!(run(sample_job(&AudioJobs::default(), sample_request(), missing, None)).is_err());
+            let missing = || -> Finder { Box::new(|| Err(AudioError::NotFound { message: "no engine".into() })) };
+            assert!(run(sample_job(&AudioJobs::default(), sample_request(), missing(), None)).is_err());
         }
 
         #[test]
@@ -322,8 +325,8 @@ mod tests {
             let built = run(build_m4b_job(&AudioJobs::default(), request(), found(&f))).unwrap();
             assert_eq!(built.path, "exports/audio/book.m4b");
             assert!(f.project.join("exports/audio/book.m4b").is_file());
-            let missing = || Err(AudioError::NotFound { message: "no encoder".into() });
-            assert!(matches!(run(build_m4b_job(&AudioJobs::default(), request(), missing)), Err(AudioError::NotFound { .. })));
+            let missing = || -> Finder { Box::new(|| Err(AudioError::NotFound { message: "no encoder".into() })) };
+            assert!(matches!(run(build_m4b_job(&AudioJobs::default(), request(), missing())), Err(AudioError::NotFound { .. })));
         }
     }
 }

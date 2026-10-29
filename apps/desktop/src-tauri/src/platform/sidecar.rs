@@ -284,4 +284,16 @@ mod tests {
         assert!(got.success);
         assert_eq!(got.stdout, before.stdout);
     }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_library_folder_whose_path_holds_the_separator_is_an_error_not_a_wrong_path() {
+        let d = tempfile::tempdir().unwrap();
+        let odd = d.path().join("a:b"); // `:` separates library paths, so this one cannot be put on one
+        fs::create_dir_all(odd.join("bin")).unwrap();
+        fs::create_dir_all(odd.join("lib")).unwrap();
+        let bin = script(&odd.join("bin"), "t", "true");
+        let got = run(&Run { shared_libs: true, ..run_of(&bin, &[]) });
+        assert!(matches!(got, Err(RunError::Other(_))));
+    }
 }

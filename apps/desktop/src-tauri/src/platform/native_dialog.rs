@@ -14,6 +14,7 @@ pub enum Ask {
 }
 
 /// Opens the dialog and waits for the answer (None is a cancel). Blocks, so call it from the blocking pool, never the UI thread.
+#[cfg_attr(test, allow(dead_code))] // tests answer through `commands::fake_dialog`
 pub fn ask<R: Runtime>(app: &AppHandle<R>, what: Ask) -> Option<PathBuf> {
     let dialog = app.dialog().file();
     let chosen = match what {

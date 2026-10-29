@@ -447,4 +447,22 @@ mod tests {
             assert!(!is_book_page(bad), "{bad}");
         }
     }
+
+    #[test]
+    fn a_book_without_a_manifest_cannot_be_snapshotted() {
+        let d = tempfile::tempdir().unwrap();
+        put(d.path(), "manuscript/001-a.json", "A1");
+        assert_eq!(create_book_snapshot(d.path(), "x", at("20261027-1000")).unwrap_err(), ProjectError::NotFound { path: MANIFEST.to_string() });
+    }
+
+    #[test]
+    fn a_listed_snapshot_whose_full_text_cannot_be_read_is_not_restored() {
+        let d = book();
+        // It has everything the listing needs but not the manifest text, so it lists and cannot be loaded.
+        put(d.path(), ".cadabra/snapshots/20261027-1000.json", "{\"version\":1,\"name\":\"x\",\"automatic\":false,\"pages\":{},\"assets\":[]}");
+        assert_eq!(list_book_snapshots(d.path()).unwrap().len(), 1);
+        let path = ".cadabra/snapshots/20261027-1000.json";
+        assert_eq!(restore_book_snapshot(d.path(), path, at("20261027-1100")).unwrap_err(), ProjectError::CannotRestore { path: path.to_string() });
+        assert!(read(d.path(), "manuscript/001-a.json") == "A1", "nothing was touched");
+    }
 }

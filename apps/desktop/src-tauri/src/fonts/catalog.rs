@@ -1362,27 +1362,59 @@ mod tests {
         }
     }
 
-    /// Opt-in (CADABRA_NET_TESTS=1): the licence texts are small, so fetch them from the real server and check the pins.
-    #[test]
-    fn real_licence_files_match_their_pins() {
-        if std::env::var("CADABRA_NET_TESTS").as_deref() != Ok("1") {
-            return;
-        }
-        let client = crate::audio::download::build_client().unwrap();
+    /// Downloads each file with the same checks as the real download (size and sha256 against the pin).
+    fn download_pins(files: &[&RemoteFile], dir: &Path, https_only: bool) -> Result<(), crate::audio::error::AudioError> {
+        let client = crate::audio::download::client(https_only).unwrap();
         let cancel = std::sync::atomic::AtomicBool::new(false);
-        let dir = tempfile::tempdir().unwrap();
-        for f in FAMILIES.iter().take(3) {
-            let dest = dir.path().join(f.id).join(f.licence.name);
+        for f in files {
+            let dest = dir.join(f.name);
             tauri::async_runtime::block_on(crate::audio::download::download_file(
                 &client,
-                f.licence.url,
-                f.licence.size,
-                f.licence.sha256,
+                f.url,
+                f.size,
+                f.sha256,
                 &dest,
                 &cancel,
                 &mut |_| {},
-            ))
-            .unwrap();
+            ))?;
         }
+        Ok(())
+    }
+
+    /// Opt-in (CADABRA_NET_TESTS=1): the licence texts are small, so fetch them from the real server and check the pins.
+    #[test]
+    fn real_licence_files_match_their_pins() {
+        let count = if std::env::var("CADABRA_NET_TESTS").as_deref() == Ok("1") {
+            3
+        } else {
+            0
+        };
+        let files: Vec<&RemoteFile> = FAMILIES.iter().take(count).map(|f| &f.licence).collect();
+        download_pins(&files, tempfile::tempdir().unwrap().path(), true).unwrap();
+    }
+
+    #[test]
+    fn pins_are_checked_against_what_the_server_sends() {
+        use crate::audio::download::stub::{self, serve, Mode};
+        let body = b"licence text".to_vec();
+        let url: &'static str = Box::leak(serve(body.clone(), Mode::Normal).url.into_boxed_str());
+        let sha: &'static str = Box::leak(stub::sha(&body).into_boxed_str());
+        let good = RemoteFile {
+            name: "OFL.txt",
+            url,
+            size: body.len() as u64,
+            sha256: sha,
+        };
+        let bad = RemoteFile {
+            name: "BAD.txt",
+            url,
+            size: body.len() as u64,
+            sha256: "0000000000000000000000000000000000000000000000000000000000000000",
+        };
+        let dir = tempfile::tempdir().unwrap();
+        download_pins(&[&good], dir.path(), false).unwrap();
+        assert_eq!(fs::read(dir.path().join("OFL.txt")).unwrap(), body);
+        assert!(download_pins(&[&bad], dir.path(), false).is_err());
+        assert!(!dir.path().join("BAD.txt").exists());
     }
 }
