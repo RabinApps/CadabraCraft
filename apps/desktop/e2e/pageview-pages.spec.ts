@@ -417,8 +417,31 @@ test("a long chapter (100,000 words in one document) stays responsive", async ({
   await expect.poll(() => cards(page).count()).toBe(n);
 });
 
-/** Every card is exactly the page size and the cards are one page plus the 24 px gap apart (zoom 100%). */
+/**
+ * Turns automatic hyphenation off for the page (also after a reload). The pages are measured with the hyphen glyph left out, and
+ * Chromium loads its hyphenation dictionary lazily: under load a word split at a page break can be hyphenated only after the
+ * measurement, and the glyph then pushes the line over, so the page ends one line later than measured (a lasting 19 px offset).
+ * Tests of exact card geometry do not depend on hyphens; "a word split across a page break shows its hyphen" covers them.
+ */
+const noHyphens = (page: Page) =>
+  page.addInitScript(() => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent = ".ProseMirror { hyphens: manual !important; }";
+      document.head.append(style);
+    });
+  });
+
+/**
+ * Every card is exactly the page size and the cards are one page plus the 24 px gap apart (zoom 100%). The pages are re-measured
+ * and re-laid out in steps after a trim or text change (slower under load), so the check is retried until the layout has settled
+ * rather than read once after a fixed pause.
+ */
 async function expectExactCards(page: Page, w: number, h: number) {
+  await expect(() => checkExactCards(page, w, h)).toPass({ timeout: 15_000 });
+}
+
+async function checkExactCards(page: Page, w: number, h: number) {
   const boxes = await page.evaluate(() =>
     [...document.querySelectorAll<HTMLElement>(".page")].map((c) => ({
       w: c.getBoundingClientRect().width,
@@ -440,6 +463,7 @@ async function expectExactCards(page: Page, w: number, h: number) {
 test("every card is exactly the page size on every trim, for short and long chapters", async ({
   page,
 }) => {
+  await noHyphens(page);
   await newProject(page);
   await seed(page, 15, 60); // about 900 words: the opening page is full of text
   await pageViewAt100(page);
@@ -474,6 +498,7 @@ test("every card is exactly the page size on every trim, for short and long chap
 test("the opening page is exact with a heading after the title or a very short first paragraph", async ({
   page,
 }) => {
+  await noHyphens(page);
   await newProject(page);
   const text = (t: string) => [{ type: "text", text: t }];
   const doc = {
