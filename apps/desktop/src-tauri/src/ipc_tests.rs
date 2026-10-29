@@ -200,6 +200,28 @@ fn asset_and_import_commands_work_through_the_ipc() {
 }
 
 #[test]
+fn the_docx_import_command_works_through_the_ipc() {
+    let (app, w) = mock_app();
+    let src = tempfile::tempdir().unwrap();
+    let docx = src.path().join("book.docx");
+    std::fs::write(&docx, crate::import_docx::testutil::simple_docx(&crate::import_docx::testutil::chapter_body(), &[])).unwrap();
+    std::fs::write(src.path().join("bad.docx"), "not a zip").unwrap();
+    let path = docx.to_string_lossy().into_owned();
+    let bad = src.path().join("bad.docx").to_string_lossy().into_owned();
+    assert_eq!(kind_of(call(&w, "import_docx_source", json!({ "path": path, "splitHeadingLevel": 1 }))), "not_picked");
+    pick(&app, commands::PickKind::ImportSource, &docx);
+    pick(&app, commands::PickKind::ImportSource, &src.path().join("bad.docx"));
+    let body = raw_of(call(&w, "import_docx_source", json!({ "path": path, "splitHeadingLevel": 1 })));
+    let len = u32::from_le_bytes(body[..4].try_into().unwrap()) as usize;
+    let header: Value = serde_json::from_slice(&body[4..4 + len]).unwrap();
+    assert_eq!(header["chapters"][0]["title"], "Dawn");
+    assert_eq!(body.len(), 4 + len, "no images, so no bytes follow the header");
+    let e = call(&w, "import_docx_source", json!({ "path": bad, "splitHeadingLevel": 1 })).unwrap_err();
+    assert_eq!(e, json!({ "kind": "import_docx", "code": "invalid-zip" }));
+    assert_eq!(kind_of(call(&w, "import_docx_source", json!({ "path": path, "splitHeadingLevel": 9 }))), "io");
+}
+
+#[test]
 fn reference_commands_work_through_the_ipc() {
     let (_app, w) = mock_app();
     let (book, src) = (project(), tempfile::tempdir().unwrap());
@@ -368,6 +390,7 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("reference_stream_url", json!({ "root": "/r", "path": "p" })),
         ("read_import_source", json!({ "path": "/p" })),
         ("read_import_image", json!({ "sourceFile": "/p", "reference": "r" })),
+        ("import_docx_source", json!({ "path": "/p", "splitHeadingLevel": 1 })),
         ("watch_project", json!({ "root": "/r" })),
         ("unwatch_project", json!({})),
         ("audio_files_exist", json!({ "root": "/r", "paths": [] })),
@@ -431,6 +454,7 @@ fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
                 | "import_asset"
                 | "read_import_source"
                 | "read_import_image"
+                | "import_docx_source"
                 | "reference_stream_url"
                 | "audio_cancel"
                 | "audio_forget"

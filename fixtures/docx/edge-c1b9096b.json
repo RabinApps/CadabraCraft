@@ -1,0 +1,1185 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "About 2,600 words"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The Long Road"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "by Ada Q. Lovelace"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "The Quay",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "The Quay"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "It was a "
+        },
+        {
+         "type": "text",
+         "text": "bright",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " cold day, "
+        },
+        {
+         "type": "text",
+         "text": "and the clocks",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " were striking "
+        },
+        {
+         "type": "text",
+         "text": "thirteen",
+         "marks": [
+          {
+           "type": "bold"
+          },
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "Orwell, 1949, opening line."
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": ". Even "
+        },
+        {
+         "type": "text",
+         "text": "small caps text",
+         "marks": [
+          {
+           "type": "smallCaps"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " and "
+        },
+        {
+         "type": "text",
+         "text": "underlined words",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " appear; see "
+        },
+        {
+         "type": "text",
+         "text": "the notes",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "https://example.com/notes?a=1&b=2"
+           }
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "."
+        }
+       ]
+      },
+      {
+       "type": "blockquote",
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "A quoted line with <angle brackets> & an ampersand."
+          }
+         ]
+        },
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "A second quoted paragraph."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "#"
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "Morning"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "Second note here"
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "A longer footnote that runs on for a while so that it wraps across more than one line at the bottom of the page, to check footnote layout."
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " and a third"
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "Short."
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " end."
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "A small heading"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "First point"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "Second point"
+            }
+           ]
+          },
+          {
+           "type": "bulletList",
+           "content": [
+            {
+             "type": "listItem",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "Nested one"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "listItem",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "Nested two"
+                },
+                {
+                 "type": "text",
+                 "text": " bold",
+                 "marks": [
+                  {
+                   "type": "bold"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "Third point"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "orderedList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "Step one"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "Step two"
+            }
+           ]
+          },
+          {
+           "type": "orderedList",
+           "content": [
+            {
+             "type": "listItem",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "Sub-step a"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "listItem",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "Sub-step b"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "Step three"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "image",
+       "attrs": {
+        "src": "assets/image1.png",
+        "alt": "A colour gradient",
+        "title": null
+       }
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "Figure: a gradient test image."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "What the Letter Said",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "What the Letter Said"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "#"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "blockquote",
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "Dear Marta, I have gone north. Do not follow.",
+           "marks": [
+            {
+             "type": "italic"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "Hostile Characters",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "Hostile Characters"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "Specials: $ # * _ ` < > @ ~ \\ [ ] \" ' and a // comment and /* block */ and https://example.com/x//y."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "= not a heading"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "- not a list"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "+ not an enum"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "1. not an enum"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "/ term: not a term list"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "Ends with a dot after a note"
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "Note."
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": ".still text (parens) and [brackets]"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "Dashes -- and --- and ... ellipsis and -? shy."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "Afterword",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "Afterword"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "#"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness. She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "Thanks"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets. By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "She had walked the length of the quay twice before admitting that the letter in her pocket would not read itself. He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "By evening the wind had changed, bringing the smell of rain and tar and something older that she could not name. They ate in silence, the lamp hissing between them, while the clock on the wall lost another minute to its own slowness."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "He laughed, a short dry sound, and said that in his experience maps were only opinions drawn with a steady hand. The harbour lay quiet under a low sky, and nothing moved except the gulls that argued over the nets."
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "section-break",
+    "severity": "info",
+    "message": "Section breaks are ignored; use scene breaks for separations.",
+    "count": 1
+   },
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 3
+   },
+   {
+    "code": "header-footer",
+    "severity": "warning",
+    "message": "Headers and footers are not imported.",
+    "count": 1,
+    "examples": [
+     "Lovelace / THE LONG ROAD / 1"
+    ]
+   },
+   {
+    "code": "untitled-content",
+    "severity": "warning",
+    "message": "Content before the first level 1 heading was placed in a chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": [
+   {
+    "sourcePath": "word/media/image1.png",
+    "targetPath": "assets/image1.png",
+    "mediaType": "image/png",
+    "len": 33,
+    "sha256": "0871d9ae3727e03ba4ed82c01c752ab5db4637e652adbbd427355a396c5e861a"
+   }
+  ]
+ }
+}

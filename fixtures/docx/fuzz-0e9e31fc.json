@@ -1,0 +1,256 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "AB",
+         "marks": [
+          {
+           "type": "superscript"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "tab\tin",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "a bhttps://e.test/x?y=1&z=2trail  "
+        },
+        {
+         "type": "text",
+         "text": "delta",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "end."
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "* * *<b>quote\"s"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "😀",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "trail  ",
+             "marks": [
+              {
+               "type": "underline"
+              }
+             ]
+            },
+            {
+             "type": "text",
+             "text": "😀",
+             "marks": [
+              {
+               "type": "bold"
+              }
+             ]
+            },
+            {
+             "type": "text",
+             "text": "﻿bom",
+             "marks": [
+              {
+               "type": "italic"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "betaAB😀"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "ABmailto:a@b.co"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "a b"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "***x"
+        },
+        {
+         "type": "text",
+         "text": "ctrlx",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "﻿bom",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "missing-image",
+    "severity": "warning",
+    "message": "An image could not be found in the file and was skipped.",
+    "count": 2,
+    "examples": [
+     "rId5"
+    ]
+   },
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 1
+   },
+   {
+    "code": "footnote-missing",
+    "severity": "warning",
+    "message": "A footnote or endnote reference pointed at a missing note and was dropped.",
+    "count": 1,
+    "examples": [
+     "9"
+    ]
+   },
+   {
+    "code": "field",
+    "severity": "info",
+    "message": "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+    "count": 1,
+    "examples": [
+     "HYPERLINK"
+    ]
+   },
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 1,
+    "examples": [
+     "Unknown"
+    ]
+   },
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 2
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 1 headings found, so the whole file is one chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

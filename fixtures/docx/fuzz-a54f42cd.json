@@ -1,0 +1,1873 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "https://e.test/x?y=1&z=2",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "* * *",
+         "marks": [
+          {
+           "type": "subscript"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "orderedList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "<b>"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "**"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "quote\"s"
+              },
+              {
+               "type": "text",
+               "text": "trail  ",
+               "marks": [
+                {
+                 "type": "strike"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "delta",
+               "marks": [
+                {
+                 "type": "bold"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "emoji😀x",
+               "marks": [
+                {
+                 "type": "superscript"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "end."
+              },
+              {
+               "type": "text",
+               "text": "emoji😀x",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "  lead",
+               "marks": [
+                {
+                 "type": "italic"
+                },
+                {
+                 "type": "strike"
+                },
+                {
+                 "type": "superscript"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "a b",
+               "marks": [
+                {
+                 "type": "bold"
+                },
+                {
+                 "type": "superscript"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "x",
+               "marks": [
+                {
+                 "type": "bold"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "trail  "
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "https://e.test/x?y=1&z=2"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "tab\tin",
+               "marks": [
+                {
+                 "type": "bold"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "alpha"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "quote\"s"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "<b>😀x quote\"strail &&"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "| a & ba & b&beta lsx | leadbetabeta"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "quote\"sx"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "a b",
+               "marks": [
+                {
+                 "type": "underline"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "ctrlx",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "a b",
+               "marks": [
+                {
+                 "type": "subscript"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": " ﻿bom-"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "alpha",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "t"
+          }
+         ]
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "note 3"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "quote\"s",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "https://h.test/a%20b"
+           }
+          },
+          {
+           "type": "bold"
+          },
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "AB"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "#end.emoji😀xctrlx<b> ls nbspmailto:a@b.co trail | bomend.quote\"stab ina b😀"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "mailto:a@b.codeltabeta'quote\"s | beta | café nbspgammacaféhttps://e.test/x?y=1&z=2😀' bomctrlxquote\"s<b>quote\"s | xa b#alpha#"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "trail  emoji😀x"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "tab\tin",
+               "marks": [
+                {
+                 "type": "italic"
+                },
+                {
+                 "type": "smallCaps"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "😀 ls",
+               "marks": [
+                {
+                 "type": "superscript"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "trail  ",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "#emoji😀x"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "bom ctrlx ls😀",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "﻿bom ctrlx ls😀"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "cafécafé"
+              },
+              {
+               "type": "text",
+               "text": " ls",
+               "marks": [
+                {
+                 "type": "strike"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "alpha",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "quote\"s"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": " lsdelta😀﻿bom"
+        }
+       ]
+      },
+      {
+       "type": "taskList",
+       "content": [
+        {
+         "type": "taskItem",
+         "attrs": {
+          "checked": true
+         },
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "end."
+            },
+            {
+             "type": "text",
+             "text": "gamma",
+             "marks": [
+              {
+               "type": "underline"
+              },
+              {
+               "type": "superscript"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "<b>"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "ABtab\tinalpha",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "ABtab\tin"
+        },
+        {
+         "type": "text",
+         "text": "alpha",
+         "marks": [
+          {
+           "type": "bold"
+          },
+          {
+           "type": "italic"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "unsupported-element",
+    "severity": "warning",
+    "message": "Unrecognised document elements were skipped.",
+    "count": 10,
+    "examples": [
+     "tcPr"
+    ]
+   },
+   {
+    "code": "hidden-text",
+    "severity": "info",
+    "message": "Hidden text was skipped.",
+    "count": 4,
+    "examples": [
+     "alpha",
+     "tab in😀",
+     "emoji😀x",
+     "delta"
+    ]
+   },
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 4,
+    "examples": [
+     "Heading 4: xtrail",
+     "Heading 4: ls nbspmailto:a@b.cotrail",
+     "Heading 4: a b#alpha",
+     "Heading 4: cafécafé ls"
+    ]
+   },
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 4
+   },
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 6,
+    "examples": [
+     "Unknown",
+     "Weird Style"
+    ]
+   },
+   {
+    "code": "table-merged",
+    "severity": "warning",
+    "message": "Merged table cells were split into separate cells (the covered cells are empty).",
+    "count": 6,
+    "examples": [
+     "***&beta lsx lead betabeta",
+     "** quote\"strail deltaemoji😀x☐end.emoji😀x leada bxtrail alpha https://e.test/x?",
+     "☐beta☐café nbsp gammacaféhttps://e.test/x?y=1&z=2😀' bomctrl\u0001xquote\"s <b>quote\"s",
+     "#end.emoji😀xctrl\u0001x<b> ls nbspmailto:a@b.cotrail bomend.quote\"s tab ina b😀mailt",
+     "cafécafé lstab in😀 ☐alphaquote\"s"
+    ]
+   },
+   {
+    "code": "table-complex",
+    "severity": "warning",
+    "message": "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+    "count": 8,
+    "examples": [
+     "<b>😀xquote\"strail &&",
+     "***&beta lsx lead betabeta",
+     "***&beta lsx lead betabetaquote\"sx",
+     "** quote\"strail deltaemoji😀x☐end.emoji😀x leada bxtrail alpha https://e.test/x?",
+     "☐beta☐café nbsp gammacaféhttps://e.test/x?y=1&z=2😀' bomctrl\u0001xquote\"s <b>quote\"s"
+    ]
+   },
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 2
+   },
+   {
+    "code": "field",
+    "severity": "info",
+    "message": "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+    "count": 1
+   },
+   {
+    "code": "note-table",
+    "severity": "warning",
+    "message": "A table inside a footnote was dropped.",
+    "count": 1
+   },
+   {
+    "code": "unsupported-image-format",
+    "severity": "warning",
+    "message": "Images in formats other than PNG, JPEG, GIF, WebP or SVG were skipped.",
+    "count": 2,
+    "examples": [
+     "word/media/pic.emf"
+    ]
+   },
+   {
+    "code": "text-box",
+    "severity": "warning",
+    "message": "Text boxes are not supported; their text was not imported.",
+    "count": 2,
+    "examples": [
+     "box"
+    ]
+   },
+   {
+    "code": "embedded-object",
+    "severity": "warning",
+    "message": "Embedded objects (OLE, charts, equations editors) were skipped.",
+    "count": 1
+   },
+   {
+    "code": "internal-link",
+    "severity": "info",
+    "message": "Links to bookmarks inside the document were kept as plain text.",
+    "count": 1,
+    "examples": [
+     "bm1"
+    ]
+   },
+   {
+    "code": "missing-image",
+    "severity": "warning",
+    "message": "An image could not be found in the file and was skipped.",
+    "count": 1,
+    "examples": [
+     "rId5"
+    ]
+   },
+   {
+    "code": "tracked-changes",
+    "severity": "warning",
+    "message": "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+    "count": 3,
+    "examples": [
+     "nbsp",
+     "bom"
+    ]
+   },
+   {
+    "code": "unsafe-link",
+    "severity": "warning",
+    "message": "Links are only kept for http, https and mailto; other links became plain text.",
+    "count": 1,
+    "examples": [
+     "javascript:alert(1) (hyperlink)"
+    ]
+   },
+   {
+    "code": "comments",
+    "severity": "warning",
+    "message": "The file has 1 comment(s); comments are not imported.",
+    "count": 1
+   },
+   {
+    "code": "untitled-content",
+    "severity": "warning",
+    "message": "Content before the first level 1 heading was placed in a chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": [
+   {
+    "sourcePath": "word/media/UPPER name!.gif",
+    "targetPath": "assets/UPPER_name_.gif",
+    "mediaType": "image/gif",
+    "len": 1,
+    "sha256": "e77b9a9ae9e30b0dbdb6f510a264ef9de781501d7b6b92ae89eb059c5ab743db"
+   },
+   {
+    "sourcePath": "word/media/pixel.png",
+    "targetPath": "assets/pixel.png",
+    "mediaType": "image/png",
+    "len": 70,
+    "sha256": "497790947d4666760ce38f3c00e852c71fdb66cae849bae8e9ede352719e1581"
+   }
+  ]
+ }
+}

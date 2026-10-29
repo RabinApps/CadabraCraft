@@ -1,0 +1,107 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "Before"
+        }
+       ]
+      },
+      {
+       "type": "definitionList",
+       "content": [
+        {
+         "type": "definitionTerm",
+         "content": [
+          {
+           "type": "text",
+           "text": "Apple"
+          }
+         ]
+        },
+        {
+         "type": "definitionDescription",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "A fruit"
+            }
+           ]
+          },
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "Round"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "definitionTerm",
+         "content": [
+          {
+           "type": "text",
+           "text": "Pear"
+          }
+         ]
+        },
+        {
+         "type": "definitionDescription",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "Another"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "After"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [],
+  "assets": []
+ }
+}

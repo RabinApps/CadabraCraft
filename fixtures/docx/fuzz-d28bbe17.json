@@ -1,0 +1,596 @@
+{
+ "options": {
+  "splitHeadingLevel": 2,
+  "untitledTitle": "Front",
+  "maxNestingDepth": 0
+ },
+ "result": {
+  "chapters": [
+   {
+    "title": "Front",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "delta***x+1"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "text",
+         "text": "delta",
+         "marks": [
+          {
+           "type": "superscript"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "😀"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "trail  ",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "a b",
+         "marks": [
+          {
+           "type": "smallCaps"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "&",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "mailto:z@z.zz"
+           }
+          },
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "delta"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "<b>",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " '-"
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": " ls"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "***",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "image",
+       "attrs": {
+        "src": "assets/other.PNG",
+        "alt": "a & b",
+        "title": null
+       }
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "emoji😀x",
+         "marks": [
+          {
+           "type": "smallCaps"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "'* * *"
+        },
+        {
+         "type": "text",
+         "text": "#",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "* * *"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "ctrlx\n#"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "  lead",
+               "marks": [
+                {
+                 "type": "bold"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "trail  ",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "<b>"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "https://e.test/x?y=1&z=2  lead"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "﻿bom",
+               "marks": [
+                {
+                 "type": "link",
+                 "attrs": {
+                  "href": "https://h.test/a%20b"
+                 }
+                },
+                {
+                 "type": "italic"
+                },
+                {
+                 "type": "strike"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "😀trail  "
+              },
+              {
+               "type": "text",
+               "text": "alpha",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "AB"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "quote\"sx😀 |  | "
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "trail | * * *ctrlxa bxend.x | '😀<b> leadbetactrlx ls nbsp | gammacaféend.betagamma | trail https://e.test/x?y=1&z=2😀ABmailto:a@b.co | *** | beta"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "emoji😀x<b>* * *"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "beta",
+               "marks": [
+                {
+                 "type": "bold"
+                },
+                {
+                 "type": "italic"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "a b"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "quote\"sABctrlx\n<b>"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "tab\tin  lead"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "field",
+    "severity": "info",
+    "message": "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+    "count": 1,
+    "examples": [
+     "PAGEREF"
+    ]
+   },
+   {
+    "code": "equation",
+    "severity": "warning",
+    "message": "Equations are not supported; their text was kept without layout.",
+    "count": 1,
+    "examples": [
+     "x+1"
+    ]
+   },
+   {
+    "code": "missing-image",
+    "severity": "warning",
+    "message": "An image could not be found in the file and was skipped.",
+    "count": 6,
+    "examples": [
+     "word/media/pic.emf",
+     "rId99",
+     "rId5"
+    ]
+   },
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 4
+   },
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 3,
+    "examples": [
+     "Heading 4: delta",
+     "Heading 4: '* * *#",
+     "Heading 4: gammacaféend."
+    ]
+   },
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 3
+   },
+   {
+    "code": "tracked-changes",
+    "severity": "warning",
+    "message": "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+    "count": 3,
+    "examples": [
+     "''emoji😀x delta",
+     "https://e.test/x?y=1&z=2"
+    ]
+   },
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 5,
+    "examples": [
+     "Weird Style",
+     "Unknown"
+    ]
+   },
+   {
+    "code": "internal-link",
+    "severity": "info",
+    "message": "Links to bookmarks inside the document were kept as plain text.",
+    "count": 5,
+    "examples": [
+     "bm1"
+    ]
+   },
+   {
+    "code": "hidden-text",
+    "severity": "info",
+    "message": "Hidden text was skipped.",
+    "count": 3,
+    "examples": [
+     "emoji😀x",
+     "😀",
+     "quote\"s"
+    ]
+   },
+   {
+    "code": "unsupported-element",
+    "severity": "warning",
+    "message": "Unrecognised document elements were skipped.",
+    "count": 5,
+    "examples": [
+     "tcPr"
+    ]
+   },
+   {
+    "code": "footnote-missing",
+    "severity": "warning",
+    "message": "A footnote or endnote reference pointed at a missing note and was dropped.",
+    "count": 2,
+    "examples": [
+     "5",
+     "3"
+    ]
+   },
+   {
+    "code": "table-complex",
+    "severity": "warning",
+    "message": "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+    "count": 3,
+    "examples": [
+     "* * *ctrl\u0001xa b xend.x'😀<b> leadbeta ctrl\u0001x ls nbsp☐gammacaféend.beta gammaquote",
+     "quote\"sx😀trail * * *ctrl\u0001xa b xend.x'😀<b> leadbeta ctrl\u0001x ls nbsp☐gammacaféend",
+     "ctrl\u0001x #emoji😀x😀 leadtrail <b>gamma☐https://e.test/x?y=1&z=2 lead bom😀trail a"
+    ]
+   },
+   {
+    "code": "table-merged",
+    "severity": "warning",
+    "message": "Merged table cells were split into separate cells (the covered cells are empty).",
+    "count": 3,
+    "examples": [
+     "* * *ctrl\u0001xa b xend.x'😀<b> leadbeta ctrl\u0001x ls nbsp☐gammacaféend.beta gammaquote",
+     "quote\"sx😀trail * * *ctrl\u0001xa b xend.x'😀<b> leadbeta ctrl\u0001x ls nbsp☐gammacaféend",
+     "ctrl\u0001x #emoji😀x😀 leadtrail <b>gamma☐https://e.test/x?y=1&z=2 lead bom😀trail a"
+    ]
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 2 headings found, so the whole file is one chapter titled \"Front\"."
+   }
+  ],
+  "assets": [
+   {
+    "sourcePath": "word/media/other.PNG",
+    "targetPath": "assets/other.PNG",
+    "mediaType": "image/png",
+    "len": 3,
+    "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+   }
+  ]
+ }
+}

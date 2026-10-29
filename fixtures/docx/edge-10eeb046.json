@@ -1,0 +1,51 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "Hello"
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "The note."
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "."
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [],
+  "assets": []
+ }
+}

@@ -1,0 +1,87 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "first second third "
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "footnote"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "footnote"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "note-image",
+    "severity": "warning",
+    "message": "Images inside footnotes are not supported and were skipped.",
+    "count": 1,
+    "examples": [
+     "word/media/a.png"
+    ]
+   },
+   {
+    "code": "note-table",
+    "severity": "warning",
+    "message": "A table inside a footnote was dropped.",
+    "count": 1
+   }
+  ],
+  "assets": []
+ }
+}

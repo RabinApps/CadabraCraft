@@ -1,0 +1,45 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "First",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "First"
+        }
+       ]
+      },
+      {
+       "type": "image",
+       "attrs": {
+        "src": "assets/image1.png",
+        "alt": "alt",
+        "title": null
+       }
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [],
+  "assets": [
+   {
+    "sourcePath": "word/media/image1.png",
+    "targetPath": "assets/image1.png",
+    "mediaType": "image/png",
+    "len": 4,
+    "sha256": "9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a"
+   }
+  ]
+ }
+}

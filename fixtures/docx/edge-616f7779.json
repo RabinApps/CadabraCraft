@@ -1,0 +1,6 @@
+{
+ "options": {
+  "maxDecompressedBytes": 100
+ },
+ "error": "archive-too-large"
+}

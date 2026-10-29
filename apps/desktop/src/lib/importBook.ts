@@ -10,7 +10,6 @@ import {
 } from "@cadabracraft/format";
 import {
   ImportError,
-  importDocx,
   importHtml,
   importMarkdown,
   type ImportResult,
@@ -19,7 +18,9 @@ import {
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "./bridge";
 import { baseName, stem } from "./paths";
-import { errText } from "./projectError";
+import { decodeDocxImport } from "./docxFrame";
+import { describeImportCode } from "./importErrorText";
+import { errText, isProjectError } from "./projectError";
 import { applyPlan, type ImportPlan } from "./importPlan";
 
 export interface ImportReport {
@@ -80,25 +81,6 @@ export function formatReport(r: ImportReport): string {
   return lines.join("\n");
 }
 
-function describeImportError(e: ImportError): string {
-  switch (e.code) {
-    case "invalid-zip":
-      return t`This does not look like a valid .docx file (it could not be opened as a Word document).`;
-    case "archive-too-large":
-      return t`This document is too large to import safely.`;
-    case "too-many-entries":
-      return t`This document contains too many parts to import safely.`;
-    case "missing-document":
-      return t`This .docx file has no document body. It may be damaged or not a Word document.`;
-    case "invalid-xml":
-      return t`This document's contents could not be read. It may be damaged.`;
-    case "input-too-large":
-      return t`This file is too large to import.`;
-    case "too-deeply-nested":
-      return t`This document is nested too deeply to import.`;
-  }
-}
-
 /** Replaces image sources per `map` (null removes the image and leaves its alt text), without mutating the input. */
 export function remapImages(doc: ChapterDoc, map: Map<string, string | null>): ChapterDoc {
   const walk = (n: unknown): unknown => {
@@ -134,7 +116,10 @@ const imageCandidates = (ref: string): string[] => [
 
 export interface LoadedSource {
   ext: string;
+  /** The file's bytes. Empty for a `.docx`: the Rust importer reads the file itself, from `path`. */
   bytes: Uint8Array;
+  /** The picked path; only a `.docx` is parsed from it (see `parseImport`). */
+  path?: string;
 }
 export interface ChapterEdit {
   title: string;
@@ -148,11 +133,12 @@ export interface ImportChoices {
   plan?: ImportPlan;
 }
 
-/** Reads the source (read-only). Nothing is parsed yet. */
+/** Reads the source (read-only). Nothing is parsed yet; a `.docx` is not even read here (Rust unzips and parses it in `parseImport`). */
 export async function loadImport(sourcePath: string): Promise<LoadedSource> {
   const ext = /\.([^.]+)$/.exec(baseName(sourcePath))?.[1]?.toLowerCase() ?? "";
   if (!["docx", "md", "markdown", "html", "htm", "txt"].includes(ext))
     throw new Error(t`Choose a .docx, .md, .markdown or .html file.`);
+  if (ext === "docx") return { ext, bytes: new Uint8Array(), path: sourcePath };
   return { ext, bytes: await bridge.readImportSource(sourcePath) };
 }
 
@@ -196,23 +182,48 @@ export function decodeText(bytes: Uint8Array, html = false): string {
   return text.replace(/^\uFEFF/, "");
 }
 
-/** Parses a loaded source; pure, so the wizard can re-run it when the split level changes. */
-export function parseImport(src: LoadedSource, splitHeadingLevel: 1 | 2 | 3 = 1): ImportResult {
+/** Turns an importer failure into the sentence the author sees. */
+function importFailure(e: unknown): unknown {
+  if (e instanceof ImportError) return new Error(describeImportCode(e.code), { cause: e });
+  // A stack overflow or out-of-range string from a pathological file: the same advice as for deep nesting.
+  if (e instanceof RangeError)
+    return new Error(t`This file is too large or too deeply nested to import.`, { cause: e });
+  return e;
+}
+
+/** Parses a Markdown, HTML or text source; pure, so the wizard can re-run it when the split level changes. */
+export function parseText(src: LoadedSource, splitHeadingLevel: 1 | 2 | 3 = 1): ImportResult {
   let result: ImportResult;
   try {
     const text = () => decodeText(src.bytes, src.ext === "html" || src.ext === "htm");
     result =
-      src.ext === "docx"
-        ? importDocx(src.bytes, { splitHeadingLevel })
-        : src.ext === "html" || src.ext === "htm"
-          ? importHtml(text(), { splitHeadingLevel })
-          : importMarkdown(text(), { splitHeadingLevel });
+      src.ext === "html" || src.ext === "htm"
+        ? importHtml(text(), { splitHeadingLevel })
+        : importMarkdown(text(), { splitHeadingLevel });
   } catch (e) {
-    if (e instanceof ImportError) throw new Error(describeImportError(e), { cause: e });
-    // A stack overflow or out-of-range string from a pathological file: the same advice as for deep nesting.
-    if (e instanceof RangeError)
-      throw new Error(t`This file is too large or too deeply nested to import.`, { cause: e });
-    throw e;
+    throw importFailure(e);
+  }
+  if (result.chapters.length === 0) throw new Error(t`There is no text to import in this file.`);
+  return result;
+}
+
+/**
+ * Parses a loaded source; the wizard re-runs it when the split level changes. A `.docx` is parsed in Rust (the
+ * `import_docx_source` command: unzip with limits, XML, mapping to chapters, all on the blocking pool), everything else
+ * in the webview. Both give the same `ImportResult`.
+ */
+export async function parseImport(
+  src: LoadedSource,
+  splitHeadingLevel: 1 | 2 | 3 = 1,
+): Promise<ImportResult> {
+  if (src.ext !== "docx") return parseText(src, splitHeadingLevel);
+  let result: ImportResult;
+  try {
+    result = decodeDocxImport(await bridge.importDocxSource(src.path ?? "", splitHeadingLevel));
+  } catch (e) {
+    throw isProjectError(e) && e.kind === "import_docx"
+      ? new Error(describeImportCode(e.code), { cause: e })
+      : e;
   }
   if (result.chapters.length === 0) throw new Error(t`There is no text to import in this file.`);
   return result;
@@ -238,7 +249,7 @@ export function chosenChapters(result: ImportResult, opts: ImportChoices): Impor
 export async function runImport(
   opts: { sourcePath: string; root: string; title: string; author: string } & ImportChoices,
 ): Promise<ImportReport> {
-  const result = parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
+  const result = await parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
   return writeImport({ ...opts, result: chosenChapters(result, opts) });
 }
 
@@ -372,7 +383,7 @@ export async function runImportInto(
     saveManifest: (m: Manifest) => Promise<void>;
   } & ImportChoices,
 ): Promise<{ report: ImportReport; firstId: string }> {
-  const loaded = parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
+  const loaded = await parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
   const result = chosenChapters(loaded, opts);
   const warnings = [...result.warnings];
   const images = await readImages(opts.sourcePath, result, warnings);

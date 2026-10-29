@@ -1,0 +1,77 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "simple",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "https://s.test/"
+           }
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "1noinstrnolinkinternalrelunknownrel"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "inside",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "https://h.test/"
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "field",
+    "severity": "info",
+    "message": "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+    "count": 3,
+    "examples": [
+     "PAGE"
+    ]
+   }
+  ],
+  "assets": []
+ }
+}

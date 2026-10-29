@@ -1,0 +1,139 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "x",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "https://f.test/"
+           }
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "beta",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "trail  ",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": " emoji😀x- <b>"
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "***",
+         "marks": [
+          {
+           "type": "smallCaps"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "image",
+       "attrs": {
+        "src": "assets/other.PNG",
+        "alt": null,
+        "title": null
+       }
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "***﻿bom"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 1,
+    "examples": [
+     "Weird Style"
+    ]
+   },
+   {
+    "code": "unsupported-drawing",
+    "severity": "warning",
+    "message": "Drawings, shapes, charts and diagrams are not supported and were skipped.",
+    "count": 1
+   },
+   {
+    "code": "embedded-object",
+    "severity": "warning",
+    "message": "Embedded objects (OLE, charts, equations editors) were skipped.",
+    "count": 1
+   },
+   {
+    "code": "comments",
+    "severity": "warning",
+    "message": "The file has 1 comment(s); comments are not imported.",
+    "count": 1
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 1 headings found, so the whole file is one chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": [
+   {
+    "sourcePath": "word/media/other.PNG",
+    "targetPath": "assets/other.PNG",
+    "mediaType": "image/png",
+    "len": 3,
+    "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+   }
+  ]
+ }
+}

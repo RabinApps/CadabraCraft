@@ -1,0 +1,593 @@
+{
+ "options": {
+  "splitHeadingLevel": 3,
+  "maxNestingDepth": 100
+ },
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "* * *"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": " ls",
+               "marks": [
+                {
+                 "type": "superscript"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "alpha"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "AB"
+              },
+              {
+               "type": "text",
+               "text": "mailto:a@b.co",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "'"
+              },
+              {
+               "type": "text",
+               "text": "* * *",
+               "marks": [
+                {
+                 "type": "underline"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "﻿bom",
+               "marks": [
+                {
+                 "type": "italic"
+                },
+                {
+                 "type": "underline"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "delta"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "* * *"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "<b>https://e.test/x?y=1&z=2delta nbsp"
+              }
+             ]
+            },
+            {
+             "type": "paragraph"
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "alt text"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "  lead"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "&",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "ctrlxcafé |  | "
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "😀-ctrlxmailto:a@b.co leadquote\"sa b😀 |  | "
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "delta",
+               "marks": [
+                {
+                 "type": "bold"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": " "
+              },
+              {
+               "type": "text",
+               "text": "end.",
+               "marks": [
+                {
+                 "type": "bold"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "blockquote",
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "mailto:a@b.co",
+           "marks": [
+            {
+             "type": "underline"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "beta",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "alpha",
+         "marks": [
+          {
+           "type": "bold"
+          },
+          {
+           "type": "smallCaps"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "https://e.test/x?y=1&z=2",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "emoji😀x",
+             "marks": [
+              {
+               "type": "bold"
+              },
+              {
+               "type": "subscript"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "gamma* * *"
+        },
+        {
+         "type": "text",
+         "text": "beta ls",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "trail  ",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "AB"
+        },
+        {
+         "type": "text",
+         "text": " ls",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "https://e.test/x?y=1&z=2",
+         "marks": [
+          {
+           "type": "italic"
+          },
+          {
+           "type": "strike"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "https://e.test/x?y=1&z=2",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "delta",
+         "marks": [
+          {
+           "type": "smallCaps"
+          },
+          {
+           "type": "superscript"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "😀",
+         "marks": [
+          {
+           "type": "smallCaps"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": " ls",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "<b>&gamma",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "unsupported-element",
+    "severity": "warning",
+    "message": "Unrecognised document elements were skipped.",
+    "count": 4,
+    "examples": [
+     "tcPr"
+    ]
+   },
+   {
+    "code": "tracked-changes",
+    "severity": "warning",
+    "message": "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+    "count": 2,
+    "examples": [
+     "A\u0000B"
+    ]
+   },
+   {
+    "code": "field",
+    "severity": "info",
+    "message": "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+    "count": 3,
+    "examples": [
+     "TOC",
+     "PAGE"
+    ]
+   },
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 2
+   },
+   {
+    "code": "internal-link",
+    "severity": "info",
+    "message": "Links to bookmarks inside the document were kept as plain text.",
+    "count": 2,
+    "examples": [
+     "bm1"
+    ]
+   },
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 1
+   },
+   {
+    "code": "table-complex",
+    "severity": "warning",
+    "message": "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+    "count": 2,
+    "examples": [
+     "ctrl\u0001xcafé 😀ctrl\u0001xmailto:a@b.co lead ☐quote\"sa bx😀",
+     "lsalphaA\u0000Bmailto:a@b.co '* * * bomdelta* * *<b>https://e.test/x?y=1&z=2delta nbs"
+    ]
+   },
+   {
+    "code": "table-merged",
+    "severity": "warning",
+    "message": "Merged table cells were split into separate cells (the covered cells are empty).",
+    "count": 2,
+    "examples": [
+     "ctrl\u0001xcafé 😀ctrl\u0001xmailto:a@b.co lead ☐quote\"sa bx😀",
+     "lsalphaA\u0000Bmailto:a@b.co '* * * bomdelta* * *<b>https://e.test/x?y=1&z=2delta nbs"
+    ]
+   },
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 1,
+    "examples": [
+     "Heading 4: deltaend."
+    ]
+   },
+   {
+    "code": "missing-image",
+    "severity": "warning",
+    "message": "An image could not be found in the file and was skipped.",
+    "count": 1,
+    "examples": [
+     "word/media/pic.emf"
+    ]
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 3 headings found, so the whole file is one chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": [
+   {
+    "sourcePath": "word/media/other.PNG",
+    "targetPath": "assets/other.PNG",
+    "mediaType": "image/png",
+    "len": 3,
+    "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+   }
+  ]
+ }
+}

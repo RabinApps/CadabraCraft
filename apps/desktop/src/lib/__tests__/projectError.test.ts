@@ -40,6 +40,8 @@ describe("projectErrorMessage", () => {
     [{ kind: "invalid_file_name" }, /not valid/],
     [{ kind: "watch_failed", path: "book" }, /watch book.*outside the app/],
     [{ kind: "not_picked", name: "x.png" }, /x\.png was not chosen/],
+    [{ kind: "import_docx", code: "invalid-zip" }, /valid \.docx/],
+    [{ kind: "import_docx", code: "invalid-xml" }, /could not be read/],
   ];
   for (const [e, re] of cases)
     it(`describes ${e.kind}`, () => expect(projectErrorMessage(e)).toMatch(re));

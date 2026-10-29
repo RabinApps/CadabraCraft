@@ -1,5 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { errMsg } from "@cadabracraft/shared";
+import type { ImportErrorCode } from "@cadabracraft/import-docx";
+import { describeImportCode } from "./importErrorText";
 
 /** What the Rust file commands reject with (`ProjectError` in src-tauri/src/project/error.rs). */
 export type ProjectError =
@@ -30,6 +32,8 @@ export type ProjectError =
   | { kind: "disk_full"; path: string }
   | { kind: "image_dimensions"; name: string; max_megapixels: number }
   | { kind: "watch_failed"; path: string }
+  /** The Rust `.docx` importer refused the file; `code` is an `ImportErrorCode`. */
+  | { kind: "import_docx"; code: ImportErrorCode }
   | { kind: "io"; message: string };
 
 const KINDS = new Set<string>([
@@ -60,6 +64,7 @@ const KINDS = new Set<string>([
   "disk_full",
   "image_dimensions",
   "watch_failed",
+  "import_docx",
   "io",
 ]);
 
@@ -128,6 +133,8 @@ export function projectErrorMessage(e: ProjectError): string {
       return t`${e.name} is larger than ${e.max_megapixels} megapixels`;
     case "watch_failed":
       return t`Cannot watch ${e.path} for changes made outside the app`;
+    case "import_docx":
+      return describeImportCode(e.code);
     case "io":
       return e.message;
   }

@@ -3518,7 +3518,7 @@ msgstr "Das sind routinemäßige Anpassungen; nichts ging verloren."
 msgid "These fonts come from Google Fonts and are free to use under the SIL Open Font Licence. A font is downloaded only when you click Download; nothing else is sent."
 msgstr "Diese Schriften stammen von Google Fonts und sind unter der SIL Open Font License frei nutzbar. Eine Schrift wird nur geladen, wenn du auf Herunterladen klickst; sonst wird nichts gesendet."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This .docx file has no document body. It may be damaged or not a Word document."
 msgstr "Diese .docx-Datei hat keinen Dokumentkörper. Sie ist möglicherweise beschädigt oder kein Word-Dokument."
 
@@ -3536,23 +3536,23 @@ msgstr "Dieses Buch hat noch keine Kapitel."
 msgid "This book has no cover image. KDP takes the cover as a separate file."
 msgstr "Dieses Buch hat kein Coverbild. KDP nimmt das Cover als eigene Datei."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document contains too many parts to import safely."
 msgstr "Dieses Dokument enthält zu viele Teile, um sicher importiert zu werden."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document is nested too deeply to import."
 msgstr "Dieses Dokument ist zu tief verschachtelt, um importiert zu werden."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document is too large to import safely."
 msgstr "Dieses Dokument ist zu groß, um sicher importiert zu werden."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document's contents could not be read. It may be damaged."
 msgstr "Der Inhalt dieses Dokuments konnte nicht gelesen werden. Es ist möglicherweise beschädigt."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
 msgstr "Das sieht nicht nach einer gültigen .docx-Datei aus (sie konnte nicht als Word-Dokument geöffnet werden)."
 
@@ -3564,7 +3564,7 @@ msgstr "Diese Datei sieht nicht nach Text aus. Sie ist möglicherweise beschädi
 msgid "This file is too large or too deeply nested to import."
 msgstr "Diese Datei ist zu groß oder zu tief verschachtelt, um importiert zu werden."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This file is too large to import."
 msgstr "Diese Datei ist zu groß zum Importieren."
 

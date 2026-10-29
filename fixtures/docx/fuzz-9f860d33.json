@@ -1,0 +1,121 @@
+{
+ "options": {
+  "splitHeadingLevel": 3
+ },
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "sceneBreak"
+      }
+     ]
+    }
+   },
+   {
+    "title": "gammaend.* * *<b>",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "gamma",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "end.",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "* * *",
+         "marks": [
+          {
+           "type": "bold"
+          },
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "<b>"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "delta"
+        },
+        {
+         "type": "footnote",
+         "content": [
+          {
+           "type": "text",
+           "text": "note 2 "
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "cafétab\tin"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 1,
+    "examples": [
+     "Heading 4: gammaend.* * *<b>"
+    ]
+   },
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 1
+   },
+   {
+    "code": "footnote-nested",
+    "severity": "warning",
+    "message": "A note reference inside a note was dropped.",
+    "count": 1
+   },
+   {
+    "code": "untitled-content",
+    "severity": "warning",
+    "message": "Content before the first level 3 heading was placed in a chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

@@ -6,6 +6,7 @@
  */
 export interface InvokeArgs {
   path: string;
+  splitHeadingLevel: number;
   root: string;
   url: string;
   pack: string;

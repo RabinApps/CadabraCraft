@@ -1,0 +1,109 @@
+{
+ "options": {
+  "untitledTitle": "Front"
+ },
+ "result": {
+  "chapters": [
+   {
+    "title": "Front",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "﻿bom﻿bom",
+         "marks": [
+          {
+           "type": "smallCaps"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "gamma",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "https://c.test/a"
+           }
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "a b"
+            },
+            {
+             "type": "footnote",
+             "content": [
+              {
+               "type": "text",
+               "text": "note 1"
+              }
+             ]
+            },
+            {
+             "type": "text",
+             "text": "mailto:a@b.co",
+             "marks": [
+              {
+               "type": "bold"
+              },
+              {
+               "type": "italic"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 1,
+    "examples": [
+     "Unknown"
+    ]
+   },
+   {
+    "code": "footnote-missing",
+    "severity": "warning",
+    "message": "A footnote or endnote reference pointed at a missing note and was dropped.",
+    "count": 1,
+    "examples": [
+     "5"
+    ]
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 1 headings found, so the whole file is one chapter titled \"Front\"."
+   }
+  ],
+  "assets": []
+ }
+}

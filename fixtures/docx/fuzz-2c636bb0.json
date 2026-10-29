@@ -1,0 +1,156 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "ctrlx",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "footnote"
+        },
+        {
+         "type": "text",
+         "text": "AB",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "tab\tin 😀<b>& ls",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "tab\tin 😀<b>&"
+        },
+        {
+         "type": "text",
+         "text": " ls",
+         "marks": [
+          {
+           "type": "italic"
+          },
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "https://e.test/x?y=1&z=2"
+        },
+        {
+         "type": "text",
+         "text": "https://e.test/x?y=1&z=2",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "nbsphttps://e.test/x?y=1&z=2quote\"stab\tin",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": " nbsphttps://e.test/x?y=1&z=2quote\"stab\tin"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "unsafe-link",
+    "severity": "warning",
+    "message": "Links are only kept for http, https and mailto; other links became plain text.",
+    "count": 2,
+    "examples": [
+     "ftp://x (field)",
+     "javascript:alert(1) (hyperlink)"
+    ]
+   },
+   {
+    "code": "missing-image",
+    "severity": "warning",
+    "message": "An image could not be found in the file and was skipped.",
+    "count": 1,
+    "examples": [
+     "rId5"
+    ]
+   },
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 1,
+    "examples": [
+     "Unknown"
+    ]
+   },
+   {
+    "code": "header-footer",
+    "severity": "warning",
+    "message": "Headers and footers are not imported.",
+    "count": 1,
+    "examples": [
+     "Running head"
+    ]
+   },
+   {
+    "code": "untitled-content",
+    "severity": "warning",
+    "message": "Content before the first level 1 heading was placed in a chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}
