@@ -95,6 +95,22 @@ mod tests {
     }
 
     #[test]
+    fn a_poisoned_download_lock_still_marks_and_releases_packs() {
+        let jobs = std::sync::Arc::new(AudioJobs::default());
+        let held = jobs.clone();
+        assert!(std::thread::spawn(move || {
+            let _guard = held.1.lock().unwrap();
+            panic!("poison the lock");
+        })
+        .join()
+        .is_err());
+        let guard = jobs.begin_download("p").expect("a poisoned lock does not stop downloads");
+        assert!(jobs.begin_download("p").is_none());
+        drop(guard);
+        assert!(jobs.begin_download("p").is_some());
+    }
+
+    #[test]
     fn the_voices_folder_is_set_once_and_the_development_override_wins() {
         let first = std::env::temp_dir().join("cadabracraft-test-voices");
         set_voices_dir(first.clone());

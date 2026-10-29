@@ -136,6 +136,13 @@ pub struct ImportedReference {
 /// hashing it, checks the type, the size cap and the signature, and never overwrites: identical bytes reuse the existing
 /// file, different bytes get a `-2`, `-3`... suffix.
 pub fn import_reference(root: &Path, source: &Path) -> Result<ImportedReference> {
+    import_reference_with(root, source, &persist_no_replace)
+}
+
+type Persist<'a> = &'a dyn Fn(tempfile::NamedTempFile, &Path) -> std::result::Result<(), (tempfile::NamedTempFile, std::io::Error)>;
+
+/// `import_reference` with the final move injectable, so a file that appears while the import runs can be tested.
+fn import_reference_with(root: &Path, source: &Path, persist: Persist) -> Result<ImportedReference> {
     let name = source.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
     let ext = extension(name)?;
     if BLOCKED.contains(&ext.as_str()) {
@@ -197,7 +204,7 @@ pub fn import_reference(root: &Path, source: &Path) -> Result<ImportedReference>
             Ok(_) => n += 1,
             // Nothing there (or nothing readable there): moving in either succeeds or reports why it cannot. It never
             // replaces a file that appeared meanwhile: that name is skipped like any taken one.
-            Err(_) => match persist_no_replace(tmp, &path) {
+            Err(_) => match persist(tmp, &path) {
                 Ok(()) => {
                     sync_dir(&dir);
                     return Ok(ImportedReference { file: rel, title, size, kind, reused: false });
@@ -569,5 +576,36 @@ mod tests {
         let free = d.path().join("b.txt");
         persist_no_replace(back, &free).unwrap();
         assert_eq!(fs::read_to_string(&free).unwrap(), "mine");
+    }
+
+    #[test]
+    fn a_name_that_is_taken_while_importing_is_skipped_and_other_move_errors_are_reported() {
+        let (proj, out) = (tmp(), tmp());
+        let pdf = src(&out, "map.pdf", b"%PDF-1 data");
+        // The first move finds the name taken (another process won the race) and the import goes on to `map-2.pdf`.
+        let calls = std::cell::Cell::new(0);
+        let racing = |tmp: tempfile::NamedTempFile, path: &Path| {
+            calls.set(calls.get() + 1);
+            if calls.get() == 1 {
+                fs::write(path, "theirs").unwrap();
+                return Err((tmp, std::io::ErrorKind::AlreadyExists.into()));
+            }
+            persist_no_replace(tmp, path)
+        };
+        let got = import_reference_with(proj.path(), &pdf, &racing).unwrap();
+        assert_eq!((got.file.as_str(), got.reused), ("references/map-2.pdf", false));
+        assert_eq!(fs::read_to_string(proj.path().join("references/map.pdf")).unwrap(), "theirs");
+        let failing = |tmp: tempfile::NamedTempFile, _: &Path| Err((tmp, std::io::Error::from(std::io::ErrorKind::PermissionDenied)));
+        let other = src(&out, "other.pdf", b"%PDF-1 other");
+        assert!(matches!(import_reference_with(proj.path(), &other, &failing).unwrap_err(), ProjectError::PermissionDenied { .. }));
+    }
+
+    #[test]
+    fn persisting_into_a_folder_that_does_not_exist_fails_and_hands_the_temp_file_back() {
+        let d = tempfile::tempdir().unwrap();
+        let tmp = tempfile::NamedTempFile::new_in(d.path()).unwrap();
+        let (back, e) = persist_no_replace(tmp, &d.path().join("no-folder/a.txt")).unwrap_err();
+        assert_eq!(e.kind(), std::io::ErrorKind::NotFound);
+        assert!(back.path().exists());
     }
 }

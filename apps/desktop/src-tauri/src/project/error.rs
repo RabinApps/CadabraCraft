@@ -214,4 +214,9 @@ mod tests {
         let joined = ProjectError::from(tauri::Error::FailedToReceiveMessage);
         assert!(matches!(&joined, ProjectError::Io { message } if !message.is_empty()));
     }
+
+    #[test]
+    fn a_path_nobody_picked_is_described_by_its_name_only() {
+        assert_eq!(ProjectError::NotPicked { name: "book".into() }.to_string(), "book was not chosen in a file or folder dialog");
+    }
 }

@@ -351,4 +351,25 @@ mod tests {
             Err(FontError::UnknownFont { .. })
         ));
     }
+
+    #[test]
+    fn an_imported_folder_with_an_unsafe_name_is_not_listed() {
+        let (root, src) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        fs::write(src.path().join("a.ttf"), ttf("My Font")).unwrap();
+        import_font(&src.path().join("a.ttf"), root.path()).unwrap();
+        let good = root.path().join("imported/my-font");
+        let sneaky = root.path().join("imported/not..safe");
+        fs::create_dir_all(&sneaky).unwrap();
+        fs::copy(good.join("a.ttf"), sneaky.join("a.ttf")).unwrap();
+        let ids: Vec<String> = list_installed(Some(root.path())).into_iter().map(|f| f.id).collect();
+        assert_eq!(ids, vec!["imported-my-font"]);
+    }
+
+    #[test]
+    fn a_family_path_that_is_a_file_cannot_be_deleted_and_says_why() {
+        let root = tempfile::tempdir().unwrap();
+        fs::write(root.path().join("cardo"), b"not a folder").unwrap();
+        assert!(matches!(delete_font(root.path(), "cardo"), Err(FontError::Other { .. })));
+        assert!(root.path().join("cardo").exists());
+    }
 }

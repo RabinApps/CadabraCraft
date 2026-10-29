@@ -261,6 +261,15 @@ mod tests {
     }
 
     #[test]
+    fn read_asset_refuses_an_image_over_the_limit_without_reading_it() {
+        let proj = tmp();
+        std::fs::create_dir_all(proj.path().join("assets")).unwrap();
+        let big = std::fs::File::create(proj.path().join("assets/big.png")).unwrap();
+        big.set_len(MAX_IMAGE_BYTES + 1).unwrap(); // sparse: no real 25 MB written
+        assert_eq!(read_asset(proj.path(), "assets/big.png").unwrap_err(), ProjectError::TooLarge { path: "assets/big.png".into(), max_mb: 25 });
+    }
+
+    #[test]
     fn image_errors_are_typed() {
         let proj = tmp();
         assert_eq!(store_image(proj.path(), "x.exe", &PNG).unwrap_err(), ProjectError::UnsupportedImage { name: "x.exe".into() });

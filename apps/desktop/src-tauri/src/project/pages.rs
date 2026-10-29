@@ -71,8 +71,16 @@ pub fn write_file(root: &Path, rel: &str, contents: &str, base_hash: Option<&str
 /// Runs `f` while holding a lock for `path`, so two saves of the same page (autosave and a save on close) cannot
 /// interleave their read-compare-write and lose a conflict copy. Entries are tiny and live for the session.
 fn with_path_lock<T>(path: &Path, f: impl FnOnce() -> T) -> T {
-    static LOCKS: OnceLock<Mutex<HashMap<PathBuf, Arc<Mutex<()>>>>> = OnceLock::new();
-    let lock = LOCKS.get_or_init(Default::default).lock().unwrap_or_else(|e| e.into_inner()).entry(path.to_path_buf()).or_default().clone();
+    static LOCKS: OnceLock<PathLocks> = OnceLock::new();
+    with_lock_in(LOCKS.get_or_init(Default::default), path, f)
+}
+
+type PathLocks = Mutex<HashMap<PathBuf, Arc<Mutex<()>>>>;
+
+/// `with_path_lock` over a given set of locks. A lock poisoned by a panicking save is still taken: the data it guards is
+/// the file on disk, not anything the panic left half-done in memory.
+fn with_lock_in<T>(locks: &PathLocks, path: &Path, f: impl FnOnce() -> T) -> T {
+    let lock = locks.lock().unwrap_or_else(|e| e.into_inner()).entry(path.to_path_buf()).or_default().clone();
     let _guard = lock.lock().unwrap_or_else(|e| e.into_inner());
     f()
 }

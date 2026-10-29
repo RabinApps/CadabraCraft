@@ -4,7 +4,7 @@
 use crate::audio::AudioJobs;
 use crate::commands::testutil::{project, root, text};
 use crate::platform::fs_watch::WatchState;
-use crate::{audio, commands, fonts, typst}; // the `app_handlers!` macro (lib.rs) names these modules
+use crate::commands;
 use serde_json::{json, Value};
 use std::sync::mpsc::channel;
 use std::time::Duration;
@@ -22,7 +22,7 @@ fn mock_app() -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
 fn build_app(with_state: bool) -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     let builder = mock_builder();
     let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()).manage(commands::PickedPaths::default()) } else { builder };
-    let app = builder.invoke_handler(app_handlers![]).build(mock_context(noop_assets())).expect("the mock app builds");
+    let app = builder.invoke_handler(crate::handlers()).build(mock_context(noop_assets())).expect("the mock app builds");
     let window = WebviewWindowBuilder::new(&app, "main", Default::default()).build().expect("the mock window builds");
     (app, window)
 }
@@ -70,6 +70,30 @@ fn raw_of(r: Result<InvokeResponseBody, Value>) -> Vec<u8> {
 
 const PNG: [u8; 12] = [0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 1];
 const PAGE: &str = "manuscript/001-a.json";
+
+#[test]
+fn the_native_pickers_answer_through_the_ipc_and_what_they_pick_is_remembered() {
+    use commands::fake_dialog::{ANSWERS, ASKED};
+    let (app, w) = mock_app();
+    let dir = tempfile::tempdir().unwrap();
+    let (folder, image, doc) = (dir.path().join("book"), dir.path().join("a.png"), dir.path().join("a.md"));
+    std::fs::create_dir(&folder).unwrap();
+    std::fs::write(&image, "x").unwrap();
+    std::fs::write(&doc, "x").unwrap();
+    ANSWERS.lock().unwrap().extend([Some(folder.clone()), None, Some(image.clone()), Some(doc.clone()), None]);
+    let shown = |p: &std::path::Path| json!(p.to_string_lossy());
+    assert_eq!(json_of(call(&w, "pick_folder", json!({}))), shown(&folder));
+    assert_eq!(json_of(call(&w, "pick_folder", json!({}))), Value::Null, "a cancel");
+    assert_eq!(json_of(call(&w, "pick_image", json!({}))), shown(&image));
+    assert_eq!(json_of(call(&w, "pick_import_source", json!({}))), shown(&doc));
+    assert_eq!(json_of(call(&w, "pick_import_source", json!({}))), Value::Null);
+    assert_eq!(*ASKED.lock().unwrap(), ["Folder", "Folder", "Image", "ImportSource", "ImportSource"]);
+    let picked = app.state::<commands::PickedPaths>();
+    assert!(picked.require(commands::PickKind::Folder, &folder).is_ok());
+    assert!(picked.require(commands::PickKind::Image, &image).is_ok());
+    assert!(picked.require(commands::PickKind::ImportSource, &doc).is_ok());
+    assert!(picked.require(commands::PickKind::Image, &folder).is_err(), "an answer is only good for its own kind");
+}
 
 #[test]
 fn project_commands_work_through_the_ipc() {

@@ -134,6 +134,11 @@ pub(crate) fn move_to_free_name_with(
     pick: impl Fn(&Path, &str) -> Result<String>,
     mv: impl Fn(&Path, &Path) -> std::io::Result<()>,
 ) -> Result<String> {
+    move_to_free_name_dyn(root, from, want, label, &pick, &mv)
+}
+
+/// `move_to_free_name_with` without the per-caller generics, so the loop exists (and is tested) once.
+fn move_to_free_name_dyn(root: &Path, from: &Path, want: &str, label: &str, pick: &dyn Fn(&Path, &str) -> Result<String>, mv: &dyn Fn(&Path, &Path) -> std::io::Result<()>) -> Result<String> {
     for _ in 0..64 {
         let to_rel = pick(root, want)?;
         let to = resolve(root, &to_rel)?;
@@ -166,6 +171,11 @@ pub(crate) fn open_error(e: std::io::Error, path: &Path, label: &str) -> Project
 /// would block forever); the size is checked on the opened handle too, and the read itself is capped at `cap + 1`, so a
 /// file that grows while it is read can never use unbounded memory. Links are followed (the user picked the link).
 pub(crate) fn read_regular(path: &Path, cap: u64, label: &str, too_large: impl Fn() -> ProjectError) -> Result<Vec<u8>> {
+    read_regular_dyn(path, cap, label, &too_large)
+}
+
+/// `read_regular` without the per-caller generic, so its error paths exist (and are tested) once.
+fn read_regular_dyn(path: &Path, cap: u64, label: &str, too_large: &dyn Fn() -> ProjectError) -> Result<Vec<u8>> {
     let not_file = || ProjectError::NotAFile { path: label.to_string() };
     let meta = fs::metadata(path).map_err(|e| open_error(e, path, label))?;
     if !meta.is_file() {
@@ -176,7 +186,7 @@ pub(crate) fn read_regular(path: &Path, cap: u64, label: &str, too_large: impl F
     }
     let mut file = fs::File::open(path).map_err(|e| open_error(e, path, label))?;
     let meta = file.metadata().map_err(|e| io_error(e, label))?;
-    read_capped(&mut file, meta.is_file(), meta.len(), cap).map_err(|e| e.into_project(label, &too_large, &|e| io_error(e, label)))
+    read_capped(&mut file, meta.is_file(), meta.len(), cap).map_err(|e| e.into_project(label, too_large, &|e| io_error(e, label)))
 }
 
 /// Why `read_capped` refused.
@@ -571,6 +581,16 @@ mod tests {
     }
 
     #[test]
+    fn a_move_into_a_folder_that_is_really_a_file_fails_and_leaves_the_source() {
+        let d = tmp();
+        let src = d.path().join("p.json");
+        fs::write(&src, "mine").unwrap();
+        fs::write(d.path().join("t"), "i am a file").unwrap();
+        assert!(move_to_free_name(d.path(), &src, "t/x.json", "x").is_err());
+        assert_eq!(fs::read_to_string(&src).unwrap(), "mine");
+    }
+
+    #[test]
     fn a_move_gives_up_after_a_bounded_number_of_races_and_reports_other_errors() {
         let d = tmp();
         let src = d.path().join("p.json");
@@ -585,5 +605,26 @@ mod tests {
     #[test]
     fn syncing_a_missing_directory_is_ignored() {
         sync_dir(Path::new("/definitely/not/here"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn reading_a_regular_file_that_cannot_be_opened_is_permission_denied() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tmp();
+        let p = d.path().join("locked.bin");
+        fs::write(&p, b"x").unwrap();
+        fs::set_permissions(&p, fs::Permissions::from_mode(0o000)).unwrap();
+        let too_large = || ProjectError::TooLarge { path: "locked.bin".into(), max_mb: 0 };
+        let got = read_regular(&p, 10, "locked.bin", too_large);
+        let big = d.path().join("big.bin");
+        fs::write(&big, [0u8; 20]).unwrap();
+        assert_eq!(read_regular(&big, 10, "locked.bin", too_large).unwrap_err(), too_large());
+        let opened = fs::File::open(&p).is_ok();
+        fs::set_permissions(&p, fs::Permissions::from_mode(0o644)).unwrap();
+        if opened {
+            return; // running as root: permissions do not apply
+        }
+        assert_eq!(got.unwrap_err(), ProjectError::PermissionDenied { path: "locked.bin".into() });
     }
 }

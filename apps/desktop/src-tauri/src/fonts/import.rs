@@ -581,4 +581,54 @@ pub(crate) mod tests {
             "nothing is created for a refused file"
         );
     }
+
+    fn invalid_message(r: Result<String, FontError>) -> String {
+        match r {
+            Err(FontError::InvalidFont { message }) => message,
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn a_font_without_a_name_table_or_with_a_cut_down_one_is_refused_with_the_reason() {
+        let mut noname = ttf("A");
+        noname[28..32].copy_from_slice(b"xxxx");
+        assert!(invalid_message(family_name(&noname)).contains("no name table"));
+        // the name table is directory entry 2: its length field is at 12 + 16 + 12
+        for len in [0u32, 3, 4] {
+            let mut cut = ttf("A");
+            cut[40..44].copy_from_slice(&len.to_be_bytes());
+            assert!(invalid_message(family_name(&cut)).contains("empty"), "{len}");
+        }
+    }
+
+    #[test]
+    fn a_record_count_larger_than_the_table_stops_reading_and_a_repeat_of_an_id_keeps_the_first() {
+        let mut lying = ttf("A");
+        let count_at = 12 + 32 + 54 + 2;
+        lying[count_at..count_at + 2].copy_from_slice(&9u16.to_be_bytes());
+        assert_eq!(family_name(&lying).unwrap(), "A"); // reading stops at the cut-off record
+        let twice = font_with_names(&[
+            (3, 1, 0x409, 1, utf16("First")),
+            (3, 1, 0x409, 1, utf16("Second")),
+        ]);
+        assert_eq!(family_name(&twice).unwrap(), "First");
+        let mac_other_language = font_with_names(&[(1, 0, 7, 1, b"Mac Other".to_vec())]);
+        assert_eq!(family_name(&mac_other_language).unwrap(), "Mac Other");
+    }
+
+    #[test]
+    fn a_name_taken_by_a_folder_or_by_ninety_nine_other_fonts_is_an_error() {
+        let (src, root) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let p = write(src.path(), "f.ttf", &ttf("Fancy"));
+        let dir = root.path().join("imported/fancy");
+        fs::create_dir_all(dir.join("f.ttf")).unwrap();
+        assert!(matches!(import_font(&p, root.path()), Err(FontError::Other { .. })));
+        fs::remove_dir(dir.join("f.ttf")).unwrap();
+        for n in 1..100 {
+            let name = if n == 1 { "f.ttf".to_string() } else { format!("f-{n}.ttf") };
+            fs::write(dir.join(name), b"other").unwrap();
+        }
+        assert!(matches!(import_font(&p, root.path()), Err(FontError::Other { .. })));
+    }
 }

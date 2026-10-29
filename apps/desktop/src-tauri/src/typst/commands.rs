@@ -13,13 +13,16 @@ pub struct TypstInfo {
     pub version: String,
 }
 
+/// Locates the program (a box, so tests can point at a fake one without a second copy of each body).
+type Finder = Box<dyn FnOnce() -> Result<PathBuf, TypstError> + Send + 'static>;
+
 /// Locates typst and reports its version; `NotFound` carries install advice. The webview cannot pick the program.
 #[tauri::command]
 pub async fn typst_find() -> Result<TypstInfo, TypstError> {
-    find_info(find_typst).await
+    find_info(Box::new(find_typst)).await
 }
 
-async fn find_info(find: impl FnOnce() -> Result<PathBuf, TypstError> + Send + 'static) -> Result<TypstInfo, TypstError> {
+async fn find_info(find: Finder) -> Result<TypstInfo, TypstError> {
     blocking(move || {
         let bin = find()?;
         let version = version(&bin)?;
@@ -30,16 +33,16 @@ async fn find_info(find: impl FnOnce() -> Result<PathBuf, TypstError> + Send + '
 
 #[tauri::command]
 pub async fn typst_list_fonts() -> Result<Vec<String>, TypstError> {
-    fonts_of(find_typst).await
+    fonts_of(Box::new(find_typst)).await
 }
 
-async fn fonts_of(find: impl FnOnce() -> Result<PathBuf, TypstError> + Send + 'static) -> Result<Vec<String>, TypstError> {
+async fn fonts_of(find: Finder) -> Result<Vec<String>, TypstError> {
     blocking(move || list_fonts(&find()?)).await
 }
 
 /// The request is one binary body (see `parse_compile_request`): options, source and (relative name, bytes) image files
 /// written next to the source. Returns the PDF as raw bytes.
-async fn compile_body(body: &InvokeBody, find: impl FnOnce() -> Result<PathBuf, TypstError> + Send + 'static) -> Result<Response, TypstError> {
+async fn compile_body(body: &InvokeBody, find: Finder) -> Result<Response, TypstError> {
     let InvokeBody::Raw(body) = body else {
         return Err(other("typst_compile expects a binary body"));
     };
@@ -54,12 +57,12 @@ async fn compile_body(body: &InvokeBody, find: impl FnOnce() -> Result<PathBuf, 
 
 #[tauri::command]
 pub async fn typst_compile(request: Request<'_>) -> Result<Response, TypstError> {
-    compile_body(request.body(), find_typst).await
+    compile_body(request.body(), Box::new(find_typst)).await
 }
 
 /// The request is the compile frame with a `selector` instead of `pdfA` (see `parse_query_request`). Returns the JSON
 /// text `typst query` printed, as raw bytes.
-async fn query_body(body: &InvokeBody, find: impl FnOnce() -> Result<PathBuf, TypstError> + Send + 'static) -> Result<Response, TypstError> {
+async fn query_body(body: &InvokeBody, find: Finder) -> Result<Response, TypstError> {
     let InvokeBody::Raw(body) = body else {
         return Err(other("typst_query expects a binary body"));
     };
@@ -74,7 +77,7 @@ async fn query_body(body: &InvokeBody, find: impl FnOnce() -> Result<PathBuf, Ty
 
 #[tauri::command]
 pub async fn typst_query(request: Request<'_>) -> Result<Response, TypstError> {
-    query_body(request.body(), find_typst).await
+    query_body(request.body(), Box::new(find_typst)).await
 }
 
 #[cfg(test)]
@@ -92,13 +95,13 @@ mod tests {
     }
 
     #[cfg(unix)]
-    fn found(p: &std::path::Path) -> impl FnOnce() -> Result<PathBuf, TypstError> + Send + 'static {
+    fn found(p: &std::path::Path) -> Finder {
         let p = p.to_path_buf();
-        move || Ok(p)
+        Box::new(move || Ok(p))
     }
 
-    fn missing() -> Result<PathBuf, TypstError> {
-        Err(TypstError::NotFound { message: "gone".into() })
+    fn missing() -> Finder {
+        Box::new(|| Err(TypstError::NotFound { message: "gone".into() }))
     }
 
     /// The framed body `parse_compile_request` reads: header length, JSON header, then the file bytes. The header also
@@ -131,8 +134,8 @@ mod tests {
 
     #[test]
     fn find_and_list_fonts_report_a_missing_program() {
-        assert!(matches!(run(find_info(missing)), Err(TypstError::NotFound { .. })));
-        assert!(matches!(run(fonts_of(missing)), Err(TypstError::NotFound { .. })));
+        assert!(matches!(run(find_info(missing())), Err(TypstError::NotFound { .. })));
+        assert!(matches!(run(fonts_of(missing())), Err(TypstError::NotFound { .. })));
     }
 
     #[cfg(unix)]
@@ -160,15 +163,15 @@ mod tests {
 
     #[test]
     fn query_body_refuses_a_json_body_a_malformed_frame_and_a_missing_program() {
-        assert_eq!(run(query_body(&InvokeBody::Json(serde_json::json!({})), missing)).err(), Some(other("typst_query expects a binary body")));
-        assert!(matches!(run(query_body(&InvokeBody::Raw(vec![1, 2]), missing)).err(), Some(TypstError::Other { .. })));
-        assert!(matches!(run(query_body(&InvokeBody::Raw(query_frame("x", "<r>")), missing)).err(), Some(TypstError::NotFound { .. })));
+        assert_eq!(run(query_body(&InvokeBody::Json(serde_json::json!({})), missing())).err(), Some(other("typst_query expects a binary body")));
+        assert!(matches!(run(query_body(&InvokeBody::Raw(vec![1, 2]), missing())).err(), Some(TypstError::Other { .. })));
+        assert!(matches!(run(query_body(&InvokeBody::Raw(query_frame("x", "<r>")), missing())).err(), Some(TypstError::NotFound { .. })));
     }
 
     #[test]
     fn compile_body_refuses_a_json_body_a_malformed_frame_and_a_missing_program() {
-        assert_eq!(run(compile_body(&InvokeBody::Json(serde_json::json!({})), missing)).err(), Some(other("typst_compile expects a binary body")));
-        assert!(matches!(run(compile_body(&InvokeBody::Raw(vec![1, 2]), missing)).err(), Some(TypstError::Other { .. })));
-        assert!(matches!(run(compile_body(&InvokeBody::Raw(frame("x", false, &[])), missing)).err(), Some(TypstError::NotFound { .. })));
+        assert_eq!(run(compile_body(&InvokeBody::Json(serde_json::json!({})), missing())).err(), Some(other("typst_compile expects a binary body")));
+        assert!(matches!(run(compile_body(&InvokeBody::Raw(vec![1, 2]), missing())).err(), Some(TypstError::Other { .. })));
+        assert!(matches!(run(compile_body(&InvokeBody::Raw(frame("x", false, &[])), missing())).err(), Some(TypstError::NotFound { .. })));
     }
 }

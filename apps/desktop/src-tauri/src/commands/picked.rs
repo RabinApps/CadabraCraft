@@ -2,7 +2,9 @@
 //! `import_asset`, `read_import_source` or `read_import_image` on its own: those commands accept a path only when the author
 //! picked it in a dialog opened here (see docs/architecture.md, "Pickers run in Rust").
 use crate::platform::blocking;
-use crate::platform::native_dialog::{ask, Ask};
+#[cfg(not(test))]
+use crate::platform::native_dialog::ask;
+use crate::platform::native_dialog::Ask;
 use crate::project::ProjectError;
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
@@ -75,14 +77,32 @@ pub fn create_picked(picked: &PickedPaths, root: &str, manifest_json: &str) -> R
     crate::project::create_project(&picked.require(PickKind::Folder, Path::new(root))?, manifest_json)
 }
 
+/// What opens a dialog. The real one in the app; tests swap in a queue of canned answers (`fake_dialog`), because the
+/// OS dialog needs a window and a person.
+type Asker<R> = fn(&AppHandle<R>, Ask) -> Option<PathBuf>;
+
+#[cfg(not(test))]
+fn asker<R: Runtime>() -> Asker<R> {
+    ask::<R>
+}
+
+#[cfg(test)]
+fn asker<R: Runtime>() -> Asker<R> {
+    fake_dialog::ask::<R>
+}
+
 /// The answer to one dialog: a queued dev-automation answer when there is one (debug builds with the feature only),
-/// otherwise the real native dialog on the blocking pool.
+/// otherwise the dialog on the blocking pool.
 async fn answer<R: Runtime>(app: AppHandle<R>, what: Ask) -> Result<Option<PathBuf>, ProjectError> {
     #[cfg(all(feature = "dev-automation", debug_assertions))]
     if let Some(queued) = crate::automation::take_queued(&app) {
         return Ok(queued.map(PathBuf::from));
     }
-    blocking(move || Ok::<_, ProjectError>(ask(&app, what))).await
+    answer_with(app, what, asker::<R>()).await
+}
+
+async fn answer_with<R: Runtime>(app: AppHandle<R>, what: Ask, asker: Asker<R>) -> Result<Option<PathBuf>, ProjectError> {
+    blocking(move || Ok::<_, ProjectError>(asker(&app, what))).await
 }
 
 /// Native folder picker; returns the folder's absolute path (or null on cancel) and remembers it for `create_project`.
@@ -101,6 +121,21 @@ pub async fn pick_image<R: Runtime>(app: AppHandle<R>, picked: State<'_, PickedP
 #[tauri::command]
 pub async fn pick_import_source<R: Runtime>(app: AppHandle<R>, picked: State<'_, PickedPaths>) -> Result<Option<String>, ProjectError> {
     record_pick(&picked, PickKind::ImportSource, answer(app, Ask::ImportSource).await?)
+}
+
+/// Canned dialog answers for the IPC tests (the OS dialog needs a window and a person), with what each dialog was asked
+/// for. One test uses them, so there is nothing to interleave.
+#[cfg(test)]
+pub(crate) mod fake_dialog {
+    use super::*;
+
+    pub(crate) static ANSWERS: Mutex<VecDeque<Option<PathBuf>>> = Mutex::new(VecDeque::new());
+    pub(crate) static ASKED: Mutex<Vec<String>> = Mutex::new(Vec::new());
+
+    pub(super) fn ask<R: Runtime>(_: &AppHandle<R>, what: Ask) -> Option<PathBuf> {
+        ASKED.lock().unwrap().push(format!("{what:?}"));
+        ANSWERS.lock().unwrap().pop_front().expect("a queued answer")
+    }
 }
 
 #[cfg(test)]

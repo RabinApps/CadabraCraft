@@ -353,4 +353,12 @@ mod tests {
         assert_eq!(read_relative_image(&md, "gone.png").unwrap_err(), ProjectError::ImageRefNotFound { reference: "gone.png".into() });
         assert_eq!(read_relative_image(&md, "n.txt").unwrap_err(), ProjectError::UnsupportedImage { name: "n.txt".into() });
     }
+
+    #[test]
+    fn a_relative_path_without_a_name_is_refused_by_what_it_is_and_a_missing_document_folder_is_not_found() {
+        assert!(matches!(read_source(Path::new("..")), Err(ProjectError::UnsafePath { path }) if path == ".."));
+        let d = tempfile::tempdir().unwrap();
+        let gone = d.path().join("no-such-folder").join("book.md");
+        assert!(matches!(read_relative_image(&gone, "pic.png"), Err(ProjectError::NotFound { .. })));
+    }
 }
