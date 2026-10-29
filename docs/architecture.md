@@ -868,3 +868,18 @@ Desktop layers import downward only: `app/` (screens, dialogs, shell, hooks) use
 | Keep the MCP bundle documented for "Node 24 or newer" | Only 26 is tested, so `docs/mcp.md` says Node 26.                     |
 
 **Follow-ups / caveats:** since Node 25 the official Linux binaries link against libatomic, which a runner image may need installed; the PR run on ubuntu will show whether it is missing. The scenario's "PDF export produces a 6x9 PDF" step fails on Node 24 and 26 alike (a poppler "Suspects object" message), so it is not caused by this change.
+
+## Sidecar timeout kills the process tree (2026-10-28)
+
+**Decision:** `platform/sidecar.rs` starts each sidecar in its own process group on Unix (`CommandExt::process_group(0)`) and, on timeout or cancel, sends SIGKILL to the whole group before reaping the direct child with `wait`. On Windows it runs `taskkill /T /F /PID`. Normal exit, non-zero exit and error mapping are unchanged. Tests spawn a shell with a background `sleep` and assert the grandchild is gone after a timeout and after a cancel.
+
+**Why:** `Child::kill` only signals the direct child, so a wrapper script or a sidecar that spawns ffmpeg left the grandchild running (and holding CPU, files and the output folder).
+
+**Rejected:**
+
+| Alternative                             | Why not                                                                                                           |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Add the `libc` crate for `killpg`       | Not a direct dependency; one `extern "C"` declaration of `kill`, already linked by std, is enough.                |
+| Spawn the `kill` command                | One more process per kill, and a missing or different `kill` binary on a stripped system.                         |
+| A Windows job object (`windows-sys`)    | A new dependency and unsafe surface for a rare path; `taskkill /T /F` ships with Windows. Not run on Windows yet. |
+| Kill only the direct child (status quo) | Leaves grandchildren running.                                                                                     |

@@ -2,7 +2,7 @@
 //! type and install advice: `run` reports a `RunError` that the caller converts with a small `From` impl.
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::{Child, Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
@@ -74,6 +74,26 @@ pub struct Run<'a> {
     pub install_advice: &'a str,
 }
 
+/// Kills the child and everything it started, then reaps the child. Unix: SIGKILL to the child's process group (made with
+/// `process_group(0)`, so the group id is the child's pid). Windows: `taskkill /T /F`. Both fall back to killing the child.
+fn kill_tree(child: &mut Child) {
+    #[cfg(unix)]
+    {
+        extern "C" {
+            fn kill(pid: i32, sig: i32) -> i32;
+        }
+        const SIGKILL: i32 = 9;
+        // SAFETY: plain syscall; a negative pid addresses the group, which only holds processes started by the child.
+        let _ = unsafe { kill(-(child.id() as i32), SIGKILL) };
+    }
+    #[cfg(windows)]
+    {
+        let _ = Command::new("taskkill").args(["/T", "/F", "/PID", &child.id().to_string()]).stdout(Stdio::null()).stderr(Stdio::null()).status();
+    }
+    let _ = child.kill();
+    let _ = child.wait();
+}
+
 /// Runs the program with output captured through files (no pipe deadlocks) and a hard timeout; the timeout or the cancel
 /// flag kills the process and waits for it, so nothing is left running.
 pub fn run(r: &Run) -> Result<Captured, RunError> {
@@ -94,6 +114,12 @@ pub fn run(r: &Run) -> Result<Captured, RunError> {
             }
         }
     }
+    // Its own process group on Unix, so a timeout or cancel can kill the program and everything it started.
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        cmd.process_group(0);
+    }
     let mut child = cmd.spawn().map_err(|e| match e.kind() {
         std::io::ErrorKind::NotFound => RunError::NotFound(format!("Could not start {}. {}", r.bin.display(), r.install_advice)),
         _ => other(format!("Could not start {}: {e}", r.bin.display())),
@@ -101,15 +127,13 @@ pub fn run(r: &Run) -> Result<Captured, RunError> {
     let deadline = Instant::now() + r.timeout;
     let status = loop {
         if r.cancel.is_some_and(|c| c.load(Ordering::Relaxed)) {
-            let _ = child.kill();
-            let _ = child.wait();
+            kill_tree(&mut child);
             return Err(RunError::Cancelled);
         }
         match child.try_wait().map_err(other)? {
             Some(s) => break s,
             None if Instant::now() >= deadline => {
-                let _ = child.kill();
-                let _ = child.wait();
+                kill_tree(&mut child);
                 return Err(RunError::Timeout { seconds: r.timeout.as_secs() });
             }
             None => std::thread::sleep(Duration::from_millis(20)),
@@ -200,6 +224,44 @@ mod tests {
         let got = run(&Run { cancel: Some(&cancel), ..run_of(&bin, &[]) });
         assert_eq!(got.err(), Some(RunError::Cancelled));
         assert!(started.elapsed() < Duration::from_secs(20), "neither run waited for the program");
+    }
+
+    fn alive(pid: i32) -> bool {
+        std::process::Command::new("kill").args(["-0", &pid.to_string()]).stderr(Stdio::null()).status().is_ok_and(|s| s.success())
+    }
+
+    fn grandchild_is_killed(cancel: Option<&AtomicBool>, timeout: Duration) {
+        let d = tempfile::tempdir().unwrap();
+        let pidfile = d.path().join("pid");
+        let bin = script(d.path(), "wrapper", &format!("sleep 60 &\necho $! > {}\nwait", pidfile.display()));
+        let started = Instant::now();
+        let got = run(&Run { timeout, cancel, ..run_of(&bin, &[]) });
+        assert!(matches!(got, Err(RunError::Timeout { .. } | RunError::Cancelled)));
+        let pid: i32 = fs::read_to_string(&pidfile).unwrap().trim().parse().unwrap();
+        // The orphaned sleep is reparented and reaped by init, which can take a moment.
+        let until = Instant::now() + Duration::from_secs(5);
+        while alive(pid) && Instant::now() < until {
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        assert!(!alive(pid), "the grandchild survived");
+        assert!(started.elapsed() < Duration::from_secs(30));
+    }
+
+    #[test]
+    fn a_timeout_kills_the_grandchildren_too() {
+        grandchild_is_killed(None, Duration::from_millis(1500));
+    }
+
+    #[test]
+    fn a_cancel_kills_the_grandchildren_too() {
+        let cancel = AtomicBool::new(false);
+        std::thread::scope(|s| {
+            s.spawn(|| {
+                std::thread::sleep(Duration::from_millis(1000));
+                cancel.store(true, Ordering::Relaxed);
+            });
+            grandchild_is_killed(Some(&cancel), Duration::from_secs(30));
+        });
     }
 
     #[test]
