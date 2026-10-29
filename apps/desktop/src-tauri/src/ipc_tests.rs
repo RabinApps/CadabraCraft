@@ -195,6 +195,22 @@ fn updates_supported_answers_a_bool() {
 }
 
 #[test]
+fn the_font_commands_answer_through_the_ipc() {
+    let (_app, w) = mock_app();
+    assert_eq!(kind_of(call(&w, "fonts_download", json!({ "fontId": "nope", "jobId": "d", "onProgress": "__CHANNEL__:3" }))), "unknown_font");
+    json_of(call(&w, "fonts_cancel", json!({ "jobId": "j" })));
+    assert!(call(&w, "fonts_import", json!({ "srcPath": "/no/such/font.woff2" })).is_err());
+    assert!(call(&w, "fonts_delete", json!({ "fontId": "../nope" })).is_err());
+    assert!(call(&w, "fonts_data", json!({ "fontId": "../nope", "file": "x.ttf" })).is_err());
+}
+
+#[test]
+fn read_license_refuses_an_unknown_document() {
+    let (_app, w) = mock_app();
+    assert_eq!(kind_of(call(&w, "read_license", json!({ "id": "../../etc/passwd" }))), "io");
+}
+
+#[test]
 fn watch_project_emits_project_changed_with_the_relative_path() {
     let (app, w) = mock_app();
     let book = project();
@@ -310,6 +326,7 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("fonts_import", json!({ "srcPath": "/no/such/font.woff2" })),
         ("fonts_delete", json!({ "fontId": "../nope" })),
         ("fonts_data", json!({ "fontId": "../nope", "file": "x.ttf" })),
+        ("read_license", json!({ "id": "license" })),
     ]
 }
 

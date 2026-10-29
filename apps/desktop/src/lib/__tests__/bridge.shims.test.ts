@@ -27,11 +27,12 @@ beforeEach(() => {
 });
 
 /** Calls `fn`, answering the invoke with `answer`, and returns [command, args]. */
-async function sent(fn: () => unknown, answer: unknown = null) {
+async function sentOnce(fn: () => unknown, answer: unknown = null) {
   m.invoke.mockResolvedValueOnce(answer);
   await fn();
   return m.invoke.mock.calls[0]!;
 }
+const sent = sentOnce;
 
 describe("project commands", () => {
   const cases: [string, () => unknown, string, unknown][] = [
@@ -159,6 +160,44 @@ describe("system commands", () => {
       "read_license",
       { id: "npm" },
     ]);
+  });
+});
+
+describe("font commands", () => {
+  it("catalog, installed, cancel, import and delete", async () => {
+    const sent = async (fn: () => unknown, answer: unknown = null) => {
+      m.invoke.mockReset();
+      return sentOnce(fn, answer);
+    };
+    expect(await sent(() => bridge.fontsCatalog(), [])).toEqual(["fonts_catalog"]);
+    expect(await sent(() => bridge.fontsInstalled(), [])).toEqual(["fonts_installed"]);
+    expect(await sent(() => bridge.fontsCancel("j1"))).toEqual(["fonts_cancel", { jobId: "j1" }]);
+    expect(await sent(() => bridge.fontsImport("/f.ttf"))).toEqual([
+      "fonts_import",
+      { srcPath: "/f.ttf" },
+    ]);
+    expect(await sent(() => bridge.fontsDelete("lora"))).toEqual([
+      "fonts_delete",
+      { fontId: "lora" },
+    ]);
+  });
+
+  it("download hands progress to the channel", async () => {
+    const seen: unknown[] = [];
+    const call = await sent(() => bridge.fontsDownload("lora", "j2", (p) => seen.push(p)));
+    const args = call[1] as {
+      fontId: string;
+      jobId: string;
+      onProgress: { onmessage: (p: unknown) => void };
+    };
+    expect([call[0], args.fontId, args.jobId]).toEqual(["fonts_download", "lora", "j2"]);
+    args.onProgress.onmessage({ done: 1, total: 2 });
+    expect(seen).toEqual([{ done: 1, total: 2 }]);
+  });
+
+  it("data returns the bytes", async () => {
+    const call = await sent(() => bridge.fontsData("lora", "Lora.ttf"), new Uint8Array([1]).buffer);
+    expect(call).toEqual(["fonts_data", { fontId: "lora", file: "Lora.ttf" }]);
   });
 });
 

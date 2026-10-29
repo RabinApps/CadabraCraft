@@ -46,6 +46,9 @@ const fail = (fn: () => unknown): ProjectFsError => {
 };
 const listing = (root: string) => readdirSync(join(root, "references")).sort();
 
+// File modes are not enforced on Windows, and root ignores them.
+const modesEnforced = process.platform !== "win32" && process.getuid?.() !== 0;
+
 afterEach(() => vi.restoreAllMocks());
 
 describe("kinds and caps", () => {
@@ -240,7 +243,7 @@ describe("importReference", () => {
     expect(fail(() => importReference(root, join(d, "dir.png"))).code).toBe("not_a_file");
     const locked = src(d, "locked.png", PNG);
     chmodSync(locked, 0o000);
-    if (process.getuid?.() !== 0)
+    if (modesEnforced)
       expect(fail(() => importReference(root, locked)).code).toBe("permission_denied");
     chmodSync(locked, 0o644);
     expect(existsSync(join(root, "references")) ? listing(root) : []).toEqual([]);
@@ -261,7 +264,7 @@ describe("importReference", () => {
     const root = tmp();
     chmodSync(root, 0o555);
     try {
-      if (process.getuid?.() !== 0)
+      if (modesEnforced)
         expect(fail(() => importReference(root, src(tmp(), "a.png", PNG))).code).toBe(
           "permission_denied",
         );

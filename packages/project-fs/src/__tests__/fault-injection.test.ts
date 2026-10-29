@@ -2,7 +2,7 @@
 // random name that collides): node:fs and node:crypto are wrapped so a test can make one call misbehave.
 import { existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, normalize } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const fault = vi.hoisted(() => ({
@@ -258,6 +258,6 @@ describe("trashFile under faults", () => {
 describe("resolveReal when even the root cannot be resolved", () => {
   it("stops at the filesystem root", () => {
     fault.realpath = errno("ENOENT");
-    expect(resolveReal("/pfs-no-such-folder/child")).toBe("/pfs-no-such-folder/child");
+    expect(resolveReal("/pfs-no-such-folder/child")).toBe(normalize("/pfs-no-such-folder/child"));
   });
 });

@@ -33,6 +33,7 @@ asset_for() {
     x86_64-apple-darwin) echo "sherpa-onnx-v$SHERPA_V-osx-x64-static.tar.bz2 745660d30b3c2fab4aafba1838b2f01e04d2c0c6b92d61bfe6e64d72ee110372" ;;
     x86_64-pc-windows-msvc) echo "sherpa-onnx-v$SHERPA_V-win-x64-static-MT-Release.tar.bz2 58c810ac46f20e3828968175606063a31df4cff21a1931fe5b69a03e70c5a5b7" ;;
     x86_64-unknown-linux-gnu) echo "sherpa-onnx-v$SHERPA_V-linux-x64-static.tar.bz2 8b34cf773b65e4be3e7ace12fb6a65fcd8f4e8fe06516ae9b7bcaf405dcb308c" ;;
+    aarch64-unknown-linux-gnu) echo "sherpa-onnx-v$SHERPA_V-linux-aarch64-static.tar.bz2 fd87d4052e3a7c0040447e84157a2133e192b04d672a98f1187f9c27a2b17b74" ;; # the digest GitHub publishes for the asset (CI runner is arm64)
     *) echo "No pinned sherpa-onnx build for target $1" >&2; return 1 ;;
   esac
 }

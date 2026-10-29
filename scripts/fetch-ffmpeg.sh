@@ -77,6 +77,7 @@ build_ffmpeg() { # build_ffmpeg <triple>
       if [ "$triple" != "$host" ]; then flags+=(--enable-cross-compile --target-os=darwin --cc="clang -arch $arch"); fi
       ;;
     x86_64-unknown-linux-gnu) flags+=(--arch=x86_64 --disable-x86asm --extra-ldflags=-static) ;;
+    aarch64-unknown-linux-gnu) flags+=(--arch=aarch64 --extra-ldflags=-static) ;; # built natively on an arm64 runner
     x86_64-pc-windows-msvc) flags+=(--arch=x86_64 --disable-x86asm --target-os=mingw32 --extra-ldflags=-static) ;;
     *) echo "No ffmpeg build recipe for target $triple" >&2; return 1 ;;
   esac

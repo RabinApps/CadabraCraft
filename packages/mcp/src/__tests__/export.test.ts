@@ -183,6 +183,11 @@ describe("export_pdf / inspect_pdf", () => {
     const o = await s.ok("cadabra_export_pdf", { path, bodyFont: "Lora" });
     expect(o.fonts).toEqual({ body: "Lora", heading: "Inter" });
 
+    manifest.trimSize = "5x8";
+    writeFileSync(file, JSON.stringify(manifest));
+    const sized = await s.ok("cadabra_export_pdf", { path });
+    expect(sized.options.trimSize).toBe("5x8");
+
     manifest.fonts = { body: "Not Installed Serif" };
     writeFileSync(file, JSON.stringify(manifest));
     const missing = await s.call("cadabra_export_pdf", { path });

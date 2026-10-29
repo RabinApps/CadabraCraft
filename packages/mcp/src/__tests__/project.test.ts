@@ -76,6 +76,13 @@ describe("project_create / project_info", () => {
       headingFont: "Inter",
     });
     expect(one.manifest.fonts).toEqual({ heading: "Inter" });
+    const body = await s.ok("cadabra_project_create", {
+      path: "BodyOnly",
+      title: "T",
+      author: "A",
+      bodyFont: "Lora",
+    });
+    expect(body.manifest.fonts).toEqual({ body: "Lora" });
     const plain = await s.ok("cadabra_project_create", { path: "Plain2", title: "T", author: "A" });
     expect("fonts" in plain.manifest).toBe(false);
     for (const bodyFont of ["", "x".repeat(101)]) {
