@@ -14,7 +14,7 @@ msgstr "קובצי ‎.ttf ו־‎.otf. עותק נשמר באפליקציה, א
 #. placeholder {0}: chosen?.name ?? ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "“{0}” is removed from this computer. Your chapters are not changed."
-msgstr ""
+msgstr "“{0}” יוסר ממחשב זה. הפרקים שלך לא ישתנו."
 
 #: src/lib/epubErrors.ts
 msgid "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
@@ -37,12 +37,12 @@ msgstr "{0, plural, one {פרק #} other {# פרקים}} · {1, plural, one {מ�
 #. placeholder {0}: r.missing_assets.length
 #: src/state/project/snapshots.ts
 msgid "{0, plural, one {# image it used is no longer in the book folder.} other {# images it used are no longer in the book folder.}}"
-msgstr ""
+msgstr "{0, plural, one {תמונה # שהיה בה שימוש כבר אינה בתיקיית הספר.} other {# תמונות שהיה בהן שימוש כבר אינן בתיקיית הספר.}}"
 
 #. placeholder {0}: e.assets
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "{0, plural, one {# image} other {# images}}"
-msgstr ""
+msgstr "{0, plural, one {תמונה #} other {# תמונות}}"
 
 #. placeholder {0}: stuck.length
 #: src/state/project/replace.ts
@@ -52,12 +52,12 @@ msgstr "{0, plural, one {לא ניתן היה להחזיר עמוד # למקומ
 #. placeholder {0}: r.trashed.length
 #: src/state/project/snapshots.ts
 msgid "{0, plural, one {# page that was not in the snapshot is in the trash.} other {# pages that were not in the snapshot are in the trash.}}"
-msgstr ""
+msgstr "{0, plural, one {עמוד # שלא היה בתצלום המצב נמצא באשפה.} other {# עמודים שלא היו בתצלום המצב נמצאים באשפה.}}"
 
 #. placeholder {0}: e.pages.length
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "{0, plural, one {# page} other {# pages}}"
-msgstr ""
+msgstr "{0, plural, one {עמוד #} other {# עמודים}}"
 
 #. placeholder {0}: shown.length
 #: src/app/references/ReferencesPanel.tsx
@@ -67,7 +67,7 @@ msgstr "{0, plural, one {הפניה #} other {# הפניות}}"
 #. placeholder {0}: items.length
 #: src/app/quicknav/QuickPicker.tsx
 msgid "{0, plural, one {# result} other {# results}}"
-msgstr ""
+msgstr "{0, plural, one {תוצאה #} other {# תוצאות}}"
 
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
@@ -123,7 +123,7 @@ msgstr "{0} אינו קיים"
 #. placeholder {1}: job.dir
 #: src/app/export/AudioExport.tsx
 msgid "{0} files, {minutes} min. Saved in {1}."
-msgstr ""
+msgstr "{0} קבצים, {minutes} דק׳. נשמרו ב־{1}."
 
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
@@ -188,7 +188,7 @@ msgstr "{0} יוצא מתיקיית הפרויקט דרך קישור סימבו�
 #. placeholder {1}: written.images
 #: src/lib/importBook.ts
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
-msgstr ""
+msgstr "{0} קובצי פרקים חדשים ו־{1} תמונות נשמרו בתיקיית הספר, אך רשימת הפרקים לא שונתה."
 
 #. placeholder {0}: here.chapterNo
 #. placeholder {1}: here.chapters
@@ -230,7 +230,7 @@ msgstr "{0} עודכן מחוץ לאפליקציה"
 #. placeholder {2}: e.total
 #: src/app/export/AudioExport.tsx
 msgid "{0}: {1} of {2} chapters"
-msgstr ""
+msgstr "{0}: {1} מתוך {2} פרקים"
 
 #: src/app/shell/StatusBar.tsx
 msgid "{bookWords} in the book"
@@ -335,7 +335,7 @@ msgstr "{words, plural, one {מילה # בעמוד זה} other {# מילים ב�
 
 #: src/app/export/PrintPreview.tsx
 msgid "0.125 in"
-msgstr ""
+msgstr "0.125 אינץ׳"
 
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image."
@@ -396,7 +396,7 @@ msgstr "הוספת תגית"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Add bleed (0.125 in)"
-msgstr ""
+msgstr "הוספת שולי חיתוך (0.125 אינץ׳)"
 
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
@@ -438,7 +438,7 @@ msgstr "הוספת שורה מתחת"
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Add to book"
-msgstr ""
+msgstr "הוספה לספר"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
@@ -451,7 +451,7 @@ msgstr "מוסיף את {0}"
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Adding…"
-msgstr ""
+msgstr "מוסיף…"
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Address"
@@ -459,7 +459,7 @@ msgstr "כתובת"
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file."
-msgstr ""
+msgstr "מוסיף את הפרקים של קובץ Word (‎.docx), Markdown או HTML אחרי הפרק האחרון של ספר זה. הפרקים הקיימים אינם משתנים, וגם קובץ המקור לא."
 
 #: src/app/export/PdfPanel.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
@@ -547,7 +547,7 @@ msgstr "מחבר"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Automatic"
-msgstr ""
+msgstr "אוטומטי"
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/PrintPreview.tsx
@@ -644,7 +644,7 @@ msgstr "התקדמות הספר"
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 #: src/app/shell/Sidebar.tsx
 msgid "Book snapshots"
-msgstr ""
+msgstr "תצלומי מצב של הספר"
 
 #: src/app/shell/menuModel.ts
 msgid "Bring All to Front"
@@ -932,11 +932,11 @@ msgstr "כל העמודות ברוחב שווה. עד {MAX_TABLE_COLUMNS} עמו
 #: src/app/quicknav/CommandPalette.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Command palette"
-msgstr ""
+msgstr "לוח פקודות"
 
 #: src/app/shell/menuModel.ts
 msgid "Command Palette…"
-msgstr ""
+msgstr "לוח פקודות…"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Compared with the current text"
@@ -1099,7 +1099,7 @@ msgstr "סימני חיתוך"
 
 #: src/lib/exportChecks.ts
 msgid "Crop marks make the page larger than the trim size plus bleed. KDP does not accept them; use them only if your printer asks."
-msgstr ""
+msgstr "סימני חיתוך מגדילים את העמוד מעבר לגודל החיתוך ועוד שולי חיתוך. KDP אינה מקבלת אותם; השתמש בהם רק אם בית הדפוס שלך מבקש."
 
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
@@ -1135,11 +1135,11 @@ msgstr "קול ברירת מחדל"
 
 #: src/editor/Toolbar.tsx
 msgid "Definition list"
-msgstr ""
+msgstr "רשימת הגדרות"
 
 #: src/app/shell/menuModel.ts
 msgid "Definition List"
-msgstr ""
+msgstr "רשימת הגדרות"
 
 #: src/app/settings/AudioSection.tsx
 msgid "Delete"
@@ -1160,7 +1160,7 @@ msgstr "מחיקת שורה"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Delete snapshot"
-msgstr ""
+msgstr "מחיקת תצלום מצב"
 
 #: src/app/shell/menuModel.ts
 msgid "Delete Table"
@@ -1168,7 +1168,7 @@ msgstr "מחיקת טבלה"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Delete this snapshot?"
-msgstr ""
+msgstr "למחוק את תצלום המצב הזה?"
 
 #: src/app/settings/AudioSection.tsx
 msgid "Delete voices"
@@ -1272,11 +1272,11 @@ msgstr "גרור כדי לסדר מחדש את {0}"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Drag, or press the up and down arrow keys"
-msgstr ""
+msgstr "גרור, או לחץ על מקשי החצים למעלה ולמטה"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
-msgstr ""
+msgstr "מצייר סימני חיתוך מחוץ לשולי החיתוך ומגדיל את העמוד מכל צד. Amazon KDP אינה מקבלת אותם."
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Drop files here to add them"
@@ -1314,7 +1314,7 @@ msgstr "נערך {when}"
 
 #: src/app/export/AudioExport.tsx
 msgid "Edition"
-msgstr ""
+msgstr "מהדורה"
 
 #. placeholder {0}: nativeName(active)
 #: src/app/shell/EditionSwitcher.tsx
@@ -1373,7 +1373,7 @@ msgstr "אומדן של {estimatedPages} עמודים: ספרי כריכה רכ�
 #. placeholder {0}: chosen?.name ?? ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Every chapter and the chapter list go back to “{0}”. The book as it is now is kept as an automatic snapshot first."
-msgstr ""
+msgstr "כל הפרקים ורשימת הפרקים יחזרו למצב של “{0}”. תחילה הספר במצבו הנוכחי יישמר כתצלום מצב אוטומטי."
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Every chapter starts blank."
@@ -1432,11 +1432,11 @@ msgstr "{dir}/manuscript.docx יוצא"
 
 #: src/state/project/exports.ts
 msgid "Exported {dir}/manuscript.rtf"
-msgstr ""
+msgstr "יוצא {dir}/manuscript.rtf"
 
 #: src/state/project/audio.ts
 msgid "Exported the audiobook to {dir}"
-msgstr ""
+msgstr "ספר השמע יוצא אל {dir}"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Exporting…"
@@ -1532,7 +1532,7 @@ msgstr "הערת שוליים"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "For example, Before the rewrite"
-msgstr ""
+msgstr "לדוגמה, לפני הכתיבה מחדש"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "For example: © 2026 A. Writer. All rights reserved."
@@ -1637,11 +1637,11 @@ msgstr "היסטוריה · {0}"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "History · Whole book"
-msgstr ""
+msgstr "היסטוריה · הספר כולו"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "History of"
-msgstr ""
+msgstr "היסטוריה של"
 
 #: src/app/settings/Settings.tsx
 msgid "How wide the page is in the editor."
@@ -1703,11 +1703,11 @@ msgstr "ייבוא כתב יד"
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Import into this book"
-msgstr ""
+msgstr "ייבוא לספר זה"
 
 #: src/app/shell/menuModel.ts
 msgid "Import into This Book…"
-msgstr ""
+msgstr "ייבוא לספר זה…"
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import report"
@@ -1741,7 +1741,7 @@ msgstr "בתיקייה ‎.cadabra/backups שבתוך תיקיית הספר של
 
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "In this chapter"
-msgstr ""
+msgstr "בפרק זה"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "In this version only"
@@ -1754,7 +1754,7 @@ msgstr "בשימוש"
 #. placeholder {0}: i + 1
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Include chapter {0}"
-msgstr ""
+msgstr "לכלול את פרק {0}"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Include the cover"
@@ -1910,7 +1910,7 @@ msgstr "יציאה ממצב מיקוד"
 
 #: src/app/export/AudioExport.tsx
 msgid "Leaves them out of this audiobook; the list above says which."
-msgstr ""
+msgstr "משאיר אותם מחוץ לספר השמע הזה; הרשימה למעלה מציינת אילו."
 
 #: src/app/export/EditionsChecklist.tsx
 msgid "Leaves them out of this export; the list above says which."
@@ -2000,7 +2000,7 @@ msgstr "ספר שמע M4B"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Makes each page larger by 0.125 in on the top, bottom and outside edges, as Amazon KDP asks for when artwork or images run to the edge. Margins stay measured from the trim."
-msgstr ""
+msgstr "מגדיל כל עמוד ב־0.125 אינץ׳ בקצה העליון, התחתון והחיצוני, כפי ש־Amazon KDP דורשת כשאיור או תמונות מגיעים עד הקצה. השוליים ממשיכים להימדד מגבול החיתוך."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
@@ -2054,7 +2054,7 @@ msgstr "בינוני"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Merge chapter {n} into the previous one"
-msgstr ""
+msgstr "מיזוג פרק {n} לפרק הקודם"
 
 #: src/app/shell/menuModel.ts
 msgid "Minimize"
@@ -2103,11 +2103,11 @@ msgstr "העברת {0} לאשפה"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Move chapter {n} down"
-msgstr ""
+msgstr "הזזת פרק {n} למטה"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Move chapter {n} up"
-msgstr ""
+msgstr "הזזת פרק {n} למעלה"
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
@@ -2187,7 +2187,7 @@ msgstr "העמוד הבא: {0}"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
-msgstr ""
+msgstr "אין עדיין תצלומי מצב של הספר. תצלום מצב שומר כל פרק, את רשימת הפרקים ואת רשימת התמונות, כך שתוכל לחזור לספר כפי שהוא עכשיו."
 
 #: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
@@ -2195,7 +2195,7 @@ msgstr "אין cadabra.json בתיקייה זו"
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "No command matches “{q}”."
-msgstr ""
+msgstr "אין פקודה שמתאימה ל־“{q}”."
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
@@ -2212,7 +2212,7 @@ msgstr "לא נבחרה תיקייה"
 
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "No heading or chapter matches “{q}”."
-msgstr ""
+msgstr "אין כותרת או פרק שמתאימים ל־“{q}”."
 
 #: src/editor/Editor.tsx
 msgid "No HTML found in the selection"
@@ -2254,7 +2254,7 @@ msgstr "אין עדיין טקסט"
 #. placeholder {0}: nativeName(edition.language)
 #: src/app/export/AudioExport.tsx
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
-msgstr ""
+msgstr "אין עדיין קול במחשב זה שמקריא {0}. הקולות ש־CadabraCraft יכולה להוריד מקריאים באנגלית בלבד."
 
 #: src/app/export/PrintPreview.tsx
 msgid "None"
@@ -2298,7 +2298,7 @@ msgstr "עדיין לא תורגם ב{0}: {1}"
 
 #: src/state/project/audio.ts
 msgid "Not translated yet in {language}: {names}. Translate them or skip them."
-msgstr ""
+msgstr "עדיין לא תורגמו ל{language}: {names}. תרגם אותם או דלג עליהם."
 
 #: src/app/dialogs/ImportReportDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
@@ -2412,11 +2412,11 @@ msgstr "הוצאת פריט ברשימה מהזחה"
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Outline"
-msgstr ""
+msgstr "מבנה"
 
 #: src/app/shell/menuModel.ts
 msgid "Outline…"
-msgstr ""
+msgstr "מבנה…"
 
 #: src/app/export/AudioExport.tsx
 msgid "Packing the audiobook…"
@@ -2763,7 +2763,7 @@ msgstr "שינוי שם של {0}"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Reorder chapter {n}"
-msgstr ""
+msgstr "סידור מחדש של פרק {n}"
 
 #: src/editor/FindBar.tsx
 msgid "Replace"
@@ -2810,11 +2810,11 @@ msgstr "שחזור {0}"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Restore the whole book?"
-msgstr ""
+msgstr "לשחזר את הספר כולו?"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Restore this page only"
-msgstr ""
+msgstr "שחזור העמוד הזה בלבד"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Restore this version"
@@ -2822,12 +2822,12 @@ msgstr "שחזור גרסה זו"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Restore whole book"
-msgstr ""
+msgstr "שחזור הספר כולו"
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/snapshots.ts
 msgid "Restored {0} from a book snapshot. The text it replaced is kept in History."
-msgstr ""
+msgstr "{0} שוחזר מתצלום מצב של הספר. הטקסט שהוחלף נשמר בהיסטוריה."
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/snapshots.ts
@@ -2836,7 +2836,7 @@ msgstr "שוחזרה גרסה קודמת של {0}. הטקסט שהוחלף נש�
 
 #: src/state/project/snapshots.ts
 msgid "Restored the whole book. It is kept as an automatic snapshot as it was before."
-msgstr ""
+msgstr "הספר כולו שוחזר. מצבו הקודם נשמר כתצלום מצב אוטומטי."
 
 #: src/app/references/RemovedReferencesDialog.tsx
 msgid "Restoring adds the file back as a new reference, titled from its file name. The note, tags and chapter links it had are not kept."
@@ -2848,7 +2848,7 @@ msgstr "שחזור שומר את הטקסט הנוכחי כתצלום מצב ח�
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Restoring the whole book first keeps the book as it is now as an automatic snapshot. Pages the snapshot does not have go to the trash, and images are never removed."
-msgstr ""
+msgstr "שחזור הספר כולו שומר תחילה את הספר במצבו הנוכחי כתצלום מצב אוטומטי. עמודים שאינם בתצלום המצב עוברים לאשפה, ותמונות אינן מוסרות לעולם."
 
 #: src/app/references/RemovedReferencesDialog.tsx
 msgid "Restoring…"
@@ -2860,11 +2860,11 @@ msgstr "תוצאות לפי עמוד"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Rich Text (.rtf)"
-msgstr ""
+msgstr "Rich Text (‎.rtf)"
 
 #: src/app/shell/menuModel.ts
 msgid "Rich Text (.rtf)…"
-msgstr ""
+msgstr "Rich Text (‎.rtf)…"
 
 #: src/app/export/Templates.tsx
 msgid "Right-hand page"
@@ -2922,7 +2922,7 @@ msgstr "שומר את {dir}/manuscript.docx…"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Saving {dir}/manuscript.rtf…"
-msgstr ""
+msgstr "שומר {dir}/manuscript.rtf…"
 
 #: src/app/export/Templates.tsx
 #: src/editor/Toolbar.tsx
@@ -2939,7 +2939,7 @@ msgstr "חיפוש לפי פעולה או מקש"
 
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Search headings and chapters"
-msgstr ""
+msgstr "חיפוש כותרות ופרקים"
 
 #: src/app/references/PdfSearch.tsx
 msgid "Search in PDF"
@@ -3066,11 +3066,11 @@ msgstr "טקסט קטן יותר"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
-msgstr ""
+msgstr "שם תצלום המצב"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Snapshots of the whole book. Take one before a big change; restore it to bring every chapter back."
-msgstr ""
+msgstr "תצלומי מצב של הספר כולו. צלם אחד לפני שינוי גדול; שחזר אותו כדי להחזיר כל פרק."
 
 #: src/app/settings/Settings.tsx
 msgid "Snapshots to keep per chapter"
@@ -3103,7 +3103,7 @@ msgstr "מהירות"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Split chapter {n} back into {merged} chapters"
-msgstr ""
+msgstr "פיצול פרק {n} חזרה ל־{merged} פרקים"
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Sponsor"
@@ -3205,15 +3205,15 @@ msgstr "תגיות"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Take snapshot"
-msgstr ""
+msgstr "צילום מצב"
 
 #: src/editor/Toolbar.tsx
 msgid "Task list"
-msgstr ""
+msgstr "רשימת משימות"
 
 #: src/app/shell/menuModel.ts
 msgid "Task List"
-msgstr ""
+msgstr "רשימת משימות"
 
 #: src/app/export/PdfPanel.tsx
 #: src/app/shell/Details.tsx
@@ -3361,7 +3361,7 @@ msgstr "גודל העמוד של ה־PDF להדפסה. שינויו מסדר מ�
 
 #: src/app/export/PrintPreview.tsx
 msgid "The PDF gets the same bleed and crop marks. Set them here or in the export dialog."
-msgstr ""
+msgstr "ה־PDF מקבל את אותם שולי חיתוך וסימני חיתוך. הגדר אותם כאן או בחלון הייצוא."
 
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
@@ -3533,7 +3533,7 @@ msgstr "כותרת א׳–ת׳"
 #. placeholder {0}: i + 1
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Title of chapter {0}"
-msgstr ""
+msgstr "כותרת פרק {0}"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -3577,7 +3577,7 @@ msgstr "ניסיון חוזר להורדת {0}"
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"
-msgstr ""
+msgstr "הקלד פקודה"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"
@@ -3765,7 +3765,7 @@ msgstr "היכן הם נשמרים"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Whole book"
-msgstr ""
+msgstr "הספר כולו"
 
 #: src/editor/FindBar.tsx
 msgid "Whole word"
@@ -3786,7 +3786,7 @@ msgstr "חלון"
 
 #: src/lib/exportChecks.ts
 msgid "With bleed, KDP needs top, bottom and outside margins of at least {KDP_MIN_OUTER_BLEED_IN} in."
-msgstr ""
+msgstr "עם שולי חיתוך, KDP דורשת שוליים עליונים, תחתונים וחיצוניים של {KDP_MIN_OUTER_BLEED_IN} אינץ׳ לפחות."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Word (.docx)"
@@ -3819,7 +3819,7 @@ msgstr "כתוב את הספר הראשון שלך"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
-msgstr ""
+msgstr "כותב את הספר כולו כקובץ Rich Text בפורמט כתב יד סטנדרטי, בתיקיית הייצואים, עבור מעבדי תמלילים ומערכות הגשה שמבקשים RTF: ריווח כפול, 12 נק׳, שוליים של אינץ׳ אחד, עמוד שער וכותרת עליונה עם שם המשפחה שלך. התמונות חייבות להיות PNG או JPEG. אין צורך בשום דבר אחר במחשב זה."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
@@ -3839,7 +3839,7 @@ msgstr "כותב Markdown…"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing the Rich Text file…"
-msgstr ""
+msgstr "כותב את קובץ ה־Rich Text…"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing the Word file…"

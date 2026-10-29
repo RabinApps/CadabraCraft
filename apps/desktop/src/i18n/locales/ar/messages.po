@@ -14,7 +14,7 @@ msgstr "ملفات ‎.ttf و‎.otf. تُحفظ نسخة في التطبيق، 
 #. placeholder {0}: chosen?.name ?? ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "“{0}” is removed from this computer. Your chapters are not changed."
-msgstr ""
+msgstr "أُزيلت “{0}” من هذا الحاسوب. لم تتغيّر فصولك."
 
 #: src/lib/epubErrors.ts
 msgid "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
@@ -37,12 +37,12 @@ msgstr "{0, plural, zero {لا فصول} one {فصل واحد} two {فصلان} 
 #. placeholder {0}: r.missing_assets.length
 #: src/state/project/snapshots.ts
 msgid "{0, plural, one {# image it used is no longer in the book folder.} other {# images it used are no longer in the book folder.}}"
-msgstr ""
+msgstr "{0, plural, zero {لا صور كان يستخدمها ناقصة من مجلد الكتاب.} one {صورة واحدة كان يستخدمها لم تعد في مجلد الكتاب.} two {صورتان كان يستخدمهما لم تعودا في مجلد الكتاب.} few {# صور كان يستخدمها لم تعد في مجلد الكتاب.} many {# صورة كان يستخدمها لم تعد في مجلد الكتاب.} other {# صورة كان يستخدمها لم تعد في مجلد الكتاب.}}"
 
 #. placeholder {0}: e.assets
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "{0, plural, one {# image} other {# images}}"
-msgstr ""
+msgstr "{0, plural, zero {لا صور} one {صورة واحدة} two {صورتان} few {# صور} many {# صورة} other {# صورة}}"
 
 #. placeholder {0}: stuck.length
 #: src/state/project/replace.ts
@@ -52,12 +52,12 @@ msgstr "{0, plural, one {تعذّر إرجاع صفحة واحدة وهي تحت
 #. placeholder {0}: r.trashed.length
 #: src/state/project/snapshots.ts
 msgid "{0, plural, one {# page that was not in the snapshot is in the trash.} other {# pages that were not in the snapshot are in the trash.}}"
-msgstr ""
+msgstr "{0, plural, zero {لا صفحات خارج اللقطة في سلة المهملات.} one {صفحة واحدة لم تكن في اللقطة في سلة المهملات.} two {صفحتان لم تكونا في اللقطة في سلة المهملات.} few {# صفحات لم تكن في اللقطة في سلة المهملات.} many {# صفحة لم تكن في اللقطة في سلة المهملات.} other {# صفحة لم تكن في اللقطة في سلة المهملات.}}"
 
 #. placeholder {0}: e.pages.length
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "{0, plural, one {# page} other {# pages}}"
-msgstr ""
+msgstr "{0, plural, zero {لا صفحات} one {صفحة واحدة} two {صفحتان} few {# صفحات} many {# صفحة} other {# صفحة}}"
 
 #. placeholder {0}: shown.length
 #: src/app/references/ReferencesPanel.tsx
@@ -67,7 +67,7 @@ msgstr "{0, plural, zero {لا مراجع} one {مرجع واحد} two {مرجع
 #. placeholder {0}: items.length
 #: src/app/quicknav/QuickPicker.tsx
 msgid "{0, plural, one {# result} other {# results}}"
-msgstr ""
+msgstr "{0, plural, zero {لا نتائج} one {نتيجة واحدة} two {نتيجتان} few {# نتائج} many {# نتيجة} other {# نتيجة}}"
 
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
@@ -123,7 +123,7 @@ msgstr "{0} غير موجود"
 #. placeholder {1}: job.dir
 #: src/app/export/AudioExport.tsx
 msgid "{0} files, {minutes} min. Saved in {1}."
-msgstr ""
+msgstr "{0} ملف، {minutes} دقيقة. حُفظت في {1}."
 
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
@@ -188,7 +188,7 @@ msgstr "يخرج {0} من مجلد المشروع عبر رابط رمزي"
 #. placeholder {1}: written.images
 #: src/lib/importBook.ts
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
-msgstr ""
+msgstr "خُزّن {0} من ملفات الفصول الجديدة و{1} من الصور في مجلد الكتاب، لكن قائمة الفصول لم تتغيّر."
 
 #. placeholder {0}: here.chapterNo
 #. placeholder {1}: here.chapters
@@ -230,7 +230,7 @@ msgstr "حُدِّث {0} من خارج التطبيق"
 #. placeholder {2}: e.total
 #: src/app/export/AudioExport.tsx
 msgid "{0}: {1} of {2} chapters"
-msgstr ""
+msgstr "{0}: {1} من {2} فصلًا"
 
 #: src/app/shell/StatusBar.tsx
 msgid "{bookWords} in the book"
@@ -335,7 +335,7 @@ msgstr "{words, plural, one {كلمة واحدة في هذه الصفحة} two {
 
 #: src/app/export/PrintPreview.tsx
 msgid "0.125 in"
-msgstr ""
+msgstr "0.125 بوصة"
 
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image."
@@ -396,7 +396,7 @@ msgstr "إضافة وسم"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Add bleed (0.125 in)"
-msgstr ""
+msgstr "إضافة حافة القص (0.125 بوصة)"
 
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
@@ -438,7 +438,7 @@ msgstr "إضافة صف أسفله"
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Add to book"
-msgstr ""
+msgstr "إضافة إلى الكتاب"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
@@ -451,7 +451,7 @@ msgstr "جارٍ إضافة {0}"
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Adding…"
-msgstr ""
+msgstr "جارٍ الإضافة…"
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Address"
@@ -459,7 +459,7 @@ msgstr "العنوان"
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file."
-msgstr ""
+msgstr "يضيف فصول ملف Word (‎.docx) أو Markdown أو HTML بعد آخر فصل في هذا الكتاب. لا تتغيّر الفصول الموجودة ولا الملف الأصلي."
 
 #: src/app/export/PdfPanel.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
@@ -547,7 +547,7 @@ msgstr "المؤلف"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Automatic"
-msgstr ""
+msgstr "تلقائية"
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/PrintPreview.tsx
@@ -644,7 +644,7 @@ msgstr "تقدّم الكتاب"
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 #: src/app/shell/Sidebar.tsx
 msgid "Book snapshots"
-msgstr ""
+msgstr "لقطات الكتاب"
 
 #: src/app/shell/menuModel.ts
 msgid "Bring All to Front"
@@ -932,11 +932,11 @@ msgstr "الأعمدة متساوية العرض. حتى {MAX_TABLE_COLUMNS} ع�
 #: src/app/quicknav/CommandPalette.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Command palette"
-msgstr ""
+msgstr "لوحة الأوامر"
 
 #: src/app/shell/menuModel.ts
 msgid "Command Palette…"
-msgstr ""
+msgstr "لوحة الأوامر…"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Compared with the current text"
@@ -1099,7 +1099,7 @@ msgstr "علامات القص"
 
 #: src/lib/exportChecks.ts
 msgid "Crop marks make the page larger than the trim size plus bleed. KDP does not accept them; use them only if your printer asks."
-msgstr ""
+msgstr "علامات القص تجعل الصفحة أكبر من حجم الصفحة بعد القص مع حافة القص. لا يقبلها KDP؛ استخدمها فقط إذا طلبتها المطبعة."
 
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
@@ -1135,11 +1135,11 @@ msgstr "الصوت الافتراضي"
 
 #: src/editor/Toolbar.tsx
 msgid "Definition list"
-msgstr ""
+msgstr "قائمة تعريفات"
 
 #: src/app/shell/menuModel.ts
 msgid "Definition List"
-msgstr ""
+msgstr "قائمة تعريفات"
 
 #: src/app/settings/AudioSection.tsx
 msgid "Delete"
@@ -1160,7 +1160,7 @@ msgstr "حذف الصف"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Delete snapshot"
-msgstr ""
+msgstr "حذف اللقطة"
 
 #: src/app/shell/menuModel.ts
 msgid "Delete Table"
@@ -1168,7 +1168,7 @@ msgstr "حذف الجدول"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Delete this snapshot?"
-msgstr ""
+msgstr "هل تحذف هذه اللقطة؟"
 
 #: src/app/settings/AudioSection.tsx
 msgid "Delete voices"
@@ -1272,11 +1272,11 @@ msgstr "اسحب لإعادة ترتيب {0}"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Drag, or press the up and down arrow keys"
-msgstr ""
+msgstr "اسحب، أو اضغط على مفتاحي السهم لأعلى ولأسفل"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
-msgstr ""
+msgstr "ترسم علامات القص خارج حافة القص وتجعل الصفحة أكبر من كل الجهات. لا يقبلها Amazon KDP."
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Drop files here to add them"
@@ -1314,7 +1314,7 @@ msgstr "حُرّر {when}"
 
 #: src/app/export/AudioExport.tsx
 msgid "Edition"
-msgstr ""
+msgstr "الطبعة"
 
 #. placeholder {0}: nativeName(active)
 #: src/app/shell/EditionSwitcher.tsx
@@ -1373,7 +1373,7 @@ msgstr "العدد المقدَّر {estimatedPages} صفحة: تتطلب كتب
 #. placeholder {0}: chosen?.name ?? ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Every chapter and the chapter list go back to “{0}”. The book as it is now is kept as an automatic snapshot first."
-msgstr ""
+msgstr "يعود كل فصل وقائمة الفصول إلى “{0}”. يُحفظ الكتاب كما هو الآن كلقطة تلقائية أولًا."
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Every chapter starts blank."
@@ -1432,11 +1432,11 @@ msgstr "صُدِّر {dir}/manuscript.docx"
 
 #: src/state/project/exports.ts
 msgid "Exported {dir}/manuscript.rtf"
-msgstr ""
+msgstr "صُدّر {dir}/manuscript.rtf"
 
 #: src/state/project/audio.ts
 msgid "Exported the audiobook to {dir}"
-msgstr ""
+msgstr "صُدّر الكتاب الصوتي إلى {dir}"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Exporting…"
@@ -1532,7 +1532,7 @@ msgstr "حاشية سفلية"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "For example, Before the rewrite"
-msgstr ""
+msgstr "مثلًا: قبل إعادة الكتابة"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "For example: © 2026 A. Writer. All rights reserved."
@@ -1637,11 +1637,11 @@ msgstr "السجل · {0}"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "History · Whole book"
-msgstr ""
+msgstr "السجل · الكتاب كاملًا"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "History of"
-msgstr ""
+msgstr "سجل"
 
 #: src/app/settings/Settings.tsx
 msgid "How wide the page is in the editor."
@@ -1703,11 +1703,11 @@ msgstr "استيراد مخطوطة"
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Import into this book"
-msgstr ""
+msgstr "استيراد إلى هذا الكتاب"
 
 #: src/app/shell/menuModel.ts
 msgid "Import into This Book…"
-msgstr ""
+msgstr "استيراد إلى هذا الكتاب…"
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import report"
@@ -1741,7 +1741,7 @@ msgstr "في المجلد ‎.cadabra/backups داخل مجلد كتابك."
 
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "In this chapter"
-msgstr ""
+msgstr "في هذا الفصل"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "In this version only"
@@ -1754,7 +1754,7 @@ msgstr "قيد الاستخدام"
 #. placeholder {0}: i + 1
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Include chapter {0}"
-msgstr ""
+msgstr "تضمين الفصل {0}"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Include the cover"
@@ -1910,7 +1910,7 @@ msgstr "الخروج من وضع التركيز"
 
 #: src/app/export/AudioExport.tsx
 msgid "Leaves them out of this audiobook; the list above says which."
-msgstr ""
+msgstr "يستبعدها من هذا الكتاب الصوتي؛ تذكرها القائمة أعلاه."
 
 #: src/app/export/EditionsChecklist.tsx
 msgid "Leaves them out of this export; the list above says which."
@@ -2000,7 +2000,7 @@ msgstr "كتاب صوتي M4B"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Makes each page larger by 0.125 in on the top, bottom and outside edges, as Amazon KDP asks for when artwork or images run to the edge. Margins stay measured from the trim."
-msgstr ""
+msgstr "يكبّر كل صفحة بمقدار 0.125 بوصة من الحافة العلوية والسفلية والخارجية، كما يطلب Amazon KDP عندما تمتد الرسوم أو الصور إلى الحافة. تبقى الهوامش مقيسة من حجم القص."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
@@ -2054,7 +2054,7 @@ msgstr "متوسط"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Merge chapter {n} into the previous one"
-msgstr ""
+msgstr "دمج الفصل {n} في الفصل السابق"
 
 #: src/app/shell/menuModel.ts
 msgid "Minimize"
@@ -2103,11 +2103,11 @@ msgstr "نقل {0} إلى سلة المهملات"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Move chapter {n} down"
-msgstr ""
+msgstr "نقل الفصل {n} لأسفل"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Move chapter {n} up"
-msgstr ""
+msgstr "نقل الفصل {n} لأعلى"
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
@@ -2187,7 +2187,7 @@ msgstr "الصفحة التالية: {0}"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
-msgstr ""
+msgstr "لا توجد لقطات للكتاب بعد. تحفظ اللقطة كل فصل وقائمة الفصول وقائمة الصور، فيمكنك العودة إلى الكتاب كما هو الآن."
 
 #: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
@@ -2195,7 +2195,7 @@ msgstr "لا يوجد cadabra.json في هذا المجلد"
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "No command matches “{q}”."
-msgstr ""
+msgstr "لا يطابق أي أمر “{q}”."
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
@@ -2212,7 +2212,7 @@ msgstr "لم يُختر مجلد"
 
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "No heading or chapter matches “{q}”."
-msgstr ""
+msgstr "لا يطابق أي عنوان أو فصل “{q}”."
 
 #: src/editor/Editor.tsx
 msgid "No HTML found in the selection"
@@ -2254,7 +2254,7 @@ msgstr "لا نص بعد"
 #. placeholder {0}: nativeName(edition.language)
 #: src/app/export/AudioExport.tsx
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
-msgstr ""
+msgstr "لا يوجد صوت على هذا الحاسوب يقرأ {0} حتى الآن. الأصوات التي يستطيع CadabraCraft تنزيلها تقرأ الإنجليزية فقط."
 
 #: src/app/export/PrintPreview.tsx
 msgid "None"
@@ -2298,7 +2298,7 @@ msgstr "لم يُترجم بعد في {0}: {1}"
 
 #: src/state/project/audio.ts
 msgid "Not translated yet in {language}: {names}. Translate them or skip them."
-msgstr ""
+msgstr "لم تُترجم بعد إلى {language}: {names}. ترجمها أو تخطَّها."
 
 #: src/app/dialogs/ImportReportDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
@@ -2412,11 +2412,11 @@ msgstr "تقليل إزاحة عنصر القائمة"
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Outline"
-msgstr ""
+msgstr "المخطط"
 
 #: src/app/shell/menuModel.ts
 msgid "Outline…"
-msgstr ""
+msgstr "المخطط…"
 
 #: src/app/export/AudioExport.tsx
 msgid "Packing the audiobook…"
@@ -2763,7 +2763,7 @@ msgstr "إعادة تسمية {0}"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Reorder chapter {n}"
-msgstr ""
+msgstr "إعادة ترتيب الفصل {n}"
 
 #: src/editor/FindBar.tsx
 msgid "Replace"
@@ -2810,11 +2810,11 @@ msgstr "استعادة {0}"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Restore the whole book?"
-msgstr ""
+msgstr "هل تستعيد الكتاب كاملًا؟"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Restore this page only"
-msgstr ""
+msgstr "استعادة هذه الصفحة فقط"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Restore this version"
@@ -2822,12 +2822,12 @@ msgstr "استعادة هذا الإصدار"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Restore whole book"
-msgstr ""
+msgstr "استعادة الكتاب كاملًا"
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/snapshots.ts
 msgid "Restored {0} from a book snapshot. The text it replaced is kept in History."
-msgstr ""
+msgstr "استُعيد {0} من لقطة الكتاب. النص الذي حلّ محله محفوظ في السجل."
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
 #: src/state/project/snapshots.ts
@@ -2836,7 +2836,7 @@ msgstr "استُعيد إصدار سابق من {0}. النص الذي حلّ م
 
 #: src/state/project/snapshots.ts
 msgid "Restored the whole book. It is kept as an automatic snapshot as it was before."
-msgstr ""
+msgstr "استُعيد الكتاب كاملًا. حُفظ كما كان قبل ذلك كلقطة تلقائية."
 
 #: src/app/references/RemovedReferencesDialog.tsx
 msgid "Restoring adds the file back as a new reference, titled from its file name. The note, tags and chapter links it had are not kept."
@@ -2848,7 +2848,7 @@ msgstr "تُبقي الاستعادة النص الحالي كلقطة جديد�
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Restoring the whole book first keeps the book as it is now as an automatic snapshot. Pages the snapshot does not have go to the trash, and images are never removed."
-msgstr ""
+msgstr "تحفظ استعادة الكتاب كاملًا أولًا الكتاب كما هو الآن كلقطة تلقائية. تذهب الصفحات غير الموجودة في اللقطة إلى سلة المهملات، ولا تُزال الصور أبدًا."
 
 #: src/app/references/RemovedReferencesDialog.tsx
 msgid "Restoring…"
@@ -2860,11 +2860,11 @@ msgstr "النتائج حسب الصفحة"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Rich Text (.rtf)"
-msgstr ""
+msgstr "نص منسّق (‎.rtf)"
 
 #: src/app/shell/menuModel.ts
 msgid "Rich Text (.rtf)…"
-msgstr ""
+msgstr "نص منسّق (‎.rtf)…"
 
 #: src/app/export/Templates.tsx
 msgid "Right-hand page"
@@ -2922,7 +2922,7 @@ msgstr "جارٍ حفظ {dir}/manuscript.docx…"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Saving {dir}/manuscript.rtf…"
-msgstr ""
+msgstr "جارٍ حفظ {dir}/manuscript.rtf…"
 
 #: src/app/export/Templates.tsx
 #: src/editor/Toolbar.tsx
@@ -2939,7 +2939,7 @@ msgstr "البحث حسب الإجراء أو المفتاح"
 
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Search headings and chapters"
-msgstr ""
+msgstr "ابحث في العناوين والفصول"
 
 #: src/app/references/PdfSearch.tsx
 msgid "Search in PDF"
@@ -3066,11 +3066,11 @@ msgstr "نص أصغر"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
-msgstr ""
+msgstr "اسم اللقطة"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Snapshots of the whole book. Take one before a big change; restore it to bring every chapter back."
-msgstr ""
+msgstr "لقطات للكتاب كاملًا. التقط واحدة قبل أي تغيير كبير؛ واستعدها لإرجاع كل فصل."
 
 #: src/app/settings/Settings.tsx
 msgid "Snapshots to keep per chapter"
@@ -3103,7 +3103,7 @@ msgstr "السرعة"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Split chapter {n} back into {merged} chapters"
-msgstr ""
+msgstr "إعادة تقسيم الفصل {n} إلى {merged} فصول"
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Sponsor"
@@ -3205,15 +3205,15 @@ msgstr "الوسوم"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Take snapshot"
-msgstr ""
+msgstr "التقاط لقطة"
 
 #: src/editor/Toolbar.tsx
 msgid "Task list"
-msgstr ""
+msgstr "قائمة مهام"
 
 #: src/app/shell/menuModel.ts
 msgid "Task List"
-msgstr ""
+msgstr "قائمة مهام"
 
 #: src/app/export/PdfPanel.tsx
 #: src/app/shell/Details.tsx
@@ -3361,7 +3361,7 @@ msgstr "حجم صفحة PDF للطباعة. تغييره يعيد تدفق ال�
 
 #: src/app/export/PrintPreview.tsx
 msgid "The PDF gets the same bleed and crop marks. Set them here or in the export dialog."
-msgstr ""
+msgstr "يحصل PDF على حافة القص وعلامات القص نفسيهما. اضبطهما هنا أو في نافذة التصدير."
 
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
@@ -3533,7 +3533,7 @@ msgstr "العنوان من أ إلى ي"
 #. placeholder {0}: i + 1
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Title of chapter {0}"
-msgstr ""
+msgstr "عنوان الفصل {0}"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -3577,7 +3577,7 @@ msgstr "إعادة محاولة تنزيل {0}"
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"
-msgstr ""
+msgstr "اكتب أمرًا"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"
@@ -3765,7 +3765,7 @@ msgstr "أين تُخزَّن"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Whole book"
-msgstr ""
+msgstr "الكتاب كاملًا"
 
 #: src/editor/FindBar.tsx
 msgid "Whole word"
@@ -3786,7 +3786,7 @@ msgstr "نافذة"
 
 #: src/lib/exportChecks.ts
 msgid "With bleed, KDP needs top, bottom and outside margins of at least {KDP_MIN_OUTER_BLEED_IN} in."
-msgstr ""
+msgstr "مع حافة القص، يحتاج KDP إلى هوامش علوية وسفلية وخارجية لا تقل عن {KDP_MIN_OUTER_BLEED_IN} بوصة."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Word (.docx)"
@@ -3819,7 +3819,7 @@ msgstr "اكتب كتابك الأول"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
-msgstr ""
+msgstr "يكتب الكتاب كاملًا كملف نص منسّق بتنسيق المخطوطة القياسي، في مجلد التصدير، لمعالجات النصوص وأنظمة التقديم التي تطلب RTF: تباعد مزدوج، حجم 12 نقطة، هوامش بوصة واحدة، صفحة عنوان ورأس متكرر باسم عائلتك. يجب أن تكون الصور بصيغة PNG أو JPEG. لا حاجة إلى شيء آخر على هذا الحاسوب."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
@@ -3839,7 +3839,7 @@ msgstr "جارٍ كتابة Markdown…"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing the Rich Text file…"
-msgstr ""
+msgstr "جارٍ كتابة ملف النص المنسّق…"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing the Word file…"
