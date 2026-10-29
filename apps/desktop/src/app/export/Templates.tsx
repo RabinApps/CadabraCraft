@@ -99,10 +99,14 @@ export function Templates({ onBack }: { onBack: () => void }) {
             aria-label={t`Templates`}
             className="flex flex-wrap gap-4"
             onKeyDown={(e) => {
+              // ArrowRight moves toward the visual right, which is backwards in a right-to-left layout.
+              const fwd =
+                getComputedStyle(e.currentTarget).direction === "rtl" ? "ArrowLeft" : "ArrowRight";
+              const back = fwd === "ArrowRight" ? "ArrowLeft" : "ArrowRight";
               const step =
-                e.key === "ArrowRight" || e.key === "ArrowDown"
+                e.key === fwd || e.key === "ArrowDown"
                   ? 1
-                  : e.key === "ArrowLeft" || e.key === "ArrowUp"
+                  : e.key === back || e.key === "ArrowUp"
                     ? -1
                     : 0;
               if (!step) return;

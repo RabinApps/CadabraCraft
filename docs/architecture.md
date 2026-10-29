@@ -217,6 +217,22 @@ Spike (passed): macros work in the Vite 8 build, in Vitest, and in `lingui extra
 
 Rust returns error codes with params, not English sentences; the UI translates them. There are no native menus today; if added, build them from JS with the same catalogs.
 
+### Right-to-left layout
+
+`document.documentElement.dir` follows the UI locale, so the UI uses **logical** directions only: `ms-/me-`, `ps-/pe-`, `start-/end-`, `text-start/end`, `border-s/e`, `rounded-s/e`, `gap` instead of `space-x`, flex `justify-start/end`. Directional icons mirror with `rtl:-scale-x-100`: `Button` and `IconButton` do it for the icons listed in `ui/directional.ts` (arrows, chevrons, panel toggles, undo and redo), so a new directional icon only needs adding there; icons rendered directly (the Publishing details disclosure) carry the class themselves. Media, logos and symbols never flip. Keyboard handlers that read ArrowLeft/ArrowRight (the toolbar, the template picker) check the computed `direction`.
+
+`src/__tests__/logicalDirections.test.ts` fails when a tsx or css file under `src` uses a physical utility, inline style or declaration (`ml-`, `left-`, `text-left`, `border-l`, `rounded-l`, `space-x-`, `translate-x-`, `marginLeft`, `left:` ...), except in the files below, each with a maximum count. Rejected: an ESLint `no-restricted-syntax` rule (class names live inside arbitrary strings and template literals, which a selector cannot reliably match) and a Tailwind plugin (new dependency).
+
+Physical on purpose (the allowlist in that test):
+
+- `index.css` (page view): the sheet, page card, chapter ornament and drop cap are drawn for a left-hand and a right-hand page, whose margins and binding side are physical; the drop cap floats left and text aligns left, which suits left-to-right books only (page view for Hebrew or Arabic books is not designed yet).
+- `editor/PageFrame.tsx`: page view margins measured from the physical left of a left or right page.
+- `app/export/PrintPreview.tsx`: the print preview spread (left page, right page) with inside and outside margins.
+- `ui/Dialog.tsx`, `app/references/ReferenceViewer.tsx`, `app/dialogs/ImportReportDialog.tsx`: centring with `left-1/2` and `-translate-x-1/2` is symmetric, so it is the same in both directions.
+- `ui/Switch.tsx`: the knob translation has its own `rtl:` variant.
+
+Manuscript direction is separate: the editor and Read mode set `dir` from the book language, not the UI language. The Read footer sets `dir` from the book language too, so previous sits at the start of the book's reading direction and its chevrons mirror with it (the old swap by language is gone, since `rtl:` follows the nearest `dir`). Read mode has no click zones or page-turn keys, so nothing there is tied to physical pages. Tested with the direction forced (`e2e/rtl.spec.ts`), as no Hebrew or Arabic catalog exists yet.
+
 ### Follow-ups / caveats
 
 Only English strings exist; he/ar/ja layout and fonts are unverified until catalogs land. Lingui and the Babel pipeline add a build step and about 100 dev dependencies (mostly Babel). Non-English catalogs need native-speaker review before a locale is enabled in the picker.
