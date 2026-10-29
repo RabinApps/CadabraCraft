@@ -11,9 +11,9 @@ export const metadata = pageMetadata(
 
 // Matches .github/workflows/release.yml. Replace the status with a link when a release is published.
 const platforms = [
-  { name: "macOS", detail: "Universal build for Apple silicon and Intel" },
-  { name: "Windows", detail: "Installer, WebView2 included" },
-  { name: "Linux", detail: "AppImage" },
+  { name: "macOS", detail: "Universal build for Apple silicon and Intel (.dmg)" },
+  { name: "Windows", detail: "Installer (.exe), WebView2 included" },
+  { name: "Linux", detail: "AppImage (x86-64)" },
 ] as const;
 
 const good = [
