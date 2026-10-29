@@ -19,6 +19,10 @@ export interface PdfExportOptions extends ExportScope {
   cover?: boolean;
   /** Print fonts for this export. Default: the book's own choice (`manifest.fonts`). */
   fonts?: { body?: string; heading?: string };
+  /** Bleed in inches (KDP: 0.125); the page grows past the trim on the top, bottom and outside edges. Default none. */
+  bleedIn?: number;
+  /** Crop marks outside the bleed; needs `bleedIn` > 0 and grows the page on every side. */
+  cropMarks?: boolean;
 }
 
 export interface AudioExportOptions {

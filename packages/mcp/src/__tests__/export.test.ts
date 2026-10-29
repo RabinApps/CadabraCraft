@@ -252,6 +252,34 @@ describe("export_pdf / inspect_pdf", () => {
   );
 });
 
+describe("export_pdf bleed", () => {
+  const can = hasTypst() && hasPoppler();
+  it("rejects crop marks without a bleed", async () => {
+    s = await connect();
+    const { path } = await seedBook(s);
+    const r = await s.call("cadabra_export_pdf", { path, cropMarks: true });
+    expect(r.isError).toBe(true);
+    expect(r.data.error.message).toMatch(/Crop marks need a bleed/);
+  });
+  it.skipIf(!can && !requireTypst)("grows the page by the bleed and reports it", async () => {
+    expect(can, "typst and poppler must be installed").toBe(true);
+    s = await connect();
+    const { path } = await seedBook(s);
+    const r = await s.ok("cadabra_export_pdf", { path, trimSize: "6x9", bleedIn: 0.125 });
+    expect(r.options).toMatchObject({ bleedIn: 0.125, cropMarks: false });
+    const info = await s.ok("cadabra_inspect_pdf", { path });
+    expect(info.pageSize).toMatch(/441(\.\d+)? x 666/);
+    const marks = await s.ok("cadabra_export_pdf", {
+      path,
+      trimSize: "6x9",
+      bleedIn: 0.125,
+      cropMarks: true,
+    });
+    expect(marks.options).toMatchObject({ bleedIn: 0.125, cropMarks: true });
+    expect((await s.ok("cadabra_inspect_pdf", { path })).pageSize).toMatch(/486(\.\d+)? x 702/);
+  });
+});
+
 describe("export_markdown", () => {
   it("writes exports/en-GB/book.md for the whole book; marks without syntax fail unless htmlMarks is set", async () => {
     s = await connect({ epubcheckJar: null });

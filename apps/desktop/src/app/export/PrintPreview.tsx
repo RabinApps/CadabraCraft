@@ -23,6 +23,7 @@ import { Switch } from "../../ui/Switch";
 import type { ExportFormat } from "./exportFormat";
 import { useProject, type BookPage } from "../../state/project/index";
 import { Notice } from "../../ui/Notice";
+import { bleedInches, setBleed, setCropMarks, usePrintSetup } from "../../state/printSetup";
 
 /** Width of one preview page in px. Height and everything inside are scaled from the trim size against it. */
 const PAGE_PX = 300;
@@ -175,9 +176,8 @@ export function PrintPreview({ onBack, onExport }: Props) {
     sourceEdition(manifest!.editions);
   const [pages, setPages] = useState<BookPage[] | null>(null);
   const [error, setError] = useState("");
-  const [bleed, setBleed] = useState<"none" | "3mm">("none");
+  const { bleed, cropMarks } = usePrintSetup();
   const [showMargins, setShowMargins] = useState(true);
-  const [cropMarks, setCropMarks] = useState(false);
   const template = getTemplate(
     manifest && hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID,
   );
@@ -215,7 +215,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
     showMargins,
     cropMarks,
     bodyFont,
-    bleedPx: bleed === "3mm" ? (3 / 25.4) * scale : 0,
+    bleedPx: bleedInches(bleed) * scale,
   };
 
   return (
@@ -286,12 +286,12 @@ export function PrintPreview({ onBack, onExport }: Props) {
           </Select>
           <Select
             label={t`Bleed`}
-            value={bleed}
-            onChange={(e) => setBleed(e.target.value as "none" | "3mm")}
-            hint={t`Shown in this preview only. The PDF does not include bleed or crop marks yet.`}
+            value={bleed ? "kdp" : "none"}
+            onChange={(e) => setBleed(e.target.value === "kdp")}
+            hint={t`The PDF gets the same bleed and crop marks. Set them here or in the export dialog.`}
           >
             <option value="none">{t`None`}</option>
-            <option value="3mm">{t`3 mm`}</option>
+            <option value="kdp">{t`0.125 in`}</option>
           </Select>
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold text-ink-muted">{t`Pages`}</span>

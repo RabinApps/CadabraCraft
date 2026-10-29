@@ -76,6 +76,28 @@ describe("pdfChecks", () => {
     expect(run(200, { ...ok, top: 0.25, bottom: 0.25, outside: 0.25 })).toEqual(fine);
     expect(run(0, { ...ok, top: 0.1 })[0]?.tone).toBe("warn");
   });
+  it("needs 0.375 in top, bottom and outside margins when the PDF has bleed", () => {
+    const bleed = (margins: typeof ok) =>
+      pdfChecks({ estimatedPages: 200, margins, hasCover: true, bleed: true });
+    expect(bleed({ ...ok, top: 0.375, bottom: 0.375, outside: 0.375 })).toEqual(fine);
+    for (const k of ["top", "bottom", "outside"] as const) {
+      const c = bleed({ ...ok, [k]: 0.3 });
+      expect(c).toHaveLength(1);
+      expect(c[0]).toMatchObject({ tone: "warn", text: expect.stringContaining("0.375") });
+    }
+    // The plain 0.25 in message is replaced, not repeated.
+    expect(bleed({ ...ok, top: 0.2 })).toHaveLength(1);
+  });
+  it("tells the author that KDP does not accept crop marks", () => {
+    const c = pdfChecks({
+      estimatedPages: 200,
+      margins: ok,
+      hasCover: true,
+      bleed: true,
+      cropMarks: true,
+    });
+    expect(c).toEqual([{ tone: "info", text: expect.stringContaining("KDP does not accept") }]);
+  });
   it("adds an info note when there is no cover, without hiding other checks", () => {
     expect(run(200, ok, false)).toEqual([
       { tone: "info", text: expect.stringContaining("no cover image") },

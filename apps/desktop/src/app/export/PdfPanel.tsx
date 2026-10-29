@@ -18,6 +18,7 @@ import { trimLabel } from "../../lib/trimLabels";
 import { Checkbox } from "../../ui/Checkbox";
 import { Select } from "../../ui/Select";
 import { useProject } from "../../state/project";
+import { setBleed, setCropMarks, usePrintSetup } from "../../state/printSetup";
 import { useFontList } from "../hooks/useFontList";
 import { CheckList } from "./CheckList";
 
@@ -26,6 +27,7 @@ export function usePdfOptions(manifest: Manifest | null) {
   const [pdfA, setPdfA] = useState(false);
   const [withCover, setWithCover] = useState(true);
   const [template, setTemplate] = useState<string | null>(null);
+  const { bleed, cropMarks } = usePrintSetup();
   /** The template in effect: the one picked here, else the book's, else the default. */
   const current =
     template ??
@@ -43,6 +45,8 @@ export function usePdfOptions(manifest: Manifest | null) {
     setWithCover,
     setTemplate,
     current,
+    bleed,
+    cropMarks,
   };
 }
 export type PdfOptions = ReturnType<typeof usePdfOptions>;
@@ -63,7 +67,17 @@ export function PdfPanel({
   const readPages = useProject((s) => s.actions.readPages);
   const setBookFonts = useProject((s) => s.actions.setBookFonts);
   const { families } = useFontList();
-  const { trimSize, pdfA, setPdfA, withCover, setWithCover, setTemplate, current } = options;
+  const {
+    trimSize,
+    pdfA,
+    setPdfA,
+    withCover,
+    setWithCover,
+    setTemplate,
+    current,
+    bleed,
+    cropMarks,
+  } = options;
   const templates = listTemplates();
   const [words, setWords] = useState<number[] | null>(null);
   useEffect(() => {
@@ -92,8 +106,10 @@ export function PdfPanel({
       estimatedPages: bookPageCount({ template: current, trimSize }, words).pages,
       margins,
       hasCover: edition?.cover != null,
+      bleed,
+      cropMarks,
     });
-  }, [manifest, words, current, trimSize, edition]);
+  }, [manifest, words, current, trimSize, edition, bleed, cropMarks]);
   const bodyFont = manifest?.fonts?.body ?? "";
   const headingFont = manifest?.fonts?.heading ?? "";
   // The book's own choice stays in the list when this computer lacks it, so the select shows it instead of the wrong font.
@@ -170,6 +186,20 @@ export function PdfPanel({
         checked={pdfA}
         disabled={running}
         onChange={(e) => setPdfA(e.target.checked)}
+      />
+      <Checkbox
+        label={t`Add bleed (0.125 in)`}
+        hint={t`Makes each page larger by 0.125 in on the top, bottom and outside edges, as Amazon KDP asks for when artwork or images run to the edge. Margins stay measured from the trim.`}
+        checked={bleed}
+        disabled={running}
+        onChange={(e) => setBleed(e.target.checked)}
+      />
+      <Checkbox
+        label={t`Crop marks`}
+        hint={t`Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them.`}
+        checked={cropMarks}
+        disabled={running}
+        onChange={(e) => setCropMarks(e.target.checked)}
       />
       {edition?.cover && (
         <Checkbox

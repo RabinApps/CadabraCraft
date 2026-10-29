@@ -14,13 +14,13 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 
-- M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
+- M2 follow-ups: EPUBCheck from the app. (Bleed and crop marks in the PDF are built, see "Bleed and crop marks in the print PDF" in architecture.md.)
 - M2+: command palette, outline navigator. Shortcut rebinding (Settings > Shortcuts is a read-only list).
 - Snapshots follow-ups: Backups settings for tablet and mobile in the pen, whole-book and named snapshots, a diff that shows formatting changes, run the History dialog and recovery on the native app and a real sync folder (`/drive-app`).
 - Page view follow-ups: exact breaks inside a chapter need the PDF's font and Typst's own line breaking (a Typst-rendered preview, see "Page view" in architecture.md, or loading the template's print font into the webview), footnotes at the foot of the page, images that scale to the space left, splitting tables between rows, and virtualising the cards of very long chapters.
 - Read mode follow-ups (it is continuous and paged since 2026-10-28, see "Read mode: continuous and paged" in architecture.md): find in Read mode (the find bar and its search plugin are Write only); remember the reading position per book across sessions; reconcile `cadabracraft.pen` and design.md with the built reader (the Reading frames still show one chapter with Previous and Next); a page-turn mode (one spread at a time) for tablets.
 - Measured page numbers: the status bar total and the open chapter's first page come from Typst while Page view is on (see "Measured page numbers from Typst" in architecture.md). Still estimated: breaks inside a chapter, the count when Page view is off or Typst is missing, and the total's cost on very large books (a faster path than a full layout, or measuring per chapter).
-- Print checks: the gutter bands, 24-828 page range and 0.25 in outer margin in `lib/exportChecks.ts` match KDP's "Set Trim Size, Bleed, and Margins" page (checked 2026-10-26). Not covered yet: the 0.375 in outer minimum when the interior has bleed (we do not export bleed), and per-trim-size page limits.
+- Print checks: the gutter bands, 24-828 page range and 0.25 in outer margin in `lib/exportChecks.ts` match KDP's "Set Trim Size, Bleed, and Margins" page (checked 2026-10-26). The 0.375 in outer minimum applies when bleed is on. Not covered yet: per-trim-size page limits.
 - Import wizard follow-ups: merge or reorder chapters in the preview, import into an open project.
 
 ### Reference files (brainstorming library)

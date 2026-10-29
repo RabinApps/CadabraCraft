@@ -16,6 +16,10 @@ export const KDP_MIN_PAGES = 24;
 export const KDP_MAX_PAGES = 828;
 /** KDP's minimum outside, top and bottom margin in inches (no bleed). */
 export const KDP_MIN_OUTER_IN = 0.25;
+/** KDP's minimum outside, top and bottom margin in inches when the PDF has bleed. */
+export const KDP_MIN_OUTER_BLEED_IN = 0.375;
+/** The bleed KDP asks for, in inches (the Export dialog's "Add bleed"). */
+export const KDP_BLEED_IN = 0.125;
 
 /** KDP's minimum inside (gutter) margin in inches for a page count; null outside KDP's 24-828 range. */
 export function kdpGutterMinIn(pages: number): number | null {
@@ -33,10 +37,20 @@ export interface PdfCheckInput {
   margins: Margins;
   /** True when the book has a cover image. */
   hasCover: boolean;
+  /** The PDF will have bleed (raises the outer margin minimum). */
+  bleed?: boolean;
+  /** The PDF will have crop marks (KDP does not accept them). */
+  cropMarks?: boolean;
 }
 
 /** KDP-style checks the Export dialog shows before a print PDF is built. Estimates only; KDP's own previewer decides. */
-export function pdfChecks({ estimatedPages, margins, hasCover }: PdfCheckInput): ExportCheck[] {
+export function pdfChecks({
+  estimatedPages,
+  margins,
+  hasCover,
+  bleed = false,
+  cropMarks = false,
+}: PdfCheckInput): ExportCheck[] {
   const checks: ExportCheck[] = [];
   if (estimatedPages > 0) {
     if (estimatedPages < KDP_MIN_PAGES) {
@@ -60,12 +74,23 @@ export function pdfChecks({ estimatedPages, margins, hasCover }: PdfCheckInput):
     }
   }
   const outer = Math.min(margins.top, margins.bottom, margins.outside);
-  if (outer < KDP_MIN_OUTER_IN) {
+  if (bleed) {
+    if (outer < KDP_MIN_OUTER_BLEED_IN)
+      checks.push({
+        tone: "warn",
+        text: t`With bleed, KDP needs top, bottom and outside margins of at least ${KDP_MIN_OUTER_BLEED_IN} in.`,
+      });
+  } else if (outer < KDP_MIN_OUTER_IN) {
     checks.push({
       tone: "warn",
       text: t`Top, bottom and outside margins must be at least ${KDP_MIN_OUTER_IN} in for KDP.`,
     });
   }
+  if (cropMarks)
+    checks.push({
+      tone: "info",
+      text: t`Crop marks make the page larger than the trim size plus bleed. KDP does not accept them; use them only if your printer asks.`,
+    });
   if (!hasCover)
     checks.push({
       tone: "info",

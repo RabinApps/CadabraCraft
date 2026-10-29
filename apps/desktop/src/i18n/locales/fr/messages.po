@@ -290,8 +290,8 @@ msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr "{words, plural, one {# mot sur cette page} other {# mots sur cette page}}"
 
 #: src/app/export/PrintPreview.tsx
-msgid "3 mm"
-msgstr "3 mm"
+msgid "0.125 in"
+msgstr ""
 
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image."
@@ -349,6 +349,10 @@ msgstr "Ajouter {title}"
 #: src/app/references/ReferenceDetails.tsx
 msgid "Add a tag"
 msgstr "Ajouter une étiquette"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Add bleed (0.125 in)"
+msgstr ""
 
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
@@ -1012,9 +1016,14 @@ msgstr "Crée un PDF prêt à imprimer dans le dossier des exports. Typst, le mo
 msgid "Creates an EPUB 3 e-book in the exports folder."
 msgstr "Crée un livre numérique EPUB 3 dans le dossier des exports."
 
+#: src/app/export/PdfPanel.tsx
 #: src/app/export/PrintPreview.tsx
 msgid "Crop marks"
 msgstr "Traits de coupe"
+
+#: src/lib/exportChecks.ts
+msgid "Crop marks make the page larger than the trim size plus bleed. KDP does not accept them; use them only if your printer asks."
+msgstr ""
 
 #: src/app/export/EditionsChecklist.tsx
 msgid "Current"
@@ -1167,6 +1176,10 @@ msgstr "Téléchargement… {0} Mo sur {1} Mo"
 #: src/app/references/ReferenceRow.tsx
 msgid "Drag to reorder {0}"
 msgstr "Faites glisser pour réorganiser {0}"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
+msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Drop files here to add them"
@@ -1845,6 +1858,10 @@ msgstr "Sans perte, environ 60 % de la taille du WAV."
 #: src/app/hooks/useAudioLabels.ts
 msgid "M4B audiobook"
 msgstr "Livre audio M4B"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Makes each page larger by 0.125 in on the top, bottom and outside edges, as Amazon KDP asks for when artwork or images run to the edge. Margins stay measured from the trim."
+msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
@@ -2793,10 +2810,6 @@ msgstr "Afficher les chapitres"
 msgid "Show margins"
 msgstr "Afficher les marges"
 
-#: src/app/export/PrintPreview.tsx
-msgid "Shown in this preview only. The PDF does not include bleed or crop marks yet."
-msgstr "Affiché dans cet aperçu seulement. Le PDF n’inclut pas encore de fond perdu ni de traits de coupe."
-
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr "Licence SIL Open Font 1.1"
@@ -3091,6 +3104,10 @@ msgstr "la page n’est plus dans la corbeille"
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
 msgstr "Le format de page du PDF d’impression. Le modifier remet le livre en page et change le nombre de pages ; votre texte n’est pas touché."
+
+#: src/app/export/PrintPreview.tsx
+msgid "The PDF gets the same bleed and crop marks. Set them here or in the export dialog."
+msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
@@ -3502,6 +3519,10 @@ msgstr "Page large"
 #: src/app/shell/menuModel.ts
 msgid "Window"
 msgstr "Fenêtre"
+
+#: src/lib/exportChecks.ts
+msgid "With bleed, KDP needs top, bottom and outside margins of at least {KDP_MIN_OUTER_BLEED_IN} in."
+msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Word (.docx)"
