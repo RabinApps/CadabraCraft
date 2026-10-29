@@ -8,7 +8,7 @@ import {
   looksLikeHtml,
   type ImportResult,
 } from "..";
-import { budget, expectValid } from "./helpers";
+import { budget, cpuClock, expectValid } from "./helpers";
 
 const blocks = (html: string) => htmlToBlocks(html).blocks;
 const text = (n: unknown) => JSON.stringify(n);
@@ -363,14 +363,14 @@ describe("hostile input", () => {
       "code",
     ]) {
       const html = `<${tag}>`.repeat(50_000) + "x";
-      const t0 = Date.now();
+      const elapsed = cpuClock();
       try {
         htmlToBlocks(html);
         importHtml(html);
       } catch (e) {
         expect(e, tag).toBeInstanceOf(ImportError);
       }
-      expect(Date.now() - t0, tag).toBeLessThan(budget(2000));
+      expect(elapsed(), tag).toBeLessThan(budget(2000));
     }
   }, 60_000);
 

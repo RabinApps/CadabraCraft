@@ -9,7 +9,7 @@ import {
   importMarkdown,
   looksLikeHtml,
 } from "..";
-import { budget, expectValid } from "./helpers";
+import { budget, cpuClock, expectValid } from "./helpers";
 
 /**
  * enwik8: the first 100,000,000 bytes of an English Wikipedia XML dump (Matt Mahoney's Large Text Compression
@@ -34,12 +34,12 @@ const code = (f: () => unknown): string | undefined => {
 describe("the 50,000,000 character limit (generated input, always runs)", () => {
   const over = "a".repeat(50_000_001);
   it("refuses one character over the limit before parsing, in every entry point, fast", () => {
-    const t = Date.now();
+    const elapsed = cpuClock();
     expect(code(() => importMarkdown(over))).toBe("input-too-large");
     expect(code(() => importHtml(over))).toBe("input-too-large");
     expect(code(() => htmlToBlocks(over))).toBe("input-too-large");
     expect(code(() => htmlToInline(over))).toBe("input-too-large");
-    expect(Date.now() - t).toBeLessThan(budget(2000));
+    expect(elapsed()).toBeLessThan(budget(2000));
   });
   it("looksLikeHtml answers false instead of throwing on over-limit text", () => {
     expect(() => looksLikeHtml(over)).not.toThrow();
@@ -67,10 +67,10 @@ describe("enwik8, 100 MB of real Wikipedia markup (needs tools/enwik8)", () => {
   });
 
   real("is refused whole as Markdown and as HTML with input-too-large, quickly", () => {
-    const t = Date.now();
+    const elapsed = cpuClock();
     expect(code(() => importMarkdown(text))).toBe("input-too-large");
     expect(code(() => importHtml(text))).toBe("input-too-large");
-    expect(Date.now() - t).toBeLessThan(budget(2000));
+    expect(elapsed()).toBeLessThan(budget(2000));
   });
 
   real(
@@ -101,10 +101,10 @@ describe("enwik8, 100 MB of real Wikipedia markup (needs tools/enwik8)", () => {
     "looksLikeHtml and the paste converter stay fast and never throw on a 1,000,000 character slice",
     () => {
       const slice = text.slice(0, 1_000_000);
-      const t = Date.now();
+      const elapsed = cpuClock();
       expect(() => looksLikeHtml(slice)).not.toThrow();
       expect(() => htmlToBlocks(slice)).not.toThrow();
-      expect(Date.now() - t).toBeLessThan(budget(30_000));
+      expect(elapsed()).toBeLessThan(budget(30_000));
     },
     60_000,
   );

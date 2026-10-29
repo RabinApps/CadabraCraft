@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { chapterDocProblem } from "@cadabracraft/editor-schema";
 import type { DocNode } from "@cadabracraft/shared";
 import { importMarkdown } from "..";
-import { budget } from "./helpers";
+import { budget, cpuClock } from "./helpers";
 
 const doc = (md: string) => {
   const r = importMarkdown(md);
@@ -119,11 +119,11 @@ describe("inline HTML marks in Markdown", () => {
   });
 
   it("thousands of tags in one paragraph stay fast and valid", () => {
-    const t0 = performance.now();
+    const elapsed = cpuClock();
     const md =
       "<u>a</u>".repeat(50_000) + " " + "<sup>".repeat(20_000) + "x" + "</sup>".repeat(20_000);
     const d = doc(md);
     expect(d.content.length).toBe(1);
-    expect(performance.now() - t0).toBeLessThan(budget(6000));
+    expect(elapsed()).toBeLessThan(budget(6000));
   });
 });

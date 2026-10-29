@@ -5,11 +5,10 @@
 // Usage: node scripts/automation/measure-references.ts [--launch] [--out <dir>] [--big-mb 495] [--keep]
 //   needs ffmpeg on PATH (or the repo's sidecar in apps/desktop/src-tauri/binaries); nothing is downloaded.
 // Prints a JSON report and deletes the generated files unless --keep is given.
-import { execFileSync, spawnSync } from "node:child_process";
-import { createHash, randomBytes } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import {
   appendFileSync,
-  createReadStream,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -17,168 +16,30 @@ import {
   rmSync,
   statSync,
   writeFileSync,
-  openSync,
-  writeSync,
-  closeSync,
 } from "node:fs";
 import { join } from "node:path";
 import { assert, createContext } from "./scenario/context.ts";
 import type { App } from "./client.ts";
+import { MB, makeVideo, padMp4 } from "./references-media.ts";
+import {
+  installFrameMonitor,
+  probe,
+  readFrames,
+  resetFrames,
+  sampler,
+  sha256,
+  sleep,
+} from "./references-probes.ts";
 
 const args = process.argv.slice(2);
 const flag = (name: string, dflt: string) =>
   args.includes(name) ? (args[args.indexOf(name) + 1] ?? dflt) : dflt;
-const MB = 1024 * 1024;
 const bigMb = Number(flag("--big-mb", "495")); // video cap is 500 MB; stay a little under it
 const ctx = await createContext(args);
 const { app, child, out, repo, book } = ctx;
 const work = join(out, "media");
 mkdirSync(work, { recursive: true });
 const report: Record<string, unknown> = { date: new Date().toISOString(), bigMb };
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const sha256 = (file: string) =>
-  new Promise<string>((resolve, reject) => {
-    const h = createHash("sha256");
-    createReadStream(file)
-      .on("data", (d) => h.update(d))
-      .on("end", () => resolve(h.digest("hex")))
-      .on("error", reject);
-  });
-
-// ---- memory: peak RSS of the app process and of the WebKit WebContent process that grows most ----
-type Proc = { pid: number; rssMb: number; comm: string };
-function procs(): Proc[] {
-  const txt = execFileSync("ps", ["-axo", "pid=,rss=,comm="], { encoding: "utf8" });
-  return txt
-    .split("\n")
-    .map((l) => /^\s*(\d+)\s+(\d+)\s+(.*)$/.exec(l))
-    .filter((m): m is RegExpExecArray => !!m)
-    .map((m) => ({ pid: Number(m[1]), rssMb: Number(m[2]) / 1024, comm: m[3] ?? "" }))
-    .filter((p) => /cadabracraft|WebKit\.WebContent|WebKit\.Networking/i.test(p.comm));
-}
-function sampler() {
-  const base = new Map(procs().map((p) => [p.pid, p.rssMb]));
-  const peak = new Map<number, Proc>();
-  const tick = () => {
-    for (const p of procs()) if (p.rssMb > (peak.get(p.pid)?.rssMb ?? 0)) peak.set(p.pid, p);
-  };
-  tick();
-  const timer = setInterval(tick, 150);
-  return () => {
-    clearInterval(timer);
-    tick();
-    const rows = [...peak.values()].map((p) => ({
-      pid: p.pid,
-      kind: p.comm.includes("cadabracraft")
-        ? "app"
-        : /Networking/.test(p.comm)
-          ? "networking"
-          : "webcontent",
-      baseMb: Math.round(base.get(p.pid) ?? 0),
-      peakMb: Math.round(p.rssMb),
-      growthMb: Math.round(p.rssMb - (base.get(p.pid) ?? 0)),
-    }));
-    // WebContent processes of other apps stay flat, so the one that grows is ours; the app process is the one named cadabracraft.
-    const grew = rows.filter((r) => r.kind !== "app").sort((a, b) => b.growthMb - a.growthMb)[0];
-    return { app: rows.find((r) => r.kind === "app"), webview: grew };
-  };
-}
-
-// ---- responsiveness: frame gaps inside the webview and the round trip of a trivial script ----
-async function installFrameMonitor() {
-  await app.js(`(() => { const m = window.__frames = { last: performance.now(), max: 0, n: 0 };
-    const f = (t) => { m.max = Math.max(m.max, t - m.last); m.last = t; m.n++; requestAnimationFrame(f); };
-    requestAnimationFrame(f); return "ok"; })()`);
-}
-const resetFrames = () =>
-  app.js(
-    `(() => { window.__frames.max = 0; window.__frames.n = 0; window.__frames.last = performance.now(); return 1; })()`,
-  );
-const readFrames = () =>
-  app.js<{ max: number; n: number }>(`({ max: window.__frames.max, n: window.__frames.n })`);
-function probe() {
-  const lat: number[] = [];
-  let go = true;
-  const loop = (async () => {
-    while (go) {
-      const t = performance.now();
-      try {
-        await app.js("1");
-        lat.push(performance.now() - t);
-      } catch {
-        lat.push(Infinity);
-      }
-      await sleep(200);
-    }
-  })();
-  return async () => {
-    go = false;
-    await loop;
-    const finite = lat.filter(Number.isFinite).sort((a, b) => a - b);
-    return {
-      probes: lat.length,
-      medianMs: Math.round(finite[Math.floor(finite.length / 2)] ?? 0),
-      maxMs: Math.round(finite[finite.length - 1] ?? 0),
-    };
-  };
-}
-
-// ---- test files ----
-function ffmpegPath() {
-  if (spawnSync("ffmpeg", ["-version"]).status === 0) return "ffmpeg";
-  const side = join(repo, "apps/desktop/src-tauri/binaries/ffmpeg-aarch64-apple-darwin");
-  if (existsSync(side)) return side;
-  throw new Error("ffmpeg is not installed and the sidecar is missing; nothing is downloaded");
-}
-function makeVideo(file: string, extra: string[]) {
-  execFileSync(
-    ffmpegPath(),
-    [
-      "-y",
-      "-v",
-      "error",
-      "-f",
-      "lavfi",
-      "-i",
-      "testsrc2=size=1280x720:rate=30:duration=30",
-      "-f",
-      "lavfi",
-      "-i",
-      "sine=frequency=440:duration=30",
-      ...extra,
-      "-c:a",
-      "aac",
-      "-g",
-      "30",
-      "-keyint_min",
-      "30",
-      "-sc_threshold",
-      "0",
-      "-pix_fmt",
-      "yuv420p",
-      "-movflags",
-      "+faststart",
-      "-shortest",
-      file,
-    ],
-    { stdio: "inherit" },
-  );
-}
-/** Appends a top-level `free` box (ignored by players) so the file is `mb` MB while staying a valid mp4. */
-function padMp4(file: string, mb: number) {
-  const need = mb * MB - statSync(file).size - 8;
-  assert(need > 0 && need < 2 ** 32, "cannot pad to that size");
-  const fd = openSync(file, "a");
-  const hdr = Buffer.alloc(8);
-  hdr.writeUInt32BE(need + 8, 0);
-  hdr.write("free", 4, "latin1");
-  writeSync(fd, hdr);
-  const block = randomBytes(MB);
-  for (let left = need; left > 0; left -= block.length)
-    writeSync(fd, block, 0, Math.min(left, block.length));
-  closeSync(fd);
-}
 
 const small = join(work, "clip-small.mp4");
 const real = join(work, "clip-real.mp4");
@@ -244,8 +105,8 @@ async function importMeasured(file: string, name: string) {
   const srcHash = sha256(file);
   const size = statSync(file).size;
   const stopMem = sampler();
-  await resetFrames();
-  const stopProbe = probe();
+  await resetFrames(app);
+  const stopProbe = probe(app);
   await app.queueDialogs([file]);
   const t0 = performance.now();
   await clickLabelled(app, "Add files");
@@ -307,7 +168,7 @@ async function importMeasured(file: string, name: string) {
     await sleep(100);
   }
   const responsiveness = await stopProbe();
-  const frames = await readFrames();
+  const frames = await readFrames(app);
   const mem = stopMem();
   const m = manifest();
   const ref = m.references[m.references.length - 1];
@@ -337,8 +198,8 @@ async function importMeasured(file: string, name: string) {
 /** Opens the viewer for a reference title and measures video load and seeks inside the webview. */
 async function seekMeasured(title: string) {
   const stopMem = sampler();
-  await resetFrames();
-  const stopProbe = probe();
+  await resetFrames(app);
+  const stopProbe = probe(app);
   const t0 = performance.now();
   await clickLabelled(app, title);
   let ready = false;
@@ -361,7 +222,7 @@ async function seekMeasured(title: string) {
   }
   assert(ready, `video never reported metadata within 30 s; last state: ${last}`);
   const responsivenessLoad = await stopProbe();
-  const framesLoad = await readFrames();
+  const framesLoad = await readFrames(app);
   const info =
     await app.js<string>(`(() => { const v = document.querySelector('[role=dialog] video');
     return JSON.stringify({ src: v.src.slice(0, 5), duration: v.duration, w: v.videoWidth, h: v.videoHeight, error: v.error && v.error.code }); })()`);
@@ -424,9 +285,9 @@ watchdog.unref();
 try {
   report.disk = execFileSync("df", ["-h", out], { encoding: "utf8" }).split("\n")[1];
   log(`generating test files in ${work}`);
-  makeVideo(small, ["-c:v", "libx264", "-preset", "veryfast", "-crf", "28"]);
+  makeVideo(repo, small, ["-c:v", "libx264", "-preset", "veryfast", "-crf", "28"]);
   // A heavy stream (noise defeats compression) so the seek test also covers a big real file, not only padding.
-  makeVideo(real, [
+  makeVideo(repo, real, [
     "-vf",
     "noise=alls=30:allf=t",
     "-c:v",
@@ -456,7 +317,7 @@ try {
   );
 
   await openBook();
-  await installFrameMonitor();
+  await installFrameMonitor(app);
 
   const imports: Record<string, unknown> = {};
   const seeks: Record<string, unknown> = {};
@@ -484,7 +345,7 @@ try {
     r.file.includes("clip-big"),
   )?.file;
   for (const c of chunkMb) {
-    await resetFrames();
+    await resetFrames(app);
     const r = await jsLong(`
       const root = ${JSON.stringify(book)}, path = ${JSON.stringify(bigRef)}, len = ${c} * 1024 * 1024;
       const { size } = await window.__TAURI__.core.invoke("stat_reference", { root, path });
@@ -497,7 +358,7 @@ try {
     raw[`${c}MB`] = {
       ...parsed,
       mbPerSecond: Number((statSync(join(book, bigRef)).size / MB / (parsed.ms / 1000)).toFixed(1)),
-      maxFrameGapMs: Math.round((await readFrames()).max),
+      maxFrameGapMs: Math.round((await readFrames(app)).max),
     };
   }
   report.rawReadChunkSizes = raw;

@@ -147,10 +147,13 @@ test("book menu commands act on the open book", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeHidden();
 
   await menu(page, "view.read");
-  await expect(editor(page)).toHaveAttribute("contenteditable", "false");
+  // Reading shows every section that is near the viewport as its own read-only editor, so how many there are depends on layout:
+  // assert on the editable ones, not on a single editor.
+  await expect(editor(page).first()).toBeVisible();
+  await expect(page.locator(".ProseMirror[contenteditable=true]")).toHaveCount(0);
   expect(await runs(page, "view.details")).toBe(false); // the panel belongs to writing
   await menu(page, "view.write");
-  await expect(editor(page)).toHaveAttribute("contenteditable", "true");
+  await expect(page.locator(".ProseMirror[contenteditable=true]")).toHaveCount(1);
 
   await menu(page, "file.bookDetails");
   await expect(page.getByRole("dialog", { name: "Book details" })).toBeVisible();

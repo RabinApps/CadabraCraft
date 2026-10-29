@@ -23,8 +23,14 @@ test("Export Markdown writes exports/en/book.md, and explains underline until th
   await newProject(page);
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
-  await page.keyboard.press("ControlOrMeta+u");
   await page.keyboard.type("Underlined");
+  // ProseMirror learns of a selection made by keys or the mouse from an asynchronous selectionchange, and a state update from
+  // that clears a stored mark: Ctrl+U right after typing or moving is lost under load. Retry until the mark is really on.
+  await expect(async () => {
+    await page.locator(".ProseMirror p").last().click({ clickCount: 3 });
+    await page.getByRole("button", { name: "Underline" }).click();
+    await expect(page.locator(".ProseMirror u")).toHaveText("Underlined", { timeout: 1000 });
+  }).toPass();
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
   await dialog.getByRole("radio", { name: "Markdown" }).click();

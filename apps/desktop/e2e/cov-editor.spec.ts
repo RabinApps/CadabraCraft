@@ -249,7 +249,8 @@ test.describe("Convert HTML in Selection", () => {
   test("says when the HTML cannot be converted or inserted", async ({ page }) => {
     await newProject(page);
     await toEnd(page);
-    await page.keyboard.type(`${"<div>".repeat(600)}x`);
+    // One input event: 3,000 typed keystrokes take longer than the test timeout when the machine is busy.
+    await page.keyboard.insertText(`${"<div>".repeat(600)}x`);
     await selectParagraph(page, "last");
     await run(page, "edit.convertHtml");
     await expect(notice(page, "Could not convert the HTML in the selection")).toBeVisible();
