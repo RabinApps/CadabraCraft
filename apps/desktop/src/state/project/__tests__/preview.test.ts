@@ -15,7 +15,7 @@ vi.mock("../../../lib/bridge", async () =>
       if (!b) throw new Error("missing");
       return b;
     },
-    typstListFonts: async () => ["Libertinus Serif", "New Computer Modern"],
+    typstListFonts: async () => ["Libertinus Serif", "New Computer Modern", "Lora"],
     typstQuery: async (source: string, _files: unknown, selector: string) => {
       typst.queries.push({ source, selector });
       if (typst.failWith) throw typst.failWith;
@@ -134,6 +134,12 @@ describe("renderPreview", () => {
     await a().renderPreview({ trimSize: "5x8", bleedIn: 0.125, cropMarks: true });
     expect(source()).toMatch(/#set page\(width: 5\.75in, height: 8\.75in/);
     expect(source()).toContain("foreground:");
+  });
+
+  it("typesets the preview with the fonts the book chose", async () => {
+    useProject.setState({ manifest: { ...s().manifest!, fonts: { body: "Lora" } } });
+    await a().renderPreview({ trimSize: "6x9" });
+    expect(source()).toContain("Lora");
   });
 
   it("reuses a result while the content and options are the same and typesets again after a change", async () => {

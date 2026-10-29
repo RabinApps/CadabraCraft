@@ -308,6 +308,28 @@ test.describe("toolbar", () => {
   const add = (page: Page) => page.getByRole("dialog", { name: "Add image" });
   const link = (page: Page) => page.getByRole("dialog", { name: "Add link" });
 
+  test("arrow keys, Home and End move between the buttons, and wrap", async ({ page }) => {
+    await newProject(page);
+    const bar = page.getByRole("toolbar", { name: "Formatting" });
+    const buttons = bar.locator("button:not(:disabled)");
+    const last = (await buttons.count()) - 1;
+    await buttons.nth(1).focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(buttons.nth(2)).toBeFocused();
+    await page.keyboard.press("ArrowLeft");
+    await expect(buttons.nth(1)).toBeFocused();
+    await page.keyboard.press("End");
+    await expect(buttons.nth(last)).toBeFocused();
+    await page.keyboard.press("ArrowRight"); // wraps to the first
+    await expect(buttons.nth(0)).toBeFocused();
+    await page.keyboard.press("ArrowLeft"); // and back to the last
+    await expect(buttons.nth(last)).toBeFocused();
+    await page.keyboard.press("Home");
+    await expect(buttons.nth(0)).toBeFocused();
+    await page.keyboard.press("x"); // not a navigation key: focus stays
+    await expect(buttons.nth(0)).toBeFocused();
+  });
+
   test("every button and menu command runs", async ({ page }) => {
     await newProject(page);
     await toEnd(page);

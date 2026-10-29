@@ -292,6 +292,39 @@ describe("hyphen at a split inside a word", () => {
     expect(found.map((d) => d.from)).toEqual([50]);
   });
 
+  it("draws the hyphen as a zero-width, non-editable span", () => {
+    vi.stubGlobal("document", {
+      createElement: (tag: string) => ({
+        tag,
+        className: "",
+        contentEditable: "",
+        textContent: "",
+        attrs: {} as Record<string, string>,
+        style: {} as Record<string, string>,
+        setAttribute(k: string, v: string) {
+          this.attrs[k] = v;
+        },
+      }),
+    });
+    const found = hyphensOf(doc, buildDecorations(doc, layoutOf([30], 1), 1, at50, true));
+    const el = (found[0] as unknown as { type: { toDOM: () => unknown } }).type.toDOM() as {
+      tag: string;
+      className: string;
+      contentEditable: string;
+      textContent: string;
+      attrs: Record<string, string>;
+      style: { cssText: string };
+    };
+    expect(el).toMatchObject({
+      tag: "span",
+      className: "pv-hyphen",
+      contentEditable: "false",
+      textContent: "-",
+      attrs: { "aria-hidden": "true" },
+    });
+    expect(el.style.cssText).toContain("width:0");
+  });
+
   it("adds none when hyphenation is off", () => {
     expect(hyphensOf(doc, buildDecorations(doc, layoutOf([30], 1), 1, at50, false))).toHaveLength(
       0,

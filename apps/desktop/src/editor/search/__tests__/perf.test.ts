@@ -4,13 +4,14 @@ import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { bigBook, bigChapter } from "../../../test/bigBook";
 import { replaceInDoc, searchBook } from "../../../lib/search/bookSearch";
 import { diffChapters, paragraphsOf } from "../../../lib/wordDiff";
+import { budget, cpuClock } from "../../../test/perf";
 
 // Budgets are at least 10x what the dev laptop measures (see docs/architecture.md, "Performance budgets"), so slow CI machines pass
 // while an accidental quadratic step (seconds) or a per-keystroke full-book pass still fails.
 const time = <T>(label: string, fn: () => T): { value: T; ms: number } => {
-  const t0 = performance.now();
+  const elapsed = cpuClock();
   const value = fn();
-  const ms = performance.now() - t0;
+  const ms = elapsed();
   console.info(`[perf] ${label}: ${ms.toFixed(1)} ms`);
   return { value, ms };
 };
@@ -37,14 +38,14 @@ describe("large manuscript budgets", () => {
     const { ms } = time("countWords 100k words, 40 chapters", () =>
       book.reduce((n, d) => n + countWords(d), 0),
     );
-    expect(ms).toBeLessThan(250);
+    expect(ms).toBeLessThan(budget(250));
   });
 
   it("validates a 20k-word chapter (isChapterDoc) in under 500 ms, and the whole book in under 2 s", () => {
     expect(time("isChapterDoc 20k-word chapter", () => isChapterDoc(chapter20k)).value).toBe(true);
     const all = time("isChapterDoc 100k-word book", () => book.every((d) => isChapterDoc(d)));
     expect(all.value).toBe(true);
-    expect(all.ms).toBeLessThan(2000);
+    expect(all.ms).toBeLessThan(budget(2000));
   });
 
   it("parses a 20k-word chapter file in under 100 ms", () => {
@@ -53,7 +54,7 @@ describe("large manuscript budgets", () => {
       () => JSON.parse(chapter20kJson),
     );
     expect(value.type).toBe("doc");
-    expect(ms).toBeLessThan(100);
+    expect(ms).toBeLessThan(budget(100));
   });
 
   it("searches the whole book in under 500 ms and replaces in a 20k-word chapter in under 500 ms", () => {
@@ -61,12 +62,12 @@ describe("large manuscript budgets", () => {
     const opts = { query: "silence", matchCase: false, wholeWord: true };
     const found = time("searchBook 100k words", () => searchBook(pages, opts));
     expect(found.value.total).toBeGreaterThan(0);
-    expect(found.ms).toBeLessThan(500);
+    expect(found.ms).toBeLessThan(budget(500));
     const rep = time("replaceInDoc 20k-word chapter", () =>
       replaceInDoc(chapter20k, opts, "quiet"),
     );
     expect(rep.value.count).toBeGreaterThan(0);
-    expect(rep.ms).toBeLessThan(500);
+    expect(rep.ms).toBeLessThan(budget(500));
     expect(findAfter(rep.value.doc)).toBe(0);
   });
 
@@ -80,7 +81,7 @@ describe("large manuscript budgets", () => {
     const b = paragraphsOf(edited as never);
     const { value, ms } = time(`diffChapters ${a.length} paragraphs`, () => diffChapters(a, b));
     expect(value.length).toBeGreaterThan(0);
-    expect(ms).toBeLessThan(1500);
+    expect(ms).toBeLessThan(budget(1500));
   });
 
   it("diffs a fully rewritten 20k-word chapter without exceeding its cell cap, in under 1.5 s", () => {
@@ -90,7 +91,7 @@ describe("large manuscript budgets", () => {
     const { ms } = time(`diffChapters rewrite ${a.length}x${b.length} paragraphs`, () =>
       diffChapters(a, b),
     );
-    expect(ms).toBeLessThan(1500);
+    expect(ms).toBeLessThan(budget(1500));
   });
 });
 

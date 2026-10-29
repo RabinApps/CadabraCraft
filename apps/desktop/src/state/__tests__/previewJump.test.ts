@@ -17,6 +17,13 @@ describe("preview jump", () => {
     expect(takePreviewJump("a")).toBeNull();
   });
 
+  it("keeps the click of a word with the target", () => {
+    const click = { tokens: ["a", "b", "c"], index: 2 };
+    const target = { id: "a", block: 1, leaf: 0, word: 3 };
+    requestPreviewJump(target, click);
+    expect(takePreviewJump("a")).toEqual({ ...target, click });
+  });
+
   it("is nothing when there is nothing to take, or no chapter is open", () => {
     expect(takePreviewJump("a")).toBeNull();
     requestPreviewJump({ id: "a", block: 0, leaf: 0, word: null });

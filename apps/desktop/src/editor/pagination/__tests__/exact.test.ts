@@ -13,6 +13,7 @@ import {
   plainItems,
   rowAround,
   wordOffset,
+  wordsFrom,
 } from "../exact";
 
 // Headless: the real schema, no view.
@@ -265,5 +266,35 @@ describe("pageStartAt", () => {
     const d = doc({ type: "blockquote", content: [p(t("one")), p(t("two"))] });
     expect(at(d, 0, 0)).toEqual({ pos: 0, top: true });
     expect(at(d, 0, 1)).toEqual({ pos: 1 + d.child(0).child(0).nodeSize, top: false });
+  });
+});
+
+describe("wordsFrom", () => {
+  const d = doc(
+    p(t("one two")),
+    { type: "codeBlock", content: [t("let  x = 1")] },
+    table(row("tableHeader", "head"), row("tableCell", "cell words")),
+    { type: "sceneBreak" },
+    p(t("last")),
+  );
+  const texts = (from: number, limit: number) => wordsFrom(d, from, limit).map((w) => w.text);
+
+  it("lists the words of the chapter in order, those of code by spaces and none of a header row", () => {
+    expect(texts(0, 100)).toEqual(["one", "two", "let", "x", "=", "1", "cell", "words", "last"]);
+  });
+
+  it("gives the positions the words start at and skips what is before `from`", () => {
+    const all = wordsFrom(d, 0, 100);
+    expect(all[0]!.pos).toBe(1);
+    expect(all[1]!.pos).toBe(5);
+    // from inside the first word: the next one is the first
+    expect(texts(3, 2)).toEqual(["two", "let"]);
+    // after the first paragraph entirely
+    expect(texts(d.child(0).nodeSize, 1)).toEqual(["let"]);
+  });
+
+  it("stops at the limit", () => {
+    expect(texts(0, 3)).toEqual(["one", "two", "let"]);
+    expect(texts(d.content.size, 5)).toEqual([]);
   });
 });

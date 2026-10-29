@@ -60,6 +60,22 @@ test("the preview moves chapters with the Move buttons, and the import follows t
   );
 });
 
+test("Enter in a chapter title imports, and Enter with no chapter kept does not", async ({
+  page,
+}) => {
+  await fakeImportTauri(page, "md3");
+  const dialog = await startImport(page);
+  const checks = dialog.getByRole("list", { name: "Chapters" }).getByRole("checkbox");
+  const n = await checks.count();
+  for (let i = 0; i < n; i++) await checks.nth(i).uncheck();
+  await dialog.getByLabel("Title of chapter 1").press("Enter");
+  await expect(dialog).toBeVisible(); // nothing kept: nothing happens
+  expect(await page.evaluate(() => Object.keys(window.__disk).length)).toBe(0);
+  await checks.nth(0).check();
+  await dialog.getByLabel("Title of chapter 1").press("Enter");
+  await expect(page.getByRole("dialog", { name: "Import report" })).toBeVisible();
+});
+
 test("the grip moves a chapter with the arrow keys and keeps focus on it", async ({ page }) => {
   await fakeImportTauri(page, "md3");
   const dialog = await startImport(page);
