@@ -1,8 +1,7 @@
-import { MissingAssetError, PdfExportError, TypstCompileError } from "./errors";
+import { PdfExportError, TypstCompileError } from "./errors";
+import { prepareDocument } from "./prepare";
 import type { TypstRunner } from "./runner";
 import type { PdfBook, PdfChapter, PdfOptions, RenderResult } from "./types";
-import { buildTypstDocument, resolveFonts } from "./typst";
-import { DROPLET_FILES } from "./vendor/droplet";
 import { errMsg } from "@cadabracraft/shared";
 
 export type RenderPdfOptions = PdfOptions;
@@ -17,23 +16,10 @@ export async function renderPdf(
   options: RenderPdfOptions,
   runner: TypstRunner,
 ): Promise<RenderResult> {
-  const available = await runner.listFonts();
-  const fonts = resolveFonts(options, available);
-  const doc = buildTypstDocument(book, chapters, options, fonts);
-
-  const missing = [...doc.images.keys()].filter(
-    (src) => !options.assets || !(src in options.assets),
-  );
-  if (missing.length) throw new MissingAssetError(missing);
-
-  const files = new Map<string, Uint8Array>();
-  for (const [src, rel] of doc.images) files.set(rel, options.assets![src]!);
-  if (doc.usesDropCap)
-    for (const [rel, text] of Object.entries(DROPLET_FILES))
-      files.set(rel, new TextEncoder().encode(text));
+  const { source, files, fonts } = await prepareDocument(book, chapters, options, runner);
   let pdf: Uint8Array;
   try {
-    pdf = await runner.compile(doc.source, files, { pdfA: options.pdfA === true });
+    pdf = await runner.compile(source, files, { pdfA: options.pdfA === true });
   } catch (e) {
     throw e instanceof PdfExportError ? e : new TypstCompileError(errMsg(e));
   }
