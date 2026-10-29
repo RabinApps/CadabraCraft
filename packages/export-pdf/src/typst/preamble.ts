@@ -8,6 +8,7 @@ import {
   type PdfMargins,
   type PdfOptions,
 } from "../types";
+import { pageGeometry } from "./bleed";
 import { em, inch, num } from "./units";
 
 function headingRule(level: 1 | 2 | 3, s: PrintHeadingStyle, headingFont: string): string {
@@ -40,9 +41,7 @@ export function preamble(
   if (trim.w - margins.inside - margins.outside < 2 || trim.h - margins.top - margins.bottom < 3) {
     throw new PdfExportError("Margins leave too little room for text on this trim size");
   }
-  const marginArg = mirrored
-    ? `(top: ${inch(margins.top)}, bottom: ${inch(margins.bottom)}, inside: ${inch(margins.inside)}, outside: ${inch(margins.outside)})`
-    : `(top: ${inch(margins.top)}, bottom: ${inch(margins.bottom)}, left: ${inch(margins.inside)}, right: ${inch(margins.outside)})`;
+  const geo = pageGeometry(trim, margins, mirrored, options);
 
   const langMatch = /^([A-Za-z]{2,3})(?:[-_]([A-Za-z]{2})(?![A-Za-z]))?/.exec(book.language ?? "");
   const lang = langMatch
@@ -86,7 +85,7 @@ export function preamble(
 #let marked-pages(a, b) = query(label(a)).map(m => m.location().page()).zip(query(label(b)).map(m => m.location().page())).map(((x, y)) => range(x, y + 1)).flatten()
 #let no-folio-pages() = marked-pages("folio-off-start", "folio-off-end")
 #let no-header-pages() = no-folio-pages() + marked-pages("header-off-start", "header-off-end")
-#set page(width: ${inch(trim.w)}, height: ${inch(trim.h)}, margin: ${marginArg},${hasFront ? ' numbering: "i",' : ""}
+#set page(width: ${inch(geo.width)}, height: ${inch(geo.height)}, margin: ${geo.margin},${hasFront ? ' numbering: "i",' : ""}${geo.foreground ? `\n  foreground: ${geo.foreground},` : ""}
   ${header},
   ${footer})
 #set text(font: ${typstString(fonts.body)}, size: ${num(size)}pt, hyphenate: ${p.hyphenate}${lang})

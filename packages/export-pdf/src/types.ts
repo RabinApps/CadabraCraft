@@ -58,6 +58,16 @@ export interface PdfOptions {
   cover?: string;
   /** Emit PDF/A-2b (archival). */
   pdfA?: boolean;
+  /**
+   * Bleed in inches (0 to 0.5, default none): the page grows by this much past the trim on the top, bottom and outside edges
+   * (KDP: 0.125 in). Margins stay measured from the trim, so the text does not move. A cover image fills the bleed.
+   */
+  bleedIn?: number;
+  /**
+   * Crop marks in the slug outside the bleed (needs `bleedIn` > 0). The page then grows by the bleed plus a 0.25 in slug on all
+   * four sides, so it is no longer a KDP-style bleed file.
+   */
+  cropMarks?: boolean;
 }
 
 export interface FontChoice {

@@ -9,6 +9,7 @@ import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
 import { Segmented } from "../../ui/Segmented";
 import { useSponsor } from "../../state/sponsor";
+import { bleedInches } from "../../state/printSetup";
 import { useProject } from "../../state/project";
 import { AudioFooter } from "./AudioFooter";
 import { AudioPanel } from "./AudioPanel";
@@ -141,6 +142,8 @@ export function ExportDialog({
             pdfA: pdf.pdfA,
             cover: pdf.withCover,
             template: pdf.current,
+            bleedIn: bleedInches(pdf.bleed),
+            cropMarks: pdf.cropMarks,
             ...s,
           });
       }

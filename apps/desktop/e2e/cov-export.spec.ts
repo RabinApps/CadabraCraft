@@ -382,7 +382,7 @@ test("print preview: margins, crop marks, bleed, trim size and the way into the 
   await page.getByRole("switch", { name: "Show margins" }).click();
   await page.getByRole("switch", { name: "Show margins" }).click();
   await page.getByRole("switch", { name: "Crop marks" }).click();
-  await page.getByLabel("Bleed").selectOption("3mm");
+  await page.getByLabel("Bleed").selectOption("kdp");
   await page.getByLabel("Trim size").selectOption("5x8");
   await page.getByRole("switch", { name: "Crop marks" }).click();
   await page.getByLabel("Bleed").selectOption("none");
