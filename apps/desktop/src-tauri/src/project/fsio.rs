@@ -426,8 +426,10 @@ mod tests {
         let probe = fs::File::create(exports.join("probe"));
         let result = write_bytes(d.path(), "exports/book.epub", b"x");
         fs::set_permissions(&exports, fs::Permissions::from_mode(0o755)).unwrap();
-        // (as root permissions do not apply, so there is nothing to check)
-        assert!(probe.is_ok() || result.unwrap_err() == ProjectError::PermissionDenied { path: "book.epub".into() });
+        if probe.is_ok() {
+            return; // running as root: permissions do not apply, so there is nothing to check
+        }
+        assert_eq!(result.unwrap_err(), ProjectError::PermissionDenied { path: "book.epub".into() });
         assert!(!exports.join("book.epub").exists());
         no_temp_files(&exports);
     }

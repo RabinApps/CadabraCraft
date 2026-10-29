@@ -214,8 +214,10 @@ mod tests {
         fs::set_permissions(&page, fs::Permissions::from_mode(0o000)).unwrap();
         let write = write_file(d.path(), "manuscript/001-a.json", "new", Some("stale"));
         fs::set_permissions(&page, fs::Permissions::from_mode(0o644)).unwrap();
-        assert!(!denied || write.is_err());
-        assert_eq!(fs::read_to_string(&page).unwrap(), "{}");
+        if denied {
+            assert!(write.is_err());
+            assert_eq!(fs::read_to_string(&page).unwrap(), "{}");
+        }
         // Opening a fifo for reading waits for a writer, and none ever comes; the page must be refused without opening it.
         let fifo = d.path().join("manuscript/002-b.json");
         assert!(std::process::Command::new("mkfifo").arg(&fifo).status().unwrap().success());

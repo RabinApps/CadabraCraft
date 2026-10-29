@@ -19,6 +19,12 @@ Some tests drive a real external tool and skip when it is missing, unless a `REQ
 - EPUBCheck (`packages/export-epub`): needs `tools/epubcheck-5.4.0` from `scripts/fetch-epubcheck.sh`; `REQUIRE_EPUBCHECK=1` fails instead of skipping.
 - LibreOffice (`packages/export-docx/src/__tests__/libreoffice.test.ts`): builds `.docx` files (headings, footnotes, a table, an image, scene breaks, a title with special characters) and converts them with `soffice --headless --norestore --convert-to pdf` (and `txt:Text`) using a throw-away `-env:UserInstallation` profile and a hard timeout. It asserts exit code 0, a PDF starting with `%PDF` with more than one page, and known words in the text output. It skips when neither `soffice` nor `libreoffice` is on the PATH; `REQUIRE_SOFFICE=1` fails instead. CI installs `libreoffice-writer` on the Linux runner only and sets the variable there; macOS and Windows skip. Right-to-left books are refused by the exporter, so they are not covered. This is a smoke test: it does not replace opening the file in Word, Pages and Google Docs by hand.
 
+## Rust tests on Windows
+
+All Rust unit tests live in the lib, so CI runs `scripts/cargo-test.sh` (`cargo test --lib`). On Windows (MSVC) it adds `--target <host triple>` and RUSTFLAGS that embed `src-tauri/windows-test.manifest` (Common Controls 6, which the dialog plugin needs to start the test executable). The explicit `--target` keeps RUSTFLAGS off build scripts, and `--lib` off the app binary, which tauri-build already gives a manifest. `build.rs` cannot do this: `cargo:rustc-link-arg-tests` is rejected for a package without an integration-test target. This has not been run on Windows; the first CI run is the check.
+
+Tests that need a non-root user (read-only folders, mode 000 files) skip their later assertions when the process can still write, so they pass in a root container. Tests that fake an external program with a `#!/bin/sh` script skip on Windows.
+
 ## Coverage
 
 ```bash

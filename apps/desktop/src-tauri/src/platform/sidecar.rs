@@ -278,9 +278,10 @@ mod tests {
         // Without a lib folder the environment is left alone.
         let bare = tempfile::tempdir().unwrap();
         let bin = script(bare.path(), "t", "echo \"[$DYLD_LIBRARY_PATH$LD_LIBRARY_PATH]\"");
+        // The CI container presets LD_LIBRARY_PATH, so compare with what the script sees without the feature.
+        let before = run(&run_of(&bin, &[])).unwrap();
         let got = run(&Run { shared_libs: true, ..run_of(&bin, &[]) }).unwrap();
         assert!(got.success);
-        #[cfg(target_os = "linux")]
-        assert!(!String::from_utf8(got.stdout).unwrap().contains("/lib"));
+        assert_eq!(got.stdout, before.stdout);
     }
 }

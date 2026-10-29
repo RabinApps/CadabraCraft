@@ -170,38 +170,42 @@ describe("export_pdf / inspect_pdf", () => {
   const pdfSource = (root: string, path: string): string =>
     readFileSync(join(root, path, "exports/en-GB/book.pdf"), "utf8");
 
-  it("uses the manifest fonts for the PDF, per-key tool arguments win, and a missing font is refused, not substituted", async () => {
-    s = await connect({ typstBin: fakeTypst() });
-    const { path } = await seedBook(s);
-    const file = join(s.root, path, "cadabra.json");
-    const manifest = JSON.parse(readFileSync(file, "utf8"));
-    manifest.fonts = { body: "EB Garamond", heading: "Inter" };
-    writeFileSync(file, JSON.stringify(manifest));
-    const r = await s.ok("cadabra_export_pdf", { path });
-    expect(r.fonts).toEqual({ body: "EB Garamond", heading: "Inter" });
-    expect(pdfSource(s.root, path)).toContain("EB Garamond");
-    const o = await s.ok("cadabra_export_pdf", { path, bodyFont: "Lora" });
-    expect(o.fonts).toEqual({ body: "Lora", heading: "Inter" });
+  // The fake typst is a #!/bin/sh script, which Windows cannot spawn (a .cmd shim would not test the same program).
+  it.skipIf(process.platform === "win32")(
+    "uses the manifest fonts for the PDF, per-key tool arguments win, and a missing font is refused, not substituted",
+    async () => {
+      s = await connect({ typstBin: fakeTypst() });
+      const { path } = await seedBook(s);
+      const file = join(s.root, path, "cadabra.json");
+      const manifest = JSON.parse(readFileSync(file, "utf8"));
+      manifest.fonts = { body: "EB Garamond", heading: "Inter" };
+      writeFileSync(file, JSON.stringify(manifest));
+      const r = await s.ok("cadabra_export_pdf", { path });
+      expect(r.fonts).toEqual({ body: "EB Garamond", heading: "Inter" });
+      expect(pdfSource(s.root, path)).toContain("EB Garamond");
+      const o = await s.ok("cadabra_export_pdf", { path, bodyFont: "Lora" });
+      expect(o.fonts).toEqual({ body: "Lora", heading: "Inter" });
 
-    manifest.trimSize = "5x8";
-    writeFileSync(file, JSON.stringify(manifest));
-    const sized = await s.ok("cadabra_export_pdf", { path });
-    expect(sized.options.trimSize).toBe("5x8");
+      manifest.trimSize = "5x8";
+      writeFileSync(file, JSON.stringify(manifest));
+      const sized = await s.ok("cadabra_export_pdf", { path });
+      expect(sized.options.trimSize).toBe("5x8");
 
-    manifest.fonts = { body: "Not Installed Serif" };
-    writeFileSync(file, JSON.stringify(manifest));
-    const missing = await s.call("cadabra_export_pdf", { path });
-    expect(missing.isError).toBe(true);
-    expect(missing.data.error.code).toBe("font_missing");
-    expect(missing.data.error.details.families).toEqual(["Not Installed Serif"]);
-    const argMissing = await s.call("cadabra_export_pdf", {
-      path,
-      bodyFont: "Lora",
-      headingFont: "Nope",
-    });
-    expect(argMissing.data.error.code).toBe("font_missing");
-    expect(argMissing.data.error.details.role).toBe("heading");
-  });
+      manifest.fonts = { body: "Not Installed Serif" };
+      writeFileSync(file, JSON.stringify(manifest));
+      const missing = await s.call("cadabra_export_pdf", { path });
+      expect(missing.isError).toBe(true);
+      expect(missing.data.error.code).toBe("font_missing");
+      expect(missing.data.error.details.families).toEqual(["Not Installed Serif"]);
+      const argMissing = await s.call("cadabra_export_pdf", {
+        path,
+        bodyFont: "Lora",
+        headingFont: "Nope",
+      });
+      expect(argMissing.data.error.code).toBe("font_missing");
+      expect(argMissing.data.error.details.role).toBe("heading");
+    },
+  );
 
   const can = hasTypst() && hasPoppler();
   it.skipIf(!can && !requireTypst)(
