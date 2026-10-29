@@ -10,6 +10,7 @@ import { createContext } from "./scenario/context.ts";
 import { editingSteps } from "./scenario/editing.ts";
 import { exportSteps } from "./scenario/export.ts";
 import { pdfAndDetailsSteps } from "./scenario/pdf-and-details.ts";
+import { publishingDetailsSteps } from "./scenario/publishing-details.ts";
 import { findAndHistorySteps } from "./scenario/find-and-history.ts";
 import { editionsSteps } from "./scenario/editions.ts";
 import { importAndCloseSteps } from "./scenario/import-and-close.ts";
@@ -23,6 +24,7 @@ try {
   await referencesSteps(ctx);
   await exportSteps(ctx);
   await pdfAndDetailsSteps(ctx);
+  await publishingDetailsSteps(ctx);
   await findAndHistorySteps(ctx);
   await editionsSteps(ctx);
   await importAndCloseSteps(ctx);

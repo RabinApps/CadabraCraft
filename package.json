@@ -14,6 +14,7 @@
     "tauri": "pnpm --filter @cadabracraft/desktop tauri",
     "automation:scenario": "node scripts/automation/scenario.ts --launch",
     "automation:measure-references": "node scripts/automation/measure-references.ts --launch",
+    "automation:measure-large-chapter": "node scripts/automation/measure-large-chapter.ts --launch",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
