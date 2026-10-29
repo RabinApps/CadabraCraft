@@ -121,7 +121,7 @@ function render(packages) {
       ...missing.map((m) => `  ${m}`),
     );
   }
-  return `${lines.join("\n")}\n`;
+  return `${lines.join("\n")}\n`.replace(/\r\n/g, "\n");
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

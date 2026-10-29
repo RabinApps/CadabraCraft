@@ -1,5 +1,5 @@
 # cargo-about config: third-party notices for the Rust crates that ship in the app.
-# Regenerate: pnpm licenses:rust  (writes licenses/THIRD_PARTY_NOTICES-rust.txt)
+# Regenerate: pnpm licenses:update  (writes licenses/THIRD_PARTY_NOTICES-rust.txt)
 accepted = [
   "Apache-2.0",
   "Apache-2.0 WITH LLVM-exception",
