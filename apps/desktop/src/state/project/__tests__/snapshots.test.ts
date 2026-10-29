@@ -1,4 +1,4 @@
-import { sourceFile } from "@cadabracraft/format";
+import { sourceFile, type EditionEntry } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, hashOf as h } from "../../../test/fakeBridge";
 
@@ -6,6 +6,14 @@ import { disk, hashOf as h } from "../../../test/fakeBridge";
 const snaps = new Map<string, { path: string; at: string }[]>();
 const calls: string[] = [];
 let stale: { path: string; snapshot: string }[] = [];
+// What the book snapshot holds per page, and what restoring the whole book reports.
+const bookPages = new Map<string, string>();
+let restored = {
+  safety: "",
+  written: [] as string[],
+  trashed: [] as string[],
+  missing_assets: [] as string[],
+};
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
     writeFile: async (_r: string, p: string, c: string) => {
@@ -31,6 +39,15 @@ vi.mock("../../../lib/bridge", async () =>
       return { hash: h(text), conflict_copy: null };
     },
     findStalePages: async () => stale,
+    restorePageFromBookSnapshot: async (_r: string, _s: string, p: string) => {
+      calls.push(`page-from-book ${p}`);
+      disk.set(p, bookPages.get(p)!);
+      return { hash: h(bookPages.get(p)!), conflict_copy: null };
+    },
+    restoreBookSnapshot: async (_r: string, s: string) => {
+      calls.push(`restore-book ${s}`);
+      return restored;
+    },
     pruneSnapshots: async (_r: string, paths: string[], keep: number) => {
       calls.push(`prune ${paths.join(",")} ${keep}`);
       return 0;
@@ -51,6 +68,7 @@ const text = (t: string) => ({
 beforeEach(async () => {
   disk.clear();
   snaps.clear();
+  bookPages.clear();
   calls.length = 0;
   stale = [];
   useSettings.getState().set({ snapshotKeep: 50 });
@@ -143,5 +161,60 @@ describe("restoring a snapshot", () => {
   it("does nothing for a page that is not in the book", async () => {
     await a().restoreSnapshot("missing", ".cadabra/backups/x");
     expect(calls.filter((c) => c.startsWith("restore"))).toEqual([]);
+  });
+});
+
+describe("restoring from a whole-book snapshot", () => {
+  const SNAP = ".cadabra/snapshots/20261028-1000.json";
+
+  it("puts one page back from the snapshot, reloads it and reports it", async () => {
+    const entry = s().manifest!.chapters[0]!;
+    const file = sourceFile(entry, s().manifest!.editions);
+    await a().saveCurrent(text("current words"));
+    bookPages.set(file, JSON.stringify(text("snapshot words")));
+    await a().restorePageFromBook(entry.id, SNAP);
+    expect(calls).toContain(`page-from-book ${file}`);
+    expect(JSON.stringify(s().currentDoc)).toContain("snapshot words");
+    expect(s().notice).toMatch(/Restored Chapter One from a book snapshot/);
+  });
+
+  it("opens another page that is restored, and ignores a page that is not in the book", async () => {
+    await a().add("Second");
+    const [first, second] = s().manifest!.chapters as [EditionEntry, EditionEntry];
+    await a().selectChapter(first.id);
+    bookPages.set(sourceFile(second, s().manifest!.editions), JSON.stringify(text("two")));
+    await a().restorePageFromBook(second.id, SNAP);
+    expect(s().currentId).toBe(second.id);
+    calls.length = 0;
+    await a().restorePageFromBook("missing", SNAP);
+    expect(calls).toEqual([]);
+  });
+
+  it("restores the whole book, reopens it on the same page and says what moved", async () => {
+    const first = s().manifest!.chapters[0]!;
+    restored = { safety: "x", written: [], trashed: ["a", "b"], missing_assets: ["assets/p.png"] };
+    await a().restoreBook(SNAP);
+    expect(calls).toContain(`restore-book ${SNAP}`);
+    expect(s().currentId).toBe(first.id);
+    expect(s().notice).toBe(
+      "Restored the whole book. It is kept as an automatic snapshot as it was before. 2 pages that were not in the snapshot are in the trash. 1 image it used is no longer in the book folder.",
+    );
+  });
+
+  it("says only that the book was restored when nothing moved, and shows the first page when the open one is gone", async () => {
+    restored = { safety: "x", written: [], trashed: [], missing_assets: [] };
+    await a().restoreBook(SNAP);
+    expect(s().notice).toBe(
+      "Restored the whole book. It is kept as an automatic snapshot as it was before.",
+    );
+    // The restored manifest no longer has the open chapter.
+    await a().add("Second");
+    const second = s().manifest!.chapters[1]!;
+    await a().selectChapter(second.id);
+    const manifest = JSON.parse(disk.get("cadabra.json")!) as { chapters: { id: string }[] };
+    manifest.chapters = manifest.chapters.filter((c) => c.id !== second.id);
+    disk.set("cadabra.json", JSON.stringify(manifest));
+    await a().restoreBook(SNAP);
+    expect(s().currentId).toBe(s().manifest!.chapters[0]!.id);
   });
 });

@@ -1,5 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { FileRead, SnapshotEntry, StalePage, TrashEntry, WriteResult } from "./types";
+import type {
+  BookRestore,
+  BookSnapshotEntry,
+  FileRead,
+  SnapshotEntry,
+  StalePage,
+  TrashEntry,
+  WriteResult,
+} from "./types";
 
 /** The project folder: files, trash and page snapshots. All paths are relative to the project root. */
 export const projectBridge = {
@@ -34,4 +42,20 @@ export const projectBridge = {
     invoke<number>("prune_page_snapshots", { root, paths, keep }),
   findStalePages: (root: string, paths: string[]) =>
     invoke<StalePage[]>("find_stale_pages", { root, paths }),
+  /** Snapshots of the whole book (manifest, every page, the image list), newest first. */
+  listBookSnapshots: (root: string) => invoke<BookSnapshotEntry[]>("list_book_snapshots", { root }),
+  /** Takes a named snapshot of the book as it is on disk. */
+  createBookSnapshot: (root: string, name: string) =>
+    invoke<BookSnapshotEntry>("create_book_snapshot", { root, name }),
+  /** One page's text as a book snapshot holds it. */
+  readBookSnapshotPage: (root: string, snapshot: string, path: string) =>
+    invoke<FileRead>("read_book_snapshot_page", { root, snapshot, path }),
+  /** Puts the whole book back; an automatic snapshot of the book as it is comes first. */
+  restoreBookSnapshot: (root: string, snapshot: string) =>
+    invoke<BookRestore>("restore_book_snapshot", { root, snapshot }),
+  /** Puts one page back from a book snapshot; the text it replaces is kept as a page snapshot first. */
+  restorePageFromBookSnapshot: (root: string, snapshot: string, path: string) =>
+    invoke<WriteResult>("restore_page_from_book_snapshot", { root, snapshot, path }),
+  deleteBookSnapshot: (root: string, snapshot: string) =>
+    invoke<void>("delete_book_snapshot", { root, snapshot }),
 };

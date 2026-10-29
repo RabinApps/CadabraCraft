@@ -131,6 +131,13 @@ Research files the author keeps next to the book to look at while writing: image
 
 - Before a chapter save replaces different text, the old text is copied to `.cadabra/backups/<YYYYMMDD-HHMM>-<path with / as __>.json` (`~2`, `~3`... when taken; versions before 2026-10-28 counted with `-2`, `-3` and are still read). Local state, excluded from sync, safe to delete; the app keeps the newest 50 per page by default and never removes one under 30 days old. Nothing in `cadabra.json` or the chapter files refers to them, so the format version does not change.
 
+### Whole-book snapshots
+
+- A snapshot of the whole book is one file, `.cadabra/snapshots/<YYYYMMDD-HHMM>.json` (`~2`, `~3`... for a second one in the same minute; never replaces another). Local state like the page snapshots, excluded from sync, safe to delete, and nothing in the project refers to it, so the format version does not change.
+- Content (JSON, compact): `version` (1; other versions are skipped by the app), `name` (the author's name for it, 1 to 100 characters), `automatic` (true when the app took it before a restore), `manifest` (the text of `cadabra.json`), `pages` (project-relative path to the file's text, for every `.json` in `manuscript/`, `front-matter/`, `back-matter/` and one language folder deeper, not `.conflict-` copies) and `assets` (the project-relative paths of the files in `assets/`; the images themselves are not copied). Paths are relative, never absolute.
+- Written as temp file and rename. The app deletes one only when the author asks, and never prunes them.
+- Restoring writes the pages, then the manifest, then moves pages the snapshot does not hold to `.cadabra/trash/`; images are never touched. Before any of that an automatic snapshot ("Before restoring ...") of the book as it is now is written, so a restore can be undone.
+
 ## Editions (formatVersion 4)
 
 Active: the app and the MCP server read and write version 4. The design is in [architecture.md](architecture.md), "Editions".

@@ -123,6 +123,33 @@ fn snapshot_commands_work_through_the_ipc() {
 }
 
 #[test]
+fn book_snapshot_commands_work_through_the_ipc() {
+    let (_app, w) = mock_app();
+    let book = project();
+    let r = root(&book);
+    json_of(call(&w, "write_project_file", json!({ "root": r, "path": PAGE, "contents": "one", "baseHash": null })));
+    assert_eq!(json_of(call(&w, "list_book_snapshots", json!({ "root": r }))), json!([]));
+    let made = json_of(call(&w, "create_book_snapshot", json!({ "root": r, "name": "Before the rewrite" })));
+    assert_eq!((made["name"].as_str(), made["automatic"].as_bool(), made["pages"].clone()), (Some("Before the rewrite"), Some(false), json!([PAGE])));
+    let snap = made["path"].clone();
+    assert_eq!(json_of(call(&w, "list_book_snapshots", json!({ "root": r })))[0]["path"], snap);
+    assert_eq!(kind_of(call(&w, "create_book_snapshot", json!({ "root": r, "name": "  " }))), "invalid_file_name");
+    json_of(call(&w, "write_project_file", json!({ "root": r, "path": PAGE, "contents": "two", "baseHash": null })));
+    assert_eq!(json_of(call(&w, "read_book_snapshot_page", json!({ "root": r, "snapshot": snap, "path": PAGE })))["contents"], "one");
+    assert!(json_of(call(&w, "restore_page_from_book_snapshot", json!({ "root": r, "snapshot": snap, "path": PAGE })))["hash"].is_string());
+    assert_eq!(std::fs::read_to_string(book.path().join(PAGE)).unwrap(), "one");
+    json_of(call(&w, "write_project_file", json!({ "root": r, "path": PAGE, "contents": "three", "baseHash": null })));
+    let restored = json_of(call(&w, "restore_book_snapshot", json!({ "root": r, "snapshot": snap })));
+    assert_eq!((restored["written"].clone(), restored["trashed"].clone(), restored["missing_assets"].clone()), (json!([PAGE]), json!([]), json!([])));
+    assert!(restored["safety"].as_str().unwrap().starts_with(".cadabra/snapshots/"));
+    assert_eq!(std::fs::read_to_string(book.path().join(PAGE)).unwrap(), "one");
+    assert_eq!(kind_of(call(&w, "restore_book_snapshot", json!({ "root": r, "snapshot": "cadabra.json" }))), "cannot_restore");
+    assert_eq!(json_of(call(&w, "delete_book_snapshot", json!({ "root": r, "snapshot": snap }))), Value::Null);
+    assert_eq!(json_of(call(&w, "list_book_snapshots", json!({ "root": r }))).as_array().unwrap().len(), 1, "the automatic one is left");
+    assert!(call(&w, "create_book_snapshot", json!({ "root": r })).is_err(), "a missing argument is refused");
+}
+
+#[test]
 fn asset_and_import_commands_work_through_the_ipc() {
     let (app, w) = mock_app();
     let (book, src) = (project(), tempfile::tempdir().unwrap());
@@ -300,6 +327,12 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("restore_page_snapshot", json!({ "root": "/r", "path": "p", "snapshot": "s" })),
         ("prune_page_snapshots", json!({ "root": "/r", "paths": [], "keep": 1 })),
         ("find_stale_pages", json!({ "root": "/r", "paths": [] })),
+        ("list_book_snapshots", json!({ "root": "/r" })),
+        ("create_book_snapshot", json!({ "root": "/r", "name": "n" })),
+        ("read_book_snapshot_page", json!({ "root": "/r", "snapshot": "s", "path": "p" })),
+        ("restore_book_snapshot", json!({ "root": "/r", "snapshot": "s" })),
+        ("restore_page_from_book_snapshot", json!({ "root": "/r", "snapshot": "s", "path": "p" })),
+        ("delete_book_snapshot", json!({ "root": "/r", "snapshot": "s" })),
         ("import_asset", json!({ "root": "/r", "source": "/s" })),
         ("import_asset_bytes", json!({ "root": "/r", "name": "n", "bytes": [] })),
         ("read_asset", json!({ "root": "/r", "path": "p" })),

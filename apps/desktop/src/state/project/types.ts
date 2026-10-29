@@ -305,6 +305,13 @@ export interface TrashActions {
 export interface SnapshotActions {
   /** Puts an earlier version of a page back and opens the page. The text it replaces is kept as a snapshot first, so this can be undone from History. */
   restoreSnapshot: (id: string, snapshot: string) => Promise<void>;
+  /** Puts one page back from a whole-book snapshot and opens it. The text it replaces is kept as a page snapshot first. */
+  restorePageFromBook: (id: string, snapshot: string) => Promise<void>;
+  /**
+   * Puts the whole book (chapter list and every page) back from a whole-book snapshot, then opens the book again. Saves unsaved
+   * typing first; Rust keeps an automatic snapshot of the book as it was, and moves pages the snapshot did not have to the trash.
+   */
+  restoreBook: (snapshot: string) => Promise<void>;
   /** Stops offering a page for recovery until the book is opened again. */
   dismissRecovery: (id: string) => void;
 }

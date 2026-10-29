@@ -1,6 +1,7 @@
 //! Reads and writes a CadabraCraft project folder. All paths are relative to the project root.
 //! Manifest parsing and migration live in `@cadabracraft/format` (TypeScript); this layer only does safe file IO.
 mod assets;
+pub mod book_snapshots;
 mod error;
 mod fsio;
 mod layout;

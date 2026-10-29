@@ -51,6 +51,29 @@ export interface StalePage {
   path: string;
   snapshot: string;
 }
+/** A snapshot of the whole book: `path` is its file under `.cadabra/snapshots`, `at` is `YYYYMMDD-HHMM` in UTC. */
+export interface BookSnapshotEntry {
+  path: string;
+  at: string;
+  name: string;
+  /** Taken by the app before a restore, not named by the author. */
+  automatic: boolean;
+  /** Project-relative paths of the pages it holds. */
+  pages: string[];
+  /** How many image files it lists (the files themselves are not copied). */
+  assets: number;
+  bytes: number;
+}
+/** What restoring a whole book did. */
+export interface BookRestore {
+  /** The automatic snapshot of the book as it was just before. */
+  safety: string;
+  written: string[];
+  /** Pages the snapshot did not have; they are in the trash now. */
+  trashed: string[];
+  /** Image files the snapshot lists that are no longer in `assets/`. */
+  missing_assets: string[];
+}
 export interface WriteResult {
   hash: string;
   conflict_copy: string | null;
