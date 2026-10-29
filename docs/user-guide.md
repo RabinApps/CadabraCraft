@@ -139,7 +139,7 @@ The Shortcuts page in Settings is not built yet and appears greyed out. See [roa
 
 ## Importing a manuscript
 
-File > Import Manuscript… (Cmd/Ctrl+Shift+I) or **Import…** on the start screen creates a **new** book from:
+File > Import… (Cmd/Ctrl+Shift+I) or **Import…** on the start screen creates a **new** book from:
 
 - a Word file (`.docx`)
 - a Markdown file (`.md`)

@@ -60,8 +60,8 @@ test("a recent book that exists but cannot be read shows the real reason, not 'F
     .getByRole("button", { name: /E2E Book/ })
     .first()
     .click();
-  await expect(recent.getByRole("status")).toContainText("Could not open this book");
-  await expect(recent.getByRole("status")).toContainText("does not have permission");
+  await expect(recent.getByRole("alert")).toContainText("Could not open this book");
+  await expect(recent.getByRole("alert")).toContainText("does not have permission");
   await expect(recent.getByText("Folder not found.")).toHaveCount(0);
 });
 

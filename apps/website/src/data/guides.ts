@@ -32,7 +32,7 @@ export const guides: readonly Guide[] = [
         id: "import",
         heading: "Import the file",
         paragraphs: [
-          "Choose File > Import Manuscript (Cmd/Ctrl+Shift+I), or Import on the start screen. Pick your .docx file, then give the new book a title, an author and an empty folder. Markdown (.md) and HTML files import the same way.",
+          "Choose File > Import (Cmd/Ctrl+Shift+I), or Import on the start screen. Pick your .docx file, then give the new book a title, an author and an empty folder. Markdown (.md) and HTML files import the same way.",
           "Import always creates a new book. You cannot import into a book that is already open, so bring chapters over afterwards if you need to merge two books.",
         ],
       },

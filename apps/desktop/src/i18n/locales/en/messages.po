@@ -48,11 +48,6 @@ msgstr "{0, plural, one {# reference} other {# references}}"
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# word} other {# words}}"
 
-#. placeholder {0}: estimate.pages
-#: src/app/shell/PageEstimate.tsx
-msgid "{0, plural, one {≈ # page} other {≈ # pages}}"
-msgstr "{0, plural, one {≈ # page} other {≈ # pages}}"
-
 #. placeholder {0}: picked ? picked.length : chapters.length
 #: src/app/export/AudioExport.tsx
 msgid "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
@@ -195,6 +190,14 @@ msgstr "{bookWords} in the book"
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "{count, plural, one {# page} other {# pages}}"
+msgstr "{count, plural, one {# page} other {# pages}}"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "{count, plural, one {≈ # page} other {≈ # pages}}"
+msgstr "{count, plural, one {≈ # page} other {≈ # pages}}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
@@ -1502,10 +1505,6 @@ msgstr "Import a font file"
 msgid "Import a manuscript"
 msgstr "Import a manuscript"
 
-#: src/app/shell/menuModel.ts
-msgid "Import Manuscript…"
-msgstr "Import Manuscript…"
-
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import report"
 msgstr "Import report"
@@ -1515,6 +1514,7 @@ msgid "Import warnings"
 msgstr "Import warnings"
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "Import…"
 msgstr "Import…"
 
@@ -1878,12 +1878,9 @@ msgid "New Chapter"
 msgstr "New Chapter"
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "New project"
 msgstr "New project"
-
-#: src/app/shell/menuModel.ts
-msgid "New Project…"
-msgstr "New Project…"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Newest first"
@@ -2063,6 +2060,7 @@ msgid "Open a chapter's History from its menu in the chapter list to compare and
 msgstr "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "Open folder"
 msgstr "Open folder"
 
@@ -2073,10 +2071,6 @@ msgstr "Open Fonts"
 #: src/app/references/ReferenceViewer.tsx
 msgid "Open in default app"
 msgstr "Open in default app"
-
-#: src/app/shell/menuModel.ts
-msgid "Open Project…"
-msgstr "Open Project…"
 
 #: src/app/shell/menuModel.ts
 msgid "Open Recent"

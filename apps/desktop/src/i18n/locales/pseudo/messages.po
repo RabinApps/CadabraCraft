@@ -48,11 +48,6 @@ msgstr ""
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr ""
 
-#. placeholder {0}: estimate.pages
-#: src/app/shell/PageEstimate.tsx
-msgid "{0, plural, one {≈ # page} other {≈ # pages}}"
-msgstr ""
-
 #. placeholder {0}: picked ? picked.length : chapters.length
 #: src/app/export/AudioExport.tsx
 msgid "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
@@ -193,6 +188,14 @@ msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
+msgstr ""
+
+#: src/app/shell/PageEstimate.tsx
+msgid "{count, plural, one {# page} other {# pages}}"
+msgstr ""
+
+#: src/app/shell/PageEstimate.tsx
+msgid "{count, plural, one {≈ # page} other {≈ # pages}}"
 msgstr ""
 
 #: src/app/export/PrintPreview.tsx
@@ -1501,10 +1504,6 @@ msgstr ""
 msgid "Import a manuscript"
 msgstr ""
 
-#: src/app/shell/menuModel.ts
-msgid "Import Manuscript…"
-msgstr ""
-
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import report"
 msgstr ""
@@ -1514,6 +1513,7 @@ msgid "Import warnings"
 msgstr ""
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "Import…"
 msgstr ""
 
@@ -1877,11 +1877,8 @@ msgid "New Chapter"
 msgstr ""
 
 #: src/app/home/Home.tsx
-msgid "New project"
-msgstr ""
-
 #: src/app/shell/menuModel.ts
-msgid "New Project…"
+msgid "New project"
 msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
@@ -2062,6 +2059,7 @@ msgid "Open a chapter's History from its menu in the chapter list to compare and
 msgstr ""
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "Open folder"
 msgstr ""
 
@@ -2071,10 +2069,6 @@ msgstr ""
 
 #: src/app/references/ReferenceViewer.tsx
 msgid "Open in default app"
-msgstr ""
-
-#: src/app/shell/menuModel.ts
-msgid "Open Project…"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
