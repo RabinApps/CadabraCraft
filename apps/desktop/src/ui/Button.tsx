@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cx } from "./cx";
+import { mirrorClass } from "./directional";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -49,7 +50,7 @@ export function Button({
       )}
       {...rest}
     >
-      {Icon && <Icon size={16} aria-hidden />}
+      {Icon && <Icon size={16} aria-hidden className={mirrorClass(Icon)} />}
       {children}
     </button>
   );
@@ -85,7 +86,7 @@ export function IconButton({
       )}
       {...rest}
     >
-      <Icon size={18} aria-hidden />
+      <Icon size={18} aria-hidden className={mirrorClass(Icon)} />
     </button>
   );
 }

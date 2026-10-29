@@ -20,10 +20,7 @@ interface Props {
 
 export function ReadingFooter({ index, page, pages, chapterIds, onSelect, language }: Props) {
   const { t } = useLingui();
-  // Chevrons point along the reading direction, so swap them in right-to-left languages.
-  const rtl = dirFor(language) === "rtl";
-  const PrevIcon = rtl ? ChevronRight : ChevronLeft;
-  const NextIcon = rtl ? ChevronLeft : ChevronRight;
+  // The footer lays out in the book's direction (the app's own may differ): previous sits at the start and the chevrons mirror with it.
   const prev = pages[index - 1];
   const next = pages[index + 1];
   const pct = pages.length ? Math.round(((index + 1) / pages.length) * 100) : 0;
@@ -32,19 +29,22 @@ export function ReadingFooter({ index, page, pages, chapterIds, onSelect, langua
   const prevIsChapter = prev ? chapterIds.includes(prev.id) : false;
   const nextIsChapter = next ? chapterIds.includes(next.id) : false;
   return (
-    <footer className="flex shrink-0 items-center justify-between gap-2 border-t border-border bg-paper px-2 py-2 md:px-6">
+    <footer
+      dir={dirFor(language)}
+      className="flex shrink-0 items-center justify-between gap-2 border-t border-border bg-paper px-2 py-2 md:px-6"
+    >
       <div className="min-w-0 md:w-56">
         {prev && (
           <>
             <IconButton
-              icon={PrevIcon}
+              icon={ChevronLeft}
               label={prevIsChapter ? t`Previous chapter` : t`Previous page`}
               className="md:hidden"
               onClick={() => onSelect(prev.id)}
             />
             <Button
               variant="ghost"
-              icon={PrevIcon}
+              icon={ChevronLeft}
               aria-label={
                 prevIsChapter ? t`Previous chapter: ${prev.title}` : t`Previous page: ${prev.title}`
               }
@@ -67,7 +67,7 @@ export function ReadingFooter({ index, page, pages, chapterIds, onSelect, langua
         {next && (
           <>
             <IconButton
-              icon={NextIcon}
+              icon={ChevronRight}
               label={nextIsChapter ? t`Next chapter` : t`Next page`}
               className="md:hidden"
               onClick={() => onSelect(next.id)}
@@ -81,7 +81,7 @@ export function ReadingFooter({ index, page, pages, chapterIds, onSelect, langua
               onClick={() => onSelect(next.id)}
             >
               <span className="truncate">{next.title}</span>
-              <NextIcon size={16} aria-hidden />
+              <ChevronRight size={16} aria-hidden className="rtl:-scale-x-100" />
             </Button>
           </>
         )}
