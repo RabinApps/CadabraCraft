@@ -20,11 +20,13 @@ Back to the [project README](../README.md).
 
 ## Development and testing
 
-| Doc                                  | What it covers                                              |
-| ------------------------------------ | ----------------------------------------------------------- |
-| [testing.md](testing.md)             | Unit, e2e and coverage commands, thresholds and exclusions  |
-| [agent-testing.md](agent-testing.md) | Driving the real app through the dev-only bridge            |
-| [sync-testing.md](sync-testing.md)   | Manual checklist for iCloud Drive, Google Drive and Dropbox |
+| Doc                                          | What it covers                                                    |
+| -------------------------------------------- | ----------------------------------------------------------------- |
+| [testing.md](testing.md)                     | Unit, e2e and coverage commands, thresholds and exclusions        |
+| [agent-testing.md](agent-testing.md)         | Driving the real app through the dev-only bridge                  |
+| [sync-testing.md](sync-testing.md)           | Manual checklist for iCloud Drive, Google Drive and Dropbox       |
+| [release-checklist.md](release-checklist.md) | Ordered steps for a release dry run and the updater round trip    |
+| [platform-checks.md](platform-checks.md)     | Checks that need Windows, Linux, sync clients or a word processor |
 
 ## Planning
 

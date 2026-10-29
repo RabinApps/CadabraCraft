@@ -8,7 +8,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 
 - Tauri WebDriver e2e covering the native window and Rust commands.
 - Visual regression checks for PDF output.
-- Run the manual real-client sync checklist ([sync-testing.md](sync-testing.md)).
+- Run the manual checks that need Windows, Linux, real sync clients or a word processor ([platform-checks.md](platform-checks.md), which includes [sync-testing.md](sync-testing.md)).
 
 ### Editor and app UI
 
@@ -51,10 +51,11 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ### Engineering
 
+- Release dry run and open release questions: follow [release-checklist.md](release-checklist.md). Open product question: also ship `.deb` and `.rpm` on Linux (and a `.msi` on Windows for managed installs)? The release now builds only `.app`/`.dmg`, NSIS and AppImage (see architecture.md, "Updates and releases"); adding more means adding the targets, a `latest.json` story for them (the updater only uses one artifact per platform) and the website copy.
 - Licensing: have a lawyer review `LICENSE`, `NOTICE` and `LICENSE-CLARIFICATIONS.md` before the first release (see architecture.md, "License", for the open questions: hybrid publishers, editors who also format, the MCP server in paid pipelines, whether the pledge is enforceable and how to back it structurally, and the Commons Clause text having no stated license of its own). Also: ship `LICENSE`, `NOTICE`, the clarifications and generated third-party notices (Rust crates, npm bundle, Newsreader and Inter UI fonts, MPL and LGPL parts) in the installer with a Help > Licenses page, add a license allowlist check to CI, a trademark clearance search and policy, and a CLA or DCO if the project takes outside contributions.
 - Port `.docx` import (`packages/import-docx`) to Rust (`zip` + `quick-xml`) to stop the double XML pass and synchronous unzip; needs approval for the new crates and a contract-fixture set for the doc output.
 - Audit follow-ups (2026-10-28): a Typst expression-built package import is not caught by the textual check (needs a network-less child process: sandbox profile or a dead `HTTPS_PROXY` through `Run`); snapshot copies (`write_copy`) still pick a name by exists check and then `atomic_write` (make that no-replace too); share one image-header parser between docx, project-fs and Rust; pnpm `catalog:` for repeated dependency versions; tie the editor draft to `{id, file, language}`; replace per-keystroke `getJSON()` with lazy serialisation; remove the legacy JSON `write_project_bytes` form (first change `scripts/automation/scenario/pdf-and-details.ts` to send raw bytes); an ErrorBoundary Playwright test needs a render-crash test hook.
-- Large manuscripts (see architecture.md, "Performance budgets"): a Rust-side per-page word count kept in a small cache next to the snapshots (removes the first-open read of every chapter); virtualised or lazily mounted chapter rendering for print preview (it still builds every page; Read mode is virtualised); a cheaper cache for `readPages` (print preview, export checks, find bar) keyed by the same file hashes; measure typing and open time on a real disk and in the native webview with `/drive-app` and a 20k-word chapter.
+- Large manuscripts (see architecture.md, "Performance budgets"): a Rust-side per-page word count kept in a small cache next to the snapshots (removes the first-open read of every chapter); virtualised or lazily mounted chapter rendering for print preview (it still builds every page; Read mode is virtualised); a cheaper cache for `readPages` (print preview, export checks, find bar) keyed by the same file hashes. Typing, open time and autosave of a 20k-word chapter are measured on the native app (`pnpm automation:measure-large-chapter`, results in architecture.md); still open there: typing with real key events (the bridge can only inject text), a 120k-word book with 60 chapters open at once, and finding why the webview grows about 90 MB over a 120-character typing burst (see the memory row).
 
 ### Audio
 
@@ -63,7 +64,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 ### Word export follow-ups
 
 - MCP tool `cadabra_export_docx` (the desktop app has the export; the headless server does not yet).
-- Open the generated `.docx` in Word, Pages, Google Docs and LibreOffice (headless `soffice --convert-to pdf` smoke test in CI) and fix whatever they disagree on.
+- Open the generated `.docx` by hand in Word, Pages and Google Docs and fix whatever they disagree on. (The headless LibreOffice `soffice --convert-to pdf` smoke test in CI is built: `packages/export-docx/src/__tests__/libreoffice.test.ts`, see docs/testing.md; a manual LibreOffice look is still worth doing for layout.)
 - RTF export; alternate templates (A4, other fonts and spacing, contact block on the title page, chapter title drop, shunn-style "approximately N words"); Word comments and tracked changes from the editor; right-to-left books.
 
 ### Format coverage

@@ -24,6 +24,15 @@ jobs:
             sleep $((i * 5))
           done
           exit 1
+      - name: Linux LibreOffice (docx smoke test)
+        if: runner.os == 'Linux'
+        run: |
+          SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          for i in 1 2 3 4 5; do
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends libreoffice-writer && echo "REQUIRE_SOFFICE=1" >> "$GITHUB_ENV" && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26, cache: pnpm }
