@@ -63,7 +63,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 ### Word export follow-ups
 
 - MCP tool `cadabra_export_docx` (the desktop app has the export; the headless server does not yet).
-- Open the generated `.docx` in Word, Pages, Google Docs and LibreOffice (headless `soffice --convert-to pdf` smoke test in CI) and fix whatever they disagree on.
+- Open the generated `.docx` by hand in Word, Pages and Google Docs and fix whatever they disagree on. (The headless LibreOffice `soffice --convert-to pdf` smoke test in CI is built: `packages/export-docx/src/__tests__/libreoffice.test.ts`, see docs/testing.md; a manual LibreOffice look is still worth doing for layout.)
 - RTF export; alternate templates (A4, other fonts and spacing, contact block on the title page, chapter title drop, shunn-style "approximately N words"); Word comments and tracked changes from the editor; right-to-left books.
 
 ### Format coverage
