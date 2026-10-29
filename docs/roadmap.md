@@ -42,8 +42,7 @@ Decision and format in [architecture.md](architecture.md), "Editions". Done: for
 Infrastructure is in; see the Internationalization section of [architecture.md](architecture.md).
 
 - **Release blocker:** native-speaker review of the machine-drafted catalogs for es, it, fr, de, he and ar (enabled in `ENABLED_LOCALES`; see architecture.md, "Languages shipped in 1.0"). Japanese and Russian are not translated.
-- Toolbar button glyphs ("Sc", "H1", "• List", "Fn") are Latin text; replace with icons.
-- Language picker and book-language field in the New book dialog need a design in `cadabracraft.pen` (then `/sync-design`); Settings shows the picker even while only English is enabled.
+- Language picker and book-language field in the New book dialog need a design in `cadabracraft.pen` (then `/sync-design`); the Settings picker is live with seven languages.
 - Bundle Hebrew/Arabic (and Noto Sans JP if system CJK looks poor) fonts; currently system fallbacks via `:lang()` in `index.css`.
 - Done: the UI is right-to-left safe (logical Tailwind utilities, mirrored directional icons, RTL arrow keys, a guard test, `e2e/rtl.spec.ts` with the direction forced; see architecture.md, "Right-to-left layout"). Still open: page view for Hebrew and Arabic books (drop cap, ragged alignment and binding are left-to-right only) and a visual review once a real catalog and fonts exist.
 - Add e2e for `he` RTL layout once its catalog exists; run `/validate-epub` with a Hebrew sample (EPUBCheck was not available in this worktree).
