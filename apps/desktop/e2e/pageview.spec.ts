@@ -65,9 +65,22 @@ test("it is not offered in Read mode, and comes back in Write mode", async ({ pa
   await expect(page.locator(".ProseMirror")).toHaveAttribute("contenteditable", "false");
   await expect(toggle(page)).toHaveCount(0);
   await expect(zoom(page)).toHaveCount(0);
+  // Read mode draws the pages itself (see reading.spec.ts), with its own zoom from the reading settings.
+  await expect(page.locator(".page").first()).toBeVisible();
   await page.getByRole("radio", { name: "Write" }).click();
   await expect(toggle(page)).toHaveAttribute("aria-pressed", "true");
   await expect(zoom(page)).toBeVisible();
+});
+
+test("Read mode draws pages whether or not Page view is on in Write mode", async ({ page }) => {
+  await newProject(page);
+  await expect(toggle(page)).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("radio", { name: "Read" }).click();
+  await expect(page.locator(".page").first()).toBeVisible();
+  await expect(page.locator(".prose-reading")).toHaveCount(0);
+  await page.getByRole("radio", { name: "Write" }).click();
+  await expect(toggle(page)).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator(".page")).toHaveCount(0);
 });
 
 test("it is not offered on a phone, and the preference stays for the desktop", async ({ page }) => {

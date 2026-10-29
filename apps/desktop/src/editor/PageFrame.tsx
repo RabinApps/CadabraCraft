@@ -2,7 +2,6 @@ import {
   memo,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -11,14 +10,22 @@ import {
 } from "react";
 import { useLingui } from "@lingui/react/macro";
 import type { Editor as TipTapEditor } from "@tiptap/react";
+import type { TrimSize } from "@cadabracraft/export-pdf";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
   hasTemplate,
   resolveTrimSize,
 } from "@cadabracraft/templates";
-import { readingOrder, sectionOf, sourceEdition, sourceTitle } from "@cadabracraft/format";
+import {
+  readingOrder,
+  sectionOf,
+  sourceEdition,
+  sourceTitle,
+  type Manifest,
+} from "@cadabracraft/format";
 import { usePageView } from "../app/hooks/usePageView";
+import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useFontList } from "../app/hooks/useFontList";
 import { editorFontStack, type EditorFont } from "../state/editorPrefs";
 import { setPageCount, usePageCount } from "../state/pageCount";
@@ -35,6 +42,7 @@ import {
   pageFillSlackPx,
   pageGeometry,
   sideMargins,
+  type PageGeometry,
 } from "../lib/pageLayout";
 import type { PageLayoutResult, PageSpec } from "./pagination/core";
 import { cssVarsStyle, pageFontStack, pickPageFont, runningHead } from "./pagination/frame";
@@ -68,26 +76,27 @@ const PageCard = memo(function PageCard({ page, head, verso, left }: CardProps) 
   );
 });
 
-interface Props {
-  editor: TipTapEditor;
-  /** The author's manuscript font: used when the template's print font is not available here. */
-  manuscriptFont: EditorFont;
-  children: ReactNode;
+/** What every page of the book shares: the geometry, the print font and the titles. Computed once per view, not per chapter. */
+export interface PageLook {
+  book: { template: string; trimSize: TrimSize | undefined };
+  g: PageGeometry;
+  trim: TrimSize;
+  print: ReturnType<typeof getTemplate>["print"];
+  /** The print font when it can be drawn here, else null (the manuscript font is used). */
+  family: string | null;
+  fontStack: string;
+  bookTitle: string;
+  language: string;
 }
 
 /**
- * Page view of the open page: a stack of page cards at the trim size with the editor's text column on top of them, scaled as a whole
- * by the zoom. The cards are placed from what the pagination plugin measures (see `pagination/`).
+ * The look of the book's pages: geometry from the trim size and template, and the text font (the template's print font when it can
+ * be drawn here, else the author's manuscript font).
  */
-export function PageFrame({ editor, manuscriptFont, children }: Props) {
-  const { t } = useLingui();
-  const { zoom: zoomPref } = usePageView();
+export function usePageLook(manuscriptFont: EditorFont): PageLook {
   const manifest = useProject((s) => s.manifest)!;
-  const currentId = useProject((s) => s.currentId);
   const language = useProject((s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "");
-  const wordsBefore = useProject((s) => s.actions.chapterWordsBefore);
   const { fonts } = useFontList();
-
   const book = useMemo(
     () => ({ template: manifest.template, trimSize: manifest.trimSize }),
     [manifest.template, manifest.trimSize],
@@ -95,22 +104,187 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
   const g = useMemo(() => pageGeometry(book), [book]);
   const trim = resolveTrimSize(book);
   const print = getTemplate(hasTemplate(book.template) ? book.template : DEFAULT_TEMPLATE_ID).print;
-  const section = currentId ? sectionOf(manifest, currentId) : null;
-  const isChapter = section === "chapter";
-  const order = readingOrder(manifest);
-  const entry = order.find((e) => e.id === currentId);
-  // 1-based position among the chapters, for the "CHAPTER n" label.
-  const chapterNumber = isChapter
-    ? order
-        .filter((e) => sectionOf(manifest, e.id) === "chapter")
-        .findIndex((e) => e.id === currentId) + 1 || undefined
-    : undefined;
-  const chapterTitle = entry
-    ? (entry.titles[language] ?? sourceTitle(entry, manifest.editions))
-    : "";
+  const printFont = pickPageFont(
+    print.bodyFonts,
+    fonts.map((f) => f.family),
+  );
+  const [loadedFont, setLoadedFont] = useState<string | null>(null);
+  useEffect(() => {
+    if (!printFont) return setLoadedFont(null);
+    let live = true;
+    void ensureFontLoaded(printFont).then((ok) => live && setLoadedFont(ok ? printFont : null));
+    return () => {
+      live = false;
+    };
+  }, [printFont]);
+  const family =
+    loadedFont ?? (printFont && /^(inter|newsreader)$/i.test(printFont) ? printFont : null);
+  const fontStack = family ? pageFontStack(family) : editorFontStack(manuscriptFont);
   const bookTitle =
     manifest.editions.find((e) => e.language === language)?.title ??
     sourceEdition(manifest.editions).title;
+  return useMemo(
+    () => ({ book, g, trim, print, family, fontStack, bookTitle, language }),
+    [book, g, trim, print, family, fontStack, bookTitle, language],
+  );
+}
+
+/** The 1-based position of `id` among the chapters, for the "CHAPTER n" label; undefined for front and back matter. */
+export function chapterNumberOf(manifest: Manifest, id: string | null): number | undefined {
+  if (!id || sectionOf(manifest, id) !== "chapter") return undefined;
+  const n = readingOrder(manifest)
+    .filter((e) => sectionOf(manifest, e.id) === "chapter")
+    .findIndex((e) => e.id === id);
+  return n >= 0 ? n + 1 : undefined;
+}
+
+interface StackProps {
+  editor: TipTapEditor;
+  look: PageLook;
+  zoom: number;
+  /** A chapter gets the opening, running heads and the page-number chain; matter is plain pages. */
+  section: "front" | "chapter" | "back";
+  chapterTitle: string;
+  chapterNumber: number | undefined;
+  firstPage: number;
+  /** Called with the cards after every pagination. Held by reference: it need not be stable. */
+  onLayout?: (layout: PageLayoutResult) => void;
+  onCursorPage?: (page: number) => void;
+  children: ReactNode;
+}
+
+/**
+ * One page's stack of cards at the trim size with the editor's text column on top of them, scaled as a whole by the zoom. The cards
+ * are placed from what the pagination plugin measures (see `pagination/`). Used by Page view (one stack) and by the reader (one per
+ * chapter). The editor must have the Pagination extension.
+ */
+export function PageStack({
+  editor,
+  look,
+  zoom,
+  section,
+  chapterTitle,
+  chapterNumber,
+  firstPage,
+  onLayout,
+  onCursorPage,
+  children,
+}: StackProps) {
+  const { book, g, trim, print, fontStack, family, bookTitle } = look;
+  const isChapter = section === "chapter";
+  const callbacks = useRef({ onLayout, onCursorPage });
+  callbacks.current = { onLayout, onCursorPage };
+
+  // Pages as the plugin lays them out; until the first measurement, one card.
+  const [layout, setLayout] = useState<PageLayoutResult | null>(null);
+  const pages: PageSpec[] = useMemo(
+    () =>
+      layout?.pages ?? [
+        {
+          index: 0,
+          number: firstPage,
+          top: 0,
+          height: g.page.h,
+          kind: isChapter ? "open" : "body",
+        },
+      ],
+    [layout, firstPage, g.page.h, isChapter],
+  );
+  const stackH = Math.max(g.page.h, layout?.height ?? 0);
+  const startsOn = chapterStart(book);
+  const slackPx = pageFillSlackPx(book);
+  const layoutKey = `${book.template}|${trim}|${fontStack}|${family ?? ""}`;
+  const controller = (
+    editor.storage as unknown as { pagination: { controller: PaginationController } }
+  ).pagination.controller;
+
+  useEffect(() => {
+    controller.configure({
+      on: true,
+      geometry: g,
+      slackPx,
+      firstPage,
+      startsOn,
+      opensChapter: isChapter,
+      zoom,
+      layoutKey,
+      onLayout: (l) => {
+        setLayout(l);
+        callbacks.current.onLayout?.(l);
+      },
+      onCursorPage: (p) => callbacks.current.onCursorPage?.(p),
+    });
+  }, [controller, g, slackPx, firstPage, startsOn, isChapter, zoom, layoutKey]);
+  useEffect(() => () => controller.configure(null), [controller]);
+
+  const vars = useMemo(
+    () => ({
+      ...cssVarsStyle(pageCssVars(book, chapterNumber)),
+      "--page-mt": `${g.margins.top}px`,
+      "--page-mb": `${g.margins.bottom}px`,
+      "--page-ml": `${g.margins.inside}px`,
+      "--page-mr": `${g.margins.outside}px`,
+      "--page-verso-shift": `${g.margins.outside - g.margins.inside}px`,
+      "--page-head-size": `${print.runningText.sizePt * PX_PER_PT}px`,
+      "--page-font": fontStack,
+    }),
+    [book, chapterNumber, g, print.runningText.sizePt, fontStack],
+  ) as CSSProperties;
+
+  return (
+    <div className="page-sizer mx-auto" style={{ width: g.page.w * zoom, height: stackH * zoom }}>
+      <div
+        className="page-stack relative"
+        data-zoom={zoom}
+        style={{
+          ...vars,
+          width: g.page.w,
+          height: stackH,
+          transform: `scale(${zoom})`,
+          transformOrigin: "top left",
+        }}
+      >
+        <div className="page-cards pointer-events-none absolute inset-0" aria-hidden="true">
+          {pages.map((p) => (
+            <PageCard
+              key={p.index}
+              page={p}
+              head={runningHead(p.kind, p.number, bookTitle, chapterTitle, isChapter)}
+              verso={p.number % 2 === 0}
+              left={sideMargins(g, p.number).left}
+            />
+          ))}
+        </div>
+        <div className="prose-manuscript prose-page relative z-[1]">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+interface Props {
+  editor: TipTapEditor;
+  /** The author's manuscript font: used when the template's print font is not available here. */
+  manuscriptFont: EditorFont;
+  children: ReactNode;
+}
+
+/** Page view of the open page in Write mode: the page stack in a scroller, with the caption chip. */
+export function PageFrame({ editor, manuscriptFont, children }: Props) {
+  const { t } = useLingui();
+  const { zoom: zoomPref } = usePageView();
+  const manifest = useProject((s) => s.manifest)!;
+  const currentId = useProject((s) => s.currentId);
+  const wordsBefore = useProject((s) => s.actions.chapterWordsBefore);
+  const look = usePageLook(manuscriptFont);
+  const { book, g, trim, family, language } = look;
+
+  const section = (currentId ? sectionOf(manifest, currentId) : null) ?? "front";
+  const isChapter = section === "chapter";
+  const entry = readingOrder(manifest).find((e) => e.id === currentId);
+  const chapterNumber = chapterNumberOf(manifest, currentId);
+  const chapterTitle = entry
+    ? (entry.titles[language] ?? sourceTitle(entry, manifest.editions))
+    : "";
 
   // Which page number this chapter starts on, from the earlier chapters' word counts (see lib/pageNumbering.ts).
   const [estimatedFirst, setEstimatedFirst] = useState(1);
@@ -132,103 +306,17 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
   });
   const firstPage = isChapter && typstFirst !== null ? typstFirst : estimatedFirst;
 
-  // Text font: the template's print body font when it can be drawn here, else the author's manuscript font.
-  const printFont = pickPageFont(
-    print.bodyFonts,
-    fonts.map((f) => f.family),
-  );
-  const [loadedFont, setLoadedFont] = useState<string | null>(null);
-  useEffect(() => {
-    if (!printFont) return setLoadedFont(null);
-    let live = true;
-    void ensureFontLoaded(printFont).then((ok) => live && setLoadedFont(ok ? printFont : null));
-    return () => {
-      live = false;
-    };
-  }, [printFont]);
-  const family =
-    loadedFont ?? (printFont && /^(inter|newsreader)$/i.test(printFont) ? printFont : null);
-  const fontStack = family ? pageFontStack(family) : editorFontStack(manuscriptFont);
-
   // Zoom: a fixed factor, or the one that fits the pane's width.
   const scroller = useRef<HTMLDivElement>(null);
-  const [paneW, setPaneW] = useState(0);
-  useLayoutEffect(() => {
-    const el = scroller.current;
-    if (!el) return;
-    const read = () => setPaneW(Math.round(el.clientWidth));
-    read();
-    const ro = new ResizeObserver(read);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+  const paneW = usePaneWidth(scroller);
   const zoom = zoomPref === "fit" ? fitZoom(g, paneW || g.page.w + 48) : zoomPref;
 
-  // Pages as the plugin lays them out; until the first measurement, one card.
-  const [layout, setLayout] = useState<PageLayoutResult | null>(null);
-  const pages: PageSpec[] = useMemo(
-    () =>
-      layout?.pages ?? [
-        {
-          index: 0,
-          number: firstPage,
-          top: 0,
-          height: g.page.h,
-          kind: isChapter ? "open" : "body",
-        },
-      ],
-    [layout, firstPage, g.page.h, isChapter],
-  );
-  const stackH = Math.max(g.page.h, layout?.height ?? 0);
-  const startsOn = chapterStart(book);
-  const slackPx = pageFillSlackPx(book);
-  const layoutKey = `${book.template}|${trim}|${fontStack}|${family ?? ""}`;
+  const onLayout = useCallback((l: PageLayoutResult) => setPageCount(l.pages.length), []);
   const onCursor = useCallback(
     (p: number) => setPageCount(usePageCount.getState().count, p + 1),
     [],
   );
-  const controller = (
-    editor.storage as unknown as { pagination: { controller: PaginationController } }
-  ).pagination.controller;
-
-  useEffect(() => {
-    controller.configure({
-      on: true,
-      geometry: g,
-      slackPx,
-      firstPage,
-      startsOn,
-      opensChapter: isChapter,
-      zoom,
-      layoutKey,
-      onLayout: (l) => {
-        setLayout(l);
-        setPageCount(l.pages.length);
-      },
-      onCursorPage: onCursor,
-    });
-  }, [controller, g, slackPx, firstPage, startsOn, isChapter, zoom, layoutKey, onCursor]);
-  useEffect(
-    () => () => {
-      controller.configure(null);
-      setPageCount(0);
-    },
-    [controller],
-  );
-
-  const vars = useMemo(
-    () => ({
-      ...cssVarsStyle(pageCssVars(book, chapterNumber)),
-      "--page-mt": `${g.margins.top}px`,
-      "--page-mb": `${g.margins.bottom}px`,
-      "--page-ml": `${g.margins.inside}px`,
-      "--page-mr": `${g.margins.outside}px`,
-      "--page-verso-shift": `${g.margins.outside - g.margins.inside}px`,
-      "--page-head-size": `${print.runningText.sizePt * PX_PER_PT}px`,
-      "--page-font": fontStack,
-    }),
-    [book, chapterNumber, g, print.runningText.sizePt, fontStack],
-  ) as CSSProperties;
+  useEffect(() => () => setPageCount(0), []);
 
   const size = trimLabel(trim);
   const fontNote = family
@@ -250,35 +338,19 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
         data-testid="page-scroll"
         className="min-h-0 flex-1 overflow-auto px-6 pb-12 pt-3"
       >
-        <div
-          className="page-sizer mx-auto"
-          style={{ width: g.page.w * zoom, height: stackH * zoom }}
+        <PageStack
+          editor={editor}
+          look={look}
+          zoom={zoom}
+          section={section}
+          chapterTitle={chapterTitle}
+          chapterNumber={chapterNumber}
+          firstPage={firstPage}
+          onLayout={onLayout}
+          onCursorPage={onCursor}
         >
-          <div
-            className="page-stack relative"
-            data-zoom={zoom}
-            style={{
-              ...vars,
-              width: g.page.w,
-              height: stackH,
-              transform: `scale(${zoom})`,
-              transformOrigin: "top left",
-            }}
-          >
-            <div className="page-cards pointer-events-none absolute inset-0" aria-hidden="true">
-              {pages.map((p) => (
-                <PageCard
-                  key={p.index}
-                  page={p}
-                  head={runningHead(p.kind, p.number, bookTitle, chapterTitle, isChapter)}
-                  verso={p.number % 2 === 0}
-                  left={sideMargins(g, p.number).left}
-                />
-              ))}
-            </div>
-            <div className="prose-manuscript prose-page relative z-[1]">{children}</div>
-          </div>
-        </div>
+          {children}
+        </PageStack>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { WandSparkles } from "lucide-react";
@@ -10,7 +10,6 @@ import {
 } from "@tiptap/react";
 import { extensions } from "@cadabracraft/editor-schema";
 import type { ChapterDoc } from "@cadabracraft/shared";
-import { sizes, widths, type Width } from "../state/reading";
 import { editorFontStack, useSettings, writingWidths } from "../state/editorPrefs";
 import { ensureFontLoaded } from "../lib/loadFont";
 import { dirFor } from "../i18n/locales";
@@ -53,8 +52,6 @@ interface Props {
   /** BCP 47 tag from `manifest.language`; sets spellcheck language and base direction. */
   language: string;
   onChange?: (doc: ChapterDoc) => void;
-  /** Read-only reading mode: no toolbar, larger type, no page card. */
-  reading?: { size: number; width: Width };
   /** Focus mode: hide the formatting toolbar (shortcuts still work). */
   focus?: boolean;
 }
@@ -70,7 +67,7 @@ function warnNotice(warnings: number) {
     });
 }
 
-export function Editor({ initial, language, onChange, reading, focus }: Props) {
+export function Editor({ initial, language, onChange, focus }: Props) {
   const { t } = useLingui();
   // Pasted text that holds HTML tags, waiting for the author's answer in the dialog.
   const [pending, setPending] = useState<{
@@ -91,62 +88,59 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
     setPending({ text, converted, from, to });
   };
   const editor = useEditor({
-    extensions: reading ? extensions : [...extensions, Search, Pagination],
+    extensions: [...extensions, Search, Pagination],
     editorProps: {
       attributes: { lang: language, dir: dirFor(language), "aria-label": t`Page text` },
       // Only text/plain that looks like HTML is handled here; a real HTML clipboard keeps ProseMirror's own path.
       // Nothing in here may throw or block: on any failure the default paste runs.
-      handlePaste: reading
-        ? undefined
-        : (view, event) => {
-            try {
-              const data = event.clipboardData;
-              if (!data) return false;
-              // The dialog is open: swallow the paste instead of stacking a second one or typing behind the dialog.
-              if (askingRef.current) {
-                event.preventDefault();
-                return true;
-              }
-              const text = data.getData("text/plain");
-              const { $from } = view.state.selection;
-              const inCode =
-                $from.parent.type.name === "codeBlock" ||
-                $from.marks().some((m) => m.type.name === "code");
-              const action = pasteAction({
-                text,
-                hasHtml: data.types.includes("text/html"),
-                inCode,
-                pref: useSettings.getState().rawHtmlPaste,
-              });
-              // Another dialog is open: never open a second one.
-              if (action === "default" || (action === "ask" && modalOpen())) return false;
-              const { from, to } = view.state.selection;
-              if (crossesCells(view.state, from, to)) return false;
-              const c = tryConvertHtmlText(text);
-              if (!c) {
-                useProject.setState({
-                  notice: t`Could not convert the HTML, so it was pasted as text`,
-                });
-                return false;
-              }
-              event.preventDefault();
-              if (action === "ask") {
-                askRef.current(text, c, from, to);
-                return true;
-              }
-              if (!insertRef.current(c.content, { from, to })) return false;
-              warnNotice(c.warnings);
-              return true;
-            } catch {
-              return false;
-            }
-          },
+      handlePaste: (view, event) => {
+        try {
+          const data = event.clipboardData;
+          if (!data) return false;
+          // The dialog is open: swallow the paste instead of stacking a second one or typing behind the dialog.
+          if (askingRef.current) {
+            event.preventDefault();
+            return true;
+          }
+          const text = data.getData("text/plain");
+          const { $from } = view.state.selection;
+          const inCode =
+            $from.parent.type.name === "codeBlock" ||
+            $from.marks().some((m) => m.type.name === "code");
+          const action = pasteAction({
+            text,
+            hasHtml: data.types.includes("text/html"),
+            inCode,
+            pref: useSettings.getState().rawHtmlPaste,
+          });
+          // Another dialog is open: never open a second one.
+          if (action === "default" || (action === "ask" && modalOpen())) return false;
+          const { from, to } = view.state.selection;
+          if (crossesCells(view.state, from, to)) return false;
+          const c = tryConvertHtmlText(text);
+          if (!c) {
+            useProject.setState({
+              notice: t`Could not convert the HTML, so it was pasted as text`,
+            });
+            return false;
+          }
+          event.preventDefault();
+          if (action === "ask") {
+            askRef.current(text, c, from, to);
+            return true;
+          }
+          if (!insertRef.current(c.content, { from, to })) return false;
+          warnNotice(c.warnings);
+          return true;
+        } catch {
+          return false;
+        }
+      },
     },
     content: initial,
-    editable: !reading,
     onUpdate: ({ editor }) => onChange?.(editor.getJSON() as ChapterDoc),
     onSelectionUpdate: ({ editor }) => {
-      if (!reading && useSettings.getState().typewriterScroll) centerCaret(editor);
+      if (useSettings.getState().typewriterScroll) centerCaret(editor);
     },
   });
   const { manuscriptFont, writingWidth } = useSettings();
@@ -228,12 +222,12 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
   const convertRef = useRef(convertSelection);
   convertRef.current = convertSelection;
 
-  // Find is Write mode only: the Search extension is not loaded for reading. The shortcut works in focus mode too (the
+  // Find is Write mode only (Read mode has none). The shortcut works in focus mode too (the
   // bar then sits below the exit button). The native menu owns the accelerators; the keydown listener covers the browser
   // and any platform where the key also reaches the page, so a second call within a few ms is ignored.
   const lastInvoke = useRef(0);
   const invoke = (mode: "find" | "replace" | "toggle") => {
-    if (!editor || reading || modalOpen() || Date.now() - lastInvoke.current < 80) return;
+    if (!editor || modalOpen() || Date.now() - lastInvoke.current < 80) return;
     lastInvoke.current = Date.now();
     const { from, to } = editor.state.selection;
     const query = editor.isFocused
@@ -246,7 +240,6 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
   const invokeRef = useRef(invoke);
   invokeRef.current = invoke;
   useEffect(() => {
-    if (reading) return;
     const onKey = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.code !== "KeyF") return;
       e.preventDefault();
@@ -254,30 +247,13 @@ export function Editor({ initial, language, onChange, reading, focus }: Props) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [reading]);
-  useRegisterCommands(
-    reading
-      ? {}
-      : {
-          "edit.find": { run: () => invokeRef.current("find") },
-          "edit.findReplace": { run: () => invokeRef.current("replace") },
-          "edit.convertHtml": { run: () => convertRef.current(), enabled: hasSelection },
-        },
-  );
+  }, []);
+  useRegisterCommands({
+    "edit.find": { run: () => invokeRef.current("find") },
+    "edit.findReplace": { run: () => invokeRef.current("replace") },
+    "edit.convertHtml": { run: () => convertRef.current(), enabled: hasSelection },
+  });
   if (!editor) return null;
-  if (reading) {
-    const style = {
-      "--reading-size": `${sizes[reading.size]}rem`,
-      maxWidth: widths[reading.width],
-    } as CSSProperties;
-    return (
-      <div className="min-h-0 flex-1 overflow-y-auto bg-paper">
-        <div className="prose-manuscript prose-reading mx-auto px-6 py-8 md:py-14" style={style}>
-          <EditorContent editor={editor} />
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
       {findOpen && <FindBar editor={editor} focusMode={focus} />}

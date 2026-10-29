@@ -5,7 +5,10 @@ import { Button, IconButton } from "../ui/Button";
 import { ProgressBar } from "../ui/ProgressBar";
 
 interface Props {
+  /** The page at the reading line (its position in `pages`). */
   index: number;
+  /** The page number printed at the reading line when the book is drawn as pages, else null. */
+  page?: number | null;
   /** Every page in reading order (front matter, chapters, back matter). */
   pages: { id: string; title: string }[];
   /** Ids of the chapters among `pages`, for "Chapter n of m". */
@@ -15,7 +18,7 @@ interface Props {
   language: string;
 }
 
-export function ReadingFooter({ index, pages, chapterIds, onSelect, language }: Props) {
+export function ReadingFooter({ index, page, pages, chapterIds, onSelect, language }: Props) {
   const { t } = useLingui();
   // Chevrons point along the reading direction, so swap them in right-to-left languages.
   const rtl = dirFor(language) === "rtl";
@@ -55,7 +58,10 @@ export function ReadingFooter({ index, pages, chapterIds, onSelect, language }: 
       </div>
       <div className="flex items-center gap-3 text-xs text-ink-muted">
         <ProgressBar label={t`Book progress`} value={pct} className="h-1 w-24 bg-border md:w-60" />
-        <span>{chapterNo ? t`Chapter ${chapterNo} of ${chapterIds.length}` : here?.title}</span>
+        <span>
+          {chapterNo ? t`Chapter ${chapterNo} of ${chapterIds.length}` : here?.title}
+          {page ? ` · ${t`Page ${page}`}` : ""}
+        </span>
       </div>
       <div className="flex min-w-0 justify-end md:w-56">
         {next && (

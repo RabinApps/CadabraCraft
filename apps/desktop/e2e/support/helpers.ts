@@ -66,3 +66,53 @@ export async function seedSnapshot(page: Page, words: string) {
     return { file, path };
   }, words);
 }
+
+type DocNode = { type: string; content?: DocNode[]; text?: string };
+
+/**
+ * Replaces the new project's chapters with `docs` (one chapter per document, titled by its first heading, ids chapter-1, chapter-2,
+ * ...) on the fake disk and reopens the book, so a test can read a book of any size.
+ */
+export async function seedChapters(page: Page, docs: { content: DocNode[] }[]) {
+  await page.evaluate((list) => {
+    const disk = window.__disk;
+    const m = JSON.parse(disk["cadabra.json"] as string);
+    const lang = Object.keys(m.chapters[0].files)[0]!;
+    const first = m.chapters[0].files[lang] as string;
+    const heading = (d: { content: DocNode[] }) => d.content[0]?.content?.[0]?.text ?? "Chapter";
+    m.chapters = list.map((d, i) => {
+      const file = i === 0 ? first : `manuscript/${String(i + 1).padStart(3, "0")}-chapter.json`;
+      disk[file] = JSON.stringify(d);
+      return { id: `chapter-${i + 1}`, titles: { [lang]: heading(d) }, files: { [lang]: file } };
+    });
+    disk["cadabra.json"] = JSON.stringify(m);
+    sessionStorage.setItem("disk", JSON.stringify(disk));
+  }, docs);
+  await page.reload();
+  await page.getByRole("button", { name: "Open folder" }).click();
+  await expect(page.locator(".ProseMirror h1").first()).toBeVisible();
+}
+
+/** A chapter document: a heading and `paragraphs` paragraphs of `words` words each (so the page count is predictable). */
+export function chapterDoc(title: string, paragraphs: number, words = 40, seed = 0) {
+  const vocab = ["quiet", "garden", "river", "stone", "letter", "morning", "lantern", "orchard"];
+  return {
+    type: "doc",
+    content: [
+      { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] },
+      ...Array.from({ length: paragraphs }, (_, p) => ({
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text:
+              Array.from(
+                { length: words },
+                (_, i) => vocab[(i * 7 + p + seed) % vocab.length],
+              ).join(" ") + ".",
+          },
+        ],
+      })),
+    ],
+  };
+}

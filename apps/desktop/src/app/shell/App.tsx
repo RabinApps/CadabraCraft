@@ -10,6 +10,7 @@ import {
 } from "@cadabracraft/format";
 import { Minimize2, Plus, X } from "lucide-react";
 import { Editor } from "../../editor/Editor";
+import { ReadingBook } from "../../editor/ReadingBook";
 import { ReadingFooter } from "../../editor/ReadingFooter";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
@@ -35,7 +36,7 @@ import { useUpdates } from "../../state/updates";
 import { Sidebar } from "./Sidebar";
 import { Templates } from "../export/Templates";
 import { useLayout } from "../../state/layout";
-import { useReading } from "../../state/reading";
+import { useReadingPosition } from "../../state/readingPosition";
 import { useRecents } from "../../state/recents";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
@@ -62,6 +63,7 @@ export function App() {
   );
   const currentId = useProject((s) => s.currentId);
   const currentDoc = useProject((s) => s.currentDoc);
+  const readPosition = useReadingPosition();
   const reloadCount = useProject((s) => s.reloadCount);
   const actions = useProject((s) => s.actions);
   const open = manifest !== null;
@@ -84,7 +86,6 @@ export function App() {
     setExportFormat(format);
     setExportOpen(true);
   };
-  const reading = useReading();
   const { focus: focusPref, details, references, set: setLayout } = useLayout();
   const reader = mode === "read";
   // Focus mode is for writing; reading mode already has its own bare layout.
@@ -202,6 +203,9 @@ export function App() {
   const index = pages.findIndex((c) => c.id === currentId);
   const section = currentId ? sectionOf(manifest, currentId) : null;
   const chapterNo = chapters.findIndex((c) => c.id === currentId) + 1;
+  // In Read mode the footer follows the scroll position, not the open chapter (which catches up a moment later).
+  const readIndex = pages.findIndex((c) => c.id === readPosition.id);
+  const readPage = readIndex < 0 ? null : readPosition.page;
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       {focus && (
@@ -237,23 +241,17 @@ export function App() {
               {error}
             </Notice>
           )}
-          {currentDoc && currentId ? (
-            reader ? (
-              <Editor
-                key={`${currentId}:read:${reloadCount}`}
-                initial={currentDoc}
-                language={activeLanguage}
-                reading={reading}
-              />
-            ) : (
-              <Editor
-                key={`${currentId}:${reloadCount}`}
-                initial={currentDoc}
-                language={activeLanguage}
-                onChange={actions.setDraft}
-                focus={focus}
-              />
-            )
+          {reader && pages.length ? (
+            // Keyed on the book, not the chapter: the open chapter follows the scroll without remounting the reader.
+            <ReadingBook key={`${root}:${activeLanguage}:${reloadCount}`} />
+          ) : currentDoc && currentId && !reader ? (
+            <Editor
+              key={`${currentId}:${reloadCount}`}
+              initial={currentDoc}
+              language={activeLanguage}
+              onChange={actions.setDraft}
+              focus={focus}
+            />
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
               <p className="text-sm text-ink-muted">
@@ -268,7 +266,8 @@ export function App() {
           )}
           {index < 0 ? null : reader ? (
             <ReadingFooter
-              index={index}
+              index={readIndex < 0 ? index : readIndex}
+              page={readPage}
               pages={pages}
               chapterIds={chapters.map((c) => c.id)}
               language={activeLanguage}

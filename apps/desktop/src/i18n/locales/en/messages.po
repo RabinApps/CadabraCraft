@@ -48,11 +48,6 @@ msgstr "{0, plural, one {# reference} other {# references}}"
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# word} other {# words}}"
 
-#. placeholder {0}: estimate.pages
-#: src/app/shell/PageEstimate.tsx
-msgid "{0, plural, one {≈ # page} other {≈ # pages}}"
-msgstr "{0, plural, one {≈ # page} other {≈ # pages}}"
-
 #. placeholder {0}: picked ? picked.length : chapters.length
 #: src/app/export/AudioExport.tsx
 msgid "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
@@ -195,6 +190,14 @@ msgstr "{bookWords} in the book"
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "{count, plural, one {# page} other {# pages}}"
+msgstr "{count, plural, one {# page} other {# pages}}"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "{count, plural, one {≈ # page} other {≈ # pages}}"
+msgstr "{count, plural, one {≈ # page} other {≈ # pages}}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
@@ -1723,6 +1726,10 @@ msgstr "Link…"
 msgid "Linked chapters"
 msgstr "Linked chapters"
 
+#: src/editor/ReadingBook.tsx
+msgid "Loading the book"
+msgstr "Loading the book"
+
 #: src/app/references/Previews.tsx
 msgid "Loading…"
 msgstr "Loading…"
@@ -2105,6 +2112,10 @@ msgstr "Packing the audiobook…"
 #: src/app/shell/PageEstimate.tsx
 msgid "Page {current} of ≈ {count}"
 msgstr "Page {current} of ≈ {count}"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Page {page}"
+msgstr "Page {page}"
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
