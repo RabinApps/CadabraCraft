@@ -355,7 +355,7 @@ test.describe("toolbar", () => {
     await page.addInitScript(() => {
       const real = window.__TAURI_INTERNALS__.invoke;
       window.__TAURI_INTERNALS__.invoke = (cmd, a, o) =>
-        cmd === "plugin:dialog|open" && sessionStorage.getItem("pickNothing")
+        cmd === "pick_image" && sessionStorage.getItem("pickNothing")
           ? Promise.resolve(null)
           : real(cmd, a, o);
     });

@@ -5,6 +5,7 @@ import {
   fchmodSync,
   fstatSync,
   fsyncSync,
+  linkSync,
   lstatSync,
   mkdirSync,
   openSync,
@@ -12,6 +13,7 @@ import {
   renameSync,
   rmSync,
   statSync,
+  unlinkSync,
   writeSync,
 } from "node:fs";
 import { basename, dirname, join } from "node:path";
@@ -67,10 +69,57 @@ export function atomicWrite(path: string, bytes: Uint8Array): void {
       closeSync(fd);
     }
     renameSync(tmp, path);
+    syncDir(dir);
   } catch (e) {
     if (tmp) rmSync(tmp, { force: true });
     throw fsError(e, label);
   }
+}
+
+/**
+ * Flushes a directory's entries to disk so a rename in it survives a power cut (mirrors Rust `sync_dir`). Best effort:
+ * the rename already happened and the data is safe, so a filesystem that cannot fsync a directory must not fail the
+ * save. Windows cannot open a directory, so there the error is swallowed and nothing happens.
+ */
+export function syncDir(dir: string): void {
+  try {
+    const fd = openSync(dir, "r");
+    try {
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
+  } catch {
+    /* unsupported here: ignore */
+  }
+}
+
+/**
+ * Moves `from` to `to` without ever replacing an existing `to` (mirrors Rust `rename_no_replace`): a hard link first
+ * (atomic, `EEXIST` when `to` exists), then the old name is removed. Where hard links are unsupported it falls back to
+ * an exists check plus rename. Throws `EEXIST` when `to` is taken. Both directories are fsynced afterwards.
+ */
+export function renameNoReplace(from: string, to: string): void {
+  let linked = false;
+  try {
+    linkSync(from, to);
+    linked = true;
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "EEXIST") throw e;
+    if (lstatSync(to, { throwIfNoEntry: false }))
+      throw Object.assign(new Error(`EEXIST: ${to} exists`), { code: "EEXIST" });
+    renameSync(from, to);
+  }
+  if (linked) {
+    try {
+      unlinkSync(from);
+    } catch (e) {
+      rmSync(to, { force: true }); // never leave the file under two names
+      throw e;
+    }
+  }
+  syncDir(dirname(to));
+  syncDir(dirname(from));
 }
 
 /** True when `path` is an iCloud placeholder that has not been downloaded: the real name is missing, `.<name>.icloud` is not. */

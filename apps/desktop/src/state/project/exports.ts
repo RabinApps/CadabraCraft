@@ -34,7 +34,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
   /** The last measure: reused while the book, template, trim size and fonts are the same. */
   let lastMeasure: { key: string; report: PageReport } | null = null;
   return {
-    async measurePages({ typstPath }) {
+    async measurePages() {
       try {
         const { manifest } = need();
         const currentId = get().currentId;
@@ -66,7 +66,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             ...(Object.keys(fonts).length ? { fonts } : {}),
             assets: Object.fromEntries(assets),
           },
-          createTauriRunner(bridge, typstPath),
+          createTauriRunner(bridge),
         );
         lastMeasure = { key, report };
         return report;
@@ -91,6 +91,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             language: edition.language,
             identifier: edition.identifier,
             isbn: edition.isbn,
+            publishing: edition.publishing,
             modified: new Date(),
           },
           chapters,
@@ -192,7 +193,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         const cover = options.cover === false ? undefined : await loadCover(edition.cover);
         if (cover) assets.set(cover.path, cover.bytes);
         set({ exportStage: "rendering" });
-        const runner = createTauriRunner(bridge, options.typstPath);
+        const runner = createTauriRunner(bridge);
         // The book's own choice unless the caller names fonts; only the keys that are set (the rest follow the template).
         const fonts = options.fonts ?? resolveBookFonts(manifest);
         const { pdf } = await renderPdf(

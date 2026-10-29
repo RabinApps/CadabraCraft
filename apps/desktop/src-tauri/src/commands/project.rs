@@ -7,8 +7,8 @@ use tauri::http::HeaderMap;
 use tauri::ipc::{InvokeBody, Request};
 
 #[tauri::command]
-pub async fn create_project(root: String, manifest_json: String) -> Result<(), ProjectError> {
-    blocking(move || project::create_project(&project::require_absolute(&PathBuf::from(root))?, &manifest_json)).await
+pub async fn create_project(picked: tauri::State<'_, super::PickedPaths>, root: String, manifest_json: String) -> Result<(), ProjectError> {
+    blocking({ let picked = picked.inner().clone(); move || super::create_picked(&picked, &root, &manifest_json) }).await
 }
 
 #[tauri::command]
@@ -60,14 +60,19 @@ pub async fn write_project_bytes(request: Request<'_>) -> Result<(), ProjectErro
     write_bytes_request(request.body(), request.headers()).await
 }
 
-/// The folder to watch: it must be a project. The error is the message the UI shows.
-fn watch_root(root: String) -> Result<PathBuf, String> {
-    project::require_project(&PathBuf::from(root)).map_err(|e| e.to_string())
+/// The folder to watch: it must be a project.
+fn watch_root(root: String) -> Result<PathBuf, ProjectError> {
+    project::require_project(&PathBuf::from(root))
 }
 
 #[tauri::command]
-pub fn watch_project<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: tauri::State<crate::platform::fs_watch::WatchState>, root: String) -> Result<(), String> {
+pub fn watch_project<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: tauri::State<crate::platform::fs_watch::WatchState>, root: String) -> Result<(), ProjectError> {
     crate::platform::fs_watch::start(app, watch_root(root)?, &state)
+}
+
+#[tauri::command]
+pub fn unwatch_project(state: tauri::State<crate::platform::fs_watch::WatchState>) -> Result<(), ProjectError> {
+    crate::platform::fs_watch::stop(&state)
 }
 
 #[cfg(test)]
@@ -79,12 +84,14 @@ mod tests {
     #[test]
     fn a_project_is_created_and_its_manifest_read_back() {
         let dir = tempfile::tempdir().unwrap();
-        let r = dir.path().join("Book").to_string_lossy().into_owned();
+        let r = dir.path().to_string_lossy().into_owned();
+        let picked = super::super::PickedPaths::default();
+        picked.record(super::super::PickKind::Folder, dir.path()).unwrap();
         assert_eq!(run(read_project_file(r.clone(), "cadabra.json".into())).unwrap(), None);
-        run(create_project(r.clone(), "{\"a\":1}".into())).unwrap();
+        super::super::create_picked(&picked, &r, "{\"a\":1}").unwrap();
         assert_eq!(run(read_project_file(r.clone(), "cadabra.json".into())).unwrap().unwrap().contents, "{\"a\":1}");
-        assert_eq!(run(create_project(r.clone(), "{}".into())), Err(ProjectError::AlreadyExists));
-        assert!(run(create_project("relative".into(), "{}".into())).is_err());
+        assert_eq!(super::super::create_picked(&picked, &r, "{}"), Err(ProjectError::AlreadyExists));
+        assert!(super::super::create_picked(&picked, "relative", "{}").is_err());
         let backup = run(backup_manifest(r)).unwrap();
         assert!(backup.starts_with(".cadabra/backups/"), "{backup}");
     }
@@ -141,6 +148,6 @@ mod tests {
     fn only_a_project_can_be_watched() {
         let book = project();
         assert_eq!(watch_root(root(&book)).unwrap(), book.path());
-        assert!(!watch_root(root(&tempfile::tempdir().unwrap())).unwrap_err().is_empty());
+        assert!(matches!(watch_root(root(&tempfile::tempdir().unwrap())), Err(ProjectError::NotAProject { .. })));
     }
 }

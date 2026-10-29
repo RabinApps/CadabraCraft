@@ -1,6 +1,6 @@
 //! "Deleting" pages by moving them to `.cadabra/trash/`, and restoring them.
-use super::fsio::stamp;
-use super::paths::{free_name, resolve};
+use super::fsio::{move_to_free_copy_name, move_to_free_name, stamp};
+use super::paths::resolve;
 use super::{ProjectError, Result};
 use serde::Serialize;
 use std::fs;
@@ -20,11 +20,7 @@ pub fn trash_file(root: &Path, rel: &str) -> Result<String> {
         Ok(_) => {}
     }
     let name = rel.replace('/', "__");
-    let to_rel = free_name(root, &format!(".cadabra/trash/{}-{name}", stamp()))?;
-    let to = resolve(root, &to_rel)?;
-    fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?)?;
-    fs::rename(from, to)?;
-    Ok(to_rel)
+    move_to_free_copy_name(root, &from, &format!(".cadabra/trash/{}-{name}", stamp()), rel)
 }
 
 /// `manuscript|front-matter|back-matter/<name>.json`, optionally one language folder deeper.
@@ -50,7 +46,7 @@ pub struct TrashEntry {
     pub trashed_at: String,
 }
 
-/// Splits `<stamp>-<flattened>[-N].json` into the stamp and the original path. None for anything that is not a trashed
+/// Splits `<stamp>-<flattened>[~N].json` into the stamp and the original path. None for anything that is not a trashed
 /// page (other file types, or paths outside manuscript/front-matter/back-matter).
 ///
 /// Flattening turns `/` into `__`, which is ambiguous when a file name itself contains `__`. Pages live directly in
@@ -68,7 +64,16 @@ pub(super) fn parse_trash_name(name: &str) -> Option<(String, String)> {
     if !stamp_ok || !name.ends_with(".json") {
         return None;
     }
-    let (dir, file) = name[14..].split_once("__")?;
+    // A counted copy (`...~2.json`, two pages trashed in one minute) restores to the page it came from.
+    let uncounted;
+    let mut body = &name[14..];
+    if let Some((head, n)) = body.strip_suffix(".json").and_then(|s| s.rsplit_once('~')) {
+        if n.parse::<u32>().is_ok_and(|n| n >= 2) {
+            uncounted = format!("{head}.json");
+            body = &uncounted;
+        }
+    }
+    let (dir, file) = body.split_once("__")?;
     if !RESTORE_DIRS.contains(&dir) || file.is_empty() || file.contains('/') {
         return None;
     }
@@ -118,12 +123,8 @@ pub fn restore_trash(root: &Path, trash_rel: &str) -> Result<String> {
     if !from.is_file() {
         return Err(ProjectError::NotFound { path: trash_rel.to_string() });
     }
-    let to_rel = free_name(root, &original)?;
-    let to = resolve(root, &to_rel)?;
-    fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?)?;
-    // Same-volume rename is atomic: the page is either still in the trash or fully back, never half-written.
-    fs::rename(from, to)?;
-    Ok(to_rel)
+    // Atomic and never replacing: the page is either still in the trash or fully back, never half-written.
+    move_to_free_name(root, &from, &original, trash_rel)
 }
 
 #[cfg(test)]

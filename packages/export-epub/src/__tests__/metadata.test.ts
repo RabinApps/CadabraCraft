@@ -39,6 +39,47 @@ describe("ISBN", () => {
   });
 });
 
+describe("retail metadata", () => {
+  const opf = (publishing?: object) =>
+    strFromU8(
+      unzipSync(buildEpub({ ...meta, publishing }, [{ id: "ch1", title: "One", doc }]))[
+        "OEBPS/content.opf"
+      ]!,
+    );
+  it("writes nothing for no publishing details, an empty object or unset keys", () => {
+    for (const x of [opf(), opf({})]) {
+      expect(x).not.toMatch(/dc:(publisher|description|subject|rights|date)|belongs-to-collection/);
+    }
+  });
+  it("writes publisher, description, each subject, rights and the date after the language", () => {
+    const x = opf({
+      publisher: "Quay Press",
+      description: "Line one.\nLine two & <more>.",
+      subjects: ["FIC014000", "Light & sea"],
+      rights: "© 2026 A. Writer",
+      published: "2026-11-03",
+    });
+    expect(x).toContain(
+      '<dc:language>en</dc:language><dc:publisher>Quay Press</dc:publisher><dc:description>Line one.\nLine two &amp; &lt;more&gt;.</dc:description><dc:subject>FIC014000</dc:subject><dc:subject>Light &amp; sea</dc:subject><dc:rights>© 2026 A. Writer</dc:rights><dc:date>2026-11-03</dc:date><meta property="dcterms:modified">',
+    );
+  });
+  it("writes the series as an EPUB 3 collection with its position", () => {
+    const x = opf({ series: "Harbour <Lights>", seriesNumber: "2.5" });
+    expect(x).toContain(
+      '<meta property="belongs-to-collection" id="series">Harbour &lt;Lights&gt;</meta><meta refines="#series" property="collection-type">series</meta><meta refines="#series" property="group-position">2.5</meta>',
+    );
+  });
+  it("writes a series without a position when none is set", () => {
+    const x = opf({ series: "Harbour Lights" });
+    expect(x).toContain('property="collection-type">series</meta>');
+    expect(x).not.toContain("group-position");
+  });
+  it("is deterministic for the same details", () => {
+    const p = { publisher: "P", subjects: ["a", "b"], series: "S", seriesNumber: "1" };
+    expect(opf(p)).toBe(opf(p));
+  });
+});
+
 describe("accessibility metadata", () => {
   const png = new Uint8Array(
     readFileSync(new URL("../../../../fixtures/assets/pixel.png", import.meta.url)),

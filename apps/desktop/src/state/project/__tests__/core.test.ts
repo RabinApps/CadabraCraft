@@ -364,13 +364,13 @@ describe("project store", () => {
       await a().openProject("/p");
       expect(s().currentId).toBe("fm-1");
     });
-    it("upgrades a v1 project on open: backs up first, then saves as v5", async () => {
+    it("upgrades a v1 project on open: backs up first, then saves as v6", async () => {
       const v1 = { ...manifestOnDisk(), formatVersion: 1 };
       disk.set("cadabra.json", JSON.stringify(v1));
       useProject.setState({ manifest: null, currentId: null, currentDoc: null, hashes: {} });
       await a().openProject("/p");
       expect(s().notice).toMatch(/upgraded from format 1/);
-      expect(manifestOnDisk().formatVersion).toBe(5);
+      expect(manifestOnDisk().formatVersion).toBe(6);
     });
   });
   describe("book details and cover", () => {
@@ -412,6 +412,39 @@ describe("project store", () => {
       });
       await a().updateDetails({ ...form(), isbn: "  " });
       expect(onDisk().isbn).toBeNull();
+    });
+    it("saves the retail details of the source edition, trimmed, and removes them when emptied", async () => {
+      const blank = {
+        publisher: "",
+        description: "",
+        subjects: "",
+        series: "",
+        seriesNumber: "",
+        rights: "",
+        published: "",
+      };
+      await a().updateDetails({
+        ...form(),
+        publishing: {
+          ...blank,
+          publisher: "  Quay Press ",
+          subjects: "FIC014000\n\n Lighthouses \nFIC014000",
+          series: "Harbour Lights",
+          seriesNumber: "2",
+          published: "2026-11-03",
+        },
+      });
+      expect(onDisk().publishing).toEqual({
+        publisher: "Quay Press",
+        subjects: ["FIC014000", "Lighthouses"],
+        series: "Harbour Lights",
+        seriesNumber: "2",
+        published: "2026-11-03",
+      });
+      await a().updateDetails({ ...form(), title: "Kept" }); // no publishing in the form: unchanged
+      expect(onDisk().publishing.publisher).toBe("Quay Press");
+      await a().updateDetails({ ...form(), publishing: blank });
+      expect(onDisk()).not.toHaveProperty("publishing");
     });
     it("keeps the trim size in the manifest only when it differs from what the book resolves to", async () => {
       const trim = () => JSON.parse(disk.get("cadabra.json")!).trimSize;

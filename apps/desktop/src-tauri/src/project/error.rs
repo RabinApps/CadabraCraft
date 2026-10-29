@@ -44,12 +44,16 @@ pub enum ProjectError {
     ImageRefNotFound { reference: String },
     ImageRefOutside { reference: String },
     InvalidFileName,
+    /// A path the webview named for `create_project`, `import_asset` or `read_import_source` that the author never picked in a file dialog.
+    NotPicked { name: String },
     /// The operating system refused access (file or folder permissions, read-only volume).
     PermissionDenied { path: String },
     /// The volume is full or the user's quota is used up.
     DiskFull { path: String },
     /// An image whose width times height is above `MAX_IMAGE_PIXELS` (a small file can still decode to gigabytes).
     ImageDimensions { name: String, max_megapixels: u64 },
+    /// The folder watcher could not start; `path` is the folder name, never an absolute path.
+    WatchFailed { path: String },
     /// Any other IO or runtime failure (the OS message).
     Io { message: String },
 }
@@ -80,9 +84,11 @@ impl fmt::Display for ProjectError {
             ImageRefNotFound { reference } => write!(f, "image not found: {reference}"),
             ImageRefOutside { reference } => write!(f, "image is outside the document folder: {reference}"),
             InvalidFileName => write!(f, "invalid file name"),
+            NotPicked { name } => write!(f, "{name} was not chosen in a file or folder dialog"),
             PermissionDenied { path } => write!(f, "no permission to access {path}"),
             DiskFull { path } => write!(f, "not enough disk space to write {path}"),
             ImageDimensions { name, max_megapixels } => write!(f, "{name} has more than {max_megapixels} megapixels"),
+            WatchFailed { path } => write!(f, "cannot watch {path} for changes made outside the app"),
             Io { message } => write!(f, "{message}"),
         }
     }
@@ -126,6 +132,7 @@ mod tests {
         let j = |e: ProjectError| serde_json::to_string(&e).unwrap();
         assert_eq!(j(ProjectError::UnsafePath { path: "../x".into() }), r#"{"kind":"unsafe_path","path":"../x"}"#);
         assert_eq!(j(ProjectError::TooLarge { path: "a.png".into(), max_mb: 25 }), r#"{"kind":"too_large","path":"a.png","max_mb":25}"#);
+        assert_eq!(j(ProjectError::WatchFailed { path: "book".into() }), r#"{"kind":"watch_failed","path":"book"}"#);
         assert_eq!(j(ProjectError::AlreadyExists), r#"{"kind":"already_exists"}"#);
         assert_eq!(j(ProjectError::NotAProject { path: "/x".into() }), r#"{"kind":"not_a_project","path":"/x"}"#);
         assert_eq!(j(ProjectError::IcloudPending { path: "a".into() }), r#"{"kind":"icloud_pending","path":"a"}"#);
@@ -186,6 +193,7 @@ mod tests {
             (PermissionDenied { path: p() }, "no permission to access p"),
             (DiskFull { path: p() }, "not enough disk space to write p"),
             (ImageDimensions { name: p(), max_megapixels: 150 }, "p has more than 150 megapixels"),
+            (WatchFailed { path: p() }, "cannot watch p for changes made outside the app"),
             (Io { message: "boom".into() }, "boom"),
         ];
         for (e, text) in all {

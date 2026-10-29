@@ -9,10 +9,11 @@ import {
 import { FormatError } from "./errors";
 import { validateEditions } from "./editions";
 import { validateReferences } from "./references";
+import { validatePublishing, type Publishing } from "./publishing";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 5;
+export const CURRENT_FORMAT_VERSION = 6;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -23,6 +24,8 @@ export interface Edition {
   isbn: string | null;
   /** Relative `assets/<name>` path of this edition's cover image, or null. */
   cover: string | null;
+  /** Retail details for the EPUB's OPF metadata (formatVersion 6). Absent means none are set. */
+  publishing?: Publishing;
 }
 
 /** A chapter or matter page, shared by every edition. Text and titles are per language. */
@@ -130,6 +133,10 @@ function editions(v: unknown): Edition[] {
   return v.map((e, i) => {
     const o = (e ?? {}) as Record<string, unknown>;
     const name = `editions[${i}]`;
+    const publishing =
+      o.publishing === undefined
+        ? undefined
+        : validatePublishing(o.publishing, `${name}.publishing`);
     return {
       language: str(o.language, `${name}.language`),
       title: str(o.title, `${name}.title`),
@@ -137,6 +144,7 @@ function editions(v: unknown): Edition[] {
       identifier: str(o.identifier, `${name}.identifier`),
       isbn: o.isbn == null ? null : str(o.isbn, `${name}.isbn`),
       cover: o.cover == null ? null : cover(o.cover, `${name}.cover`),
+      ...(publishing && Object.keys(publishing).length > 0 ? { publishing } : {}),
     };
   });
 }

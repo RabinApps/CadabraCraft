@@ -86,7 +86,7 @@ test("Export PDF dialog shows KDP print checks for a very short book", async ({ 
   await expect(checks).toContainText("no cover image");
 });
 
-test("Export PDF explains when Typst is missing and offers a location field", async ({ page }) => {
+test("Export PDF explains when Typst is missing and offers no location field", async ({ page }) => {
   await newProject(page);
   await page.evaluate(() => {
     window.__typstError = {
@@ -102,7 +102,7 @@ test("Export PDF explains when Typst is missing and offers a location field", as
   const dialog = page.getByRole("dialog", { name: "Export book" });
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("brew install typst");
-  await expect(dialog.getByLabel("Typst location (optional)")).toBeVisible();
+  await expect(dialog.getByLabel("Typst location (optional)")).toHaveCount(0);
   expect(await page.evaluate(() => window.__disk["exports/en/book.pdf"])).toBeUndefined();
 });
 

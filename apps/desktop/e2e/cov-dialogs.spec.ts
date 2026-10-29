@@ -209,13 +209,13 @@ test("book details: validation, a cancelled or failed cover picker, an unreadabl
   await dialog.getByLabel("Title").fill("Renamed");
 
   // The picker is cancelled (nothing happens), then the copy of the image fails (the reason is shown).
-  await answerWith(page, "plugin:dialog|open", "return null");
+  await answerWith(page, "pick_image", "return null");
   await dialog.getByRole("button", { name: "Choose image…" }).click();
   await expect(alert).toHaveCount(0);
   await page.evaluate(() => {
     window.__importError = "image is too large";
   });
-  await answerWith(page, "plugin:dialog|open", 'return "/pics/pic.png"');
+  await answerWith(page, "pick_image", 'return "/pics/pic.png"');
   await dialog.getByRole("button", { name: "Choose image…" }).click();
   await expect(alert).toContainText("image is too large");
   await page.evaluate(() => {
@@ -393,11 +393,8 @@ async function serveImports(page: Page) {
      if (!(a.path in f)) throw "cannot read " + a.path;
      return Array.from(new TextEncoder().encode(f[a.path]));`,
   );
-  await answerWith(
-    page,
-    "plugin:dialog|open",
-    'return a && a.options && a.options.filters ? window.__pick : "/newbook"',
-  );
+  await answerWith(page, "pick_import_source", "return window.__pick");
+  await answerWith(page, "pick_folder", 'return "/newbook"');
 }
 const picks = (page: Page, path: string | null) =>
   page.evaluate((p) => {
@@ -416,31 +413,31 @@ test("import dialog: pickers that cancel, fail or answer late, a busy read and t
 
   await picks(page, null);
   await chooseFile.click();
-  await waitForCall(page, "plugin:dialog|open", 1);
+  await waitForCall(page, "pick_import_source", 1);
   await expect(dialog.getByLabel("File")).toHaveValue("");
-  await failOn(page, "plugin:dialog|open", "picker broke");
+  await failOn(page, "pick_import_source", "picker broke");
   await chooseFile.click();
   await expect(dialog.getByRole("alert")).toContainText("picker broke");
-  await stopFailing(page, "plugin:dialog|open");
+  await stopFailing(page, "pick_import_source");
 
   // Answers that arrive after the dialog was closed are dropped.
   await picks(page, "/src/a.html");
-  await hold(page, "plugin:dialog|open");
+  await hold(page, "pick_import_source");
   await chooseFile.click();
-  await waitForCall(page, "plugin:dialog|open", 3);
+  await waitForCall(page, "pick_import_source", 3);
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await expect(dialog).toHaveCount(0);
-  await release(page, "plugin:dialog|open");
+  await release(page, "pick_import_source");
   await openDialog();
   await expect(dialog.getByLabel("File")).toHaveValue("");
-  await hold(page, "plugin:dialog|open");
+  await hold(page, "pick_import_source");
   await chooseFile.click();
-  await waitForCall(page, "plugin:dialog|open", 4);
+  await waitForCall(page, "pick_import_source", 4);
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await expect(dialog).toHaveCount(0);
-  await failOn(page, "plugin:dialog|open", "late failure");
-  await release(page, "plugin:dialog|open");
-  await stopFailing(page, "plugin:dialog|open");
+  await failOn(page, "pick_import_source", "late failure");
+  await release(page, "pick_import_source");
+  await stopFailing(page, "pick_import_source");
   await openDialog();
   await expect(dialog.getByRole("alert")).toHaveCount(0);
 

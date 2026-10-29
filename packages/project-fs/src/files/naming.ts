@@ -7,12 +7,15 @@ export function stamp(at: Date = new Date()): string {
   return `${p(at.getUTCFullYear(), 4)}${p(at.getUTCMonth() + 1)}${p(at.getUTCDate())}-${p(at.getUTCHours())}${p(at.getUTCMinutes())}`;
 }
 
-/** `name.ext` + 2 -> `name-2.ext` (suffix goes before the last extension of the last segment). */
-export function withSuffix(rel: string, n: number): string {
+/**
+ * Backup and trash copies count with `~`: `name.ext` + 2 -> `name~2.ext`. Page names never hold `~`, so the copy of `a.json`
+ * cannot be mistaken for a copy of a page called `a-2.json` (a plain `-n` could).
+ */
+export function withCopySuffix(rel: string, n: number): string {
   if (n <= 1) return rel;
   const slash = rel.lastIndexOf("/") + 1;
   const dot = rel.lastIndexOf(".");
-  return dot > slash ? `${rel.slice(0, dot)}-${n}${rel.slice(dot)}` : `${rel}-${n}`;
+  return dot > slash ? `${rel.slice(0, dot)}~${n}${rel.slice(dot)}` : `${rel}~${n}`;
 }
 
 /** First relative path of the form `candidate(n)` (n = 1, 2, ...) that does not exist under `root` yet. */

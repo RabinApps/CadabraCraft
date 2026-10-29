@@ -8,6 +8,7 @@ import {
   normalizeIsbn,
   textDirection,
   type BookMetadata,
+  type Publishing,
   type ChapterDoc,
   type MatterKind,
   type Section,
@@ -131,6 +132,31 @@ function semantics(c: EpubChapter): { type: string; cls: string } {
 }
 
 const listedInToc = (c: EpubChapter): boolean => c.kind === undefined || !UNLISTED.includes(c.kind);
+
+/**
+ * OPF metadata for the retail details: `dc:publisher`, `dc:description`, one `dc:subject` each, `dc:rights`, `dc:date`
+ * (publication date) and the series as an EPUB 3 collection with its `group-position`. Unset keys write nothing.
+ */
+function retailMetadata(p: Publishing | undefined): string {
+  if (!p) return "";
+  const tag = (name: string, value: string | undefined) =>
+    value === undefined ? "" : `<dc:${name}>${esc(value)}</dc:${name}>`;
+  const series = p.series
+    ? `<meta property="belongs-to-collection" id="series">${esc(p.series)}</meta><meta refines="#series" property="collection-type">series</meta>${
+        p.seriesNumber
+          ? `<meta refines="#series" property="group-position">${esc(p.seriesNumber)}</meta>`
+          : ""
+      }`
+    : "";
+  return (
+    tag("publisher", p.publisher) +
+    tag("description", p.description) +
+    (p.subjects ?? []).map((s) => tag("subject", s)).join("") +
+    tag("rights", p.rights) +
+    tag("date", p.published) +
+    series
+  );
+}
 
 function isoNoMs(d: Date): string {
   return d.toISOString().replace(/\.\d{3}Z$/, "Z");
@@ -262,6 +288,7 @@ export function buildEpub(
     isbn && `urn:isbn:${isbn}` !== meta.identifier.trim().toLowerCase()
       ? `<dc:identifier>urn:isbn:${isbn}</dc:identifier>`
       : "";
+  const retail = retailMetadata(meta.publishing);
   const stats = chapters.map((c) => imageAltStats(c.doc));
   const a11y = accessibilityMetadata({
     images: stats.reduce((n, s) => n + s.total, 0),
@@ -270,7 +297,7 @@ export function buildEpub(
     hasGif: [...imageOwners.keys()].some((p) => p.toLowerCase().endsWith(".gif")),
   });
   files["OEBPS/content.opf"] = strToU8(
-    `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier>${isbnUrn}<dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language><meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta>${a11y}${cover ? '<meta name="cover" content="epub-cover-image"/>' : ""}</metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}${cover ? `<item id="epub-cover-image" href="${esc(cover.path)}" media-type="${coverType}" properties="cover-image"/>` : ""}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,
+    `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier>${isbnUrn}<dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language>${retail}<meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta>${a11y}${cover ? '<meta name="cover" content="epub-cover-image"/>' : ""}</metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}${cover ? `<item id="epub-cover-image" href="${esc(cover.path)}" media-type="${coverType}" properties="cover-image"/>` : ""}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,
   );
 
   return zipSync(files as never, { mtime: new Date(Date.UTC(2020, 0, 1)) });

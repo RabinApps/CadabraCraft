@@ -2,6 +2,7 @@ import type { Manifest, Reference, Tree } from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
+import type { PublishingForm } from "../../lib/publishingForm";
 import type { ImportChoices, ImportReport } from "../../lib/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
@@ -16,8 +17,6 @@ export interface PdfExportOptions extends ExportScope {
   template: string;
   /** Put the book's cover (if it has one) first, as a full-page image. Default true. */
   cover?: boolean;
-  /** User-configured location of the typst program (an app preference, never stored in the project). */
-  typstPath?: string;
   /** Print fonts for this export. Default: the book's own choice (`manifest.fonts`). */
   fonts?: { body?: string; heading?: string };
 }
@@ -141,6 +140,8 @@ export interface BookDetails {
   cover: string | null;
   /** Print page size of the book (shared by every edition). Absent keeps what the book has. */
   trimSize?: TrimSize;
+  /** Retail details of this edition. Absent keeps what the edition has. */
+  publishing?: PublishingForm;
 }
 
 /** Cover images the exporters can place: png, jpg, jpeg and webp (not gif or svg). */
@@ -236,6 +237,8 @@ export interface EditionActions {
 
 export interface ProjectActions {
   externalChange: (path: string) => Promise<void>;
+  /** The file watcher failed: tell the author that edits made outside the app may not show up. */
+  watchFailed: () => void;
   openProject: (root: string) => Promise<void>;
   /** Saves unsaved typing, then leaves the open book (back to the start screen). Nothing on disk changes. */
   closeProject: () => Promise<void>;
@@ -338,7 +341,7 @@ export interface ExportActions {
    * Asks Typst for where each page entry starts and how long the book is, for the book as it is now (the open page's draft
    * included), without producing a PDF or taking the export lock. The last result is reused while the content is unchanged.
    */
-  measurePages: (options: { typstPath?: string }) => Promise<PageReport>;
+  measurePages: () => Promise<PageReport>;
 }
 
 export interface AudioActions {

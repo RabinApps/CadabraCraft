@@ -58,6 +58,49 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   expect((await manifest()).editions[0].cover).toBeNull();
 });
 
+test("Book details: publishing details save to the book, a wrong value is explained, and clearing them removes them", async ({
+  page,
+}) => {
+  await newProject(page);
+  const manifest = () => page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
+  await page.getByRole("button", { name: "Book details" }).click();
+  const dialog = page.getByRole("dialog", { name: "Book details" });
+  await dialog.getByText("Publishing details").click();
+  await dialog.getByLabel("Publisher").fill("Quay Press");
+  await dialog.getByLabel("Series", { exact: true }).fill("Harbour Lights");
+  await dialog.getByLabel("Number in series").fill("one");
+  await dialog.getByRole("button", { name: "Save details" }).click();
+  await expect(dialog.getByRole("alert")).toHaveText("Use a number such as 1 or 2.5.");
+  await expect(dialog.getByLabel("Number in series")).toHaveAttribute("aria-invalid", "true");
+  await dialog.getByLabel("Number in series").fill("2");
+  await dialog.getByLabel("Publication date").fill("2026-11-03");
+  await dialog.getByLabel("Subjects").fill("FIC014000\nLighthouses");
+  await dialog.getByLabel("Description").fill("A keeper and a storm.");
+  await dialog.getByLabel("Rights").fill("© 2026 A. Writer");
+  await dialog.getByRole("button", { name: "Save details" }).click();
+  await expect(dialog).toBeHidden();
+  expect((await manifest()).editions[0].publishing).toEqual({
+    publisher: "Quay Press",
+    description: "A keeper and a storm.",
+    subjects: ["FIC014000", "Lighthouses"],
+    series: "Harbour Lights",
+    seriesNumber: "2",
+    rights: "© 2026 A. Writer",
+    published: "2026-11-03",
+  });
+
+  await page.getByRole("button", { name: "Book details" }).click();
+  await dialog.getByText("Publishing details").click();
+  await expect(dialog.getByLabel("Publisher")).toHaveValue("Quay Press");
+  for (const label of ["Publisher", "Rights", "Subjects", "Description", "Publication date"])
+    await dialog.getByLabel(label).fill("");
+  await dialog.getByLabel("Series", { exact: true }).fill("");
+  await dialog.getByLabel("Number in series").fill("");
+  await dialog.getByRole("button", { name: "Save details" }).click();
+  await expect(dialog).toBeHidden();
+  expect((await manifest()).editions[0]).not.toHaveProperty("publishing");
+});
+
 test("print preview shows the cover, and the PDF dialog offers to include it only when there is one", async ({
   page,
 }) => {

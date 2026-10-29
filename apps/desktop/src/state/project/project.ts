@@ -8,6 +8,7 @@ import {
   validateFonts,
   validateManifest,
   updateEdition,
+  type Edition,
   type Manifest,
   sourceFile,
   sourceTitle,
@@ -18,6 +19,7 @@ import { bridge } from "../../lib/bridge";
 import { forgetProjectAssets } from "../../lib/assets";
 import { forgetProjectReferences } from "../../lib/references";
 import { runImport } from "../../lib/importBook";
+import { publishingFromForm, type PublishingForm } from "../../lib/publishingForm";
 import { errText, noManifestMessage } from "../../lib/projectError";
 import { useSettings } from "../editorPrefs";
 import { parseChapter, bestEffort, NO_HISTORY } from "./util";
@@ -27,6 +29,14 @@ import type { Ctx } from "./context";
 /** Stores the book's trim size only when it differs from what the book resolves to now, so books that never chose one keep following their template. */
 const withTrimSize = (m: Manifest, trimSize: TrimSize | undefined): Manifest =>
   !trimSize || resolveTrimSize(m) === trimSize ? m : { ...m, trimSize };
+
+/** The edition with the retail details of `form`; with no form it is unchanged, and an empty form removes `publishing`. */
+const withPublishing = (e: Edition, form: PublishingForm | undefined): Edition => {
+  if (!form) return e;
+  const { publishing: _old, ...rest } = e;
+  const publishing = publishingFromForm(form);
+  return Object.keys(publishing).length ? { ...rest, publishing } : rest;
+};
 
 /** Opening, closing and creating a book, changes from outside the app, import, and the book-level settings in cadabra.json. */
 export const createProjectActions = (ctx: Ctx): ProjectActions => {
@@ -63,6 +73,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     if (previous && previous !== root) {
       forgetProjectAssets(previous);
       forgetProjectReferences(previous);
+      await bestEffort(() => bridge.unwatchProject(), undefined); // the old book's changes must not reach the new one
     }
     set({
       root,
@@ -84,6 +95,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     } catch (e) {
       // Never stay half open (a book on screen that is not watched): go back to no book.
       set({ ...closedState });
+      await bestEffort(() => bridge.unwatchProject(), undefined);
       throw e;
     }
   };
@@ -125,6 +137,10 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     );
   };
   return {
+    watchFailed() {
+      if (get().root)
+        set({ notice: t`Changes made outside the app may not be noticed. Saving still works.` });
+    },
     async externalChange(path) {
       const { root, manifest, hashes } = get();
       if (!root || !manifest) return;
@@ -185,6 +201,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         forgetProjectAssets(root);
         forgetProjectReferences(root);
       }
+      await bestEffort(() => bridge.unwatchProject(), undefined);
       set({
         root: null,
         manifest: null,
@@ -261,7 +278,15 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
           isbn: d.isbn.trim() || null,
           cover: d.cover,
         });
-        const withTrim = withTrimSize(next, d.trimSize);
+        const withTrim = withTrimSize(
+          {
+            ...next,
+            editions: next.editions.map((e) =>
+              e.language === edition ? withPublishing(e, d.publishing) : e,
+            ),
+          },
+          d.trimSize,
+        );
         validateManifest(withTrim);
         if (JSON.stringify(withTrim) !== JSON.stringify(manifest)) await saveManifest(withTrim);
         return;
@@ -276,15 +301,18 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         {
           ...manifest,
           editions: [
-            {
-              ...source!,
-              language,
-              title: d.title.trim(),
-              author: d.author.trim(),
-              identifier: d.identifier.trim(),
-              isbn: d.isbn.trim() || null,
-              cover: d.cover,
-            },
+            withPublishing(
+              {
+                ...source!,
+                language,
+                title: d.title.trim(),
+                author: d.author.trim(),
+                identifier: d.identifier.trim(),
+                isbn: d.isbn.trim() || null,
+                cover: d.cover,
+              },
+              d.publishing,
+            ),
             ...translations,
           ],
           ...(language === source!.language

@@ -171,6 +171,11 @@ msgstr ""
 msgid "{0} of {1} MB"
 msgstr ""
 
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "{0} was not chosen in a file or folder dialog"
+msgstr ""
+
 #. placeholder {0}: ref.title
 #. placeholder {1}: errText(e)
 #: src/state/project/references.ts
@@ -642,6 +647,11 @@ msgstr ""
 msgid "Cannot restore {0}"
 msgstr ""
 
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Cannot watch {0} for changes made outside the app"
+msgstr ""
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Caption"
 msgstr ""
@@ -652,6 +662,10 @@ msgstr ""
 
 #: src/app/shell/Details.tsx
 msgid "Change template"
+msgstr ""
+
+#: src/state/project/project.ts
+msgid "Changes made outside the app may not be noticed. Saving still works."
 msgstr ""
 
 #: src/app/shell/Details.tsx
@@ -1040,6 +1054,10 @@ msgstr ""
 msgid "Delete voices"
 msgstr ""
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Description"
+msgstr ""
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Description (alt text)"
 msgstr ""
@@ -1139,6 +1157,11 @@ msgstr ""
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr ""
 
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Each subject can have up to {0} characters."
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Earlier versions"
 msgstr ""
@@ -1180,8 +1203,16 @@ msgstr ""
 msgid "Enjoying CadabraCraft?"
 msgstr ""
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Enter a real date."
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Enter Full Screen"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Enter the series name first."
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -1353,6 +1384,10 @@ msgstr ""
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Footnote"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "For example: © 2026 A. Writer. All rights reserved."
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -1675,10 +1710,6 @@ msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Later"
-msgstr ""
-
-#: src/app/export/PdfPanel.tsx
-msgid "Leave empty to use the Typst that comes with the app."
 msgstr ""
 
 #: src/app/export/EditionsChecklist.tsx
@@ -2030,6 +2061,10 @@ msgstr ""
 msgid "Nothing was pasted here. Select text inside one paragraph or cell and try again"
 msgstr ""
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Number in series"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 msgid "Numbered list"
 msgstr ""
@@ -2048,6 +2083,10 @@ msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "One per line: BISAC codes such as FIC014000, or keywords."
 msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
@@ -2262,6 +2301,18 @@ msgstr ""
 #. placeholder {0}: parsed.fromVersion
 #: src/state/project/project.ts
 msgid "Project upgraded from format {0}; backup saved to {backup}"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publication date"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publisher"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publishing details"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -2489,6 +2540,10 @@ msgstr ""
 msgid "Right-hand page"
 msgstr ""
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Rights"
+msgstr ""
+
 #: src/editor/TableCommands.tsx
 msgid "Rows"
 msgstr ""
@@ -2570,6 +2625,10 @@ msgstr ""
 
 #: src/app/export/AudioExport.tsx
 msgid "Selected chapters"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Series"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -2736,6 +2795,10 @@ msgstr ""
 msgid "Stopping…"
 msgstr ""
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Stored in the EPUB for stores and libraries. Everything here is optional."
+msgstr ""
+
 #: src/app/home/Home.tsx
 msgid "Stored on this computer. No account needed."
 msgstr ""
@@ -2743,6 +2806,10 @@ msgstr ""
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Strikethrough"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Subjects"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -2815,6 +2882,10 @@ msgstr ""
 
 #: src/lib/audioErrors.ts
 msgid "The audiobook was cancelled. Chapters that were finished are kept."
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The blurb shown in stores. Plain text."
 msgstr ""
 
 #: src/lib/epubErrors.ts
@@ -3139,10 +3210,6 @@ msgid "Typst could not build the PDF:\n"
 "{0}"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
-msgid "Typst location (optional)"
-msgstr ""
-
 #. placeholder {0}: e.seconds
 #: src/lib/pdfErrors.ts
 msgid "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
@@ -3215,6 +3282,24 @@ msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Update available"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use a number such as 1 or 2.5."
+msgstr ""
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use a single line."
+msgstr ""
+
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use at most {0} characters."
+msgstr ""
+
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use at most {0} subjects."
 msgstr ""
 
 #: src/editor/ToolbarDialogs.tsx

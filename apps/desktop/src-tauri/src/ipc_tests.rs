@@ -2,32 +2,34 @@
 //! generated handler code (argument decoding, `State` and `Channel` injection, response encoding) runs, with the same
 //! command names and wire format the webview uses. The command bodies are tested next to their definitions.
 use crate::audio::AudioJobs;
-use crate::{audio, commands, fonts, typst}; // the `app_handlers!` macro (lib.rs) names these modules
 use crate::commands::testutil::{project, root, text};
 use crate::platform::fs_watch::WatchState;
+use crate::{audio, commands, fonts, typst}; // the `app_handlers!` macro (lib.rs) names these modules
 use serde_json::{json, Value};
 use std::sync::mpsc::channel;
 use std::time::Duration;
 use tauri::ipc::{CallbackFn, InvokeBody, InvokeResponseBody};
 use tauri::test::{get_ipc_response, mock_builder, mock_context, noop_assets, MockRuntime, INVOKE_KEY};
 use tauri::webview::InvokeRequest;
-use tauri::{App, Listener, WebviewWindow, WebviewWindowBuilder};
+use tauri::{App, Listener, Manager, WebviewWindow, WebviewWindowBuilder};
 
 /// The app as `run()` builds it (same managed state, same handlers), on the mock runtime, plus one window to call from.
 fn mock_app() -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     build_app(true)
 }
 
-/// `with_state: false` leaves `WatchState`, `AudioJobs` and `MediaRoots` unmanaged, as a build that forgot `.manage` would be.
+/// `with_state: false` leaves `WatchState`, `AudioJobs`, `MediaRoots` and `PickedPaths` unmanaged, as a build that forgot `.manage` would be.
 fn build_app(with_state: bool) -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     let builder = mock_builder();
-    let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()) } else { builder };
-    let app = builder
-        .invoke_handler(app_handlers![])
-        .build(mock_context(noop_assets()))
-        .expect("the mock app builds");
+    let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()).manage(commands::PickedPaths::default()) } else { builder };
+    let app = builder.invoke_handler(app_handlers![]).build(mock_context(noop_assets())).expect("the mock app builds");
     let window = WebviewWindowBuilder::new(&app, "main", Default::default()).build().expect("the mock window builds");
     (app, window)
+}
+
+/// What the native dialogs do in the real app: remember a path the author chose.
+fn pick(app: &App<MockRuntime>, kind: commands::PickKind, path: &std::path::Path) {
+    app.state::<commands::PickedPaths>().record(kind, path).unwrap();
 }
 
 fn request(cmd: &str, body: InvokeBody, headers: &[(&str, String)]) -> InvokeRequest {
@@ -71,10 +73,13 @@ const PAGE: &str = "manuscript/001-a.json";
 
 #[test]
 fn project_commands_work_through_the_ipc() {
-    let (_app, w) = mock_app();
+    let (app, w) = mock_app();
     let dir = tempfile::tempdir().unwrap();
-    let r = dir.path().join("Book").to_string_lossy().into_owned();
+    let r = dir.path().to_string_lossy().into_owned();
     assert_eq!(json_of(call(&w, "read_project_file", json!({ "root": r, "path": "cadabra.json" }))), Value::Null);
+    assert_eq!(kind_of(call(&w, "create_project", json!({ "root": r, "manifestJson": "{}" }))), "not_picked", "a folder nobody picked");
+    assert!(!dir.path().join("cadabra.json").exists());
+    pick(&app, commands::PickKind::Folder, dir.path());
     assert_eq!(json_of(call(&w, "create_project", json!({ "root": r, "manifestJson": "{}" }))), Value::Null);
     assert_eq!(kind_of(call(&w, "create_project", json!({ "root": r, "manifestJson": "{}" }))), "already_exists");
     assert_eq!(json_of(call(&w, "read_project_file", json!({ "root": r, "path": "cadabra.json" })))["contents"], "{}");
@@ -119,19 +124,24 @@ fn snapshot_commands_work_through_the_ipc() {
 
 #[test]
 fn asset_and_import_commands_work_through_the_ipc() {
-    let (_app, w) = mock_app();
+    let (app, w) = mock_app();
     let (book, src) = (project(), tempfile::tempdir().unwrap());
     let r = root(&book);
     std::fs::write(src.path().join("cover.png"), PNG).unwrap();
     std::fs::write(src.path().join("book.md"), "# Hi").unwrap();
     let cover = src.path().join("cover.png").to_string_lossy().into_owned();
+    let md = src.path().join("book.md").to_string_lossy().into_owned();
+    assert_eq!(kind_of(call(&w, "import_asset", json!({ "root": r, "source": cover }))), "not_picked");
+    assert_eq!(kind_of(call(&w, "read_import_source", json!({ "path": md }))), "not_picked");
+    assert_eq!(kind_of(call(&w, "read_import_image", json!({ "sourceFile": md, "reference": "a.png" }))), "not_picked");
+    pick(&app, commands::PickKind::Image, &src.path().join("cover.png"));
+    pick(&app, commands::PickKind::ImportSource, &src.path().join("book.md"));
     let rel = json_of(call(&w, "import_asset", json!({ "root": r, "source": cover })));
     assert!(rel.as_str().unwrap().starts_with("assets/"), "{rel}");
     let stored = json_of(call(&w, "import_asset_bytes", json!({ "root": r, "name": "map.png", "bytes": PNG })));
     assert!(stored.as_str().unwrap().starts_with("assets/"), "{stored}");
     assert_eq!(raw_of(call(&w, "read_asset", json!({ "root": r, "path": rel }))), PNG);
     assert_eq!(kind_of(call(&w, "read_asset", json!({ "root": r, "path": "assets/none.png" }))), "not_found");
-    let md = src.path().join("book.md").to_string_lossy().into_owned();
     assert_eq!(raw_of(call(&w, "read_import_source", json!({ "path": md }))), b"# Hi");
     assert!(call(&w, "read_import_image", json!({ "sourceFile": md, "reference": "../x.png" })).is_err());
     std::fs::write(src.path().join("a.png"), PNG).unwrap();
@@ -198,39 +208,29 @@ fn watch_project_emits_project_changed_with_the_relative_path() {
     let seen: Vec<String> = std::iter::from_fn(|| rx.recv_timeout(Duration::from_secs(20)).ok()).take_while(|p| p != "\"manuscript/001-a.json\"").collect();
     assert!(seen.iter().all(|p| !p.contains(".cadabra")), "{seen:?}");
     let plain = tempfile::tempdir().unwrap();
-    assert!(call(&w, "watch_project", json!({ "root": plain.path().to_string_lossy() })).is_err());
+    assert_eq!(kind_of(call(&w, "watch_project", json!({ "root": plain.path().to_string_lossy() }))), "not_a_project");
+    json_of(call(&w, "unwatch_project", json!({})));
+    json_of(call(&w, "unwatch_project", json!({}))); // nothing watched any more: still fine
+    assert!(tauri::Manager::state::<WatchState>(&app).0.lock().unwrap().is_none());
 }
 
 #[test]
 fn typst_commands_work_through_the_ipc() {
     let (_app, w) = mock_app();
-    let missing = json!({ "typstPath": "/no/such/typst" });
-    assert_eq!(kind_of(call(&w, "typst_find", missing.clone())), "not_found");
-    assert_eq!(kind_of(call(&w, "typst_list_fonts", missing)), "not_found");
+    // The program is never chosen by the caller: a `typstPath` argument is ignored. The result depends only on the
+    // bundled typst (or, in debug builds, the environment's): it answers, or it is not found.
+    for cmd in ["typst_find", "typst_list_fonts"] {
+        for args in [json!({}), json!({ "typstPath": "/bin/sh" })] {
+            if let Err(e) = call(&w, cmd, args) {
+                assert_eq!(e["kind"], "not_found", "{cmd}: {e}");
+            }
+        }
+    }
     // A binary body goes through `typst_compile`; a malformed one is refused, and so is a JSON one.
     assert_eq!(kind_of(get_ipc_response(&w, request("typst_compile", InvokeBody::Raw(vec![1, 2]), &[]))), "other");
     assert_eq!(kind_of(call(&w, "typst_compile", json!({}))), "other");
     assert_eq!(kind_of(get_ipc_response(&w, request("typst_query", InvokeBody::Raw(vec![1, 2]), &[]))), "other");
     assert_eq!(kind_of(call(&w, "typst_query", json!({}))), "other");
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        let d = tempfile::tempdir().unwrap();
-        let fake = d.path().join("fake-typst");
-        std::fs::write(&fake, "#!/bin/sh\ncase \"$1\" in --version) echo 'typst 9.9.9';; fonts) echo Alpha;; compile) cp main.typ out.pdf;; query) cp main.typ /dev/stdout;; esac\n").unwrap();
-        std::fs::set_permissions(&fake, std::fs::Permissions::from_mode(0o755)).unwrap();
-        let fake = fake.to_string_lossy().into_owned();
-        assert_eq!(json_of(call(&w, "typst_find", json!({ "typstPath": fake })))["version"], "typst 9.9.9");
-        assert_eq!(json_of(call(&w, "typst_list_fonts", json!({ "typstPath": fake }))), json!(["Alpha"]));
-        let header = json!({ "typstPath": fake, "source": "%PDF-x", "pdfA": false, "files": [] }).to_string();
-        let mut body = (header.len() as u32).to_le_bytes().to_vec();
-        body.extend(header.as_bytes());
-        assert_eq!(raw_of(get_ipc_response(&w, request("typst_compile", InvokeBody::Raw(body), &[]))), b"%PDF-x");
-        let header = json!({ "typstPath": fake, "source": "{\"total\":0}", "selector": "<page-report>", "files": [] }).to_string();
-        let mut body = (header.len() as u32).to_le_bytes().to_vec();
-        body.extend(header.as_bytes());
-        assert_eq!(raw_of(get_ipc_response(&w, request("typst_query", InvokeBody::Raw(body), &[]))), b"{\"total\":0}");
-    }
 }
 
 #[test]
@@ -269,6 +269,9 @@ fn audio_commands_work_through_the_ipc() {
 fn every_command() -> Vec<(&'static str, Value)> {
     let chunk_less = json!({ "jobId": "r", "root": "/r", "base": "b", "chunks": [], "voice": "v", "speed": 1.0, "formats": [] });
     vec![
+        ("pick_folder", json!({})),
+        ("pick_image", json!({})),
+        ("pick_import_source", json!({})),
         ("create_project", json!({ "root": "/r", "manifestJson": "{}" })),
         ("read_project_file", json!({ "root": "/r", "path": "p" })),
         ("write_project_file", json!({ "root": "/r", "path": "p", "contents": "c" })),
@@ -293,6 +296,7 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("read_import_source", json!({ "path": "/p" })),
         ("read_import_image", json!({ "sourceFile": "/p", "reference": "r" })),
         ("watch_project", json!({ "root": "/r" })),
+        ("unwatch_project", json!({})),
         ("audio_files_exist", json!({ "root": "/r", "paths": [] })),
         ("audio_cancel", json!({ "jobId": "j" })),
         ("audio_forget", json!({ "jobId": "j" })),
@@ -328,8 +332,9 @@ fn a_missing_or_mistyped_argument_is_refused_before_the_command_runs() {
 #[test]
 fn an_optional_argument_may_be_absent_or_null_but_not_mistyped() {
     let (_app, w) = mock_app();
-    for (cmd, args) in [("write_project_file", json!({ "root": "/not/a/project", "path": "p", "contents": "c" })), ("typst_find", json!({})), ("typst_list_fonts", json!({}))] {
-        let key = if cmd == "write_project_file" { "baseHash" } else { "typstPath" };
+    {
+        let (cmd, key) = ("write_project_file", "baseHash");
+        let args = json!({ "root": "/not/a/project", "path": "p", "contents": "c" });
         let mut wrong = args.clone();
         wrong[key] = json!({ "wrong": [true] });
         let err = call(&w, cmd, wrong).expect_err(cmd);
@@ -341,8 +346,29 @@ fn an_optional_argument_may_be_absent_or_null_but_not_mistyped() {
 fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
     let (_app, w) = build_app(false);
     for (cmd, args) in every_command() {
-        let needs_state = matches!(cmd, "watch_project" | "reference_stream_url" | "audio_cancel" | "audio_forget" | "audio_render_chapter" | "audio_sample" | "audio_build_m4b" | "audio_download_pack" | "fonts_download" | "fonts_cancel");
-        if needs_state { // (the others are not called: their arguments are placeholders for paths that must never be touched)
+        let needs_state = matches!(
+            cmd,
+            "watch_project"
+                | "unwatch_project"
+                | "pick_folder"
+                | "pick_image"
+                | "pick_import_source"
+                | "create_project"
+                | "import_asset"
+                | "read_import_source"
+                | "read_import_image"
+                | "reference_stream_url"
+                | "audio_cancel"
+                | "audio_forget"
+                | "audio_render_chapter"
+                | "audio_sample"
+                | "audio_build_m4b"
+                | "audio_download_pack"
+                | "fonts_download"
+                | "fonts_cancel"
+        );
+        if needs_state {
+            // (the others are not called: their arguments are placeholders for paths that must never be touched)
             let err = call(&w, cmd, args).expect_err(cmd);
             assert!(err.as_str().is_some_and(|m| m.contains("state not managed")), "{cmd}: {err}");
         }

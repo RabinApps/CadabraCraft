@@ -2,7 +2,6 @@ type FileList = readonly (readonly [string, Uint8Array])[];
 
 /** What `typst_compile` needs: the Typst source and the asset files (project-relative name, bytes) to write next to it. */
 export interface CompileRequest {
-  typstPath: string | null;
   source: string;
   files: FileList;
   pdfA: boolean;
@@ -10,7 +9,6 @@ export interface CompileRequest {
 
 /** What `typst_query` needs: the same source and files, and the selector (for example `<page-report>`) to query. */
 export interface QueryRequest {
-  typstPath: string | null;
   source: string;
   files: FileList;
   selector: string;
@@ -40,17 +38,17 @@ function pack(fields: Record<string, unknown>, files: FileList): Uint8Array {
 }
 
 /**
- * Packs a compile request. Header fields: `typstPath`, `source`, `pdfA`, `files`. The Rust side
+ * Packs a compile request. Header fields: `source`, `pdfA`, `files`. There is no program path: the Rust side runs only its bundled Typst. The Rust side
  * (`parse_compile_request` in src-tauri/src/typst/request.rs) reads the same layout.
  */
-export function packCompileRequest({ typstPath, source, files, pdfA }: CompileRequest): Uint8Array {
-  return pack({ typstPath, source, pdfA }, files);
+export function packCompileRequest({ source, files, pdfA }: CompileRequest): Uint8Array {
+  return pack({ source, pdfA }, files);
 }
 
 /**
- * Packs a query request: the compile frame with `selector` in place of `pdfA`. Header fields: `typstPath`, `source`,
- * `selector`, `files`. The Rust side is `parse_query_request`.
+ * Packs a query request: the compile frame with `selector` in place of `pdfA`. Header fields: `source`, `selector`,
+ * `files`. The Rust side is `parse_query_request`.
  */
-export function packQueryRequest({ typstPath, source, files, selector }: QueryRequest): Uint8Array {
-  return pack({ typstPath, source, selector }, files);
+export function packQueryRequest({ source, files, selector }: QueryRequest): Uint8Array {
+  return pack({ source, selector }, files);
 }

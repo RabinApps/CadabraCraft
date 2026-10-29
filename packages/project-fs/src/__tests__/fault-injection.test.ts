@@ -1,6 +1,6 @@
 // Failures that a real temp folder cannot produce (a crash between two calls, a file that grows while it is read, a
 // random name that collides): node:fs and node:crypto are wrapped so a test can make one call misbehave.
-import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -8,6 +8,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const fault = vi.hoisted(() => ({
   mkdir: null as Error | null,
   rename: null as Error | null,
+  link: null as Error | null,
+  beforeLink: null as null | ((to: string) => void),
+  unlink: null as Error | null,
   fstat: null as null | ((real: { size: number; isFile(): boolean }) => unknown),
   stat: null as null | ((real: { size: number; isFile(): boolean }) => unknown),
   readSync: null as Error | null,
@@ -27,6 +30,15 @@ vi.mock("node:fs", async (orig) => {
       if (fault.rename) throw fault.rename;
       return real.renameSync(...a);
     }) as typeof real.renameSync,
+    linkSync: ((...a: Parameters<typeof real.linkSync>) => {
+      fault.beforeLink?.(String(a[1]));
+      if (fault.link) throw fault.link;
+      return real.linkSync(...a);
+    }) as typeof real.linkSync,
+    unlinkSync: ((...a: Parameters<typeof real.unlinkSync>) => {
+      if (fault.unlink) throw fault.unlink;
+      return real.unlinkSync(...a);
+    }) as typeof real.unlinkSync,
     statSync: ((...a: Parameters<typeof real.statSync>) => {
       const st = real.statSync(...a);
       return fault.stat ? fault.stat(st as never) : st;
@@ -59,6 +71,7 @@ vi.mock("node:crypto", async (orig) => {
 });
 
 import { ProjectFsError, atomicWrite, readRegular, resolveReal, trashFile } from "../index";
+import { renameNoReplace, syncDir } from "../files/atomic";
 
 const tmp = () => mkdtempSync(join(tmpdir(), "pfs-fault-"));
 const errno = (code: string) => Object.assign(new Error(`${code} injected`), { code });
@@ -77,6 +90,7 @@ const noTemp = (dir: string) =>
 afterEach(() => {
   fault.mkdir = fault.rename = fault.readSync = fault.realpath = null;
   fault.fstat = fault.stat = fault.randomBytes = null;
+  fault.link = fault.unlink = fault.beforeLink = null;
 });
 
 describe("atomicWrite under faults", () => {
@@ -167,10 +181,77 @@ describe("trashFile under faults", () => {
   it("keeps the file where it was when the move fails", () => {
     const d = tmp();
     writeFileSync(join(d, "a.json"), "x");
+    fault.link = errno("EXDEV");
     fault.rename = errno("EXDEV");
     expect(code(() => trashFile(d, "a.json"))).toBe("io_error");
     fault.rename = null;
+    fault.link = null;
     expect(readdirSync(d)).toContain("a.json");
+  });
+
+  it("uses the next name when another writer takes the chosen one first, and never replaces it", () => {
+    const d = tmp();
+    writeFileSync(join(d, "a.json"), "mine");
+    const at = new Date(Date.UTC(2026, 0, 2, 3, 4));
+    let raced = "";
+    fault.beforeLink = (to) => {
+      if (raced) return;
+      raced = to;
+      writeFileSync(to, "theirs");
+    };
+    const t = trashFile(d, "a.json", at);
+    expect(t).toBe(".cadabra/trash/20260102-0304-a~2.json");
+    expect(readFileSync(raced, "utf8")).toBe("theirs");
+    expect(readFileSync(join(d, t), "utf8")).toBe("mine");
+    expect(existsSync(join(d, "a.json"))).toBe(false);
+  });
+
+  it("gives up after a bounded number of lost races and keeps the file", () => {
+    const d = tmp();
+    writeFileSync(join(d, "a.json"), "mine");
+    fault.beforeLink = (to) => writeFileSync(to, "theirs");
+    expect(code(() => trashFile(d, "a.json"))).toBe("io_error");
+    expect(readFileSync(join(d, "a.json"), "utf8")).toBe("mine");
+  });
+
+  it("falls back to an exists check plus rename where hard links are unsupported", () => {
+    const d = tmp();
+    writeFileSync(join(d, "a.json"), "mine");
+    const at = new Date(Date.UTC(2026, 0, 2, 3, 4));
+    fault.link = errno("ENOTSUP");
+    const first = trashFile(d, "a.json", at);
+    expect(readFileSync(join(d, first), "utf8")).toBe("mine");
+    writeFileSync(join(d, "a.json"), "again");
+    let raced = "";
+    fault.beforeLink = (to) => {
+      if (raced) return;
+      raced = to;
+      writeFileSync(to, "theirs");
+    };
+    const second = trashFile(d, "a.json", at);
+    expect(second).not.toBe(first);
+    expect(readFileSync(raced, "utf8")).toBe("theirs");
+    expect(readFileSync(join(d, second), "utf8")).toBe("again");
+  });
+
+  it("removes the new name again when the old one cannot be unlinked", () => {
+    const d = tmp();
+    writeFileSync(join(d, "a.json"), "mine");
+    fault.unlink = errno("EIO");
+    expect(code(() => trashFile(d, "a.json"))).toBe("io_error");
+    fault.unlink = null;
+    expect(readdirSync(join(d, ".cadabra/trash"))).toEqual([]);
+    expect(readFileSync(join(d, "a.json"), "utf8")).toBe("mine");
+  });
+
+  it("reports a missing source when hard links are unsupported", () => {
+    const d = tmp();
+    fault.link = errno("ENOTSUP");
+    expect(() => renameNoReplace(join(d, "gone"), join(d, "b"))).toThrow(/ENOENT/);
+  });
+
+  it("ignores a directory that cannot be synced", () => {
+    expect(() => syncDir(join(tmp(), "no-such-folder"))).not.toThrow();
   });
 });
 

@@ -8,7 +8,7 @@ use std::time::Duration;
 
 pub const COMPILE_TIMEOUT: Duration = Duration::from_secs(120);
 const FONTS_TIMEOUT: Duration = Duration::from_secs(30);
-const INSTALL_ADVICE: &str = "The Typst program that ships with CadabraCraft is missing; reinstall the app. You can also install Typst yourself (https://typst.app) and set its path in the export dialog.";
+const INSTALL_ADVICE: &str = "The Typst program that ships with CadabraCraft is missing; reinstall the app.";
 
 /// Folder of bundled fonts (Inter), passed to Typst as `--font-path`. Set once at startup from the resource dir.
 static FONT_DIR: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
@@ -34,10 +34,13 @@ fn ordered_dirs(bundled: Option<PathBuf>, user: Option<PathBuf>) -> Vec<PathBuf>
     bundled.into_iter().chain(user).collect()
 }
 
-/// Finds `typst`: `explicit` (a user-configured path), then `TYPST_BIN`, then the bundled sidecar, then PATH, then
-/// `/opt/homebrew/bin` and `/usr/local/bin` (a GUI app launched from Finder does not inherit the shell's PATH).
-pub fn find_typst(explicit: Option<&str>) -> Result<PathBuf, TypstError> {
-    find_typst_in(explicit, std::env::var("TYPST_BIN").ok().as_deref(), bundled_dir().as_deref(), std::env::var_os("PATH").as_deref(), &["/opt/homebrew/bin", "/usr/local/bin"])
+/// Finds `typst`. The webview cannot choose the program: release builds run only the sidecar bundled next to the app
+/// executable. Debug builds (dev runs and tests) also honour the `TYPST_BIN` environment variable of the process, then
+/// PATH and `/opt/homebrew/bin` and `/usr/local/bin`, so a checkout that skipped `scripts/fetch-typst.sh` still works.
+pub fn find_typst() -> Result<PathBuf, TypstError> {
+    let dev = cfg!(debug_assertions);
+    let env_bin = if dev { std::env::var("TYPST_BIN").ok() } else { None };
+    find_typst_in(env_bin.as_deref(), bundled_dir().as_deref(), std::env::var_os("PATH").as_deref(), &["/opt/homebrew/bin", "/usr/local/bin"], dev)
 }
 
 /// File names to look for: Windows has `typst.exe`.
@@ -49,19 +52,43 @@ fn binary_names(windows: bool) -> &'static [&'static str] {
     }
 }
 
-pub fn find_typst_in(explicit: Option<&str>, env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, fallback_dirs: &[&str]) -> Result<PathBuf, TypstError> {
-    for (given, what) in [(explicit, "the configured path"), (env_bin, "TYPST_BIN")] {
-        if let Some(g) = given.map(str::trim).filter(|g| !g.is_empty()) {
-            let p = PathBuf::from(g);
-            return if is_executable(&p) {
-                Ok(p)
-            } else {
-                Err(TypstError::NotFound { message: format!("No runnable typst program at {g} (from {what}). {INSTALL_ADVICE}") })
-            };
+/// `dev` false: only `bundled`; `env_bin`, `path_var` and `fallback_dirs` are ignored. `dev` true: `env_bin` (an error
+/// when it is not runnable), then `bundled`, PATH and the fallback folders.
+pub fn find_typst_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, fallback_dirs: &[&str], dev: bool) -> Result<PathBuf, TypstError> {
+    if let Some(g) = env_bin.map(str::trim).filter(|g| dev && !g.is_empty()) {
+        let p = PathBuf::from(g);
+        return if is_executable(&p) { Ok(p) } else { Err(TypstError::NotFound { message: format!("No runnable typst program at {g} (from TYPST_BIN). {INSTALL_ADVICE}") }) };
+    }
+    let dirs = if dev { search_dirs(bundled, path_var, fallback_dirs) } else { search_dirs(bundled, None, &[]) };
+    find_executable(binary_names(cfg!(windows)), &dirs).ok_or_else(|| TypstError::NotFound { message: format!("The bundled \"typst\" program was not found next to the app. {INSTALL_ADVICE}") })
+}
+
+/// Typst's package folders, both pointed at empty folders inside the compile directory, so no package installed on the
+/// machine (and none cached from an earlier run) can be imported. The folders are removed with the compile directory.
+fn package_args(dir: &Path) -> Result<Vec<String>, TypstError> {
+    let mut args = Vec::new();
+    for (flag, name) in [("--package-path", "no-local-packages"), ("--package-cache-path", "no-package-cache")] {
+        let p = dir.join(name);
+        fs::create_dir(&p).map_err(other)?;
+        args.extend([flag.to_string(), p.to_string_lossy().into_owned()]);
+    }
+    Ok(args)
+}
+
+/// Refuses a source that imports or includes a package (`#import "@preview/name:1.0.0"`). Typst downloads a package
+/// it does not have over the network and its CLI has no offline switch, so the way to keep v1 network-free is to never
+/// let such an import reach it. Our templates import none. Best effort: Typst can also build the path from an
+/// expression, which this does not catch; the empty package folders only stop installed or cached packages.
+fn refuse_packages(source: &str) -> Result<(), TypstError> {
+    for kw in ["import", "include"] {
+        for (i, _) in source.match_indices(kw) {
+            let rest = source[i + kw.len()..].trim_start_matches(|c: char| c.is_whitespace() || c == '(');
+            if rest.starts_with("\"@") {
+                return Err(TypstError::Compile { message: "Packages are not available in the PDF export (it never uses the network): remove the \"@...\" import.".into() });
+            }
         }
     }
-    find_executable(binary_names(cfg!(windows)), &search_dirs(bundled, path_var, fallback_dirs))
-        .ok_or_else(|| TypstError::NotFound { message: format!("The \"typst\" program was not found (searched the app folder, PATH, /opt/homebrew/bin and /usr/local/bin). {INSTALL_ADVICE}") })
+    Ok(())
 }
 
 /// Runs `bin args` in `cwd` with output captured through files (no pipe deadlocks) and a hard timeout (the process is killed).
@@ -113,6 +140,7 @@ pub fn safe_rel(name: &str) -> Result<PathBuf, TypstError> {
 /// Writes `source` (as `main.typ`) and `files` into a fresh temp directory under `tmp_base`; the directory is removed
 /// when the returned guard drops, so every path out (success, error, timeout) cleans up.
 fn stage(tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)]) -> Result<tempfile::TempDir, TypstError> {
+    refuse_packages(source)?;
     let rels = files.iter().map(|(n, _)| safe_rel(n)).collect::<Result<Vec<_>, _>>()?; // validate before touching disk
     let dir = tempfile::Builder::new().prefix("cadabracraft-pdf-").tempdir_in(tmp_base).map_err(other)?;
     for (rel, (_, bytes)) in rels.iter().zip(files) {
@@ -136,6 +164,7 @@ pub fn query(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8
     let dir = stage(tmp_base, source, files)?;
     let mut args: Vec<String> = vec!["query".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
     args.extend(font_args(&font_dirs()));
+    args.extend(package_args(dir.path())?);
     args.extend(["main.typ".into(), selector.into(), "--field".into(), "value".into(), "--one".into()]);
     let r = run_capture(bin, &args, dir.path(), timeout)?;
     if !r.success {
@@ -150,6 +179,7 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
     let dir = stage(tmp_base, source, files)?;
     let mut args: Vec<String> = vec!["compile".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
     args.extend(font_args(&font_dirs()));
+    args.extend(package_args(dir.path())?);
     if pdf_a {
         args.extend(["--pdf-standard".into(), "a-2b".into()]);
     }
@@ -172,7 +202,7 @@ mod tests {
 
     /// The real typst, or None (test skipped) unless `REQUIRE_TYPST=1`, in which case a missing typst fails the test.
     fn real_typst() -> Option<PathBuf> {
-        real_typst_from(find_typst(None), std::env::var("REQUIRE_TYPST").as_deref() == Ok("1"))
+        real_typst_from(find_typst(), std::env::var("REQUIRE_TYPST").as_deref() == Ok("1"))
     }
 
     fn real_typst_from(found: Result<PathBuf, TypstError>, required: bool) -> Option<PathBuf> {
@@ -219,19 +249,89 @@ mod tests {
             fs::set_permissions(&fake, fs::Permissions::from_mode(0o755)).unwrap();
         }
         let dir = d.path().to_str().unwrap();
-        assert_eq!(find_typst_in(Some(fake.to_str().unwrap()), None, None, None, &[]).unwrap(), fake);
-        assert_eq!(find_typst_in(None, Some(fake.to_str().unwrap()), None, None, &[]).unwrap(), fake);
-        assert_eq!(find_typst_in(None, None, Some(d.path()), None, &[]).unwrap(), fake);
-        assert_eq!(find_typst_in(None, None, None, Some(d.path().as_os_str()), &[]).unwrap(), fake);
-        assert_eq!(find_typst_in(None, None, None, None, &[dir]).unwrap(), fake);
+        let env = Some(fake.to_str().unwrap());
+        assert_eq!(find_typst_in(env, None, None, &[], true).unwrap(), fake);
+        assert_eq!(find_typst_in(None, Some(d.path()), None, &[], true).unwrap(), fake);
+        assert_eq!(find_typst_in(None, None, Some(d.path().as_os_str()), &[], true).unwrap(), fake);
+        assert_eq!(find_typst_in(None, None, None, &[dir], true).unwrap(), fake);
         // The bundled sidecar wins over PATH.
         let other_dir = tempfile::tempdir().unwrap();
-        assert_eq!(find_typst_in(None, None, Some(d.path()), Some(other_dir.path().as_os_str()), &[]).unwrap(), fake);
-        // An explicit path that is wrong is an error, not a silent fallback to the bundled copy or PATH.
-        let missing = find_typst_in(Some("/no/such/typst"), None, Some(d.path()), Some(d.path().as_os_str()), &[]);
+        assert_eq!(find_typst_in(None, Some(d.path()), Some(other_dir.path().as_os_str()), &[], true).unwrap(), fake);
+        // A wrong TYPST_BIN is an error, not a silent fallback to the bundled copy or PATH.
+        let missing = find_typst_in(Some("/no/such/typst"), Some(d.path()), Some(d.path().as_os_str()), &[], true);
         assert!(matches!(&missing, Err(TypstError::NotFound { message }) if message.contains("/no/such/typst") && message.contains("reinstall")));
-        let none = find_typst_in(None, None, None, Some(std::ffi::OsStr::new("")), &["/no/such/dir"]);
+        let none = find_typst_in(None, None, Some(std::ffi::OsStr::new("")), &["/no/such/dir"], true);
         assert!(matches!(&none, Err(TypstError::NotFound { message }) if message.contains("reinstall")));
+    }
+
+    #[test]
+    fn a_release_build_runs_only_the_bundled_program() {
+        let d = tempfile::tempdir().unwrap();
+        let fake = d.path().join("typst");
+        fs::write(&fake, "#!/bin/sh\n").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            fs::set_permissions(&fake, fs::Permissions::from_mode(0o755)).unwrap();
+        }
+        let elsewhere = tempfile::tempdir().unwrap();
+        let (env, dir) = (Some(fake.to_str().unwrap()), d.path().to_str().unwrap());
+        // The environment, PATH and the Homebrew folders are ignored; the bundled folder is used.
+        assert_eq!(
+            find_typst_in(env, Some(elsewhere.path()), None, &[], false).unwrap_err(),
+            TypstError::NotFound { message: format!("The bundled \"typst\" program was not found next to the app. {INSTALL_ADVICE}") }
+        );
+        assert!(find_typst_in(None, None, Some(d.path().as_os_str()), &[dir], false).is_err());
+        assert_eq!(find_typst_in(env, Some(d.path()), None, &[], false).unwrap(), fake);
+    }
+
+    #[test]
+    fn every_compile_gets_empty_package_folders_inside_its_own_directory() {
+        let d = tempfile::tempdir().unwrap();
+        let args = package_args(d.path()).unwrap();
+        assert_eq!(args.len(), 4);
+        assert_eq!(args[0], "--package-path");
+        assert_eq!(args[2], "--package-cache-path");
+        for p in [&args[1], &args[3]] {
+            let p = Path::new(p);
+            assert!(p.starts_with(d.path()) && p.is_dir() && fs::read_dir(p).unwrap().count() == 0);
+        }
+        assert!(package_args(Path::new("/no/such/dir")).is_err(), "an unwritable directory is an error");
+    }
+
+    #[test]
+    fn a_package_import_is_refused_before_typst_runs() {
+        for bad in [
+            "#import \"@preview/cetz:0.3.0\": canvas",
+            "#import \"@local/x:1.0.0\"",
+            "#include \"@preview/x:1.0.0\"",
+            "#import(\"@preview/x:1.0.0\")",
+            "= Title\n\n#let a = 1\n#import   \"@preview/x:1.0.0\": *",
+        ] {
+            assert!(matches!(refuse_packages(bad), Err(TypstError::Compile { message }) if message.contains("Packages")), "{bad:?}");
+        }
+        for ok in ["#import \"template.typ\": *", "Please import \"quoted\" text and write to me@preview/x", "#set page(width: 5in)", "important \"@handle\""] {
+            assert!(refuse_packages(ok).is_ok(), "{ok:?}");
+        }
+        // The compile and query entry points both refuse, without leaving a temp directory behind.
+        let base = tempfile::tempdir().unwrap();
+        let src = "#import \"@preview/x:1.0.0\"";
+        let t = Duration::from_secs(5);
+        assert!(matches!(compile(Path::new("/no/such/typst"), base.path(), src, &[], false, t), Err(TypstError::Compile { .. })));
+        assert!(matches!(query(Path::new("/no/such/typst"), base.path(), src, &[], "<x>", t), Err(TypstError::Compile { .. })));
+        assert_eq!(leftovers(base.path()), 0);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn compile_and_query_pass_empty_package_folders_to_typst() {
+        let d = tempfile::tempdir().unwrap();
+        let base = tempfile::tempdir().unwrap();
+        let echo_args = fake(d.path(), "echo \"$@\" > out.pdf; echo \"$@\"");
+        let pdf = String::from_utf8(compile(&echo_args, base.path(), "x", &[], false, COMPILE_TIMEOUT).unwrap()).unwrap();
+        assert!(pdf.contains("--package-path") && pdf.contains("no-local-packages") && pdf.contains("--package-cache-path") && pdf.contains("no-package-cache"), "{pdf}");
+        let q = String::from_utf8(query(&echo_args, base.path(), "x", &[], "<r>", COMPILE_TIMEOUT).unwrap()).unwrap();
+        assert!(q.contains("--package-path") && q.contains("--package-cache-path"), "{q}");
     }
 
     /// Regression: `--font-path` must follow the subcommand, so the bundled Inter shows up in `typst fonts`.

@@ -1,9 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { IMAGE_EXTENSIONS } from "@cadabracraft/shared";
 
 /**
- * Dev-automation only: an agent can queue answers for the next native dialogs (see src-tauri/src/automation.rs).
+ * Dev-automation only, for the pickers that still run in the webview (references, fonts; the folder, image and import
+ * pickers run in Rust and consume the queue there): an agent can queue answers for the next native dialogs (see src-tauri/src/automation.rs).
  * Returns undefined when nothing is queued, in production builds, or when the command doesn't exist, so the real
  * dialog opens. Returns null when the queued answer is "cancel".
  */
@@ -17,36 +17,18 @@ const queuedDialog = async (): Promise<string | null | undefined> => {
   }
 };
 
-/** Native pickers. Every path they return is absolute, only ever passed straight to a command, and never stored in a project. */
+/**
+ * Native pickers. Every path they return is absolute, only ever passed straight to a command, and never stored in a
+ * project. The folder, image and import-source pickers open their dialog in Rust, which remembers the path:
+ * `createProject`, `importAsset` and `readImportSource` accept only a path picked this way (a typed `not_picked` error otherwise).
+ */
 export const dialogBridge = {
-  pickFolder: async (): Promise<string | null> => {
-    const queued = await queuedDialog();
-    if (queued !== undefined) return queued;
-    const r = await open({ directory: true, multiple: false });
-    return typeof r === "string" ? r : null;
-  },
-  /** Native file picker for one image; returns its absolute path (only ever passed to `importAsset`, never stored). */
-  pickImage: async (): Promise<string | null> => {
-    const queued = await queuedDialog();
-    if (queued !== undefined) return queued;
-    const r = await open({
-      multiple: false,
-      directory: false,
-      filters: [{ name: "Images", extensions: IMAGE_EXTENSIONS }],
-    });
-    return typeof r === "string" ? r : null;
-  },
-  /** Native file picker for a document to import; returns its absolute path (read-only, never stored in a project). */
-  pickImportSource: async (): Promise<string | null> => {
-    const queued = await queuedDialog();
-    if (queued !== undefined) return queued;
-    const r = await open({
-      multiple: false,
-      directory: false,
-      filters: [{ name: "Documents", extensions: ["docx", "md", "markdown", "html", "htm"] }],
-    });
-    return typeof r === "string" ? r : null;
-  },
+  /** Native folder picker; the folder can then be passed to `createProject` (or `openProject`). Null on cancel. */
+  pickFolder: () => invoke<string | null>("pick_folder"),
+  /** Native file picker for one image; its path can then be passed to `importAsset`. Null on cancel. */
+  pickImage: () => invoke<string | null>("pick_image"),
+  /** Native file picker for a document to import; its path can then be passed to `readImportSource` (and, for Markdown, `readImportImage`). Null on cancel. */
+  pickImportSource: () => invoke<string | null>("pick_import_source"),
   /** Native file picker for reference files (any type, several at once); absolute paths, only ever passed to `importReference`. */
   pickReferenceFiles: async (): Promise<string[]> => {
     const queued = await queuedDialog();

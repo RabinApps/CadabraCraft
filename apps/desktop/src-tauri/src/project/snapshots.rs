@@ -3,7 +3,7 @@
 //! synced) and are never read by anything except the History and recovery dialogs.
 //!
 //! The stamp is `YYYYMMDD-HHMM` in UTC, so "how old" and "newest" need no state besides the file names.
-use super::{atomic_write, free_name, hash_bytes, read_file, resolve, FileRead, ProjectError, Result, WriteResult};
+use super::{atomic_write, free_copy_name, hash_bytes, read_file, resolve, FileRead, ProjectError, Result, WriteResult};
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use serde::Serialize;
 use std::fs;
@@ -68,8 +68,9 @@ fn parse_stamp(stamp: &str) -> Option<DateTime<Utc>> {
     NaiveDateTime::parse_from_str(stamp, "%Y%m%d-%H%M").ok().map(|t| t.and_utc())
 }
 
-/// `(stamp, n)` when `name` is a snapshot of `rel`: `<stamp>-<flat>.json` (`n` = 1) or `<stamp>-<flat stem>-<n>.json`.
-fn parse_snapshot_name(name: &str, rel: &str) -> Option<(String, u32)> {
+/// `(stamp, n)` when `name` is a snapshot of `rel`: `<stamp>-<flat>.json` (`n` = 1) or `<stamp>-<flat stem>~<n>.json`.
+/// Older versions of the app counted with `-<n>` instead; those names still read, see `legacy` below.
+fn parse_snapshot_name(name: &str, rel: &str) -> Option<(String, u32, bool)> {
     let b = name.as_bytes();
     let stamp_ok = b.len() > 14 && b[..8].iter().all(u8::is_ascii_digit) && b[8] == b'-' && b[9..13].iter().all(u8::is_ascii_digit) && b[13] == b'-';
     if !stamp_ok {
@@ -78,12 +79,13 @@ fn parse_snapshot_name(name: &str, rel: &str) -> Option<(String, u32)> {
     let rest = &name[14..];
     let flat = rel.replace('/', "__");
     if rest == flat {
-        return Some((name[..13].to_string(), 1));
+        return Some((name[..13].to_string(), 1, false));
     }
     let stem = flat.strip_suffix(".json")?;
-    let n = rest.strip_prefix(stem)?.strip_prefix('-')?.strip_suffix(".json")?;
+    let counted = rest.strip_prefix(stem)?;
+    let n = counted.strip_prefix('~').or_else(|| counted.strip_prefix('-'))?.strip_suffix(".json")?;
     let n: u32 = n.parse().ok().filter(|n| *n >= 2)?;
-    Some((name[..13].to_string(), n))
+    Some((name[..13].to_string(), n, counted.starts_with('-')))
 }
 
 /// The snapshots of `rel`, newest first.
@@ -101,9 +103,11 @@ pub fn list_snapshots(root: &Path, rel: &str) -> Result<Vec<SnapshotEntry>> {
             continue;
         }
         let Some(name) = item.file_name().to_str().map(str::to_string) else { continue };
-        if let Some(key) = parse_snapshot_name(&name, rel) {
-            // `<stamp>-a-2.json` is also the plain snapshot of a sibling page `a-2.json`; when that page exists, it is theirs.
-            let sibling = (key.1 >= 2).then(|| format!("{}-{}.json", rel.trim_end_matches(".json"), key.1));
+        if let Some((at, n, legacy)) = parse_snapshot_name(&name, rel) {
+            let key = (at, n);
+            // A legacy `<stamp>-a-2.json` is also the plain snapshot of a sibling page `a-2.json`; when that page exists, it
+            // is theirs. Names with `~` cannot be mistaken for another page's.
+            let sibling = legacy.then(|| format!("{}-{}.json", rel.trim_end_matches(".json"), key.1));
             if sibling.is_some_and(|s| resolve(root, &s).is_ok_and(|p| p.exists())) {
                 continue;
             }
@@ -130,7 +134,7 @@ pub fn read_snapshot(root: &Path, rel: &str, snapshot: &str) -> Result<FileRead>
 
 fn write_copy(root: &Path, rel: &str, bytes: &[u8], now: DateTime<Utc>) -> Result<String> {
     let base = format!("{BACKUPS_DIR}/{}-{}", stamp_of(now), rel.replace('/', "__"));
-    let to = free_name(root, &base)?;
+    let to = free_copy_name(root, &base)?;
     atomic_write(&resolve(root, &to)?, bytes)?;
     Ok(to)
 }
@@ -237,8 +241,10 @@ mod tests {
 
     #[test]
     fn names_match_the_mcp_layout_and_only_their_own_page() {
-        assert_eq!(parse_snapshot_name("20261027-1432-manuscript__001-a.json", REL), Some(("20261027-1432".into(), 1)));
-        assert_eq!(parse_snapshot_name("20261027-1432-manuscript__001-a-3.json", REL), Some(("20261027-1432".into(), 3)));
+        assert_eq!(parse_snapshot_name("20261027-1432-manuscript__001-a.json", REL), Some(("20261027-1432".into(), 1, false)));
+        assert_eq!(parse_snapshot_name("20261027-1432-manuscript__001-a~3.json", REL), Some(("20261027-1432".into(), 3, false)));
+        assert_eq!(parse_snapshot_name("20261027-1432-manuscript__001-a-3.json", REL), Some(("20261027-1432".into(), 3, true)), "legacy counter");
+        assert_eq!(parse_snapshot_name("20261027-1432-manuscript__001-a~1.json", REL), None);
         assert_eq!(parse_snapshot_name("20261027-1432-manuscript__001-a-1.json", REL), None);
         assert_eq!(parse_snapshot_name("20261027-1432-manuscript__001-b.json", REL), None);
         assert_eq!(parse_snapshot_name("cadabra-20261027-1432.json", REL), None);
@@ -254,6 +260,19 @@ mod tests {
         assert_eq!(list_snapshots(d.path(), "manuscript/001-a-2.json").unwrap().len(), 1);
         let theirs = list_snapshots(d.path(), "manuscript/001-a-2.json").unwrap().remove(0).path;
         assert!(matches!(restore_snapshot(d.path(), "manuscript/001-a.json", &theirs), Err(ProjectError::CannotRestore { .. })));
+    }
+
+    #[test]
+    fn a_counted_snapshot_of_a_is_not_a_snapshot_of_a_page_called_a_2() {
+        let d = tempfile::tempdir().unwrap();
+        put(d.path(), "manuscript/001-a.json", "A");
+        put(d.path(), "manuscript/001-a-2.json", "A2");
+        let at = at("20261027-1000");
+        keep_before_overwrite(d.path(), "manuscript/001-a.json", b"v1", b"A", SnapshotMode::Always, at).unwrap().unwrap();
+        let second = keep_before_overwrite(d.path(), "manuscript/001-a.json", b"v2", b"A", SnapshotMode::Always, at).unwrap().unwrap();
+        assert!(second.ends_with("001-a~2.json"));
+        assert_eq!(list_snapshots(d.path(), "manuscript/001-a.json").unwrap().len(), 2, "both belong to a");
+        assert!(list_snapshots(d.path(), "manuscript/001-a-2.json").unwrap().is_empty(), "none belong to a-2");
     }
 
     #[test]
@@ -282,7 +301,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         keep_before_overwrite(d.path(), REL, b"v1", b"v2", SnapshotMode::Always, at("20261027-1000")).unwrap().unwrap();
         let second = keep_before_overwrite(d.path(), REL, b"v2", b"v3", SnapshotMode::Always, at("20261027-1000")).unwrap().unwrap();
-        assert_eq!(second, ".cadabra/backups/20261027-1000-manuscript__001-a-2.json");
+        assert_eq!(second, ".cadabra/backups/20261027-1000-manuscript__001-a~2.json");
         assert_eq!(texts(d.path(), REL), vec!["v2", "v1"]);
     }
 

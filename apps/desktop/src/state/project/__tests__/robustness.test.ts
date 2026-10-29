@@ -8,6 +8,7 @@ const hooks = {
   failWrites: false,
   watched: [] as string[],
   failWatch: false,
+  unwatched: 0,
 };
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
@@ -23,6 +24,9 @@ vi.mock("../../../lib/bridge", async () =>
     watchProject: async (root: string) => {
       if (hooks.failWatch) throw new Error("no watcher");
       hooks.watched.push(root);
+    },
+    unwatchProject: async () => {
+      hooks.unwatched += 1;
     },
     writeBytes: async () => {},
     ...trashMethods,
@@ -44,6 +48,7 @@ beforeEach(async () => {
   hooks.holdRead = null;
   hooks.failWrites = false;
   hooks.failWatch = false;
+  hooks.unwatched = 0;
   hooks.watched = [];
   useProject.setState({
     root: null,
@@ -215,9 +220,28 @@ describe("opening a project", () => {
     await expect(a().openProject("/p")).rejects.toThrow("no watcher");
     expect(s().root).toBeNull();
     expect(s().manifest).toBeNull();
+    expect(hooks.unwatched).toBe(1);
     hooks.failWatch = false;
     await a().openProject("/p");
     expect(s().manifest).not.toBeNull();
     expect(hooks.watched).toEqual(["/p"]);
+  });
+});
+
+describe("watching", () => {
+  it("stops the watcher when the book closes", async () => {
+    await a().openProject("/p");
+    expect(hooks.unwatched).toBe(0);
+    await a().closeProject();
+    expect(hooks.unwatched).toBe(1);
+  });
+
+  it("tells the author when the watcher fails, only while a book is open", async () => {
+    await a().closeProject();
+    a().watchFailed();
+    expect(s().notice).toBe("");
+    await a().openProject("/p");
+    a().watchFailed();
+    expect(s().notice).toMatch(/outside the app may not be noticed/);
   });
 });

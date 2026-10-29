@@ -14,7 +14,7 @@ mod trash;
 #[cfg(test)]
 mod contract_tests;
 
-pub use assets::{import_image, read_asset, store_image, MAX_IMAGE_BYTES};
+pub use assets::{import_image, read_asset, store_image, IMAGE_EXTENSIONS, MAX_IMAGE_BYTES};
 #[cfg(test)]
 pub(crate) use assets::{sanitize_asset_stem, MAX_IMAGE_PIXELS};
 pub(crate) use assets::{check_image, image_ext, image_too_large};
@@ -26,7 +26,7 @@ pub(crate) use pages::write_file_with;
 pub use references::{import_reference, read_reference_range, reference_open_path, stat_reference, trash_reference, ImportedReference, ReferenceStat};
 pub use media::{media_path, read_media, MediaRead};
 pub use pages::{read_file, write_file, FileRead, WriteResult};
-pub(crate) use paths::free_name;
+pub(crate) use paths::free_copy_name;
 pub use paths::{require_absolute, require_project, resolve};
 pub use trash::{list_trash, restore_trash, trash_file, TrashEntry};
 

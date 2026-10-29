@@ -133,13 +133,10 @@ describe("asset commands", () => {
 
 describe("export commands", () => {
   it("typstFind", async () => {
-    expect(await sent(() => bridge.typstFind("/t"))).toEqual(["typst_find", { typstPath: "/t" }]);
+    expect(await sent(() => bridge.typstFind())).toEqual(["typst_find"]);
   });
   it("typstListFonts", async () => {
-    expect(await sent(() => bridge.typstListFonts(null))).toEqual([
-      "typst_list_fonts",
-      { typstPath: null },
-    ]);
+    expect(await sent(() => bridge.typstListFonts())).toEqual(["typst_list_fonts"]);
   });
 });
 
@@ -162,6 +159,19 @@ describe("system commands", () => {
 describe("watch commands", () => {
   it("watchProject", async () => {
     expect(await sent(() => bridge.watchProject("/r"))).toEqual(["watch_project", { root: "/r" }]);
+  });
+  it("unwatchProject", async () => {
+    expect(await sent(() => bridge.unwatchProject())).toEqual(["unwatch_project"]);
+  });
+  it("onProjectWatchError calls back without the payload and resolves to the unsubscribe function", async () => {
+    const un = vi.fn();
+    m.listen.mockResolvedValueOnce(un);
+    const cb = vi.fn();
+    expect(await bridge.onProjectWatchError(cb)).toBe(un);
+    const [event, handler] = m.listen.mock.calls[0]!;
+    expect(event).toBe("project-watch-error");
+    handler({ payload: "watch_failed" });
+    expect(cb).toHaveBeenCalledWith();
   });
   it("onProjectChanged passes the payload and resolves to the unsubscribe function", async () => {
     const un = vi.fn();
