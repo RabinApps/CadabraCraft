@@ -263,7 +263,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
             hint={t`Unique id stored in the EPUB. Change it only if a store or library asked you to.`}
           />
           <details className="group rounded-md border border-border">
-            <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2.5 text-sm font-semibold text-ink focus-visible:outline-2 focus-visible:outline-accent">
+            <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2.5 text-sm max-md:min-h-11 font-semibold text-ink focus-visible:outline-2 focus-visible:outline-accent">
               <ChevronRight
                 size={16}
                 aria-hidden

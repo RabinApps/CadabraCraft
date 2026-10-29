@@ -123,6 +123,7 @@ export function AppHeader({
           <IconButton
             icon={Maximize2}
             label={t`Focus mode`}
+            className="max-sm:hidden"
             onClick={() => setLayout({ focus: true })}
           />
         )}
@@ -183,7 +184,12 @@ export function AppHeader({
         <HeaderMenu
           label={t`More actions`}
           items={[
-            ...(reader ? [] : [{ label: t`Save`, icon: Save, onSelect: save }]),
+            ...(reader
+              ? []
+              : [
+                  { label: t`Save`, icon: Save, onSelect: save },
+                  { label: t`Focus mode`, icon: Maximize2, onSelect: () => setLayout({ focus: true }) },
+                ]),
             { label: t`Export`, icon: Download, onSelect: exportBook },
             { label: t`Book details`, icon: BookText, onSelect: onDetails },
             { label: t`Settings`, icon: SettingsIcon, onSelect: onSettings },
