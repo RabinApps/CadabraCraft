@@ -14,7 +14,7 @@ playwright-report/
 .mcp-workspace/
 
 # Fetched by scripts/fetch-typst.sh
-/apps/desktop/src-tauri/binaries/
+/apps/desktop/src-tauri/binaries
 
 .claude/worktrees/
 coverage/
