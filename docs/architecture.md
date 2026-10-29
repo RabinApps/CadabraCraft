@@ -244,7 +244,7 @@ Lingui and the Babel pipeline add a build step and about 100 dev dependencies (m
 
 Decision: the interface ships in English, Spanish, Italian, French, German, Hebrew and Arabic (`ENABLED_LOCALES`). Japanese and Russian stay listed in `LOCALES` and are not enabled. Rejected: English only (the author wants these languages at launch) and enabling a language per release as reviewers appear (the picker would change between releases).
 
-The six non-English catalogs are **machine-drafted** (by Claude, in one pass, from the 807 English messages) and **have not had native-speaker review**. Review is a release blocker for 1.0 in `docs/roadmap.md`; until it happens treat them as drafts. Drafting rules, so a reviewer can check them quickly:
+The six non-English catalogs are **machine-drafted** (by Claude, in one pass, from the 901 English messages) and **have not had native-speaker review**. Review is a release blocker for 1.0 in `docs/roadmap.md`; until it happens treat them as drafts. Drafting rules, so a reviewer can check them quickly:
 
 - Placeholders and ICU structure are kept; a script checked that every `{name}` of the source is in the translation. Typographic apostrophes (’) only: a straight `'` before `{` would start an ICU quote.
 - Plural branches use the target language's categories: `one` and `other` for Spanish, Italian, French, German and Hebrew (Hebrew's `two` falls back to `other`), and `zero`, `one`, `two`, `few`, `many`, `other` for Arabic.

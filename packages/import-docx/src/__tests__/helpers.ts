@@ -116,3 +116,17 @@ export function budget(ms: number): number {
   ).__vitest_worker__;
   return ms * (worker?.config?.coverage?.enabled ? 5 : 1) * (process.env.CI ? 4 : 1);
 }
+
+/**
+ * Starts a clock for a performance test and returns a function that gives the milliseconds of CPU time this test process has
+ * used since. Wall-clock time also counts the time the process spent waiting for a core while other workers (or the rest of a busy
+ * machine) ran, so a perfectly linear algorithm failed its budget whenever the suite ran in parallel; CPU time does not, and
+ * it still grows with a quadratic or runaway algorithm, which is what these tests exist to catch.
+ */
+export function cpuClock(): () => number {
+  const t0 = process.cpuUsage();
+  return () => {
+    const d = process.cpuUsage(t0);
+    return (d.user + d.system) / 1000;
+  };
+}

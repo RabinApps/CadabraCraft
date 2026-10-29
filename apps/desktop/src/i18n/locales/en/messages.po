@@ -807,8 +807,8 @@ msgstr "Chapter title"
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/export/AudioExport.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
-#: src/app/shell/App.tsx
 #: src/app/shell/Details.tsx
+#: src/app/shell/Drawers.tsx
 #: src/app/shell/Sidebar.tsx
 msgid "Chapters"
 msgstr "Chapters"
@@ -884,7 +884,7 @@ msgstr "Clear search and filters to reorder"
 msgid "Close"
 msgstr "Close"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/Drawers.tsx
 msgid "Close chapters"
 msgstr "Close chapters"
 
@@ -2749,6 +2749,7 @@ msgstr "Reference details"
 #: src/app/references/ReferencesPanel.tsx
 #: src/app/shell/App.tsx
 #: src/app/shell/AppHeader.tsx
+#: src/app/shell/Drawers.tsx
 msgid "References"
 msgstr "References"
 

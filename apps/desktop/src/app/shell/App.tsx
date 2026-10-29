@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import {
   readingOrder,
@@ -8,7 +7,7 @@ import {
   entryRows,
   entryRowsIn,
 } from "@cadabracraft/format";
-import { Minimize2, Plus, X } from "lucide-react";
+import { Minimize2, Plus } from "lucide-react";
 import { Editor } from "../../editor/Editor";
 import { ReadingBook } from "../../editor/ReadingBook";
 import { ReadingFooter } from "../../editor/ReadingFooter";
@@ -16,7 +15,6 @@ import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { StatusBar } from "./StatusBar";
 import { Button, IconButton } from "../../ui/Button";
-import { overlayClass, panelClass } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
 import { Details } from "./Details";
 import { ReferencesPanel } from "../references/ReferencesPanel";
@@ -36,6 +34,7 @@ import { UpdateDialog } from "../dialogs/UpdateDialog";
 import { RecoverDialog } from "../dialogs/RecoverDialog";
 import { useUpdates } from "../../state/updates";
 import { Sidebar } from "./Sidebar";
+import { ChaptersDrawer, ReferencesSheet } from "./Drawers";
 import { QuickNav } from "../quicknav/QuickNav";
 import { OpeningSkeleton } from "./OpeningSkeleton";
 import { Templates } from "../export/Templates";
@@ -354,27 +353,7 @@ function AppScreens() {
         }}
         onOpenFonts={() => setView("fonts")}
       />
-      <D.Root open={drawer} onOpenChange={setDrawer}>
-        <D.Portal>
-          <D.Overlay className={cx(overlayClass, "lg:hidden")} />
-          <D.Content
-            aria-describedby={undefined}
-            className={cx(
-              panelClass,
-              "inset-x-0 bottom-0 max-h-[80dvh] overflow-y-auto rounded-t-lg bg-sidebar lg:hidden",
-              "md:inset-y-0 md:inset-s-0 md:inset-e-auto md:max-h-none md:w-80 md:rounded-none",
-            )}
-          >
-            <D.Title className="sr-only">{t`Chapters`}</D.Title>
-            <div className="flex justify-end px-2 pt-2">
-              <D.Close asChild>
-                <IconButton icon={X} label={t`Close chapters`} />
-              </D.Close>
-            </div>
-            <Sidebar onNavigate={() => setDrawer(false)} />
-          </D.Content>
-        </D.Portal>
-      </D.Root>
+      <ChaptersDrawer open={drawer} onOpenChange={setDrawer} />
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
       <ImportDialog
         open={importingInto}
@@ -384,29 +363,12 @@ function AppScreens() {
         onImport={actions.importBook}
         onImportInto={actions.importIntoBook}
       />
-      <D.Root open={refsSheet} onOpenChange={setRefsSheet}>
-        <D.Portal>
-          <D.Overlay className={cx(overlayClass, "xl:hidden")} />
-          <D.Content
-            aria-describedby={undefined}
-            className={cx(
-              panelClass,
-              "inset-x-0 bottom-0 h-[80dvh] overflow-hidden rounded-t-lg bg-surface xl:hidden",
-              "md:inset-y-0 md:inset-e-0 md:inset-s-auto md:h-auto md:w-100 md:rounded-none md:border-e-0",
-            )}
-          >
-            <D.Title className="sr-only">{t`References`}</D.Title>
-            <ReferencesPanel
-              onClose={() => setRefsSheet(false)}
-              openId={viewingId}
-              onOpen={(id) => {
-                setRefsSheet(false);
-                setViewingId(id);
-              }}
-            />
-          </D.Content>
-        </D.Portal>
-      </D.Root>
+      <ReferencesSheet
+        open={refsSheet}
+        onOpenChange={setRefsSheet}
+        openId={viewingId}
+        onOpenId={setViewingId}
+      />
       <ReferenceViewer id={viewingId} onClose={() => setViewingId(null)} />
       <RecoverDialog />
       <SponsorDialog />

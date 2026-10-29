@@ -10,7 +10,7 @@ import {
   looksLikeHtml,
   type ImportResult,
 } from "..";
-import { budget, schema } from "./helpers";
+import { budget, cpuClock, schema } from "./helpers";
 
 /** Small seeded PRNG (mulberry32) so a failure reproduces from its seed. */
 function rng(seed: number): () => number {
@@ -196,7 +196,7 @@ function check(label: string, run: () => ImportResult | { blocks: unknown[] }): 
 
 describe("HTML fuzz", () => {
   it("random token soup: only ImportError, always schema-valid, no script or style text, within a time budget", () => {
-    const start = performance.now();
+    const elapsed = cpuClock();
     for (let seed = 1; seed <= 1500; seed++) {
       const r = rng(seed);
       const html = snippet(r, 1 + Math.floor(r() * 60));
@@ -225,7 +225,7 @@ describe("HTML fuzz", () => {
         ),
       );
     }
-    expect(performance.now() - start).toBeLessThan(budget(30_000));
+    expect(elapsed()).toBeLessThan(budget(30_000));
   }, 60_000);
 
   it("mutated real-world snippets", () => {
@@ -234,7 +234,7 @@ describe("HTML fuzz", () => {
       '<p style="font-variant:small-caps">Caps</p><p><span class="footnote">note</span></p><img src="a.png" alt="x"><br>text<br><br>more',
       "<div><div><p>nested</p></div></div><table><tr><td><table><tr><td>t</td></tr></table></td></tr></table>",
     ];
-    const start = performance.now();
+    const elapsed = cpuClock();
     for (let seed = 1; seed <= 1500; seed++) {
       const r = rng(1000 + seed);
       const html = mutate(r, seeds[seed % seeds.length]!);
@@ -244,7 +244,7 @@ describe("HTML fuzz", () => {
       check(label, () => importMarkdown(html));
       expect(typeof looksLikeHtml(html), label).toBe("boolean");
     }
-    expect(performance.now() - start).toBeLessThan(budget(30_000));
+    expect(elapsed()).toBeLessThan(budget(30_000));
   }, 60_000);
 
   it("random markdown with inline HTML marks: valid docs, balanced pairs become marks, nothing throws but ImportError", () => {

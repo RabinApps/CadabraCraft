@@ -11,7 +11,7 @@ import {
   looksLikeHtml,
   type ImportResult,
 } from "..";
-import { budget, schema } from "./helpers";
+import { budget, cpuClock, schema } from "./helpers";
 
 /** Every doc must pass both the app's validator and a strict ProseMirror check. */
 function assertValidDoc(doc: unknown, label: string): void {
@@ -327,7 +327,7 @@ describe("Result invariants and error handling", () => {
 
   it("refuses a tag with an absurd number of attributes (parse5 is quadratic on them) with code input-too-large, even with quoted > tricks", () => {
     const attrs = (n: number) => Array.from({ length: n }, (_, i) => `a${i}="1>"`).join(" ");
-    const start = performance.now();
+    const elapsed = cpuClock();
     expect(importErrorCode(() => importHtml(`<p ${attrs(200_000)}>x</p>`))).toBe("input-too-large");
     expect(importErrorCode(() => htmlToBlocks(`<p ${attrs(200_000)}>x</p>`))).toBe(
       "input-too-large",
@@ -337,7 +337,7 @@ describe("Result invariants and error handling", () => {
     );
     expect(looksLikeHtml(`<p ${attrs(200_000)}>x</p>`)).toBe(true);
     expect(importErrorCode(() => importHtml(`<p ${attrs(4_000)}>x</p>`))).toBeUndefined();
-    expect(performance.now() - start).toBeLessThan(budget(5000));
+    expect(elapsed()).toBeLessThan(budget(5000));
   });
 
   it("looksLikeHtml never throws, even on 300,000 sibling elements or hostile nesting", () => {
@@ -409,9 +409,9 @@ describe("Result invariants and error handling", () => {
 
 describe("Performance bounds", () => {
   const within = (ms: number, fn: () => void) => {
-    const t0 = performance.now();
+    const elapsed = cpuClock();
     fn();
-    expect(performance.now() - t0).toBeLessThan(budget(ms));
+    expect(elapsed()).toBeLessThan(budget(ms));
   };
 
   it("imports a million tiny inline elements in a few seconds", () => {
