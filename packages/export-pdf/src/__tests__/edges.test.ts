@@ -128,7 +128,8 @@ describe("assertNoUnknownFont", () => {
   });
 });
 
-describe("node runner with fake typst binaries", () => {
+// The fake binaries are POSIX shell scripts, which Windows cannot run; the win32 lookup is tested here by faking the platform.
+describe.skipIf(process.platform === "win32")("node runner with fake typst binaries", () => {
   let dir = "";
   const sh = (name: string, body: string): string => {
     dir ||= mkdtempSync(join(tmpdir(), "cc-fake-typst-"));

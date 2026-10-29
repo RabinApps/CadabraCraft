@@ -23,6 +23,7 @@ asset_for() {
     x86_64-apple-darwin) echo "typst-x86_64-apple-darwin.tar.xz 7f9fdd9584866245de9a79e0add8f9236fae6f40a8a45e2c4771ccc14db4e0fa" ;;
     x86_64-pc-windows-msvc) echo "typst-x86_64-pc-windows-msvc.zip 19ce3551153c2fe7ee9fa2f95208310c8f4d3209fedb699e0333faf8913f6736" ;;
     x86_64-unknown-linux-gnu) echo "typst-x86_64-unknown-linux-musl.tar.xz a6d077d0a95eed5a2eba715b2dae06be954f624ccbf85758a03f389ded33118c" ;; # static musl build runs on any glibc
+    aarch64-unknown-linux-gnu) echo "typst-aarch64-unknown-linux-musl.tar.xz 5aa8d74a3d906e60ea12a66ac2f37f8eef1b14cbad7182a745e393a10c23dcee" ;; # static musl build, like x86_64
     *) echo "No pinned Typst build for target $1" >&2; return 1 ;;
   esac
 }

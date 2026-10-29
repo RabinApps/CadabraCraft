@@ -5,6 +5,7 @@ permissions:
 jobs:
   js:
     strategy:
+      fail-fast: false # one OS failing must not hide how the others do
       matrix:
         os: [kinhin-container, kinhin-xcode, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -59,6 +60,7 @@ jobs:
         env: { CI: "1" }
   rust:
     strategy:
+      fail-fast: false # one OS failing must not hide how the others do
       matrix:
         os: [kinhin-container, kinhin-xcode, windows-latest]
     runs-on: ${{ matrix.os }}

@@ -107,11 +107,12 @@ export const PNG = Uint8Array.from(
 
 /**
  * Wall-clock budget for performance tests. v8 coverage instrumentation makes the hostile-input
- * tests several times slower, so the budget is scaled up when coverage is collecting.
+ * tests several times slower, so the budget is scaled up when coverage is collecting. Shared CI runners
+ * (macOS, Windows) run several jobs at once and measured 17% over a 5 s budget, so it is doubled there.
  */
 export function budget(ms: number): number {
   const worker = (
     globalThis as { __vitest_worker__?: { config?: { coverage?: { enabled?: boolean } } } }
   ).__vitest_worker__;
-  return worker?.config?.coverage?.enabled ? ms * 5 : ms;
+  return ms * (worker?.config?.coverage?.enabled ? 5 : 1) * (process.env.CI ? 2 : 1);
 }
