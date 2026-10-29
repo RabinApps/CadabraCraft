@@ -4,7 +4,7 @@ Part of the [docs index](README.md). Everything below was **not** run on the mac
 
 ## Windows and Linux (native app, `pnpm tauri:automate` or an installed build)
 
-- [ ] **Scenario.** `pnpm automation:scenario` passes. Note: the `kinhin-container` and `hosted` runners cannot show a window; run it on a desktop session.
+- [ ] **Scenario.** `pnpm automation:scenario` passes. It needs a desktop session (a window), so a headless CI runner will not do.
 - [ ] **Native pickers.** New project, Add cover, Import (Markdown, DOCX, HTML) work with the real OS dialogs, and a path the dialog never returned is refused (`not_picked`). The scenario covers the refusal; the dialogs themselves need a human.
 - [ ] **Reference streaming.** Import a 400 MB or larger video, open it, seek, then check memory in the task manager stays flat (`pnpm automation:measure-references` prints the numbers; compare with architecture.md, "Reference files").
 - [ ] **Audiobook.** Render one chapter with Kokoro and with Piper, then an M4B with cover and chapters. Play it in a player that reads chapters (VLC, Apple Books on a Mac the file is copied to).
@@ -12,7 +12,7 @@ Part of the [docs index](README.md). Everything below was **not** run on the mac
 - [ ] **Trash and snapshots.** Delete a chapter twice within a minute: the trash holds both (`~2` name), restore both, and History lists earlier versions (no-replace move on NTFS and ext4; try a FAT/exFAT folder too, where hard links are refused and the fallback is used).
 - [ ] **Watcher.** Edit a chapter file in another editor while the book is open: the chapter reloads. Remove read permission on the project folder or unmount it: the "Changes made outside the app may not be noticed" notice shows and saving still works.
 - [ ] **Installed build.** Install the artifact from a dry run ([release-checklist.md](release-checklist.md)); the bundled Typst, fonts and licenses are found (Export PDF works with no Typst on the PATH), and the app starts with the Gatekeeper or SmartScreen warning described in the README.
-- [ ] **`e2e-native`.** `pnpm e2e-native` (Linux and Windows only) was changed to queue dialog answers through the automation bridge and build with `--features dev-automation`; it has never run.
+- [ ] **`e2e-native`.** `pnpm --filter @cadabracraft/desktop test:native` (the `e2e-native` folder, Linux and Windows only) was changed to queue dialog answers through the automation bridge and build with `--features dev-automation`; it has never run.
 
 ## Real sync clients
 
