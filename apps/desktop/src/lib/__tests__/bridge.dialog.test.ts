@@ -12,59 +12,42 @@ beforeEach(() => {
   open.mockReset();
 });
 
-describe("dev-automation dialog queue", () => {
+describe("the pickers that run in Rust", () => {
+  it("pickFolder, pickImage and pickImportSource invoke their commands and return the path or null", async () => {
+    invoke.mockResolvedValueOnce("/f").mockResolvedValueOnce("/i.png").mockResolvedValueOnce(null);
+    expect(await bridge.pickFolder()).toBe("/f");
+    expect(await bridge.pickImage()).toBe("/i.png");
+    expect(await bridge.pickImportSource()).toBeNull();
+    expect(invoke.mock.calls).toEqual([["pick_folder"], ["pick_image"], ["pick_import_source"]]);
+    expect(open).not.toHaveBeenCalled(); // never the webview's own dialog: Rust has to see the path
+  });
+
+  it("a failure of the command reaches the caller", async () => {
+    invoke.mockRejectedValueOnce({ kind: "not_found", path: "x" });
+    await expect(bridge.pickFolder()).rejects.toEqual({ kind: "not_found", path: "x" });
+  });
+});
+
+describe("dev-automation dialog queue (pickers that still run in the webview)", () => {
   it("returns a queued answer without opening the native dialog", async () => {
-    invoke.mockResolvedValueOnce({ answer: "/books/a" });
-    expect(await bridge.pickFolder()).toBe("/books/a");
+    invoke.mockResolvedValueOnce({ answer: "/fonts/a.ttf" });
+    expect(await bridge.pickFontFile()).toBe("/fonts/a.ttf");
     expect(open).not.toHaveBeenCalled();
   });
 
   it("treats a queued null as the user cancelling", async () => {
-    invoke.mockResolvedValueOnce({ answer: null });
-    expect(await bridge.pickImage()).toBeNull();
+    invoke.mockResolvedValueOnce({ answer: null }).mockResolvedValueOnce({ answer: null });
+    expect(await bridge.pickFontFile()).toBeNull();
+    expect(await bridge.pickReferenceFiles()).toEqual([]);
     expect(open).not.toHaveBeenCalled();
   });
 
-  it("opens the real dialog when the queue is empty", async () => {
-    invoke.mockResolvedValueOnce(null);
-    open.mockResolvedValueOnce("/picked");
-    expect(await bridge.pickImportSource()).toBe("/picked");
-    expect(open).toHaveBeenCalledOnce();
-  });
-
-  it("opens the real dialog when the automation command does not exist (normal builds)", async () => {
-    invoke.mockRejectedValueOnce(new Error("command automation_take_dialog not found"));
-    open.mockResolvedValueOnce("/picked");
-    expect(await bridge.pickFolder()).toBe("/picked");
-  });
-});
-
-describe("native pickers", () => {
-  it("pickFolder returns a string path and null for a cancel", async () => {
-    invoke.mockResolvedValue(null);
-    open.mockResolvedValueOnce("/f").mockResolvedValueOnce(null);
-    expect(await bridge.pickFolder()).toBe("/f");
-    expect(await bridge.pickFolder()).toBeNull();
-    expect(open).toHaveBeenCalledWith({ directory: true, multiple: false });
-  });
-  it("pickImage filters to images and returns null for a cancel", async () => {
-    invoke.mockResolvedValue(null);
-    open.mockResolvedValueOnce("/i.png").mockResolvedValueOnce(null);
-    expect(await bridge.pickImage()).toBe("/i.png");
-    expect(await bridge.pickImage()).toBeNull();
-    expect(open.mock.calls[0]![0].filters[0].name).toBe("Images");
-  });
-  it("pickImportSource filters to documents and returns null for a cancel", async () => {
-    invoke.mockResolvedValue(null);
-    open.mockResolvedValueOnce(null);
-    expect(await bridge.pickImportSource()).toBeNull();
-    expect(open.mock.calls[0]![0].filters[0].name).toBe("Documents");
-  });
-  it("pickImage and pickImportSource use a queued answer too", async () => {
-    invoke.mockResolvedValueOnce({ answer: "/q.png" }).mockResolvedValueOnce({ answer: null });
-    expect(await bridge.pickImage()).toBe("/q.png");
-    expect(await bridge.pickImportSource()).toBeNull();
-    expect(open).not.toHaveBeenCalled();
+  it("opens the real dialog when the queue is empty or the command does not exist", async () => {
+    invoke.mockResolvedValueOnce(null).mockRejectedValueOnce(new Error("no such command"));
+    open.mockResolvedValueOnce("/picked.ttf").mockResolvedValueOnce(["/a", "/b"]);
+    expect(await bridge.pickFontFile()).toBe("/picked.ttf");
+    expect(await bridge.pickReferenceFiles()).toEqual(["/a", "/b"]);
+    expect(open.mock.calls[0]![0].filters[0].name).toBe("Fonts");
   });
 });
 
@@ -73,8 +56,8 @@ describe("outside development", () => {
     vi.resetModules();
     vi.stubEnv("DEV", false);
     const { bridge: prod } = await import("../bridge");
-    open.mockResolvedValueOnce("/p");
-    expect(await prod.pickFolder()).toBe("/p");
+    open.mockResolvedValueOnce("/p.ttf");
+    expect(await prod.pickFontFile()).toBe("/p.ttf");
     expect(invoke).not.toHaveBeenCalled();
     vi.unstubAllEnvs();
   });

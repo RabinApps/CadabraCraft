@@ -172,6 +172,11 @@ msgstr "{0} of {1} chapters"
 msgid "{0} of {1} MB"
 msgstr "{0} of {1} MB"
 
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "{0} was not chosen in a file or folder dialog"
+msgstr "{0} was not chosen in a file or folder dialog"
+
 #. placeholder {0}: ref.title
 #. placeholder {1}: errText(e)
 #: src/state/project/references.ts

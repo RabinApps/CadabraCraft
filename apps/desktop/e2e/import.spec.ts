@@ -48,10 +48,10 @@ async function fakeImportTauri(page: Page, pick: "md" | "docx" | "html" | "broke
       w.__TAURI_INTERNALS__.invoke = async (cmd, a, opts) => {
         calls.push({ cmd, args: a });
         switch (cmd) {
-          case "plugin:dialog|open":
-            return a?.options?.filters?.[0]?.extensions?.includes("docx")
-              ? pickedSource
-              : "/newbook";
+          case "pick_import_source":
+            return pickedSource;
+          case "pick_folder":
+            return "/newbook";
           case "read_import_source":
             if (!sources[a.path]) throw `cannot read ${a.path}`;
             return sources[a.path];

@@ -69,6 +69,9 @@ test.beforeEach(async ({ page }) => {
           if (w.__trashError) throw { kind: "io", message: "Trash unreadable" };
           return orig(cmd, a, opts);
         case "plugin:dialog|open":
+        case "pick_folder":
+        case "pick_image":
+        case "pick_import_source":
           if (w.__pickNothing) return null;
           if (w.__pickRoot) return w.__pickRoot;
           return orig(cmd, a, opts);

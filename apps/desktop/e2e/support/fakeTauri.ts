@@ -60,14 +60,20 @@ export async function fakeTauri(page: Page) {
       },
       invoke: async (cmd, a, opts) => {
         switch (cmd) {
-          // The image picker passes extension filters; the folder picker does not.
+          // The folder, image and import pickers run in Rust (`pick_*`); they return the path, like the real commands do.
+          // The fake does not enforce "only a picked path is accepted" (the Rust tests do).
+          case "pick_folder":
+            return "/proj";
+          case "pick_image":
+            return "/pics/pic.png";
+          case "pick_import_source":
+            return "/src/book.md";
+          // The reference and font pickers still run in the webview.
           case "plugin:dialog|open":
             if (a?.options?.multiple === true) return window.__pickedRefs ?? [];
-            if (a?.options?.filters?.[0]?.extensions?.includes("ttf"))
-              return window.__pickedFont === undefined
-                ? "/fonts/Custom Sans.ttf"
-                : window.__pickedFont;
-            return a?.options?.filters ? "/pics/pic.png" : "/proj";
+            return window.__pickedFont === undefined
+              ? "/fonts/Custom Sans.ttf"
+              : window.__pickedFont;
           case "plugin:opener|open_url":
             (window.__opened ??= []).push(a.url);
             return null;

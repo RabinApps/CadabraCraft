@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
@@ -6,6 +6,8 @@ export async function editingSteps({
   app,
   book,
   png,
+  out,
+  repo,
   shot,
   dlg,
   menuState,
@@ -150,6 +152,37 @@ export async function editingSteps({
       );
       assert(loaded === true, "image did not render");
       await shot("03-image");
+    },
+  );
+
+  await step(
+    "pickers run in Rust: a path nobody picked is refused by create_project, import_asset and read_import_source",
+    async () => {
+      const call = (cmd: string, args: unknown) =>
+        app.js<string>(
+          `window.__TAURI__.core.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)}).then(() => "accepted", (e) => (e && e.kind) || String(e))`,
+        );
+      const stranger = join(out, "never-picked");
+      mkdirSync(stranger, { recursive: true });
+      writeFileSync(join(stranger, "x.md"), "# not picked\n");
+      writeFileSync(join(stranger, "x.png"), readFileSync(png));
+      assert(
+        (await call("create_project", { root: stranger, manifestJson: "{}" })) === "not_picked",
+        "create_project accepted a folder nobody picked",
+      );
+      assert(
+        (await call("import_asset", { root: book, source: join(stranger, "x.png") })) ===
+          "not_picked",
+        "import_asset accepted an image nobody picked",
+      );
+      assert(
+        (await call("read_import_source", { path: join(stranger, "x.md") })) === "not_picked",
+        "read_import_source accepted a document nobody picked",
+      );
+      assert(
+        (await call("read_import_source", { path: join(repo, "package.json") })) === "not_picked",
+        "read_import_source accepted a file elsewhere on the disk",
+      );
     },
   );
 

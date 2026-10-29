@@ -25,6 +25,7 @@ export type ProjectError =
   | { kind: "image_ref_not_found"; reference: string }
   | { kind: "image_ref_outside"; reference: string }
   | { kind: "invalid_file_name" }
+  | { kind: "not_picked"; name: string }
   | { kind: "permission_denied"; path: string }
   | { kind: "disk_full"; path: string }
   | { kind: "image_dimensions"; name: string; max_megapixels: number }
@@ -54,6 +55,7 @@ const KINDS = new Set<string>([
   "image_ref_not_found",
   "image_ref_outside",
   "invalid_file_name",
+  "not_picked",
   "permission_denied",
   "disk_full",
   "image_dimensions",
@@ -116,6 +118,8 @@ export function projectErrorMessage(e: ProjectError): string {
       return t`The image ${e.reference} is outside the document's folder`;
     case "invalid_file_name":
       return t`That file name is not valid`;
+    case "not_picked":
+      return t`${e.name} was not chosen in a file or folder dialog`;
     case "permission_denied":
       return t`CadabraCraft does not have permission to use ${e.path}`;
     case "disk_full":

@@ -13,7 +13,7 @@
     "i18n:check": "lingui extract --clean && git diff --exit-code src/i18n/locales",
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
-    "build:native": "tauri build --debug --no-bundle",
+    "build:native": "tauri build --debug --no-bundle --features dev-automation",
     "test:native": "vitest run --config e2e-native/vitest.config.ts",
     "tauri:automate": "tauri dev --features dev-automation --config src-tauri/tauri.automation.conf.json",
     "test:e2e:coverage": "COVERAGE=1 playwright test"

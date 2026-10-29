@@ -11,20 +11,25 @@ use std::time::Duration;
 use tauri::ipc::{CallbackFn, InvokeBody, InvokeResponseBody};
 use tauri::test::{get_ipc_response, mock_builder, mock_context, noop_assets, MockRuntime, INVOKE_KEY};
 use tauri::webview::InvokeRequest;
-use tauri::{App, Listener, WebviewWindow, WebviewWindowBuilder};
+use tauri::{App, Listener, Manager, WebviewWindow, WebviewWindowBuilder};
 
 /// The app as `run()` builds it (same managed state, same handlers), on the mock runtime, plus one window to call from.
 fn mock_app() -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     build_app(true)
 }
 
-/// `with_state: false` leaves `WatchState`, `AudioJobs` and `MediaRoots` unmanaged, as a build that forgot `.manage` would be.
+/// `with_state: false` leaves `WatchState`, `AudioJobs`, `MediaRoots` and `PickedPaths` unmanaged, as a build that forgot `.manage` would be.
 fn build_app(with_state: bool) -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     let builder = mock_builder();
-    let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()) } else { builder };
+    let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()).manage(commands::PickedPaths::default()) } else { builder };
     let app = builder.invoke_handler(app_handlers![]).build(mock_context(noop_assets())).expect("the mock app builds");
     let window = WebviewWindowBuilder::new(&app, "main", Default::default()).build().expect("the mock window builds");
     (app, window)
+}
+
+/// What the native dialogs do in the real app: remember a path the author chose.
+fn pick(app: &App<MockRuntime>, kind: commands::PickKind, path: &std::path::Path) {
+    app.state::<commands::PickedPaths>().record(kind, path).unwrap();
 }
 
 fn request(cmd: &str, body: InvokeBody, headers: &[(&str, String)]) -> InvokeRequest {
@@ -68,10 +73,13 @@ const PAGE: &str = "manuscript/001-a.json";
 
 #[test]
 fn project_commands_work_through_the_ipc() {
-    let (_app, w) = mock_app();
+    let (app, w) = mock_app();
     let dir = tempfile::tempdir().unwrap();
-    let r = dir.path().join("Book").to_string_lossy().into_owned();
+    let r = dir.path().to_string_lossy().into_owned();
     assert_eq!(json_of(call(&w, "read_project_file", json!({ "root": r, "path": "cadabra.json" }))), Value::Null);
+    assert_eq!(kind_of(call(&w, "create_project", json!({ "root": r, "manifestJson": "{}" }))), "not_picked", "a folder nobody picked");
+    assert!(!dir.path().join("cadabra.json").exists());
+    pick(&app, commands::PickKind::Folder, dir.path());
     assert_eq!(json_of(call(&w, "create_project", json!({ "root": r, "manifestJson": "{}" }))), Value::Null);
     assert_eq!(kind_of(call(&w, "create_project", json!({ "root": r, "manifestJson": "{}" }))), "already_exists");
     assert_eq!(json_of(call(&w, "read_project_file", json!({ "root": r, "path": "cadabra.json" })))["contents"], "{}");
@@ -116,19 +124,24 @@ fn snapshot_commands_work_through_the_ipc() {
 
 #[test]
 fn asset_and_import_commands_work_through_the_ipc() {
-    let (_app, w) = mock_app();
+    let (app, w) = mock_app();
     let (book, src) = (project(), tempfile::tempdir().unwrap());
     let r = root(&book);
     std::fs::write(src.path().join("cover.png"), PNG).unwrap();
     std::fs::write(src.path().join("book.md"), "# Hi").unwrap();
     let cover = src.path().join("cover.png").to_string_lossy().into_owned();
+    let md = src.path().join("book.md").to_string_lossy().into_owned();
+    assert_eq!(kind_of(call(&w, "import_asset", json!({ "root": r, "source": cover }))), "not_picked");
+    assert_eq!(kind_of(call(&w, "read_import_source", json!({ "path": md }))), "not_picked");
+    assert_eq!(kind_of(call(&w, "read_import_image", json!({ "sourceFile": md, "reference": "a.png" }))), "not_picked");
+    pick(&app, commands::PickKind::Image, &src.path().join("cover.png"));
+    pick(&app, commands::PickKind::ImportSource, &src.path().join("book.md"));
     let rel = json_of(call(&w, "import_asset", json!({ "root": r, "source": cover })));
     assert!(rel.as_str().unwrap().starts_with("assets/"), "{rel}");
     let stored = json_of(call(&w, "import_asset_bytes", json!({ "root": r, "name": "map.png", "bytes": PNG })));
     assert!(stored.as_str().unwrap().starts_with("assets/"), "{stored}");
     assert_eq!(raw_of(call(&w, "read_asset", json!({ "root": r, "path": rel }))), PNG);
     assert_eq!(kind_of(call(&w, "read_asset", json!({ "root": r, "path": "assets/none.png" }))), "not_found");
-    let md = src.path().join("book.md").to_string_lossy().into_owned();
     assert_eq!(raw_of(call(&w, "read_import_source", json!({ "path": md }))), b"# Hi");
     assert!(call(&w, "read_import_image", json!({ "sourceFile": md, "reference": "../x.png" })).is_err());
     std::fs::write(src.path().join("a.png"), PNG).unwrap();
@@ -256,6 +269,9 @@ fn audio_commands_work_through_the_ipc() {
 fn every_command() -> Vec<(&'static str, Value)> {
     let chunk_less = json!({ "jobId": "r", "root": "/r", "base": "b", "chunks": [], "voice": "v", "speed": 1.0, "formats": [] });
     vec![
+        ("pick_folder", json!({})),
+        ("pick_image", json!({})),
+        ("pick_import_source", json!({})),
         ("create_project", json!({ "root": "/r", "manifestJson": "{}" })),
         ("read_project_file", json!({ "root": "/r", "path": "p" })),
         ("write_project_file", json!({ "root": "/r", "path": "p", "contents": "c" })),
@@ -334,6 +350,13 @@ fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
             cmd,
             "watch_project"
                 | "unwatch_project"
+                | "pick_folder"
+                | "pick_image"
+                | "pick_import_source"
+                | "create_project"
+                | "import_asset"
+                | "read_import_source"
+                | "read_import_image"
                 | "reference_stream_url"
                 | "audio_cancel"
                 | "audio_forget"

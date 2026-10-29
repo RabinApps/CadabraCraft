@@ -44,6 +44,8 @@ pub enum ProjectError {
     ImageRefNotFound { reference: String },
     ImageRefOutside { reference: String },
     InvalidFileName,
+    /// A path the webview named for `create_project`, `import_asset` or `read_import_source` that the author never picked in a file dialog.
+    NotPicked { name: String },
     /// The operating system refused access (file or folder permissions, read-only volume).
     PermissionDenied { path: String },
     /// The volume is full or the user's quota is used up.
@@ -82,6 +84,7 @@ impl fmt::Display for ProjectError {
             ImageRefNotFound { reference } => write!(f, "image not found: {reference}"),
             ImageRefOutside { reference } => write!(f, "image is outside the document folder: {reference}"),
             InvalidFileName => write!(f, "invalid file name"),
+            NotPicked { name } => write!(f, "{name} was not chosen in a file or folder dialog"),
             PermissionDenied { path } => write!(f, "no permission to access {path}"),
             DiskFull { path } => write!(f, "not enough disk space to write {path}"),
             ImageDimensions { name, max_megapixels } => write!(f, "{name} has more than {max_megapixels} megapixels"),

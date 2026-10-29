@@ -181,6 +181,10 @@ export function fakeBridge(overrides: Record<string, unknown> = {}) {
       },
       readFile,
       writeFile,
+      // The pickers run in Rust and return the path they remember; Rust's own tests cover refusing a path nobody picked.
+      pickFolder: async () => "/p",
+      pickImage: async () => "/pics/pic.png",
+      pickImportSource: async () => "/src/book.md",
       backupManifest: async () => "backup",
       watchProject: async () => {},
       unwatchProject: async () => {},
