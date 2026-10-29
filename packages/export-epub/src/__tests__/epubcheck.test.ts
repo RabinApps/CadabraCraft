@@ -136,6 +136,31 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
   );
 
   it(
+    "validates the retail metadata: publisher, description, subjects, rights, date and a series",
+    () => {
+      const retail = {
+        publisher: "Quay Press",
+        description: "A keeper, a storm & a <disputed> light.\nBook one.",
+        subjects: ["FIC014000", "Lighthouses"],
+        rights: "© 2026 A. Writer. All rights reserved.",
+        published: "2026-11-03",
+      };
+      for (const [name, publishing] of [
+        ["retail-series.epub", { ...retail, series: "Harbour Lights", seriesNumber: "2.5" }],
+        ["retail-series-only.epub", { series: "Harbour Lights" }],
+        ["retail.epub", retail],
+      ] as const)
+        expect(
+          check(
+            name,
+            buildEpub({ ...metaOf("en"), publishing }, [{ id: "ch1", title: "One", doc }]),
+          ),
+        ).toContain("No errors or warnings detected");
+    },
+    JVM_TIMEOUT,
+  );
+
+  it(
     "validates an ISBN, images without alt text, a cover and a GIF, all with accessibility metadata",
     () => {
       const png = new Uint8Array(

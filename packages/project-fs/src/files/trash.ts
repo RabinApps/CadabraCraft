@@ -3,7 +3,7 @@ import { dirname } from "node:path";
 import { ProjectFsError, fsError, isNotFound } from "../errors";
 import { normalizeRelative, resolveSafe } from "../paths";
 import { atomicWrite } from "./atomic";
-import { firstFree, stamp, withSuffix } from "./naming";
+import { firstFree, stamp, withCopySuffix } from "./naming";
 import { MANIFEST } from "./project";
 
 /** Copies the manifest into `.cadabra/backups/` before a migration rewrites it. Returns the backup's relative path. */
@@ -15,7 +15,7 @@ export function backupManifest(root: string, at: Date = new Date()): string {
     throw fsError(e);
   }
   const base = `.cadabra/backups/cadabra-${stamp(at)}.json`;
-  const rel = firstFree(root, (n) => withSuffix(base, n));
+  const rel = firstFree(root, (n) => withCopySuffix(base, n));
   atomicWrite(resolveSafe(root, rel), bytes);
   return rel;
 }
@@ -34,7 +34,7 @@ export function backupFile(root: string, rel: string, at: Date = new Date()): st
     throw fsError(e);
   }
   const base = `.cadabra/backups/${stamp(at)}-${normalized.replaceAll("/", "__")}`;
-  const toRel = firstFree(root, (n) => withSuffix(base, n));
+  const toRel = firstFree(root, (n) => withCopySuffix(base, n));
   atomicWrite(resolveSafe(root, toRel), bytes);
   return toRel;
 }
@@ -45,7 +45,7 @@ export function trashFile(root: string, rel: string, at: Date = new Date()): str
   const from = resolveSafe(root, normalized);
   if (!existsSync(from)) throw new ProjectFsError("not_found", `${rel} does not exist`);
   const base = `.cadabra/trash/${stamp(at)}-${normalized.replaceAll("/", "__")}`;
-  const toRel = firstFree(root, (n) => withSuffix(base, n));
+  const toRel = firstFree(root, (n) => withCopySuffix(base, n));
   const to = resolveSafe(root, toRel);
   try {
     mkdirSync(dirname(to), { recursive: true });

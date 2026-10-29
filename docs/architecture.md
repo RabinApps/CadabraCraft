@@ -720,6 +720,25 @@ The predefined native Quit item ends the process without a window close request,
 | Thumbnails or cover images on the cards         | Needs image decoding and size limits in localStorage; typographic covers match the pen and cost nothing.                 |
 | A "Last edited" sort control                    | The list is already newest first, so the control would do nothing until there is a second order to offer.                |
 
+## EPUB retail metadata (2026-10-28)
+
+Status: decided and built; formatVersion 6. Each edition may carry a `publishing` object (publisher, description, subjects, series and series number, rights, publication date). The EPUB writes it as OPF metadata: `dc:publisher`, `dc:description`, one `dc:subject` each, `dc:rights`, `dc:date`, and the series as a `belongs-to-collection` with `collection-type` series and `group-position`. The Book details dialog has a collapsible Publishing details section (pen: `Book details publishing / light` and `... / dark`). Rules and limits are in [file-format.md](file-format.md).
+
+### Decision: an optional per-edition object, with a version bump
+
+- It is per edition because a translation has its own blurb, subjects and rights. Absent means not set, so no migration step has to invent values (the v5 to v6 step copies the manifest as it is).
+- The `Publishing` type is in `packages/shared` next to `BookMetadata`, so `export-epub` can take it without depending on `format`. Validation is in `packages/format/src/publishing.ts`; the dialog's friendlier messages are in `apps/desktop/src/lib/publishingForm.ts` and follow the same limits.
+- Values are plain single lines (the description may have line breaks), so every one is written through the same XML escaping as the title. Control characters are refused.
+
+Rejected:
+
+| Option                                             | Why not                                                                                                                                                        |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Add the keys without a version bump (like `fonts`) | The edition reader rebuilds each edition from known keys only, so an older app would drop the details the next time it saves. A bump makes it refuse the book. |
+| One book-level `publishing`                        | Translations are sold separately with their own descriptions and subjects.                                                                                     |
+| Free-form `extra` metadata map                     | Unvalidated text in the OPF is a way to write invalid XML or unsupported properties; a fixed set can be tested against EPUBCheck.                              |
+| A subjects picker for BISAC codes                  | The code list is large and changes; a line per subject takes codes or keywords without shipping the list.                                                      |
+
 ## Reference files (2026-10-28)
 
 **Decision:** authors can import images, video, audio, PDFs, text and other files into a book as references to look at while writing (a "brainstorming" library). Each file is copied into a new flat `references/` folder in the project (sanitised names, `-2` suffix on a clash, identical sha256 content reuses the existing file, never an absolute path). The manifest gains `references: [{id, file, title, note, tags, chapters, addedAt}]`, so this is a format change (v4 to v5, `/change-file-format`). Images, PDFs and text are shown through `blob:` URLs built from ranged reads over raw-body IPC; video and audio stream from a custom `cadabra-ref` URI scheme with HTTP range support (see "Streaming video and audio" below), so no asset protocol is enabled. PDFs render on a canvas with `pdfjs-dist` (worker allowed through `worker-src 'self' blob:`). Types that cannot be previewed are stored and opened in the default app. References link to chapters by id; the chapter details panel lists them.

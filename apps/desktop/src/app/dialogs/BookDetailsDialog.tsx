@@ -2,15 +2,23 @@ import { sourceEdition } from "@cadabracraft/format";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { resolveTrimSize } from "@cadabracraft/templates";
 import { useEffect, useState } from "react";
+import { t as translate } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
-import { ImagePlus, Image as ImageIcon, Save, Trash2 } from "lucide-react";
+import { ChevronRight, ImagePlus, Image as ImageIcon, Save, Trash2 } from "lucide-react";
 import { LOCALES } from "../../i18n/locales";
 import { assetUrl } from "../../lib/assets";
 import { errText } from "../../lib/projectError";
+import {
+  publishingProblem,
+  publishingToForm,
+  type PublishingForm,
+  type PublishingProblem,
+} from "../../lib/publishingForm";
 import { trimLabel } from "../../lib/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
 import { Field } from "../../ui/Input";
+import { Textarea } from "../../ui/Textarea";
 import { Select } from "../../ui/Select";
 import { useProject, type BookDetails } from "../../state/project/index";
 import { Notice } from "../../ui/Notice";
@@ -38,6 +46,7 @@ const detailsOf = (
     identifier: e.identifier,
     cover: e.cover,
     trimSize: resolveTrimSize(m),
+    publishing: publishingToForm(e.publishing),
   };
 };
 
@@ -92,6 +101,19 @@ function CoverPreview({
   );
 }
 
+/** The message under the field that `publishingProblem` found. */
+function problemText(p: PublishingProblem): string {
+  if (p.code === "multi-line") return translate`Use a single line.`;
+  if (p.code === "too-long")
+    return p.field === "subjects"
+      ? translate`Each subject can have up to ${p.max} characters.`
+      : translate`Use at most ${p.max} characters.`;
+  if (p.code === "too-many") return translate`Use at most ${p.max} subjects.`;
+  if (p.code === "needs-series") return translate`Enter the series name first.`;
+  if (p.code === "bad-number") return translate`Use a number such as 1 or 2.5.`;
+  return translate`Enter a real date.`;
+}
+
 /** Edit the book's title, author, language, ISBN, identifier and cover image. Nothing is stored until Save. */
 export function BookDetailsDialog({ open, onOpenChange }: Props) {
   const { t } = useLingui();
@@ -117,13 +139,21 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
   const languages = LOCALES.some((l) => l.code === form.language)
     ? LOCALES
     : [...LOCALES, { code: form.language, nativeName: form.language, dir: "ltr" as const }];
+  const publishing = form.publishing ?? publishingToForm(undefined);
+  const setPublishing = (patch: Partial<PublishingForm>) =>
+    set({ publishing: { ...publishing, ...patch } });
+  const problem = publishingProblem(publishing);
+  const problemFor = (field: PublishingProblem["field"]) =>
+    problem?.field === field ? problemText(problem) : undefined;
   const missing = !form.title.trim()
     ? t`Give the book a title.`
     : !form.author.trim()
       ? t`Give the book an author.`
       : !form.identifier.trim()
         ? t`The identifier cannot be empty.`
-        : "";
+        : problem
+          ? problemText(problem)
+          : "";
 
   const choose = async () => {
     setError("");
@@ -232,6 +262,74 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
             onChange={(e) => set({ identifier: e.target.value })}
             hint={t`Unique id stored in the EPUB. Change it only if a store or library asked you to.`}
           />
+          <details className="group rounded-md border border-border">
+            <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2.5 text-sm font-semibold text-ink focus-visible:outline-2 focus-visible:outline-accent">
+              <ChevronRight
+                size={16}
+                aria-hidden
+                className="transition-transform group-open:rotate-90 rtl:-scale-x-100 rtl:group-open:-rotate-90"
+              />
+              {t`Publishing details`}
+            </summary>
+            <div className="flex flex-col gap-3.5 border-t border-border p-3">
+              <p className="text-xs leading-relaxed text-ink-muted">{t`Stored in the EPUB for stores and libraries. Everything here is optional.`}</p>
+              <Field
+                label={t`Publisher`}
+                value={publishing.publisher}
+                error={problemFor("publisher")}
+                onChange={(e) => setPublishing({ publisher: e.target.value })}
+              />
+              <div className="flex gap-3 max-sm:flex-col">
+                <div className="min-w-0 flex-1">
+                  <Field
+                    label={t`Series`}
+                    value={publishing.series}
+                    error={problemFor("series")}
+                    onChange={(e) => setPublishing({ series: e.target.value })}
+                  />
+                </div>
+                <div className="sm:w-28">
+                  <Field
+                    label={t`Number in series`}
+                    inputMode="decimal"
+                    value={publishing.seriesNumber}
+                    error={problemFor("seriesNumber")}
+                    onChange={(e) => setPublishing({ seriesNumber: e.target.value })}
+                  />
+                </div>
+              </div>
+              <Field
+                label={t`Publication date`}
+                type="date"
+                value={publishing.published}
+                error={problemFor("published")}
+                onChange={(e) => setPublishing({ published: e.target.value })}
+              />
+              <Textarea
+                label={t`Subjects`}
+                rows={3}
+                value={publishing.subjects}
+                error={problemFor("subjects")}
+                onChange={(e) => setPublishing({ subjects: e.target.value })}
+                hint={t`One per line: BISAC codes such as FIC014000, or keywords.`}
+              />
+              <Textarea
+                label={t`Description`}
+                rows={4}
+                value={publishing.description}
+                error={problemFor("description")}
+                onChange={(e) => setPublishing({ description: e.target.value })}
+                hint={t`The blurb shown in stores. Plain text.`}
+              />
+              <Field
+                label={t`Rights`}
+                value={publishing.rights}
+                error={problemFor("rights")}
+                onChange={(e) => setPublishing({ rights: e.target.value })}
+                hint={t`For example: © 2026 A. Writer. All rights reserved.`}
+              />
+            </div>
+          </details>
           {error && <Notice role="alert">{error}</Notice>}
           <div className="mt-auto flex justify-end gap-2.5 pt-2">
             <Button disabled={busy} onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>

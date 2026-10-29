@@ -65,7 +65,7 @@ test.describe("reference files", () => {
     await expect(row(page, "notes")).toContainText("Document");
     await expect(row(page, "map")).toContainText("Image");
     const m = await manifestOf(page);
-    expect(m.formatVersion).toBe(5);
+    expect(m.formatVersion).toBe(6);
     expect(m.references.map((r: { id: string; file: string }) => [r.id, r.file])).toEqual([
       ["ref-1", "references/Harbour-at-dusk.mp4"],
       ["ref-2", "references/notes.md"],

@@ -26,7 +26,7 @@ pub(crate) use pages::write_file_with;
 pub use references::{import_reference, read_reference_range, reference_open_path, stat_reference, trash_reference, ImportedReference, ReferenceStat};
 pub use media::{media_path, read_media, MediaRead};
 pub use pages::{read_file, write_file, FileRead, WriteResult};
-pub(crate) use paths::free_name;
+pub(crate) use paths::{free_copy_name, free_name};
 pub use paths::{require_absolute, require_project, resolve};
 pub use trash::{list_trash, restore_trash, trash_file, TrashEntry};
 

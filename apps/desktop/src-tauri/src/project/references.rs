@@ -3,7 +3,7 @@
 //! Files are streamed (a video can be hundreds of megabytes), never read whole except small text files.
 use super::assets::{check_image, sanitize_asset_stem};
 use super::fsio::{icloud_pending, stamp};
-use super::paths::{free_name, resolve};
+use super::paths::{free_copy_name, resolve};
 use super::{io_error, open_error, ProjectError, Result};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -273,7 +273,7 @@ pub fn trash_reference(root: &Path, rel: &str) -> Result<String> {
         Ok(m) if !m.is_file() => return Err(ProjectError::NotAFile { path: rel.to_string() }),
         Ok(_) => {}
     }
-    let to_rel = free_name(root, &format!(".cadabra/trash/{}-{}", stamp(), rel.replace('/', "__")))?;
+    let to_rel = free_copy_name(root, &format!(".cadabra/trash/{}-{}", stamp(), rel.replace('/', "__")))?;
     let to = resolve(root, &to_rel)?;
     fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?).ctx(".cadabra/trash")?;
     fs::rename(from, to).ctx(rel)?;

@@ -65,6 +65,16 @@ pub fn require_project(root: &Path) -> Result<PathBuf> {
 
 /// `<dir>/<stem>-N.<ext>` for the first N >= 2 not taken (or `rel` itself when free). Only the file name is split.
 pub(crate) fn free_name(root: &Path, rel: &str) -> Result<String> {
+    free_name_with(root, rel, '-')
+}
+
+/// Like `free_name` for backup and trash copies: the counter follows `~` (`<stamp>-<flat>~2.json`), a character page
+/// names never hold, so a counted copy of `a.json` cannot be mistaken for a copy of a page called `a-2.json`.
+pub(crate) fn free_copy_name(root: &Path, rel: &str) -> Result<String> {
+    free_name_with(root, rel, '~')
+}
+
+fn free_name_with(root: &Path, rel: &str, sep: char) -> Result<String> {
     if !resolve(root, rel)?.exists() {
         return Ok(rel.to_string());
     }
@@ -75,7 +85,7 @@ pub(crate) fn free_name(root: &Path, rel: &str) -> Result<String> {
     };
     let mut n = 2u32;
     loop {
-        let cand = format!("{stem}-{n}{ext}");
+        let cand = format!("{stem}{sep}{n}{ext}");
         if !resolve(root, &cand)?.exists() {
             return Ok(cand);
         }
@@ -172,6 +182,7 @@ mod tests {
         fs::write(d.path().join("a.json"), "").unwrap();
         fs::write(d.path().join("a-2.json"), "").unwrap();
         assert_eq!(free_name(d.path(), "a.json").unwrap(), "a-3.json");
+        assert_eq!(free_copy_name(d.path(), "a.json").unwrap(), "a~2.json");
     }
 
     #[cfg(unix)]

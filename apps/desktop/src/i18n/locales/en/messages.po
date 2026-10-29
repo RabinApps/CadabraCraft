@@ -1041,6 +1041,10 @@ msgstr "Delete Table"
 msgid "Delete voices"
 msgstr "Delete voices"
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Description"
+msgstr "Description"
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Description (alt text)"
 msgstr "Description (alt text)"
@@ -1140,6 +1144,11 @@ msgstr "Drop files here to add them"
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Each subject can have up to {0} characters."
+msgstr "Each subject can have up to {0} characters."
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Earlier versions"
 msgstr "Earlier versions"
@@ -1181,9 +1190,17 @@ msgstr "Embeds everything needed to open the file in the future."
 msgid "Enjoying CadabraCraft?"
 msgstr "Enjoying CadabraCraft?"
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Enter a real date."
+msgstr "Enter a real date."
+
 #: src/app/shell/menuModel.ts
 msgid "Enter Full Screen"
 msgstr "Enter Full Screen"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Enter the series name first."
+msgstr "Enter the series name first."
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -1355,6 +1372,10 @@ msgstr "Fonts are downloaded from Google Fonts only when you click Download. Not
 #: src/editor/Toolbar.tsx
 msgid "Footnote"
 msgstr "Footnote"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "For example: © 2026 A. Writer. All rights reserved."
+msgstr "For example: © 2026 A. Writer. All rights reserved."
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -2031,6 +2052,10 @@ msgstr "Nothing was lost or changed."
 msgid "Nothing was pasted here. Select text inside one paragraph or cell and try again"
 msgstr "Nothing was pasted here. Select text inside one paragraph or cell and try again"
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Number in series"
+msgstr "Number in series"
+
 #: src/editor/Toolbar.tsx
 msgid "Numbered list"
 msgstr "Numbered list"
@@ -2050,6 +2075,10 @@ msgstr "Oldest first"
 #: src/app/hooks/useAudioLabels.ts
 msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
 msgstr "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "One per line: BISAC codes such as FIC014000, or keywords."
+msgstr "One per line: BISAC codes such as FIC014000, or keywords."
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Only in the current text"
@@ -2264,6 +2293,18 @@ msgstr "Print Preview…"
 #: src/state/project/project.ts
 msgid "Project upgraded from format {0}; backup saved to {backup}"
 msgstr "Project upgraded from format {0}; backup saved to {backup}"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publication date"
+msgstr "Publication date"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publisher"
+msgstr "Publisher"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publishing details"
+msgstr "Publishing details"
 
 #: src/app/shell/menuModel.ts
 msgid "Quit"
@@ -2490,6 +2531,10 @@ msgstr "Results by page"
 msgid "Right-hand page"
 msgstr "Right-hand page"
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Rights"
+msgstr "Rights"
+
 #: src/editor/TableCommands.tsx
 msgid "Rows"
 msgstr "Rows"
@@ -2572,6 +2617,10 @@ msgstr "Select the text you want to link first."
 #: src/app/export/AudioExport.tsx
 msgid "Selected chapters"
 msgstr "Selected chapters"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Series"
+msgstr "Series"
 
 #: src/app/shell/menuModel.ts
 msgid "Services"
@@ -2737,6 +2786,10 @@ msgstr "Stopped. What was downloaded is kept, so the next download carries on fr
 msgid "Stopping…"
 msgstr "Stopping…"
 
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Stored in the EPUB for stores and libraries. Everything here is optional."
+msgstr "Stored in the EPUB for stores and libraries. Everything here is optional."
+
 #: src/app/home/Home.tsx
 msgid "Stored on this computer. No account needed."
 msgstr "Stored on this computer. No account needed."
@@ -2745,6 +2798,10 @@ msgstr "Stored on this computer. No account needed."
 #: src/editor/Toolbar.tsx
 msgid "Strikethrough"
 msgstr "Strikethrough"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Subjects"
+msgstr "Subjects"
 
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -2817,6 +2874,10 @@ msgstr "The audio formats ticked when you open the export."
 #: src/lib/audioErrors.ts
 msgid "The audiobook was cancelled. Chapters that were finished are kept."
 msgstr "The audiobook was cancelled. Chapters that were finished are kept."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The blurb shown in stores. Plain text."
+msgstr "The blurb shown in stores. Plain text."
 
 #: src/lib/epubErrors.ts
 msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
@@ -3219,6 +3280,24 @@ msgstr "Untitled"
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Update available"
 msgstr "Update available"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use a number such as 1 or 2.5."
+msgstr "Use a number such as 1 or 2.5."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use a single line."
+msgstr "Use a single line."
+
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use at most {0} characters."
+msgstr "Use at most {0} characters."
+
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use at most {0} subjects."
+msgstr "Use at most {0} subjects."
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Use http, https or mailto."

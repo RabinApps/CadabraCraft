@@ -15,6 +15,17 @@ export function withSuffix(rel: string, n: number): string {
   return dot > slash ? `${rel.slice(0, dot)}-${n}${rel.slice(dot)}` : `${rel}-${n}`;
 }
 
+/**
+ * Backup and trash copies count with `~`: `name.ext` + 2 -> `name~2.ext`. Page names never hold `~`, so the copy of `a.json`
+ * cannot be mistaken for a copy of a page called `a-2.json` (the plain `-n` of `withSuffix` could).
+ */
+export function withCopySuffix(rel: string, n: number): string {
+  if (n <= 1) return rel;
+  const slash = rel.lastIndexOf("/") + 1;
+  const dot = rel.lastIndexOf(".");
+  return dot > slash ? `${rel.slice(0, dot)}~${n}${rel.slice(dot)}` : `${rel}~${n}`;
+}
+
 /** First relative path of the form `candidate(n)` (n = 1, 2, ...) that does not exist under `root` yet. */
 export function firstFree(root: string, candidate: (n: number) => string): string {
   let n = 1;

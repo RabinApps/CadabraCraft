@@ -2,6 +2,7 @@ import type { Manifest, Reference, Tree } from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
+import type { PublishingForm } from "../../lib/publishingForm";
 import type { ImportChoices, ImportReport } from "../../lib/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
@@ -141,6 +142,8 @@ export interface BookDetails {
   cover: string | null;
   /** Print page size of the book (shared by every edition). Absent keeps what the book has. */
   trimSize?: TrimSize;
+  /** Retail details of this edition. Absent keeps what the edition has. */
+  publishing?: PublishingForm;
 }
 
 /** Cover images the exporters can place: png, jpg, jpeg and webp (not gif or svg). */

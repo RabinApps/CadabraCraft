@@ -213,4 +213,12 @@ fn contract_manifest_fixtures() {
             assert!(ids.contains(&s(c)), "link {c} names a chapter");
         }
     }
+
+    let v6 = vectors("manifest-v6");
+    assert_eq!(v6["formatVersion"], 6);
+    assert_eq!(v6["chapters"], v5["chapters"], "version 6 only adds publishing details to editions");
+    assert_eq!(v6["references"], v5["references"]);
+    let publishing = &v6["editions"][0]["publishing"];
+    assert!(publishing["publisher"].is_string() && publishing["subjects"].is_array());
+    assert!(v6["editions"][1].get("publishing").is_none(), "publishing is optional per edition");
 }

@@ -50,6 +50,21 @@ export interface ChapterDoc {
   content: DocNode[];
 }
 
+/** Retail details of one edition (formatVersion 6), written by the EPUB export as OPF metadata. Every key is optional. */
+export interface Publishing {
+  publisher?: string;
+  /** Plain text; line breaks allowed. */
+  description?: string;
+  /** BISAC codes or keywords. */
+  subjects?: string[];
+  series?: string;
+  /** Position in the series: digits with an optional decimal part. Only with a `series`. */
+  seriesNumber?: string;
+  rights?: string;
+  /** Publication date, `YYYY-MM-DD`. */
+  published?: string;
+}
+
 export interface BookMetadata {
   title: string;
   author: string;
@@ -58,6 +73,8 @@ export interface BookMetadata {
   identifier: string;
   /** ISBN as the author typed it (hyphens allowed). The EPUB gets an extra `urn:isbn:` identifier when it is a valid ISBN-10 or ISBN-13; otherwise it is skipped. */
   isbn?: string | null;
+  /** Publisher, description, subjects, series, rights and publication date for the EPUB's OPF metadata. */
+  publishing?: Publishing;
   modified: Date;
 }
 export * from "./errors";

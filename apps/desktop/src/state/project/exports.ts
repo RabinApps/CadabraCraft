@@ -91,6 +91,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             language: edition.language,
             identifier: edition.identifier,
             isbn: edition.isbn,
+            publishing: edition.publishing,
             modified: new Date(),
           },
           chapters,

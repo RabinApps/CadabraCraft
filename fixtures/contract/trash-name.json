@@ -1,5 +1,5 @@
 {
-  "description": "Trash file names `<YYYYMMDD-HHMM>-<project path with / as __>.json` (TS trashProjectFile / Rust trash_file write them; Rust parse_trash_name reads them). Only the first `__` (after the folder) separates folder from file, so file names may contain `__`. `original` is null when the name is not a restorable page. Rust-only reader today.",
+  "description": "Trash file names `<YYYYMMDD-HHMM>-<project path with / as __>.json` (TS trashProjectFile / Rust trash_file write them; Rust parse_trash_name reads them). Only the first `__` (after the folder) separates folder from file, so file names may contain `__`. `original` is null when the name is not a restorable page. A second file trashed in the same minute gets `~2`, `~3`... before `.json` (a `~1` is not a counter). Rust-only reader today.",
   "parse": [
     {
       "name": "20260101-1200-manuscript__001-a.json",
@@ -19,6 +19,16 @@
     {
       "name": "20260101-1200-back-matter__a-2.json",
       "original": "back-matter/a-2.json",
+      "trashedAt": "20260101-1200"
+    },
+    {
+      "name": "20260101-1200-manuscript__001-a~2.json",
+      "original": "manuscript/001-a.json",
+      "trashedAt": "20260101-1200"
+    },
+    {
+      "name": "20260101-1200-manuscript__001-a~1.json",
+      "original": "manuscript/001-a~1.json",
       "trashedAt": "20260101-1200"
     },
     {
