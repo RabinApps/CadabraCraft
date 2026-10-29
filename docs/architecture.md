@@ -868,3 +868,18 @@ Desktop layers import downward only: `app/` (screens, dialogs, shell, hooks) use
 | Keep the MCP bundle documented for "Node 24 or newer" | Only 26 is tested, so `docs/mcp.md` says Node 26.                     |
 
 **Follow-ups / caveats:** since Node 25 the official Linux binaries link against libatomic, which a runner image may need installed; the PR run on ubuntu will show whether it is missing. The scenario's "PDF export produces a 6x9 PDF" step fails on Node 24 and 26 alike (a poppler "Suspects object" message), so it is not caused by this change.
+
+## Moves never replace; directories are fsynced (2026-10-28)
+
+**Decision:** trash, restore and reference-trash (Rust `move_to_free_name`, TypeScript `trashFile`) move a file with `rename_no_replace`: `fs::hard_link(from, to)` (atomic, fails with `AlreadyExists` when `to` exists, on every OS), then remove `from` (if that fails, `to` is removed again so the page never has two names). When the name was taken between the exists check and the move, the next free name (`-2`, `-3`...) is used, at most 64 times. Importing a reference uses `tempfile`'s `persist_noclobber` (the same link-then-unlink) and skips a name that appeared meanwhile. Where the filesystem has no hard links (exFAT, some cloud folders; any non-`AlreadyExists` link error) it falls back to an exists check plus `rename`, which leaves a small race window but is no worse than before. The parent directory is fsynced after every atomic-write rename and every move (`sync_dir` / `syncDir`; both directories for a move). That fsync is best effort and its error is ignored: the rename already happened and the data was fsynced, so a filesystem that cannot fsync a directory must not fail a save; on Windows a directory cannot be opened, so it does nothing there.
+
+**Rejected:**
+
+| Alternative                                               | Why not                                                                                                          |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `renameat2(RENAME_NOREPLACE)` / `renamex_np(RENAME_EXCL)` | Per-OS code, and needs the `libc` crate or unsafe FFI (no new dependencies); Windows has no equivalent in `std`. |
+| Keep exists check then `rename`                           | Racy, and `rename` silently replaces on a lost race (always on Windows).                                         |
+| Exclusive `create_new` of the target, then rename over it | Leaves an empty file if the process dies between the two, and `rename` over it is still a replace.               |
+| Fail the save when the directory fsync fails              | Breaks saving on filesystems that refuse it, for a durability gain the author cannot act on.                     |
+
+**Limits:** `atomic_write` itself still replaces its target by design (that is a save); snapshot names (`write_copy`) are chosen by an exists check and written with `atomic_write`, so a simultaneous second writer of the same snapshot name could replace it (open in the roadmap).

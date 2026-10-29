@@ -1,8 +1,8 @@
-import { existsSync, mkdirSync, readFileSync, renameSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { ProjectFsError, fsError, isNotFound } from "../errors";
 import { normalizeRelative, resolveSafe } from "../paths";
-import { atomicWrite } from "./atomic";
+import { atomicWrite, renameNoReplace } from "./atomic";
 import { firstFree, stamp, withSuffix } from "./naming";
 import { MANIFEST } from "./project";
 
@@ -45,13 +45,16 @@ export function trashFile(root: string, rel: string, at: Date = new Date()): str
   const from = resolveSafe(root, normalized);
   if (!existsSync(from)) throw new ProjectFsError("not_found", `${rel} does not exist`);
   const base = `.cadabra/trash/${stamp(at)}-${normalized.replaceAll("/", "__")}`;
-  const toRel = firstFree(root, (n) => withSuffix(base, n));
-  const to = resolveSafe(root, toRel);
-  try {
-    mkdirSync(dirname(to), { recursive: true });
-    renameSync(from, to);
-  } catch (e) {
-    throw fsError(e);
+  // Never replaces: if another writer takes the name between the check and the move, the next free name is used.
+  for (let attempt = 0; ; attempt++) {
+    const toRel = firstFree(root, (n) => withSuffix(base, n));
+    const to = resolveSafe(root, toRel);
+    try {
+      mkdirSync(dirname(to), { recursive: true });
+      renameNoReplace(from, to);
+      return toRel;
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== "EEXIST" || attempt >= 63) throw fsError(e);
+    }
   }
-  return toRel;
 }

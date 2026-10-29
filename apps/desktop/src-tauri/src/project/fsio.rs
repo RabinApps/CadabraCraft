@@ -1,5 +1,5 @@
 //! Atomic file writes, bounded reads and iCloud placeholder detection.
-use super::paths::resolve;
+use super::paths::{free_name, resolve};
 use super::{io_error, ProjectError, Result};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -65,7 +65,74 @@ fn atomic_write_once(path: &Path, bytes: &[u8]) -> Result<()> {
         fs::set_permissions(tmp.path(), fs::Permissions::from_mode(mode)).map_err(io)?;
     }
     tmp.persist(path).map_err(|e| io(e.error))?; // on failure `e.file` drops and deletes the temp file
+    sync_dir(dir);
     Ok(())
+}
+
+/// Flushes a directory's entries to disk, so a rename or new file in it survives a power cut (the file's own data is
+/// fsynced separately). Best effort by design: the rename already happened and the data is safe, so failing the save
+/// because the filesystem cannot fsync a directory (network and cloud folders, FAT) would only mislead. Windows cannot
+/// open a directory as a file, so there it does nothing.
+pub(crate) fn sync_dir(dir: &Path) {
+    #[cfg(unix)]
+    if let Ok(d) = fs::File::open(dir) {
+        let _ = d.sync_all();
+    }
+    #[cfg(not(unix))]
+    let _ = dir;
+}
+
+/// Moves `from` to `to` without ever replacing an existing `to`: a hard link is created first (atomic, fails with
+/// `AlreadyExists` when `to` exists, on every platform) and then the old name is removed. A filesystem that has no
+/// hard links (exFAT, some cloud folders) falls back to an exists check plus `rename`, which only leaves a tiny race
+/// window instead of none. Both directories are fsynced afterwards.
+pub(crate) fn rename_no_replace(from: &Path, to: &Path) -> std::io::Result<()> {
+    rename_no_replace_with(from, to, |a, b| fs::hard_link(a, b))
+}
+
+pub(crate) fn rename_no_replace_with(from: &Path, to: &Path, link: impl Fn(&Path, &Path) -> std::io::Result<()>) -> std::io::Result<()> {
+    match link(from, to) {
+        Ok(()) => {
+            if let Err(e) = fs::remove_file(from) {
+                let _ = fs::remove_file(to); // never leave the page under two names
+                return Err(e);
+            }
+        }
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => return Err(e),
+        Err(_) => {
+            if to.symlink_metadata().is_ok() {
+                return Err(std::io::ErrorKind::AlreadyExists.into());
+            }
+            fs::rename(from, to)?;
+        }
+    }
+    for p in [to, from] {
+        if let Some(dir) = p.parent() {
+            sync_dir(dir);
+        }
+    }
+    Ok(())
+}
+
+/// Moves the file `from` to the project-relative `want`, or to `want-2`, `-3`... when that name is (or becomes, in a
+/// race) taken, creating the folder first. Never replaces anything; returns the relative path used. I/O failures are
+/// reported against `label`.
+pub(crate) fn move_to_free_name(root: &Path, from: &Path, want: &str, label: &str) -> Result<String> {
+    move_to_free_name_with(root, from, want, label, rename_no_replace)
+}
+
+pub(crate) fn move_to_free_name_with(root: &Path, from: &Path, want: &str, label: &str, mv: impl Fn(&Path, &Path) -> std::io::Result<()>) -> Result<String> {
+    for _ in 0..64 {
+        let to_rel = free_name(root, want)?;
+        let to = resolve(root, &to_rel)?;
+        fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?).map_err(|e| io_error(e, label))?;
+        match mv(from, &to) {
+            Ok(()) => return Ok(to_rel),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {} // lost a race: free_name now skips that name
+            Err(e) => return Err(io_error(e, label)),
+        }
+    }
+    Err(io_error(std::io::ErrorKind::AlreadyExists.into(), label))
 }
 
 /// True when `path` is an iCloud placeholder that has not been downloaded: the real name is missing and macOS left
@@ -419,5 +486,90 @@ mod tests {
         let result = atomic_write(&ro.join("sub/page.json"), b"x");
         fs::set_permissions(&ro, fs::Permissions::from_mode(0o755)).unwrap();
         assert!(!denied || result.unwrap_err() == ProjectError::PermissionDenied { path: "page.json".into() });
+    }
+
+    fn no_links(_: &Path, _: &Path) -> std::io::Result<()> {
+        Err(std::io::ErrorKind::Unsupported.into())
+    }
+
+    #[test]
+    fn rename_no_replace_moves_and_refuses_to_replace() {
+        let d = tmp();
+        let (a, b) = (d.path().join("a"), d.path().join("b"));
+        fs::write(&a, "A").unwrap();
+        rename_no_replace(&a, &b).unwrap();
+        assert!(!a.exists());
+        assert_eq!(fs::read_to_string(&b).unwrap(), "A");
+        fs::write(&a, "new").unwrap();
+        let e = rename_no_replace(&a, &b).unwrap_err();
+        assert_eq!(e.kind(), std::io::ErrorKind::AlreadyExists);
+        assert_eq!((fs::read_to_string(&a).unwrap(), fs::read_to_string(&b).unwrap()), ("new".into(), "A".into()));
+    }
+
+    #[test]
+    fn rename_no_replace_without_hard_links_falls_back_and_still_refuses_to_replace() {
+        let d = tmp();
+        let (a, b) = (d.path().join("a"), d.path().join("b"));
+        fs::write(&a, "A").unwrap();
+        rename_no_replace_with(&a, &b, no_links).unwrap();
+        assert!(!a.exists() && fs::read_to_string(&b).unwrap() == "A");
+        fs::write(&a, "new").unwrap();
+        let e = rename_no_replace_with(&a, &b, no_links).unwrap_err();
+        assert_eq!(e.kind(), std::io::ErrorKind::AlreadyExists);
+        assert_eq!(fs::read_to_string(&b).unwrap(), "A");
+        // A missing source is reported, not swallowed.
+        assert_eq!(rename_no_replace_with(&d.path().join("gone"), &d.path().join("c"), no_links).unwrap_err().kind(), std::io::ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn a_failed_unlink_after_the_link_rolls_the_new_name_back() {
+        let d = tmp();
+        let (a, b) = (d.path().join("a"), d.path().join("b"));
+        fs::write(&a, "A").unwrap();
+        // The "link" makes the new name but also removes the source, so the unlink afterwards fails.
+        let e = rename_no_replace_with(&a, &b, |from, to| {
+            fs::copy(from, to)?;
+            fs::remove_file(from)
+        })
+        .unwrap_err();
+        assert_eq!(e.kind(), std::io::ErrorKind::NotFound);
+        assert!(!b.exists());
+    }
+
+    #[test]
+    fn a_move_that_loses_the_race_for_a_name_uses_the_next_one() {
+        let d = tmp();
+        let src = d.path().join("page.json");
+        fs::write(&src, "mine").unwrap();
+        // free_name saw `t/x.json` free, but another writer creates it just before the move.
+        let raced = std::cell::Cell::new(false);
+        let got = move_to_free_name_with(d.path(), &src, "t/x.json", "x", |from, to| {
+            if !raced.replace(true) {
+                fs::write(to, "theirs").unwrap();
+            }
+            rename_no_replace(from, to)
+        })
+        .unwrap();
+        assert_eq!(got, "t/x-2.json");
+        assert_eq!(fs::read_to_string(d.path().join("t/x.json")).unwrap(), "theirs");
+        assert_eq!(fs::read_to_string(d.path().join("t/x-2.json")).unwrap(), "mine");
+        assert!(!src.exists());
+    }
+
+    #[test]
+    fn a_move_gives_up_after_a_bounded_number_of_races_and_reports_other_errors() {
+        let d = tmp();
+        let src = d.path().join("p.json");
+        fs::write(&src, "mine").unwrap();
+        let always = |_: &Path, _: &Path| Err(std::io::ErrorKind::AlreadyExists.into());
+        assert!(move_to_free_name_with(d.path(), &src, "x.json", "x", always).is_err());
+        let denied = |_: &Path, _: &Path| Err(std::io::ErrorKind::PermissionDenied.into());
+        assert!(matches!(move_to_free_name_with(d.path(), &src, "y.json", "y", denied), Err(ProjectError::PermissionDenied { .. })));
+        assert!(src.exists());
+    }
+
+    #[test]
+    fn syncing_a_missing_directory_is_ignored() {
+        sync_dir(Path::new("/definitely/not/here"));
     }
 }
