@@ -1,8 +1,6 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { plural } from "@lingui/core/macro";
 import { ArrowLeft, ArrowRight, FileUp, FolderOpen } from "lucide-react";
-import { countWords } from "@cadabracraft/shared";
 import type { ImportResult } from "@cadabracraft/import-docx";
 import { Segmented } from "../../ui/Segmented";
 import { Button } from "../../ui/Button";
@@ -12,12 +10,13 @@ import {
   loadImport,
   parseImport,
   titleFromFile,
-  type ChapterEdit,
   type ImportChoices,
   type LoadedSource,
 } from "../../lib/importBook";
 import { baseName } from "../../lib/paths";
 import { errText } from "../../lib/projectError";
+import { initialPlan, keptCount, type ImportPlan } from "../../lib/importPlan";
+import { ImportChapterList } from "./ImportChapterList";
 import { PickRow, Summary } from "./ImportParts";
 import { Notice } from "../../ui/Notice";
 
@@ -35,6 +34,8 @@ interface ImportProps {
     author: string,
     opts?: ImportChoices,
   ) => Promise<void>;
+  /** When set, the dialog adds the chosen chapters to the open book instead of creating one: no title, author or folder. */
+  onImportInto?: (source: string, opts?: ImportChoices) => Promise<void>;
 }
 
 type Level = 1 | 2 | 3;
@@ -42,11 +43,8 @@ interface Preview {
   loaded: LoadedSource;
   level: Level;
   result: ImportResult;
-  edits: ChapterEdit[];
+  plan: ImportPlan;
 }
-
-const freshEdits = (r: ImportResult): ChapterEdit[] =>
-  r.chapters.map((c) => ({ title: c.title, include: true }));
 
 /** Two steps: pick a source and destination, then preview how it splits into chapters. Only the last button writes; the source is only read. */
 export function ImportDialog({
@@ -55,7 +53,9 @@ export function ImportDialog({
   pickSource,
   pickFolder,
   onImport,
+  onImportInto,
 }: ImportProps) {
+  const append = onImportInto !== undefined;
   const { t } = useLingui();
   const [source, setSource] = useState<string | null>(null);
   const [root, setRoot] = useState<string | null>(null);
@@ -64,8 +64,8 @@ export function ImportDialog({
   const [preview, setPreview] = useState<Preview | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const ready = source !== null && root !== null && title.trim() !== "" && !busy;
-  const kept = preview ? preview.edits.filter((e) => e.include).length : 0;
+  const ready = source !== null && (append || (root !== null && title.trim() !== "")) && !busy;
+  const kept = preview ? keptCount(preview.plan) : 0;
   // Bumped whenever the dialog closes or the source changes: an answer that arrives for an older state is dropped.
   const gen = useRef(0);
   const change = (o: boolean) => {
@@ -96,7 +96,7 @@ export function ImportDialog({
   };
   const parse = (loaded: LoadedSource, level: Level) => {
     const result = parseImport(loaded, level);
-    setPreview({ loaded, level, result, edits: freshEdits(result) });
+    setPreview({ loaded, level, result, plan: initialPlan(result) });
   };
   const next = () => {
     if (!source || busy) return;
@@ -116,20 +116,15 @@ export function ImportDialog({
       setError(errText(e));
     }
   };
-  const edit = (i: number, patch: Partial<ChapterEdit>) =>
-    setPreview(
-      (p) => p && { ...p, edits: p.edits.map((e, j) => (j === i ? { ...e, ...patch } : e)) },
-    );
+  const setPlan = useCallback((plan: ImportPlan) => setPreview((p) => p && { ...p, plan }), []);
   const submit = () => {
-    if (!source || !root || busy) return;
+    if (!source || busy || (!append && !root)) return;
     setBusy(true);
     setError("");
-    onImport(
-      source,
-      root,
-      title.trim(),
-      author.trim() || t`Unknown`,
-      preview ? { splitHeadingLevel: preview.level, edits: preview.edits } : undefined,
+    const choices = preview ? { splitHeadingLevel: preview.level, plan: preview.plan } : undefined;
+    (onImportInto
+      ? onImportInto(source, choices)
+      : onImport(source, root!, title.trim(), author.trim() || t`Unknown`, choices)
     )
       .then(() => {
         setBusy(false);
@@ -149,8 +144,12 @@ export function ImportDialog({
     <Modal
       open={open}
       onOpenChange={change}
-      title={t`Import a manuscript`}
-      description={t`Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed.`}
+      title={append ? t`Import into this book` : t`Import a manuscript`}
+      description={
+        append
+          ? t`Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file.`
+          : t`Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed.`
+      }
     >
       {!preview ? (
         <form
@@ -174,18 +173,22 @@ export function ImportDialog({
               })
             }
           />
-          <Field label={t`Title`} value={title} onChange={(e) => setTitle(e.target.value)} />
-          <Field label={t`Author`} value={author} onChange={(e) => setAuthor(e.target.value)} />
-          <PickRow
-            label={t`New book folder`}
-            value={root ?? ""}
-            placeholder={t`No folder chosen`}
-            button={t`Choose…`}
-            icon={FolderOpen}
-            disabled={busy}
-            onPick={() => pick(pickFolder, setRoot)}
-            hint={t`Pick or create an empty folder. The imported book is stored there.`}
-          />
+          {!append && (
+            <>
+              <Field label={t`Title`} value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Field label={t`Author`} value={author} onChange={(e) => setAuthor(e.target.value)} />
+              <PickRow
+                label={t`New book folder`}
+                value={root ?? ""}
+                placeholder={t`No folder chosen`}
+                button={t`Choose…`}
+                icon={FolderOpen}
+                disabled={busy}
+                onPick={() => pick(pickFolder, setRoot)}
+                hint={t`Pick or create an empty folder. The imported book is stored there.`}
+              />
+            </>
+          )}
           {errorBox}
           <div className="flex justify-end gap-2.5">
             <Button onClick={() => change(false)} disabled={busy}>{t`Cancel`}</Button>
@@ -215,32 +218,7 @@ export function ImportDialog({
               ]}
             />
           </div>
-          <ul
-            aria-label={t`Chapters`}
-            className="flex max-h-72 flex-col gap-2 overflow-y-auto rounded-md border border-border bg-surface p-3"
-          >
-            {preview.result.chapters.map((c, i) => (
-              <li key={`${preview.level}-${i}`} className="flex items-center gap-2.5">
-                <input
-                  type="checkbox"
-                  aria-label={t`Include chapter ${i + 1}`}
-                  checked={preview.edits[i]!.include}
-                  onChange={(e) => edit(i, { include: e.target.checked })}
-                  className="size-4 shrink-0 accent-accent"
-                />
-                <input
-                  aria-label={t`Title of chapter ${i + 1}`}
-                  value={preview.edits[i]!.title}
-                  disabled={!preview.edits[i]!.include}
-                  onChange={(e) => edit(i, { title: e.target.value })}
-                  className="min-w-0 flex-1 rounded-md border border-border bg-bg px-2.5 py-1.5 text-sm disabled:text-ink-muted"
-                />
-                <span className="shrink-0 text-xs text-ink-muted">
-                  {plural(countWords(c.doc), { one: "# word", other: "# words" })}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <ImportChapterList result={preview.result} plan={preview.plan} onChange={setPlan} />
           <Summary result={preview.result} kept={kept} />
           {errorBox}
           <div className="flex justify-end gap-2.5">
@@ -253,7 +231,7 @@ export function ImportDialog({
               disabled={busy}
             >{t`Back`}</Button>
             <Button type="submit" variant="primary" icon={FileUp} disabled={kept === 0 || busy}>
-              {busy ? t`Importing…` : t`Import`}
+              {append ? (busy ? t`Adding…` : t`Add to book`) : busy ? t`Importing…` : t`Import`}
             </Button>
           </div>
         </form>

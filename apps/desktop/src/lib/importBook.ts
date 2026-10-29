@@ -1,6 +1,13 @@
 import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
-import { addChapter, createManifest, serializeManifest, sourceFile } from "@cadabracraft/format";
+import {
+  addChapter,
+  createManifest,
+  serializeManifest,
+  sourceEdition,
+  sourceFile,
+  type Manifest,
+} from "@cadabracraft/format";
 import {
   ImportError,
   importDocx,
@@ -13,6 +20,7 @@ import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "./bridge";
 import { baseName, stem } from "./paths";
 import { errText } from "./projectError";
+import { applyPlan, type ImportPlan } from "./importPlan";
 
 export interface ImportReport {
   /** Source file name (no folder), for display. */
@@ -136,6 +144,8 @@ export interface ChapterEdit {
 export interface ImportChoices {
   splitHeadingLevel?: 1 | 2 | 3;
   edits?: ChapterEdit[];
+  /** Reorder, merge, rename and skip decisions; takes precedence over `edits`. */
+  plan?: ImportPlan;
 }
 
 /** Reads the source (read-only). Nothing is parsed yet. */
@@ -208,24 +218,20 @@ export function parseImport(src: LoadedSource, splitHeadingLevel: 1 | 2 | 3 = 1)
   return result;
 }
 
-/** Image sources used by a doc. */
-function imageSources(doc: unknown, into = new Set<string>()): Set<string> {
-  const n = doc as { type?: string; attrs?: { src?: string }; content?: unknown[] } | null;
-  if (n?.type === "image" && n.attrs?.src) into.add(n.attrs.src);
-  n?.content?.forEach((c) => imageSources(c, into));
-  return into;
-}
-
 /** Applies the author's preview edits: skipped chapters are dropped (with the images only they used), blank titles keep the original. */
 export function applyChapterEdits(result: ImportResult, edits: ChapterEdit[]): ImportResult {
-  const chapters = result.chapters.flatMap((c, i) => {
-    const e = edits[i];
-    return e && !e.include ? [] : [{ ...c, title: e?.title.trim() || c.title }];
-  });
-  if (chapters.length === 0) throw new Error(t`Keep at least one chapter.`);
-  const used = new Set<string>();
-  for (const c of chapters) imageSources(c.doc, used);
-  return { ...result, chapters, assets: result.assets.filter((a) => used.has(a.targetPath)) };
+  const plan = result.chapters.map((c, i) => ({
+    sources: [i],
+    title: edits[i]?.title ?? c.title,
+    include: edits[i]?.include ?? true,
+  }));
+  return applyPlan(result, plan, t`Keep at least one chapter.`);
+}
+
+/** The parsed chapters the author chose, in the order they chose: from the plan when there is one, else from the plain edits. */
+export function chosenChapters(result: ImportResult, opts: ImportChoices): ImportResult {
+  if (opts.plan) return applyPlan(result, opts.plan, t`Keep at least one chapter.`);
+  return opts.edits ? applyChapterEdits(result, opts.edits) : result;
 }
 
 /** Parses and writes in one go (no preview). */
@@ -233,33 +239,25 @@ export async function runImport(
   opts: { sourcePath: string; root: string; title: string; author: string } & ImportChoices,
 ): Promise<ImportReport> {
   const result = parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
-  return writeImport({
-    ...opts,
-    result: opts.edits ? applyChapterEdits(result, opts.edits) : result,
-  });
+  return writeImport({ ...opts, result: chosenChapters(result, opts) });
 }
 
-/** Loads images, and only then writes. Nothing is created when an image or the parse failed earlier; a later failure says what was written. */
-export async function writeImport(opts: {
-  sourcePath: string;
-  root: string;
-  title: string;
-  author: string;
-  result: ImportResult;
-}): Promise<ImportReport> {
-  const fileName = baseName(opts.sourcePath);
-  const { result } = opts;
+type LoadedImage = { target: string; name: string; bytes: Uint8Array };
 
-  // 2. Load images into memory (still no writes). A missing or refused image is a warning, not a failure.
-  const warnings = [...result.warnings];
-  const images: { target: string; name: string; bytes: Uint8Array }[] = [];
+/** Loads the images into memory (no writes). A missing or refused image becomes a warning, not a failure. */
+async function readImages(
+  sourcePath: string,
+  result: ImportResult,
+  warnings: ImportWarning[],
+): Promise<LoadedImage[]> {
+  const images: LoadedImage[] = [];
   for (const a of result.assets) {
     let data = a.bytes ?? null;
     let why = "";
     if (!data) {
       for (const candidate of imageCandidates(a.sourcePath)) {
         try {
-          data = await bridge.readImportImage(opts.sourcePath, candidate);
+          data = await bridge.readImportImage(sourcePath, candidate);
           break;
         } catch (e) {
           why = errText(e);
@@ -275,46 +273,79 @@ export async function writeImport(opts: {
         examples: [a.sourcePath],
       });
   }
+  return images;
+}
 
-  // 3. Write. The manifest is written last with the chapter list, so an interrupted import never lists missing files.
+/**
+ * Stores the images (never replacing a file: the Rust side picks a free name or reuses identical bytes), then writes
+ * one new chapter file per imported chapter and adds it to `start`. Returns the grown manifest; saving it is the
+ * caller's last step, so an interrupted import never lists missing files. `written` counts what is on disk if this throws.
+ */
+async function writeBody(
+  root: string,
+  start: Manifest,
+  result: ImportResult,
+  images: LoadedImage[],
+  warnings: ImportWarning[],
+  written: { images: number; chapters: number },
+): Promise<Manifest> {
+  let manifest = start;
+  const map = new Map<string, string | null>();
+  for (const a of result.assets) map.set(a.targetPath, null);
+  for (const img of images) {
+    try {
+      map.set(img.target, await bridge.importAssetBytes(root, img.name, img.bytes));
+      written.images++;
+    } catch (e) {
+      warnings.push({
+        code: "image-not-imported",
+        severity: "warning",
+        message: t`Image ${img.name} could not be stored: ${errText(e)}`,
+        examples: [img.name],
+      });
+    }
+  }
+  for (const c of result.chapters) {
+    const next = addChapter(manifest, c.title);
+    manifest = next.manifest;
+    await bridge.writeFile(
+      root,
+      sourceFile(next.entry, manifest.editions),
+      JSON.stringify(remapImages(c.doc, map), null, 2),
+      null,
+    );
+    written.chapters++;
+  }
+  return manifest;
+}
+
+/** Loads images, and only then writes. Nothing is created when an image or the parse failed earlier; a later failure says what was written. */
+export async function writeImport(opts: {
+  sourcePath: string;
+  root: string;
+  title: string;
+  author: string;
+  result: ImportResult;
+}): Promise<ImportReport> {
+  const fileName = baseName(opts.sourcePath);
+  const { result } = opts;
+  const warnings = [...result.warnings];
+  const images = await readImages(opts.sourcePath, result, warnings);
+
+  // The manifest is written last with the chapter list, so an interrupted import never lists missing files.
   const written = { images: 0, chapters: 0 };
   const wrote = () =>
     t`Already written to ${opts.root}: ${written.chapters} chapter files and ${written.images} images; the book's chapter list was not saved.`;
   try {
-    let manifest = createManifest({
+    const manifest = createManifest({
       title: opts.title,
       author: opts.author,
       language: i18n.locale === "pseudo" ? "en" : i18n.locale,
       identifier: `urn:uuid:${crypto.randomUUID()}`,
     });
     await bridge.createProject(opts.root, serializeManifest(manifest));
-    const map = new Map<string, string | null>();
-    for (const a of result.assets) map.set(a.targetPath, null);
-    for (const img of images) {
-      try {
-        map.set(img.target, await bridge.importAssetBytes(opts.root, img.name, img.bytes));
-        written.images++;
-      } catch (e) {
-        warnings.push({
-          code: "image-not-imported",
-          severity: "warning",
-          message: t`Image ${img.name} could not be stored: ${errText(e)}`,
-          examples: [img.name],
-        });
-      }
-    }
-    for (const c of result.chapters) {
-      const next = addChapter(manifest, c.title);
-      manifest = next.manifest;
-      await bridge.writeFile(
-        opts.root,
-        sourceFile(next.entry, manifest.editions),
-        JSON.stringify(remapImages(c.doc, map), null, 2),
-        null,
-      );
-      written.chapters++;
-    }
-    await bridge.writeFile(opts.root, "cadabra.json", serializeManifest(manifest), null);
+    const grown = await writeBody(opts.root, manifest, result, images, warnings, written);
+    await bridge.writeFile(opts.root, "cadabra.json", serializeManifest(grown), null);
   } catch (e) {
     throw new Error(`${errText(e)} ${wrote()}`, { cause: e });
   }
@@ -325,6 +356,45 @@ export async function writeImport(opts: {
     imageCount: written.images,
     warnings,
   };
+}
+
+/**
+ * Appends the chosen chapters of a source to an open book. Existing chapters are never touched: images and chapter
+ * files get new names, and the manifest is saved last through `saveManifest` (which backs it up and checks the on-disk
+ * hash like every other manifest save). Nothing is written when the parse or an image read failed earlier.
+ * Resolves to the report and the id of the first new chapter.
+ */
+export async function runImportInto(
+  opts: {
+    sourcePath: string;
+    root: string;
+    manifest: Manifest;
+    saveManifest: (m: Manifest) => Promise<void>;
+  } & ImportChoices,
+): Promise<{ report: ImportReport; firstId: string }> {
+  const loaded = parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
+  const result = chosenChapters(loaded, opts);
+  const warnings = [...result.warnings];
+  const images = await readImages(opts.sourcePath, result, warnings);
+  const written = { images: 0, chapters: 0 };
+  let grown: Manifest;
+  try {
+    grown = await writeBody(opts.root, opts.manifest, result, images, warnings, written);
+    await opts.saveManifest(grown);
+  } catch (e) {
+    throw new Error(
+      `${errText(e)} ${t`${written.chapters} new chapter files and ${written.images} images were stored in the book folder, but the chapter list was not changed.`}`,
+      { cause: e },
+    );
+  }
+  const report: ImportReport = {
+    fileName: baseName(opts.sourcePath),
+    title: sourceEdition(opts.manifest.editions).title,
+    chapterCount: result.chapters.length,
+    imageCount: written.images,
+    warnings,
+  };
+  return { report, firstId: grown.chapters[opts.manifest.chapters.length]?.id ?? "" };
 }
 
 /** Default book title for a picked file: its name without the extension. */

@@ -76,11 +76,16 @@ export function useRegisterCommands(commands: Commands): void {
 export const useStartDialogs = create<{
   creating: boolean;
   importing: boolean;
+  /** The "Import into this book" dialog, shown over the open book. */
+  importingInto: boolean;
   setCreating: (v: boolean) => void;
   setImporting: (v: boolean) => void;
+  setImportingInto: (v: boolean) => void;
 }>((set) => ({
   creating: false,
   importing: false,
+  importingInto: false,
   setCreating: (creating) => set({ creating }),
   setImporting: (importing) => set({ importing }),
+  setImportingInto: (importingInto) => set({ importingInto }),
 }));

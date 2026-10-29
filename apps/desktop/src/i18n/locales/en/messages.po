@@ -39,11 +39,11 @@ msgstr "{0, plural, one {# page could not be put back and keeps the replacement;
 msgid "{0, plural, one {# reference} other {# references}}"
 msgstr "{0, plural, one {# reference} other {# references}}"
 
-#. placeholder {0}: countWords(c.doc)
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
+#. placeholder {0}: wordsOf(item, result)
 #: src/app/dialogs/HistoryDialog.tsx
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportChapterList.tsx
 #: src/app/home/Dashboard.tsx
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# word} other {# words}}"
@@ -152,6 +152,12 @@ msgstr "{0} is still downloading from iCloud; try again in a moment"
 #: src/lib/projectError.ts
 msgid "{0} leaves the project folder through a symbolic link"
 msgstr "{0} leaves the project folder through a symbolic link"
+
+#. placeholder {0}: written.chapters
+#. placeholder {1}: written.images
+#: src/lib/importBook.ts
+msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
+msgstr "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 
 #. placeholder {0}: here.chapterNo
 #. placeholder {1}: here.chapters
@@ -388,6 +394,10 @@ msgstr "Add page"
 msgid "Add Row Below"
 msgstr "Add Row Below"
 
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Add to book"
+msgstr "Add to book"
+
 #: src/app/export/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
 msgstr "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
@@ -397,9 +407,17 @@ msgstr "Added as the first page, with a blank page behind it, unless you turn it
 msgid "Adding {0}"
 msgstr "Adding {0}"
 
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Adding…"
+msgstr "Adding…"
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Address"
 msgstr "Address"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file."
+msgstr "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file."
 
 #: src/app/export/PdfPanel.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
@@ -731,7 +749,7 @@ msgstr "Chapter opener"
 msgid "Chapter title"
 msgstr "Chapter title"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportChapterList.tsx
 #: src/app/export/AudioExport.tsx
 #: src/app/shell/App.tsx
 #: src/app/shell/Details.tsx
@@ -1168,6 +1186,10 @@ msgstr "Downloading… {0} MB of {1} MB"
 msgid "Drag to reorder {0}"
 msgstr "Drag to reorder {0}"
 
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "Drag, or press the up and down arrow keys"
+msgstr "Drag, or press the up and down arrow keys"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Drop files here to add them"
 msgstr "Drop files here to add them"
@@ -1565,6 +1587,15 @@ msgstr "Import a font file"
 msgid "Import a manuscript"
 msgstr "Import a manuscript"
 
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Import into this book"
+msgstr "Import into this book"
+
+#: src/app/shell/menuModel.ts
+msgid "Import into This Book…"
+msgstr "Import into This Book…"
+
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import report"
 msgstr "Import report"
@@ -1604,7 +1635,7 @@ msgid "In use"
 msgstr "In use"
 
 #. placeholder {0}: i + 1
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportChapterList.tsx
 msgid "Include chapter {0}"
 msgstr "Include chapter {0}"
 
@@ -1896,6 +1927,10 @@ msgstr "Maybe later"
 msgid "Medium"
 msgstr "Medium"
 
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "Merge chapter {n} into the previous one"
+msgstr "Merge chapter {n} into the previous one"
+
 #: src/app/shell/menuModel.ts
 msgid "Minimize"
 msgstr "Minimize"
@@ -1940,6 +1975,14 @@ msgstr "Move {0}"
 #: src/state/project/pages.ts
 msgid "Move {0} to trash"
 msgstr "Move {0} to trash"
+
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "Move chapter {n} down"
+msgstr "Move chapter {n} down"
+
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "Move chapter {n} up"
+msgstr "Move chapter {n} up"
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
@@ -2560,6 +2603,10 @@ msgstr "Rename"
 msgid "Rename {0}"
 msgstr "Rename {0}"
 
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "Reorder chapter {n}"
+msgstr "Reorder chapter {n}"
+
 #: src/editor/FindBar.tsx
 msgid "Replace"
 msgstr "Replace"
@@ -2849,6 +2896,10 @@ msgstr "Sort references"
 #: src/app/export/AudioExport.tsx
 msgid "Speed"
 msgstr "Speed"
+
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "Split chapter {n} back into {merged} chapters"
+msgstr "Split chapter {n} back into {merged} chapters"
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Sponsor"
@@ -3258,7 +3309,7 @@ msgid "Title A-Z"
 msgstr "Title A-Z"
 
 #. placeholder {0}: i + 1
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportChapterList.tsx
 msgid "Title of chapter {0}"
 msgstr "Title of chapter {0}"
 

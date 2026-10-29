@@ -171,6 +171,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("file.open", t`Open folder`, "CmdOrCtrl+O"),
     openRecent,
     cmd("file.import", t`Import…`, "CmdOrCtrl+Shift+I"),
+    cmd("file.importInto", t`Import into This Book…`),
     sep,
     cmd("file.save", t`Save`, "CmdOrCtrl+S"),
     cmd("file.bookDetails", t`Book Details…`),

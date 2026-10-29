@@ -74,6 +74,7 @@ export function useAppMenu(h: AppMenuHooks): void {
   const pageView = usePageView();
   const setCreating = useStartDialogs((s) => s.setCreating);
   const setImporting = useStartDialogs((s) => s.setImporting);
+  const setImportingInto = useStartDialogs((s) => s.setImportingInto);
 
   const open = manifest !== null;
   const inBook = open && h.view === "book";
@@ -167,6 +168,12 @@ export function useAppMenu(h: AppMenuHooks): void {
         run: guard(async () => {
           await actions.flush();
           h.setView("print");
+        }),
+      },
+      "file.importInto": {
+        run: guard(async () => {
+          await actions.flush();
+          setImportingInto(true);
         }),
       },
       "file.close": { run: guard(leave) },

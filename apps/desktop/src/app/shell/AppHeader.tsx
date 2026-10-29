@@ -5,6 +5,7 @@ import {
   BookText,
   Download,
   FileText,
+  FileUp,
   Library,
   LoaderCircle,
   Maximize2,
@@ -23,6 +24,7 @@ import { HeaderMenu } from "./HeaderMenu";
 import { usePageView } from "../hooks/usePageView";
 import { useLayout } from "../../state/layout";
 import { useProject } from "../../state/project/index";
+import { useStartDialogs } from "../../state/commands";
 
 interface Props {
   mode: "write" | "read";
@@ -66,6 +68,7 @@ export function AppHeader({
   const actions = useProject((s) => s.actions);
   const { details, references, set: setLayout } = useLayout();
   const reader = mode === "read";
+  const setImportingInto = useStartDialogs((s) => s.setImportingInto);
   const pageView = usePageView();
   const save = run(actions.flush);
   // Saving first means the export and the reader show what was typed.
@@ -195,6 +198,18 @@ export function AppHeader({
                   },
                 ]),
             { label: t`Export`, icon: Download, onSelect: exportBook },
+            ...(reader
+              ? []
+              : [
+                  {
+                    label: t`Import into this book`,
+                    icon: FileUp,
+                    onSelect: run(async () => {
+                      await actions.flush();
+                      setImportingInto(true);
+                    }),
+                  },
+                ]),
             { label: t`Book details`, icon: BookText, onSelect: onDetails },
             { label: t`Settings`, icon: SettingsIcon, onSelect: onSettings },
           ]}

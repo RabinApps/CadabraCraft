@@ -18,7 +18,7 @@ import { resolveTrimSize } from "@cadabracraft/templates";
 import { bridge } from "../../lib/bridge";
 import { forgetProjectAssets } from "../../lib/assets";
 import { forgetProjectReferences } from "../../lib/references";
-import { runImport } from "../../lib/importBook";
+import { runImport, runImportInto } from "../../lib/importBook";
 import { publishingFromForm, type PublishingForm } from "../../lib/publishingForm";
 import { errText, noManifestMessage } from "../../lib/projectError";
 import { useSettings } from "../editorPrefs";
@@ -258,6 +258,27 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         const report = await runImport({ sourcePath, root, title, author, ...opts });
         await join(root, false);
         set({ importReport: report });
+      } finally {
+        importing = false;
+      }
+    },
+    async importIntoBook(sourcePath, opts) {
+      if (importing) throw new Error(t`An import is already running`);
+      importing = true;
+      try {
+        await flush();
+        const { root, manifest } = need();
+        const { report, firstId } = await runImportInto({
+          sourcePath,
+          root,
+          manifest,
+          saveManifest,
+          ...opts,
+        });
+        // The new chapters are appended after the existing ones: earlier tree edits no longer describe the book, so
+        // undo does not offer them (chapter text and files are untouched).
+        set({ history: NO_HISTORY, importReport: report });
+        if (firstId) await load(firstId);
       } finally {
         importing = false;
       }

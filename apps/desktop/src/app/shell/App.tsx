@@ -26,7 +26,8 @@ import { ExportDialog } from "../export/ExportDialog";
 import type { ExportFormat } from "../export/exportFormat";
 import { Home } from "../home/Home";
 import { AppHeader } from "./AppHeader";
-import { ImportReportDialog } from "../dialogs/ImportDialogs";
+import { ImportDialog, ImportReportDialog } from "../dialogs/ImportDialogs";
+import { useStartDialogs } from "../../state/commands";
 import { PrintPreview } from "../export/PrintPreview";
 import { Settings } from "../settings/Settings";
 import { SponsorDialog } from "../dialogs/SponsorDialog";
@@ -91,6 +92,7 @@ export function App() {
   };
   const { focus: focusPref, details, references, set: setLayout } = useLayout();
   const reader = mode === "read";
+  const { importingInto, setImportingInto } = useStartDialogs();
   // Focus mode is for writing; reading mode already has its own bare layout.
   const focus = focusPref && !reader && open;
   const exitFocus = useCallback(() => setLayout({ focus: false }), [setLayout]);
@@ -363,6 +365,14 @@ export function App() {
         </D.Portal>
       </D.Root>
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
+      <ImportDialog
+        open={importingInto}
+        onOpenChange={setImportingInto}
+        pickSource={bridge.pickImportSource}
+        pickFolder={bridge.pickFolder}
+        onImport={actions.importBook}
+        onImportInto={actions.importIntoBook}
+      />
       <D.Root open={refsSheet} onOpenChange={setRefsSheet}>
         <D.Portal>
           <D.Overlay className={cx(overlayClass, "xl:hidden")} />

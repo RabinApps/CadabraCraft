@@ -258,6 +258,8 @@ export interface ProjectActions {
     author: string,
     opts?: ImportChoices,
   ) => Promise<void>;
+  /** Appends the chosen chapters of an import source to the OPEN book (existing chapters and files are never overwritten), opens the first new one and sets `importReport`. Throws, having left the chapter list unchanged, when it fails. */
+  importIntoBook: (sourcePath: string, opts?: ImportChoices) => Promise<void>;
   dismissImportReport: () => void;
   /** Sets the book's template (cadabra.json). A no-op when it is already set. */
   setTemplate: (id: string) => Promise<void>;
