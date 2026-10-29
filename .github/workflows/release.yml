@@ -17,9 +17,8 @@ jobs:
           - os: kinhin-xcode
             args: --target universal-apple-darwin
             rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
-          - os: windows-latest
-            args: ""
-            rust-targets: ""
+          # Windows is not part of the first release (macOS and Linux first, Windows coming soon). CI still builds and tests
+          # it; to ship it, add back `- os: windows-latest` with `args: ""` and `rust-targets: ""`.
           - os: kinhin-container
             args: ""
             rust-targets: ""

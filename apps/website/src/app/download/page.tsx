@@ -5,14 +5,14 @@ import { RELEASES, REPO, btnPrimary, btnSecondary } from "@/lib/site";
 
 export const metadata = pageMetadata(
   "Download CadabraCraft",
-  "CadabraCraft is a free desktop app for writing and formatting books. Installers for macOS, Windows and Linux will appear on GitHub Releases.",
+  "CadabraCraft is a free desktop app for writing and formatting books. Installers for macOS and Linux come first, with Windows coming soon.",
   "/download/",
 );
 
-// Matches .github/workflows/release.yml. Replace the status with a link when a release is published.
+// Matches .github/workflows/release.yml (macOS and Linux; Windows is not built for release yet). Replace the status with a link when a release is published.
 const platforms = [
   { name: "macOS", detail: "Universal build for Apple silicon and Intel (.dmg)" },
-  { name: "Windows", detail: "Installer (.exe), WebView2 included" },
+  { name: "Windows", detail: "Installer (.exe), WebView2 included", soon: true },
   { name: "Linux", detail: "AppImage (x86-64)" },
 ] as const;
 
@@ -32,7 +32,7 @@ export default function Download() {
         center
         eyebrow="Early development"
         title="Download CadabraCraft"
-        lead="There is no packaged release yet. Installers will be published on GitHub Releases, and you can build the app from source today."
+        lead="There is no packaged release yet. Installers for macOS and Linux will be published on GitHub Releases first, with Windows coming soon. You can build the app from source today."
       >
         <a href={RELEASES} className={btnPrimary}>
           GitHub Releases
@@ -52,7 +52,7 @@ export default function Download() {
               <h3 className="text-lg font-semibold">{p.name}</h3>
               <p className="text-ink-muted">{p.detail}</p>
               <p className="mt-auto w-fit rounded-full bg-sidebar px-2.5 py-1 text-xs font-semibold text-warn">
-                Not available yet
+                {"soon" in p ? "Coming soon" : "Not available yet"}
               </p>
             </li>
           ))}

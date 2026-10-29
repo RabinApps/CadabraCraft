@@ -97,7 +97,7 @@ export const competitors: Competitor[] = [
 
 export const us = {
   price: "Free",
-  platforms: "Desktop (macOS, Windows, Linux builds planned)",
+  platforms: "Desktop (macOS and Linux first, Windows coming soon)",
   account: "No account",
   localFiles: "Yes, plain documented files",
   epub: "Yes, validated EPUB3",
