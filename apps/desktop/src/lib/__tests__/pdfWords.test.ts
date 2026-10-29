@@ -58,4 +58,71 @@ describe("wordAtPoint", () => {
     expect(wordAtPoint([run("ab", 0, 0, 20, { height: 0 })], 5, 5)?.index).toBe(0);
     expect(wordAtPoint([{ str: "ab", transform: [], width: 20, height: 0 }], 5, 5)?.index).toBe(0);
   });
+
+  it("does not take the room under a large run (a drop cap) for part of the line it stands on", () => {
+    const cap = run("T", 50, 700, 30, { transform: [60, 0, 0, 60, 50, 700], height: 60 });
+    // 10 pt below the drop cap's baseline is where the third line beside it is, not the drop cap; 2 pt below is still its descender.
+    expect(wordAtPoint([cap], 60, 690)).toBeNull();
+    expect(wordAtPoint([cap], 60, 698)?.index).toBe(0);
+  });
+});
+
+describe("wordAtPoint on a right-to-left page", () => {
+  // As pdf.js gives a Hebrew page: a run for each word, the runs of a line left to right as drawn, the text of each in reading order, the
+  // lines top to bottom. Line one reads (right to left) "one two three"; line two "four 1984 five" with the number drawn between.
+  const rtl = (str: string, e: number, f: number, width: number): TextRun =>
+    run(str, e, f, width, { dir: "rtl" });
+  const runs: TextRun[] = [
+    rtl("three", 20, 700, 30),
+    rtl(" ", 50, 700, 3),
+    rtl("two", 53, 700, 20),
+    rtl(" ", 73, 700, 3),
+    rtl("one", 76, 700, 24),
+    rtl("five", 30, 686, 28),
+    run("1984", 70, 686, 30, { dir: "ltr" }),
+    rtl("four", 110, 686, 26),
+  ];
+
+  it("counts the words of a line from its right edge, a left-to-right run staying whole in its place", () => {
+    expect(wordAtPoint(runs, 90, 702)).toEqual({
+      tokens: ["one", "two", "three", "four", "1984", "five"],
+      index: 0,
+    });
+    expect(wordAtPoint(runs, 60, 702)?.index).toBe(1);
+    expect(wordAtPoint(runs, 25, 702)?.index).toBe(2);
+    expect(wordAtPoint(runs, 120, 688)?.index).toBe(3);
+    expect(wordAtPoint(runs, 80, 688)?.index).toBe(4);
+    expect(wordAtPoint(runs, 40, 688)?.index).toBe(5);
+  });
+
+  it("counts the characters of a run from its right edge", () => {
+    const line = [rtl("אבג דהו", 0, 700, 70)];
+    expect(wordAtPoint(line, 66, 702)?.index).toBe(0);
+    expect(wordAtPoint(line, 4, 702)?.index).toBe(1);
+  });
+
+  it("copes with right-to-left runs that have no transform", () => {
+    const bare = (str: string): TextRun => ({
+      str,
+      transform: [],
+      width: 20,
+      height: 0,
+      dir: "rtl",
+    });
+    expect(wordAtPoint([bare("ab"), bare("cd")], 5, 5)?.tokens).toEqual(["ab", "cd"]);
+  });
+
+  it("takes a run for right-to-left when its letters are, if pdf.js gave no direction", () => {
+    const text = (str: string, e: number): TextRun => ({
+      str,
+      transform: [10, 0, 0, 10, e, 700],
+      width: 30,
+      height: 10,
+    });
+    expect(wordAtPoint([text("שלום", 0), text("עולם", 40)], 70, 702)).toEqual({
+      tokens: ["עולם", "שלום"],
+      index: 0,
+    });
+    expect(wordAtPoint([text("one", 0), text("two", 40)], 5, 702)?.tokens).toEqual(["one", "two"]);
+  });
 });

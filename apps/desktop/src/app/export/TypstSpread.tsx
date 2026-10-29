@@ -67,7 +67,15 @@ async function wordClickAt(
   const content = await p.getTextContent();
   const runs = content.items.flatMap((item) =>
     "str" in item
-      ? [{ str: item.str, transform: item.transform, width: item.width, height: item.height }]
+      ? [
+          {
+            str: item.str,
+            transform: item.transform,
+            width: item.width,
+            height: item.height,
+            dir: item.dir,
+          },
+        ]
       : [],
   );
   return wordAtPoint(runs, x, y);

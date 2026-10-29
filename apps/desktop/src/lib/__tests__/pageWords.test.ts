@@ -64,4 +64,17 @@ describe("alignWord", () => {
   it("does not run off the end of the page looking for the rest of a word", () => {
     expect(alignWord(w("one two thr"), 2, w("one two three"))).toBeNull();
   });
+
+  it("matches the words of a right-to-left page, the letters of an Arabic ligature in the order pdf.js gives them, and a drop cap's pieces", () => {
+    const text = w("الملف في الكلمات لاختبار أخرى");
+    // pdf.js: lam-alef glyphs come out with their letters in another order.
+    const page = w("امللف يف الكلمات الختبار أخرى");
+    expect(alignWord(page, 3, text)).toBe(3);
+    expect(alignWord(page, 1, text)).toBe(1);
+    // The drop cap is the first letter of the first word, in a run of its own.
+    expect(alignWord(w("ש לום עולם זהו"), 1, w("שלום עולם זהו"))).toBe(0);
+    expect(alignWord(w("ש לום עולם זהו"), 3, w("שלום עולם זהו"))).toBe(2);
+    // A word that is not a start of the text's word is not its piece.
+    expect(alignWord(w("ת לום עולם זהו"), 1, w("שלום עולם זהו"))).toBeNull();
+  });
 });

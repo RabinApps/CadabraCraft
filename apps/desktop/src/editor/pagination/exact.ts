@@ -71,19 +71,27 @@ export interface DocLeaf extends ExactLeaf {
 /** The leaves of every top-level block in document order (the exporter's order), with the header row of a table left out. */
 export function docLeaves(doc: PMNode): DocLeaf[][] {
   const out: DocLeaf[][] = [];
-  const make = (node: PMNode, pos: number): DocLeaf => ({
+  const make = (node: PMNode, pos: number, cell?: DocLeaf["cell"]): DocLeaf => ({
     node,
     pos,
     kind: KINDS[node.type.name]!,
     blank: isBlank(node),
     words: leafWords(node),
+    ...(cell ? { cell } : {}),
   });
   doc.forEach((block, offset) => {
     if (isLeaf(block)) return out.push([make(block, offset)]);
     const leaves: DocLeaf[] = [];
+    // The row and cell the walk is in (only a table has them).
+    let row = 0;
+    let cell = 0;
     block.descendants((node, pos, parent, index) => {
+      if (node.type.name === "tableRow") row = index;
+      else if (isCell(node)) cell = index;
       if (isLeaf(node)) {
-        leaves.push(make(node, offset + 1 + pos));
+        leaves.push(
+          make(node, offset + 1 + pos, block.type.name === "table" ? { row, cell } : undefined),
+        );
         return false;
       }
       // The header row is the table's first child.
@@ -122,9 +130,41 @@ export function wordOffset(node: PMNode, word: number): number | null {
   return wordStarts(plainItems(node))[word] ?? null;
 }
 
-/** Table cells go whole to a page: Typst starting a page inside a row cannot be drawn. */
 const isCell = (node: PMNode): boolean =>
   node.type.name === "tableCell" || node.type.name === "tableHeader";
+
+/** A range of the document: the content of a cell, or a whole row. */
+export interface DocRange {
+  from: number;
+  to: number;
+}
+
+/**
+ * The cell around the text leaf at `pos` and the table row it is in (the row's own range, and the content range of each of its
+ * cells), or null when the leaf is in no table row. A page that begins inside a row is drawn per cell: each cell that runs onto it
+ * has its own spacer at its own place (see "Exact page breaks, part three" in architecture.md).
+ */
+export function rowAround(
+  doc: PMNode,
+  pos: number,
+): { cell: DocRange; row: DocRange & { cells: DocRange[] } } | null {
+  const $pos = doc.resolve(pos);
+  // A cell is always a child of a row.
+  for (let d = $pos.depth; d > 1; d--) {
+    if (!isCell($pos.node(d))) continue;
+    const cells: DocRange[] = [];
+    let at = $pos.start(d - 1);
+    $pos.node(d - 1).forEach((cell) => {
+      cells.push({ from: at + 1, to: at + cell.nodeSize - 1 });
+      at += cell.nodeSize;
+    });
+    return {
+      cell: { from: $pos.start(d), to: $pos.end(d) },
+      row: { from: $pos.before(d - 1), to: $pos.after(d - 1), cells },
+    };
+  }
+  return null;
+}
 
 /** The position is inside a table cell. */
 export function insideCell(doc: PMNode, pos: number): boolean {

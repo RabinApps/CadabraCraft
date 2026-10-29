@@ -11,6 +11,27 @@ const norm = (s: string): string =>
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, "");
 
+const RTL = /[\u0590-\u08ff\ufb1d-\ufdff\ufe70-\ufefc]/;
+
+/**
+ * pdf.js puts the letters of an Arabic word that has a ligature glyph (lam-alef) in a different order than the text has them, so the
+ * letters of a word of a right-to-left script are compared as a set (two different words with the same letters are rare, and never in
+ * the same place).
+ */
+const key = (n: string): string => (RTL.test(n) ? [...n].sort().join("") : n);
+
+/** `a` is a start of `b`: the same first letters, or for a word of a right-to-left script, some of its letters. */
+function startsWith(b: string, a: string): boolean {
+  if (!RTL.test(b)) return b.startsWith(a);
+  const rest = [...b];
+  for (const c of a) {
+    const at = rest.indexOf(c);
+    if (at < 0) return false;
+    rest.splice(at, 1);
+  }
+  return true;
+}
+
 interface Item {
   n: string;
   /** Index among the words it came from. */
@@ -19,6 +40,8 @@ interface Item {
 
 const items = (words: readonly string[]): Item[] =>
   words.map((w, i) => ({ n: norm(w), i })).filter((x) => x.n !== "");
+
+const same = (a: string, b: string): boolean => key(a) === key(b);
 
 /** Longest run of the words of `doc` that the words of `page` from `at` on spell, a word the PDF broke at a line end counting as its pieces. */
 function agree(page: Item[], at: number, doc: Item[]): number {
@@ -29,11 +52,11 @@ function agree(page: Item[], at: number, doc: Item[]): number {
     while (
       joined !== "" &&
       joined.length < d.n.length &&
-      d.n.startsWith(joined) &&
+      startsWith(d.n, joined) &&
       i + 1 < page.length
     )
       joined += page[++i]!.n;
-    if (joined !== d.n) break;
+    if (!same(joined, d.n)) break;
     i++;
     n++;
   }
@@ -74,9 +97,9 @@ export function alignWord(
     const pieces = (() => {
       let joined = p[i]!.n;
       let k = i;
-      while (joined.length < d[j]!.n.length && d[j]!.n.startsWith(joined) && p[k + 1])
+      while (joined.length < d[j]!.n.length && startsWith(d[j]!.n, joined) && p[k + 1])
         joined += p[++k]!.n;
-      return joined === d[j]!.n ? k : -1;
+      return same(joined, d[j]!.n) ? k : -1;
     })();
     if (pieces >= 0) {
       // The clicked word is one of the pieces of this word.

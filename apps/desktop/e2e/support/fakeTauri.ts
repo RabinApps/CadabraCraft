@@ -270,6 +270,11 @@ export async function fakeTauri(page: Page) {
             const call = JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n)));
             (window.__typstCalls ??= []).push(call);
             if (window.__compileError) throw window.__compileError;
+            // A PDF a test brings (base64): answered as it is.
+            if (window.__typstPdf) {
+              const bin = atob(window.__typstPdf);
+              return Uint8Array.from(bin, (ch) => ch.charCodeAt(0)).buffer;
+            }
             // A small real PDF (pdf.js draws it in the print preview): `__typstPages` blank pages (default 6) as large as the
             // `#set page(width: .., height: ..)` of the source, in inches.
             const m = /#set page\(width: ([\d.]+)in, height: ([\d.]+)in/.exec(call.source);

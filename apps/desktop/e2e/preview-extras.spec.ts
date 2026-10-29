@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
+import { HEBREW_PDF_BASE64, HEBREW_WORDS } from "./support/hebrewPdf";
 import { newProject } from "./support/helpers";
 
 // The print preview's zoom to fit, Ctrl+wheel and pinch zoom, and a click on a word of a page opening the editor at that word.
@@ -36,7 +37,12 @@ async function seed(page: Page) {
 }
 
 async function preview(page: Page) {
-  await page.getByRole("button", { name: "Export", exact: true }).click();
+  // On a phone the header keeps Export in its More menu.
+  const more = page.getByRole("button", { name: "More actions" });
+  if (await more.isVisible()) {
+    await more.click();
+    await page.getByRole("menuitem", { name: "Export" }).click();
+  } else await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
   await dialog.getByRole("radio", { name: "Print PDF" }).click();
   await dialog.getByRole("button", { name: "Print preview" }).click();
@@ -243,3 +249,81 @@ test("a click on a word of a page opens the editor at that word; on the margin o
     .click({ position: { x: 5, y: 5 } });
   await expect.poll(caretWord).toBe(wordsOf(40, 3).slice(start).join(" ") + ".");
 });
+
+// A right-to-left page: a real Typst PDF (Hebrew, embedded fonts) in which pdf.js lists each line's words from its left edge, the reverse
+// of how it is read. The click on a word must still find that word of the chapter.
+for (const [name, size] of [
+  ["desktop", null],
+  ["phone", { width: 390, height: 844 }],
+] as const) {
+  test(`${name}: a click on a word of a Hebrew page opens the editor at that word, counting the line from its right edge`, async ({
+    page,
+  }) => {
+    if (size) await page.setViewportSize(size);
+    await newProject(page);
+    const doc = {
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "פרק ראשון" }] },
+        { type: "paragraph", content: [{ type: "text", text: HEBREW_WORDS.join(" ") + "." }] },
+      ],
+    };
+    await page.evaluate(
+      ([file, json]) => {
+        window.__disk[file!] = json!;
+        sessionStorage.setItem("disk", JSON.stringify(window.__disk));
+      },
+      [CHAPTER, JSON.stringify(doc)],
+    );
+    await page.reload();
+    await page.getByRole("button", { name: "Open folder" }).click();
+    await expect(page.locator(".ProseMirror h1")).toHaveText("פרק ראשון");
+    const id = await page.evaluate(
+      () => JSON.parse(window.__disk["cadabra.json"] as string).chapters[0].id as string,
+    );
+    await page.evaluate((b64) => (window.__typstPdf = b64), HEBREW_PDF_BASE64);
+    await preview(page);
+    // Page 2 begins with the paragraph (block 1).
+    await page.evaluate(
+      (r) => (window.__typstQueryResult = r),
+      JSON.stringify({
+        total: 2,
+        starts: [{ id, kind: "chapter", page: 1, end: 2, number: "1" }],
+        marks: [
+          ["s", 0, 0, "h", 1],
+          ["s", 0, 1, "p", 2],
+        ],
+      }),
+    );
+    const caretWord = () =>
+      page.evaluate(() => {
+        const s = getSelection()!;
+        return s.anchorNode?.textContent?.slice(s.anchorOffset) ?? "";
+      });
+    // The page is 396 x 612 pt. The paragraph's first line (baseline 498 pt from the bottom) reads שקט גן נהר אבן מכתב בוקר פנס פרדס חורף
+    // ים ..., "ים" being drawn at 127 to 137 pt from the left: the tenth word, though it is the third from the left of its line.
+    const clickAt = async (pt: { x: number; y: number }) => {
+      await page.getByRole("button", { name: "Next pages" }).click();
+      const button = page.getByRole("button", { name: "Open page 2 in the editor" });
+      await expect(button).toBeVisible();
+      // The page's size is known once pdf.js has opened it, and the real page is 396 x 612 pt (275 px wide at 100%).
+      await expect
+        .poll(async () => Math.round((await pageImg(page, 2).boundingBox())!.width))
+        .toBe(275);
+      const box = (await pageImg(page, 2).boundingBox())!;
+      await button.click({
+        position: { x: (pt.x / 396) * box.width, y: ((612 - pt.y) / 612) * box.height },
+      });
+    };
+    await clickAt({ x: 132, y: 502 });
+    await expect(page.locator(".ProseMirror")).toBeVisible();
+    await expect.poll(caretWord).toBe(HEBREW_WORDS.slice(9).join(" ") + ".");
+    // The first word of the line is at its right edge, the last word of the second line at its left edge.
+    await preview(page);
+    await clickAt({ x: 312, y: 502 });
+    await expect.poll(caretWord).toBe(HEBREW_WORDS.join(" ") + ".");
+    await preview(page);
+    await clickAt({ x: 90, y: 486 });
+    await expect.poll(caretWord).toBe(HEBREW_WORDS.slice(23).join(" ") + ".");
+  });
+}

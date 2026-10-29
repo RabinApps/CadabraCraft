@@ -11,6 +11,7 @@ import {
   leafWordTexts,
   pageStartAt,
   plainItems,
+  rowAround,
   wordOffset,
 } from "../exact";
 
@@ -153,6 +154,55 @@ describe("docLeaves", () => {
       table({ type: "tableRow", content: [cell("tableHeader", "H"), cell("tableCell", "x")] }),
     );
     expect(hasHeaderRow(mixed.child(0))).toBe(false);
+  });
+});
+
+describe("docLeaves in a table, and rowAround", () => {
+  const d = doc(
+    p(t("before")),
+    table(
+      row("tableHeader", "H1", "H2"),
+      {
+        type: "tableRow",
+        content: [
+          { type: "tableCell", content: [p(t("a1")), p(t("a2"))] },
+          { type: "tableCell", content: [p(t("b"))] },
+        ],
+      },
+      row("tableCell", "c", "d"),
+    ),
+  );
+
+  it("numbers the row and the cell of every leaf in a body row (the header row has none), and no other leaf", () => {
+    const leaves = docLeaves(d);
+    expect(leaves[0]![0]!.cell).toBeUndefined();
+    expect(leaves[1]!.map((l) => [l.node.textContent, l.cell])).toEqual([
+      ["a1", { row: 1, cell: 0 }],
+      ["a2", { row: 1, cell: 0 }],
+      ["b", { row: 1, cell: 1 }],
+      ["c", { row: 2, cell: 0 }],
+      ["d", { row: 2, cell: 1 }],
+    ]);
+    // A list is no table: its leaves have no cell.
+    expect(docLeaves(doc(ul(li(p(t("x"))))))[0]![0]!.cell).toBeUndefined();
+  });
+
+  it("gives the cell a leaf is in, its row, and the content of every cell of the row", () => {
+    const leaves = docLeaves(d)[1]!;
+    const a2 = rowAround(d, leaves[1]!.pos)!;
+    const b = rowAround(d, leaves[2]!.pos)!;
+    // Both are in the same row, in different cells.
+    expect(a2.row).toEqual(b.row);
+    expect(a2.row.cells).toHaveLength(2);
+    expect(a2.cell).toEqual(a2.row.cells[0]);
+    expect(b.cell).toEqual(a2.row.cells[1]);
+    // A cell's content is its paragraphs; the row is the node itself.
+    expect(d.textBetween(a2.cell.from, a2.cell.to, "|")).toBe("a1|a2");
+    expect(d.nodeAt(a2.row.from)?.type.name).toBe("tableRow");
+    expect(a2.row.to).toBe(a2.row.from + d.nodeAt(a2.row.from)!.nodeSize);
+    // Outside a row: no answer.
+    expect(rowAround(d, 0)).toBeNull();
+    expect(rowAround(doc(ul(li(p(t("x"))))), 3)).toBeNull();
   });
 });
 
