@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # Downloads EPUBCheck into tools/ (gitignored). Usage: ./scripts/fetch-epubcheck.sh
 # Works on macOS, Linux and Windows (Git Bash / MSYS / WSL); needs curl plus any one zip extractor.
+# The download is checked against the sha256 pinned below (the release asset digest); a mismatch aborts.
 set -euo pipefail
 V=5.4.0
+SHA256=33350c61038e71dfb3d45a76aed04bf5481e6d5500cb780f6e98db8bbd15a28c
 cd "$(dirname "$0")/.."
 [ -d tools/epubcheck-$V ] && exit 0
+
+sha256() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | cut -d' ' -f1; else shasum -a 256 "$1" | cut -d' ' -f1; fi; }
 
 extract_zip() { # extract_zip <zip> <dest>
   local zip=$1 dest=$2
@@ -56,6 +60,9 @@ install_unzip() { # Linux only: install unzip with whichever package manager exi
 }
 
 mkdir -p tools
+trap 'rm -f tools/epubcheck.zip' EXIT # never leave an unverified archive behind
 curl -fL -o tools/epubcheck.zip "https://github.com/w3c/epubcheck/releases/download/v$V/epubcheck-$V.zip"
+got=$(sha256 tools/epubcheck.zip)
+[ "$got" = "$SHA256" ] || { echo "sha256 mismatch for epubcheck-$V.zip: got $got" >&2; exit 1; }
 extract_zip tools/epubcheck.zip tools
 rm tools/epubcheck.zip
