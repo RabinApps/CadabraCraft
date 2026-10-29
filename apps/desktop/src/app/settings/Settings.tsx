@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft } from "lucide-react";
 import { useLocale } from "../../i18n/i18n";
 import { PSEUDO_LOCALE } from "../../i18n/locales";
 import { IconButton } from "../../ui/Button";
+import { currentSection, SECTION_TOP_GAP } from "../../lib/settingsScroll";
 import { cx } from "../../ui/cx";
 import { Field } from "../../ui/Input";
 import { Segmented } from "../../ui/Segmented";
@@ -62,12 +63,35 @@ export function Settings({
   };
   const [active, setActive] = useState<(typeof sections)[number]>(initialSection ?? "appearance");
   const { fonts } = useFontList();
+  const mainRef = useRef<HTMLElement>(null);
+  /** Until this time a nav click is scrolling, and the scroll must not move the highlight off the section that was clicked. */
+  const jumpingUntil = useRef(0);
+  // Scrolls the content area only; scrollIntoView would also scroll the page behind it and push the header away.
+  const scrollTo = (id: string, behavior: ScrollBehavior) => {
+    const main = mainRef.current;
+    const el = document.getElementById(id);
+    if (!main || !el) return;
+    const top = el.getBoundingClientRect().top - main.getBoundingClientRect().top;
+    main.scrollTo({ top: main.scrollTop + top - SECTION_TOP_GAP, behavior });
+  };
   useEffect(() => {
-    if (initialSection) document.getElementById(initialSection)?.scrollIntoView({ block: "start" });
+    if (initialSection) scrollTo(initialSection, "auto");
   }, [initialSection]);
   const jump = (id: (typeof sections)[number]) => {
     setActive(id);
-    document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" });
+    jumpingUntil.current = Date.now() + 800;
+    scrollTo(id, "smooth");
+  };
+  // The nav follows the content when it is scrolled by hand.
+  const follow = () => {
+    const main = mainRef.current;
+    if (!main || Date.now() < jumpingUntil.current) return;
+    const from = main.getBoundingClientRect().top;
+    const tops = sections.map(
+      (id) => (document.getElementById(id)?.getBoundingClientRect().top ?? 0) - from,
+    );
+    const atEnd = main.scrollTop + main.clientHeight >= main.scrollHeight - 2;
+    setActive(sections[currentSection(tops, atEnd)]!);
   };
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
@@ -101,8 +125,10 @@ export function Settings({
             className="rounded-md px-3 py-2 text-start text-sm font-medium text-ink-muted opacity-50"
           >{t`Shortcuts`}</button>
         </nav>
-        <main className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-[640px] flex-col gap-8 p-4 md:p-10">
+        {/* relative: the visually hidden inputs inside are positioned against this box, not the window, so they cannot make the page itself scroll. */}
+        <main ref={mainRef} onScroll={follow} className="relative min-h-0 flex-1 overflow-y-auto">
+          {/* The bottom space lets the last sections scroll up to the top, where the nav jump puts them. */}
+          <div className="mx-auto flex max-w-[640px] flex-col gap-8 p-4 sm:pb-[70dvh] md:p-10 md:pb-[70dvh]">
             <Section id="appearance" title={navLabels.appearance}>
               <Row
                 title={t`Theme`}

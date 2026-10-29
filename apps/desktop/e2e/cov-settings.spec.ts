@@ -164,3 +164,39 @@ test("leaving Settings before the voice list arrives drops the answer", async ({
   await expect(page.getByRole("button", { name: "Settings" })).toBeVisible();
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
+
+test("the nav scrolls only the content, reaches the last section and follows hand scrolling", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await openSettings(page);
+  const nav = page.getByRole("navigation", { name: "Settings sections" });
+  const state = () =>
+    page.evaluate(() => {
+      const main = document.querySelector("main")!;
+      const top = (id: string) =>
+        document.getElementById(id)!.getBoundingClientRect().top - main.getBoundingClientRect().top;
+      return {
+        pageScroll: document.scrollingElement!.scrollTop,
+        pageHeight: document.scrollingElement!.scrollHeight,
+        backups: top("backups"),
+        active: document.querySelector('nav[aria-label="Settings sections"] [aria-current]')
+          ?.textContent,
+      };
+    });
+  // Jumping scrolls the content, not the page behind it (that would push the header away).
+  await nav.getByRole("button", { name: "Editor", exact: true }).click();
+  await expect.poll(async () => (await state()).active).toBe("Editor");
+  await page.waitForTimeout(1000);
+  expect(await state()).toMatchObject({ pageScroll: 0, pageHeight: 800 });
+  await expect(page.getByRole("heading", { name: "Settings", level: 1 })).toBeInViewport();
+  // The last section can be brought to the top like the others.
+  await nav.getByRole("button", { name: "Backups", exact: true }).click();
+  await expect.poll(async () => Math.round((await state()).backups)).toBe(16);
+  expect((await state()).active).toBe("Backups");
+  // Scrolling by hand moves the highlight.
+  await page.locator("main").evaluate((m) => (m.scrollTop = 0));
+  await expect.poll(async () => (await state()).active).toBe("Appearance");
+  await page.locator("main").evaluate((m) => (m.scrollTop = 700));
+  await expect.poll(async () => (await state()).active).toBe("Editor");
+});
