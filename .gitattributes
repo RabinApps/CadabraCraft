@@ -12,3 +12,4 @@
 *.epub binary
 *.pdf binary
 *.pen binary
+apps/desktop/src-tauri/licenses/THIRD_PARTY_NOTICES-*.txt -text

@@ -62,7 +62,8 @@ macro_rules! app_handlers {
             fonts::commands::fonts_import,
             fonts::commands::fonts_delete,
             fonts::commands::fonts_data,
-            commands::updates_supported
+            commands::updates_supported,
+            commands::read_license
             $(, $extra)*
         ]
     };

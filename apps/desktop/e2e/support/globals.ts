@@ -129,6 +129,7 @@ declare global {
     __manifestRelease?: () => void;
     __failWrite?: (path: string) => boolean;
     __failBytes?: boolean;
+    __failLicense?: boolean;
     __importError?: string;
     __typstError?: FakeError;
     __compileError?: FakeError;

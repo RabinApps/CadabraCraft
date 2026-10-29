@@ -18,6 +18,7 @@ import { buildMenuModel } from "../shell/menuModel";
 import { quitApp } from "../shell/quit";
 import { showNativeMenu } from "../shell/nativeMenu";
 import { useRecents } from "../../state/recents";
+import { useLicenses } from "../../state/licenses";
 import { useUpdates } from "../../state/updates";
 import { SPONSOR_URL } from "../../state/sponsor";
 import { isMac } from "../../lib/platform";
@@ -125,6 +126,7 @@ export function useAppMenu(h: AppMenuHooks): void {
     },
     "file.clearRecents": { run: clearRecents, enabled: recents.length > 0 },
     "help.sponsor": { run: guard(() => bridge.openUrl(SPONSOR_URL)) },
+    "help.licenses": { run: () => useLicenses.getState().show() },
     "help.updates": { run: () => void checkForUpdatesNow(h) },
   };
   if (inBook) {

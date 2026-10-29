@@ -1,0 +1,52 @@
+# License and advisory policy for the Rust dependencies that ship in the app. Run: cargo deny check
+# The allow list is the licenses we have reviewed for a source-available app that ships binaries; anything else
+# fails CI until someone reads it and adds it here with a reason.
+[graph]
+targets = [
+  "aarch64-apple-darwin",
+  "x86_64-apple-darwin",
+  "x86_64-pc-windows-msvc",
+  "x86_64-unknown-linux-gnu",
+]
+all-features = false
+
+[licenses]
+confidence-threshold = 0.9
+allow = [
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "MIT",
+  "MIT-0",
+  "Unicode-3.0",
+  "Zlib",
+  "CC0-1.0",
+  "MPL-2.0", # file-level copyleft: fine as an unmodified dependency, the source is public (see THIRD_PARTY_NOTICES)
+]
+
+[advisories]
+# Each ignore needs a reason and gets reviewed when Tauri is bumped (Dependabot opens that PR).
+ignore = [
+  # zip 4.6.1 comes from tauri-plugin-updater, which unpacks only the update archive it has just verified against
+  # our minisign public key, so an attacker would need our signing key; the extract() flaws (SUID bits, symlinks)
+  # are not reachable with an archive we did not sign. Remove when the updater moves to a fixed zip.
+  { id = "RUSTSEC-2026-0367", reason = "zip extract of a signature-verified update archive only" },
+  { id = "RUSTSEC-2026-0368", reason = "zip extract of a signature-verified update archive only" },
+  { id = "RUSTSEC-2026-0369", reason = "zip extract of a signature-verified update archive only" },
+  # Unmaintained crates under Tauri's Linux GTK/zbus stack; no safe upgrade exists, Tauri must move off them.
+  { id = "RUSTSEC-2024-0370", reason = "proc-macro-error: build-time macro under Tauri's gtk3 stack" },
+  { id = "RUSTSEC-2026-0370", reason = "zvariant: unmaintained, under Tauri's Linux stack" },
+  { id = "RUSTSEC-2026-0371", reason = "zbus_names: unmaintained, under Tauri's Linux stack" },
+  { id = "RUSTSEC-2026-0372", reason = "zvariant_derive: unmaintained, under Tauri's Linux stack" },
+]
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

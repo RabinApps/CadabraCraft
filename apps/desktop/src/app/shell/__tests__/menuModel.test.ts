@@ -67,6 +67,7 @@ const BOOK: Commands = Object.fromEntries(
     "edit.convertHtml",
     "help.updates",
     "help.sponsor",
+    "help.licenses",
   ].map((id) => [id, { run }]),
 );
 

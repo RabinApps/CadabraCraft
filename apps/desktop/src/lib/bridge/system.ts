@@ -11,6 +11,8 @@ export const systemBridge = {
   checkForUpdate: (): Promise<Update | null> => check(),
   /** False for a Linux package that is not an AppImage: the updater cannot replace it, so no update is offered. */
   updatesSupported: () => invoke<boolean>("updates_supported"),
+  /** The text of one bundled license document (`license`, `clarifications`, `notice`, `programs`, `rust`, `npm`). */
+  readLicense: (id: string) => invoke<string>("read_license", { id }),
   /** Restarts the app once an update has been installed. */
   relaunch: () => relaunch(),
 };

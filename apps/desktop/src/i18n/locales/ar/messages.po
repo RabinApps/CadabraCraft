@@ -616,6 +616,10 @@ msgstr "ليس لدى CadabraCraft إذن لاستخدام {0}"
 msgid "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
 msgstr "CadabraCraft مجاني ومصدره متاح، وكتابك يبقى على حاسوبك. إذا ساعدك على إنهاء كتاب، فإن الرعاية تغطي الوقت الذي يُبذل فيه."
 
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "CadabraCraft is source-available. These are its license and the licenses of the software that ships with it."
+msgstr "شيفرة CadabraCraft المصدرية متاحة للاطلاع. هنا ترخيصها وتراخيص البرامج المرفقة معها."
+
 #: src/app/hooks/useAppMenu.ts
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft محدّث."
@@ -786,6 +790,10 @@ msgstr "اختيار صورة…"
 msgid "Choose…"
 msgstr "اختيار…"
 
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "Clarifications"
+msgstr "توضيحات"
+
 #: src/app/shell/menuModel.ts
 msgid "Clear Menu"
 msgstr "مسح القائمة"
@@ -936,6 +944,10 @@ msgstr "تعذّر فتح {title}: {error}"
 msgid "Could not open this book: {0}"
 msgstr "تعذّر فتح هذا الكتاب: {0}"
 
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "Could not read this document: {error}"
+msgstr "تعذّرت قراءة هذا المستند: {error}"
+
 #: src/state/project/history.ts
 msgid "Could not redo: {why}"
 msgstr "تعذّرت الإعادة: {why}"
@@ -1081,6 +1093,7 @@ msgstr "لوحة التفاصيل"
 msgid "Dismiss"
 msgstr "تجاهل"
 
+#: src/app/dialogs/LicensesDialog.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "Document"
 msgstr "مستند"
@@ -1663,6 +1676,10 @@ msgstr "ينتقل إلى سلة مهملات المشروع داخل مجلد �
 msgid "Italic"
 msgstr "مائل"
 
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "JavaScript libraries"
+msgstr "مكتبات JavaScript"
+
 #: src/app/settings/AudioSection.tsx
 msgid "Keep"
 msgstr "إبقاء"
@@ -1747,6 +1764,18 @@ msgstr "الخروج من وضع التركيز"
 msgid "Leaves them out of this export; the list above says which."
 msgstr "يتركها خارج هذا التصدير؛ والقائمة أعلاه توضح أيها."
 
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "License"
+msgstr "الترخيص"
+
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "Licenses"
+msgstr "التراخيص"
+
+#: src/app/shell/menuModel.ts
+msgid "Licenses…"
+msgstr "التراخيص…"
+
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
 msgid "Light"
@@ -1792,6 +1821,7 @@ msgstr "الفصول المرتبطة"
 msgid "Loading the book"
 msgstr "جارٍ تحميل الكتاب"
 
+#: src/app/dialogs/LicensesDialog.tsx
 #: src/app/references/Previews.tsx
 msgid "Loading…"
 msgstr "جارٍ التحميل…"
@@ -2101,6 +2131,10 @@ msgstr "لم يضع شيء ولم يتغيّر شيء."
 msgid "Nothing was pasted here. Select text inside one paragraph or cell and try again"
 msgstr "لم يُلصق شيء هنا. حدّد نصًا داخل فقرة أو خلية واحدة وحاول مرة أخرى"
 
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "Notice"
+msgstr "إشعار"
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Number in series"
 msgstr "الرقم في السلسلة"
@@ -2350,6 +2384,10 @@ msgstr "معاينة الطباعة"
 #: src/app/shell/menuModel.ts
 msgid "Print Preview…"
 msgstr "معاينة الطباعة…"
+
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "Programs and fonts"
+msgstr "البرامج والخطوط"
 
 #. placeholder {0}: parsed.fromVersion
 #: src/state/project/project.ts
@@ -2601,6 +2639,10 @@ msgstr "الحقوق"
 #: src/editor/TableCommands.tsx
 msgid "Rows"
 msgstr "الصفوف"
+
+#: src/app/dialogs/LicensesDialog.tsx
+msgid "Rust libraries"
+msgstr "مكتبات Rust"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Same as body"

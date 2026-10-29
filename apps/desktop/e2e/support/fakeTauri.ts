@@ -159,6 +159,9 @@ export async function fakeTauri(page: Page) {
               "New Computer Modern",
               ...(window.__fontsInstalled ?? []).map((f) => f.family),
             ];
+          case "read_license":
+            if (window.__failLicense) throw { kind: "io", message: "the file is missing" };
+            return `Fake ${(a as unknown as { id: string }).id} text`;
           case "fonts_catalog": {
             const kept = window.__fontsInstalled ?? [];
             return FONT_CATALOG.map((f) => ({ ...f, installed: kept.some((k) => k.id === f.id) }));

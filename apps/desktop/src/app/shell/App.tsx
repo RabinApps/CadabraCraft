@@ -30,6 +30,7 @@ import { ImportReportDialog } from "../dialogs/ImportDialogs";
 import { PrintPreview } from "../export/PrintPreview";
 import { Settings } from "../settings/Settings";
 import { SponsorDialog } from "../dialogs/SponsorDialog";
+import { LicensesDialog } from "../dialogs/LicensesDialog";
 import { UpdateDialog } from "../dialogs/UpdateDialog";
 import { RecoverDialog } from "../dialogs/RecoverDialog";
 import { useUpdates } from "../../state/updates";
@@ -156,6 +157,7 @@ export function App() {
       <>
         <Settings onBack={backToBook} initialSection={view === "fonts" ? "fonts" : undefined} />
         <UpdateDialog />
+        <LicensesDialog />
       </>
     );
   }
@@ -173,6 +175,7 @@ export function App() {
         />
         <SponsorDialog />
         <UpdateDialog />
+        <LicensesDialog />
       </>
     );
   }
@@ -207,6 +210,7 @@ export function App() {
         <ImportReportDialog />
         <SponsorDialog />
         <UpdateDialog />
+        <LicensesDialog />
       </>
     );
   }
@@ -386,6 +390,7 @@ export function App() {
       <RecoverDialog />
       <SponsorDialog />
       <UpdateDialog />
+      <LicensesDialog />
       <ImportReportDialog />
     </div>
   );

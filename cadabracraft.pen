@@ -31207,7 +31207,7 @@
       "x": 0,
       "y": 15584,
       "name": "Section / Book details and small dialogs",
-      "width": 8440,
+      "width": 10600,
       "height": 3160,
       "fill": "#00000000",
       "layout": "none",
@@ -38981,6 +38981,506 @@
                           "content": "Save details"
                         }
                       }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NLA6H",
+          "x": 8520,
+          "y": 160,
+          "name": "Licenses dialog / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 1000,
+          "height": 700,
+          "fill": "$sidebar",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "B4Mkt",
+              "name": "Dialog",
+              "width": 860,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000033",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 32
+              },
+              "layout": "vertical",
+              "gap": 14,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "x08qsQ",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Licenses",
+                  "fontFamily": "$font-book",
+                  "fontSize": "$type-title",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "lzSAa",
+                  "name": "Description",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "CadabraCraft is source-available. These are its license and the licenses of the software that ships with it.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-body",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "h8UAiZ",
+                  "name": "Segmented",
+                  "fill": "$bg",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border-strong",
+                  "strokeWidth": 1,
+                  "gap": 2,
+                  "padding": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "ArnGn",
+                      "name": "License",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "b7svN",
+                          "name": "License text",
+                          "fill": "$accent",
+                          "content": "License",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "TfaNL",
+                      "name": "Clarifications",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "eh56K",
+                          "name": "Clarifications text",
+                          "fill": "$ink-muted",
+                          "content": "Clarifications",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Xx6EA",
+                      "name": "Notice",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "PZ966",
+                          "name": "Notice text",
+                          "fill": "$ink-muted",
+                          "content": "Notice",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UScAD",
+                      "name": "Programs and fonts",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "FfFEs",
+                          "name": "Programs and fonts text",
+                          "fill": "$ink-muted",
+                          "content": "Programs and fonts",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jD14C",
+                      "name": "Rust libraries",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "InS5E",
+                          "name": "Rust libraries text",
+                          "fill": "$ink-muted",
+                          "content": "Rust libraries",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dw7ih",
+                      "name": "JavaScript libraries",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fL0xr",
+                          "name": "JavaScript libraries text",
+                          "fill": "$ink-muted",
+                          "content": "JavaScript libraries",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "O33bbt",
+                  "name": "Document",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": 420,
+                  "fill": "$sidebar",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "W8jAd",
+                      "name": "Document text",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Apache License\nVersion 2.0, January 2004\nhttp://www.apache.org/licenses/\n\nTERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n1. Definitions.\n\n\"License\" shall mean the terms and conditions for use, reproduction, and distribution as defined by Sections 1 through 9 of this document.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "Menlo",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ivxiN",
+          "x": 9600,
+          "y": 160,
+          "name": "Licenses dialog / dark",
+          "theme": {
+            "mode": "dark"
+          },
+          "clip": true,
+          "width": 1000,
+          "height": 700,
+          "fill": "$sidebar",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Am9HT",
+              "name": "Dialog",
+              "width": 860,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000033",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 32
+              },
+              "layout": "vertical",
+              "gap": 14,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Qysim",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Licenses",
+                  "fontFamily": "$font-book",
+                  "fontSize": "$type-title",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "jCWnH",
+                  "name": "Description",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "CadabraCraft is source-available. These are its license and the licenses of the software that ships with it.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-body",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "T9oyyk",
+                  "name": "Segmented",
+                  "fill": "$bg",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border-strong",
+                  "strokeWidth": 1,
+                  "gap": 2,
+                  "padding": 3,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "a5WpH",
+                      "name": "License",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "v0kLfl",
+                          "name": "License text",
+                          "fill": "$accent",
+                          "content": "License",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jUghP",
+                      "name": "Clarifications",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "U3LZoO",
+                          "name": "Clarifications text",
+                          "fill": "$ink-muted",
+                          "content": "Clarifications",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Bd8NS",
+                      "name": "Notice",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "EAUgI",
+                          "name": "Notice text",
+                          "fill": "$ink-muted",
+                          "content": "Notice",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "u7gXDa",
+                      "name": "Programs and fonts",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "b4Udq",
+                          "name": "Programs and fonts text",
+                          "fill": "$ink-muted",
+                          "content": "Programs and fonts",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZXCHU",
+                      "name": "Rust libraries",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "vjYkB",
+                          "name": "Rust libraries text",
+                          "fill": "$ink-muted",
+                          "content": "Rust libraries",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UU8dV",
+                      "name": "JavaScript libraries",
+                      "cornerRadius": "$radius-sm",
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "IwaPu",
+                          "name": "JavaScript libraries text",
+                          "fill": "$ink-muted",
+                          "content": "JavaScript libraries",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bBF1t",
+                  "name": "Document",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": 420,
+                  "fill": "$sidebar",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "uWnIZ",
+                      "name": "Document text",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Apache License\nVersion 2.0, January 2004\nhttp://www.apache.org/licenses/\n\nTERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n1. Definitions.\n\n\"License\" shall mean the terms and conditions for use, reproduction, and distribution as defined by Sections 1 through 9 of this document.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "Menlo",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
                     }
                   ]
                 }

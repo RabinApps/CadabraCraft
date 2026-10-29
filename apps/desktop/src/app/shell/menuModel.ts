@@ -281,6 +281,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("help.updates", t`Check for Updates…`),
     sep,
     cmd("help.sponsor", t`Sponsor CadabraCraft…`),
+    cmd("help.licenses", t`Licenses…`),
   ]);
 
   return [...(ctx.mac ? [app] : []), file, edit, insert, format, view, windowMenu, help];

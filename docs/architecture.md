@@ -989,3 +989,15 @@ Desktop layers import downward only: `app/` (screens, dialogs, shell, hooks) use
 | Gate on a path prefix allowlist (home, documents) instead | Still lets a webview reach everything under it, and breaks authors who keep books on other volumes.                                     |
 
 **Limits:** a file replaced between the pick and the use is not detected (canonicalisation happens at use, not at pick time). The OS dialog calls are not unit tested (OS UI, excluded in `scripts/coverage.mjs`); the recording and checking are.
+
+## Third-party notices and license checks (2026-10-29)
+
+**Decision:** the installer ships `LICENSE`, `NOTICE`, `LICENSE-CLARIFICATIONS.md` and generated notices in its `licenses/` resource folder, and Help > Licenses… shows them. A CI job (`licenses` in `ci.yml`, `pnpm licenses:check`) fails on a license outside the allowlist, on a RustSec advisory, and on notices that are out of date.
+
+- **Rust:** `cargo-deny` (`apps/desktop/src-tauri/deny.toml`) enforces the license allowlist, bans wildcard versions, allows only crates.io, and checks advisories. `cargo-about` (`about.toml`, `about.hbs`) writes `licenses/THIRD_PARTY_NOTICES-rust.txt` for the four release targets, without dev and build dependencies. The advisory ignores in `deny.toml` each carry a reason: `zip` 4.6.1 comes from `tauri-plugin-updater` and only unpacks an archive already verified against our update key; the unmaintained GTK and zbus crates sit under Tauri's Linux stack.
+- **JavaScript:** `scripts/npm-licenses.mjs` walks the production dependency tree of `apps/desktop` (`pnpm list --prod`), skips build-time branches (`@tailwindcss/vite`, the Lingui macro plugin) and per-platform native builds (so the output is the same on every OS), checks each license against an allowlist (an `OR` expression passes if one term is allowed) and writes `THIRD_PARTY_NOTICES-npm.txt` with identical license texts merged. It lists a few more packages than the bundle strictly holds (for example `@napi-rs/canvas`, an optional Node-only dependency of `pdfjs-dist`); over-listing is the safe side.
+- **Programs and fonts:** the hand-written `THIRD_PARTY_NOTICES.txt` still covers Typst, Inter, sherpa-onnx, ONNX Runtime, the audio encoders and the LGPL FFmpeg (source offer, hash, configure options and how to swap the program); see "M4B audiobook (ffmpeg sidecar)".
+- **Help > Licenses…:** a `read_license` command takes one of six fixed ids and reads the file from the resource folder; the webview never sends a path. Dev builds get the same folder from Tauri's resource copy.
+- **Rejected:** a license list written by hand (it drifts), shipping only a link to the repository (the notices must travel with the binary), and allowing GPL or LGPL crates (the Commons Clause license cannot ship them; the FFmpeg exception is a separate program under LGPL, not linked).
+- **Allowed with care:** MPL-2.0 (file-level copyleft, unmodified dependencies, source public). The npm `lightningcss` (MPL-2.0) is build-only and not shipped.
+- **Not done:** the license review by a lawyer, the trademark search, and signing; see `docs/roadmap.md`.

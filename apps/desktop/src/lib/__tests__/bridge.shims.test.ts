@@ -154,6 +154,12 @@ describe("system commands", () => {
   it("updatesSupported", async () => {
     expect(await sent(() => bridge.updatesSupported(), true)).toEqual(["updates_supported"]);
   });
+  it("readLicense", async () => {
+    expect(await sent(() => bridge.readLicense("npm"), "text")).toEqual([
+      "read_license",
+      { id: "npm" },
+    ]);
+  });
 });
 
 describe("watch commands", () => {
