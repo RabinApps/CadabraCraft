@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { compileRegex, expandReplacement, findInText, isInvalidRegex, MAX_MATCHES } from "../match";
+import { budget, cpuClock } from "../../../test/perf";
 
 const base = { matchCase: false, wholeWord: false };
 const find = (text: string, q: string, o: Partial<typeof base> = {}) =>
@@ -131,12 +132,12 @@ describe("findInText with regex", () => {
     for (const q of ["(a+)+$", "(.*)*", "(\\w+\\s?)*", "(a{1,3})+", "(?:a*)+", "(a|aa)+$"])
       expect(compileRegex(q, false)).not.toBeNull();
     for (const q of ["(a+)+$", "(a|aa)+$", "(a*)*b", "(\\w+\\s?)*$"]) {
-      const start = performance.now();
+      const elapsed = cpuClock();
       expect(
         findInText("a".repeat(5000) + "!", q, { matchCase: false, wholeWord: false, regex: true })
           .length,
       ).toBeLessThanOrEqual(1);
-      expect(performance.now() - start).toBeLessThan(1000);
+      expect(elapsed()).toBeLessThan(budget(1000));
     }
   });
 

@@ -577,5 +577,28 @@ test("templates page: the book's own look, a failed save and a template that is 
   await expect(page.getByRole("button", { name: /^Nonfiction/ })).toHaveCount(0);
 });
 
+test("templates page: the arrow keys move the choice and wrap around", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Change template" }).click();
+  const group = page.getByRole("radiogroup", { name: "Templates" });
+  const radios = group.getByRole("radio");
+  const checked = () =>
+    radios.evaluateAll((els) => els.findIndex((e) => e.getAttribute("aria-checked") === "true"));
+  const count = await radios.count();
+  await radios.nth(0).click();
+  expect(await checked()).toBe(0);
+  await page.keyboard.press("ArrowLeft"); // wraps to the last
+  expect(await checked()).toBe(count - 1);
+  await page.keyboard.press("ArrowRight"); // and back to the first
+  expect(await checked()).toBe(0);
+  await page.keyboard.press("ArrowDown");
+  expect(await checked()).toBe(1);
+  await page.keyboard.press("ArrowUp");
+  expect(await checked()).toBe(0);
+  await page.keyboard.press("x"); // not an arrow: nothing moves
+  expect(await checked()).toBe(0);
+  await expect(radios.nth(0)).toBeFocused();
+});
+
 // Keeps the helper imports honest for specs that only need some of them.
 void answerWith;

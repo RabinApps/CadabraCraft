@@ -127,6 +127,19 @@ describe("reference actions", () => {
     });
   });
 
+  it("moves a reference to a new place in the list and says so when it cannot", async () => {
+    await a().addReferences(["/x/a.pdf", "/x/b.pdf", "/x/c.pdf"]);
+    await a().moveReference("ref-3", 0);
+    expect(s().manifest!.references.map((r) => r.id)).toEqual(["ref-3", "ref-1", "ref-2"]);
+    expect(onDisk().references.map((r: { id: string }) => r.id)).toEqual([
+      "ref-3",
+      "ref-1",
+      "ref-2",
+    ]);
+    await a().moveReference("ref-9", 0);
+    expect(s().notice).toMatch(/Could not reorder the references: .*no reference ref-9/);
+  });
+
   it("says so when an update cannot be saved", async () => {
     await a().updateReference("ref-9", { title: "x" });
     expect(s().notice).toMatch(/Could not save the reference: no reference ref-9/);

@@ -11,6 +11,7 @@ import {
   isInvalidRegex,
   MAX_MATCHES,
 } from "../../../lib/search/match";
+import { budget, cpuClock } from "../../../test/perf";
 
 const schema = getSchema(extensions);
 const plugins = Search.config.addProseMirrorPlugins!.call({} as never);
@@ -62,19 +63,19 @@ describe("invalid and pathological regexes", () => {
     }
   });
   it("handles a nested-quantifier pattern and a long pattern in linear time", () => {
-    const t0 = Date.now();
+    const elapsed = cpuClock();
     expect(findInText("a".repeat(30), "(a+)+$", { ...o, regex: true }).length).toBe(1);
     findInText("a".repeat(100_000) + "!", "(a|aa)+$", { ...o, regex: true });
     compileRegex("a".repeat(5000), false);
-    expect(Date.now() - t0).toBeLessThan(5000);
+    expect(elapsed()).toBeLessThan(budget(5000));
   });
   it("searches a very large chapter in bounded time", () => {
     const text = "The quick brown fox jumps over the lazy dog. ".repeat(40_000);
-    const t0 = Date.now();
+    const elapsed = cpuClock();
     const r = findInText(text, "\\bfox\\b|d.g", { ...o, regex: true });
     expect(r.length).toBe(MAX_MATCHES);
     expect(findInText(text, "fox", o).length).toBe(40_000);
-    expect(Date.now() - t0).toBeLessThan(8000);
+    expect(elapsed()).toBeLessThan(budget(8000));
   });
   it("matches zero-length patterns without looping", () => {
     expect(findInText("abc", "x*", { ...o, regex: true })).toEqual([]);

@@ -16,6 +16,7 @@ vi.mock("../../../lib/bridge", async () =>
 );
 
 import { useProject } from "../index";
+import { budget, cpuClock } from "../../../test/perf";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
@@ -142,23 +143,23 @@ describe("bookWords is incremental", () => {
 
   it("readPages (print preview, export checks, find) still reads and validates every page: 40 reads, inside a generous budget", async () => {
     reads.length = 0;
-    const t0 = performance.now();
+    const elapsed = cpuClock();
     const pages = await a().readPages();
-    const ms = performance.now() - t0;
+    const ms = elapsed();
     console.info(
       `[perf] readPages 40 chapters (the pre-fix cost of every word-count refresh): ${ms.toFixed(1)} ms`,
     );
     expect(pages).toHaveLength(40);
     expect(chapterReads()).toHaveLength(40);
-    expect(ms).toBeLessThan(3000);
+    expect(ms).toBeLessThan(budget(3000));
   });
 
   it("counts 100k words across 40 chapters well inside a generous budget, from cold", async () => {
-    const t0 = performance.now();
+    const elapsed = cpuClock();
     await a().bookWords();
-    const ms = performance.now() - t0;
+    const ms = elapsed();
     console.info(`[perf] bookWords cold, 40 chapters: ${ms.toFixed(1)} ms`);
-    expect(ms).toBeLessThan(2000);
+    expect(ms).toBeLessThan(budget(2000));
   });
 });
 

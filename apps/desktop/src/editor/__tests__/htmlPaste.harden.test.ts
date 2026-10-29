@@ -12,6 +12,7 @@ import {
   truncate,
   tryConvertHtmlText,
 } from "../htmlPaste";
+import { budget, cpuClock } from "../../test/perf";
 
 const base = {
   text: "<p>The gate was <b>old</b></p>",
@@ -59,10 +60,10 @@ describe("size limit and exceptions", () => {
   it("handles a large paste just under the limit quickly", () => {
     const text = "<p>The gate was <b>old</b></p>".repeat(30_000);
     expect(text.length).toBeLessThan(MAX_HTML_CHARS);
-    const t0 = Date.now();
+    const elapsed = cpuClock();
     const c = tryConvertHtmlText(text);
     expect(c?.content.length).toBe(30_000);
-    expect(Date.now() - t0).toBeLessThan(8000);
+    expect(elapsed()).toBeLessThan(budget(8000));
   });
 });
 

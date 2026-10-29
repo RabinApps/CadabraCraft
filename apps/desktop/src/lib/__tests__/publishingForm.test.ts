@@ -29,6 +29,10 @@ describe("publishing form", () => {
     expect(subjectLines(" a \r\n\r\nb\na\n")).toEqual(["a", "b"]);
     expect(publishingFromForm({ ...blank, description: " x\r\ny " }).description).toBe("x\ny");
   });
+  it("leaves out the number of a series when none is given", () => {
+    expect(publishingFromForm({ ...blank, series: " Saga " })).toEqual({ series: "Saga" });
+  });
+
   it("leaves out a series number that has no series", () => {
     expect(publishingFromForm({ ...blank, seriesNumber: "3" })).toEqual({});
   });

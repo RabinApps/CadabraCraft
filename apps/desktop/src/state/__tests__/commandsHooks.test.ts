@@ -85,7 +85,13 @@ describe("useStartDialogs", () => {
     const s = useStartDialogs.getState();
     s.setCreating(true);
     s.setImporting(true);
-    expect(useStartDialogs.getState()).toMatchObject({ creating: true, importing: true });
+    s.setImportingInto(true);
+    expect(useStartDialogs.getState()).toMatchObject({
+      creating: true,
+      importing: true,
+      importingInto: true,
+    });
+    s.setImportingInto(false);
     s.setCreating(false);
     s.setImporting(false);
     expect(useStartDialogs.getState()).toMatchObject({ creating: false, importing: false });

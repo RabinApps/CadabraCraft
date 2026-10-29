@@ -13,6 +13,7 @@ import {
   setSearchTransaction,
   stepTransaction,
 } from "../plugin";
+import { budget, cpuClock } from "../../../test/perf";
 
 // Headless: the plugin and transactions need no DOM (the repo has no jsdom), so tests drive a bare EditorState.
 const schema = getSchema(extensions);
@@ -163,11 +164,11 @@ describe("search plugin", () => {
   it("searches a 100k-word chapter well under the bound", () => {
     const word = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do ";
     const s = make(Array.from({ length: 1000 }, () => p(t(word.repeat(10)))));
-    const start = performance.now();
+    const elapsed = cpuClock();
     const found = search(s, { query: "dolor", wholeWord: true });
-    const ms = performance.now() - start;
+    const ms = elapsed();
     expect(get(found).matches.length).toBe(10000);
-    expect(ms).toBeLessThan(500);
+    expect(ms).toBeLessThan(budget(500));
   });
 
   it("regex: finds, replaces the current match with captures and replaces all", () => {
@@ -193,9 +194,9 @@ describe("search plugin", () => {
       query: "(a+)+$",
       regex: true,
     });
-    const start = performance.now();
+    const elapsed = cpuClock();
     expect(info(s).total).toBe(0);
-    expect(performance.now() - start).toBeLessThan(1000);
+    expect(elapsed()).toBeLessThan(budget(1000));
     s = search(s, { query: "end", replacement: "fin", regex: true });
     s = apply(s, replaceAllTransaction(s));
     expect(s.doc.textContent.endsWith("😀 fin")).toBe(true);

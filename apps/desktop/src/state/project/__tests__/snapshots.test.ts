@@ -183,8 +183,11 @@ describe("restoring from a whole-book snapshot", () => {
     const [first, second] = s().manifest!.chapters as [EditionEntry, EditionEntry];
     await a().selectChapter(first.id);
     bookPages.set(sourceFile(second, s().manifest!.editions), JSON.stringify(text("two")));
+    const offer = (id: string) => ({ id, title: id, file: `${id}.json`, snapshot: SNAP });
+    useProject.setState({ recovery: [offer(second.id), offer(first.id)] });
     await a().restorePageFromBook(second.id, SNAP);
     expect(s().currentId).toBe(second.id);
+    expect(s().recovery.map((r) => r.id)).toEqual([first.id]);
     calls.length = 0;
     await a().restorePageFromBook("missing", SNAP);
     expect(calls).toEqual([]);
