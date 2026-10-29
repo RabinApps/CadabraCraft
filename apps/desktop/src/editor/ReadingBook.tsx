@@ -49,8 +49,10 @@ function ReadingScroll({ pages }: { pages: BookPage[] }) {
   const paged = readingPaged("read", wide);
   const look = usePageLook(manuscriptFont);
   const { g, book } = look;
-  useMeasuredPages(paged);
+  // The reader draws the pages as Typst broke them, in every chapter: the book is measured with the marks that say where.
+  useMeasuredPages(paged, true);
   const report = usePageMeasure((s) => usableReport(s.report));
+  const reportAt = usePageMeasure((s) => s.reportAt);
 
   const scroller = useRef<HTMLDivElement>(null);
   const paneW = usePaneWidth(scroller);
@@ -308,6 +310,8 @@ function ReadingScroll({ pages }: { pages: BookPage[] }) {
           width={width}
           gap={gap}
           onPages={onPages}
+          report={report}
+          reportAt={reportAt}
         />
       ))}
     </div>

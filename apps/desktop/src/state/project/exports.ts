@@ -33,8 +33,6 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
     n
       ? ` (${plural(n, { one: "# untranslated page left out", other: "# untranslated pages left out" })})`
       : "";
-  /** The last measure: reused while the book, template, trim size and fonts are the same. */
-  let lastMeasure: { key: string; report: PageReport } | null = null;
   /** Loads the pages and images, runs `build` and writes `exports/<language>/<file>`; shared by the Word and Rich Text manuscripts. */
   const writeManuscript = async (
     scope: ExportScope,
@@ -71,39 +69,46 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
     }
   };
   const gather = createTypstBook(ctx);
+  /** The last measure of each thing measured (the whole book, with or without marks, or a page by its id): the last result is reused while the book is the same. */
+  const measured = new Map<string, { key: string; report: PageReport }>();
+  const measure = async (only?: string, marks = true): Promise<PageReport> => {
+    try {
+      // The open page's text is in the draft until it is saved, so measure that instead of the file.
+      const { templateId, edition, chapters, trimSize, fonts, assets: load } = await gather(only);
+      const key = contentHash(
+        JSON.stringify([templateId, trimSize, fonts, edition.title, chapters]),
+      );
+      const slot = only ?? (marks ? "book" : "book-plain");
+      const last = measured.get(slot);
+      if (last?.key === key) return last.report;
+      const assets = await load();
+      const report = await measurePages(
+        { title: edition.title, author: edition.author, language: edition.language },
+        chapters,
+        {
+          template: getTemplate(templateId),
+          trimSize,
+          mirrored: true,
+          pageNumbers: true,
+          pdfA: false,
+          // Page view draws the pages Typst broke inside each chapter; marking every word of a book costs about a second per
+          // 100,000 words, so only the measures that need the breaks ask for it.
+          ...(marks ? { blockMarks: true } : {}),
+          ...(Object.keys(fonts).length ? { fonts } : {}),
+          assets: Object.fromEntries(assets),
+        },
+        createTauriRunner(bridge),
+      );
+      measured.set(slot, { key, report });
+      return report;
+    } catch (e) {
+      throw describePdfError(e);
+    }
+  };
   return {
     ...createPreviewActions(ctx, gather),
-    async measurePages() {
-      try {
-        // The open page's text is in the draft until it is saved, so measure that instead of the file.
-        const { templateId, edition, chapters, trimSize, fonts, assets: load } = await gather();
-        const key = contentHash(
-          JSON.stringify([templateId, trimSize, fonts, edition.title, chapters]),
-        );
-        if (lastMeasure?.key === key) return lastMeasure.report;
-        const assets = await load();
-        const report = await measurePages(
-          { title: edition.title, author: edition.author, language: edition.language },
-          chapters,
-          {
-            template: getTemplate(templateId),
-            trimSize,
-            mirrored: true,
-            pageNumbers: true,
-            pdfA: false,
-            // Page view draws the pages Typst broke inside each chapter.
-            blockMarks: true,
-            ...(Object.keys(fonts).length ? { fonts } : {}),
-            assets: Object.fromEntries(assets),
-          },
-          createTauriRunner(bridge),
-        );
-        lastMeasure = { key, report };
-        return report;
-      } catch (e) {
-        throw describePdfError(e);
-      }
-    },
+    measurePages: (options) => measure(undefined, options?.marks ?? false),
+    measureChapter: (id) => measure(id),
     async exportEpub(scope) {
       if (get().exportStage) throw new Error(t`An export is already running`);
       set({ exportStage: "preparing" });

@@ -1,5 +1,6 @@
 import {
   TRIM_SIZES,
+  type CharMark,
   type FontChoice,
   type PdfBook,
   type PdfChapter,
@@ -14,6 +15,16 @@ import { preamble } from "./preamble";
 import { pageReport } from "./report";
 
 export { requestedFonts, resolveFonts, resolveTemplate } from "./options";
+
+/** `PdfOptions.charMarks` as the words to mark inside, by `chapter:block:leaf`. */
+function charMarkWords(marks: CharMark[]): Map<string, Set<number>> {
+  const out = new Map<string, Set<number>>();
+  for (const m of marks) {
+    const key = `${m.chapter}:${m.block}:${m.leaf}`;
+    out.set(key, (out.get(key) ?? new Set()).add(m.word));
+  }
+  return out;
+}
 
 /** Typst document plus the image paths it expects (relative to the compile directory). */
 export function buildTypstDocument(
@@ -32,6 +43,7 @@ export function buildTypstDocument(
     maxImageIn: Math.max(1, trim.h - margins.top - margins.bottom - 1),
     assets: options.assets,
     ...(options.blockMarks ? { marks: true } : {}),
+    ...(options.charMarks ? { charMarks: charMarkWords(options.charMarks) } : {}),
   };
   const hasFront = chapters.some((c) => (c.section ?? "chapter") === "front");
   const head = preamble(book, t, options, resolved, margins, hasFront);

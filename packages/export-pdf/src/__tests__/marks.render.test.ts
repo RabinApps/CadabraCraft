@@ -107,7 +107,7 @@ function pages(pdf: Uint8Array): string[] {
 const tokens = (paragraph: DocNode): string[] => {
   const kids = "content" in paragraph ? paragraph.content : undefined;
   const items = plainItems(kids)!;
-  const flat = items.map((i) => i ?? "\uE000").join("");
+  const flat = items.map((i) => (typeof i === "string" ? i : "\uE000")).join("");
   // The number in each word is its identity (quotes, hyphens and apostrophes change in the PDF text).
   return wordStarts(items).map((s) => /\d+/.exec(/^[^ \t\uE000]*/.exec(flat.slice(s))![0])![0]);
 };
@@ -150,7 +150,7 @@ suite("page marks with real Typst", () => {
           .map((n, i) => [n, i] as const)
           .filter(([n]) => !(n.type === "paragraph" && (n.content ?? []).length === 0))
           .map(([, i]) => i);
-        expect(blocks.map((b) => b.block)).toEqual(nonEmpty);
+        expect([...new Set(blocks.map((b) => b.block))]).toEqual(nonEmpty);
         let page = report.starts[ci]!.page;
         for (const b of blocks) {
           expect(b.page).toBeGreaterThanOrEqual(page);

@@ -79,8 +79,8 @@ test("Typst's marks put the page breaks inside the chapter where the PDF has the
   await toggle(page).click();
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
   await expect(cards(page).first()).toBeVisible();
-  // The first measure has no marks: the estimate, and the chip says so.
-  await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(1);
+  // The first measures (the chapter on its own, and the book) have no marks that fit: the estimate, and the chip says so.
+  await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(2);
   await expect(page.locator(".page-chip")).toHaveText("Page view · 5.5 × 8.5 in · approximate");
   const id = await chapterId(page);
   await page.evaluate((r) => (window.__typstQueryResult = r), report(id));
@@ -152,7 +152,7 @@ test("marks that do not fit the text leave the estimate, and a stale report is n
   await seed(page);
   await toggle(page).click();
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
-  await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(1);
+  await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(2);
   const id = await chapterId(page);
   // The report says block 0 is a scene break: it is a heading, so none of it is used.
   await page.evaluate((r) => (window.__typstQueryResult = r), report(id, ["s"]));
@@ -232,10 +232,11 @@ test("print preview: a page opens its chapter in the editor with the caret at th
       }),
     )
     .toBe(at);
-  // One layout answered it, and it was asked with the marks on.
+  // One layout answered it, and it was asked with the marks on; the word is a page began in, so a second run asked where in it.
   const calls = await page.evaluate(() => window.__typstQueryCalls ?? []);
-  expect(calls.length - before).toBe(1);
-  expect(calls.at(-1)!.source).toContain("#let wm(w)");
+  expect(calls.length - before).toBe(2);
+  expect(calls.at(-2)!.source).toContain("#let wm(w)");
+  expect(calls.at(-1)!.source).toContain("#cm(");
   // Back in the preview, a page that starts with a block puts the caret at its beginning.
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });

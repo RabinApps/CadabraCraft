@@ -51,8 +51,11 @@ function gapElement(spec: GapWidgetSpec): HTMLElement {
   return el;
 }
 
+/** The spacer is a piece of a line (a break inside a line of text), not a block between blocks or items. */
+const inlineGap = (gap: GapSpec): boolean => gap.linesBefore > 0 && !gap.flow;
+
 const widget = (pos: number, gap: GapSpec, index: number): Decoration => {
-  const inline = gap.linesBefore > 0;
+  const inline = inlineGap(gap);
   const spec: GapWidgetSpec = {
     inline,
     height: gap.height,
@@ -93,7 +96,7 @@ export function buildDecorations(
     resolved.set(`${gap.block}:${gap.linesBefore}`, pos);
     out.push(widget(pos, gap, index));
     // side -2: before the spacer, so the hyphen ends the line on the page the word starts on.
-    if (hyphenate && gap.linesBefore > 0 && breaksMidWord(doc, pos))
+    if (hyphenate && inlineGap(gap) && breaksMidWord(doc, pos))
       out.push(
         Decoration.widget(pos, hyphenElement, {
           side: -2,

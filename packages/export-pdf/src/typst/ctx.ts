@@ -9,6 +9,10 @@ export interface Ctx {
   assets: Record<string, Uint8Array> | undefined;
   /** `PdfOptions.blockMarks`: chapters carry page marks. */
   marks?: boolean;
+  /** Set while a top-level block is written with marks: the page entry's index, the block's index in it and the index the next leaf of the block will have. */
+  mark?: { chapter: number; block: number; leaf: number } | undefined;
+  /** `PdfOptions.charMarks` as the words to mark inside, by `chapter:block:leaf`. */
+  charMarks?: Map<string, Set<number>>;
 }
 
 export const unsupported = (type: string): never => {

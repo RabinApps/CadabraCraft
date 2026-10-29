@@ -69,11 +69,25 @@ export interface PdfOptions {
    */
   cropMarks?: boolean;
   /**
-   * Put invisible marks in the source of every chapter: one at the start and end of each top-level block and one at each word of an
-   * ordinary paragraph, and let the `<page-report>` carry the page each one landed on (`PageReport.blocks`). The marks take no room,
-   * so the layout is the one without them; use it for `measurePages` only.
+   * Put invisible marks in the source of every page entry: one at the start of each leaf (a paragraph, heading, scene break, image or
+   * block of code; a quote, list or table has one per leaf) and one at each word of a paragraph or heading (each line of code), and let
+   * the `<page-report>` carry the page each one landed on (`PageReport.blocks`). The marks take no room, so the layout is the one
+   * without them; use it for `measurePages` only.
    */
   blockMarks?: boolean;
+  /**
+   * For `measurePages` only (it sets this itself for its second run): with `blockMarks`, mark each character boundary inside these
+   * words instead of the word starts, to find where Typst hyphenated a word that runs over a page break.
+   */
+  charMarks?: CharMark[];
+}
+
+/** A word of a leaf, as `PdfOptions.charMarks` names it: the page entry's index, the top-level block, the leaf among those of the block, the word (`wordStarts` index). */
+export interface CharMark {
+  chapter: number;
+  block: number;
+  leaf: number;
+  word: number;
 }
 
 export interface FontChoice {

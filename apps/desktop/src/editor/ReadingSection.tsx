@@ -2,17 +2,20 @@ import {
   memo,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   type CSSProperties,
   type MutableRefObject,
 } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
+import type { PageReport } from "@cadabracraft/export-pdf";
 import { extensions } from "@cadabracraft/editor-schema";
 import { Pagination } from "./pagination/plugin";
 import { PageStack, type PageLook } from "./PageFrame";
 import { dirFor } from "../i18n/locales";
 import type { BookPage } from "../state/project/types";
 import { sizes, widths, type Width } from "../state/reading";
+import { reportChapterMarks } from "../lib/pageReport";
 import { cx } from "../ui/cx";
 
 export interface SectionProps {
@@ -36,6 +39,10 @@ export interface SectionProps {
   width: Width;
   gap: number;
   onPages: (id: string, pages: number) => void;
+  /** Typst's layout of the book (a run with page marks), whose page breaks the chapters draw; null until there is one. */
+  report: PageReport | null;
+  /** Changes with `report`. */
+  reportAt: number;
 }
 
 /** One chapter of the book: a section that is a placeholder until it is near the viewport, then a read-only editor. */
@@ -95,6 +102,8 @@ function ReadingChapter({
   size,
   width,
   onPages,
+  report,
+  reportAt,
 }: SectionProps) {
   const editor = useEditor({
     extensions: paged ? [...extensions, Pagination] : extensions,
@@ -108,6 +117,10 @@ function ReadingChapter({
     (l: { pages: unknown[] }) => onPages(page.id, l.pages.length),
     [onPages, page.id],
   );
+  const exact = useMemo(
+    () => (report ? reportChapterMarks(report, page.id) : null),
+    [report, page.id],
+  );
   if (!editor) return null;
   if (paged)
     return (
@@ -119,6 +132,8 @@ function ReadingChapter({
         chapterTitle={page.title}
         chapterNumber={chapterNumber}
         firstPage={firstPage}
+        exact={exact}
+        exactKey={`${page.id}:${reportAt}`}
         onLayout={onLayout}
       >
         <EditorContent editor={editor} />

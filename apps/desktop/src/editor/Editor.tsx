@@ -22,7 +22,8 @@ import { FindBar } from "./FindBar";
 import { prefillQuery } from "../lib/search/findHelpers";
 import { useFind } from "./findStore";
 import { registerHeadingJump } from "./headingJump";
-import { wordOffset } from "./pagination/exact";
+import { docLeaves, wordOffset, wordsFrom } from "./pagination/exact";
+import { alignWord } from "../lib/pageWords";
 import { takePreviewJump } from "../state/previewJump";
 import { modalOpen, useRegisterCommands } from "../state/commands";
 import { useProject } from "../state/project/index";
@@ -305,12 +306,22 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     const jump = takePreviewJump(currentId);
     if (!jump) return;
     const doc = editor.state.doc;
-    const node = jump.block < doc.childCount ? doc.child(jump.block) : null;
-    if (!node) return;
-    let pos = 0;
-    for (let i = 0; i < jump.block; i++) pos += doc.child(i).nodeSize;
-    const inside = jump.word === null ? null : wordOffset(node, jump.word);
-    const at = pos + 1 + (inside ?? 0);
+    const leaves = docLeaves(doc)[jump.block];
+    // The report counts the leaves of a block without the blank paragraphs the exporter skips.
+    const leaf = leaves?.filter((l) => !l.blank)[jump.leaf] ?? leaves?.[0];
+    if (!leaf) return;
+    const inside = jump.word === null ? null : wordOffset(leaf.node, jump.word);
+    let at = leaf.pos + 1 + (inside ?? 0) + (jump.char ?? 0);
+    // A click on a word of the page: the word of the text that is under it, found by walking the page's words and the text's together.
+    if (jump.click) {
+      const words = wordsFrom(doc, at, jump.click.tokens.length + 40);
+      const hit = alignWord(
+        jump.click.tokens,
+        jump.click.index,
+        words.map((w) => w.text),
+      );
+      if (hit !== null) at = words[hit]!.pos;
+    }
     editor.chain().focus().setTextSelection(Math.min(at, doc.content.size)).scrollIntoView().run();
   }, [editor, currentId]);
   if (!editor) return null;

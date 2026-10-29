@@ -75,8 +75,10 @@ describe("previewTarget", () => {
   it("asks Typst for the layout of the preview's run, with block marks, and answers with the text that starts the page", async () => {
     typst.queryResult = report(chapterId());
     const target = await a().previewTarget({ trimSize: "5x8", bleedIn: 0.125, page: 2 });
-    expect(target).toEqual({ id: chapterId(), block: 1, word: 30 });
-    expect(typst.queries).toHaveLength(1);
+    expect(target).toEqual({ id: chapterId(), block: 1, leaf: 0, word: 30 });
+    // The layout, and (a page began inside a word) a second run that says where in the word.
+    expect(typst.queries).toHaveLength(2);
+    expect(typst.queries[1]!.source).not.toMatch(/#wm\(\d/);
     expect(typst.queries[0]!.selector).toBe("<page-report>");
     expect(typst.queries[0]!.source).toContain("#let wm(w)");
     expect(typst.queries[0]!.source).toMatch(/#set page\(width: 5\.125in, height: 8\.25in/);
@@ -88,12 +90,13 @@ describe("previewTarget", () => {
     typst.queryResult = report(chapterId());
     await a().previewTarget({ page: 1 });
     expect(await a().previewTarget({ page: 3 })).toMatchObject({ block: 1, word: null });
-    expect(typst.queries).toHaveLength(1);
-    await a().previewTarget({ page: 1, bleedIn: 0.125 });
+    // Each layout is two runs (see above).
     expect(typst.queries).toHaveLength(2);
+    await a().previewTarget({ page: 1, bleedIn: 0.125 });
+    expect(typst.queries).toHaveLength(4);
     await a().add("More");
     await a().previewTarget({ page: 1, bleedIn: 0.125 });
-    expect(typst.queries).toHaveLength(3);
+    expect(typst.queries).toHaveLength(6);
   });
 
   it("is null for a book with no pages and turns a Typst failure into a message", async () => {

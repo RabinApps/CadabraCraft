@@ -363,9 +363,17 @@ export interface ExportActions {
   exportPdf: (options: PdfExportOptions) => Promise<void>;
   /**
    * Asks Typst for where each page entry starts and how long the book is, for the book as it is now (the open page's draft
-   * included), without producing a PDF or taking the export lock. The last result is reused while the content is unchanged.
+   * included), without producing a PDF or taking the export lock. The last result is reused while the content is unchanged. With
+   * `marks` the report also says where the pages break inside every chapter (see `PdfOptions.blockMarks`), which costs about a
+   * second more per 100,000 words.
    */
-  measurePages: () => Promise<PageReport>;
+  measurePages: (options?: { marks?: boolean }) => Promise<PageReport>;
+  /**
+   * The same for one page entry typeset on its own (the open page's draft included): the layout inside a chapter does not depend on
+   * the pages before it, so this is where its page breaks are, in a fraction of the time a book takes. Its page numbers are not the
+   * book's. Throws `PdfUiError`.
+   */
+  measureChapter: (id: string) => Promise<PageReport>;
   /**
    * Typesets the book as it is now (the open page's draft included, the cover first when there is one) into a PDF that is kept in
    * memory only, for the print preview. `trimSize` overrides the book's size for this run. The last few results are reused while

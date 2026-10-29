@@ -1498,6 +1498,7 @@ msgstr "Find…"
 msgid "Finding the page in your chapter…"
 msgstr "Finding the page in your chapter…"
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 msgid "Fit to window"
 msgstr "Fit to window"

@@ -519,7 +519,8 @@ test("with Page view on, Typst's page report replaces the estimate in the status
   // On, the book is measured once it has been still, and the "≈" goes.
   await expect(page.getByText(/ · 40 pages at 5\.5 × 8\.5 in/)).toBeVisible({ timeout: 10_000 });
   const calls = await page.evaluate(() => window.__typstQueryCalls ?? []);
-  expect(calls).toHaveLength(1);
+  // The book, and the chapter on its own (for its breaks).
+  expect(calls).toHaveLength(2);
   expect(calls[0]!.selector).toBe("<page-report>");
   // An edit makes the report stale at once, so the report's count goes until the next measure.
   await page.locator(".ProseMirror").click();
@@ -527,7 +528,7 @@ test("with Page view on, Typst's page report replaces the estimate in the status
   await page.keyboard.insertText(" More words.");
   await expect(page.getByText(/ · 40 pages at/)).toBeHidden();
   await expect(page.getByText(/ · 40 pages at/)).toBeVisible({ timeout: 10_000 });
-  expect(await page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(2);
+  expect(await page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(4);
 });
 
 test("the chapter's first page takes the number Typst printed for it", async ({ page }) => {
@@ -535,7 +536,7 @@ test("the chapter's first page takes the number Typst printed for it", async ({ 
   await page.locator(".ProseMirror").click();
   await page.keyboard.insertText("A few words.");
   await pageViewAt100(page);
-  await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(1);
+  await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(2);
   const id = await page.evaluate(
     () =>
       /#chapter-start\("Chapter One", 1, id: "([^"]+)"/.exec(

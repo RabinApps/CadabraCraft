@@ -105,5 +105,8 @@ describe("wordStarts", () => {
     expect(wordStarts(["a b\nc"])).toEqual([0]);
     expect(wordStarts([])).toEqual([]);
     expect(wordStarts(["   "])).toEqual([]);
+    // A footnote of n positions is part of no word: it takes room but starts nothing and ends nothing.
+    expect(wordStarts(["one", 5, "two three"])).toEqual([0, 12]);
+    expect(wordStarts(["one ", 4, " two"])).toEqual([0, 9]);
   });
 });

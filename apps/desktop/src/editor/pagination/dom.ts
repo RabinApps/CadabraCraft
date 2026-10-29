@@ -121,30 +121,60 @@ export function findSplitPos(
   return null;
 }
 
+const blockTopPx = (view: EditorView, block: FlowBlock, zoom: number, columnTop: number): number =>
+  view.dom.getBoundingClientRect().top + (columnTop + block.top) * zoom;
+
 /**
- * `linesBefore` for a page that begins at `pos` inside a block (see `PageBreak`): the number of the block's lines the previous page
- * keeps. A position at the start of a line keeps the lines above it; one in the middle of a line keeps that line too (it is cut
- * short by the spacer, and the rest of it starts the next page). Null when the position cannot be placed.
+ * Where a page that begins at `pos` inside the text leaf at `leafPos` (a paragraph, heading or block of code, at any depth of `block`)
+ * begins in the flow: px below the top of `block`, at zoom 1, on the leaf's own line grid. A position at the start of a line keeps the
+ * lines above it on the previous page; one in the middle of a line keeps that line too (the spacer cuts it short and the rest of it
+ * starts the next page). Null when the position cannot be placed.
  */
-export function linesBeforePos(
+export function splitY(
   view: EditorView,
-  blockPos: number,
-  node: PMNode,
-  pos: number,
   block: FlowBlock,
+  leafPos: number,
+  pos: number,
   zoom: number,
   columnTop: number,
 ): number | null {
-  const rootTop = view.dom.getBoundingClientRect().top;
-  const lh = block.lineHeight * zoom;
+  const el = view.nodeDOM(leafPos);
+  if (!(el instanceof HTMLElement)) return null;
+  const cs = getComputedStyle(el);
+  const lh = px(cs.lineHeight) > 0 ? px(cs.lineHeight) : px(cs.fontSize) * 1.2;
+  const pitch = lh * zoom;
+  // The first line starts below the leaf's padding and border (a block of code has both).
+  const top = el.getBoundingClientRect().top + (px(cs.paddingTop) + px(cs.borderTopWidth)) * zoom;
   try {
-    const y = view.coordsAtPos(pos).top - (rootTop + (columnTop + block.top) * zoom);
-    const line = Math.max(0, Math.floor((y + lh / 2) / lh));
-    const atStart = findSplitPos(view, blockPos, node, line, block, zoom, columnTop) === pos;
-    return atStart ? line : line + 1;
+    const at = view.coordsAtPos(pos).top;
+    const line = Math.max(0, Math.floor((at - top + pitch / 2) / pitch));
+    const startsLine = pos <= leafPos + 1 || view.coordsAtPos(pos - 1).top < at - pitch / 2;
+    return (
+      (top - blockTopPx(view, block, zoom, columnTop)) / zoom + (line + (startsLine ? 0 : 1)) * lh
+    );
   } catch {
     return null;
   }
+}
+
+/**
+ * Where a page that begins before the node at `pos` (a list item, a table row, a paragraph of a quote) begins in the flow: px below
+ * the top of `block` at zoom 1, and the margin the spacer takes back from the node so it starts at the top of the page. Null when the
+ * node is not drawn.
+ */
+export function flowY(
+  view: EditorView,
+  block: FlowBlock,
+  pos: number,
+  zoom: number,
+  columnTop: number,
+): { y: number; marginBottom: number } | null {
+  const el = view.nodeDOM(pos);
+  if (!(el instanceof HTMLElement)) return null;
+  return {
+    y: (el.getBoundingClientRect().top - blockTopPx(view, block, zoom, columnTop)) / zoom,
+    marginBottom: -px(getComputedStyle(el).marginTop),
+  };
 }
 
 /** The top of every page card as the content actually flows: the bottom of each spacer minus the top margin. Null when a spacer is missing. */
