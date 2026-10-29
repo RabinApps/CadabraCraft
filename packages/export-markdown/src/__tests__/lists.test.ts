@@ -141,6 +141,9 @@ describe("definition lists", () => {
       /hard break/,
     );
     expect(() => md(defs(p(t("x"))))).toThrow(/definition list: paragraph/);
+    expect(() => md(defs(term(t("a")), { type: "definitionDescription" }))).toThrow(
+      /start with a paragraph/,
+    );
     expect(() => md(defs())).toThrow(/without entries/);
     expect(() => md({ type: "definitionList" })).toThrow(/without entries/);
   });
