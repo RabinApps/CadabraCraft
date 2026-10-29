@@ -29,6 +29,33 @@ function listItems(kids: DocNode[] | undefined, ctx: Ctx): string {
     .join(",\n");
 }
 
+/** A task list is an `enum` whose numbering draws a box, ticked for the items in `checked`. */
+function taskList(n: DocNode, ctx: Ctx): string {
+  const checked: number[] = [];
+  const items = ("content" in n ? n.content : undefined) ?? [];
+  const bodies = items.map((li, i) => {
+    if (li.type !== "taskItem") return unsupported(li.type);
+    const flag = li.attrs?.checked ?? false;
+    if (typeof flag !== "boolean")
+      throw new PdfExportError("A task item's checked value must be true or false");
+    if (flag) checked.push(i + 1);
+    return `  [\n${blocks(li.content, ctx)}\n  ]`;
+  });
+  const set = checked.length === 0 ? "()" : `(${checked.join(", ")},)`;
+  return `#enum(numbering: n => task-box(n in ${set}),\n${bodies.join(",\n")},\n)`;
+}
+
+/** A definition list: each term in bold, each description indented below it. */
+function definitionList(n: DocNode, ctx: Ctx): string {
+  const parts = (("content" in n ? n.content : undefined) ?? []).map((k) => {
+    if (k.type === "definitionTerm") return `#def-term[${inline(k.content, ctx, true)}]`;
+    if (k.type === "definitionDescription") return `#def-desc[\n${blocks(k.content, ctx)}\n]`;
+    return unsupported(k.type);
+  });
+  if (parts.length === 0) throw new PdfExportError("Definition list without entries");
+  return parts.join("\n");
+}
+
 /** Rows of cells as a rectangle, or a `PdfExportError`. Cells hold paragraphs only (the editor schema guarantees it; hand-written JSON gets the error). */
 function tableRows(n: DocNode): DocNode[][] {
   const rows = ("content" in n ? n.content : undefined) ?? [];
@@ -90,6 +117,10 @@ function block(n: DocNode, ctx: Ctx): string {
           : "";
       return `#enum(${start}\n${listItems(kids, ctx)},\n)`;
     }
+    case "taskList":
+      return taskList(n, ctx);
+    case "definitionList":
+      return definitionList(n, ctx);
     case "codeBlock": {
       const text = (kids ?? [])
         .map((k) => {

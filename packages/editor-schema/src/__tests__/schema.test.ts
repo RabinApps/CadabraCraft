@@ -283,3 +283,86 @@ describe("chapterDocProblem links", () => {
     expect(chapterDocProblem(withHref(undefined))).toMatch(/link "" is not allowed/);
   });
 });
+
+describe("task lists and definition lists", () => {
+  const p = (text: string) => ({ type: "paragraph", content: [{ type: "text", text }] });
+  const doc = (...content: unknown[]) => ({ type: "doc", content });
+  const task = (checked: unknown, ...content: unknown[]) => ({
+    type: "taskItem",
+    ...(checked === undefined ? {} : { attrs: { checked } }),
+    content,
+  });
+  it("accepts task lists, nested lists and items without a checked value", () => {
+    expect(
+      chapterDocProblem(
+        doc({
+          type: "taskList",
+          content: [
+            task(true, p("a")),
+            task(
+              undefined,
+              p("b"),
+              { type: "taskList", content: [task(false, p("c"))] },
+              { type: "bulletList", content: [{ type: "listItem", content: [p("d")] }] },
+            ),
+          ],
+        }),
+      ),
+    ).toBeNull();
+  });
+  it("defaults an item to unchecked", () => {
+    const n = Node.fromJSON(schema, doc({ type: "taskList", content: [task(undefined, p("a"))] }));
+    expect(n.firstChild!.firstChild!.attrs.checked).toBe(false);
+  });
+  it("rejects a checked value that is not true or false, and an item that starts with a list", () => {
+    expect(chapterDocProblem(doc({ type: "taskList", content: [task("yes", p("a"))] }))).toMatch(
+      /checked/,
+    );
+    expect(
+      chapterDocProblem(
+        doc({
+          type: "taskList",
+          content: [task(false, { type: "bulletList", content: [] }, p("a"))],
+        }),
+      ),
+    ).not.toBeNull();
+    expect(chapterDocProblem(doc({ type: "taskList", content: [] }))).not.toBeNull();
+    expect(chapterDocProblem(doc(task(false, p("a"))))).not.toBeNull();
+  });
+  const term = (text: string) => ({ type: "definitionTerm", content: [{ type: "text", text }] });
+  const desc = (...content: unknown[]) => ({ type: "definitionDescription", content });
+  it("accepts terms followed by descriptions, in groups, with inline marks and footnotes", () => {
+    expect(
+      chapterDocProblem(
+        doc({
+          type: "definitionList",
+          content: [
+            term("A"),
+            term("B"),
+            desc(p("one"), {
+              type: "bulletList",
+              content: [{ type: "listItem", content: [p("x")] }],
+            }),
+            desc(p("two")),
+            {
+              type: "definitionTerm",
+              content: [
+                { type: "text", text: "C", marks: [{ type: "bold" }] },
+                { type: "footnote", content: [{ type: "text", text: "n" }] },
+              ],
+            },
+            desc(p("three")),
+          ],
+        }),
+      ),
+    ).toBeNull();
+  });
+  it("rejects a list that starts or ends wrongly, is empty, or has a description without a paragraph first", () => {
+    const list = (...content: unknown[]) => doc({ type: "definitionList", content });
+    expect(chapterDocProblem(list(desc(p("x"))))).not.toBeNull();
+    expect(chapterDocProblem(list(term("A")))).not.toBeNull();
+    expect(chapterDocProblem(list(term("A"), desc(p("x")), term("B")))).not.toBeNull();
+    expect(chapterDocProblem(list())).not.toBeNull();
+    expect(chapterDocProblem(list(term("A"), desc({ type: "sceneBreak" }, p("x"))))).not.toBeNull();
+  });
+});

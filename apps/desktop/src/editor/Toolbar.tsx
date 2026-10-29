@@ -61,6 +61,8 @@ export function Toolbar({ editor }: { editor: Editor }) {
       quote: e.isActive("blockquote"),
       bullets: e.isActive("bulletList"),
       numbers: e.isActive("orderedList"),
+      taskList: e.isActive("taskList"),
+      definitionList: e.isActive("definitionList"),
       canUndo: e.can().undo(),
       canRedo: e.can().redo(),
     }),
@@ -223,6 +225,32 @@ export function Toolbar({ editor }: { editor: Editor }) {
 
   // Less common marks live in the Format menu (and Code Block in Insert) only, to keep the toolbar short.
   const menuOnly: Item[] = [
+    {
+      id: "taskList",
+      label: t`Task list`,
+      icon: List,
+      active: s.taskList,
+      run: () =>
+        s.taskList
+          ? c().liftListItem("taskItem").run()
+          : c().toggleList("taskList", "taskItem").run(),
+    },
+    {
+      id: "definitionList",
+      label: t`Definition list`,
+      icon: List,
+      active: s.definitionList,
+      run: () =>
+        c()
+          .insertContent({
+            type: "definitionList",
+            content: [
+              { type: "definitionTerm" },
+              { type: "definitionDescription", content: [{ type: "paragraph" }] },
+            ],
+          })
+          .run(),
+    },
     {
       id: "strike",
       label: t`Strikethrough`,

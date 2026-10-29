@@ -107,6 +107,8 @@ const TOGGLES = new Set([
   "editor.quote",
   "editor.bullets",
   "editor.numbers",
+  "editor.taskList",
+  "editor.definitionList",
 ]);
 
 export const FRONT_PRESET_IDS = FRONT.map((k) => `insert.front.${k}`);
@@ -243,6 +245,8 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("editor.quote", t`Block Quote`),
     cmd("editor.bullets", t`Bulleted List`),
     cmd("editor.numbers", t`Numbered List`),
+    cmd("editor.taskList", t`Task List`),
+    cmd("editor.definitionList", t`Definition List`),
     sep,
     sub(t`Table`, [
       cmd("editor.tableAddRow", t`Add Row Below`),

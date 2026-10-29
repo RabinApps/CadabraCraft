@@ -4,12 +4,15 @@ import {
   type Item,
   cellParagraphs,
   flattenItems,
+  type DefinitionEntry,
+  definitionNodes,
   isSep,
   listItemOf,
   mergeInline,
   paragraphOf,
   plainText,
   tableOf,
+  taskItemOf,
 } from "../common";
 import {
   MAX_XML_DEPTH,
@@ -31,12 +34,17 @@ interface ListEntry {
   ordered: boolean;
   level: number;
   content: DocNode[];
+  /** A task item (a paragraph that began with a checkbox control): whether it is ticked. */
+  checked?: boolean;
 }
+
+const listType = (e: { ordered: boolean; checked?: boolean }): string =>
+  e.checked !== undefined ? "taskList" : e.ordered ? "orderedList" : "bulletList";
 
 function buildLists(entries: ListEntry[]): DocNode[] {
   interface Frame {
     level: number;
-    ordered: boolean;
+    type: string;
     items: DocNode[];
   }
   const root: DocNode[] = [];
@@ -45,23 +53,26 @@ function buildLists(entries: ListEntry[]): DocNode[] {
     const level = Math.min(e.level, stack.length ? stack[stack.length - 1]!.level + 1 : 0);
     while (stack.length && stack[stack.length - 1]!.level > level) stack.pop();
     let top = stack[stack.length - 1];
-    if (top && top.level === level && top.ordered !== e.ordered) {
+    if (top && top.level === level && top.type !== listType(e)) {
       stack.pop();
       top = stack[stack.length - 1];
     }
     if (!top || top.level < level) {
-      const frame: Frame = { level, ordered: e.ordered, items: [] };
-      const list: DocNode = {
-        type: e.ordered ? "orderedList" : "bulletList",
-        content: frame.items,
-      };
+      const frame: Frame = { level, type: listType(e), items: [] };
+      const list = { type: frame.type, content: frame.items } as DocNode;
       const parentItem = top?.items[top.items.length - 1];
-      if (parentItem?.type === "listItem" && parentItem.content) parentItem.content.push(list);
+      if (
+        (parentItem?.type === "listItem" || parentItem?.type === "taskItem") &&
+        parentItem.content
+      )
+        parentItem.content.push(list);
       else root.push(list);
       stack.push(frame);
       top = frame;
     }
-    top.items.push(listItemOf(e.content));
+    top.items.push(
+      e.checked !== undefined ? taskItemOf(e.content, e.checked) : listItemOf(e.content),
+    );
   }
   return root;
 }
@@ -95,6 +106,7 @@ export class BodyBuilder {
   private list: ListEntry[] = [];
   private quote: DocNode[] = [];
   private code: string[] = [];
+  private defs: DefinitionEntry[] = [];
   constructor(
     private ctx: DCtx,
     private maxLevel: number,
@@ -116,10 +128,16 @@ export class BodyBuilder {
     }
     this.code = [];
   }
+  /** Consecutive "Definition Term" and "Definition" paragraphs become one definition list. */
+  private flushDefs() {
+    if (this.defs.length) this.out.push(...definitionNodes(this.defs));
+    this.defs = [];
+  }
   flush() {
     this.flushList();
     this.flushQuote();
     this.flushCode();
+    this.flushDefs();
   }
 
   paragraph(p: XNode): void {
@@ -159,6 +177,7 @@ export class BodyBuilder {
       st.items.some((i) => (isSep(i) ? i.sep === "block" : i.type === "footnote"))
     )
       cls = { kind: "normal" };
+    if (cls.kind !== "defTerm" && cls.kind !== "defDesc") this.flushDefs();
     if (cls.kind === "code") {
       this.flushList();
       this.flushQuote();
@@ -198,6 +217,20 @@ export class BodyBuilder {
         if (ordered !== null)
           cls = { kind: "list", ordered, level: Math.min(Math.max(ilvl, 0), this.maxLevel) };
       }
+    }
+
+    // A paragraph that begins with a Word checkbox control is a task item (nested by its list level or its indent).
+    if ((cls.kind === "normal" || cls.kind === "list") && st.checkbox !== undefined) {
+      const ind = pPr ? child(pPr, "ind") : undefined;
+      const left = Number(ind ? (attr(ind, "left") ?? attr(ind, "start") ?? 0) : 0);
+      const level =
+        cls.kind === "list"
+          ? cls.level
+          : Math.min(Math.max(Math.round(left / 720) - 1, 0), this.maxLevel);
+      cls = { kind: "list", ordered: false, level, checked: st.checkbox };
+      const first = st.items[0];
+      if (first && !isSep(first) && first.type === "text")
+        st.items[0] = { ...first, text: first.text.replace(/^\s+/, "") };
     }
 
     const text = plainText(st.items.filter((i): i is DocNode => !isSep(i)));
@@ -242,10 +275,32 @@ export class BodyBuilder {
         "Manual line breaks split the paragraph into separate paragraphs.",
       );
 
+    if (cls.kind === "defTerm") {
+      this.flushList();
+      this.flushQuote();
+      this.defs.push({ kind: "term", content: flattenItems(st.items) });
+      const lifted = st.items.flatMap((i) => (isSep(i) && i.sep === "block" ? [i.node] : []));
+      if (lifted.length) this.defs.push({ kind: "desc", content: lifted });
+      return;
+    }
+    if (cls.kind === "defDesc") {
+      this.flushList();
+      this.flushQuote();
+      if (blocks.length === 0) return;
+      const last = this.defs[this.defs.length - 1];
+      if (last?.kind === "desc") last.content.push(...blocks);
+      else this.defs.push({ kind: "desc", content: blocks });
+      return;
+    }
     if (cls.kind === "list") {
       this.flushQuote();
       if (blocks.length === 0) return;
-      this.list.push({ ordered: cls.ordered, level: cls.level, content: blocks });
+      this.list.push({
+        ordered: cls.ordered,
+        level: cls.level,
+        content: blocks,
+        ...(cls.checked !== undefined ? { checked: cls.checked } : {}),
+      });
       return;
     }
     if (cls.kind === "quote") {

@@ -90,6 +90,27 @@ export function Editor({ initial, language, onChange, focus }: Props) {
   const editor = useEditor({
     extensions: [...extensions, Search, Pagination],
     editorProps: {
+      // A task item's checkbox lives in a non-editable label; clicking it flips `checked` (one undo step).
+      handleDOMEvents: {
+        mousedown: (view, event) => {
+          const label = (event.target as HTMLElement | null)?.closest?.(
+            'li[data-type="taskItem"] > label',
+          );
+          if (!label || !view.editable) return false;
+          event.preventDefault();
+          const at = view.posAtDOM(label, 0);
+          const $pos = view.state.doc.resolve(at);
+          const node = $pos.parent;
+          if (node.type.name !== "taskItem") return true;
+          view.dispatch(
+            view.state.tr.setNodeMarkup($pos.before(), undefined, {
+              ...node.attrs,
+              checked: !node.attrs.checked,
+            }),
+          );
+          return true;
+        },
+      },
       attributes: { lang: language, dir: dirFor(language), "aria-label": t`Page text` },
       // Only text/plain that looks like HTML is handled here; a real HTML clipboard keeps ProseMirror's own path.
       // Nothing in here may throw or block: on any failure the default paste runs.

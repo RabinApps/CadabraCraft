@@ -51,3 +51,69 @@ export function listXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer): string[]
   }
   return out;
 }
+
+/** A Word checkbox content control (Word 2010 `w14:checkbox`), followed by a space, in front of a task item's text. */
+const checkbox = (checked: boolean): string =>
+  `<w:sdt><w:sdtPr><w14:checkbox><w14:checked w14:val="${checked ? 1 : 0}"/><w14:checkedState w14:val="2612" w14:font="MS Gothic"/><w14:uncheckedState w14:val="2610" w14:font="MS Gothic"/></w14:checkbox></w:sdtPr><w:sdtContent><w:r><w:rPr><w:rFonts w:ascii="MS Gothic" w:eastAsia="MS Gothic" w:hAnsi="MS Gothic" w:hint="eastAsia"/></w:rPr><w:t>${checked ? "☒" : "☐"}</w:t></w:r></w:sdtContent></w:sdt><w:r><w:t xml:space="preserve"> </w:t></w:r>`;
+
+/** Task lists: indented like a list, with a checkbox control instead of a bullet. */
+export function taskListXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer): string[] {
+  const level = ctx.list;
+  if (level >= 9) fail(ctx, "Lists nested more than 9 levels deep cannot be written", n.type);
+  const out: string[] = [];
+  const left = ctx.quote * INDENT + INDENT * (level + 1);
+  for (const li of kidsOf(n)) {
+    if (li.type !== "taskItem")
+      fail(ctx, `The node "${li.type}" cannot be written in a task list`, li.type);
+    const checked = attrsOf(li).checked ?? false;
+    if (typeof checked !== "boolean")
+      fail(ctx, "A task item's checked value must be true or false", li.type);
+    const inner: Ctx = { ...ctx, list: level + 1 };
+    const [head, ...rest] = kidsOf(li);
+    if (head?.type !== "paragraph") fail(ctx, "A task item must start with a paragraph", li.type);
+    out.push(
+      para(
+        checkbox(checked) + inline(kidsOf(head!), inner),
+        { style: "ListParagraph", left, hanging: 360 },
+        ctx,
+      ),
+    );
+    for (const c of rest) {
+      if (c.type === "paragraph") {
+        const runs = inline(kidsOf(c), inner);
+        if (runs !== "") out.push(para(runs, { style: "ListParagraph", left, firstLine: 0 }, ctx));
+      } else out.push(...blockXml(c, inner));
+    }
+  }
+  return out;
+}
+
+/** Definition lists: "Definition Term" paragraphs (Word's own style names) followed by indented "Definition" paragraphs. */
+export function definitionListXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer): string[] {
+  const out: string[] = [];
+  const base = ctx.quote * INDENT;
+  for (const k of kidsOf(n)) {
+    if (k.type === "definitionTerm") {
+      out.push(
+        para(
+          inline(kidsOf(k), ctx),
+          { style: "DefinitionTerm", ...(base ? { left: base, firstLine: 0 } : {}) },
+          ctx,
+        ),
+      );
+    } else if (k.type === "definitionDescription") {
+      const inner: Ctx = { ...ctx, quote: ctx.quote + 1 };
+      const [head, ...rest] = kidsOf(k);
+      if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
+      const opts = { style: "Definition", left: base + INDENT, firstLine: 0 };
+      out.push(para(inline(kidsOf(head!), ctx), opts, ctx));
+      for (const c of rest) {
+        if (c.type === "paragraph") {
+          const runs = inline(kidsOf(c), ctx);
+          if (runs !== "") out.push(para(runs, opts, ctx));
+        } else out.push(...blockXml(c, inner));
+      }
+    } else fail(ctx, `The node "${k.type}" cannot be written in a definition list`, k.type);
+  }
+  return out;
+}

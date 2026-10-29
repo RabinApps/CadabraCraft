@@ -81,6 +81,8 @@ export function blockKind(name: string, level: number | undefined, index: number
       return "blockquote";
     case "bulletList":
     case "orderedList":
+    case "taskList":
+    case "definitionList":
       return "list";
     case "codeBlock":
       return "code";

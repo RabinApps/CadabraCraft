@@ -4,13 +4,14 @@ import {
   type Item,
   cellParagraphs,
   cleanText,
+  definitionNodes,
   flattenItems,
   isSep,
-  listItemOf,
+  listNodes,
   paragraphOf,
   tableOf,
-  textNode,
 } from "../common";
+import { groupDefinitions, type DefEntry } from "./definitions";
 import { htmlSnippetBlocks } from "../html";
 import { inlines, lineOf, toText, type Ctx } from "./marks";
 
@@ -45,9 +46,31 @@ function paragraphs(items: Item[], ctx: Ctx, line: number | undefined): DocNode[
   return out;
 }
 
+/** A definition group as blocks: terms are inline text (images in a term are dropped, with a warning), descriptions are blocks. */
+function definitionBlocks(entries: DefEntry[], ctx: Ctx, line: number | undefined): DocNode[] {
+  return definitionNodes(
+    entries.map((e) => {
+      const items = inlines(e.nodes, ctx, []);
+      if (e.kind === "desc") return { kind: "desc", content: paragraphs(items, ctx, line) };
+      if (items.some((i) => isSep(i) && i.sep === "block"))
+        ctx.warn.at(
+          "definition-term-image",
+          "warning",
+          "Images inside a definition term were dropped.",
+          line,
+        );
+      return { kind: "term", content: flattenItems(items) };
+    }),
+  );
+}
+
 export function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[] {
   const out: DocNode[] = [];
-  for (const n of nodes) {
+  for (const n of groupDefinitions(nodes, ctx.source ?? "")) {
+    if (n.type === "defGroup") {
+      out.push(...definitionBlocks(n.entries, ctx, n.position?.start.line));
+      continue;
+    }
     const line = lineOf(n);
     if (depth > ctx.maxDepth && (n.type === "list" || n.type === "blockquote")) {
       ctx.warn.at(
@@ -91,33 +114,19 @@ export function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[]
         break;
       }
       case "list": {
-        const items = n.children.map((li) => {
-          let inner = blocks(li.children, ctx, depth + 1);
-          if (li.checked !== null && li.checked !== undefined) {
-            ctx.warn.at(
-              "task-list",
-              "warning",
-              "Task list checkboxes are not supported; kept as [ ] / [x] text.",
-              lineOf(li),
-            );
-            const prefix = textNode(li.checked ? "[x] " : "[ ] ")!;
-            const first = inner[0];
-            if (first && first.type === "paragraph")
-              // paragraphs() only emits paragraphs that have content, so the fallback is unreachable.
-              /* v8 ignore next -- @preserve */
-              inner = [paragraphOf([prefix, ...(first.content ?? [])]), ...inner.slice(1)];
-            else inner = [{ type: "paragraph", content: [prefix] }, ...inner];
-          }
-          return listItemOf(inner);
-        });
-        if (n.ordered) {
-          const start = n.start ?? 1;
-          out.push({
-            type: "orderedList",
-            ...(start !== 1 ? { attrs: { start } } : {}),
-            content: items,
-          });
-        } else out.push({ type: "bulletList", content: items });
+        const entries = n.children.map((li) => ({
+          content: blocks(li.children, ctx, depth + 1),
+          checked: li.checked ?? null,
+        }));
+        const { nodes: lists, numberedTasks } = listNodes(entries, !!n.ordered, n.start ?? 1);
+        if (numberedTasks)
+          ctx.warn.at(
+            "task-list",
+            "info",
+            "Task items in a numbered list lost their numbers; task lists are not numbered.",
+            line,
+          );
+        out.push(...lists);
         break;
       }
       case "thematicBreak":

@@ -2,14 +2,17 @@ import type { DocNode, Mark } from "@cadabracraft/shared";
 import {
   cellParagraphs,
   flattenItems,
+  definitionNodes,
   imageItems,
   isSep,
-  listItemOf,
+  listNodes,
   cleanText,
   paragraphOf,
   safeHref,
   tableOf,
   textNode,
+  type DefinitionEntry,
+  type ListEntry,
 } from "../common";
 import { ImportError } from "../types";
 import { MAX_DOM_DEPTH, guarded, refuseHostileShape } from "./guards";
@@ -185,6 +188,14 @@ function element(
     case "table":
       flush(f, ctx);
       return table(el, ctx, marks, f, depth, dom);
+    case "dl":
+      flush(f, ctx);
+      if (depth >= ctx.maxDepth) return tooDeep(el, ctx, f);
+      return definitions(el, ctx, marks, f, depth, dom);
+    case "input":
+      // A checkbox is read as the state of its task item (see `checkboxOf`); one anywhere else carries no text.
+      if (attr(el, "type")?.toLowerCase() === "checkbox") return;
+      break;
   }
   if (CONTAINERS.has(tag)) {
     flush(f, ctx);
@@ -239,6 +250,23 @@ function heading(
   f.out.push(...inner.out);
 }
 
+/** The checkbox that makes a list item a task item: an `<input type=checkbox>` first in the item, alone or inside a `<label>`. */
+function checkboxOf(li: PElement): boolean | null {
+  for (const c of li.childNodes) {
+    if (isText(c) && c.value.trim() === "") continue;
+    if (!isElement(c)) return null;
+    const input =
+      c.tagName === "input"
+        ? c
+        : c.tagName === "label"
+          ? c.childNodes.find((k): k is PElement => isElement(k) && k.tagName === "input")
+          : undefined;
+    if (!input || attr(input, "type")?.toLowerCase() !== "checkbox") return null;
+    return attr(input, "checked") !== undefined || attr(li, "data-checked") === "true";
+  }
+  return null;
+}
+
 function list(
   el: PElement,
   ctx: HtmlCtx,
@@ -247,18 +275,21 @@ function list(
   depth: number,
   dom: number,
 ): void {
-  const items: DocNode[] = [];
+  const items: ListEntry[] = [];
   let loose: Flow | null = null;
   const endLoose = () => {
     if (!loose) return;
     flush(loose, ctx);
-    if (loose.out.length) items.push(listItemOf(loose.out));
+    if (loose.out.length) items.push({ content: loose.out, checked: null });
     loose = null;
   };
   for (const c of el.childNodes) {
     if (isElement(c) && c.tagName === "li") {
       endLoose();
-      items.push(listItemOf(blocksIn(c.childNodes, ctx, marks, depth + 1, dom + 1)));
+      items.push({
+        content: blocksIn(c.childNodes, ctx, marks, depth + 1, dom + 1),
+        checked: checkboxOf(c),
+      });
     } else if (isText(c) && c.value.trim() === "") continue;
     else {
       // Stray content directly inside the list: keep it as an item of its own.
@@ -267,17 +298,55 @@ function list(
     }
   }
   endLoose();
-  if (el.tagName === "ol") {
-    const start = Number.parseInt(attr(el, "start") ?? "", 10);
-    f.out.push({
-      type: "orderedList",
-      ...(Number.isInteger(start) && start >= 0 && start <= 999_999 && start !== 1
-        ? { attrs: { start } }
-        : {}),
-      content: items,
-    });
-  } else f.out.push({ type: "bulletList", content: items });
-  if (items.length === 0) f.out.pop();
+  if (items.length === 0) return;
+  const start = Number.parseInt(attr(el, "start") ?? "", 10);
+  const { nodes, numberedTasks } = listNodes(
+    items,
+    el.tagName === "ol",
+    Number.isInteger(start) && start >= 0 && start <= 999_999 ? start : 1,
+  );
+  if (numberedTasks)
+    ctx.warn.at(
+      "task-list",
+      "info",
+      "Task items in a numbered list lost their numbers; task lists are not numbered.",
+    );
+  f.out.push(...nodes);
+}
+
+/** `<dl>`: `<dt>` terms and `<dd>` descriptions, directly or inside `<div>` groups. */
+function definitions(
+  el: PElement,
+  ctx: HtmlCtx,
+  marks: Mark[],
+  f: Flow,
+  depth: number,
+  dom: number,
+): void {
+  const entries: DefinitionEntry[] = [];
+  const walkDl = (nodes: readonly PNode[], level: number) => {
+    for (const c of nodes) {
+      if (!isElement(c)) continue;
+      if (c.tagName === "dt") {
+        const inner = newFlow();
+        flow(c.childNodes, ctx, marks, inner, depth + 1, dom + 1);
+        const items = trimRun(inner.run);
+        entries.push({ kind: "term", content: flattenItems(items) });
+        // Block-level content inside a term (an image, a list) cannot live in a term: it follows as the term's description.
+        const extra: DocNode[] = [];
+        for (const i of items) if (isSep(i) && i.sep === "block") extra.push(i.node);
+        extra.push(...inner.out);
+        if (extra.length) entries.push({ kind: "desc", content: extra });
+      } else if (c.tagName === "dd")
+        entries.push({
+          kind: "desc",
+          content: blocksIn(c.childNodes, ctx, marks, depth + 1, dom + 1),
+        });
+      else if (c.tagName === "div" && level < 2) walkDl(c.childNodes, level + 1);
+    }
+  };
+  walkDl(el.childNodes, 0);
+  f.out.push(...definitionNodes(entries));
 }
 
 function table(

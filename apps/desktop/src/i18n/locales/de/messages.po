@@ -1047,6 +1047,14 @@ msgstr "Standardformate"
 msgid "Default voice"
 msgstr "Standardstimme"
 
+#: src/editor/Toolbar.tsx
+msgid "Definition list"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Definition List"
+msgstr ""
+
 #: src/app/settings/AudioSection.tsx
 msgid "Delete"
 msgstr "Löschen"
@@ -2947,6 +2955,14 @@ msgstr "Tabelle…"
 #: src/app/references/ReferenceDetails.tsx
 msgid "Tags"
 msgstr "Schlagwörter"
+
+#: src/editor/Toolbar.tsx
+msgid "Task list"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Task List"
+msgstr ""
 
 #: src/app/export/PdfPanel.tsx
 #: src/app/shell/Details.tsx

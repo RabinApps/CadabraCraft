@@ -171,13 +171,13 @@ describe("importMarkdown", () => {
       "- [ ] todo",
     ].join("\n");
     const r = importMarkdown(md);
-    expect(codes(r)).toEqual(expect.arrayContaining(["task-list"]));
+    expect(codes(r)).not.toContain("task-list");
     expect(codes(r)).not.toContain("html");
     expect(codes(r)).not.toContain("code-block");
     expect(codes(r)).not.toContain("strikethrough");
     expect(codes(r)).not.toContain("inline-code");
     const text = JSON.stringify(r.chapters[0]!.doc);
-    for (const s of ["let x = 1;", "raw", "gone", "code", "[x] done", "[ ] todo"])
+    for (const s of ["let x = 1;", "raw", "gone", "code", "taskList", "done", "todo"])
       expect(text).toContain(s);
     expectValid(r);
   });

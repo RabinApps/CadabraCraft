@@ -45,4 +45,6 @@ export interface PState {
   items: Item[];
   fields: Field[];
   inNote: boolean;
+  /** A Word checkbox content control began the paragraph: its checked state. Set at most once, before any text. */
+  checkbox?: boolean;
 }

@@ -3,7 +3,7 @@ import { ENTITY, escapeText } from "./escape";
 import { inline } from "./marks";
 import { MarkdownExportError, type Ctx, type MarkdownOptions } from "./types";
 
-const attrsOf = (n: DocNode): Record<string, string | number | null> =>
+const attrsOf = (n: DocNode): Record<string, string | number | boolean | null> =>
   "attrs" in n && n.attrs ? n.attrs : {};
 
 /** Code fence long enough that no backtick run in the code can close it. */
@@ -89,8 +89,17 @@ const indent = (text: string, n: number): string =>
     .map((l, i) => (i === 0 || l === "" ? l : " ".repeat(n) + l))
     .join("\n");
 
+/** What a list node's marker is: task lists use the bullet marker, so they count as bullet lists for alternating markers. */
+const listKind = (n: DocNode): "bullet" | "ordered" | "" =>
+  n.type === "bulletList" || n.type === "taskList"
+    ? "bullet"
+    : n.type === "orderedList"
+      ? "ordered"
+      : "";
+
 function list(n: DocNode, ctx: Ctx, alt: boolean): string {
   const ordered = n.type === "orderedList";
+  const task = n.type === "taskList";
   const start = attrsOf(n).start;
   const first =
     typeof start === "number" && Number.isInteger(start) && start >= 0 && start <= 999_999_999
@@ -99,11 +108,11 @@ function list(n: DocNode, ctx: Ctx, alt: boolean): string {
   const items = ("content" in n ? n.content : undefined) ?? [];
   return items
     .map((li, idx) => {
-      if (li.type !== "listItem")
+      if (li.type !== (task ? "taskItem" : "listItem"))
         throw new MarkdownExportError(`Unsupported node type in a list: ${li.type}`);
       // Alternate the marker for a list that directly follows a list of the same kind, or the two would merge.
       const marker = ordered ? `${first + idx}${alt ? ")" : "."}` : alt ? "*" : "-";
-      const parts = blockList(li.content, ctx);
+      const parts = task ? taskParts(li, ctx) : blockList(li.content, ctx);
       if (parts.length === 0) return marker;
       let body = parts[0]!;
       for (let i = 1; i < parts.length; i++)
@@ -114,6 +123,53 @@ function list(n: DocNode, ctx: Ctx, alt: boolean): string {
       return `${marker} ${indent(body, marker.length + 1)}`;
     })
     .join("\n");
+}
+
+/** A task item's blocks with the GFM checkbox in front of the first paragraph (`[ ] ` or `[x] `). */
+function taskParts(li: DocNode, ctx: Ctx): string[] {
+  const checked = attrsOf(li).checked ?? false;
+  if (typeof checked !== "boolean")
+    throw new MarkdownExportError("A task item's checked value must be true or false");
+  const kids = ("content" in li ? li.content : undefined) ?? [];
+  const head = kids[0];
+  if (head?.type !== "paragraph")
+    throw new MarkdownExportError("A task item must start with a paragraph");
+  // GFM needs text after the box; an empty item gets a no-break space (CadabraCraft reads it back as a blank item).
+  const text = inline(head.content, ctx) || "&nbsp;";
+  return [`[${checked ? "x" : " "}] ${text}`, ...blockList(kids.slice(1), ctx)];
+}
+
+/**
+ * Definition lists in the Pandoc / PHP Markdown Extra form: a term line, then `:   description` lines. Descriptions hold
+ * paragraphs only (a further paragraph is written as a further description line); hard breaks and other blocks have no form
+ * that reads back, so they throw.
+ */
+function definitionList(n: DocNode, ctx: Ctx): string {
+  const kids = ("content" in n ? n.content : undefined) ?? [];
+  const lines: string[] = [];
+  let prev = "";
+  for (const k of kids) {
+    if (k.type === "definitionTerm") {
+      // A term that follows a description starts a new group, separated by a blank line.
+      if (prev === "definitionDescription") lines.push("");
+      lines.push(inline(k.content, ctx, { definition: true }).trim() || "&nbsp;");
+    } else if (k.type === "definitionDescription") {
+      const blocks = k.content ?? [];
+      if (blocks[0]?.type !== "paragraph")
+        throw new MarkdownExportError("A definition must start with a paragraph");
+      blocks.forEach((b, i) => {
+        if (b.type !== "paragraph")
+          throw new MarkdownExportError(
+            `A definition can hold paragraphs only in Markdown, not "${b.type}"`,
+          );
+        const text = inline(b.content, ctx, { definition: true }).trim();
+        if (text !== "" || i === 0) lines.push(`:   ${text || "&nbsp;"}`);
+      });
+    } else throw new MarkdownExportError(`Unsupported node type in a definition list: ${k.type}`);
+    prev = k.type;
+  }
+  if (lines.length === 0) throw new MarkdownExportError("Definition list without entries");
+  return lines.join("\n");
 }
 
 function block(n: DocNode, ctx: Ctx, alt: boolean): string {
@@ -141,7 +197,10 @@ function block(n: DocNode, ctx: Ctx, alt: boolean): string {
     }
     case "bulletList":
     case "orderedList":
+    case "taskList":
       return list(n, ctx, alt);
+    case "definitionList":
+      return definitionList(n, ctx);
     case "codeBlock":
       return codeBlock(n);
     case "table":
@@ -161,9 +220,9 @@ export function blockList(nodes: DocNode[] | undefined, ctx: Ctx): string[] {
   let prevType = "";
   let prevAlt = false;
   for (const n of nodes ?? []) {
-    const isList = n.type === "bulletList" || n.type === "orderedList";
-    const alt: boolean = isList && prevType === n.type ? !prevAlt : false;
-    prevType = isList ? n.type : "";
+    const kind = listKind(n);
+    const alt: boolean = kind !== "" && prevType === kind ? !prevAlt : false;
+    prevType = kind;
     prevAlt = alt;
     const md = block(n, ctx, alt);
     if (md !== "") out.push(md);

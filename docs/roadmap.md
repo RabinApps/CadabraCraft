@@ -67,7 +67,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ### Format coverage
 
-- Task lists and definition lists are not supported and have no schema node; add them only on demand. Today the Markdown importer keeps task items as list items with a `[ ] ` / `[x] ` text prefix and a `task-list` warning, and definition-style content is plain paragraphs (`[^1]` definitions are footnotes, not definition lists). The DOCX importer has no definition-list handling: "Definition Term" / "Definition" style paragraphs fall back to normal paragraphs, and Word content-control checkboxes (`sdt`) import as their text content.
+- Task lists and definition lists are done (schema nodes `taskList` / `taskItem` / `definitionList` / `definitionTerm` / `definitionDescription`, editor commands under Format and Insert, every importer and exporter). Not done: a toolbar button (they are menu-only; a pen frame is needed first), and the RTF and MCP DOCX/RTF export tools on the `post-1-0-features` branch still need their mappings when that branch meets this one.
 
 ### Website (marketing and SEO pass)
 

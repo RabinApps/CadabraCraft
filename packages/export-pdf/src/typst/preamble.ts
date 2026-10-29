@@ -122,6 +122,17 @@ ${headingRule(3, p.headings[3], fonts.heading)}
   let img = image(path, width: size.width, alt: alt)
   if measure(img).height > max-height { image(path, height: max-height, alt: alt) } else { img }
 })
+#let task-box(checked) = box(width: 0.7em, height: 0.7em, baseline: 0.05em, stroke: 0.6pt, {
+  if checked {
+    place(line(start: (15%, 55%), end: (40%, 85%), stroke: 0.8pt))
+    place(line(start: (40%, 85%), end: (90%, 15%), stroke: 0.8pt))
+  }
+})
+#let def-term(body) = block(above: 0.9em, below: 0.3em, sticky: true, strong(body))
+#let def-desc(body) = block(above: 0.3em, below: 0.3em, pad(left: 1.5em, {
+  set par(first-line-indent: 0pt)
+  body
+}))
 #let scene-break() = align(center, block(above: ${em(p.sceneBreak.spaceEm)}, below: ${em(p.sceneBreak.spaceEm)}, ${typstString(p.sceneBreak.glyph)}))
 #let chapter-start(title, n, id: "", kind: "chapter") = {
   pagebreak(weak: true${startOn === "recto" ? ', to: "odd"' : ""})

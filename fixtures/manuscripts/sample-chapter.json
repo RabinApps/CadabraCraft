@@ -35,6 +35,21 @@
       { "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Third" }] }] },
       { "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Fourth" }] }] }
     ] },
+    { "type": "taskList", "content": [
+      { "type": "taskItem", "attrs": { "checked": true }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Draft the outline" }] }] },
+      { "type": "taskItem", "attrs": { "checked": false }, "content": [
+        { "type": "paragraph", "content": [{ "type": "text", "text": "Write the first chapter" }] },
+        { "type": "taskList", "content": [
+          { "type": "taskItem", "attrs": { "checked": false }, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Revise the opening" }] }] }
+        ] }
+      ] }
+    ] },
+    { "type": "definitionList", "content": [
+      { "type": "definitionTerm", "content": [{ "type": "text", "text": "Lantern" }] },
+      { "type": "definitionDescription", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "A portable light with a protective case." }] }] },
+      { "type": "definitionTerm", "content": [{ "type": "text", "text": "Beacon", "marks": [{ "type": "italic" }] }] },
+      { "type": "definitionDescription", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "A fixed signal light." }] }] }
+    ] },
     { "type": "table", "content": [
       { "type": "tableRow", "content": [
         { "type": "tableHeader", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Item" }] }] },

@@ -125,9 +125,9 @@ export function inline(nodes: DocNode[] | undefined, ctx: Ctx, where: Where = {}
       ctx.notes.push(text);
       items.push({ kind: "raw", md: `[^${(ctx.opts.footnoteOffset ?? 0) + ctx.notes.length}]` });
     } else if (type === "hardBreak") {
-      if (where.table || where.heading || where.note)
+      if (where.table || where.heading || where.note || where.definition)
         throw new MarkdownExportError(
-          "A hard break cannot be written in a heading, table cell or footnote",
+          "A hard break cannot be written in a heading, table cell, footnote or definition list",
         );
       items.push({ kind: "raw", md: "\\\n", lineBreak: true });
     } else {
