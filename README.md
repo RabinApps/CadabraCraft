@@ -74,7 +74,7 @@ packages/
   export-markdown/  Chapter JSON to Markdown (inverse of the importer)
   export-docx/      Chapter JSON to a manuscript-format .docx (hand-written OOXML)
   export-rtf/       Chapter JSON to a manuscript-format .rtf (hand-written RTF)
-  import-docx/      Markdown and DOCX import with warnings
+  import-docx/      Markdown, HTML and DOCX import with warnings (the app imports .docx through the Rust port in src-tauri; see docs/import.md)
   export-audio/     Audiobook rendering plan and chapter audio helpers
   project-fs/       Node port of the project-folder rules
   mcp/              Headless MCP server (stdio)

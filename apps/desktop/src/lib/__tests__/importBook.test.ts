@@ -17,6 +17,11 @@ vi.mock("../bridge", async () =>
       if (!b) throw new Error(`cannot read ${p}`);
       return b;
     },
+    importDocxSource: async (p: string, level: 1 | 2 | 3) => {
+      const b = sources.get(p);
+      if (!b) throw new Error(`cannot read ${p}`);
+      return (await import("../../test/fakeDocx")).docxCommand(b, level);
+    },
     readImportImage: async (src: string, ref: string) => {
       const b = images.get(`${src}|${ref}`);
       if (!b) throw new Error(`image not found: ${ref}`);
@@ -34,7 +39,7 @@ vi.mock("../bridge", async () =>
 );
 
 import { useProject } from "../../state/project/index";
-import { applyChapterEdits, groupWarnings, loadImport, parseImport } from "../importBook";
+import { applyChapterEdits, groupWarnings, loadImport, parseText } from "../importBook";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
@@ -199,12 +204,12 @@ describe("wizard preview", () => {
   const text = "# One\n\nA\n\n## Sub\n\nB\n\n# Two\n\nC\n";
 
   it("re-splits at another heading level", () => {
-    expect(parseImport(md(text), 1).chapters.map((c) => c.title)).toEqual(["One", "Two"]);
-    expect(parseImport(md(text), 2).chapters.map((c) => c.title)).toContain("Sub");
+    expect(parseText(md(text), 1).chapters.map((c) => c.title)).toEqual(["One", "Two"]);
+    expect(parseText(md(text), 2).chapters.map((c) => c.title)).toContain("Sub");
   });
 
   it("drops skipped chapters, renames, and refuses an empty selection", () => {
-    const r = parseImport(md(text), 1);
+    const r = parseText(md(text), 1);
     const out = applyChapterEdits(r, [
       { title: " Renamed ", include: true },
       { title: "Two", include: false },
@@ -225,7 +230,7 @@ describe("wizard preview", () => {
   });
 
   it("keeps only images used by kept chapters", () => {
-    const r = parseImport(md("# One\n\n![a](img/pixel.png)\n\n# Two\n\nC\n"), 1);
+    const r = parseText(md("# One\n\n![a](img/pixel.png)\n\n# Two\n\nC\n"), 1);
     expect(r.assets).toHaveLength(1);
     expect(
       applyChapterEdits(r, [

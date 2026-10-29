@@ -1,0 +1,467 @@
+{
+ "options": {
+  "splitHeadingLevel": 2
+ },
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "trail  ",
+             "marks": [
+              {
+               "type": "bold"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "end. emoji😀x",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "end. emoji😀x"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "**"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "quote\"s",
+         "marks": [
+          {
+           "type": "bold"
+          },
+          {
+           "type": "italic"
+          },
+          {
+           "type": "strike"
+          },
+          {
+           "type": "superscript"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " ls",
+         "marks": [
+          {
+           "type": "italic"
+          },
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "trail  "
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "ctrlx",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "a b",
+         "marks": [
+          {
+           "type": "bold"
+          },
+          {
+           "type": "strike"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "#"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "AB ls'#"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "& bom | trail | emoji😀xbeta a bx* * **** |  | "
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "trail  "
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "quote\"s nbspdeltaxAB",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "quote\"s nbspdeltax"
+        },
+        {
+         "type": "text",
+         "text": "AB",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "café"
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "gamma"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "mailto:a@b.co",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": " nbsp"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "tab\tinctrlx"
+              },
+              {
+               "type": "text",
+               "text": "tab\tin",
+               "marks": [
+                {
+                 "type": "strike"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "﻿bomquote\"s  lead"
+              },
+              {
+               "type": "text",
+               "text": " nbsp",
+               "marks": [
+                {
+                 "type": "bold"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "blockquote",
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "  lead"
+          },
+          {
+           "type": "text",
+           "text": "ctrlx",
+           "marks": [
+            {
+             "type": "bold"
+            }
+           ]
+          },
+          {
+           "type": "text",
+           "text": "x+1"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": " nbsp"
+        },
+        {
+         "type": "text",
+         "text": "ABa b",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "internal-link",
+    "severity": "info",
+    "message": "Links to bookmarks inside the document were kept as plain text.",
+    "count": 1,
+    "examples": [
+     "bm1"
+    ]
+   },
+   {
+    "code": "unsupported-element",
+    "severity": "warning",
+    "message": "Unrecognised document elements were skipped.",
+    "count": 2,
+    "examples": [
+     "tcPr"
+    ]
+   },
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 2
+   },
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 1
+   },
+   {
+    "code": "field",
+    "severity": "info",
+    "message": "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+    "count": 1,
+    "examples": [
+     "HYPERLINK"
+    ]
+   },
+   {
+    "code": "table-complex",
+    "severity": "warning",
+    "message": "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+    "count": 3,
+    "examples": [
+     "& bom ☐trail emoji😀xbetaa bx * * ****",
+     "A\u0000Ba b ls'#& bom ☐trail emoji😀xbetaa bx * * ****",
+     "mailto:a@b.co nbsp☐tab inctrl\u0001xtab in bomquote\"s lead nbsp"
+    ]
+   },
+   {
+    "code": "table-merged",
+    "severity": "warning",
+    "message": "Merged table cells were split into separate cells (the covered cells are empty).",
+    "count": 1,
+    "examples": [
+     "& bom ☐trail emoji😀xbetaa bx * * ****"
+    ]
+   },
+   {
+    "code": "unsafe-link",
+    "severity": "warning",
+    "message": "Links are only kept for http, https and mailto; other links became plain text.",
+    "count": 2,
+    "examples": [
+     "javascript:alert(1) (hyperlink)"
+    ]
+   },
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 1,
+    "examples": [
+     "Heading 4: mailto:a@b.co nbsp"
+    ]
+   },
+   {
+    "code": "equation",
+    "severity": "warning",
+    "message": "Equations are not supported; their text was kept without layout.",
+    "count": 1,
+    "examples": [
+     "x+1"
+    ]
+   },
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 1,
+    "examples": [
+     "Unknown"
+    ]
+   },
+   {
+    "code": "header-footer",
+    "severity": "warning",
+    "message": "Headers and footers are not imported.",
+    "count": 1,
+    "examples": [
+     "Running head"
+    ]
+   },
+   {
+    "code": "untitled-content",
+    "severity": "warning",
+    "message": "Content before the first level 2 heading was placed in a chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

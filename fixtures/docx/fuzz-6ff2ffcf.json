@@ -1,0 +1,43 @@
+{
+ "options": {
+  "splitHeadingLevel": 3
+ },
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "ctrlx﻿bom<b>"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "text-box",
+    "severity": "warning",
+    "message": "Text boxes are not supported; their text was not imported.",
+    "count": 1,
+    "examples": [
+     "box"
+    ]
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 3 headings found, so the whole file is one chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

@@ -1,0 +1,61 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "preface"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "One",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "One"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "unsupported-element",
+    "severity": "warning",
+    "message": "Unrecognised document elements were skipped.",
+    "count": 1,
+    "examples": [
+     "r"
+    ]
+   },
+   {
+    "code": "untitled-content",
+    "severity": "warning",
+    "message": "Content before the first level 1 heading was placed in a chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

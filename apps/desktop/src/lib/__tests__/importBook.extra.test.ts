@@ -38,7 +38,7 @@ import {
   applyChapterEdits,
   formatReport,
   groupWarnings,
-  parseImport,
+  parseText,
   remapImages,
   runImport,
   titleFromFile,
@@ -131,7 +131,7 @@ describe("remapImages", () => {
   });
 });
 
-describe("parseImport failures", () => {
+describe("parseText failures", () => {
   const cases: [ConstructorParameters<typeof ImportError>[0], RegExp][] = [
     ["invalid-zip", /valid \.docx/],
     ["archive-too-large", /too large to import safely/],
@@ -143,14 +143,14 @@ describe("parseImport failures", () => {
   ];
   it.each(cases)("describes %s", (code, re) => {
     state.markdownThrows = new ImportError(code, "raw");
-    expect(() => parseImport(md)).toThrow(re);
+    expect(() => parseText(md)).toThrow(re);
   });
   it("describes a RangeError and rethrows anything else", () => {
     state.markdownThrows = new RangeError("stack");
-    expect(() => parseImport(md)).toThrow(/too large or too deeply nested/);
+    expect(() => parseText(md)).toThrow(/too large or too deeply nested/);
     const other = new TypeError("bug");
     state.markdownThrows = other;
-    expect(() => parseImport(md)).toThrow(other);
+    expect(() => parseText(md)).toThrow(other);
   });
 });
 

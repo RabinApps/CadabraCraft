@@ -1,0 +1,73 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "trail  ctrlx&"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "tab\tincafé"
+        },
+        {
+         "type": "text",
+         "text": "x",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "alpha",
+         "marks": [
+          {
+           "type": "smallCaps"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "gamma"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 1 headings found, so the whole file is one chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

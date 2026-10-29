@@ -1,0 +1,348 @@
+{
+ "options": {
+  "splitHeadingLevel": 2,
+  "untitledTitle": "Intro  "
+ },
+ "result": {
+  "chapters": [
+   {
+    "title": "Intro  ",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "trail  ",
+         "marks": [
+          {
+           "type": "smallCaps"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "alpha",
+         "marks": [
+          {
+           "type": "bold"
+          },
+          {
+           "type": "superscript"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "mailto:a@b.co emoji😀x"
+        }
+       ]
+      },
+      {
+       "type": "image",
+       "attrs": {
+        "src": "assets/pixel.png",
+        "alt": "a & b",
+        "title": null
+       }
+      },
+      {
+       "type": "blockquote",
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": " nbsp"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "emoji😀x",
+             "marks": [
+              {
+               "type": "smallCaps"
+              }
+             ]
+            },
+            {
+             "type": "text",
+             "text": "😀",
+             "marks": [
+              {
+               "type": "italic"
+              }
+             ]
+            },
+            {
+             "type": "text",
+             "text": "x",
+             "marks": [
+              {
+               "type": "bold"
+              },
+              {
+               "type": "italic"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "café",
+             "marks": [
+              {
+               "type": "bold"
+              },
+              {
+               "type": "italic"
+              }
+             ]
+            },
+            {
+             "type": "text",
+             "text": "alpha"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": " ls"
+        },
+        {
+         "type": "text",
+         "text": "quote\"s#",
+         "marks": [
+          {
+           "type": "italic"
+          },
+          {
+           "type": "underline"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "delta'"
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "* * *emoji😀x<b>  lead"
+        }
+       ]
+      },
+      {
+       "type": "taskList",
+       "content": [
+        {
+         "type": "taskItem",
+         "attrs": {
+          "checked": true
+         },
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "#"
+            }
+           ]
+          },
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "<b>&emoji😀x"
+            },
+            {
+             "type": "text",
+             "text": "<b>",
+             "marks": [
+              {
+               "type": "smallCaps"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "end.https://e.test/x?y=1&z=2"
+        },
+        {
+         "type": "text",
+         "text": "* * *",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "quote\"s"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "tab\tin",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "AB"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 1,
+    "examples": [
+     "Heading 4: trail alphamailto:a@b.coemoji😀x"
+    ]
+   },
+   {
+    "code": "unsafe-link",
+    "severity": "warning",
+    "message": "Links are only kept for http, https and mailto; other links became plain text.",
+    "count": 1,
+    "examples": [
+     "ftp://x (field)"
+    ]
+   },
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 2
+   },
+   {
+    "code": "unsupported-element",
+    "severity": "warning",
+    "message": "Unrecognised document elements were skipped.",
+    "count": 1,
+    "examples": [
+     "altChunk"
+    ]
+   },
+   {
+    "code": "embedded-object",
+    "severity": "warning",
+    "message": "Embedded objects (OLE, charts, equations editors) were skipped.",
+    "count": 1
+   },
+   {
+    "code": "footnote-missing",
+    "severity": "warning",
+    "message": "A footnote or endnote reference pointed at a missing note and was dropped.",
+    "count": 1,
+    "examples": [
+     "1"
+    ]
+   },
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 1,
+    "examples": [
+     "Unknown"
+    ]
+   },
+   {
+    "code": "comments",
+    "severity": "warning",
+    "message": "The file has 1 comment(s); comments are not imported.",
+    "count": 1
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 2 headings found, so the whole file is one chapter titled \"Intro  \"."
+   }
+  ],
+  "assets": [
+   {
+    "sourcePath": "word/media/pixel.png",
+    "targetPath": "assets/pixel.png",
+    "mediaType": "image/png",
+    "len": 70,
+    "sha256": "497790947d4666760ce38f3c00e852c71fdb66cae849bae8e9ede352719e1581"
+   }
+  ]
+ }
+}

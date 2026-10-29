@@ -1,0 +1,44 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "a bquote\"shttps://e.test/x?y=1&z=2"
+        }
+       ]
+      },
+      {
+       "type": "sceneBreak"
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "tracked-changes",
+    "severity": "warning",
+    "message": "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+    "count": 2,
+    "examples": [
+     "https://e.test/x?y=1&z=2"
+    ]
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 1 headings found, so the whole file is one chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

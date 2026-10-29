@@ -1,0 +1,51 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Ch",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "Ch"
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "Deep"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 1,
+    "examples": [
+     "Heading 4: Deep"
+    ]
+   }
+  ],
+  "assets": []
+ }
+}

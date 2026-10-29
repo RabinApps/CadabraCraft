@@ -1,0 +1,114 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "orderedList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "zero"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "one"
+            }
+           ]
+          },
+          {
+           "type": "bulletList",
+           "content": [
+            {
+             "type": "listItem",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "two"
+                }
+               ]
+              },
+              {
+               "type": "orderedList",
+               "content": [
+                {
+                 "type": "listItem",
+                 "content": [
+                  {
+                   "type": "paragraph",
+                   "content": [
+                    {
+                     "type": "text",
+                     "text": "three"
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "plain"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [],
+  "assets": []
+ }
+}

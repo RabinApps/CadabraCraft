@@ -1,0 +1,81 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "site",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "https://example.com/a"
+           }
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "badint"
+        },
+        {
+         "type": "text",
+         "text": "mail",
+         "marks": [
+          {
+           "type": "link",
+           "attrs": {
+            "href": "mailto:a@b.co"
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "unsafe-link",
+    "severity": "warning",
+    "message": "Links are only kept for http, https and mailto; other links became plain text.",
+    "count": 1,
+    "examples": [
+     "javascript:alert(1) (hyperlink)"
+    ]
+   },
+   {
+    "code": "internal-link",
+    "severity": "info",
+    "message": "Links to bookmarks inside the document were kept as plain text.",
+    "count": 1,
+    "examples": [
+     "bm"
+    ]
+   }
+  ],
+  "assets": []
+ }
+}

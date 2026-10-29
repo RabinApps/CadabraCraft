@@ -1,0 +1,48 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "body"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "header-footer",
+    "severity": "warning",
+    "message": "Headers and footers are not imported.",
+    "count": 1,
+    "examples": [
+     "Head"
+    ]
+   }
+  ],
+  "assets": []
+ }
+}

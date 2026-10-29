@@ -1,0 +1,427 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "trail   https://e.test/x?y=1&z=2"
+        },
+        {
+         "type": "text",
+         "text": "beta",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " '"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "#"
+              },
+              {
+               "type": "text",
+               "text": "mailto:a@b.cogamma",
+               "marks": [
+                {
+                 "type": "smallCaps"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "https://e.test/x?y=1&z=2"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "beta"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "* * *"
+              },
+              {
+               "type": "footnote",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "note 2 "
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "https://e.test/x?y=1&z=2trail  "
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "<b>alpha"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "caféend.* * *﻿bom",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "café",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "end."
+        },
+        {
+         "type": "text",
+         "text": "* * *",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "﻿bom"
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "delta",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "gamma"
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "\n"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "café* * *"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "café"
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 2
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "AB"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "https://e.test/x?y=1&z=2quote\"s"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "mailto:a@b.co'* * *"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "quote\"s"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "alpha",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "taskList",
+       "content": [
+        {
+         "type": "taskItem",
+         "attrs": {
+          "checked": false
+         },
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "beta"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 4
+   },
+   {
+    "code": "footnote-missing",
+    "severity": "warning",
+    "message": "A footnote or endnote reference pointed at a missing note and was dropped.",
+    "count": 4,
+    "examples": [
+     "3",
+     "9",
+     "1"
+    ]
+   },
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 1
+   },
+   {
+    "code": "footnote-nested",
+    "severity": "warning",
+    "message": "A note reference inside a note was dropped.",
+    "count": 1
+   },
+   {
+    "code": "internal-link",
+    "severity": "info",
+    "message": "Links to bookmarks inside the document were kept as plain text.",
+    "count": 1,
+    "examples": [
+     "bm1"
+    ]
+   },
+   {
+    "code": "field",
+    "severity": "info",
+    "message": "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+    "count": 1,
+    "examples": [
+     "PAGE"
+    ]
+   },
+   {
+    "code": "table-complex",
+    "severity": "warning",
+    "message": "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+    "count": 2,
+    "examples": [
+     "#mailto:a@b.cogammahttps://e.test/x?y=1&z=2beta* * *https://e.test/x?y=1&z=2trai",
+     "https://e.test/x?y=1&z=2quote\"s mailto:a@b.co'* * *quote\"s"
+    ]
+   },
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 1,
+    "examples": [
+     "Heading 4: delta"
+    ]
+   },
+   {
+    "code": "missing-image",
+    "severity": "warning",
+    "message": "An image could not be found in the file and was skipped.",
+    "count": 1,
+    "examples": [
+     "word/media/pic.emf"
+    ]
+   },
+   {
+    "code": "embedded-object",
+    "severity": "warning",
+    "message": "Embedded objects (OLE, charts, equations editors) were skipped.",
+    "count": 1
+   },
+   {
+    "code": "unsupported-element",
+    "severity": "warning",
+    "message": "Unrecognised document elements were skipped.",
+    "count": 1,
+    "examples": [
+     "tcPr"
+    ]
+   },
+   {
+    "code": "comments",
+    "severity": "warning",
+    "message": "The file has 2 comment(s); comments are not imported.",
+    "count": 1
+   },
+   {
+    "code": "untitled-content",
+    "severity": "warning",
+    "message": "Content before the first level 1 heading was placed in a chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

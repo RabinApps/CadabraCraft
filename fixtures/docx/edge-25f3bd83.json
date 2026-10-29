@@ -1,0 +1,14 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [],
+  "warnings": [
+   {
+    "code": "empty-input",
+    "severity": "warning",
+    "message": "The file contains no importable content."
+   }
+  ],
+  "assets": []
+ }
+}

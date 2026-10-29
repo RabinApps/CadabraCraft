@@ -1,0 +1,70 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "blockquote",
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "x",
+           "marks": [
+            {
+             "type": "bold"
+            },
+            {
+             "type": "strike"
+            }
+           ]
+          },
+          {
+           "type": "text",
+           "text": "trail  "
+          },
+          {
+           "type": "footnote"
+          },
+          {
+           "type": "text",
+           "text": "﻿bom",
+           "marks": [
+            {
+             "type": "bold"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "header-footer",
+    "severity": "warning",
+    "message": "Headers and footers are not imported.",
+    "count": 1,
+    "examples": [
+     "Running head"
+    ]
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 1 headings found, so the whole file is one chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

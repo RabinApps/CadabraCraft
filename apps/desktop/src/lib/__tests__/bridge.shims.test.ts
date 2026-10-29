@@ -152,6 +152,14 @@ describe("asset commands", () => {
     expect(await bridge.readImportSource("/doc.md")).toEqual(Uint8Array.of(1, 2));
     expect(m.invoke).toHaveBeenCalledWith("read_import_source", { path: "/doc.md" });
   });
+  it("importDocxSource sends the path and level and converts the reply", async () => {
+    m.invoke.mockResolvedValueOnce([5, 6]);
+    expect(await bridge.importDocxSource("/doc.docx", 2)).toEqual(Uint8Array.of(5, 6));
+    expect(m.invoke).toHaveBeenCalledWith("import_docx_source", {
+      path: "/doc.docx",
+      splitHeadingLevel: 2,
+    });
+  });
   it("readImportImage converts the bytes", async () => {
     m.invoke.mockResolvedValueOnce([3]);
     expect(await bridge.readImportImage("/doc.md", "a.png")).toEqual(Uint8Array.of(3));

@@ -1,0 +1,60 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "Agree ☒"
+        }
+       ]
+      },
+      {
+       "type": "taskList",
+       "content": [
+        {
+         "type": "taskItem",
+         "attrs": {
+          "checked": true
+         },
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "☐two"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [],
+  "assets": []
+ }
+}

@@ -13,6 +13,12 @@ export const assetsBridge = {
   /** Bytes of an image a Markdown file references, resolved inside that file's folder (rejects `..`, absolute paths, symlink escapes). */
   readImportImage: (sourceFile: string, reference: string) =>
     binary(invoke<RawBytes>("read_import_image", { sourceFile, reference })),
+  /**
+   * Imports a picked `.docx` in Rust (unzip, parse, map to chapters): the framed reply that `decodeDocxImport` reads.
+   * Rejects with `{ kind: "import_docx", code }` when the file is not a readable Word document.
+   */
+  importDocxSource: (path: string, splitHeadingLevel: 1 | 2 | 3) =>
+    binary(invoke<RawBytes>("import_docx_source", { path, splitHeadingLevel })),
   /** Stores image bytes from an imported document in `assets/`; resolves to the path actually used (`assets/<name>`). */
   importAssetBytes: (root: string, name: string, bytes: Uint8Array) =>
     invoke<string>("import_asset_bytes", { root, name, bytes: Array.from(bytes) }),

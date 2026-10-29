@@ -1,0 +1,136 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "moved-in"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "sdt-text"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "bare-sdt"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "smartcustom"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "dirbdo"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "y=2"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "choice"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "only-fallback"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "after-empty"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "tracked-changes",
+    "severity": "warning",
+    "message": "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+    "count": 2,
+    "examples": [
+     "moved-in",
+     "moved-out"
+    ]
+   },
+   {
+    "code": "equation",
+    "severity": "warning",
+    "message": "Equations are not supported; their text was kept without layout.",
+    "count": 1,
+    "examples": [
+     "y=2"
+    ]
+   },
+   {
+    "code": "embedded-object",
+    "severity": "warning",
+    "message": "Embedded objects (OLE, charts, equations editors) were skipped.",
+    "count": 1
+   }
+  ],
+  "assets": []
+ }
+}

@@ -79,6 +79,46 @@ test("importing a DOCX works the same way", async ({ page }) => {
   await expect(chapterNav(page).getByRole("button", { name: "Dusk", exact: true })).toBeVisible();
 });
 
+test("a Word document is parsed by the native command, again when the split level changes, and its bytes never reach the page", async ({
+  page,
+}) => {
+  await fakeImportTauri(page, "docx");
+  const dialog = await startImport(page);
+  const chapters = dialog.getByRole("list", { name: "Chapters" }).getByRole("listitem");
+  await expect(chapters).toHaveCount(2);
+  await dialog.getByRole("radio", { name: "Heading 2" }).click();
+  await expect(chapters).toHaveCount(1);
+  await expect(chapters.first().getByRole("textbox", { name: "Title of chapter 1" })).toHaveValue(
+    "Untitled",
+  );
+  // A refusal while re-parsing is shown and leaves the preview as it was, with the buttons usable.
+  await dialog.getByRole("radio", { name: "Heading 3" }).click();
+  await expect(dialog.getByRole("alert")).toContainText("no document body");
+  await expect(chapters).toHaveCount(1);
+  await expect(dialog.getByRole("button", { name: "Import", exact: true })).toBeEnabled();
+  await dialog.getByRole("radio", { name: "Heading 1" }).click();
+  await expect(chapters).toHaveCount(2);
+  await expect(dialog.getByRole("alert")).toHaveCount(0);
+  const asked = await page.evaluate(() =>
+    window
+      .__calls!.filter((c) => c.cmd === "import_docx_source" || c.cmd === "read_import_source")
+      .map((c) => [c.cmd, c.args.splitHeadingLevel] as const),
+  );
+  expect(asked).toEqual([
+    ["import_docx_source", 1],
+    ["import_docx_source", 2],
+    ["import_docx_source", 3],
+    ["import_docx_source", 1],
+  ]);
+  await dialog.getByRole("button", { name: "Import", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Import report" })
+    .getByRole("button", { name: "Done" })
+    .click();
+  const disk = await page.evaluate(() => Object.keys(window.__disk));
+  expect(disk).toContain("assets/pixel.png");
+});
+
 test("importing an HTML file keeps headings and bold text, drops scripts and reports what was lost", async ({
   page,
 }) => {

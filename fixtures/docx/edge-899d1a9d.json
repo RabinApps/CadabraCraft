@@ -1,0 +1,65 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "before"
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "let a = 1;\n\n  b(<x>);\none\ntwo"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "after"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "only monospace"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [],
+  "assets": []
+ }
+}

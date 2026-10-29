@@ -1,0 +1,66 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "sceneBreak"
+      },
+      {
+       "type": "sceneBreak"
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "* * *"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "end of section"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "page-break",
+    "severity": "info",
+    "message": "Page and column breaks are ignored; use scene breaks for separations.",
+    "count": 1
+   },
+   {
+    "code": "section-break",
+    "severity": "info",
+    "message": "Section breaks are ignored; use scene breaks for separations.",
+    "count": 1
+   }
+  ],
+  "assets": []
+ }
+}

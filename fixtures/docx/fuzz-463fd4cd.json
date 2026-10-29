@@ -1,0 +1,335 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "delta"
+              },
+              {
+               "type": "text",
+               "text": "tab\tin",
+               "marks": [
+                {
+                 "type": "link",
+                 "attrs": {
+                  "href": "https://h.test/a%20b"
+                 }
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "<b>emoji😀x"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableHeader",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": " ls",
+               "marks": [
+                {
+                 "type": "italic"
+                },
+                {
+                 "type": "strike"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": " ls",
+               "marks": [
+                {
+                 "type": "superscript"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "bulletList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "﻿bom",
+             "marks": [
+              {
+               "type": "underline"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "https://e.test/x?y=1&z=2",
+             "marks": [
+              {
+               "type": "underline"
+              }
+             ]
+            },
+            {
+             "type": "text",
+             "text": "gamma"
+            }
+           ]
+          },
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "#"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "trail    lead"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "café"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "#  leadcaféABcafé"
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "betamailto:a@b.co"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "title": "emoji😀x﻿bomtrail",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "emoji😀x",
+         "marks": [
+          {
+           "type": "strike"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "﻿bomtrail  "
+        }
+       ]
+      },
+      {
+       "type": "blockquote",
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "﻿boma bAB"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 3
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "delta#"
+        },
+        {
+         "type": "text",
+         "text": "  leadAB",
+         "marks": [
+          {
+           "type": "italic"
+          },
+          {
+           "type": "superscript"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "https://e.test/x?y=1&z=2"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "table-complex",
+    "severity": "warning",
+    "message": "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+    "count": 1,
+    "examples": [
+     "deltatab in<b>emoji😀x*** ls ls"
+    ]
+   },
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 3,
+    "examples": [
+     "Unknown",
+     "Weird Style"
+    ]
+   },
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 1
+   },
+   {
+    "code": "internal-link",
+    "severity": "info",
+    "message": "Links to bookmarks inside the document were kept as plain text.",
+    "count": 1,
+    "examples": [
+     "bm1"
+    ]
+   },
+   {
+    "code": "hidden-text",
+    "severity": "info",
+    "message": "Hidden text was skipped.",
+    "count": 3,
+    "examples": [
+     "café",
+     "gammamailto:a@b.co",
+     "trail trail"
+    ]
+   },
+   {
+    "code": "footnote-missing",
+    "severity": "warning",
+    "message": "A footnote or endnote reference pointed at a missing note and was dropped.",
+    "count": 3,
+    "examples": [
+     "-1",
+     "5",
+     "9"
+    ]
+   },
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 1,
+    "examples": [
+     "Heading 4: delta# leadAB"
+    ]
+   },
+   {
+    "code": "untitled-content",
+    "severity": "warning",
+    "message": "Content before the first level 1 heading was placed in a chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": []
+ }
+}

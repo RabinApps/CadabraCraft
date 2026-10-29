@@ -3518,7 +3518,7 @@ msgstr "هذه تعديلات روتينية؛ لم يضع شيء."
 msgid "These fonts come from Google Fonts and are free to use under the SIL Open Font Licence. A font is downloaded only when you click Download; nothing else is sent."
 msgstr "تأتي هذه الخطوط من Google Fonts وهي حرة الاستخدام بموجب ترخيص SIL Open Font. يُنزَّل الخط فقط عند النقر على تنزيل؛ ولا يُرسل شيء آخر."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This .docx file has no document body. It may be damaged or not a Word document."
 msgstr "لا يحتوي ملف ‎.docx هذا على متن مستند. قد يكون تالفًا أو ليس مستند Word."
 
@@ -3536,23 +3536,23 @@ msgstr "لا فصول في هذا الكتاب بعد."
 msgid "This book has no cover image. KDP takes the cover as a separate file."
 msgstr "لا توجد لهذا الكتاب صورة غلاف. تستقبل KDP الغلاف كملف منفصل."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document contains too many parts to import safely."
 msgstr "يحتوي هذا المستند على أجزاء كثيرة جدًا لاستيراده بأمان."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document is nested too deeply to import."
 msgstr "هذا المستند متداخل بعمق شديد لاستيراده."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document is too large to import safely."
 msgstr "هذا المستند كبير جدًا لاستيراده بأمان."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document's contents could not be read. It may be damaged."
 msgstr "تعذّرت قراءة محتوى هذا المستند. قد يكون تالفًا."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
 msgstr "لا يبدو هذا ملف ‎.docx صالحًا (تعذّر فتحه كمستند Word)."
 
@@ -3564,7 +3564,7 @@ msgstr "لا يبدو هذا الملف نصًا. قد يكون تالفًا أ�
 msgid "This file is too large or too deeply nested to import."
 msgstr "هذا الملف كبير جدًا أو متداخل بعمق شديد لاستيراده."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This file is too large to import."
 msgstr "هذا الملف كبير جدًا لاستيراده."
 

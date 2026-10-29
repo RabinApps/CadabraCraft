@@ -37,6 +37,9 @@ tauri-plugin-process = "2.4.0"
 # Voice download. Both are already in the build through the updater plugin, with these same features.
 reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider"] }
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
+# .docx import (src/import_docx). zip: deflate only (what Word writes), no encryption, no other codecs, no time. quick-xml: reader only.
+zip = { version = "9", default-features = false, features = ["deflate-flate2"] }
+quick-xml = "0.42"
 
 [dev-dependencies]
 # Mock runtime for testing the command layer through the IPC (tauri::test). Dev only: release builds do not get it.

@@ -1,0 +1,6 @@
+{
+ "options": {
+  "maxEntries": 10
+ },
+ "error": "too-many-entries"
+}

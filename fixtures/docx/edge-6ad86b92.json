@@ -1,0 +1,127 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "orderedList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "a"
+            }
+           ]
+          },
+          {
+           "type": "orderedList",
+           "content": [
+            {
+             "type": "listItem",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "b"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "c"
+        }
+       ]
+      },
+      {
+       "type": "orderedList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "d"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "e"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "f"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 6,
+    "examples": [
+     "Num Style",
+     "Num Child",
+     "Num Bare",
+     "Num No Level",
+     "NoType"
+    ]
+   }
+  ],
+  "assets": []
+ }
+}

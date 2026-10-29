@@ -52,6 +52,9 @@ pub enum ProjectError {
     DiskFull { path: String },
     /// An image whose width times height is above `MAX_IMAGE_PIXELS` (a small file can still decode to gigabytes).
     ImageDimensions { name: String, max_megapixels: u64 },
+    /// A `.docx` the importer could not read: `code` is an `ImportErrorCode` of `packages/import-docx` (`invalid-zip`,
+    /// `too-many-entries`, `archive-too-large`, `missing-document`, `invalid-xml`).
+    ImportDocx { code: String },
     /// The folder watcher could not start; `path` is the folder name, never an absolute path.
     WatchFailed { path: String },
     /// Any other IO or runtime failure (the OS message).
@@ -88,6 +91,7 @@ impl fmt::Display for ProjectError {
             PermissionDenied { path } => write!(f, "no permission to access {path}"),
             DiskFull { path } => write!(f, "not enough disk space to write {path}"),
             ImageDimensions { name, max_megapixels } => write!(f, "{name} has more than {max_megapixels} megapixels"),
+            ImportDocx { code } => write!(f, "the Word document could not be imported ({code})"),
             WatchFailed { path } => write!(f, "cannot watch {path} for changes made outside the app"),
             Io { message } => write!(f, "{message}"),
         }
@@ -116,6 +120,12 @@ pub fn io_error(e: std::io::Error, label: &str) -> ProjectError {
     }
 }
 
+impl From<crate::import_docx::ImportError> for ProjectError {
+    fn from(e: crate::import_docx::ImportError) -> Self {
+        ProjectError::ImportDocx { code: e.code.as_str().to_string() }
+    }
+}
+
 /// A failed `spawn_blocking` join (the task panicked or the runtime is shutting down).
 impl From<tauri::Error> for ProjectError {
     fn from(e: tauri::Error) -> Self {
@@ -135,6 +145,7 @@ mod tests {
         assert_eq!(j(ProjectError::WatchFailed { path: "book".into() }), r#"{"kind":"watch_failed","path":"book"}"#);
         assert_eq!(j(ProjectError::AlreadyExists), r#"{"kind":"already_exists"}"#);
         assert_eq!(j(ProjectError::NotAProject { path: "/x".into() }), r#"{"kind":"not_a_project","path":"/x"}"#);
+        assert_eq!(j(ProjectError::ImportDocx { code: "invalid-xml".into() }), r#"{"kind":"import_docx","code":"invalid-xml"}"#);
         assert_eq!(j(ProjectError::IcloudPending { path: "a".into() }), r#"{"kind":"icloud_pending","path":"a"}"#);
         assert_eq!(j(ProjectError::ImageRefOutside { reference: "r".into() }), r#"{"kind":"image_ref_outside","reference":"r"}"#);
     }
@@ -193,6 +204,7 @@ mod tests {
             (PermissionDenied { path: p() }, "no permission to access p"),
             (DiskFull { path: p() }, "not enough disk space to write p"),
             (ImageDimensions { name: p(), max_megapixels: 150 }, "p has more than 150 megapixels"),
+            (ImportDocx { code: "invalid-zip".into() }, "the Word document could not be imported (invalid-zip)"),
             (WatchFailed { path: p() }, "cannot watch p for changes made outside the app"),
             (Io { message: "boom".into() }, "boom"),
         ];

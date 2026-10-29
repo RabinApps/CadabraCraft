@@ -3,6 +3,7 @@ mod automation;
 mod audio;
 mod commands;
 mod fonts;
+mod import_docx;
 mod import_src;
 mod platform;
 mod project;
@@ -38,6 +39,7 @@ macro_rules! app_handlers {
             commands::read_asset,
             commands::read_import_source,
             commands::read_import_image,
+            commands::import_docx_source,
             commands::import_asset_bytes,
             commands::import_reference,
             commands::stat_reference,

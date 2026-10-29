@@ -1,0 +1,158 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "T",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "heading",
+       "attrs": {
+        "level": 1
+       },
+       "content": [
+        {
+         "type": "text",
+         "text": "T"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "wide"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "top"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "x"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph"
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "n1 | n2"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "after"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "unsupported-element",
+    "severity": "warning",
+    "message": "Unrecognised document elements were skipped.",
+    "count": 3,
+    "examples": [
+     "tcPr"
+    ]
+   },
+   {
+    "code": "table-complex",
+    "severity": "warning",
+    "message": "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+    "count": 1,
+    "examples": [
+     "widetopxn1n2 after"
+    ]
+   },
+   {
+    "code": "table-merged",
+    "severity": "warning",
+    "message": "Merged table cells were split into separate cells (the covered cells are empty).",
+    "count": 1,
+    "examples": [
+     "widetopxn1n2 after"
+    ]
+   }
+  ],
+  "assets": []
+ }
+}

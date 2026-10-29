@@ -1,0 +1,35 @@
+{
+ "options": {
+  "splitHeadingLevel": 1,
+  "untitledTitle": "Front"
+ },
+ "result": {
+  "chapters": [
+   {
+    "title": "Front",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "# #"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 1 headings found, so the whole file is one chapter titled \"Front\"."
+   }
+  ],
+  "assets": []
+ }
+}

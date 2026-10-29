@@ -94,8 +94,8 @@ export function ImportDialog({
         if (mine === gen.current) setError(errText(e));
       });
   };
-  const parse = (loaded: LoadedSource, level: Level) => {
-    const result = parseImport(loaded, level);
+  const parse = async (loaded: LoadedSource, level: Level) => {
+    const result = await parseImport(loaded, level);
     setPreview({ loaded, level, result, plan: initialPlan(result) });
   };
   const next = () => {
@@ -107,14 +107,14 @@ export function ImportDialog({
       .catch((e) => setError(errText(e)))
       .finally(() => setBusy(false));
   };
+  // A Word document is parsed again in Rust, which can take a moment on a large manuscript: the buttons wait for it.
   const setLevel = (level: Level) => {
-    if (!preview) return;
+    if (!preview || busy) return;
+    setBusy(true);
     setError("");
-    try {
-      parse(preview.loaded, level);
-    } catch (e) {
-      setError(errText(e));
-    }
+    parse(preview.loaded, level)
+      .catch((e) => setError(errText(e)))
+      .finally(() => setBusy(false));
   };
   const setPlan = useCallback((plan: ImportPlan) => setPreview((p) => p && { ...p, plan }), []);
   const submit = () => {

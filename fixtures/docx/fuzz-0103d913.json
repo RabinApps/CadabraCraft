@@ -1,0 +1,483 @@
+{
+ "options": {},
+ "result": {
+  "chapters": [
+   {
+    "title": "Untitled",
+    "doc": {
+     "type": "doc",
+     "content": [
+      {
+       "type": "blockquote",
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "delta"
+          }
+         ]
+        },
+        {
+         "type": "image",
+         "attrs": {
+          "src": "assets/UPPER_name_.gif",
+          "alt": "a & b",
+          "title": null
+         }
+        },
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "end.",
+           "marks": [
+            {
+             "type": "italic"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "a b",
+           "marks": [
+            {
+             "type": "italic"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "orderedList",
+       "content": [
+        {
+         "type": "listItem",
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "&delta﻿bom"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "ctrlx nbsp"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": " ls"
+        },
+        {
+         "type": "text",
+         "text": "emoji😀x",
+         "marks": [
+          {
+           "type": "italic"
+          },
+          {
+           "type": "strike"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "tab\tinquote\"s"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "emoji😀x"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "end."
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "tab\tin",
+         "marks": [
+          {
+           "type": "bold"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "a b",
+         "marks": [
+          {
+           "type": "superscript"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "tab\tin",
+         "marks": [
+          {
+           "type": "underline"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": " * * *-"
+        }
+       ]
+      },
+      {
+       "type": "paragraph",
+       "content": [
+        {
+         "type": "text",
+         "text": "trail  ",
+         "marks": [
+          {
+           "type": "italic"
+          }
+         ]
+        },
+        {
+         "type": "text",
+         "text": "mailto:a@b.co"
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "content": [
+        {
+         "type": "text",
+         "text": "\nalpha﻿bom"
+        }
+       ]
+      },
+      {
+       "type": "table",
+       "content": [
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "quote\"s ls"
+              },
+              {
+               "type": "text",
+               "text": "#",
+               "marks": [
+                {
+                 "type": "bold"
+                },
+                {
+                 "type": "superscript"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": " gamma-"
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "trail  "
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "<b>",
+               "marks": [
+                {
+                 "type": "smallCaps"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "***",
+               "marks": [
+                {
+                 "type": "underline"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "tableRow",
+         "content": [
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "alpha"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "trail  "
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "\ntrail  gamma"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableCell",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "  lead"
+              },
+              {
+               "type": "text",
+               "text": "***",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "quote\"s",
+               "marks": [
+                {
+                 "type": "strike"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "café",
+               "marks": [
+                {
+                 "type": "strike"
+                },
+                {
+                 "type": "smallCaps"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "delta",
+               "marks": [
+                {
+                 "type": "italic"
+                }
+               ]
+              },
+              {
+               "type": "text",
+               "text": "'x"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "warnings": [
+   {
+    "code": "footnote-missing",
+    "severity": "warning",
+    "message": "A footnote or endnote reference pointed at a missing note and was dropped.",
+    "count": 2,
+    "examples": [
+     "5",
+     "1"
+    ]
+   },
+   {
+    "code": "line-break",
+    "severity": "info",
+    "message": "Manual line breaks split the paragraph into separate paragraphs.",
+    "count": 4
+   },
+   {
+    "code": "missing-image",
+    "severity": "warning",
+    "message": "An image could not be found in the file and was skipped.",
+    "count": 1,
+    "examples": [
+     "rId4"
+    ]
+   },
+   {
+    "code": "style-fallback",
+    "severity": "info",
+    "message": "Custom paragraph styles were imported as normal paragraphs.",
+    "count": 1,
+    "examples": [
+     "Weird Style"
+    ]
+   },
+   {
+    "code": "heading-clamped",
+    "severity": "warning",
+    "message": "Headings deeper than level 3 were changed to level 3.",
+    "count": 2,
+    "examples": [
+     "Heading 4: quote\"s ls#",
+     "Heading 4: <b>***"
+    ]
+   },
+   {
+    "code": "text-box",
+    "severity": "warning",
+    "message": "Text boxes are not supported; their text was not imported.",
+    "count": 1,
+    "examples": [
+     "box"
+    ]
+   },
+   {
+    "code": "tracked-changes",
+    "severity": "warning",
+    "message": "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+    "count": 2,
+    "examples": [
+     "***"
+    ]
+   },
+   {
+    "code": "table-complex",
+    "severity": "warning",
+    "message": "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+    "count": 1,
+    "examples": [
+     "quote\"s ls#box gammatrail ☐ <b>***alphatrail trail gamma lead***quote\"scafé delt"
+    ]
+   },
+   {
+    "code": "comments",
+    "severity": "warning",
+    "message": "The file has 2 comment(s); comments are not imported.",
+    "count": 1
+   },
+   {
+    "code": "no-headings",
+    "severity": "warning",
+    "message": "No level 1 headings found, so the whole file is one chapter titled \"Untitled\"."
+   }
+  ],
+  "assets": [
+   {
+    "sourcePath": "word/media/UPPER name!.gif",
+    "targetPath": "assets/UPPER_name_.gif",
+    "mediaType": "image/gif",
+    "len": 1,
+    "sha256": "e77b9a9ae9e30b0dbdb6f510a264ef9de781501d7b6b92ae89eb059c5ab743db"
+   }
+  ]
+ }
+}

@@ -3518,7 +3518,7 @@ msgstr "אלה התאמות שגרתיות; דבר לא אבד."
 msgid "These fonts come from Google Fonts and are free to use under the SIL Open Font Licence. A font is downloaded only when you click Download; nothing else is sent."
 msgstr "הגופנים האלה מגיעים מ־Google Fonts וחופשיים לשימוש לפי רישיון SIL Open Font. גופן יורד רק כשאתה לוחץ על הורדה; שום דבר אחר לא נשלח."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This .docx file has no document body. It may be damaged or not a Word document."
 msgstr "לקובץ ‎.docx הזה אין גוף מסמך. ייתכן שהוא פגום או שאינו מסמך Word."
 
@@ -3536,23 +3536,23 @@ msgstr "אין עדיין פרקים בספר זה."
 msgid "This book has no cover image. KDP takes the cover as a separate file."
 msgstr "אין לספר זה תמונת כריכה. KDP מקבלת את הכריכה כקובץ נפרד."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document contains too many parts to import safely."
 msgstr "המסמך הזה מכיל יותר מדי חלקים כדי לייבא אותו בבטחה."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document is nested too deeply to import."
 msgstr "המסמך הזה מקונן עמוק מדי כדי לייבא אותו."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document is too large to import safely."
 msgstr "המסמך הזה גדול מדי כדי לייבא אותו בבטחה."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This document's contents could not be read. It may be damaged."
 msgstr "לא ניתן היה לקרוא את תוכן המסמך הזה. ייתכן שהוא פגום."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
 msgstr "נראה שזה אינו קובץ ‎.docx תקין (לא ניתן היה לפתוח אותו כמסמך Word)."
 
@@ -3564,7 +3564,7 @@ msgstr "הקובץ הזה אינו נראה כטקסט. ייתכן שהוא פג
 msgid "This file is too large or too deeply nested to import."
 msgstr "הקובץ הזה גדול מדי או מקונן עמוק מדי כדי לייבא אותו."
 
-#: src/lib/importBook.ts
+#: src/lib/importErrorText.ts
 msgid "This file is too large to import."
 msgstr "הקובץ הזה גדול מדי לייבוא."
 
