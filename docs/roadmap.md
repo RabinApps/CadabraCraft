@@ -16,7 +16,6 @@ UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 
 - M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
 - M2+: shortcuts settings (disabled nav item for now), command palette, outline navigator.
-- Loading skeleton (`Loading / desktop / mode` in the pen) is designed but not built: opening a project still shows the previous screen until the manifest arrives.
 - Keyboard-open mobile editor frame and a phone header at 390px that keeps Focus mode and Details out of the way are not drawn or checked yet.
 - Snapshots follow-ups: Backups settings for tablet and mobile in the pen, whole-book and named snapshots, a diff that shows formatting changes, run the History dialog and recovery on the native app and a real sync folder (`/drive-app`).
 - Page view follow-ups: exact breaks inside a chapter need the PDF's font and Typst's own line breaking (a Typst-rendered preview, see "Page view" in architecture.md, or loading the template's print font into the webview), footnotes at the foot of the page, images that scale to the space left, splitting tables between rows, and virtualising the cards of very long chapters.

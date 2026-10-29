@@ -125,6 +125,8 @@ declare global {
     __restoreFails?: boolean;
     /** Sends an event to the listeners the app registered (a file drop, for example). */
     __emit?: (event: string, payload: unknown) => void;
+    __manifestGate?: Promise<void>;
+    __manifestRelease?: () => void;
     __failWrite?: (path: string) => boolean;
     __failBytes?: boolean;
     __importError?: string;

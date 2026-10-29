@@ -90,6 +90,8 @@ export async function fakeTauri(page: Page) {
             persist();
             return null;
           case "read_project_file":
+            // A test can hold the manifest read (to look at the loading skeleton) with `__manifestGate`.
+            if (a.path === "cadabra.json" && window.__manifestGate) await window.__manifestGate;
             if (a.root === "/gone") return null;
             return typeof disk[a.path] === "string"
               ? { contents: disk[a.path], hash: h(disk[a.path] as string) }

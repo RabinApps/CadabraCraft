@@ -22,6 +22,7 @@ import { runImport } from "../../lib/importBook";
 import { publishingFromForm, type PublishingForm } from "../../lib/publishingForm";
 import { errText, noManifestMessage } from "../../lib/projectError";
 import { useSettings } from "../editorPrefs";
+import { useRecents } from "../recents";
 import { parseChapter, bestEffort, NO_HISTORY } from "./util";
 import type { ProjectActions, ProjectState } from "./types";
 import type { Ctx } from "./context";
@@ -38,6 +39,12 @@ const withPublishing = (e: Edition, form: PublishingForm | undefined): Edition =
   return Object.keys(publishing).length ? { ...rest, publishing } : rest;
 };
 
+/** What the loading skeleton calls the book before its manifest is read: the recent list's title, else the folder name. */
+const bookNameOf = (root: string): string =>
+  useRecents.getState().recents.find((r) => r.root === root)?.title ||
+  root.split(/[\\/]/).filter(Boolean).pop() ||
+  root;
+
 /** Opening, closing and creating a book, changes from outside the app, import, and the book-level settings in cadabra.json. */
 export const createProjectActions = (ctx: Ctx): ProjectActions => {
   const { set, get, need, saveManifest, flush, load, resetWordCache, forgetWords } = ctx;
@@ -45,6 +52,17 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
   let importing = false;
   /** The open that is running, so a second one (a double click on a recent book) joins it instead of racing it. */
   let opening: Promise<void> | null = null;
+  /** Starts the open, or joins the one running. `skeleton` shows the loading screen; creating or importing keeps its own dialog up instead. */
+  const join = (root: string, skeleton: boolean): Promise<void> => {
+    if (!opening) {
+      if (skeleton) set({ opening: { root, name: bookNameOf(root) } });
+      opening = openNow(root).finally(() => {
+        opening = null;
+        if (get().opening) set({ opening: null });
+      });
+    }
+    return opening;
+  };
   const closedState: Partial<ProjectState> = {
     root: null,
     manifest: null,
@@ -188,10 +206,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       });
     },
     openProject(root) {
-      opening ??= openNow(root).finally(() => {
-        opening = null;
-      });
-      return opening;
+      return join(root, true);
     },
     async closeProject() {
       await flush();
@@ -230,7 +245,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         trimSize,
       });
       await bridge.createProject(root, serializeManifest(manifest));
-      await get().actions.openProject(root);
+      await join(root, false);
       await get().actions.add(t`Chapter One`);
       set({ history: NO_HISTORY }); // the first chapter is part of creating the book
     },
@@ -241,7 +256,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       try {
         await flush();
         const report = await runImport({ sourcePath, root, title, author, ...opts });
-        await get().actions.openProject(root);
+        await join(root, false);
         set({ importReport: report });
       } finally {
         importing = false;

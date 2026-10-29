@@ -34,6 +34,7 @@ import { UpdateDialog } from "../dialogs/UpdateDialog";
 import { RecoverDialog } from "../dialogs/RecoverDialog";
 import { useUpdates } from "../../state/updates";
 import { Sidebar } from "./Sidebar";
+import { OpeningSkeleton } from "./OpeningSkeleton";
 import { Templates } from "../export/Templates";
 import { useLayout } from "../../state/layout";
 import { useReadingPosition } from "../../state/readingPosition";
@@ -66,6 +67,7 @@ export function App() {
   const readPosition = useReadingPosition();
   const reloadCount = useProject((s) => s.reloadCount);
   const actions = useProject((s) => s.actions);
+  const opening = useProject((s) => s.opening);
   const open = manifest !== null;
   const root = useProject((s) => s.root);
   const title = manifest ? sourceEdition(manifest.editions).title : undefined;
@@ -147,6 +149,8 @@ export function App() {
     fail: setError,
   });
   const backToBook = () => setView("book");
+  const skeleton = opening && view === "book" ? <OpeningSkeleton name={opening.name} /> : null;
+  if (skeleton && manifest) return skeleton;
   if (view === "settings" || view === "fonts") {
     return (
       <>
@@ -175,27 +179,31 @@ export function App() {
   if (!manifest) {
     return (
       <>
-        <Home
-          error={error}
-          onSettings={() => setView("settings")}
-          pickFolder={bridge.pickFolder}
-          pickImportSource={bridge.pickImportSource}
-          onImport={actions.importBook}
-          onCreate={(root, title, author, trimSize) =>
-            run(() => actions.createProject(root, title, author, trimSize))()
-          }
-          onOpenRecent={(r) => {
-            setError("");
-            return actions.openProject(r).catch((e) => {
-              setError(errText(e));
-              throw e;
-            });
-          }}
-          onOpen={run(async () => {
-            const root = await bridge.pickFolder();
-            if (root) await actions.openProject(root);
-          })}
-        />
+        {skeleton}
+        {/* Home stays mounted (hidden) under the skeleton, so a failed open still marks its row. */}
+        <div className="contents" hidden={skeleton !== null}>
+          <Home
+            error={error}
+            onSettings={() => setView("settings")}
+            pickFolder={bridge.pickFolder}
+            pickImportSource={bridge.pickImportSource}
+            onImport={actions.importBook}
+            onCreate={(root, title, author, trimSize) =>
+              run(() => actions.createProject(root, title, author, trimSize))()
+            }
+            onOpenRecent={(r) => {
+              setError("");
+              return actions.openProject(r).catch((e) => {
+                setError(errText(e));
+                throw e;
+              });
+            }}
+            onOpen={run(async () => {
+              const root = await bridge.pickFolder();
+              if (root) await actions.openProject(root);
+            })}
+          />
+        </div>
         <ImportReportDialog />
         <SponsorDialog />
         <UpdateDialog />

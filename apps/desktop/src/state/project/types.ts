@@ -160,6 +160,8 @@ export interface BookPage {
 /** The whole project store: the open book, what is in progress, and the actions that change them. */
 export interface ProjectState {
   root: string | null;
+  /** A project open that is still running (name from the recent list or the folder name); the shell shows the loading skeleton. Null when none is. */
+  opening: { root: string; name: string } | null;
   manifest: Manifest | null;
   currentId: string | null;
   /** Loaded content of the current chapter; the editor owns edits until saveCurrent. */

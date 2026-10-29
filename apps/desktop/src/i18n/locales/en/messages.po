@@ -2123,6 +2123,10 @@ msgstr "Open Recent"
 msgid "Opened {when}"
 msgstr "Opened {when}"
 
+#: src/app/shell/OpeningSkeleton.tsx
+msgid "Opening {name}"
+msgstr "Opening {name}"
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Optional. Shown below the image."
 msgstr "Optional. Shown below the image."

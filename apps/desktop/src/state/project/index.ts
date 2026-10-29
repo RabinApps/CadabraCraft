@@ -44,6 +44,7 @@ export const useProject = create<ProjectState>((set, get) => {
   const ctx = createContext(set, get);
   return {
     root: null,
+    opening: null,
     manifest: null,
     currentId: null,
     currentDoc: null,
