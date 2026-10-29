@@ -20,6 +20,8 @@ export interface GapSpec {
   linesBefore: number;
   /** The page before the gap is a blank verso page (nothing on it). */
   blank: boolean;
+  /** The spacer is a block between items of a list, quote or table, not a piece of a line. */
+  flow: boolean;
   /** Height of the spacer: the rest of the page, its foot margin, the gap on the canvas and the next page's top margin. */
   height: number;
   /** Negative margins that cancel the neighbouring blocks' CSS margins, so a page never starts or ends with one. */
@@ -166,12 +168,14 @@ export function layoutPages(input: LayoutInput): PageLayoutResult {
     opensChapter: input.opensChapter,
     ...(input.forced ? { forced: input.forced } : {}),
   });
+  const lineY = (br: PageBreak): number =>
+    br.at ? blocks[br.block]!.top + br.at.y : yLine(blocks[br.block]!, br.linesBefore);
   const startOf = (br: PageBreak): number => {
-    if (br.linesBefore > 0) return yLine(blocks[br.block]!, br.linesBefore);
+    if (br.linesBefore > 0) return lineY(br);
     return br.block === 0 ? 0 : blocks[br.block]!.top;
   };
   const endOf = (br: PageBreak): number =>
-    br.linesBefore > 0 ? yLine(blocks[br.block]!, br.linesBefore) : bottomOf(blocks[br.block - 1]!);
+    br.linesBefore > 0 ? lineY(br) : bottomOf(blocks[br.block - 1]!);
 
   const gaps: GapSpec[] = [];
   const used: number[] = [];
@@ -207,9 +211,11 @@ export function layoutPages(input: LayoutInput): PageLayoutResult {
       block: br.block,
       linesBefore: br.linesBefore,
       blank,
+      flow: br.at?.flow ?? false,
       height: gapHeight,
       marginTop: prev ? 0 - prev.marginBottom : 0,
-      marginBottom: next && next.kind !== "chapterTitle" ? 0 - next.marginTop : 0,
+      marginBottom:
+        br.at?.marginBottom ?? (next && next.kind !== "chapterTitle" ? 0 - next.marginTop : 0),
     });
     top += u + gapHeight;
     start = startOf(br);

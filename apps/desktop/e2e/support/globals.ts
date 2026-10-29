@@ -141,6 +141,10 @@ declare global {
     __typstCalls: TypstCall[];
     /** What `typst_query` answers (JSON text, default `{"total":0,"starts":[]}`) and the requests it received. */
     __typstQueryResult?: string;
+    /** Answers a `typst_query` from its source instead (undefined falls back to `__typstQueryResult`): the book and a chapter on its own, or the second run of a measure, can differ. */
+    __typstQueryResultFor?: (source: string) => string | undefined;
+    /** Text drawn on the pages of the PDF `typst_compile` answers with: the lines of each page, from the top, in 12 pt Helvetica at 72 pt from the left. */
+    __typstPageText?: string[][];
     __typstQueryCalls: TypstQueryCall[];
     __audioVoices?: FakeVoice[];
     __audioPacks?: FakePack[];

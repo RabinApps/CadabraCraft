@@ -322,6 +322,38 @@ describe("measurePages", () => {
     expect(typst.queries[1]!.source).toContain("New words");
   });
 
+  it("asks for the page marks only when told to, and keeps the two results apart", async () => {
+    await a().add("Theta");
+    await a().measurePages();
+    expect(typst.queries[0]!.source).not.toContain("bm-s(");
+    await a().measurePages({ marks: true });
+    expect(typst.queries).toHaveLength(2);
+    expect(typst.queries[1]!.source).toContain("bm-s(");
+    await a().measurePages();
+    await a().measurePages({ marks: true });
+    expect(typst.queries).toHaveLength(2);
+  });
+
+  it("measures one page entry on its own: only its text is typeset, and the last result is reused", async () => {
+    await a().add("Zeta");
+    await a().add("Eta");
+    const id = s().manifest!.chapters[0]!.id;
+    await a().selectChapter(id);
+    typst.queries = [];
+    await a().measureChapter(id);
+    expect(typst.queries).toHaveLength(1);
+    const source = typst.queries[0]!.source;
+    expect(source).toContain(`id: "${id}"`);
+    // Only the one entry is in the document.
+    expect(source.match(/#chapter-start\(/g)).toHaveLength(1);
+    await a().measureChapter(id);
+    expect(typst.queries).toHaveLength(1);
+    // Measured on its own, the whole book's cache is not touched.
+    await a().measurePages();
+    expect(typst.queries).toHaveLength(2);
+    expect(typst.queries[1]!.source.match(/#chapter-start\(/g)!.length).toBeGreaterThan(1);
+  });
+
   it("turns a Typst failure into a message for the author", async () => {
     await a().add("Delta");
     typst.failWith = { kind: "not_found", message: "no typst" };

@@ -269,6 +269,13 @@ export interface PageBreak {
   linesBefore: number;
   /** A blank page is inserted before this page (recto rule). */
   blankBefore: boolean;
+  /**
+   * Typst's breaks only (`PaginateOptions.forced`), inside a block whose pieces are not lines of its own grid (a quote, list, table or code
+   * block): where the page ends in the flow, `y` px below the top of the block as the DOM draws it. `flow`: the spacer is a block between
+   * items rather than a piece of a line; `marginBottom` is the margin it takes back from what follows it. `linesBefore` is then only the
+   * number of this break among the block's (1, 2, ...).
+   */
+  at?: { y: number; flow: boolean; marginBottom?: number };
 }
 
 export interface PaginateOptions {

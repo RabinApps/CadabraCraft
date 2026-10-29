@@ -4,7 +4,9 @@
  * so a book can be measured without producing a PDF.
  *
  * With `marks` the report also lists the page marks (see `PdfOptions.blockMarks`) as tuples in document order: `("s", chapter, block, kind, page)`
- * where a block starts and `("w", word, page)` for a word mark that is on a different page than the mark before it.
+ * where a leaf of a block starts, `("w", word, page)` for a word mark and `("l", line, page)` for the mark of a line of code (1-based),
+ * both only when on a different page than the mark before it. In the second run of a measure (`PdfOptions.charMarks`) there are no word
+ * marks, but `("c", chapter, block, leaf, word, char, page)` for the marks inside the words asked for, under the same rule.
  *
  * Numbers follow the preamble: lowercase roman before the `<numbering-arabic>` mark (only when there is front matter), arabic after;
  * "" on pages that show no folio (title and copyright pages) and for every page when page numbers are off.
@@ -34,6 +36,8 @@ ${
     let v = m.value
     let pg = m.location().page()
     if type(v) == int { if pg != prev { marks.push(("w", v, pg)) } }
+    else if v.at(0) == "l" { if pg != prev { marks.push(("l", v.at(1), pg)) } }
+    else if v.at(0) == "c" { if pg != prev { marks.push(("c", v.at(1), v.at(2), v.at(3), v.at(4), v.at(5), pg)) } }
     else { marks.push(("s", v.at(1), v.at(2), v.at(3), pg)) }
     prev = pg
   }

@@ -4,7 +4,7 @@ import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { bookPages } from "../../lib/bookPages";
 import { reportBookPages, reportChapterPages, usableReport } from "../../lib/pageReport";
-import { usePageMeasure } from "../../state/pageMeasure";
+import { freshReport, usePageMeasure } from "../../state/pageMeasure";
 import { useMeasuredPages } from "../hooks/useMeasuredPages";
 import { usePageView } from "../hooks/usePageView";
 import { trimLabel } from "../../lib/trimLabels";
@@ -69,7 +69,7 @@ export function PagePosition() {
   const { count, current, exact: layoutExact } = usePageCount();
   const currentId = useProject((s) => s.currentId);
   const exact = usePageMeasure((s) => {
-    const report = s.fresh ? usableReport(s.report) : null;
+    const report = currentId ? freshReport(s, currentId) : null;
     return report && currentId ? reportChapterPages(report, currentId) : null;
   });
   if (count === 0) return null;

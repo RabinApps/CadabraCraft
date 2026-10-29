@@ -74,6 +74,9 @@ test("RTL: the print preview's zoom keeps its order, and a page can be opened fr
     page.getByRole("button", { name: "Zoom in" }).boundingBox(),
   ]);
   expect(out && level && zin && zin.x < level.x && level.x < out.x).toBe(true);
+  // Fit to window follows zoom in, so in the mirrored row it is the leftmost of them.
+  const fit = await page.getByRole("button", { name: "Fit to window" }).boundingBox();
+  expect(fit && zin && fit.x < zin.x).toBe(true);
   // The way into the editor is inside its page, on the page's own box.
   const pageBox = await page.getByRole("img", { name: "Page 1", exact: true }).boundingBox();
   const open = await page.getByRole("button", { name: "Open page 1 in the editor" }).boundingBox();
@@ -264,4 +267,76 @@ test("RTL: the audiobook dialog with two editions mirrors and does not overflow"
   const cancel = await ex.getByRole("button", { name: "Cancel" }).boundingBox();
   expect(primary && cancel && primary.x < cancel.x).toBe(true);
   await shot(page, "audiobook");
+});
+
+test("RTL: the print preview fits its pages to the window and keeps them in reading order", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Print PDF" }).click();
+  await dialog.getByRole("button", { name: "Print preview" }).click();
+  await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
+  await forceRtl(page);
+  await page.getByRole("button", { name: "Fit to window" }).click();
+  const pane = page.getByTestId("spread-scroll");
+  const room = (await pane.evaluate((el) => el.clientWidth)) - 48;
+  await expect
+    .poll(async () => {
+      const w = (await page.getByRole("img", { name: "Page 1", exact: true }).boundingBox())!.width;
+      return Math.abs(w - Math.min(room, 5.5 * 200));
+    })
+    .toBeLessThan(2);
+  // The pages keep their left-to-right order inside the mirrored layout: page 2 is left of page 3.
+  await page.getByRole("button", { name: "Next pages" }).click();
+  const [two, three] = await Promise.all([
+    page.getByRole("img", { name: "Page 2", exact: true }).boundingBox(),
+    page.getByRole("img", { name: "Page 3", exact: true }).boundingBox(),
+  ]);
+  expect(two && three && two.x < three.x).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+});
+
+test("RTL: Page view breaks a list between its items where Typst did, and does not overflow", async ({
+  page,
+}) => {
+  await newProject(page);
+  const p = (text: string) => ({ type: "paragraph", content: [{ type: "text", text }] });
+  await seedChapters(page, [
+    {
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Chapter One" }] },
+        {
+          type: "bulletList",
+          content: ["one two", "three four", "five six"].map((t) => ({
+            type: "listItem",
+            content: [p(t)],
+          })),
+        },
+      ],
+    } as never,
+  ]);
+  const report = JSON.stringify({
+    total: 2,
+    starts: [{ id: "chapter-1", kind: "chapter", page: 1, end: 2, number: "1" }],
+    marks: [
+      ["s", 0, 0, "h", 1],
+      ["s", 0, 1, "p", 1],
+      ["s", 0, 1, "p", 1],
+      ["s", 0, 1, "p", 2],
+    ],
+  });
+  await page.evaluate((r) => {
+    window.__typstQueryResultFor = (source) => (source.includes("bm-s(") ? r : undefined);
+  }, report);
+  await page.getByRole("button", { name: "Page view", exact: true }).click();
+  await forceRtl(page);
+  await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
+  await expect(page.locator(".page")).toHaveCount(2);
+  const gap = page.locator("ul > .pv-gap");
+  await expect(gap).toHaveCount(1);
+  expect(await gap.evaluate((el) => el.nextElementSibling?.textContent)).toBe("five six");
+  expect(await noOverflow(page)).toBe(true);
 });

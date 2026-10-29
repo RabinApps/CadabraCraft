@@ -7,8 +7,8 @@ import { PAGE_GAP, layoutPages, withTops, type FlowBlock, type PageLayoutResult 
 import { buildDecorations } from "./decorations";
 import type { PageBreak } from "../../lib/pageLayout";
 import { exactBreaks, type ExactSource } from "../../lib/exactBreaks";
-import { cursorPage, findSplitPos, linesBeforePos, measureFlow, readPageTops } from "./dom";
-import { blockKinds, wordCountOf, wordOffset } from "./exact";
+import { cursorPage, findSplitPos, flowY, measureFlow, readPageTops, splitY } from "./dom";
+import { docLeaves, insideCell, leafWordTexts, pageStartAt, wordOffset } from "./exact";
 
 /** What the pagination needs to know; set by the Page view frame, null (or `on: false`) when Page view is off. */
 export interface PageConfig {
@@ -52,42 +52,58 @@ export const paginationKey = new PluginKey<DecorationSet>("pagination");
 
 /**
  * Typst's page breaks for this text as `paginate` takes them, or undefined when its marks do not fit the text or a break cannot be
- * placed (the estimate is used then). A break inside a paragraph is placed before the word Typst began the page with: `exactPos`
- * gets its document position, and `linesBefore` is the webview's line it falls on, for the heights.
+ * placed (the estimate is used then, for the whole chapter). A page that begins at a block is a break before it. One that begins
+ * inside a block (a word of a paragraph, an item of a list, a row of a table) is a break at a position of the document: `exactPos`
+ * gets it, and the break says where in the flow it falls (`at.y`, read from the DOM) for the heights of the spacers and cards.
  */
 function forcedBreaks(
   v: EditorView,
   c: PageConfig,
   blocks: FlowBlock[],
-  starts: number[],
   exactPos: Map<string, number>,
 ): PageBreak[] | undefined {
   const doc = v.state.doc;
-  const typst = exactBreaks(c.exact!, blockKinds(doc), (i) => wordCountOf(doc.child(i)));
+  const leaves = docLeaves(doc);
+  const typst = exactBreaks(c.exact!, leaves);
   if (!typst) return undefined;
+  const top = c.geometry.margins.top;
   const out: PageBreak[] = [];
-  let prev = { block: -1, lines: 0 };
+  // Per block: the breaks made inside it so far and where the last one is.
+  const inside = new Map<number, { n: number; y: number }>();
   for (const b of typst) {
-    if (b.word === null) {
-      out.push({ block: b.block, linesBefore: 0, blankBefore: false });
-      continue;
-    }
-    const node = doc.child(b.block);
-    const offset = wordOffset(node, b.word);
     const flow = blocks[b.block];
-    if (offset === null || !flow) return undefined;
-    const pos = starts[b.block]! + 1 + offset;
-    const at = linesBeforePos(v, starts[b.block]!, node, pos, flow, c.zoom, c.geometry.margins.top);
-    if (at === null) return undefined;
-    // At least one line of the block on each page, and in the order of the document.
-    const lines = Math.min(
-      Math.max(at, prev.block === b.block ? prev.lines + 1 : 1),
-      flow.lines - 1,
-    );
-    if (lines < 1 || (prev.block === b.block && lines <= prev.lines)) return undefined;
-    out.push({ block: b.block, linesBefore: lines, blankBefore: false });
-    exactPos.set(`${b.block}:${lines}`, pos);
-    prev = { block: b.block, lines };
+    const leaf = leaves[b.block]?.[b.leaf];
+    if (!flow || !leaf) return undefined;
+    let pos: number;
+    let at: NonNullable<PageBreak["at"]>;
+    if (b.word === null) {
+      const start = pageStartAt(doc, leaf.pos);
+      if (!start) return undefined;
+      if (start.top) {
+        out.push({ block: b.block, linesBefore: 0, blankBefore: false });
+        continue;
+      }
+      const f = flowY(v, flow, start.pos, c.zoom, top);
+      if (!f) return undefined;
+      pos = start.pos;
+      at = { y: f.y, flow: true, marginBottom: f.marginBottom };
+    } else {
+      const offset = wordOffset(leaf.node, b.word);
+      // A page cannot begin in the middle of a table row, nor inside a word the text no longer has that many characters of.
+      if (offset === null || insideCell(doc, leaf.pos)) return undefined;
+      if (b.char !== undefined && !(b.char < (leafWordTexts(leaf.node)[b.word]?.text.length ?? 0)))
+        return undefined;
+      pos = leaf.pos + 1 + offset + (b.char ?? 0);
+      const y = splitY(v, flow, leaf.pos, pos, c.zoom, top);
+      if (y === null) return undefined;
+      at = { y, flow: false };
+    }
+    const prev = inside.get(b.block);
+    if (prev && at.y <= prev.y) return undefined;
+    const n = (prev?.n ?? 0) + 1;
+    inside.set(b.block, { n, y: at.y });
+    exactPos.set(`${b.block}:${n}`, pos);
+    out.push({ block: b.block, linesBefore: n, blankBefore: false, at });
   }
   return out;
 }
@@ -163,7 +179,7 @@ export function createController() {
       const starts: number[] = [];
       v.state.doc.forEach((_n, offset) => starts.push(offset));
       // Typst's breaks, when its marks fit this text: pages are then the PDF's, to the word.
-      const forced = c.exact ? forcedBreaks(v, c, blocks, starts, exactPos) : undefined;
+      const forced = c.exact ? forcedBreaks(v, c, blocks, exactPos) : undefined;
       result = layoutPages({
         blocks,
         page: { h: g.page.h },

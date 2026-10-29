@@ -82,6 +82,8 @@ ${
   options.blockMarks
     ? `#let bm-s(c, b, k) = [#metadata(("s", c, b, k))<bm>]
 #let wm(w) = [#metadata(w)<bm>]
+#let cm(c, b, l, w, j) = [#metadata(("c", c, b, l, w, j))<bm>]
+#let bm-line(it) = [#metadata(("l", it.number))<bm>#it]
 `
     : ""
 }#let chapter-pages() = query(<chapter-start>).map(m => m.location().page())

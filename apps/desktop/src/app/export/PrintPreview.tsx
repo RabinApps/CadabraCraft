@@ -23,6 +23,7 @@ import { useProject, type BookPage } from "../../state/project/index";
 import { Notice } from "../../ui/Notice";
 import { bleedInches, setBleed, setCropMarks, usePrintSetup } from "../../state/printSetup";
 import { usePrintPdf } from "../hooks/usePrintPdf";
+import type { WordClick } from "../../lib/pdfWords";
 import { requestPreviewJump } from "../../state/previewJump";
 import { useViewMode } from "../../state/viewMode";
 import { ApproxPage, CoverThumb } from "./ApproxSpread";
@@ -74,14 +75,14 @@ export function PrintPreview({ onBack, onExport }: Props) {
   const [openError, setOpenError] = useState("");
   const [pdfPages, setPdfPages] = useState(0);
   const onPages = useCallback((n: number) => setPdfPages(n), []);
-  // A page of the preview opens its chapter in the editor, at the text that starts the page.
-  const openPage = (page: number) => {
+  // A page of the preview opens its chapter in the editor, at the word that was clicked, else at the text that starts the page.
+  const openPage = (page: number, click: WordClick | null) => {
     setOpening(true);
     setOpenError("");
     (async () => {
       const target = await previewTarget({ trimSize: trim, bleedIn, cropMarks, page });
       if (!target) return setOpenError(t`That page is not in the book.`);
-      requestPreviewJump(target);
+      requestPreviewJump(target, click ?? undefined);
       await selectChapter(target.id);
       setMode("write");
       onBack();

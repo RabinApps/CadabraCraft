@@ -2,7 +2,7 @@ import { wordStarts, type DocNode } from "@cadabracraft/shared";
 import { escapeMarkup, typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import { unsupported, type Ctx } from "./ctx";
-import { inline } from "./inline";
+import { inline, nodeSize, type WordMarks } from "./inline";
 import { inch } from "./units";
 
 const IMAGE_EXT = new Set(["png", "jpg", "jpeg", "gif", "svg", "webp"]);
@@ -48,7 +48,10 @@ function taskList(n: DocNode, ctx: Ctx): string {
 /** A definition list: each term in bold, each description indented below it. */
 function definitionList(n: DocNode, ctx: Ctx): string {
   const parts = (("content" in n ? n.content : undefined) ?? []).map((k) => {
-    if (k.type === "definitionTerm") return `#def-term[${inline(k.content, ctx, true)}]`;
+    if (k.type === "definitionTerm") {
+      const { mark, body } = leafText(k.content, ctx, "p");
+      return `#def-term[${mark}${body}]`;
+    }
     if (k.type === "definitionDescription") return `#def-desc[\n${blocks(k.content, ctx)}\n]`;
     return unsupported(k.type);
   });
@@ -85,30 +88,76 @@ function tableBlock(n: DocNode, ctx: Ctx): string {
   };
   const headerRow = rows[0]!.every((c) => c.type === "tableHeader");
   const lines = rows.map((r, i) => {
-    const cells = r.map((c) => cell(c, headerRow && i === 0)).join(", ");
-    return headerRow && i === 0 ? `  table.header(${cells}),` : `  ${cells},`;
+    const isHeader = headerRow && i === 0;
+    // The header row is repeated on every page the table runs onto, and so would be its marks: it carries none.
+    const mark = ctx.mark;
+    if (isHeader) ctx.mark = undefined;
+    const cells = r.map((c) => cell(c, isHeader)).join(", ");
+    ctx.mark = mark;
+    return isHeader ? `  table.header(${cells}),` : `  ${cells},`;
   });
   return `#table(\n  columns: (${rows[0]!.map(() => "1fr").join(", ")}),\n${lines.join("\n")}\n)`;
 }
 
-/** A heading; with `mark` (the start mark call) the heading's text sits between it and an end mark. */
-function heading(n: Exclude<DocNode, { type: "text" }>, ctx: Ctx, mark?: string): string {
+/**
+ * The marks of a text leaf's words: before each (but the first), or, in the second run of a measure (`ctx.charMarks`), inside the words
+ * that run asks for and nowhere else (that run is only about those words, and so costs about what the book does without marks).
+ */
+function wordMarks(kids: DocNode[] | undefined, ctx: Ctx, leaf: number): WordMarks {
+  const { chapter, block } = ctx.mark!;
+  const starts = wordStarts(plainItems(kids));
+  if (!ctx.charMarks) return { starts, before: (w) => `#wm(${w})` };
+  const words = ctx.charMarks.get(`${chapter}:${block}:${leaf}`);
+  return words
+    ? {
+        starts,
+        inside: { words, mark: (w, j) => `#cm(${chapter}, ${block}, ${leaf}, ${w}, ${j})` },
+      }
+    : { starts: [] };
+}
+
+/** The text of a heading or paragraph: with page marks, the start mark and the words' marks go with it (`mark` is empty when not marking). */
+export function leafText(
+  kids: DocNode[] | undefined,
+  ctx: Ctx,
+  kind: BlockMarkKind,
+): { mark: string; body: string } {
+  if (!ctx.mark) return { mark: "", body: inline(kids, ctx, true) };
+  const leaf = ctx.mark.leaf;
+  return {
+    mark: startMark(ctx, kind),
+    body: inline(kids, ctx, true, false, wordMarks(kids, ctx, leaf)),
+  };
+}
+
+function heading(n: Exclude<DocNode, { type: "text" }>, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   const level = Number(n.attrs?.level ?? 1);
   if (![1, 2, 3].includes(level))
     throw new PdfExportError(
       `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
     );
-  if (mark === undefined) return `#heading(level: ${level})[${inline(kids, ctx, true)}]`;
-  return `#heading(level: ${level})[${mark}${inline(kids, ctx, true, false, { starts: [] })}]`;
+  const { mark, body } = leafText(kids, ctx, "h");
+  return `#heading(level: ${level})[${mark}${body}]`;
 }
+
+/** The start mark of the block being marked (see `markedBlocks`): where a leaf of text, an image or a code block begins. */
+const startMark = (ctx: Ctx, kind: BlockMarkKind): string => {
+  const m = ctx.mark!;
+  m.leaf++;
+  return `#bm-s(${m.chapter}, ${m.block}, "${kind}")`;
+};
+
+/** A block that is no text (a scene break, an image, a code block) carries its start mark as a paragraph of its own before it. */
+const marked = (ctx: Ctx, kind: BlockMarkKind, code: string): string =>
+  ctx.mark ? `${startMark(ctx, kind)}\n\n${code}` : code;
 
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
     case "paragraph": {
-      const s = inline(kids, ctx, true);
-      return s.trim() === "" ? "" : s;
+      const { mark, body } = leafText(kids, ctx, "p");
+      return body.trim() === "" ? "" : `${mark}${body}`;
     }
     case "heading":
       return heading(n, ctx);
@@ -135,12 +184,14 @@ function block(n: DocNode, ctx: Ctx): string {
           return k.text;
         })
         .join("");
-      return `#raw(block: true, ${typstString(text)})`;
+      const raw = `#raw(block: true, ${typstString(text)})`;
+      // Each line carries a mark of its own (the `raw.line` of Typst), so a block of code that runs onto the next page is seen.
+      return marked(ctx, "k", ctx.mark ? `#[#show raw.line: bm-line\n${raw}]` : raw);
     }
     case "table":
       return tableBlock(n, ctx);
     case "sceneBreak":
-      return "#scene-break()";
+      return marked(ctx, "s", "#scene-break()");
     case "image": {
       const a = n.attrs ?? {};
       const src = String(a.src ?? "");
@@ -152,7 +203,7 @@ function block(n: DocNode, ctx: Ctx): string {
       const cap = a.title
         ? `, caption: [${escapeMarkup(String(a.title), { lineStart: true })}]`
         : "";
-      return `#figure(${img}${cap})`;
+      return marked(ctx, "i", `#figure(${img}${cap})`);
     }
     default:
       return unsupported(n.type);
@@ -167,32 +218,30 @@ export function blocks(nodes: DocNode[] | undefined, ctx: Ctx): string {
 }
 
 /**
- * What a marked block is, for the reader of the report to check the text it maps back to is the text that was typeset: `p` an ordinary
- * paragraph (words are marked), `q` any other paragraph, `h` a heading, `s` a scene break, `o` anything else.
+ * What a marked piece of a chapter is, for the reader of the report to check the text it maps back to is the text that was typeset:
+ * `p` a paragraph or definition term (its words are marked, footnotes and code in it too, the drop cap paragraph as well), `h` a heading
+ * (words marked), `s` a scene break, `i` an image, `k` a block of code (its lines are marked). Every one of them is a leaf: a block
+ * that holds others (a quote, a list, a table) is marked by its leaves.
  */
-export type BlockMarkKind = "p" | "q" | "h" | "s" | "o";
+export type BlockMarkKind = "p" | "h" | "s" | "i" | "k";
 
 /**
- * The inline items of a paragraph as `wordStarts` takes them, or null when the paragraph is not ordinary (a footnote, code or any other
- * inline node in it): its words cannot be told apart from the markup around them, so it is marked as one piece.
+ * The inline items of a text block as `wordStarts` takes them: a string for text, a number for a footnote (the positions it takes,
+ * counted like ProseMirror's) and null for a hard break.
  */
-export function plainItems(kids: DocNode[] | undefined): (string | null)[] | null {
-  const items: (string | null)[] = [];
-  for (const k of kids ?? []) {
-    if (k.type === "text") {
-      if ((k.marks ?? []).some((m) => m.type === "code")) return null;
-      items.push(k.text);
-    } else if (k.type === "hardBreak") items.push(null);
-    else return null;
-  }
-  return items;
+export function plainItems(kids: DocNode[] | undefined): (string | number | null)[] {
+  return (kids ?? []).map((k) =>
+    k.type === "text" ? k.text : k.type === "footnote" ? nodeSize(k) : null,
+  );
 }
 
 /**
- * Top-level blocks carrying page marks (`PdfOptions.blockMarks`): `#bm-s(chapter, index)` where a block starts and, for an ordinary
- * paragraph, a `#wm(w)` at each word start after the first (see `wordStarts`). `first` is the index of the first node in the document.
- * Paragraphs and headings carry their start mark inside their first line; any other block gets it as a paragraph of its own before it.
- * There is no end mark: a mark after the last line of a block at the foot of a page is moved to the next page by Typst.
+ * Chapter nodes with page marks (`PdfOptions.blockMarks`): `#bm-s(chapter, index, kind)` where each leaf of the top-level block
+ * `index` starts (a paragraph, heading, scene break, image or block of code; a quote, list or table has one per leaf, in document
+ * order) and a `#wm(w)` before each word of a text leaf after the first (see `wordStarts`; a line of code for a block of code). `first`
+ * is the index of the first node in the document. A text leaf carries its start mark inside its first line; any other leaf gets it as a
+ * paragraph of its own before it. There is no end mark: a mark after the last line of a block at the foot of a page is moved to the
+ * next page by Typst.
  */
 export function markedBlocks(
   nodes: DocNode[] | undefined,
@@ -200,19 +249,10 @@ export function markedBlocks(
   chapter: number,
   first = 0,
 ): string {
-  const start = (i: number, kind: BlockMarkKind): string => `#bm-s(${chapter}, ${i}, "${kind}")`;
-  return (nodes ?? [])
-    .map((n, k) => {
-      const i = first + k;
-      const kids = "content" in n ? n.content : undefined;
-      if (n.type === "paragraph") {
-        const items = plainItems(kids);
-        const body = inline(kids, ctx, true, false, { starts: items ? wordStarts(items) : [] });
-        return body.trim() === "" ? "" : `${start(i, items ? "p" : "q")}${body}`;
-      }
-      if (n.type === "heading") return heading(n, ctx, start(i, "h"));
-      return `${start(i, n.type === "sceneBreak" ? "s" : "o")}\n\n${block(n, ctx)}`;
-    })
-    .filter((s) => s !== "")
-    .join("\n\n");
+  const out = (nodes ?? []).map((n, k) => {
+    ctx.mark = { chapter, block: first + k, leaf: 0 };
+    return block(n, ctx);
+  });
+  ctx.mark = undefined;
+  return out.filter((s) => s !== "").join("\n\n");
 }

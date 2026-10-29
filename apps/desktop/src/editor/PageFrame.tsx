@@ -29,7 +29,8 @@ import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useFontList } from "../app/hooks/useFontList";
 import { editorFontStack, type EditorFont } from "../state/editorPrefs";
 import { setPageCount, usePageCount } from "../state/pageCount";
-import { usePageMeasure } from "../state/pageMeasure";
+import { breaksReport, usePageMeasure } from "../state/pageMeasure";
+import { useMeasuredChapter } from "../app/hooks/useMeasuredChapter";
 import type { ExactSource } from "../lib/exactBreaks";
 import { reportChapterMarks, reportStartNumber, usableReport } from "../lib/pageReport";
 import { useProject } from "../state/project/index";
@@ -313,15 +314,18 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
     return report && currentId ? reportStartNumber(report, currentId) : null;
   });
   const firstPage = isChapter && typstFirst !== null ? typstFirst : estimatedFirst;
-  // Typst's breaks inside this chapter, from the last report (the plugin checks they still fit the text, so a stale report is only
-  // used while the edits left the blocks as they were).
-  const report = usePageMeasure((s) => s.report);
-  const version = usePageMeasure((s) => s.version);
-  const exact = useMemo(
-    () => (isChapter && currentId && report ? reportChapterMarks(report, currentId) : null),
-    [isChapter, currentId, report],
+  // Typst's breaks inside this page entry, from the newest report that has it (the chapter's own measure comes much sooner than the
+  // book's). The plugin checks they still fit the text, so a stale report is only used while the edits left the blocks as they were.
+  useMeasuredChapter(true, currentId);
+  const breaksFrom = usePageMeasure(
+    (s) => (currentId ? breaksReport(s, currentId)?.report : null) ?? null,
   );
-  const exactKey = `${currentId ?? ""}:${version}`;
+  const breaksAt = usePageMeasure((s) => (currentId ? breaksReport(s, currentId)?.at : 0) ?? 0);
+  const exact = useMemo(
+    () => (currentId && breaksFrom ? reportChapterMarks(breaksFrom, currentId) : null),
+    [currentId, breaksFrom],
+  );
+  const exactKey = `${currentId ?? ""}:${breaksAt}`;
 
   // Zoom: a fixed factor, or the one that fits the pane's width.
   const scroller = useRef<HTMLDivElement>(null);

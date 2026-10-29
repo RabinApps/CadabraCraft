@@ -277,25 +277,34 @@ export async function fakeTauri(page: Page) {
             const hgt = Math.round(Number(m?.[2] ?? 9) * 72);
             const count = window.__typstPages ?? 6;
             const kids = Array.from({ length: count }, (_, i) => `${3 + i} 0 R`).join(" ");
-            const leaves = Array.from(
-              { length: count },
-              (_, i) =>
-                `${3 + i} 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 ${w} ${hgt}]>>endobj\n`,
-            ).join("");
-            const pdf = `%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[${kids}]/Count ${count}>>endobj\n${leaves}trailer<</Root 1 0 R/Size ${3 + count}>>\n%%EOF`;
+            const text = window.__typstPageText;
+            const leaves = Array.from({ length: count }, (_, i) => {
+              if (!text?.[i])
+                return `${3 + i} 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 ${w} ${hgt}]>>endobj\n`;
+              // A page with text: a content stream with one line per entry, 16 pt apart from 72 pt below the top.
+              const content = text[i]!.map(
+                (line, k) => `BT /F1 12 Tf 72 ${hgt - 72 - k * 16} Td (${line}) Tj ET`,
+              ).join("\n");
+              return (
+                `${3 + i} 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 ${w} ${hgt}]/Resources<</Font<</F1<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>>>>>/Contents ${3 + count + i} 0 R>>endobj\n` +
+                `${3 + count + i} 0 obj<</Length ${content.length}>>stream\n${content}\nendstream endobj\n`
+              );
+            }).join("");
+            const pdf = `%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[${kids}]/Count ${count}>>endobj\n${leaves}trailer<</Root 1 0 R/Size ${3 + count * 2}>>\n%%EOF`;
             return new TextEncoder().encode(pdf).buffer;
           }
-          case "typst_query":
-            {
-              // Same frame as typst_compile, with `selector` in the header instead of `pdfA`.
-              const n = new DataView(a.buffer, a.byteOffset).getUint32(0, true);
-              (window.__typstQueryCalls ??= []).push(
-                JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n))),
-              );
-            }
+          case "typst_query": {
+            // Same frame as typst_compile, with `selector` in the header instead of `pdfA`.
+            const n = new DataView(a.buffer, a.byteOffset).getUint32(0, true);
+            const call = JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n)));
+            (window.__typstQueryCalls ??= []).push(call);
             if (window.__compileError) throw window.__compileError;
-            return new TextEncoder().encode(window.__typstQueryResult ?? '{"total":0,"starts":[]}')
-              .buffer;
+            return new TextEncoder().encode(
+              window.__typstQueryResultFor?.(call.source) ??
+                window.__typstQueryResult ??
+                '{"total":0,"starts":[]}',
+            ).buffer;
+          }
           case "audio_voices":
             return (
               window.__audioVoices ?? [

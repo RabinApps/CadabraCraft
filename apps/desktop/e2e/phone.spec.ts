@@ -133,6 +133,27 @@ const SCREENS: Record<string, Open> = {
     await expect(page.getByRole("button", { name: "Open page 1 in the editor" })).toBeVisible();
     await expect(page.getByText("Edit this page")).toBeVisible();
   },
+  "print preview fitted to the window": async (page) => {
+    await exportFormat("Print PDF")(page);
+    await page
+      .getByRole("dialog", { name: "Export book" })
+      .getByRole("button", { name: "Print preview" })
+      .click();
+    await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
+    const fit = page.getByRole("button", { name: "Fit to window" });
+    await fit.click();
+    await expect(fit).toHaveAttribute("aria-pressed", "true");
+    // The page fills the pane's width inside its padding, however narrow the phone is.
+    const room = async () =>
+      (await page.getByTestId("spread-scroll").evaluate((el) => el.clientWidth)) - 48;
+    await expect
+      .poll(async () => {
+        const w = (await page.getByRole("img", { name: "Page 1", exact: true }).boundingBox())!
+          .width;
+        return Math.abs(w - Math.min(await room(), 5.5 * 200));
+      })
+      .toBeLessThan(2);
+  },
   "print preview estimate": async (page) => {
     await exportFormat("Print PDF")(page);
     await page.evaluate(() => {

@@ -179,8 +179,8 @@ export function createContext(set: Set, get: Get) {
     });
   };
 
-  /** Every page of one language in reading order (front matter, chapters, back matter), read from disk. A page with no file yet is blank. */
-  const loadChaptersIn = async (lang: string) => {
+  /** Every page of one language in reading order (front matter, chapters, back matter), read from disk (only page `only` when given). A page with no file yet is blank. */
+  const loadChaptersIn = async (lang: string, only?: string) => {
     const { root, manifest } = need();
     const pages = [];
     const sectionFor = (e: EditionEntry): BookPage["section"] =>
@@ -190,6 +190,7 @@ export function createContext(set: Set, get: Get) {
           ? "back"
           : "chapter";
     for (const c of readingOrder(manifest)) {
+      if (only !== undefined && c.id !== only) continue;
       const file = entryFile(c, lang);
       const r = file ? await bridge.readFile(root, file) : null;
       if (file && !r) throw new Error(t`Missing chapter file ${file}`);

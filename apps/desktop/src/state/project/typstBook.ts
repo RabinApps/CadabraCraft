@@ -12,14 +12,21 @@ import type { Ctx } from "./context";
  * open page's draft stands in for its saved file, so what is on screen is what is typeset. The export itself flushes and reads files.
  */
 export const createTypstBook = (ctx: Ctx) => {
-  const { get, need, loadExportPages, loadAssets } = ctx;
-  return async () => {
+  const { get, need, loadExportPages, loadChaptersIn, loadAssets } = ctx;
+  /** The whole book, or with `only` just that page (a measure of one chapter does not read the rest). */
+  return async (only?: string) => {
     const { manifest } = need();
     const currentId = get().currentId;
     const templateId = hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID;
-    const { edition, pages } = await loadExportPages();
-    const open = get().draft ?? get().currentDoc;
     const source = sourceEdition(manifest.editions).language;
+    const { edition, pages } =
+      only === undefined
+        ? await loadExportPages()
+        : {
+            edition: manifest.editions.find((e) => e.language === source)!,
+            pages: await loadChaptersIn(source, only),
+          };
+    const open = get().draft ?? get().currentDoc;
     const chapters =
       open && currentId && (get().activeLanguage ?? source) === source
         ? pages.map((p) => (p.id === currentId ? { ...p, doc: open } : p))

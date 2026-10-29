@@ -8,7 +8,7 @@ import {
 import { typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import type { PdfChapter } from "../types";
-import { blocks, imagePath, markedBlocks } from "./blocks";
+import { blocks, imagePath, leafText, markedBlocks } from "./blocks";
 import type { Ctx } from "./ctx";
 import { inline } from "./inline";
 import { em } from "./units";
@@ -54,10 +54,15 @@ function dropCapOpening(
   ctx.usesDropCap = true;
   // Typst treats the paragraph after the drop cap block as a first paragraph, so an indenting template needs its indent put back by hand.
   const indent = indentEm > 0 && doc![1]?.type === "paragraph" ? `#h(${em(indentEm)})` : "";
-  const cap = `#dropcap(height: 3, gap: 0.12em)[${inline(kids, ctx, true)}]`;
-  // The opening paragraph is set by the drop cap package, so it is marked as one piece around it.
-  const opening = ctx.marks ? `#bm-s(${chapter}, 0, "q")\n\n${cap}` : cap;
-  return `${opening}${rest === "" ? "" : `\n\n${indent}${rest}`}`;
+  // The drop cap package takes the paragraph apart and sets its pieces again; the marks in it survive that (checked with real Typst).
+  let cap: string;
+  if (ctx.marks) {
+    ctx.mark = { chapter, block: 0, leaf: 0 };
+    const { mark, body } = leafText(kids, ctx, "p");
+    ctx.mark = undefined;
+    cap = `${mark}\n\n#dropcap(height: 3, gap: 0.12em)[${body}]`;
+  } else cap = `#dropcap(height: 3, gap: 0.12em)[${inline(kids, ctx, true)}]`;
+  return `${cap}${rest === "" ? "" : `\n\n${indent}${rest}`}`;
 }
 
 export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm: number): string {
@@ -84,9 +89,7 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
       (kind === undefined && dropCap
         ? dropCapOpening(page.doc.content, ctx, indentEm, index)
         : null) ??
-      (ctx.marks && kind === undefined
-        ? markedBlocks(page.doc.content, ctx, index)
-        : blocks(page.doc.content, ctx));
+      (ctx.marks ? markedBlocks(page.doc.content, ctx, index) : blocks(page.doc.content, ctx));
     const title = typstString(page.title);
     const id = typstString(page.id);
     const info = `${id}, ${typstString(kind ?? "chapter")}`;
