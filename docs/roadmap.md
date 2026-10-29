@@ -8,7 +8,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 
 - Tauri WebDriver e2e covering the native window and Rust commands.
 - Visual regression checks for PDF output.
-- Run the manual real-client sync checklist ([sync-testing.md](sync-testing.md)).
+- Run the manual checks that need Windows, Linux, real sync clients or a word processor ([platform-checks.md](platform-checks.md), which includes [sync-testing.md](sync-testing.md)).
 
 ### Editor and app UI
 
