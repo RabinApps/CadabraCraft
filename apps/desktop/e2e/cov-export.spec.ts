@@ -289,7 +289,7 @@ test("export dialog: Cancel, and a running export cannot be closed", async ({ pa
   await expect(dialog).toHaveCount(0);
 });
 
-test("print PDF: the Typst location is kept, the cover can be left out and an unknown template falls back", async ({
+test("print PDF: the cover can be left out and an unknown template falls back", async ({
   page,
 }) => {
   await newProject(page);
@@ -315,21 +315,13 @@ test("print PDF: the Typst location is kept, the cover can be left out and an un
     window.__typstError = { kind: "not_found", message: "The typst program was not found." };
   });
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
-  const path = dialog.getByLabel("Typst location (optional)");
-  await expect(path).toBeVisible();
-  await path.fill("/opt/typst");
-  await dialog.getByRole("button", { name: "Export", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
-  expect(await page.evaluate(() => localStorage.getItem("cadabracraft.typstPath"))).toBe(
-    "/opt/typst",
-  );
-  await path.fill("");
+  await expect(dialog.getByLabel("Typst location (optional)")).toHaveCount(0);
   await page.evaluate(() => {
     delete window.__typstError;
   });
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   await expect(dialog).toHaveCount(0);
-  expect(await page.evaluate(() => localStorage.getItem("cadabracraft.typstPath"))).toBeNull();
 });
 
 test("editions checklist: untoggling an edition and a pending page whose title is only in the source", async ({

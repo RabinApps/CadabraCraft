@@ -4,7 +4,6 @@ use super::error::{other, TypstError};
 /// A decoded `typst_compile` request.
 #[derive(Debug, PartialEq)]
 pub struct CompileRequest {
-    pub typst_path: Option<String>,
     pub source: String,
     pub files: Vec<(String, Vec<u8>)>,
     pub pdf_a: bool,
@@ -13,7 +12,6 @@ pub struct CompileRequest {
 /// A decoded `typst_query` request.
 #[derive(Debug, PartialEq)]
 pub struct QueryRequest {
-    pub typst_path: Option<String>,
     pub source: String,
     pub files: Vec<(String, Vec<u8>)>,
     pub selector: String,
@@ -48,20 +46,19 @@ fn split_frame<H: serde::de::DeserializeOwned>(body: &[u8], files_of: impl Fn(&H
 }
 
 /// Decodes the binary body of `typst_compile`: a 4-byte little-endian header length, the header (UTF-8 JSON with
-/// `typstPath`, `source`, `pdfA` and `files: [{ name, len }]`), then every file's bytes back to back, in header order.
+/// `source`, `pdfA` and `files: [{ name, len }]`), then every file's bytes back to back, in header order.
 /// The bytes must add up exactly; anything else is refused rather than guessed at. (The TypeScript writer is
 /// `packCompileRequest` in `src/lib/compileFrame.ts`.)
 pub fn parse_compile_request(body: &[u8]) -> Result<CompileRequest, TypstError> {
     #[derive(serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
     struct Header {
-        typst_path: Option<String>,
         source: String,
         pdf_a: bool,
         files: Vec<FileHeader>,
     }
     let (header, files) = split_frame(body, |h: &Header| &h.files)?;
-    Ok(CompileRequest { typst_path: header.typst_path, source: header.source, files, pdf_a: header.pdf_a })
+    Ok(CompileRequest { source: header.source, files, pdf_a: header.pdf_a })
 }
 
 /// Decodes the binary body of `typst_query`: the same frame as `typst_compile` with a `selector` header field in
@@ -70,13 +67,12 @@ pub fn parse_query_request(body: &[u8]) -> Result<QueryRequest, TypstError> {
     #[derive(serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
     struct Header {
-        typst_path: Option<String>,
         source: String,
         selector: String,
         files: Vec<FileHeader>,
     }
     let (header, files) = split_frame(body, |h: &Header| &h.files)?;
-    Ok(QueryRequest { typst_path: header.typst_path, source: header.source, files, selector: header.selector })
+    Ok(QueryRequest { source: header.source, files, selector: header.selector })
 }
 
 #[cfg(test)]
@@ -93,24 +89,23 @@ mod tests {
 
     #[test]
     fn compile_request_decodes_options_source_and_files_in_order() {
-        let h = r#"{"typstPath":"/x/typst","source":"Hello ✓","pdfA":true,"files":[{"name":"assets/a.png","len":3},{"name":"assets/b.jpg","len":0},{"name":"c.bin","len":2}]}"#;
+        let h = r#"{"source":"Hello ✓","pdfA":true,"files":[{"name":"assets/a.png","len":3},{"name":"assets/b.jpg","len":0},{"name":"c.bin","len":2}]}"#;
         let r = parse_compile_request(&frame(h, &[1, 2, 3, 9, 8])).unwrap();
-        assert_eq!(
-            r,
-            CompileRequest {
-                typst_path: Some("/x/typst".into()),
-                source: "Hello ✓".into(),
-                files: vec![("assets/a.png".into(), vec![1, 2, 3]), ("assets/b.jpg".into(), vec![]), ("c.bin".into(), vec![9, 8])],
-                pdf_a: true,
-            }
-        );
-        let none = parse_compile_request(&frame(r#"{"typstPath":null,"source":"","pdfA":false,"files":[]}"#, &[])).unwrap();
-        assert_eq!((none.typst_path, none.files.len(), none.pdf_a), (None, 0, false));
+        assert_eq!(r, CompileRequest { source: "Hello ✓".into(), files: vec![("assets/a.png".into(), vec![1, 2, 3]), ("assets/b.jpg".into(), vec![]), ("c.bin".into(), vec![9, 8])], pdf_a: true });
+        let none = parse_compile_request(&frame(r#"{"source":"","pdfA":false,"files":[]}"#, &[])).unwrap();
+        assert_eq!((none.files.len(), none.pdf_a), (0, false));
+    }
+
+    #[test]
+    fn a_program_path_in_the_header_is_ignored() {
+        let with = r#"{"typstPath":"/bin/sh","source":"s","pdfA":false,"selector":"<x>","files":[]}"#;
+        assert_eq!(parse_compile_request(&frame(with, &[])).unwrap(), CompileRequest { source: "s".into(), files: vec![], pdf_a: false });
+        assert_eq!(parse_query_request(&frame(with, &[])).unwrap(), QueryRequest { source: "s".into(), files: vec![], selector: "<x>".into() });
     }
 
     #[test]
     fn compile_request_refuses_malformed_bodies() {
-        let ok = r#"{"typstPath":null,"source":"s","pdfA":false,"files":[{"name":"a","len":2}]}"#;
+        let ok = r#"{"source":"s","pdfA":false,"files":[{"name":"a","len":2}]}"#;
         assert!(parse_compile_request(&frame(ok, &[1, 2])).is_ok());
         for (what, body) in [
             ("empty", vec![]),
@@ -121,7 +116,7 @@ mod tests {
             ("missing field", frame(r#"{"source":"s"}"#, &[])),
             ("file shorter than declared", frame(ok, &[1])),
             ("extra bytes", frame(ok, &[1, 2, 3])),
-            ("length overflow", frame(r#"{"typstPath":null,"source":"s","pdfA":false,"files":[{"name":"a","len":18446744073709551615}]}"#, &[1])),
+            ("length overflow", frame(r#"{"source":"s","pdfA":false,"files":[{"name":"a","len":18446744073709551615}]}"#, &[1])),
         ] {
             assert!(matches!(parse_compile_request(&body), Err(TypstError::Other { .. })), "{what}");
         }
@@ -129,12 +124,12 @@ mod tests {
 
     #[test]
     fn query_request_decodes_the_selector_source_and_files() {
-        let h = r#"{"typstPath":null,"source":"s","selector":"<page-report>","files":[{"name":"a.png","len":2}]}"#;
+        let h = r#"{"source":"s","selector":"<page-report>","files":[{"name":"a.png","len":2}]}"#;
         let r = parse_query_request(&frame(h, &[7, 8])).unwrap();
-        assert_eq!(r, QueryRequest { typst_path: None, source: "s".into(), files: vec![("a.png".into(), vec![7, 8])], selector: "<page-report>".into() });
+        assert_eq!(r, QueryRequest { source: "s".into(), files: vec![("a.png".into(), vec![7, 8])], selector: "<page-report>".into() });
         for (what, body) in [
-            ("no selector", frame(r#"{"typstPath":null,"source":"s","files":[]}"#, &[])),
-            ("a compile frame", frame(r#"{"typstPath":null,"source":"s","pdfA":false,"files":[]}"#, &[])),
+            ("no selector", frame(r#"{"source":"s","files":[]}"#, &[])),
+            ("a compile frame", frame(r#"{"source":"s","pdfA":false,"files":[]}"#, &[])),
             ("file shorter than declared", frame(h, &[7])),
             ("extra bytes", frame(h, &[7, 8, 9])),
             ("empty", vec![]),

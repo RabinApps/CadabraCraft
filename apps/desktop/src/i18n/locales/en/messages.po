@@ -1699,10 +1699,6 @@ msgstr "Larger text"
 msgid "Later"
 msgstr "Later"
 
-#: src/app/export/PdfPanel.tsx
-msgid "Leave empty to use the Typst that comes with the app."
-msgstr "Leave empty to use the Typst that comes with the app."
-
 #: src/app/export/EditionsChecklist.tsx
 msgid "Leaves them out of this export; the list above says which."
 msgstr "Leaves them out of this export; the list above says which."
@@ -3202,10 +3198,6 @@ msgid "Typst could not build the PDF:\n"
 "{0}"
 msgstr "Typst could not build the PDF:\n"
 "{0}"
-
-#: src/app/export/PdfPanel.tsx
-msgid "Typst location (optional)"
-msgstr "Typst location (optional)"
 
 #. placeholder {0}: e.seconds
 #: src/lib/pdfErrors.ts

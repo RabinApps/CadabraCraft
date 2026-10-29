@@ -133,13 +133,10 @@ describe("asset commands", () => {
 
 describe("export commands", () => {
   it("typstFind", async () => {
-    expect(await sent(() => bridge.typstFind("/t"))).toEqual(["typst_find", { typstPath: "/t" }]);
+    expect(await sent(() => bridge.typstFind())).toEqual(["typst_find"]);
   });
   it("typstListFonts", async () => {
-    expect(await sent(() => bridge.typstListFonts(null))).toEqual([
-      "typst_list_fonts",
-      { typstPath: null },
-    ]);
+    expect(await sent(() => bridge.typstListFonts())).toEqual(["typst_list_fonts"]);
   });
 });
 

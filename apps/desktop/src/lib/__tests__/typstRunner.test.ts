@@ -26,15 +26,14 @@ describe("mapTypstError", () => {
 });
 
 describe("createTauriRunner", () => {
-  it("passes path, source, files and the PDF/A flag to the bridge", async () => {
+  it("passes source, files and the PDF/A flag to the bridge", async () => {
     const typstCompile = vi.fn(async () => new Uint8Array([1]));
     const typstListFonts = vi.fn(async () => ["A"]);
-    const r = createTauriRunner({ typstCompile, typstListFonts, typstQuery: vi.fn() }, "  ");
+    const r = createTauriRunner({ typstCompile, typstListFonts, typstQuery: vi.fn() });
     expect(await r.listFonts()).toEqual(["A"]);
-    expect(typstListFonts).toHaveBeenCalledWith(null);
+    expect(typstListFonts).toHaveBeenCalledWith();
     await r.compile("src", new Map([["assets/x.png", new Uint8Array([5, 6])]]), { pdfA: true });
     expect(typstCompile).toHaveBeenCalledWith(
-      null,
       "src",
       [["assets/x.png", new Uint8Array([5, 6])]],
       true,
@@ -58,16 +57,12 @@ describe("createTauriRunner", () => {
     );
     await expect(r.query("", new Map(), "<a>")).rejects.toBeInstanceOf(TypstCompileError);
   });
-  it("passes path, source, files and the selector to typstQuery and returns the JSON text", async () => {
+  it("passes source, files and the selector to typstQuery and returns the JSON text", async () => {
     const typstQuery = vi.fn(async () => '{"total":2,"starts":[]}');
-    const r = createTauriRunner(
-      { typstCompile: vi.fn(), typstListFonts: vi.fn(), typstQuery },
-      " /bin/typst ",
-    );
+    const r = createTauriRunner({ typstCompile: vi.fn(), typstListFonts: vi.fn(), typstQuery });
     const files = new Map([["assets/x.png", new Uint8Array([5])]]);
     expect(await r.query("src", files, "<page-report>")).toBe('{"total":2,"starts":[]}');
     expect(typstQuery).toHaveBeenCalledWith(
-      "/bin/typst",
       "src",
       [["assets/x.png", new Uint8Array([5])]],
       "<page-report>",
@@ -85,20 +80,5 @@ describe("mapTypstError for values that are not Rust errors", () => {
   it("passes an existing export error through", () => {
     const e = new PdfExportError("x");
     expect(mapTypstError(e)).toBe(e);
-  });
-});
-
-describe("createTauriRunner typst path", () => {
-  it("trims the configured path and treats a blank one as unset", async () => {
-    const typstListFonts = vi.fn(async () => []);
-    await createTauriRunner(
-      { typstListFonts, typstCompile: vi.fn(), typstQuery: vi.fn() },
-      "  /bin/typst ",
-    ).listFonts();
-    await createTauriRunner(
-      { typstListFonts, typstCompile: vi.fn(), typstQuery: vi.fn() },
-      "   ",
-    ).listFonts();
-    expect(typstListFonts.mock.calls).toEqual([["/bin/typst"], [null]]);
   });
 });
