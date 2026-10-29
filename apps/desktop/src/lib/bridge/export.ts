@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { packCompileRequest } from "../compileFrame";
+import { packCompileRequest, packQueryRequest } from "../compileFrame";
 import { binary, type RawBytes } from "./types";
 
 /** The PDF engine (Typst). */
@@ -17,5 +17,17 @@ export const exportBridge = {
   ): Promise<Uint8Array> =>
     binary(
       invoke<RawBytes>("typst_compile", packCompileRequest({ typstPath, source, files, pdfA })),
+    ),
+  /** Runs `typst query` and resolves to its JSON text (`--field value --one`), without making a PDF. Same frame as `typstCompile` with a selector. */
+  typstQuery: async (
+    typstPath: string | null,
+    source: string,
+    files: readonly (readonly [string, Uint8Array])[],
+    selector: string,
+  ): Promise<string> =>
+    new TextDecoder().decode(
+      await binary(
+        invoke<RawBytes>("typst_query", packQueryRequest({ typstPath, source, files, selector })),
+      ),
     ),
 };

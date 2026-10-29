@@ -212,6 +212,17 @@ export async function fakeTauri(page: Page) {
             }
             if (window.__compileError) throw window.__compileError;
             return new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]).buffer;
+          case "typst_query":
+            {
+              // Same frame as typst_compile, with `selector` in the header instead of `pdfA`.
+              const n = new DataView(a.buffer, a.byteOffset).getUint32(0, true);
+              (window.__typstQueryCalls ??= []).push(
+                JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n))),
+              );
+            }
+            if (window.__compileError) throw window.__compileError;
+            return new TextEncoder().encode(window.__typstQueryResult ?? '{"total":0,"starts":[]}')
+              .buffer;
           case "audio_voices":
             return (
               window.__audioVoices ?? [

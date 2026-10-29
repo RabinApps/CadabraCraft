@@ -1,7 +1,7 @@
 //! The Tauri command layer for the PDF export (blocking work runs off the UI thread).
-use super::engine::{compile, find_typst, list_fonts, version, COMPILE_TIMEOUT};
+use super::engine::{compile, find_typst, list_fonts, query, version, COMPILE_TIMEOUT};
 use super::error::{other, TypstError};
-use super::request::parse_compile_request;
+use super::request::{parse_compile_request, parse_query_request};
 use crate::platform::blocking;
 use serde::Serialize;
 use tauri::ipc::{InvokeBody, Request, Response};
@@ -46,6 +46,26 @@ async fn compile_body(body: &InvokeBody) -> Result<Response, TypstError> {
 #[tauri::command]
 pub async fn typst_compile(request: Request<'_>) -> Result<Response, TypstError> {
     compile_body(request.body()).await
+}
+
+/// The request is the compile frame with a `selector` instead of `pdfA` (see `parse_query_request`). Returns the JSON
+/// text `typst query` printed, as raw bytes.
+async fn query_body(body: &InvokeBody) -> Result<Response, TypstError> {
+    let InvokeBody::Raw(body) = body else {
+        return Err(other("typst_query expects a binary body"));
+    };
+    let req = parse_query_request(body)?;
+    blocking(move || {
+        let bin = find_typst(req.typst_path.as_deref())?;
+        query(&bin, &std::env::temp_dir(), &req.source, &req.files, &req.selector, COMPILE_TIMEOUT)
+    })
+    .await
+    .map(Response::new)
+}
+
+#[tauri::command]
+pub async fn typst_query(request: Request<'_>) -> Result<Response, TypstError> {
+    query_body(request.body()).await
 }
 
 #[cfg(test)]
@@ -98,6 +118,31 @@ mod tests {
         let failing = script(d.path(), "echo 'error: boom' >&2; exit 1");
         let err = run(compile_body(&InvokeBody::Raw(frame(Some(&failing), "x", true, &[])))).err();
         assert!(matches!(err, Some(TypstError::Compile { message }) if message.contains("boom")));
+    }
+
+    fn query_frame(typst_path: &str, source: &str, selector: &str) -> Vec<u8> {
+        let header = serde_json::json!({ "typstPath": typst_path, "source": source, "selector": selector, "files": [] }).to_string();
+        let mut out = (header.len() as u32).to_le_bytes().to_vec();
+        out.extend(header.as_bytes());
+        out
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn query_body_runs_the_program_and_returns_its_output_or_its_error() {
+        let d = tempfile::tempdir().unwrap();
+        let fake = script(d.path(), "cp main.typ /dev/stdout");
+        assert_eq!(pdf(run(query_body(&InvokeBody::Raw(query_frame(&fake, "{\"total\":0}", "<r>")))).unwrap()), b"{\"total\":0}");
+        let failing = script(d.path(), "echo 'error: boom' >&2; exit 1");
+        let err = run(query_body(&InvokeBody::Raw(query_frame(&failing, "x", "<r>")))).err();
+        assert!(matches!(err, Some(TypstError::Compile { message }) if message.contains("boom")));
+    }
+
+    #[test]
+    fn query_body_refuses_a_json_body_a_malformed_frame_and_a_missing_program() {
+        assert_eq!(run(query_body(&InvokeBody::Json(serde_json::json!({})))).err(), Some(other("typst_query expects a binary body")));
+        assert!(matches!(run(query_body(&InvokeBody::Raw(vec![1, 2]))).err(), Some(TypstError::Other { .. })));
+        assert!(matches!(run(query_body(&InvokeBody::Raw(query_frame("/no/such/typst", "x", "<r>")))).err(), Some(TypstError::NotFound { .. })));
     }
 
     #[test]

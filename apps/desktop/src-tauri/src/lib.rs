@@ -40,6 +40,7 @@ macro_rules! app_handlers {
             typst::commands::typst_find,
             typst::commands::typst_list_fonts,
             typst::commands::typst_compile,
+            typst::commands::typst_query,
             audio::commands::audio_voices,
             audio::commands::audio_render_chapter,
             audio::commands::audio_cancel,

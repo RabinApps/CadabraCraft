@@ -110,9 +110,9 @@ pub fn safe_rel(name: &str) -> Result<PathBuf, TypstError> {
     }
 }
 
-/// Writes `source` and `files` into a fresh temp directory under `tmp_base`, runs `typst compile`, returns the PDF.
-/// The directory is removed on every path out (success, error, timeout).
-pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)], pdf_a: bool, timeout: Duration) -> Result<Vec<u8>, TypstError> {
+/// Writes `source` (as `main.typ`) and `files` into a fresh temp directory under `tmp_base`; the directory is removed
+/// when the returned guard drops, so every path out (success, error, timeout) cleans up.
+fn stage(tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)]) -> Result<tempfile::TempDir, TypstError> {
     let rels = files.iter().map(|(n, _)| safe_rel(n)).collect::<Result<Vec<_>, _>>()?; // validate before touching disk
     let dir = tempfile::Builder::new().prefix("cadabracraft-pdf-").tempdir_in(tmp_base).map_err(other)?;
     for (rel, (_, bytes)) in rels.iter().zip(files) {
@@ -121,6 +121,33 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
         File::create(&target).and_then(|mut f| f.write_all(bytes)).map_err(other)?;
     }
     fs::write(dir.path().join("main.typ"), source).map_err(other)?;
+    Ok(dir)
+}
+
+/// A failed typst run as `TypstError::Compile`, carrying typst's own message.
+fn compile_failure(stderr: &str) -> TypstError {
+    let msg = stderr.trim();
+    TypstError::Compile { message: if msg.is_empty() { "typst exited with an error and no message".into() } else { msg.to_string() } }
+}
+
+/// Runs `typst query` on `source` (with `files` next to it) and returns its stdout: the JSON value of the single
+/// element `selector` matches (`--field value --one`). Same temp directory, timeout and font handling as `compile`; no PDF is made.
+pub fn query(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)], selector: &str, timeout: Duration) -> Result<Vec<u8>, TypstError> {
+    let dir = stage(tmp_base, source, files)?;
+    let mut args: Vec<String> = vec!["query".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
+    args.extend(font_args(&font_dirs()));
+    args.extend(["main.typ".into(), selector.into(), "--field".into(), "value".into(), "--one".into()]);
+    let r = run_capture(bin, &args, dir.path(), timeout)?;
+    if !r.success {
+        return Err(compile_failure(&r.stderr));
+    }
+    Ok(r.stdout)
+}
+
+/// Writes `source` and `files` into a fresh temp directory under `tmp_base`, runs `typst compile`, returns the PDF.
+/// The directory is removed on every path out (success, error, timeout).
+pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)], pdf_a: bool, timeout: Duration) -> Result<Vec<u8>, TypstError> {
+    let dir = stage(tmp_base, source, files)?;
     let mut args: Vec<String> = vec!["compile".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
     args.extend(font_args(&font_dirs()));
     if pdf_a {
@@ -129,8 +156,7 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
     args.extend(["main.typ".into(), "out.pdf".into()]);
     let r = run_capture(bin, &args, dir.path(), timeout)?;
     if !r.success {
-        let msg = r.stderr.trim();
-        return Err(TypstError::Compile { message: if msg.is_empty() { "typst exited with an error and no message".into() } else { msg.to_string() } });
+        return Err(compile_failure(&r.stderr));
     }
     if let Some(line) = r.stderr.lines().map(str::trim).find(|l| l.to_lowercase().contains("warning: unknown font family")) {
         let family = line.rsplit_once(':').map(|(_, f)| f.trim()).unwrap_or("unknown").to_string();
@@ -353,6 +379,49 @@ mod tests {
         // The source cannot read outside the compile directory.
         let err = compile(&bin, base.path(), "#read(\"/etc/hosts\")\n", &[], false, COMPILE_TIMEOUT);
         assert!(matches!(err, Err(TypstError::Compile { .. })), "{err:?}");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn query_passes_the_selector_flags_and_returns_stdout_and_cleans_up() {
+        let d = tempfile::tempdir().unwrap();
+        let base = tempfile::tempdir().unwrap();
+        let echo_args = fake(d.path(), "echo \"$@\"; cat main.typ");
+        let out = query(&echo_args, base.path(), "SRC", &[("assets/a.png".into(), vec![1])], "<page-report>", COMPILE_TIMEOUT).unwrap();
+        let text = String::from_utf8_lossy(&out);
+        assert!(text.contains("query --root . --diagnostic-format short"), "{text}");
+        assert!(text.contains("main.typ <page-report> --field value --one"), "{text}");
+        assert!(text.contains("SRC"));
+        assert_eq!(leftovers(base.path()), 0);
+        let loud = fake(d.path(), "echo 'error: no match' >&2; exit 1");
+        assert!(matches!(query(&loud, base.path(), "x", &[], "<a>", COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message.contains("no match")));
+        let silent = fake(d.path(), "exit 1");
+        assert!(matches!(query(&silent, base.path(), "x", &[], "<a>", COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message.contains("no message")));
+        assert_eq!(leftovers(base.path()), 0);
+    }
+
+    #[test]
+    fn query_rejects_unsafe_names_and_a_missing_program_without_leftovers() {
+        let base = tempfile::tempdir().unwrap();
+        let err = query(Path::new("/definitely/not/typst"), base.path(), "x", &[("../evil.png".into(), vec![1])], "<a>", COMPILE_TIMEOUT);
+        assert!(matches!(err, Err(TypstError::Other { .. })));
+        let err = query(Path::new("/definitely/not/typst"), base.path(), "x", &[], "<a>", COMPILE_TIMEOUT);
+        assert!(matches!(err, Err(TypstError::NotFound { .. })), "{err:?}");
+        assert_eq!(leftovers(base.path()), 0);
+    }
+
+    #[test]
+    fn query_with_real_typst_returns_the_labelled_value_as_json() {
+        let Some(bin) = real_typst() else { return };
+        let base = tempfile::tempdir().unwrap();
+        let src = "#metadata((total: 3, starts: ())) <page-report>\nHello\n";
+        let out = query(&bin, base.path(), src, &[], "<page-report>", COMPILE_TIMEOUT).unwrap();
+        let v: serde_json::Value = serde_json::from_slice(&out).unwrap();
+        assert_eq!(v["total"], 3);
+        assert_eq!(leftovers(base.path()), 0);
+        let err = query(&bin, base.path(), src, &[], "<missing>", COMPILE_TIMEOUT);
+        assert!(matches!(err, Err(TypstError::Compile { .. })), "{err:?}");
+        assert_eq!(leftovers(base.path()), 0);
     }
 
     #[test]

@@ -210,12 +210,14 @@ fn typst_commands_work_through_the_ipc() {
     // A binary body goes through `typst_compile`; a malformed one is refused, and so is a JSON one.
     assert_eq!(kind_of(get_ipc_response(&w, request("typst_compile", InvokeBody::Raw(vec![1, 2]), &[]))), "other");
     assert_eq!(kind_of(call(&w, "typst_compile", json!({}))), "other");
+    assert_eq!(kind_of(get_ipc_response(&w, request("typst_query", InvokeBody::Raw(vec![1, 2]), &[]))), "other");
+    assert_eq!(kind_of(call(&w, "typst_query", json!({}))), "other");
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
         let d = tempfile::tempdir().unwrap();
         let fake = d.path().join("fake-typst");
-        std::fs::write(&fake, "#!/bin/sh\ncase \"$1\" in --version) echo 'typst 9.9.9';; fonts) echo Alpha;; compile) cp main.typ out.pdf;; esac\n").unwrap();
+        std::fs::write(&fake, "#!/bin/sh\ncase \"$1\" in --version) echo 'typst 9.9.9';; fonts) echo Alpha;; compile) cp main.typ out.pdf;; query) cp main.typ /dev/stdout;; esac\n").unwrap();
         std::fs::set_permissions(&fake, std::fs::Permissions::from_mode(0o755)).unwrap();
         let fake = fake.to_string_lossy().into_owned();
         assert_eq!(json_of(call(&w, "typst_find", json!({ "typstPath": fake })))["version"], "typst 9.9.9");
@@ -224,6 +226,10 @@ fn typst_commands_work_through_the_ipc() {
         let mut body = (header.len() as u32).to_le_bytes().to_vec();
         body.extend(header.as_bytes());
         assert_eq!(raw_of(get_ipc_response(&w, request("typst_compile", InvokeBody::Raw(body), &[]))), b"%PDF-x");
+        let header = json!({ "typstPath": fake, "source": "{\"total\":0}", "selector": "<page-report>", "files": [] }).to_string();
+        let mut body = (header.len() as u32).to_le_bytes().to_vec();
+        body.extend(header.as_bytes());
+        assert_eq!(raw_of(get_ipc_response(&w, request("typst_query", InvokeBody::Raw(body), &[]))), b"{\"total\":0}");
     }
 }
 
