@@ -9,7 +9,13 @@ const ids = (code: string) =>
     .map((m) => m[1]!)
     .filter(Boolean)
     .sort();
-const placeholders = (s: string) => [...s.matchAll(/\{(\w+)/g)].map((m) => m[1]!).sort();
+// Placeholder names only: `{name}` and the argument of a plural, not the text that starts a plural branch (`one {Imported # page}`).
+const placeholders = (s: string) =>
+  [
+    ...new Set(
+      [...s.matchAll(/(?<!\b(?:zero|one|two|few|many|other) )\{(\w+)\s*[,}]/g)].map((m) => m[1]!),
+    ),
+  ].sort();
 
 describe("message catalogs", () => {
   const codes = readdirSync(dir, { withFileTypes: true })

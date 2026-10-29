@@ -22,8 +22,8 @@ export const LOCALES: LocaleInfo[] = [
   { code: "es", nativeName: "Español", dir: "ltr" },
 ];
 
-/** Add a code here once its catalog is translated and reviewed. */
-export const ENABLED_LOCALES: string[] = ["en"];
+/** Languages in the picker. The 1.0 catalogs are machine drafts that still need native review (docs/roadmap.md). */
+export const ENABLED_LOCALES: string[] = ["en", "es", "it", "fr", "de", "he", "ar"];
 
 /** Dev-only locale that expands and accents every message. */
 export const PSEUDO_LOCALE = "pseudo";

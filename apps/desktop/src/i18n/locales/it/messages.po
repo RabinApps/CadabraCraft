@@ -1,0 +1,3558 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-10-28 22:03-0700\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: it\n"
+
+#: src/app/settings/FontsSection.tsx
+msgid ".ttf and .otf files. A copy is kept in the app, never in your book."
+msgstr "File .ttf e .otf. Una copia viene conservata nell’app, mai nel tuo libro."
+
+#: src/lib/epubErrors.ts
+msgid "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+msgstr "“{page}” contiene un elemento “{kind}” che l’esportazione EPUB non può scrivere (in {place}). L’esportazione si è fermata per non perdere nulla."
+
+#: src/lib/epubErrors.ts
+msgid "“{page}” uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
+msgstr "“{page}” usa uno stile di testo che l’esportazione EPUB non può scrivere: {kind} (in {place}). L’esportazione si è fermata per non perdere nulla."
+
+#: src/lib/epubErrors.ts
+msgid "“{page}”: {detail}"
+msgstr "“{page}”: {detail}"
+
+#. placeholder {0}: r.stats.chapters
+#. placeholder {1}: r.stats.words
+#: src/app/home/Dashboard.tsx
+msgid "{0, plural, one {# chapter} other {# chapters}} · {1, plural, one {# word} other {# words}}"
+msgstr "{0, plural, one {# capitolo} other {# capitoli}} · {1, plural, one {# parola} other {# parole}}"
+
+#. placeholder {0}: stuck.length
+#: src/state/project/replace.ts
+msgid "{0, plural, one {# page could not be put back and keeps the replacement; Undo restores it.} other {# pages could not be put back and keep the replacement; Undo restores them.}}"
+msgstr "{0, plural, one {Non è stato possibile rimettere # pagina, che mantiene la sostituzione; Annulla la ripristina.} other {Non è stato possibile rimettere # pagine, che mantengono la sostituzione; Annulla le ripristina.}}"
+
+#. placeholder {0}: shown.length
+#: src/app/references/ReferencesPanel.tsx
+msgid "{0, plural, one {# reference} other {# references}}"
+msgstr "{0, plural, one {# riferimento} other {# riferimenti}}"
+
+#. placeholder {0}: countWords(c.doc)
+#. placeholder {0}: here.words
+#. placeholder {0}: v.words
+#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Dashboard.tsx
+msgid "{0, plural, one {# word} other {# words}}"
+msgstr "{0, plural, one {# parola} other {# parole}}"
+
+#. placeholder {0}: picked ? picked.length : chapters.length
+#: src/app/export/AudioExport.tsx
+msgid "{0, plural, one {Reads # chapter, as one audio file. Front and back matter are not read.} other {Reads # chapters, one audio file each. Front and back matter are not read.}}"
+msgstr "{0, plural, one {Legge # capitolo, come un unico file audio. Parti iniziali e finali non vengono lette.} other {Legge # capitoli, un file audio per ciascuno. Parti iniziali e finali non vengono lette.}}"
+
+#. placeholder {0}: label(kind)
+#. placeholder {1}: ago(r.stamp)
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "{0} · Removed {1}"
+msgstr "{0} · Rimosso {1}"
+
+#. placeholder {0}: info(p.id).hint
+#. placeholder {1}: mb(p.bytes)
+#: src/app/export/AudioExport.tsx
+msgid "{0} About {1} MB."
+msgstr "{0} Circa {1} MB."
+
+#. placeholder {0}: ctx.titleIn(entry, manifest, language)
+#: src/state/project/project.ts
+msgid "{0} changed outside the app; saving will keep both versions"
+msgstr "{0} è cambiato fuori dall’app; salvando verranno conservate entrambe le versioni"
+
+#. placeholder {0}: titleIn(entry, manifest, lang)
+#. placeholder {1}: w.conflict_copy
+#: src/state/project/pages.ts
+msgid "{0} changed outside the app; the other version was kept as {1}"
+msgstr "{0} è cambiato fuori dall’app; l’altra versione è stata conservata come {1}"
+
+#. placeholder {0}: e.format.toUpperCase()
+#. placeholder {1}: e.detail.trim()
+#: src/lib/audioErrors.ts
+msgid "{0} could not be written:\n"
+"{1}"
+msgstr "Impossibile scrivere {0}:\n"
+"{1}"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} does not exist"
+msgstr "{0} non esiste"
+
+#. placeholder {0}: job.files
+#: src/app/export/AudioExport.tsx
+msgid "{0} files, {minutes} min. Saved in the exports folder, in audio."
+msgstr "{0} file, {minutes} min. Salvato nella cartella delle esportazioni, in audio."
+
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "{0} is a type of file that cannot be added as a reference"
+msgstr "{0} è un tipo di file che non può essere aggiunto come riferimento"
+
+#. placeholder {0}: e.path
+#. placeholder {1}: e.max_mb
+#: src/lib/projectError.ts
+msgid "{0} is larger than {1} MB"
+msgstr "{0} supera {1} MB"
+
+#. placeholder {0}: e.name
+#. placeholder {1}: e.max_megapixels
+#: src/lib/projectError.ts
+msgid "{0} is larger than {1} megapixels"
+msgstr "{0} supera {1} megapixel"
+
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "{0} is not a .docx, .md, .markdown, .html, .htm or .txt file"
+msgstr "{0} non è un file .docx, .md, .markdown, .html, .htm o .txt"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} is not a CadabraCraft project folder"
+msgstr "{0} non è una cartella di progetto di CadabraCraft"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} is not a file"
+msgstr "{0} non è un file"
+
+#. placeholder {0}: e.name
+#. placeholder {1}: e.ext
+#: src/lib/projectError.ts
+msgid "{0} is not a valid {1} file"
+msgstr "{0} non è un file {1} valido"
+
+#. placeholder {0}: e.name
+#. placeholder {1}: e.ext
+#: src/lib/projectError.ts
+msgid "{0} is not a valid {1} image"
+msgstr "{0} non è un’immagine {1} valida"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} is not valid UTF-8 text"
+msgstr "{0} non è testo UTF-8 valido"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} is still downloading from iCloud; try again in a moment"
+msgstr "{0} è ancora in download da iCloud; riprova tra un momento"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "{0} leaves the project folder through a symbolic link"
+msgstr "{0} esce dalla cartella del progetto tramite un collegamento simbolico"
+
+#. placeholder {0}: here.chapterNo
+#. placeholder {1}: here.chapters
+#: src/app/home/Dashboard.tsx
+msgid "{0} of {1, plural, one {# chapter} other {# chapters}}"
+msgstr "{0} di {1, plural, one {# capitolo} other {# capitoli}}"
+
+#. placeholder {0}: p.translated
+#. placeholder {1}: p.total
+#: src/app/export/EditionsChecklist.tsx
+#: src/app/shell/EditionSwitcher.tsx
+msgid "{0} of {1} chapters"
+msgstr "{0} di {1} capitoli"
+
+#. placeholder {0}: mb(download.done)
+#. placeholder {1}: mb(download.total)
+#: src/app/export/AudioExport.tsx
+msgid "{0} of {1} MB"
+msgstr "{0} di {1} MB"
+
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "{0} was not chosen in a file or folder dialog"
+msgstr "{0} non è stato scelto in una finestra di file o cartelle"
+
+#. placeholder {0}: ref.title
+#. placeholder {1}: errText(e)
+#: src/state/project/references.ts
+msgid "{0} was removed, but its file could not be moved to the trash: {1}"
+msgstr "{0} è stato rimosso, ma il suo file non ha potuto essere spostato nel cestino: {1}"
+
+#. placeholder {0}: ctx.titleIn(entry, manifest, language)
+#: src/state/project/project.ts
+msgid "{0} was updated from outside the app"
+msgstr "{0} è stato aggiornato dall’esterno dell’app"
+
+#: src/app/shell/StatusBar.tsx
+msgid "{bookWords} in the book"
+msgstr "{bookWords} nel libro"
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
+msgstr "{chapterCount, plural, one {Importato # capitolo da {fileName}.} other {Importati # capitoli da {fileName}.}}"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "{count, plural, one {# page} other {# pages}}"
+msgstr "{count, plural, one {# pagina} other {# pagine}}"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "{count, plural, one {≈ # page} other {≈ # pages}}"
+msgstr "{count, plural, one {≈ # pagina} other {≈ # pagine}}"
+
+#: src/app/export/PrintPreview.tsx
+msgid "{estimate, plural, one {About # page} other {About # pages}}"
+msgstr "{estimate, plural, one {Circa # pagina} other {Circa # pagine}}"
+
+#. placeholder {0}: w.conflict_copy
+#: src/state/project/context.ts
+msgid "{file} changed outside the app; the other version was kept as {0}"
+msgstr "{file} è cambiato fuori dall’app; l’altra versione è stata conservata come {0}"
+
+#: src/state/project/util.ts
+msgid "{file} is not a valid chapter, so it was not opened. The file was left untouched."
+msgstr "{file} non è un capitolo valido, quindi non è stato aperto. Il file non è stato toccato."
+
+#: src/state/project/util.ts
+msgid "{file} is not valid JSON, so it was not opened. The file was left untouched."
+msgstr "{file} non è JSON valido, quindi non è stato aperto. Il file non è stato toccato."
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
+msgstr "{imageCount, plural, one {Aggiunta # immagine.} other {Aggiunte # immagini.}}"
+
+#: src/lib/search/findHelpers.ts
+msgid "{index} of {total}"
+msgstr "{index} di {total}"
+
+#: src/app/dialogs/ImportParts.tsx
+msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
+msgstr "{kept, plural, one {Verrà importato # capitolo.} other {Verranno importati # capitoli.}}"
+
+#: src/app/shell/Details.tsx
+msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr "{minutes, plural, one {# minuto} other {# minuti}}"
+
+#: src/lib/exportChecks.ts
+msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
+msgstr "{missing, plural, one {“{name}” ha # immagine senza testo alternativo} other {“{name}” ha # immagini senza testo alternativo}}"
+
+#: src/editor/FindResults.tsx
+msgid "{n, plural, one {# match} other {# matches}}"
+msgstr "{n, plural, one {# corrispondenza} other {# corrispondenze}}"
+
+#: src/state/project/exports.ts
+msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
+msgstr "{n, plural, one {# pagina non tradotta esclusa} other {# pagine non tradotte escluse}}"
+
+#: src/state/project/references.ts
+msgid "{name} is already in this book. Using the existing file."
+msgstr "{name} è già in questo libro. Viene usato il file esistente."
+
+#: src/app/references/PdfPreview.tsx
+msgid "{page} / {pages}"
+msgstr "{page} / {pages}"
+
+#: src/app/shell/StatusBar.tsx
+msgid "{sessionWritten} of {sessionGoal} words this session"
+msgstr "{sessionWritten} di {sessionGoal} parole in questa sessione"
+
+#: src/state/project/history.ts
+msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
+msgstr "{skipped, plural, one {# pagina non è più nel libro ed è stata esclusa} other {# pagine non sono più nel libro e sono state escluse}}"
+
+#: src/state/project/history.ts
+msgid "{stuck, plural, one {# page could not be put back and is now in the other state} other {# pages could not be put back and are now in the other state}}"
+msgstr "{stuck, plural, one {# pagina non ha potuto essere rimessa ed è ora nell’altro stato} other {# pagine non hanno potuto essere rimesse e sono ora nell’altro stato}}"
+
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "{styleCount} styles · {size} MB"
+msgstr "{styleCount} stili · {size} MB"
+
+#: src/lib/exportChecks.ts
+msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
+msgstr "{untitled, plural, one {# capitolo non ha un titolo} other {# capitoli non hanno un titolo}}"
+
+#: src/editor/Editor.tsx
+msgid "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
+msgstr "{warnings, plural, one {Convertito, con # elemento che non è stato possibile conservare} other {Convertito, con # elementi che non è stato possibile conservare}}"
+
+#: src/app/shell/StatusBar.tsx
+msgid "{words, plural, one {# word in this chapter} other {# words in this chapter}}"
+msgstr "{words, plural, one {# parola in questo capitolo} other {# parole in questo capitolo}}"
+
+#: src/app/shell/StatusBar.tsx
+msgid "{words, plural, one {# word on this page} other {# words on this page}}"
+msgstr "{words, plural, one {# parola in questa pagina} other {# parole in questa pagina}}"
+
+#: src/app/export/PrintPreview.tsx
+msgid "3 mm"
+msgstr "3 mm"
+
+#: src/state/project/assets.ts
+msgid "A cover must be a PNG, JPEG or WebP image."
+msgstr "Una copertina deve essere un’immagine PNG, JPEG o WebP."
+
+#: src/state/project/voices.ts
+msgid "A download is already running"
+msgstr "Un download è già in corso"
+
+#: src/app/dialogs/RecoverDialog.tsx
+msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
+msgstr "Nella Cronologia è stata trovata una versione di questa pagina più recente di quella salvata nel tuo libro, ad esempio perché una cartella sincronizzata ha rimesso un file più vecchio. In ogni caso il testo salvato viene conservato come istantanea."
+
+#: src/state/project/exports.ts
+msgid "A PDF export is already running"
+msgstr "Un’esportazione PDF è già in corso"
+
+#: src/lib/projectError.ts
+msgid "A project already exists in this folder"
+msgstr "In questa cartella esiste già un progetto"
+
+#: src/state/project/audio.ts
+msgid "A sample is already being made"
+msgstr "Un’anteprima audio è già in preparazione"
+
+#: src/app/shell/menuModel.ts
+msgid "About CadabraCraft"
+msgstr "Informazioni su CadabraCraft"
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "About the author"
+msgstr "Informazioni sull’autore"
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Acknowledgments"
+msgstr "Ringraziamenti"
+
+#. placeholder {0}: c.title
+#. placeholder {0}: reference.title
+#: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
+msgid "Actions for {0}"
+msgstr "Azioni per {0}"
+
+#: src/state/project/pages.ts
+msgid "Add {name}"
+msgstr "Aggiungi {name}"
+
+#: src/state/project/pages.ts
+msgid "Add {title}"
+msgstr "Aggiungi {title}"
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Add a tag"
+msgstr "Aggiungi un’etichetta"
+
+#: src/app/shell/App.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Add chapter"
+msgstr "Aggiungi capitolo"
+
+#: src/app/shell/menuModel.ts
+msgid "Add Column After"
+msgstr "Aggiungi colonna dopo"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Add files"
+msgstr "Aggiungi file"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Add image"
+msgstr "Aggiungi immagine"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Add images, videos, PDFs, audio and notes you want to look at while you write. They stay in the book folder."
+msgstr "Aggiungi immagini, video, PDF, audio e note che vuoi consultare mentre scrivi. Restano nella cartella del libro."
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+#: src/app/shell/EditionSwitcher.tsx
+msgid "Add language"
+msgstr "Aggiungi lingua"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Add link"
+msgstr "Aggiungi collegamento"
+
+#: src/app/shell/Sidebar.tsx
+msgid "Add page"
+msgstr "Aggiungi pagina"
+
+#: src/app/shell/menuModel.ts
+msgid "Add Row Below"
+msgstr "Aggiungi riga sotto"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
+msgstr "Aggiunta come prima pagina, con una pagina bianca dietro, a meno che tu non la disattivi nella finestra di esportazione. Il numero di pagine qui sopra non le include."
+
+#. placeholder {0}: importing.name
+#: src/app/references/ReferencesPanel.tsx
+msgid "Adding {0}"
+msgstr "Aggiunta di {0}"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Address"
+msgstr "Indirizzo"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
+msgstr "Aggiunge la copertina come prima pagina, con una pagina bianca dietro. Disattivalo per un interno pronto per la stampa; le tipografie di solito vogliono la copertina come file separato."
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "All"
+msgstr "Tutti"
+
+#: src/app/export/AudioExport.tsx
+#: src/editor/FindBar.tsx
+msgid "All chapters"
+msgstr "Tutti i capitoli"
+
+#. placeholder {0}: opts.root
+#. placeholder {1}: written.chapters
+#. placeholder {2}: written.images
+#: src/lib/importBook.ts
+msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
+msgstr "Già scritto in {0}: {1} file di capitoli e {2} immagini; l’elenco dei capitoli del libro non è stato salvato."
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Also by"
+msgstr "Dello stesso autore"
+
+#: src/state/project/audio.ts
+#: src/state/project/exports.ts
+msgid "An export is already running"
+msgstr "Un’esportazione è già in corso"
+
+#: src/state/project/project.ts
+msgid "An import is already running"
+msgstr "Un’importazione è già in corso"
+
+#: src/app/export/Templates.tsx
+msgid "Any page"
+msgstr "Qualsiasi pagina"
+
+#: src/app/settings/Settings.tsx
+msgid "Appearance"
+msgstr "Aspetto"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Apply"
+msgstr "Applica"
+
+#: src/app/settings/Settings.tsx
+msgid "Ask each time"
+msgstr "Chiedi ogni volta"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "at {size}"
+msgstr "a {size}"
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferencesPanel.tsx
+#: src/app/settings/Settings.tsx
+msgid "Audio"
+msgstr "Audio"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Audiobook"
+msgstr "Audiolibro"
+
+#. placeholder {0}: Math.round(audio.overall * 100)
+#: src/app/shell/AppHeader.tsx
+msgid "Audiobook {0}%"
+msgstr "Audiolibro {0}%"
+
+#: src/app/export/AudioExport.tsx
+msgid "Audiobook progress"
+msgstr "Avanzamento dell’audiolibro"
+
+#: src/app/shell/menuModel.ts
+msgid "Audiobook…"
+msgstr "Audiolibro…"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Home.tsx
+#: src/app/shell/Details.tsx
+msgid "Author"
+msgstr "Autore"
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/export/PrintPreview.tsx
+#: src/app/export/Templates.tsx
+#: src/app/settings/Settings.tsx
+msgid "Back"
+msgstr "Indietro"
+
+#: src/app/shell/Details.tsx
+#: src/app/shell/Sidebar.tsx
+#: src/app/shell/StatusBar.tsx
+msgid "Back matter"
+msgstr "Parti finali"
+
+#: src/app/shell/menuModel.ts
+msgid "Back Matter"
+msgstr "Parti finali"
+
+#. placeholder {0}: r.title
+#: src/editor/FindResults.tsx
+msgid "Back matter: {0}"
+msgstr "Parti finali: {0}"
+
+#: src/app/export/AudioFooter.tsx
+msgid "Back to options"
+msgstr "Torna alle opzioni"
+
+#: src/app/settings/Settings.tsx
+msgid "Backups"
+msgstr "Backup"
+
+#: src/editor/Editor.tsx
+msgid "Becomes"
+msgstr "Diventa"
+
+#: src/app/settings/Settings.tsx
+msgid "Before a save replaces different text, at most once every 10 minutes per chapter."
+msgstr "Prima che un salvataggio sostituisca testo diverso, al massimo una volta ogni 10 minuti per capitolo."
+
+#: src/app/settings/AudioSection.tsx
+msgid "Best installed voice"
+msgstr "La migliore voce installata"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Bleed"
+msgstr "Abbondanza"
+
+#: src/editor/Toolbar.tsx
+msgid "Block quote"
+msgstr "Citazione"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "Block Quote"
+msgstr "Citazione"
+
+#: src/app/export/PdfPanel.tsx
+#: src/app/export/Templates.tsx
+msgid "Body font"
+msgstr "Carattere del corpo"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Bold"
+msgstr "Grassetto"
+
+#: src/app/shell/Details.tsx
+msgid "Book"
+msgstr "Libro"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Book details"
+msgstr "Dettagli del libro"
+
+#. placeholder {0}: form.language
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Book details ({0})"
+msgstr "Dettagli del libro ({0})"
+
+#: src/app/shell/menuModel.ts
+msgid "Book Details…"
+msgstr "Dettagli del libro…"
+
+#: src/app/shell/Sidebar.tsx
+msgid "Book history"
+msgstr "Cronologia del libro"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Book progress"
+msgstr "Avanzamento del libro"
+
+#: src/app/shell/menuModel.ts
+msgid "Bring All to Front"
+msgstr "Porta tutto in primo piano"
+
+#: src/app/settings/FontsSection.tsx
+msgid "Browse fonts…"
+msgstr "Sfoglia i caratteri…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Building EPUB…"
+msgstr "Creazione dell’EPUB…"
+
+#: src/editor/Toolbar.tsx
+msgid "Bulleted list"
+msgstr "Elenco puntato"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "Bulleted List"
+msgstr "Elenco puntato"
+
+#. placeholder {0}: w.conflict_copy
+#: src/state/project/context.ts
+msgid "cadabra.json changed outside the app; your previous copy was kept as {0}"
+msgstr "cadabra.json è cambiato fuori dall’app; la tua copia precedente è stata conservata come {0}"
+
+#: src/state/project/project.ts
+msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
+msgstr "cadabra.json è stato modificato fuori dall’app e non è stato possibile leggerlo; salvando verrà conservata una copia di quella versione"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "CadabraCraft does not have permission to use {0}"
+msgstr "CadabraCraft non ha il permesso di usare {0}"
+
+#: src/app/dialogs/SponsorDialog.tsx
+msgid "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
+msgstr "CadabraCraft è gratuito e a sorgente disponibile, e il tuo libro resta sul tuo computer. Se ti aiuta a finire un libro, una sponsorizzazione ripaga il tempo che ci vuole."
+
+#: src/app/hooks/useAppMenu.ts
+msgid "CadabraCraft is up to date."
+msgstr "CadabraCraft è aggiornato."
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/export/AudioFooter.tsx
+#: src/app/export/ExportDialog.tsx
+#: src/app/home/Home.tsx
+#: src/app/settings/FontsCatalogDialog.tsx
+#: src/editor/TableCommands.tsx
+#: src/editor/ToolbarDialogs.tsx
+#: src/ui/Dialog.tsx
+msgid "Cancel"
+msgstr "Annulla"
+
+#: src/app/export/AudioFooter.tsx
+msgid "Cancel download"
+msgstr "Annulla il download"
+
+#: src/app/export/AudioFooter.tsx
+msgid "Cancel export"
+msgstr "Annulla l’esportazione"
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Cancel the download of {0}"
+msgstr "Annulla il download di {0}"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Cannot restore {0}"
+msgstr "Impossibile ripristinare {0}"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Cannot watch {0} for changes made outside the app"
+msgstr "Impossibile controllare le modifiche a {0} fatte fuori dall’app"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Caption"
+msgstr "Didascalia"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Change"
+msgstr "Cambia"
+
+#: src/app/shell/Details.tsx
+msgid "Change template"
+msgstr "Cambia modello"
+
+#: src/state/project/project.ts
+msgid "Changes made outside the app may not be noticed. Saving still works."
+msgstr "Le modifiche fatte fuori dall’app potrebbero non essere rilevate. Il salvataggio funziona comunque."
+
+#: src/app/shell/Details.tsx
+msgid "Chapter"
+msgstr "Capitolo"
+
+#. placeholder {0}: chapters.length + 1
+#. placeholder {0}: manifest!.chapters.length + 1
+#. placeholder {0}: manifest.chapters.length + 1
+#: src/app/hooks/useAppMenu.ts
+#: src/app/shell/App.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Chapter {0}"
+msgstr "Capitolo {0}"
+
+#. placeholder {0}: here.chapterNo
+#. placeholder {1}: here.chapterTitle
+#: src/app/home/Dashboard.tsx
+msgid "Chapter {0} · {1}"
+msgstr "Capitolo {0} · {1}"
+
+#. placeholder {0}: p.chapterNo
+#. placeholder {1}: p.chapterCount
+#: src/app/shell/StatusBar.tsx
+msgid "Chapter {0} of {1}"
+msgstr "Capitolo {0} di {1}"
+
+#. placeholder {0}: chapterIds.length
+#: src/editor/ReadingFooter.tsx
+msgid "Chapter {chapterNo} of {0}"
+msgstr "Capitolo {chapterNo} di {0}"
+
+#: src/app/export/AudioExport.tsx
+msgid "Chapter {current} of {total}"
+msgstr "Capitolo {current} di {total}"
+
+#. placeholder {0}: e.chapterTitle
+#: src/lib/audioErrors.ts
+msgid "Chapter {n}, {0}, stopped: {text}"
+msgstr "Capitolo {n}, {0}, interrotto: {text}"
+
+#: src/state/project/project.ts
+msgid "Chapter list updated from outside the app"
+msgstr "Elenco dei capitoli aggiornato dall’esterno dell’app"
+
+#: src/state/project/project.ts
+msgid "Chapter One"
+msgstr "Capitolo uno"
+
+#: src/app/export/Templates.tsx
+msgid "Chapter opener"
+msgstr "Apertura del capitolo"
+
+#: src/app/shell/Sidebar.tsx
+msgid "Chapter title"
+msgstr "Titolo del capitolo"
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/export/AudioExport.tsx
+#: src/app/shell/App.tsx
+#: src/app/shell/Details.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Chapters"
+msgstr "Capitoli"
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Chapters start as {sourceName} copies, marked Not translated yet."
+msgstr "I capitoli partono come copie di {sourceName}, contrassegnati come Non ancora tradotti."
+
+#: src/app/export/AudioExport.tsx
+msgid "Chapters to read"
+msgstr "Capitoli da leggere"
+
+#: src/app/settings/Settings.tsx
+msgid "Check for updates on launch"
+msgstr "Cerca aggiornamenti all’avvio"
+
+#: src/app/shell/menuModel.ts
+msgid "Check for Updates…"
+msgstr "Cerca aggiornamenti…"
+
+#: src/app/export/EpubPanel.tsx
+msgid "Checks"
+msgstr "Controlli"
+
+#: src/lib/importBook.ts
+msgid "Choose a .docx, .md, .markdown or .html file."
+msgstr "Scegli un file .docx, .md, .markdown o .html."
+
+#: src/app/shell/App.tsx
+msgid "Choose a chapter to start."
+msgstr "Scegli un capitolo per iniziare."
+
+#: src/app/export/Templates.tsx
+msgid "Choose a look for your book"
+msgstr "Scegli un aspetto per il tuo libro"
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/settings/FontsSection.tsx
+msgid "Choose file…"
+msgstr "Scegli file…"
+
+#. placeholder {0}: nativeName(blocked)
+#: src/app/export/ExportDialog.tsx
+msgid "Choose how to handle {0} to export it."
+msgstr "Scegli come gestire {0} per esportarlo."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Choose image…"
+msgstr "Scegli immagine…"
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Home.tsx
+msgid "Choose…"
+msgstr "Scegli…"
+
+#: src/app/shell/menuModel.ts
+msgid "Clear Menu"
+msgstr "Svuota menu"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Clear search and filters to reorder"
+msgstr "Cancella ricerca e filtri per riordinare"
+
+#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/export/AudioFooter.tsx
+#: src/app/settings/FontsCatalogDialog.tsx
+#: src/editor/FindBar.tsx
+msgid "Close"
+msgstr "Chiudi"
+
+#: src/app/shell/App.tsx
+msgid "Close chapters"
+msgstr "Chiudi i capitoli"
+
+#: src/app/shell/menuModel.ts
+msgid "Close Project"
+msgstr "Chiudi progetto"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Close references"
+msgstr "Chiudi i riferimenti"
+
+#: src/app/references/PdfSearch.tsx
+msgid "Close search"
+msgstr "Chiudi la ricerca"
+
+#: src/app/references/ReferenceViewer.tsx
+msgid "Close viewer"
+msgstr "Chiudi il visualizzatore"
+
+#: src/app/shell/menuModel.ts
+msgid "Close Window"
+msgstr "Chiudi finestra"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Code"
+msgstr "Codice"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Code Block"
+msgstr "Blocco di codice"
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Colophon"
+msgstr "Colophon"
+
+#: src/editor/TableCommands.tsx
+msgid "Columns"
+msgstr "Colonne"
+
+#: src/editor/TableCommands.tsx
+msgid "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
+msgstr "Le colonne hanno la stessa larghezza. Fino a {MAX_TABLE_COLUMNS} colonne."
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Compared with the current text"
+msgstr "Confrontato con il testo attuale"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Comparison"
+msgstr "Confronto"
+
+#: src/app/home/Dashboard.tsx
+msgid "Continue writing"
+msgstr "Continua a scrivere"
+
+#: src/editor/Editor.tsx
+msgid "Convert"
+msgstr "Converti"
+
+#: src/app/shell/menuModel.ts
+msgid "Convert HTML in Selection to Styled Text"
+msgstr "Converti l’HTML della selezione in testo formattato"
+
+#: src/app/settings/Settings.tsx
+msgid "Convert to styled text"
+msgstr "Converti in testo formattato"
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "Copied"
+msgstr "Copiato"
+
+#: src/app/shell/menuModel.ts
+msgid "Copy"
+msgstr "Copia"
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "Copy report"
+msgstr "Copia il rapporto"
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Copyright page"
+msgstr "Pagina del copyright"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not add {name}: {0}"
+msgstr "Impossibile aggiungere {name}: {0}"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/assets.ts
+msgid "Could not add the cover: {0}"
+msgstr "Impossibile aggiungere la copertina: {0}"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/assets.ts
+msgid "Could not add the image: {0}"
+msgstr "Impossibile aggiungere l’immagine: {0}"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Could not be read"
+msgstr "Impossibile leggerlo"
+
+#: src/editor/Editor.tsx
+msgid "Could not convert the HTML in the selection"
+msgstr "Impossibile convertire l’HTML nella selezione"
+
+#: src/editor/Editor.tsx
+msgid "Could not convert the HTML, so it was pasted as text"
+msgstr "Impossibile convertire l’HTML, quindi è stato incollato come testo"
+
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "Could not install the update: {error}"
+msgstr "Impossibile installare l’aggiornamento: {error}"
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/SponsorDialog.tsx
+msgid "Could not open {SPONSOR_URL}: {0}"
+msgstr "Impossibile aprire {SPONSOR_URL}: {0}"
+
+#: src/app/references/Previews.tsx
+msgid "Could not open {title}: {error}"
+msgstr "Impossibile aprire {title}: {error}"
+
+#. placeholder {0}: errText(e)
+#: src/app/home/Home.tsx
+msgid "Could not open this book: {0}"
+msgstr "Impossibile aprire questo libro: {0}"
+
+#: src/state/project/history.ts
+msgid "Could not redo: {why}"
+msgstr "Impossibile ripetere: {why}"
+
+#. placeholder {0}: ref.title
+#. placeholder {1}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not remove {0}: {1}"
+msgstr "Impossibile rimuovere {0}: {1}"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not reorder the references: {0}"
+msgstr "Impossibile riordinare i riferimenti: {0}"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not restore {name}: {0}"
+msgstr "Impossibile ripristinare {name}: {0}"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/references.ts
+msgid "Could not save the reference: {0}"
+msgstr "Impossibile salvare il riferimento: {0}"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/pages.ts
+msgid "Could not save: {0}"
+msgstr "Impossibile salvare: {0}"
+
+#: src/app/references/PdfPreview.tsx
+msgid "Could not show this PDF: {error}"
+msgstr "Impossibile mostrare questo PDF: {error}"
+
+#: src/state/project/history.ts
+msgid "Could not undo: {why}"
+msgstr "Impossibile annullare: {why}"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/export/PrintPreview.tsx
+#: src/app/shell/Details.tsx
+msgid "Cover"
+msgstr "Copertina"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Cover preview"
+msgstr "Anteprima della copertina"
+
+#: src/app/home/Home.tsx
+msgid "Create book"
+msgstr "Crea libro"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed."
+msgstr "Crea un nuovo libro da un file Word (.docx), Markdown o HTML. Il file originale non viene mai modificato."
+
+#: src/app/export/ExportDialog.tsx
+msgid "Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app."
+msgstr "Crea un PDF pronto per la stampa nella cartella delle esportazioni. Typst, il motore PDF, è incluso nell’app."
+
+#: src/app/export/ExportDialog.tsx
+msgid "Creates an EPUB 3 e-book in the exports folder."
+msgstr "Crea un e-book EPUB 3 nella cartella delle esportazioni."
+
+#: src/app/export/PrintPreview.tsx
+msgid "Crop marks"
+msgstr "Crocini di taglio"
+
+#: src/app/export/EditionsChecklist.tsx
+msgid "Current"
+msgstr "Attuale"
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Custom page"
+msgstr "Pagina personalizzata"
+
+#: src/app/shell/menuModel.ts
+msgid "Cut"
+msgstr "Taglia"
+
+#: src/app/settings/Settings.tsx
+#: src/editor/ReadingSettings.tsx
+msgid "Dark"
+msgstr "Scuro"
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Dedication"
+msgstr "Dedica"
+
+#: src/app/settings/AudioSection.tsx
+msgid "Default formats"
+msgstr "Formati predefiniti"
+
+#: src/app/settings/AudioSection.tsx
+msgid "Default voice"
+msgstr "Voce predefinita"
+
+#: src/app/settings/AudioSection.tsx
+msgid "Delete"
+msgstr "Elimina"
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsSection.tsx
+msgid "Delete {0}"
+msgstr "Elimina {0}"
+
+#: src/app/shell/menuModel.ts
+msgid "Delete Column"
+msgstr "Elimina colonna"
+
+#: src/app/shell/menuModel.ts
+msgid "Delete Row"
+msgstr "Elimina riga"
+
+#: src/app/shell/menuModel.ts
+msgid "Delete Table"
+msgstr "Elimina tabella"
+
+#: src/app/settings/AudioSection.tsx
+msgid "Delete voices"
+msgstr "Elimina voci"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Description"
+msgstr "Descrizione"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Description (alt text)"
+msgstr "Descrizione (testo alternativo)"
+
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Details"
+msgstr "Dettagli"
+
+#: src/app/shell/menuModel.ts
+msgid "Details Panel"
+msgstr "Pannello dei dettagli"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Dismiss"
+msgstr "Chiudi"
+
+#: src/app/references/ReferenceRow.tsx
+msgid "Document"
+msgstr "Documento"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Documents"
+msgstr "Documenti"
+
+#: src/app/dialogs/SponsorDialog.tsx
+msgid "Don't show again"
+msgstr "Non mostrare più"
+
+#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/export/AudioExport.tsx
+#: src/app/export/AudioFooter.tsx
+msgid "Done"
+msgstr "Fatto"
+
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Download"
+msgstr "Scarica"
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Download {0}"
+msgstr "Scarica {0}"
+
+#: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/settings/FontsSection.tsx
+msgid "Download fonts"
+msgstr "Scarica caratteri"
+
+#: src/app/export/AudioExport.tsx
+msgid "Download more voices"
+msgstr "Scarica altre voci"
+
+#. placeholder {0}: mb(moreBytes)
+#: src/app/export/AudioExport.tsx
+msgid "Download more voices ({0} MB)"
+msgstr "Scarica altre voci ({0} MB)"
+
+#: src/app/export/AudioExport.tsx
+msgid "Download progress"
+msgstr "Avanzamento del download"
+
+#. placeholder {0}: mb(chosenPacks.reduce((n, p) => n + p.bytes, 0))
+#: src/app/export/AudioFooter.tsx
+msgid "Download selected ({0} MB)"
+msgstr "Scarica la selezione ({0} MB)"
+
+#: src/app/settings/FontsSection.tsx
+msgid "Downloaded"
+msgstr "Scaricato"
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Downloading {0}"
+msgstr "Download di {0}"
+
+#: src/app/export/AudioExport.tsx
+msgid "Downloading…"
+msgstr "Download in corso…"
+
+#. placeholder {0}: formatMb(d.done)
+#. placeholder {1}: formatMb(d.total || f.bytes)
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Downloading… {0} MB of {1} MB"
+msgstr "Download in corso… {0} MB di {1} MB"
+
+#. placeholder {0}: reference.title
+#: src/app/references/ReferenceRow.tsx
+msgid "Drag to reorder {0}"
+msgstr "Trascina per riordinare {0}"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Drop files here to add them"
+msgstr "Trascina qui i file per aggiungerli"
+
+#: src/app/home/Home.tsx
+msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
+msgstr "Ogni libro è una normale cartella di tua proprietà. Tienila in Dropbox, Google Drive o iCloud Drive per sincronizzarla tra i dispositivi."
+
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Each subject can have up to {0} characters."
+msgstr "Ogni argomento può avere fino a {0} caratteri."
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Earlier versions"
+msgstr "Versioni precedenti"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Earlier versions of this page. Pick one to compare it with the current text."
+msgstr "Versioni precedenti di questa pagina. Scegline una per confrontarla con il testo attuale."
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "Edit"
+msgstr "Modifica"
+
+#: src/app/shell/Details.tsx
+msgid "Edit details"
+msgstr "Modifica dettagli"
+
+#: src/app/home/Dashboard.tsx
+msgid "Edited {when}"
+msgstr "Modificato {when}"
+
+#. placeholder {0}: nativeName(active)
+#: src/app/shell/EditionSwitcher.tsx
+msgid "Edition: {0}"
+msgstr "Edizione: {0}"
+
+#: src/app/export/EditionsChecklist.tsx
+msgid "Editions"
+msgstr "Edizioni"
+
+#: src/app/settings/Settings.tsx
+msgid "Editor"
+msgstr "Editor"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Embeds everything needed to open the file in the future."
+msgstr "Incorpora tutto ciò che serve per aprire il file in futuro."
+
+#: src/app/dialogs/SponsorDialog.tsx
+msgid "Enjoying CadabraCraft?"
+msgstr "Ti piace CadabraCraft?"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Enter a real date."
+msgstr "Inserisci una data reale."
+
+#: src/app/shell/menuModel.ts
+msgid "Enter Full Screen"
+msgstr "Attiva schermo intero"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Enter the series name first."
+msgstr "Inserisci prima il nome della serie."
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Epigraph"
+msgstr "Epigrafe"
+
+#: src/app/export/ExportDialog.tsx
+msgid "EPUB 3"
+msgstr "EPUB 3"
+
+#: src/app/shell/menuModel.ts
+msgid "EPUB…"
+msgstr "EPUB…"
+
+#: src/lib/exportChecks.ts
+msgid "Estimated {estimatedPages} pages: KDP paperbacks allow at most {KDP_MAX_PAGES}. This is an estimate."
+msgstr "Pagine stimate: {estimatedPages}. I paperback KDP ne ammettono al massimo {KDP_MAX_PAGES}. È una stima."
+
+#: src/lib/exportChecks.ts
+msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
+msgstr "Pagine stimate: {estimatedPages}. I paperback KDP ne richiedono almeno {KDP_MIN_PAGES}. È una stima."
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Every chapter starts blank."
+msgstr "Ogni capitolo parte vuoto."
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Every language is already in this book."
+msgstr "Tutte le lingue sono già in questo libro."
+
+#: src/app/shell/App.tsx
+msgid "Exit focus mode"
+msgstr "Esci dalla modalità concentrazione"
+
+#: src/app/export/ExportDialog.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/menuModel.ts
+msgid "Export"
+msgstr "Esporta"
+
+#: src/app/export/AudioFooter.tsx
+msgid "Export audiobook"
+msgstr "Esporta audiolibro"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Export book"
+msgstr "Esporta libro"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Export EPUB"
+msgstr "Esporta EPUB"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Export PDF"
+msgstr "Esporta PDF"
+
+#. placeholder {0}: exported ?? ""
+#: src/app/dialogs/SponsorDialog.tsx
+msgid "Exported {0}"
+msgstr "Esportato {0}"
+
+#: src/state/project/exports.ts
+msgid "Exported {dir}/book.epub"
+msgstr "Esportato {dir}/book.epub"
+
+#: src/state/project/exports.ts
+msgid "Exported {dir}/book.md"
+msgstr "Esportato {dir}/book.md"
+
+#: src/state/project/exports.ts
+msgid "Exported {dir}/book.pdf"
+msgstr "Esportato {dir}/book.pdf"
+
+#: src/state/project/exports.ts
+msgid "Exported {dir}/manuscript.docx"
+msgstr "Esportato {dir}/manuscript.docx"
+
+#: src/state/project/audio.ts
+msgid "Exported the audiobook to exports/audio"
+msgstr "Audiolibro esportato in exports/audio"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Exporting…"
+msgstr "Esportazione…"
+
+#: src/app/export/AudioExport.tsx
+msgid "Fast and clear."
+msgstr "Veloce e chiaro."
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/references/ReferenceRow.tsx
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "File"
+msgstr "File"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Filter by tag"
+msgstr "Filtra per etichetta"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Filter by type"
+msgstr "Filtra per tipo"
+
+#: src/editor/FindBar.tsx
+msgid "Find"
+msgstr "Trova"
+
+#: src/editor/FindBar.tsx
+msgid "Find and replace"
+msgstr "Trova e sostituisci"
+
+#: src/app/shell/menuModel.ts
+msgid "Find and Replace…"
+msgstr "Trova e sostituisci…"
+
+#: src/app/references/PdfSearch.tsx
+msgid "Find in this PDF"
+msgstr "Trova in questo PDF"
+
+#: src/app/shell/menuModel.ts
+msgid "Find…"
+msgstr "Trova…"
+
+#: src/app/references/ImagePreview.tsx
+msgid "Fit to window"
+msgstr "Adatta alla finestra"
+
+#: src/app/shell/PageZoomSelect.tsx
+msgid "Fit width"
+msgstr "Adatta alla larghezza"
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "FLAC"
+msgstr "FLAC"
+
+#: src/app/shell/AppHeader.tsx
+msgid "Focus mode"
+msgstr "Modalità concentrazione"
+
+#: src/app/shell/menuModel.ts
+msgid "Focus Mode"
+msgstr "Modalità concentrazione"
+
+#: src/app/home/Home.tsx
+msgid "Folder"
+msgstr "Cartella"
+
+#: src/app/home/Home.tsx
+msgid "Folder not found. Remove it from the list or move it back."
+msgstr "Cartella non trovata. Rimuovila dall’elenco o rimettila al suo posto."
+
+#: src/app/settings/Settings.tsx
+msgid "Follow the system or pick one."
+msgstr "Segui il sistema o scegline uno."
+
+#: src/app/export/DocxPanel.tsx
+msgid "Font"
+msgstr "Carattere"
+
+#: src/app/settings/Settings.tsx
+msgid "Fonts"
+msgstr "Caratteri"
+
+#: src/app/settings/FontsSection.tsx
+msgid "Fonts are downloaded from Google Fonts only when you click Download. Nothing else is sent."
+msgstr "I caratteri vengono scaricati da Google Fonts solo quando fai clic su Scarica. Non viene inviato altro."
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Footnote"
+msgstr "Nota a piè di pagina"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "For example: © 2026 A. Writer. All rights reserved."
+msgstr "Ad esempio: © 2026 A. Scrittore. Tutti i diritti riservati."
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Foreword"
+msgstr "Prefazione"
+
+#: src/app/export/ExportDialog.tsx
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "Format"
+msgstr "Formato"
+
+#: src/app/export/AudioExport.tsx
+msgid "Formats"
+msgstr "Formati"
+
+#: src/editor/Toolbar.tsx
+msgid "Formatting"
+msgstr "Formattazione"
+
+#: src/app/shell/Details.tsx
+#: src/app/shell/Sidebar.tsx
+#: src/app/shell/StatusBar.tsx
+msgid "Front matter"
+msgstr "Parti iniziali"
+
+#: src/app/shell/menuModel.ts
+msgid "Front Matter"
+msgstr "Parti iniziali"
+
+#. placeholder {0}: r.title
+#: src/editor/FindResults.tsx
+msgid "Front matter: {0}"
+msgstr "Parti iniziali: {0}"
+
+#: src/app/settings/Settings.tsx
+msgid "General"
+msgstr "Generali"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Give the book a title."
+msgstr "Dai un titolo al libro."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Give the book an author."
+msgstr "Indica l’autore del libro."
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Heading 1"
+msgstr "Titolo 1"
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Heading 2"
+msgstr "Titolo 2"
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Heading 3"
+msgstr "Titolo 3"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Heading font"
+msgstr "Carattere dei titoli"
+
+#: src/app/export/AudioFooter.tsx
+msgid "Hear a sample"
+msgstr "Ascolta un’anteprima"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "Help"
+msgstr "Aiuto"
+
+#: src/app/shell/menuModel.ts
+msgid "Hide CadabraCraft"
+msgstr "Nascondi CadabraCraft"
+
+#: src/app/shell/menuModel.ts
+msgid "Hide Others"
+msgstr "Nascondi altri"
+
+#: src/app/shell/EntryList.tsx
+msgid "History"
+msgstr "Cronologia"
+
+#. placeholder {0}: page?.title ?? ""
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "History · {0}"
+msgstr "Cronologia · {0}"
+
+#: src/app/settings/Settings.tsx
+msgid "How wide the page is in the editor."
+msgstr "Quanto è larga la pagina nell’editor."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Identifier"
+msgstr "Identificatore"
+
+#: src/app/references/ReferenceRow.tsx
+#: src/editor/Toolbar.tsx
+msgid "Image"
+msgstr "Immagine"
+
+#. placeholder {0}: a.sourcePath
+#: src/lib/importBook.ts
+msgid "Image {0} could not be imported: {why}"
+msgstr "Impossibile importare l’immagine {0}: {why}"
+
+#. placeholder {0}: img.name
+#. placeholder {1}: errText(e)
+#: src/lib/importBook.ts
+msgid "Image {0} could not be stored: {1}"
+msgstr "Impossibile memorizzare l’immagine {0}: {1}"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Image file"
+msgstr "File immagine"
+
+#. placeholder {0}: e.reference
+#: src/lib/projectError.ts
+msgid "Image not found: {0}"
+msgstr "Immagine non trovata: {0}"
+
+#: src/app/references/ImagePreview.tsx
+msgid "Image zoom"
+msgstr "Zoom dell’immagine"
+
+#: src/app/shell/menuModel.ts
+msgid "Image…"
+msgstr "Immagine…"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Images"
+msgstr "Immagini"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Import"
+msgstr "Importa"
+
+#: src/app/settings/FontsSection.tsx
+msgid "Import a font file"
+msgstr "Importa un file di carattere"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Import a manuscript"
+msgstr "Importa un manoscritto"
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "Import report"
+msgstr "Rapporto di importazione"
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "Import warnings"
+msgstr "Avvisi di importazione"
+
+#: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
+msgid "Import…"
+msgstr "Importa…"
+
+#: src/app/settings/FontsSection.tsx
+msgid "Imported"
+msgstr "Importato"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Importing…"
+msgstr "Importazione…"
+
+#. placeholder {0}: e.message
+#: src/state/project/exports.ts
+msgid "In “{where}”: {0}"
+msgstr "In “{where}”: {0}"
+
+#: src/app/settings/Settings.tsx
+msgid "In the .cadabra/backups folder inside your book folder."
+msgstr "Nella cartella .cadabra/backups dentro la cartella del tuo libro."
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "In this version only"
+msgstr "Solo in questa versione"
+
+#: src/app/export/Templates.tsx
+msgid "In use"
+msgstr "In uso"
+
+#. placeholder {0}: i + 1
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Include chapter {0}"
+msgstr "Includi il capitolo {0}"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Include the cover"
+msgstr "Includi la copertina"
+
+#: src/app/settings/shortcutList.ts
+msgid "Indent list item"
+msgstr "Aumenta rientro dell’elemento di elenco"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/TableCommands.tsx
+#: src/editor/ToolbarDialogs.tsx
+msgid "Insert"
+msgstr "Inserisci"
+
+#: src/editor/TableCommands.tsx
+msgid "Insert table"
+msgstr "Inserisci tabella"
+
+#: src/lib/exportChecks.ts
+msgid "Inside margin {inside} in is below KDP's {gutter} in minimum for about {estimatedPages} pages (estimate)."
+msgstr "Il margine interno di {inside} in è inferiore al minimo di {gutter} in di KDP per circa {estimatedPages} pagine (stima)."
+
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "Install now"
+msgstr "Installa ora"
+
+#: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/settings/FontsSection.tsx
+msgid "Installed"
+msgstr "Installato"
+
+#. placeholder {0}: mb(p.bytes)
+#: src/app/settings/AudioSection.tsx
+msgid "Installed, about {0} MB on this computer."
+msgstr "Installato, circa {0} MB su questo computer."
+
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "Installing…"
+msgstr "Installazione…"
+
+#: src/app/settings/Settings.tsx
+msgid "Interface language"
+msgstr "Lingua dell’interfaccia"
+
+#: src/editor/FindBar.tsx
+msgid "Invalid pattern"
+msgstr "Modello non valido"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/shell/Details.tsx
+msgid "ISBN"
+msgstr "ISBN"
+
+#: src/app/references/Previews.tsx
+msgid "It is stored with your book. Open it in another app to read it."
+msgstr "È memorizzato con il tuo libro. Aprilo in un’altra app per leggerlo."
+
+#: src/app/shell/Sidebar.tsx
+msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
+msgstr "Viene spostato nel cestino del progetto dentro la cartella del tuo libro. Nulla viene eliminato definitivamente."
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Italic"
+msgstr "Corsivo"
+
+#: src/app/settings/AudioSection.tsx
+msgid "Keep"
+msgstr "Conserva"
+
+#: src/app/settings/Settings.tsx
+#: src/editor/Editor.tsx
+msgid "Keep as text"
+msgstr "Conserva come testo"
+
+#: src/lib/importBook.ts
+msgid "Keep at least one chapter."
+msgstr "Conserva almeno un capitolo."
+
+#: src/app/dialogs/RecoverDialog.tsx
+msgid "Keep saved text"
+msgstr "Conserva il testo salvato"
+
+#: src/app/settings/Settings.tsx
+msgid "Keep the line you are writing centered."
+msgstr "Mantiene centrata la riga che stai scrivendo."
+
+#: src/app/export/MarkdownPanel.tsx
+msgid "Keep underline and small caps"
+msgstr "Conserva sottolineato e maiuscoletto"
+
+#: src/app/export/AudioFooter.tsx
+msgid "Keep working"
+msgstr "Continua a lavorare"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Keep your research close"
+msgstr "Tieni a portata di mano la tua ricerca"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option."
+msgstr "I tasti non possono ancora essere cambiati. ⌘ è Comando, ⌥ è Opzione."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Keys cannot be changed yet. Ctrl is Control."
+msgstr "I tasti non possono ancora essere cambiati. Ctrl è Control."
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Kind"
+msgstr "Tipo"
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "Kokoro · Heart (best quality)"
+msgstr "Kokoro · Heart (qualità migliore)"
+
+#: src/app/export/AudioExport.tsx
+msgid "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster."
+msgstr "Kokoro suona più naturale ma è più lento: circa 20 minuti di lavoro per ogni ora di audio. Le voci Piper sono circa 10 volte più veloci."
+
+#: src/app/export/AudioExport.tsx
+#: src/app/settings/AudioSection.tsx
+msgid "Kokoro: Heart"
+msgstr "Kokoro: Heart"
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/shell/Details.tsx
+msgid "Language"
+msgstr "Lingua"
+
+#: src/app/settings/Settings.tsx
+msgid "Language of menus and dialogs."
+msgstr "Lingua di menu e finestre di dialogo."
+
+#: src/editor/ReadingSettings.tsx
+msgid "Larger text"
+msgstr "Testo più grande"
+
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "Later"
+msgstr "Più tardi"
+
+#: src/app/settings/shortcutList.ts
+msgid "Leave Focus Mode"
+msgstr "Esci dalla modalità concentrazione"
+
+#: src/app/export/EditionsChecklist.tsx
+msgid "Leaves them out of this export; the list above says which."
+msgstr "Le lascia fuori da questa esportazione; l’elenco qui sopra indica quali."
+
+#: src/app/settings/Settings.tsx
+#: src/editor/ReadingSettings.tsx
+msgid "Light"
+msgstr "Chiaro"
+
+#: src/app/settings/shortcutList.ts
+msgid "Line break"
+msgstr "A capo forzato"
+
+#: src/app/export/Templates.tsx
+msgid "Line spacing"
+msgstr "Interlinea"
+
+#: src/editor/Toolbar.tsx
+msgid "Link"
+msgstr "Collegamento"
+
+#: src/app/references/ChapterReferences.tsx
+msgid "Link a reference"
+msgstr "Collega un riferimento"
+
+#: src/app/references/ChapterReferences.tsx
+msgid "Link a reference…"
+msgstr "Collega un riferimento…"
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Link to a chapter"
+msgstr "Collega a un capitolo"
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Link to a chapter…"
+msgstr "Collega a un capitolo…"
+
+#: src/app/shell/menuModel.ts
+msgid "Link…"
+msgstr "Collegamento…"
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Linked chapters"
+msgstr "Capitoli collegati"
+
+#: src/editor/ReadingBook.tsx
+msgid "Loading the book"
+msgstr "Caricamento del libro"
+
+#: src/app/references/Previews.tsx
+msgid "Loading…"
+msgstr "Caricamento…"
+
+#: src/app/home/Home.tsx
+msgid "Location"
+msgstr "Posizione"
+
+#: src/app/settings/Settings.tsx
+msgid "Looks for a new version when the app starts. Nothing else is sent."
+msgstr "Cerca una nuova versione all’avvio dell’app. Non viene inviato altro."
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "Lossless and large: about 1.7 GB per 10 hours."
+msgstr "Senza perdita e grande: circa 1,7 GB ogni 10 ore."
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "Lossless, about 60% of the size of WAV."
+msgstr "Senza perdita, circa il 60% delle dimensioni di WAV."
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "M4B audiobook"
+msgstr "Audiolibro M4B"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
+msgstr "Crea un file audio per capitolo con una voce che funziona sul tuo computer. Non viene caricato nulla."
+
+#: src/app/export/AudioFooter.tsx
+msgid "Making sample… (stop)"
+msgstr "Creazione dell’anteprima… (ferma)"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Manual order"
+msgstr "Ordine manuale"
+
+#: src/app/settings/Settings.tsx
+msgid "Manuscript font"
+msgstr "Carattere del manoscritto"
+
+#: src/app/export/Templates.tsx
+msgid "Margins (in/out)"
+msgstr "Margini (int./est.)"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/app/export/MarkdownPanel.tsx
+msgid "Markdown has no syntax for them, so they are written as HTML tags. Leave this off and the export stops at the first one, naming the chapter."
+msgstr "Markdown non ha una sintassi per questi elementi, quindi vengono scritti come tag HTML. Lascia disattivato e l’esportazione si ferma al primo, indicando il capitolo."
+
+#: src/app/shell/menuModel.ts
+msgid "Markdown…"
+msgstr "Markdown…"
+
+#. placeholder {0}: hits.at + 1
+#. placeholder {1}: current.page
+#: src/app/references/PdfSearch.tsx
+msgid "Match {0} of {total}, page {1} ({onPage} on this page)"
+msgstr "Corrispondenza {0} di {total}, pagina {1} ({onPage} in questa pagina)"
+
+#: src/editor/FindBar.tsx
+msgid "Match case"
+msgstr "Maiuscole/minuscole"
+
+#: src/app/dialogs/SponsorDialog.tsx
+msgid "Maybe later"
+msgstr "Forse più tardi"
+
+#: src/app/settings/Settings.tsx
+msgid "Medium"
+msgstr "Media"
+
+#: src/app/shell/menuModel.ts
+msgid "Minimize"
+msgstr "Riduci a icona"
+
+#. placeholder {0}: f.from
+#: src/state/project/editions.ts
+msgid "Missing chapter file {0}"
+msgstr "File del capitolo mancante {0}"
+
+#: src/state/project/context.ts
+msgid "Missing chapter file {file}"
+msgstr "File del capitolo mancante {file}"
+
+#. placeholder {0}: e.srcs.join(", ")
+#: src/lib/pdfErrors.ts
+msgid "Missing image file {0}"
+msgstr "File dell’immagine mancante {0}"
+
+#: src/state/project/context.ts
+msgid "Missing image file {src}"
+msgstr "File dell’immagine mancante {src}"
+
+#: src/app/shell/AppHeader.tsx
+msgid "More actions"
+msgstr "Altre azioni"
+
+#: src/app/export/AudioExport.tsx
+msgid "Most natural, slower."
+msgstr "La più naturale, più lenta."
+
+#. placeholder {0}: deleting?.title ?? ""
+#: src/app/shell/Sidebar.tsx
+msgid "Move “{0}” to trash?"
+msgstr "Spostare “{0}” nel cestino?"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Move {0}"
+msgstr "Sposta {0}"
+
+#. placeholder {0}: sourceTitle(removed, manifest.editions)
+#: src/state/project/pages.ts
+msgid "Move {0} to trash"
+msgstr "Sposta {0} nel cestino"
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
+msgid "Move down"
+msgstr "Sposta giù"
+
+#: src/app/shell/EntryList.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Move to trash"
+msgstr "Sposta nel cestino"
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
+msgid "Move up"
+msgstr "Sposta su"
+
+#: src/app/settings/Settings.tsx
+msgid "Narrow"
+msgstr "Stretta"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Narrow page"
+msgstr "Pagina stretta"
+
+#: src/app/home/Home.tsx
+msgid "New book"
+msgstr "Nuovo libro"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "New book folder"
+msgstr "Cartella del nuovo libro"
+
+#: src/app/shell/menuModel.ts
+msgid "New Chapter"
+msgstr "Nuovo capitolo"
+
+#: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
+msgid "New project"
+msgstr "Nuovo progetto"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Newest first"
+msgstr "Prima i più recenti"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Next"
+msgstr "Avanti"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Next chapter"
+msgstr "Capitolo successivo"
+
+#. placeholder {0}: next.title
+#: src/editor/ReadingFooter.tsx
+msgid "Next chapter: {0}"
+msgstr "Capitolo successivo: {0}"
+
+#: src/app/references/PdfSearch.tsx
+#: src/editor/FindBar.tsx
+msgid "Next match"
+msgstr "Corrispondenza successiva"
+
+#: src/app/references/PdfPreview.tsx
+#: src/editor/ReadingFooter.tsx
+msgid "Next page"
+msgstr "Pagina successiva"
+
+#: src/app/shell/menuModel.ts
+msgid "Next Page"
+msgstr "Pagina successiva"
+
+#. placeholder {0}: next.title
+#: src/editor/ReadingFooter.tsx
+msgid "Next page: {0}"
+msgstr "Pagina successiva: {0}"
+
+#: src/lib/projectError.ts
+msgid "No cadabra.json in that folder"
+msgstr "Nessun cadabra.json in quella cartella"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
+msgstr "Ancora nessuna versione precedente. Ne viene conservata una ogni volta che salvi sopra un testo diverso, al massimo ogni 10 minuti."
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "No file chosen"
+msgstr "Nessun file scelto"
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Home.tsx
+msgid "No folder chosen"
+msgstr "Nessuna cartella scelta"
+
+#: src/editor/Editor.tsx
+msgid "No HTML found in the selection"
+msgstr "Nessun HTML trovato nella selezione"
+
+#: src/app/references/PdfSearch.tsx
+msgid "No matches"
+msgstr "Nessuna corrispondenza"
+
+#: src/app/references/Previews.tsx
+msgid "No preview for this file type"
+msgstr "Nessuna anteprima per questo tipo di file"
+
+#: src/lib/exportChecks.ts
+msgid "No problems found"
+msgstr "Nessun problema trovato"
+
+#: src/app/shell/menuModel.ts
+msgid "No Recent Projects"
+msgstr "Nessun progetto recente"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "No references match."
+msgstr "Nessun riferimento corrisponde."
+
+#: src/lib/search/findHelpers.ts
+msgid "No results"
+msgstr "Nessun risultato"
+
+#. placeholder {0}: query.trim()
+#: src/app/settings/ShortcutsSection.tsx
+msgid "No shortcut matches “{0}”."
+msgstr "Nessuna scorciatoia corrisponde a “{0}”."
+
+#: src/app/export/PrintPreview.tsx
+msgid "No text yet"
+msgstr "Ancora nessun testo"
+
+#: src/app/export/PrintPreview.tsx
+msgid "None"
+msgstr "Nessuno"
+
+#: src/lib/pdfErrors.ts
+msgid "None of the fonts {fonts} are on this computer. Download one in Settings, Fonts, or pick another font."
+msgstr "Nessuno dei caratteri {fonts} è su questo computer. Scaricane uno in Impostazioni, Caratteri, o scegli un altro carattere."
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Not a page in the trash: {0}"
+msgstr "Non è una pagina nel cestino: {0}"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Not a reference file: {0}"
+msgstr "Non è un file di riferimento: {0}"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Not an image in the assets folder: {0}"
+msgstr "Non è un’immagine nella cartella delle risorse: {0}"
+
+#: src/app/settings/AudioSection.tsx
+msgid "Not installed. Download it from the Audiobook export."
+msgstr "Non installata. Scaricala dall’esportazione audiolibro."
+
+#: src/app/shell/EntryList.tsx
+msgid "Not translated yet"
+msgstr "Non ancora tradotto"
+
+#. placeholder {0}: nativeName(e.language)
+#. placeholder {1}: missing .map( (m) => m.titles[e.language] ?? m.titles[manifest.editions[0]!.language] ?? m.id, ) .join(", ")
+#: src/app/export/EditionsChecklist.tsx
+msgid "Not translated yet in {0}: {1}"
+msgstr "Non ancora tradotto in {0}: {1}"
+
+#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/references/ReferenceDetails.tsx
+#: src/editor/Toolbar.tsx
+msgid "Note"
+msgstr "Nota"
+
+#: src/app/dialogs/SponsorDialog.tsx
+msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
+msgstr "Non viene inviato nulla da nessuna parte a meno che tu non prema Sponsor, che apre GitHub nel browser."
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Nothing removed"
+msgstr "Nulla rimosso"
+
+#: src/app/dialogs/ImportParts.tsx
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "Nothing was lost or changed."
+msgstr "Nulla è andato perso o è cambiato."
+
+#: src/editor/Editor.tsx
+msgid "Nothing was pasted here. Select text inside one paragraph or cell and try again"
+msgstr "Qui non è stato incollato nulla. Seleziona del testo dentro un solo paragrafo o una sola cella e riprova"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Number in series"
+msgstr "Numero nella serie"
+
+#: src/editor/Toolbar.tsx
+msgid "Numbered list"
+msgstr "Elenco numerato"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "Numbered List"
+msgstr "Elenco numerato"
+
+#: src/app/settings/Settings.tsx
+msgid "Older snapshots are removed, but anything from the last 30 days stays."
+msgstr "Le istantanee più vecchie vengono rimosse, ma tutto ciò che risale agli ultimi 30 giorni resta."
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Oldest first"
+msgstr "Prima i meno recenti"
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
+msgstr "Un file per l’intero libro con capitoli e copertina, circa 29 MB all’ora. Per app e negozi di audiolibri."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "One per line: BISAC codes such as FIC014000, or keywords."
+msgstr "Uno per riga: codici BISAC come FIC014000, o parole chiave."
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Only in the current text"
+msgstr "Solo nel testo attuale"
+
+#: src/app/references/ReferenceRow.tsx
+msgid "Open"
+msgstr "Apri"
+
+#: src/app/settings/Settings.tsx
+msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
+msgstr "Apri la Cronologia di un capitolo dal suo menu nell’elenco dei capitoli per confrontare e ripristinare. Tieni .cadabra fuori dalla sincronizzazione cloud: le istantanee appartengono a questo computer."
+
+#: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
+msgid "Open folder"
+msgstr "Apri cartella"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Open Fonts"
+msgstr "Apri Caratteri"
+
+#: src/app/references/ReferenceViewer.tsx
+msgid "Open in default app"
+msgstr "Apri con l’app predefinita"
+
+#: src/app/shell/menuModel.ts
+msgid "Open Recent"
+msgstr "Apri recente"
+
+#: src/app/home/Dashboard.tsx
+msgid "Opened {when}"
+msgstr "Aperto {when}"
+
+#: src/app/shell/OpeningSkeleton.tsx
+msgid "Opening {name}"
+msgstr "Apertura di {name}"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Optional. Shown below the image."
+msgstr "Facoltativo. Mostrato sotto l’immagine."
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "Opus"
+msgstr "Opus"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Other"
+msgstr "Altro"
+
+#: src/app/settings/shortcutList.ts
+msgid "Outdent list item"
+msgstr "Riduci rientro dell’elemento di elenco"
+
+#: src/app/export/AudioExport.tsx
+msgid "Packing the audiobook…"
+msgstr "Preparazione dell’audiolibro…"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "Page {current} of ≈ {count}"
+msgstr "Pagina {current} di ≈ {count}"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Page {page}"
+msgstr "Pagina {page}"
+
+#: src/editor/PageFrame.tsx
+msgid "Page breaks are approximate: the PDF is the reference."
+msgstr "Le interruzioni di pagina sono approssimative: il PDF è il riferimento."
+
+#: src/app/export/PrintPreview.tsx
+msgid "Page setup"
+msgstr "Impostazioni di pagina"
+
+#: src/editor/Editor.tsx
+msgid "Page text"
+msgstr "Testo della pagina"
+
+#: src/app/shell/Sidebar.tsx
+msgid "Page title"
+msgstr "Titolo della pagina"
+
+#: src/app/shell/AppHeader.tsx
+msgid "Page view"
+msgstr "Vista pagina"
+
+#: src/app/shell/menuModel.ts
+msgid "Page View"
+msgstr "Vista pagina"
+
+#: src/editor/PageFrame.tsx
+msgid "Page view · {size} · approximate"
+msgstr "Vista pagina · {size} · approssimativa"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Page width"
+msgstr "Larghezza della pagina"
+
+#: src/app/shell/PageZoomSelect.tsx
+msgid "Page zoom"
+msgstr "Zoom della pagina"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Pages"
+msgstr "Pagine"
+
+#: src/app/shell/TrashDialog.tsx
+msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
+msgstr "Pagine che hai spostato nel cestino. Il ripristino rimette una pagina alla fine della sua sezione."
+
+#: src/app/settings/shortcutList.ts
+msgid "Paragraph"
+msgstr "Paragrafo"
+
+#: src/app/shell/menuModel.ts
+msgid "Paste"
+msgstr "Incolla"
+
+#: src/editor/Editor.tsx
+msgid "Paste as styled text?"
+msgstr "Incollare come testo formattato?"
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferencesPanel.tsx
+msgid "PDF"
+msgstr "PDF"
+
+#: src/app/references/PdfPreview.tsx
+msgid "PDF controls"
+msgstr "Controlli PDF"
+
+#: src/app/references/PdfPreview.tsx
+msgid "PDF page {page}"
+msgstr "Pagina PDF {page}"
+
+#: src/app/export/PdfPanel.tsx
+msgid "PDF/A (archival)"
+msgstr "PDF/A (archiviazione)"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Pick an edition to export."
+msgstr "Scegli un’edizione da esportare."
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Pick or create an empty folder. The imported book is stored there."
+msgstr "Scegli o crea una cartella vuota. Il libro importato viene memorizzato lì."
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "Piper · Amy (fast)"
+msgstr "Piper · Amy (veloce)"
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "Piper · LibriTTS (fast)"
+msgstr "Piper · LibriTTS (veloce)"
+
+#: src/app/export/AudioExport.tsx
+#: src/app/settings/AudioSection.tsx
+msgid "Piper voices: Amy and LibriTTS"
+msgstr "Voci Piper: Amy e LibriTTS"
+
+#: src/app/home/Dashboard.tsx
+msgid "Place in the book"
+msgstr "Posizione nel libro"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
+msgstr "PNG, JPEG o WebP, fino a 25 MB. Una copia viene conservata nella cartella delle risorse del libro. Funziona meglio in verticale, circa 1600 × 2400 px."
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Preface"
+msgstr "Premessa"
+
+#: src/editor/ReadingFooter.tsx
+msgid "Previous chapter"
+msgstr "Capitolo precedente"
+
+#. placeholder {0}: prev.title
+#: src/editor/ReadingFooter.tsx
+msgid "Previous chapter: {0}"
+msgstr "Capitolo precedente: {0}"
+
+#: src/app/references/PdfSearch.tsx
+#: src/editor/FindBar.tsx
+msgid "Previous match"
+msgstr "Corrispondenza precedente"
+
+#: src/app/references/PdfPreview.tsx
+#: src/editor/ReadingFooter.tsx
+msgid "Previous page"
+msgstr "Pagina precedente"
+
+#: src/app/shell/menuModel.ts
+msgid "Previous Page"
+msgstr "Pagina precedente"
+
+#. placeholder {0}: prev.title
+#: src/editor/ReadingFooter.tsx
+msgid "Previous page: {0}"
+msgstr "Pagina precedente: {0}"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Print checks"
+msgstr "Controlli di stampa"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Print PDF"
+msgstr "PDF per la stampa"
+
+#: src/app/shell/menuModel.ts
+msgid "Print PDF…"
+msgstr "PDF per la stampa…"
+
+#: src/app/export/ExportDialog.tsx
+#: src/app/export/PrintPreview.tsx
+msgid "Print preview"
+msgstr "Anteprima di stampa"
+
+#: src/app/shell/menuModel.ts
+msgid "Print Preview…"
+msgstr "Anteprima di stampa…"
+
+#. placeholder {0}: parsed.fromVersion
+#: src/state/project/project.ts
+msgid "Project upgraded from format {0}; backup saved to {backup}"
+msgstr "Progetto aggiornato dal formato {0}; backup salvato in {backup}"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publication date"
+msgstr "Data di pubblicazione"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publisher"
+msgstr "Editore"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Publishing details"
+msgstr "Dettagli di pubblicazione"
+
+#: src/app/shell/menuModel.ts
+msgid "Quit"
+msgstr "Esci"
+
+#: src/app/shell/menuModel.ts
+msgid "Quit CadabraCraft"
+msgstr "Esci da CadabraCraft"
+
+#: src/app/settings/Settings.tsx
+msgid "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text."
+msgstr "Tag HTML grezzi nel testo incollato: chiedi ogni volta, trasformali in formattazione o conservali come testo."
+
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/menuModel.ts
+msgid "Read"
+msgstr "Leggi"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Read aloud by screen readers. Leave empty only for decoration."
+msgstr "Letto ad alta voce dagli screen reader. Lascialo vuoto solo se è decorativa."
+
+#: src/editor/ReadingSettings.tsx
+msgid "Reading settings"
+msgstr "Impostazioni di lettura"
+
+#: src/app/shell/Details.tsx
+msgid "Reading time"
+msgstr "Tempo di lettura"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Reading your chapters…"
+msgstr "Lettura dei capitoli…"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Reading…"
+msgstr "Lettura…"
+
+#: src/app/home/Home.tsx
+msgid "Recent"
+msgstr "Recenti"
+
+#: src/app/home/Home.tsx
+msgid "Recent projects"
+msgstr "Progetti recenti"
+
+#. placeholder {0}: next.title
+#: src/app/dialogs/RecoverDialog.tsx
+msgid "Recover newer text for “{0}”?"
+msgstr "Recuperare il testo più recente di “{0}”?"
+
+#. placeholder {0}: entry.label
+#: src/state/project/history.ts
+msgid "Redid: {0}"
+msgstr "Ripetuto: {0}"
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Redo"
+msgstr "Ripeti"
+
+#. placeholder {0}: ctx.redoLabel
+#: src/app/shell/menuModel.ts
+msgid "Redo {0}"
+msgstr "Ripeti {0}"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Redo book change"
+msgstr "Ripeti modifica del libro"
+
+#: src/app/shell/menuModel.ts
+msgid "Redo Chapter Change"
+msgstr "Ripeti modifica del capitolo"
+
+#. placeholder {0}: lastRedo.label
+#: src/app/shell/Sidebar.tsx
+msgid "Redo: {0}"
+msgstr "Ripeti: {0}"
+
+#: src/app/references/ReferenceViewer.tsx
+msgid "Reference details"
+msgstr "Dettagli del riferimento"
+
+#: src/app/references/ChapterReferences.tsx
+#: src/app/references/ReferencesPanel.tsx
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "References"
+msgstr "Riferimenti"
+
+#: src/app/shell/menuModel.ts
+msgid "References Panel"
+msgstr "Pannello dei riferimenti"
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "References you remove from the book show up here, so you can bring them back."
+msgstr "I riferimenti che rimuovi dal libro compaiono qui, così puoi riaverli."
+
+#: src/editor/FindBar.tsx
+msgid "Regex"
+msgstr "Regex"
+
+#: src/app/shell/ErrorBoundary.tsx
+msgid "Reload"
+msgstr "Ricarica"
+
+#: src/editor/Editor.tsx
+msgid "Remember my choice"
+msgstr "Ricorda la mia scelta"
+
+#. placeholder {0}: ref.title
+#: src/state/project/references.ts
+msgid "Remove {0}"
+msgstr "Rimuovi {0}"
+
+#. placeholder {0}: recent.title || recent.root
+#: src/app/home/Dashboard.tsx
+msgid "Remove {0} from recent projects"
+msgstr "Rimuovi {0} dai progetti recenti"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Remove cover"
+msgstr "Rimuovi copertina"
+
+#: src/app/references/ReferenceDetails.tsx
+#: src/app/references/ReferenceRow.tsx
+msgid "Remove from book"
+msgstr "Rimuovi dal libro"
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Remove tag {name}"
+msgstr "Rimuovi l’etichetta {name}"
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Removed files live in .cadabra/trash inside your book folder. Nothing is deleted for good."
+msgstr "I file rimossi si trovano in .cadabra/trash dentro la cartella del tuo libro. Nulla viene eliminato per sempre."
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Removed references"
+msgstr "Riferimenti rimossi"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Removed references ({removedCount})"
+msgstr "Riferimenti rimossi ({removedCount})"
+
+#: src/app/shell/EntryList.tsx
+msgid "Rename"
+msgstr "Rinomina"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Rename {0}"
+msgstr "Rinomina {0}"
+
+#: src/editor/FindBar.tsx
+msgid "Replace"
+msgstr "Sostituisci"
+
+#: src/editor/FindBar.tsx
+msgid "Replace all"
+msgstr "Sostituisci tutto"
+
+#. placeholder {0}: opts.query
+#: src/state/project/replace.ts
+msgid "Replace all “{0}”"
+msgstr "Sostituisci tutti “{0}”"
+
+#: src/state/project/replace.ts
+msgid "Replace all stopped: {why}."
+msgstr "Sostituisci tutto interrotto: {why}."
+
+#: src/state/project/replace.ts
+msgid "Replace all stopped: {why}. Nothing was changed."
+msgstr "Sostituisci tutto interrotto: {why}. Non è stato cambiato nulla."
+
+#: src/editor/FindBar.tsx
+msgid "Replace with"
+msgstr "Sostituisci con"
+
+#: src/state/project/replace.ts
+msgid "Replaced {count} in the book"
+msgstr "Sostituiti {count} nel libro"
+
+#: src/app/references/RemovedReferencesDialog.tsx
+#: src/app/shell/TrashDialog.tsx
+msgid "Restore"
+msgstr "Ripristina"
+
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
+#. placeholder {0}: titleFromFile(name)
+#. placeholder {0}: x.title
+#: src/app/references/RemovedReferencesDialog.tsx
+#: src/app/shell/TrashDialog.tsx
+#: src/state/project/trash.ts
+msgid "Restore {0}"
+msgstr "Ripristina {0}"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Restore this version"
+msgstr "Ripristina questa versione"
+
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
+#: src/state/project/snapshots.ts
+msgid "Restored an earlier version of {0}. The text it replaced is kept in History."
+msgstr "Ripristinata una versione precedente di {0}. Il testo che ha sostituito resta nella Cronologia."
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Restoring adds the file back as a new reference, titled from its file name. The note, tags and chapter links it had are not kept."
+msgstr "Il ripristino aggiunge di nuovo il file come nuovo riferimento, con il titolo preso dal nome del file. La nota, le etichette e i collegamenti ai capitoli che aveva non vengono conservati."
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Restoring keeps the current text as a new snapshot, so you can undo it."
+msgstr "Il ripristino conserva il testo attuale come nuova istantanea, così puoi annullarlo."
+
+#: src/app/references/RemovedReferencesDialog.tsx
+msgid "Restoring…"
+msgstr "Ripristino…"
+
+#: src/editor/FindResults.tsx
+msgid "Results by page"
+msgstr "Risultati per pagina"
+
+#: src/app/export/Templates.tsx
+msgid "Right-hand page"
+msgstr "Pagina destra"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Rights"
+msgstr "Diritti"
+
+#: src/editor/TableCommands.tsx
+msgid "Rows"
+msgstr "Righe"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Same as body"
+msgstr "Come il corpo"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "same as now"
+msgstr "come ora"
+
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/menuModel.ts
+msgid "Save"
+msgstr "Salva"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Save details"
+msgstr "Salva dettagli"
+
+#: src/app/shell/AppHeader.tsx
+#: src/state/project/pages.ts
+msgid "Saved"
+msgstr "Salvato"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/book.epub…"
+msgstr "Salvataggio di {dir}/book.epub…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/book.md…"
+msgstr "Salvataggio di {dir}/book.md…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/book.pdf…"
+msgstr "Salvataggio di {dir}/book.pdf…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/manuscript.docx…"
+msgstr "Salvataggio di {dir}/manuscript.docx…"
+
+#: src/app/export/Templates.tsx
+#: src/editor/Toolbar.tsx
+msgid "Scene break"
+msgstr "Stacco di scena"
+
+#: src/app/shell/menuModel.ts
+msgid "Scene Break"
+msgstr "Stacco di scena"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Search by action or key"
+msgstr "Cerca per azione o tasto"
+
+#: src/app/references/PdfSearch.tsx
+msgid "Search in PDF"
+msgstr "Cerca nel PDF"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Search references"
+msgstr "Cerca riferimenti"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Search shortcuts"
+msgstr "Cerca scorciatoie"
+
+#: src/app/references/PdfSearch.tsx
+msgid "Search text"
+msgstr "Cerca testo"
+
+#: src/app/shell/Details.tsx
+msgid "Section"
+msgstr "Sezione"
+
+#: src/app/shell/menuModel.ts
+msgid "Select All"
+msgstr "Seleziona tutto"
+
+#: src/editor/Editor.tsx
+msgid "Select text inside one cell or paragraph to convert it"
+msgstr "Seleziona del testo dentro una cella o un paragrafo per convertirlo"
+
+#: src/editor/Toolbar.tsx
+msgid "Select the text you want to link first."
+msgstr "Seleziona prima il testo da collegare."
+
+#: src/app/export/AudioExport.tsx
+msgid "Selected chapters"
+msgstr "Capitoli selezionati"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Series"
+msgstr "Serie"
+
+#: src/app/shell/menuModel.ts
+msgid "Services"
+msgstr "Servizi"
+
+#: src/app/shell/StatusBar.tsx
+msgid "Session goal"
+msgstr "Obiettivo della sessione"
+
+#: src/app/settings/Settings.tsx
+msgid "Session word goal"
+msgstr "Obiettivo di parole per sessione"
+
+#: src/app/export/PdfPanel.tsx
+msgid "set in Book details"
+msgstr "impostata in Dettagli del libro"
+
+#: src/app/home/Home.tsx
+msgid "Sets the page size for the print layout. You can change it later in Book details."
+msgstr "Imposta il formato di pagina per il layout di stampa. Puoi cambiarlo più tardi in Dettagli del libro."
+
+#: src/app/home/Home.tsx
+#: src/app/settings/Settings.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: src/app/settings/Settings.tsx
+msgid "Settings sections"
+msgstr "Sezioni delle impostazioni"
+
+#: src/app/shell/menuModel.ts
+msgid "Settings…"
+msgstr "Impostazioni…"
+
+#: src/app/settings/Settings.tsx
+msgid "Shortcuts"
+msgstr "Scorciatoie"
+
+#: src/app/shell/menuModel.ts
+msgid "Show All"
+msgstr "Mostra tutto"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Show as grid"
+msgstr "Mostra come griglia"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Show as list"
+msgstr "Mostra come elenco"
+
+#: src/app/shell/AppHeader.tsx
+msgid "Show chapters"
+msgstr "Mostra capitoli"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Show margins"
+msgstr "Mostra margini"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Shown in this preview only. The PDF does not include bleed or crop marks yet."
+msgstr "Mostrati solo in questa anteprima. Il PDF non include ancora abbondanza né crocini di taglio."
+
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "SIL Open Font Licence 1.1"
+msgstr "Licenza SIL Open Font 1.1"
+
+#: src/app/export/EditionsChecklist.tsx
+msgid "Skip untranslated chapters"
+msgstr "Salta i capitoli non tradotti"
+
+#: src/editor/Toolbar.tsx
+msgid "Small caps"
+msgstr "Maiuscoletto"
+
+#: src/app/shell/menuModel.ts
+msgid "Small Caps"
+msgstr "Maiuscoletto"
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "Small files, about 14 MB per hour. Plays on phones and modern players."
+msgstr "File piccoli, circa 14 MB all’ora. Si ascolta su telefoni e lettori moderni."
+
+#: src/editor/ReadingSettings.tsx
+msgid "Smaller text"
+msgstr "Testo più piccolo"
+
+#: src/app/settings/Settings.tsx
+msgid "Snapshots to keep per chapter"
+msgstr "Istantanee da conservare per capitolo"
+
+#: src/app/export/AudioExport.tsx
+msgid "Some audiobook stores do not accept synthetic voices. Check their rules before you upload."
+msgstr "Alcuni negozi di audiolibri non accettano voci sintetiche. Controlla le loro regole prima di caricarlo."
+
+#. placeholder {0}: lost.map((g) => g.code).join(", ")
+#: src/app/dialogs/ImportParts.tsx
+msgid "Some content could not be kept: {0}. A full report follows the import."
+msgstr "Alcuni contenuti non è stato possibile conservarli: {0}. Dopo l’importazione segue un rapporto completo."
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "Some content or formatting could not be kept. Review these before you continue."
+msgstr "Alcuni contenuti o formattazioni non è stato possibile conservarli. Controllali prima di continuare."
+
+#: src/app/shell/ErrorBoundary.tsx
+msgid "Something went wrong"
+msgstr "Qualcosa è andato storto"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Sort references"
+msgstr "Ordina riferimenti"
+
+#: src/app/export/AudioExport.tsx
+msgid "Speed"
+msgstr "Velocità"
+
+#: src/app/dialogs/SponsorDialog.tsx
+msgid "Sponsor"
+msgstr "Sponsor"
+
+#: src/app/shell/menuModel.ts
+msgid "Sponsor CadabraCraft…"
+msgstr "Sponsorizza CadabraCraft…"
+
+#: src/app/home/Dashboard.tsx
+msgid "Start a new book"
+msgstr "Inizia un nuovo libro"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Start a new chapter at"
+msgstr "Inizia un nuovo capitolo a"
+
+#: src/app/home/Home.tsx
+msgid "Start a new folder, or open one you already have. Everything stays on this computer."
+msgstr "Inizia una nuova cartella o aprine una che hai già. Tutto resta su questo computer."
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start empty"
+msgstr "Inizia vuoto"
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start from a copy of the source"
+msgstr "Parti da una copia dell’originale"
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Start the new edition"
+msgstr "Inizia la nuova edizione"
+
+#: src/app/export/AudioFooter.tsx
+msgid "Stop sample"
+msgstr "Ferma anteprima"
+
+#: src/app/export/AudioExport.tsx
+msgid "Stopped"
+msgstr "Interrotto"
+
+#: src/app/export/AudioExport.tsx
+msgid "Stopped. What was downloaded is kept, so the next download carries on from there."
+msgstr "Interrotto. Quanto già scaricato viene conservato, così il prossimo download riprende da lì."
+
+#: src/app/export/AudioExport.tsx
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Stopping…"
+msgstr "Interruzione…"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Stored in the EPUB for stores and libraries. Everything here is optional."
+msgstr "Memorizzato nell’EPUB per negozi e biblioteche. Tutto qui è facoltativo."
+
+#: src/app/home/Home.tsx
+msgid "Stored on this computer. No account needed."
+msgstr "Memorizzato su questo computer. Non serve un account."
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Strikethrough"
+msgstr "Barrato"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Subjects"
+msgstr "Argomenti"
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Subscript"
+msgstr "Pedice"
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Superscript"
+msgstr "Apice"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Switch to Manual order to reorder"
+msgstr "Passa all’ordine manuale per riordinare"
+
+#: src/app/settings/Settings.tsx
+#: src/editor/ReadingSettings.tsx
+msgid "System"
+msgstr "Sistema"
+
+#: src/app/shell/menuModel.ts
+msgid "Table"
+msgstr "Tabella"
+
+#: src/app/shell/menuModel.ts
+msgid "Table…"
+msgstr "Tabella…"
+
+#: src/app/references/ReferenceDetails.tsx
+msgid "Tags"
+msgstr "Etichette"
+
+#: src/app/export/PdfPanel.tsx
+#: src/app/shell/Details.tsx
+msgid "Template"
+msgstr "Modello"
+
+#: src/app/export/PdfPanel.tsx
+msgid "Template default ({templateBody})"
+msgstr "Predefinito del modello ({templateBody})"
+
+#: src/app/export/Templates.tsx
+msgid "Templates"
+msgstr "Modelli"
+
+#: src/editor/PageFrame.tsx
+msgid "Text is set in {family}, the font the PDF uses for this template."
+msgstr "Il testo è composto in {family}, il carattere che il PDF usa per questo modello."
+
+#: src/editor/ReadingSettings.tsx
+msgid "Text size"
+msgstr "Dimensione del testo"
+
+#: src/editor/Toolbar.tsx
+msgid "That address can't be used as a link."
+msgstr "Quell’indirizzo non può essere usato come collegamento."
+
+#: src/lib/fontErrors.ts
+msgid "That file is not a usable font. Choose a .ttf or .otf file."
+msgstr "Quel file non è un carattere utilizzabile. Scegli un file .ttf o .otf."
+
+#: src/lib/projectError.ts
+msgid "That file name is not valid"
+msgstr "Quel nome di file non è valido"
+
+#: src/app/settings/AudioSection.tsx
+msgid "The audio formats ticked when you open the export."
+msgstr "I formati audio selezionati all’apertura dell’esportazione."
+
+#: src/lib/audioErrors.ts
+msgid "The audiobook was cancelled. Chapters that were finished are kept."
+msgstr "L’audiolibro è stato annullato. I capitoli già terminati vengono conservati."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The blurb shown in stores. Plain text."
+msgstr "Il testo di presentazione mostrato nei negozi. Testo semplice."
+
+#: src/lib/epubErrors.ts
+msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+msgstr "Il libro contiene un elemento “{kind}” che l’esportazione EPUB non può scrivere (in {place}). L’esportazione si è fermata per non perdere nulla."
+
+#: src/state/project/audio.ts
+msgid "The book has no chapters to read aloud yet. Add a chapter first."
+msgstr "Il libro non ha ancora capitoli da leggere ad alta voce. Aggiungi prima un capitolo."
+
+#: src/state/project/exports.ts
+msgid "The book has no pages to export yet. Add a chapter first."
+msgstr "Il libro non ha ancora pagine da esportare. Aggiungi prima un capitolo."
+
+#: src/app/home/Home.tsx
+msgid "The book is stored in this folder. Nothing leaves your computer."
+msgstr "Il libro è memorizzato in questa cartella. Nulla lascia il tuo computer."
+
+#: src/lib/epubErrors.ts
+msgid "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
+msgstr "Il libro usa uno stile di testo che l’esportazione EPUB non può scrivere: {kind} (in {place}). L’esportazione si è fermata per non perdere nulla."
+
+#: src/state/project/context.ts
+msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
+msgstr "Non è stato possibile leggere l’immagine di copertina {cover}. Sceglila di nuovo in Dettagli del libro, oppure rimuovi la copertina."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The cover image could not be read."
+msgstr "Non è stato possibile leggere l’immagine di copertina."
+
+#. placeholder {0}: e.detail
+#: src/lib/audioErrors.ts
+msgid "the download failed: {0}. What was downloaded is kept, so you can try again."
+msgstr "il download non è riuscito: {0}. Quanto già scaricato viene conservato, quindi puoi riprovare."
+
+#: src/lib/fontErrors.ts
+msgid "The download failed. Check your connection and try again."
+msgstr "Il download non è riuscito. Controlla la connessione e riprova."
+
+#: src/app/export/AudioExport.tsx
+msgid "The download stopped"
+msgstr "Il download si è interrotto"
+
+#: src/lib/fontErrors.ts
+msgid "The download was cancelled."
+msgstr "Il download è stato annullato."
+
+#. placeholder {0}: e.file
+#: src/lib/audioErrors.ts
+msgid "the downloaded file {0} was damaged and was deleted. Try the download again"
+msgstr "il file scaricato {0} era danneggiato ed è stato eliminato. Riprova il download"
+
+#: src/lib/fontErrors.ts
+msgid "The downloaded file was damaged and was deleted. Try the download again."
+msgstr "Il file scaricato era danneggiato ed è stato eliminato. Riprova il download."
+
+#: src/editor/TableCommands.tsx
+msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
+msgstr "La prima riga è un’intestazione. Fino a {MAX_TABLE_ROWS} righe."
+
+#: src/lib/pdfErrors.ts
+msgid "The font “{only}” is not on this computer. Download it in Settings, Fonts, or pick another font."
+msgstr "Il carattere “{only}” non è su questo computer. Scaricalo in Impostazioni, Caratteri, o scegli un altro carattere."
+
+#: src/app/export/PdfPanel.tsx
+msgid "The font of the running text. It is saved with the book; the font file is not."
+msgstr "Il carattere del testo corrente. Viene salvato con il libro; il file del carattere no."
+
+#: src/app/export/PdfPanel.tsx
+msgid "The font of titles and headings. Settings, Fonts has more."
+msgstr "Il carattere di titoli e intestazioni. Impostazioni, Caratteri ne offre altri."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The identifier cannot be empty."
+msgstr "L’identificatore non può essere vuoto."
+
+#. placeholder {0}: e.reference
+#: src/lib/projectError.ts
+msgid "The image {0} is outside the document's folder"
+msgstr "L’immagine {0} è fuori dalla cartella del documento"
+
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
+msgstr "La nuova versione viene scaricata da GitHub e verificata con una firma prima dell’installazione. L’installazione chiude CadabraCraft e lo riapre con la nuova versione."
+
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "The only thing sent is the update check. Nothing about your books is sent."
+msgstr "L’unica cosa che viene inviata è il controllo degli aggiornamenti. Non viene inviato nulla sui tuoi libri."
+
+#: src/state/project/replace.ts
+msgid "The page changed while searching, so nothing was replaced. Try again."
+msgstr "La pagina è cambiata durante la ricerca, quindi non è stato sostituito nulla. Riprova."
+
+#: src/state/project/history.ts
+msgid "the page is no longer in the trash"
+msgstr "la pagina non è più nel cestino"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
+msgstr "Il formato di pagina del PDF per la stampa. Cambiarlo ridistribuisce il libro e modifica il numero di pagine; il tuo testo non viene toccato."
+
+#: src/editor/Editor.tsx
+msgid "The selection is too large to convert"
+msgstr "La selezione è troppo grande per essere convertita"
+
+#: src/editor/PageFrame.tsx
+msgid "The template's print font is not installed here, so your manuscript font is used."
+msgstr "Il carattere di stampa del modello non è installato qui, quindi viene usato il carattere del tuo manoscritto."
+
+#: src/editor/Editor.tsx
+msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
+msgstr "Il testo incollato contiene tag HTML. CadabraCraft può trasformarli in vera formattazione oppure conservare i tag come testo semplice."
+
+#: src/app/shell/TrashDialog.tsx
+msgid "The trash is empty."
+msgstr "Il cestino è vuoto."
+
+#. placeholder {0}: e.voice
+#: src/lib/audioErrors.ts
+msgid "the voice \"{0}\" is not installed"
+msgstr "la voce “{0}” non è installata"
+
+#. placeholder {0}: e.detail.trim()
+#: src/lib/audioErrors.ts
+msgid "the voice engine stopped:\n"
+"{0}"
+msgstr "il motore vocale si è fermato:\n"
+"{0}"
+
+#: src/lib/audioErrors.ts
+msgid "the voice engine that comes with CadabraCraft is missing. Reinstall the app."
+msgstr "il motore vocale incluso in CadabraCraft manca. Reinstalla l’app."
+
+#. placeholder {0}: e.seconds
+#: src/lib/audioErrors.ts
+msgid "the voice engine took longer than {0} seconds and was stopped"
+msgstr "il motore vocale ha impiegato più di {0} secondi ed è stato fermato"
+
+#: src/app/settings/AudioSection.tsx
+msgid "The voice the audiobook export starts with. Only installed voices can be picked."
+msgstr "La voce con cui parte l’esportazione dell’audiolibro. Si possono scegliere solo voci installate."
+
+#: src/app/export/AudioExport.tsx
+msgid "The voices' licences are listed in Settings, Audio."
+msgstr "Le licenze delle voci sono elencate in Impostazioni, Audio."
+
+#: src/app/settings/Settings.tsx
+#: src/editor/ReadingSettings.tsx
+msgid "Theme"
+msgstr "Tema"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "There is no space left on the disk to write {0}"
+msgstr "Non c’è spazio sufficiente sul disco per scrivere {0}"
+
+#: src/lib/importBook.ts
+msgid "There is no text to import in this file."
+msgstr "Non c’è testo da importare in questo file."
+
+#: src/lib/audioErrors.ts
+msgid "there is not enough disk space"
+msgstr "spazio su disco insufficiente"
+
+#: src/lib/fontErrors.ts
+msgid "There is not enough disk space for this font."
+msgstr "Spazio su disco insufficiente per questo carattere."
+
+#: src/state/project/audio.ts
+msgid "There is nothing to read aloud in this chapter."
+msgstr "Non c’è nulla da leggere ad alta voce in questo capitolo."
+
+#: src/state/project/audio.ts
+msgid "There is nothing to read aloud, so there is no audiobook to build."
+msgstr "Non c’è nulla da leggere ad alta voce, quindi non c’è nessun audiolibro da creare."
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "These are routine adjustments; nothing was lost."
+msgstr "Sono aggiustamenti di routine; nulla è andato perso."
+
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "These fonts come from Google Fonts and are free to use under the SIL Open Font Licence. A font is downloaded only when you click Download; nothing else is sent."
+msgstr "Questi caratteri provengono da Google Fonts e sono liberi da usare con la licenza SIL Open Font. Un carattere viene scaricato solo quando fai clic su Scarica; non viene inviato altro."
+
+#: src/lib/importBook.ts
+msgid "This .docx file has no document body. It may be damaged or not a Word document."
+msgstr "Questo file .docx non ha un corpo del documento. Potrebbe essere danneggiato o non essere un documento Word."
+
+#: src/state/project/editions.ts
+msgid "This book has no {language} edition."
+msgstr "Questo libro non ha un’edizione in {language}."
+
+#: src/app/shell/App.tsx
+#: src/lib/exportChecks.ts
+msgid "This book has no chapters yet."
+msgstr "Questo libro non ha ancora capitoli."
+
+#: src/lib/exportChecks.ts
+msgid "This book has no cover image. KDP takes the cover as a separate file."
+msgstr "Questo libro non ha un’immagine di copertina. KDP riceve la copertina come file separato."
+
+#: src/lib/importBook.ts
+msgid "This document contains too many parts to import safely."
+msgstr "Questo documento contiene troppe parti per essere importato in sicurezza."
+
+#: src/lib/importBook.ts
+msgid "This document is nested too deeply to import."
+msgstr "Questo documento è annidato troppo in profondità per essere importato."
+
+#: src/lib/importBook.ts
+msgid "This document is too large to import safely."
+msgstr "Questo documento è troppo grande per essere importato in sicurezza."
+
+#: src/lib/importBook.ts
+msgid "This document's contents could not be read. It may be damaged."
+msgstr "Non è stato possibile leggere il contenuto di questo documento. Potrebbe essere danneggiato."
+
+#: src/lib/importBook.ts
+msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
+msgstr "Non sembra un file .docx valido (non è stato possibile aprirlo come documento Word)."
+
+#: src/lib/importBook.ts
+msgid "This file does not look like text. It may be damaged or saved in another format."
+msgstr "Questo file non sembra testo. Potrebbe essere danneggiato o salvato in un altro formato."
+
+#: src/lib/importBook.ts
+msgid "This file is too large or too deeply nested to import."
+msgstr "Questo file è troppo grande o troppo annidato per essere importato."
+
+#: src/lib/importBook.ts
+msgid "This file is too large to import."
+msgstr "Questo file è troppo grande per essere importato."
+
+#: src/lib/fontErrors.ts
+msgid "This font is not available any more."
+msgstr "Questo carattere non è più disponibile."
+
+#. placeholder {0}: e.reference
+#: src/lib/projectError.ts
+msgid "This image path is not allowed: {0}"
+msgstr "Questo percorso di immagine non è consentito: {0}"
+
+#: src/app/shell/Details.tsx
+msgid "This page"
+msgstr "Questa pagina"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "This version has the same words as the current text."
+msgstr "Questa versione ha le stesse parole del testo attuale."
+
+#: src/app/export/DocxPanel.tsx
+msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
+msgstr "Times New Roman 12 pt è ciò che chiedono la maggior parte di agenti ed editor. Courier New è l’aspetto da macchina da scrivere che alcuni preferiscono ancora. Il computer del lettore ha bisogno di qualsiasi altro carattere per vederlo."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Home.tsx
+#: src/app/references/ReferenceDetails.tsx
+#: src/app/shell/Details.tsx
+msgid "Title"
+msgstr "Titolo"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Title A-Z"
+msgstr "Titolo A-Z"
+
+#. placeholder {0}: i + 1
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Title of chapter {0}"
+msgstr "Titolo del capitolo {0}"
+
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Title page"
+msgstr "Frontespizio"
+
+#: src/app/references/ReferencesPanel.tsx
+msgid "Title Z-A"
+msgstr "Titolo Z-A"
+
+#: src/app/shell/menuModel.ts
+msgid "Toggle Header Row"
+msgstr "Attiva/disattiva riga di intestazione"
+
+#: src/lib/exportChecks.ts
+msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
+msgstr "I margini superiore, inferiore ed esterno devono essere di almeno {KDP_MIN_OUTER_IN} in per KDP."
+
+#: src/app/shell/Sidebar.tsx
+#: src/app/shell/TrashDialog.tsx
+msgid "Trash"
+msgstr "Cestino"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/export/PdfPanel.tsx
+#: src/app/export/PrintPreview.tsx
+#: src/app/export/Templates.tsx
+#: src/app/home/Home.tsx
+msgid "Trim size"
+msgstr "Formato di pagina"
+
+#: src/app/export/AudioFooter.tsx
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Try again"
+msgstr "Riprova"
+
+#. placeholder {0}: f.family
+#: src/app/settings/FontsCatalogDialog.tsx
+msgid "Try again to download {0}"
+msgstr "Riprova a scaricare {0}"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Typesetting the book with Typst…"
+msgstr "Impaginazione del libro con Typst…"
+
+#: src/app/settings/Settings.tsx
+msgid "Typewriter scrolling"
+msgstr "Scorrimento a macchina da scrivere"
+
+#. placeholder {0}: e.stderr.trim()
+#: src/lib/pdfErrors.ts
+msgid "Typst could not build the PDF:\n"
+"{0}"
+msgstr "Typst non è riuscito a creare il PDF:\n"
+"{0}"
+
+#. placeholder {0}: e.seconds
+#: src/lib/pdfErrors.ts
+msgid "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
+msgstr "Typst ha impiegato più di {0} secondi ed è stato fermato. Riprova, oppure esporta meno capitoli."
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Underline"
+msgstr "Sottolineato"
+
+#. placeholder {0}: entry.label
+#: src/state/project/history.ts
+msgid "Undid: {0}"
+msgstr "Annullato: {0}"
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Undo"
+msgstr "Annulla"
+
+#. placeholder {0}: ctx.undoLabel
+#: src/app/shell/menuModel.ts
+msgid "Undo {0}"
+msgstr "Annulla {0}"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/Sidebar.tsx
+msgid "Undo book change"
+msgstr "Annulla modifica del libro"
+
+#: src/app/shell/menuModel.ts
+msgid "Undo Chapter Change"
+msgstr "Annulla modifica del capitolo"
+
+#. placeholder {0}: lastUndo.label
+#: src/app/shell/Sidebar.tsx
+msgid "Undo: {0}"
+msgstr "Annulla: {0}"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Unique id stored in the EPUB. Change it only if a store or library asked you to."
+msgstr "Identificatore univoco memorizzato nell’EPUB. Cambialo solo se te lo ha chiesto un negozio o una biblioteca."
+
+#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Home.tsx
+msgid "Unknown"
+msgstr "Sconosciuto"
+
+#. placeholder {0}: titleOf(id)
+#: src/app/references/ReferenceDetails.tsx
+msgid "Unlink {0}"
+msgstr "Scollega {0}"
+
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Unsafe project path: {0}"
+msgstr "Percorso di progetto non sicuro: {0}"
+
+#: src/app/shell/AppHeader.tsx
+msgid "Unsaved"
+msgstr "Non salvato"
+
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "Unsupported image type: {0}"
+msgstr "Tipo di immagine non supportato: {0}"
+
+#: src/app/home/Dashboard.tsx
+msgid "Untitled"
+msgstr "Senza titolo"
+
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "Update available"
+msgstr "Aggiornamento disponibile"
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use a number such as 1 or 2.5."
+msgstr "Usa un numero come 1 o 2,5."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use a single line."
+msgstr "Usa una sola riga."
+
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use at most {0} characters."
+msgstr "Usa al massimo {0} caratteri."
+
+#. placeholder {0}: p.max
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "Use at most {0} subjects."
+msgstr "Usa al massimo {0} argomenti."
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Use http, https or mailto."
+msgstr "Usa http, https o mailto."
+
+#: src/app/dialogs/RecoverDialog.tsx
+msgid "Use newer text"
+msgstr "Usa il testo più recente"
+
+#: src/app/export/Templates.tsx
+msgid "Use template"
+msgstr "Usa il modello"
+
+#: src/app/settings/Settings.tsx
+msgid "Used while writing. Your book's print fonts are set in Export."
+msgstr "Usato mentre scrivi. I caratteri di stampa del tuo libro si impostano in Esporta."
+
+#. placeholder {0}: update.version
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "Version {0} is available"
+msgstr "La versione {0} è disponibile"
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferencesPanel.tsx
+msgid "Video"
+msgstr "Video"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "View"
+msgstr "Vista"
+
+#: src/app/export/AudioExport.tsx
+msgid "Voice"
+msgstr "Voce"
+
+#: src/app/export/AudioExport.tsx
+msgid "Voices are downloaded once from Hugging Face and GitHub and then work offline. This is the only time CadabraCraft uses the network for audio."
+msgstr "Le voci vengono scaricate una sola volta da Hugging Face e GitHub e poi funzionano offline. È l’unica volta che CadabraCraft usa la rete per l’audio."
+
+#: src/app/export/AudioExport.tsx
+msgid "Voices are not installed"
+msgstr "Le voci non sono installate"
+
+#: src/app/export/AudioExport.tsx
+msgid "Voices to download"
+msgstr "Voci da scaricare"
+
+#: src/app/export/AudioExport.tsx
+msgid "Waiting"
+msgstr "In attesa"
+
+#: src/app/dialogs/ImportReportDialog.tsx
+msgid "Warning"
+msgstr "Avviso"
+
+#: src/app/hooks/useAudioLabels.ts
+msgid "WAV"
+msgstr "WAV"
+
+#: src/editor/Editor.tsx
+msgid "What you pasted"
+msgstr "Ciò che hai incollato"
+
+#: src/app/settings/Settings.tsx
+msgid "When pasting HTML"
+msgstr "Quando incolli HTML"
+
+#: src/app/settings/Settings.tsx
+msgid "When snapshots are taken"
+msgstr "Quando vengono create le istantanee"
+
+#: src/app/settings/Settings.tsx
+msgid "Where they are stored"
+msgstr "Dove vengono memorizzate"
+
+#: src/editor/FindBar.tsx
+msgid "Whole word"
+msgstr "Parola intera"
+
+#: src/app/settings/Settings.tsx
+msgid "Wide"
+msgstr "Larga"
+
+#: src/editor/ReadingSettings.tsx
+msgid "Wide page"
+msgstr "Pagina larga"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+msgid "Window"
+msgstr "Finestra"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Word (.docx)"
+msgstr "Word (.docx)"
+
+#: src/app/shell/menuModel.ts
+msgid "Word (.docx)…"
+msgstr "Word (.docx)…"
+
+#: src/app/shell/Details.tsx
+msgid "Words"
+msgstr "Parole"
+
+#: src/app/settings/Settings.tsx
+msgid "Words to write each time you open a book. 0 turns it off."
+msgstr "Parole da scrivere ogni volta che apri un libro. 0 lo disattiva."
+
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/menuModel.ts
+msgid "Write"
+msgstr "Scrivi"
+
+#: src/app/shell/AppHeader.tsx
+msgid "Write or read"
+msgstr "Scrivi o leggi"
+
+#: src/app/home/Home.tsx
+msgid "Write your first book"
+msgstr "Scrivi il tuo primo libro"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
+msgstr "Scrive l’intero libro come file Word nel formato standard dei manoscritti, nella cartella delle esportazioni: interlinea doppia, 12 pt, margini di 1 pollice, un frontespizio e un’intestazione corrente con il tuo cognome. Non serve altro su questo computer."
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
+msgstr "Scrive l’intero libro come un unico file Markdown nella cartella delle esportazioni, in ordine di lettura. Non serve altro su questo computer."
+
+#: src/app/settings/Settings.tsx
+msgid "Writing column width"
+msgstr "Larghezza della colonna di scrittura"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writing Markdown…"
+msgstr "Scrittura di Markdown…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writing the Word file…"
+msgstr "Scrittura del file Word…"
+
+#: src/editor/Editor.tsx
+msgid "You can change this later in Settings, Editor."
+msgstr "Puoi cambiarlo più tardi in Impostazioni, Editor."
+
+#. placeholder {0}: update.currentVersion
+#: src/app/dialogs/UpdateDialog.tsx
+msgid "You have {0}. Your books and settings stay as they are."
+msgstr "Hai {0}. I tuoi libri e le tue impostazioni restano come sono."
+
+#: src/app/export/AudioExport.tsx
+msgid "Your audiobook is ready"
+msgstr "Il tuo audiolibro è pronto"
+
+#: src/app/home/Home.tsx
+msgid "Your books"
+msgstr "I tuoi libri"
+
+#: src/app/settings/FontsSection.tsx
+msgid "Your fonts"
+msgstr "I tuoi caratteri"
+
+#: src/app/shell/quit.ts
+msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
+msgstr "Non è stato possibile salvare le tue ultime modifiche ({message}). Chiudi di nuovo la finestra per uscire senza di esse."
+
+#: src/app/shell/ErrorBoundary.tsx
+msgid "Your last changes were saved if possible."
+msgstr "Le tue ultime modifiche sono state salvate, se possibile."
+
+#: src/app/hooks/useAppMenu.ts
+msgid "Your package manager updates this copy of CadabraCraft."
+msgstr "Il tuo gestore di pacchetti aggiorna questa copia di CadabraCraft."
+
+#: src/app/shell/menuModel.ts
+msgid "Zoom"
+msgstr "Zoom"
+
+#: src/app/references/ImagePreview.tsx
+#: src/app/references/PdfPreview.tsx
+msgid "Zoom in"
+msgstr "Ingrandisci"
+
+#: src/app/references/ImagePreview.tsx
+#: src/app/references/PdfPreview.tsx
+msgid "Zoom out"
+msgstr "Riduci"

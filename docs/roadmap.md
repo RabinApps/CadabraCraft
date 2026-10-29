@@ -41,7 +41,7 @@ Decision and format in [architecture.md](architecture.md), "Editions". Done: for
 
 Infrastructure is in; see the Internationalization section of [architecture.md](architecture.md).
 
-- Translate the catalogs (he, ar, it, ja, ru, fr, de, es), get native-speaker review, then add each code to `ENABLED_LOCALES`.
+- **Release blocker:** native-speaker review of the machine-drafted catalogs for es, it, fr, de, he and ar (enabled in `ENABLED_LOCALES`; see architecture.md, "Languages shipped in 1.0"). Japanese and Russian are not translated.
 - Toolbar button glyphs ("Sc", "H1", "• List", "Fn") are Latin text; replace with icons.
 - Language picker and book-language field in the New book dialog need a design in `cadabracraft.pen` (then `/sync-design`); Settings shows the picker even while only English is enabled.
 - Bundle Hebrew/Arabic (and Noto Sans JP if system CJK looks poor) fonts; currently system fallbacks via `:lang()` in `index.css`.
