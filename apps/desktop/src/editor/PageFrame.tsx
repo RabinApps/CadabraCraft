@@ -95,7 +95,14 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
   const print = getTemplate(hasTemplate(book.template) ? book.template : DEFAULT_TEMPLATE_ID).print;
   const section = currentId ? sectionOf(manifest, currentId) : null;
   const isChapter = section === "chapter";
-  const entry = readingOrder(manifest).find((e) => e.id === currentId);
+  const order = readingOrder(manifest);
+  const entry = order.find((e) => e.id === currentId);
+  // 1-based position among the chapters, for the "CHAPTER n" label.
+  const chapterNumber = isChapter
+    ? order
+        .filter((e) => sectionOf(manifest, e.id) === "chapter")
+        .findIndex((e) => e.id === currentId) + 1 || undefined
+    : undefined;
   const chapterTitle = entry
     ? (entry.titles[language] ?? sourceTitle(entry, manifest.editions))
     : "";
@@ -202,7 +209,7 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
 
   const vars = useMemo(
     () => ({
-      ...cssVarsStyle(pageCssVars(book)),
+      ...cssVarsStyle(pageCssVars(book, chapterNumber)),
       "--page-mt": `${g.margins.top}px`,
       "--page-mb": `${g.margins.bottom}px`,
       "--page-ml": `${g.margins.inside}px`,
@@ -211,7 +218,7 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
       "--page-head-size": `${print.runningText.sizePt * PX_PER_PT}px`,
       "--page-font": fontStack,
     }),
-    [book, g, print.runningText.sizePt, fontStack],
+    [book, chapterNumber, g, print.runningText.sizePt, fontStack],
   ) as CSSProperties;
 
   const size = trimLabel(trim);

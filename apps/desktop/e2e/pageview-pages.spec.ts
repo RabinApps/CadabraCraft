@@ -174,8 +174,17 @@ test("a word split across a page break shows its hyphen", async ({ page }) => {
     "incomprehensible",
     "uncharacteristically",
     "internationalization",
+    "of",
+    "the",
+    "unmistakably",
   ];
-  const long = Array.from({ length: 700 }, (_, i) => words[i % 4]).join(" ");
+  // A repeating text breaks every page at the same place in its cycle, which can always be between words;
+  // a fixed pseudo-random order makes the breaks differ whatever font the page is set in.
+  let state = 7;
+  const long = Array.from({ length: 2400 }, () => {
+    state = (state * 1103515245 + 12345) % 2147483648;
+    return words[state % words.length];
+  }).join(" ");
   await page.keyboard.insertText(long);
   await pageViewAt100(page);
   await expect(page.locator(".pv-gap-inline").first()).toBeAttached();
