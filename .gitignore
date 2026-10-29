@@ -1,7 +1,7 @@
 node_modules/
 target/
 dist/
-/tools/
+/tools
 out/
 .cadabra/
 .DS_Store
