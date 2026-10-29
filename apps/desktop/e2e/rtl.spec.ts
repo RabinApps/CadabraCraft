@@ -55,6 +55,32 @@ test("RTL: the print preview keeps the pages in reading order and mirrors the co
   await shot(page, "print-preview");
 });
 
+test("RTL: the print preview's zoom keeps its order, and a page can be opened from it", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Print PDF" }).click();
+  await dialog.getByRole("button", { name: "Print preview" }).click();
+  await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
+  await forceRtl(page);
+  await page.getByRole("button", { name: "Zoom in" }).click();
+  await expect(page.getByTestId("preview-zoom")).toHaveText("125%");
+  // The controls are one row and mirror with the layout: zoom out on the right, the level, zoom in on the left.
+  const [out, level, zin] = await Promise.all([
+    page.getByRole("button", { name: "Zoom out" }).boundingBox(),
+    page.getByTestId("preview-zoom").boundingBox(),
+    page.getByRole("button", { name: "Zoom in" }).boundingBox(),
+  ]);
+  expect(out && level && zin && zin.x < level.x && level.x < out.x).toBe(true);
+  // The way into the editor is inside its page, on the page's own box.
+  const pageBox = await page.getByRole("img", { name: "Page 1", exact: true }).boundingBox();
+  const open = await page.getByRole("button", { name: "Open page 1 in the editor" }).boundingBox();
+  expect(pageBox && open && Math.abs(open.x - pageBox.x) < 2 && open.width > 100).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+});
+
 test("RTL: editor, chapter list, toolbar, details and dialogs mirror", async ({ page }) => {
   await newProject(page);
   await forceRtl(page);

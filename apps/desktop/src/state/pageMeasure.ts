@@ -8,12 +8,14 @@ import type { PageReport } from "@cadabracraft/export-pdf";
 export const usePageMeasure = create<{
   report: PageReport | null;
   fresh: boolean;
+  /** Counts the reports received, so a consumer can tell a new one from the last. */
+  version: number;
   /** Why the last measure failed (shown nowhere: the estimate is used instead). */
   error: string | null;
-}>(() => ({ report: null, fresh: false, error: null }));
+}>(() => ({ report: null, fresh: false, version: 0, error: null }));
 
 export const setMeasured = (report: PageReport): void =>
-  usePageMeasure.setState({ report, fresh: true, error: null });
+  usePageMeasure.setState((s) => ({ report, fresh: true, version: s.version + 1, error: null }));
 
 export const markMeasureStale = (): void =>
   usePageMeasure.setState((s) => (s.fresh ? { ...s, fresh: false } : s));

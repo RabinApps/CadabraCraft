@@ -1316,6 +1316,10 @@ msgstr ""
 msgid "Edit details"
 msgstr ""
 
+#: src/app/export/TypstSpread.tsx
+msgid "Edit this page"
+msgstr ""
+
 #: src/app/home/Dashboard.tsx
 msgid "Edited {when}"
 msgstr ""
@@ -1487,6 +1491,10 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Find…"
+msgstr ""
+
+#: src/app/export/PrintPreview.tsx
+msgid "Finding the page in your chapter…"
 msgstr ""
 
 #: src/app/references/ImagePreview.tsx
@@ -2393,6 +2401,10 @@ msgstr ""
 msgid "Open in default app"
 msgstr ""
 
+#: src/app/export/TypstSpread.tsx
+msgid "Open page {page} in the editor"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Open Recent"
 msgstr ""
@@ -2448,11 +2460,19 @@ msgid "Page {page}"
 msgstr ""
 
 #: src/app/shell/PageEstimate.tsx
+msgid "Page {shown} of {exact}"
+msgstr ""
+
+#: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {exact}"
 msgstr ""
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
 msgstr ""
 
 #: src/app/export/PrintPreview.tsx
@@ -2477,6 +2497,10 @@ msgstr ""
 
 #: src/editor/PageFrame.tsx
 msgid "Page view · {size} · approximate"
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "Page view · {size} · breaks as in the PDF"
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -3285,6 +3309,10 @@ msgstr ""
 msgid "That file name is not valid"
 msgstr ""
 
+#: src/app/export/PrintPreview.tsx
+msgid "That page is not in the book."
+msgstr ""
+
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
 msgstr ""
@@ -3925,11 +3953,13 @@ msgstr ""
 msgid "Zoom"
 msgstr ""
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom in"
 msgstr ""
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom out"

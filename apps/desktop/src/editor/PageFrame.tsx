@@ -30,7 +30,8 @@ import { useFontList } from "../app/hooks/useFontList";
 import { editorFontStack, type EditorFont } from "../state/editorPrefs";
 import { setPageCount, usePageCount } from "../state/pageCount";
 import { usePageMeasure } from "../state/pageMeasure";
-import { reportStartNumber, usableReport } from "../lib/pageReport";
+import type { ExactSource } from "../lib/exactBreaks";
+import { reportChapterMarks, reportStartNumber, usableReport } from "../lib/pageReport";
 import { useProject } from "../state/project/index";
 import { ensureFontLoaded } from "../lib/loadFont";
 import { chapterStart, firstPageNumber } from "../lib/pageNumbering";
@@ -147,6 +148,9 @@ interface StackProps {
   chapterTitle: string;
   chapterNumber: number | undefined;
   firstPage: number;
+  /** Typst's page breaks for this chapter (Page view in Write mode); `exactKey` changes with it. Without them the breaks are estimated. */
+  exact?: ExactSource | null;
+  exactKey?: string;
   /** Called with the cards after every pagination. Held by reference: it need not be stable. */
   onLayout?: (layout: PageLayoutResult) => void;
   onCursorPage?: (page: number) => void;
@@ -166,6 +170,8 @@ export function PageStack({
   chapterTitle,
   chapterNumber,
   firstPage,
+  exact = null,
+  exactKey = "",
   onLayout,
   onCursorPage,
   children,
@@ -208,13 +214,15 @@ export function PageStack({
       opensChapter: isChapter,
       zoom,
       layoutKey,
+      exact,
+      exactKey,
       onLayout: (l) => {
         setLayout(l);
         callbacks.current.onLayout?.(l);
       },
       onCursorPage: (p) => callbacks.current.onCursorPage?.(p),
     });
-  }, [controller, g, slackPx, firstPage, startsOn, isChapter, zoom, layoutKey]);
+  }, [controller, g, slackPx, firstPage, startsOn, isChapter, zoom, layoutKey, exact, exactKey]);
   useEffect(() => () => controller.configure(null), [controller]);
 
   const vars = useMemo(
@@ -305,13 +313,25 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
     return report && currentId ? reportStartNumber(report, currentId) : null;
   });
   const firstPage = isChapter && typstFirst !== null ? typstFirst : estimatedFirst;
+  // Typst's breaks inside this chapter, from the last report (the plugin checks they still fit the text, so a stale report is only
+  // used while the edits left the blocks as they were).
+  const report = usePageMeasure((s) => s.report);
+  const version = usePageMeasure((s) => s.version);
+  const exact = useMemo(
+    () => (isChapter && currentId && report ? reportChapterMarks(report, currentId) : null),
+    [isChapter, currentId, report],
+  );
+  const exactKey = `${currentId ?? ""}:${version}`;
 
   // Zoom: a fixed factor, or the one that fits the pane's width.
   const scroller = useRef<HTMLDivElement>(null);
   const paneW = usePaneWidth(scroller);
   const zoom = zoomPref === "fit" ? fitZoom(g, paneW || g.page.w + 48) : zoomPref;
 
-  const onLayout = useCallback((l: PageLayoutResult) => setPageCount(l.pages.length), []);
+  const onLayout = useCallback(
+    (l: PageLayoutResult) => setPageCount(l.pages.length, undefined, l.exact),
+    [],
+  );
   const onCursor = useCallback(
     (p: number) => setPageCount(usePageCount.getState().count, p + 1),
     [],
@@ -319,6 +339,7 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
   useEffect(() => () => setPageCount(0), []);
 
   const size = trimLabel(trim);
+  const exactBreaks = usePageCount((s) => s.exact);
   const fontNote = family
     ? t`Text is set in ${family}, the font the PDF uses for this template.`
     : t`The template's print font is not installed here, so your manuscript font is used.`;
@@ -328,9 +349,15 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
       <div className="flex shrink-0 justify-center px-4 pb-1 pt-3">
         <span
           className="page-chip rounded-full border border-border bg-surface px-3 py-1 text-xs text-ink-muted"
-          title={`${fontNote} ${t`Page breaks are approximate: the PDF is the reference.`}`}
+          title={`${fontNote} ${
+            exactBreaks
+              ? t`Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little.`
+              : t`Page breaks are approximate: the PDF is the reference.`
+          }`}
         >
-          {t`Page view · ${size} · approximate`}
+          {exactBreaks
+            ? t`Page view · ${size} · breaks as in the PDF`
+            : t`Page view · ${size} · approximate`}
         </span>
       </div>
       <div
@@ -346,6 +373,8 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
           chapterTitle={chapterTitle}
           chapterNumber={chapterNumber}
           firstPage={firstPage}
+          exact={exact}
+          exactKey={exactKey}
           onLayout={onLayout}
           onCursorPage={onCursor}
         >

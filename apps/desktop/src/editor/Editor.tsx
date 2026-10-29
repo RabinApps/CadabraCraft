@@ -22,6 +22,8 @@ import { FindBar } from "./FindBar";
 import { prefillQuery } from "../lib/search/findHelpers";
 import { useFind } from "./findStore";
 import { registerHeadingJump } from "./headingJump";
+import { wordOffset } from "./pagination/exact";
+import { takePreviewJump } from "../state/previewJump";
 import { modalOpen, useRegisterCommands } from "../state/commands";
 import { useProject } from "../state/project/index";
 import { Modal } from "../ui/Dialog";
@@ -296,6 +298,21 @@ export function Editor({ initial, language, onChange, focus }: Props) {
       return true;
     });
   }, [editor]);
+  // The print preview opened this chapter at a page: put the caret on the text that starts it.
+  const currentId = useProject((s) => s.currentId);
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    const jump = takePreviewJump(currentId);
+    if (!jump) return;
+    const doc = editor.state.doc;
+    const node = jump.block < doc.childCount ? doc.child(jump.block) : null;
+    if (!node) return;
+    let pos = 0;
+    for (let i = 0; i < jump.block; i++) pos += doc.child(i).nodeSize;
+    const inside = jump.word === null ? null : wordOffset(node, jump.word);
+    const at = pos + 1 + (inside ?? 0);
+    editor.chain().focus().setTextSelection(Math.min(at, doc.content.size)).scrollIntoView().run();
+  }, [editor, currentId]);
   if (!editor) return null;
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">

@@ -276,6 +276,11 @@ export interface PaginateOptions {
   firstPage: number;
   startsOn: "recto" | "any";
   opensChapter: boolean;
+  /**
+   * Page breaks decided elsewhere (Typst's, in order, none of them blank): they are used as they are and nothing is simulated, so
+   * block heights only matter to whoever draws the pages. A blank verso before the chapter is still added.
+   */
+  forced?: PageBreak[];
 }
 
 const EPS = 0.01;
@@ -304,6 +309,7 @@ const gapBetween = (prev: MeasuredBlock | undefined, b: MeasuredBlock, atTop: bo
  *   the first lines of what follows. Chains (chapter title then heading) move together.
  * - Margins collapse like CSS margins (largest positive plus most negative) and vanish at the top of a page, except a chapter title's own margin (the sink).
  * - A block taller than a page, or with no lines to split, is placed on a page of its own and overflows it.
+ * - With `forced` breaks the layout is not simulated at all (see `PaginateOptions.forced`).
  * - `opensChapter` starts on a new page: with `startsOn: "recto"`, landing on an even page number puts a blank verso first. The first
  *   page is implicit, so `pageCount === breaks.length + 1`; when a blank page is needed it is that implicit first page and the first
  *   break (block 0, `blankBefore: true`) starts the first content page. No blocks means no pages.
@@ -317,6 +323,10 @@ export function paginate(
   const breaks: PageBreak[] = [];
   const blank = opts.opensChapter && opts.startsOn === "recto" && opts.firstPage % 2 === 0;
   if (blank) breaks.push({ block: 0, linesBefore: 0, blankBefore: true });
+  if (opts.forced) {
+    breaks.push(...opts.forced);
+    return { breaks, pageCount: breaks.length + 1 };
+  }
 
   const needed = (i: number): number => {
     const b = blocks[i]!;

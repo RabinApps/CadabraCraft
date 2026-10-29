@@ -23,6 +23,8 @@ import { useProject, type BookPage } from "../../state/project/index";
 import { Notice } from "../../ui/Notice";
 import { bleedInches, setBleed, setCropMarks, usePrintSetup } from "../../state/printSetup";
 import { usePrintPdf } from "../hooks/usePrintPdf";
+import { requestPreviewJump } from "../../state/previewJump";
+import { useViewMode } from "../../state/viewMode";
 import { ApproxPage, CoverThumb } from "./ApproxSpread";
 import { TypstSpread } from "./TypstSpread";
 
@@ -65,8 +67,28 @@ export function PrintPreview({ onBack, onExport }: Props) {
   );
   const bleedIn = bleedInches(bleed);
   const typeset = usePrintPdf({ trimSize: trim, bleedIn, cropMarks });
+  const previewTarget = useProject((s) => s.actions.previewTarget);
+  const selectChapter = useProject((s) => s.actions.selectChapter);
+  const setMode = useViewMode((s) => s.setMode);
+  const [opening, setOpening] = useState(false);
+  const [openError, setOpenError] = useState("");
   const [pdfPages, setPdfPages] = useState(0);
   const onPages = useCallback((n: number) => setPdfPages(n), []);
+  // A page of the preview opens its chapter in the editor, at the text that starts the page.
+  const openPage = (page: number) => {
+    setOpening(true);
+    setOpenError("");
+    (async () => {
+      const target = await previewTarget({ trimSize: trim, bleedIn, cropMarks, page });
+      if (!target) return setOpenError(t`That page is not in the book.`);
+      requestPreviewJump(target);
+      await selectChapter(target.id);
+      setMode("write");
+      onBack();
+    })()
+      .catch((e: unknown) => setOpenError(errText(e)))
+      .finally(() => setOpening(false));
+  };
   useEffect(() => {
     readPages().then(setPages, (e: unknown) => setError(errText(e)));
   }, [readPages]);
@@ -153,6 +175,19 @@ export function PrintPreview({ onBack, onExport }: Props) {
               </div>
             </div>
           )}
+          {opening && (
+            <p
+              role="status"
+              className="border-b border-border bg-surface px-4 py-2 text-sm text-ink-muted"
+            >
+              {t`Finding the page in your chapter…`}
+            </p>
+          )}
+          {openError && (
+            <Notice role="alert" className="m-4 whitespace-pre-wrap wrap-break-word">
+              {openError}
+            </Notice>
+          )}
           {typeset.error && !typeset.loading && (
             <Notice role="alert" className="m-4 whitespace-pre-wrap wrap-break-word">
               {t`Showing an approximate layout, because the real one could not be typeset:`}{" "}
@@ -167,6 +202,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
               hasCover={hasCover}
               stale={typeset.loading}
               onPages={onPages}
+              {...(opening ? {} : { onOpenPage: openPage })}
             />
           ) : (
             !typeset.loading && (

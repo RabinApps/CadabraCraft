@@ -1317,6 +1317,10 @@ msgstr "Bearbeiten"
 msgid "Edit details"
 msgstr "Details bearbeiten"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Edit this page"
+msgstr ""
+
 #: src/app/home/Dashboard.tsx
 msgid "Edited {when}"
 msgstr "Bearbeitet {when}"
@@ -1489,6 +1493,10 @@ msgstr "In diesem PDF suchen"
 #: src/app/shell/menuModel.ts
 msgid "Find…"
 msgstr "Suchen…"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Finding the page in your chapter…"
+msgstr ""
 
 #: src/app/references/ImagePreview.tsx
 msgid "Fit to window"
@@ -2394,6 +2402,10 @@ msgstr "Schriften öffnen"
 msgid "Open in default app"
 msgstr "In Standard-App öffnen"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Open page {page} in the editor"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Open Recent"
 msgstr "Zuletzt geöffnet"
@@ -2449,12 +2461,20 @@ msgid "Page {page}"
 msgstr "Seite {page}"
 
 #: src/app/shell/PageEstimate.tsx
+msgid "Page {shown} of {exact}"
+msgstr ""
+
+#: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {exact}"
 msgstr ""
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
 msgstr "Seitenumbrüche sind ungefähr: Das PDF ist maßgeblich."
+
+#: src/editor/PageFrame.tsx
+msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
+msgstr ""
 
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
@@ -2479,6 +2499,10 @@ msgstr "Seitenansicht"
 #: src/editor/PageFrame.tsx
 msgid "Page view · {size} · approximate"
 msgstr "Seitenansicht · {size} · ungefähr"
+
+#: src/editor/PageFrame.tsx
+msgid "Page view · {size} · breaks as in the PDF"
+msgstr ""
 
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
@@ -3286,6 +3310,10 @@ msgstr "Diese Datei ist keine verwendbare Schrift. Wähle eine .ttf- oder .otf-D
 msgid "That file name is not valid"
 msgstr "Dieser Dateiname ist nicht gültig"
 
+#: src/app/export/PrintPreview.tsx
+msgid "That page is not in the book."
+msgstr ""
+
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
 msgstr "Die Audioformate, die beim Öffnen des Exports angehakt sind."
@@ -3928,11 +3956,13 @@ msgstr "Dein Paketmanager aktualisiert diese Kopie von CadabraCraft."
 msgid "Zoom"
 msgstr "Zoom"
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom in"
 msgstr "Vergrößern"
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom out"

@@ -121,6 +121,32 @@ export function findSplitPos(
   return null;
 }
 
+/**
+ * `linesBefore` for a page that begins at `pos` inside a block (see `PageBreak`): the number of the block's lines the previous page
+ * keeps. A position at the start of a line keeps the lines above it; one in the middle of a line keeps that line too (it is cut
+ * short by the spacer, and the rest of it starts the next page). Null when the position cannot be placed.
+ */
+export function linesBeforePos(
+  view: EditorView,
+  blockPos: number,
+  node: PMNode,
+  pos: number,
+  block: FlowBlock,
+  zoom: number,
+  columnTop: number,
+): number | null {
+  const rootTop = view.dom.getBoundingClientRect().top;
+  const lh = block.lineHeight * zoom;
+  try {
+    const y = view.coordsAtPos(pos).top - (rootTop + (columnTop + block.top) * zoom);
+    const line = Math.max(0, Math.floor((y + lh / 2) / lh));
+    const atStart = findSplitPos(view, blockPos, node, line, block, zoom, columnTop) === pos;
+    return atStart ? line : line + 1;
+  } catch {
+    return null;
+  }
+}
+
 /** The top of every page card as the content actually flows: the bottom of each spacer minus the top margin. Null when a spacer is missing. */
 export function readPageTops(
   view: EditorView,

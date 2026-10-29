@@ -5,6 +5,8 @@ const assets = new Map<string, Uint8Array>();
 const typst = {
   failWith: null as unknown,
   compiles: [] as { source: string; files: [string, Uint8Array][]; pdfA: boolean }[],
+  queries: [] as { source: string; selector: string }[],
+  queryResult: "",
 };
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
@@ -14,6 +16,11 @@ vi.mock("../../../lib/bridge", async () =>
       return b;
     },
     typstListFonts: async () => ["Libertinus Serif", "New Computer Modern"],
+    typstQuery: async (source: string, _files: unknown, selector: string) => {
+      typst.queries.push({ source, selector });
+      if (typst.failWith) throw typst.failWith;
+      return typst.queryResult;
+    },
     typstCompile: async (source: string, files: [string, Uint8Array][], pdfA: boolean) => {
       typst.compiles.push({ source, files, pdfA });
       if (typst.failWith) throw typst.failWith;
@@ -36,6 +43,8 @@ beforeEach(async () => {
   assets.clear();
   typst.failWith = null;
   typst.compiles = [];
+  typst.queries = [];
+  typst.queryResult = JSON.stringify({ total: 0, starts: [] });
   useProject.setState({
     root: null,
     manifest: null,
@@ -48,6 +57,57 @@ beforeEach(async () => {
     exportStage: null,
   });
   await a().createProject("/p", "Book", "Me");
+});
+
+describe("previewTarget", () => {
+  const chapterId = () => s().manifest!.chapters[0]!.id;
+  const report = (id: string) =>
+    JSON.stringify({
+      total: 4,
+      starts: [{ id, kind: "chapter", page: 1, end: 3, number: "1" }],
+      marks: [
+        ["s", 0, 0, "h", 1],
+        ["s", 0, 1, "p", 1],
+        ["w", 31, 2],
+      ],
+    });
+
+  it("asks Typst for the layout of the preview's run, with block marks, and answers with the text that starts the page", async () => {
+    typst.queryResult = report(chapterId());
+    const target = await a().previewTarget({ trimSize: "5x8", bleedIn: 0.125, page: 2 });
+    expect(target).toEqual({ id: chapterId(), block: 1, word: 30 });
+    expect(typst.queries).toHaveLength(1);
+    expect(typst.queries[0]!.selector).toBe("<page-report>");
+    expect(typst.queries[0]!.source).toContain("#let wm(w)");
+    expect(typst.queries[0]!.source).toMatch(/#set page\(width: 5\.125in, height: 8\.25in/);
+    expect(typst.compiles).toHaveLength(0);
+    expect(s().exportStage).toBeNull();
+  });
+
+  it("reuses the layout for another page of the same preview, and asks again after the book or the options change", async () => {
+    typst.queryResult = report(chapterId());
+    await a().previewTarget({ page: 1 });
+    expect(await a().previewTarget({ page: 3 })).toMatchObject({ block: 1, word: null });
+    expect(typst.queries).toHaveLength(1);
+    await a().previewTarget({ page: 1, bleedIn: 0.125 });
+    expect(typst.queries).toHaveLength(2);
+    await a().add("More");
+    await a().previewTarget({ page: 1, bleedIn: 0.125 });
+    expect(typst.queries).toHaveLength(3);
+  });
+
+  it("is null for a book with no pages and turns a Typst failure into a message", async () => {
+    expect(await a().previewTarget({ page: 1 })).toBeNull();
+    typst.failWith = { kind: "not_found", message: "no typst" };
+    await a().add("More");
+    const err = await a()
+      .previewTarget({ page: 1 })
+      .then(
+        () => null,
+        (x: unknown) => x,
+      );
+    expect(err).toBeInstanceOf(PdfUiError);
+  });
 });
 
 describe("renderPreview", () => {

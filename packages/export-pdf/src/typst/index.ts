@@ -31,6 +31,7 @@ export function buildTypstDocument(
     images: new Map(),
     maxImageIn: Math.max(1, trim.h - margins.top - margins.bottom - 1),
     assets: options.assets,
+    ...(options.blockMarks ? { marks: true } : {}),
   };
   const hasFront = chapters.some((c) => (c.section ?? "chapter") === "front");
   const head = preamble(book, t, options, resolved, margins, hasFront);
@@ -43,7 +44,7 @@ export function buildTypstDocument(
   );
   const droplet = ctx.usesDropCap ? '#import "typst-droplet/lib.typ": dropcap\n' : "";
   return {
-    source: `${head}\n${droplet}${cover}${body}${pageReport(hasFront, options.pageNumbers ?? true)}`,
+    source: `${head}\n${droplet}${cover}${body}${pageReport(hasFront, options.pageNumbers ?? true, options.blockMarks === true)}`,
     images: ctx.images,
     fonts: resolved,
     usesDropCap: ctx.usesDropCap === true,

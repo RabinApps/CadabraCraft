@@ -8,7 +8,7 @@ import {
 import { typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import type { PdfChapter } from "../types";
-import { blocks, imagePath } from "./blocks";
+import { blocks, imagePath, markedBlocks } from "./blocks";
 import type { Ctx } from "./ctx";
 import { inline } from "./inline";
 import { em } from "./units";
@@ -37,17 +37,27 @@ const BLANK_VERSO_AFTER: readonly (MatterKind | undefined)[] = ["dedication", "e
  * restarts at 1 on a right-hand page at the first page after the front matter, and back matter continues the arabic count.
  */
 /** First paragraph of a chapter as a drop cap, or null when it does not start with a letter in plain text (then it is set normally). */
-function dropCapOpening(doc: DocNode[] | undefined, ctx: Ctx, indentEm: number): string | null {
+function dropCapOpening(
+  doc: DocNode[] | undefined,
+  ctx: Ctx,
+  indentEm: number,
+  chapter: number,
+): string | null {
   const first = doc?.[0];
   const kids = first?.type === "paragraph" && "content" in first ? first.content : undefined;
   const lead = kids?.[0];
   if (lead?.type !== "text" || (lead.marks?.length ?? 0) > 0 || !/^\p{L}.{1,}/u.test(lead.text))
     return null;
-  const rest = blocks(doc!.slice(1), ctx);
+  const rest = ctx.marks
+    ? markedBlocks(doc!.slice(1), ctx, chapter, 1)
+    : blocks(doc!.slice(1), ctx);
   ctx.usesDropCap = true;
   // Typst treats the paragraph after the drop cap block as a first paragraph, so an indenting template needs its indent put back by hand.
   const indent = indentEm > 0 && doc![1]?.type === "paragraph" ? `#h(${em(indentEm)})` : "";
-  return `#dropcap(height: 3, gap: 0.12em)[${inline(kids, ctx, true)}]${rest === "" ? "" : `\n\n${indent}${rest}`}`;
+  const cap = `#dropcap(height: 3, gap: 0.12em)[${inline(kids, ctx, true)}]`;
+  // The opening paragraph is set by the drop cap package, so it is marked as one piece around it.
+  const opening = ctx.marks ? `#bm-s(${chapter}, 0, "q")\n\n${cap}` : cap;
+  return `${opening}${rest === "" ? "" : `\n\n${indent}${rest}`}`;
 }
 
 export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm: number): string {
@@ -56,7 +66,7 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
   let sawFront = false;
   let restarted = false;
   let prev: MatterKind | undefined;
-  for (const page of pages) {
+  for (const [index, page] of pages.entries()) {
     const section = sectionOf(page);
     const kind = section === "chapter" ? undefined : (page.kind ?? "custom");
     if (section === "front") sawFront = true;
@@ -71,8 +81,12 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
     }
     prev = kind;
     const content =
-      (kind === undefined && dropCap ? dropCapOpening(page.doc.content, ctx, indentEm) : null) ??
-      blocks(page.doc.content, ctx);
+      (kind === undefined && dropCap
+        ? dropCapOpening(page.doc.content, ctx, indentEm, index)
+        : null) ??
+      (ctx.marks && kind === undefined
+        ? markedBlocks(page.doc.content, ctx, index)
+        : blocks(page.doc.content, ctx));
     const title = typstString(page.title);
     const id = typstString(page.id);
     const info = `${id}, ${typstString(kind ?? "chapter")}`;

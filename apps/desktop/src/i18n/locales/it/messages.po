@@ -1317,6 +1317,10 @@ msgstr "Modifica"
 msgid "Edit details"
 msgstr "Modifica dettagli"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Edit this page"
+msgstr ""
+
 #: src/app/home/Dashboard.tsx
 msgid "Edited {when}"
 msgstr "Modificato {when}"
@@ -1489,6 +1493,10 @@ msgstr "Trova in questo PDF"
 #: src/app/shell/menuModel.ts
 msgid "Find…"
 msgstr "Trova…"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Finding the page in your chapter…"
+msgstr ""
 
 #: src/app/references/ImagePreview.tsx
 msgid "Fit to window"
@@ -2394,6 +2402,10 @@ msgstr "Apri Caratteri"
 msgid "Open in default app"
 msgstr "Apri con l’app predefinita"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Open page {page} in the editor"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Open Recent"
 msgstr "Apri recente"
@@ -2449,12 +2461,20 @@ msgid "Page {page}"
 msgstr "Pagina {page}"
 
 #: src/app/shell/PageEstimate.tsx
+msgid "Page {shown} of {exact}"
+msgstr ""
+
+#: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {exact}"
 msgstr ""
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
 msgstr "Le interruzioni di pagina sono approssimative: il PDF è il riferimento."
+
+#: src/editor/PageFrame.tsx
+msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
+msgstr ""
 
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
@@ -2479,6 +2499,10 @@ msgstr "Vista pagina"
 #: src/editor/PageFrame.tsx
 msgid "Page view · {size} · approximate"
 msgstr "Vista pagina · {size} · approssimativa"
+
+#: src/editor/PageFrame.tsx
+msgid "Page view · {size} · breaks as in the PDF"
+msgstr ""
 
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
@@ -3286,6 +3310,10 @@ msgstr "Quel file non è un carattere utilizzabile. Scegli un file .ttf o .otf."
 msgid "That file name is not valid"
 msgstr "Quel nome di file non è valido"
 
+#: src/app/export/PrintPreview.tsx
+msgid "That page is not in the book."
+msgstr ""
+
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
 msgstr "I formati audio selezionati all’apertura dell’esportazione."
@@ -3928,11 +3956,13 @@ msgstr "Il tuo gestore di pacchetti aggiorna questa copia di CadabraCraft."
 msgid "Zoom"
 msgstr "Zoom"
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom in"
 msgstr "Ingrandisci"
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom out"

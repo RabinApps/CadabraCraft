@@ -78,7 +78,13 @@ export function preamble(
 #let book-title = ${typstString(book.title)}
 #set document(title: book-title, author: ${typstString(book.author)})
 #let mark(name, info: none) = [#metadata(info)#label(name)]
-#let chapter-pages() = query(<chapter-start>).map(m => m.location().page())
+${
+  options.blockMarks
+    ? `#let bm-s(c, b, k) = [#metadata(("s", c, b, k))<bm>]
+#let wm(w) = [#metadata(w)<bm>]
+`
+    : ""
+}#let chapter-pages() = query(<chapter-start>).map(m => m.location().page())
 #let chapter-end-pages() = query(<chapter-end>).map(m => m.location().page())
 #let is-blank(pg) = (pg + 1) in chapter-pages() and not (pg in chapter-end-pages()) and not (pg in chapter-pages())
 // Pages between a pair of start/end marks (title and copyright pages show no header or number; dedications show no header).

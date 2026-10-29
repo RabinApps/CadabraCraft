@@ -1317,6 +1317,10 @@ msgstr "Edit"
 msgid "Edit details"
 msgstr "Edit details"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Edit this page"
+msgstr "Edit this page"
+
 #: src/app/home/Dashboard.tsx
 msgid "Edited {when}"
 msgstr "Edited {when}"
@@ -1489,6 +1493,10 @@ msgstr "Find in this PDF"
 #: src/app/shell/menuModel.ts
 msgid "Find…"
 msgstr "Find…"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Finding the page in your chapter…"
+msgstr "Finding the page in your chapter…"
 
 #: src/app/references/ImagePreview.tsx
 msgid "Fit to window"
@@ -2394,6 +2402,10 @@ msgstr "Open Fonts"
 msgid "Open in default app"
 msgstr "Open in default app"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Open page {page} in the editor"
+msgstr "Open page {page} in the editor"
+
 #: src/app/shell/menuModel.ts
 msgid "Open Recent"
 msgstr "Open Recent"
@@ -2449,12 +2461,20 @@ msgid "Page {page}"
 msgstr "Page {page}"
 
 #: src/app/shell/PageEstimate.tsx
+msgid "Page {shown} of {exact}"
+msgstr "Page {shown} of {exact}"
+
+#: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {exact}"
 msgstr "Page ≈ {shown} of {exact}"
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
 msgstr "Page breaks are approximate: the PDF is the reference."
+
+#: src/editor/PageFrame.tsx
+msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
+msgstr "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
 
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
@@ -2479,6 +2499,10 @@ msgstr "Page View"
 #: src/editor/PageFrame.tsx
 msgid "Page view · {size} · approximate"
 msgstr "Page view · {size} · approximate"
+
+#: src/editor/PageFrame.tsx
+msgid "Page view · {size} · breaks as in the PDF"
+msgstr "Page view · {size} · breaks as in the PDF"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
@@ -3286,6 +3310,10 @@ msgstr "That file is not a usable font. Choose a .ttf or .otf file."
 msgid "That file name is not valid"
 msgstr "That file name is not valid"
 
+#: src/app/export/PrintPreview.tsx
+msgid "That page is not in the book."
+msgstr "That page is not in the book."
+
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
 msgstr "The audio formats ticked when you open the export."
@@ -3928,11 +3956,13 @@ msgstr "Your package manager updates this copy of CadabraCraft."
 msgid "Zoom"
 msgstr "Zoom"
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom in"
 msgstr "Zoom in"
 
+#: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom out"

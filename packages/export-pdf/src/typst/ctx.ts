@@ -7,6 +7,8 @@ export interface Ctx {
   /** Max image height in inches. */
   maxImageIn: number;
   assets: Record<string, Uint8Array> | undefined;
+  /** `PdfOptions.blockMarks`: chapters carry page marks. */
+  marks?: boolean;
 }
 
 export const unsupported = (type: string): never => {

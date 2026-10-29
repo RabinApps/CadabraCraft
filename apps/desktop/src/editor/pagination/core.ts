@@ -41,6 +41,8 @@ export interface PageSpec {
 }
 
 export interface PageLayoutResult {
+  /** The breaks are Typst's (forced), not the estimate. */
+  exact: boolean;
   breaks: PageBreak[];
   gaps: GapSpec[];
   pages: PageSpec[];
@@ -59,6 +61,8 @@ export interface LayoutInput {
   firstPage: number;
   startsOn: "recto" | "any";
   opensChapter: boolean;
+  /** Typst's page breaks (see `PaginateOptions.forced`); the layout then follows them instead of estimating. */
+  forced?: PageBreak[];
 }
 
 /** Space between two cards on the canvas (design: 24 px). */
@@ -160,6 +164,7 @@ export function layoutPages(input: LayoutInput): PageLayoutResult {
     firstPage: input.firstPage,
     startsOn: input.startsOn,
     opensChapter: input.opensChapter,
+    ...(input.forced ? { forced: input.forced } : {}),
   });
   const startOf = (br: PageBreak): number => {
     if (br.linesBefore > 0) return yLine(blocks[br.block]!, br.linesBefore);
@@ -210,7 +215,7 @@ export function layoutPages(input: LayoutInput): PageLayoutResult {
     start = startOf(br);
   }
   const last = pages[pages.length - 1]!;
-  return { breaks, gaps, pages, height: last.top + last.height };
+  return { exact: input.forced !== undefined, breaks, gaps, pages, height: last.top + last.height };
 }
 
 /**
