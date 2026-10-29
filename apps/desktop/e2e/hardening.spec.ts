@@ -176,4 +176,19 @@ test.describe("hardening: paste, find and export failures", () => {
   });
 });
 
+test.describe("hardening: the file watcher", () => {
+  test("a watcher failure shows a notice and editing keeps working", async ({ page }) => {
+    await newProject(page);
+    await page.evaluate(() => window.__emit!("project-watch-error", "watch_failed"));
+    await expect(
+      page
+        .getByRole("status")
+        .filter({ hasText: "Changes made outside the app may not be noticed" }),
+    ).toBeVisible();
+    await page.locator(".ProseMirror p").last().click();
+    await page.keyboard.type("still typing");
+    await expect(page.locator(".ProseMirror")).toContainText("still typing");
+  });
+});
+
 /** Seeds an earlier version of the first chapter as a snapshot and returns its path. */

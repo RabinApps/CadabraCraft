@@ -73,6 +73,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     if (previous && previous !== root) {
       forgetProjectAssets(previous);
       forgetProjectReferences(previous);
+      await bestEffort(() => bridge.unwatchProject(), undefined); // the old book's changes must not reach the new one
     }
     set({
       root,
@@ -94,6 +95,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     } catch (e) {
       // Never stay half open (a book on screen that is not watched): go back to no book.
       set({ ...closedState });
+      await bestEffort(() => bridge.unwatchProject(), undefined);
       throw e;
     }
   };
@@ -135,6 +137,10 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
     );
   };
   return {
+    watchFailed() {
+      if (get().root)
+        set({ notice: t`Changes made outside the app may not be noticed. Saving still works.` });
+    },
     async externalChange(path) {
       const { root, manifest, hashes } = get();
       if (!root || !manifest) return;
@@ -195,6 +201,7 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         forgetProjectAssets(root);
         forgetProjectReferences(root);
       }
+      await bestEffort(() => bridge.unwatchProject(), undefined);
       set({
         root: null,
         manifest: null,

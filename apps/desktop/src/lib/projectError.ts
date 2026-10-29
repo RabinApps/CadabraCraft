@@ -28,6 +28,7 @@ export type ProjectError =
   | { kind: "permission_denied"; path: string }
   | { kind: "disk_full"; path: string }
   | { kind: "image_dimensions"; name: string; max_megapixels: number }
+  | { kind: "watch_failed"; path: string }
   | { kind: "io"; message: string };
 
 const KINDS = new Set<string>([
@@ -56,6 +57,7 @@ const KINDS = new Set<string>([
   "permission_denied",
   "disk_full",
   "image_dimensions",
+  "watch_failed",
   "io",
 ]);
 
@@ -120,6 +122,8 @@ export function projectErrorMessage(e: ProjectError): string {
       return t`There is no space left on the disk to write ${e.path}`;
     case "image_dimensions":
       return t`${e.name} is larger than ${e.max_megapixels} megapixels`;
+    case "watch_failed":
+      return t`Cannot watch ${e.path} for changes made outside the app`;
     case "io":
       return e.message;
   }

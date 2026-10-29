@@ -237,6 +237,8 @@ export interface EditionActions {
 
 export interface ProjectActions {
   externalChange: (path: string) => Promise<void>;
+  /** The file watcher failed: tell the author that edits made outside the app may not show up. */
+  watchFailed: () => void;
   openProject: (root: string) => Promise<void>;
   /** Saves unsaved typing, then leaves the open book (back to the start screen). Nothing on disk changes. */
   closeProject: () => Promise<void>;

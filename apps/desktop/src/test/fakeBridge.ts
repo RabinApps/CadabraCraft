@@ -183,6 +183,7 @@ export function fakeBridge(overrides: Record<string, unknown> = {}) {
       writeFile,
       backupManifest: async () => "backup",
       watchProject: async () => {},
+      unwatchProject: async () => {},
       ...overrides,
     },
   };

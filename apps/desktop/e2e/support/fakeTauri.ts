@@ -77,6 +77,7 @@ export async function fakeTauri(page: Page) {
           case "plugin:event|unlisten":
             return null;
           case "watch_project":
+          case "unwatch_project":
             return null;
           case "create_project":
             disk["cadabra.json"] = a.manifestJson;

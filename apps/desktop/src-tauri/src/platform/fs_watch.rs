@@ -3,6 +3,7 @@ use notify_debouncer_mini::{new_debouncer, notify::RecursiveMode, Debouncer};
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Duration;
+use crate::project::ProjectError;
 use tauri::{AppHandle, Emitter, Runtime};
 
 #[derive(Default)]
@@ -21,25 +22,57 @@ pub fn relevant(root: &Path, changed: &Path) -> Option<String> {
     Some(parts.join("/"))
 }
 
-pub fn start<R: Runtime>(app: AppHandle<R>, root: PathBuf, state: &WatchState) -> Result<(), String> {
-    start_with(root, Duration::from_millis(400), Box::new(move |rel| drop(app.emit("project-changed", rel))), state)
+/// What the frontend hears when the watcher fails after it started (an overflowed event queue, a vanished folder).
+pub const WATCH_ERROR_CODE: &str = "watch_failed";
+
+pub fn start<R: Runtime>(app: AppHandle<R>, root: PathBuf, state: &WatchState) -> Result<(), ProjectError> {
+    let errors = app.clone();
+    start_with(
+        root,
+        Duration::from_millis(400),
+        Box::new(move |rel| drop(app.emit("project-changed", rel))),
+        Box::new(move || drop(errors.emit("project-watch-error", WATCH_ERROR_CODE))),
+        state,
+    )
 }
 
-/// `start` with the debounce and the notification sink injectable, so the watcher can be tested without an app.
-fn start_with(root: PathBuf, debounce: Duration, mut notify: Box<dyn FnMut(String) + Send>, state: &WatchState) -> Result<(), String> {
+/// Stops the running watcher, if any. Safe to call when nothing is watched.
+pub fn stop(state: &WatchState) -> Result<(), ProjectError> {
+    // Dropped outside the lock so a slow shutdown never blocks a following `start`.
+    let old = state.0.lock().map_err(poisoned)?.take();
+    drop(old);
+    Ok(())
+}
+
+fn poisoned<T>(e: std::sync::PoisonError<T>) -> ProjectError {
+    ProjectError::Io { message: e.to_string() }
+}
+
+/// Routes one debouncer delivery: relevant changed paths go to `notify`, a watcher error goes to `on_error` (once per delivery).
+fn deliver(root: &Path, res: notify_debouncer_mini::DebounceEventResult, notify: &mut (dyn FnMut(String) + Send), on_error: &mut (dyn FnMut() + Send)) {
+    match res {
+        Ok(events) => events.iter().filter_map(|e| relevant(root, &e.path)).for_each(notify),
+        Err(_) => on_error(),
+    }
+}
+
+/// `start` with the debounce and the sinks injectable, so the watcher can be tested without an app.
+fn start_with(
+    root: PathBuf,
+    debounce: Duration,
+    mut notify: Box<dyn FnMut(String) + Send>,
+    mut on_error: Box<dyn FnMut() + Send>,
+    state: &WatchState,
+) -> Result<(), ProjectError> {
     // FSEvents reports real paths: a root given through a link (macOS /var, a linked sync folder) would match nothing.
     let root = std::fs::canonicalize(&root).unwrap_or(root);
+    // Only the folder name goes into the error: the UI never shows absolute paths.
+    let failed = || ProjectError::WatchFailed { path: root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default() };
     let r = root.clone();
-    let mut debouncer = new_debouncer(debounce, move |res: notify_debouncer_mini::DebounceEventResult| {
-        for e in res.into_iter().flatten() {
-            if let Some(rel) = relevant(&r, &e.path) {
-                notify(rel);
-            }
-        }
-    })
-    .map_err(|e| e.to_string())?;
-    debouncer.watcher().watch(&root, RecursiveMode::Recursive).map_err(|e| e.to_string())?;
-    *state.0.lock().map_err(|e| e.to_string())? = Some(debouncer); // replaces (and stops) any previous watcher
+    let mut debouncer = new_debouncer(debounce, move |res: notify_debouncer_mini::DebounceEventResult| deliver(&r, res, &mut *notify, &mut *on_error)).map_err(|_| failed())?;
+    debouncer.watcher().watch(&root, RecursiveMode::Recursive).map_err(|_| failed())?;
+    let old = state.0.lock().map_err(poisoned)?.replace(debouncer); // replaces any previous watcher
+    drop(old); // stopped outside the lock
     Ok(())
 }
 
@@ -85,14 +118,14 @@ mod tests {
         fs::create_dir_all(root.join("exports")).unwrap();
         let state = WatchState::default();
         let (tx, rx) = channel();
-        start_with(root.clone(), SHORT, Box::new(move |rel| drop(tx.send(rel))), &state).unwrap();
+        start_with(root.clone(), SHORT, Box::new(move |rel| drop(tx.send(rel))), Box::new(|| {}), &state).unwrap();
         fs::write(root.join("exports/book.epub"), "x").unwrap(); // ignored
         fs::write(root.join("manuscript/001-a.json"), "{}").unwrap();
         let seen = wait_for(&rx, "manuscript/001-a.json");
         assert!(seen.iter().all(|p| !p.starts_with("exports")), "{seen:?}");
         // A second start replaces (and stops) the first: the first sink's sender is dropped with it.
         let (tx2, rx2) = channel();
-        start_with(root.clone(), SHORT, Box::new(move |rel| drop(tx2.send(rel))), &state).unwrap();
+        start_with(root.clone(), SHORT, Box::new(move |rel| drop(tx2.send(rel))), Box::new(|| {}), &state).unwrap();
         while rx.recv_timeout(HARD_TIMEOUT).is_ok() {} // drain events already queued
         assert_eq!(rx.try_recv(), Err(TryRecvError::Disconnected), "the replaced watcher is gone");
         fs::write(root.join("manuscript/002-b.json"), "{}").unwrap();
@@ -108,17 +141,17 @@ mod tests {
         std::os::unix::fs::symlink(real.join("book"), real.join("linked")).unwrap();
         let state = WatchState::default();
         let (tx, rx) = channel();
-        start_with(real.join("linked"), SHORT, Box::new(move |rel| drop(tx.send(rel))), &state).unwrap();
+        start_with(real.join("linked"), SHORT, Box::new(move |rel| drop(tx.send(rel))), Box::new(|| {}), &state).unwrap();
         fs::write(real.join("book/manuscript/001-a.json"), "{}").unwrap();
         wait_for(&rx, "manuscript/001-a.json");
     }
 
     #[test]
-    fn a_missing_folder_or_a_poisoned_state_is_an_error_message() {
+    fn a_missing_folder_or_a_poisoned_state_is_a_typed_error() {
         let d = tempfile::tempdir().unwrap();
         let state = WatchState::default();
-        let err = start_with(d.path().join("missing"), SHORT, Box::new(|_| {}), &state).unwrap_err();
-        assert!(!err.is_empty());
+        let err = start_with(d.path().join("missing"), SHORT, Box::new(|_| {}), Box::new(|| {}), &state).unwrap_err();
+        assert_eq!(err, ProjectError::WatchFailed { path: "missing".into() });
         assert!(state.0.lock().unwrap().is_none());
         let poisoned = std::sync::Arc::new(WatchState::default());
         let p = poisoned.clone();
@@ -128,7 +161,35 @@ mod tests {
         })
         .join();
         assert!(panicked.is_err());
-        let err = start_with(d.path().to_path_buf(), SHORT, Box::new(|_| {}), &poisoned).unwrap_err();
-        assert!(err.contains("poison"), "{err}");
+        let err = start_with(d.path().to_path_buf(), SHORT, Box::new(|_| {}), Box::new(|| {}), &poisoned).unwrap_err();
+        assert!(matches!(&err, ProjectError::Io { message } if message.contains("poison")), "{err:?}");
+        assert!(matches!(stop(&poisoned), Err(ProjectError::Io { .. })));
+    }
+
+    #[test]
+    fn a_watcher_error_is_reported_and_changes_still_flow() {
+        let root = Path::new("/p");
+        let (mut changed, mut errors) = (vec![], 0);
+        let event = |path: &str| notify_debouncer_mini::DebouncedEvent::new(PathBuf::from(path), notify_debouncer_mini::DebouncedEventKind::Any);
+        deliver(root, Ok(vec![event("/p/manuscript/a.json"), event("/p/exports/x.epub")]), &mut |rel| changed.push(rel), &mut || errors += 1);
+        assert_eq!((changed.as_slice(), errors), (&["manuscript/a.json".to_string()][..], 0));
+        deliver(root, Err(notify_debouncer_mini::notify::Error::generic("overflow")), &mut |rel| changed.push(rel), &mut || errors += 1);
+        assert_eq!((changed.len(), errors), (1, 1));
+    }
+
+    #[test]
+    fn stop_ends_the_watcher_and_is_safe_to_repeat() {
+        let d = tempfile::tempdir().unwrap();
+        let root = fs::canonicalize(d.path()).unwrap();
+        let state = WatchState::default();
+        stop(&state).unwrap(); // nothing watched
+        let (tx, rx) = channel::<String>();
+        start_with(root.clone(), SHORT, Box::new(move |rel| drop(tx.send(rel))), Box::new(|| {}), &state).unwrap();
+        assert!(state.0.lock().unwrap().is_some());
+        stop(&state).unwrap();
+        assert!(state.0.lock().unwrap().is_none());
+        while rx.recv_timeout(HARD_TIMEOUT).is_ok() {}
+        assert_eq!(rx.try_recv(), Err(TryRecvError::Disconnected), "the stopped watcher is gone");
+        stop(&state).unwrap();
     }
 }
