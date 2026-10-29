@@ -81,42 +81,90 @@ export async function exportSteps({
     return "EPUBCheck: 0 errors, 0 warnings";
   });
 
-  await step("PDF export produces a 6x9 PDF with embedded fonts", async () => {
-    await exportVia("Print PDF");
-    await app.sleep(1000);
-    for (let i = 0; i < 40 && !(await status()).includes("exports/en/book.pdf"); i++)
+  await step(
+    "PDF export produces a 5.5x8.5 PDF (the default template's trim) with embedded fonts",
+    async () => {
+      await exportVia("Print PDF");
       await app.sleep(1000);
-    assert(
-      (await status()).includes("exports/en/book.pdf"),
-      "PDF export did not finish (is Typst installed?)",
-    );
-    const pdf = join(book, "exports/en/book.pdf");
-    try {
-      const info = execFileSync("pdfinfo", [pdf], { encoding: "utf8" });
-      assert(/Page size:\s+432 x 648/.test(info), "wrong page size");
-      const pages = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }).split(
-        "\f",
-      );
+      for (let i = 0; i < 40 && !(await status()).includes("exports/en/book.pdf"); i++)
+        await app.sleep(1000);
       assert(
-        pages[0]?.includes("Scenario Book") && pages[0]?.includes("Agent"),
-        "title page is not first",
+        (await status()).includes("exports/en/book.pdf"),
+        "PDF export did not finish (is Typst installed?)",
       );
-      assert(
-        pages.some((p) => p.includes("About the Author")),
-        "back matter missing from the PDF",
-      );
-      assert(
-        pages.findIndex((p) => p.includes("Typed by an agent")) <
-          pages.findIndex((p) => p.includes("About the Author")),
-        "back matter is not after the chapters",
-      );
-      return "432x648 pt (6x9 in), title page first, about-the-author last";
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === "ENOENT")
-        return "exported (poppler not installed, not inspected)";
-      throw e;
-    }
-  });
+      const pdf = join(book, "exports/en/book.pdf");
+      try {
+        const info = execFileSync("pdfinfo", [pdf], { encoding: "utf8" });
+        assert(/Page size:\s+396 x 612/.test(info), "wrong page size");
+        const pages = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }).split(
+          "\f",
+        );
+        assert(
+          pages[0]?.includes("Scenario Book") && pages[0]?.includes("Agent"),
+          "title page is not first",
+        );
+        assert(
+          pages.some((p) => p.includes("About the Author")),
+          "back matter missing from the PDF",
+        );
+        assert(
+          pages.findIndex((p) => p.includes("Typed by an agent")) <
+            pages.findIndex((p) => p.includes("About the Author")),
+          "back matter is not after the chapters",
+        );
+        return "396x612 pt (5.5x8.5 in), title page first, about-the-author last";
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException).code === "ENOENT")
+          return "exported (poppler not installed, not inspected)";
+        throw e;
+      }
+    },
+  );
+
+  await step(
+    "Page view: the status bar's page total is measured by the real Typst and matches the exported PDF",
+    async () => {
+      const pdf = join(book, "exports/en/book.pdf");
+      let pages: string[];
+      let total: number;
+      try {
+        total = Number(
+          /^Pages:\s+(\d+)/m.exec(execFileSync("pdfinfo", [pdf], { encoding: "utf8" }))?.[1],
+        );
+        pages = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" })
+          .split("\f")
+          .slice(0, total);
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException).code === "ENOENT")
+          return "skipped (poppler not installed, the PDF cannot be inspected)";
+        throw e;
+      }
+      // The body counts from the first chapter's page (numbered 1) to the last page, as `reportBookPages` does.
+      const first = pages.findIndex((p) => p.includes("Typed by an agent")) + 1;
+      assert(first > 0, "the chapter's first page is not in the PDF");
+      const expected = total - first + 1;
+      const footer = () =>
+        app.js<string>(
+          `[...document.querySelectorAll("span")].map((s) => s.textContent).find((t) => t.includes("in the book")) ?? ""`,
+        );
+      await app.click("Page view");
+      try {
+        let text = "";
+        for (let i = 0; i < 40; i++) {
+          text = await footer();
+          if (new RegExp(`· ${expected} pages? at`).test(text)) break;
+          await app.sleep(1000);
+        }
+        assert(
+          new RegExp(`· ${expected} pages? at`).test(text),
+          `status bar never showed Typst's ${expected} pages (PDF has ${total}, chapter starts on page ${first}): ${text}`,
+        );
+        return `${expected} pages in the status bar, without "≈" (PDF: ${total} pages, the chapter starts on page ${first})`;
+      } finally {
+        await app.click("Page view");
+      }
+    },
+  );
 
   await step(
     "Book details: set ISBN and a cover through the real picker, saved to cadabra.json",
