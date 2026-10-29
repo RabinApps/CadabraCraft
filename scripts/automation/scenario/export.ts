@@ -147,7 +147,13 @@ export async function exportSteps({
         app.js<string>(
           `[...document.querySelectorAll("span")].map((s) => s.textContent).find((t) => t.includes("in the book")) ?? ""`,
         );
-      await app.click("Page view");
+      // The preference is remembered between launches, so set it rather than toggling it.
+      const pageViewOn = () =>
+        app.js<boolean>(
+          `document.querySelector('button[aria-label="Page view"]')?.getAttribute("aria-pressed") === "true"`,
+        );
+      const wasOn = await pageViewOn();
+      if (!wasOn) await app.click("Page view");
       try {
         let text = "";
         for (let i = 0; i < 40; i++) {
@@ -155,13 +161,51 @@ export async function exportSteps({
           if (new RegExp(`· ${expected} pages? at`).test(text)) break;
           await app.sleep(1000);
         }
+        const state = await app.js<string>(
+          `JSON.stringify({ pressed: document.querySelector('button[aria-label="Page view"]')?.getAttribute("aria-pressed"), cards: document.querySelectorAll(".page").length, width: innerWidth, modeWrite: document.querySelector('[role="radio"][aria-checked="true"]')?.textContent })`,
+        );
         assert(
           new RegExp(`· ${expected} pages? at`).test(text),
-          `status bar never showed Typst's ${expected} pages (PDF has ${total}, chapter starts on page ${first}): ${text}`,
+          `status bar never showed Typst's ${expected} pages (PDF has ${total}, chapter starts on page ${first}): ${text} | ${state}`,
         );
         return `${expected} pages in the status bar, without "≈" (PDF: ${total} pages, the chapter starts on page ${first})`;
       } finally {
-        await app.click("Page view");
+        if ((await pageViewOn()) !== wasOn) await app.click("Page view");
+      }
+    },
+  );
+
+  await step(
+    "Read mode: the whole book scrolls continuously as trim-size pages in the real webview",
+    async () => {
+      await app.click("Read");
+      await app.sleep(2500);
+      const reader = () =>
+        app.js<string>(
+          `(() => { const sc = document.querySelector('[data-testid="reading-scroll"]'); if (!sc) return JSON.stringify({ missing: true }); const ids = [...sc.querySelectorAll("[data-reading-id]")].map((e) => e.getAttribute("data-reading-id")); return JSON.stringify({ ids, cards: sc.querySelectorAll(".page").length, editors: sc.querySelectorAll(".ProseMirror").length, editable: [...sc.querySelectorAll(".ProseMirror")].some((e) => e.getAttribute("contenteditable") === "true"), top: sc.scrollTop, max: sc.scrollHeight - sc.clientHeight, footer: document.querySelector("footer")?.textContent ?? "" }); })()`,
+        );
+      try {
+        const first = JSON.parse(await reader());
+        assert(!first.missing, "Read mode did not show the continuous reader");
+        assert(
+          first.ids.length === 3,
+          `expected the title page, the chapter and the back-matter page, got ${first.ids.length}`,
+        );
+        assert(first.cards > 0, "Read mode drew no page cards at this width");
+        assert(!first.editable, "the reader is editable");
+        // Scrolling to the end reaches the last page and the footer follows.
+        await app.js(
+          `(() => { const sc = document.querySelector('[data-testid="reading-scroll"]'); sc.scrollTop = sc.scrollHeight; return "scrolled"; })()`,
+        );
+        await app.sleep(1500);
+        const last = JSON.parse(await reader());
+        assert(last.top > first.top, "the reader did not scroll");
+        assert(/Page \d+/.test(last.footer), `footer does not show a page number: ${last.footer}`);
+        await shot("read-continuous");
+        return `${first.ids.length} pages in one scroller, ${first.cards} cards before scrolling, footer: ${last.footer.trim().slice(0, 60)}`;
+      } finally {
+        await app.click("Write");
+        await app.sleep(1200);
       }
     },
   );
