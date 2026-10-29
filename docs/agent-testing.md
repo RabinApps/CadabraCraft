@@ -3,7 +3,7 @@
 An AI agent (or a script) can operate the real CadabraCraft window in development, including the Rust side that Playwright's fake `invoke` never touches. Two parts, both dev-only:
 
 1. **The app bridge.** `pnpm --filter @cadabracraft/desktop tauri:automate` runs the app with the `dev-automation` Cargo feature. That registers [`tauri-plugin-mcp-bridge`](https://github.com/hypothesi/mcp-server-tauri) (MIT) **bound to 127.0.0.1:9223** and adds `src-tauri/tauri.automation.conf.json` (`withGlobalTauri` plus the plugin capability). Through it a client can run JavaScript in the webview, take a native screenshot, and call the app's own Tauri commands.
-2. **Dialog answers.** Native file and folder dialogs live outside the webview, so a client cannot click them. In dev-automation builds the app has `automation_queue_dialog`; the bridge pickers (`pickFolder`, `pickImage`, `pickImportSource`) consume a queued answer first and only open the real dialog when the queue is empty. A queued `null` means "cancel".
+2. **Dialog answers.** Native file and folder dialogs live outside the webview, so a client cannot click them. In dev-automation builds the app has `automation_queue_dialog`; the pickers consume a queued answer first and only open the real dialog when the queue is empty. A queued `null` means "cancel". The folder, image and import-source pickers run in Rust (`pick_folder`, `pick_image`, `pick_import_source`) and record a queued path as picked exactly like a real pick, so `create_project`, `import_asset` and `read_import_source` accept it; a path you never queued (or picked) is refused with `not_picked`. Queue the answer right before the click that opens the dialog.
 
 ## Quick start
 

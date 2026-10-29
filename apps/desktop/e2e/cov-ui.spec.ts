@@ -15,7 +15,7 @@ test("home: untitled recents, a failing folder picker, an author left empty and 
     // Wraps the fake backend (registered first): the folder picker can be made to fail.
     const real = window.__TAURI_INTERNALS__.invoke;
     window.__TAURI_INTERNALS__.invoke = (cmd, a, o) =>
-      cmd === "plugin:dialog|open" && sessionStorage.getItem("pickFails")
+      cmd === "pick_folder" && sessionStorage.getItem("pickFails")
         ? Promise.reject({ kind: "io", message: "picker broke" })
         : real(cmd, a, o);
     if (!localStorage.getItem("cadabracraft.recents"))

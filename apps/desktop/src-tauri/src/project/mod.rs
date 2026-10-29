@@ -14,7 +14,7 @@ mod trash;
 #[cfg(test)]
 mod contract_tests;
 
-pub use assets::{import_image, read_asset, store_image, MAX_IMAGE_BYTES};
+pub use assets::{import_image, read_asset, store_image, IMAGE_EXTENSIONS, MAX_IMAGE_BYTES};
 #[cfg(test)]
 pub(crate) use assets::{sanitize_asset_stem, MAX_IMAGE_PIXELS};
 pub(crate) use assets::{check_image, image_ext, image_too_large};

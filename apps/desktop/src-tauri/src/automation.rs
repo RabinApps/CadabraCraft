@@ -1,7 +1,8 @@
 //! Dev-only helpers for agent-driven testing. Compiled only with `--features dev-automation`.
 //!
 //! Native file dialogs live outside the webview, so an automation client cannot click them. Instead it queues
-//! the answers the next dialogs should return; `bridge.ts` consumes a queued answer before opening a real dialog.
+//! the answers the next dialogs should return. The pickers that run in Rust (folder, image, import source) pop an answer
+//! themselves and record it as picked like a real pick; `bridge/dialog.ts` consumes one for the pickers still in the webview.
 use serde::Serialize;
 use std::collections::VecDeque;
 use std::sync::Mutex;
@@ -13,6 +14,12 @@ pub struct DialogQueue(Mutex<VecDeque<Option<String>>>);
 pub struct Dialog {
     /// None means "the user cancelled the dialog".
     pub answer: Option<String>,
+}
+
+/// Pops the next queued answer for a picker that runs in Rust (`commands/picked.rs`); None when nothing is queued.
+pub fn take_queued<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Option<Option<String>> {
+    use tauri::Manager;
+    app.try_state::<DialogQueue>()?.0.lock().ok()?.pop_front()
 }
 
 /// Replaces the queue. Each entry answers one dialog in order; null cancels it.

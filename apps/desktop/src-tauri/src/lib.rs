@@ -12,6 +12,9 @@ mod typst;
 macro_rules! app_handlers {
     ($($extra:path),*) => {
         tauri::generate_handler![
+            commands::pick_folder,
+            commands::pick_image,
+            commands::pick_import_source,
             commands::create_project,
             commands::read_project_file,
             commands::write_project_file,
@@ -79,6 +82,7 @@ pub fn run() {
         .manage(platform::fs_watch::WatchState::default())
         .manage(audio::AudioJobs::default())
         .manage(commands::MediaRoots::default())
+        .manage(commands::PickedPaths::default())
         .register_asynchronous_uri_scheme_protocol(commands::MEDIA_SCHEME, |ctx, req, responder| serve_media(ctx.app_handle(), req, responder))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())

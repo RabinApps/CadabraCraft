@@ -171,6 +171,11 @@ msgstr ""
 msgid "{0} of {1} MB"
 msgstr ""
 
+#. placeholder {0}: e.name
+#: src/lib/projectError.ts
+msgid "{0} was not chosen in a file or folder dialog"
+msgstr ""
+
 #. placeholder {0}: ref.title
 #. placeholder {1}: errText(e)
 #: src/state/project/references.ts

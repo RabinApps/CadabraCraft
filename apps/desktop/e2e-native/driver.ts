@@ -53,17 +53,16 @@ export async function startSession(): Promise<Session> {
 }
 
 /**
- * Native folder dialogs cannot be driven through WebDriver. Wrap the Tauri bridge so only the dialog
- * plugin's `open` call answers with `folder`; every other command still reaches the real Rust backend.
- * Must be re-installed after each page reload.
+ * Native folder dialogs cannot be driven through WebDriver, and the folder picker now runs in Rust (it records the
+ * path it returns, and `create_project` accepts only such a path). So the app must be built with `dev-automation`
+ * (`pnpm build:native` does that): this queues `folder` as the answer to the next native dialog, which the Rust picker
+ * consumes and records exactly like a real pick. Call it before each click that opens a folder dialog.
  */
 export async function stubFolderDialog(driver: WebDriver, folder: string): Promise<void> {
-  await driver.executeScript(
+  await driver.executeAsyncScript(
     `
-    const folder = arguments[0];
-    const i = window.__TAURI_INTERNALS__;
-    if (!i.__realInvoke) { i.__realInvoke = i.invoke; }
-    i.invoke = (cmd, args, opts) => cmd === "plugin:dialog|open" ? Promise.resolve(folder) : i.__realInvoke(cmd, args, opts);
+    const [folder, done] = [arguments[0], arguments[arguments.length - 1]];
+    window.__TAURI_INTERNALS__.invoke("automation_queue_dialog", { answers: [folder] }).then(() => done(null), (e) => done(String(e)));
   `,
     folder,
   );

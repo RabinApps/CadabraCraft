@@ -7,8 +7,8 @@ use tauri::http::HeaderMap;
 use tauri::ipc::{InvokeBody, Request};
 
 #[tauri::command]
-pub async fn create_project(root: String, manifest_json: String) -> Result<(), ProjectError> {
-    blocking(move || project::create_project(&project::require_absolute(&PathBuf::from(root))?, &manifest_json)).await
+pub async fn create_project(picked: tauri::State<'_, super::PickedPaths>, root: String, manifest_json: String) -> Result<(), ProjectError> {
+    blocking({ let picked = picked.inner().clone(); move || super::create_picked(&picked, &root, &manifest_json) }).await
 }
 
 #[tauri::command]
@@ -79,12 +79,14 @@ mod tests {
     #[test]
     fn a_project_is_created_and_its_manifest_read_back() {
         let dir = tempfile::tempdir().unwrap();
-        let r = dir.path().join("Book").to_string_lossy().into_owned();
+        let r = dir.path().to_string_lossy().into_owned();
+        let picked = super::super::PickedPaths::default();
+        picked.record(super::super::PickKind::Folder, dir.path()).unwrap();
         assert_eq!(run(read_project_file(r.clone(), "cadabra.json".into())).unwrap(), None);
-        run(create_project(r.clone(), "{\"a\":1}".into())).unwrap();
+        super::super::create_picked(&picked, &r, "{\"a\":1}").unwrap();
         assert_eq!(run(read_project_file(r.clone(), "cadabra.json".into())).unwrap().unwrap().contents, "{\"a\":1}");
-        assert_eq!(run(create_project(r.clone(), "{}".into())), Err(ProjectError::AlreadyExists));
-        assert!(run(create_project("relative".into(), "{}".into())).is_err());
+        assert_eq!(super::super::create_picked(&picked, &r, "{}"), Err(ProjectError::AlreadyExists));
+        assert!(super::super::create_picked(&picked, "relative", "{}").is_err());
         let backup = run(backup_manifest(r)).unwrap();
         assert!(backup.starts_with(".cadabra/backups/"), "{backup}");
     }
