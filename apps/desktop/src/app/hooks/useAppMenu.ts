@@ -20,6 +20,7 @@ import { showNativeMenu } from "../shell/nativeMenu";
 import { useRecents } from "../../state/recents";
 import { useUpdates } from "../../state/updates";
 import { SPONSOR_URL } from "../../state/sponsor";
+import { isMac } from "../../lib/platform";
 import type { ExportFormat } from "../export/exportFormat";
 import { useProject } from "../../state/project/index";
 
@@ -46,7 +47,6 @@ const FRONT: MatterKind[] = [
   "custom",
 ];
 const BACK: MatterKind[] = ["acknowledgments", "about-the-author", "also-by", "colophon", "custom"];
-const isMac = (): boolean => typeof navigator !== "undefined" && /Mac/i.test(navigator.userAgent);
 
 /**
  * Registers what the File, Edit, Insert, View and Help menus can do in the current context, and shows the native menu.

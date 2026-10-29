@@ -534,6 +534,7 @@ msgstr ""
 msgid "Block quote"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "Block Quote"
 msgstr ""
@@ -543,6 +544,7 @@ msgstr ""
 msgid "Body font"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Bold"
@@ -590,6 +592,7 @@ msgstr ""
 msgid "Bulleted list"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "Bulleted List"
 msgstr ""
@@ -821,11 +824,13 @@ msgstr ""
 msgid "Close Window"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Code"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Code Block"
@@ -1170,6 +1175,7 @@ msgstr ""
 msgid "Earlier versions of this page. Pick one to compare it with the current text."
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "Edit"
 msgstr ""
@@ -1305,6 +1311,7 @@ msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "File"
 msgstr ""
@@ -1396,6 +1403,7 @@ msgid "Foreword"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "Format"
 msgstr ""
@@ -1436,18 +1444,21 @@ msgid "Give the book an author."
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 1"
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 2"
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 3"
@@ -1461,6 +1472,7 @@ msgstr ""
 msgid "Hear a sample"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "Help"
 msgstr ""
@@ -1586,6 +1598,11 @@ msgstr ""
 msgid "Include the cover"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
+msgid "Indent list item"
+msgstr ""
+
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/TableCommands.tsx
 #: src/editor/ToolbarDialogs.tsx
@@ -1639,6 +1656,7 @@ msgstr ""
 msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Italic"
@@ -1677,6 +1695,14 @@ msgstr ""
 msgid "Keep your research close"
 msgstr ""
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option."
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Keys cannot be changed yet. Ctrl is Control."
+msgstr ""
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
 msgstr ""
@@ -1712,6 +1738,10 @@ msgstr ""
 msgid "Later"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
+msgid "Leave Focus Mode"
+msgstr ""
+
 #: src/app/export/EditionsChecklist.tsx
 msgid "Leaves them out of this export; the list above says which."
 msgstr ""
@@ -1719,6 +1749,10 @@ msgstr ""
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
 msgid "Light"
+msgstr ""
+
+#: src/app/settings/shortcutList.ts
+msgid "Line break"
 msgstr ""
 
 #: src/app/export/Templates.tsx
@@ -1997,6 +2031,11 @@ msgstr ""
 msgid "No results"
 msgstr ""
 
+#. placeholder {0}: query.trim()
+#: src/app/settings/ShortcutsSection.tsx
+msgid "No shortcut matches “{0}”."
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "No text yet"
 msgstr ""
@@ -2069,6 +2108,7 @@ msgstr ""
 msgid "Numbered list"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "Numbered List"
 msgstr ""
@@ -2134,6 +2174,10 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
+msgid "Outdent list item"
+msgstr ""
+
 #: src/app/export/AudioExport.tsx
 msgid "Packing the audiobook…"
 msgstr ""
@@ -2188,6 +2232,10 @@ msgstr ""
 
 #: src/app/shell/TrashDialog.tsx
 msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
+msgstr ""
+
+#: src/app/settings/shortcutList.ts
+msgid "Paragraph"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -2380,6 +2428,7 @@ msgstr ""
 msgid "Redo {0}"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Redo book change"
 msgstr ""
@@ -2595,12 +2644,20 @@ msgstr ""
 msgid "Scene Break"
 msgstr ""
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Search by action or key"
+msgstr ""
+
 #: src/app/references/PdfSearch.tsx
 msgid "Search in PDF"
 msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Search references"
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Search shortcuts"
 msgstr ""
 
 #: src/app/references/PdfSearch.tsx
@@ -2803,6 +2860,7 @@ msgstr ""
 msgid "Stored on this computer. No account needed."
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Strikethrough"
@@ -3215,6 +3273,7 @@ msgstr ""
 msgid "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Underline"
@@ -3235,6 +3294,7 @@ msgstr ""
 msgid "Undo {0}"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Undo book change"
 msgstr ""
@@ -3328,6 +3388,7 @@ msgstr ""
 msgid "Video"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "View"
 msgstr ""
@@ -3388,6 +3449,7 @@ msgstr ""
 msgid "Wide page"
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "Window"
 msgstr ""

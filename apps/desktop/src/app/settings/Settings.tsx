@@ -24,9 +24,18 @@ import {
 import { useFontList } from "../hooks/useFontList";
 import { AudioSection } from "./AudioSection";
 import { FontsSection } from "./FontsSection";
+import { ShortcutsSection } from "./ShortcutsSection";
 import { KeepField, Row, Section } from "./SettingsParts";
 
-const sections = ["appearance", "general", "editor", "fonts", "audio", "backups"] as const;
+const sections = [
+  "appearance",
+  "general",
+  "editor",
+  "fonts",
+  "audio",
+  "backups",
+  "shortcuts",
+] as const;
 
 /** Preferences page. Every control saves immediately, so there is no primary action. */
 export function Settings({
@@ -60,6 +69,7 @@ export function Settings({
     fonts: t`Fonts`,
     audio: t`Audio`,
     backups: t`Backups`,
+    shortcuts: t`Shortcuts`,
   };
   const [active, setActive] = useState<(typeof sections)[number]>(initialSection ?? "appearance");
   const { fonts } = useFontList();
@@ -118,12 +128,6 @@ export function Settings({
               {navLabels[id]}
             </button>
           ))}
-          {/* Designed, not built yet: shown so the list matches the design. */}
-          <button
-            type="button"
-            disabled
-            className="rounded-md px-3 py-2 text-start text-sm font-medium text-ink-muted opacity-50"
-          >{t`Shortcuts`}</button>
         </nav>
         {/* relative: the visually hidden inputs inside are positioned against this box, not the window, so they cannot make the page itself scroll. */}
         <main ref={mainRef} onScroll={follow} className="relative min-h-0 flex-1 overflow-y-auto">
@@ -317,6 +321,7 @@ export function Settings({
               />
             </Section>
             <p className="-mt-4 text-xs text-ink-muted">{t`Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer.`}</p>
+            <ShortcutsSection title={navLabels.shortcuts} />
           </div>
         </main>
       </div>
