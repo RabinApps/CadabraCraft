@@ -60,6 +60,84 @@ export function listItemOf(content: DocNode[]): DocNode {
   return { type: "listItem", content: c };
 }
 
+const contentOf = (n: DocNode): DocNode[] => ("content" in n && n.content ? n.content : []);
+
+/** A task item: like a list item (starts with a paragraph) with a checked flag. */
+export function taskItemOf(content: DocNode[], checked: boolean): DocNode {
+  return { type: "taskItem", attrs: { checked }, content: contentOf(listItemOf(content)) };
+}
+
+/** One list entry as read from a source: its blocks and, for a task item, whether it is checked (`null` for a plain item). */
+export interface ListEntry {
+  content: DocNode[];
+  checked: boolean | null;
+}
+
+/**
+ * The list nodes for a run of entries. Consecutive task items become a `taskList`; the plain items around them become
+ * bullet or numbered lists, so a list that mixes both is split rather than losing the checkboxes. `numberedTasks` says a
+ * task item came from a numbered list (task lists have no numbers).
+ */
+export function listNodes(
+  entries: ListEntry[],
+  ordered: boolean,
+  start = 1,
+): { nodes: DocNode[]; numberedTasks: boolean } {
+  const nodes: DocNode[] = [];
+  let numberedTasks = false;
+  for (let i = 0; i < entries.length;) {
+    const task = entries[i]!.checked !== null;
+    let j = i;
+    while (j < entries.length && (entries[j]!.checked !== null) === task) j++;
+    const run = entries.slice(i, j);
+    if (task) {
+      numberedTasks ||= ordered;
+      nodes.push({
+        type: "taskList",
+        content: run.map((e) => taskItemOf(e.content, e.checked === true)),
+      });
+    } else if (ordered) {
+      const first = start + i;
+      nodes.push({
+        type: "orderedList",
+        ...(first !== 1 ? { attrs: { start: first } } : {}),
+        content: run.map((e) => listItemOf(e.content)),
+      });
+    } else nodes.push({ type: "bulletList", content: run.map((e) => listItemOf(e.content)) });
+    i = j;
+  }
+  return { nodes, numberedTasks };
+}
+
+/** A term (inline content) or a description (blocks) read from a source, in order. */
+export interface DefinitionEntry {
+  kind: "term" | "desc";
+  content: DocNode[];
+}
+
+/**
+ * Blocks for a run of definition entries. The schema wants `(term+ description+)+`, so a description with no term before it
+ * is kept as plain blocks in front of the list, and terms at the end that no description follows become paragraphs after it.
+ */
+export function definitionNodes(entries: DefinitionEntry[]): DocNode[] {
+  const before: DocNode[] = [];
+  const list: DocNode[] = [];
+  for (const e of entries) {
+    if (e.kind === "term")
+      list.push({ type: "definitionTerm", ...(e.content.length ? { content: e.content } : {}) });
+    else if (list.length === 0) before.push(...e.content);
+    else list.push({ type: "definitionDescription", content: contentOf(listItemOf(e.content)) });
+  }
+  const after: DocNode[] = [];
+  while (list.length && list[list.length - 1]!.type === "definitionTerm")
+    after.unshift(paragraphOf(contentOf(list.pop()!)));
+  return [
+    ...before,
+    ...(list.length ? [{ type: "definitionList", content: list } as DocNode] : []),
+    ...after,
+  ];
+}
+
 /** A table cell must hold `paragraph+`: keep paragraphs, flatten any other block to paragraphs, and say whether that changed anything. */
 export function cellParagraphs(blocks: DocNode[]): { paragraphs: DocNode[]; flattened: boolean } {
   const paragraphs: DocNode[] = [];
@@ -80,10 +158,18 @@ export function cellParagraphs(blocks: DocNode[]): { paragraphs: DocNode[]; flat
         break;
       case "bulletList":
       case "orderedList":
+      case "taskList":
+      case "definitionList":
       case "blockquote":
       case "listItem":
+      case "taskItem":
+      case "definitionDescription":
         flattened = true;
         for (const k of n.content ?? []) walk(k);
+        break;
+      case "definitionTerm":
+        flattened = true;
+        paragraphs.push(paragraphOf(n.content ?? []));
         break;
       case "table": {
         flattened = true;

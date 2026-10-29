@@ -152,3 +152,75 @@ describe("image node view", () => {
     expect(img.src).toBe("b.png");
   });
 });
+
+import {
+  DefinitionDescription,
+  DefinitionList,
+  DefinitionTerm,
+  TaskItem,
+  TaskList,
+} from "../index";
+
+describe("task list and definition list specs", () => {
+  it("renders and parses the task list", () => {
+    expect(call(TaskList, "parseHTML")).toEqual([
+      { tag: 'ul[data-type="taskList"]', priority: 60 },
+    ]);
+    expect(call(TaskList, "renderHTML", { HTMLAttributes: { id: "a" } })).toEqual([
+      "ul",
+      { id: "a", "data-type": "taskList" },
+      0,
+    ]);
+  });
+  it("renders a task item with a static checkbox that shows its state", () => {
+    const render = (checked: boolean) =>
+      call(TaskItem, "renderHTML", {
+        node: { attrs: { checked } },
+        HTMLAttributes: {},
+      }) as unknown[];
+    expect(render(true)).toEqual([
+      "li",
+      { "data-type": "taskItem" },
+      [
+        "label",
+        { contenteditable: "false" },
+        ["input", { type: "checkbox", disabled: "disabled", checked: "checked" }],
+      ],
+      ["div", 0],
+    ]);
+    expect((render(false)[2] as unknown[])[2]).toEqual([
+      "input",
+      { type: "checkbox", disabled: "disabled" },
+    ]);
+  });
+  it("reads the checked state from data-checked and writes it back", () => {
+    const attrs = call(TaskItem, "addAttributes") as Record<
+      string,
+      { default: boolean; parseHTML: (e: unknown) => boolean; renderHTML: (a: unknown) => unknown }
+    >;
+    const el = (v: string | null) => ({ getAttribute: () => v });
+    expect(attrs.checked!.default).toBe(false);
+    expect(attrs.checked!.parseHTML(el("true"))).toBe(true);
+    expect(attrs.checked!.parseHTML(el(null))).toBe(false);
+    expect(attrs.checked!.renderHTML({ checked: true })).toEqual({ "data-checked": "true" });
+    expect(attrs.checked!.renderHTML({ checked: false })).toEqual({ "data-checked": "false" });
+  });
+  it("takes the item text from the div next to the checkbox, or from the item itself", () => {
+    const [rule] = call(TaskItem, "parseHTML") as {
+      tag: string;
+      contentElement: (e: unknown) => unknown;
+    }[];
+    const inner = {};
+    expect(rule!.contentElement({ querySelector: () => inner })).toBe(inner);
+    const li = { querySelector: () => null };
+    expect(rule!.contentElement(li)).toBe(li);
+  });
+  it.each([
+    [DefinitionList, "dl"],
+    [DefinitionTerm, "dt"],
+    [DefinitionDescription, "dd"],
+  ])("%# maps to <%s>", (ext, tag) => {
+    expect(call(ext, "parseHTML")).toEqual([{ tag }]);
+    expect(call(ext, "renderHTML", { HTMLAttributes: { id: "a" } })).toEqual([tag, { id: "a" }, 0]);
+  });
+});

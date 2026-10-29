@@ -164,6 +164,74 @@ function table(n: DocNode, ctx: Ctx): string {
   return `<table>${head}${body ? `<tbody>${body}</tbody>` : ""}</table>`;
 }
 
+/** The children of `n`, each checked to be one of `allowed`; anything else (a node the schema would not allow here) throws. */
+function children(
+  n: DocNode,
+  allowed: readonly string[],
+  ctx: Ctx,
+): { node: DocNode; i: number }[] {
+  const kids = ("content" in n ? n.content : undefined) ?? [];
+  return kids.map((node, i) => {
+    if (!allowed.includes(node.type))
+      throw at(ctx, node, i, () =>
+        fail(
+          ctx,
+          "unsupported-node",
+          `Unsupported node type in ${n.type}: ${node.type}`,
+          node.type,
+        ),
+      );
+    return { node, i };
+  });
+}
+
+/** An item body: the first paragraph (which may carry a checkbox before its text), then the other blocks. */
+function itemBody(item: DocNode, ctx: Ctx, lead = ""): string {
+  const kids = ("content" in item ? item.content : undefined) ?? [];
+  const first = kids[0];
+  if (first?.type !== "paragraph")
+    throw fail(ctx, "unsupported-node", `A ${item.type} must start with a paragraph`, item.type);
+  return (
+    `<p>${lead}${at(ctx, first, 0, () => inline(first.content, ctx))}</p>` +
+    kids
+      .slice(1)
+      .map((k, i) => at(ctx, k, i + 1, () => block(k, ctx)))
+      .join("")
+  );
+}
+
+/** A task list: a disabled checkbox before the first paragraph's text, so the state survives readers that ignore CSS. */
+function taskList(n: DocNode, ctx: Ctx): string {
+  const items = children(n, ["taskItem"], ctx).map(({ node, i }) =>
+    at(ctx, node, i, () => {
+      const checked = ("attrs" in node ? node.attrs?.checked : undefined) ?? false;
+      if (typeof checked !== "boolean")
+        throw fail(
+          ctx,
+          "unsupported-node",
+          "A task item's checked value must be true or false",
+          node.type,
+        );
+      const box = `<input type="checkbox" disabled="disabled"${checked ? ' checked="checked"' : ""}/> `;
+      return `<li class="task-item">${itemBody(node, ctx, box)}</li>`;
+    }),
+  );
+  return `<ul class="task-list">${items.join("")}</ul>`;
+}
+
+function definitionList(n: DocNode, ctx: Ctx): string {
+  const parts = children(n, ["definitionTerm", "definitionDescription"], ctx).map(({ node, i }) =>
+    at(ctx, node, i, () =>
+      node.type === "definitionTerm"
+        ? `<dt>${inline(node.content, ctx)}</dt>`
+        : `<dd>${itemBody(node, ctx)}</dd>`,
+    ),
+  );
+  if (parts.length === 0)
+    throw fail(ctx, "unsupported-node", "Definition list without entries", n.type);
+  return `<dl>${parts.join("")}</dl>`;
+}
+
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
@@ -194,6 +262,10 @@ function block(n: DocNode, ctx: Ctx): string {
     }
     case "listItem":
       return `<li>${blocks(kids, ctx)}</li>`;
+    case "taskList":
+      return taskList(n, ctx);
+    case "definitionList":
+      return definitionList(n, ctx);
     case "codeBlock": {
       const lang =
         typeof n.attrs?.language === "string" && n.attrs.language

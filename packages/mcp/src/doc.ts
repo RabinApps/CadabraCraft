@@ -46,6 +46,33 @@ function block(n: N, indent = ""): string {
         })
         .join("\n");
     }
+    case "taskList":
+      return (n.content ?? [])
+        .map((li) =>
+          (li.content ?? [])
+            .map((b, j) =>
+              j === 0
+                ? `${indent}- [${li.attrs?.checked === true ? "x" : " "}] ${block(b, indent + "  ").trimStart()}`
+                : block(b, indent + "  "),
+            )
+            .join("\n"),
+        )
+        .join("\n");
+    case "definitionList":
+      // The term on a line, then each description as ": text" (further blocks of a description indented below it).
+      return (n.content ?? [])
+        .map((k) =>
+          k.type === "definitionTerm"
+            ? `${indent}${inline(k)}`
+            : (k.content ?? [])
+                .map((b, j) =>
+                  j === 0
+                    ? `${indent}: ${block(b, indent + "  ").trimStart()}`
+                    : block(b, indent + "  "),
+                )
+                .join("\n"),
+        )
+        .join("\n");
     case "blockquote":
       return (n.content ?? [])
         .map((b) => block(b, indent))
@@ -80,7 +107,7 @@ function block(n: N, indent = ""): string {
   }
 }
 
-/** Plain text of a chapter: blocks separated by blank lines, lists as "- " / "1. ", code blocks fenced, footnotes inline in [note: ...]. */
+/** Plain text of a chapter: blocks separated by blank lines, lists as "- " / "1. ", task lists as "- [ ] " / "- [x] ", definitions as a term line then ": text", code blocks fenced, footnotes inline in [note: ...]. */
 export function docToText(doc: unknown): string {
   return ((doc as N)?.content ?? [])
     .map((n) => block(n))

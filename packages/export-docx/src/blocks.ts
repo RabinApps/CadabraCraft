@@ -3,7 +3,7 @@ import { drawing } from "./drawing";
 import { INDENT } from "./parts";
 import { esc } from "./xml";
 import { attrsOf, checkText, fail, kidsOf } from "./helpers";
-import { listXml } from "./lists";
+import { definitionListXml, listXml, taskListXml } from "./lists";
 import { inline, para, textRuns } from "./paragraphs";
 import { tableXml } from "./tables";
 import type { Ctx } from "./types";
@@ -40,6 +40,10 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
     case "bulletList":
     case "orderedList":
       return listXml(n, ctx, blockXml);
+    case "taskList":
+      return taskListXml(n, ctx, blockXml);
+    case "definitionList":
+      return definitionListXml(n, ctx, blockXml);
     case "codeBlock": {
       const text = kids
         .map((k) => {

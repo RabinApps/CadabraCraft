@@ -153,12 +153,15 @@ describe("importMarkdown edge cases", () => {
     expectValid(r);
   });
 
-  it("keeps task list checkboxes as text, including on items that start with an image", () => {
+  it("reads task items as task list items, including on items that start with an image", () => {
     const r = importMarkdown("# T\n\n- [x] done\n- [ ] ![](pic.png)\n- [x] ![alt](pic2.png)\n");
-    expect(codes(r)).toContain("task-list");
-    const text = json(r.chapters[0]!.doc);
-    expect(text).toContain("[x] done");
-    expect(text).toContain("[ ]");
+    expect(codes(r)).not.toContain("task-list");
+    const doc = r.chapters[0]!.doc;
+    const list = doc.content[1]!;
+    expect(list.type).toBe("taskList");
+    expect(json(list)).toContain('"checked":true');
+    expect(json(list)).toContain('"checked":false');
+    expect(json(list)).toContain("done");
     expectValid(r);
   });
 

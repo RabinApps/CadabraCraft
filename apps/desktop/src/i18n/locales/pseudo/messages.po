@@ -1132,6 +1132,14 @@ msgstr ""
 msgid "Default voice"
 msgstr ""
 
+#: src/editor/Toolbar.tsx
+msgid "Definition list"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Definition List"
+msgstr ""
+
 #: src/app/settings/AudioSection.tsx
 msgid "Delete"
 msgstr ""
@@ -3196,6 +3204,14 @@ msgstr ""
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Take snapshot"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
+msgid "Task list"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Task List"
 msgstr ""
 
 #: src/app/export/PdfPanel.tsx

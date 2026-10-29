@@ -25,6 +25,8 @@ blockquote{margin:1em 2em;font-style:italic}
 hr.scene-break{border:0;text-align:center;margin:1.5em 0}hr.scene-break:after{content:"* * *"}
 .small-caps{font-variant:small-caps}.underline{text-decoration:underline}
 a.noteref{font-size:.75em;vertical-align:super}
+ul.task-list{list-style:none;padding-left:0}ul.task-list ul.task-list{padding-left:1.5em}li.task-item p,dd p{text-indent:0}
+dt{font-weight:bold;margin-top:.6em}dd{margin:0 0 .3em 2em}
 img{max-width:100%}
 body.title-page,body.dedication,body.epigraph{text-align:center}body.copyright p,body.title-page p,body.dedication p,body.epigraph p{text-indent:0}
 body.dedication,body.epigraph{margin-top:25%}body.dedication p{font-style:italic}body.copyright{font-size:.85em}`;

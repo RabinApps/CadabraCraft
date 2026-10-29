@@ -51,6 +51,7 @@ The toolbar and the **Format** and **Insert** menus offer:
 - Heading 1, 2 and 3
 - Block quote, bulleted list and numbered list
 - Links (http, https or mailto addresses only)
+- Task lists (Format > Task List; click a box to tick it) and definition lists (Insert > Definition List: a term line, then its description)
 - Tables (Insert > Table…, then Format > Table to add or remove rows and columns)
 - Code blocks (Insert > Code Block)
 

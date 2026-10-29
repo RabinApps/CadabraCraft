@@ -66,6 +66,45 @@ test.describe("formatting toolbar", () => {
     expect(saved).toContain("footnote");
   });
 
+  test("task lists toggle a checkbox on click and definition lists insert a term and description, and both export", async ({
+    page,
+  }) => {
+    const menu = async (id: string) => {
+      await page.waitForFunction(() => Boolean(window.__cadabraMenu));
+      return page.evaluate((i) => window.__cadabraMenu.run(i) as boolean, id);
+    };
+    await typeLine(page, "buy milk");
+    expect(await menu("editor.taskList")).toBe(true);
+    const item = ed(page).locator('li[data-type="taskItem"]');
+    await expect(item).toHaveCount(1);
+    await expect(item).toHaveAttribute("data-checked", "false");
+    await item.locator("label").click({ force: true });
+    await expect(item).toHaveAttribute("data-checked", "true");
+    await item.locator("label").click({ force: true });
+    await expect(item).toHaveAttribute("data-checked", "false");
+    await item.locator("label").click({ force: true });
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("second");
+    await expect(ed(page).locator('li[data-type="taskItem"]')).toHaveCount(2);
+    expect(await menu("editor.taskList")).toBe(true); // the caret item leaves the list
+    await expect(item).toHaveCount(1); // only the item with the caret leaves the list
+
+    expect(await menu("editor.definitionList")).toBe(true);
+    await expect(ed(page).locator("dl dt")).toHaveCount(1);
+    await expect(ed(page).locator("dl dd")).toHaveCount(1);
+    await ed(page).locator("dl dt").click();
+    await page.keyboard.type("Term");
+    await ed(page).locator("dl dd p").click();
+    await page.keyboard.type("Meaning");
+    await expect(ed(page).locator("dl dt")).toHaveText("Term");
+    await expect(ed(page).locator("dl dd")).toHaveText("Meaning");
+
+    await exportBook(page, "EPUB 3");
+    await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.epub");
+    const saved = await page.evaluate(() => window.__disk["manuscript/001-chapter-one.json"]);
+    expect(saved).toContain("definitionList");
+  });
+
   test("tables: Insert > Table and the Format > Table commands edit rows, columns and the header, and export", async ({
     page,
   }) => {

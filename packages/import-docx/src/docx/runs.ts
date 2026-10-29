@@ -284,9 +284,17 @@ export function paragraphChildren(list: XNode[], link: Mark | undefined, st: PSt
           rawText(c),
         );
         break;
-      case "sdt":
+      case "sdt": {
+        // A checkbox control at the start of a paragraph makes it a task item; its glyph is not text.
+        const box = child(child(c, "sdtPr") ?? {}, "checkbox");
+        if (box && st.checkbox === undefined && st.items.length === 0 && !st.inNote) {
+          const v = attr(child(box, "checked") ?? {}, "val");
+          st.checkbox = v === "1" || v === "true" || v === "on";
+          break;
+        }
         paragraphChildren(kids(child(c, "sdtContent") ?? {}), link, st);
         break;
+      }
       case "sdtContent":
       case "smartTag":
       case "customXml":

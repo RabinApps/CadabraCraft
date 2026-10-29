@@ -37,6 +37,7 @@ export function importMarkdown(text: string, opts: ImportOptions = {}): ImportRe
     maxDepth: opts.maxNestingDepth ?? 32,
   };
   const src = text.replace(/^\ufeff/, "");
+  ctx.source = src;
   let tree: Root;
   let top: DocNode[];
   try {

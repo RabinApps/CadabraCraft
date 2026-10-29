@@ -116,6 +116,14 @@ export function stylesPart(fontName: string, language: string): string {
     ) +
     para("ListParagraph", "List Paragraph", '<w:ind w:firstLine="0"/>') +
     para(
+      "DefinitionTerm",
+      "Definition Term",
+      `<w:keepNext/>${none}`,
+      "<w:b/><w:bCs/>",
+      '<w:next w:val="Definition"/>',
+    ) +
+    para("Definition", "Definition", `<w:ind w:left="${INDENT}" w:firstLine="0"/>`) +
+    para(
       "CodeBlock",
       "Code Block",
       `${single}${none}`,

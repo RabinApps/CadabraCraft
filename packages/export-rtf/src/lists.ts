@@ -85,3 +85,56 @@ export function listRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer): string[]
   }
   return out;
 }
+
+/** Task lists: the same hanging indent as a bullet list, with a ballot box (☐ open, ☒ checked) as the marker. */
+export function taskListRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer): string[] {
+  const level = ctx.list;
+  if (level >= 9) fail(ctx, "Lists nested more than 9 levels deep cannot be written", n.type);
+  const out: string[] = [];
+  const left = ctx.quote * INDENT + INDENT * (level + 1);
+  for (const li of kidsOf(n)) {
+    if (li.type !== "taskItem")
+      fail(ctx, `The node "${li.type}" cannot be written in a task list`, li.type);
+    const checked = attrsOf(li).checked ?? false;
+    if (typeof checked !== "boolean")
+      fail(ctx, "A task item's checked value must be true or false", li.type);
+    const inner: Ctx = { ...ctx, list: level + 1 };
+    const label = `${esc(checked ? "☒" : "☐")}\\tab `;
+    const [head, ...rest] = kidsOf(li);
+    if (head?.type !== "paragraph") fail(ctx, "A task item must start with a paragraph", li.type);
+    out.push(para(label + inline(kidsOf(head!), inner), { left, firstLine: -360 }, ctx));
+    for (const c of rest) {
+      if (c.type === "paragraph") {
+        const runs = inline(kidsOf(c), inner);
+        if (runs !== "") out.push(para(runs, { left, firstLine: 0 }, ctx));
+      } else out.push(...blockRtf(c, inner));
+    }
+  }
+  return out;
+}
+
+/** Definition lists: each term as a bold paragraph that stays with its description, descriptions indented one step. */
+export function definitionListRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer): string[] {
+  const out: string[] = [];
+  const base = ctx.quote * INDENT;
+  for (const k of kidsOf(n)) {
+    if (k.type === "definitionTerm") {
+      out.push(
+        para(inline(kidsOf(k), ctx), { bold: true, keepNext: true, firstLine: 0, left: base }, ctx),
+      );
+    } else if (k.type === "definitionDescription") {
+      const inner: Ctx = { ...ctx, quote: ctx.quote + 1 };
+      const [head, ...rest] = kidsOf(k);
+      if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
+      const opts = { left: base + INDENT, firstLine: 0 };
+      out.push(para(inline(kidsOf(head!), ctx), opts, ctx));
+      for (const c of rest) {
+        if (c.type === "paragraph") {
+          const runs = inline(kidsOf(c), ctx);
+          if (runs !== "") out.push(para(runs, opts, ctx));
+        } else out.push(...blockRtf(c, inner));
+      }
+    } else fail(ctx, `The node "${k.type}" cannot be written in a definition list`, k.type);
+  }
+  return out;
+}

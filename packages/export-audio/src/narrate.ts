@@ -11,8 +11,18 @@ export interface Narration {
   skipped: Record<string, number>;
 }
 
-const SPOKEN_BLOCKS = new Set(["paragraph", "heading"]);
-const CONTAINERS = new Set(["doc", "blockquote", "bulletList", "orderedList", "listItem"]);
+const SPOKEN_BLOCKS = new Set(["paragraph", "heading", "definitionTerm"]);
+const CONTAINERS = new Set([
+  "doc",
+  "blockquote",
+  "bulletList",
+  "orderedList",
+  "listItem",
+  "taskList",
+  "taskItem",
+  "definitionList",
+  "definitionDescription",
+]);
 /** Left out of the audio (not narratable) but known, so they are counted instead of rejected. */
 const SKIPPED = new Set([
   "footnote",
@@ -42,7 +52,7 @@ function walk(node: DocNode, out: NarrationBlock[], skipped: Record<string, numb
   if (type === "text") return;
   if (SPOKEN_BLOCKS.has(type)) {
     const text = squash((node.content ?? []).map((c) => inline(c, skipped)).join(""));
-    if (text) out.push({ type: type as "paragraph" | "heading", text });
+    if (text) out.push({ type: type === "heading" ? "heading" : "paragraph", text });
     return;
   }
   if (type === "sceneBreak") {

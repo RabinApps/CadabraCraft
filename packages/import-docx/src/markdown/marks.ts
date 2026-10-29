@@ -18,6 +18,8 @@ export interface Ctx {
   footnotes: Map<string, FootnoteDefinition>;
   usedFootnotes: Set<string>;
   maxDepth: number;
+  /** The Markdown text, to tell an escaped ":" from a typed one (the parser drops the backslash). */
+  source?: string;
 }
 
 export const lineOf = (n: { position?: { start: { line: number } } | undefined }) =>

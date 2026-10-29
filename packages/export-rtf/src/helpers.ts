@@ -3,7 +3,7 @@ import { RtfExportError } from "./errors";
 import { illegalChar } from "./text";
 import type { Ctx } from "./types";
 
-export const attrsOf = (n: DocNode): Record<string, string | number | null> =>
+export const attrsOf = (n: DocNode): Record<string, string | number | boolean | null> =>
   "attrs" in n && n.attrs ? n.attrs : {};
 export const kidsOf = (n: DocNode): DocNode[] => ("content" in n && n.content ? n.content : []);
 

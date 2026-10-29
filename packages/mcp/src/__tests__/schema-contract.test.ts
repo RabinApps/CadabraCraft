@@ -63,6 +63,49 @@ const NODE_SAMPLES: Record<string, ChapterDoc> = {
     type: "table",
     content: [{ type: "tableRow", content: [cell("tableHeader", "a")] }],
   }),
+  taskList: doc({
+    type: "taskList",
+    content: [
+      { type: "taskItem", attrs: { checked: true }, content: [p(t("done"))] },
+      { type: "taskItem", attrs: { checked: false }, content: [p(t("todo"))] },
+    ],
+  }),
+  taskItem: doc({
+    type: "taskList",
+    content: [
+      {
+        type: "taskItem",
+        attrs: { checked: false },
+        content: [
+          p(t("a")),
+          { type: "taskList", content: [{ type: "taskItem", content: [p(t("nested"))] }] },
+        ],
+      },
+    ],
+  }),
+  definitionList: doc({
+    type: "definitionList",
+    content: [
+      { type: "definitionTerm", content: [t("Term")] },
+      { type: "definitionDescription", content: [p(t("Meaning"))] },
+    ],
+  }),
+  definitionTerm: doc({
+    type: "definitionList",
+    content: [
+      { type: "definitionTerm", content: [t("One")] },
+      { type: "definitionTerm", content: [t("Two", [{ type: "bold" }])] },
+      { type: "definitionDescription", content: [p(t("shared"))] },
+    ],
+  }),
+  definitionDescription: doc({
+    type: "definitionList",
+    content: [
+      { type: "definitionTerm", content: [t("Term")] },
+      { type: "definitionDescription", content: [p(t("first")), p(t("second"))] },
+      { type: "definitionDescription", content: [p(t("another"))] },
+    ],
+  }),
 };
 
 const MARK_SAMPLES: Record<string, Mark> = {

@@ -34,6 +34,8 @@ export interface Where {
   heading?: boolean;
   /** Inside a footnote: footnotes cannot nest. */
   note?: boolean;
+  /** Inside a definition term or description: a line break cannot be written. */
+  definition?: boolean;
 }
 
 export type Item =

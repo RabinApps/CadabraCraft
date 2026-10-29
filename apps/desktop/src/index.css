@@ -199,6 +199,47 @@ body {
 .prose-manuscript .ProseMirror ol {
   list-style: decimal;
 }
+.prose-manuscript .ProseMirror ul[data-type="taskList"],
+.prose-page .ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-inline-start: 0.25rem;
+}
+.ProseMirror li[data-type="taskItem"] {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.ProseMirror li[data-type="taskItem"] > label {
+  flex: none;
+  user-select: none;
+  cursor: pointer;
+}
+.ProseMirror li[data-type="taskItem"] > label input {
+  pointer-events: none;
+  margin: 0.35em 0 0;
+}
+.ProseMirror li[data-type="taskItem"] > div {
+  flex: 1;
+  min-width: 0;
+}
+.ProseMirror li[data-type="taskItem"][data-checked="true"] > div {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+.ProseMirror dl {
+  margin: 0 0 1em;
+}
+.ProseMirror dt {
+  font-weight: 600;
+}
+.ProseMirror dd {
+  margin: 0 0 0.4em;
+  padding-inline-start: 1.5rem;
+}
+.prose-page .ProseMirror dd p {
+  margin: 0;
+  text-indent: 0;
+}
 .prose-manuscript .ProseMirror a {
   color: var(--accent);
   text-decoration: underline;

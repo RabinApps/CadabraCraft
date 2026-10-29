@@ -1,7 +1,7 @@
 import type { DocNode } from "@cadabracraft/shared";
 import { attrsOf, checkText, fail, kidsOf } from "./helpers";
 import { picture } from "./image";
-import { listRtf } from "./lists";
+import { definitionListRtf, listRtf, taskListRtf } from "./lists";
 import { inline, INDENT, para, textRuns } from "./paragraphs";
 import { AFTER_TABLE, tableRtf } from "./tables";
 import { esc } from "./text";
@@ -48,6 +48,10 @@ export function blockRtf(n: DocNode, ctx: Ctx): string[] {
     case "bulletList":
     case "orderedList":
       return listRtf(n, ctx, blockRtf);
+    case "taskList":
+      return taskListRtf(n, ctx, blockRtf);
+    case "definitionList":
+      return definitionListRtf(n, ctx, blockRtf);
     case "codeBlock": {
       const text = kids
         .map((k) => {

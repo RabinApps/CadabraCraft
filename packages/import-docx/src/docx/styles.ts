@@ -5,7 +5,9 @@ export type Cls =
   | { kind: "heading"; level: number }
   | { kind: "quote" }
   | { kind: "code" }
-  | { kind: "list"; ordered: boolean; level: number }
+  | { kind: "list"; ordered: boolean; level: number; checked?: boolean }
+  | { kind: "defTerm" }
+  | { kind: "defDesc" }
   | { kind: "normal"; fallback?: string };
 
 export function parseStyles(root: XNode[] | undefined): Map<string, StyleInfo> {
@@ -45,6 +47,8 @@ export function classify(styleId: string | undefined, ctx: DCtx): Cls {
     if (["quote", "block quote", "intense quote", "block text"].includes(name))
       return { kind: "quote" };
     if (["code", "source code", "preformatted text"].includes(name)) return { kind: "code" };
+    if (name === "definition term") return { kind: "defTerm" };
+    if (name === "definition") return { kind: "defDesc" };
     if ((m = /^list bullet(?: (\d))?$/.exec(name)))
       return { kind: "list", ordered: false, level: m[1] ? Number(m[1]) - 1 : 0 };
     if ((m = /^list number(?: (\d))?$/.exec(name)))

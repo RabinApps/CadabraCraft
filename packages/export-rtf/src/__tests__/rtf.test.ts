@@ -400,6 +400,104 @@ describe("blocks", () => {
   });
 });
 
+describe("task and definition lists", () => {
+  it("writes a ballot box for each task item and indents nested tasks", () => {
+    const d = one({
+      type: "taskList",
+      content: [
+        {
+          type: "taskItem",
+          attrs: { checked: true },
+          content: [
+            p(t("done")),
+            { type: "taskList", content: [{ type: "taskItem", content: [p(t("nested"))] }] },
+          ],
+        },
+        { type: "taskItem", attrs: { checked: false }, content: [p(t("todo"))] },
+      ],
+    });
+    checkRtf(d);
+    expect(d).toContain("\\fi-360\\ql \\u9746?\\tab done");
+    expect(d).toContain("\\li1440\\ri0\\fi-360\\ql \\u9744?\\tab nested");
+    expect(d).toContain("\\u9744?\\tab todo");
+  });
+  it("writes terms in bold and descriptions indented", () => {
+    const d = one({
+      type: "definitionList",
+      content: [
+        { type: "definitionTerm", content: [t("Term")] },
+        { type: "definitionDescription", content: [p(t("Meaning")), p(t("More"))] },
+      ],
+    });
+    checkRtf(d);
+    expect(d).toMatch(/\\keepn[^}]*\\b Term/);
+    expect(d).toContain("\\li720\\ri0\\fi0");
+    expect(d).toContain("Meaning");
+    expect(d).toContain("More");
+  });
+  it("refuses a bad checked value, a task item without a leading paragraph and too deep nesting", () => {
+    expect(() =>
+      one({
+        type: "taskList",
+        content: [{ type: "taskItem", attrs: { checked: "yes" }, content: [p(t("x"))] }],
+      }),
+    ).toThrow(/checked value/);
+    expect(() =>
+      one({ type: "taskList", content: [{ type: "taskItem", content: [{ type: "sceneBreak" }] }] }),
+    ).toThrow(/must start with a paragraph/);
+    expect(() =>
+      one({
+        type: "definitionList",
+        content: [
+          { type: "definitionTerm", content: [t("a")] },
+          { type: "definitionDescription", content: [{ type: "sceneBreak" }] },
+        ],
+      }),
+    ).toThrow(/must start with a paragraph/);
+    let deep: DocNode = { type: "taskItem", content: [p(t("x"))] };
+    for (let i = 0; i < 10; i++)
+      deep = {
+        type: "taskItem",
+        content: [p(t("x")), { type: "taskList", content: [deep] }],
+      };
+    expect(message(() => one({ type: "taskList", content: [deep] }))).toContain("9 levels");
+  });
+  it("writes extra paragraphs and other blocks inside items and descriptions", () => {
+    const d = one(
+      {
+        type: "taskList",
+        content: [
+          {
+            type: "taskItem",
+            content: [p(t("a")), p(t("second")), p(), { type: "sceneBreak" }],
+          },
+        ],
+      },
+      {
+        type: "definitionList",
+        content: [
+          { type: "definitionTerm", content: [t("T")] },
+          {
+            type: "definitionDescription",
+            content: [p(t("d1")), p(t("d2")), p(), { type: "sceneBreak" }],
+          },
+        ],
+      },
+    );
+    checkRtf(d);
+    expect(d).toContain("second");
+    expect(d).toContain("d2");
+  });
+  it("refuses a stray node in either list", () => {
+    expect(() => one({ type: "taskList", content: [p(t("x"))] })).toThrow(
+      /cannot be written in a task list/,
+    );
+    expect(() => one({ type: "definitionList", content: [p(t("x"))] })).toThrow(
+      /cannot be written in a definition list/,
+    );
+  });
+});
+
 describe("lists", () => {
   it("writes bullets with a hanging indent and alternating markers by level", () => {
     const d = one({

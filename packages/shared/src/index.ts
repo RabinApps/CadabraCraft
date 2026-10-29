@@ -31,6 +31,11 @@ export type DocNode =
         | "bulletList"
         | "orderedList"
         | "listItem"
+        | "taskList"
+        | "taskItem"
+        | "definitionList"
+        | "definitionTerm"
+        | "definitionDescription"
         | "codeBlock"
         | "hardBreak"
         | "sceneBreak"
@@ -41,7 +46,7 @@ export type DocNode =
         | "tableRow"
         | "tableCell"
         | "tableHeader";
-      attrs?: Record<string, string | number | null>;
+      attrs?: Record<string, string | number | boolean | null>;
       content?: DocNode[];
     };
 
