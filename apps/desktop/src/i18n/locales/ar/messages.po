@@ -303,7 +303,7 @@ msgstr "{page} / {pages}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
-msgstr ""
+msgstr "{pdfPages, plural, one {صفحة واحدة في ملف PDF} two {صفحتان في ملف PDF} few {# صفحات في ملف PDF} many {# صفحة في ملف PDF} other {# صفحة في ملف PDF}}"
 
 #: src/app/shell/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
@@ -1064,7 +1064,7 @@ msgstr "تعذّر الحفظ: {0}"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Could not show the preview: {error}"
-msgstr ""
+msgstr "تعذّر عرض المعاينة: {error}"
 
 #: src/app/references/PdfPreview.tsx
 msgid "Could not show this PDF: {error}"
@@ -1319,7 +1319,7 @@ msgstr "تحرير التفاصيل"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"
-msgstr ""
+msgstr "حرّر هذه الصفحة"
 
 #: src/app/home/Dashboard.tsx
 msgid "Edited {when}"
@@ -1496,7 +1496,7 @@ msgstr "بحث…"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Finding the page in your chapter…"
-msgstr ""
+msgstr "جارٍ البحث عن الصفحة في فصلك…"
 
 #: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
@@ -2205,7 +2205,7 @@ msgstr "الصفحة التالية: {0}"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Next pages"
-msgstr ""
+msgstr "الصفحات التالية"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
@@ -2405,7 +2405,7 @@ msgstr "فتح بالتطبيق الافتراضي"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Open page {page} in the editor"
-msgstr ""
+msgstr "افتح الصفحة {page} في المحرر"
 
 #: src/app/shell/menuModel.ts
 msgid "Open Recent"
@@ -2454,7 +2454,7 @@ msgstr "الصفحة {current} من ≈ {count}"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Page {first} of {total}"
-msgstr ""
+msgstr "الصفحة {first} من {total}"
 
 #: src/app/export/TypstSpread.tsx
 #: src/editor/ReadingFooter.tsx
@@ -2463,11 +2463,11 @@ msgstr "الصفحة {page}"
 
 #: src/app/shell/PageEstimate.tsx
 msgid "Page {shown} of {exact}"
-msgstr ""
+msgstr "الصفحة {shown} من {exact}"
 
 #: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {exact}"
-msgstr ""
+msgstr "الصفحة ≈ {shown} من {exact}"
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
@@ -2475,7 +2475,7 @@ msgstr "فواصل الصفحات تقريبية: ملف PDF هو المرجع."
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
-msgstr ""
+msgstr "فواصل الصفحات هي نفسها في ملف PDF: تحتوي كل صفحة على النص الذي تحتوي عليه هناك. قد يختلف التفاف الأسطر داخل الصفحة قليلًا."
 
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
@@ -2503,7 +2503,7 @@ msgstr "عرض الصفحة · {size} · تقريبي"
 
 #: src/editor/PageFrame.tsx
 msgid "Page view · {size} · breaks as in the PDF"
-msgstr ""
+msgstr "عرض الصفحة · {size} · الفواصل كما في ملف PDF"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
@@ -2519,7 +2519,7 @@ msgstr "الصفحات"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Pages {first} and {last} of {total}"
-msgstr ""
+msgstr "الصفحتان {first} و{last} من {total}"
 
 #: src/app/shell/TrashDialog.tsx
 msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
@@ -2618,7 +2618,7 @@ msgstr "الصفحة السابقة: {0}"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Previous pages"
-msgstr ""
+msgstr "الصفحات السابقة"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Print checks"
@@ -3096,7 +3096,7 @@ msgstr "إظهار الهوامش"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Showing an approximate layout, because the real one could not be typeset:"
-msgstr ""
+msgstr "يُعرض تخطيط تقريبي لأن التخطيط الفعلي تعذّرت صفّه:"
 
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
@@ -3174,7 +3174,7 @@ msgstr "رعاية CadabraCraft…"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Spread controls"
-msgstr ""
+msgstr "عناصر التحكم في عرض الصفحتين"
 
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
@@ -3313,7 +3313,7 @@ msgstr "اسم الملف هذا غير صالح"
 
 #: src/app/export/PrintPreview.tsx
 msgid "That page is not in the book."
-msgstr ""
+msgstr "هذه الصفحة غير موجودة في الكتاب."
 
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
@@ -3357,7 +3357,7 @@ msgstr "تعذّرت قراءة صورة الغلاف."
 
 #: src/app/export/PrintPreview.tsx
 msgid "The cover is the first page, with a blank page behind it, unless you turn it off in the export dialog."
-msgstr ""
+msgstr "الغلاف هو الصفحة الأولى، وخلفه صفحة فارغة، ما لم تعطّل ذلك في نافذة التصدير."
 
 #. placeholder {0}: e.detail
 #: src/lib/audioErrors.ts
@@ -3656,7 +3656,7 @@ msgstr "جارٍ تنضيد الكتاب باستخدام Typst…"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Typesetting the preview with Typst…"
-msgstr ""
+msgstr "جارٍ صفّ المعاينة باستخدام Typst…"
 
 #: src/app/settings/Settings.tsx
 msgid "Typewriter scrolling"
