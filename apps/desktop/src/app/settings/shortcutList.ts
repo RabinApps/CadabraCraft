@@ -99,7 +99,7 @@ const MODIFIERS = ["Mod", "Alt", "Shift"] as const;
 export function comboFromTiptapKey(key: string): string | null {
   const parts = key.split("-");
   const last = parts.pop() ?? "";
-  if (last === "" || /[^\x00-\x7f]/.test(last)) return null;
+  if (last === "" || /[^\u0020-\u007e]/.test(last)) return null;
   const mods = MODIFIERS.filter((m) => parts.includes(m));
   return [...mods, last.length === 1 ? last.toUpperCase() : last].join("+");
 }
@@ -261,8 +261,7 @@ export function shortcutRows(list: readonly Shortcut[], mac: boolean): ShortcutR
 }
 
 const keyMatches = (key: Key, part: string): boolean =>
-  key.label.toLowerCase() === part ||
-  key.words.includes(part);
+  key.label.toLowerCase() === part || key.words.includes(part);
 
 /**
  * Does a row answer the query? Words are separated by spaces and all have to match. A word matches the action name, or a key

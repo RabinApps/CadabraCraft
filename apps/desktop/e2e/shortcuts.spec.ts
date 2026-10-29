@@ -10,7 +10,10 @@ test.beforeEach(async ({ page }) => {
 const openShortcuts = async (page: Page) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Settings" }).click();
-  await page.getByRole("navigation", { name: "Settings sections" }).getByRole("button", { name: "Shortcuts" }).click();
+  await page
+    .getByRole("navigation", { name: "Settings sections" })
+    .getByRole("button", { name: "Shortcuts" })
+    .click();
   await expect(page.getByRole("heading", { name: "Shortcuts", level: 2 })).toBeVisible();
 };
 

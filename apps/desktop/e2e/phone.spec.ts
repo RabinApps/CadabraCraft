@@ -18,7 +18,9 @@ interface Issue {
 /** What is wrong with the screen as it is now: overflow, clipped controls, small targets, dialogs outside the viewport. */
 async function audit(page: Page): Promise<Issue[]> {
   // Dialogs scale in; measure them at rest.
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+  await page.evaluate(() =>
+    Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))),
+  );
   return page.evaluate(() => {
     const issues: { kind: string; what: string }[] = [];
     const vw = window.innerWidth;
@@ -97,11 +99,16 @@ const moreItem = async (page: Page, name: string) => {
 const editorOpen = async (page: Page) => {
   await newProject(page);
 };
-const exportFormat = (format: string): Open => async (page) => {
-  await newProject(page);
-  await moreItem(page, "Export");
-  await page.getByRole("dialog", { name: "Export book" }).getByRole("radio", { name: format }).click();
-};
+const exportFormat =
+  (format: string): Open =>
+  async (page) => {
+    await newProject(page);
+    await moreItem(page, "Export");
+    await page
+      .getByRole("dialog", { name: "Export book" })
+      .getByRole("radio", { name: format })
+      .click();
+  };
 
 const SCREENS: Record<string, Open> = {
   "home without books": async (page) => {
@@ -200,7 +207,10 @@ const SCREENS: Record<string, Open> = {
       ),
     );
     await page.reload();
-    await page.getByRole("button", { name: /Moved Book/ }).first().click();
+    await page
+      .getByRole("button", { name: /Moved Book/ })
+      .first()
+      .click();
     await expect(page.getByText("Folder not found.")).toBeVisible();
   },
 };
@@ -214,7 +224,8 @@ for (const size of SIZES) {
         page,
       }) => {
         await open(page);
-        if (shots) await page.screenshot({ path: `${shots}/${size.name}-${name.replaceAll(" ", "-")}.png` });
+        if (shots)
+          await page.screenshot({ path: `${shots}/${size.name}-${name.replaceAll(" ", "-")}.png` });
         const phone = size.width < 768;
         const issues = (await audit(page)).filter(
           // Landscape phones are wider than the md breakpoint, where the desktop 36px buttons apply.

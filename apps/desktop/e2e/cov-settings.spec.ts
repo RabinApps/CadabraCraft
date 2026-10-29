@@ -42,9 +42,8 @@ const openSettings = async (page: Page) => {
 test("every preference control saves and the section buttons scroll", async ({ page }) => {
   await openSettings(page);
   const sections = page.getByRole("navigation", { name: "Settings sections" });
-  for (const name of ["Appearance", "General", "Editor", "Audio", "Backups"])
+  for (const name of ["Appearance", "General", "Editor", "Audio", "Backups", "Shortcuts"])
     await sections.getByRole("button", { name }).click();
-  await expect(sections.getByRole("button", { name: "Shortcuts" })).toBeDisabled();
 
   await page.getByLabel("Manuscript font").selectOption("inter");
   await page.getByRole("radio", { name: "Wide" }).click();

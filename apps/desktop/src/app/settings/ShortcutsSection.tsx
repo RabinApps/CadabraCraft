@@ -2,13 +2,7 @@ import { useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Field } from "../../ui/Input";
 import { isMac } from "../../lib/platform";
-import {
-  buildShortcuts,
-  groupRows,
-  shortcutRows,
-  spokenCombo,
-  type Key,
-} from "./shortcutList";
+import { buildShortcuts, groupRows, shortcutRows, spokenCombo, type Key } from "./shortcutList";
 
 /** One combo as keycaps; a screen reader hears the spoken phrase ("Command Shift N"), not the symbols. */
 function Combo({ keys }: { keys: Key[] }) {
@@ -36,7 +30,11 @@ export function ShortcutsSection({ title }: { title: string }) {
   const rows = useMemo(() => shortcutRows(buildShortcuts(), mac), [mac, title]);
   const groups = groupRows(rows, query);
   return (
-    <section id="shortcuts" aria-labelledby="shortcuts-heading" className="flex scroll-mt-4 flex-col gap-3">
+    <section
+      id="shortcuts"
+      aria-labelledby="shortcuts-heading"
+      className="flex scroll-mt-4 flex-col gap-3"
+    >
       <h2 id="shortcuts-heading" className="font-book text-title font-semibold">
         {title}
       </h2>
@@ -54,7 +52,10 @@ export function ShortcutsSection({ title }: { title: string }) {
         onChange={(e) => setQuery(e.target.value)}
       />
       {groups.length === 0 ? (
-        <p role="status" className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-ink-muted">
+        <p
+          role="status"
+          className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-ink-muted"
+        >
           {t`No shortcut matches “${query.trim()}”.`}
         </p>
       ) : (

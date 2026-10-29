@@ -188,7 +188,11 @@ export function AppHeader({
               ? []
               : [
                   { label: t`Save`, icon: Save, onSelect: save },
-                  { label: t`Focus mode`, icon: Maximize2, onSelect: () => setLayout({ focus: true }) },
+                  {
+                    label: t`Focus mode`,
+                    icon: Maximize2,
+                    onSelect: () => setLayout({ focus: true }),
+                  },
                 ]),
             { label: t`Export`, icon: Download, onSelect: exportBook },
             { label: t`Book details`, icon: BookText, onSelect: onDetails },
