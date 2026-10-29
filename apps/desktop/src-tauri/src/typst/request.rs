@@ -1,4 +1,4 @@
-//! The framed binary body of `typst_compile`.
+//! The framed binary bodies of `typst_compile` and `typst_query`.
 use super::error::{other, TypstError};
 
 /// A decoded `typst_compile` request.
@@ -8,6 +8,43 @@ pub struct CompileRequest {
     pub source: String,
     pub files: Vec<(String, Vec<u8>)>,
     pub pdf_a: bool,
+}
+
+/// A decoded `typst_query` request.
+#[derive(Debug, PartialEq)]
+pub struct QueryRequest {
+    pub typst_path: Option<String>,
+    pub source: String,
+    pub files: Vec<(String, Vec<u8>)>,
+    pub selector: String,
+}
+
+#[derive(serde::Deserialize)]
+struct FileHeader {
+    name: String,
+    len: usize,
+}
+
+type Files = Vec<(String, Vec<u8>)>;
+
+/// Splits a framed body into its JSON header (as `H`) and the files the header lists, in order.
+fn split_frame<H: serde::de::DeserializeOwned>(body: &[u8], files_of: impl Fn(&H) -> &[FileHeader]) -> Result<(H, Files), TypstError> {
+    let bad = |what: &str| other(format!("bad compile request: {what}"));
+    let len_bytes: [u8; 4] = body.get(..4).and_then(|b| b.try_into().ok()).ok_or_else(|| bad("too short"))?;
+    let header_len = u32::from_le_bytes(len_bytes) as usize;
+    let header_end = 4usize.checked_add(header_len).filter(|e| *e <= body.len()).ok_or_else(|| bad("header runs past the end"))?;
+    let header: H = serde_json::from_slice(&body[4..header_end]).map_err(|e| bad(&e.to_string()))?;
+    let mut at = header_end;
+    let mut files = Vec::with_capacity(files_of(&header).len());
+    for f in files_of(&header) {
+        let end = at.checked_add(f.len).filter(|e| *e <= body.len()).ok_or_else(|| bad(&format!("file {} runs past the end", f.name)))?;
+        files.push((f.name.clone(), body[at..end].to_vec()));
+        at = end;
+    }
+    if at != body.len() {
+        return Err(bad("extra bytes after the last file"));
+    }
+    Ok((header, files))
 }
 
 /// Decodes the binary body of `typst_compile`: a 4-byte little-endian header length, the header (UTF-8 JSON with
@@ -23,27 +60,23 @@ pub fn parse_compile_request(body: &[u8]) -> Result<CompileRequest, TypstError> 
         pdf_a: bool,
         files: Vec<FileHeader>,
     }
-    #[derive(serde::Deserialize)]
-    struct FileHeader {
-        name: String,
-        len: usize,
-    }
-    let bad = |what: &str| other(format!("bad compile request: {what}"));
-    let len_bytes: [u8; 4] = body.get(..4).and_then(|b| b.try_into().ok()).ok_or_else(|| bad("too short"))?;
-    let header_len = u32::from_le_bytes(len_bytes) as usize;
-    let header_end = 4usize.checked_add(header_len).filter(|e| *e <= body.len()).ok_or_else(|| bad("header runs past the end"))?;
-    let header: Header = serde_json::from_slice(&body[4..header_end]).map_err(|e| bad(&e.to_string()))?;
-    let mut at = header_end;
-    let mut files = Vec::with_capacity(header.files.len());
-    for f in header.files {
-        let end = at.checked_add(f.len).filter(|e| *e <= body.len()).ok_or_else(|| bad(&format!("file {} runs past the end", f.name)))?;
-        files.push((f.name, body[at..end].to_vec()));
-        at = end;
-    }
-    if at != body.len() {
-        return Err(bad("extra bytes after the last file"));
-    }
+    let (header, files) = split_frame(body, |h: &Header| &h.files)?;
     Ok(CompileRequest { typst_path: header.typst_path, source: header.source, files, pdf_a: header.pdf_a })
+}
+
+/// Decodes the binary body of `typst_query`: the same frame as `typst_compile` with a `selector` header field in
+/// place of `pdfA` (`packQueryRequest` in `src/lib/compileFrame.ts` writes it).
+pub fn parse_query_request(body: &[u8]) -> Result<QueryRequest, TypstError> {
+    #[derive(serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct Header {
+        typst_path: Option<String>,
+        source: String,
+        selector: String,
+        files: Vec<FileHeader>,
+    }
+    let (header, files) = split_frame(body, |h: &Header| &h.files)?;
+    Ok(QueryRequest { typst_path: header.typst_path, source: header.source, files, selector: header.selector })
 }
 
 #[cfg(test)]
@@ -91,6 +124,22 @@ mod tests {
             ("length overflow", frame(r#"{"typstPath":null,"source":"s","pdfA":false,"files":[{"name":"a","len":18446744073709551615}]}"#, &[1])),
         ] {
             assert!(matches!(parse_compile_request(&body), Err(TypstError::Other { .. })), "{what}");
+        }
+    }
+
+    #[test]
+    fn query_request_decodes_the_selector_source_and_files() {
+        let h = r#"{"typstPath":null,"source":"s","selector":"<page-report>","files":[{"name":"a.png","len":2}]}"#;
+        let r = parse_query_request(&frame(h, &[7, 8])).unwrap();
+        assert_eq!(r, QueryRequest { typst_path: None, source: "s".into(), files: vec![("a.png".into(), vec![7, 8])], selector: "<page-report>".into() });
+        for (what, body) in [
+            ("no selector", frame(r#"{"typstPath":null,"source":"s","files":[]}"#, &[])),
+            ("a compile frame", frame(r#"{"typstPath":null,"source":"s","pdfA":false,"files":[]}"#, &[])),
+            ("file shorter than declared", frame(h, &[7])),
+            ("extra bytes", frame(h, &[7, 8, 9])),
+            ("empty", vec![]),
+        ] {
+            assert!(matches!(parse_query_request(&body), Err(TypstError::Other { .. })), "{what}");
         }
     }
 }

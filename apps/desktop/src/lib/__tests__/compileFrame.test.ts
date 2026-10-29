@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { packCompileRequest } from "../compileFrame";
+import { packCompileRequest, packQueryRequest } from "../compileFrame";
 
 /** Reads the layout back the way the Rust side does. */
 function unpack(frame: Uint8Array) {
@@ -63,5 +63,35 @@ describe("packCompileRequest", () => {
     });
     expect(frame.length).toBeGreaterThan(big.length);
     expect(frame[frame.length - 1]).toBe(7);
+  });
+});
+
+describe("packQueryRequest", () => {
+  it("carries the selector, the source and every file's bytes in order, with no pdfA", () => {
+    const { header, files, rest } = unpack(
+      packQueryRequest({
+        typstPath: null,
+        source: "#metadata(1) <page-report>",
+        files: [
+          ["assets/a.png", Uint8Array.of(4, 5)],
+          ["b.bin", new Uint8Array()],
+        ],
+        selector: "<page-report>",
+      }),
+    );
+    expect(header).toEqual({
+      typstPath: null,
+      source: "#metadata(1) <page-report>",
+      selector: "<page-report>",
+      files: [
+        { name: "assets/a.png", len: 2 },
+        { name: "b.bin", len: 0 },
+      ],
+    });
+    expect(files).toEqual([
+      ["assets/a.png", [4, 5]],
+      ["b.bin", []],
+    ]);
+    expect(rest).toBe(0);
   });
 });

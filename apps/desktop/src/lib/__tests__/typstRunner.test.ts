@@ -29,7 +29,7 @@ describe("createTauriRunner", () => {
   it("passes path, source, files and the PDF/A flag to the bridge", async () => {
     const typstCompile = vi.fn(async () => new Uint8Array([1]));
     const typstListFonts = vi.fn(async () => ["A"]);
-    const r = createTauriRunner({ typstCompile, typstListFonts }, "  ");
+    const r = createTauriRunner({ typstCompile, typstListFonts, typstQuery: vi.fn() }, "  ");
     expect(await r.listFonts()).toEqual(["A"]);
     expect(typstListFonts).toHaveBeenCalledWith(null);
     await r.compile("src", new Map([["assets/x.png", new Uint8Array([5, 6])]]), { pdfA: true });
@@ -48,10 +48,29 @@ describe("createTauriRunner", () => {
       typstListFonts: async () => {
         throw { kind: "not_found", message: "m" };
       },
+      typstQuery: async () => {
+        throw { kind: "compile", message: "error: no match" };
+      },
     });
     await expect(r.listFonts()).rejects.toBeInstanceOf(TypstNotFoundError);
     await expect(r.compile("", new Map(), { pdfA: false })).rejects.toBeInstanceOf(
       TypstTimeoutError,
+    );
+    await expect(r.query("", new Map(), "<a>")).rejects.toBeInstanceOf(TypstCompileError);
+  });
+  it("passes path, source, files and the selector to typstQuery and returns the JSON text", async () => {
+    const typstQuery = vi.fn(async () => '{"total":2,"starts":[]}');
+    const r = createTauriRunner(
+      { typstCompile: vi.fn(), typstListFonts: vi.fn(), typstQuery },
+      " /bin/typst ",
+    );
+    const files = new Map([["assets/x.png", new Uint8Array([5])]]);
+    expect(await r.query("src", files, "<page-report>")).toBe('{"total":2,"starts":[]}');
+    expect(typstQuery).toHaveBeenCalledWith(
+      "/bin/typst",
+      "src",
+      [["assets/x.png", new Uint8Array([5])]],
+      "<page-report>",
     );
   });
 });
@@ -72,8 +91,14 @@ describe("mapTypstError for values that are not Rust errors", () => {
 describe("createTauriRunner typst path", () => {
   it("trims the configured path and treats a blank one as unset", async () => {
     const typstListFonts = vi.fn(async () => []);
-    await createTauriRunner({ typstListFonts, typstCompile: vi.fn() }, "  /bin/typst ").listFonts();
-    await createTauriRunner({ typstListFonts, typstCompile: vi.fn() }, "   ").listFonts();
+    await createTauriRunner(
+      { typstListFonts, typstCompile: vi.fn(), typstQuery: vi.fn() },
+      "  /bin/typst ",
+    ).listFonts();
+    await createTauriRunner(
+      { typstListFonts, typstCompile: vi.fn(), typstQuery: vi.fn() },
+      "   ",
+    ).listFonts();
     expect(typstListFonts.mock.calls).toEqual([["/bin/typst"], [null]]);
   });
 });

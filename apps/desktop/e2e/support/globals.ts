@@ -67,6 +67,13 @@ export interface TypstCall {
   [field: string]: unknown;
 }
 
+/** A `typst_query` header: the Typst source and the selector. */
+export interface TypstQueryCall {
+  source: string;
+  selector: string;
+  [field: string]: unknown;
+}
+
 export interface FakeVoice {
   id: string;
   engine: string;
@@ -125,6 +132,9 @@ declare global {
     __compileError?: FakeError;
     /** The call lists are created by the first call, so they are declared present. */
     __typstCalls: TypstCall[];
+    /** What `typst_query` answers (JSON text, default `{"total":0,"starts":[]}`) and the requests it received. */
+    __typstQueryResult?: string;
+    __typstQueryCalls: TypstQueryCall[];
     __audioVoices?: FakeVoice[];
     __audioPacks?: FakePack[];
     __audioCalls: AudioCall[];

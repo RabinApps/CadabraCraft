@@ -40,6 +40,20 @@ describe("binary commands", () => {
   });
 });
 
+describe("typstQuery", () => {
+  it("sends one binary body and decodes the raw response as text", async () => {
+    invoke.mockResolvedValueOnce(new TextEncoder().encode('{"total":1}').buffer);
+    expect(
+      await bridge.typstQuery("/t", "src", [["a.png", Uint8Array.of(3)]], "<page-report>"),
+    ).toBe('{"total":1}');
+    const [cmd, body, ...rest] = invoke.mock.calls[0]!;
+    expect(cmd).toBe("typst_query");
+    expect(body).toBeInstanceOf(Uint8Array);
+    expect((body as Uint8Array).at(-1)).toBe(3);
+    expect(rest).toEqual([]);
+  });
+});
+
 describe("writeBytes", () => {
   it("sends the bytes as the raw body with percent-encoded root and path headers", async () => {
     invoke.mockResolvedValueOnce(null);
