@@ -31,7 +31,7 @@ export function EditionSwitcher() {
           <button
             type="button"
             aria-label={t`Edition: ${nativeName(active)}`}
-            className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
+            className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-sm max-md:min-h-11 text-ink focus-visible:outline-2 focus-visible:outline-accent"
           >
             <Globe size={14} aria-hidden className="text-accent" />
             <span className="max-w-32 truncate" dir="auto">

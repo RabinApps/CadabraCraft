@@ -32,7 +32,7 @@ export function Segmented<T extends string>({ value, onChange, items, label }: P
           value={v}
           aria-label={l}
           title={l}
-          className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 max-md:min-h-11 text-small font-semibold text-ink-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent data-[state=on]:bg-accent-soft data-[state=on]:text-accent"
+          className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 max-md:min-h-11 max-md:min-w-11 max-md:justify-center text-small font-semibold text-ink-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent data-[state=on]:bg-accent-soft data-[state=on]:text-accent"
         >
           {Icon && <Icon size={14} aria-hidden />}
           <span className={cx(collapse && "max-sm:hidden")}>{l}</span>

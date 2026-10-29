@@ -16,13 +16,13 @@ export function Checkbox({ label, hint, className, id, ...rest }: CheckboxProps)
         type="checkbox"
         aria-describedby={hint ? `${inputId}-hint` : undefined}
         className={cx(
-          "mt-0.5 size-4 shrink-0 accent-accent focus-visible:outline-2 focus-visible:outline-accent",
+          "mt-0.5 size-4 max-md:mt-3.5 shrink-0 accent-accent focus-visible:outline-2 focus-visible:outline-accent",
           className,
         )}
         {...rest}
       />
       <div className="flex flex-col gap-0.5">
-        <label htmlFor={inputId} className="text-sm font-semibold text-ink">
+        <label htmlFor={inputId} className="block text-sm font-semibold text-ink max-md:py-3">
           {label}
         </label>
         {hint && (

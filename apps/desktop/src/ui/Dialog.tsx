@@ -20,7 +20,7 @@ interface ModalProps {
 export type ModalSize = "sm" | "md" | "wide" | "xl" | "full";
 
 const sizeClass: Record<ModalSize, string> = {
-  sm: "w-[min(92vw,460px)]",
+  sm: "max-h-[92dvh] w-[min(92vw,460px)] overflow-y-auto",
   md: "max-h-[92dvh] w-[min(92vw,560px)] overflow-y-auto",
   wide: "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto",
   xl: "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto",

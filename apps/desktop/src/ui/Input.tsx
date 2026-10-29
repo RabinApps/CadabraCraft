@@ -29,7 +29,7 @@ export function Field({ label, hint, error, hideLabel, className, id, ...rest }:
           undefined
         }
         className={cx(
-          "w-full rounded-md border border-border-strong bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus-visible:outline-2 focus-visible:outline-accent read-only:text-ink-muted",
+          "w-full rounded-md border border-border-strong bg-surface px-3 py-2.5 text-sm max-md:min-h-11 text-ink placeholder:text-ink-muted focus-visible:outline-2 focus-visible:outline-accent read-only:text-ink-muted",
           className,
         )}
         {...rest}
