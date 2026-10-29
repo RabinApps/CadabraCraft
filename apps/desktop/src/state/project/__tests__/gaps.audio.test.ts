@@ -197,7 +197,7 @@ describe("audiobook: cache and housekeeping", () => {
     disk.set(CACHE, "[]");
     await a().exportAudio(opts);
     await tick();
-    expect(JSON.parse(disk.get(CACHE)!)).toHaveProperty("ch-1");
+    expect(JSON.parse(disk.get(CACHE)!)).toHaveProperty("en:ch-1");
     sw.filesExistFails = true;
     let renders = 0;
     sw.render = async (req) => {

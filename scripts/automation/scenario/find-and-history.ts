@@ -61,8 +61,11 @@ export async function findAndHistorySteps({
           (await dlg(`return d.querySelectorAll('[role=alert]').length;`)) === 0,
           `the sample failed: ${afterSample.slice(-300)}`,
         );
-        assert(!existsSync(join(book, "exports/audio")), "the sample wrote into exports/audio");
-        const audioDir = join(book, "exports/audio");
+        assert(
+          !existsSync(join(book, "exports/en/audio")),
+          "the sample wrote into exports/en/audio",
+        );
+        const audioDir = join(book, "exports/en/audio");
         const cache = join(book, ".cadabra/audio/cache.json");
         await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
         for (
@@ -73,7 +76,7 @@ export async function findAndHistorySteps({
           await app.sleep(500);
         assert(
           existsSync(audioDir) && readdirSync(audioDir).length > 0,
-          "no audio file was written to exports/audio",
+          "no audio file was written to exports/en/audio",
         );
         assert(
           Object.keys(JSON.parse(readFileSync(cache, "utf8"))).length >= 1,
@@ -110,7 +113,10 @@ export async function findAndHistorySteps({
           i++
         )
           await app.sleep(500);
-        assert(existsSync(m4b) && statSync(m4b).size > 1000, "no M4B was written to exports/audio");
+        assert(
+          existsSync(m4b) && statSync(m4b).size > 1000,
+          "no M4B was written to exports/en/audio",
+        );
         const host = /host: (.*)/.exec(execFileSync("rustc", ["-vV"], { encoding: "utf8" }))?.[1];
         const ffmpeg = join(repo, "apps/desktop/src-tauri/binaries", `ffmpeg-${host}`);
         const info = spawnSync(ffmpeg, ["-hide_banner", "-i", m4b], { encoding: "utf8" }).stderr;

@@ -43,6 +43,7 @@ export type Invoke = (cmd: string, args: InvokeArgs, opts: InvokeOptions) => Pro
 export interface AudioCall {
   base: string;
   formats: string[];
+  chunks: { text: string }[];
   [field: string]: unknown;
 }
 
@@ -78,6 +79,7 @@ export interface FakeVoice {
   id: string;
   engine: string;
   installed: boolean;
+  languages: string[];
 }
 
 export interface FakeFont {

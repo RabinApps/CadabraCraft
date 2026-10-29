@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { AUDIO_FORMATS, defaultVoice, mb, toggleAudioFormat } from "../audioFormats";
+import {
+  AUDIO_FORMATS,
+  defaultVoice,
+  mb,
+  primaryLanguage,
+  toggleAudioFormat,
+  voicesFor,
+} from "../audioFormats";
 import { baseName, stem } from "../paths";
 import { trimLabel } from "../trimLabels";
 
@@ -23,11 +30,21 @@ describe("trimLabel", () => {
 });
 
 describe("audio formats", () => {
-  it("picks the first installed voice, or none", () => {
-    const v = (id: string, installed: boolean) => ({ id, installed }) as never;
-    expect(defaultVoice([v("a", false), v("b", true), v("c", true)])).toBe("b");
-    expect(defaultVoice([v("a", false)])).toBe("");
-    expect(defaultVoice([])).toBe("");
+  it("picks the first installed voice that reads the language, or none", () => {
+    const v = (id: string, installed: boolean, languages = ["en"]) =>
+      ({ id, installed, languages }) as never;
+    expect(defaultVoice([v("a", false), v("b", true), v("c", true)], "en")).toBe("b");
+    expect(defaultVoice([v("a", false)], "en")).toBe("");
+    expect(defaultVoice([], "en")).toBe("");
+    expect(defaultVoice([v("a", true), v("fr", true, ["fr"])], "fr-CA")).toBe("fr");
+    expect(defaultVoice([v("a", true)], "fr")).toBe("");
+  });
+  it("lists voices by the primary language subtag", () => {
+    expect(primaryLanguage("pt-BR")).toBe("pt");
+    expect(primaryLanguage("EN")).toBe("en");
+    const v = { id: "a", installed: true, languages: ["en"] } as never;
+    expect(voicesFor([v], "en-GB")).toHaveLength(1);
+    expect(voicesFor([v], "he")).toHaveLength(0);
   });
   it("shows megabytes, at least one", () => {
     expect(mb(0)).toBe(1);

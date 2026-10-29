@@ -288,8 +288,8 @@ export async function fakeTauri(page: Page) {
           case "audio_voices":
             return (
               window.__audioVoices ?? [
-                { id: "kokoro-heart", engine: "kokoro", installed: true },
-                { id: "piper-amy", engine: "piper", installed: true },
+                { id: "kokoro-heart", engine: "kokoro", installed: true, languages: ["en"] },
+                { id: "piper-amy", engine: "piper", installed: true, languages: ["en"] },
               ]
             );
           case "audio_packs":

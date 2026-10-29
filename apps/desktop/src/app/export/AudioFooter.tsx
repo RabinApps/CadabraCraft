@@ -2,7 +2,6 @@ import { useLingui } from "@lingui/react/macro";
 import { Download, Headphones, LoaderCircle, Play, Square } from "lucide-react";
 import { mb } from "../../lib/audioFormats";
 import { Button } from "../../ui/Button";
-import { useProject } from "../../state/project";
 import type { AudioExport } from "./useAudioExport";
 
 /** The buttons of the Audiobook format: they change with the voice download, the running job and the options. */
@@ -18,7 +17,6 @@ export function AudioFooter({
   onKeepWorking: () => void;
 }) {
   const { t } = useLingui();
-  const chapterCount = useProject((s) => s.manifest)?.chapters.length ?? 0;
   const {
     job,
     download,
@@ -83,7 +81,7 @@ export function AudioFooter({
           <Button
             className="me-auto"
             icon={sample === "making" ? LoaderCircle : sample === "playing" ? Square : Play}
-            disabled={!voice || audioChapters?.length === 0}
+            disabled={!voice || audio.blocked || audioChapters?.length === 0}
             onClick={() => void audio.hear()}
           >
             {sample === "making"
@@ -100,7 +98,8 @@ export function AudioFooter({
             disabled={
               !voice ||
               audioFormats.length === 0 ||
-              chapterCount === 0 ||
+              audio.rows.length === 0 ||
+              audio.blocked ||
               audioChapters?.length === 0
             }
           >{t`Export audiobook`}</Button>

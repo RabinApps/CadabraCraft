@@ -1,4 +1,4 @@
-import { sourceEdition } from "@cadabracraft/format";
+import { isTranslated, sourceEdition } from "@cadabracraft/format";
 import { t } from "@lingui/core/macro";
 import {
   CancelledError,
@@ -9,7 +9,7 @@ import {
   type AudioFormat,
 } from "@cadabracraft/export-audio";
 import { bridge } from "../../lib/bridge";
-import { bookBase, createTauriAudioRunner, mapAudioError } from "../../lib/audioRunner";
+import { audioDir, bookBase, createTauriAudioRunner, mapAudioError } from "../../lib/audioRunner";
 import { describeAudioError } from "../../lib/audioErrors";
 import type { AudioChapterState, AudioJob, AudioActions } from "./types";
 import type { Ctx } from "./context";
@@ -62,7 +62,38 @@ async function saveAudioCache(
 
 /** The audiobook export and the voice sample. The job lives in the store so the dialog can close while it runs. */
 export const createAudioActions = (ctx: Ctx): AudioActions => {
-  const { set, get, need, flush, loadChapters } = ctx;
+  const { set, get, need, flush, loadChaptersIn } = ctx;
+  /**
+   * The chapters of one edition that an audiobook reads, in order: chapters only (not matter), the ones asked for, and not the
+   * untranslated ones. Those stop the export unless `skipUntranslated` (the other exports behave the same).
+   */
+  const pickChapters = async (o: {
+    language?: string;
+    skipUntranslated?: boolean;
+    chapterIds?: string[];
+  }) => {
+    const { manifest } = need();
+    const language = o.language ?? sourceEdition(manifest.editions).language;
+    const edition = manifest.editions.find((e) => e.language === language);
+    if (!edition) throw new Error(t`This book has no ${language} edition.`);
+    const missing = manifest.chapters.filter(
+      (e) =>
+        !isTranslated(e, language, manifest.editions) &&
+        (!o.chapterIds || o.chapterIds.includes(e.id)),
+    );
+    if (missing.length && !o.skipUntranslated) {
+      const names = missing.map((e) => e.titles[language] ?? e.id).join(", ");
+      throw new Error(t`Not translated yet in ${language}: ${names}. Translate them or skip them.`);
+    }
+    const left = new Set(missing.map((e) => e.id));
+    const pages = (await loadChaptersIn(language)).filter(
+      (p) =>
+        p.section === "chapter" &&
+        !left.has(p.id) &&
+        (!o.chapterIds || o.chapterIds.includes(p.id)),
+    );
+    return { language, edition, pages };
+  };
   let audioAbort: AbortController | null = null;
   let sampleJob: string | null = null;
   /** An export is being set up (before its running state is in the store): a second one is refused too. */
@@ -72,22 +103,22 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
       if (starting || get().audio?.status === "running" || get().exportStage)
         throw new Error(t`An export is already running`);
       starting = true;
-      let setup: { root: string; manifest: ReturnType<typeof need>["manifest"] };
-      let pages: Awaited<ReturnType<typeof loadChapters>>;
+      let setup: { root: string };
+      let picked: Awaited<ReturnType<typeof pickChapters>>;
       try {
         await flush();
         setup = need();
-        pages = (await loadChapters()).filter(
-          (p) =>
-            p.section === "chapter" && (!options.chapterIds || options.chapterIds.includes(p.id)),
-        );
-        if (pages.length === 0)
+        picked = await pickChapters(options);
+        if (picked.pages.length === 0)
           throw new Error(t`The book has no chapters to read aloud yet. Add a chapter first.`);
       } catch (e) {
         starting = false;
         throw e;
       }
-      const { root, manifest } = setup;
+      const { root } = setup;
+      const { language, edition, pages } = picked;
+      const dir = audioDir(language);
+      const cacheKey = (id: string) => `${language}:${id}`;
       const jobId = crypto.randomUUID();
       const ctrl = new AbortController();
       audioAbort = ctrl;
@@ -103,6 +134,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           cancelling: false,
           durationSec: 0,
           files: 0,
+          dir,
           packing: false,
           error: null,
         },
@@ -112,10 +144,10 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
         const results = await renderAudiobook(
           pages.map(({ id, title, doc }) => ({ id, title, doc })),
           { voice: options.voice, speed: options.speed, formats: options.formats },
-          createTauriAudioRunner(bridge, root, jobId),
+          createTauriAudioRunner(bridge, root, jobId, { language, dir }),
           {
             cached: async (id, hash) => {
-              const hit = (await readAudioCache(root))[id];
+              const hit = (await readAudioCache(root))[cacheKey(id)];
               if (!hit || hit.hash !== hash) return undefined;
               const paths = [...hit.files.map((f) => f.path), ...(hit.part ? [hit.part] : [])];
               const there = await bridge.audioFilesExist(root, paths).catch(() => []);
@@ -136,7 +168,8 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
                 chapters: mark(j, p.chapterIndex, { progress: p.fraction }),
               })),
             onChapterDone: (i, r) => {
-              if (r.status === "done") void saveAudioCache(root, r).catch(() => undefined);
+              if (r.status === "done")
+                void saveAudioCache(root, { ...r, id: cacheKey(r.id) }).catch(() => undefined);
               update((j) => ({
                 ...j,
                 durationSec: j.durationSec + r.durationSec,
@@ -161,13 +194,13 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           if (ctrl.signal.aborted) stop();
           else ctrl.signal.addEventListener("abort", stop, { once: true });
           try {
-            const cover = sourceEdition(manifest.editions).cover;
+            const { cover } = edition;
             await bridge.audioBuildM4b({
               jobId,
               root,
-              base: bookBase(sourceEdition(manifest.editions).title),
-              title: sourceEdition(manifest.editions).title,
-              author: sourceEdition(manifest.editions).author,
+              base: bookBase(dir, edition.title),
+              title: edition.title,
+              author: edition.author,
               cover: cover && isCoverImage(cover) ? cover : null,
               chapters,
             });
@@ -179,7 +212,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           update((j) => ({ ...j, packing: false, files: j.files + 1 }));
         }
         update((j) => ({ ...j, status: "done", overall: 1 }));
-        set({ notice: t`Exported the audiobook to exports/audio` });
+        set({ notice: t`Exported the audiobook to ${dir}` });
       } catch (e) {
         const error = describeAudioError(e);
         update((j) => ({
@@ -200,10 +233,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
     async hearAudioSample(options) {
       if (sampleJob) throw new Error(t`A sample is already being made`);
       await flush();
-      const pages = (await loadChapters()).filter(
-        (p) =>
-          p.section === "chapter" && (!options.chapterIds || options.chapterIds.includes(p.id)),
-      );
+      const { pages } = await pickChapters(options);
       const first = pages[0];
       if (!first)
         throw new Error(t`The book has no chapters to read aloud yet. Add a chapter first.`);

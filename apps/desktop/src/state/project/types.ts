@@ -32,6 +32,10 @@ export interface AudioExportOptions {
   formats: AudioFormat[];
   /** Only these chapters (default: every chapter, not front or back matter). */
   chapterIds?: string[];
+  /** The edition to read aloud (a BCP 47 tag); default: the source edition. Files go to `exports/<language>/audio`. */
+  language?: string;
+  /** Leave out chapters that are not translated into `language` yet. Without it they stop the export, like the other formats. */
+  skipUntranslated?: boolean;
 }
 
 export interface AudioChapterState {
@@ -52,6 +56,8 @@ export interface AudioJob {
   cancelling: boolean;
   durationSec: number;
   files: number;
+  /** The folder the files go to (`exports/<language>/audio`). */
+  dir: string;
   /** Every chapter is rendered and the book's M4B is being joined and encoded. */
   packing: boolean;
   error: AudioUiError | null;
@@ -363,7 +369,7 @@ export interface ExportActions {
 
 export interface AudioActions {
   /**
-   * Reads every chapter aloud with a local voice into exports/audio/, one chapter at a time on a worker thread (the page stays
+   * Reads every chapter of one edition aloud with a local voice into exports/<language>/audio/, one chapter at a time on a worker thread (the page stays
    * responsive). Progress and the outcome are in `audio`; a render failure does not throw, it sets `audio.error` (and `audio.status`).
    * Throws only when it cannot start: another export is running, or the book has no chapters.
    */
@@ -376,6 +382,8 @@ export interface AudioActions {
     voice: string;
     speed: number;
     chapterIds?: string[];
+    language?: string;
+    skipUntranslated?: boolean;
   }) => Promise<Uint8Array | null>;
   /** Stops a running sample. */
   cancelAudioSample: () => void;

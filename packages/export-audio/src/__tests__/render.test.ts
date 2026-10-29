@@ -31,7 +31,9 @@ function fakeRunner(over: Partial<AudioRunner> = {}): AudioRunner & { requests: 
   const requests: RenderRequest[] = [];
   return {
     requests,
-    listVoices: async () => [{ id: "kokoro", engine: "kokoro", installed: true }],
+    listVoices: async () => [
+      { id: "kokoro", engine: "kokoro", installed: true, languages: ["en"] },
+    ],
     renderChapter: async (req, onProgress) => {
       requests.push(req);
       onProgress(0.5);
@@ -77,7 +79,9 @@ describe("renderAudiobook", () => {
 
   it("refuses a voice that is not installed", async () => {
     const runner = fakeRunner({
-      listVoices: async () => [{ id: "kokoro", engine: "kokoro", installed: false }],
+      listVoices: async () => [
+        { id: "kokoro", engine: "kokoro", installed: false, languages: ["en"] },
+      ],
     });
     await expect(renderAudiobook(book, options, runner)).rejects.toThrow(VoiceNotInstalledError);
     await expect(

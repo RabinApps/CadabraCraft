@@ -2,7 +2,7 @@ import { expect, test, type Page } from "./support/coverage";
 import { audit } from "./support/audit";
 import { fakeImportSources } from "./support/fakeImport";
 import { fakeTauri } from "./support/fakeTauri";
-import { chapterAction, newProject, seedSnapshot } from "./support/helpers";
+import { chapterAction, frenchWithOneChapter, newProject, seedSnapshot } from "./support/helpers";
 
 // Phone layouts: no horizontal scroll, controls reachable and at least 44px on touch, dialogs that scroll inside the
 // viewport, and the editor with the soft keyboard open (emulated by shrinking the viewport height).
@@ -107,6 +107,29 @@ const SCREENS: Record<string, Open> = {
   "export EPUB": exportFormat("EPUB 3"),
   "export PDF": exportFormat("Print PDF"),
   "export audiobook": exportFormat("Audiobook"),
+  "export audiobook, two editions": async (page) => {
+    await frenchWithOneChapter(page);
+    await moreItem(page, "Export");
+    const dialog = page.getByRole("dialog", { name: "Export book" });
+    await dialog.getByRole("radio", { name: "Audiobook" }).click();
+    await expect(dialog.getByLabel("Edition")).toBeVisible();
+    await expect(dialog.getByText(/Not translated yet in Français/)).toBeVisible();
+    await expect(dialog.getByText(/No voice on this computer reads Français yet/)).toBeVisible();
+  },
+  "export audiobook, French voice": async (page) => {
+    await page.addInitScript(() => {
+      window.__audioVoices = [
+        { id: "piper-amy", engine: "piper", installed: true, languages: ["en"] },
+        { id: "piper-fr", engine: "piper", installed: true, languages: ["fr"] },
+      ];
+    });
+    await frenchWithOneChapter(page);
+    await moreItem(page, "Export");
+    const dialog = page.getByRole("dialog", { name: "Export book" });
+    await dialog.getByRole("radio", { name: "Audiobook" }).click();
+    await dialog.getByLabel("Skip untranslated chapters").check();
+    await expect(dialog.getByRole("button", { name: "Export audiobook" })).toBeEnabled();
+  },
   "export Markdown": exportFormat("Markdown"),
   "export Word": exportFormat("Word"),
   settings: async (page) => {

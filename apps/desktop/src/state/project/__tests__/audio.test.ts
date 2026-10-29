@@ -133,8 +133,8 @@ describe("exportAudio", () => {
   it("renders every chapter in order and reports the result in the store", async () => {
     await a().exportAudio(options);
     expect(audio.requests.map((r) => r.base)).toEqual([
-      "exports/audio/01-chapter-one",
-      "exports/audio/02-second-chapter",
+      "exports/en/audio/01-chapter-one",
+      "exports/en/audio/02-second-chapter",
     ]);
     expect(audio.requests[0]).toMatchObject({
       voice: "piper-amy",
@@ -146,7 +146,7 @@ describe("exportAudio", () => {
     expect(job.status).toBe("done");
     expect(job).toMatchObject({ overall: 1, files: 4, durationSec: 180, error: null });
     expect(job.chapters.map((c) => c.state)).toEqual(["done", "done"]);
-    expect(s().notice).toContain("exports/audio");
+    expect(s().notice).toContain("exports/en/audio");
     expect(audio.forgotten).toEqual([audio.requests[0]!.jobId]);
     expect(new Set(audio.requests.map((r) => r.jobId)).size).toBe(1);
   });
@@ -324,7 +324,7 @@ describe("exportAudio M4B", () => {
     expect(audio.m4bBuilds).toHaveLength(1);
     const build = audio.m4bBuilds[0]!;
     expect(build).toMatchObject({
-      base: "exports/audio/book",
+      base: "exports/en/audio/book",
       title: "Book",
       author: "Me",
       cover: null,
@@ -351,7 +351,7 @@ describe("exportAudio M4B", () => {
     const run = a().exportAudio(m4b);
     await vi.waitFor(() => expect(s().audio?.packing).toBe(true));
     expect(s().audio?.status).toBe("running");
-    release({ path: "exports/audio/book.m4b", durationSec: 180 });
+    release({ path: "exports/en/audio/book.m4b", durationSec: 180 });
     await run;
     expect(s().audio).toMatchObject({ status: "done", packing: false });
   });
@@ -418,7 +418,7 @@ describe("exportAudio cache", () => {
     await a().exportAudio({ ...options, speed: 1 });
     expect(audio.requests).toHaveLength(4);
     a().dismissAudio();
-    audio.present.delete("exports/audio/01-chapter-one.opus");
+    audio.present.delete("exports/en/audio/01-chapter-one.opus");
     await a().exportAudio({ ...options, speed: 1 });
     expect(audio.requests).toHaveLength(5);
   });
@@ -508,5 +508,127 @@ describe("downloadVoices", () => {
     expect(s().voiceDownload?.status).toBe("running");
     finish();
     await expect(first).resolves.toBe(true);
+  });
+});
+
+describe("audiobook per edition", () => {
+  const frText = (t: string) => ({
+    type: "doc" as const,
+    content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }],
+  });
+  const spoken = (i: number) => audio.requests[i]!.chunks.map((c) => c.text).join(" ");
+  /** Adds a French edition and writes French text into the first chapter only. */
+  const frenchWithOneChapter = async () => {
+    await a().addLanguage("fr", "copy");
+    await a().selectChapter(s().manifest!.chapters[0]!.id);
+    a().setDraft(frText("Le quai était vide."));
+    await a().saveCurrent(s().draft!);
+  };
+
+  it("reads the edition's own text and writes under exports/<language>/audio", async () => {
+    await frenchWithOneChapter();
+    await a().exportAudio({
+      ...options,
+      formats: ["opus"],
+      language: "fr",
+      skipUntranslated: true,
+    });
+    expect(audio.requests.map((r) => r.base)).toEqual(["exports/fr/audio/01-chapter-one"]);
+    expect(spoken(0)).toContain("Le quai");
+    expect(s().audio).toMatchObject({ status: "done", dir: "exports/fr/audio" });
+    expect(s().notice).toContain("exports/fr/audio");
+  });
+
+  it("stops at untranslated chapters unless they are skipped, like the other exports", async () => {
+    await frenchWithOneChapter();
+    await expect(a().exportAudio({ ...options, language: "fr" })).rejects.toThrow(
+      /Not translated yet in fr: Second chapter/,
+    );
+    expect(audio.requests).toHaveLength(0);
+    expect(s().audio).toBeNull();
+    // The refusal released the start guard.
+    await a().exportAudio({
+      ...options,
+      formats: ["opus"],
+      language: "fr",
+      skipUntranslated: true,
+    });
+    expect(s().audio?.status).toBe("done");
+  });
+
+  it("refuses an edition with nothing translated once the untranslated chapters are skipped", async () => {
+    await a().addLanguage("de", "empty");
+    await expect(
+      a().exportAudio({ ...options, language: "de", skipUntranslated: true }),
+    ).rejects.toThrow(/no chapters/);
+  });
+
+  it("refuses a language the book has no edition in", async () => {
+    await expect(a().exportAudio({ ...options, language: "ja" })).rejects.toThrow(/no ja edition/);
+  });
+
+  it("keeps the source edition's files, cache and M4B parts apart from a translation's", async () => {
+    await frenchWithOneChapter();
+    await a().exportAudio({ ...options, formats: ["opus", "m4b"] });
+    expect(audio.requests.map((r) => r.part)).toEqual([
+      expect.stringMatching(/^\.cadabra\/audio\/parts\/en_/),
+      expect.stringMatching(/^\.cadabra\/audio\/parts\/en_/),
+    ]);
+    expect(audio.m4bBuilds[0]!.base).toMatch(/^exports\/en\/audio\//);
+    a().dismissAudio();
+    // The French chapter is not the English one: nothing is reused from the English cache.
+    await a().exportAudio({
+      ...options,
+      formats: ["opus", "m4b"],
+      language: "fr",
+      skipUntranslated: true,
+    });
+    expect(audio.requests).toHaveLength(3);
+    expect(audio.requests[2]!.part).toMatch(/^\.cadabra\/audio\/parts\/fr_/);
+    // And a second French run reuses its own.
+    a().dismissAudio();
+    await a().exportAudio({
+      ...options,
+      formats: ["opus", "m4b"],
+      language: "fr",
+      skipUntranslated: true,
+    });
+    expect(audio.requests).toHaveLength(3);
+  });
+
+  it("builds the M4B from the edition's title and author", async () => {
+    await frenchWithOneChapter();
+    const e = s().manifest!.editions[1]!;
+    await a().updateDetails(
+      {
+        title: "Le Livre",
+        author: "Moi",
+        language: "fr",
+        isbn: "",
+        identifier: e.identifier,
+        cover: null,
+      },
+      "fr",
+    );
+    await a().exportAudio({ ...options, formats: ["m4b"], language: "fr", skipUntranslated: true });
+    expect(audio.m4bBuilds[0]).toMatchObject({
+      base: "exports/fr/audio/le-livre",
+      title: "Le Livre",
+      author: "Moi",
+    });
+  });
+
+  it("makes a sample from the first chapter of the chosen edition", async () => {
+    await frenchWithOneChapter();
+    await a().hearAudioSample({
+      voice: "piper-amy",
+      speed: 1,
+      language: "fr",
+      skipUntranslated: true,
+    });
+    expect(audio.samples[0]!.chunks.map((c) => c.text).join(" ")).toContain("Le quai");
+    await expect(
+      a().hearAudioSample({ voice: "piper-amy", speed: 1, language: "fr" }),
+    ).rejects.toThrow(/Not translated yet/);
   });
 });

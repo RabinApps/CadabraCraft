@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
+import { entryRowsIn, isTranslated, sourceEdition } from "@cadabracraft/format";
 import { bridge, type VoicePack } from "../../lib/bridge";
-import { AUDIO_SPEEDS, defaultVoice } from "../../lib/audioFormats";
+import { AUDIO_SPEEDS, voicesFor } from "../../lib/audioFormats";
 import { PdfUiError } from "../../lib/pdfErrors";
 import { errText } from "../../lib/projectError";
 import { useProject } from "../../state/project";
@@ -29,11 +30,19 @@ export function useAudioExport({
   const dismissVoiceDownload = useProject((s) => s.actions.dismissVoiceDownload);
   const job = useProject((s) => s.audio);
   const download = useProject((s) => s.voiceDownload);
+  const manifest = useProject((s) => s.manifest);
+  const activeLanguage = useProject((s) => s.activeLanguage);
   const [voices, setVoices] = useState<VoiceInfo[] | null>(null);
   const [packs, setPacks] = useState<VoicePack[] | null>(null);
   const [getMore, setGetMore] = useState(false);
   const [picked, setPicked] = useState<string[] | null>(null);
-  const [voice, setVoice] = useState("");
+  // The edition to read (the open one until the author picks another), its voice, and whether its untranslated chapters are left out.
+  const current = activeLanguage ?? (manifest ? sourceEdition(manifest.editions).language : "");
+  const [edition, setEdition] = useState<string | null>(null);
+  const language =
+    edition && manifest?.editions.some((e) => e.language === edition) ? edition : current;
+  const [skipUntranslated, setSkipUntranslated] = useState(false);
+  const [voiceFor, setVoiceFor] = useState<Record<string, string>>({});
   const [speed, setSpeed] = useState<number>(AUDIO_SPEEDS[1]);
   const [audioFormats, setAudioFormats] = useState<AudioFormat[]>(
     () => useSettings.getState().audioFormats,
@@ -49,13 +58,6 @@ export function useAudioExport({
         if (!isLive()) return;
         setVoices(list);
         setPacks(found);
-        setVoice((v) =>
-          list.some((x) => x.id === v && x.installed)
-            ? v
-            : list.some((x) => x.id === useSettings.getState().audioVoice && x.installed)
-              ? useSettings.getState().audioVoice
-              : defaultVoice(list),
-        );
       } catch (e) {
         if (!isLive()) return;
         setVoices([]);
@@ -67,6 +69,8 @@ export function useAudioExport({
   );
   useEffect(() => {
     if (!active) return;
+    setEdition(null);
+    setSkipUntranslated(false);
     let live = true;
     void refreshVoices(() => live);
     return () => {
@@ -74,6 +78,30 @@ export function useAudioExport({
     };
   }, [active, refreshVoices]);
 
+  // The voice of each edition: the author's pick if it still reads that language, else the Settings default, else the best one.
+  const readers = voicesFor(voices ?? [], language);
+  const voice =
+    (
+      readers.find((v) => v.id === voiceFor[language]) ??
+      readers.find((v) => v.id === useSettings.getState().audioVoice) ??
+      readers[0]
+    )?.id ?? "";
+  const setVoice = (id: string) => setVoiceFor((m) => ({ ...m, [language]: id }));
+  const pickEdition = (l: string) => {
+    setEdition(l);
+    setSkipUntranslated(false);
+    setAudioChapters(null);
+  };
+  // Chapters (not matter) the edition has no translation of yet: they stop the export unless skipped.
+  const untranslated = manifest
+    ? manifest.chapters.filter((e) => !isTranslated(e, language, manifest.editions))
+    : [];
+  const blocked = untranslated.length > 0 && !skipUntranslated;
+  const rows = manifest
+    ? entryRowsIn(manifest.chapters, manifest.editions, language).filter(
+        (r) => !skipUntranslated || r.translated,
+      )
+    : [];
   const missing = (packs ?? []).filter((p) => !p.installed);
   const hasVoices = (voices ?? []).some((v) => v.installed);
   const showDownload =
@@ -121,6 +149,8 @@ export function useAudioExport({
       const bytes = await hearAudioSample({
         voice,
         speed,
+        language,
+        skipUntranslated,
         ...(audioChapters ? { chapterIds: audioChapters } : {}),
       });
       if (!bytes) return setSample("idle");
@@ -143,6 +173,8 @@ export function useAudioExport({
       voice,
       speed,
       formats: audioFormats,
+      language,
+      skipUntranslated,
       ...(audioChapters ? { chapterIds: audioChapters } : {}),
     }).catch((e) => setError(new PdfUiError("other", errText(e))));
   };
@@ -168,7 +200,15 @@ export function useAudioExport({
     job,
     download,
     voices,
+    language,
+    pickEdition,
+    skipUntranslated,
+    setSkipUntranslated,
+    untranslated,
+    blocked,
+    rows,
     voice,
+    readers,
     setVoice,
     speed,
     setSpeed,

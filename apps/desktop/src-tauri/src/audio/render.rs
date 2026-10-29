@@ -236,6 +236,19 @@ mod tests {
         }
 
         #[test]
+        fn an_edition_writes_under_its_language_folder_and_keeps_its_own_part() {
+            let f = fixture(copy);
+            let mut req = request(&f, vec![chunk("Bonjour.", 600)]);
+            req.base = "exports/fr/audio/01-un".into();
+            req.part = Some(".cadabra/audio/parts/fr_ch-1.flac".into());
+            let r = render_chapter(&req, &f.engine, Some(&f.voices), &AtomicBool::new(false), &|_| {}).unwrap();
+            assert_eq!(r.files, vec![RenderedFile { format: "wav".into(), path: "exports/fr/audio/01-un.wav".into() }]);
+            assert!(f.project.join("exports/fr/audio/01-un.wav").is_file());
+            assert!(!f.project.join("exports/audio").exists());
+            assert!(f.project.join(".cadabra/audio/parts/fr_ch-1.flac").is_file());
+        }
+
+        #[test]
         fn a_sample_returns_wav_bytes_writes_nothing_and_cleans_up() {
             let f = fixture(copy);
             let req = SampleRequest { job_id: "s".into(), chunks: vec![chunk("Hello there.", 600)], voice: "piper-amy".into(), speed: 1.0 };

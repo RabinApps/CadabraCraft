@@ -77,11 +77,11 @@ test("audio defaults: voice and formats, and the last format cannot be unticked"
 }) => {
   await page.addInitScript(() => {
     window.__audioVoices = [
-      { id: "kokoro-heart", engine: "kokoro", installed: true },
-      { id: "piper-amy", engine: "piper", installed: true },
-      { id: "piper-libritts-0", engine: "piper", installed: true },
-      { id: "other-voice", engine: "piper", installed: true },
-      { id: "kokoro-uninstalled", engine: "kokoro", installed: false },
+      { id: "kokoro-heart", engine: "kokoro", installed: true, languages: ["en"] },
+      { id: "piper-amy", engine: "piper", installed: true, languages: ["en"] },
+      { id: "piper-libritts-0", engine: "piper", installed: true, languages: ["en"] },
+      { id: "other-voice", engine: "piper", installed: true, languages: ["en"] },
+      { id: "kokoro-uninstalled", engine: "kokoro", installed: false, languages: ["en"] },
     ];
   });
   await openSettings(page);

@@ -82,8 +82,8 @@ test("audiobook without voices: choosing packs, a failed download, retry, and Ca
 
 const someVoices = () => {
   window.__audioVoices = [
-    { id: "piper-amy", engine: "piper", installed: true },
-    { id: "kokoro-heart", engine: "kokoro", installed: false },
+    { id: "piper-amy", engine: "piper", installed: true, languages: ["en"] },
+    { id: "kokoro-heart", engine: "kokoro", installed: false, languages: ["en"] },
   ];
   window.__audioPacks = [
     { id: "piper", voices: ["piper-amy"], bytes: 147993194, installed: true },

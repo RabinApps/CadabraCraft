@@ -1,6 +1,6 @@
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, seedChapters, sidebar } from "./support/helpers";
+import { frenchWithOneChapter, newProject, seedChapters, sidebar } from "./support/helpers";
 import type { Page } from "@playwright/test";
 
 // No Hebrew or Arabic catalog exists yet, so the layout is checked with the direction forced (English text, mirrored layout).
@@ -186,4 +186,34 @@ test("RTL: command palette and outline navigator mirror, indent from the right a
   expect(middle).toBeGreaterThan(deep);
   expect(await noOverflow(page)).toBe(true);
   await shot(page, "outline");
+});
+
+test("RTL: the audiobook dialog with two editions mirrors and does not overflow", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.__audioVoices = [
+      { id: "piper-amy", engine: "piper", installed: true, languages: ["en"] },
+      { id: "piper-fr", engine: "piper", installed: true, languages: ["fr"] },
+    ];
+  });
+  await frenchWithOneChapter(page);
+  await forceRtl(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const ex = page.getByRole("dialog", { name: "Export book" });
+  await ex.getByRole("radio", { name: "Audiobook" }).click();
+  await expect(ex.getByLabel("Edition")).toBeVisible();
+  const warn = ex.getByText(/Not translated yet in Français/);
+  await expect(warn).toBeVisible();
+  // Text starts at the right edge of its box in RTL.
+  expect(await warn.evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");
+  const box = await ex.boundingBox();
+  const vw = page.viewportSize()?.width ?? 1280;
+  expect(box && Math.abs(box.x + box.width / 2 - vw / 2) < 2).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+  // The primary action is the leftmost button, like the other formats.
+  const primary = await ex.getByRole("button", { name: "Export audiobook" }).boundingBox();
+  const cancel = await ex.getByRole("button", { name: "Cancel" }).boundingBox();
+  expect(primary && cancel && primary.x < cancel.x).toBe(true);
+  await shot(page, "audiobook");
 });

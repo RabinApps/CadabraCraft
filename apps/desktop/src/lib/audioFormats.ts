@@ -5,9 +5,16 @@ export const AUDIO_FORMATS: readonly AudioFormat[] = ["opus", "flac", "wav", "m4
 
 export const AUDIO_SPEEDS = [0.9, 1, 1.1, 1.25] as const;
 
-/** The first installed voice: the catalog lists the best quality one first. */
-export const defaultVoice = (voices: VoiceInfo[]): string =>
-  voices.find((v) => v.installed)?.id ?? "";
+/** The primary language subtag of a BCP 47 tag (`pt-BR` is `pt`), which is what voices are listed by. */
+export const primaryLanguage = (tag: string): string => tag.split("-")[0]!.toLowerCase();
+
+/** Installed voices that read `language` (a book edition's tag), best quality first. */
+export const voicesFor = (voices: VoiceInfo[], language: string): VoiceInfo[] =>
+  voices.filter((v) => v.installed && v.languages.includes(primaryLanguage(language)));
+
+/** The first installed voice that reads `language`, or "" when there is none: the catalog lists the best quality one first. */
+export const defaultVoice = (voices: VoiceInfo[], language: string): string =>
+  voicesFor(voices, language)[0]?.id ?? "";
 
 /** Download sizes are shown in decimal megabytes, like the operating system does. */
 export const mb = (bytes: number): number => Math.max(1, Math.round(bytes / 1e6));

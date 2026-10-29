@@ -16,13 +16,27 @@ import { Select } from "../../ui/Select";
 import { cx } from "../../ui/cx";
 import type { VoicePack } from "../../lib/bridge";
 import { AUDIO_FORMATS, AUDIO_SPEEDS, mb, toggleAudioFormat } from "../../lib/audioFormats";
+import { nativeName } from "../shell/EditionSwitcher";
 import { useAudioLabels } from "../hooks/useAudioLabels";
 import type { AudioJob, VoiceDownload } from "../../state/project/index";
 import { Notice } from "../../ui/Notice";
 import { ProgressBar } from "../../ui/ProgressBar";
 
-/** The Audiobook mode of the Export dialog: voice, speed, formats and a note about stores. Matches "Export Audiobook" in the pen. */
+/** Which edition the audiobook reads, and what to do about its chapters that are not translated yet. */
+export interface AudioEditionChoice {
+  /** The editions to choose from, each with its "N of M chapters" progress. */
+  editions: { language: string; translated: number; total: number }[];
+  language: string;
+  onLanguage: (language: string) => void;
+  /** Titles of the chapters not translated into `language` yet. */
+  untranslated: string[];
+  skip: boolean;
+  onSkip: (skip: boolean) => void;
+}
+
+/** The Audiobook mode of the Export dialog: edition, voice, speed, formats and a note about stores. Matches "Export Audiobook" in the pen. */
 export function AudioFields({
+  edition,
   voices,
   voice,
   onVoice,
@@ -37,6 +51,9 @@ export function AudioFields({
   moreBytes,
   onMore,
 }: {
+  /** Shown when the book has more than one edition. */
+  edition?: AudioEditionChoice;
+  /** The voices that read the edition's language (installed ones only). */
   voices: VoiceInfo[] | null;
   voice: string;
   onVoice: (id: string) => void;
@@ -58,10 +75,40 @@ export function AudioFields({
   const installed = (voices ?? []).filter((v) => v.installed);
   return (
     <>
+      {edition && (
+        <>
+          <Select
+            label={t`Edition`}
+            value={edition.language}
+            disabled={disabled}
+            onChange={(e) => edition.onLanguage(e.target.value)}
+          >
+            {edition.editions.map((e) => (
+              <option key={e.language} value={e.language}>
+                {t`${nativeName(e.language)}: ${e.translated} of ${e.total} chapters`}
+              </option>
+            ))}
+          </Select>
+          {edition.untranslated.length > 0 && (
+            <div className="flex flex-col gap-2 rounded-md bg-warn-soft px-3 py-2.5 text-sm">
+              <p className="text-ink">
+                {t`Not translated yet in ${nativeName(edition.language)}: ${edition.untranslated.join(", ")}`}
+              </p>
+              <Checkbox
+                label={t`Skip untranslated chapters`}
+                hint={t`Leaves them out of this audiobook; the list above says which.`}
+                checked={edition.skip}
+                disabled={disabled}
+                onChange={(ev) => edition.onSkip(ev.target.checked)}
+              />
+            </div>
+          )}
+        </>
+      )}
       <Select
         label={t`Voice`}
         value={voice}
-        disabled={disabled || !voices}
+        disabled={disabled || !voices || installed.length === 0}
         onChange={(e) => onVoice(e.target.value)}
         hint={t`Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster.`}
       >
@@ -71,6 +118,12 @@ export function AudioFields({
           </option>
         ))}
       </Select>
+      {voices && installed.length === 0 && edition && (
+        <Notice tone="warn" role="status" className="-mt-2 flex items-start gap-2">
+          <Info size={16} className="mt-0.5 shrink-0" aria-hidden />
+          {t`No voice on this computer reads ${nativeName(edition.language)} yet. The voices CadabraCraft can download read English only.`}
+        </Notice>
+      )}
       {onMore && moreBytes ? (
         <button
           type="button"
@@ -207,7 +260,7 @@ export function AudioJobView({ job }: { job: AudioJob }) {
             <CircleCheck size={20} className="text-success" aria-hidden />
             {t`Your audiobook is ready`}
           </p>
-          <p className="text-sm text-ink-muted">{t`${job.files} files, ${minutes} min. Saved in the exports folder, in audio.`}</p>
+          <p className="text-sm text-ink-muted">{t`${job.files} files, ${minutes} min. Saved in ${job.dir}.`}</p>
         </div>
       )}
       {job.status === "error" &&
