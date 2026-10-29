@@ -15,6 +15,7 @@ vi.mock("../../../lib/bridge", async () =>
 );
 
 import { useProject } from "../index";
+import { budget, cpuClock } from "../../../test/perf";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
@@ -116,9 +117,9 @@ describe("exportMarkdown failure handling", () => {
     useProject.setState({
       manifest: { ...s().manifest!, chapters: [...s().manifest!.chapters, ...chapters] },
     });
-    const t0 = Date.now();
+    const elapsed = cpuClock();
     await a().exportMarkdown({ htmlMarks: false });
     expect(exported!.length).toBeGreaterThan(150 * 2 * 1000);
-    expect(Date.now() - t0).toBeLessThan(10_000);
+    expect(elapsed()).toBeLessThan(budget(10_000));
   });
 });

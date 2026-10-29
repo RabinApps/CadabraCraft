@@ -105,6 +105,22 @@ test("a named snapshot is taken, listed, restored for the whole book and deleted
   expect(await keys(page, ".cadabra/snapshots/")).toHaveLength(2);
 });
 
+test("Enter in the name field takes the snapshot, and does nothing while the name is empty", async ({
+  page,
+}) => {
+  await newProject(page);
+  const dialog = await openBookSnapshots(page);
+  const field = dialog.getByLabel("Snapshot name");
+  await field.focus();
+  await page.keyboard.press("Enter");
+  await expect(dialog).toContainText("No book snapshots yet");
+  await field.fill("By keyboard");
+  await page.keyboard.press("Enter");
+  const list = dialog.getByRole("list", { name: "Book snapshots" });
+  await expect(list).toContainText("By keyboard");
+  expect(await keys(page, ".cadabra/snapshots/")).toHaveLength(1);
+});
+
 test("History of a chapter has a Whole book view that restores just that chapter", async ({
   page,
 }) => {

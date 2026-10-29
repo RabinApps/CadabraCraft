@@ -28,6 +28,10 @@ describe("describePdfError", () => {
       "The font “Lora” is not on this computer. Download it in Settings, Fonts, or pick another font.",
     );
   });
+  it("copes with a font error that names no family", () => {
+    const r = describePdfError(new FontNotAvailableError([], "body"));
+    expect(r.code).toBe("font");
+  });
   it("shows the compiler output", () => {
     const r = describePdfError(new TypstCompileError(" oops \n"));
     expect(r.code).toBe("compile");

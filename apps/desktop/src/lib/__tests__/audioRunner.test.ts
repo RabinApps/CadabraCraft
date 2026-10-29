@@ -65,6 +65,7 @@ describe("bookBase and chapterPart", () => {
   it("name the book file and the chapter part with characters the Rust side accepts", () => {
     expect(bookBase("exports/en/audio", "My Book: Part 1")).toBe("exports/en/audio/my-book-part-1");
     expect(bookBase("exports/en/audio", "???")).toBe("exports/en/audio/audiobook");
+    expect(chapterPart("", "")).toBe(".cadabra/audio/parts/x_chapter.flac");
     expect(chapterPart("en", "ch-1")).toBe(".cadabra/audio/parts/en_ch-1.flac");
     expect(chapterPart("en", "a b/../c")).toBe(".cadabra/audio/parts/en_a_b_c.flac");
     expect(chapterPart("en", "???")).toBe(".cadabra/audio/parts/en__.flac");

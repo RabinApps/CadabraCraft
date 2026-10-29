@@ -190,6 +190,21 @@ describe("exportPdf", () => {
     expect(typst.compiles).toHaveLength(0);
     expect(bytesOnDisk.size).toBe(0);
   });
+  it("sends the bleed, the crop marks and the fonts the book chose to the compiler", async () => {
+    typst.fonts = [...typst.fonts, "Lora"];
+    useProject.setState({ manifest: { ...s().manifest!, fonts: { body: "Lora" } } });
+    await a().exportPdf({ ...options, bleedIn: 0.125, cropMarks: true });
+    const src = typst.compiles[0]!.source;
+    expect(src).toContain("Lora");
+    expect(src).toContain("foreground:");
+  });
+
+  it("takes the fonts the caller names over the book's own", async () => {
+    typst.fonts = [...typst.fonts, "Lora"];
+    await a().exportPdf({ ...options, fonts: { body: "Lora" } });
+    expect(typst.compiles[0]!.source).toContain("Lora");
+  });
+
   it("shows Typst's compile error text", async () => {
     typst.failWith = null;
     const orig = typst.compiles;
@@ -295,6 +310,14 @@ describe("measurePages", () => {
     expect(typst.queries[0]).toMatchObject({ selector: "<page-report>" });
     expect(typst.compiles).toHaveLength(0);
     expect(s().exportStage).toBeNull();
+  });
+
+  it("measures with the fonts the book chose", async () => {
+    typst.fonts = [...typst.fonts, "Lora"];
+    useProject.setState({ manifest: { ...s().manifest!, fonts: { body: "Lora" } } });
+    await a().add("Alpha");
+    await a().measurePages();
+    expect(typst.queries[0]!.source).toContain("Lora");
   });
 
   it("reuses the last report while the book is unchanged, and measures again after an edit", async () => {

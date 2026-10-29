@@ -116,6 +116,8 @@ test("RTL: editor, chapter list, toolbar, details and dialogs mirror", async ({ 
   await page.getByRole("button", { name: "Bold", exact: true }).first().focus();
   await page.keyboard.press("ArrowLeft");
   await expect(page.getByRole("button", { name: "Italic", exact: true }).first()).toBeFocused();
+  await page.keyboard.press("ArrowRight"); // and ArrowRight moves back
+  await expect(page.getByRole("button", { name: "Bold", exact: true }).first()).toBeFocused();
   expect(await noOverflow(page)).toBe(true);
   await shot(page, "editor");
 

@@ -6,7 +6,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 
 ### Testing
 
-- Tauri WebDriver e2e covering the native window and Rust commands.
+- Tauri WebDriver e2e (`pnpm test:e2e:webdriver`, `apps/desktop/e2e-native`, CI job `webdriver`): built (smoke, autosave and close, EPUB export, Markdown import) but never run against a real driver. Open: first green Linux run, make the CI job required, Windows with msedgedriver, more flows (PDF export, references, find), macOS has no driver.
 - Visual regression checks for PDF output.
 - Run the manual checks that need Windows, Linux, real sync clients or a word processor ([platform-checks.md](platform-checks.md), which includes [sync-testing.md](sync-testing.md)).
 

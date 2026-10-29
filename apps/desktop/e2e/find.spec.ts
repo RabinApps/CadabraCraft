@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
+import { covBackend, failOn } from "./support/cov";
 import { newProject, addPage } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -292,6 +293,38 @@ test.describe("find and replace", () => {
     await expect(rows).toHaveCount(3);
     await bar(page).getByRole("button", { name: "All chapters" }).click();
     await expect(list).toHaveCount(0);
+  });
+
+  test("All chapters: clicking the open page's row selects its first match, and Enter in Replace with replaces one", async ({
+    page,
+  }) => {
+    await owlBook(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.type("owl");
+    await bar(page).getByRole("button", { name: "All chapters" }).click();
+    const list = bar(page).getByRole("list", { name: "Results by page" });
+    await list.getByRole("button", { name: "Chapter One, 2 matches" }).click();
+    await expect(page.locator(".search-match-current")).toHaveText("owl");
+    await bar(page).getByRole("button", { name: "All chapters" }).click(); // back to this page only
+    await bar(page).getByLabel("Replace with").fill("hawk");
+    await page.keyboard.press("Enter");
+    await expect(page.locator(".ProseMirror")).toContainText("hawk");
+    await expect(page.locator(".ProseMirror")).toContainText("owl");
+  });
+
+  test("All chapters: a page that cannot be read is reported, not shown as no results", async ({
+    page,
+  }) => {
+    await covBackend(page);
+    await owlBook(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.type("owl");
+    await bar(page).getByRole("button", { name: "All chapters" }).click();
+    await expect(bar(page).getByRole("list", { name: "Results by page" })).toBeVisible();
+    await failOn(page, "read_project_file", { kind: "permission_denied", path: "chapters/x.json" });
+    await bar(page).getByLabel("Find", { exact: true }).fill("owls");
+    await expect(page.getByRole("status").filter({ hasText: /permission/ })).toBeVisible();
+    await expect(bar(page).getByRole("list", { name: "Results by page" })).toHaveCount(0);
   });
 
   test("All chapters: results list works with Regex and refreshes after Replace all", async ({
