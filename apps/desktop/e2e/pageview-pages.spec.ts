@@ -121,9 +121,21 @@ test("a long chapter is paginated: running heads, numbers, mirrored margins and 
   const fill = await page.evaluate(() =>
     [...document.querySelectorAll<HTMLElement>(".page")].map((card) => {
       const c = card.getBoundingClientRect();
+      // Text line boxes, not paragraph boxes: a paragraph that splits across pages reaches into the next card,
+      // and its spacer is as tall as the rest of the page.
       const bottoms = [...document.querySelectorAll<HTMLElement>(".ProseMirror > p")]
-        .map((p) => p.getBoundingClientRect())
-        .filter((r) => r.top >= c.top && r.top < c.bottom - 40)
+        .flatMap((p) => {
+          const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+          const rects: DOMRect[] = [];
+          for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+            if ((t.parentElement as HTMLElement).closest(".pv-gap-inline")) continue;
+            const range = document.createRange();
+            range.selectNodeContents(t);
+            rects.push(...range.getClientRects());
+          }
+          return rects;
+        })
+        .filter((r) => r.height > 0 && r.top >= c.top && r.top < c.bottom - 40)
         .map((r) => r.bottom);
       return bottoms.length ? Math.max(...bottoms) - c.top : 0;
     }),
