@@ -1504,10 +1504,6 @@ msgstr ""
 msgid "Import a manuscript"
 msgstr ""
 
-#: src/app/shell/menuModel.ts
-msgid "Import Manuscript…"
-msgstr ""
-
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import report"
 msgstr ""
@@ -1517,6 +1513,7 @@ msgid "Import warnings"
 msgstr ""
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "Import…"
 msgstr ""
 
@@ -1884,11 +1881,8 @@ msgid "New Chapter"
 msgstr ""
 
 #: src/app/home/Home.tsx
-msgid "New project"
-msgstr ""
-
 #: src/app/shell/menuModel.ts
-msgid "New Project…"
+msgid "New project"
 msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
@@ -2069,6 +2063,7 @@ msgid "Open a chapter's History from its menu in the chapter list to compare and
 msgstr ""
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "Open folder"
 msgstr ""
 
@@ -2078,10 +2073,6 @@ msgstr ""
 
 #: src/app/references/ReferenceViewer.tsx
 msgid "Open in default app"
-msgstr ""
-
-#: src/app/shell/menuModel.ts
-msgid "Open Project…"
 msgstr ""
 
 #: src/app/shell/menuModel.ts

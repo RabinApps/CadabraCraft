@@ -167,10 +167,10 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
   ]);
 
   const file = sub(t`File`, [
-    cmd("file.new", t`New Project…`, "CmdOrCtrl+N"),
-    cmd("file.open", t`Open Project…`, "CmdOrCtrl+O"),
+    cmd("file.new", t`New project`, "CmdOrCtrl+N"),
+    cmd("file.open", t`Open folder`, "CmdOrCtrl+O"),
     openRecent,
-    cmd("file.import", t`Import Manuscript…`, "CmdOrCtrl+Shift+I"),
+    cmd("file.import", t`Import…`, "CmdOrCtrl+Shift+I"),
     sep,
     cmd("file.save", t`Save`, "CmdOrCtrl+S"),
     cmd("file.bookDetails", t`Book Details…`),

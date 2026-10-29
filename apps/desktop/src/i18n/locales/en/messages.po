@@ -1505,10 +1505,6 @@ msgstr "Import a font file"
 msgid "Import a manuscript"
 msgstr "Import a manuscript"
 
-#: src/app/shell/menuModel.ts
-msgid "Import Manuscript…"
-msgstr "Import Manuscript…"
-
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import report"
 msgstr "Import report"
@@ -1518,6 +1514,7 @@ msgid "Import warnings"
 msgstr "Import warnings"
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "Import…"
 msgstr "Import…"
 
@@ -1885,12 +1882,9 @@ msgid "New Chapter"
 msgstr "New Chapter"
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "New project"
 msgstr "New project"
-
-#: src/app/shell/menuModel.ts
-msgid "New Project…"
-msgstr "New Project…"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Newest first"
@@ -2070,6 +2064,7 @@ msgid "Open a chapter's History from its menu in the chapter list to compare and
 msgstr "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 
 #: src/app/home/Home.tsx
+#: src/app/shell/menuModel.ts
 msgid "Open folder"
 msgstr "Open folder"
 
@@ -2080,10 +2075,6 @@ msgstr "Open Fonts"
 #: src/app/references/ReferenceViewer.tsx
 msgid "Open in default app"
 msgstr "Open in default app"
-
-#: src/app/shell/menuModel.ts
-msgid "Open Project…"
-msgstr "Open Project…"
 
 #: src/app/shell/menuModel.ts
 msgid "Open Recent"

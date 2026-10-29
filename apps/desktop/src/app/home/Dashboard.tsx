@@ -120,7 +120,7 @@ export function BookCard({ recent, problem, onOpen, onRemove }: BookCardProps) {
         </span>
       </button>
       {problem && (
-        <p role="status" className="px-3.5 pb-3 text-xs text-danger">
+        <p role="alert" className="px-3.5 pb-3 text-xs text-danger">
           {problem}
         </p>
       )}
