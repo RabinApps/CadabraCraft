@@ -22,6 +22,11 @@ export interface TypstRunner {
     files: Map<string, Uint8Array>,
     options: { pdfA: boolean },
   ): Promise<Uint8Array>;
+  /**
+   * Run `typst query --field value --one <selector>` on `source` with `files` next to it, without producing a PDF.
+   * Resolves to Typst's JSON text for the selected element's value.
+   */
+  query(source: string, files: Map<string, Uint8Array>, selector: string): Promise<string>;
 }
 
 /** Throws when `path` could escape the compile directory. Runners call this before writing files. */

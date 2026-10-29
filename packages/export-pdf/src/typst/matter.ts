@@ -64,7 +64,7 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
     if (restart) {
       restarted = true;
       out.push(
-        '#pagebreak(weak: true, to: "odd")\n#set page(numbering: "1")\n#counter(page).update(1)\n',
+        '#pagebreak(weak: true, to: "odd")\n#set page(numbering: "1")\n#counter(page).update(1)\n#mark("numbering-arabic")\n',
       );
     } else if (ALWAYS_RECTO.includes(kind) || BLANK_VERSO_AFTER.includes(prev)) {
       out.push('#pagebreak(weak: true, to: "odd")\n');
@@ -74,24 +74,29 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
       (kind === undefined && dropCap ? dropCapOpening(page.doc.content, ctx, indentEm) : null) ??
       blocks(page.doc.content, ctx);
     const title = typstString(page.title);
+    const id = typstString(page.id);
+    const info = `${id}, ${typstString(kind ?? "chapter")}`;
+    const named = `id: ${id}, kind: ${typstString(kind ?? "chapter")}`;
     switch (kind) {
       case "title-page":
-        out.push(`#title-page[\n${content}\n]\n`);
+        out.push(`#title-page(${info})[\n${content}\n]\n`);
         break;
       case "copyright":
-        out.push(`#copyright-page[\n${content}\n]\n`);
+        out.push(`#copyright-page(${info})[\n${content}\n]\n`);
         break;
       case "dedication":
       case "epigraph":
-        out.push(`#centered-page[\n${content}\n]\n`);
+        out.push(`#centered-page(${info})[\n${content}\n]\n`);
         break;
       case undefined:
         out.push(
-          `#chapter-start(${title}, ${++chapterNo})\n\n${content}\n\n#mark("chapter-end")\n`,
+          `#chapter-start(${title}, ${++chapterNo}, ${named})\n\n${content}\n\n#mark("chapter-end")\n`,
         );
         break;
       default:
-        out.push(`#chapter-start(${title}, none)\n\n${content}\n\n#mark("chapter-end")\n`);
+        out.push(
+          `#chapter-start(${title}, none, ${named})\n\n${content}\n\n#mark("chapter-end")\n`,
+        );
     }
   }
   return out.join("\n");

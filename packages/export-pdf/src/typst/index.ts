@@ -11,6 +11,7 @@ import type { Ctx } from "./ctx";
 import { bodyOf, coverPage } from "./matter";
 import { resolveFonts, resolveMargins, resolveTemplate } from "./options";
 import { preamble } from "./preamble";
+import { pageReport } from "./report";
 
 export { requestedFonts, resolveFonts, resolveTemplate } from "./options";
 
@@ -31,14 +32,8 @@ export function buildTypstDocument(
     maxImageIn: Math.max(1, trim.h - margins.top - margins.bottom - 1),
     assets: options.assets,
   };
-  const head = preamble(
-    book,
-    t,
-    options,
-    resolved,
-    margins,
-    chapters.some((c) => (c.section ?? "chapter") === "front"),
-  );
+  const hasFront = chapters.some((c) => (c.section ?? "chapter") === "front");
+  const head = preamble(book, t, options, resolved, margins, hasFront);
   const cover = options.cover === undefined ? "" : coverPage(options.cover, ctx);
   const body = bodyOf(
     chapters,
@@ -48,7 +43,7 @@ export function buildTypstDocument(
   );
   const droplet = ctx.usesDropCap ? '#import "typst-droplet/lib.typ": dropcap\n' : "";
   return {
-    source: `${head}\n${droplet}${cover}${body}`,
+    source: `${head}\n${droplet}${cover}${body}${pageReport(hasFront, options.pageNumbers ?? true)}`,
     images: ctx.images,
     fonts: resolved,
     usesDropCap: ctx.usesDropCap === true,

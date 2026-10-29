@@ -27,6 +27,7 @@ function fake(
   return {
     calls,
     listFonts: async () => ["Libertinus Serif", "New Computer Modern"],
+    query: async () => "{}",
     compile: async (source, files, o) => {
       calls.push({ source, files, pdfA: o.pdfA });
       return new Uint8Array([0x25, 0x50, 0x44, 0x46]);

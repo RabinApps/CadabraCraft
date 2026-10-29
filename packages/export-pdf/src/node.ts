@@ -77,16 +77,7 @@ export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
       }
     },
     async compile(source, files, { pdfA }) {
-      const typst = findTypst(opts.typstPath);
-      const dir = mkdtempSync(join(tmpdir(), "cadabracraft-pdf-"));
-      try {
-        for (const [rel, bytes] of files) {
-          assertSafeFilePath(rel);
-          const target = join(dir, rel);
-          mkdirSync(dirname(target), { recursive: true });
-          writeFileSync(target, bytes);
-        }
-        writeFileSync(join(dir, "main.typ"), source);
+      return inTempDir(opts, source, files, async (dir) => {
         const args = [
           "compile",
           "--root",
@@ -98,23 +89,72 @@ export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
           join(dir, "main.typ"),
           join(dir, "out.pdf"),
         ];
-        const timeout = opts.timeoutMs ?? COMPILE_TIMEOUT_MS;
-        let stderr = "";
-        try {
-          ({ stderr } = await run(typst, args, { cwd: dir, maxBuffer: 16 * 1024 * 1024, timeout }));
-        } catch (e) {
-          const err = e as { stderr?: string; killed?: boolean; signal?: string };
-          if (err.killed && err.signal) throw new TypstTimeoutError(timeout / 1000);
-          throw new TypstCompileError(String(err.stderr || errMsg(e)));
-        }
-        assertNoUnknownFont(stderr);
+        await runTypst(opts, args, dir);
         const out = join(dir, "out.pdf");
         // typst can exit 0 without writing the file (e.g. an empty document); do not surface a raw ENOENT.
         if (!existsSync(out)) throw new TypstCompileError("typst finished without producing a PDF");
         return new Uint8Array(readFileSync(out));
-      } finally {
-        if (!opts.keepTemp) rmSync(dir, { recursive: true, force: true });
-      }
+      });
+    },
+    async query(source, files, selector) {
+      return inTempDir(opts, source, files, (dir) =>
+        runTypst(
+          opts,
+          [
+            "query",
+            "--root",
+            dir,
+            "--diagnostic-format",
+            "short",
+            "--field",
+            "value",
+            "--one",
+            ...fontArgs(opts.fontPaths),
+            join(dir, "main.typ"),
+            selector,
+          ],
+          dir,
+        ),
+      );
     },
   };
+}
+
+/** Writes `files` and `main.typ` into a fresh temp directory, runs `f` there, and removes the directory afterwards. */
+async function inTempDir<R>(
+  opts: NodeRunnerOptions,
+  source: string,
+  files: Map<string, Uint8Array>,
+  f: (dir: string) => Promise<R>,
+): Promise<R> {
+  findTypst(opts.typstPath);
+  const dir = mkdtempSync(join(tmpdir(), "cadabracraft-pdf-"));
+  try {
+    for (const [rel, bytes] of files) {
+      assertSafeFilePath(rel);
+      const target = join(dir, rel);
+      mkdirSync(dirname(target), { recursive: true });
+      writeFileSync(target, bytes);
+    }
+    writeFileSync(join(dir, "main.typ"), source);
+    return await f(dir);
+  } finally {
+    if (!opts.keepTemp) rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+/** Runs typst with `args` in `dir`; maps failures to `TypstTimeoutError` / `TypstCompileError` and refuses an unknown font. Resolves to stdout. */
+async function runTypst(opts: NodeRunnerOptions, args: string[], dir: string): Promise<string> {
+  const typst = findTypst(opts.typstPath);
+  const timeout = opts.timeoutMs ?? COMPILE_TIMEOUT_MS;
+  let out: { stdout: string; stderr: string };
+  try {
+    out = await run(typst, args, { cwd: dir, maxBuffer: 16 * 1024 * 1024, timeout });
+  } catch (e) {
+    const err = e as { stderr?: string; killed?: boolean; signal?: string };
+    if (err.killed && err.signal) throw new TypstTimeoutError(timeout / 1000);
+    throw new TypstCompileError(String(err.stderr || errMsg(e)));
+  }
+  assertNoUnknownFont(out.stderr);
+  return out.stdout;
 }

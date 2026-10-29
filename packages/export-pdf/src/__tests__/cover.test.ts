@@ -22,7 +22,7 @@ describe("cover page source", () => {
     expect(
       doc.source.indexOf("#page(header: none, footer: none)[#counter(page).update(0)]", i),
     ).toBeGreaterThan(i); // the blank back sets the counter
-    expect(doc.source.indexOf("#title-page[")).toBeGreaterThan(i);
+    expect(doc.source.indexOf("#title-page(")).toBeGreaterThan(i);
     expect([...doc.images.keys()]).toContain("assets/cover.png");
   });
   it("leaves the source untouched without a cover", () => {

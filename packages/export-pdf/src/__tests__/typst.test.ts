@@ -73,7 +73,7 @@ describe("buildTypst content", () => {
     expect(src).toContain("#list(");
     expect(src).toContain("#smallcaps[Two ]");
     expect(src).toContain('#link("https://example.com/?a=1&b=2")[link]');
-    expect(src).toContain('#chapter-start("Chapter One", 1)');
+    expect(src).toContain('#chapter-start("Chapter One", 1,');
   });
   it("draws the template's chapter ornament above the title, only when it has one", () => {
     expect(buildTypst(book, ch(), { template: "novel" })).toContain(
@@ -128,7 +128,7 @@ describe("buildTypst content", () => {
     const { book: b, chapters } = loadFullBook();
     const out = buildTypst(b, chapters);
     expect(out.match(/#chapter-start\(/g)).toHaveLength(chapters.length);
-    expect(out).toContain('#chapter-start("Afterword", 4)');
+    expect(out).toContain('#chapter-start("Afterword", 4,');
     expect(out).toContain('lang: "en", region: "GB"');
   });
   it("makes only http(s) and mailto links; others keep their text", () => {
@@ -245,7 +245,7 @@ describe("escaping inside documents", () => {
     ]);
     expect(out).toContain('#let book-title = "He said \\"#hi\\"\\\\"');
     expect(out).toContain('author: "A $ B"');
-    expect(out).toContain('#chapter-start("Ch \\"1\\" \\\\ #x", 1)');
+    expect(out).toContain('#chapter-start("Ch \\"1\\" \\\\ #x", 1,');
     expect(out).toContain('#link("https://x.test/\\"quote")[l]');
     expect(out).toContain('"alt \\"x\\""');
     expect(out).toContain("caption: [Cap \\#1 \\*b\\*]");
