@@ -205,6 +205,21 @@ describe("task list and definition list specs", () => {
     expect(attrs.checked!.renderHTML({ checked: true })).toEqual({ "data-checked": "true" });
     expect(attrs.checked!.renderHTML({ checked: false })).toEqual({ "data-checked": "false" });
   });
+  it("binds Enter, Tab and Shift-Tab to split, sink and lift the task item", () => {
+    const calls: string[] = [];
+    const editor = {
+      commands: {
+        splitListItem: (n: string) => calls.push(`split:${n}`) > 0,
+        sinkListItem: (n: string) => calls.push(`sink:${n}`) > 0,
+        liftListItem: (n: string) => calls.push(`lift:${n}`) > 0,
+      },
+    };
+    const keys = (
+      cfg(TaskItem).addKeyboardShortcuts as unknown as () => Record<string, () => boolean>
+    ).call({ editor });
+    expect([keys.Enter!(), keys.Tab!(), keys["Shift-Tab"]!()]).toEqual([true, true, true]);
+    expect(calls).toEqual(["split:taskItem", "sink:taskItem", "lift:taskItem"]);
+  });
   it("takes the item text from the div next to the checkbox, or from the item itself", () => {
     const [rule] = call(TaskItem, "parseHTML") as {
       tag: string;

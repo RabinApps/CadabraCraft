@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { DocNode } from "@cadabracraft/shared";
 import { importDocx, importHtml, importMarkdown } from "..";
-import { definitionNodes, listNodes } from "../common";
-import { expectValid, makeDocx, para, STYLES, NUMBERING } from "./helpers";
+import { cellParagraphs, definitionNodes, listNodes } from "../common";
+import { expectValid, makeDocx, para, PNG, STYLES, NUMBERING } from "./helpers";
 
 const codes = (r: { warnings: { code: string }[] }) => r.warnings.map((w) => w.code);
 type Loose = { type: string; content?: Loose[]; attrs?: Record<string, unknown> };
@@ -144,6 +144,14 @@ describe("markdown definition lists", () => {
   });
 });
 
+describe("markdown definition list edge cases", () => {
+  it("drops a description marker that is followed only by formatted text", () => {
+    const r = importMarkdown("# T\n\nA\n: *it*\n");
+    expectValid(r);
+    expect(JSON.stringify(body(r)[0]!.content![1])).toContain('"marks":[{"type":"italic"}]');
+  });
+});
+
 describe("html task lists and definition lists", () => {
   it("reads GitHub-style checkbox items and the editor's own markup", () => {
     const r = importHtml(
@@ -162,6 +170,12 @@ describe("html task lists and definition lists", () => {
     );
     expectValid(r);
     expect(JSON.stringify(body(r as never))).toContain('"checked":true');
+  });
+
+  it("skips whitespace before the checkbox", () => {
+    const r = importHtml('<h1>T</h1><ul><li>\n  <input type="checkbox"> x</li></ul>');
+    expectValid(r);
+    expect(body(r as never)[0]!.type).toBe("taskList");
   });
 
   it("does not treat a text-first or other-input item as a task item", () => {
@@ -197,6 +211,14 @@ describe("html task lists and definition lists", () => {
   it("flattens a dl that is nested too deeply", () => {
     const r = importHtml("<h1>T</h1><dl><dt>a</dt><dd>b</dd></dl>", { maxNestingDepth: 0 });
     expect(codes(r)).toContain("nesting-too-deep");
+  });
+
+  it("flattens a term or description without content in a table cell", () => {
+    const list = {
+      type: "definitionList",
+      content: [{ type: "definitionTerm" }, { type: "definitionDescription" }],
+    } as DocNode;
+    expect(cellParagraphs([list]).flattened).toBe(true);
   });
 
   it("flattens task lists and definition lists inside table cells", () => {
@@ -295,13 +317,24 @@ describe("docx definition styles", () => {
     const r = importDocx(
       makeDocx({
         styles: STYLES_DEF,
-        body: para("T", "Heading1") + para("Term", "DefinitionTerm") + para("def", "Definition"),
+        body:
+          para("T", "Heading1") +
+          `<w:p><w:pPr><w:pStyle w:val="DefinitionTerm"/></w:pPr><w:r><w:t>Term</w:t></w:r>${IMG_RUN}</w:p>` +
+          para("def", "Definition"),
+        ...IMG_PARTS,
       }),
     );
     expectValid(r);
     expect(body(r as never)[0]!.type).toBe("definitionList");
+    expect(JSON.stringify(body(r as never)[0])).toContain('"type":"image"');
   });
 });
+
+const IMG_RUN = `<w:r><w:drawing><wp:inline><wp:docPr id="1" name="p" descr="pic"/><a:graphic><a:graphicData><a:blip r:embed="rId1"/></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+const IMG_PARTS = {
+  rels: '<Relationship Id="rId1" Type="x/image" Target="media/image1.png"/>',
+  media: { "image1.png": PNG },
+};
 
 describe("docx checkbox content controls", () => {
   it("reads a paragraph that starts with a checkbox as a task item, nested by indent", () => {
@@ -324,6 +357,23 @@ describe("docx checkbox content controls", () => {
     expect(JSON.stringify(first)).toContain("todo");
     expect(JSON.stringify(first)).toContain('"text":"done"');
     expect(b[0]!.content).toHaveLength(2);
+  });
+
+  it("handles an indent without a left value, an empty task and a task that starts with a non-text item", () => {
+    const r = importDocx(
+      makeDocx({
+        styles: STYLES_DEF,
+        body:
+          para("T", "Heading1") +
+          taskPara(false, "hang", '<w:ind w:hanging="360"/>') +
+          `<w:p>${box(true)}</w:p>` +
+          `<w:p>${box(false)}${IMG_RUN}</w:p>` +
+          `<w:p>${box(false)}<w:r><w:br/></w:r><w:r><w:t>after break</w:t></w:r></w:p>`,
+        ...IMG_PARTS,
+      }),
+    );
+    expectValid(r);
+    expect(body(r as never)[0]!.type).toBe("taskList");
   });
 
   it("nests by numbering level and starts a new list when the kind changes", () => {
