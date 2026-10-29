@@ -117,6 +117,7 @@ Four ideas hold the design together:
 | `@cadabracraft/export-epub`     | EPUB 3 (passes EPUBCheck, accessibility and retail metadata)      |
 | `@cadabracraft/export-pdf`      | Typst source generation and the PDF pipeline contract             |
 | `@cadabracraft/export-docx`     | Word manuscript export                                            |
+| `@cadabracraft/export-rtf`      | Rich Text (RTF) manuscript export                                 |
 | `@cadabracraft/export-markdown` | Markdown export                                                   |
 | `@cadabracraft/export-audio`    | Narration text, chunking, hashing and the render orchestration    |
 | `@cadabracraft/import-docx`     | `.docx`, HTML and Markdown importers (hostile-input hardened)     |
@@ -325,7 +326,7 @@ Rules the code holds to (from `CLAUDE.md`):
   the frontend hands it to Rust (`typst_compile`, a framed binary request), which runs the bundled
   Typst sidecar. Trim sizes, PDF/A, cover, footnotes and drop caps are options on `PdfOptions`. An
   approximate print preview and page estimate (`lib/printEstimate.ts`) run in the webview.
-- **Markdown and Word (.docx):** pure TypeScript (`export-markdown`, `export-docx`), no sidecar.
+- **Markdown, Word (.docx) and Rich Text (.rtf):** pure TypeScript (`export-markdown`, `export-docx`, `export-rtf`), no sidecar.
 - **Import:** the wizard reads `.docx`, Markdown and HTML sources through `read_import_source` and
   `import-docx`, previews chapters (rename, skip), and reports anything that could not be kept.
   Importers are hardened against hostile input (size, depth and attribute limits); the source file is

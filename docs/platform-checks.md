@@ -24,6 +24,7 @@ Part of the [docs index](README.md). Everything below was **not** run on the mac
 The CI smoke test (`packages/export-docx/src/__tests__/libreoffice.test.ts`, Linux, `REQUIRE_SOFFICE=1`) proves LibreOffice can open and convert the file. It does not look at the layout.
 
 - [ ] Open an exported `.docx` of a book with a title page, headings, footnotes, a table, an image and scene breaks in Word (Windows and Mac), Pages, Google Docs and LibreOffice. Check the headings style, footnotes, the table and the page numbers; note anything that differs.
+- [ ] Open an exported `.rtf` (same book, with a footnote, a table and a PNG) in Word, Pages, Google Docs, TextEdit and LibreOffice. Check the running header page numbers, footnotes, the table borders and the picture; note anything that differs.
 - [ ] Open an exported EPUB in Apple Books, Kindle Previewer, Kobo or Thorium; check the cover, contents, and that the publisher, series and description show where the reader displays them.
 - [ ] Check an audiobook M4B in Apple Books (chapters, cover).
 

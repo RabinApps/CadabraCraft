@@ -52,6 +52,8 @@ export type ErrorCode =
   | "pdf_error"
   | "epub_error"
   | "markdown_error"
+  | "docx_error"
+  | "rtf_error"
   | "io_error"
   | "internal_error";
 

@@ -2,6 +2,7 @@ import { sourceEdition, sourceFileById } from "@cadabracraft/format";
 import { plural, t } from "@lingui/core/macro";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { buildDocx } from "@cadabracraft/export-docx";
+import { buildRtf } from "@cadabracraft/export-rtf";
 import {
   bookToMarkdown,
   chapterToMarkdown,
@@ -20,10 +21,10 @@ import { bridge } from "../../lib/bridge";
 import { describePdfError } from "../../lib/pdfErrors";
 import { describeEpubError } from "../../lib/epubErrors";
 import { createTauriRunner } from "../../lib/typstRunner";
-import type { ExportActions } from "./types";
+import type { ExportActions, ExportScope } from "./types";
 import type { Ctx } from "./context";
 
-/** The one-shot exports: EPUB, Markdown, Word and the print PDF. */
+/** The one-shot exports: EPUB, Markdown, Word, Rich Text and the print PDF. */
 export const createExportActions = (ctx: Ctx): ExportActions => {
   const { set, get, need, saveManifest, flush, loadExportPages, loadAssets, loadCover } = ctx;
   /** " (N untranslated pages left out)" for the notice, or nothing when every page was exported. */
@@ -33,6 +34,41 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
       : "";
   /** The last measure: reused while the book, template, trim size and fonts are the same. */
   let lastMeasure: { key: string; report: PageReport } | null = null;
+  /** Loads the pages and images, runs `build` and writes `exports/<language>/<file>`; shared by the Word and Rich Text manuscripts. */
+  const writeManuscript = async (
+    scope: ExportScope,
+    file: string,
+    build: (
+      book: { title: string; author: string; language: string },
+      pages: Parameters<typeof buildDocx>[1],
+      assets: Map<string, Uint8Array>,
+    ) => Uint8Array,
+  ) => {
+    if (get().exportStage) throw new Error(t`An export is already running`);
+    set({ exportStage: "preparing" });
+    try {
+      await flush();
+      const { root, manifest } = need();
+      const { edition, pages: chapters, dir, skipped } = await loadExportPages(scope);
+      // An empty book would write a title page only and still report success.
+      if (!chapters.length)
+        throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
+      const assets = await loadAssets(chapters);
+      set({ exportStage: "rendering" });
+      // A page with an empty title is named by its file in error messages.
+      const pages = chapters.map((c) => ({ ...c, id: sourceFileById(manifest, c.id)! }));
+      const bytes = build(
+        { title: edition.title, author: edition.author, language: edition.language },
+        pages,
+        assets,
+      );
+      set({ exportStage: "saving" });
+      await bridge.writeBytes(root, `${dir}/${file}`, bytes);
+      return { dir, skipped };
+    } finally {
+      set({ exportStage: null });
+    }
+  };
   return {
     async measurePages() {
       try {
@@ -155,30 +191,22 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
       }
     },
     async exportDocx({ font, ...scope }) {
-      if (get().exportStage) throw new Error(t`An export is already running`);
-      set({ exportStage: "preparing" });
-      try {
-        await flush();
-        const { root, manifest } = need();
-        const { edition, pages: chapters, dir, skipped } = await loadExportPages(scope);
-        // An empty book would write a title page only and still report success.
-        if (!chapters.length)
-          throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
-        const assets = await loadAssets(chapters);
-        set({ exportStage: "rendering" });
-        // A page with an empty title is named by its file in error messages.
-        const pages = chapters.map((c) => ({ ...c, id: sourceFileById(manifest, c.id)! }));
-        const bytes = buildDocx(
-          { title: edition.title, author: edition.author, language: edition.language },
-          pages,
-          { assets, font, modified: new Date() },
-        );
-        set({ exportStage: "saving" });
-        await bridge.writeBytes(root, `${dir}/manuscript.docx`, bytes);
-        set({ notice: t`Exported ${dir}/manuscript.docx` + left(skipped.length) });
-      } finally {
-        set({ exportStage: null });
-      }
+      const { dir, skipped } = await writeManuscript(
+        scope,
+        "manuscript.docx",
+        (book, pages, assets) => buildDocx(book, pages, { assets, font, modified: new Date() }),
+      );
+      set({ notice: t`Exported ${dir}/manuscript.docx` + left(skipped.length) });
+    },
+    async exportRtf({ font, ...scope }) {
+      const { dir, skipped } = await writeManuscript(
+        scope,
+        "manuscript.rtf",
+        (book, pages, assets) =>
+          // RTF is 7-bit ASCII (everything else is a \u escape), so UTF-8 encoding is the same bytes.
+          new TextEncoder().encode(buildRtf(book, pages, { assets, font, modified: new Date() })),
+      );
+      set({ notice: t`Exported ${dir}/manuscript.rtf` + left(skipped.length) });
     },
     async exportPdf(options) {
       if (get().exportStage) throw new Error(t`A PDF export is already running`);

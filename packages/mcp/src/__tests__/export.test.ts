@@ -10,7 +10,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { unzipSync } from "fflate";
+import { strFromU8, unzipSync } from "fflate";
 import { afterEach, describe, expect, it } from "vitest";
 import { type Session, connect, epubcheckJar, hasPoppler, hasTypst, seedBook } from "./helpers";
 
@@ -289,5 +289,134 @@ describe("export_markdown", () => {
     });
     await s.ok("cadabra_export_markdown", { path: "m" });
     expect(readFileSync(join(s.root, "m/exports/en/book.md"), "utf8")).toBe(md);
+  });
+});
+
+describe("export_docx / export_rtf", () => {
+  const manifestFile = (path: string) => join(s.root, path, "cadabra.json");
+
+  it("writes exports/en-GB/manuscript.docx in manuscript format with the chosen font", async () => {
+    s = await connect({ epubcheckJar: null });
+    const { path, ids } = await seedBook(s);
+    const r = await s.ok("cadabra_export_docx", { path });
+    expect(r).toMatchObject({
+      file: "exports/en-GB/manuscript.docx",
+      language: "en-GB",
+      chapterCount: ids.length,
+      skipped: [],
+      font: "times",
+    });
+    const parts = unzipSync(
+      new Uint8Array(readFileSync(join(s.root, path, "exports/en-GB/manuscript.docx"))),
+    );
+    expect(strFromU8(parts["word/document.xml"]!)).toContain("The harbour lay quiet");
+    expect(strFromU8(parts["word/header2.xml"]!)).toContain("Author / THE LONG QUAY / ");
+    expect(Object.keys(parts)).toContain("word/media/image1.png");
+    expect(readdirSync(join(s.root, path, "exports/en-GB"))).toEqual(["manuscript.docx"]);
+    const c = await s.ok("cadabra_export_docx", { path, font: " courier " });
+    expect(c.font).toBe("courier");
+    const styles = unzipSync(
+      new Uint8Array(readFileSync(join(s.root, path, "exports/en-GB/manuscript.docx"))),
+    )["word/styles.xml"]!;
+    expect(strFromU8(styles)).toContain('w:ascii="Courier New" w:hAnsi="Courier New" w:eastAsia');
+  });
+
+  it("writes exports/en-GB/manuscript.rtf as 7-bit RTF with the font and the images it can hold", async () => {
+    s = await connect({ epubcheckJar: null });
+    const { path, ids } = await seedBook(s);
+    const r = await s.ok("cadabra_export_rtf", { path, font: "Lora" });
+    expect(r).toMatchObject({
+      file: "exports/en-GB/manuscript.rtf",
+      chapterCount: ids.length,
+      font: "Lora",
+    });
+    const rtf = readFileSync(join(s.root, path, "exports/en-GB/manuscript.rtf"), "latin1");
+    expect(rtf.startsWith("{\\rtf1")).toBe(true);
+    expect(rtf).toContain("\\fnil\\fcharset0 Lora;");
+    expect(rtf).toContain("{\\pict\\pngblip");
+    expect(rtf).toContain("Author / THE LONG QUAY / ");
+    expect(readdirSync(join(s.root, path, "exports/en-GB"))).toEqual(["manuscript.rtf"]);
+  });
+
+  it("treats front and back matter as matter: the generated title page replaces the title-page page", async () => {
+    s = await connect({ epubcheckJar: null });
+    const { path, ids } = await seedBook(s);
+    const manifest = JSON.parse(readFileSync(manifestFile(path), "utf8"));
+    const [first, second] = manifest.chapters.splice(0, 2);
+    manifest.frontMatter.push({ ...first, kind: "title-page" });
+    manifest.backMatter.push({ ...second, kind: "acknowledgments" });
+    writeFileSync(manifestFile(path), JSON.stringify(manifest));
+    const r = await s.ok("cadabra_export_rtf", { path });
+    expect(r.chapterCount).toBe(ids.length);
+    const rtf = readFileSync(join(s.root, path, "exports/en-GB/manuscript.rtf"), "latin1");
+    expect(rtf).not.toContain(first.titles["en-GB"]);
+    // The back matter page is written after the last chapter.
+    expect(rtf.indexOf(second.titles["en-GB"])).toBeGreaterThan(
+      rtf.indexOf(manifest.chapters.at(-1).titles["en-GB"]),
+    );
+    const docx = await s.ok("cadabra_export_docx", { path });
+    expect(docx.chapterCount).toBe(ids.length);
+  });
+
+  it("an image Word can hold but RTF cannot (GIF) fails only RTF with rtf_error, naming the page, and writes nothing", async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "g", title: "T", author: "A" });
+    const a = await s.ok("cadabra_chapter_add", { path: "g", title: "One" });
+    const { storeImage } = await import("@cadabracraft/project-fs");
+    const gif = new Uint8Array([
+      ...Array.from("GIF89a", (c) => c.charCodeAt(0)),
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+    ]);
+    const stored = storeImage(join(s.root, "g"), "dot.gif", gif);
+    await s.ok("cadabra_chapter_write_json", {
+      path: "g",
+      chapterId: a.chapter.id,
+      doc: { type: "doc", content: [{ type: "image", attrs: { src: stored, alt: "dot" } }] },
+    });
+    await s.ok("cadabra_export_docx", { path: "g" });
+    const bad = await s.call("cadabra_export_rtf", { path: "g" });
+    expect(bad.isError).toBe(true);
+    expect(bad.data.error.code).toBe("rtf_error");
+    expect(bad.data.error.message).toContain("In “One”");
+    expect(bad.data.error.message).toContain("PNG or JPEG");
+    expect(existsSync(join(s.root, "g/exports/en/manuscript.rtf"))).toBe(false);
+  });
+
+  it("a Word export failure is a docx_error naming the page", async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "v", title: "T", author: "A" });
+    const a = await s.ok("cadabra_chapter_add", { path: "v", title: "One" });
+    const { storeImage } = await import("@cadabracraft/project-fs");
+    const stored = storeImage(
+      join(s.root, "v"),
+      "pic.svg",
+      new TextEncoder().encode("<svg></svg>"),
+    );
+    await s.ok("cadabra_chapter_write_json", {
+      path: "v",
+      chapterId: a.chapter.id,
+      doc: { type: "doc", content: [{ type: "image", attrs: { src: stored, alt: "x" } }] },
+    });
+    const bad = await s.call("cadabra_export_docx", { path: "v" });
+    expect(bad.data.error.code).toBe("docx_error");
+    expect(bad.data.error.message).toContain("SVG");
+    expect(existsSync(join(s.root, "v/exports/en/manuscript.docx"))).toBe(false);
+  });
+
+  it("refuses an empty book without writing anything", async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "e", title: "T", author: "A" });
+    for (const tool of ["cadabra_export_docx", "cadabra_export_rtf"])
+      expect((await s.call(tool, { path: "e" })).data.error.code).toBe("empty_book");
+    expect(existsSync(join(s.root, "e/exports/en/manuscript.docx"))).toBe(false);
+    expect(existsSync(join(s.root, "e/exports/en/manuscript.rtf"))).toBe(false);
   });
 });

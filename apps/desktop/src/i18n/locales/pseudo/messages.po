@@ -1310,6 +1310,10 @@ msgstr ""
 msgid "Exported {dir}/manuscript.docx"
 msgstr ""
 
+#: src/state/project/exports.ts
+msgid "Exported {dir}/manuscript.rtf"
+msgstr ""
+
 #: src/state/project/audio.ts
 msgid "Exported the audiobook to exports/audio"
 msgstr ""
@@ -1389,7 +1393,7 @@ msgstr ""
 msgid "Follow the system or pick one."
 msgstr ""
 
-#: src/app/export/DocxPanel.tsx
+#: src/app/export/ManuscriptPanel.tsx
 msgid "Font"
 msgstr ""
 
@@ -2627,6 +2631,14 @@ msgstr ""
 msgid "Results by page"
 msgstr ""
 
+#: src/app/export/ExportDialog.tsx
+msgid "Rich Text (.rtf)"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Rich Text (.rtf)…"
+msgstr ""
+
 #: src/app/export/Templates.tsx
 msgid "Right-hand page"
 msgstr ""
@@ -2679,6 +2691,10 @@ msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Saving {dir}/manuscript.docx…"
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/manuscript.rtf…"
 msgstr ""
 
 #: src/app/export/Templates.tsx
@@ -3239,7 +3255,7 @@ msgstr ""
 msgid "This version has the same words as the current text."
 msgstr ""
 
-#: src/app/export/DocxPanel.tsx
+#: src/app/export/ManuscriptPanel.tsx
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
 msgstr ""
 
@@ -3530,6 +3546,10 @@ msgid "Write your first book"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
+msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
 msgstr ""
 
@@ -3543,6 +3563,10 @@ msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing Markdown…"
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writing the Rich Text file…"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx

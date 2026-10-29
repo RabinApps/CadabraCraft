@@ -40,7 +40,7 @@ These ratchets are intentionally below the project goal until the remaining func
 
 ### Scope and exclusions
 
-- `packages/*`: all source under `src/**`, excluding tests and declaration files. Twelve packages currently enforce 100% for lines, statements, functions and branches through the shared strict coverage config.
+- `packages/*`: all source under `src/**`, excluding tests and declaration files. Thirteen packages currently enforce 100% for lines, statements, functions and branches through the shared strict coverage config.
 - Desktop pure TypeScript in `src/state` and `src/lib` plus other explicitly unit-tested logic is measured with Vitest. React components, DOM-dependent hooks and the entry UI are measured with Playwright's V8 coverage. File-to-run ownership is defined in `apps/desktop/coverageScopes.ts`.
 - Tauri builder wiring in Rust `src/lib.rs`, the binary entry point `src/main.rs` and `src/platform/native_dialog.rs` (the three calls that open the OS file dialogs, which need a real window and a person) are excluded. The recording and checking of picked paths (`commands/picked.rs`) is tested. The `#[tauri::command]` generated wrapper lines `src/commands/project.rs:58` and `src/typst/commands.rs:46` are the only line-level source exclusions; the underlying behavior remains tested at the logic/IPC layer.
 - Generated code (`*.d.ts`, `gen/`) and Lingui catalogs, test files and test helpers are excluded. The bridge shims are exercised by `pnpm automation:scenario` rather than browser coverage.

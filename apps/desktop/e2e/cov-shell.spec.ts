@@ -162,6 +162,7 @@ test("book menu commands act on the open book", async ({ page }) => {
     "file.exportPdf",
     "file.exportMarkdown",
     "file.exportDocx",
+    "file.exportRtf",
     "file.exportAudiobook",
   ]) {
     await menu(page, id);
