@@ -15,7 +15,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 
 - M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
-- M2+: shortcuts settings (disabled nav item for now), command palette, outline navigator.
+- M2+: command palette, outline navigator. Shortcut rebinding (Settings > Shortcuts is a read-only list).
 - Loading skeleton (`Loading / desktop / mode` in the pen) is designed but not built: opening a project still shows the previous screen until the manifest arrives.
 - Keyboard-open mobile editor frame and a phone header at 390px that keeps Focus mode and Details out of the way are not drawn or checked yet.
 - Snapshots follow-ups: Backups settings for tablet and mobile in the pen, whole-book and named snapshots, a diff that shows formatting changes, run the History dialog and recovery on the native app and a real sync folder (`/drive-app`).
@@ -88,7 +88,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Chapter snapshots: automatic versions on save, History dialog (compare and restore), Backups settings, recovery offer on open; see architecture.md, "Chapter snapshots and History".
 - M4: import wizard (source step, then a preview of the detected chapters with split level, rename and skip), see import.md.
 - M1: apply the design system (Tailwind v4 + Radix), restyle Home, editor, reading mode, dialogs and toasts.
-- M2: Settings page (its Backups and Shortcuts sections are not built), templates gallery, Export dialog, approximate print preview (see architecture.md, "M2 UI").
+- M2: Settings page (Backups and Shortcuts are built), templates gallery, Export dialog, approximate print preview (see architecture.md, "M2 UI").
 - M2+: focus mode (designed in the pen as `Focus mode / desktop / mode`).
 - M3: front/back matter (built in M1), metadata editor and cover picker (see architecture.md, "Book cover"); the cover is also shown in the print preview.
 - Rust project errors return codes with params, translated in `lib/projectError.ts`.
