@@ -1,6 +1,6 @@
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, sidebar } from "./support/helpers";
+import { newProject, seedChapters, sidebar } from "./support/helpers";
 import type { Page } from "@playwright/test";
 
 // No Hebrew or Arabic catalog exists yet, so the layout is checked with the direction forced (English text, mirrored layout).
@@ -101,4 +101,66 @@ test("RTL: editor, chapter list, toolbar, details and dialogs mirror", async ({ 
   expect(bb && bb.x > vw / 2).toBe(true);
   expect(await noOverflow(page)).toBe(true);
   await shot(page, "settings");
+});
+
+test("RTL: command palette and outline navigator mirror, indent from the right and do not overflow", async ({
+  page,
+}) => {
+  await newProject(page);
+  const h = (level: number, text: string) => ({
+    type: "heading",
+    attrs: { level },
+    content: [{ type: "text", text }],
+  });
+  await seedChapters(page, [
+    { type: "doc", content: [h(1, "Top"), h(2, "Middle"), h(3, "Deep")] } as unknown as {
+      content: never[];
+    },
+  ]);
+  await forceRtl(page);
+  const vw = page.viewportSize()?.width ?? 1280;
+
+  await page.keyboard.press("ControlOrMeta+k");
+  const palette = page.getByRole("dialog", { name: "Command palette" });
+  await expect(palette).toBeVisible();
+  await page.keyboard.type("focus mode");
+  const row = palette.getByRole("option", { name: /Focus Mode/ });
+  await expect(row).toBeVisible();
+  // Centered, and the shortcut keys sit at the left end of the row, after the label that starts at the right.
+  const box = await palette.boundingBox();
+  expect(box && Math.abs(box.x + box.width / 2 - vw / 2) < 2).toBe(true);
+  const label = await row.locator("span").first().boundingBox();
+  const keys = await row.getByRole("img").boundingBox();
+  const rowBox = await row.boundingBox();
+  expect(
+    label &&
+      keys &&
+      rowBox &&
+      keys.x < label.x &&
+      label.x + label.width > rowBox.x + rowBox.width / 2,
+  ).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "palette");
+  await page.keyboard.press("Escape");
+
+  await page.keyboard.press("ControlOrMeta+Shift+o");
+  const outline = page.getByRole("dialog", { name: "Outline" });
+  await expect(outline).toBeVisible();
+  const right = async (name: string) => {
+    const b = await outline
+      .getByRole("option", { name })
+      .first()
+      .locator("span")
+      .first()
+      .boundingBox();
+    return b ? b.x + b.width : 0;
+  };
+  // Deeper headings are indented from the start edge, which is the right one: their text ends further left.
+  const top = await right("Top");
+  const middle = await right("Middle");
+  const deep = await right("Deep");
+  expect(top).toBeGreaterThan(middle);
+  expect(middle).toBeGreaterThan(deep);
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "outline");
 });

@@ -165,7 +165,11 @@ describe("filtering", () => {
     expect(actions("ctrl+shift+n", true)).toEqual([]);
     expect(actions("option+z")).toEqual(["Undo book change", "Redo book change"]);
     expect(actions("esc")).toEqual(["Leave Focus Mode"]);
-    expect(actions("comma")).toEqual(["Settings"]);
+    expect(actions("cmd+comma")).toEqual(["Settings"]);
+    // "comma" is also the start of the word "Command" in the palette's name.
+    expect(actions("comma")).toEqual(["Settings", "Command Palette"]);
+    expect(actions("cmd+k")).toEqual(["Command Palette"]);
+    expect(actions("cmd+shift+o")).toEqual(["Outline"]);
   });
 
   it("needs every word to match", () => {

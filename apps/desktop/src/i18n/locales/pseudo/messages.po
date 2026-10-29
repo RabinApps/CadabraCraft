@@ -39,6 +39,11 @@ msgstr ""
 msgid "{0, plural, one {# reference} other {# references}}"
 msgstr ""
 
+#. placeholder {0}: items.length
+#: src/app/quicknav/QuickPicker.tsx
+msgid "{0, plural, one {# result} other {# results}}"
+msgstr ""
+
 #. placeholder {0}: countWords(c.doc)
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
@@ -732,6 +737,7 @@ msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/AudioExport.tsx
+#: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/shell/App.tsx
 #: src/app/shell/Details.tsx
 #: src/app/shell/Sidebar.tsx
@@ -803,6 +809,7 @@ msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/export/AudioFooter.tsx
+#: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/FindBar.tsx
 msgid "Close"
@@ -855,6 +862,15 @@ msgstr ""
 
 #: src/editor/TableCommands.tsx
 msgid "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
+msgstr ""
+
+#: src/app/quicknav/CommandPalette.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Command palette"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Command Palette…"
 msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
@@ -1016,6 +1032,7 @@ msgid "Crop marks"
 msgstr ""
 
 #: src/app/export/EditionsChecklist.tsx
+#: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
 msgstr ""
 
@@ -1594,6 +1611,10 @@ msgstr ""
 msgid "In the .cadabra/backups folder inside your book folder."
 msgstr ""
 
+#: src/app/quicknav/OutlineNavigator.tsx
+msgid "In this chapter"
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "In this version only"
 msgstr ""
@@ -2020,6 +2041,10 @@ msgstr ""
 msgid "No cadabra.json in that folder"
 msgstr ""
 
+#: src/app/quicknav/CommandPalette.tsx
+msgid "No command matches “{q}”."
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr ""
@@ -2031,6 +2056,10 @@ msgstr ""
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/home/Home.tsx
 msgid "No folder chosen"
+msgstr ""
+
+#: src/app/quicknav/OutlineNavigator.tsx
+msgid "No heading or chapter matches “{q}”."
 msgstr ""
 
 #: src/editor/Editor.tsx
@@ -2214,6 +2243,15 @@ msgstr ""
 
 #: src/app/settings/shortcutList.ts
 msgid "Outdent list item"
+msgstr ""
+
+#: src/app/quicknav/OutlineNavigator.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Outline"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Outline…"
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
@@ -2692,6 +2730,10 @@ msgstr ""
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search by action or key"
+msgstr ""
+
+#: src/app/quicknav/OutlineNavigator.tsx
+msgid "Search headings and chapters"
 msgstr ""
 
 #: src/app/references/PdfSearch.tsx
@@ -3298,6 +3340,10 @@ msgstr ""
 #. placeholder {0}: f.family
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
+msgstr ""
+
+#: src/app/quicknav/CommandPalette.tsx
+msgid "Type a command"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
