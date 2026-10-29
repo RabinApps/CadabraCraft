@@ -642,6 +642,11 @@ msgstr ""
 msgid "Cannot restore {0}"
 msgstr ""
 
+#. placeholder {0}: e.path
+#: src/lib/projectError.ts
+msgid "Cannot watch {0} for changes made outside the app"
+msgstr ""
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Caption"
 msgstr ""
@@ -652,6 +657,10 @@ msgstr ""
 
 #: src/app/shell/Details.tsx
 msgid "Change template"
+msgstr ""
+
+#: src/state/project/project.ts
+msgid "Changes made outside the app may not be noticed. Saving still works."
 msgstr ""
 
 #: src/app/shell/Details.tsx

@@ -60,14 +60,19 @@ pub async fn write_project_bytes(request: Request<'_>) -> Result<(), ProjectErro
     write_bytes_request(request.body(), request.headers()).await
 }
 
-/// The folder to watch: it must be a project. The error is the message the UI shows.
-fn watch_root(root: String) -> Result<PathBuf, String> {
-    project::require_project(&PathBuf::from(root)).map_err(|e| e.to_string())
+/// The folder to watch: it must be a project.
+fn watch_root(root: String) -> Result<PathBuf, ProjectError> {
+    project::require_project(&PathBuf::from(root))
 }
 
 #[tauri::command]
-pub fn watch_project<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: tauri::State<crate::platform::fs_watch::WatchState>, root: String) -> Result<(), String> {
+pub fn watch_project<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: tauri::State<crate::platform::fs_watch::WatchState>, root: String) -> Result<(), ProjectError> {
     crate::platform::fs_watch::start(app, watch_root(root)?, &state)
+}
+
+#[tauri::command]
+pub fn unwatch_project(state: tauri::State<crate::platform::fs_watch::WatchState>) -> Result<(), ProjectError> {
+    crate::platform::fs_watch::stop(&state)
 }
 
 #[cfg(test)]
@@ -141,6 +146,6 @@ mod tests {
     fn only_a_project_can_be_watched() {
         let book = project();
         assert_eq!(watch_root(root(&book)).unwrap(), book.path());
-        assert!(!watch_root(root(&tempfile::tempdir().unwrap())).unwrap_err().is_empty());
+        assert!(matches!(watch_root(root(&tempfile::tempdir().unwrap())), Err(ProjectError::NotAProject { .. })));
     }
 }

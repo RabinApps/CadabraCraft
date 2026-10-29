@@ -37,6 +37,7 @@ macro_rules! app_handlers {
             commands::open_reference,
             commands::reference_stream_url,
             commands::watch_project,
+            commands::unwatch_project,
             typst::commands::typst_find,
             typst::commands::typst_list_fonts,
             typst::commands::typst_compile,

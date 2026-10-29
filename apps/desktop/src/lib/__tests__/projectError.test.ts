@@ -38,6 +38,7 @@ describe("projectErrorMessage", () => {
     [{ kind: "image_ref_not_found", reference: "i.png" }, /i\.png/],
     [{ kind: "image_ref_outside", reference: "l.png" }, /l\.png/],
     [{ kind: "invalid_file_name" }, /not valid/],
+    [{ kind: "watch_failed", path: "book" }, /watch book.*outside the app/],
   ];
   for (const [e, re] of cases)
     it(`describes ${e.kind}`, () => expect(projectErrorMessage(e)).toMatch(re));

@@ -195,7 +195,10 @@ fn watch_project_emits_project_changed_with_the_relative_path() {
     let seen: Vec<String> = std::iter::from_fn(|| rx.recv_timeout(Duration::from_secs(20)).ok()).take_while(|p| p != "\"manuscript/001-a.json\"").collect();
     assert!(seen.iter().all(|p| !p.contains(".cadabra")), "{seen:?}");
     let plain = tempfile::tempdir().unwrap();
-    assert!(call(&w, "watch_project", json!({ "root": plain.path().to_string_lossy() })).is_err());
+    assert_eq!(kind_of(call(&w, "watch_project", json!({ "root": plain.path().to_string_lossy() }))), "not_a_project");
+    json_of(call(&w, "unwatch_project", json!({})));
+    json_of(call(&w, "unwatch_project", json!({}))); // nothing watched any more: still fine
+    assert!(tauri::Manager::state::<WatchState>(&app).0.lock().unwrap().is_none());
 }
 
 #[test]
@@ -277,6 +280,7 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("read_import_source", json!({ "path": "/p" })),
         ("read_import_image", json!({ "sourceFile": "/p", "reference": "r" })),
         ("watch_project", json!({ "root": "/r" })),
+        ("unwatch_project", json!({})),
         ("audio_files_exist", json!({ "root": "/r", "paths": [] })),
         ("audio_cancel", json!({ "jobId": "j" })),
         ("audio_forget", json!({ "jobId": "j" })),
@@ -329,6 +333,7 @@ fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
         let needs_state = matches!(
             cmd,
             "watch_project"
+                | "unwatch_project"
                 | "reference_stream_url"
                 | "audio_cancel"
                 | "audio_forget"

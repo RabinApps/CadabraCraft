@@ -117,7 +117,11 @@ export function App() {
   useEffect(() => {
     if (!open) return;
     const un = bridge.onProjectChanged((p) => attempt(actions.externalChange(p)));
-    return () => void un.then((f) => f());
+    const failed = bridge.onProjectWatchError(() => actions.watchFailed());
+    return () => {
+      void un.then((f) => f());
+      void failed.then((f) => f());
+    };
   }, [open, actions]);
   useEffect(() => {
     if (import.meta.env.PROD) void useUpdates.getState().check(false);
