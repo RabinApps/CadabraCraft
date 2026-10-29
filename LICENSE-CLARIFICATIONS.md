@@ -8,7 +8,7 @@ You may, free of charge to anyone you give the software to:
 
 - write, edit, format, import and export your own books and other written works, publish and sell them, and use the files the software makes from them (EPUB, PDF, Word, Markdown);
 - use the software as a publishing company to produce the titles you publish, including by your staff and by authors working on those titles;
-- use it inside a company, school or other organisation for its own documents;
+- use it inside a company, school or other organization for its own documents;
 - edit, proofread or ghostwrite for a fee, as long as the fee is not for formatting, typesetting or converting a manuscript with the software;
 - write tutorials, record videos, publish reviews and books about the software, and help others for free;
 - read the code, change it, and share your changes for free, keeping `LICENSE` and `NOTICE` with them.
@@ -20,7 +20,7 @@ This is what "Sell" covers. Without a separate written license from the licensor
 - sell, rent, lease or otherwise charge for the software, copies of it, or a changed version of it, including putting it in a paid product, device, course or subscription where the software is part of what is sold;
 - offer the software or a changed version as a paid or hosted service or app for other people;
 - charge clients or authors to format, typeset or convert their books with the software. This applies to freelancers, agencies and anyone who charges a separate fee for it, including packages that include it;
-- charge for support, consulting, training or customisation of the software.
+- charge for support, consulting, training or customization of the software.
 
 ## Pledge
 
