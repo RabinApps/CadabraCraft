@@ -1,6 +1,6 @@
 //! "Deleting" pages by moving them to `.cadabra/trash/`, and restoring them.
-use super::fsio::stamp;
-use super::paths::{free_copy_name, free_name, resolve};
+use super::fsio::{move_to_free_copy_name, move_to_free_name, stamp};
+use super::paths::resolve;
 use super::{ProjectError, Result};
 use serde::Serialize;
 use std::fs;
@@ -20,11 +20,7 @@ pub fn trash_file(root: &Path, rel: &str) -> Result<String> {
         Ok(_) => {}
     }
     let name = rel.replace('/', "__");
-    let to_rel = free_copy_name(root, &format!(".cadabra/trash/{}-{name}", stamp()))?;
-    let to = resolve(root, &to_rel)?;
-    fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?)?;
-    fs::rename(from, to)?;
-    Ok(to_rel)
+    move_to_free_copy_name(root, &from, &format!(".cadabra/trash/{}-{name}", stamp()), rel)
 }
 
 /// `manuscript|front-matter|back-matter/<name>.json`, optionally one language folder deeper.
@@ -127,12 +123,8 @@ pub fn restore_trash(root: &Path, trash_rel: &str) -> Result<String> {
     if !from.is_file() {
         return Err(ProjectError::NotFound { path: trash_rel.to_string() });
     }
-    let to_rel = free_name(root, &original)?;
-    let to = resolve(root, &to_rel)?;
-    fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?)?;
-    // Same-volume rename is atomic: the page is either still in the trash or fully back, never half-written.
-    fs::rename(from, to)?;
-    Ok(to_rel)
+    // Atomic and never replacing: the page is either still in the trash or fully back, never half-written.
+    move_to_free_name(root, &from, &original, trash_rel)
 }
 
 #[cfg(test)]

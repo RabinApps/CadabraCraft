@@ -21,7 +21,7 @@ import {
   trashFile,
   writeProjectFile,
 } from "../index";
-import { withCopySuffix, withSuffix } from "../files/naming";
+import { withCopySuffix } from "../files/naming";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 1]);
 const tmp = () => mkdtempSync(join(tmpdir(), "pfs-gaps-"));
@@ -114,8 +114,6 @@ describe("fsError", () => {
 
 describe("naming", () => {
   it("adds a suffix to a name without an extension, or whose only dot is in a folder", () => {
-    expect(withSuffix("notes", 2)).toBe("notes-2");
-    expect(withSuffix("a.b/notes", 3)).toBe("a.b/notes-3");
     expect(withCopySuffix("notes", 1)).toBe("notes");
     expect(withCopySuffix("notes", 2)).toBe("notes~2");
     expect(withCopySuffix("a.b/notes.json", 3)).toBe("a.b/notes~3.json");

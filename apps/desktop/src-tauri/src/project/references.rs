@@ -3,7 +3,8 @@
 //! Files are streamed (a video can be hundreds of megabytes), never read whole except small text files.
 use super::assets::{check_image, sanitize_asset_stem};
 use super::fsio::{icloud_pending, stamp};
-use super::paths::{free_copy_name, resolve};
+use super::fsio::{move_to_free_copy_name, sync_dir};
+use super::paths::resolve;
 use super::{io_error, open_error, ProjectError, Result};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -194,12 +195,32 @@ pub fn import_reference(root: &Path, source: &Path) -> Result<ImportedReference>
         match fs::symlink_metadata(&path) {
             Ok(m) if m.is_file() && m.len() == size && file_hash(&path, &rel)? == hash => return Ok(ImportedReference { file: rel, title, size, kind, reused: true }),
             Ok(_) => n += 1,
-            // Nothing there (or nothing readable there): the rename either succeeds or reports why it cannot.
-            Err(_) => {
-                tmp.persist(&path).map_err(std::io::Error::from).ctx(&rel)?;
-                return Ok(ImportedReference { file: rel, title, size, kind, reused: false });
-            }
+            // Nothing there (or nothing readable there): moving in either succeeds or reports why it cannot. It never
+            // replaces a file that appeared meanwhile: that name is skipped like any taken one.
+            Err(_) => match persist_no_replace(tmp, &path) {
+                Ok(()) => {
+                    sync_dir(&dir);
+                    return Ok(ImportedReference { file: rel, title, size, kind, reused: false });
+                }
+                Err((back, e)) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                    tmp = back;
+                    n += 1;
+                }
+                Err((_, e)) => return Err(io_error(e, &rel)),
+            },
         }
+    }
+}
+
+/// Gives the finished temp file its final name without replacing a file of that name (hard link, then the temp name is
+/// removed). Where the filesystem has no hard links it falls back to an exists check plus rename. On failure the temp
+/// file is handed back so the caller can try another name.
+fn persist_no_replace(tmp: tempfile::NamedTempFile, path: &Path) -> std::result::Result<(), (tempfile::NamedTempFile, std::io::Error)> {
+    match tmp.persist_noclobber(path) {
+        Ok(_) => Ok(()),
+        Err(e) if e.error.kind() == std::io::ErrorKind::AlreadyExists => Err((e.file, e.error)),
+        Err(e) if path.symlink_metadata().is_ok() => Err((e.file, std::io::ErrorKind::AlreadyExists.into())),
+        Err(e) => e.file.persist(path).map(|_| ()).map_err(|e| (e.file, e.error)),
     }
 }
 
@@ -273,11 +294,7 @@ pub fn trash_reference(root: &Path, rel: &str) -> Result<String> {
         Ok(m) if !m.is_file() => return Err(ProjectError::NotAFile { path: rel.to_string() }),
         Ok(_) => {}
     }
-    let to_rel = free_copy_name(root, &format!(".cadabra/trash/{}-{}", stamp(), rel.replace('/', "__")))?;
-    let to = resolve(root, &to_rel)?;
-    fs::create_dir_all(to.parent().ok_or(ProjectError::InvalidFileName)?).ctx(".cadabra/trash")?;
-    fs::rename(from, to).ctx(rel)?;
-    Ok(to_rel)
+    move_to_free_copy_name(root, &from, &format!(".cadabra/trash/{}-{}", stamp(), rel.replace('/', "__")), rel)
 }
 
 /// The file to hand to the operating system's default app. Refuses types that could run or run script when opened
@@ -537,5 +554,20 @@ mod tests {
     #[test]
     fn hashing_a_missing_file_is_a_typed_error() {
         assert!(matches!(file_hash(Path::new("/definitely/not/here"), "x").unwrap_err(), ProjectError::NotFound { .. }));
+    }
+
+    #[test]
+    fn persisting_a_temp_file_never_replaces_a_file_that_appeared_first() {
+        let d = tempfile::tempdir().unwrap();
+        let target = d.path().join("a.txt");
+        fs::write(&target, "theirs").unwrap();
+        let mut tmp = tempfile::NamedTempFile::new_in(d.path()).unwrap();
+        tmp.write_all(b"mine").unwrap();
+        let (back, e) = persist_no_replace(tmp, &target).unwrap_err();
+        assert_eq!(e.kind(), std::io::ErrorKind::AlreadyExists);
+        assert_eq!(fs::read_to_string(&target).unwrap(), "theirs");
+        let free = d.path().join("b.txt");
+        persist_no_replace(back, &free).unwrap();
+        assert_eq!(fs::read_to_string(&free).unwrap(), "mine");
     }
 }
