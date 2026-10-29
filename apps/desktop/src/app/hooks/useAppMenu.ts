@@ -13,6 +13,7 @@ import {
   type Commands,
 } from "../../state/commands";
 import { useLayout } from "../../state/layout";
+import { useQuickNav } from "../../state/quickNav";
 import { usePageView } from "./usePageView";
 import { buildMenuModel } from "../shell/menuModel";
 import { quitApp } from "../shell/quit";
@@ -72,6 +73,7 @@ export function useAppMenu(h: AppMenuHooks): void {
   const clearRecents = useRecents((s) => s.clear);
   const { focus, details, references, set: setLayout } = useLayout();
   const pageView = usePageView();
+  const showQuickNav = useQuickNav((s) => s.show);
   const setCreating = useStartDialogs((s) => s.setCreating);
   const setImporting = useStartDialogs((s) => s.setImporting);
   const setImportingInto = useStartDialogs((s) => s.setImportingInto);
@@ -92,6 +94,7 @@ export function useAppMenu(h: AppMenuHooks): void {
 
   const commands: Record<string, Commands[string]> = {
     "app.quit": { run: guard(quitApp), global: true },
+    "view.palette": { run: () => showQuickNav("palette") },
     "app.settings": {
       run: () => h.setView("settings"),
       enabled: h.view !== "settings" && h.view !== "fonts",
@@ -233,6 +236,8 @@ export function useAppMenu(h: AppMenuHooks): void {
       };
   }
   if (writing) {
+    // The outline jumps inside the editor, which exists in Write mode only.
+    commands["view.outline"] = { run: () => showQuickNav("outline") };
     commands["view.focus"] = { run: () => setLayout({ focus: !focus }), checked: focus };
     // Page view is not offered on phones.
     commands["view.pageView"] = {

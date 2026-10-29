@@ -376,3 +376,31 @@ describe("page view", () => {
     expect(find(reading, "view.pageView")).toMatchObject({ enabled: false, checked: false });
   });
 });
+
+describe("command palette and outline", () => {
+  it("sit in the View menu with Cmd/Ctrl+K and Cmd/Ctrl+Shift+O, after the panel toggles", () => {
+    const view = submenu(
+      buildMenuModel(ctx({ ...BOOK, "view.palette": { run }, "view.outline": { run } })),
+      "View",
+    );
+    expect(find(view, "view.palette")).toMatchObject({
+      text: "Command Palette…",
+      accelerator: "CmdOrCtrl+K",
+      enabled: true,
+    });
+    expect(find(view, "view.outline")).toMatchObject({
+      text: "Outline…",
+      accelerator: "CmdOrCtrl+Shift+O",
+      enabled: true,
+    });
+    const ids = commandIds(view);
+    expect(ids.indexOf("view.palette")).toBe(ids.indexOf("view.references") + 1);
+    expect(ids.indexOf("view.outline")).toBe(ids.indexOf("view.palette") + 1);
+  });
+
+  it("greys out the outline where it is not registered (Read mode, no book)", () => {
+    const view = submenu(buildMenuModel(ctx({ "view.palette": { run } })), "View");
+    expect(find(view, "view.palette")?.enabled).toBe(true);
+    expect(find(view, "view.outline")?.enabled).toBe(false);
+  });
+});

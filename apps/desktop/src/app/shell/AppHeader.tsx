@@ -7,12 +7,14 @@ import {
   FileText,
   FileUp,
   Library,
+  ListTree,
   LoaderCircle,
   Maximize2,
   Menu,
   PanelRight,
   PenLine,
   Save,
+  Search,
   Settings as SettingsIcon,
 } from "lucide-react";
 import { ReadingSettings } from "../../editor/ReadingSettings";
@@ -23,6 +25,7 @@ import { EditionSwitcher } from "./EditionSwitcher";
 import { HeaderMenu } from "./HeaderMenu";
 import { usePageView } from "../hooks/usePageView";
 import { useLayout } from "../../state/layout";
+import { useQuickNav } from "../../state/quickNav";
 import { useProject } from "../../state/project/index";
 import { useStartDialogs } from "../../state/commands";
 
@@ -67,6 +70,7 @@ export function AppHeader({
   const audio = useProject((s) => s.audio);
   const actions = useProject((s) => s.actions);
   const { details, references, set: setLayout } = useLayout();
+  const showQuickNav = useQuickNav((s) => s.show);
   const reader = mode === "read";
   const setImportingInto = useStartDialogs((s) => s.setImportingInto);
   const pageView = usePageView();
@@ -122,6 +126,20 @@ export function AppHeader({
           </button>
         )}
         {reader && <ReadingSettings />}
+        <IconButton
+          icon={Search}
+          label={t`Command palette`}
+          className="max-sm:hidden"
+          onClick={() => showQuickNav("palette")}
+        />
+        {!reader && (
+          <IconButton
+            icon={ListTree}
+            label={t`Outline`}
+            className="max-sm:hidden"
+            onClick={() => showQuickNav("outline")}
+          />
+        )}
         {!reader && (
           <IconButton
             icon={Maximize2}
@@ -187,9 +205,11 @@ export function AppHeader({
         <HeaderMenu
           label={t`More actions`}
           items={[
+            { label: t`Command palette`, icon: Search, onSelect: () => showQuickNav("palette") },
             ...(reader
               ? []
               : [
+                  { label: t`Outline`, icon: ListTree, onSelect: () => showQuickNav("outline") },
                   { label: t`Save`, icon: Save, onSelect: save },
                   {
                     label: t`Focus mode`,

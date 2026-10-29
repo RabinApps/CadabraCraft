@@ -36,6 +36,7 @@ import { UpdateDialog } from "../dialogs/UpdateDialog";
 import { RecoverDialog } from "../dialogs/RecoverDialog";
 import { useUpdates } from "../../state/updates";
 import { Sidebar } from "./Sidebar";
+import { QuickNav } from "../quicknav/QuickNav";
 import { OpeningSkeleton } from "./OpeningSkeleton";
 import { Templates } from "../export/Templates";
 import { useLayout } from "../../state/layout";
@@ -58,7 +59,17 @@ import { useViewMode } from "../../state/viewMode";
 /** `fonts` is Settings scrolled to Fonts (from the "font missing" notice in the export dialog). */
 type View = "book" | "settings" | "fonts" | "templates" | "print";
 
+/** The app and, above every screen, the command palette and the outline navigator. */
 export function App() {
+  return (
+    <>
+      <AppScreens />
+      <QuickNav />
+    </>
+  );
+}
+
+function AppScreens() {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const activeLanguage = useProject(

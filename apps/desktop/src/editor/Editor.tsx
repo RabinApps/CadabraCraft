@@ -21,6 +21,7 @@ import { usePageView } from "../app/hooks/usePageView";
 import { FindBar } from "./FindBar";
 import { prefillQuery } from "../lib/search/findHelpers";
 import { useFind } from "./findStore";
+import { registerHeadingJump } from "./headingJump";
 import { modalOpen, useRegisterCommands } from "../state/commands";
 import { useProject } from "../state/project/index";
 import { Modal } from "../ui/Dialog";
@@ -253,6 +254,27 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     "edit.findReplace": { run: () => invokeRef.current("replace") },
     "edit.convertHtml": { run: () => convertRef.current(), enabled: hasSelection },
   });
+  // The outline navigator moves the caret to a heading by its number among the chapter's headings.
+  useEffect(() => {
+    if (!editor) return;
+    return registerHeadingJump((index) => {
+      if (editor.isDestroyed) return false;
+      let seen = 0;
+      let target = -1;
+      editor.state.doc.descendants((node, pos) => {
+        if (node.type.name === "heading" && seen++ === index) target = pos;
+        return target < 0;
+      });
+      if (target < 0) return false;
+      editor
+        .chain()
+        .focus()
+        .setTextSelection(target + 1)
+        .run();
+      (editor.view.nodeDOM(target) as HTMLElement | null)?.scrollIntoView({ block: "start" });
+      return true;
+    });
+  }, [editor]);
   if (!editor) return null;
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">

@@ -28,7 +28,7 @@ export async function audit(page: Page): Promise<Issue[]> {
       return false;
     };
     const sel =
-      "button, a[href], input:not([type=hidden]), select, textarea, [role=menuitem], [role=radio], [role=tab], [role=switch], summary";
+      "button, a[href], input:not([type=hidden]), select, textarea, [role=menuitem], [role=option], [role=radio], [role=tab], [role=switch], summary";
     for (const el of document.querySelectorAll(sel)) {
       const r = el.getBoundingClientRect();
       const cs = getComputedStyle(el);
@@ -64,7 +64,7 @@ export async function audit(page: Page): Promise<Issue[]> {
     }
     for (const el of document.querySelectorAll("h1, h2, h3, .truncate")) {
       const e = el as HTMLElement;
-      if (e.closest("[inert], [aria-hidden=true]")) continue;
+      if (e.closest("[inert], [aria-hidden=true], .sr-only")) continue;
       if (e.scrollWidth > e.clientWidth + 1 && !e.title && !e.getAttribute("aria-label"))
         issues.push({ kind: "truncated", what: name(el) });
     }

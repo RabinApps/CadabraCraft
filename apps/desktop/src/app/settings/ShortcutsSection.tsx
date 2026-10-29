@@ -2,24 +2,8 @@ import { useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Field } from "../../ui/Input";
 import { isMac } from "../../lib/platform";
-import { buildShortcuts, groupRows, shortcutRows, spokenCombo, type Key } from "./shortcutList";
-
-/** One combo as keycaps; a screen reader hears the spoken phrase ("Command Shift N"), not the symbols. */
-function Combo({ keys }: { keys: Key[] }) {
-  return (
-    <span className="inline-flex items-center gap-1" role="img" aria-label={spokenCombo(keys)}>
-      {keys.map((k, i) => (
-        <kbd
-          key={i}
-          aria-hidden
-          className="min-w-6 rounded-sm border border-border-strong bg-sidebar px-1.5 py-0.5 text-center font-sans text-xs font-semibold text-ink"
-        >
-          {k.label}
-        </kbd>
-      ))}
-    </span>
-  );
-}
+import { buildShortcuts, groupRows, shortcutRows } from "./shortcutList";
+import { KeyCombo } from "./KeyCombo";
 
 /** Settings > Shortcuts: every key the app answers to, searchable by action or by key. Read-only; keys are not rebindable. */
 export function ShortcutsSection({ title }: { title: string }) {
@@ -73,7 +57,7 @@ export function ShortcutsSection({ title }: { title: string }) {
                   <span className="min-w-0">{r.action}</span>
                   <span className="flex shrink-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
                     {r.combos.map((keys, i) => (
-                      <Combo key={i} keys={keys} />
+                      <KeyCombo key={i} keys={keys} />
                     ))}
                   </span>
                 </li>

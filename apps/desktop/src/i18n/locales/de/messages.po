@@ -64,6 +64,11 @@ msgstr ""
 msgid "{0, plural, one {# reference} other {# references}}"
 msgstr "{0, plural, one {# Referenz} other {# Referenzen}}"
 
+#. placeholder {0}: items.length
+#: src/app/quicknav/QuickPicker.tsx
+msgid "{0, plural, one {# result} other {# results}}"
+msgstr ""
+
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
@@ -789,6 +794,7 @@ msgstr "Kapiteltitel"
 
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/export/AudioExport.tsx
+#: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/shell/App.tsx
 #: src/app/shell/Details.tsx
 #: src/app/shell/Sidebar.tsx
@@ -860,6 +866,7 @@ msgstr "Suche und Filter löschen, um umzusortieren"
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/export/AudioFooter.tsx
+#: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/FindBar.tsx
 msgid "Close"
@@ -913,6 +920,15 @@ msgstr "Spalten"
 #: src/editor/TableCommands.tsx
 msgid "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
 msgstr "Die Spalten sind gleich breit. Bis zu {MAX_TABLE_COLUMNS} Spalten."
+
+#: src/app/quicknav/CommandPalette.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Command palette"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Command Palette…"
+msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Compared with the current text"
@@ -1078,6 +1094,7 @@ msgid "Crop marks make the page larger than the trim size plus bleed. KDP does n
 msgstr ""
 
 #: src/app/export/EditionsChecklist.tsx
+#: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
 msgstr "Aktuell"
 
@@ -1702,6 +1719,10 @@ msgstr "In „{where}“: {0}"
 msgid "In the .cadabra/backups folder inside your book folder."
 msgstr "Im Ordner .cadabra/backups innerhalb deines Buchordners."
 
+#: src/app/quicknav/OutlineNavigator.tsx
+msgid "In this chapter"
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "In this version only"
 msgstr "Nur in dieser Version"
@@ -2148,6 +2169,10 @@ msgstr ""
 msgid "No cadabra.json in that folder"
 msgstr "Keine cadabra.json in diesem Ordner"
 
+#: src/app/quicknav/CommandPalette.tsx
+msgid "No command matches “{q}”."
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr "Noch keine früheren Versionen. Bei jedem Speichern über anderen Text wird eine behalten, höchstens alle 10 Minuten."
@@ -2160,6 +2185,10 @@ msgstr "Keine Datei gewählt"
 #: src/app/home/Home.tsx
 msgid "No folder chosen"
 msgstr "Kein Ordner gewählt"
+
+#: src/app/quicknav/OutlineNavigator.tsx
+msgid "No heading or chapter matches “{q}”."
+msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "No HTML found in the selection"
@@ -2343,6 +2372,15 @@ msgstr "Andere"
 #: src/app/settings/shortcutList.ts
 msgid "Outdent list item"
 msgstr "Listenelement ausrücken"
+
+#: src/app/quicknav/OutlineNavigator.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Outline"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Outline…"
+msgstr ""
 
 #: src/app/export/AudioExport.tsx
 msgid "Packing the audiobook…"
@@ -2862,6 +2900,10 @@ msgstr "Szenenwechsel"
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search by action or key"
 msgstr "Nach Aktion oder Taste suchen"
+
+#: src/app/quicknav/OutlineNavigator.tsx
+msgid "Search headings and chapters"
+msgstr ""
 
 #: src/app/references/PdfSearch.tsx
 msgid "Search in PDF"
@@ -3486,6 +3528,10 @@ msgstr "Erneut versuchen"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
 msgstr "Download von {0} erneut versuchen"
+
+#: src/app/quicknav/CommandPalette.tsx
+msgid "Type a command"
+msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"

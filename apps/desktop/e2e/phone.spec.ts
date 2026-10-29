@@ -144,6 +144,31 @@ const SCREENS: Record<string, Open> = {
     await page.keyboard.type("chapter");
     await expect(page.getByRole("search")).toBeVisible();
   },
+  "command palette": async (page) => {
+    await newProject(page);
+    await moreItem(page, "Command palette");
+    await expect(page.getByRole("combobox", { name: "Command palette" })).toBeFocused();
+    await expect(page.getByRole("option").first()).toBeVisible();
+  },
+  "command palette with a search": async (page) => {
+    await newProject(page);
+    await moreItem(page, "Command palette");
+    await page.getByRole("combobox", { name: "Command palette" }).fill("exp");
+    await expect(page.getByRole("option").first()).toBeVisible();
+  },
+  "command palette without a match": async (page) => {
+    await newProject(page);
+    await moreItem(page, "Command palette");
+    await page.getByRole("combobox", { name: "Command palette" }).fill("qqqq");
+    await expect(page.getByRole("status")).toContainText("No command matches");
+  },
+  "outline navigator": async (page) => {
+    await newProject(page);
+    await moreItem(page, "Outline");
+    const box = page.getByRole("combobox", { name: "Outline" });
+    await expect(box).toBeFocused();
+    await expect(page.getByRole("option", { name: /Chapter One/ }).first()).toBeVisible();
+  },
   "recovery dialog": async (page) => {
     await newProject(page);
     const { file, path } = await seedSnapshot(page, "the newer text");
