@@ -15,7 +15,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 
 - M2 follow-ups: a Typst-rendered print preview, bleed and crop marks in the PDF and EPUBCheck from the app.
-- M2+: shortcuts settings (disabled nav item for now), command palette, outline navigator.
+- M2+: command palette, outline navigator. Shortcut rebinding (Settings > Shortcuts is a read-only list).
 - Phone layout is built and checked by `e2e/phone.spec.ts` (390x844, 360x740 and 844x390: no horizontal scroll, controls at least 44px, dialogs inside the viewport). Two pen frames still have to be drawn, then `/sync-design`:
   - `Editor / mobile / keyboard open / light` (390x844 frame, visible area 390x~430 above the keyboard): header (back/chapters icon, chapter title truncated, Save state dot, More actions icon button, 44px each), the manuscript with the caret line in view, the formatting toolbar docked directly above the keyboard (44px buttons, one horizontally scrolling row), the status bar hidden. Focus mode is not in the header on phones; it is the second item in the More menu after Save.
   - `Header / mobile / 390 / light`: the 390px editor header with only Chapters, title, Read/Write segmented control and More actions (Save, Focus mode, Export, Book details, Settings as 44px rows); Details has no button on phones. Also draw the More menu open.
@@ -90,7 +90,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Chapter snapshots: automatic versions on save, History dialog (compare and restore), Backups settings, recovery offer on open; see architecture.md, "Chapter snapshots and History".
 - M4: import wizard (source step, then a preview of the detected chapters with split level, rename and skip), see import.md.
 - M1: apply the design system (Tailwind v4 + Radix), restyle Home, editor, reading mode, dialogs and toasts.
-- M2: Settings page (its Backups and Shortcuts sections are not built), templates gallery, Export dialog, approximate print preview (see architecture.md, "M2 UI").
+- M2: Settings page (Backups and Shortcuts are built), templates gallery, Export dialog, approximate print preview (see architecture.md, "M2 UI").
 - M2+: focus mode (designed in the pen as `Focus mode / desktop / mode`).
 - M3: front/back matter (built in M1), metadata editor and cover picker (see architecture.md, "Book cover"); the cover is also shown in the print preview.
 - Rust project errors return codes with params, translated in `lib/projectError.ts`.

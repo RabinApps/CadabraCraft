@@ -57179,7 +57179,7 @@
       "x": 0,
       "y": 28044,
       "name": "Section / Settings",
-      "width": 4130,
+      "width": 5490,
       "height": 2600,
       "fill": "#00000000",
       "layout": "none",
@@ -64107,6 +64107,2826 @@
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-caption",
                               "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "k3glg",
+          "x": 4210,
+          "y": 160,
+          "name": "Settings (M2+) / Shortcuts / desktop / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 1280,
+          "height": 800,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Jn5Pc",
+              "name": "Top bar",
+              "width": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                10,
+                16
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Sg4HI",
+                  "name": "Left",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "g727d",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "arrow-left",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "arrow-left"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "p9d46",
+                      "name": "Settings",
+                      "fill": "$ink",
+                      "content": "Settings",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-lead",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Y84PL0",
+              "name": "Body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "axWvs",
+                  "name": "Nav",
+                  "width": 220,
+                  "height": "fill_container",
+                  "fill": "$sidebar",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UpQoa",
+                      "name": "Appearance",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "cFHKE",
+                          "name": "Appearance",
+                          "fill": "$ink",
+                          "content": "Appearance",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "OSXUm",
+                      "name": "General",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zkrct",
+                          "name": "General",
+                          "fill": "$ink",
+                          "content": "General",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "LawAW",
+                      "name": "Editor",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "p5dXN7",
+                          "name": "Editor",
+                          "fill": "$ink",
+                          "content": "Editor",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "KDKFF",
+                      "name": "Backups",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "K81tz",
+                          "name": "Backups",
+                          "fill": "$ink",
+                          "content": "Backups",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rnBSJ",
+                      "name": "Shortcuts",
+                      "width": "fill_container",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "hcsKc",
+                          "name": "Shortcuts",
+                          "fill": "$accent",
+                          "content": "Shortcuts",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "hnDxR",
+                  "name": "Content",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 24,
+                  "padding": 40,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "jv6SX",
+                      "name": "Column",
+                      "width": 640,
+                      "layout": "vertical",
+                      "gap": 32,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "y22DT",
+                          "name": "Shortcuts",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dLmww",
+                              "name": "Shortcuts heading",
+                              "fill": "$ink",
+                              "content": "Shortcuts",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-title",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Kswur",
+                              "name": "Note",
+                              "fill": "$ink-muted",
+                              "content": "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option.",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "id": "S7pE8J",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "Search",
+                              "width": "fill_container",
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "Search by action or key",
+                                  "fill": "$ink-muted"
+                                }
+                              }
+                            },
+                            {
+                              "type": "frame",
+                              "id": "e3rIg",
+                              "name": "File",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "RAX4t",
+                                  "name": "File label",
+                                  "fill": "$ink-muted",
+                                  "content": "FILE",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600",
+                                  "letterSpacing": 0.6
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "U4vuon",
+                                  "name": "Card",
+                                  "width": "fill_container",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-lg",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "Z1gNZ",
+                                      "name": "New project",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "D6khDi",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "New project",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "yVEYH",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "xG3pg",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "cw6aq",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "Dc7iI",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "SDd1d",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "h7gje",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "N",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "SAntI",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "jqYiw",
+                                      "name": "Open folder",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "tkZST",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Open folder",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "gwENa",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "oa6pt",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "pHgJi",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "AbVCL",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "cD1L7",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "Ys1sY",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "O",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "oXQCf",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "GjZFS",
+                                      "name": "Save",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "Enm6n",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Save",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "T85ZS",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "G3ZL9",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "VgPui",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "bYjFR",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "l22Knc",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "DhEaM",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "S",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Dj70T",
+                              "name": "Edit",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "a8HUDR",
+                                  "name": "Edit label",
+                                  "fill": "$ink-muted",
+                                  "content": "EDIT",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600",
+                                  "letterSpacing": 0.6
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "hZVj1",
+                                  "name": "Card",
+                                  "width": "fill_container",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-lg",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "wcT1D",
+                                      "name": "Undo",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "aXhgG",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Undo",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "CwFcb",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "zVxTX",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "EIsBE",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "f8GVn",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "Pzy7x",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "ri8Nb",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "Z",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "WyN40",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "ihEN0",
+                                      "name": "Redo",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "XIAy2",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Redo",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "hIeSb",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "ggyfZ",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "CxsQz",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "H9E5W",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⇧",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "EMTU1",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "HSqcb",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "qXxkl",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "FWw4c",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "Z",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "yW0yQ",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "U71K7M",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "CDo8u",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "qrcWp",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "vZW8I",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "Y",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "hqjSA",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "PGnb4",
+                                      "name": "Find",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "zpwmY",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Find",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "mrhaA",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "ZDcG2",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "ZX61k",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "lMrYo",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "LHXkD",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "qZbgj",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "F",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "rwT4u",
+                              "name": "Format",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "KDyho",
+                                  "name": "Format label",
+                                  "fill": "$ink-muted",
+                                  "content": "FORMAT",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600",
+                                  "letterSpacing": 0.6
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "npOB6",
+                                  "name": "Card",
+                                  "width": "fill_container",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-lg",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "iKtdg",
+                                      "name": "Bold",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "Rbcah",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Bold",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "yQVvs",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "l2Pjiz",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "P2vGXZ",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "gEzcd",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "a2x9KV",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "fOzwj",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "B",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "gAbDP",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "rMK89",
+                                      "name": "Italic",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "RQ3vG",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Italic",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "C5h2j",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "CROMU",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "dFD0x",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "k8U7D",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "dl02K",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "JkNXS",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "I",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "w1dVys",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "nM6h2",
+                                      "name": "Heading 1",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "oClCY",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Heading 1",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "mbi3T",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "ds4sr",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "IPQuE",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "I4P7pC",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌥",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "ttcBH",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "oiM53",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "BTt87",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "I1bgUL",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "1",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "FuGxv",
+          "x": 4210,
+          "y": 1040,
+          "name": "Settings (M2+) / Shortcuts / desktop / dark",
+          "theme": {
+            "mode": "dark"
+          },
+          "clip": true,
+          "width": 1280,
+          "height": 800,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "ZS4Uz",
+              "name": "Top bar",
+              "width": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                10,
+                16
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "WkMcg",
+                  "name": "Left",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "zaqK5",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "arrow-left",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "arrow-left"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "D7kA1",
+                      "name": "Settings",
+                      "fill": "$ink",
+                      "content": "Settings",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-lead",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "I0Q06p",
+              "name": "Body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "AxOne",
+                  "name": "Nav",
+                  "width": 220,
+                  "height": "fill_container",
+                  "fill": "$sidebar",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Kq6vb",
+                      "name": "Appearance",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "lJmov",
+                          "name": "Appearance",
+                          "fill": "$ink",
+                          "content": "Appearance",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "m5VFf",
+                      "name": "General",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "hou6Q",
+                          "name": "General",
+                          "fill": "$ink",
+                          "content": "General",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "B6hAJA",
+                      "name": "Editor",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "N8OxAU",
+                          "name": "Editor",
+                          "fill": "$ink",
+                          "content": "Editor",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yJvZb",
+                      "name": "Backups",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "KQzAr",
+                          "name": "Backups",
+                          "fill": "$ink",
+                          "content": "Backups",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "d2AWM9",
+                      "name": "Shortcuts",
+                      "width": "fill_container",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "H28Nl",
+                          "name": "Shortcuts",
+                          "fill": "$accent",
+                          "content": "Shortcuts",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "p599v",
+                  "name": "Content",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 24,
+                  "padding": 40,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "sMXEo",
+                      "name": "Column",
+                      "width": 640,
+                      "layout": "vertical",
+                      "gap": 32,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "QrQHM",
+                          "name": "Shortcuts",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "WCuO1",
+                              "name": "Shortcuts heading",
+                              "fill": "$ink",
+                              "content": "Shortcuts",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-title",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "sa2qe",
+                              "name": "Note",
+                              "fill": "$ink-muted",
+                              "content": "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option.",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "id": "eDS6F",
+                              "type": "ref",
+                              "ref": "PE4pF",
+                              "name": "Search",
+                              "width": "fill_container",
+                              "descendants": {
+                                "oNv10": {
+                                  "content": "Search by action or key",
+                                  "fill": "$ink-muted"
+                                }
+                              }
+                            },
+                            {
+                              "type": "frame",
+                              "id": "YcVfz",
+                              "name": "File",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "TECmT",
+                                  "name": "File label",
+                                  "fill": "$ink-muted",
+                                  "content": "FILE",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600",
+                                  "letterSpacing": 0.6
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "lQyNw",
+                                  "name": "Card",
+                                  "width": "fill_container",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-lg",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "ypwxd",
+                                      "name": "New project",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "TxUl4",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "New project",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "daglv",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "V9aSPn",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "spy5w",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "i6fnh",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "XLyH4",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "smekS",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "N",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "XWpxs",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "mAHfO",
+                                      "name": "Open folder",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "CWHM0",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Open folder",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "k9CKG",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "XvApl",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "N4VuU",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "zxGLs",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "cJB2m",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "ouQP9",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "O",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "nE3HW",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "Sc3GV",
+                                      "name": "Save",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "vsVyZ",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Save",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "tTcio",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "dhEv0",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "UTKGv",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "NSD3C",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "T7Bk5v",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "UyXeY",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "S",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "K9L0C",
+                              "name": "Edit",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "E6JUc",
+                                  "name": "Edit label",
+                                  "fill": "$ink-muted",
+                                  "content": "EDIT",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600",
+                                  "letterSpacing": 0.6
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "p5zeg",
+                                  "name": "Card",
+                                  "width": "fill_container",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-lg",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "I71ztN",
+                                      "name": "Undo",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "zEuYy",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Undo",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "uDfKG",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "Z12Q4P",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "Z4S7i",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "eDWxa",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "H5RhO",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "QCZ8T",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "Z",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "VxEP1",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "lPmhY",
+                                      "name": "Redo",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "D1kpF",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Redo",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "S87LP",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "vfTps",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "k1nC2Z",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "o1tkX5",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⇧",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "C0cvWt",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "EMkwZ",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "X0D4nO",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "j9QXdn",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "Z",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "YO4wE",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "kSSF4",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "HErUY",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "WsI3P",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "XUCvQ",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "Y",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "zkafV",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "ayBAM",
+                                      "name": "Find",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "e5WADN",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Find",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "jhMV3",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "YOQ0o",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "TlTUg",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "WHCl6",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "h0F3aL",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "pfl1G",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "F",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "s5xPIU",
+                              "name": "Format",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "O34z6o",
+                                  "name": "Format label",
+                                  "fill": "$ink-muted",
+                                  "content": "FORMAT",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600",
+                                  "letterSpacing": 0.6
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "BzfK1",
+                                  "name": "Card",
+                                  "width": "fill_container",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-lg",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "RZ4sg",
+                                      "name": "Bold",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "hYD3i",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Bold",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "kLDgq",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "F65GRa",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "I7lsTb",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "MGmeJ",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "bBagX",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "pehyI",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "B",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "NRfQy",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "ybFAX",
+                                      "name": "Italic",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "C7yLc",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Italic",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "Z1sQb",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "VHmXO",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "ml10k",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "L0W2U",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "W4XPER",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "J7UhX",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "I",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "madg3",
+                                      "name": "Divider",
+                                      "width": "fill_container",
+                                      "height": 1,
+                                      "fill": "$border"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "AJLIu",
+                                      "name": "Heading 1",
+                                      "width": "fill_container",
+                                      "gap": 16,
+                                      "padding": [
+                                        10,
+                                        20
+                                      ],
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "UVkb8",
+                                          "name": "Action",
+                                          "fill": "$ink",
+                                          "content": "Heading 1",
+                                          "fontFamily": "$font-ui",
+                                          "fontSize": "$type-body",
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "FlM3Y",
+                                          "name": "Combos",
+                                          "gap": 12,
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "BWkNC",
+                                              "name": "Combo",
+                                              "gap": 4,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "JKVVO",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "N0Af6u",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌥",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "J48Wu",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "xBcTX",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "⌘",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "P8asC",
+                                                  "name": "Keycap",
+                                                  "fill": "$sidebar",
+                                                  "cornerRadius": "$radius-sm",
+                                                  "stroke": "$border-strong",
+                                                  "strokeWidth": 1,
+                                                  "padding": [
+                                                    2,
+                                                    7
+                                                  ],
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "dzWlN",
+                                                      "name": "Key",
+                                                      "fill": "$ink",
+                                                      "content": "1",
+                                                      "fontFamily": "$font-ui",
+                                                      "fontSize": "$type-caption",
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
