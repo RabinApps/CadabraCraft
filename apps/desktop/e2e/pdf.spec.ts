@@ -36,7 +36,7 @@ test("Export PDF sends the chosen options to Typst and writes exports/en/book.pd
   expect(call.source).toContain("Typeset me"); // unsaved typing was flushed first
   expect(call.source).toMatch(/#set page\(width: 5in, height: 8in/); // 5x8 trim
   const pdf = await page.evaluate(() => window.__disk["exports/en/book.pdf"]);
-  expect(pdf).toEqual([0x25, 0x50, 0x44, 0x46, 0x2d]);
+  expect(pdf!.slice(0, 5)).toEqual([0x25, 0x50, 0x44, 0x46, 0x2d]); // %PDF-
   const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   expect(manifest.template).toBe("nonfiction");
 });

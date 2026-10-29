@@ -1,15 +1,26 @@
 import { describe, expect, it } from "vitest";
 import type { PageReport } from "@cadabracraft/export-pdf";
-import { reportBookPages, reportStartNumber, usableReport } from "../pageReport";
+import {
+  reportBookPages,
+  reportChapterPages,
+  reportStartNumber,
+  usableReport,
+} from "../pageReport";
 
-const start = (id: string, page: number, number: string) => ({ id, kind: "chapter", page, number });
+const start = (id: string, page: number, number: string, end = page) => ({
+  id,
+  kind: "chapter",
+  page,
+  end,
+  number,
+});
 const withFront: PageReport = {
   total: 20,
   starts: [
     start("title", 1, ""),
     start("fore", 3, "iii"),
-    start("c1", 5, "1"),
-    start("c2", 11, "7"),
+    start("c1", 5, "1", 9),
+    start("c2", 11, "7", 20),
   ],
 };
 
@@ -39,5 +50,14 @@ describe("reportStartNumber", () => {
     expect(reportStartNumber(withFront, "fore")).toBeNull();
     expect(reportStartNumber(withFront, "title")).toBeNull();
     expect(reportStartNumber(withFront, "nope")).toBeNull();
+  });
+});
+
+describe("reportChapterPages", () => {
+  it("counts from the entry's first to its last page, and is null for an unknown id", () => {
+    expect(reportChapterPages(withFront, "c1")).toBe(5);
+    expect(reportChapterPages(withFront, "c2")).toBe(10);
+    expect(reportChapterPages(withFront, "title")).toBe(1);
+    expect(reportChapterPages(withFront, "nope")).toBeNull();
   });
 });

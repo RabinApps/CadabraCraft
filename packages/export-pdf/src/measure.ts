@@ -13,6 +13,8 @@ export interface PageStart {
   kind: string;
   /** Physical page (1-based) the entry starts on. */
   page: number;
+  /** Physical page the entry ends on (its last page; a blank verso before the next entry is not part of it). */
+  end: number;
   /** The page number printed there ("iii", "7"), or "" when the page shows none. */
   number: string;
 }
@@ -48,10 +50,12 @@ export function parsePageReport(json: string): PageReport {
       typeof s.id !== "string" ||
       typeof s.kind !== "string" ||
       !isCount(s.page) ||
+      !isCount(s.end) ||
+      s.end < s.page ||
       typeof s.number !== "string"
     )
-      return bad(`starts[${i}] needs id, kind, page and number`);
-    return { id: s.id, kind: s.kind, page: s.page, number: s.number };
+      return bad(`starts[${i}] needs id, kind, page, end and number`);
+    return { id: s.id, kind: s.kind, page: s.page, end: s.end, number: s.number };
   });
   return { total: raw.total, starts };
 }

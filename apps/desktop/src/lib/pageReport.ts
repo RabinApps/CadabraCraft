@@ -20,3 +20,9 @@ export function reportStartNumber(report: PageReport, id: string): number | null
   const start = report.starts.find((s) => s.id === id);
   return start && isArabic(start.number) ? Number(start.number) : null;
 }
+
+/** How many pages the page entry `id` has as Typst laid it out (its first to its last page, a blank verso before it left out), or null when it is not in the report. */
+export function reportChapterPages(report: PageReport, id: string): number | null {
+  const start = report.starts.find((s) => s.id === id);
+  return start ? start.end - start.page + 1 : null;
+}

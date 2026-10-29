@@ -1,5 +1,6 @@
 export { buildTypst, buildTypstDocument, resolveFonts, requestedFonts } from "./typst";
 export { renderPdf, type RenderPdfOptions } from "./render";
+export { pageBox, type PageBox } from "./typst/bleed";
 export { measurePages, parsePageReport, type PageReport, type PageStart } from "./measure";
 export {
   COMPILE_TIMEOUT_MS,

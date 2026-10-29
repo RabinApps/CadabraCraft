@@ -4,7 +4,7 @@ import { PdfExportError } from "../errors";
 import { createNodeRunner } from "../node";
 import { renderPdf } from "../render";
 import { buildTypst } from "../typst";
-import { bleedOf, pageGeometry } from "../typst/bleed";
+import { bleedOf, pageBox, pageGeometry } from "../typst/bleed";
 import { loadFullBook } from "./fixtures";
 
 const trim = { w: 6, h: 9 };
@@ -54,6 +54,23 @@ describe("pageGeometry", () => {
     expect([g.width, g.height]).toEqual([6.75, 9.75]);
     expect(g.margin).toContain("inside: 1.25in, outside: 1in");
     expect(g.foreground?.match(/line\(/g)).toHaveLength(8);
+  });
+});
+
+describe("pageBox", () => {
+  it("is the trim size and the template margins without bleed", () => {
+    expect(pageBox(trim, margins, true, {})).toEqual({
+      width: 6,
+      height: 9,
+      margins,
+      edge: 0,
+      marks: false,
+    });
+  });
+  it("adds the bleed to the outer margins and the slug on every side with marks", () => {
+    const b = pageBox(trim, margins, true, { bleedIn: 0.125, cropMarks: true });
+    expect([b.width, b.height, b.edge, b.marks]).toEqual([6.75, 9.75, 0.375, true]);
+    expect(b.margins).toEqual({ top: 1.125, bottom: 1.125, inside: 1.25, outside: 1 });
   });
 });
 

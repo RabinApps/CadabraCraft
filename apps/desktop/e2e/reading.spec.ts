@@ -156,9 +156,9 @@ test("Typst's printed numbers replace the chained ones", async ({ page }) => {
       window.__typstQueryResult = JSON.stringify({
         total: 60,
         starts: [
-          { id: ids[0], kind: "chapter", page: 1, number: "1" },
-          { id: ids[1], kind: "chapter", page: 21, number: "21" },
-          { id: ids[2], kind: "chapter", page: 41, number: "41" },
+          { id: ids[0], kind: "chapter", page: 1, end: 20, number: "1" },
+          { id: ids[1], kind: "chapter", page: 21, end: 40, number: "21" },
+          { id: ids[2], kind: "chapter", page: 41, end: 60, number: "41" },
         ],
       });
     },

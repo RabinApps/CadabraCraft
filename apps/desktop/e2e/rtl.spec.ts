@@ -33,6 +33,28 @@ test("RTL: Home mirrors and does not overflow", async ({ page }) => {
   await shot(page, "home");
 });
 
+test("RTL: the print preview keeps the pages in reading order and mirrors the controls", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Print PDF" }).click();
+  await dialog.getByRole("button", { name: "Print preview" }).click();
+  await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
+  await forceRtl(page);
+  await page.getByRole("button", { name: "Next pages" }).click();
+  // Page 2 stays on the left of page 3 (the spread is a physical object, laid out left to right).
+  const left = await page.getByRole("img", { name: "Page 2", exact: true }).boundingBox();
+  const right = await page.getByRole("img", { name: "Page 3", exact: true }).boundingBox();
+  expect(left && right && left.x < right.x).toBe(true);
+  // The page setup sits on the left edge, the pages to its right.
+  const setup = await page.getByRole("heading", { name: "Page setup" }).boundingBox();
+  expect(setup && right && setup.x < right.x).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "print-preview");
+});
+
 test("RTL: editor, chapter list, toolbar, details and dialogs mirror", async ({ page }) => {
   await newProject(page);
   await forceRtl(page);

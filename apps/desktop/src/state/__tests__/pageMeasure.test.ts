@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { markMeasureStale, setMeasured, setMeasureError, usePageMeasure } from "../pageMeasure";
 
-const report = { total: 3, starts: [{ id: "a", kind: "chapter", page: 1, number: "1" }] };
+const report = { total: 3, starts: [{ id: "a", kind: "chapter", page: 1, end: 1, number: "1" }] };
 
 beforeEach(() => usePageMeasure.setState({ report: null, fresh: false, error: null }));
 

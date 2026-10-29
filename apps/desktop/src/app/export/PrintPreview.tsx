@@ -1,21 +1,19 @@
 import { sourceEdition } from "@cadabracraft/format";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { ArrowLeft, BookOpen, Printer } from "lucide-react";
-import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
+import { TRIM_SIZES, pageBox, type TrimSize } from "@cadabracraft/export-pdf";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
   hasTemplate,
   resolveTrimSize,
-  type Template,
 } from "@cadabracraft/templates";
 import { countWords } from "@cadabracraft/shared";
-import { assetUrl } from "../../lib/assets";
 import { errText } from "../../lib/projectError";
 import { bookPageCount } from "../../lib/pageNumbering";
-import { plainBlocks, type Margins } from "../../lib/printEstimate";
+import { plainBlocks } from "../../lib/printEstimate";
 import { trimLabel } from "../../lib/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
 import { Select } from "../../ui/Select";
@@ -24,147 +22,25 @@ import type { ExportFormat } from "./exportFormat";
 import { useProject, type BookPage } from "../../state/project/index";
 import { Notice } from "../../ui/Notice";
 import { bleedInches, setBleed, setCropMarks, usePrintSetup } from "../../state/printSetup";
+import { usePrintPdf } from "../hooks/usePrintPdf";
+import { ApproxPage, CoverThumb } from "./ApproxSpread";
+import { TypstSpread } from "./TypstSpread";
 
-/** Width of one preview page in px. Height and everything inside are scaled from the trim size against it. */
+/** Width of one estimated page in px (the fallback when Typst cannot run). Height and everything inside are scaled from the trim size against it. */
 const PAGE_PX = 300;
-/** Blocks shown per page before the text is clipped. The real page breaks come from Typst. */
+/** Blocks shown per estimated page before the text is clipped. */
 const BLOCKS_PER_PAGE = 7;
-const CROP_GAP = 14;
-const CORNERS = [
-  "top-0 start-0 border-t border-s",
-  "top-0 end-0 border-t border-e",
-  "bottom-0 start-0 border-b border-s",
-  "bottom-0 end-0 border-b border-e",
-];
-
-interface PageProps {
-  lines: string[];
-  title?: string;
-  template: Template;
-  margins: Margins;
-  scale: number;
-  heightPx: number;
-  side: "left" | "right";
-  showMargins: boolean;
-  cropMarks: boolean;
-  bodyFont: string;
-  bleedPx: number;
-}
-
-/** One preview page: trim-sized paper with the template's type and margins. Text is clipped at the bottom edge. */
-function Page({
-  lines,
-  title,
-  template,
-  margins,
-  scale,
-  heightPx,
-  side,
-  showMargins,
-  cropMarks,
-  bodyFont,
-  bleedPx,
-}: PageProps) {
-  const outside = side === "left" ? margins.outside : margins.inside;
-  const inside = side === "left" ? margins.inside : margins.outside;
-  const style: CSSProperties = {
-    width: PAGE_PX,
-    height: heightPx,
-    fontFamily: bodyFont,
-    fontSize: (template.print.fontSizePt * scale) / 72,
-    lineHeight: 1 + template.print.leadingEm * 0.6,
-    paddingTop: margins.top * scale,
-    paddingBottom: margins.bottom * scale,
-    paddingLeft: outside * scale,
-    paddingRight: inside * scale,
-  };
-  return (
-    <div className="relative" style={cropMarks ? { padding: CROP_GAP } : undefined}>
-      <div className="relative overflow-hidden bg-paper text-ink shadow-page" style={style}>
-        {title && (
-          <p className="font-book font-semibold" style={{ fontSize: "1.4em", marginBottom: "1em" }}>
-            {title}
-          </p>
-        )}
-        {lines.map((line, i) => (
-          <p
-            key={i}
-            style={{
-              margin: "0 0 0.6em",
-              textIndent: template.print.paragraph.style === "indent" ? "1.4em" : 0,
-            }}
-          >
-            {line}
-          </p>
-        ))}
-        {showMargins && (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute border border-dashed border-accent/60"
-            style={{
-              top: margins.top * scale,
-              bottom: margins.bottom * scale,
-              left: outside * scale,
-              right: inside * scale,
-            }}
-          />
-        )}
-      </div>
-      {bleedPx > 0 && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute border border-dashed border-danger/60"
-          style={{ inset: -bleedPx }}
-        />
-      )}
-      {cropMarks &&
-        CORNERS.map((c) => (
-          <span
-            key={c}
-            aria-hidden
-            className={`pointer-events-none absolute size-2.5 border-ink ${c}`}
-          />
-        ))}
-    </div>
-  );
-}
-
-/** The book's cover as it opens the PDF: a thumbnail the size of a trim-sized page. Nothing is shown when the image cannot be read. */
-function CoverThumb({ root, cover }: { root: string; cover: string }) {
-  const { t } = useLingui();
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    let live = true;
-    setUrl(null);
-    assetUrl(root, cover).then(
-      (u) => {
-        if (live) setUrl(u);
-      },
-      () => {},
-    );
-    return () => {
-      live = false;
-    };
-  }, [root, cover]);
-  if (!url) return null;
-  return (
-    <figure className="flex flex-col items-center gap-1.5">
-      <img
-        src={url}
-        alt={t`Cover`}
-        className="h-28 w-21 rounded-sm border border-border object-cover"
-      />
-      <figcaption className="text-xs text-ink-muted">{t`Cover`}</figcaption>
-    </figure>
-  );
-}
 
 interface Props {
   onBack: () => void;
   onExport: (format: ExportFormat) => void;
 }
 
-/** Approximate print preview: the page size, margins and type come from the template; the text is a rough flow. */
+/**
+ * Print preview: the book typeset by Typst, the same run as the PDF export (so the page breaks, fonts, bleed and crop marks are the real
+ * ones), drawn page by page with pdf.js. While Typst works, or when it cannot run (it is missing, or the book does not compile), the page
+ * shows an estimate drawn from the template instead, and says why.
+ */
 export function PrintPreview({ onBack, onExport }: Props) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
@@ -187,6 +63,10 @@ export function PrintPreview({ onBack, onExport }: Props) {
       ...(manifest?.trimSize ? { trimSize: manifest.trimSize } : {}),
     }),
   );
+  const bleedIn = bleedInches(bleed);
+  const typeset = usePrintPdf({ trimSize: trim, bleedIn, cropMarks });
+  const [pdfPages, setPdfPages] = useState(0);
+  const onPages = useCallback((n: number) => setPdfPages(n), []);
   useEffect(() => {
     readPages().then(setPages, (e: unknown) => setError(errText(e)));
   }, [readPages]);
@@ -199,6 +79,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
   if (!manifest) return null;
   const size = TRIM_SIZES[trim];
   const margins = template.print.defaults.marginsIn;
+  const box = pageBox(size, margins, true, { bleedIn, cropMarks });
   const scale = PAGE_PX / size.w; // px per inch
   const heightPx = PAGE_PX * (size.h / size.w);
   const estimate = bookPageCount({ template: template.id, trimSize: trim }, chapterWords).pages;
@@ -211,12 +92,15 @@ export function PrintPreview({ onBack, onExport }: Props) {
     template,
     margins,
     scale,
+    widthPx: PAGE_PX,
     heightPx,
     showMargins,
     cropMarks,
     bodyFont,
-    bleedPx: bleedInches(bleed) * scale,
+    bleedPx: bleedIn * scale,
   };
+  const hasCover = activeEdition.cover != null;
+  const real = typeset.pdf !== null;
 
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
@@ -239,39 +123,72 @@ export function PrintPreview({ onBack, onExport }: Props) {
           {error}
         </Notice>
       )}
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <aside className="hidden w-35 shrink-0 flex-col items-center gap-3 overflow-y-auto bg-sidebar p-4 md:flex">
-          {root && activeEdition.cover && (
-            <CoverThumb root={root} cover={activeEdition.cover ?? ""} />
-          )}
-          {(pages ?? []).slice(0, 6).map((p, i) => (
-            <div key={p.id} className="flex flex-col items-center gap-1.5" aria-hidden>
-              <div className="flex h-28 w-21 flex-col gap-1.5 rounded-sm border border-border bg-paper p-3">
-                <span className="h-1.5 w-8 rounded-full bg-ink-muted" />
-                {Array.from({ length: 5 }, (_, n) => (
-                  <span key={n} className="h-px w-full bg-border" />
-                ))}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
+        {!real && (
+          <aside className="hidden w-35 shrink-0 flex-col items-center gap-3 overflow-y-auto bg-sidebar p-4 md:flex">
+            {root && activeEdition.cover && (
+              <CoverThumb root={root} cover={activeEdition.cover ?? ""} />
+            )}
+            {(pages ?? []).slice(0, 6).map((p, i) => (
+              <div key={p.id} className="flex flex-col items-center gap-1.5" aria-hidden>
+                <div className="flex h-28 w-21 flex-col gap-1.5 rounded-sm border border-border bg-paper p-3">
+                  <span className="h-1.5 w-8 rounded-full bg-ink-muted" />
+                  {Array.from({ length: 5 }, (_, n) => (
+                    <span key={n} className="h-px w-full bg-border" />
+                  ))}
+                </div>
+                <span className="text-xs text-ink-muted">{i + 1}</span>
               </div>
-              <span className="text-xs text-ink-muted">{i + 1}</span>
+            ))}
+          </aside>
+        )}
+        <main className="flex min-h-96 min-w-0 shrink-0 flex-col bg-sidebar/40 lg:min-h-0 lg:flex-1 lg:shrink">
+          {typeset.loading && (
+            <div className="flex flex-col gap-2 border-b border-border bg-surface px-4 py-2">
+              <p role="status" className="text-sm text-ink-muted">
+                {t`Typesetting the preview with Typst…`}
+              </p>
+              <div className="h-1 overflow-hidden rounded-full bg-border" aria-hidden>
+                <div className="h-full w-1/3 animate-pulse rounded-full bg-accent motion-reduce:animate-none" />
+              </div>
             </div>
-          ))}
-        </aside>
-        <main className="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-auto p-6">
-          <div className="flex flex-wrap items-start justify-center gap-6">
-            <Page
-              {...pageProps}
-              side="left"
-              title={first?.title}
-              lines={blocks.slice(0, BLOCKS_PER_PAGE)}
+          )}
+          {typeset.error && !typeset.loading && (
+            <Notice role="alert" className="m-4 whitespace-pre-wrap wrap-break-word">
+              {t`Showing an approximate layout, because the real one could not be typeset:`}{" "}
+              {typeset.error}
+            </Notice>
+          )}
+          {typeset.pdf ? (
+            <TypstSpread
+              pdf={typeset.pdf}
+              box={box}
+              showMargins={showMargins}
+              hasCover={hasCover}
+              stale={typeset.loading}
+              onPages={onPages}
             />
-            <Page
-              {...pageProps}
-              side="right"
-              lines={blocks.slice(BLOCKS_PER_PAGE, BLOCKS_PER_PAGE * 2)}
-            />
-          </div>
+          ) : (
+            !typeset.loading && (
+              <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-6">
+                <div className="flex flex-wrap items-start justify-center gap-6">
+                  <ApproxPage
+                    {...pageProps}
+                    side="left"
+                    title={first?.title}
+                    lines={blocks.slice(0, BLOCKS_PER_PAGE)}
+                  />
+                  <ApproxPage
+                    {...pageProps}
+                    side="right"
+                    lines={blocks.slice(BLOCKS_PER_PAGE, BLOCKS_PER_PAGE * 2)}
+                  />
+                </div>
+              </div>
+            )
+          )}
         </main>
-        <aside className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t border-border bg-surface p-5 lg:w-75 lg:border-s lg:border-t-0">
+        <aside className="flex w-full shrink-0 flex-col gap-5 border-t border-border bg-surface p-5 lg:w-75 lg:overflow-y-auto lg:border-s lg:border-t-0">
           <h2 className="font-book text-lg font-semibold">{t`Page setup`}</h2>
           <Select
             label={t`Trim size`}
@@ -295,16 +212,22 @@ export function PrintPreview({ onBack, onExport }: Props) {
           </Select>
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold text-ink-muted">{t`Pages`}</span>
-            <span className="text-sm font-medium">
-              {estimate === 0
-                ? t`No text yet`
-                : plural(estimate, { one: "About # page", other: "About # pages" })}
+            <span className="text-sm font-medium" data-testid="page-count">
+              {real && pdfPages > 0
+                ? plural(pdfPages, { one: "# page in the PDF", other: "# pages in the PDF" })
+                : estimate === 0
+                  ? t`No text yet`
+                  : plural(estimate, { one: "About # page", other: "About # pages" })}
             </span>
           </div>
-          {activeEdition.cover && (
+          {hasCover && (
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-ink-muted">{t`Cover`}</span>
-              <span className="text-sm">{t`Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them.`}</span>
+              <span className="text-sm">
+                {real
+                  ? t`The cover is the first page, with a blank page behind it, unless you turn it off in the export dialog.`
+                  : t`Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them.`}
+              </span>
             </div>
           )}
           <div className="flex items-center justify-between gap-3 text-sm">

@@ -3,7 +3,7 @@ import { sectionOf } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { bookPages } from "../../lib/bookPages";
-import { reportBookPages, usableReport } from "../../lib/pageReport";
+import { reportBookPages, reportChapterPages, usableReport } from "../../lib/pageReport";
 import { usePageMeasure } from "../../state/pageMeasure";
 import { useMeasuredPages } from "../hooks/useMeasuredPages";
 import { usePageView } from "../hooks/usePageView";
@@ -59,10 +59,23 @@ export function PageEstimate({ words }: { words: number | null }) {
   return <>{` · ${pages} ${t`at ${size}`}`}</>;
 }
 
-/** " · Page 3 of ≈ 12": where the cursor is among the open chapter's pages while Page view is on (measured from the text, so approximate). */
+/**
+ * " · Page 3 of ≈ 12": where the cursor is among the open chapter's pages while Page view is on (measured from the text, so
+ * approximate). While Typst's report is current the chapter's page count is its own, so the total loses the "≈" (" · Page ≈ 3 of 12");
+ * the cursor's page is still the editor's layout.
+ */
 export function PagePosition() {
   const { t } = useLingui();
   const { count, current } = usePageCount();
+  const currentId = useProject((s) => s.currentId);
+  const exact = usePageMeasure((s) => {
+    const report = s.fresh ? usableReport(s.report) : null;
+    return report && currentId ? reportChapterPages(report, currentId) : null;
+  });
   if (count === 0) return null;
+  if (exact !== null) {
+    const shown = Math.min(current, exact);
+    return <span data-testid="page-position">{` · ${t`Page ≈ ${shown} of ${exact}`}`}</span>;
+  }
   return <span data-testid="page-position">{` · ${t`Page ${current} of ≈ ${count}`}`}</span>;
 }

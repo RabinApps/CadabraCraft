@@ -280,7 +280,7 @@ describe("exportMarkdown", () => {
 describe("measurePages", () => {
   const report = {
     total: 4,
-    starts: [{ id: "x", kind: "chapter", page: 1, number: "1" }],
+    starts: [{ id: "x", kind: "chapter", page: 1, end: 1, number: "1" }],
   };
   beforeEach(() => {
     typst.queries = [];

@@ -365,6 +365,18 @@ export interface ExportActions {
    * included), without producing a PDF or taking the export lock. The last result is reused while the content is unchanged.
    */
   measurePages: () => Promise<PageReport>;
+  /**
+   * Typesets the book as it is now (the open page's draft included, the cover first when there is one) into a PDF that is kept in
+   * memory only, for the print preview. `trimSize` overrides the book's size for this run. The last few results are reused while
+   * the content and options are unchanged. Throws `PdfUiError`.
+   */
+  renderPreview: (options: PreviewOptions) => Promise<Uint8Array>;
+}
+
+export interface PreviewOptions {
+  trimSize?: TrimSize;
+  bleedIn?: number;
+  cropMarks?: boolean;
 }
 
 export interface AudioActions {

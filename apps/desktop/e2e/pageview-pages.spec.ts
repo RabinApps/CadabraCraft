@@ -507,7 +507,7 @@ test("with Page view on, Typst's page report replaces the estimate in the status
   await page.evaluate(() => {
     window.__typstQueryResult = JSON.stringify({
       total: 40,
-      starts: [{ id: "chapter-1", kind: "chapter", page: 1, number: "1" }],
+      starts: [{ id: "chapter-1", kind: "chapter", page: 1, end: 1, number: "1" }],
     });
   });
   await page.locator(".ProseMirror").click();
@@ -547,11 +547,13 @@ test("the chapter's first page takes the number Typst printed for it", async ({ 
   await page.evaluate((chapterId) => {
     window.__typstQueryResult = JSON.stringify({
       total: 12,
-      starts: [{ id: chapterId, kind: "chapter", page: 9, number: "5" }],
+      starts: [{ id: chapterId, kind: "chapter", page: 9, end: 9, number: "5" }],
     });
   }, id);
   await page.locator(".ProseMirror").click();
   await page.keyboard.press("ControlOrMeta+End");
   await page.keyboard.insertText(" More words.");
   await expect(page.locator(".page .page-number").first()).toHaveText("5", { timeout: 10_000 });
+  // The chapter's own length is Typst's too: no "≈" on the total (the cursor's page is still the editor's).
+  await expect(page.getByTestId("page-position")).toHaveText(/Page ≈ 1 of 1$/);
 });

@@ -301,6 +301,10 @@ msgstr "{name} is already in this book. Using the existing file."
 msgid "{page} / {pages}"
 msgstr "{page} / {pages}"
 
+#: src/app/export/PrintPreview.tsx
+msgid "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
+msgstr "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
+
 #: src/app/shell/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} of {sessionGoal} words this session"
@@ -1058,6 +1062,10 @@ msgstr "Could not save the reference: {0}"
 msgid "Could not save: {0}"
 msgstr "Could not save: {0}"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Could not show the preview: {error}"
+msgstr "Could not show the preview: {error}"
+
 #: src/app/references/PdfPreview.tsx
 msgid "Could not show this PDF: {error}"
 msgstr "Could not show this PDF: {error}"
@@ -1067,6 +1075,7 @@ msgid "Could not undo: {why}"
 msgstr "Could not undo: {why}"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/export/ApproxSpread.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/shell/Details.tsx
 msgid "Cover"
@@ -2185,6 +2194,10 @@ msgstr "Next Page"
 msgid "Next page: {0}"
 msgstr "Next page: {0}"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Next pages"
+msgstr "Next pages"
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
 msgstr "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
@@ -2426,9 +2439,18 @@ msgstr "Packing the audiobook…"
 msgid "Page {current} of ≈ {count}"
 msgstr "Page {current} of ≈ {count}"
 
+#: src/app/export/TypstSpread.tsx
+msgid "Page {first} of {total}"
+msgstr "Page {first} of {total}"
+
+#: src/app/export/TypstSpread.tsx
 #: src/editor/ReadingFooter.tsx
 msgid "Page {page}"
 msgstr "Page {page}"
+
+#: src/app/shell/PageEstimate.tsx
+msgid "Page ≈ {shown} of {exact}"
+msgstr "Page ≈ {shown} of {exact}"
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
@@ -2469,6 +2491,10 @@ msgstr "Page zoom"
 #: src/app/export/PrintPreview.tsx
 msgid "Pages"
 msgstr "Pages"
+
+#: src/app/export/TypstSpread.tsx
+msgid "Pages {first} and {last} of {total}"
+msgstr "Pages {first} and {last} of {total}"
 
 #: src/app/shell/TrashDialog.tsx
 msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
@@ -2564,6 +2590,10 @@ msgstr "Previous Page"
 #: src/editor/ReadingFooter.tsx
 msgid "Previous page: {0}"
 msgstr "Previous page: {0}"
+
+#: src/app/export/TypstSpread.tsx
+msgid "Previous pages"
+msgstr "Previous pages"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Print checks"
@@ -3039,6 +3069,10 @@ msgstr "Show chapters"
 msgid "Show margins"
 msgstr "Show margins"
 
+#: src/app/export/PrintPreview.tsx
+msgid "Showing an approximate layout, because the real one could not be typeset:"
+msgstr "Showing an approximate layout, because the real one could not be typeset:"
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr "SIL Open Font Licence 1.1"
@@ -3112,6 +3146,10 @@ msgstr "Sponsor"
 #: src/app/shell/menuModel.ts
 msgid "Sponsor CadabraCraft…"
 msgstr "Sponsor CadabraCraft…"
+
+#: src/app/export/TypstSpread.tsx
+msgid "Spread controls"
+msgstr "Spread controls"
 
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
@@ -3287,6 +3325,10 @@ msgstr "The cover image {cover} could not be read. Choose it again in Book detai
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "The cover image could not be read."
 msgstr "The cover image could not be read."
+
+#: src/app/export/PrintPreview.tsx
+msgid "The cover is the first page, with a blank page behind it, unless you turn it off in the export dialog."
+msgstr "The cover is the first page, with a blank page behind it, unless you turn it off in the export dialog."
 
 #. placeholder {0}: e.detail
 #: src/lib/audioErrors.ts
@@ -3582,6 +3624,10 @@ msgstr "Type a command"
 #: src/app/export/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"
 msgstr "Typesetting the book with Typst…"
+
+#: src/app/export/PrintPreview.tsx
+msgid "Typesetting the preview with Typst…"
+msgstr "Typesetting the preview with Typst…"
 
 #: src/app/settings/Settings.tsx
 msgid "Typewriter scrolling"

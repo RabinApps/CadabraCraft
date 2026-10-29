@@ -356,7 +356,9 @@ async function typeParagraphs(page: Page) {
   await page.keyboard.type("Second paragraph of the chapter.");
 }
 
-test("print preview: margins, crop marks, bleed, trim size and the way into the export dialog", async ({
+const typstRuns = (page: Page) => page.evaluate(() => (window.__typstCalls ?? []).length);
+
+test("print preview: the typeset pages, margins, crop marks, bleed, trim size and the way into the export dialog", async ({
   page,
 }) => {
   await newProject(page);
@@ -376,16 +378,44 @@ test("print preview: margins, crop marks, bleed, trim size and the way into the 
   const dialog = await openExport(page, "Print PDF");
   await dialog.getByRole("button", { name: "Print preview" }).click();
   await expect(page.getByRole("heading", { name: "Print preview" })).toBeVisible();
-  await expect(page.getByRole("img", { name: "Cover" })).toBeVisible();
-  await expect(page.getByText("First paragraph of the chapter.")).toBeVisible();
+  // Typst's pages replace the estimate: the cover is page 1 on its own, then facing pages.
+  await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
+  await expect(page.getByTestId("spread-label")).toHaveText("Page 1 of 6");
+  await expect(page.getByTestId("page-count")).toHaveText("6 pages in the PDF");
+  expect(await typstRuns(page)).toBe(1);
+  const source = await page.evaluate(() => window.__typstCalls[0]!.source);
+  expect(source).toContain("#page(margin: 0pt, header: none, footer: none)"); // the cover
+  await page.getByRole("button", { name: "Next pages" }).click();
+  await expect(page.getByTestId("spread-label")).toHaveText("Pages 2 and 3 of 6");
+  await expect(page.getByRole("img", { name: "Page 3", exact: true })).toBeVisible();
 
+  // Margins are outlined on book pages, not on the cover or the blank page behind it.
+  const outlines = page.getByTestId("margin-outline");
+  await expect(outlines).toHaveCount(1);
   await page.getByRole("switch", { name: "Show margins" }).click();
+  await expect(outlines).toHaveCount(0);
   await page.getByRole("switch", { name: "Show margins" }).click();
+  await expect(outlines).toHaveCount(1);
+
+  // Crop marks turn the bleed on and typeset again; going back to what was shown is served from the cache.
   await page.getByRole("switch", { name: "Crop marks" }).click();
-  await page.getByLabel("Bleed").selectOption("kdp");
+  await expect(page.getByLabel("Bleed")).toHaveValue("kdp");
+  await expect.poll(() => typstRuns(page)).toBe(2);
+  expect(await page.evaluate(() => window.__typstCalls[1]!.source)).toContain("foreground:");
   await page.getByLabel("Trim size").selectOption("5x8");
-  await page.getByRole("switch", { name: "Crop marks" }).click();
-  await page.getByLabel("Bleed").selectOption("none");
+  await expect.poll(() => typstRuns(page)).toBe(3);
+  expect(await page.evaluate(() => window.__typstCalls[2]!.source)).toMatch(
+    /#set page\(width: 5\.75in, height: 8\.75in/,
+  );
+  await page.getByLabel("Trim size").selectOption("5.5x8.5"); // seen with marks: from the cache
+  await page.getByRole("switch", { name: "Crop marks" }).click(); // the bleed stays: a new run
+  await expect.poll(() => typstRuns(page)).toBe(4);
+  await page.getByLabel("Bleed").selectOption("none"); // the first one again: from the cache
+  await expect(page.getByTestId("page-count")).toHaveText("6 pages in the PDF");
+  await page.getByLabel("Bleed").selectOption("kdp");
+  await expect(page.getByRole("img", { name: "Page 3", exact: true })).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(await typstRuns(page)).toBe(4);
 
   await page.getByRole("button", { name: "Export EPUB" }).click();
   await expect(dialog.getByRole("radio", { name: "EPUB 3" })).toBeChecked();
@@ -403,7 +433,63 @@ test("print preview: margins, crop marks, bleed, trim size and the way into the 
   await page.getByRole("button", { name: "Use template" }).click();
   await page.getByRole("button", { name: "Export", exact: true }).click();
   await dialog.getByRole("button", { name: "Print preview" }).click();
+  // The fake machine has no Inter, so Typst refuses: the estimate is drawn and the reason is given.
+  await expect(page.getByRole("alert")).toContainText("Showing an approximate layout");
+  await expect(page.getByRole("alert")).toContainText("are on this computer");
   await expect(page.getByText("First paragraph of the chapter.")).toBeVisible();
+});
+
+test("print preview: while Typst works the page says so, and when it cannot run an estimate is drawn with the reason", async ({
+  page,
+}) => {
+  await newProject(page);
+  await typeParagraphs(page);
+  await page.evaluate(() => {
+    window.__compileError = { kind: "compile", message: "main.typ:4:2: error: boom" };
+  });
+  const dialog = await openExport(page, "Print PDF");
+  await dialog.getByRole("button", { name: "Print preview" }).click();
+  await expect(page.getByText("Typesetting the preview with Typst…")).toBeVisible();
+  await expect(page.getByRole("alert")).toContainText("Showing an approximate layout");
+  await expect(page.getByRole("alert")).toContainText("boom");
+  await expect(page.getByText("First paragraph of the chapter.")).toBeVisible();
+  await expect(page.getByTestId("page-count")).toHaveText(/About \d+ pages?/);
+  await expect(page.getByRole("button", { name: "Next pages" })).toHaveCount(0);
+  // Bleed and crop marks are still drawn on the estimate.
+  await page.getByRole("switch", { name: "Crop marks" }).click();
+  await page.getByLabel("Bleed").selectOption("none");
+  await page.getByRole("switch", { name: "Show margins" }).click();
+  await page.getByRole("switch", { name: "Show margins" }).click();
+  await page.getByLabel("Trim size").selectOption("5x8");
+
+  // Once Typst works again, a change of option shows the real pages.
+  await page.evaluate(() => {
+    delete window.__compileError;
+  });
+  await page.getByLabel("Trim size").selectOption("6x9");
+  await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("print preview: an odd page count leaves the last right-hand page empty, and the preview survives a shorter PDF", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.evaluate(() => {
+    window.__typstPages = 4;
+  });
+  const dialog = await openExport(page, "Print PDF");
+  await dialog.getByRole("button", { name: "Print preview" }).click();
+  await page.getByRole("button", { name: "Next pages" }).click();
+  await page.getByRole("button", { name: "Next pages" }).click();
+  await expect(page.getByTestId("spread-label")).toHaveText("Page 4 of 4");
+  await expect(page.getByRole("button", { name: "Next pages" })).toBeDisabled();
+  await page.evaluate(() => {
+    window.__typstPages = 2;
+  });
+  await page.getByLabel("Trim size").selectOption("7x10");
+  await expect(page.getByTestId("page-count")).toHaveText("2 pages in the PDF");
+  await expect(page.getByTestId("spread-label")).toHaveText("Page 2 of 2");
 });
 
 test("print preview: a cover that is replaced before it is read, a missing cover and unreadable chapters", async ({
@@ -450,7 +536,7 @@ test("print preview: a cover that is replaced before it is read, a missing cover
     delete window.__disk[f];
   }, file);
   await toPreview();
-  await expect(page.getByRole("alert")).toContainText("Missing chapter file");
+  await expect(page.getByRole("alert").first()).toContainText("Missing chapter file");
 });
 
 test("templates page: the book's own look, a failed save and a template that is not Nonfiction", async ({

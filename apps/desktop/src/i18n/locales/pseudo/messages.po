@@ -300,6 +300,10 @@ msgstr ""
 msgid "{page} / {pages}"
 msgstr ""
 
+#: src/app/export/PrintPreview.tsx
+msgid "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
+msgstr ""
+
 #: src/app/shell/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr ""
@@ -1057,6 +1061,10 @@ msgstr ""
 msgid "Could not save: {0}"
 msgstr ""
 
+#: src/app/export/TypstSpread.tsx
+msgid "Could not show the preview: {error}"
+msgstr ""
+
 #: src/app/references/PdfPreview.tsx
 msgid "Could not show this PDF: {error}"
 msgstr ""
@@ -1066,6 +1074,7 @@ msgid "Could not undo: {why}"
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/export/ApproxSpread.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/shell/Details.tsx
 msgid "Cover"
@@ -2184,6 +2193,10 @@ msgstr ""
 msgid "Next page: {0}"
 msgstr ""
 
+#: src/app/export/TypstSpread.tsx
+msgid "Next pages"
+msgstr ""
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
 msgstr ""
@@ -2425,8 +2438,17 @@ msgstr ""
 msgid "Page {current} of ≈ {count}"
 msgstr ""
 
+#: src/app/export/TypstSpread.tsx
+msgid "Page {first} of {total}"
+msgstr ""
+
+#: src/app/export/TypstSpread.tsx
 #: src/editor/ReadingFooter.tsx
 msgid "Page {page}"
+msgstr ""
+
+#: src/app/shell/PageEstimate.tsx
+msgid "Page ≈ {shown} of {exact}"
 msgstr ""
 
 #: src/editor/PageFrame.tsx
@@ -2467,6 +2489,10 @@ msgstr ""
 
 #: src/app/export/PrintPreview.tsx
 msgid "Pages"
+msgstr ""
+
+#: src/app/export/TypstSpread.tsx
+msgid "Pages {first} and {last} of {total}"
 msgstr ""
 
 #: src/app/shell/TrashDialog.tsx
@@ -2562,6 +2588,10 @@ msgstr ""
 #. placeholder {0}: prev.title
 #: src/editor/ReadingFooter.tsx
 msgid "Previous page: {0}"
+msgstr ""
+
+#: src/app/export/TypstSpread.tsx
+msgid "Previous pages"
 msgstr ""
 
 #: src/app/export/PdfPanel.tsx
@@ -3038,6 +3068,10 @@ msgstr ""
 msgid "Show margins"
 msgstr ""
 
+#: src/app/export/PrintPreview.tsx
+msgid "Showing an approximate layout, because the real one could not be typeset:"
+msgstr ""
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr ""
@@ -3110,6 +3144,10 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Sponsor CadabraCraft…"
+msgstr ""
+
+#: src/app/export/TypstSpread.tsx
+msgid "Spread controls"
 msgstr ""
 
 #: src/app/home/Dashboard.tsx
@@ -3285,6 +3323,10 @@ msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "The cover image could not be read."
+msgstr ""
+
+#: src/app/export/PrintPreview.tsx
+msgid "The cover is the first page, with a blank page behind it, unless you turn it off in the export dialog."
 msgstr ""
 
 #. placeholder {0}: e.detail
@@ -3579,6 +3621,10 @@ msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"
+msgstr ""
+
+#: src/app/export/PrintPreview.tsx
+msgid "Typesetting the preview with Typst…"
 msgstr ""
 
 #: src/app/settings/Settings.tsx

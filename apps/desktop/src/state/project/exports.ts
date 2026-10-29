@@ -1,4 +1,4 @@
-import { sourceEdition, sourceFileById } from "@cadabracraft/format";
+import { sourceFileById } from "@cadabracraft/format";
 import { plural, t } from "@lingui/core/macro";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { buildDocx } from "@cadabracraft/export-docx";
@@ -15,7 +15,6 @@ import {
   getTemplate,
   hasTemplate,
   resolveBookFonts,
-  resolveTrimSize,
 } from "@cadabracraft/templates";
 import { bridge } from "../../lib/bridge";
 import { describePdfError } from "../../lib/pdfErrors";
@@ -23,6 +22,8 @@ import { describeEpubError } from "../../lib/epubErrors";
 import { createTauriRunner } from "../../lib/typstRunner";
 import type { ExportActions, ExportScope } from "./types";
 import type { Ctx } from "./context";
+import { createPreviewActions } from "./preview";
+import { createTypstBook } from "./typstBook";
 
 /** The one-shot exports: EPUB, Markdown, Word, Rich Text and the print PDF. */
 export const createExportActions = (ctx: Ctx): ExportActions => {
@@ -69,27 +70,18 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
       set({ exportStage: null });
     }
   };
+  const gather = createTypstBook(ctx);
   return {
+    ...createPreviewActions(ctx, gather),
     async measurePages() {
       try {
-        const { manifest } = need();
-        const currentId = get().currentId;
-        const templateId = hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID;
-        const { edition, pages } = await loadExportPages();
         // The open page's text is in the draft until it is saved, so measure that instead of the file.
-        const open = get().draft ?? get().currentDoc;
-        const source = sourceEdition(manifest.editions).language;
-        const chapters =
-          open && currentId && (get().activeLanguage ?? source) === source
-            ? pages.map((p) => (p.id === currentId ? { ...p, doc: open } : p))
-            : pages;
-        const trimSize = resolveTrimSize(manifest);
-        const fonts = resolveBookFonts(manifest);
+        const { templateId, edition, chapters, trimSize, fonts, assets: load } = await gather();
         const key = contentHash(
           JSON.stringify([templateId, trimSize, fonts, edition.title, chapters]),
         );
         if (lastMeasure?.key === key) return lastMeasure.report;
-        const assets = await loadAssets(chapters);
+        const assets = await load();
         const report = await measurePages(
           { title: edition.title, author: edition.author, language: edition.language },
           chapters,

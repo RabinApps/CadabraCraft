@@ -135,6 +135,8 @@ declare global {
     __importError?: string;
     __typstError?: FakeError;
     __compileError?: FakeError;
+    /** Pages in the PDF `typst_compile` answers with (default 6). */
+    __typstPages?: number;
     /** The call lists are created by the first call, so they are declared present. */
     __typstCalls: TypstCall[];
     /** What `typst_query` answers (JSON text, default `{"total":0,"starts":[]}`) and the requests it received. */

@@ -192,12 +192,14 @@ A fixed signal light.
   let arabic = query(<numbering-arabic>).map(m => m.location().page())
   let first-arabic = if arabic.len() > 0 { arabic.first() } else { total + 1 }
   let hidden = no-folio-pages()
-  let starts = query(<chapter-start>).map(m => {
+  let ends = query(<chapter-end>).map(m => m.location().page())
+  let starts = query(<chapter-start>).enumerate().map(((i, m)) => {
     let loc = m.location()
     let pg = loc.page()
+    let last = if i < ends.len() { calc.max(pg, ends.at(i)) } else { pg }
     let fmt = if false and pg < first-arabic { "i" } else { "1" }
     let number = if true and not (pg in hidden) { numbering(fmt, ..counter(page).at(loc)) } else { "" }
-    (id: m.value.id, kind: m.value.kind, page: pg, number: number)
+    (id: m.value.id, kind: m.value.kind, page: pg, end: last, number: number)
   })
   [#metadata((total: total, starts: starts))<page-report>]
 }

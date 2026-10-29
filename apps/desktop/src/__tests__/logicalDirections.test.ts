@@ -16,9 +16,13 @@ const ALLOWED: Record<string, { max: number; why: string }> = {
     max: 2,
     why: "Page view margins are measured from the physical left of a left/right page",
   },
-  "app/export/PrintPreview.tsx": {
-    max: 9,
-    why: "Print preview spreads: left page and right page are physical",
+  "app/export/ApproxSpread.tsx": {
+    max: 6,
+    why: "Print preview estimate: the left and right margins of a left or right page are physical",
+  },
+  "app/export/TypstSpread.tsx": {
+    max: 8,
+    why: "Print preview spreads: the margin outline of a left or right page is physical (the spread is laid out left to right)",
   },
   "ui/Dialog.tsx": { max: 1, why: "Centring (left-1/2 with -translate-x-1/2) is symmetric" },
   "app/references/ReferenceViewer.tsx": {

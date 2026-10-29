@@ -264,16 +264,27 @@ export async function fakeTauri(page: Page) {
           case "fonts_data":
             (window.__fontDataCalls ??= []).push(`${a.fontId}/${a.file}`);
             return []; // not a font: the editor falls back to its default stack
-          case "typst_compile":
-            {
-              // The body is one binary frame: u32 LE header length, header JSON (source, pdfA, files), file bytes.
-              const n = new DataView(a.buffer, a.byteOffset).getUint32(0, true);
-              (window.__typstCalls ??= []).push(
-                JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n))),
-              );
-            }
+          case "typst_compile": {
+            // The body is one binary frame: u32 LE header length, header JSON (source, pdfA, files), file bytes.
+            const n = new DataView(a.buffer, a.byteOffset).getUint32(0, true);
+            const call = JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n)));
+            (window.__typstCalls ??= []).push(call);
             if (window.__compileError) throw window.__compileError;
-            return new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]).buffer;
+            // A small real PDF (pdf.js draws it in the print preview): `__typstPages` blank pages (default 6) as large as the
+            // `#set page(width: .., height: ..)` of the source, in inches.
+            const m = /#set page\(width: ([\d.]+)in, height: ([\d.]+)in/.exec(call.source);
+            const w = Math.round(Number(m?.[1] ?? 6) * 72);
+            const hgt = Math.round(Number(m?.[2] ?? 9) * 72);
+            const count = window.__typstPages ?? 6;
+            const kids = Array.from({ length: count }, (_, i) => `${3 + i} 0 R`).join(" ");
+            const leaves = Array.from(
+              { length: count },
+              (_, i) =>
+                `${3 + i} 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 ${w} ${hgt}]>>endobj\n`,
+            ).join("");
+            const pdf = `%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[${kids}]/Count ${count}>>endobj\n${leaves}trailer<</Root 1 0 R/Size ${3 + count}>>\n%%EOF`;
+            return new TextEncoder().encode(pdf).buffer;
+          }
           case "typst_query":
             {
               // Same frame as typst_compile, with `selector` in the header instead of `pdfA`.

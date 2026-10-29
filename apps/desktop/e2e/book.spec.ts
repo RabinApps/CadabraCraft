@@ -123,8 +123,8 @@ test("print preview shows the cover, and the PDF dialog offers to include it onl
   await expect(exportDialog.getByLabel("Include the cover")).toBeChecked();
   await exportDialog.getByRole("button", { name: "Print preview" }).click();
   await expect(page.getByRole("heading", { name: "Print preview" })).toBeVisible();
-  await expect(page.getByRole("img", { name: "Cover", exact: true })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
   await expect(
-    page.getByText("Added as the first page, with a blank page behind it"),
+    page.getByText("The cover is the first page, with a blank page behind it"),
   ).toBeVisible();
 });

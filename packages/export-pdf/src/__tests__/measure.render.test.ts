@@ -55,6 +55,13 @@ suite("measurePages with real Typst", () => {
       expect(first.page % 2).toBe(1);
       for (const s of r.starts.filter((x) => x.page >= first.page))
         expect(s.number).toBe(String(s.page - first.page + 1));
+      // Each entry ends on or after its start and before the next one starts (a blank verso is in no entry).
+      r.starts.forEach((s, i) => {
+        expect(s.end).toBeGreaterThanOrEqual(s.page);
+        const next = r.starts[i + 1];
+        if (next) expect(s.end).toBeLessThan(next.page);
+      });
+      expect(r.starts.at(-1)!.end).toBeLessThanOrEqual(r.total);
       expect(r.total).toBeGreaterThanOrEqual(pages.at(-1)!);
       if (hasPdfinfo) {
         const { pdf } = await renderPdf(book, all, options, runner);

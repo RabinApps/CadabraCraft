@@ -42,21 +42,49 @@ export function pageGeometry(
   mirrored: boolean,
   options: PdfOptions,
 ): PageGeometry {
-  const { bleed, marks } = bleedOf(options);
-  const slug = marks ? CROP_SLUG_IN : 0;
-  const outer = bleed + slug;
-  const inner = marks || !mirrored ? outer : 0;
-  const m = (n: number): string => inch(n);
+  const box = pageBox(trim, margins, mirrored, options);
+  const m = box.margins;
   const margin = mirrored
-    ? `(top: ${m(margins.top + outer)}, bottom: ${m(margins.bottom + outer)}, inside: ${m(margins.inside + inner)}, outside: ${m(margins.outside + outer)})`
-    : `(top: ${m(margins.top + outer)}, bottom: ${m(margins.bottom + outer)}, left: ${m(margins.inside + inner)}, right: ${m(margins.outside + outer)})`;
-  const width = trim.w + inner + outer;
-  const height = trim.h + 2 * outer;
+    ? `(top: ${inch(m.top)}, bottom: ${inch(m.bottom)}, inside: ${inch(m.inside)}, outside: ${inch(m.outside)})`
+    : `(top: ${inch(m.top)}, bottom: ${inch(m.bottom)}, left: ${inch(m.inside)}, right: ${inch(m.outside)})`;
   return {
-    width,
-    height,
+    width: box.width,
+    height: box.height,
     margin,
-    foreground: marks ? cropMarks(width, height, outer, slug) : null,
+    foreground: box.marks ? cropMarks(box.width, box.height, box.edge, CROP_SLUG_IN) : null,
+  };
+}
+
+/** The numbers behind `pageGeometry`, in inches: the page size, the margins as Typst gets them (trim margins plus bleed and slug) and the distance from the page edge to the trim edge. */
+export interface PageBox {
+  width: number;
+  height: number;
+  margins: PdfMargins;
+  /** Bleed plus slug on the top, bottom and outside edges. */
+  edge: number;
+  marks: boolean;
+}
+
+export function pageBox(
+  trim: { w: number; h: number },
+  margins: PdfMargins,
+  mirrored: boolean,
+  options: PdfOptions,
+): PageBox {
+  const { bleed, marks } = bleedOf(options);
+  const outer = bleed + (marks ? CROP_SLUG_IN : 0);
+  const inner = marks || !mirrored ? outer : 0;
+  return {
+    width: trim.w + inner + outer,
+    height: trim.h + 2 * outer,
+    margins: {
+      top: margins.top + outer,
+      bottom: margins.bottom + outer,
+      inside: margins.inside + inner,
+      outside: margins.outside + outer,
+    },
+    edge: outer,
+    marks,
   };
 }
 

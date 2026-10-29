@@ -106,6 +106,31 @@ const SCREENS: Record<string, Open> = {
   },
   "export EPUB": exportFormat("EPUB 3"),
   "export PDF": exportFormat("Print PDF"),
+  "export PDF with bleed": async (page) => {
+    await exportFormat("Print PDF")(page);
+    await page.getByRole("dialog", { name: "Export book" }).getByLabel("Crop marks").check();
+  },
+  "print preview": async (page) => {
+    await exportFormat("Print PDF")(page);
+    await page
+      .getByRole("dialog", { name: "Export book" })
+      .getByRole("button", { name: "Print preview" })
+      .click();
+    await expect(page.getByRole("img", { name: "Page 1", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Next pages" }).click();
+    await expect(page.getByRole("img", { name: "Page 3", exact: true })).toBeVisible();
+  },
+  "print preview estimate": async (page) => {
+    await exportFormat("Print PDF")(page);
+    await page.evaluate(() => {
+      window.__compileError = { kind: "compile", message: "boom" };
+    });
+    await page
+      .getByRole("dialog", { name: "Export book" })
+      .getByRole("button", { name: "Print preview" })
+      .click();
+    await expect(page.getByRole("alert")).toContainText("approximate layout");
+  },
   "export audiobook": exportFormat("Audiobook"),
   "export audiobook, two editions": async (page) => {
     await frenchWithOneChapter(page);

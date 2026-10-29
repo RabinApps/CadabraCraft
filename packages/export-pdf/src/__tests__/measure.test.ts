@@ -12,7 +12,7 @@ const chapter = (id: string, content: object[]): PdfChapter => ({
   doc: { type: "doc", content } as PdfChapter["doc"],
 });
 const text = chapter("c1", [{ type: "paragraph", content: [{ type: "text", text: "hi" }] }]);
-const report = { total: 3, starts: [{ id: "c1", kind: "chapter", page: 1, number: "1" }] };
+const report = { total: 3, starts: [{ id: "c1", kind: "chapter", page: 1, end: 1, number: "1" }] };
 
 function fake(over: Partial<TypstRunner> = {}) {
   const queries: { source: string; files: Map<string, Uint8Array>; selector: string }[] = [];
@@ -89,11 +89,16 @@ describe("parsePageReport", () => {
     ["start not an object", '{"total":1,"starts":[1]}'],
     [
       "start with a numeric number",
-      '{"total":1,"starts":[{"id":"a","kind":"k","page":1,"number":1}]}',
+      '{"total":1,"starts":[{"id":"a","kind":"k","page":1,"end":1,"number":1}]}',
+    ],
+    ["start without an end", '{"total":1,"starts":[{"id":"a","kind":"k","page":1,"number":""}]}'],
+    [
+      "start that ends before it begins",
+      '{"total":3,"starts":[{"id":"a","kind":"k","page":2,"end":1,"number":""}]}',
     ],
     [
       "start with a bad page",
-      '{"total":1,"starts":[{"id":"a","kind":"k","page":"1","number":""}]}',
+      '{"total":1,"starts":[{"id":"a","kind":"k","page":"1","end":1,"number":""}]}',
     ],
   ])("rejects %s", (_name, json) => {
     expect(() => parsePageReport(json)).toThrow(PdfExportError);

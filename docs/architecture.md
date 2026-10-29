@@ -171,7 +171,7 @@ Screens follow `docs/design.md` (Settings, Templates, Export, Print preview). De
 - **Preferences stay in `localStorage`.** Manuscript font, writing width and typewriter scrolling live in `app/editorPrefs.ts` (`cadabracraft.settings`), next to the existing theme, locale, reading and layout keys. They are app preferences, never in project files. Rejected: a Tauri store plugin (a new dependency for four values).
 - **EPUB checks are structural only.** The Export dialog lists chapters with no title and an empty book. EPUBCheck (Java) is not run in the app; `/validate-epub` and CI still do that. The design's "EPUBCheck passed" line is labelled "No problems found" for this reason. The manifest gained a cover field in M3 (see "Book cover"), but the checks still do not flag a missing cover.
 - **Export progress has no percentage.** `buildEpub` is synchronous, so the dialog shows the stage text and an indeterminate track. Rejected: a fake percentage.
-- **Print preview is an approximation, not a render.** It draws trim-sized pages with the template's margins, face and size and a rough text flow (`app/PrintPreview.tsx`). The page count is an estimate from word count (`lib/printEstimate.ts`). Rejected: rendering the Typst output into the preview (needs PDF rasterisation, so a new dependency such as pdf.js, which needs approval first). Bleed and crop marks were shown in the preview only at first; the PDF has them since 2026-10-29 (see "Bleed and crop marks in the print PDF").
+- **Print preview was an approximation, not a render (superseded 2026-10-29, see "Typst-rendered print preview").** It draws trim-sized pages with the template's margins, face and size and a rough text flow (`app/PrintPreview.tsx`). The page count is an estimate from word count (`lib/printEstimate.ts`). Rejected: rendering the Typst output into the preview (needs PDF rasterisation, so a new dependency such as pdf.js, which needs approval first). Bleed and crop marks were shown in the preview only at first; the PDF has them since 2026-10-29 (see "Bleed and crop marks in the print PDF").
 - **Templates use the design's names; ids do not change.** `novel` is shown as "Classic Novel" and `modern` as "Modern Memoir", so existing `cadabra.json` files keep working. `poetry` is new. `nonfiction` stays registered and appears in the gallery only for books that already use it. Drop cap and ornament have no template data and are not shown.
 - **One Export dialog.** "Export book" offers EPUB 3 and Print PDF. The editor header has a single "Export" button; phones put Save, Export and Settings in an overflow menu.
 - **Theme has one preference.** Settings (Appearance) and the reading popover's Theme control share `app/theme.ts`. Locale stays in `i18n`; the language select moved from the header to Settings.
@@ -1013,6 +1013,21 @@ Desktop layers import downward only: `app/` (screens, dialogs, shell, hooks) use
 - **Reusing the export lock:** a background measure must not make Export fail with "already running".
 
 **Limits:** the total counts from the first page numbered 1 to the last page, back matter included (the estimate counted chapters only); a measure of a very large book takes seconds, and the numbers lag the text by that long.
+
+## Typst-rendered print preview (2026-10-29)
+
+**Decision:** the print preview shows the real PDF. `renderPreview` (`state/project/preview.ts`) runs the same Typst job as the export (`renderPdf`, same fonts, cover, bleed and crop marks) on the book as it is now (`state/project/typstBook.ts`: the open page's draft stands in for its saved file, shared with `measurePages`), keeps the bytes in memory only (an LRU of 3, keyed by a hash of template, trim size, fonts, bleed, marks, cover and content) and never writes to the book or takes the export lock. `usePrintPdf` asks after 250 ms of unchanged choices. `TypstSpread` opens the bytes with pdf.js (already a dependency for the reference viewer; loaded when the first preview opens, handed a copy of the buffer because pdf.js may take it over) and draws facing pages (page 1 alone on the right, then (2, 3), (4, 5)...) with Previous/Next; margins are outlined from `pageBox` (`packages/export-pdf/src/typst/bleed.ts`, the same numbers as the Typst page setup), not on the cover and its blank back. While Typst works the old pages stay, dimmed, with a progress line.
+
+**Fallback:** when Typst is missing or the book does not compile, `ApproxSpread` (the former estimate: template margins, face, word-count page count) is shown with a notice that gives the reason, so the preview never goes blank.
+
+**Exact length of a chapter.** The page report (`<page-report>`) now also carries `end`, the last page of each entry (its paired `<chapter-end>` mark). A chapter's page count is `end - page + 1` (`reportChapterPages`), so a blank verso before the chapter is not counted. While Page view is on and the report is current, the status bar's chapter total is Typst's (" · Page ≈ 3 of 12": the cursor's page is still the editor's layout, so it keeps the "≈"), and the book total was already Typst's.
+
+**Rejected:**
+
+- **Rasterising on the Rust side** (a PDF library crate): a new dependency where pdf.js is already shipped.
+- **Writing the preview PDF into the book folder** (stale files, and "never overwrite user files" needs a backup story for something that is not the author's).
+- **Typesetting on every edit**: a run is seconds; the preview is a screen the author opens, and results are cached by content.
+- **Exact page breaks inside the editor from this slice.** That needs a Typst mark at each block (and each line where a paragraph splits) mapped back to ProseMirror positions, with `paginate` taking forced breaks; breaks at block level only would be wrong wherever a paragraph straddles a page. Left open in the roadmap.
 
 ## Read mode: continuous and paged (2026-10-28)
 
