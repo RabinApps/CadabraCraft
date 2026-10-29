@@ -19,12 +19,14 @@ pub struct VoiceDef {
     pub speaker: Option<u32>,
     /// Pronunciation lexicon, relative to the voices folder (Piper voices share one).
     pub lexicon: &'static str,
+    /// Primary language subtags the voice reads (`en`). The audiobook dialog offers a voice only for an edition in one of them.
+    pub languages: &'static [&'static str],
 }
 
 pub const VOICES: &[VoiceDef] = &[
-    VoiceDef { id: "kokoro-heart", engine: Engine::Kokoro, dir: "kokoro-multi-lang-v1_0", model: "model.onnx", speaker: Some(3), lexicon: "kokoro-multi-lang-v1_0/lexicon-us-en.txt" },
-    VoiceDef { id: "piper-amy", engine: Engine::Piper, dir: "vits-piper-en_US-amy-low", model: "en_US-amy-low.onnx", speaker: None, lexicon: "lexicon-en-us.txt" },
-    VoiceDef { id: "piper-libritts-0", engine: Engine::Piper, dir: "vits-piper-en_US-libritts_r-medium", model: "en_US-libritts_r-medium.onnx", speaker: Some(0), lexicon: "lexicon-en-us.txt" },
+    VoiceDef { id: "kokoro-heart", engine: Engine::Kokoro, dir: "kokoro-multi-lang-v1_0", model: "model.onnx", speaker: Some(3), lexicon: "kokoro-multi-lang-v1_0/lexicon-us-en.txt", languages: &["en"] },
+    VoiceDef { id: "piper-amy", engine: Engine::Piper, dir: "vits-piper-en_US-amy-low", model: "en_US-amy-low.onnx", speaker: None, lexicon: "lexicon-en-us.txt", languages: &["en"] },
+    VoiceDef { id: "piper-libritts-0", engine: Engine::Piper, dir: "vits-piper-en_US-libritts_r-medium", model: "en_US-libritts_r-medium.onnx", speaker: Some(0), lexicon: "lexicon-en-us.txt", languages: &["en"] },
 ];
 
 impl VoiceDef {
@@ -47,16 +49,27 @@ pub struct VoiceInfo {
     pub id: &'static str,
     pub engine: Engine,
     pub installed: bool,
+    pub languages: &'static [&'static str],
 }
 
 pub fn list_voices(root: Option<&Path>) -> Vec<VoiceInfo> {
-    VOICES.iter().map(|v| VoiceInfo { id: v.id, engine: v.engine, installed: root.is_some_and(|r| v.installed(r)) }).collect()
+    VOICES.iter().map(|v| VoiceInfo { id: v.id, engine: v.engine, installed: root.is_some_and(|r| v.installed(r)), languages: v.languages }).collect()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
+
+    #[test]
+    fn every_voice_names_the_languages_it_reads() {
+        for v in list_voices(None) {
+            assert!(!v.languages.is_empty(), "{}", v.id);
+            assert!(v.languages.iter().all(|l| !l.is_empty() && !l.contains('-') && *l == l.to_lowercase()), "{}", v.id);
+        }
+        let json = serde_json::to_value(&list_voices(None)[0]).unwrap();
+        assert_eq!(json["languages"], serde_json::json!(["en"]));
+    }
 
     #[test]
     fn voices_are_installed_only_when_all_files_exist() {

@@ -18,6 +18,8 @@ export interface VoiceInfo {
   id: string;
   engine: "kokoro" | "piper";
   installed: boolean;
+  /** Primary language subtags the voice reads (`en`), so a book edition is only offered voices that speak it. */
+  languages: string[];
 }
 
 export interface AudioOptions {

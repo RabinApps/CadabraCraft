@@ -10,6 +10,7 @@ import {
   VoiceNotInstalledError,
 } from "@cadabracraft/export-audio";
 import {
+  audioDir,
   bookBase,
   chapterBase,
   chapterPart,
@@ -40,22 +41,37 @@ describe("mapAudioError", () => {
   });
 });
 
+describe("audioDir", () => {
+  it("is exports/<language>/audio, beside the edition's other exports", () => {
+    expect(audioDir("en")).toBe("exports/en/audio");
+    expect(audioDir("pt-BR")).toBe("exports/pt-BR/audio");
+    expect(() => audioDir("../x")).toThrow();
+  });
+});
+
 describe("chapterBase", () => {
+  const dir = "exports/fr/audio";
   it("numbers chapters and makes a safe ASCII slug", () => {
-    expect(chapterBase(0, "The Quay")).toBe("exports/audio/01-the-quay");
-    expect(chapterBase(11, "Café: ünder/the \\ sea?")).toBe("exports/audio/12-cafe-under-the-sea");
-    expect(chapterBase(2, "日本語")).toBe("exports/audio/03-chapter");
-    expect(chapterBase(0, "a".repeat(80))).toBe(`exports/audio/01-${"a".repeat(40)}`);
+    expect(chapterBase(dir, 0, "The Quay")).toBe("exports/fr/audio/01-the-quay");
+    expect(chapterBase(dir, 11, "Café: ünder/the \\ sea?")).toBe(
+      "exports/fr/audio/12-cafe-under-the-sea",
+    );
+    expect(chapterBase(dir, 2, "日本語")).toBe("exports/fr/audio/03-chapter");
+    expect(chapterBase(dir, 0, "a".repeat(80))).toBe(`exports/fr/audio/01-${"a".repeat(40)}`);
   });
 });
 
 describe("bookBase and chapterPart", () => {
   it("name the book file and the chapter part with characters the Rust side accepts", () => {
-    expect(bookBase("My Book: Part 1")).toBe("exports/audio/my-book-part-1");
-    expect(bookBase("???")).toBe("exports/audio/audiobook");
-    expect(chapterPart("ch-1")).toBe(".cadabra/audio/parts/ch-1.flac");
-    expect(chapterPart("a b/../c")).toBe(".cadabra/audio/parts/a_b_c.flac");
-    expect(chapterPart("???")).toBe(".cadabra/audio/parts/_.flac");
+    expect(bookBase("exports/en/audio", "My Book: Part 1")).toBe("exports/en/audio/my-book-part-1");
+    expect(bookBase("exports/en/audio", "???")).toBe("exports/en/audio/audiobook");
+    expect(chapterPart("en", "ch-1")).toBe(".cadabra/audio/parts/en_ch-1.flac");
+    expect(chapterPart("en", "a b/../c")).toBe(".cadabra/audio/parts/en_a_b_c.flac");
+    expect(chapterPart("en", "???")).toBe(".cadabra/audio/parts/en__.flac");
+  });
+  it("keeps the editions of one chapter apart", () => {
+    expect(chapterPart("fr", "c")).not.toBe(chapterPart("en", "c"));
+    expect(chapterPart("pt-BR", "c")).toBe(".cadabra/audio/parts/pt-BR_c.flac");
   });
 });
 
@@ -71,6 +87,7 @@ describe("createTauriAudioRunner", () => {
     formats: ["opus" as const],
   };
   const rendered = { files: [], durationSec: 1 };
+  const edition = { language: "en", dir: "exports/en/audio" };
 
   it("sends the chapter with its job, root and output path, and forwards progress", async () => {
     const audioRenderChapter = vi.fn(async (_r: unknown, onProgress: (f: number) => void) => {
@@ -81,13 +98,14 @@ describe("createTauriAudioRunner", () => {
       { audioVoices: async () => [], audioRenderChapter, audioCancel: async () => {} },
       "/book",
       "job1",
+      edition,
     );
     const seen: number[] = [];
     await runner.renderChapter(req, (f) => seen.push(f), new AbortController().signal);
     expect(audioRenderChapter.mock.calls[0]![0]).toEqual({
       jobId: "job1",
       root: "/book",
-      base: "exports/audio/02-two",
+      base: "exports/en/audio/02-two",
       chunks: req.chunks,
       voice: "piper-amy",
       speed: 1,
@@ -102,6 +120,7 @@ describe("createTauriAudioRunner", () => {
       { audioVoices: async () => [], audioRenderChapter, audioCancel: async () => {} },
       "/book",
       "job1",
+      edition,
     );
     const out = await runner.renderChapter(
       { ...req, formats: ["opus" as const, "m4b" as const] },
@@ -110,9 +129,9 @@ describe("createTauriAudioRunner", () => {
     );
     expect(audioRenderChapter.mock.calls[0]![0]).toMatchObject({
       formats: ["opus"],
-      part: ".cadabra/audio/parts/c.flac",
+      part: ".cadabra/audio/parts/en_c.flac",
     });
-    expect(out.part).toBe(".cadabra/audio/parts/c.flac");
+    expect(out.part).toBe(".cadabra/audio/parts/en_c.flac");
     await runner.renderChapter(req, () => {}, new AbortController().signal);
     expect(audioRenderChapter.mock.calls[1]![0]).not.toHaveProperty("part");
   });
@@ -133,6 +152,7 @@ describe("createTauriAudioRunner", () => {
       },
       "/book",
       "job2",
+      edition,
     );
     const ctl = new AbortController();
     const done = runner.renderChapter(req, () => {}, ctl.signal);
@@ -155,6 +175,7 @@ describe("createTauriAudioRunner", () => {
       },
       "/b",
       "j",
+      edition,
     );
     await runner.renderChapter(req, () => {}, ctl.signal);
     expect(audioCancel).toHaveBeenCalledWith("j");
@@ -171,6 +192,7 @@ describe("createTauriAudioRunner", () => {
       { audioVoices: async () => [], audioRenderChapter: async () => rendered, audioCancel },
       "/b",
       "j",
+      edition,
     );
     await expect(runner.renderChapter(req, () => {}, ctl.signal)).resolves.toBeDefined();
     await Promise.resolve();
@@ -180,7 +202,37 @@ describe("createTauriAudioRunner", () => {
 
 describe("chapterPart edge cases", () => {
   it("falls back to chapter for an empty id", () => {
-    expect(chapterPart("")).toBe(".cadabra/audio/parts/chapter.flac");
-    expect(chapterPart("a b/c")).toBe(".cadabra/audio/parts/a_b_c.flac");
+    expect(chapterPart("en", "")).toBe(".cadabra/audio/parts/en_chapter.flac");
+    expect(chapterPart("en", "a b/c")).toBe(".cadabra/audio/parts/en_a_b_c.flac");
+  });
+});
+
+describe("a second edition", () => {
+  it("writes under its own language folder with its own part", async () => {
+    const audioRenderChapter = vi.fn(async (_r: unknown) => ({ files: [], durationSec: 1 }));
+    const runner = createTauriAudioRunner(
+      { audioVoices: async () => [], audioRenderChapter, audioCancel: async () => {} },
+      "/book",
+      "job",
+      { language: "fr", dir: audioDir("fr") },
+    );
+    await runner.renderChapter(
+      {
+        chapterId: "c",
+        chapterIndex: 0,
+        title: "Un",
+        chunks: [],
+        hash: "h",
+        voice: "v",
+        speed: 1,
+        formats: ["m4b" as const],
+      },
+      () => {},
+      new AbortController().signal,
+    );
+    expect(audioRenderChapter.mock.calls[0]![0]).toMatchObject({
+      base: "exports/fr/audio/01-un",
+      part: ".cadabra/audio/parts/fr_c.flac",
+    });
   });
 });

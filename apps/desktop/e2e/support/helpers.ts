@@ -24,8 +24,8 @@ export async function chapterAction(page: Page, chapter: string, item: string) {
 
 export const noVoices = () => {
   window.__audioVoices = [
-    { id: "kokoro-heart", engine: "kokoro", installed: false },
-    { id: "piper-amy", engine: "piper", installed: false },
+    { id: "kokoro-heart", engine: "kokoro", installed: false, languages: ["en"] },
+    { id: "piper-amy", engine: "piper", installed: false, languages: ["en"] },
   ];
   window.__audioPacks = [
     { id: "piper", voices: ["piper-amy"], bytes: 147993194, installed: false },
@@ -115,4 +115,24 @@ export function chapterDoc(title: string, paragraphs: number, words = 40, seed =
       })),
     ],
   };
+}
+
+/** A book with two chapters and a French edition in which only the open chapter has been written. */
+export async function frenchWithOneChapter(page: Page) {
+  await newProject(page);
+  // Below the lg breakpoint the chapter list is a drawer.
+  const drawer = page.getByRole("button", { name: "Show chapters" });
+  if (await drawer.isVisible()) await drawer.click();
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  const close = page.getByRole("button", { name: "Close chapters" });
+  if (await close.isVisible()) await close.click();
+  await page.getByRole("button", { name: /Edition: English/ }).click();
+  await page.getByRole("menuitem", { name: "Add language" }).click();
+  const add = page.getByRole("dialog", { name: "Add language" });
+  await add.getByLabel("Language", { exact: true }).selectOption("fr");
+  await add.getByRole("button", { name: "Add language", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Edition: Français/ })).toBeVisible();
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.type(" Bonjour");
+  await expect(page.getByRole("status")).toContainText("Saved");
 }

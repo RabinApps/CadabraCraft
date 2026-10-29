@@ -12,6 +12,7 @@ import {
   type AudioRunner,
   type RenderRequest,
 } from "@cadabracraft/export-audio";
+import { exportDir } from "@cadabracraft/format";
 import type { Bridge } from "./bridge";
 import { errText } from "./projectError";
 
@@ -69,19 +70,29 @@ const slugOf = (title: string): string =>
     .slice(0, 40)
     .replace(/-+$/, "");
 
-/** `exports/audio/03-hostile-characters`: ordered, ASCII and safe in any file system (the Rust side checks the path again). */
-export function chapterBase(index: number, title: string): string {
-  return `exports/audio/${String(index + 1).padStart(2, "0")}-${slugOf(title) || "chapter"}`;
+/** The folder an edition's audiobook goes to: `exports/<lang>/audio`, beside that edition's other exports. */
+export function audioDir(language: string): string {
+  return `${exportDir(language)}/audio`;
 }
 
-/** `exports/audio/my-book`: where the whole-book M4B goes (without the extension). */
-export function bookBase(title: string): string {
-  return `exports/audio/${slugOf(title) || "audiobook"}`;
+/** `exports/fr/audio/03-hostile-characters`: ordered, ASCII and safe in any file system (the Rust side checks the path again). */
+export function chapterBase(dir: string, index: number, title: string): string {
+  return `${dir}/${String(index + 1).padStart(2, "0")}-${slugOf(title) || "chapter"}`;
 }
 
-/** Where a chapter's lossless part for the M4B is kept; the id is reduced to the characters the Rust side accepts. */
-export function chapterPart(chapterId: string): string {
-  return `.cadabra/audio/parts/${chapterId.replace(/[^A-Za-z0-9_-]+/g, "_") || "chapter"}.flac`;
+/** `exports/fr/audio/my-book`: where the whole-book M4B goes (without the extension). */
+export function bookBase(dir: string, title: string): string {
+  return `${dir}/${slugOf(title) || "audiobook"}`;
+}
+
+const safeName = (s: string): string => s.replace(/[^A-Za-z0-9_-]+/g, "_");
+
+/**
+ * Where a chapter's lossless part for the M4B is kept. The language is part of the name, so two editions of one chapter never
+ * share a part; the name is reduced to the characters the Rust side accepts.
+ */
+export function chapterPart(language: string, chapterId: string): string {
+  return `.cadabra/audio/parts/${safeName(language) || "x"}_${safeName(chapterId) || "chapter"}.flac`;
 }
 
 /**
@@ -92,6 +103,8 @@ export function createTauriAudioRunner(
   bridge: Pick<Bridge, "audioVoices" | "audioRenderChapter" | "audioCancel">,
   root: string,
   jobId: string,
+  /** The edition being read: its language and the folder its files go to (`audioDir(language)`). */
+  edition: { language: string; dir: string },
 ): AudioRunner {
   return {
     async listVoices() {
@@ -107,12 +120,14 @@ export function createTauriAudioRunner(
       else signal.addEventListener("abort", stop, { once: true });
       try {
         // M4B is one file for the whole book: chapters only leave a lossless part for it, never a file of their own.
-        const part = req.formats.includes("m4b") ? chapterPart(req.chapterId) : undefined;
+        const part = req.formats.includes("m4b")
+          ? chapterPart(edition.language, req.chapterId)
+          : undefined;
         const rendered = await bridge.audioRenderChapter(
           {
             jobId,
             root,
-            base: chapterBase(req.chapterIndex, req.title),
+            base: chapterBase(edition.dir, req.chapterIndex, req.title),
             chunks: req.chunks,
             voice: req.voice,
             speed: req.speed,

@@ -90,9 +90,10 @@ msgid "{0} does not exist"
 msgstr "{0} no existe"
 
 #. placeholder {0}: job.files
+#. placeholder {1}: job.dir
 #: src/app/export/AudioExport.tsx
-msgid "{0} files, {minutes} min. Saved in the exports folder, in audio."
-msgstr "{0} archivos, {minutes} min. Guardado en la carpeta de exportaciones, en audio."
+msgid "{0} files, {minutes} min. Saved in {1}."
+msgstr ""
 
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
@@ -187,6 +188,13 @@ msgstr "Se eliminó {0}, pero no se pudo mover su archivo a la papelera: {1}"
 #: src/state/project/project.ts
 msgid "{0} was updated from outside the app"
 msgstr "{0} se actualizó desde fuera de la aplicación"
+
+#. placeholder {0}: nativeName(e.language)
+#. placeholder {1}: e.translated
+#. placeholder {2}: e.total
+#: src/app/export/AudioExport.tsx
+msgid "{0}: {1} of {2} chapters"
+msgstr ""
 
 #: src/app/shell/StatusBar.tsx
 msgid "{bookWords} in the book"
@@ -1202,6 +1210,10 @@ msgstr "Editar detalles"
 msgid "Edited {when}"
 msgstr "Editado {when}"
 
+#: src/app/export/AudioExport.tsx
+msgid "Edition"
+msgstr ""
+
 #. placeholder {0}: nativeName(active)
 #: src/app/shell/EditionSwitcher.tsx
 msgid "Edition: {0}"
@@ -1312,8 +1324,8 @@ msgid "Exported {dir}/manuscript.docx"
 msgstr "Se exportó {dir}/manuscript.docx"
 
 #: src/state/project/audio.ts
-msgid "Exported the audiobook to exports/audio"
-msgstr "Se exportó el audiolibro a exports/audio"
+msgid "Exported the audiobook to {dir}"
+msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Exporting…"
@@ -1760,6 +1772,10 @@ msgstr "Más tarde"
 msgid "Leave Focus Mode"
 msgstr "Salir del modo de concentración"
 
+#: src/app/export/AudioExport.tsx
+msgid "Leaves them out of this audiobook; the list above says which."
+msgstr ""
+
 #: src/app/export/EditionsChecklist.tsx
 msgid "Leaves them out of this export; the list above says which."
 msgstr "Los deja fuera de esta exportación; la lista de arriba indica cuáles."
@@ -2071,6 +2087,11 @@ msgstr "Ningún atajo coincide con “{0}”."
 msgid "No text yet"
 msgstr "Todavía no hay texto"
 
+#. placeholder {0}: nativeName(edition.language)
+#: src/app/export/AudioExport.tsx
+msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "None"
 msgstr "Ninguno"
@@ -2103,10 +2124,17 @@ msgid "Not translated yet"
 msgstr "Sin traducir todavía"
 
 #. placeholder {0}: nativeName(e.language)
+#. placeholder {0}: nativeName(edition.language)
+#. placeholder {1}: edition.untranslated.join(", ")
 #. placeholder {1}: missing .map( (m) => m.titles[e.language] ?? m.titles[manifest.editions[0]!.language] ?? m.id, ) .join(", ")
+#: src/app/export/AudioExport.tsx
 #: src/app/export/EditionsChecklist.tsx
 msgid "Not translated yet in {0}: {1}"
 msgstr "Sin traducir todavía en {0}: {1}"
+
+#: src/state/project/audio.ts
+msgid "Not translated yet in {language}: {names}. Translate them or skip them."
+msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
@@ -2801,6 +2829,7 @@ msgstr "Solo se muestra en esta vista previa. El PDF todavía no incluye sangrad
 msgid "SIL Open Font Licence 1.1"
 msgstr "Licencia SIL Open Font 1.1"
 
+#: src/app/export/AudioExport.tsx
 #: src/app/export/EditionsChecklist.tsx
 msgid "Skip untranslated chapters"
 msgstr "Omitir capítulos sin traducir"
@@ -3179,6 +3208,7 @@ msgstr "Estas fuentes provienen de Google Fonts y son de uso libre bajo la licen
 msgid "This .docx file has no document body. It may be damaged or not a Word document."
 msgstr "Este archivo .docx no tiene cuerpo de documento. Puede estar dañado o no ser un documento de Word."
 
+#: src/state/project/audio.ts
 #: src/state/project/editions.ts
 msgid "This book has no {language} edition."
 msgstr "Este libro no tiene una edición en {language}."

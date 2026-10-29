@@ -35,7 +35,7 @@ Designs are in the pen (`References / ...`, `Reference viewer / ...`, `Editor wi
 
 ### Editions (translations in one book, v1)
 
-Decision and format in [architecture.md](architecture.md), "Editions". Done: format v4 active, the editor switcher, Add language (copy or empty), per-edition chapter text, untranslated marks and rename, export per language with "skip untranslated" (`exports/<lang>/`), book details per edition, removal and undo across editions, the file-change watch for translation files, MCP `language` arguments and a `/drive-app` editions scenario. Still open: the book details language field and the Add language list (it uses all locales, the pen says enabled ones only; see architecture.md); the audiobook per language (it reads the source and writes `exports/audio`); find and replace all per edition; snapshots and History per edition (they already work per file, not yet tested in a translation); an MCP tool to add an edition. Mixed-language passages inside one edition are not planned.
+Decision and format in [architecture.md](architecture.md), "Editions". Done: format v4 active, the audiobook per edition (see "Audio"), the editor switcher, Add language (copy or empty), per-edition chapter text, untranslated marks and rename, export per language with "skip untranslated" (`exports/<lang>/`), book details per edition, removal and undo across editions, the file-change watch for translation files, MCP `language` arguments and a `/drive-app` editions scenario. Still open: the book details language field and the Add language list (it uses all locales, the pen says enabled ones only; see architecture.md); find and replace all per edition; snapshots and History per edition (they already work per file, not yet tested in a translation); an MCP tool to add an edition. Mixed-language passages inside one edition are not planned.
 
 ### Internationalization
 
@@ -57,6 +57,8 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ### Audio
 
+- Audiobook per edition is built (pick the edition in the dialog, `exports/<lang>/audio`, voices filtered by language, per-language cache and M4B parts; see architecture.md, "Audiobook per edition"). Open: **a voice for any language other than English** (every catalog voice is English, so non-English editions get a "no voice" notice; Kokoro's other languages need espeak-ng data, which is GPL, and Piper's other languages need pack entries with pinned URLs, sizes and hashes), the pen frame for the Edition select in the Audiobook dialog, and a real native run of a translated edition.
+- MP3: investigated, not built; options and the recommendation (leave it out, or an ffmpeg sidecar with LAME if a store needs it) are in architecture.md, "MP3 options", and need the owner's approval to proceed.
 - Audiobook export, remaining: the Settings Audio voices folder and licences rows, a real run on Windows and Linux (CI builds and runs the ffmpeg sidecar there), and checking an M4B in Apple Books and other players. Built: WAV, FLAC, Opus and M4B (chapters and cover; no MP3), Kokoro and Piper through one sherpa-onnx sidecar, voice download, chapter select, per-chapter cache, Hear a sample. Retail platforms differ on synthetic voices; the dialog says so.
 
 ### Word export follow-ups

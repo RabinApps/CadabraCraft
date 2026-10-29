@@ -90,9 +90,10 @@ msgid "{0} does not exist"
 msgstr "{0} does not exist"
 
 #. placeholder {0}: job.files
+#. placeholder {1}: job.dir
 #: src/app/export/AudioExport.tsx
-msgid "{0} files, {minutes} min. Saved in the exports folder, in audio."
-msgstr "{0} files, {minutes} min. Saved in the exports folder, in audio."
+msgid "{0} files, {minutes} min. Saved in {1}."
+msgstr "{0} files, {minutes} min. Saved in {1}."
 
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
@@ -187,6 +188,13 @@ msgstr "{0} was removed, but its file could not be moved to the trash: {1}"
 #: src/state/project/project.ts
 msgid "{0} was updated from outside the app"
 msgstr "{0} was updated from outside the app"
+
+#. placeholder {0}: nativeName(e.language)
+#. placeholder {1}: e.translated
+#. placeholder {2}: e.total
+#: src/app/export/AudioExport.tsx
+msgid "{0}: {1} of {2} chapters"
+msgstr "{0}: {1} of {2} chapters"
 
 #: src/app/shell/StatusBar.tsx
 msgid "{bookWords} in the book"
@@ -1202,6 +1210,10 @@ msgstr "Edit details"
 msgid "Edited {when}"
 msgstr "Edited {when}"
 
+#: src/app/export/AudioExport.tsx
+msgid "Edition"
+msgstr "Edition"
+
 #. placeholder {0}: nativeName(active)
 #: src/app/shell/EditionSwitcher.tsx
 msgid "Edition: {0}"
@@ -1312,8 +1324,8 @@ msgid "Exported {dir}/manuscript.docx"
 msgstr "Exported {dir}/manuscript.docx"
 
 #: src/state/project/audio.ts
-msgid "Exported the audiobook to exports/audio"
-msgstr "Exported the audiobook to exports/audio"
+msgid "Exported the audiobook to {dir}"
+msgstr "Exported the audiobook to {dir}"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Exporting…"
@@ -1760,6 +1772,10 @@ msgstr "Later"
 msgid "Leave Focus Mode"
 msgstr "Leave Focus Mode"
 
+#: src/app/export/AudioExport.tsx
+msgid "Leaves them out of this audiobook; the list above says which."
+msgstr "Leaves them out of this audiobook; the list above says which."
+
 #: src/app/export/EditionsChecklist.tsx
 msgid "Leaves them out of this export; the list above says which."
 msgstr "Leaves them out of this export; the list above says which."
@@ -2071,6 +2087,11 @@ msgstr "No shortcut matches “{0}”."
 msgid "No text yet"
 msgstr "No text yet"
 
+#. placeholder {0}: nativeName(edition.language)
+#: src/app/export/AudioExport.tsx
+msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
+msgstr "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
+
 #: src/app/export/PrintPreview.tsx
 msgid "None"
 msgstr "None"
@@ -2103,10 +2124,17 @@ msgid "Not translated yet"
 msgstr "Not translated yet"
 
 #. placeholder {0}: nativeName(e.language)
+#. placeholder {0}: nativeName(edition.language)
+#. placeholder {1}: edition.untranslated.join(", ")
 #. placeholder {1}: missing .map( (m) => m.titles[e.language] ?? m.titles[manifest.editions[0]!.language] ?? m.id, ) .join(", ")
+#: src/app/export/AudioExport.tsx
 #: src/app/export/EditionsChecklist.tsx
 msgid "Not translated yet in {0}: {1}"
 msgstr "Not translated yet in {0}: {1}"
+
+#: src/state/project/audio.ts
+msgid "Not translated yet in {language}: {names}. Translate them or skip them."
+msgstr "Not translated yet in {language}: {names}. Translate them or skip them."
 
 #: src/app/dialogs/ImportReportDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
@@ -2801,6 +2829,7 @@ msgstr "Shown in this preview only. The PDF does not include bleed or crop marks
 msgid "SIL Open Font Licence 1.1"
 msgstr "SIL Open Font Licence 1.1"
 
+#: src/app/export/AudioExport.tsx
 #: src/app/export/EditionsChecklist.tsx
 msgid "Skip untranslated chapters"
 msgstr "Skip untranslated chapters"
@@ -3179,6 +3208,7 @@ msgstr "These fonts come from Google Fonts and are free to use under the SIL Ope
 msgid "This .docx file has no document body. It may be damaged or not a Word document."
 msgstr "This .docx file has no document body. It may be damaged or not a Word document."
 
+#: src/state/project/audio.ts
 #: src/state/project/editions.ts
 msgid "This book has no {language} edition."
 msgstr "This book has no {language} edition."
