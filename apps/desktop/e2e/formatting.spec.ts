@@ -92,8 +92,7 @@ test.describe("formatting toolbar", () => {
     expect(await menu("editor.definitionList")).toBe(true);
     await expect(ed(page).locator("dl dt")).toHaveCount(1);
     await expect(ed(page).locator("dl dd")).toHaveCount(1);
-    await ed(page).locator("dl dt").click();
-    await page.keyboard.type("Term");
+    await page.keyboard.type("Term"); // the caret starts in the term
     await ed(page).locator("dl dd p").click();
     await page.keyboard.type("Meaning");
     await expect(ed(page).locator("dl dt")).toHaveText("Term");

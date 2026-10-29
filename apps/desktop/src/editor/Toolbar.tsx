@@ -240,8 +240,8 @@ export function Toolbar({ editor }: { editor: Editor }) {
       label: t`Definition list`,
       icon: List,
       active: s.definitionList,
-      run: () =>
-        c()
+      run: () => {
+        const ran = c()
           .insertContent({
             type: "definitionList",
             content: [
@@ -249,7 +249,18 @@ export function Toolbar({ editor }: { editor: Editor }) {
               { type: "definitionDescription", content: [{ type: "paragraph" }] },
             ],
           })
-          .run(),
+          .run();
+        // The caret lands after the inserted node; put it in the empty term nearest to it so typing fills the term first.
+        const { doc, selection } = editor.state;
+        let term = -1;
+        doc.descendants((n, pos) => {
+          if (n.type.name === "definitionTerm" && n.content.size === 0)
+            if (term < 0 || Math.abs(pos - selection.head) < Math.abs(term - selection.head))
+              term = pos + 1;
+        });
+        if (term >= 0) c().setTextSelection(term).run();
+        return ran;
+      },
     },
     {
       id: "strike",
