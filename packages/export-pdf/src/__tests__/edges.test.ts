@@ -208,6 +208,53 @@ describe.skipIf(process.platform === "win32")("node runner with fake typst binar
       else process.env.TMPDIR = savedTmp;
     }
   });
+  it("returns the PDF a successful compile wrote, asking for PDF/A only when requested", async () => {
+    // The last argument is the output path; the arguments are written into the "PDF" so they can be read back.
+    const ok = sh("pdfok", 'for a in "$@"; do out="$a"; done; echo "$@" > "$out"');
+    const run = (pdfA: boolean) =>
+      createNodeRunner({ typstPath: ok }).compile("x", new Map(), { pdfA });
+    expect(new TextDecoder().decode(await run(true))).toContain("--pdf-standard a-2b");
+    expect(new TextDecoder().decode(await run(false))).not.toContain("--pdf-standard");
+  });
+  it("queries with the selector and font path, writing the files into a temp dir that is removed afterwards", async () => {
+    // Prints its arguments and the sibling file it was given, and records the working folder.
+    const q = sh(
+      "query",
+      'for a in "$@"; do echo "$a"; done; cat "$PWD/main.typ" "$PWD/sub/a.txt"; echo "$PWD" > "$0.cwd"',
+    );
+    const files = new Map([["sub/a.txt", new TextEncoder().encode("hello")]]);
+    const out = await createNodeRunner({ typstPath: q, fontPaths: ["/f"] }).query(
+      "SRC",
+      files,
+      "<sel>",
+    );
+    const lines = out.split("\n");
+    expect(lines.slice(0, 2)).toEqual(["query", "--root"]);
+    expect(lines).toContain("--one");
+    expect(lines).toContain("--font-path");
+    expect(lines).toContain("<sel>");
+    expect(out).toContain("SRChello");
+    const { readFileSync, existsSync } = await import("node:fs");
+    expect(existsSync(readFileSync(`${q}.cwd`, "utf8").trim())).toBe(false);
+  });
+  it("reports a failing query, refuses unsafe file paths, and removes the temp dir either way", async () => {
+    const savedTmp = process.env.TMPDIR;
+    process.env.TMPDIR = dir ||= mkdtempSync(join(tmpdir(), "cc-fake-typst-"));
+    try {
+      const bad = sh("badquery", "echo nope >&2; exit 1");
+      await expect(
+        createNodeRunner({ typstPath: bad }).query("S", new Map(), "<x>"),
+      ).rejects.toThrow(TypstCompileError);
+      const unsafe = new Map([["../escape.txt", new Uint8Array()]]);
+      await expect(
+        createNodeRunner({ typstPath: bad }).query("S", unsafe, "<x>"),
+      ).rejects.toThrow();
+      expect(readdirSync(dir).filter((n) => n.startsWith("cadabracraft-pdf-"))).toEqual([]);
+    } finally {
+      if (savedTmp === undefined) delete process.env.TMPDIR;
+      else process.env.TMPDIR = savedTmp;
+    }
+  });
   it("keeps PdfExportError instances distinguishable", async () => {
     await expect(compile(sh("empty2", "exit 0"))).rejects.toBeInstanceOf(PdfExportError);
   });

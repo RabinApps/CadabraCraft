@@ -76,7 +76,7 @@ jobs:
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
           for i in 1 2 3 4 5; do
-            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 && exit 0
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 build-essential && exit 0
             sleep $((i * 5))
           done
           exit 1
@@ -128,7 +128,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: bash scripts/fetch-ffmpeg.sh
-      - run: cargo test
+      # --lib: all unit tests live in the lib; on Windows the script embeds the test manifest (see the script).
+      - name: Rust tests
+        shell: bash
+        run: bash ../../../scripts/cargo-test.sh
         working-directory: apps/desktop/src-tauri
       - name: Rust coverage (Linux)
         if: runner.os == 'Linux'
@@ -156,7 +159,7 @@ jobs:
           export FFMPEG_BIN="$PWD/binaries/ffmpeg-$triple$exe"
           [[ $triple == *windows* ]] && FFMPEG_BIN=$(cygpath -w "$FFMPEG_BIN")
           export REQUIRE_FFMPEG=1
-          cargo test --lib real_ffmpeg -- --nocapture
+          bash ../../../scripts/cargo-test.sh real_ffmpeg -- --nocapture
         working-directory: apps/desktop/src-tauri
       # End to end on every OS: download the Piper voices (148 MB) over TLS, check their hashes, and speak a sentence into
       # Opus and FLAC with the bundled engine. It is the only place the Windows and Linux engine builds are run.
@@ -168,5 +171,5 @@ jobs:
           export SHERPA_TTS_BIN="$PWD/binaries/sherpa-onnx-offline-tts-$triple$exe"
           [[ $triple == *windows* ]] && SHERPA_TTS_BIN=$(cygpath -w "$SHERPA_TTS_BIN")
           export CADABRA_NET_TESTS=full CADABRA_NET_PACKS=piper
-          cargo test --lib real_packs -- --nocapture
+          bash ../../../scripts/cargo-test.sh real_packs -- --nocapture
         working-directory: apps/desktop/src-tauri

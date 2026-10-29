@@ -148,7 +148,9 @@ describe("poppler", () => {
   });
   it("runs the tool from the given folder", async () => {
     fake.run = async (cmd) => ({ stdout: `ran ${cmd}`, stderr: "" });
-    expect(await poppler(ctx({ popplerDir: "/p" }), "pdfinfo", ["f"])).toBe("ran /p/pdfinfo");
+    expect(await poppler(ctx({ popplerDir: "/p" }), "pdfinfo", ["f"])).toBe(
+      `ran ${join("/p", "pdfinfo")}`,
+    );
   });
   it("tries the next location when a tool is missing, and gives up with null", async () => {
     const tried: string[] = [];
@@ -158,7 +160,11 @@ describe("poppler", () => {
       return { stdout: "ok", stderr: "" };
     };
     expect(await poppler(ctx(), "pdftotext", [])).toBe("ok");
-    expect(tried).toEqual(["pdftotext", "/opt/homebrew/bin/pdftotext", "/usr/local/bin/pdftotext"]);
+    expect(tried).toEqual([
+      "pdftotext",
+      join("/opt/homebrew/bin", "pdftotext"),
+      join("/usr/local/bin", "pdftotext"),
+    ]);
     fake.run = async () => {
       throw failure({ code: "ENOENT" });
     };
