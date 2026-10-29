@@ -258,7 +258,7 @@ The IPC surface is the `app_handlers!` list in `lib.rs`: project files (`create_
 snapshots (`list_page_snapshots`, `read_page_snapshot`, `restore_page_snapshot`,
 `prune_page_snapshots`, `find_stale_pages`), assets and import (`import_asset`, `read_asset`,
 `read_import_source`, `read_import_image`, `import_asset_bytes`), `watch_project`, Typst
-(`typst_find`, `typst_list_fonts`, `typst_compile`), audio (`audio_voices`, `audio_render_chapter`,
+(`typst_find`, `typst_list_fonts`, `typst_compile`, `typst_query`), audio (`audio_voices`, `audio_render_chapter`,
 `audio_cancel`, `audio_forget`, `audio_files_exist`, `audio_sample`, `audio_packs`,
 `audio_download_pack`, `audio_delete_pack`) and `updates_supported`. Binary bodies (file writes, Typst
 compile requests) use raw or framed IPC bodies instead of JSON arrays of numbers.

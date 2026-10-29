@@ -12,6 +12,8 @@ const typst = {
     files: [string, Uint8Array][];
     pdfA: boolean;
   }[],
+  queries: [] as { path: string | null; source: string; selector: string }[],
+  queryResult: "",
 };
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
@@ -26,6 +28,11 @@ vi.mock("../../../lib/bridge", async () =>
     typstListFonts: async () => {
       if (typst.failWith) throw typst.failWith;
       return typst.fonts;
+    },
+    typstQuery: async (path: string | null, source: string, _files: unknown, selector: string) => {
+      typst.queries.push({ path, source, selector });
+      if (typst.failWith) throw typst.failWith;
+      return typst.queryResult;
     },
     typstCompile: async (
       path: string | null,
@@ -147,15 +154,15 @@ describe("exportPdf", () => {
     await a().addMatter("back", "about-the-author");
     await a().exportPdf(options);
     const src = typst.compiles[0]!.source;
-    expect(src).toContain("#title-page[");
-    expect(src).toContain("#centered-page[");
+    expect(src).toContain("#title-page(");
+    expect(src).toContain("#centered-page(");
     expect(src).toContain('numbering: "i"');
-    expect(src).toContain('#chapter-start("About the Author", none)');
-    expect(src.indexOf("#title-page[")).toBeLessThan(
-      src.indexOf('#chapter-start("Chapter One", 1)'),
+    expect(src).toContain('#chapter-start("About the Author", none, id:');
+    expect(src.indexOf("#title-page(")).toBeLessThan(
+      src.indexOf('#chapter-start("Chapter One", 1, id:'),
     );
-    expect(src.indexOf('#chapter-start("Chapter One", 1)')).toBeLessThan(
-      src.indexOf('#chapter-start("About the Author", none)'),
+    expect(src.indexOf('#chapter-start("Chapter One", 1, id:')).toBeLessThan(
+      src.indexOf('#chapter-start("About the Author", none, id:'),
     );
   });
   it("sends image files to the compiler", async () => {
@@ -273,5 +280,58 @@ describe("exportMarkdown", () => {
     disk.set("manuscript/001-chapter-one.json", JSON.stringify(underlined));
     await a().exportMarkdown({ htmlMarks: true });
     expect(text()).toContain("<u>Hi</u>");
+  });
+});
+
+// The last measure is kept by the store for good, so each case writes a chapter no other case has.
+describe("measurePages", () => {
+  const report = {
+    total: 4,
+    starts: [{ id: "x", kind: "chapter", page: 1, number: "1" }],
+  };
+  beforeEach(() => {
+    typst.queries = [];
+    typst.queryResult = JSON.stringify(report);
+  });
+
+  it("asks Typst for the page report without compiling a PDF or taking the export lock", async () => {
+    await a().add("Alpha");
+    const result = await a().measurePages({ typstPath: "/bin/typst" });
+    expect(result).toEqual(report);
+    expect(typst.queries).toHaveLength(1);
+    expect(typst.queries[0]).toMatchObject({ path: "/bin/typst", selector: "<page-report>" });
+    expect(typst.compiles).toHaveLength(0);
+    expect(s().exportStage).toBeNull();
+  });
+
+  it("reuses the last report while the book is unchanged, and measures again after an edit", async () => {
+    await a().add("Beta");
+    await a().measurePages({});
+    await a().measurePages({});
+    expect(typst.queries).toHaveLength(1);
+    await a().add("Two");
+    await a().measurePages({});
+    expect(typst.queries).toHaveLength(2);
+  });
+
+  it("measures the open page's draft rather than its saved file", async () => {
+    await a().add("Gamma");
+    await a().measurePages({});
+    const doc = s().currentDoc!;
+    useProject.setState({
+      draft: {
+        ...doc,
+        content: [{ type: "paragraph", content: [{ type: "text", text: "New words" }] }],
+      },
+    });
+    await a().measurePages({});
+    expect(typst.queries).toHaveLength(2);
+    expect(typst.queries[1]!.source).toContain("New words");
+  });
+
+  it("turns a Typst failure into a message for the author", async () => {
+    await a().add("Delta");
+    typst.failWith = { kind: "not_found", message: "no typst" };
+    await expect(a().measurePages({})).rejects.toBeInstanceOf(PdfUiError);
   });
 });

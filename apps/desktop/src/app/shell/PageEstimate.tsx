@@ -3,6 +3,10 @@ import { sectionOf } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { bookPages } from "../../lib/bookPages";
+import { reportBookPages, usableReport } from "../../lib/pageReport";
+import { usePageMeasure } from "../../state/pageMeasure";
+import { useMeasuredPages } from "../hooks/useMeasuredPages";
+import { usePageView } from "../hooks/usePageView";
 import { trimLabel } from "../../lib/trimLabels";
 import { usePageCount } from "../../state/pageCount";
 import { useProject } from "../../state/project/index";
@@ -18,6 +22,9 @@ export function PageEstimate({ words }: { words: number | null }) {
   const currentId = useProject((s) => s.currentId);
   const chapterWords = useProject((s) => s.actions.chapterWordsBefore);
   const measuredPages = usePageCount((s) => s.count);
+  const pageView = usePageView();
+  useMeasuredPages(pageView.on);
+  const typst = usePageMeasure((s) => (s.fresh ? usableReport(s.report) : null));
   const [counts, setCounts] = useState<{ words: number[]; open: number | null }>({
     words: [],
     open: null,
@@ -43,9 +50,12 @@ export function PageEstimate({ words }: { words: number | null }) {
   }, [manifest, words, counts, measuredPages]);
   if (!estimate) return null;
   const size = trimLabel(estimate.trimSize);
-  const pages = estimate.exact
-    ? plural(estimate.pages, { one: "# page", other: "# pages" })
-    : plural(estimate.pages, { one: "≈ # page", other: "≈ # pages" });
+  // Typst's own count, while it is current, replaces the estimate.
+  const exact = typst !== null || estimate.exact;
+  const count = typst ? reportBookPages(typst) : estimate.pages;
+  const pages = exact
+    ? plural(count, { one: "# page", other: "# pages" })
+    : plural(count, { one: "≈ # page", other: "≈ # pages" });
   return <>{` · ${pages} ${t`at ${size}`}`}</>;
 }
 

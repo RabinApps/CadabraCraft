@@ -1,6 +1,6 @@
 import type { Manifest, Reference, Tree } from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
-import type { TrimSize } from "@cadabracraft/export-pdf";
+import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import type { ImportChoices, ImportReport } from "../../lib/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
@@ -334,6 +334,11 @@ export interface ExportActions {
   exportDocx: (options: { font: ManuscriptFont } & ExportScope) => Promise<void>;
   /** Builds exports/<language>/book.pdf with Typst. Throws `PdfUiError` (message for the author, `code` for the dialog). */
   exportPdf: (options: PdfExportOptions) => Promise<void>;
+  /**
+   * Asks Typst for where each page entry starts and how long the book is, for the book as it is now (the open page's draft
+   * included), without producing a PDF or taking the export lock. The last result is reused while the content is unchanged.
+   */
+  measurePages: (options: { typstPath?: string }) => Promise<PageReport>;
 }
 
 export interface AudioActions {

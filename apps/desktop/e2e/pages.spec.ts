@@ -141,8 +141,8 @@ test("EPUB and PDF exports include the matter pages", async ({ page }) => {
     .click();
   await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.pdf");
   const source: string = await page.evaluate(() => window.__typstCalls[0]!.source);
-  expect(source).toContain("#title-page[");
-  expect(source).toContain('#chapter-start("Acknowledgments", none)');
+  expect(source).toContain("#title-page(");
+  expect(source).toContain('#chapter-start("Acknowledgments", none, id:');
 });
 
 test("restoring a page from the trash puts it back at the end and opens it", async ({ page }) => {

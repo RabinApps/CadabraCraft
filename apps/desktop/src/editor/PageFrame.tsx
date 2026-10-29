@@ -22,6 +22,8 @@ import { usePageView } from "../app/hooks/usePageView";
 import { useFontList } from "../app/hooks/useFontList";
 import { editorFontStack, type EditorFont } from "../state/editorPrefs";
 import { setPageCount, usePageCount } from "../state/pageCount";
+import { usePageMeasure } from "../state/pageMeasure";
+import { reportStartNumber, usableReport } from "../lib/pageReport";
 import { useProject } from "../state/project/index";
 import { ensureFontLoaded } from "../lib/loadFont";
 import { chapterStart, firstPageNumber } from "../lib/pageNumbering";
@@ -111,17 +113,24 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
     sourceEdition(manifest.editions).title;
 
   // Which page number this chapter starts on, from the earlier chapters' word counts (see lib/pageNumbering.ts).
-  const [firstPage, setFirstPage] = useState(1);
+  const [estimatedFirst, setEstimatedFirst] = useState(1);
   useEffect(() => {
-    if (!isChapter || !currentId) return setFirstPage(1);
+    if (!isChapter || !currentId) return setEstimatedFirst(1);
     let live = true;
     wordsBefore(currentId)
-      .then((w) => live && setFirstPage(firstPageNumber(book, w)))
-      .catch(() => live && setFirstPage(1));
+      .then((w) => live && setEstimatedFirst(firstPageNumber(book, w)))
+      .catch(() => live && setEstimatedFirst(1));
     return () => {
       live = false;
     };
   }, [isChapter, currentId, book, wordsBefore, manifest.chapters]);
+  // Typst's printed number for this chapter's first page replaces the estimate. The last report is used even while an edit makes
+  // it stale: a few words rarely move a chapter's start, and swapping numbers on every keystroke would reflow the page cards.
+  const typstFirst = usePageMeasure((s) => {
+    const report = usableReport(s.report);
+    return report && currentId ? reportStartNumber(report, currentId) : null;
+  });
+  const firstPage = isChapter && typstFirst !== null ? typstFirst : estimatedFirst;
 
   // Text font: the template's print body font when it can be drawn here, else the author's manuscript font.
   const printFont = pickPageFont(

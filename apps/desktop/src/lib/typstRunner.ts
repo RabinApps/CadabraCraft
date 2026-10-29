@@ -37,19 +37,11 @@ export function mapTypstError(e: unknown): Error {
   return new PdfExportError(errText(e));
 }
 
-/**
- * `TypstRunner.query` as packages/export-pdf declares it: runs `typst query` on `source` and resolves to its JSON text.
- * Declared here too so this file compiles whether or not the package interface has the method yet.
- */
-export interface TypstQuery {
-  query(source: string, files: Map<string, Uint8Array>, selector: string): Promise<string>;
-}
-
 /** A `TypstRunner` over the Tauri commands (the webview cannot spawn processes itself). */
 export function createTauriRunner(
   bridge: Pick<Bridge, "typstListFonts" | "typstCompile" | "typstQuery">,
   typstPath?: string,
-): TypstRunner & TypstQuery {
+): TypstRunner {
   const path = typstPath?.trim() || null;
   return {
     async listFonts() {

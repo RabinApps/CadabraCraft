@@ -1,4 +1,4 @@
-import { sourceFileById } from "@cadabracraft/format";
+import { sourceEdition, sourceFileById } from "@cadabracraft/format";
 import { plural, t } from "@lingui/core/macro";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { buildDocx } from "@cadabracraft/export-docx";
@@ -7,12 +7,14 @@ import {
   chapterToMarkdown,
   MarkdownExportError,
 } from "@cadabracraft/export-markdown";
-import { renderPdf } from "@cadabracraft/export-pdf";
+import { measurePages, renderPdf, type PageReport } from "@cadabracraft/export-pdf";
+import { contentHash } from "@cadabracraft/export-audio";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
   hasTemplate,
   resolveBookFonts,
+  resolveTrimSize,
 } from "@cadabracraft/templates";
 import { bridge } from "../../lib/bridge";
 import { describePdfError } from "../../lib/pdfErrors";
@@ -29,7 +31,49 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
     n
       ? ` (${plural(n, { one: "# untranslated page left out", other: "# untranslated pages left out" })})`
       : "";
+  /** The last measure: reused while the book, template, trim size and fonts are the same. */
+  let lastMeasure: { key: string; report: PageReport } | null = null;
   return {
+    async measurePages({ typstPath }) {
+      try {
+        const { manifest } = need();
+        const currentId = get().currentId;
+        const templateId = hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID;
+        const { edition, pages } = await loadExportPages();
+        // The open page's text is in the draft until it is saved, so measure that instead of the file.
+        const open = get().draft ?? get().currentDoc;
+        const source = sourceEdition(manifest.editions).language;
+        const chapters =
+          open && currentId && (get().activeLanguage ?? source) === source
+            ? pages.map((p) => (p.id === currentId ? { ...p, doc: open } : p))
+            : pages;
+        const trimSize = resolveTrimSize(manifest);
+        const fonts = resolveBookFonts(manifest);
+        const key = contentHash(
+          JSON.stringify([templateId, trimSize, fonts, edition.title, chapters]),
+        );
+        if (lastMeasure?.key === key) return lastMeasure.report;
+        const assets = await loadAssets(chapters);
+        const report = await measurePages(
+          { title: edition.title, author: edition.author, language: edition.language },
+          chapters,
+          {
+            template: getTemplate(templateId),
+            trimSize,
+            mirrored: true,
+            pageNumbers: true,
+            pdfA: false,
+            ...(Object.keys(fonts).length ? { fonts } : {}),
+            assets: Object.fromEntries(assets),
+          },
+          createTauriRunner(bridge, typstPath),
+        );
+        lastMeasure = { key, report };
+        return report;
+      } catch (e) {
+        throw describePdfError(e);
+      }
+    },
     async exportEpub(scope) {
       if (get().exportStage) throw new Error(t`An export is already running`);
       set({ exportStage: "preparing" });

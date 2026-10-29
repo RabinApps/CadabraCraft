@@ -499,3 +499,59 @@ test("the opening page is exact with a heading after the title or a very short f
   await page.waitForTimeout(400);
   await expectExactCards(page, 5.5, 8.5);
 });
+
+test("with Page view on, Typst's page report replaces the estimate in the status bar and the chapter's first page number", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.evaluate(() => {
+    window.__typstQueryResult = JSON.stringify({
+      total: 40,
+      starts: [{ id: "chapter-1", kind: "chapter", page: 1, number: "1" }],
+    });
+  });
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.insertText("A few words.");
+  // Off, nothing asks Typst and the count stays an estimate.
+  await expect(page.getByText(/≈ \d+ pages? at/)).toBeVisible();
+  expect(await page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(0);
+  await pageViewAt100(page);
+  // On, the book is measured once it has been still, and the "≈" goes.
+  await expect(page.getByText(/ · 40 pages at 5\.5 × 8\.5 in/)).toBeVisible({ timeout: 10_000 });
+  const calls = await page.evaluate(() => window.__typstQueryCalls ?? []);
+  expect(calls).toHaveLength(1);
+  expect(calls[0]!.selector).toBe("<page-report>");
+  // An edit makes the report stale at once, so the report's count goes until the next measure.
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.insertText(" More words.");
+  await expect(page.getByText(/ · 40 pages at/)).toBeHidden();
+  await expect(page.getByText(/ · 40 pages at/)).toBeVisible({ timeout: 10_000 });
+  expect(await page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(2);
+});
+
+test("the chapter's first page takes the number Typst printed for it", async ({ page }) => {
+  await newProject(page);
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.insertText("A few words.");
+  await pageViewAt100(page);
+  await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(1);
+  const id = await page.evaluate(
+    () =>
+      /#chapter-start\("Chapter One", 1, id: "([^"]+)"/.exec(
+        window.__typstQueryCalls[0]!.source,
+      )![1]!,
+  );
+  expect(await page.locator(".page .page-number").first().textContent()).toBe("1");
+  // The book gains pages before this chapter, so Typst now numbers it from page 5 (a right-hand page).
+  await page.evaluate((chapterId) => {
+    window.__typstQueryResult = JSON.stringify({
+      total: 12,
+      starts: [{ id: chapterId, kind: "chapter", page: 9, number: "5" }],
+    });
+  }, id);
+  await page.locator(".ProseMirror").click();
+  await page.keyboard.press("ControlOrMeta+End");
+  await page.keyboard.insertText(" More words.");
+  await expect(page.locator(".page .page-number").first()).toHaveText("5", { timeout: 10_000 });
+});
