@@ -5002,7 +5002,7 @@
       "x": 0,
       "y": 4396,
       "name": "Section / Editor",
-      "width": 8700,
+      "width": 9720,
       "height": 4860,
       "fill": "#00000000",
       "layout": "none",
@@ -17807,6 +17807,800 @@
                   ]
                 }
               ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ggU6h",
+          "x": 8780,
+          "y": 160,
+          "name": "Editor / mobile / keyboard open / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 390,
+          "height": 844,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "U7UTD",
+              "name": "Top bar",
+              "width": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": 8,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "eGtiy",
+                  "name": "Left",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "yWt64",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "menu",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "menu"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "sxkTS",
+                      "name": "Ch 7 · The Orchard Wall",
+                      "fill": "$ink",
+                      "content": "Ch 7 · The Orchard Wall",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "tBkwV",
+                  "name": "Right",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "FwQtO",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "book-open",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "book-open"
+                        }
+                      }
+                    },
+                    {
+                      "id": "f8xQuT",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "ellipsis",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "ellipsis"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "j8ZwO4",
+              "name": "Workspace",
+              "width": "fill_container",
+              "height": 492,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "sWvOK",
+                  "name": "Center",
+                  "width": "fill_container",
+                  "height": 492,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "empjI",
+                      "name": "Manuscript",
+                      "clip": true,
+                      "width": "fill_container",
+                      "height": 424,
+                      "padding": [
+                        24,
+                        20
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "V1vzpu",
+                          "name": "Page",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 20,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sRQPc",
+                              "name": "CHAPTER SEVEN",
+                              "fill": "$accent",
+                              "content": "CHAPTER SEVEN",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "700",
+                              "letterSpacing": 1.6
+                            },
+                            {
+                              "type": "text",
+                              "id": "lcunM",
+                              "name": "The Orchard Wall",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The Orchard Wall",
+                              "fontFamily": "$font-book",
+                              "fontSize": 30,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Q8EnkF",
+                              "name": "By the time Ines reached",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "By the time Ines reached the wall, the apples had begun to fall, thudding into the long grass like small, unhurried knocks.",
+                              "lineHeight": 1.65,
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript-phone",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Le792",
+                              "name": "She had been told the or",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "She had been told the orchard belonged to no one. Nothing about the gate, rusted open and wound with bindweed, suggested otherwise.",
+                              "lineHeight": 1.65,
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript-phone",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "X95vR",
+                              "name": "* * *",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "* * *",
+                              "textAlign": "center",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-subtitle",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "XwCVB",
+                              "name": "In the morning the salt ",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "In the morning the salt came in off the water, and with it the smell of something older than the harbour.",
+                              "lineHeight": 1.65,
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript-phone",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "T5haTm",
+                      "name": "Formatting toolbar (docked)",
+                      "clip": true,
+                      "width": "fill_container",
+                      "fill": "$surface",
+                      "stroke": "$border",
+                      "strokeWidth": {
+                        "top": 1
+                      },
+                      "gap": 2,
+                      "padding": [
+                        6,
+                        8,
+                        26,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "U7Ghcm",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "undo-2",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "undo-2"
+                            }
+                          }
+                        },
+                        {
+                          "id": "lXmm7",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "redo-2",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "redo-2"
+                            }
+                          }
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "SZtuL",
+                          "name": "Divider",
+                          "fill": "$border",
+                          "width": 1,
+                          "height": 20
+                        },
+                        {
+                          "id": "Y5IGm",
+                          "type": "ref",
+                          "ref": "e7Z10",
+                          "name": "bold",
+                          "descendants": {
+                            "JHYgu": {
+                              "icon": "bold"
+                            }
+                          }
+                        },
+                        {
+                          "id": "GN52O",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "italic",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "italic"
+                            }
+                          }
+                        },
+                        {
+                          "id": "F5GQAM",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "underline",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "underline"
+                            }
+                          }
+                        },
+                        {
+                          "id": "O6BhqE",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "a-large-small",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "a-large-small"
+                            }
+                          }
+                        },
+                        {
+                          "id": "YNpEa",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "link",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "link"
+                            }
+                          }
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "M6C7Vh",
+                          "name": "Divider",
+                          "fill": "$border",
+                          "width": 1,
+                          "height": 20
+                        },
+                        {
+                          "id": "NvPJa",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "heading-1",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "heading-1"
+                            }
+                          }
+                        },
+                        {
+                          "id": "NiUpH",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "heading-2",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "heading-2"
+                            }
+                          }
+                        },
+                        {
+                          "id": "Wf0GQ",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "heading-3",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "heading-3"
+                            }
+                          }
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "U3j0Mh",
+                          "name": "Divider",
+                          "fill": "$border",
+                          "width": 1,
+                          "height": 20
+                        },
+                        {
+                          "id": "k7BuO2",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "quote",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "quote"
+                            }
+                          }
+                        },
+                        {
+                          "id": "WG1Ui",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "list",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "list"
+                            }
+                          }
+                        },
+                        {
+                          "id": "bRdZe",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "list-ordered",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "list-ordered"
+                            }
+                          }
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "Ty4Ol",
+                          "name": "Divider",
+                          "fill": "$border",
+                          "width": 1,
+                          "height": 20
+                        },
+                        {
+                          "id": "LR6sk",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "asterisk",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "asterisk"
+                            }
+                          }
+                        },
+                        {
+                          "id": "nWleh",
+                          "type": "ref",
+                          "ref": "ML1v1",
+                          "name": "superscript",
+                          "descendants": {
+                            "ygSVs": {
+                              "icon": "superscript"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "qlXjC",
+              "name": "Keyboard (system)",
+              "width": "fill_container",
+              "height": 300,
+              "fill": "$sidebar",
+              "stroke": "$border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "layout": "vertical",
+              "gap": 6,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "G6yVZ7",
+                  "name": "Keyboard label",
+                  "fill": "$ink-muted",
+                  "content": "System keyboard",
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-small",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "L7Yan",
+                  "name": "Keyboard note",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": 300,
+                  "content": "The formatting toolbar sits directly above it; the status bar is hidden.",
+                  "lineHeight": 1.4,
+                  "textAlign": "center",
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "KVxfw",
+          "x": 9250,
+          "y": 160,
+          "name": "Header / mobile / 390 / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 390,
+          "height": 440,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "eG3yM",
+              "name": "Top bar",
+              "width": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": 8,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "CH11t",
+                  "name": "Left",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "Hqfcs",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "menu",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "menu"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "aTHVx",
+                      "name": "Ch 7 · The Orchard Wall",
+                      "fill": "$ink",
+                      "content": "Ch 7 · The Orchard Wall",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IA0sG",
+                  "name": "Right",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "xAOWl",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "book-open",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "book-open"
+                        }
+                      }
+                    },
+                    {
+                      "id": "E8LYg",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "ellipsis",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "ellipsis"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "AxSo9",
+              "layoutPosition": "absolute",
+              "x": 150,
+              "y": 56,
+              "name": "More menu",
+              "width": 232,
+              "fill": "$raised",
+              "cornerRadius": "$radius",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "padding": 4,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "u9vJ1",
+                  "name": "Save",
+                  "width": "fill_container",
+                  "height": 44,
+                  "cornerRadius": "$radius-sm",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "HmSvo",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "save",
+                      "width": 20,
+                      "height": 20,
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "save"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "IyNvC",
+                      "name": "Save",
+                      "fill": "$ink",
+                      "content": "Save",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "HY6uv",
+                  "name": "Focus mode",
+                  "width": "fill_container",
+                  "height": 44,
+                  "cornerRadius": "$radius-sm",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "ewVJO",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "maximize-2",
+                      "width": 20,
+                      "height": 20,
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "maximize-2"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "XfqDg",
+                      "name": "Focus mode",
+                      "fill": "$ink",
+                      "content": "Focus mode",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "E2pYI",
+                  "name": "Export",
+                  "width": "fill_container",
+                  "height": 44,
+                  "cornerRadius": "$radius-sm",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "f5rElW",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "download",
+                      "width": 20,
+                      "height": 20,
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "download"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "i8poN",
+                      "name": "Export",
+                      "fill": "$ink",
+                      "content": "Export",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qxldK",
+                  "name": "Book details",
+                  "width": "fill_container",
+                  "height": 44,
+                  "cornerRadius": "$radius-sm",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "E4gkCd",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "book-text",
+                      "width": 20,
+                      "height": 20,
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "book-text"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "F8zM3i",
+                      "name": "Book details",
+                      "fill": "$ink",
+                      "content": "Book details",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZfaFk",
+                  "name": "Settings",
+                  "width": "fill_container",
+                  "height": 44,
+                  "cornerRadius": "$radius-sm",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "u8S1Me",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "settings",
+                      "width": 20,
+                      "height": 20,
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "settings"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "Z8ric",
+                      "name": "Settings",
+                      "fill": "$ink",
+                      "content": "Settings",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "CLiOQ",
+              "layoutPosition": "absolute",
+              "x": 16,
+              "y": 380,
+              "name": "Header note",
+              "fill": "$ink-muted",
+              "textGrowth": "fixed-width",
+              "width": 358,
+              "content": "Details has no button on a phone. Save, Focus mode, Export, Book details and Settings live in More actions; every target is 44 px.",
+              "lineHeight": 1.4,
+              "fontFamily": "$font-ui",
+              "fontSize": "$type-caption",
+              "fontWeight": "normal"
             }
           ]
         }
