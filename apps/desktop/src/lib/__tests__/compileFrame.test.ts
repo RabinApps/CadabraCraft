@@ -17,7 +17,6 @@ function unpack(frame: Uint8Array) {
 describe("packCompileRequest", () => {
   it("carries the options, the source and every file's bytes in order", () => {
     const frame = packCompileRequest({
-      typstPath: "/opt/homebrew/bin/typst",
       source: '#set page(width: 5in)\nHello, "wörld" ✓',
       files: [
         ["assets/img-1.png", Uint8Array.of(1, 2, 3)],
@@ -26,8 +25,11 @@ describe("packCompileRequest", () => {
       pdfA: true,
     });
     const { header, files, rest } = unpack(frame);
-    expect(header).toMatchObject({
-      typstPath: "/opt/homebrew/bin/typst",
+    expect(header).toEqual({
+      files: [
+        { name: "assets/img-1.png", len: 3 },
+        { name: "assets/img-2.jpg", len: 2 },
+      ],
       pdfA: true,
       source: '#set page(width: 5in)\nHello, "wörld" ✓',
     });
@@ -37,26 +39,22 @@ describe("packCompileRequest", () => {
     ]);
     expect(rest).toBe(0);
   });
-  it("works with no files, no typst path and empty files", () => {
+  it("works with empty files and never names a program", () => {
     const { header, files, rest } = unpack(
       packCompileRequest({
-        typstPath: null,
         source: "",
         files: [["a.bin", new Uint8Array()]],
         pdfA: false,
       }),
     );
-    expect(header).toMatchObject({ typstPath: null, source: "", pdfA: false });
+    expect(header).toEqual({ source: "", pdfA: false, files: [{ name: "a.bin", len: 0 }] });
     expect(files).toEqual([["a.bin", []]]);
     expect(rest).toBe(0);
-    expect(
-      unpack(packCompileRequest({ typstPath: null, source: "x", files: [], pdfA: false })).files,
-    ).toEqual([]);
+    expect(unpack(packCompileRequest({ source: "x", files: [], pdfA: false })).files).toEqual([]);
   });
   it("copes with a large image without building a number array", () => {
     const big = new Uint8Array(5 * 1024 * 1024).fill(7);
     const frame = packCompileRequest({
-      typstPath: null,
       source: "x",
       files: [["assets/big.png", big]],
       pdfA: false,
@@ -70,7 +68,6 @@ describe("packQueryRequest", () => {
   it("carries the selector, the source and every file's bytes in order, with no pdfA", () => {
     const { header, files, rest } = unpack(
       packQueryRequest({
-        typstPath: null,
         source: "#metadata(1) <page-report>",
         files: [
           ["assets/a.png", Uint8Array.of(4, 5)],
@@ -80,7 +77,6 @@ describe("packQueryRequest", () => {
       }),
     );
     expect(header).toEqual({
-      typstPath: null,
       source: "#metadata(1) <page-report>",
       selector: "<page-report>",
       files: [

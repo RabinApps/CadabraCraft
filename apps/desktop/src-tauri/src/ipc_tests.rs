@@ -2,9 +2,9 @@
 //! generated handler code (argument decoding, `State` and `Channel` injection, response encoding) runs, with the same
 //! command names and wire format the webview uses. The command bodies are tested next to their definitions.
 use crate::audio::AudioJobs;
-use crate::{audio, commands, fonts, typst}; // the `app_handlers!` macro (lib.rs) names these modules
 use crate::commands::testutil::{project, root, text};
 use crate::platform::fs_watch::WatchState;
+use crate::{audio, commands, fonts, typst}; // the `app_handlers!` macro (lib.rs) names these modules
 use serde_json::{json, Value};
 use std::sync::mpsc::channel;
 use std::time::Duration;
@@ -22,10 +22,7 @@ fn mock_app() -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
 fn build_app(with_state: bool) -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     let builder = mock_builder();
     let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()) } else { builder };
-    let app = builder
-        .invoke_handler(app_handlers![])
-        .build(mock_context(noop_assets()))
-        .expect("the mock app builds");
+    let app = builder.invoke_handler(app_handlers![]).build(mock_context(noop_assets())).expect("the mock app builds");
     let window = WebviewWindowBuilder::new(&app, "main", Default::default()).build().expect("the mock window builds");
     (app, window)
 }
@@ -204,33 +201,20 @@ fn watch_project_emits_project_changed_with_the_relative_path() {
 #[test]
 fn typst_commands_work_through_the_ipc() {
     let (_app, w) = mock_app();
-    let missing = json!({ "typstPath": "/no/such/typst" });
-    assert_eq!(kind_of(call(&w, "typst_find", missing.clone())), "not_found");
-    assert_eq!(kind_of(call(&w, "typst_list_fonts", missing)), "not_found");
+    // The program is never chosen by the caller: a `typstPath` argument is ignored. The result depends only on the
+    // bundled typst (or, in debug builds, the environment's): it answers, or it is not found.
+    for cmd in ["typst_find", "typst_list_fonts"] {
+        for args in [json!({}), json!({ "typstPath": "/bin/sh" })] {
+            if let Err(e) = call(&w, cmd, args) {
+                assert_eq!(e["kind"], "not_found", "{cmd}: {e}");
+            }
+        }
+    }
     // A binary body goes through `typst_compile`; a malformed one is refused, and so is a JSON one.
     assert_eq!(kind_of(get_ipc_response(&w, request("typst_compile", InvokeBody::Raw(vec![1, 2]), &[]))), "other");
     assert_eq!(kind_of(call(&w, "typst_compile", json!({}))), "other");
     assert_eq!(kind_of(get_ipc_response(&w, request("typst_query", InvokeBody::Raw(vec![1, 2]), &[]))), "other");
     assert_eq!(kind_of(call(&w, "typst_query", json!({}))), "other");
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        let d = tempfile::tempdir().unwrap();
-        let fake = d.path().join("fake-typst");
-        std::fs::write(&fake, "#!/bin/sh\ncase \"$1\" in --version) echo 'typst 9.9.9';; fonts) echo Alpha;; compile) cp main.typ out.pdf;; query) cp main.typ /dev/stdout;; esac\n").unwrap();
-        std::fs::set_permissions(&fake, std::fs::Permissions::from_mode(0o755)).unwrap();
-        let fake = fake.to_string_lossy().into_owned();
-        assert_eq!(json_of(call(&w, "typst_find", json!({ "typstPath": fake })))["version"], "typst 9.9.9");
-        assert_eq!(json_of(call(&w, "typst_list_fonts", json!({ "typstPath": fake }))), json!(["Alpha"]));
-        let header = json!({ "typstPath": fake, "source": "%PDF-x", "pdfA": false, "files": [] }).to_string();
-        let mut body = (header.len() as u32).to_le_bytes().to_vec();
-        body.extend(header.as_bytes());
-        assert_eq!(raw_of(get_ipc_response(&w, request("typst_compile", InvokeBody::Raw(body), &[]))), b"%PDF-x");
-        let header = json!({ "typstPath": fake, "source": "{\"total\":0}", "selector": "<page-report>", "files": [] }).to_string();
-        let mut body = (header.len() as u32).to_le_bytes().to_vec();
-        body.extend(header.as_bytes());
-        assert_eq!(raw_of(get_ipc_response(&w, request("typst_query", InvokeBody::Raw(body), &[]))), b"{\"total\":0}");
-    }
 }
 
 #[test]
@@ -328,8 +312,9 @@ fn a_missing_or_mistyped_argument_is_refused_before_the_command_runs() {
 #[test]
 fn an_optional_argument_may_be_absent_or_null_but_not_mistyped() {
     let (_app, w) = mock_app();
-    for (cmd, args) in [("write_project_file", json!({ "root": "/not/a/project", "path": "p", "contents": "c" })), ("typst_find", json!({})), ("typst_list_fonts", json!({}))] {
-        let key = if cmd == "write_project_file" { "baseHash" } else { "typstPath" };
+    {
+        let (cmd, key) = ("write_project_file", "baseHash");
+        let args = json!({ "root": "/not/a/project", "path": "p", "contents": "c" });
         let mut wrong = args.clone();
         wrong[key] = json!({ "wrong": [true] });
         let err = call(&w, cmd, wrong).expect_err(cmd);
@@ -341,8 +326,21 @@ fn an_optional_argument_may_be_absent_or_null_but_not_mistyped() {
 fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
     let (_app, w) = build_app(false);
     for (cmd, args) in every_command() {
-        let needs_state = matches!(cmd, "watch_project" | "reference_stream_url" | "audio_cancel" | "audio_forget" | "audio_render_chapter" | "audio_sample" | "audio_build_m4b" | "audio_download_pack" | "fonts_download" | "fonts_cancel");
-        if needs_state { // (the others are not called: their arguments are placeholders for paths that must never be touched)
+        let needs_state = matches!(
+            cmd,
+            "watch_project"
+                | "reference_stream_url"
+                | "audio_cancel"
+                | "audio_forget"
+                | "audio_render_chapter"
+                | "audio_sample"
+                | "audio_build_m4b"
+                | "audio_download_pack"
+                | "fonts_download"
+                | "fonts_cancel"
+        );
+        if needs_state {
+            // (the others are not called: their arguments are placeholders for paths that must never be touched)
             let err = call(&w, cmd, args).expect_err(cmd);
             assert!(err.as_str().is_some_and(|m| m.contains("state not managed")), "{cmd}: {err}");
         }

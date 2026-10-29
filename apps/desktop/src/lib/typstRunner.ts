@@ -40,27 +40,25 @@ export function mapTypstError(e: unknown): Error {
 /** A `TypstRunner` over the Tauri commands (the webview cannot spawn processes itself). */
 export function createTauriRunner(
   bridge: Pick<Bridge, "typstListFonts" | "typstCompile" | "typstQuery">,
-  typstPath?: string,
 ): TypstRunner {
-  const path = typstPath?.trim() || null;
   return {
     async listFonts() {
       try {
-        return await bridge.typstListFonts(path);
+        return await bridge.typstListFonts();
       } catch (e) {
         throw mapTypstError(e);
       }
     },
     async compile(source, files, { pdfA }) {
       try {
-        return await bridge.typstCompile(path, source, [...files], pdfA);
+        return await bridge.typstCompile(source, [...files], pdfA);
       } catch (e) {
         throw mapTypstError(e);
       }
     },
     async query(source, files, selector) {
       try {
-        return await bridge.typstQuery(path, source, [...files], selector);
+        return await bridge.typstQuery(source, [...files], selector);
       } catch (e) {
         throw mapTypstError(e);
       }

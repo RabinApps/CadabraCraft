@@ -13,7 +13,7 @@ vi.mock("../../../lib/bridge", async () => {
     ...h.fonts.methods,
     typstListFonts: async () => typst.fonts,
     writeBytes: async () => {},
-    typstCompile: async (_p: string | null, source: string) => {
+    typstCompile: async (source: string) => {
       typst.compiles.push({ source });
       return new Uint8Array([0x25]);
     },

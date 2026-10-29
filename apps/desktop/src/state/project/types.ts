@@ -16,8 +16,6 @@ export interface PdfExportOptions extends ExportScope {
   template: string;
   /** Put the book's cover (if it has one) first, as a full-page image. Default true. */
   cover?: boolean;
-  /** User-configured location of the typst program (an app preference, never stored in the project). */
-  typstPath?: string;
   /** Print fonts for this export. Default: the book's own choice (`manifest.fonts`). */
   fonts?: { body?: string; heading?: string };
 }
@@ -338,7 +336,7 @@ export interface ExportActions {
    * Asks Typst for where each page entry starts and how long the book is, for the book as it is now (the open page's draft
    * included), without producing a PDF or taking the export lock. The last result is reused while the content is unchanged.
    */
-  measurePages: (options: { typstPath?: string }) => Promise<PageReport>;
+  measurePages: () => Promise<PageReport>;
 }
 
 export interface AudioActions {

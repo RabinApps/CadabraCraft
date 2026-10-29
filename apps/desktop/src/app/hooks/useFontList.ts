@@ -1,23 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { bridge, type InstalledFont } from "../../lib/bridge";
 import { mergeFonts, printFamilies, type FontEntry } from "../../lib/fontList";
-import { readTypstPath } from "../../lib/typstPath";
 
 /**
- * The families Typst sees on this computer, asked once per Typst location until the font library changes (Typst also lists the
+ * The families Typst sees on this computer, asked once until the font library changes (Typst also lists the
  * app's own downloaded and imported fonts, so a download, import or delete must ask again).
  */
-const systemFonts = new Map<string, Promise<string[]>>();
-const loadSystem = (): Promise<string[]> => {
-  const path = readTypstPath().trim();
-  let p = systemFonts.get(path);
-  if (!p) {
-    // Without Typst there is no list; the author still has the app's own fonts.
-    p = bridge.typstListFonts(path || null).catch(() => []);
-    systemFonts.set(path, p);
-  }
-  return p;
-};
+let systemFonts: Promise<string[]> | null = null;
+// Without Typst there is no list; the author still has the app's own fonts.
+const loadSystem = (): Promise<string[]> =>
+  (systemFonts ??= bridge.typstListFonts().catch(() => []));
 
 /** Every font the author can pick (bundled, installed, downloaded, imported), and a `refresh` for after a download, import or delete. */
 export function useFontList(): {
@@ -29,7 +21,7 @@ export function useFontList(): {
   const [system, setSystem] = useState<string[]>([]);
   const [kept, setKept] = useState<InstalledFont[]>([]);
   const refresh = useCallback(async () => {
-    systemFonts.clear();
+    systemFonts = null;
     const [sys, own] = await Promise.all([loadSystem(), bridge.fontsInstalled().catch(() => [])]);
     setSystem(sys);
     setKept(own);

@@ -15,10 +15,7 @@ import type { ExportScope } from "../../state/project/types";
 import { pdfChecks } from "../../lib/exportChecks";
 import { bookPageCount } from "../../lib/pageNumbering";
 import { trimLabel } from "../../lib/trimLabels";
-import { readTypstPath } from "../../lib/typstPath";
-import type { PdfUiError } from "../../lib/pdfErrors";
 import { Checkbox } from "../../ui/Checkbox";
-import { Field } from "../../ui/Input";
 import { Select } from "../../ui/Select";
 import { useProject } from "../../state/project";
 import { useFontList } from "../hooks/useFontList";
@@ -29,7 +26,6 @@ export function usePdfOptions(manifest: Manifest | null) {
   const [pdfA, setPdfA] = useState(false);
   const [withCover, setWithCover] = useState(true);
   const [template, setTemplate] = useState<string | null>(null);
-  const [typstPath, setTypstPath] = useState(readTypstPath);
   /** The template in effect: the one picked here, else the book's, else the default. */
   const current =
     template ??
@@ -46,24 +42,20 @@ export function usePdfOptions(manifest: Manifest | null) {
     withCover,
     setWithCover,
     setTemplate,
-    typstPath,
-    setTypstPath,
     current,
   };
 }
 export type PdfOptions = ReturnType<typeof usePdfOptions>;
 
-/** The Print PDF format: print checks for the estimated page count, trim size, template, PDF/A, cover and the Typst location. */
+/** The Print PDF format: print checks for the estimated page count, trim size, template, PDF/A and cover. */
 export function PdfPanel({
   options,
   running,
-  error,
   language,
   onChangeTrimSize,
 }: {
   options: PdfOptions;
   running: boolean;
-  error: PdfUiError | null;
   onChangeTrimSize?: () => void;
 } & ExportScope) {
   const { t } = useLingui();
@@ -71,17 +63,7 @@ export function PdfPanel({
   const readPages = useProject((s) => s.actions.readPages);
   const setBookFonts = useProject((s) => s.actions.setBookFonts);
   const { families } = useFontList();
-  const {
-    trimSize,
-    pdfA,
-    setPdfA,
-    withCover,
-    setWithCover,
-    setTemplate,
-    typstPath,
-    setTypstPath,
-    current,
-  } = options;
+  const { trimSize, pdfA, setPdfA, withCover, setWithCover, setTemplate, current } = options;
   const templates = listTemplates();
   const [words, setWords] = useState<number[] | null>(null);
   useEffect(() => {
@@ -196,16 +178,6 @@ export function PdfPanel({
           checked={withCover}
           disabled={running}
           onChange={(e) => setWithCover(e.target.checked)}
-        />
-      )}
-      {(error?.code === "typst-missing" || typstPath) && (
-        <Field
-          label={t`Typst location (optional)`}
-          value={typstPath}
-          disabled={running}
-          placeholder="/opt/homebrew/bin/typst"
-          onChange={(e) => setTypstPath(e.target.value)}
-          hint={t`Leave empty to use the Typst that comes with the app.`}
         />
       )}
     </>

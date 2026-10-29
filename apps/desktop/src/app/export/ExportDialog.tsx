@@ -17,7 +17,6 @@ import { EditionsChecklist, untranslatedIn } from "./EditionsChecklist";
 import { nativeName } from "../shell/EditionSwitcher";
 import { EpubPanel } from "./EpubPanel";
 import { MarkdownPanel } from "./MarkdownPanel";
-import { saveTypstPath } from "../../lib/typstPath";
 import { PdfPanel, usePdfOptions } from "./PdfPanel";
 import { useAudioExport } from "./useAudioExport";
 import type { ExportFormat } from "./exportFormat";
@@ -120,7 +119,6 @@ export function ExportDialog({
     setError(null);
     try {
       if (format === "audiobook") return audio.submit();
-      if (format === "pdf") saveTypstPath(pdf.typstPath.trim());
       const languages = picked.length ? picked : [current];
       // One edition after the other; the first failure stops the rest and is shown.
       for (const l of languages) {
@@ -135,7 +133,6 @@ export function ExportDialog({
             pdfA: pdf.pdfA,
             cover: pdf.withCover,
             template: pdf.current,
-            typstPath: pdf.typstPath.trim() || undefined,
             ...s,
           });
       }
@@ -221,7 +218,6 @@ export function ExportDialog({
           <PdfPanel
             options={pdf}
             running={running}
-            error={error}
             onChangeTrimSize={onChangeTrimSize}
             {...scope}
           />

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { markMeasureStale, setMeasured, setMeasureError } from "../../state/pageMeasure";
 import { useProject } from "../../state/project/index";
-import { readTypstPath } from "../../lib/typstPath";
 import { errText } from "../../lib/projectError";
 
 /** How long the book must be unchanged before Typst is asked about it (a measure takes seconds for a book). */
@@ -24,7 +23,7 @@ export function useMeasuredPages(enabled: boolean): void {
     if (!enabled || !manifest || busy) return;
     let live = true;
     const timer = setTimeout(() => {
-      measure({ typstPath: readTypstPath() }).then(
+      measure().then(
         (report) => live && setMeasured(report),
         (e) => live && setMeasureError(errText(e)),
       );

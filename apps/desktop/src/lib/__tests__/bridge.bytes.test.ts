@@ -29,9 +29,9 @@ describe("binary commands", () => {
   });
   it("typstCompile sends one binary body and converts the raw response", async () => {
     invoke.mockResolvedValueOnce(Uint8Array.of(0x25, 0x50).buffer);
-    expect(
-      await bridge.typstCompile(null, "src", [["assets/x.png", Uint8Array.of(1, 2)]], true),
-    ).toEqual(Uint8Array.of(0x25, 0x50));
+    expect(await bridge.typstCompile("src", [["assets/x.png", Uint8Array.of(1, 2)]], true)).toEqual(
+      Uint8Array.of(0x25, 0x50),
+    );
     const [cmd, body, ...rest] = invoke.mock.calls[0]!;
     expect(cmd).toBe("typst_compile");
     expect(body).toBeInstanceOf(Uint8Array);
@@ -43,9 +43,9 @@ describe("binary commands", () => {
 describe("typstQuery", () => {
   it("sends one binary body and decodes the raw response as text", async () => {
     invoke.mockResolvedValueOnce(new TextEncoder().encode('{"total":1}').buffer);
-    expect(
-      await bridge.typstQuery("/t", "src", [["a.png", Uint8Array.of(3)]], "<page-report>"),
-    ).toBe('{"total":1}');
+    expect(await bridge.typstQuery("src", [["a.png", Uint8Array.of(3)]], "<page-report>")).toBe(
+      '{"total":1}',
+    );
     const [cmd, body, ...rest] = invoke.mock.calls[0]!;
     expect(cmd).toBe("typst_query");
     expect(body).toBeInstanceOf(Uint8Array);

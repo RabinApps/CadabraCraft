@@ -243,7 +243,7 @@ Everything else is in the menus. There is no way to change shortcuts yet.
 
 ## Troubleshooting
 
-**PDF export says Typst is missing.** Print PDF is built by a program called Typst. Packaged installers are meant to include it, so a release build needs nothing else. If you built the app from source, run `scripts/fetch-typst.sh` once before building (see the [README](../README.md)), or install Typst yourself (for example with Homebrew) and, if the app still cannot find it, type its location into the **Typst location** field of the Export dialog. Note that the Export dialog's own wording still says Typst must be installed; that text is out of date for packaged builds.
+**PDF export says Typst is missing.** Print PDF is built by a program called Typst. Packaged installers are meant to include it, so a release build needs nothing else. If you built the app from source, run `scripts/fetch-typst.sh` once before building (see the [README](../README.md)). The app always uses the Typst it ships with; there is no field for choosing another one.
 
 **PDF export says a font is missing.** The font chosen for the book (or the template's own font) is not on this computer. Click **Open Fonts** to download it or import a file, or pick another font in the Export dialog. The Modern template uses Inter, which ships with the app. If you pointed the app at your own Typst, make sure the fonts of the template you chose are installed on your computer.
 

@@ -204,7 +204,7 @@ export async function fakeTauri(page: Page) {
             return []; // not a font: the editor falls back to its default stack
           case "typst_compile":
             {
-              // The body is one binary frame: u32 LE header length, header JSON (typstPath, source, pdfA, files), file bytes.
+              // The body is one binary frame: u32 LE header length, header JSON (source, pdfA, files), file bytes.
               const n = new DataView(a.buffer, a.byteOffset).getUint32(0, true);
               (window.__typstCalls ??= []).push(
                 JSON.parse(new TextDecoder().decode(a.subarray(4, 4 + n))),
