@@ -67,7 +67,7 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
       return [para("<w:r><w:t>#</w:t></w:r>", { style: "SceneBreak" }, ctx)];
     case "image": {
       const a = attrsOf(n);
-      const alt = String(a.alt ?? "");
+      const alt = a.decorative ? "" : String(a.alt ?? "");
       const title = String(a.title ?? "");
       const out = [
         para(

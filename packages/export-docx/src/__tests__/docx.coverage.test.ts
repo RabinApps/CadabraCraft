@@ -107,6 +107,19 @@ describe("blocks", () => {
     expect(d).toContain('descr="Fig"');
     expect(d).toContain('w:val="Caption"');
   });
+  it("ignores the alt text of a decorative image", () => {
+    const assets = new Map([
+      ["assets/a.png", bytes(33, ...PNG_HEAD, [16, [0, 0, 0, 2]], [20, [0, 0, 0, 2]])],
+    ]);
+    const d = documentXml(
+      buildDocx(
+        book,
+        [chapter("A", image({ src: "assets/a.png", alt: "ignored", decorative: true } as never))],
+        { assets },
+      ),
+    );
+    expect(d).toContain('descr=""');
+  });
   it("refuses an image type Word export does not know", () => {
     expect(() =>
       buildDocx(book, [chapter("A", image({ src: "assets/a.bmp" }))], {

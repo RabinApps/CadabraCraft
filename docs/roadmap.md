@@ -33,7 +33,7 @@ Designs are in the pen (`References / ...`, `Reference viewer / ...`, `Editor wi
 ### EPUB retail metadata
 
 - Built (format 6): publisher, description, subjects, series and number, rights and publication date per edition, written to the OPF and edited in Book details (see architecture.md, "EPUB retail metadata"). Still open: show them in the Details panel, an MCP tool to set them (the headless server writes them when they are in the manifest but cannot edit them), run `/validate-epub` with a sample that has them, and BISAC code suggestions.
-- Offer a "decorative image" choice so an intentionally empty alt does not trigger the alt-text warning; translate the accessibility summary; consider an evaluated `dcterms:conformsTo` claim only after an accessibility audit.
+- Translate the accessibility summary (the decorative-image choice and editing alt text on an existing image are built, see accessibility.md); consider an evaluated `dcterms:conformsTo` claim only after an accessibility audit.
 - Show the alt-text row's counts in the Export dialog with a jump to the image (needs a pen design).
 
 ### Editions (translations in one book, v1)

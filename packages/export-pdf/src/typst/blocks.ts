@@ -198,7 +198,7 @@ function block(n: DocNode, ctx: Ctx): string {
       if (!src) throw new PdfExportError("Image without a source");
       if (ctx.assets && !(src in ctx.assets)) throw new MissingAssetError([src]);
       const path = imagePath(src, ctx);
-      const alt = a.alt ? typstString(String(a.alt)) : "none";
+      const alt = a.alt && !a.decorative ? typstString(String(a.alt)) : "none";
       const img = `fit-image(${typstString(path)}, ${alt}, ${inch(ctx.maxImageIn)})`;
       const cap = a.title
         ? `, caption: [${escapeMarkup(String(a.title), { lineStart: true })}]`

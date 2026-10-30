@@ -142,6 +142,13 @@ describe("image helpers", () => {
     expect(collectImageSources(d)).toEqual(["", "assets/a.png"]);
     expect(imageAltStats(d)).toEqual({ total: 2, missingAlt: 2 });
   });
+  it("do not count an image marked decorative as missing alt text", () => {
+    const d = doc(
+      { type: "image", attrs: { src: "assets/a.png", alt: "", decorative: true } },
+      { type: "image", attrs: { src: "assets/b.png", alt: "" } },
+    );
+    expect(imageAltStats(d)).toEqual({ total: 2, missingAlt: 1 });
+  });
   it("count a document with no content array as empty", () => {
     expect(collectImageSources({ type: "doc" } as never)).toEqual([]);
     expect(imageAltStats({ type: "doc" } as never)).toEqual({ total: 0, missingAlt: 0 });

@@ -107,6 +107,24 @@ export interface CheckPage {
   doc: ChapterDoc;
 }
 
+/** One warning per chapter with images that have no description and are not marked decorative. Used by every format that carries alt text. */
+export function imageAltChecks(pages: CheckPage[]): ExportCheck[] {
+  const checks: ExportCheck[] = [];
+  for (const p of pages) {
+    const missing = imageAltStats(p.doc).missingAlt;
+    if (missing === 0) continue;
+    const name = p.title.trim() || p.file || "";
+    checks.push({
+      tone: "warn",
+      text: plural(missing, {
+        one: `“${name}” has # image without alt text`,
+        other: `“${name}” has # images without alt text`,
+      }),
+    });
+  }
+  return checks;
+}
+
 /** Checks the Export dialog shows before an EPUB is built. Only what the app can see; EPUBCheck is not run here. `pages` (every page's document) enables the image alt-text check. */
 export function epubChecks(
   manifest: Manifest,
@@ -125,18 +143,7 @@ export function epubChecks(
       tone: "warn",
       text: plural(untitled, { one: "# chapter has no title", other: "# chapters have no title" }),
     });
-  for (const p of pages) {
-    const missing = imageAltStats(p.doc).missingAlt;
-    if (missing === 0) continue;
-    const name = p.title.trim() || p.file || "";
-    checks.push({
-      tone: "warn",
-      text: plural(missing, {
-        one: `“${name}” has # image without alt text`,
-        other: `“${name}” has # images without alt text`,
-      }),
-    });
-  }
+  checks.push(...imageAltChecks(pages));
   if (checks.length === 0) checks.push({ tone: "ok", text: t`No problems found` });
   return checks;
 }

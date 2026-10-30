@@ -250,6 +250,14 @@ describe("escaping inside documents", () => {
     expect(out).toContain('"alt \\"x\\""');
     expect(out).toContain("caption: [Cap \\#1 \\*b\\*]");
   });
+  it("gives a decorative image no alt text whatever alt holds", () => {
+    const out = buildTypst(
+      book,
+      ch({ type: "image", attrs: { src: "a.png", alt: "ignored", decorative: true } } as DocNode),
+    );
+    expect(out).toMatch(/#figure\(fit-image\([^)]*, none,/);
+    expect(out).not.toContain("ignored");
+  });
   it("protects text right after an inline call", () => {
     const out = buildTypst(book, ch(para(text("a", [{ type: "bold" }]), text(".b (c)"))));
     expect(out).toContain("#strong[a]\\.b (c)");

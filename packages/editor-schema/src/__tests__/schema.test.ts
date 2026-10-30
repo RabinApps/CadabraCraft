@@ -329,6 +329,15 @@ describe("task lists and definition lists", () => {
     expect(chapterDocProblem(doc({ type: "taskList", content: [] }))).not.toBeNull();
     expect(chapterDocProblem(doc(task(false, p("a"))))).not.toBeNull();
   });
+  it("accepts an image with a boolean decorative value and rejects any other type", () => {
+    const img = (decorative: unknown) =>
+      doc({ type: "image", attrs: { src: "assets/a.png", alt: "", decorative } });
+    expect(chapterDocProblem(img(true))).toBeNull();
+    expect(chapterDocProblem(img(undefined))).toBeNull();
+    expect(chapterDocProblem(img("yes"))).toMatch(/decorative/);
+    const n = Node.fromJSON(schema, doc({ type: "image", attrs: { src: "assets/a.png" } }));
+    expect(n.firstChild!.attrs.decorative).toBe(false);
+  });
   const term = (text: string) => ({ type: "definitionTerm", content: [{ type: "text", text }] });
   const desc = (...content: unknown[]) => ({ type: "definitionDescription", content });
   it("accepts terms followed by descriptions, in groups, with inline marks and footnotes", () => {

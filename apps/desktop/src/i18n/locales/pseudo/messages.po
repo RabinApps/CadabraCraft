@@ -1215,6 +1215,10 @@ msgstr ""
 msgid "Delete voices"
 msgstr ""
 
+#: src/editor/useImageDialog.ts
+msgid "Describe the image, or tick \"This image is decorative\"."
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Description"
 msgstr ""
@@ -1721,6 +1725,15 @@ msgstr ""
 msgid "Image {0} could not be stored: {1}"
 msgstr ""
 
+#: src/app/export/AltTextCheck.tsx
+msgid "Image checks"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
+msgid "Image details"
+msgstr ""
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Image file"
 msgstr ""
@@ -1862,6 +1875,10 @@ msgstr ""
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/Details.tsx
 msgid "ISBN"
+msgstr ""
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "It adds nothing to the text, so screen readers skip it."
 msgstr ""
 
 #: src/app/references/Previews.tsx
@@ -2700,7 +2717,7 @@ msgid "Read"
 msgstr ""
 
 #: src/editor/ToolbarDialogs.tsx
-msgid "Read aloud by screen readers. Leave empty only for decoration."
+msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -2989,6 +3006,7 @@ msgstr ""
 
 #: src/app/shell/AppHeader.tsx
 #: src/app/shell/menuModel.ts
+#: src/editor/ToolbarDialogs.tsx
 msgid "Save"
 msgstr ""
 
@@ -3638,6 +3656,10 @@ msgstr ""
 
 #: src/lib/fontErrors.ts
 msgid "This font is not available any more."
+msgstr ""
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "This image is decorative"
 msgstr ""
 
 #. placeholder {0}: e.reference

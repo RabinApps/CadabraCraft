@@ -81,4 +81,15 @@ describe("accessibility metadata for display and hazards", () => {
     expect(hazard(opf("assets/a.svg"))).toBe("unknown");
     expect(hazard(opf("assets/a.gif"))).toBe("unknown");
   });
+  it("writes a decorative image with an empty alt and role=presentation, whatever alt holds", () => {
+    const d = {
+      type: "doc",
+      content: [
+        { type: "image", attrs: { src: "assets/a.png", alt: "left over", decorative: true } },
+      ],
+    } as ChapterDoc;
+    const html = chapterToXhtmlBody(d);
+    expect(html).toContain('<img src="assets/a.png" alt="" role="presentation"/>');
+    expect(html).not.toContain("left over");
+  });
 });

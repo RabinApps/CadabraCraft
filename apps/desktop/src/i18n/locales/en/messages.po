@@ -1216,6 +1216,10 @@ msgstr "Delete this snapshot?"
 msgid "Delete voices"
 msgstr "Delete voices"
 
+#: src/editor/useImageDialog.ts
+msgid "Describe the image, or tick \"This image is decorative\"."
+msgstr "Describe the image, or tick \"This image is decorative\"."
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Description"
 msgstr "Description"
@@ -1722,6 +1726,15 @@ msgstr "Image {0} could not be imported: {why}"
 msgid "Image {0} could not be stored: {1}"
 msgstr "Image {0} could not be stored: {1}"
 
+#: src/app/export/AltTextCheck.tsx
+msgid "Image checks"
+msgstr "Image checks"
+
+#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
+msgid "Image details"
+msgstr "Image details"
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Image file"
 msgstr "Image file"
@@ -1864,6 +1877,10 @@ msgstr "Invalid pattern"
 #: src/app/shell/Details.tsx
 msgid "ISBN"
 msgstr "ISBN"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "It adds nothing to the text, so screen readers skip it."
+msgstr "It adds nothing to the text, so screen readers skip it."
 
 #: src/app/references/Previews.tsx
 msgid "It is stored with your book. Open it in another app to read it."
@@ -2701,8 +2718,8 @@ msgid "Read"
 msgstr "Read"
 
 #: src/editor/ToolbarDialogs.tsx
-msgid "Read aloud by screen readers. Leave empty only for decoration."
-msgstr "Read aloud by screen readers. Leave empty only for decoration."
+msgid "Read aloud by screen readers. Describe what the picture shows."
+msgstr "Read aloud by screen readers. Describe what the picture shows."
 
 #: src/editor/ReadingSettings.tsx
 msgid "Reading settings"
@@ -2990,6 +3007,7 @@ msgstr "same as now"
 
 #: src/app/shell/AppHeader.tsx
 #: src/app/shell/menuModel.ts
+#: src/editor/ToolbarDialogs.tsx
 msgid "Save"
 msgstr "Save"
 
@@ -3641,6 +3659,10 @@ msgstr "This file is too large to import."
 #: src/lib/fontErrors.ts
 msgid "This font is not available any more."
 msgstr "This font is not available any more."
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "This image is decorative"
+msgstr "This image is decorative"
 
 #. placeholder {0}: e.reference
 #: src/lib/projectError.ts

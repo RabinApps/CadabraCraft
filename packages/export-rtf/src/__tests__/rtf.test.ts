@@ -676,6 +676,11 @@ describe("images", () => {
     const decorative = build([chapter("A", imageDoc("assets/a.png", { alt: "" }))], { assets });
     expect(decorative).toContain("{\\pict\\pngblip");
     expect(decorative).not.toContain("picprop");
+    const flagged = build(
+      [chapter("A", imageDoc("assets/a.png", { alt: "ignored", decorative: true } as never))],
+      { assets },
+    );
+    expect(flagged).not.toContain("picprop");
     const bad = chapter("A", imageDoc("assets/a.png", { alt: "x\u0001" }));
     expect(message(() => build([bad], { assets }))).toContain("An image description");
   });

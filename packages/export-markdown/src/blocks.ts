@@ -37,7 +37,7 @@ function imageSource(src: string, base: string): string {
 
 function image(n: DocNode, ctx: Ctx): string {
   const a = attrsOf(n);
-  const alt = escapeText(String(a.alt ?? ""), false, {});
+  const alt = escapeText(a.decorative ? "" : String(a.alt ?? ""), false, {});
   const title = a.title
     ? ` "${String(a.title).replace(/[\\"]/g, "\\$&").replace(ENTITY, "\\&")}"`
     : "";

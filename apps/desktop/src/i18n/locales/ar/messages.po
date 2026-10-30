@@ -1216,6 +1216,10 @@ msgstr "هل تحذف هذه اللقطة؟"
 msgid "Delete voices"
 msgstr "حذف الأصوات"
 
+#: src/editor/useImageDialog.ts
+msgid "Describe the image, or tick \"This image is decorative\"."
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Description"
 msgstr "الوصف"
@@ -1722,6 +1726,15 @@ msgstr "تعذّر استيراد الصورة {0}: {why}"
 msgid "Image {0} could not be stored: {1}"
 msgstr "تعذّر تخزين الصورة {0}: {1}"
 
+#: src/app/export/AltTextCheck.tsx
+msgid "Image checks"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
+msgid "Image details"
+msgstr ""
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Image file"
 msgstr "ملف صورة"
@@ -1864,6 +1877,10 @@ msgstr "نمط غير صالح"
 #: src/app/shell/Details.tsx
 msgid "ISBN"
 msgstr "ISBN"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "It adds nothing to the text, so screen readers skip it."
+msgstr ""
 
 #: src/app/references/Previews.tsx
 msgid "It is stored with your book. Open it in another app to read it."
@@ -2701,8 +2718,8 @@ msgid "Read"
 msgstr "قراءة"
 
 #: src/editor/ToolbarDialogs.tsx
-msgid "Read aloud by screen readers. Leave empty only for decoration."
-msgstr "تقرؤه قارئات الشاشة بصوت عالٍ. اتركه فارغًا فقط إذا كانت الصورة للزخرفة."
+msgid "Read aloud by screen readers. Describe what the picture shows."
+msgstr ""
 
 #: src/editor/ReadingSettings.tsx
 msgid "Reading settings"
@@ -2990,6 +3007,7 @@ msgstr "مثل الآن"
 
 #: src/app/shell/AppHeader.tsx
 #: src/app/shell/menuModel.ts
+#: src/editor/ToolbarDialogs.tsx
 msgid "Save"
 msgstr "حفظ"
 
@@ -3641,6 +3659,10 @@ msgstr "هذا الملف كبير جدًا لاستيراده."
 #: src/lib/fontErrors.ts
 msgid "This font is not available any more."
 msgstr "هذا الخط لم يعد متاحًا."
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "This image is decorative"
+msgstr ""
 
 #. placeholder {0}: e.reference
 #: src/lib/projectError.ts

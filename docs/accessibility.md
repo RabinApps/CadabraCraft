@@ -24,9 +24,10 @@ To add: axe over every dialog, the settings, history, export and import screens 
 - **DOCX:** `w:tblLook` first-row flag follows the header row. The schema has no table caption.
 - **Audiobook:** the edition language is written to the M4B and to Opus chapter files (not FLAC or WAV). "Save a transcript" writes a book transcript and one WebVTT file per chapter from the text sent to the voice; cue times are estimates, not word-accurate.
 
+- **Images:** inserting an image needs a description or "This image is decorative" (`decorative` attr, see file-format.md); "Image details" in the toolbar edits both on a selected image; the Export dialog warns about images with neither for EPUB, Print PDF, Word and Rich Text.
+
 ## Open work (not yet done)
 
-- **Images:** no way to edit alt text after insert and no "decorative" choice; the missing-alt warning runs for EPUB only.
 - **Language:** no per-node `lang` (schema change), so foreign phrases are read in the book language; the EPUB accessibility summary is English only.
 - **UI leftovers:** 59 hover-only `title=` hints; text at 11 px; color-only cues in find highlights and some status rows; axe scans of more screens (RTL, every dialog); keyboard-only sweep of each dialog.
 - **PDF:** run veraPDF (`--flavour ua1`) and open a sample in PAC or Acrobat; the cover and footers have not been checked in a PDF/UA validator.

@@ -296,7 +296,12 @@ function block(n: DocNode, ctx: Ctx): string {
       return `<hr class="scene-break"/>`;
     case "image": {
       const a = n.attrs ?? {};
-      return `<figure><img src="${esc(String(a.src ?? ""))}" alt="${esc(String(a.alt ?? ""))}"/>${
+      // A decorative image keeps an empty alt on purpose and is hidden from assistive technology.
+      const src = esc(String(a.src ?? ""));
+      const img = a.decorative
+        ? `<img src="${src}" alt="" role="presentation"/>`
+        : `<img src="${src}" alt="${esc(String(a.alt ?? ""))}"/>`;
+      return `<figure>${img}${
         a.title ? `<figcaption>${esc(String(a.title))}</figcaption>` : ""
       }</figure>`;
     }
@@ -333,7 +338,7 @@ export function collectImageSources(doc: ChapterDoc): string[] {
   return [...new Set(out)];
 }
 
-/** How many images a chapter has and how many of them have no alt text (missing or only spaces). */
+/** How many images a chapter has and how many of them have no alt text (missing or only spaces) and are not marked decorative. */
 export function imageAltStats(doc: ChapterDoc): { total: number; missingAlt: number } {
   let total = 0;
   let missingAlt = 0;
@@ -341,7 +346,7 @@ export function imageAltStats(doc: ChapterDoc): { total: number; missingAlt: num
     for (const n of nodes ?? []) {
       if (n.type === "image") {
         total += 1;
-        if (String(n.attrs?.alt ?? "").trim() === "") missingAlt += 1;
+        if (!n.attrs?.decorative && String(n.attrs?.alt ?? "").trim() === "") missingAlt += 1;
       }
       if ("content" in n) walk(n.content);
     }

@@ -246,7 +246,7 @@ test("the EPUB and PDF panels drop book reads that finish after they were left, 
   const readsBeforePdf = await calls(page, "read_project_file");
   await hold(page, "read_project_file");
   await dialog.getByRole("radio", { name: "Print PDF" }).click();
-  await waitForCall(page, "read_project_file", readsBeforePdf + 1);
+  await waitForCall(page, "read_project_file", readsBeforePdf + 2); // the print estimate and the image checks each read the book
   await dialog.getByRole("radio", { name: "Markdown" }).click();
   await release(page, "read_project_file");
   await dialog.getByRole("radio", { name: "EPUB 3" }).click();

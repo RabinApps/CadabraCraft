@@ -11,6 +11,7 @@ import {
   Heading2,
   Heading3,
   Image as ImageIcon,
+  SquarePen,
   Italic,
   Link,
   List,
@@ -26,9 +27,9 @@ import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
 import { IconButton } from "../ui/Button";
 import { useRegisterCommands } from "../state/commands";
 import { attempt } from "../state/attempt";
-import { useProject } from "../state/project/index";
 import { TableCommands } from "./TableCommands";
-import { ImageDialog, LinkDialog, type ImageDraft } from "./ToolbarDialogs";
+import { ImageDialog, LinkDialog } from "./ToolbarDialogs";
+import { useImageDialog } from "./useImageDialog";
 
 interface Item {
   id: string;
@@ -63,6 +64,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
       numbers: e.isActive("orderedList"),
       taskList: e.isActive("taskList"),
       definitionList: e.isActive("definitionList"),
+      image: e.isActive("image"),
       canUndo: e.can().undo(),
       canRedo: e.can().redo(),
     }),
@@ -72,22 +74,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const [href, setHref] = useState("");
   const [linkError, setLinkError] = useState("");
 
-  const [image, setImage] = useState<ImageDraft | null>(null);
-  const importImage = useProject((p) => p.actions.importImage);
-  const addImage = async () => {
-    const src = await importImage();
-    if (src) setImage({ src, alt: "", caption: "" });
-  };
-  const applyImage = () => {
-    if (!image) return;
-    c()
-      .insertContent({
-        type: "image",
-        attrs: { src: image.src, alt: image.alt.trim(), title: image.caption.trim() || null },
-      })
-      .run();
-    setImage(null);
-  };
+  const { image, setImage, addImage, editImage, applyImage } = useImageDialog(editor, c);
 
   const setLink = () => {
     if (s.link) {
@@ -211,6 +198,13 @@ export function Toolbar({ editor }: { editor: Editor }) {
             .run(),
       },
       { id: "image", label: t`Image`, icon: ImageIcon, run: () => attempt(addImage()) },
+      {
+        id: "imageDetails",
+        label: t`Image details`,
+        icon: SquarePen,
+        disabled: !s.image,
+        run: editImage,
+      },
       {
         id: "footnote",
         label: t`Footnote`,
@@ -360,7 +354,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
           <div
             key={i}
             role="group"
-            className="flex shrink-0 items-center gap-0.5 [&:not(:first-child)]:border-s [&:not(:first-child)]:border-border [&:not(:first-child)]:ps-1.5 [&:not(:last-child)]:pe-0.5"
+            className="flex shrink-0 items-center gap-0.5 not-first:border-s not-first:border-border not-first:ps-1.5 not-last:pe-0.5"
           >
             {g.map((b) => (
               <IconButton

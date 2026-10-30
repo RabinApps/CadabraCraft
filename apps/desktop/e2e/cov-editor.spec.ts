@@ -407,6 +407,9 @@ test.describe("toolbar", () => {
     await tb(page, "Image").click();
     await add(page).getByLabel("Caption").fill("With caption");
     await add(page).getByRole("button", { name: "Insert" }).click();
+    await expect(add(page).getByRole("alert")).toContainText("Describe the image");
+    await add(page).getByLabel("This image is decorative").check();
+    await add(page).getByRole("button", { name: "Insert" }).click();
     await expect(pm(page).locator("figcaption")).toHaveText("With caption");
   });
 

@@ -107,7 +107,7 @@ Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 sc
 - Images live in `assets/` (one level, no subfolders) and are referenced from chapters as `assets/<name>`, relative, never absolute and never a URL.
 - Allowed types: png, jpg, jpeg, gif, webp, svg, at most 25 MB each. The EPUB export refuses an SVG that contains scripts, event handlers, `foreignObject`, a doctype or external references, since EPUB readers may run or fetch them; it is never silently dropped or rewritten. Names contain only `A-Z a-z 0-9 _ -` and one lowercase extension.
 - Imports never overwrite: identical bytes reuse the existing file, different bytes get a `-2`, `-3`... suffix.
-- Image node attrs: `src` (required), `alt` (text for screen readers), `title` (shown as the caption). EPUB export copies referenced images to `OEBPS/assets/`.
+- Image node attrs: `src` (required), `alt` (text for screen readers), `title` (shown as the caption), `decorative` (optional boolean, default `false`: the image conveys nothing, so `alt` is empty on purpose and every exporter ignores `alt`; any other type is refused). `decorative` was added without a `formatVersion` bump, like other chapter additions: an older app drops it on save and the image then counts as "no alt text". EPUB export copies referenced images to `OEBPS/assets/`.
 - The app never deletes assets; unreferenced ones are simply left in the folder.
 
 ## References (formatVersion 5)

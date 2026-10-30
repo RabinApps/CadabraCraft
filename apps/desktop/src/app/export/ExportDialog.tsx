@@ -12,6 +12,7 @@ import { useSponsor } from "../../state/sponsor";
 import { bleedInches } from "../../state/printSetup";
 import { useProject } from "../../state/project";
 import { AudioFooter } from "./AudioFooter";
+import { AltTextCheck } from "./AltTextCheck";
 import { AudioPanel } from "./AudioPanel";
 import { EditionsChecklist, untranslatedIn } from "./EditionsChecklist";
 import { nativeName } from "../shell/EditionSwitcher";
@@ -239,6 +240,7 @@ export function ExportDialog({
             {...scope}
           />
         )}
+        {(format === "pdf" || format === "docx" || format === "rtf") && <AltTextCheck {...scope} />}
         {running && (
           <div className="flex flex-col gap-2">
             <p role="status" className="text-sm text-ink-muted">

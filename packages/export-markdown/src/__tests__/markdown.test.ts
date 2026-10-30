@@ -143,6 +143,14 @@ describe("node mapping", () => {
     expect(roundTrip(d)).toEqual(d);
   });
 
+  it("writes a decorative image with an empty alt", () => {
+    const img = {
+      type: "image",
+      attrs: { src: "assets/a.png", alt: "ignored", decorative: true },
+    } as DocNode;
+    expect(chapterToMarkdown(doc(img))).toBe("![](assets/a.png)\n");
+  });
+
   it("writes images with the caption as title and a prefix on relative paths", () => {
     const img: DocNode = {
       type: "image",

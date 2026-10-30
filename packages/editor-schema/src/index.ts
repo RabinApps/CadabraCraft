@@ -192,6 +192,17 @@ export function setAssetUrlResolver(fn: AssetUrlResolver | null): void {
 
 /** Block image with a caption (stored in `title`) and an asset-aware node view. */
 export const CaptionedImage = Image.extend({
+  /** `decorative: true` marks an image that conveys nothing (empty alt on purpose); absent means false. */
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      decorative: {
+        default: false,
+        parseHTML: (el) => el.getAttribute("data-decorative") === "true",
+        renderHTML: (attrs) => (attrs.decorative ? { "data-decorative": "true" } : {}),
+      },
+    };
+  },
   addNodeView() {
     return ({ node: initial }) => {
       const dom = document.createElement("figure");
@@ -202,7 +213,7 @@ export const CaptionedImage = Image.extend({
       let shownSrc: string | null = null;
       const render = (attrs: Record<string, unknown>) => {
         const src = String(attrs.src ?? "");
-        img.alt = String(attrs.alt ?? "");
+        img.alt = attrs.decorative ? "" : String(attrs.alt ?? "");
         caption.textContent = String(attrs.title ?? "");
         caption.hidden = !attrs.title;
         if (src === shownSrc) return;
@@ -342,6 +353,7 @@ export function chapterDocProblem(doc: unknown): string | null {
   let tableBad: string | null = null;
   let badHref: string | null = null;
   let badChecked = false;
+  let badDecorative = false;
   const walk = (n: RawNode) => {
     if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
     for (const m of n.marks ?? [])
@@ -353,6 +365,12 @@ export function chapterDocProblem(doc: unknown): string | null {
       typeof n.attrs.checked !== "boolean"
     )
       badChecked = true;
+    if (
+      n.type === "image" &&
+      n.attrs?.decorative !== undefined &&
+      typeof n.attrs.decorative !== "boolean"
+    )
+      badDecorative = true;
     if (n.type === "table") tableBad ??= tableProblem(n);
     for (const c of n.content ?? []) walk(c);
   };
@@ -361,6 +379,7 @@ export function chapterDocProblem(doc: unknown): string | null {
   if (badHref !== null)
     return `link ${JSON.stringify(badHref)} is not allowed (only http, https and mailto links)`;
   if (badChecked) return "a task item's checked value must be true or false";
+  if (badDecorative) return "an image's decorative value must be true or false";
   return tableBad;
 }
 
