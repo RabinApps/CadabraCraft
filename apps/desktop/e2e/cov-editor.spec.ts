@@ -425,6 +425,8 @@ test.describe("toolbar", () => {
     );
     await link(page).getByRole("button", { name: "Cancel" }).click();
     await expect(link(page)).toHaveCount(0);
+    // Closing the dialog hands the focus back to the text (a frame later); only then is a script's selection kept.
+    await expect(pm(page)).toBeFocused();
 
     await selectParagraph(page, "last");
     await tb(page, "Link").click();

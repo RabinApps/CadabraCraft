@@ -46,6 +46,7 @@ const configKey = (c: PageConfig): string =>
     c.opensChapter,
     c.layoutKey,
     c.exactKey,
+    c.zoom,
   ]);
 
 type Meta = { type: "set"; set: DecorationSet } | { type: "clear" };

@@ -6,16 +6,18 @@ import type { Ctx } from "./context";
 
 /** Earlier versions of a page: putting one back, and the recovery offers made when a book opens. */
 export const createSnapshotActions = (ctx: Ctx): SnapshotActions => {
-  const { set, get, need, entryOf, reloadCurrent, flush, load } = ctx;
+  const { set, get, need, entryOf, langOf, reloadCurrent, flush, load } = ctx;
   return {
     async restoreSnapshot(id, snapshot) {
       await flush();
       const { root, manifest } = need();
       const entry = entryOf(manifest, id);
       if (!entry) return;
-      const w = await bridge.restoreSnapshot(root, sourceFile(entry, manifest.editions), snapshot);
+      // The edition that is open: its page is the one History listed the snapshot for (a translation has its own file).
+      const file = entry.files[langOf(manifest)] ?? sourceFile(entry, manifest.editions);
+      const w = await bridge.restoreSnapshot(root, file, snapshot);
       set({
-        hashes: { ...get().hashes, [sourceFile(entry, manifest.editions)]: w.hash },
+        hashes: { ...get().hashes, [file]: w.hash },
         recovery: get().recovery.filter((r) => r.id !== id),
       });
       if (get().currentId === id) await reloadCurrent();
@@ -29,7 +31,7 @@ export const createSnapshotActions = (ctx: Ctx): SnapshotActions => {
       const { root, manifest } = need();
       const entry = entryOf(manifest, id);
       if (!entry) return;
-      const file = sourceFile(entry, manifest.editions);
+      const file = entry.files[langOf(manifest)] ?? sourceFile(entry, manifest.editions);
       const w = await bridge.restorePageFromBookSnapshot(root, snapshot, file);
       set({
         hashes: { ...get().hashes, [file]: w.hash },

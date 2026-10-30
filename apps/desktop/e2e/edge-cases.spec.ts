@@ -182,3 +182,106 @@ test.describe("content that is wider than a phone", () => {
     expect(o.scroll).toBeLessThanOrEqual(1);
   });
 });
+
+const menuRun = async (page: Page, id: string) => {
+  await page.waitForFunction(() => Boolean(window.__cadabraMenu));
+  return page.evaluate((i) => window.__cadabraMenu.run(i) as boolean, id);
+};
+
+test.describe("Enter and Backspace at the edges of blocks", () => {
+  test("Enter on an empty task item leaves the list, Backspace removes an empty item", async ({
+    page,
+  }) => {
+    await focusEnd(page);
+    await menuRun(page, "editor.taskList");
+    await page.keyboard.type("one");
+    await page.keyboard.press("Enter");
+    await expect(ed(page).locator('li[data-type="taskItem"]')).toHaveCount(2);
+    await page.keyboard.press("Backspace");
+    await expect(ed(page).locator('li[data-type="taskItem"]')).toHaveCount(1);
+    await expect(ed(page)).toBeFocused();
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Enter");
+    await expect(ed(page).locator('li[data-type="taskItem"]')).toHaveCount(1);
+    await page.keyboard.type("after");
+    await expect(ed(page).locator('li[data-type="taskItem"]')).toHaveText("one");
+    await expect(ed(page)).toContainText("after");
+  });
+
+  test("a definition list can be written with the keyboard alone", async ({ page }) => {
+    await focusEnd(page);
+    await menuRun(page, "editor.definitionList");
+    await page.keyboard.type("Term");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("Meaning");
+    await expect(ed(page).locator("dl dt")).toHaveText("Term");
+    await expect(ed(page).locator("dl dd")).toHaveText("Meaning");
+  });
+
+  test("Enter at the end of a heading starts a paragraph, Backspace at its start joins the heading", async ({
+    page,
+  }) => {
+    const h1 = ed(page).locator("h1");
+    const box = (await h1.boundingBox())!;
+    await h1.click({ position: { x: box.width - 2, y: box.height / 2 } });
+    await page.waitForTimeout(150); // ProseMirror reads the click's selection on the next event
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("Body");
+    await expect(ed(page).locator("h1 + p")).toHaveText("Body");
+    await expect(h1).toHaveText("Chapter One");
+    for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("Backspace");
+    await expect(h1).toHaveText("Chapter OneBody");
+  });
+
+  test("Enter in a table cell makes a paragraph in the cell, not a new row", async ({ page }) => {
+    await focusEnd(page);
+    await menuRun(page, "editor.table");
+    await page
+      .getByRole("dialog", { name: "Insert table" })
+      .getByRole("button", { name: "Insert" })
+      .click();
+    const rows = await ed(page).locator("tr").count();
+    await ed(page).locator("td").first().click();
+    await page.keyboard.type("a");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("b");
+    await expect(ed(page).locator("td").first().locator("p")).toHaveCount(2);
+    await expect(ed(page).locator("tr")).toHaveCount(rows);
+  });
+
+  test("typing over a selection replaces it, and undo and redo restore it", async ({ page }) => {
+    await focusEnd(page);
+    await page.keyboard.type("old words");
+    await page.waitForTimeout(700); // typing within half a second is one undo step
+    await ed(page).locator("p").last().click({ clickCount: 3 });
+    await page.keyboard.type("new");
+    await expect(ed(page).locator("p").last()).toHaveText("new");
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(ed(page).locator("p").last()).toHaveText("old words");
+    await page.keyboard.press("ControlOrMeta+Shift+z");
+    await expect(ed(page).locator("p").last()).toHaveText("new");
+  });
+});
+
+test.describe("focus after dialogs", () => {
+  const link = (page: Page) => page.getByRole("dialog", { name: "Add link" });
+  test("returns to the text after a link is applied, cancelled or escaped", async ({ page }) => {
+    await focusEnd(page);
+    await page.keyboard.type("link me");
+    for (const how of ["apply", "cancel", "escape"] as const) {
+      await ed(page).locator("p").last().click({ clickCount: 3 });
+      await tool(page, "Link").click();
+      await expect(link(page)).toBeVisible();
+      if (how === "apply") {
+        await link(page).getByLabel("Address").fill("https://example.com");
+        await link(page).getByRole("button", { name: "Apply" }).click();
+      } else if (how === "cancel") {
+        await link(page).getByRole("button", { name: "Cancel" }).click();
+      } else await page.keyboard.press("Escape");
+      await expect(link(page)).toHaveCount(0);
+      await expect(ed(page), how).toBeFocused();
+      if (how === "apply") await tool(page, "Link").click(); // the caret is in the link: the button removes it
+    }
+  });
+});
