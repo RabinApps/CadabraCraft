@@ -31,7 +31,7 @@ To add: axe over every dialog, the settings, history, export and import screens 
 - **Language:** no per-node `lang` (schema change), so foreign phrases are read in the book language; the EPUB accessibility summary is English only.
 - **UI leftovers:** 59 hover-only `title=` hints; text at 11 px; color-only cues in find highlights and some status rows; axe scans of more screens (RTL, every dialog); keyboard-only sweep of each dialog.
 - **PDF:** run veraPDF (`--flavour ua1`) and open a sample in PAC or Acrobat; the cover and footers have not been checked in a PDF/UA validator.
-- **Pen and design:** the PDF/UA and "Save a transcript" checkboxes are not yet drawn in `cadabracraft.pen` or `docs/design.md`.
+- **Pen and design:** the Image details dialog, the "Image checks" list and the skip link are described in design.md but not drawn in the pen.
 - **Not exercised in real tools:** RTF language and picture descriptions and the DOCX `tblLook` change (Word, LibreOffice); forced-colors on a real Windows High Contrast display; the M4B language tag in a player.
 - **Manual testing:** VoiceOver, NVDA and Orca passes, 200% zoom (see [platform-checks.md](platform-checks.md)).
 

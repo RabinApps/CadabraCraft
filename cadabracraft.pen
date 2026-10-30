@@ -51520,6 +51520,588 @@
               ]
             }
           ]
+        },
+        {
+          "type": "frame",
+          "id": "lKib7",
+          "x": 3350,
+          "y": 1760,
+          "name": "Add image dialog / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 640,
+          "height": 660,
+          "fill": "$sidebar",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "FvLip",
+              "name": "Dialog",
+              "width": 420,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000033",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 32
+              },
+              "layout": "vertical",
+              "gap": 18,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "AmwQ4",
+                  "name": "Add link",
+                  "fill": "$ink",
+                  "content": "Add image",
+                  "fontFamily": "$font-book",
+                  "fontSize": "$type-title",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "XZfuq",
+                  "name": "Image file",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "RAkPq",
+                      "name": "Address",
+                      "fill": "$ink-muted",
+                      "content": "Image file",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "Hhd8M",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Address input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "assets/lighthouse.png"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "qxIqv",
+                      "name": "Use http, https or mailt",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Copied into the book's assets folder.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "juPXe",
+                  "name": "Description (alt text)",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Y5T8D",
+                      "name": "Address",
+                      "fill": "$ink-muted",
+                      "content": "Description (alt text)",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "V5AgXF",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Address input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "A lighthouse at dusk, waves breaking on the rocks"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "m6TkiR",
+                      "name": "Use http, https or mailt",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Read aloud by screen readers. Describe what the picture shows.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "P6gktR",
+                  "name": "This image is decorative",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "fIDTp",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Ahkac",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "W0iLb",
+                          "name": "This image is decorative label",
+                          "fill": "$ink",
+                          "content": "This image is decorative",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "rigJ8",
+                          "name": "This image is decorative hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "It adds nothing to the text, so screen readers skip it.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PH2Wr",
+                  "name": "Caption",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "HZIhh",
+                      "name": "Address",
+                      "fill": "$ink-muted",
+                      "content": "Caption",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "O2nn3j",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Address input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "The light at Cape Wrath"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "JLHld",
+                      "name": "Use http, https or mailt",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Optional. Shown below the image.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Bqweb",
+                  "name": "Actions",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "kR8o9",
+                      "name": "Right",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "id": "qhYRC",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "I6qeCj": {
+                              "enabled": false
+                            },
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "XN3er",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Apply",
+                          "descendants": {
+                            "FuxJL": {
+                              "enabled": false
+                            },
+                            "gNKXH": {
+                              "content": "Insert"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "EskRD",
+          "x": 3350,
+          "y": 2540,
+          "name": "Add image dialog / dark",
+          "theme": {
+            "mode": "dark"
+          },
+          "clip": true,
+          "width": 640,
+          "height": 660,
+          "fill": "$sidebar",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "oRkEi",
+              "name": "Dialog",
+              "width": 420,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000033",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 32
+              },
+              "layout": "vertical",
+              "gap": 18,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jr37N",
+                  "name": "Add link",
+                  "fill": "$ink",
+                  "content": "Add image",
+                  "fontFamily": "$font-book",
+                  "fontSize": "$type-title",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "tcSQz",
+                  "name": "Image file",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sRIXg",
+                      "name": "Address",
+                      "fill": "$ink-muted",
+                      "content": "Image file",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "a0KIVK",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Address input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "assets/lighthouse.png"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "pd6Ku",
+                      "name": "Use http, https or mailt",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Copied into the book's assets folder.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "LH8OR",
+                  "name": "Description (alt text)",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "GfMSY",
+                      "name": "Address",
+                      "fill": "$ink-muted",
+                      "content": "Description (alt text)",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "tnWsT",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Address input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "A lighthouse at dusk, waves breaking on the rocks"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "GpbQS",
+                      "name": "Use http, https or mailt",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Read aloud by screen readers. Describe what the picture shows.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "j62gtM",
+                  "name": "This image is decorative",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "RXeAx",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cUvAc",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "NWxq1",
+                          "name": "This image is decorative label",
+                          "fill": "$ink",
+                          "content": "This image is decorative",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "iPgns",
+                          "name": "This image is decorative hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "It adds nothing to the text, so screen readers skip it.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "QpxtS",
+                  "name": "Caption",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "spnSI",
+                      "name": "Address",
+                      "fill": "$ink-muted",
+                      "content": "Caption",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "Cop54",
+                      "type": "ref",
+                      "ref": "PE4pF",
+                      "name": "Address input",
+                      "width": "fill_container",
+                      "descendants": {
+                        "oNv10": {
+                          "content": "The light at Cape Wrath"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "a6xYX",
+                      "name": "Use http, https or mailt",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Optional. Shown below the image.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "KQKIl",
+                  "name": "Actions",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mn8tg",
+                      "name": "Right",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "id": "Mbjj2",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "I6qeCj": {
+                              "enabled": false
+                            },
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "pU09D",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Apply",
+                          "descendants": {
+                            "FuxJL": {
+                              "enabled": false
+                            },
+                            "gNKXH": {
+                              "content": "Insert"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -56587,6 +57169,61 @@
                 },
                 {
                   "type": "frame",
+                  "id": "cZVRg",
+                  "name": "PDF/UA (accessible)",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "b3NvS",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jt9CB",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yZ24Y",
+                          "name": "PDF/UA (accessible) label",
+                          "fill": "$ink",
+                          "content": "PDF/UA (accessible)",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "dus0Q",
+                          "name": "PDF/UA (accessible) hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Tags headings, lists, tables and images so screen readers can read the file. Images without a description are left out as decoration.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "RptsY",
                   "name": "Include the cover",
                   "width": "fill_container",
@@ -57171,6 +57808,61 @@
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
                           "content": "Embeds everything needed to open the file in the future.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "V0XC08",
+                  "name": "PDF/UA (accessible)",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "FfMsE",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AmNXq",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "prFtl",
+                          "name": "PDF/UA (accessible) label",
+                          "fill": "$ink",
+                          "content": "PDF/UA (accessible)",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "T358t",
+                          "name": "PDF/UA (accessible) hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Tags headings, lists, tables and images so screen readers can read the file. Images without a description are left out as decoration.",
                           "lineHeight": 1.5,
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-caption",
@@ -107150,6 +107842,61 @@
                 },
                 {
                   "type": "frame",
+                  "id": "XfTOy",
+                  "name": "Save a transcript",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "GHTvd",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VoEbP",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "QL5eF",
+                          "name": "Save a transcript label",
+                          "fill": "$ink",
+                          "content": "Save a transcript",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "TbB7o",
+                          "name": "Save a transcript hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Writes the book as text, and a caption file for each chapter, next to the audio. Caption times are estimates.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "unWWm",
                   "name": "Chapters",
                   "width": "fill_container",
@@ -107942,6 +108689,61 @@
                               "fontWeight": "normal"
                             }
                           ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "G5rCX",
+                  "name": "Save a transcript",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "D1GI4U",
+                      "name": "Checkbox",
+                      "width": 18,
+                      "height": 18,
+                      "fill": "$surface",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "HwtQB",
+                      "name": "Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "SP0Ta",
+                          "name": "Save a transcript label",
+                          "fill": "$ink",
+                          "content": "Save a transcript",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "reyCP",
+                          "name": "Save a transcript hint",
+                          "fill": "$ink-muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Writes the book as text, and a caption file for each chapter, next to the audio. Caption times are estimates.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
                         }
                       ]
                     }
