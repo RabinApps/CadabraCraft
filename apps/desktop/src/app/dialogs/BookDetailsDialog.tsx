@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { t as translate } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronRight, ImagePlus, Image as ImageIcon, Save, Trash2 } from "lucide-react";
-import { LOCALES } from "../../i18n/locales";
+import { ENABLED_LOCALE_INFO, LOCALES } from "../../i18n/locales";
 import { assetUrl } from "../../lib/assets";
 import { errText } from "../../lib/projectError";
 import {
@@ -136,9 +136,17 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
   const isTranslation =
     activeLanguage !== null && activeLanguage !== sourceEdition(manifest.editions).language;
   const set = (patch: Partial<BookDetails>) => setForm({ ...form, ...patch });
-  const languages = LOCALES.some((l) => l.code === form.language)
-    ? LOCALES
-    : [...LOCALES, { code: form.language, nativeName: form.language, dir: "ltr" as const }];
+  // Enabled languages only, plus the book's current one when it is not enabled (so it is not silently changed).
+  const languages = ENABLED_LOCALE_INFO.some((l) => l.code === form.language)
+    ? ENABLED_LOCALE_INFO
+    : [
+        ...ENABLED_LOCALE_INFO,
+        LOCALES.find((l) => l.code === form.language) ?? {
+          code: form.language,
+          nativeName: form.language,
+          dir: "ltr" as const,
+        },
+      ];
   const publishing = form.publishing ?? publishingToForm(undefined);
   const setPublishing = (patch: Partial<PublishingForm>) =>
     set({ publishing: { ...publishing, ...patch } });

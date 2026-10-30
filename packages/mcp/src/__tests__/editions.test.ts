@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { addEdition, parseManifest, serializeManifest } from "@cadabracraft/format";
+import { parseManifest, serializeManifest } from "@cadabracraft/format";
 import { type Session, connect } from "./helpers";
 
 let s: Session;
@@ -26,21 +26,13 @@ const withFrench = async () => {
       doc: doc(`Source ${title}`),
     });
   }
+  await s.ok("cadabra_edition_add", { path: "p", language: "fr", mode: "copy" });
+  // No tool edits an edition's details; give French its own, as Book details would.
   const m = manifest();
-  const fr = {
-    language: "fr",
-    title: "Livre",
-    author: "Moi",
-    identifier: "urn:uuid:fr",
-    isbn: null,
-    cover: null,
-  };
-  const { manifest: next, files } = addEdition(m, fr, "copy");
-  for (const f of files) {
-    mkdirSync(dirname(at(f.path)), { recursive: true });
-    writeFileSync(at(f.path), readFileSync(at(f.from!), "utf8"));
-  }
-  writeFileSync(at("cadabra.json"), serializeManifest(next));
+  const editions = m.editions.map((e) =>
+    e.language === "fr" ? { ...e, title: "Livre", author: "Moi" } : e,
+  );
+  writeFileSync(at("cadabra.json"), serializeManifest({ ...m, editions }));
 };
 
 describe("language arguments", () => {
@@ -187,5 +179,71 @@ describe("export per language", () => {
     expect(r.file).toBe("exports/fr/book.epub");
     const info = await s.ok("cadabra_inspect_epub", { path: "p", language: "fr" });
     expect(info).toMatchObject({ title: "Livre", author: "Moi", language: "fr" });
+  });
+});
+
+describe("cadabra_edition_add", () => {
+  it("copy makes untranslated copies of the source with the source title and author", async () => {
+    s = await connect();
+    await s.ok("cadabra_project_create", { path: "p", title: "Book", author: "Me" });
+    await s.ok("cadabra_chapter_add", { path: "p", title: "One" });
+    await s.ok("cadabra_chapter_write_json", {
+      path: "p",
+      chapterId: "ch-1",
+      doc: doc("Source One"),
+    });
+    await s.ok("cadabra_edition_add", { path: "p", language: "fr", mode: "copy" });
+    const m = manifest();
+    expect(m.editions[1]).toMatchObject({
+      language: "fr",
+      title: "Book",
+      author: "Me",
+      isbn: null,
+      cover: null,
+    });
+    expect(m.editions[1]!.identifier).toMatch(/^urn:uuid:/);
+    expect(m.chapters.map((c) => c.untranslated)).toEqual([["fr"]]);
+    expect(readFileSync(at("manuscript/fr/001-one.json"), "utf8")).toContain("Source One");
+  });
+
+  it("empty writes a heading and a blank paragraph per page", async () => {
+    s = await connect();
+    await s.ok("cadabra_project_create", { path: "p", title: "Book", author: "Me" });
+    await s.ok("cadabra_chapter_add", { path: "p", title: "One" });
+    const r = await s.ok("cadabra_edition_add", { path: "p", language: "de", mode: "empty" });
+    expect(r).toMatchObject({ language: "de", mode: "empty", pages: 1 });
+    const d = JSON.parse(readFileSync(at("manuscript/de/001-one.json"), "utf8"));
+    expect(d.content[0].content[0].text).toBe("One");
+    expect(d.content[1]).toEqual({ type: "paragraph" });
+  });
+
+  it("refuses a language the book has", async () => {
+    await withFrench();
+    const r = await s.call("cadabra_edition_add", { path: "p", language: "fr", mode: "copy" });
+    expect(r.data.error.code).toBe("language_exists");
+    const same = await s.call("cadabra_edition_add", { path: "p", language: "en", mode: "empty" });
+    expect(same.data.error.code).toBe("language_exists");
+  });
+
+  it("refuses a malformed language tag", async () => {
+    await withFrench();
+    const r = await s.call("cadabra_edition_add", {
+      path: "p",
+      language: "not a tag",
+      mode: "copy",
+    });
+    expect(r.data.error.code).toBe("invalid_input");
+    expect(manifest().editions).toHaveLength(2);
+  });
+
+  it("refuses to overwrite a file that is already on disk and leaves the manifest alone", async () => {
+    s = await connect();
+    await s.ok("cadabra_project_create", { path: "p", title: "Book", author: "Me" });
+    await s.ok("cadabra_chapter_add", { path: "p", title: "One" });
+    mkdirSync(at("manuscript/it"), { recursive: true });
+    writeFileSync(at("manuscript/it/001-one.json"), "{}");
+    const r = await s.call("cadabra_edition_add", { path: "p", language: "it", mode: "copy" });
+    expect(r.data.error.code).toBe("io_error");
+    expect(manifest().editions).toHaveLength(1);
   });
 });

@@ -5,7 +5,7 @@ import { Button } from "../../ui/Button";
 import { Select } from "../../ui/Select";
 import { cx } from "../../ui/cx";
 import { errText } from "../../lib/projectError";
-import { LOCALES } from "../../i18n/locales";
+import { ENABLED_LOCALE_INFO, LOCALES } from "../../i18n/locales";
 import { useProject } from "../../state/project/index";
 
 interface Props {
@@ -21,7 +21,7 @@ export function AddLanguageDialog({ open, onOpenChange }: Props) {
   const { t } = useLingui();
   const editions = useProject((s) => s.manifest?.editions ?? []);
   const actions = useProject((s) => s.actions);
-  const available = LOCALES.filter((l) => !editions.some((e) => e.language === l.code));
+  const available = ENABLED_LOCALE_INFO.filter((l) => !editions.some((e) => e.language === l.code));
   const [language, setLanguage] = useState(available[0]?.code ?? "");
   const [mode, setMode] = useState<"copy" | "empty">("copy");
   const [busy, setBusy] = useState(false);
