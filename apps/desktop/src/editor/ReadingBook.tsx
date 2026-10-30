@@ -21,7 +21,6 @@ import {
 } from "../lib/readingBook";
 import { errText } from "../lib/projectError";
 import { attempt } from "../state/attempt";
-import { useSettings } from "../state/editorPrefs";
 import { readingPaged } from "../state/pageView";
 import { usePageMeasure } from "../state/pageMeasure";
 import { useProject } from "../state/project/index";
@@ -44,10 +43,9 @@ function ReadingScroll({ pages }: { pages: BookPage[] }) {
   const currentId = useProject((s) => s.currentId);
   const selectChapter = useProject((s) => s.actions.selectChapter);
   const { size, width } = useReading();
-  const manuscriptFont = useSettings((s) => s.manuscriptFont);
   const wide = useIsMd();
   const paged = readingPaged("read", wide);
-  const look = usePageLook(manuscriptFont);
+  const look = usePageLook();
   const { g, book } = look;
   // The reader draws the pages as Typst broke them, in every chapter: the book is measured with the marks that say where.
   useMeasuredPages(paged, true);

@@ -12,7 +12,7 @@ import {
   reopen,
   stopFailing,
 } from "./support/cov";
-import { chapterAction, newProject, seedSnapshot } from "./support/helpers";
+import { chapterAction, newProject, seedSnapshot, focusEnd } from "./support/helpers";
 
 // Failure, timing and rare-state paths of the dialogs (src/app/dialogs). The cases that need a particular backend answer
 // or a held call use the wrapper in support/cov.ts on top of the fake Tauri backend.
@@ -297,8 +297,7 @@ test("history: unreadable, invalid, equal and different versions, and a failed r
     });
   });
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("hello world");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");

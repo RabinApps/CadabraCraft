@@ -2,7 +2,13 @@ import { expect, test, type Page } from "./support/coverage";
 import { audit } from "./support/audit";
 import { fakeImportSources } from "./support/fakeImport";
 import { fakeTauri } from "./support/fakeTauri";
-import { chapterAction, frenchWithOneChapter, newProject, seedSnapshot } from "./support/helpers";
+import {
+  chapterAction,
+  frenchWithOneChapter,
+  newProject,
+  seedSnapshot,
+  focusEnd,
+} from "./support/helpers";
 
 // Phone layouts: no horizontal scroll, controls reachable and at least 44px on touch, dialogs that scroll inside the
 // viewport, and the editor with the soft keyboard open (emulated by shrinking the viewport height).
@@ -198,8 +204,7 @@ const SCREENS: Record<string, Open> = {
   },
   "history dialog": async (page) => {
     await newProject(page);
-    await page.locator(".ProseMirror").click();
-    await page.keyboard.press("ControlOrMeta+End");
+    await focusEnd(page);
     await page.keyboard.type("Marta walked home");
     await page.getByRole("button", { name: "Save" }).or(more(page)).first().click();
     await seedSnapshot(page, "Ilse walked home");

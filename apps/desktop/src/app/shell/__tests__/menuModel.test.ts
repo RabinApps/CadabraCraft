@@ -60,7 +60,6 @@ const BOOK: Commands = Object.fromEntries(
     "view.write",
     "view.read",
     "view.focus",
-    "view.pageView",
     "view.details",
     "view.references",
     "editor.bold",
@@ -240,7 +239,6 @@ describe("what is available in each context", () => {
       "insert.chapter",
       "view.write",
       "view.focus",
-      "view.pageView",
       "editor.bold",
       "go.next",
       "edit.bookUndo",
@@ -352,30 +350,6 @@ describe("menu shortcuts", () => {
   it("leaves Cmd/Ctrl+E to the editor, where it toggles inline code", () => {
     expect(accelerators(buildMenuModel(ctx(BOOK)))).not.toContain("CmdOrCtrl+E");
     expect(find(buildMenuModel(ctx(BOOK)), "file.exportEpub")?.accelerator).toBe("CmdOrCtrl+Alt+E");
-  });
-});
-
-describe("page view", () => {
-  it("sits in the View menu with Cmd/Ctrl+Shift+P, after Focus Mode", () => {
-    const view = submenu(buildMenuModel(ctx(BOOK)), "View");
-    expect(find(view, "view.pageView")).toMatchObject({
-      text: "Page View",
-      accelerator: "CmdOrCtrl+Shift+P",
-      enabled: true,
-    });
-    const ids = commandIds(view);
-    expect(ids.indexOf("view.pageView")).toBe(ids.indexOf("view.focus") + 1);
-  });
-
-  it("is a tick item that follows the command and keeps its tick type when unavailable", () => {
-    const on = buildMenuModel(ctx({ ...BOOK, "view.pageView": { run, checked: true } }));
-    expect(find(on, "view.pageView")?.checked).toBe(true);
-    const phone = buildMenuModel(
-      ctx({ ...BOOK, "view.pageView": { run, checked: false, enabled: false } }),
-    );
-    expect(find(phone, "view.pageView")).toMatchObject({ enabled: false, checked: false });
-    const reading = buildMenuModel(ctx({ ...BOOK, "view.pageView": undefined as never }));
-    expect(find(reading, "view.pageView")).toMatchObject({ enabled: false, checked: false });
   });
 });
 

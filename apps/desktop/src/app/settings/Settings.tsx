@@ -13,15 +13,7 @@ import { languageOptions } from "../../ui/LanguagePicker";
 import { Switch } from "../../ui/Switch";
 import { useTheme, type Theme } from "../../state/theme";
 import { useUpdates } from "../../state/updates";
-import {
-  BUNDLED_EDITOR_FONTS,
-  MAX_SESSION_GOAL,
-  useSettings,
-  type EditorFont,
-  type RawHtmlPaste,
-  type WritingWidth,
-} from "../../state/editorPrefs";
-import { useFontList } from "../hooks/useFontList";
+import { MAX_SESSION_GOAL, useSettings, type RawHtmlPaste } from "../../state/editorPrefs";
 import { AudioSection } from "./AudioSection";
 import { FontsSection } from "./FontsSection";
 import { ShortcutsSection } from "./ShortcutsSection";
@@ -49,8 +41,6 @@ export function Settings({
   const { t } = useLingui();
   const { theme, setTheme } = useTheme();
   const {
-    manuscriptFont,
-    writingWidth,
     typewriterScroll,
     sessionGoal,
     rawHtmlPaste,
@@ -72,7 +62,6 @@ export function Settings({
     shortcuts: t`Shortcuts`,
   };
   const [active, setActive] = useState<(typeof sections)[number]>(initialSection ?? "appearance");
-  const { fonts } = useFontList();
   const mainRef = useRef<HTMLElement>(null);
   /** Until this time a nav click is scrolling, and the scroll must not move the highlight off the section that was clicked. */
   const jumpingUntil = useRef(0);
@@ -190,52 +179,6 @@ export function Settings({
               />
             </Section>
             <Section id="editor" title={navLabels.editor}>
-              <Row
-                title={t`Manuscript font`}
-                hint={t`Used while writing. Your book's print fonts are set in Export.`}
-                control={
-                  <div className="w-56 max-sm:w-full">
-                    <Select
-                      label={t`Manuscript font`}
-                      hideLabel
-                      className="py-2"
-                      value={manuscriptFont}
-                      onChange={(e) => set({ manuscriptFont: e.target.value as EditorFont })}
-                    >
-                      <option value="newsreader">Newsreader</option>
-                      <option value="inter">Inter</option>
-                      {/* A chosen font that was deleted stays listed, so the select does not show a different one. */}
-                      {!BUNDLED_EDITOR_FONTS.includes(manuscriptFont as "inter") &&
-                        !fonts.some((f) => f.family === manuscriptFont) && (
-                          <option value={manuscriptFont}>{manuscriptFont}</option>
-                        )}
-                      {fonts
-                        .filter((f) => f.source !== "bundled")
-                        .map((f) => (
-                          <option key={f.family} value={f.family}>
-                            {f.family}
-                          </option>
-                        ))}
-                    </Select>
-                  </div>
-                }
-              />
-              <Row
-                title={t`Writing column width`}
-                hint={t`How wide the page is in the editor.`}
-                control={
-                  <Segmented<WritingWidth>
-                    label={t`Writing column width`}
-                    value={writingWidth}
-                    onChange={(v) => set({ writingWidth: v })}
-                    items={[
-                      { value: "narrow", label: t`Narrow` },
-                      { value: "medium", label: t`Medium` },
-                      { value: "wide", label: t`Wide` },
-                    ]}
-                  />
-                }
-              />
               <Row
                 title={t`Typewriter scrolling`}
                 hint={t`Keep the line you are writing centered.`}

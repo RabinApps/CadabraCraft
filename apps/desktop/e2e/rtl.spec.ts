@@ -333,7 +333,6 @@ test("RTL: Page view breaks a list between its items where Typst did, and does n
   await page.evaluate((r) => {
     window.__typstQueryResultFor = (source) => (source.includes("bm-s(") ? r : undefined);
   }, report);
-  await page.getByRole("button", { name: "Page view", exact: true }).click();
   await forceRtl(page);
   await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
   await expect(page.locator(".page")).toHaveCount(2);
@@ -383,7 +382,6 @@ test("RTL: Page view cuts a table row in each cell where Typst did and does not 
   await page.evaluate((r) => {
     window.__typstQueryResultFor = (source) => (source.includes("bm-s(") ? r : undefined);
   }, report);
-  await page.getByRole("button", { name: "Page view", exact: true }).click();
   await forceRtl(page);
   await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
   await expect(page.locator(".page")).toHaveCount(2);

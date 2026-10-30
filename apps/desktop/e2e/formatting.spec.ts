@@ -178,3 +178,37 @@ test.describe("formatting toolbar", () => {
     await expect(ed(page)).toContainText("oops");
   });
 });
+
+test("Tab types a tab character and stays in the editor; Escape then Tab leaves it", async ({
+  page,
+}) => {
+  await newProject(page);
+  const ed = page.locator(".ProseMirror");
+  await ed.locator("p").last().click();
+  await page.keyboard.type("a");
+  await page.keyboard.press("Tab");
+  await page.keyboard.type("b");
+  await expect(ed.locator("p").last()).toHaveText("a\tb");
+  await expect(ed).toBeFocused();
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Tab");
+  await expect(ed).not.toBeFocused();
+  expect(await ed.locator("p").last().textContent()).toBe("a\tb");
+});
+
+test("Tab in a list indents the item and does not type a tab", async ({ page }) => {
+  await newProject(page);
+  const ed = page.locator(".ProseMirror");
+  await ed.locator("p").last().click();
+  await page
+    .getByRole("toolbar", { name: "Formatting" })
+    .getByRole("button", { name: "Bulleted list", exact: true })
+    .click();
+  await page.keyboard.type("one");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("two");
+  await page.keyboard.press("Tab");
+  await expect(ed.locator("ul ul")).toHaveCount(1);
+  expect(await ed.locator("ul").first().textContent()).not.toContain("\t");
+  await expect(ed).toBeFocused();
+});

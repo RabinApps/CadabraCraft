@@ -10,7 +10,7 @@ import {
   reopen,
   stopFailing,
 } from "./support/cov";
-import { newProject, noVoices } from "./support/helpers";
+import { newProject, noVoices, focusEnd } from "./support/helpers";
 
 // Rare states of the export dialog, its panels, the print preview and the templates page (src/app/export).
 
@@ -349,8 +349,7 @@ test("editions checklist: untoggling an edition and a pending page whose title i
 });
 
 async function typeParagraphs(page: Page) {
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("First paragraph of the chapter.");
   await page.keyboard.press("Enter");
   await page.keyboard.type("Second paragraph of the chapter.");

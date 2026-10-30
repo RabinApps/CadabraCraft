@@ -23,8 +23,6 @@ async function load(stored: string | null | "throw") {
 afterEach(() => vi.unstubAllGlobals());
 
 const good = {
-  manuscriptFont: "inter",
-  writingWidth: "wide",
   typewriterScroll: true,
   sessionGoal: 5,
 };
@@ -34,15 +32,8 @@ describe("useSettings with a damaged or unavailable store", () => {
     for (const s of ["{not json", "42", '"str"', "[]", "null", "true", "throw"] as const) {
       const { useSettings } = await load(s);
       expect(useSettings.getState().rawHtmlPaste).toBe("ask");
-      expect(useSettings.getState().manuscriptFont).toBe("newsreader");
+      expect(useSettings.getState().typewriterScroll).toBe(false);
     }
-  });
-  it("rejects prototype keys as a font or width", async () => {
-    const { useSettings } = await load(
-      JSON.stringify({ ...good, manuscriptFont: "constructor", writingWidth: "toString" }),
-    );
-    expect(useSettings.getState().manuscriptFont).toBe("newsreader");
-    expect(useSettings.getState().writingWidth).toBe("medium");
   });
   it("keeps a valid saved choice and cleans a bad rawHtmlPaste to ask", async () => {
     expect(

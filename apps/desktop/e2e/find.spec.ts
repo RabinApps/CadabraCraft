@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { covBackend, failOn } from "./support/cov";
-import { newProject, addPage } from "./support/helpers";
+import { newProject, addPage, focusEnd } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -11,8 +11,7 @@ test.describe("find and replace", () => {
   const bar = (page: Page) => page.getByRole("search", { name: "Find and replace" });
   async function withText(page: Page) {
     await newProject(page);
-    await page.locator(".ProseMirror").click();
-    await page.keyboard.press("ControlOrMeta+End");
+    await focusEnd(page);
     await page.keyboard.type(" The cat sat. The cat ran. A cat slept.");
   }
 
@@ -85,8 +84,7 @@ test.describe("find and replace", () => {
   }) => {
     await newProject(page);
     const typeInPage = async (text: string) => {
-      await page.locator(".ProseMirror").click();
-      await page.keyboard.press("ControlOrMeta+End");
+      await focusEnd(page);
       await page.keyboard.type(text);
     };
     await typeInPage(" owl one owl");
@@ -202,8 +200,7 @@ test.describe("find and replace", () => {
   }) => {
     await newProject(page);
     const typeInPage = async (text: string) => {
-      await page.locator(".ProseMirror").click();
-      await page.keyboard.press("ControlOrMeta+End");
+      await focusEnd(page);
       await page.keyboard.type(text);
     };
     await typeInPage(" id-1 id-2");
@@ -239,8 +236,7 @@ test.describe("find and replace", () => {
   async function owlBook(page: Page) {
     await newProject(page);
     const typeInPage = async (text: string) => {
-      await page.locator(".ProseMirror").click();
-      await page.keyboard.press("ControlOrMeta+End");
+      await focusEnd(page);
       await page.keyboard.type(text);
     };
     await typeInPage(" owl one owl");
@@ -357,8 +353,7 @@ test.describe("find and replace", () => {
   }) => {
     await newProject(page);
     for (let i = 0; i < 4; i++) {
-      await page.locator(".ProseMirror").click();
-      await page.keyboard.press("ControlOrMeta+End");
+      await focusEnd(page);
       await page.keyboard.type(
         " owl with a rather long sentence so that nothing could possibly fit",
       );
@@ -407,8 +402,7 @@ test.describe("find and replace", () => {
     await dialog.getByLabel("Language", { exact: true }).selectOption("fr");
     await dialog.getByRole("button", { name: "Add language", exact: true }).click();
     await expect(page.getByRole("button", { name: /Edition: Français/ })).toBeVisible();
-    await page.locator(".ProseMirror").click();
-    await page.keyboard.press("ControlOrMeta+End");
+    await focusEnd(page);
     await page.keyboard.type(" Un cat de plus.");
     await expect(page.getByRole("status")).toContainText("Saved");
 

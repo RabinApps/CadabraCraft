@@ -1,6 +1,6 @@
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, titles, chapterAction } from "./support/helpers";
+import { newProject, titles, chapterAction, focusEnd } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -19,8 +19,7 @@ test("creating a project shows a first chapter in the editor", async ({ page }) 
 
 test("typed text is saved as TipTap JSON and survives a reload via Open", async ({ page }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Hello from Playwright");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");
@@ -31,8 +30,7 @@ test("typed text is saved as TipTap JSON and survives a reload via Open", async 
 
 test("switching chapters keeps unsaved typing", async ({ page }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("first chapter text");
   await page.getByRole("button", { name: "Add chapter" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");

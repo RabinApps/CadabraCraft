@@ -8,6 +8,7 @@ import {
   manifestOf,
   sidebar,
   exportBook,
+  focusEnd,
 } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -155,8 +156,7 @@ test("restoring a page from the trash puts it back at the end and opens it", asy
   // A new chapter takes the freed file name, so the restored page must not overwrite it.
   await page.getByRole("button", { name: "Add chapter" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("new one");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");

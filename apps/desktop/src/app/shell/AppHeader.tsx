@@ -4,7 +4,6 @@ import {
   BookOpen,
   BookText,
   Download,
-  FileText,
   FileUp,
   Library,
   ListTree,
@@ -23,7 +22,6 @@ import { Button, IconButton } from "../../ui/Button";
 import { Segmented } from "../../ui/Segmented";
 import { EditionSwitcher } from "./EditionSwitcher";
 import { HeaderMenu } from "./HeaderMenu";
-import { usePageView } from "../hooks/usePageView";
 import { useLayout } from "../../state/layout";
 import { useQuickNav } from "../../state/quickNav";
 import { useProject } from "../../state/project/index";
@@ -73,7 +71,6 @@ export function AppHeader({
   const showQuickNav = useQuickNav((s) => s.show);
   const reader = mode === "read";
   const setImportingInto = useStartDialogs((s) => s.setImportingInto);
-  const pageView = usePageView();
   const save = run(actions.flush);
   // Saving first means the export and the reader show what was typed.
   const exportBook = run(async () => {
@@ -146,15 +143,6 @@ export function AppHeader({
             label={t`Focus mode`}
             className="max-sm:hidden"
             onClick={() => setLayout({ focus: true })}
-          />
-        )}
-        {!reader && (
-          <IconButton
-            icon={FileText}
-            label={t`Page view`}
-            active={pageView.on}
-            className="max-md:hidden"
-            onClick={pageView.toggle}
           />
         )}
         {!reader && (

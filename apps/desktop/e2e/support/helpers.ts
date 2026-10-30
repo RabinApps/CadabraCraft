@@ -136,3 +136,22 @@ export async function frenchWithOneChapter(page: Page) {
   await page.keyboard.type(" Bonjour");
   await expect(page.getByRole("status")).toContainText("Saved");
 }
+
+/**
+ * Puts the caret at the end of the open chapter. The page surface sinks the chapter title below the page's top margin, so a click in
+ * the middle of the editor lands on the title; a click at the bottom edge is below the last block, where ProseMirror puts the caret
+ * at the end of the document.
+ */
+export async function focusEnd(page: Page) {
+  const pm = page.locator(".ProseMirror").first();
+  const box = await pm.boundingBox();
+  await pm.click({ position: { x: 4, y: Math.max(1, box!.height - 4) } });
+  await page.keyboard.press("ControlOrMeta+End");
+}
+
+/** Makes the page surface ask Typst again (a canned answer is set after the chapter was first measured): Read mode and back remounts it. */
+export async function remeasure(page: Page) {
+  await page.getByRole("radio", { name: "Read" }).click();
+  await page.getByRole("radio", { name: "Write" }).click();
+  await expect(page.locator(".page").first()).toBeVisible();
+}

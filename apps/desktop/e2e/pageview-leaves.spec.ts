@@ -1,11 +1,10 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { addPage, newProject, seedChapters } from "./support/helpers";
+import { addPage, focusEnd, newProject, seedChapters, remeasure } from "./support/helpers";
 
 // Exact page breaks for the blocks that hold others (lists, quotes, tables), for a word Typst hyphenated, for front matter, for Read
 // mode and for a chapter measured on its own. The Typst answers are canned (`__typstQueryResultFor`); the layout is real Chromium.
 
-const toggle = (page: Page) => page.getByRole("button", { name: "Page view", exact: true });
 const cards = (page: Page) => page.locator(".page");
 
 const word = (i: number) =>
@@ -68,10 +67,14 @@ const report = (id: string, extra: unknown[] = []) =>
   });
 
 /** Typst answers, for the run of a chapter or book with marks, with `answer`; the book without marks stays unanswered. */
-const answerWith = (page: Page, answer: string) =>
-  page.evaluate((a) => {
+const answerWith = async (page: Page, answer: string) => {
+  const set = (a: string) => {
     window.__typstQueryResultFor = (source) => (source.includes("bm-s(") ? a : undefined);
-  }, answer);
+  };
+  // Also for the next load (seeding reloads the page), so the first measure of a chapter already gets the answer.
+  await page.addInitScript(set, answer);
+  await page.evaluate(set, answer);
+};
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -81,14 +84,12 @@ test("quotes, lists and tables: a page begins between items and rows, and inside
   page,
 }) => {
   await newProject(page);
-  await seedChapters(page, [doc()]);
   await answerWith(page, report("chapter-1"));
-  await toggle(page).click();
+  await seedChapters(page, [doc()]);
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
-  await expect(page.locator(".page-chip")).toHaveText(
-    "Page view · 5.5 × 8.5 in · breaks as in the PDF",
-    { timeout: 10_000 },
-  );
+  await expect(page.locator(".page-chip")).toHaveText("5.5 × 8.5 in · breaks as in the PDF", {
+    timeout: 10_000,
+  });
   await expect(cards(page)).toHaveCount(5);
   // A spacer is a child of the list, the quote and the table's body, right before the item, paragraph or row a page begins with.
   const gaps = page.locator(".pv-gap");
@@ -177,14 +178,12 @@ test("a page that begins inside a table row begins in each cell that runs onto i
   page,
 }) => {
   await newProject(page);
-  await seedChapters(page, [rowDoc() as never]);
   await answerWith(page, rowReport);
-  await toggle(page).click();
+  await seedChapters(page, [rowDoc() as never]);
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
-  await expect(page.locator(".page-chip")).toHaveText(
-    "Page view · 5.5 × 8.5 in · breaks as in the PDF",
-    { timeout: 10_000 },
-  );
+  await expect(page.locator(".page-chip")).toHaveText("5.5 × 8.5 in · breaks as in the PDF", {
+    timeout: 10_000,
+  });
   await expect(cards(page)).toHaveCount(2);
   // A spacer in each cell that runs over, in the paragraph the page begins in, right before that word.
   await expect(page.locator("td .pv-gap")).toHaveCount(2);
@@ -213,6 +212,7 @@ test("a page that begins inside a table row begins in each cell that runs onto i
   // The caret's page follows the cell it is in: B's first paragraph is on page 1, the end of A on page 2.
   await page.locator("td").nth(1).locator("p").first().click();
   await expect(page.getByTestId("page-position")).toHaveText(/ · Page 1 of 2$/, { timeout: 5_000 });
+  await page.waitForTimeout(500); // the page measures once more after the first click; let the layout settle
   // A click on the first word after cell A's spacer: the caret is past the break, in a cell whose neighbour was cut elsewhere.
   const tail = await page.evaluate(() => {
     const next = document.querySelector("td .pv-gap")!.nextSibling!;
@@ -274,7 +274,7 @@ test("a table row cut for a cell that ends before the page does leaves that cell
       ],
     }),
   );
-  await toggle(page).click();
+  await remeasure(page);
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
   await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
   await expect(cards(page)).toHaveCount(3);
@@ -305,12 +305,12 @@ test("a table that Typst starts a page inside of, at a cell that is not at the t
   const cells = bad.marks.filter((m: unknown[]) => m[0] === "s" && m[2] === 4);
   cells[1][4] = 5;
   await answerWith(page, JSON.stringify(bad));
-  await toggle(page).click();
+  await remeasure(page);
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
   await expect
     .poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0))
     .toBeGreaterThan(1);
-  await expect(page.locator(".page-chip")).toHaveText("Page view · 5.5 × 8.5 in · approximate");
+  await expect(page.locator(".page-chip")).toHaveText("5.5 × 8.5 in · approximate");
   await expect(page.locator(".pv-gap")).not.toHaveCount(0);
 });
 
@@ -348,7 +348,7 @@ test("a word Typst hyphenated begins the next page at the character the line bro
     },
     [first, second] as const,
   );
-  await toggle(page).click();
+  await remeasure(page);
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
   await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
   const inner = page.locator(".pv-gap-inline");
@@ -369,7 +369,7 @@ test("a word Typst hyphenated begins the next page at the character the line bro
 test("front matter has exact breaks too", async ({ page }) => {
   await newProject(page);
   await addPage(page, "Foreword");
-  await page.locator(".ProseMirror").click();
+  await focusEnd(page);
   await page.keyboard.insertText(words(50, 0));
   const id = await page.evaluate(
     () => JSON.parse(window.__disk["cadabra.json"] as string).frontMatter[0].id as string,
@@ -385,7 +385,10 @@ test("front matter has exact breaks too", async ({ page }) => {
     ],
   });
   await answerWith(page, m);
-  await toggle(page).click();
+  // An edit and its undo make the page measure again, now that Typst answers.
+  await page.keyboard.type("x");
+  await page.keyboard.press("Backspace");
+  await remeasure(page);
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
   await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
   await expect(cards(page)).toHaveCount(2);
@@ -399,8 +402,8 @@ test("front matter has exact breaks too", async ({ page }) => {
 
 test("Read mode draws every chapter's pages where Typst broke them", async ({ page }) => {
   await newProject(page);
-  await seedChapters(page, [doc()]);
   await answerWith(page, report("chapter-1"));
+  await seedChapters(page, [doc()]);
   await page.getByRole("radio", { name: "Read" }).click();
   const section = page.getByTestId("reading-section").first();
   await expect(section.locator(".pv-gap")).toHaveCount(4, { timeout: 10_000 });
@@ -414,16 +417,16 @@ test("a chapter is measured on its own, so its breaks are exact before the book 
   page,
 }) => {
   await newProject(page);
+  const own = (r: string) => {
+    // Only the chapter on its own (one chapter-start in the source) gets an answer; the book's has nothing usable.
+    window.__typstQueryResultFor = (source) =>
+      (source.match(/#chapter-start\(/g) ?? []).length === 1 ? r : undefined;
+  };
+  await page.addInitScript(own, report("chapter-1"));
   await seedChapters(page, [
     doc(),
     { type: "doc", content: [h1("Chapter Two"), p(words(20, 1))] } as never,
   ]);
-  await page.evaluate((r) => {
-    // Only the chapter on its own (one chapter-start in the source) gets an answer; the book's has nothing usable.
-    window.__typstQueryResultFor = (source) =>
-      (source.match(/#chapter-start\(/g) ?? []).length === 1 ? r : undefined;
-  }, report("chapter-1"));
-  await toggle(page).click();
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
   await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
   const calls = await page.evaluate(() => window.__typstQueryCalls);

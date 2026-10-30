@@ -1,6 +1,6 @@
 import { useCallback, useSyncExternalStore } from "react";
 import { type PageZoom, useSettings } from "../../state/editorPrefs";
-import { pageViewAvailable, pageViewOn } from "../../state/pageView";
+import { pageViewAvailable } from "../../state/pageView";
 import { useViewMode } from "../../state/viewMode";
 import { MD_QUERY } from "../shell/breakpoints";
 
@@ -15,25 +15,18 @@ const snapshot = () => window.matchMedia(MD_QUERY).matches;
 export const useIsMd = (): boolean => useSyncExternalStore(subscribe, snapshot, () => true);
 
 export interface PageView {
-  /** Page view is showing: the preference is on and it is available. */
+  /** The page surface is showing (Write mode at md+ width); on a phone the editor reflows instead. */
   on: boolean;
   zoom: PageZoom;
   setZoom: (z: PageZoom) => void;
-  /** Flips the stored preference (it also stays stored while Page view is unavailable). */
-  toggle: () => void;
-  /** Write mode at md+ width; Page view is not offered on phones or in Read mode. */
-  available: boolean;
 }
 
-/** The single source for Page view: the stored preference combined with where it can be shown. */
+/** The single source for the page surface: whether it shows here, and its zoom. */
 export function usePageView(): PageView {
-  const pageView = useSettings((s) => s.pageView);
   const zoom = useSettings((s) => s.pageZoom);
   const set = useSettings((s) => s.set);
   const mode = useViewMode((s) => s.mode);
   const wide = useIsMd();
-  const available = pageViewAvailable(mode, wide);
   const setZoom = useCallback((pageZoom: PageZoom) => set({ pageZoom }), [set]);
-  const toggle = useCallback(() => set({ pageView: !useSettings.getState().pageView }), [set]);
-  return { on: pageViewOn(pageView, mode, wide), zoom, setZoom, toggle, available };
+  return { on: pageViewAvailable(mode, wide), zoom, setZoom };
 }

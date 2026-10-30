@@ -309,6 +309,14 @@ msgstr "{pdfPages, plural, one {עמוד # ב־PDF} other {# עמודים ב־PD
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} מתוך {sessionGoal} מילים בסשן הזה"
 
+#: src/editor/PageFrame.tsx
+msgid "{size} · approximate"
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "{size} · breaks as in the PDF"
+msgstr ""
+
 #: src/state/project/history.ts
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr "{skipped, plural, one {עמוד # כבר אינו בספר והושמט} other {# עמודים כבר אינם בספר והושמטו}}"
@@ -1690,10 +1698,6 @@ msgstr "החזיקו ⌘ או ⌥ יחד עם המקש."
 msgid "Hold Ctrl or Alt together with the key."
 msgstr "החזיקו Ctrl או Alt יחד עם המקש."
 
-#: src/app/settings/Settings.tsx
-msgid "How wide the page is in the editor."
-msgstr "מה רוחב העמוד בעורך."
-
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
 msgstr "מזהה"
@@ -2053,10 +2057,6 @@ msgstr "יוצר דוגמה… (עצירה)"
 msgid "Manual order"
 msgstr "סדר ידני"
 
-#: src/app/settings/Settings.tsx
-msgid "Manuscript font"
-msgstr "גופן כתב היד"
-
 #: src/app/export/Templates.tsx
 msgid "Margins (in/out)"
 msgstr "שוליים (פנים/חוץ)"
@@ -2090,10 +2090,6 @@ msgstr "התאמות לפי שפה"
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Maybe later"
 msgstr "אולי אחר כך"
-
-#: src/app/settings/Settings.tsx
-msgid "Medium"
-msgstr "בינוני"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Merge chapter {n} into the previous one"
@@ -2166,10 +2162,6 @@ msgstr "העברה לאשפה"
 #: src/app/shell/EntryList.tsx
 msgid "Move up"
 msgstr "הזזה למעלה"
-
-#: src/app/settings/Settings.tsx
-msgid "Narrow"
-msgstr "צר"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
@@ -2517,22 +2509,6 @@ msgstr "טקסט העמוד"
 #: src/app/shell/Sidebar.tsx
 msgid "Page title"
 msgstr "כותרת העמוד"
-
-#: src/app/shell/AppHeader.tsx
-msgid "Page view"
-msgstr "תצוגת עמוד"
-
-#: src/app/shell/menuModel.ts
-msgid "Page View"
-msgstr "תצוגת עמוד"
-
-#: src/editor/PageFrame.tsx
-msgid "Page view · {size} · approximate"
-msgstr "תצוגת עמוד · {size} · משוערת"
-
-#: src/editor/PageFrame.tsx
-msgid "Page view · {size} · breaks as in the PDF"
-msgstr "תצוגת עמוד · {size} · מעברים כמו ב־PDF"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
@@ -3501,8 +3477,8 @@ msgid "The system or the text keeps this key. Press another one."
 msgstr "המערכת או הטקסט שומרים על המקש הזה. לחצו על מקש אחר."
 
 #: src/editor/PageFrame.tsx
-msgid "The template's print font is not installed here, so your manuscript font is used."
-msgstr "גופן ההדפסה של התבנית אינו מותקן כאן, ולכן נעשה שימוש בגופן כתב היד שלך."
+msgid "The template's print font is not installed here, so the bundled serif is used."
+msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
@@ -3841,10 +3817,6 @@ msgstr "שימוש בטקסט החדש יותר"
 msgid "Use template"
 msgstr "שימוש בתבנית"
 
-#: src/app/settings/Settings.tsx
-msgid "Used while writing. Your book's print fonts are set in Export."
-msgstr "משמש בזמן הכתיבה. גופני ההדפסה של הספר נקבעים בייצוא."
-
 #. placeholder {0}: update.version
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Version {0} is available"
@@ -3912,10 +3884,6 @@ msgstr "הספר כולו"
 msgid "Whole word"
 msgstr "מילה שלמה"
 
-#: src/app/settings/Settings.tsx
-msgid "Wide"
-msgstr "רחב"
-
 #: src/editor/ReadingSettings.tsx
 msgid "Wide page"
 msgstr "עמוד רחב"
@@ -3969,10 +3937,6 @@ msgstr "כותב את כל הספר כקובץ Word בפורמט כתב יד ס�
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
 msgstr "כותב את כל הספר כקובץ Markdown אחד בתיקיית הייצוא, לפי סדר הקריאה. אין צורך בדבר נוסף במחשב זה."
-
-#: src/app/settings/Settings.tsx
-msgid "Writing column width"
-msgstr "רוחב עמודת הכתיבה"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing Markdown…"

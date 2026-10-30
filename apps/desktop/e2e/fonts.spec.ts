@@ -114,28 +114,6 @@ test("the catalog downloads a font with progress, can cancel it, shows a failure
   expect(await page.evaluate(() => window.__fontDownloads)).toEqual(["lora", "lora", "lora"]);
 });
 
-test("a downloaded font can be the manuscript font and is applied to the editor", async ({
-  page,
-}) => {
-  await withLora(page);
-  await newProject(page);
-  const page_ = page.locator(".prose-manuscript");
-  await expect(page_).toHaveAttribute("style", /var\(--font-book\)/);
-  await openSettings(page);
-  await page.getByLabel("Manuscript font").selectOption("Lora");
-  await expect(page.getByLabel("Manuscript font")).toHaveValue("Lora");
-  await page.getByRole("button", { name: "Back", exact: true }).click();
-  await expect(page_).toHaveAttribute("style", /font-family: "?Lora"?, var\(--font-book\)/);
-  // The text itself takes the family (a stylesheet rule once pinned it to the default book font).
-  await expect(page.locator(".ProseMirror h1")).toHaveCSS("font-family", /^"?Lora"?,/);
-  // Its bytes were asked for; the fake sends no real font, so the editor keeps the serif behind it.
-  expect(await page.evaluate(() => window.__fontDataCalls)).toContain("lora/Lora.ttf");
-  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
-  // The choice is an app preference and survives a reload.
-  const stored = await page.evaluate(() => localStorage.getItem("cadabracraft.settings"));
-  expect(JSON.parse(stored!).manuscriptFont).toBe("Lora");
-});
-
 const openPdfPanel = async (page: Page) => {
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });

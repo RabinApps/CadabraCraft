@@ -309,6 +309,14 @@ msgstr "{pdfPages, plural, one {صفحة واحدة في ملف PDF} two {صفح
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} من {sessionGoal} كلمة في هذه الجلسة"
 
+#: src/editor/PageFrame.tsx
+msgid "{size} · approximate"
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "{size} · breaks as in the PDF"
+msgstr ""
+
 #: src/state/project/history.ts
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr "{skipped, plural, one {لم تعد صفحة واحدة في الكتاب وقد حُذفت} two {لم تعد صفحتان في الكتاب وقد حُذفتا} few {لم تعد # صفحات في الكتاب وقد حُذفت} many {لم تعد # صفحة في الكتاب وقد حُذفت} other {لم تعد # صفحة في الكتاب وقد حُذفت}}"
@@ -1690,10 +1698,6 @@ msgstr "أبقِ ⌘ أو ⌥ مضغوطًا مع المفتاح."
 msgid "Hold Ctrl or Alt together with the key."
 msgstr "أبقِ Ctrl أو Alt مضغوطًا مع المفتاح."
 
-#: src/app/settings/Settings.tsx
-msgid "How wide the page is in the editor."
-msgstr "مدى عرض الصفحة في المحرر."
-
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
 msgstr "المعرّف"
@@ -2053,10 +2057,6 @@ msgstr "جارٍ إنشاء العيّنة… (إيقاف)"
 msgid "Manual order"
 msgstr "ترتيب يدوي"
 
-#: src/app/settings/Settings.tsx
-msgid "Manuscript font"
-msgstr "خط المخطوطة"
-
 #: src/app/export/Templates.tsx
 msgid "Margins (in/out)"
 msgstr "الهوامش (داخلي/خارجي)"
@@ -2090,10 +2090,6 @@ msgstr "النتائج حسب اللغة"
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Maybe later"
 msgstr "ربما لاحقًا"
-
-#: src/app/settings/Settings.tsx
-msgid "Medium"
-msgstr "متوسط"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Merge chapter {n} into the previous one"
@@ -2166,10 +2162,6 @@ msgstr "نقل إلى سلة المهملات"
 #: src/app/shell/EntryList.tsx
 msgid "Move up"
 msgstr "نقل لأعلى"
-
-#: src/app/settings/Settings.tsx
-msgid "Narrow"
-msgstr "ضيق"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
@@ -2517,22 +2509,6 @@ msgstr "نص الصفحة"
 #: src/app/shell/Sidebar.tsx
 msgid "Page title"
 msgstr "عنوان الصفحة"
-
-#: src/app/shell/AppHeader.tsx
-msgid "Page view"
-msgstr "عرض الصفحة"
-
-#: src/app/shell/menuModel.ts
-msgid "Page View"
-msgstr "عرض الصفحة"
-
-#: src/editor/PageFrame.tsx
-msgid "Page view · {size} · approximate"
-msgstr "عرض الصفحة · {size} · تقريبي"
-
-#: src/editor/PageFrame.tsx
-msgid "Page view · {size} · breaks as in the PDF"
-msgstr "عرض الصفحة · {size} · الفواصل كما في ملف PDF"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
@@ -3501,8 +3477,8 @@ msgid "The system or the text keeps this key. Press another one."
 msgstr "يحتفظ النظام أو النص بهذا المفتاح. اضغط مفتاحًا آخر."
 
 #: src/editor/PageFrame.tsx
-msgid "The template's print font is not installed here, so your manuscript font is used."
-msgstr "خط الطباعة للقالب غير مثبّت هنا، لذلك يُستخدم خط مخطوطتك."
+msgid "The template's print font is not installed here, so the bundled serif is used."
+msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
@@ -3841,10 +3817,6 @@ msgstr "استخدام النص الأحدث"
 msgid "Use template"
 msgstr "استخدام القالب"
 
-#: src/app/settings/Settings.tsx
-msgid "Used while writing. Your book's print fonts are set in Export."
-msgstr "يُستخدم أثناء الكتابة. تُضبط خطوط الطباعة لكتابك في التصدير."
-
 #. placeholder {0}: update.version
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Version {0} is available"
@@ -3912,10 +3884,6 @@ msgstr "الكتاب كاملًا"
 msgid "Whole word"
 msgstr "الكلمة كاملة"
 
-#: src/app/settings/Settings.tsx
-msgid "Wide"
-msgstr "عريض"
-
 #: src/editor/ReadingSettings.tsx
 msgid "Wide page"
 msgstr "صفحة عريضة"
@@ -3969,10 +3937,6 @@ msgstr "يكتب الكتاب كله كملف Word بتنسيق المخطوطا
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
 msgstr "يكتب الكتاب كله كملف Markdown واحد في مجلد التصدير، بترتيب القراءة. لا يلزم شيء آخر على هذا الحاسوب."
-
-#: src/app/settings/Settings.tsx
-msgid "Writing column width"
-msgstr "عرض عمود الكتابة"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing Markdown…"

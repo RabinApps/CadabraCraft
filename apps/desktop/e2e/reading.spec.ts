@@ -1,6 +1,13 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { chapterDoc, manifestOf, newProject, seedChapters, sidebar } from "./support/helpers";
+import {
+  chapterDoc,
+  manifestOf,
+  newProject,
+  seedChapters,
+  sidebar,
+  focusEnd,
+} from "./support/helpers";
 import { bigChapter } from "../src/test/bigBook";
 
 test.beforeEach(async ({ page }) => {
@@ -29,8 +36,7 @@ const book = (page: Page) =>
 test("word count follows typing", async ({ page }) => {
   await newProject(page);
   await expect(page.getByText("2 words in this chapter")).toBeVisible(); // the "Chapter One" heading
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("one two three");
   await expect(page.getByText("5 words in this chapter")).toBeVisible();
 });
@@ -41,8 +47,7 @@ test("reading mode is read-only, shows unsaved typing and scrolls through every 
   await newProject(page);
   await page.getByRole("button", { name: "Add chapter" }).click();
   await page.getByRole("button", { name: "Chapter One", exact: true }).click();
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Hello reading");
   await read(page);
   // Both chapters are in the one scroller, one read-only editor each (the second is mounted once it is near the viewport).
