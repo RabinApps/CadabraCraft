@@ -72,11 +72,17 @@ export function EntryList({
                       attempt(actions.rename(c.id, e.target.value.trim()));
                   }}
                   onKeyDown={(e) => {
+                    if (e.key !== "Enter" && e.key !== "Escape") return;
+                    // The field goes away either way; the row's menu button takes the focus so it is not dropped on the page.
+                    const menuButton = e.currentTarget
+                      .closest("li")
+                      ?.querySelector<HTMLElement>("[aria-haspopup=menu]");
                     if (e.key === "Enter") e.currentTarget.blur();
-                    if (e.key === "Escape") {
+                    else {
                       e.currentTarget.dataset.cancelled = "true";
                       setEditing(null);
                     }
+                    menuButton?.focus();
                   }}
                 />
               ) : (
@@ -110,7 +116,12 @@ export function EntryList({
                     onCloseAutoFocus={(e) => {
                       const next = afterClose.current;
                       afterClose.current = null;
-                      if (next) e.preventDefault();
+                      if (next) {
+                        e.preventDefault();
+                        // The dialog that `next` opens remembers where focus is, to give it back when it closes.
+                        const trigger = (e.target as HTMLElement).getAttribute("aria-labelledby");
+                        document.getElementById(trigger ?? "")?.focus();
+                      }
                       next?.();
                     }}
                     className={menuContentClass("min-w-44")}

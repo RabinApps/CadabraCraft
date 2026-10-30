@@ -579,16 +579,16 @@ body {
   user-select: none;
 }
 
-/* Windows High Contrast and other forced-colors modes replace our colors, so state that relies on a soft fill gets a real border or outline. */
+/* Windows High Contrast and other forced-colors modes replace our colors, so state that relies on a soft fill gets a real border or outline.
+   `~=` matches the bare class only: `hover:bg-accent-soft` is a hover tint, not a state, and must not draw a border on every button. */
 @media (forced-colors: active) {
-  [class*="bg-accent-soft"],
-  [class*="bg-success-soft"],
-  [class*="bg-warn-soft"],
-  [class*="bg-danger-soft"] {
+  [class~="bg-accent-soft"],
+  [class~="bg-success-soft"],
+  [class~="bg-warn-soft"],
+  [class~="bg-danger-soft"] {
     border: 1px solid CanvasText;
   }
-  [aria-current="true"],
-  [aria-current="page"],
+  [aria-current]:not([aria-current="false"]),
   [aria-selected="true"],
   [aria-pressed="true"],
   [aria-checked="true"],
@@ -602,18 +602,32 @@ body {
   }
 }
 
-/* "Increase contrast": soft fills get an outline and muted text becomes full-strength. */
+/* "Increase contrast": soft fills get an outline, current and pressed states a heavier one, muted text becomes full-strength.
+   These rules sit outside the Tailwind layers and beat its utilities, so the focus ring is restated last. */
 @media (prefers-contrast: more) {
   :root,
   :root[data-theme="dark"] {
     --border: var(--border-strong);
     --ink-muted: var(--ink);
   }
-  [class*="bg-accent-soft"],
-  [class*="bg-success-soft"],
-  [class*="bg-warn-soft"],
-  [class*="bg-danger-soft"] {
+  [class~="bg-accent-soft"],
+  [class~="bg-success-soft"],
+  [class~="bg-warn-soft"],
+  [class~="bg-danger-soft"] {
     outline: 1px solid currentColor;
     outline-offset: -1px;
+  }
+  [aria-current]:not([aria-current="false"]),
+  [aria-selected="true"],
+  [aria-pressed="true"],
+  [aria-checked="true"],
+  [data-state="on"],
+  [data-state="checked"] {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+  }
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
   }
 }
