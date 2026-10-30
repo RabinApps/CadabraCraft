@@ -23,22 +23,17 @@ To add: axe over every dialog, the settings, history, export and import screens 
 - **Markdown:** opt-in YAML front matter (`title`, `lang`) in `bookToMarkdown`; not yet in the app or the MCP tool.
 - **DOCX:** `w:tblLook` first-row flag follows the header row. The schema has no table caption.
 - **Audiobook:** the edition language is written to the M4B and to Opus chapter files (not FLAC or WAV). "Save a transcript" writes a book transcript and one WebVTT file per chapter from the text sent to the voice; cue times are estimates, not word-accurate.
-
 - **Images:** inserting an image needs a description or "This image is decorative" (`decorative` attr, see file-format.md); "Image details" in the toolbar edits both on a selected image; the Export dialog warns about images with neither for EPUB, Print PDF, Word and Rich Text.
+- **Language of parts (WCAG 3.1.2):** a per-passage `lang` mark (Format > Language of Selection…, and the command palette). EPUB writes `<span lang xml:lang>`, PDF `#text(lang)`, Word `w:lang`, RTF `\\lang`, Markdown `<span lang>` only with the HTML option; the audiobook ignores it. A private-use tag such as `x-…` has no effect in the PDF.
+- **Keyboard and focus:** every dialog returns focus to its opener, including dialogs opened from a menu, the command palette and Outline; renaming a chapter returns focus to its Actions button; the Settings jump respects reduced motion. `a11y-keyboard.spec.ts` sweeps 13 dialogs.
+- **Forced colors and increased contrast:** `a11y-forced-colors.spec.ts` (41 tests) checks outlines and borders of selected, pressed, focused, disabled and badge states under Chromium emulation, and axe in both modes. The CSS selectors were narrowed so hover classes no longer match.
+- **Validation tooling (needs the tools installed):** a veraPDF test for PDF/UA-1 and PDF/A-2b (`REQUIRE_VERAPDF=1` fails instead of skipping), `scripts/validate-pdf.sh`, an RTF LibreOffice smoke test, and CI steps for both. None has run against the real tools yet; the veraPDF install script is untested and has no pinned checksum.
+- **Office files:** the DOCX and RTF samples (with a described and a decorative picture, a table header row, English and French) open in Pages and in `textutil`; Word itself has not been tried.
 
 ## Open work (not yet done)
 
-- **Language:** no per-node `lang` (schema change), so foreign phrases are read in the book language; the EPUB accessibility summary is English only.
-- **UI leftovers:** 59 hover-only `title=` hints; text at 11 px; color-only cues in find highlights and some status rows; axe scans of more screens (RTL, every dialog); keyboard-only sweep of each dialog.
-- **PDF:** run veraPDF (`--flavour ua1`) and open a sample in PAC or Acrobat; the cover and footers have not been checked in a PDF/UA validator.
-- **Pen and design:** the Image details dialog, the "Image checks" list and the skip link are described in design.md but not drawn in the pen.
-- **Not exercised in real tools:** RTF language and picture descriptions and the DOCX `tblLook` change (Word, LibreOffice); forced-colors on a real Windows High Contrast display; the M4B language tag in a player.
-- **Manual testing:** VoiceOver, NVDA and Orca passes, 200% zoom (see [platform-checks.md](platform-checks.md)).
-
-## Rules for new UI
-
-- Every icon-only control has a name (`IconButton` requires `label`).
-- Dialogs use `Modal` or `Confirm`; focus returns to the opener on close.
-- Do not rely on color alone; pair it with text or an icon.
-- Use the tokens in `tokens.css`; the contrast test fails when a pair drops under its ratio.
-- Targets are at least 24 px (44 px on touch layouts).
+- **Needs a person:** run the screen-reader checklist in [platform-checks.md](platform-checks.md) with VoiceOver, NVDA (Windows 11, WebView2) and Orca (Wayland and X11), the four Windows contrast themes on a real display, and 200% and 400% zoom by eye. Nothing there has been run.
+- **Validators:** run veraPDF (`--flavour ua1`, and `2b` with PDF/A) on a sample PDF and open it in PAC or Acrobat; run EPUBCheck on a sample with `lang` spans; open the Word and RTF samples in Word.
+- **Language:** the EPUB accessibility summary is English only; the Markdown importer does not read `<span lang>` back; there is no toolbar button for the language command (it wrapped the toolbar), and no per-passage voice in audio.
+- **UI leftovers:** 59 hover-only `title=` hints; text at 11 px; color-only cues in find highlights and some status rows; an axe sweep in RTL.
+- **Design (pen and design.md):** the Language of Selection dialog and its two Format menu items; the Image details dialog, the "Image checks" list and the skip link; the increased-contrast treatments.
