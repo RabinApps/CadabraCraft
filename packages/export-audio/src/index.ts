@@ -21,3 +21,10 @@ export {
   type RenderedChapter,
   type VoiceInfo,
 } from "./render";
+export {
+  chapterVtt,
+  cueTimes,
+  plainTranscript,
+  vttTime,
+  type TranscriptChapter,
+} from "./transcript";

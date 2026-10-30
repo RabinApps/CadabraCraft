@@ -101,8 +101,9 @@ pub fn resample(x: &[i16], from: u32, to: u32) -> Result<Vec<i16>, String> {
     Ok(out)
 }
 
-/// Mono Ogg Opus. Rates Opus does not take (22.05 kHz) are converted to 24 kHz first.
-pub fn encode_opus(rate: u32, samples: &[i16]) -> Result<Vec<u8>, String> {
+/// Mono Ogg Opus. Rates Opus does not take (22.05 kHz) are converted to 24 kHz first. `language` (a BCP 47 tag) goes into the
+/// file's tags as `LANGUAGE`, which players and library tools read; a tag with odd characters is left out.
+pub fn encode_opus(rate: u32, samples: &[i16], language: Option<&str>) -> Result<Vec<u8>, String> {
     if samples.is_empty() {
         return Err("there is no audio to encode".into());
     }
@@ -126,7 +127,12 @@ pub fn encode_opus(rate: u32, samples: &[i16]) -> Result<Vec<u8>, String> {
     let mut tags = b"OpusTags".to_vec();
     tags.extend_from_slice(&(vendor.len() as u32).to_le_bytes());
     tags.extend_from_slice(vendor);
-    tags.extend_from_slice(&0u32.to_le_bytes());
+    let comments: Vec<String> = super::m4b::clean_language(language).map(|l| format!("LANGUAGE={l}")).into_iter().collect();
+    tags.extend_from_slice(&(comments.len() as u32).to_le_bytes());
+    for c in &comments {
+        tags.extend_from_slice(&(c.len() as u32).to_le_bytes());
+        tags.extend_from_slice(c.as_bytes());
+    }
     w.write_packet(tags, serial, PacketWriteEndInfo::EndPage, 0).map_err(display_text)?;
 
     let total_48k = pcm.len() as u64 * 48_000 / enc_rate as u64;
@@ -204,7 +210,7 @@ mod tests {
     #[test]
     fn opus_pads_a_last_frame_that_is_not_full() {
         // 24 kHz frames are 480 samples; 700 samples leave a partial second frame.
-        let bytes = encode_opus(24_000, &sine(24_000, 700.0 / 24_000.0, 300.0)).unwrap();
+        let bytes = encode_opus(24_000, &sine(24_000, 700.0 / 24_000.0, 300.0), None).unwrap();
         let mut r = ogg::PacketReader::new(std::io::Cursor::new(bytes));
         r.read_packet_expected().unwrap();
         r.read_packet_expected().unwrap();
@@ -225,7 +231,7 @@ mod tests {
 
     #[test]
     fn opus_is_a_valid_ogg_stream_with_correct_headers_and_length() {
-        let bytes = encode_opus(24_000, &sine(24_000, 1.0, 300.0)).unwrap();
+        let bytes = encode_opus(24_000, &sine(24_000, 1.0, 300.0), None).unwrap();
         let mut r = ogg::PacketReader::new(std::io::Cursor::new(bytes.clone()));
         let head = r.read_packet_expected().unwrap();
         assert_eq!(&head.data[..8], b"OpusHead");
@@ -240,12 +246,26 @@ mod tests {
         assert_eq!(packets, 50); // 1 s of 20 ms frames
         assert_eq!(last_granule, PRE_SKIP_48K + 48_000);
         assert!(bytes.len() < 24_000, "{}", bytes.len()); // about 32 kbit/s, nowhere near raw
-        assert!(encode_opus(24_000, &[]).is_err());
+        assert!(encode_opus(24_000, &[], None).is_err());
+    }
+
+    #[test]
+    fn opus_carries_the_language_tag_and_leaves_out_odd_ones() {
+        let find = |bytes: &[u8], needle: &[u8]| bytes.windows(needle.len()).any(|w| w == needle);
+        let pcm = sine(24_000, 0.2, 300.0);
+        let tagged = encode_opus(24_000, &pcm, Some("fr-CA")).unwrap();
+        // OpusTags: vendor, then 1 comment of 14 bytes.
+        assert!(find(&tagged, b"CadabraCraft\x01\x00\x00\x00\x0e\x00\x00\x00LANGUAGE=fr-CA"));
+        for none in [None, Some(""), Some("fr\nCA"), Some("a=b")] {
+            let bytes = encode_opus(24_000, &pcm, none).unwrap();
+            assert!(!find(&bytes, b"LANGUAGE="), "{none:?}");
+            assert!(find(&bytes, b"CadabraCraft\x00\x00\x00\x00"));
+        }
     }
 
     #[test]
     fn opus_converts_22050_hz_input() {
-        let bytes = encode_opus(22_050, &sine(22_050, 0.5, 300.0)).unwrap();
+        let bytes = encode_opus(22_050, &sine(22_050, 0.5, 300.0), None).unwrap();
         let mut r = ogg::PacketReader::new(std::io::Cursor::new(bytes));
         r.read_packet_expected().unwrap();
         r.read_packet_expected().unwrap();
@@ -304,7 +324,7 @@ mod tests {
             let src: Vec<i16> = sine(rate, 2.0, 220.0).iter().zip(sine(rate, 2.0, 1700.0)).map(|(a, b)| a / 2 + b / 3).collect();
             let dir = tempfile::tempdir().unwrap();
             let path = dir.path().join("a.opus");
-            std::fs::write(&path, encode_opus(rate, &src).unwrap()).unwrap();
+            std::fs::write(&path, encode_opus(rate, &src, None).unwrap()).unwrap();
             let (pcm, probe) = decode(&path, rate);
             assert!(probe.contains("codec_name=opus") && probe.contains("channels=1"), "{probe}");
             let diff = pcm.len() as i64 - src.len() as i64;

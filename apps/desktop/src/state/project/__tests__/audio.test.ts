@@ -41,6 +41,8 @@ const audio = {
     | null
     | ((pack: string, onProgress: (p: { done: number; total: number }) => void) => Promise<void>),
   downloads: [] as string[],
+  transcripts: new Map<string, string>(),
+  transcriptError: null as unknown,
 };
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
@@ -56,6 +58,10 @@ vi.mock("../../../lib/bridge", async () =>
       files.forEach((f) => audio.present.add(f.path));
       if (req.part) audio.present.add(req.part);
       return { files, durationSec: 90 };
+    },
+    audioWriteTranscript: async (_root: string, path: string, contents: string) => {
+      if (audio.transcriptError) throw audio.transcriptError;
+      audio.transcripts.set(path, contents);
     },
     audioBuildM4b: async (req: (typeof audio.m4bBuilds)[number]) => {
       audio.m4bBuilds.push(req);
@@ -112,6 +118,8 @@ beforeEach(async () => {
   audio.render = null;
   audio.download = null;
   audio.downloads = [];
+  audio.transcripts = new Map();
+  audio.transcriptError = null;
   useProject.setState({
     root: null,
     manifest: null,
@@ -308,6 +316,55 @@ describe("hearAudioSample", () => {
     expect(audio.cancelled).toEqual([audio.samples[0]!.jobId]);
     release(new Uint8Array([9]));
     await first;
+  });
+});
+
+describe("exportAudio transcript", () => {
+  const withTranscript = {
+    voice: "piper-amy",
+    speed: 1,
+    formats: ["opus" as const],
+    transcript: true,
+  };
+
+  it("saves a book transcript and one captions file per chapter from the text sent to the voice", async () => {
+    await a().exportAudio(withTranscript);
+    const paths = [...audio.transcripts.keys()];
+    expect(paths).toEqual([
+      "exports/en/audio/book-transcript.txt",
+      expect.stringMatching(/^exports\/en\/audio\/01-.*\.vtt$/),
+      expect.stringMatching(/^exports\/en\/audio\/02-.*\.vtt$/),
+    ]);
+    const text = audio.transcripts.get(paths[0]!)!;
+    const spoken = audio.requests.flatMap((r) =>
+      (r as unknown as { chunks: { text: string }[] }).chunks.map((c) => c.text),
+    );
+    expect(spoken.length).toBeGreaterThan(0);
+    for (const chunk of spoken) expect(text).toContain(chunk);
+    expect(text.startsWith("Book\n")).toBe(true);
+    expect(audio.transcripts.get(paths[1]!)).toMatch(/^WEBVTT\nLanguage: en\n/);
+    expect(s().audio).toMatchObject({ status: "done", files: 5, transcripts: paths });
+  });
+
+  it("writes nothing extra unless asked", async () => {
+    await a().exportAudio({ ...withTranscript, transcript: false });
+    expect(audio.transcripts.size).toBe(0);
+    expect(s().audio?.transcripts).toEqual([]);
+  });
+
+  it("passes the edition language to the chapter renders and the M4B", async () => {
+    await a().exportAudio({ ...withTranscript, formats: ["m4b"], transcript: false });
+    expect(
+      audio.requests.every((r) => (r as unknown as { language: string }).language === "en"),
+    ).toBe(true);
+    expect(audio.m4bBuilds[0]).toMatchObject({ language: "en" });
+  });
+
+  it("fails the export with the reason when a transcript cannot be saved, keeping what was saved", async () => {
+    audio.transcriptError = { kind: "disk_full" };
+    await a().exportAudio(withTranscript);
+    expect(s().audio).toMatchObject({ status: "error", error: { code: "disk-full" } });
+    expect(s().audio?.transcripts).toEqual([]);
   });
 });
 

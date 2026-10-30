@@ -39,6 +39,8 @@ export interface AudioExportOptions {
   language?: string;
   /** Leave out chapters that are not translated into `language` yet. Without it they stop the export, like the other formats. */
   skipUntranslated?: boolean;
+  /** Also save a plain-text transcript of the book and WebVTT captions per chapter, made from the text the voice reads. */
+  transcript?: boolean;
 }
 
 export interface AudioChapterState {
@@ -59,6 +61,8 @@ export interface AudioJob {
   cancelling: boolean;
   durationSec: number;
   files: number;
+  /** Transcript files saved next to the audio (project-relative paths), in the order written. */
+  transcripts: string[];
   /** The folder the files go to (`exports/<language>/audio`). */
   dir: string;
   /** Every chapter is rendered and the book's M4B is being joined and encoded. */

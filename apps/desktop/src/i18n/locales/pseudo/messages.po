@@ -372,6 +372,10 @@ msgstr ""
 msgid "A sample is already being made"
 msgstr ""
 
+#: src/app/export/AudioExport.tsx
+msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "About CadabraCraft"
 msgstr ""
@@ -2988,6 +2992,10 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
+#: src/app/export/AudioExport.tsx
+msgid "Save a transcript"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Save details"
 msgstr ""
@@ -3682,6 +3690,10 @@ msgstr ""
 
 #: src/lib/exportChecks.ts
 msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
+msgstr ""
+
+#: src/app/export/AudioExport.tsx
+msgid "Transcript files"
 msgstr ""
 
 #: src/app/shell/Sidebar.tsx

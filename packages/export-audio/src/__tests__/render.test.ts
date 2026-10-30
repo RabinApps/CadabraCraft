@@ -127,6 +127,13 @@ describe("renderAudiobook", () => {
     const results = await renderAudiobook(book, options, runner, { cached });
     expect(results.map((r) => r.status)).toEqual(["cached", "done", "done"]);
     expect(runner.requests.map((r) => r.chapterId)).toEqual(["b", "c"]);
+    // Every result, cached or not, carries the text that was (or would have been) given to the voice.
+    expect(results.map((r) => r.chunks.map((c) => c.text))).toEqual([
+      ["One", "First chapter."],
+      ["Two", "Second chapter."],
+      ["Three", "Third chapter."],
+    ]);
+    expect(results[1]?.chunks).toEqual(runner.requests[0]?.chunks);
     const slow = fakeRunner();
     await renderAudiobook(book, { ...options, speed: 1.1 }, slow);
     expect(slow.requests[0]?.hash).not.toBe(runner.requests[0]?.hash);

@@ -44,6 +44,8 @@ export function AudioPanel({ audio }: { audio: AudioExport }) {
       onSpeed={audio.setSpeed}
       formats={audio.audioFormats}
       onFormats={audio.setAudioFormats}
+      transcript={audio.transcript}
+      onTranscript={audio.setTranscript}
       chapters={audio.rows}
       picked={audio.audioChapters}
       onPicked={audio.setAudioChapters}

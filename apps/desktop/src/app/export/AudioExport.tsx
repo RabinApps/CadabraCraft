@@ -44,6 +44,8 @@ export function AudioFields({
   onSpeed,
   formats,
   onFormats,
+  transcript,
+  onTranscript,
   chapters,
   picked,
   onPicked,
@@ -61,6 +63,9 @@ export function AudioFields({
   onSpeed: (s: number) => void;
   formats: AudioFormat[];
   onFormats: (f: AudioFormat[]) => void;
+  /** Also save a transcript of the text the voice reads. */
+  transcript: boolean;
+  onTranscript: (on: boolean) => void;
   chapters: { id: string; title: string }[];
   /** Chapter ids to read, or null for every chapter. */
   picked: string[] | null;
@@ -157,6 +162,13 @@ export function AudioFields({
           );
         })}
       </fieldset>
+      <Checkbox
+        label={t`Save a transcript`}
+        hint={t`A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated.`}
+        checked={transcript}
+        disabled={disabled}
+        onChange={(e) => onTranscript(e.target.checked)}
+      />
       <Select
         label={t`Chapters`}
         value={picked ? "some" : "all"}
@@ -261,6 +273,18 @@ export function AudioJobView({ job }: { job: AudioJob }) {
             {t`Your audiobook is ready`}
           </p>
           <p className="text-sm text-ink-muted">{t`${job.files} files, ${minutes} min. Saved in ${job.dir}.`}</p>
+          {job.transcripts.length > 0 && (
+            <ul
+              aria-label={t`Transcript files`}
+              className="mt-1 flex flex-col gap-0.5 text-sm text-ink-muted"
+            >
+              {job.transcripts.map((p) => (
+                <li key={p} className="break-all">
+                  {p.slice(job.dir.length + 1)}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
       {job.status === "error" &&

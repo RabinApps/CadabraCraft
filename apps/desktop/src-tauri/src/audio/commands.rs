@@ -5,7 +5,7 @@ use super::m4b::{build_m4b, BuiltM4b, M4bRequest};
 use super::error::{other, AudioError};
 use super::jobs::{voices_root, AudioJobs};
 use super::packs::{delete_pack, find_pack, list_packs, Pack, PackInfo};
-use super::render::{render_chapter, render_sample, ChapterRequest, RenderedChapter, SampleRequest};
+use super::render::{render_chapter, render_sample, write_transcript, ChapterRequest, RenderedChapter, SampleRequest};
 use super::voices::{list_voices, VoiceInfo};
 use std::path::PathBuf;
 
@@ -92,6 +92,12 @@ pub async fn audio_files_exist(root: String, paths: Vec<String>) -> Result<Vec<b
     crate::platform::blocking(move || files_exist(&crate::project::require_project(&PathBuf::from(root))?, &paths)).await
 }
 
+/// Saves a transcript (`.txt` or `.vtt` in an `audio` folder under `exports/`) next to the audiobook. Local file only.
+#[tauri::command]
+pub async fn audio_write_transcript(root: String, path: String, contents: String) -> Result<(), AudioError> {
+    crate::platform::blocking(move || write_transcript(&crate::project::require_project(&PathBuf::from(root))?, &path, &contents)).await
+}
+
 fn require_root(root: Option<PathBuf>) -> Result<PathBuf, AudioError> {
     root.ok_or_else(|| other("there is no folder for voices on this computer"))
 }
@@ -160,6 +166,18 @@ mod tests {
         assert_eq!(run(audio_files_exist(root.clone(), vec!["a.opus".into(), "nope".into()])).unwrap(), vec![true, false]);
         assert!(run(audio_files_exist(root, vec!["/etc/hosts".into()])).is_err());
         std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn the_transcript_command_writes_text_in_a_project_only() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().to_string_lossy().into_owned();
+        let write = |path: &str| run(audio_write_transcript(root.clone(), path.into(), "Hello.\n".into()));
+        assert!(write("exports/audio/t.txt").is_err(), "not a project yet");
+        std::fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
+        write("exports/audio/t.txt").unwrap();
+        assert_eq!(std::fs::read_to_string(dir.path().join("exports/audio/t.txt")).unwrap(), "Hello.\n");
+        assert!(write("exports/audio/t.json").is_err());
     }
 
     #[test]

@@ -25,6 +25,9 @@ pub struct ChapterRequest {
     /// from the parts of all chapters. Not an export: it is never listed in `files`.
     #[serde(default)]
     pub part: Option<String>,
+    /// The edition's language (a BCP 47 tag), written into the chapter files that can carry it (Opus `LANGUAGE`).
+    #[serde(default)]
+    pub language: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -51,6 +54,31 @@ pub struct RenderedChapter {
     /// The part written for the M4B, when one was asked for.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub part: Option<String>,
+}
+
+/// Most bytes of one transcript file (a long novel is a few hundred kilobytes of text).
+const TRANSCRIPT_MAX_BYTES: usize = 32 * 1024 * 1024;
+
+/// Whether `rel` is a transcript the audiobook may write: `exports/**/audio/<name>.txt` or `.vtt`, a plain file name.
+pub fn is_transcript_path(rel: &str) -> bool {
+    let Some((dir, name)) = rel.rsplit_once('/') else { return false };
+    let stem = name.strip_suffix(".txt").or_else(|| name.strip_suffix(".vtt"));
+    rel.starts_with("exports/")
+        && (dir.ends_with("/audio") || dir == "exports/audio")
+        && stem.is_some_and(|s| !s.is_empty() && s.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.')) && !s.starts_with('.'))
+}
+
+/// Writes a transcript (the text the voice was given) next to the audio, atomically (temp file and rename). Only the text
+/// formats of `is_transcript_path` are accepted, so this cannot be used to rewrite anything else under `exports/`.
+pub fn write_transcript(root: &Path, rel: &str, contents: &str) -> Result<(), AudioError> {
+    if !is_transcript_path(rel) {
+        return Err(AudioError::from(ProjectError::UnsafePath { path: rel.to_string() }));
+    }
+    if contents.len() > TRANSCRIPT_MAX_BYTES {
+        return Err(other("the transcript is too large to save"));
+    }
+    project::write_bytes(root, rel, contents.as_bytes())?;
+    Ok(())
 }
 
 /// Formats this build can write. There is no MP3 on purpose (see docs/architecture.md, "Audio encoders").
@@ -134,7 +162,7 @@ fn write_outputs(req: &ChapterRequest, root: &Path, rate: u32, samples: &[i16], 
         let encoded = match f.as_str() {
             "wav" => write_wav(rate, samples),
             "flac" => encode::encode_flac(rate, samples),
-            _ => encode::encode_opus(rate, samples),
+            _ => encode::encode_opus(rate, samples, req.language.as_deref()),
         };
         let bytes = encoded.map_err(|message| AudioError::Encode { format: f.clone(), message })?;
         let path = format!("{}.{f}", req.base);
@@ -175,7 +203,7 @@ mod tests {
 
     #[test]
     fn a_chapter_request_with_too_much_text_or_too_many_chunks_is_refused() {
-        let req = |chunks: Vec<Chunk>| ChapterRequest { job_id: "j".into(), root: "/r".into(), base: "exports/a".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None };
+        let req = |chunks: Vec<Chunk>| ChapterRequest { job_id: "j".into(), root: "/r".into(), base: "exports/a".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None, language: None };
         assert!(check_request(&req(vec![chunk("Hi.", 600)])).is_ok());
         let long = "x".repeat(CHAPTER_MAX_CHARS + 1);
         assert!(matches!(check_request(&req(vec![chunk(&long, 0)])), Err(AudioError::Other { message }) if message.contains("too long")));
@@ -219,7 +247,7 @@ mod tests {
         }
 
         fn request(f: &Fixture, chunks: Vec<Chunk>) -> ChapterRequest {
-            ChapterRequest { job_id: "j".into(), root: f.project.to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None }
+            ChapterRequest { job_id: "j".into(), root: f.project.to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None, language: None }
         }
 
         fn copy(wav: &Path) -> String {
@@ -441,7 +469,7 @@ mod tests {
         }
         let dir = tempfile::tempdir().unwrap();
         fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
-        let req = ChapterRequest { job_id: "real".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-real".into(), chunks: vec![chunk("The quay was empty. A gull cried once.", 600)], voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None };
+        let req = ChapterRequest { job_id: "real".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-real".into(), chunks: vec![chunk("The quay was empty. A gull cried once.", 600)], voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None, language: None };
         let r = render_chapter(&req, &bin, Some(&voices), &AtomicBool::new(false), &ignore).unwrap();
         assert!(r.duration_sec > min_secs && r.duration_sec < 30.0, "{}", r.duration_sec);
         assert!(dir.path().join("exports/audio/01-real.wav").is_file());
@@ -450,8 +478,43 @@ mod tests {
     fn outputs(formats: &[&str], part: Option<&str>) -> (tempfile::TempDir, ChapterRequest) {
         let dir = tempfile::tempdir().unwrap();
         fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
-        let req = ChapterRequest { job_id: "j".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks: vec![], voice: "piper-amy".into(), speed: 1.0, formats: formats.iter().map(|f| f.to_string()).collect(), part: part.map(str::to_string) };
+        let req = ChapterRequest { job_id: "j".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks: vec![], voice: "piper-amy".into(), speed: 1.0, formats: formats.iter().map(|f| f.to_string()).collect(), part: part.map(str::to_string), language: None };
         (dir, req)
+    }
+
+    #[test]
+    fn transcripts_are_text_files_in_an_audio_folder_under_exports() {
+        for ok in ["exports/audio/book-transcript.txt", "exports/fr/audio/01-un.vtt", "exports/pt-BR/audio/a_b.1.txt"] {
+            assert!(is_transcript_path(ok), "{ok}");
+        }
+        for bad in ["exports/audio/a.json", "exports/audio/a", "exports/fr/a.txt", "audio/a.txt", "exports/audio/.txt", "exports/audio/.hid.txt", "exports/audio/a b.txt", "exports/audio/../a.txt", "exports/audio/", "exports/audio/x/y.txt", "cadabra.json"] {
+            assert!(!is_transcript_path(bad), "{bad}");
+        }
+    }
+
+    #[test]
+    fn a_transcript_is_written_atomically_and_replaces_the_earlier_one() {
+        let dir = tempfile::tempdir().unwrap();
+        fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
+        write_transcript(dir.path(), "exports/fr/audio/t.txt", "un\n").unwrap();
+        write_transcript(dir.path(), "exports/fr/audio/t.txt", "deux\n").unwrap();
+        assert_eq!(fs::read_to_string(dir.path().join("exports/fr/audio/t.txt")).unwrap(), "deux\n");
+        let names: Vec<_> = fs::read_dir(dir.path().join("exports/fr/audio")).unwrap().map(|e| e.unwrap().file_name()).collect();
+        assert_eq!(names.len(), 1, "no temp file is left behind: {names:?}");
+        assert!(write_transcript(dir.path(), "cadabra.json", "x").is_err());
+        assert!(write_transcript(dir.path(), "exports/audio/../../x.txt", "x").is_err());
+        assert!(write_transcript(dir.path(), "exports/audio/big.txt", &"a".repeat(TRANSCRIPT_MAX_BYTES + 1)).is_err());
+        assert_eq!(fs::read_to_string(dir.path().join("cadabra.json")).unwrap(), "{}");
+    }
+
+    #[test]
+    fn the_edition_language_is_written_into_the_opus_chapter_file() {
+        let samples = vec![500i16; 4800];
+        let (dir, mut req) = outputs(&["opus"], None);
+        req.language = Some("de".into());
+        write_outputs(&req, dir.path(), 24000, &samples, &AtomicBool::new(false)).unwrap();
+        let bytes = fs::read(dir.path().join("exports/audio/01-one.opus")).unwrap();
+        assert!(bytes.windows(11).any(|w| w == b"LANGUAGE=de"));
     }
 
     #[test]

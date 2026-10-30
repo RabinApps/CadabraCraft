@@ -419,6 +419,7 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("watch_project", json!({ "root": "/r" })),
         ("unwatch_project", json!({})),
         ("audio_files_exist", json!({ "root": "/r", "paths": [] })),
+        ("audio_write_transcript", json!({ "root": "/r", "path": "exports/audio/t.txt", "contents": "x" })),
         ("audio_cancel", json!({ "jobId": "j" })),
         ("audio_forget", json!({ "jobId": "j" })),
         ("audio_render_chapter", json!({ "request": chunk_less, "onProgress": "__CHANNEL__:1" })),

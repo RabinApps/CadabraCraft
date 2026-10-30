@@ -44,6 +44,10 @@ pub struct M4bRequest {
     /// `assets/<name>.png|jpg|jpeg`; none means no cover.
     pub cover: Option<String>,
     pub chapters: Vec<M4bChapter>,
+    /// The edition's language (a BCP 47 tag such as `fr` or `pt-BR`); written as the audio track's language so players
+    /// pick the right voice and hyphenation. Missing or malformed means "undetermined".
+    #[serde(default)]
+    pub language: Option<String>,
 }
 
 #[derive(Serialize, Debug, PartialEq)]
@@ -57,6 +61,28 @@ pub struct BuiltM4b {
 fn part_name(part: &str) -> Result<&str, AudioError> {
     let name = part.strip_prefix(project::AUDIO_PARTS_DIR).filter(|_| project::is_audio_part(part));
     name.filter(|n| n.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'))).ok_or_else(|| AudioError::from(ProjectError::UnsafePath { path: part.to_string() }))
+}
+
+/// A BCP 47 tag as it may be written into a tag value: letters, digits and hyphens only, so nothing odd reaches a file.
+pub fn clean_language(tag: Option<&str>) -> Option<String> {
+    let t = tag?.trim();
+    (!t.is_empty() && t.len() <= 35 && t.split('-').all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_alphanumeric()))).then(|| t.to_string())
+}
+
+/// The three-letter ISO 639-2 code an MP4 track language holds, from a BCP 47 tag (`pt-BR` is `por`). Three-letter
+/// primary subtags pass through; anything unknown is `und` (undetermined), which players treat as "not set".
+pub fn iso639_2(tag: Option<&str>) -> String {
+    let primary = clean_language(tag).map(|t| t.split('-').next().unwrap_or("").to_ascii_lowercase()).unwrap_or_default();
+    let three = match primary.as_str() {
+        "en" => "eng", "fr" => "fra", "de" => "deu", "es" => "spa", "it" => "ita", "pt" => "por", "nl" => "nld", "sv" => "swe",
+        "da" => "dan", "no" | "nb" | "nn" => "nor", "fi" => "fin", "pl" => "pol", "cs" => "ces", "sk" => "slk", "sl" => "slv",
+        "hu" => "hun", "ro" => "ron", "bg" => "bul", "hr" => "hrv", "sr" => "srp", "ru" => "rus", "uk" => "ukr", "el" => "ell",
+        "tr" => "tur", "ar" => "ara", "he" => "heb", "fa" => "fas", "hi" => "hin", "ja" => "jpn", "ko" => "kor", "zh" => "zho",
+        "id" => "ind", "vi" => "vie", "th" => "tha", "ca" => "cat", "la" => "lat", "et" => "est", "lv" => "lav", "lt" => "lit",
+        other if other.len() == 3 && other.chars().all(|c| c.is_ascii_lowercase()) => other,
+        _ => "und",
+    };
+    three.to_string()
 }
 
 fn is_cover_ext(rel: &str) -> bool {
@@ -113,7 +139,7 @@ pub fn concat_list(paths: &[PathBuf]) -> String {
 
 /// ffmpeg's arguments (`-safe 0` because the part paths are absolute). Input 0 is the part list, input 1 the metadata and, with a cover, input 2 the picture (kept as an
 /// attached picture, not re-encoded).
-pub fn ffmpeg_args(list: &Path, meta: &Path, cover: Option<&Path>, out: &Path) -> Vec<String> {
+pub fn ffmpeg_args(list: &Path, meta: &Path, cover: Option<&Path>, language: Option<&str>, out: &Path) -> Vec<String> {
     let s = |p: &Path| p.to_string_lossy().into_owned();
     // Each input may only be opened as a plain file (or pipe): a crafted list or picture can then not make ffmpeg
     // read a URL or another protocol.
@@ -132,6 +158,8 @@ pub fn ffmpeg_args(list: &Path, meta: &Path, cover: Option<&Path>, out: &Path) -
         a.extend(["-map", "2:v"].map(String::from));
     }
     a.extend(["-map_metadata", "1", "-map_chapters", "1", "-c:a", "aac", "-b:a", AAC_BITRATE].map(String::from));
+    // The track's language (mdhd) is what players read to pick the voice and language; it is a stream tag, not a global one.
+    a.extend(["-metadata:s:a:0".to_string(), format!("language={}", iso639_2(language))]);
     if cover.is_some() {
         a.extend(["-c:v", "copy", "-disposition:v:0", "attached_pic"].map(String::from));
     }
@@ -189,7 +217,7 @@ pub fn build_m4b(req: &M4bRequest, ffmpeg: &Path, cancel: &AtomicBool) -> Result
     let (list, meta, out) = (scratch.path().join("parts.txt"), scratch.path().join("book.ffmeta"), scratch.path().join("book.m4b"));
     fs::write(&list, concat_list(&parts)).map_err(other)?;
     fs::write(&meta, ffmetadata(&req.title, &req.author, &req.chapters)).map_err(other)?;
-    let r = run_ffmpeg(ffmpeg, &ffmpeg_args(&list, &meta, cover.as_deref(), &out), scratch.path(), TIMEOUT, cancel)?;
+    let r = run_ffmpeg(ffmpeg, &ffmpeg_args(&list, &meta, cover.as_deref(), req.language.as_deref(), &out), scratch.path(), TIMEOUT, cancel)?;
     if !r.success || !out.is_file() {
         let msg = r.stderr.trim();
         let message = if msg.is_empty() { "the encoder exited with an error and no message".to_string() } else { msg.chars().rev().take(2000).collect::<Vec<_>>().into_iter().rev().collect() };
@@ -250,10 +278,22 @@ mod tests {
     #[test]
     fn arguments_map_the_audio_chapters_and_the_cover_as_an_attached_picture() {
         let (l, m, o, c) = (Path::new("/t/l"), Path::new("/t/m"), Path::new("/t/o"), Path::new("/p/assets/c.png"));
-        let with = ffmpeg_args(l, m, Some(c), o).join(" ");
-        assert!(with.contains("-f concat -safe 0 -protocol_whitelist file,pipe -i /t/l -protocol_whitelist file,pipe -i /t/m -protocol_whitelist file,pipe -i /p/assets/c.png -map 0:a -map 2:v -map_metadata 1 -map_chapters 1 -c:a aac -b:a 64k -c:v copy -disposition:v:0 attached_pic -f ipod /t/o"), "{with}");
-        let without = ffmpeg_args(l, m, None, o).join(" ");
+        let with = ffmpeg_args(l, m, Some(c), Some("fr-CA"), o).join(" ");
+        assert!(with.contains("-f concat -safe 0 -protocol_whitelist file,pipe -i /t/l -protocol_whitelist file,pipe -i /t/m -protocol_whitelist file,pipe -i /p/assets/c.png -map 0:a -map 2:v -map_metadata 1 -map_chapters 1 -c:a aac -b:a 64k -metadata:s:a:0 language=fra -c:v copy -disposition:v:0 attached_pic -f ipod /t/o"), "{with}");
+        let without = ffmpeg_args(l, m, None, None, o).join(" ");
         assert!(!without.contains("2:v") && !without.contains("attached_pic") && without.ends_with("-f ipod /t/o"), "{without}");
+        assert!(without.contains("-metadata:s:a:0 language=und"), "{without}");
+    }
+
+    #[test]
+    fn the_track_language_is_a_three_letter_code_and_odd_tags_are_undetermined() {
+        for (tag, code) in [("en", "eng"), ("fr-CA", "fra"), ("PT-br", "por"), ("zh-Hant", "zho"), ("tlh", "tlh"), ("", "und"), ("x", "und"), ("fr FR", "und"), ("fr--CA", "und"), ("fr\nCA", "und")] {
+            assert_eq!(iso639_2(Some(tag)), code, "{tag:?}");
+        }
+        assert_eq!(iso639_2(None), "und");
+        assert_eq!(clean_language(Some(" fr-CA ")), Some("fr-CA".into()));
+        assert_eq!(clean_language(Some(&"a".repeat(36))), None);
+        assert_eq!(clean_language(Some("fr=CA")), None);
     }
 
     #[test]
@@ -304,6 +344,7 @@ mod tests {
                 author: "Me".into(),
                 cover: Some("assets/cover.png".into()),
                 chapters: vec![chapter("One", "a.flac", 1.0), chapter("Two", "b.flac", 2.0)],
+                language: Some("fr-CA".into()),
             }
         }
 
@@ -318,6 +359,16 @@ mod tests {
             assert_eq!(fs::read(f.project.join("exports/audio/book.m4b")).unwrap(), b"m4b-bytes\n");
             let scratch = fs::read_to_string(&note).unwrap();
             assert!(!Path::new(scratch.trim()).exists(), "the temp dir must be removed");
+        }
+
+        #[test]
+        fn the_tool_is_told_the_track_language() {
+            let f = fixture("for a in \"$@\"; do echo \"$a\"; done > \"$OUT\"");
+            build_m4b(&request(&f), &f.ffmpeg, &AtomicBool::new(false)).unwrap();
+            let args = fs::read_to_string(f.project.join("exports/audio/book.m4b")).unwrap();
+            let lines: Vec<&str> = args.lines().collect();
+            let at = lines.iter().position(|l| *l == "-metadata:s:a:0").expect("the stream language option");
+            assert_eq!(lines[at + 1], "language=fra");
         }
 
         #[test]
@@ -443,11 +494,13 @@ mod tests {
             author: "Me".into(),
             cover: Some("assets/cover.png".into()),
             chapters: vec![chapter("Chapter One", "one.flac", 2.0), chapter("Chapter Two", "two.flac", 1.0)],
+            language: Some("fr".into()),
         };
         let built = build_m4b(&req, &ffmpeg, &AtomicBool::new(false)).unwrap();
         let out = project.join(&built.path);
         let info = describe(&ffmpeg, &out);
         assert!(info.contains("Audio: aac"), "{info}");
+        assert!(info.contains("(fra): Audio"), "the track language is written:\n{info}");
         assert!(info.contains("(attached pic)"), "{info}");
         assert!(info.contains("Chapter #0:0: start 0.000000, end 2.000000") && info.contains("Chapter #0:1: start 2.000000, end 3.000000"), "{info}");
         for title in ["Chapter One", "Chapter Two", "Real Book"] {

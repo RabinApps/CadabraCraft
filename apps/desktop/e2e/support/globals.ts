@@ -170,6 +170,7 @@ declare global {
     __sampleCalls: SampleCall[];
     __m4bCalls: M4bCall[];
     __sampleError?: FakeError;
+    __transcriptError?: FakeError;
     __cadabraMenu: { run: (id: string) => boolean };
     __calls?: RecordedCall[];
     __sources?: Record<string, number[]>;

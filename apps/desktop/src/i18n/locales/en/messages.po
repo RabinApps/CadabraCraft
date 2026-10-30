@@ -373,6 +373,10 @@ msgstr "A project already exists in this folder"
 msgid "A sample is already being made"
 msgstr "A sample is already being made"
 
+#: src/app/export/AudioExport.tsx
+msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
+msgstr "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
+
 #: src/app/shell/menuModel.ts
 msgid "About CadabraCraft"
 msgstr "About CadabraCraft"
@@ -2989,6 +2993,10 @@ msgstr "same as now"
 msgid "Save"
 msgstr "Save"
 
+#: src/app/export/AudioExport.tsx
+msgid "Save a transcript"
+msgstr "Save a transcript"
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Save details"
 msgstr "Save details"
@@ -3685,6 +3693,10 @@ msgstr "Toggle Header Row"
 #: src/lib/exportChecks.ts
 msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
 msgstr "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
+
+#: src/app/export/AudioExport.tsx
+msgid "Transcript files"
+msgstr "Transcript files"
 
 #: src/app/shell/Sidebar.tsx
 #: src/app/shell/TrashDialog.tsx

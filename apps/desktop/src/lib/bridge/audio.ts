@@ -43,6 +43,9 @@ export const audioBridge = {
   /** Builds the whole-book M4B from the chapters' parts (AAC through the bundled ffmpeg). Stop it with `audioCancel(jobId)`. */
   audioBuildM4b: (request: AudioM4bRequest) =>
     invoke<{ path: string; durationSec: number }>("audio_build_m4b", { request }),
+  /** Saves a transcript (`.txt` or `.vtt` in an `audio` folder under `exports/`), atomically. */
+  audioWriteTranscript: (root: string, path: string, contents: string) =>
+    invoke<void>("audio_write_transcript", { root, path, contents }),
   audioDeletePack: (pack: string) => invoke<void>("audio_delete_pack", { pack }),
   /** Stops the job's running chapter (the engine process is killed) and every later one. */
   audioCancel: (jobId: string) => invoke<void>("audio_cancel", { jobId }),
