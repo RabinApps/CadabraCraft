@@ -347,18 +347,27 @@ pub fn trash_reference(root: &Path, rel: &str) -> Result<String> {
 }
 
 /// The file to hand to the operating system's default app. Refuses types that could run or run script when opened
-/// (the import list, plus SVG, which a browser would open with scripts enabled, and files with no extension) and files still downloading from iCloud.
+/// (the import list, plus SVG, which a browser would open with scripts enabled) and files still downloading from iCloud.
+/// A file with no extension opens only when its first bytes pass the same check as at import (`sniff_extensionless`).
 pub fn reference_open_path(root: &Path, rel: &str) -> Result<PathBuf> {
     let path = reference_path(root, rel)?;
     let ext = extension(rel).map_err(|_| ProjectError::UnsupportedReference { name: rel.to_string() })?;
-    // No extension: the operating system would decide by content, and a program has none.
-    if BLOCKED.contains(&ext.as_str()) || ext == "svg" || ext.is_empty() {
+    if BLOCKED.contains(&ext.as_str()) || ext == "svg" {
         return Err(ProjectError::UnsupportedReference { name: rel.to_string() });
     }
     if icloud_pending(&path) {
         return Err(ProjectError::IcloudPending { path: rel.to_string() });
     }
-    let (_, _) = open_regular(root, rel)?;
+    let (file, _) = open_regular(root, rel)?;
+    if ext.is_empty() {
+        // No extension: the operating system would decide by content, so only content that is plainly a document or
+        // media opens; a program, a script or unknown bytes stay refused. The read is capped and the handle is a regular file.
+        let mut header = Vec::new();
+        file.take(HEADER_BYTES as u64).read_to_end(&mut header).ctx(rel)?;
+        if !sniff_extensionless(&header) {
+            return Err(ProjectError::UnsupportedReference { name: rel.to_string() });
+        }
+    }
     Ok(path)
 }
 
@@ -596,7 +605,7 @@ mod tests {
         assert!(matches!(reference_open_path(proj.path(), &svg.file).unwrap_err(), ProjectError::UnsupportedReference { .. }));
         fs::write(proj.path().join("references/tool.exe"), "MZ").unwrap();
         assert!(matches!(reference_open_path(proj.path(), "references/tool.exe").unwrap_err(), ProjectError::UnsupportedReference { .. }));
-        for name in ["run.py", "x.webloc", "m.docm", "s.command", "noext"] {
+        for name in ["run.py", "x.webloc", "m.docm", "s.command"] {
             fs::write(proj.path().join("references").join(name), "x").unwrap();
             assert!(matches!(reference_open_path(proj.path(), &format!("references/{name}")).unwrap_err(), ProjectError::UnsupportedReference { .. }), "{name}");
         }
@@ -604,6 +613,33 @@ mod tests {
         assert!(matches!(reference_open_path(proj.path(), "references/gone.pdf").unwrap_err(), ProjectError::NotFound { .. }));
         fs::write(proj.path().join("references/.late.pdf.icloud"), "").unwrap();
         assert!(matches!(reference_open_path(proj.path(), "references/late.pdf").unwrap_err(), ProjectError::IcloudPending { .. }));
+    }
+
+    #[test]
+    fn extensionless_files_open_only_when_their_content_is_a_document_or_media() {
+        let proj = tmp();
+        let refs = proj.path().join("references");
+        fs::create_dir_all(&refs).unwrap();
+        let open = |name: &str, bytes: &[u8]| {
+            fs::write(refs.join(name), bytes).unwrap();
+            reference_open_path(proj.path(), &format!("references/{name}"))
+        };
+        assert_eq!(open("README", b"plain text notes\n").unwrap(), refs.join("README"));
+        assert_eq!(open("scan", &PNG).unwrap(), refs.join("scan"));
+        assert!(open("empty", b"").is_ok(), "an empty file follows the import sniff, which accepts it");
+        for (name, bytes) in [("elf", &b"\x7fELF\x02\x01\x01\0"[..]), ("mz", b"MZ\x90\0\x03\0\0\0"), ("script", b"#!/bin/sh\necho hi\n"), ("blob", &[0xde, 0xad, 0x01, 0x02][..])] {
+            assert!(matches!(open(name, bytes).unwrap_err(), ProjectError::UnsupportedReference { .. }), "{name}");
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn an_extensionless_fifo_is_refused_without_hanging() {
+        let proj = tmp();
+        fs::create_dir_all(proj.path().join("references")).unwrap();
+        let fifo = proj.path().join("references/pipe");
+        assert!(std::process::Command::new("mkfifo").arg(&fifo).status().unwrap().success());
+        assert!(matches!(reference_open_path(proj.path(), "references/pipe").unwrap_err(), ProjectError::NotAFile { .. }));
     }
 
     #[cfg(unix)]

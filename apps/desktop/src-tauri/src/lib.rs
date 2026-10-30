@@ -145,7 +145,7 @@ pub fn run() {
         .manage(automation::DialogQueue::default())
         .plugin(tauri_plugin_mcp_bridge::Builder::new().bind_address("127.0.0.1").build());
     #[cfg(all(feature = "dev-automation", debug_assertions))]
-    let builder = builder.invoke_handler(app_handlers![automation::automation_queue_dialog, automation::automation_take_dialog]);
+    let builder = builder.invoke_handler(app_handlers![automation::automation_queue_dialog]);
     #[cfg(not(all(feature = "dev-automation", debug_assertions)))]
     let builder = builder.invoke_handler(handlers());
 

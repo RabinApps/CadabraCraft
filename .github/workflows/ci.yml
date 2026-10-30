@@ -88,6 +88,8 @@ jobs:
       - run: cargo install --locked cargo-deny@0.20.2
       - run: cargo install --locked cargo-about@0.9.3 --features cli
       - run: pnpm licenses:check
+      # The perf probe and the fuzz crate have their own lockfiles that `cargo deny check` above does not see.
+      - run: pnpm licenses:tools-advisories
   # The real built app driven through tauri-driver (WebKitWebDriver) under a virtual display. Linux only: tauri-driver does
   # not exist for macOS, and the Windows job needs msedgedriver set up. Not a required check yet (continue-on-error): this
   # suite has not run against a real driver, so the first runs may need selector or timing fixes; it fails visibly (red

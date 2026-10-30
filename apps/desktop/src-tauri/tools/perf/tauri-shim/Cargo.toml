@@ -1,3 +1,4 @@
+# STUB, NOT THE REAL TAURI: a local path crate that only borrows the name `tauri`. Never published or shipped; the real crate is in ../../../Cargo.toml.
 # Stand-in for the `tauri` crate, named `tauri` so the app sources compile unchanged: they only use `tauri::Url` and `tauri::Error`.
 # Lets perfprobe and the fuzz targets build without the real tauri (and its sidecar-binary build script).
 [package]
