@@ -572,3 +572,6 @@ mod tests {
         assert!(version(&bin).unwrap().starts_with("typst"));
     }
 }
+
+#[cfg(test)]
+mod review_repro;
