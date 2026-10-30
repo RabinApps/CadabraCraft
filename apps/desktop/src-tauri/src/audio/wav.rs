@@ -20,7 +20,7 @@ pub fn parse_wav(b: &[u8]) -> Result<Pcm, AudioError> {
         if id == b"fmt " {
             let f = b.get(body..body + 16).ok_or_else(|| bad("short fmt chunk"))?;
             let (tag, channels, hz, bits) = (u16::from_le_bytes([f[0], f[1]]), u16::from_le_bytes([f[2], f[3]]), u32::from_le_bytes([f[4], f[5], f[6], f[7]]), u16::from_le_bytes([f[14], f[15]]));
-            if tag != 1 || channels != 1 || bits != 16 || hz == 0 {
+            if tag != 1 || channels != 1 || bits != 16 || hz == 0 || hz > MAX_RATE {
                 return Err(bad("expected 16-bit mono PCM"));
             }
             rate = Some(hz);
@@ -34,23 +34,40 @@ pub fn parse_wav(b: &[u8]) -> Result<Pcm, AudioError> {
     Err(bad("no data chunk"))
 }
 
-pub fn write_wav(rate: u32, samples: &[i16]) -> Vec<u8> {
-    let data = (samples.len() * 2) as u32;
+/// Highest sample rate written or read (well above any speech voice; guards `rate * 2` and absurd headers).
+pub const MAX_RATE: u32 = 768_000;
+
+/// The 44-byte header of a 16-bit mono PCM WAV with `samples` samples. Errors instead of wrapping when the rate is zero
+/// or above `MAX_RATE`, or when the data does not fit the 32-bit sizes WAV has (4 GiB).
+fn wav_header(rate: u32, samples: usize) -> Result<[u8; 44], String> {
+    if rate == 0 || rate > MAX_RATE {
+        return Err(format!("a sample rate of {rate} Hz cannot be written as a WAV file"));
+    }
+    let too_long = || "the audio is too long for a WAV file (4 GiB limit)".to_string();
+    let data = samples.checked_mul(2).and_then(|d| u32::try_from(d).ok()).ok_or_else(too_long)?;
+    let riff = data.checked_add(36).ok_or_else(too_long)?;
+    let mut h = [0u8; 44];
+    h[0..4].copy_from_slice(b"RIFF");
+    h[4..8].copy_from_slice(&riff.to_le_bytes());
+    h[8..16].copy_from_slice(b"WAVEfmt ");
+    h[16..20].copy_from_slice(&16u32.to_le_bytes());
+    h[20..24].copy_from_slice(&[1, 0, 1, 0]);
+    h[24..28].copy_from_slice(&rate.to_le_bytes());
+    h[28..32].copy_from_slice(&(rate * 2).to_le_bytes()); // cannot overflow: rate <= MAX_RATE
+    h[32..36].copy_from_slice(&[2, 0, 16, 0]);
+    h[36..40].copy_from_slice(b"data");
+    h[40..44].copy_from_slice(&data.to_le_bytes());
+    Ok(h)
+}
+
+pub fn write_wav(rate: u32, samples: &[i16]) -> Result<Vec<u8>, String> {
+    let header = wav_header(rate, samples.len())?;
     let mut out = Vec::with_capacity(44 + samples.len() * 2);
-    out.extend_from_slice(b"RIFF");
-    out.extend_from_slice(&(36 + data).to_le_bytes());
-    out.extend_from_slice(b"WAVEfmt ");
-    out.extend_from_slice(&16u32.to_le_bytes());
-    out.extend_from_slice(&[1, 0, 1, 0]);
-    out.extend_from_slice(&rate.to_le_bytes());
-    out.extend_from_slice(&(rate * 2).to_le_bytes());
-    out.extend_from_slice(&[2, 0, 16, 0]);
-    out.extend_from_slice(b"data");
-    out.extend_from_slice(&data.to_le_bytes());
+    out.extend_from_slice(&header);
     for s in samples {
         out.extend_from_slice(&s.to_le_bytes());
     }
-    out
+    Ok(out)
 }
 
 #[cfg(test)]
@@ -60,13 +77,13 @@ mod tests {
     #[test]
     fn wav_round_trips_and_refuses_other_formats() {
         let samples: Vec<i16> = (0..100).map(|i| (i * 300 - 15000) as i16).collect();
-        let pcm = parse_wav(&write_wav(24000, &samples)).unwrap();
+        let pcm = parse_wav(&write_wav(24000, &samples).unwrap()).unwrap();
         assert_eq!((pcm.rate, pcm.samples), (24000, samples));
         assert!(matches!(parse_wav(b"not a wav file at all"), Err(AudioError::Synth { .. })));
-        let mut stereo = write_wav(24000, &[1, 2]);
+        let mut stereo = write_wav(24000, &[1, 2]).unwrap();
         stereo[22] = 2;
         assert!(parse_wav(&stereo).is_err());
-        let mut streamed = write_wav(24000, &[5, 6, 7]);
+        let mut streamed = write_wav(24000, &[5, 6, 7]).unwrap();
         streamed[40..44].copy_from_slice(&u32::MAX.to_le_bytes());
         assert_eq!(parse_wav(&streamed).unwrap().samples, vec![5, 6, 7]);
     }
@@ -100,5 +117,34 @@ mod tests {
         assert!(matches!(parse_wav(&riff(&[fmt()])), Err(AudioError::Synth { message }) if message.contains("no data chunk")));
         assert!(matches!(parse_wav(&riff(&[chunk(b"data", &[1, 0]), fmt()])), Err(AudioError::Synth { message }) if message.contains("data before fmt")));
         assert!(matches!(parse_wav(&riff(&[chunk(b"fmt ", &[1, 0, 1, 0])])), Err(AudioError::Synth { message }) if message.contains("short fmt chunk")));
+    }
+
+    #[test]
+    fn the_header_refuses_what_wav_cannot_hold() {
+        let ok = |rate, n| wav_header(rate, n);
+        assert!(ok(MAX_RATE, 10).is_ok() && ok(1, 0).is_ok());
+        for rate in [0, MAX_RATE + 1, u32::MAX] {
+            assert!(ok(rate, 10).unwrap_err().contains("sample rate"), "{rate}");
+        }
+        // Data of exactly u32::MAX - 36 bytes fits; one more sample does not. Sizes that wrap a u32 or a usize are errors too.
+        let fits = (u32::MAX as usize - 36) / 2;
+        assert!(ok(24000, fits).is_ok());
+        for n in [fits + 1, u32::MAX as usize / 2 + 1, usize::MAX / 2 + 1, usize::MAX] {
+            assert!(ok(24000, n).unwrap_err().contains("too long"), "{n}");
+        }
+        let h = ok(24000, 5).unwrap();
+        assert_eq!(u32::from_le_bytes(h[4..8].try_into().unwrap()), 46);
+        assert_eq!(u32::from_le_bytes(h[28..32].try_into().unwrap()), 48000);
+        assert_eq!(write_wav(0, &[1]).unwrap_err(), "a sample rate of 0 Hz cannot be written as a WAV file");
+        assert!(write_wav(24000, &[]).is_ok(), "zero samples make a valid empty WAV");
+    }
+
+    #[test]
+    fn a_header_with_an_absurd_sample_rate_is_refused_when_reading() {
+        let mut wav = write_wav(24000, &[1, 2]).unwrap();
+        wav[24..28].copy_from_slice(&(MAX_RATE + 1).to_le_bytes());
+        assert!(parse_wav(&wav).is_err());
+        wav[24..28].copy_from_slice(&MAX_RATE.to_le_bytes());
+        assert_eq!(parse_wav(&wav).unwrap().rate, MAX_RATE);
     }
 }

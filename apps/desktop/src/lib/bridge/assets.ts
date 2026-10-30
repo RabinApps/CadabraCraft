@@ -19,7 +19,12 @@ export const assetsBridge = {
    */
   importDocxSource: (path: string, splitHeadingLevel: 1 | 2 | 3) =>
     binary(invoke<RawBytes>("import_docx_source", { path, splitHeadingLevel })),
-  /** Stores image bytes from an imported document in `assets/`; resolves to the path actually used (`assets/<name>`). */
+  /**
+   * Stores image bytes from an imported document in `assets/`; resolves to the path actually used (`assets/<name>`).
+   * The bytes are the raw request body; `root` and `name` travel as percent-encoded headers.
+   */
   importAssetBytes: (root: string, name: string, bytes: Uint8Array) =>
-    invoke<string>("import_asset_bytes", { root, name, bytes: Array.from(bytes) }),
+    invoke<string>("import_asset_bytes", bytes, {
+      headers: { root: encodeURIComponent(root), name: encodeURIComponent(name) },
+    }),
 };

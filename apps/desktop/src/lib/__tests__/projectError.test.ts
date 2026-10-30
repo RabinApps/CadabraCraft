@@ -23,6 +23,7 @@ describe("projectErrorMessage", () => {
       { kind: "image_dimensions", name: "huge.png", max_megapixels: 150 },
       /huge\.png.*150 megapixels/,
     ],
+    [{ kind: "invalid_manifest" }, /cadabra\.json.*JSON object/],
     [{ kind: "too_large", path: "big.docx", max_mb: 200 }, /big\.docx.*200 MB/],
     [{ kind: "not_a_file", path: "dir" }, /dir/],
     [{ kind: "unsupported_image", name: "a.tiff" }, /a\.tiff/],

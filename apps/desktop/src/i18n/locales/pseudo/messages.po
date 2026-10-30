@@ -3347,6 +3347,10 @@ msgstr ""
 msgid "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
 msgstr ""
 
+#: src/lib/projectError.ts
+msgid "The book's cadabra.json is not a JSON object"
+msgstr ""
+
 #: src/state/project/context.ts
 msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
 msgstr ""

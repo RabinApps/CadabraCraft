@@ -81,18 +81,36 @@ fn rehash(path: &Path) -> Result<(Sha256, u64), AudioError> {
     }
 }
 
+/// The longest one file may take in all, on top of the connect and per-read timeouts (which only catch a dead
+/// connection, not one that trickles for days). A timed out download keeps its `.part` file for a later resume.
+pub const DEADLINE: Duration = Duration::from_secs(30 * 60);
+
 /// Downloads `url` to `dest`, resuming a `.part` file when the server honours `Range`, and renames it into place only
 /// when its size and sha256 match. `progress` receives the bytes of this file present so far (including resumed ones).
 /// Cancel leaves the `.part` file for a later resume; a hash mismatch deletes it.
 pub async fn download_file(client: &reqwest::Client, url: &str, size: u64, sha256: &str, dest: &Path, cancel: &AtomicBool, progress: &mut (dyn FnMut(u64) + Send)) -> Result<(), AudioError> {
+    download_file_within(client, url, size, sha256, dest, cancel, progress, DEADLINE).await
+}
+
+/// `download_file` with its overall time limit given (the tests use a short one).
+#[allow(clippy::too_many_arguments)]
+pub(crate) async fn download_file_within(client: &reqwest::Client, url: &str, size: u64, sha256: &str, dest: &Path, cancel: &AtomicBool, progress: &mut (dyn FnMut(u64) + Send), deadline: Duration) -> Result<(), AudioError> {
+    let started = Instant::now();
     if fs::metadata(dest).is_ok_and(|m| m.is_file() && m.len() == size) {
-        progress(size);
-        return Ok(());
+        // A file of the right size is only trusted when its hash matches too (it may be a corrupt or swapped file).
+        let path = dest.to_path_buf();
+        let (hasher, _) = tauri::async_runtime::spawn_blocking(move || rehash(&path)).await.map_err(other)??;
+        if hex(hasher) == sha256 {
+            progress(size);
+            return Ok(());
+        }
+        fs::remove_file(dest).map_err(io_err)?; // never used; downloaded again below
     }
     let part = part_path(dest);
     fs::create_dir_all(dest.parent().unwrap_or(Path::new(""))).map_err(io_err)?; // "" (a bare file name) is a no-op
     let (mut hasher, mut have) = (Sha256::new(), 0u64);
-    if let Ok(md) = fs::metadata(&part) {
+    // A link or folder at the `.part` name is never followed or resumed: it is removed (the link, not its target).
+    if let Ok(md) = fs::symlink_metadata(&part) {
         if md.is_file() && md.len() <= size {
             // Rehashing a partly downloaded voice (up to hundreds of MB) is disk-bound work: keep it off the async threads.
             let path = part.clone();
@@ -124,12 +142,21 @@ pub async fn download_file(client: &reqwest::Client, url: &str, size: u64, sha25
                 return Err(AudioError::Download { message: format!("the server offered {len} bytes, expected {}", size - have) });
             }
         }
-        let mut out = OpenOptions::new().create(true).write(true).append(append).truncate(!append).open(&part).map_err(io_err)?;
+        let mut out = if append {
+            OpenOptions::new().append(true).open(&part).map_err(io_err)? // the resumed file, checked above
+        } else {
+            // A fresh start never reuses a file that is already there: remove it, then create it exclusively.
+            let _ = fs::remove_file(&part);
+            OpenOptions::new().write(true).create_new(true).open(&part).map_err(io_err)?
+        };
         let mut last = Instant::now();
         progress(have);
         while let Some(chunk) = resp.chunk().await.map_err(net_err)? {
             if cancel.load(Ordering::Relaxed) {
                 return Err(AudioError::Cancelled);
+            }
+            if started.elapsed() > deadline {
+                return Err(AudioError::Download { message: format!("the download took longer than the {} second limit", deadline.as_secs()) });
             }
             if have + chunk.len() as u64 > size {
                 let _ = fs::remove_file(&part);
@@ -432,6 +459,61 @@ mod tests {
     }
 
     #[test]
+    fn an_installed_file_of_the_right_size_but_the_wrong_content_is_replaced() {
+        let data = body(5000);
+        let s = serve(data.clone(), Mode::Normal);
+        let dir = tempfile::tempdir().unwrap();
+        let dest = dir.path().join("file.bin");
+        fs::write(&dest, vec![0u8; 5000]).unwrap(); // same size, not the pinned bytes
+        let (r, _) = run(&s.url, &data, &sha(&data), &dest, &AtomicBool::new(false));
+        assert_eq!(r, Ok(()));
+        assert_eq!(fs::read(&dest).unwrap(), data);
+        assert_eq!(s.requests.lock().unwrap().len(), 1, "it was fetched again");
+    }
+
+    #[test]
+    fn a_file_of_a_different_size_and_a_zero_byte_file_are_downloaded() {
+        let data = body(3000);
+        let s = serve(data.clone(), Mode::Normal);
+        let dir = tempfile::tempdir().unwrap();
+        for (name, len) in [("short.bin", 2999), ("empty.bin", 0), ("long.bin", 3001)] {
+            let dest = dir.path().join(name);
+            fs::write(&dest, vec![1u8; len]).unwrap();
+            assert_eq!(run(&s.url, &data, &sha(&data), &dest, &AtomicBool::new(false)).0, Ok(()), "{name}");
+            assert_eq!(fs::read(&dest).unwrap(), data, "{name}");
+        }
+    }
+
+    #[test]
+    fn a_download_past_its_deadline_stops_and_keeps_the_part_file() {
+        let data = body(400_000);
+        let s = serve(data.clone(), Mode::Slow);
+        let dir = tempfile::tempdir().unwrap();
+        let dest = dir.path().join("file.bin");
+        let client = client(false).unwrap();
+        let r = tauri::async_runtime::block_on(download_file_within(&client, &s.url, data.len() as u64, &sha(&data), &dest, &AtomicBool::new(false), &mut noop, Duration::from_millis(100)));
+        assert!(matches!(&r, Err(AudioError::Download { message }) if message.contains("longer than")), "{r:?}");
+        assert!(!dest.exists());
+        assert!(part_path(&dest).exists(), "kept for a later resume");
+        assert_eq!(DEADLINE, Duration::from_secs(1800));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_link_at_the_part_name_is_replaced_not_followed() {
+        let data = body(5000);
+        let s = serve(data.clone(), Mode::Normal);
+        let dir = tempfile::tempdir().unwrap();
+        let (target, dest) = (dir.path().join("target.txt"), dir.path().join("file.bin"));
+        fs::write(&target, "precious").unwrap();
+        std::os::unix::fs::symlink(&target, part_path(&dest)).unwrap();
+        let (r, _) = run(&s.url, &data, &sha(&data), &dest, &AtomicBool::new(false));
+        assert_eq!(r, Ok(()));
+        assert_eq!(fs::read_to_string(&target).unwrap(), "precious", "nothing was written through the link");
+        assert_eq!(fs::read(&dest).unwrap(), data);
+    }
+
+    #[test]
     fn disk_full_is_told_apart_from_other_write_errors() {
         use std::io::ErrorKind::*;
         assert_eq!(io_err(std::io::Error::from(StorageFull)), AudioError::DiskFull);
@@ -620,7 +702,7 @@ mod tests {
             use std::os::unix::fs::PermissionsExt;
             let dir = tempfile::tempdir().unwrap();
             let wav = dir.path().join("two-seconds.wav");
-            fs::write(&wav, crate::audio::wav::write_wav(24000, &vec![1000i16; 48_000])).unwrap();
+            fs::write(&wav, crate::audio::wav::write_wav(24000, &vec![1000i16; 48_000]).unwrap()).unwrap();
             let engine = dir.path().join("fake-engine");
             fs::write(&engine, format!("#!/bin/sh\nfor a in \"$@\"; do case \"$a\" in --output-filename=*) out=\"${{a#--output-filename=}}\";; esac; done\ncp '{}' \"$out\"\n", wav.display())).unwrap();
             fs::set_permissions(&engine, fs::Permissions::from_mode(0o755)).unwrap();

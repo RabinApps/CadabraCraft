@@ -14,6 +14,9 @@ use std::time::Duration;
 /// A book has at most a few hundred chapters; this stops a request from building an enormous list.
 const MAX_CHAPTERS: usize = 10_000;
 
+/// Largest M4B built, in bytes (about 70 hours at 64 kbit/s). The file is held in memory once to be written into the project.
+const MAX_M4B_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+
 /// Joining and encoding a long book takes a few minutes at most; anything longer is stuck.
 const TIMEOUT: Duration = Duration::from_secs(60 * 60);
 /// Mono speech: transparent enough for narration and about 29 MB per hour.
@@ -192,9 +195,16 @@ pub fn build_m4b(req: &M4bRequest, ffmpeg: &Path, cancel: &AtomicBool) -> Result
         let message = if msg.is_empty() { "the encoder exited with an error and no message".to_string() } else { msg.chars().rev().take(2000).collect::<Vec<_>>().into_iter().rev().collect() };
         return Err(AudioError::Encode { format: "m4b".into(), message });
     }
-    let bytes = fs::read(&out).map_err(other)?;
+    // The encoder's output is read whole to be written into the project: cap it so a runaway encode cannot use all memory.
+    let bytes = read_encoded(&out, MAX_M4B_BYTES)?;
     project::write_bytes(&root, &path, &bytes)?;
     Ok(BuiltM4b { path, duration_sec: req.chapters.iter().map(|c| c.duration_sec.max(0.0)).sum() })
+}
+
+/// The encoder's output, if it is a regular file of at most `cap` bytes.
+fn read_encoded(out: &Path, cap: u64) -> Result<Vec<u8>, AudioError> {
+    let too_large = || ProjectError::TooLarge { path: "book.m4b".into(), max_mb: cap / 1024 / 1024 };
+    Ok(project::read_regular(out, cap, "book.m4b", too_large)?)
 }
 
 #[cfg(test)]
@@ -244,6 +254,18 @@ mod tests {
         assert!(with.contains("-f concat -safe 0 -protocol_whitelist file,pipe -i /t/l -protocol_whitelist file,pipe -i /t/m -protocol_whitelist file,pipe -i /p/assets/c.png -map 0:a -map 2:v -map_metadata 1 -map_chapters 1 -c:a aac -b:a 64k -c:v copy -disposition:v:0 attached_pic -f ipod /t/o"), "{with}");
         let without = ffmpeg_args(l, m, None, o).join(" ");
         assert!(!without.contains("2:v") && !without.contains("attached_pic") && without.ends_with("-f ipod /t/o"), "{without}");
+    }
+
+    #[test]
+    fn the_encoder_output_is_read_up_to_the_cap_and_no_further() {
+        let d = tempfile::tempdir().unwrap();
+        let out = d.path().join("book.m4b");
+        fs::write(&out, [7u8; 4]).unwrap();
+        assert_eq!(read_encoded(&out, 4).unwrap(), vec![7u8; 4]);
+        assert_eq!(read_encoded(&out, 3), Err(AudioError::from(ProjectError::TooLarge { path: "book.m4b".into(), max_mb: 0 })));
+        fs::write(&out, []).unwrap();
+        assert_eq!(read_encoded(&out, 4).unwrap(), Vec::<u8>::new(), "zero bytes are read as an empty file");
+        assert!(read_encoded(d.path(), 4).is_err(), "a folder is not output");
     }
 
     #[cfg(unix)]

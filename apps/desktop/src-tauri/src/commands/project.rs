@@ -132,14 +132,14 @@ mod tests {
     }
 
     #[test]
-    fn raw_and_legacy_byte_writes_land_under_exports() {
+    fn raw_byte_writes_land_under_exports_and_a_json_body_is_refused() {
         let book = project();
         let r = root(&book);
         run(write_bytes_request(&InvokeBody::Raw(vec![1, 2, 3]), &headers(&r, "exports/a.bin"))).unwrap();
         assert_eq!(std::fs::read(book.path().join("exports/a.bin")).unwrap(), vec![1, 2, 3]);
         let legacy = InvokeBody::Json(serde_json::json!({ "root": r, "path": "exports/b.bin", "bytes": [9] }));
-        run(write_bytes_request(&legacy, &HeaderMap::new())).unwrap();
-        assert_eq!(std::fs::read(book.path().join("exports/b.bin")).unwrap(), vec![9]);
+        assert!(run(write_bytes_request(&legacy, &HeaderMap::new())).is_err());
+        assert!(!book.path().join("exports/b.bin").exists());
         assert!(run(write_bytes_request(&InvokeBody::Raw(vec![]), &HeaderMap::new())).is_err());
         assert!(run(write_bytes_request(&InvokeBody::Raw(vec![1]), &headers(&r, "manuscript/a.json"))).is_err());
     }

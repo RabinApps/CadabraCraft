@@ -5,34 +5,62 @@
 //!
 //! Image files are listed, not copied: the app never deletes or rewrites an asset, so the list is enough to tell the author
 //! which images a restored chapter needs and are gone.
+//!
+//! Limits: a snapshot file is at most `MAX_SNAPSHOT_BYTES` (the read cap, so one that can be created can always be loaded
+//! and restored; a larger book is refused with `too_large` instead). At most `MAX_SNAPSHOTS` are kept, within
+//! `MAX_TOTAL_BYTES` together: after a new one is taken the oldest beyond that move to `.cadabra/trash/` (never deleted).
+//! Listing reads only the start of each file (a `summary` field written before the texts), not the whole file.
+use super::fsio::move_to_free_copy_name;
+use super::pages::MAX_READ_BYTES;
 use super::snapshots::{is_snapshotable, SnapshotMode};
 use super::{atomic_write, free_copy_name, hash_bytes, read_file, resolve, trash_file, write_file_with, FileRead, ProjectError, Result, WriteResult, MANIFEST};
 use chrono::{DateTime, Utc};
-use serde::{de::IgnoredAny, Deserialize, Serialize};
+use serde::de::{self, IgnoredAny, MapAccess, Visitor};
+use serde::{Deserialize, Deserializer, Serialize};
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::fs;
+use std::io::Read;
 use std::path::Path;
 
 pub const SNAPSHOTS_DIR: &str = ".cadabra/snapshots";
 /// Longest snapshot name, in characters.
 pub const MAX_NAME_CHARS: usize = 100;
-/// Most text a book snapshot holds (manifest and pages together); a larger book is refused rather than half kept.
-pub const MAX_BOOK_MB: u64 = 256;
+/// Largest snapshot file, in bytes: the same as the cap on reading any project file, so every snapshot that is created
+/// can be loaded again. A larger book is refused rather than half kept.
+pub const MAX_SNAPSHOT_BYTES: u64 = MAX_READ_BYTES;
+/// Most snapshots kept; older ones move to the project trash.
+pub const MAX_SNAPSHOTS: usize = 50;
+/// Most bytes all snapshots may take together; older ones move to the project trash.
+pub const MAX_TOTAL_BYTES: u64 = 1024 * 1024 * 1024;
+/// How much of a snapshot file is read to list it.
+const HEAD_BYTES: u64 = 256 * 1024;
 const PAGE_DIRS: [&str; 3] = ["manuscript", "front-matter", "back-matter"];
 const FORMAT: u32 = 1;
 
-/// What is stored. `pages` maps a project-relative path to the file's text.
+/// What listing needs, stored before the (large) texts so it can be read from the start of the file.
+#[derive(Serialize, Deserialize)]
+struct Summary {
+    pages: Vec<String>,
+    assets: usize,
+}
+
+/// What is stored. `pages` maps a project-relative path to the file's text. Files written before `summary` existed
+/// lack it and are listed by reading them through once.
 #[derive(Serialize, Deserialize)]
 struct BookFile {
     version: u32,
     name: String,
     automatic: bool,
+    #[serde(default)]
+    summary: Option<Summary>,
     manifest: String,
     pages: BTreeMap<String, String>,
     assets: Vec<String>,
 }
 
-/// The same file read without its texts, for listing.
+/// The same file read without its texts (streamed, never held whole), for listing files that have no `summary` or whose
+/// summary is beyond the first `HEAD_BYTES`.
 #[derive(Deserialize)]
 struct BookHead {
     version: u32,
@@ -40,6 +68,68 @@ struct BookHead {
     automatic: bool,
     pages: BTreeMap<String, IgnoredAny>,
     assets: Vec<String>,
+}
+
+/// The fields listing needs, from the start of a file.
+struct Head {
+    version: u32,
+    name: String,
+    automatic: bool,
+    summary: Summary,
+}
+
+/// Reads fields up to `summary` and then stops by failing on purpose (`deserialize_map` would otherwise insist on
+/// reading the rest of the file); the result is left in the cell.
+struct Scan<'a>(&'a RefCell<Option<Head>>);
+
+impl<'de> Visitor<'de> for Scan<'_> {
+    type Value = ();
+
+    fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str("a snapshot object")
+    }
+
+    fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> std::result::Result<(), A::Error> {
+        let (mut version, mut name, mut automatic) = (None, None, None);
+        while let Some(key) = map.next_key::<String>()? {
+            match key.as_str() {
+                "version" => version = Some(map.next_value::<u32>()?),
+                "name" => name = Some(map.next_value::<String>()?),
+                "automatic" => automatic = Some(map.next_value::<bool>()?),
+                "summary" => {
+                    let summary = map.next_value::<Summary>()?;
+                    if let (Some(version), Some(name), Some(automatic)) = (version, name, automatic) {
+                        *self.0.borrow_mut() = Some(Head { version, name, automatic, summary });
+                    }
+                    return Err(de::Error::custom("head complete"));
+                }
+                _ => {
+                    map.next_value::<IgnoredAny>()?;
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+/// The head of the snapshot at `path` from its first `limit` bytes; None when the file has no summary in them.
+fn scan_head(path: &Path, limit: u64) -> Option<Head> {
+    let mut prefix = vec![];
+    fs::File::open(path).ok()?.take(limit).read_to_end(&mut prefix).ok()?;
+    let found = RefCell::new(None);
+    let _ = serde_json::Deserializer::from_slice(&prefix).deserialize_map(Scan(&found));
+    found.into_inner()
+}
+
+/// The head of the snapshot at `path`: the first `limit` bytes when they hold the summary, else the whole file streamed
+/// through the head fields (constant memory, whatever its size).
+fn read_head(path: &Path, limit: u64) -> Option<Head> {
+    if let Some(head) = scan_head(path, limit) {
+        return Some(head);
+    }
+    let file = fs::File::open(path).ok()?;
+    let head: BookHead = serde_json::from_reader(std::io::BufReader::new(file)).ok()?;
+    Some(Head { version: head.version, name: head.name, automatic: head.automatic, summary: Summary { pages: head.pages.into_keys().collect(), assets: head.assets.len() } })
 }
 
 /// One whole-book snapshot, as listed.
@@ -134,16 +224,21 @@ fn parse_name(name: &str) -> Option<(String, u32)> {
 
 /// The book snapshots, newest first. A file that is not a snapshot of this format is skipped, never an error.
 pub fn list_book_snapshots(root: &Path) -> Result<Vec<BookSnapshotEntry>> {
+    list_with(root, HEAD_BYTES)
+}
+
+fn list_with(root: &Path, head_bytes: u64) -> Result<Vec<BookSnapshotEntry>> {
     let mut found = vec![];
     for name in file_names(root, SNAPSHOTS_DIR, false)? {
         let Some(key) = parse_name(&name) else { continue };
         let path = format!("{SNAPSHOTS_DIR}/{name}");
-        let Ok(bytes) = fs::read(resolve(root, &path)?) else { continue };
-        let Ok(head) = serde_json::from_slice::<BookHead>(&bytes) else { continue };
+        let file = resolve(root, &path)?;
+        let Some(head) = read_head(&file, head_bytes) else { continue };
         if head.version != FORMAT {
             continue;
         }
-        found.push((key.clone(), BookSnapshotEntry { path, at: key.0, name: head.name, automatic: head.automatic, pages: head.pages.into_keys().collect(), assets: head.assets.len(), bytes: bytes.len() as u64 }));
+        let Ok(meta) = fs::metadata(&file) else { continue };
+        found.push((key.clone(), BookSnapshotEntry { path, at: key.0, name: head.name, automatic: head.automatic, pages: head.summary.pages, assets: head.summary.assets, bytes: meta.len() }));
     }
     found.sort_by(|a, b| b.0.cmp(&a.0));
     Ok(found.into_iter().map(|(_, e)| e).collect())
@@ -169,18 +264,49 @@ fn create(root: &Path, name: &str, automatic: bool, now: DateTime<Utc>) -> Resul
     for rel in current_pages(root)? {
         let Some(FileRead { contents, .. }) = read_file(root, &rel)? else { continue };
         total += contents.len() as u64;
-        if total > MAX_BOOK_MB * 1024 * 1024 {
-            return Err(ProjectError::TooLarge { path: SNAPSHOTS_DIR.to_string(), max_mb: MAX_BOOK_MB });
+        if total > MAX_SNAPSHOT_BYTES {
+            return Err(snapshot_too_large());
         }
         pages.insert(rel, contents);
     }
     let assets: Vec<String> = file_names(root, "assets", false)?.into_iter().map(|f| format!("assets/{f}")).collect();
-    let file = BookFile { version: FORMAT, name: name.to_string(), automatic, manifest, pages, assets };
+    let summary = Summary { pages: pages.keys().cloned().collect(), assets: assets.len() };
+    let file = BookFile { version: FORMAT, name: name.to_string(), automatic, summary: Some(summary), manifest, pages, assets };
     let bytes = serde_json::to_vec(&file).map_err(|e| ProjectError::Io { message: e.to_string() })?;
+    // The file (not just the text) must stay within what loading accepts, or the snapshot could never be restored.
+    if bytes.len() as u64 > MAX_SNAPSHOT_BYTES {
+        return Err(snapshot_too_large());
+    }
     // A name already taken (two snapshots in one minute) gets `~2`, never replaces the first.
     let to = free_copy_name(root, &format!("{SNAPSHOTS_DIR}/{}.json", stamp_of(now)))?;
     atomic_write(&resolve(root, &to)?, &bytes)?;
+    prune_book_snapshots(root, &to, MAX_SNAPSHOTS, MAX_TOTAL_BYTES, now);
     Ok(BookSnapshotEntry { path: to, at: stamp_of(now), name: file.name, automatic, pages: file.pages.into_keys().collect(), assets: file.assets.len(), bytes: bytes.len() as u64 })
+}
+
+fn snapshot_too_large() -> ProjectError {
+    ProjectError::TooLarge { path: SNAPSHOTS_DIR.to_string(), max_mb: MAX_SNAPSHOT_BYTES / 1024 / 1024 }
+}
+
+/// Moves the oldest snapshots to `.cadabra/trash/` until at most `max_count` remain within `max_bytes` together. The
+/// snapshot at `keep` (the one just taken) is never moved, and nothing is deleted. Best effort: a snapshot that cannot be
+/// moved stays where it is, and the new snapshot is still reported. Returns the paths moved.
+pub(crate) fn prune_book_snapshots(root: &Path, keep: &str, max_count: usize, max_bytes: u64, now: DateTime<Utc>) -> Vec<String> {
+    let Ok(listed) = list_book_snapshots(root) else { return vec![] };
+    let (mut count, mut total) = (listed.len(), listed.iter().map(|e| e.bytes).sum::<u64>());
+    let mut moved = vec![];
+    for e in listed.iter().rev().filter(|e| e.path != keep) {
+        if count <= max_count && total <= max_bytes {
+            break;
+        }
+        let want = format!(".cadabra/trash/{}-snapshot__{}", stamp_of(now), e.path.rsplit('/').next().unwrap_or_default());
+        let from = resolve(root, &e.path);
+        if from.is_ok_and(|from| move_to_free_copy_name(root, &from, &want, &e.path).is_ok()) {
+            (count, total) = (count - 1, total - e.bytes);
+            moved.push(e.path.clone());
+        }
+    }
+    moved
 }
 
 /// The snapshot path must be one of the listed snapshots, so a caller cannot make this read or delete any other file.
@@ -420,7 +546,7 @@ mod tests {
     fn a_snapshot_naming_a_path_outside_the_pages_is_refused_before_anything_is_written() {
         let d = book();
         let pages = BTreeMap::from([("manuscript/001-a.json".to_string(), "HACK".to_string()), ("assets/evil.json".to_string(), "x".to_string())]);
-        let hostile = BookFile { version: FORMAT, name: "x".into(), automatic: false, manifest: "{}".into(), pages, assets: vec![] };
+        let hostile = BookFile { version: FORMAT, name: "x".into(), automatic: false, summary: None, manifest: "{}".into(), pages, assets: vec![] };
         put(d.path(), ".cadabra/snapshots/20261027-1000.json", &serde_json::to_string(&hostile).unwrap());
         let err = restore_book_snapshot(d.path(), ".cadabra/snapshots/20261027-1000.json", at("20261027-1100")).unwrap_err();
         assert_eq!(err, ProjectError::CannotRestore { path: "assets/evil.json".into() });
@@ -464,5 +590,163 @@ mod tests {
         let path = ".cadabra/snapshots/20261027-1000.json";
         assert_eq!(restore_book_snapshot(d.path(), path, at("20261027-1100")).unwrap_err(), ProjectError::CannotRestore { path: path.to_string() });
         assert!(read(d.path(), "manuscript/001-a.json") == "A1", "nothing was touched");
+    }
+
+    fn put_old_format(d: &Path, stamp: &str, name: &str) -> String {
+        let rel = format!("{SNAPSHOTS_DIR}/{stamp}.json");
+        put(d, &rel, &format!("{{\"version\":1,\"name\":\"{name}\",\"automatic\":false,\"manifest\":\"{{}}\",\"pages\":{{\"manuscript/001-a.json\":\"A\"}},\"assets\":[\"assets/a.png\"]}}"));
+        rel
+    }
+
+    #[test]
+    fn listing_reads_only_the_start_of_a_file_and_falls_back_for_old_or_oversized_heads() {
+        let d = book();
+        let new = create_book_snapshot(d.path(), "new", at("20261027-1000")).unwrap();
+        let old = put_old_format(d.path(), "20261026-1000", "old");
+        // A snapshot with a huge manifest: the head is found without reading the manifest (the summary comes first).
+        write_file(d.path(), "cadabra.json", &"m".repeat(2 * 1024 * 1024), None).unwrap();
+        let big = create_book_snapshot(d.path(), "big", at("20261028-1000")).unwrap();
+        let head = scan_head(&d.path().join(&big.path), 4096).expect("summary lies within the first 4 KB");
+        assert_eq!((head.name.as_str(), head.summary.assets, head.summary.pages.len()), ("big", 1, 4));
+        assert!(scan_head(&d.path().join(&old), 4096).is_none(), "an old file has no summary to find");
+        assert!(scan_head(&d.path().join(&new.path), 10).is_none(), "a prefix that ends before the summary finds nothing");
+        assert!(scan_head(&d.path().join("missing.json"), 10).is_none());
+        // Listing with a tiny prefix still gives the same entries, by streaming whole files.
+        let tiny = list_with(d.path(), 10).unwrap();
+        assert_eq!(tiny, list_book_snapshots(d.path()).unwrap());
+        let by_name = |n: &str| tiny.iter().find(|e| e.name == n).unwrap().clone();
+        assert_eq!((by_name("old").assets, by_name("old").pages), (1, vec!["manuscript/001-a.json".to_string()]));
+        assert_eq!(by_name("big").bytes, fs::metadata(d.path().join(&big.path)).unwrap().len(), "size comes from the file's metadata");
+        assert_eq!(by_name("new").pages.len(), 4);
+    }
+
+    #[test]
+    fn a_zero_byte_or_headless_snapshot_file_is_skipped_when_listing() {
+        let d = book();
+        put(d.path(), ".cadabra/snapshots/20261027-1000.json", "");
+        put(d.path(), ".cadabra/snapshots/20261027-1001.json", "{\"summary\":{\"pages\":[],\"assets\":0}}");
+        put(d.path(), ".cadabra/snapshots/20261027-1002.json", "{\"version\":1,\"name\":\"n\",\"automatic\":false,\"summary\":{\"pages\":[\"x\"]}}");
+        assert!(list_book_snapshots(d.path()).unwrap().is_empty());
+    }
+
+    /// A one-page book whose page text is `n` ASCII bytes.
+    fn book_with_page_of(n: usize) -> tempfile::TempDir {
+        let d = tempfile::tempdir().unwrap();
+        put(d.path(), "cadabra.json", "{}");
+        put(d.path(), "manuscript/001-a.json", &"x".repeat(n));
+        d
+    }
+
+    #[test]
+    fn a_snapshot_that_can_be_created_can_be_restored_at_the_size_cap_and_one_byte_more_is_refused() {
+        // The file is the page text plus a fixed amount of framing: measure it, then size the page to land exactly on the cap.
+        let probe = book_with_page_of(10);
+        let overhead = create_book_snapshot(probe.path(), "cap", at("20261027-1000")).unwrap().bytes - 10;
+        let fit = MAX_SNAPSHOT_BYTES as usize - overhead as usize;
+        let d = book_with_page_of(fit);
+        let snap = create_book_snapshot(d.path(), "cap", at("20261027-1000")).unwrap();
+        assert_eq!(snap.bytes, MAX_SNAPSHOT_BYTES, "exactly at the cap is allowed");
+        write_file(d.path(), "manuscript/001-a.json", "changed", None).unwrap();
+        let r = restore_book_snapshot(d.path(), &snap.path, at("20261027-1100")).unwrap();
+        assert_eq!(r.written, ["manuscript/001-a.json"]);
+        assert_eq!(read(d.path(), "manuscript/001-a.json").len(), fit, "the max-size snapshot came back whole");
+        assert_eq!(read_book_snapshot_page(d.path(), &snap.path, "manuscript/001-a.json").unwrap().contents.len(), fit);
+
+        let over = book_with_page_of(fit + 1);
+        let err = create_book_snapshot(over.path(), "over", at("20261027-1000")).unwrap_err();
+        assert_eq!(err, ProjectError::TooLarge { path: SNAPSHOTS_DIR.into(), max_mb: 32 });
+        assert!(!over.path().join(SNAPSHOTS_DIR).exists() || list_book_snapshots(over.path()).unwrap().is_empty(), "nothing is written for a refused snapshot");
+    }
+
+    #[test]
+    fn escaped_text_counts_toward_the_cap() {
+        // A page of quotes is twice as long once escaped in the snapshot file, so the file, not the text, is measured.
+        let d = tempfile::tempdir().unwrap();
+        put(d.path(), "cadabra.json", "{}");
+        put(d.path(), "manuscript/001-a.json", &"\"".repeat(MAX_SNAPSHOT_BYTES as usize / 2 + 1024));
+        assert!(matches!(create_book_snapshot(d.path(), "q", at("20261027-1000")), Err(ProjectError::TooLarge { max_mb: 32, .. })));
+    }
+
+    #[test]
+    fn a_book_whose_text_is_over_the_cap_is_refused_before_it_is_serialized() {
+        let d = tempfile::tempdir().unwrap();
+        put(d.path(), "cadabra.json", "{}");
+        put(d.path(), "manuscript/001-a.json", &"x".repeat(MAX_SNAPSHOT_BYTES as usize));
+        assert!(matches!(create_book_snapshot(d.path(), "q", at("20261027-1000")), Err(ProjectError::TooLarge { max_mb: 32, .. })));
+    }
+
+    fn snapshot_files(d: &Path) -> Vec<String> {
+        list_book_snapshots(d).unwrap().into_iter().map(|e| e.name).collect()
+    }
+
+    fn trashed_snapshot_files(d: &Path) -> Vec<String> {
+        let Ok(read) = fs::read_dir(d.join(".cadabra/trash")) else { return vec![] };
+        let mut v: Vec<String> = read.map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).filter(|n| n.contains("-snapshot__")).collect();
+        v.sort();
+        v
+    }
+
+    #[test]
+    fn the_oldest_snapshots_beyond_the_count_go_to_the_trash_never_deleted() {
+        let d = book();
+        let first = at("20261001-1000");
+        for i in 0..(MAX_SNAPSHOTS + 3) {
+            create_book_snapshot(d.path(), &format!("s{i}"), first + chrono::Duration::days(i as i64)).unwrap();
+        }
+        let names = snapshot_files(d.path());
+        assert_eq!(names.len(), MAX_SNAPSHOTS);
+        assert_eq!((names.first().unwrap().as_str(), names.last().unwrap().as_str()), ("s52", "s3"), "the newest are kept");
+        let trashed = trashed_snapshot_files(d.path());
+        assert_eq!(trashed.len(), 3, "{trashed:?}");
+        for t in &trashed {
+            let text = read(d.path(), &format!(".cadabra/trash/{t}"));
+            assert!(text.contains("\"name\":\"s0\"") || text.contains("\"name\":\"s1\"") || text.contains("\"name\":\"s2\""), "the content is kept");
+        }
+        assert!(crate::project::list_trash(d.path()).unwrap().is_empty(), "trashed snapshots are not offered as restorable pages");
+    }
+
+    #[test]
+    fn the_byte_budget_prunes_oldest_first_and_never_the_new_snapshot() {
+        let d = book();
+        let a = create_book_snapshot(d.path(), "a", at("20261027-1000")).unwrap();
+        let b = create_book_snapshot(d.path(), "b", at("20261027-1001")).unwrap();
+        let c = create_book_snapshot(d.path(), "c", at("20261027-1002")).unwrap();
+        let now = at("20261027-1003");
+        // Room for two: the oldest goes.
+        let moved = prune_book_snapshots(d.path(), &c.path, 50, a.bytes + b.bytes + c.bytes - 1, now);
+        assert_eq!(moved, std::slice::from_ref(&a.path));
+        assert_eq!(snapshot_files(d.path()), ["c", "b"]);
+        // A budget smaller than any one snapshot still keeps the one named as `keep`.
+        let moved = prune_book_snapshots(d.path(), &c.path, 50, 1, now);
+        assert_eq!(moved, std::slice::from_ref(&b.path));
+        assert_eq!(snapshot_files(d.path()), ["c"]);
+        assert_eq!(trashed_snapshot_files(d.path()).len(), 2);
+        // Within both limits nothing moves.
+        assert!(prune_book_snapshots(d.path(), &c.path, 50, MAX_TOTAL_BYTES, now).is_empty());
+    }
+
+    #[test]
+    fn pruning_names_do_not_collide_and_a_missing_folder_is_fine() {
+        let d = book();
+        let a = create_book_snapshot(d.path(), "a", at("20261027-1000")).unwrap();
+        let k = create_book_snapshot(d.path(), "k", at("20261027-1001")).unwrap();
+        let now = at("20261028-1000");
+        fs::create_dir_all(d.path().join(".cadabra/trash")).unwrap();
+        fs::write(d.path().join(".cadabra/trash/20261028-1000-snapshot__20261027-1000.json"), "earlier").unwrap();
+        assert_eq!(prune_book_snapshots(d.path(), &k.path, 1, MAX_TOTAL_BYTES, now), [a.path]);
+        assert_eq!(trashed_snapshot_files(d.path()).len(), 2, "the earlier trashed file was not overwritten");
+        assert_eq!(read(d.path(), ".cadabra/trash/20261028-1000-snapshot__20261027-1000.json"), "earlier");
+        assert!(prune_book_snapshots(tempfile::tempdir().unwrap().path(), "x", 1, 1, now).is_empty());
+    }
+
+    #[test]
+    fn a_snapshot_that_cannot_be_moved_stays_and_is_not_an_error() {
+        let d = book();
+        let a = create_book_snapshot(d.path(), "a", at("20261027-1000")).unwrap();
+        let k = create_book_snapshot(d.path(), "k", at("20261027-1001")).unwrap();
+        // A file where the trash folder should be makes the move fail.
+        put(d.path(), ".cadabra/trash", "a file, not a folder");
+        assert!(prune_book_snapshots(d.path(), &k.path, 1, MAX_TOTAL_BYTES, at("20261028-1000")).is_empty());
+        assert!(d.path().join(&a.path).exists());
     }
 }

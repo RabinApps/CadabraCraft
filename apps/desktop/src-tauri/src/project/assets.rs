@@ -2,7 +2,6 @@
 use super::fsio::{atomic_write, hash_bytes, read_regular};
 use super::paths::resolve;
 use super::{ProjectError, Result};
-use std::fs;
 use std::path::Path;
 
 /// Image types that may be imported into `assets/`.
@@ -133,14 +132,16 @@ pub fn store_image(root: &Path, file_name: &str, bytes: &[u8]) -> Result<String>
         let name = if n == 1 { format!("{stem}.{ext}") } else { format!("{stem}-{n}.{ext}") };
         let rel = format!("assets/{name}");
         let path = resolve(root, &rel)?;
-        match fs::read(&path) {
-            Ok(existing) if hash_bytes(&existing) == hash => return Ok(rel),
-            Ok(_) => n += 1,
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+        // An existing same-named file is only read when its size matches (and never past the image cap), so a huge
+        // file in `assets/` costs a metadata call, not memory.
+        match read_regular(&path, MAX_IMAGE_BYTES, &rel, || image_too_large(&rel)) {
+            Ok(existing) if existing.len() == bytes.len() && hash_bytes(&existing) == hash => return Ok(rel),
+            Ok(_) | Err(ProjectError::TooLarge { .. }) => n += 1,
+            Err(ProjectError::NotFound { .. }) => {
                 atomic_write(&path, bytes)?;
                 return Ok(rel);
             }
-            Err(e) => return Err(e.into()),
+            Err(e) => return Err(e),
         }
     }
 }
@@ -158,6 +159,7 @@ pub fn read_asset(root: &Path, rel: &str) -> Result<Vec<u8>> {
 mod tests {
     use super::*;
     use crate::project::*;
+    use std::fs;
     use std::path::PathBuf;
 
     fn tmp() -> tempfile::TempDir {
@@ -321,6 +323,26 @@ mod tests {
     fn storing_an_image_where_the_name_is_taken_by_a_folder_is_an_io_error() {
         let d = tmp();
         fs::create_dir_all(d.path().join("assets/a.png")).unwrap();
-        assert!(matches!(store_image(d.path(), "a.png", &PNG), Err(ProjectError::Io { .. })));
+        assert_eq!(store_image(d.path(), "a.png", &PNG), Err(ProjectError::NotAFile { path: "assets/a.png".into() }));
+    }
+
+    #[test]
+    fn a_same_named_file_over_the_image_cap_is_skipped_not_read() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("assets")).unwrap();
+        fs::File::create(d.path().join("assets/a.png")).unwrap().set_len(MAX_IMAGE_BYTES + 1).unwrap();
+        assert_eq!(store_image(d.path(), "a.png", &PNG).unwrap(), "assets/a-2.png");
+    }
+
+    #[test]
+    fn store_image_accepts_exactly_the_cap_and_zero_bytes_are_not_an_image() {
+        let d = tmp();
+        let mut at_cap = PNG.to_vec();
+        at_cap.resize(MAX_IMAGE_BYTES as usize, 0);
+        assert_eq!(store_image(d.path(), "cap.png", &at_cap).unwrap(), "assets/cap.png");
+        assert_eq!(store_image(d.path(), "cap.png", &at_cap).unwrap(), "assets/cap.png", "an identical file of cap size is reused");
+        at_cap.push(0);
+        assert!(matches!(store_image(d.path(), "cap2.png", &at_cap), Err(ProjectError::TooLarge { .. })));
+        assert!(matches!(store_image(d.path(), "empty.png", &[]), Err(ProjectError::InvalidImage { .. })));
     }
 }

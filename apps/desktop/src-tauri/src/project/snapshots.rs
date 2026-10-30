@@ -3,7 +3,8 @@
 //! synced) and are never read by anything except the History and recovery dialogs.
 //!
 //! The stamp is `YYYYMMDD-HHMM` in UTC, so "how old" and "newest" need no state besides the file names.
-use super::{atomic_write, free_copy_name, hash_bytes, read_file, resolve, FileRead, ProjectError, Result, WriteResult};
+use super::pages::MAX_READ_BYTES;
+use super::{atomic_write, free_copy_name, hash_bytes, read_file, read_regular, resolve, FileRead, ProjectError, Result, WriteResult};
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use serde::Serialize;
 use std::fs;
@@ -132,6 +133,13 @@ pub fn read_snapshot(root: &Path, rel: &str, snapshot: &str) -> Result<FileRead>
     read_file(root, snapshot)?.ok_or_else(|| ProjectError::NotFound { path: snapshot.to_string() })
 }
 
+/// A project file's bytes for comparing, read with the same cap as every other read (a page or snapshot that is not a
+/// regular file within the cap is never loaded whole, so it counts as "cannot compare").
+fn read_for_compare(root: &Path, rel: &str) -> Option<Vec<u8>> {
+    let too_large = || ProjectError::TooLarge { path: rel.to_string(), max_mb: MAX_READ_BYTES / 1024 / 1024 };
+    read_regular(&resolve(root, rel).ok()?, MAX_READ_BYTES, rel, too_large).ok()
+}
+
 fn write_copy(root: &Path, rel: &str, bytes: &[u8], now: DateTime<Utc>) -> Result<String> {
     let base = format!("{BACKUPS_DIR}/{}-{}", stamp_of(now), rel.replace('/', "__"));
     let to = free_copy_name(root, &base)?;
@@ -154,7 +162,7 @@ fn keep(root: &Path, rel: &str, bytes: &[u8], mode: SnapshotMode, now: DateTime<
         if mode == SnapshotMode::Throttled && parse_stamp(&newest.at).is_some_and(|t| now - t < Duration::minutes(SNAPSHOT_INTERVAL_MINUTES)) {
             return Ok(None);
         }
-        if fs::read(resolve(root, &newest.path)?).is_ok_and(|old| hash_bytes(&old) == hash_bytes(bytes)) {
+        if read_for_compare(root, &newest.path).is_some_and(|old| hash_bytes(&old) == hash_bytes(bytes)) {
             return Ok(None);
         }
     }
@@ -191,8 +199,8 @@ pub fn find_stale(root: &Path, rels: &[String]) -> Result<Vec<StalePage>> {
     for rel in rels.iter().filter(|r| is_snapshotable(r)) {
         let Some(newest) = list_snapshots(root, rel)?.into_iter().next() else { continue };
         let Ok(meta) = fs::metadata(resolve(root, rel)?) else { continue };
-        let Ok(live) = fs::read(resolve(root, rel)?) else { continue };
-        let Ok(snap) = fs::read(resolve(root, &newest.path)?) else { continue };
+        let Some(live) = read_for_compare(root, rel) else { continue };
+        let Some(snap) = read_for_compare(root, &newest.path) else { continue };
         if hash_bytes(&live) == hash_bytes(&snap) {
             continue;
         }
@@ -398,5 +406,25 @@ mod tests {
         put(d.path(), REL, "live text");
         put(d.path(), &format!("{BACKUPS_DIR}/20269999-9999-manuscript__001-a.json"), "different");
         assert!(find_stale(d.path(), &[REL.to_string()]).unwrap().is_empty());
+    }
+
+    #[test]
+    fn a_page_or_snapshot_over_the_read_cap_is_never_loaded_to_compare() {
+        let d = tempfile::tempdir().unwrap();
+        put(d.path(), REL, "live");
+        let big = |rel: &str| {
+            let p = d.path().join(rel);
+            fs::create_dir_all(p.parent().unwrap()).unwrap();
+            fs::File::create(p).unwrap().set_len(MAX_READ_BYTES + 1).unwrap();
+        };
+        // Not stale-checkable when the newest snapshot is over the cap (though it is newer than the page), or the page is.
+        let future = Utc::now() + Duration::hours(1);
+        big(&format!("{BACKUPS_DIR}/{}-manuscript__001-a.json", stamp_of(future)));
+        assert!(find_stale(d.path(), &[REL.to_string()]).unwrap().is_empty());
+        let kept = keep_before_overwrite(d.path(), REL, b"live", b"next", SnapshotMode::Always, at("20261027-1100")).unwrap();
+        assert!(kept.is_some(), "an over-cap newest snapshot cannot equal the text, so a copy is written");
+        big(REL);
+        assert!(find_stale(d.path(), &[REL.to_string()]).unwrap().is_empty());
+        assert_eq!(read_for_compare(d.path(), "../x"), None);
     }
 }
