@@ -349,6 +349,10 @@ msgstr "{words, plural, one {# parola in questa pagina} other {# parole in quest
 msgid "0.125 in"
 msgstr "0,125 in"
 
+#: src/editor/ToolbarDialogs.tsx
+msgid "A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage."
+msgstr ""
+
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image."
 msgstr "Una copertina deve essere un’immagine PNG, JPEG o WebP."
@@ -900,6 +904,15 @@ msgstr "Scegli…"
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Clarifications"
 msgstr "Chiarimenti"
+
+#: src/editor/Toolbar.tsx
+#: src/editor/ToolbarDialogs.tsx
+msgid "Clear language"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Clear Language"
+msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Clear Menu"
@@ -1953,12 +1966,29 @@ msgstr "Kokoro: Heart"
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/Details.tsx
+#: src/editor/ToolbarDialogs.tsx
 msgid "Language"
 msgstr "Lingua"
 
 #: src/app/settings/Settings.tsx
 msgid "Language of menus and dialogs."
 msgstr "Lingua di menu e finestre di dialogo."
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Language of selection"
+msgstr ""
+
+#: src/editor/Toolbar.tsx
+msgid "Language of selection…"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Language of Selection…"
+msgstr ""
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Language tag"
+msgstr ""
 
 #: src/editor/ReadingSettings.tsx
 msgid "Larger text"
@@ -2472,6 +2502,10 @@ msgstr "Opus"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Other"
 msgstr "Altro"
+
+#: src/editor/ToolbarDialogs.tsx
+msgid "Other (type a tag below)"
+msgstr ""
 
 #: src/app/settings/shortcutList.ts
 msgid "Outdent list item"
@@ -3088,6 +3122,10 @@ msgstr "Seleziona tutto"
 #: src/editor/Editor.tsx
 msgid "Select text inside one cell or paragraph to convert it"
 msgstr "Seleziona del testo dentro una cella o un paragrafo per convertirlo"
+
+#: src/editor/useLangDialog.ts
+msgid "Select the text first."
+msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Select the text you want to link first."
@@ -3863,6 +3901,10 @@ msgstr "Usa al massimo {0} argomenti."
 #: src/editor/ToolbarDialogs.tsx
 msgid "Use http, https or mailto."
 msgstr "Usa http, https o mailto."
+
+#: src/editor/useLangDialog.ts
+msgid "Use letters, digits and single hyphens, up to 35 characters (for example fr-CA)."
+msgstr ""
 
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "Use newer text"

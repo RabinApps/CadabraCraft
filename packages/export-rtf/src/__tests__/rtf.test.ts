@@ -270,6 +270,17 @@ describe("inline content", () => {
       expect(d).toContain(w);
     checkRtf(d);
   });
+  it("writes the language of a passage with \\lang, nothing for an unknown one, and refuses a bad tag", () => {
+    const lang = (tag: string | undefined): Mark =>
+      ({ type: "lang", ...(tag === undefined ? {} : { attrs: { lang: tag } }) }) as Mark;
+    const d = one(p(t("salut", lang("fr-CA")), t("qapla", lang("x-klingon"))));
+    checkRtf(d);
+    expect(d).toContain("{\\lang3084 salut}");
+    expect(d).toContain("qapla");
+    expect(d.match(/\{\\lang\d+ /g)).toHaveLength(1);
+    expect(message(() => one(p(t("x", lang(undefined)))))).toContain("BCP 47");
+    expect(message(() => one(p(t("x", lang("a b")))))).toContain("BCP 47");
+  });
   it("writes links as fields with the address escaped", () => {
     const d = one(p(t("site", m("link", 'https://example.com/?a="1"&b=é\\'))));
     checkRtf(d);

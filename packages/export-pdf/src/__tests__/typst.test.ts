@@ -30,8 +30,9 @@ const text = (
       | "code"
       | "superscript"
       | "subscript"
-      | "link";
-    attrs?: { href?: string };
+      | "link"
+      | "lang";
+    attrs?: { href?: string; lang?: string };
   }[],
 ): DocNode => ({
   type: "text",
@@ -145,6 +146,22 @@ describe("buildTypst content", () => {
     expect(out).toContain('#link("mailto:a@b.test")[ok]');
     expect(out).not.toContain("javascript");
     expect(out).toContain(" bad none");
+  });
+  it("sets the language of a passage with text(lang:, region:), like the book's own", () => {
+    const lang = (tag: string) => para(text("bonjour", [{ type: "lang", attrs: { lang: tag } }]));
+    expect(buildTypst(book, ch(lang("fr-CA")))).toContain(
+      '#text(lang: "fr", region: "CA")[bonjour]',
+    );
+    expect(buildTypst(book, ch(lang("DE")))).toContain('#text(lang: "de")[bonjour]');
+    // A tag with no 2 or 3 letter language keeps its text, unmarked.
+    const out = buildTypst(book, ch(lang("x-klingon")));
+    expect(out).toContain("bonjour");
+    expect(out).not.toContain('#text(lang: "x');
+    for (const attrs of [undefined, { lang: 'fr")' }]) {
+      expect(() =>
+        buildTypst(book, ch(para(text("x", [{ type: "lang", ...(attrs ? { attrs } : {}) }])))),
+      ).toThrow(/BCP 47/);
+    }
   });
   it("stacks marks", () => {
     const out = buildTypst(

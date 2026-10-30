@@ -1,4 +1,4 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { isLangTag, type DocNode, type Mark } from "@cadabracraft/shared";
 import { FONT_NAMES } from "./parts";
 import { esc } from "./xml";
 import { checkText, fail, kidsOf } from "./helpers";
@@ -14,6 +14,7 @@ const MARK_TYPES: Mark["type"][] = [
   "superscript",
   "subscript",
   "link",
+  "lang",
 ];
 
 export function para(inner: string, o: ParaOpts, ctx: Ctx): string {
@@ -36,11 +37,17 @@ export function para(inner: string, o: ParaOpts, ctx: Ctx): string {
 
 export function rPr(marks: Mark[], base: RunProps, ctx: Ctx, extraStyle?: string): string {
   const types = new Set<string>();
+  let lang = "";
   for (const m of marks) {
     const type = (m as { type?: unknown }).type;
     if (!MARK_TYPES.includes(type as Mark["type"]))
       fail(ctx, `The mark "${String(type)}" has no Word form`, String(type));
     types.add(m.type);
+    if (m.type === "lang") {
+      if (!isLangTag(m.attrs?.lang))
+        fail(ctx, "The language of a passage must be a BCP 47 tag", "lang");
+      lang = m.attrs.lang;
+    }
   }
   if (types.has("superscript") && types.has("subscript"))
     fail(ctx, "Text cannot be both superscript and subscript", "superscript");
@@ -58,7 +65,8 @@ export function rPr(marks: Mark[], base: RunProps, ctx: Ctx, extraStyle?: string
       ? '<w:vertAlign w:val="superscript"/>'
       : types.has("subscript")
         ? '<w:vertAlign w:val="subscript"/>'
-        : "")
+        : "") +
+    (lang ? `<w:lang w:val="${lang}"/>` : "")
   );
 }
 

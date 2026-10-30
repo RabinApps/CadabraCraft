@@ -118,6 +118,7 @@ const MARK_SAMPLES: Record<string, Mark> = {
   superscript: { type: "superscript" },
   subscript: { type: "subscript" },
   link: { type: "link", attrs: { href: "https://example.com/" } },
+  lang: { type: "lang", attrs: { lang: "fr-CA" } },
 };
 const markDoc = (m: Mark): ChapterDoc => doc(p(t("marked", [m])));
 

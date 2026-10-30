@@ -48,6 +48,23 @@ describe("inline content", () => {
     expect(body(mark("link"))).toContain('<a href="">t</a>');
   });
 
+  it("wraps a passage in another language in a span with lang and xml:lang, and refuses a bad tag", () => {
+    const lang = (attrs?: object) => ({
+      type: "paragraph",
+      content: [
+        { type: "text", text: "t", marks: [{ type: "lang", ...(attrs ? { attrs } : {}) }] },
+      ],
+    });
+    expect(body(lang({ lang: "fr-CA" }))).toBe(
+      '<p><span lang="fr-CA" xml:lang="fr-CA">t</span></p>',
+    );
+    for (const attrs of [undefined, { lang: 'fr"><b>' }, { lang: 5 }]) {
+      const e = thrown(() => body(lang(attrs))) as EpubExportError;
+      expect(e.code).toBe("unsupported-mark");
+      expect(e.message).toMatch(/BCP 47/);
+    }
+  });
+
   it("renders a block node found inside a paragraph", () => {
     expect(body({ type: "paragraph", content: [text("a"), { type: "sceneBreak" }] })).toBe(
       '<p>a<hr class="scene-break"/></p>',

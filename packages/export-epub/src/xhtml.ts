@@ -1,4 +1,4 @@
-import type { ChapterDoc, DocNode, Mark } from "@cadabracraft/shared";
+import { isLangTag, type ChapterDoc, type DocNode, type Mark } from "@cadabracraft/shared";
 import { EpubExportError, type EpubErrorCode } from "./errors";
 import { backToTextLabel } from "./strings";
 
@@ -32,6 +32,8 @@ const MARK_TAGS: Record<Mark["type"], (m: Mark) => [string, string]> = {
   superscript: () => ["<sup>", "</sup>"],
   subscript: () => ["<sub>", "</sub>"],
   link: (m) => [`<a href="${esc(m.attrs?.href ?? "")}">`, "</a>"],
+  // `inline` has already checked the tag, so it is safe to write unescaped.
+  lang: (m) => [`<span lang="${m.attrs!.lang}" xml:lang="${m.attrs!.lang}">`, "</span>"],
 };
 
 interface Ctx {
@@ -74,6 +76,13 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
                 "unsupported-mark",
                 `Unsupported mark type in chapter: ${String(m.type)}`,
                 `mark ${String(m.type)}`,
+              );
+            if (m.type === "lang" && !isLangTag(m.attrs?.lang))
+              throw fail(
+                ctx,
+                "unsupported-mark",
+                `The language of a passage must be a BCP 47 tag (letters, digits and hyphens, at most 35 characters), not ${JSON.stringify(m.attrs?.lang ?? null)}`,
+                "mark lang",
               );
             const [open, close] = tags(m);
             out = open + out + close;

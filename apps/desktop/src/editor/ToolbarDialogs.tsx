@@ -4,6 +4,8 @@ import { Checkbox } from "../ui/Checkbox";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { Notice } from "../ui/Notice";
+import { Select } from "../ui/Select";
+import { ENABLED_LOCALE_INFO } from "../i18n/locales";
 
 export interface ImageDraft {
   src: string;
@@ -117,6 +119,75 @@ export function LinkDialog({
         {error && <Notice role="alert">{error}</Notice>}
         <div className="flex justify-end gap-2.5">
           <Button onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>
+          <Button type="submit" variant="primary">{t`Apply`}</Button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+export interface LangDraft {
+  /** The BCP 47 tag being typed or picked. */
+  tag: string;
+  /** The text at the caret already carries a language mark, so it can be cleared. */
+  current: boolean;
+  /** Shown when Apply was refused. */
+  error?: string;
+}
+
+/** The dialog that sets the language of the selected passage (WCAG 3.1.2): a pick from the enabled languages or any BCP 47 tag. */
+export function LangDialog({
+  draft,
+  setDraft,
+  onApply,
+  onClear,
+}: {
+  draft: LangDraft | null;
+  setDraft: (update: LangDraft | null | ((d: LangDraft | null) => LangDraft | null)) => void;
+  onApply: () => void;
+  onClear: () => void;
+}) {
+  const { t } = useLingui();
+  const tag = draft?.tag ?? "";
+  const known = ENABLED_LOCALE_INFO.some((l) => l.code === tag);
+  return (
+    <Modal
+      open={draft !== null}
+      onOpenChange={() => setDraft(null)}
+      title={t`Language of selection`}
+    >
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onApply();
+        }}
+      >
+        <Select
+          label={t`Language`}
+          value={known ? tag : ""}
+          onChange={(e) =>
+            setDraft((d) => d && { ...d, tag: e.target.value || d.tag, error: undefined })
+          }
+        >
+          <option value="">{t`Other (type a tag below)`}</option>
+          {ENABLED_LOCALE_INFO.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.nativeName} ({l.code})
+            </option>
+          ))}
+        </Select>
+        <Field
+          label={t`Language tag`}
+          value={tag}
+          onChange={(e) => setDraft((d) => d && { ...d, tag: e.target.value, error: undefined })}
+          hint={t`A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage.`}
+          autoFocus
+        />
+        {draft?.error && <Notice role="alert">{draft.error}</Notice>}
+        <div className="flex justify-end gap-2.5">
+          {draft?.current && <Button onClick={onClear}>{t`Clear language`}</Button>}
+          <Button onClick={() => setDraft(null)}>{t`Cancel`}</Button>
           <Button type="submit" variant="primary">{t`Apply`}</Button>
         </div>
       </form>
