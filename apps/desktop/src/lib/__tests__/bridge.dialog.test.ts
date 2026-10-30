@@ -14,12 +14,21 @@ beforeEach(() => {
 
 describe("the pickers that run in Rust", () => {
   it("pickReferenceFiles and pickFontFile invoke their commands and return what Rust remembered", async () => {
-    invoke.mockResolvedValueOnce(["/a.pdf", "/b.png"]).mockResolvedValueOnce([]).mockResolvedValueOnce("/f.ttf").mockResolvedValueOnce(null);
+    invoke
+      .mockResolvedValueOnce(["/a.pdf", "/b.png"])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce("/f.ttf")
+      .mockResolvedValueOnce(null);
     expect(await bridge.pickReferenceFiles()).toEqual(["/a.pdf", "/b.png"]);
     expect(await bridge.pickReferenceFiles()).toEqual([]);
     expect(await bridge.pickFontFile()).toBe("/f.ttf");
     expect(await bridge.pickFontFile()).toBeNull();
-    expect(invoke.mock.calls).toEqual([["pick_reference_files"], ["pick_reference_files"], ["pick_font_file"], ["pick_font_file"]]);
+    expect(invoke.mock.calls).toEqual([
+      ["pick_reference_files"],
+      ["pick_reference_files"],
+      ["pick_font_file"],
+      ["pick_font_file"],
+    ]);
     expect(open).not.toHaveBeenCalled(); // never the webview's own dialog: Rust has to see the path
   });
 

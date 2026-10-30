@@ -1239,21 +1239,21 @@ Triggered by a memory-safety and security audit of `apps/desktop/src-tauri`. The
 
 **Lint policy.** `Cargo.toml` `[lints]`: `unsafe_code`, `clippy::unwrap_used`, `expect_used`, `panic` and `undocumented_unsafe_blocks` are `deny`; `clippy.toml` exempts tests. The one `unsafe` (`kill` in `platform/sidecar.rs`) carries an `#[allow]` and a SAFETY comment. `rust-version = "1.99"`; CI runs `cargo clippy --all-targets -- -D warnings`.
 
-| Rejected                                                      | Why not                                                                                                                                                          |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `clippy::indexing_slicing` and `as_conversions` as lints      | 173 sites, mostly audio DSP on values bounded by construction; the parsers of untrusted input already use `get`/`checked_*`. Fuzzing and the perf harness cover them. |
-| `cargo fmt --check` in CI                                     | The crate is not formatted to any one `rustfmt` config (about 1,100 diffs on defaults, 200 on a wide config); a reformat is its own change.                      |
-| `rust-toolchain.toml` pin                                     | CI deliberately tracks stable via a pinned action; a pin would fight it and force component downloads. `rust-version` states the floor instead.                  |
-| `cargo audit` as a second job                                 | `cargo deny` already checks advisories with justified ignores.                                                                                                    |
+| Rejected                                                 | Why not                                                                                                                                                               |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clippy::indexing_slicing` and `as_conversions` as lints | 173 sites, mostly audio DSP on values bounded by construction; the parsers of untrusted input already use `get`/`checked_*`. Fuzzing and the perf harness cover them. |
+| `cargo fmt --check` in CI                                | The crate is not formatted to any one `rustfmt` config (about 1,100 diffs on defaults, 200 on a wide config); a reformat is its own change.                           |
+| `rust-toolchain.toml` pin                                | CI deliberately tracks stable via a pinned action; a pin would fight it and force component downloads. `rust-version` states the floor instead.                       |
+| `cargo audit` as a second job                            | `cargo deny` already checks advisories with justified ignores.                                                                                                        |
 
 **Reference and font sources go through `PickedPaths`.** `import_reference` and `fonts_import` took any absolute path from the webview (a local-file-read primitive: copy a readable file into a project, read it back). They now accept only picked paths (`PickKind::Reference`, `Font`; commands `pick_reference_files`, `pick_font_file`); files dropped on the window are recorded in Rust from the OS drag-drop event (`commands::record_drop`), never from a path the webview sends. This replaces the "no pick-by-drop" note above. `Reference` keeps 512 picks, other kinds 32. Extensionless references are refused unless a signature sniff or a plain-text check passes (an ELF/Mach-O/MZ header or `#!` is refused); `open_reference` refuses them outright; the `BLOCKED` extension list now covers about 100 launchable types.
 
-| Rejected                                              | Why not                                                                                               |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| A native dialog on every drop                         | Breaks drag-and-drop.                                                                                 |
-| Webview `open()` reports the pick back to Rust        | The webview is the untrusted side; it could report any path.                                          |
-| Allowlist of openable reference types                 | Stops authors opening their own `docx`, `xlsx`, `zip` research files.                                 |
-| Refuse every extensionless file                       | Breaks `README`-style notes.                                                                          |
+| Rejected                                       | Why not                                                               |
+| ---------------------------------------------- | --------------------------------------------------------------------- |
+| A native dialog on every drop                  | Breaks drag-and-drop.                                                 |
+| Webview `open()` reports the pick back to Rust | The webview is the untrusted side; it could report any path.          |
+| Allowlist of openable reference types          | Stops authors opening their own `docx`, `xlsx`, `zip` research files. |
+| Refuse every extensionless file                | Breaks `README`-style notes.                                          |
 
 **Navigation guard, no per-command ACL.** A `navigation-guard` plugin allows only `tauri://localhost`, `http://tauri.localhost` and (debug builds) the dev server. Not done: `on_new_window` (needs the main window built in `setup` with `create: false`; a popup gets no IPC capability and the CSP sets `frame-src 'none'`), and a Tauri `AppManifest` per-command ACL (59 commands must match `capabilities/default.json`; drift fails at run time in a way the mock-runtime `ipc_tests` cannot see). Worth doing together with a build-time drift test (roadmap).
 
@@ -1267,11 +1267,11 @@ Triggered by a memory-safety and security audit of `apps/desktop/src-tauri`. The
 
 **`.docx` import limits (Rust).** Declared sizes are checked before inflating: 64 MB for `word/document.xml`, 16 MB for any other XML part, 200 MB and 10,000 entries in total (unchanged). The XML tree has one budget per import shared by every part: 2,000,000 elements, 4,000,000 attributes, 64 MB of decoded text, 256 attributes per element; over any of them the import fails with `too-many-nodes` (its own message, because "too large" is wrong for a small file that expands into a huge tree). The cap is 2M, not 5M: a tree costs about 150 bytes per element in release and about 700 in debug, so 2M is roughly 300 MB at worst. `import_docx_owned` (the app entry point) drops the file bytes once the archive is read and each XML part's bytes once parsed. Measured peak RSS did not change in a debug run (the DOM dominates, about 590 MB for 55 MB of XML); the caps, not the freeing, bound the worst case. Frame header and image lengths use `u32::try_from`; over 4 GiB is an error. These per-part caps are Rust-only (the TypeScript importer has none).
 
-| Rejected                                         | Why not                                                                    |
-| ------------------------------------------------ | -------------------------------------------------------------------------- |
-| Reusing `archive-too-large` for node floods      | Wrong wording for a small archive.                                         |
-| Per-part element caps                            | N parts multiply the bound.                                                |
-| Streaming the XML to output instead of a DOM     | A rewrite of the importer.                                                 |
-| Changing `import_docx` to take ownership         | Every test and the contract runner would clone; the owned variant is the app entry point. |
+| Rejected                                     | Why not                                                                                   |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Reusing `archive-too-large` for node floods  | Wrong wording for a small archive.                                                        |
+| Per-part element caps                        | N parts multiply the bound.                                                               |
+| Streaming the XML to output instead of a DOM | A rewrite of the importer.                                                                |
+| Changing `import_docx` to take ownership     | Every test and the contract runner would clone; the owned variant is the app entry point. |
 
 **Limits.** TOCTOU between path resolution and open remains (no `openat`/`O_NOFOLLOW`); only a local attacker racing the app can use it. The Windows Rust job has never run.
