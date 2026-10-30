@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./support/coverage";
+import { expect, test, type Locator, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { chapterDoc, newProject, seedChapters } from "./support/helpers";
 
@@ -14,15 +14,19 @@ const outline = (page: Page) => page.getByRole("dialog", { name: "Outline" });
 const outlineBox = (page: Page) => page.getByRole("combobox", { name: "Outline" });
 
 const doc = (...content: object[]) => ({ type: "doc", content }) as unknown as { content: never[] };
-/** Opens by key and waits for the box to have focus, so typed text lands in it. */
-const openPalette = async (page: Page) => {
-  await page.keyboard.press("ControlOrMeta+k");
-  await expect(paletteBox(page)).toBeFocused();
+/**
+ * Opens by key and waits for the box to have focus, so typed text lands in it. A key pressed right after the page changed
+ * state (focus mode, a closing dialog) was once swallowed on a slow CI runner, so the key is pressed again while the box is
+ * still absent; it is never pressed again once the box exists, which would close it.
+ */
+const openByKey = async (page: Page, key: string, box: Locator) => {
+  await expect(async () => {
+    if ((await box.count()) === 0) await page.keyboard.press(key);
+    await expect(box).toBeFocused({ timeout: 1500 });
+  }).toPass({ timeout: 10_000 });
 };
-const openOutline = async (page: Page) => {
-  await page.keyboard.press("ControlOrMeta+Shift+o");
-  await expect(outlineBox(page)).toBeFocused();
-};
+const openPalette = (page: Page) => openByKey(page, "ControlOrMeta+k", paletteBox(page));
+const openOutline = (page: Page) => openByKey(page, "ControlOrMeta+Shift+o", outlineBox(page));
 
 const heading = (level: number, text: string) => ({
   type: "heading",
