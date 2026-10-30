@@ -78,7 +78,12 @@ fn reply(status: StatusCode, headers: &[(header::HeaderName, String)], body: Vec
     for (name, value) in headers {
         res = res.header(name, value);
     }
-    res.body(body).expect("static response headers")
+    // Only an invalid header value can fail the builder; every header here is ours, so fall back to an empty 500 rather than panic.
+    res.body(body).unwrap_or_else(|_| {
+        let mut fallback = Response::new(Vec::new());
+        *fallback.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
+        fallback
+    })
 }
 
 fn error_status(e: &ProjectError) -> StatusCode {

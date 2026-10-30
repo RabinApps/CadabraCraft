@@ -162,7 +162,10 @@ pub fn run() {
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running CadabraCraft");
+        .unwrap_or_else(|e| {
+            eprintln!("error while running CadabraCraft: {e}");
+            std::process::exit(1)
+        });
 }
 
 #[cfg(test)]

@@ -76,6 +76,7 @@ pub struct Run<'a> {
 
 /// Kills the child and everything it started, then reaps the child. Unix: SIGKILL to the child's process group (made with
 /// `process_group(0)`, so the group id is the child's pid). Windows: `taskkill /T /F`. Both fall back to killing the child.
+#[allow(unsafe_code)] // the one unsafe block in the crate: the `kill` syscall below
 fn kill_tree(child: &mut Child) {
     #[cfg(unix)]
     {
@@ -143,6 +144,7 @@ pub fn run(r: &Run) -> Result<Captured, RunError> {
 }
 
 #[cfg(all(test, unix))]
+#[allow(clippy::unwrap_used, clippy::expect_used)] // clippy's allow-*-in-tests only recognises a plain `#[cfg(test)]`
 mod tests {
     use super::*;
     use std::os::unix::fs::PermissionsExt;

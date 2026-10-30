@@ -161,6 +161,13 @@ jobs:
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: bash scripts/fetch-ffmpeg.sh
+      # Lints are in Cargo.toml ([lints]): no unsafe beyond the one documented kill, no unwrap/expect/panic in production code.
+      - name: Rust lints (clippy)
+        shell: bash
+        run: |
+          rustup component add clippy
+          cargo clippy --all-targets -- -D warnings
+        working-directory: apps/desktop/src-tauri
       # --lib: all unit tests live in the lib; on Windows the script embeds the test manifest (see the script).
       - name: Rust tests
         shell: bash
