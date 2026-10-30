@@ -41,7 +41,9 @@ describe("EPUB cover", () => {
     expect(opf).toMatch(/<spine><itemref idref="epub-cover"\/><itemref idref="ch1"\/>/);
     const page = text("OEBPS/epub-cover.xhtml");
     expect(page).toContain('epub:type="cover"');
-    expect(page).toContain('<img src="assets/cover.jpg" alt="Cover: The Long Quay"');
+    expect(page).toContain(
+      '<img role="doc-cover" src="assets/cover.jpg" alt="Cover: The Long Quay"',
+    );
   });
   it("lists it as a landmark but not in the table of contents", () => {
     expect(nav).toContain('<a epub:type="cover" href="epub-cover.xhtml">Cover</a>');

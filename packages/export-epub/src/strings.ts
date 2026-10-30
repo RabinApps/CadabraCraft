@@ -59,6 +59,18 @@ const COVER: Record<string, string> = {
   es: "Portada",
 };
 
+const BACK_TO_TEXT: Record<string, string> = {
+  en: "Back to text",
+  he: "חזרה לטקסט",
+  ar: "العودة إلى النص",
+  it: "Torna al testo",
+  ja: "本文に戻る",
+  ru: "Вернуться к тексту",
+  fr: "Retour au texte",
+  de: "Zurück zum Text",
+  es: "Volver al texto",
+};
+
 function pick(table: Record<string, string>, what: string, language: string): string {
   const s = table[primaryLanguage(language)];
   if (!s)
@@ -78,3 +90,7 @@ export const startOfContentLabel = (language: string): string =>
 
 /** Label of the "cover" landmark and alt text prefix of the cover page. Throws for languages without a translation. */
 export const coverLabel = (language: string): string => pick(COVER, "Cover", language);
+
+/** Accessible name of the footnote back-link (its visible text is only an arrow). Throws for languages without a translation. */
+export const backToTextLabel = (language: string): string =>
+  pick(BACK_TO_TEXT, "Back to text", language);

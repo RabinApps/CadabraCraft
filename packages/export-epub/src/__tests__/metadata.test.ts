@@ -117,6 +117,7 @@ describe("accessibility metadata", () => {
       "tableOfContents",
       "readingOrder",
       "structuralNavigation",
+      "displayTransformability",
     ]);
     expect(props(x, "accessibilityHazard")).toEqual(["none"]);
     expect(props(x, "accessibilitySummary")[0]).toContain("no images");

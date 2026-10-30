@@ -10,6 +10,8 @@ export interface A11yFacts {
   hasCover: boolean;
   /** True when a chapter image is a GIF, which may animate or flash and cannot be checked. */
   hasGif: boolean;
+  /** True when a chapter image is an SVG, which can animate (SMIL, CSS) and is not inspected for motion. */
+  hasSvg: boolean;
 }
 
 /**
@@ -25,6 +27,8 @@ export function accessibilityMetadata(f: A11yFacts): string {
     "tableOfContents",
     "readingOrder",
     "structuralNavigation",
+    // The stylesheet sets no fixed font sizes, colours or layout that blocks resizing (tested), so readers can restyle the text.
+    "displayTransformability",
     ...(visual && allAlt ? ["alternativeText"] : []),
   ];
   const summary = [
@@ -43,7 +47,7 @@ export function accessibilityMetadata(f: A11yFacts): string {
     ...(visual ? [meta("accessMode", "visual")] : []),
     meta("accessModeSufficient", visual && !allAlt ? "textual,visual" : "textual"),
     ...features.map((x) => meta("accessibilityFeature", x)),
-    meta("accessibilityHazard", f.hasGif ? "unknown" : "none"),
+    meta("accessibilityHazard", f.hasGif || f.hasSvg ? "unknown" : "none"),
     meta("accessibilitySummary", summary, ' xml:lang="en"'),
   ].join("");
 }
