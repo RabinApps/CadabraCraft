@@ -1,0 +1,105 @@
+{
+  "small": {
+    "darwin-arm64": {
+      "cpuMs": 126.874,
+      "peakRssKb": 99936,
+      "steps": {
+        "atomic_write_64k": 3.729,
+        "atomic_write_8m": 9.345,
+        "book_snapshot_create": 1.565,
+        "book_snapshot_list": 0.443,
+        "book_snapshot_read_page": 0.351,
+        "import_docx": 89.686,
+        "list_project_files": 0.313,
+        "open_project": 0.248,
+        "page_snapshot_list": 0.039,
+        "read_assets": 0.176,
+        "read_largest_page": 0.339,
+        "read_pages": 0.617,
+        "read_reference_range": 0.298,
+        "stat_references": 0.22,
+        "store_image": 0.571,
+        "write_largest_page_base_hash": 3.357,
+        "write_pages_first_save": 4.174,
+        "write_pages_throttled": 4.381
+      }
+    }
+  },
+  "huge": {
+    "darwin-arm64": {
+      "cpuMs": 1301.444,
+      "peakRssKb": 107888,
+      "steps": {
+        "atomic_write_64k": 3.638,
+        "atomic_write_8m": 9.812,
+        "book_snapshot_create": 31.998,
+        "book_snapshot_list": 10.638,
+        "book_snapshot_read_page": 13.787,
+        "import_docx": 85.845,
+        "list_project_files": 0.891,
+        "open_project": 0.45,
+        "page_snapshot_list": 0.038,
+        "read_assets": 2.374,
+        "read_largest_page": 0.33,
+        "read_pages": 58.07,
+        "read_reference_range": 4.066,
+        "stat_references": 2.667,
+        "store_image": 0.669,
+        "write_largest_page_base_hash": 3.891,
+        "write_pages_first_save": 533.492,
+        "write_pages_throttled": 532.621
+      }
+    }
+  },
+  "giant-chapter": {
+    "darwin-arm64": {
+      "cpuMs": 154.167,
+      "peakRssKb": 101840,
+      "steps": {
+        "atomic_write_64k": 3.693,
+        "atomic_write_8m": 10.87,
+        "book_snapshot_create": 4.102,
+        "book_snapshot_list": 4.344,
+        "book_snapshot_read_page": 8.08,
+        "import_docx": 84.933,
+        "list_project_files": 0.194,
+        "open_project": 0.217,
+        "page_snapshot_list": 0.048,
+        "read_assets": 0.002,
+        "read_largest_page": 5.165,
+        "read_pages": 1.347,
+        "read_reference_range": 0,
+        "stat_references": 0,
+        "write_largest_page_base_hash": 14.76,
+        "write_pages_first_save": 4.377,
+        "write_pages_throttled": 4.223
+      }
+    }
+  },
+  "media": {
+    "darwin-arm64": {
+      "cpuMs": 276.516,
+      "peakRssKb": 102144,
+      "steps": {
+        "atomic_write_64k": 3.54,
+        "atomic_write_8m": 10.912,
+        "book_snapshot_create": 5.263,
+        "book_snapshot_list": 4.097,
+        "book_snapshot_read_page": 7.189,
+        "import_docx": 83.719,
+        "list_project_files": 0.582,
+        "open_project": 0.326,
+        "page_snapshot_list": 0.045,
+        "read_assets": 33.469,
+        "read_largest_page": 0.343,
+        "read_pages": 4.494,
+        "read_reference_range": 17.241,
+        "stat_references": 10.231,
+        "store_image": 0.768,
+        "write_largest_page_base_hash": 3.958,
+        "write_pages_first_save": 44.767,
+        "write_pages_throttled": 39.223
+      }
+    }
+  }
+}
