@@ -1,4 +1,4 @@
-import { sourceFile } from "@cadabracraft/format";
+import { entryFile, sourceFile } from "@cadabracraft/format";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, hashOf as h, readFile, writeFileWithConflictCopy } from "../../../test/fakeBridge";
 
@@ -198,5 +198,45 @@ describe("undo and redo of a book-wide replace after the book changed", () => {
     failAt = null;
     expect(await a().undo()).toBe(true);
     expect(disk.get(file(0))).toContain("one cat");
+  });
+});
+
+describe("replaceInBook across editions", () => {
+  const frFile = (i: number) => entryFile(s().manifest!.chapters[i]!, "fr")!;
+  /** Two chapters, then a French copy of both (French stays the open edition). */
+  async function withFrench() {
+    a().setDraft(text("one cat"));
+    await a().add("Two");
+    a().setDraft(text("two cat"));
+    await a().addLanguage("fr", "copy");
+  }
+  const all = () => [file(0), file(1), frFile(0), frFile(1)];
+  it("changes only the open edition by default", async () => {
+    await withFrench();
+    await a().setLanguage("en");
+    expect(await a().replaceInBook(opts, "dog")).toBe(2);
+    expect(disk.get(file(0))).toContain("one dog");
+    expect(disk.get(frFile(0))).toContain("one cat");
+  });
+  it("changes every edition with allLanguages, as one undo step that restores them all", async () => {
+    await withFrench();
+    const undoBefore = s().history.undo.length;
+    expect(await a().replaceInBook(opts, "dog", { allLanguages: true })).toBe(4);
+    for (const f of all()) expect(disk.get(f)).toContain("dog");
+    expect(s().history.undo).toHaveLength(undoBefore + 1);
+    expect(s().notice).toMatch(/2 languages/);
+    expect(await a().undo()).toBe(true);
+    for (const f of all()) expect(disk.get(f)).toContain("cat");
+    expect(s().notice).not.toMatch(/left out/);
+    expect(await a().redo()).toBe(true);
+    for (const f of all()) expect(disk.get(f)).toContain("dog");
+  });
+  it("skips entries that have no file in a language", async () => {
+    await withFrench();
+    const m = s().manifest!;
+    const [first, ...rest] = m.chapters;
+    const { fr: _fr, ...en } = first!.files;
+    useProject.setState({ manifest: { ...m, chapters: [{ ...first!, files: en }, ...rest] } });
+    expect(await a().replaceInBook(opts, "dog", { allLanguages: true })).toBe(3);
   });
 });

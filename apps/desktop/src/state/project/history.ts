@@ -4,6 +4,7 @@ import {
   retargetFile,
   withTree,
   sourceFile,
+  entryFile,
   sourceEdition,
   relink,
   nextReferenceId,
@@ -73,7 +74,12 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
         // A text edit across pages: write each page's saved text back (no tree change).
         // Pages removed from the book since (trashed) are skipped: writing them would bring back a file the book no longer lists.
         const current = need().manifest;
-        const listed = new Set(readingOrder(current).map((e) => sourceFile(e, current.editions)));
+        // Every edition's file counts: a replace across languages records translation files too.
+        const listed = new Set(
+          readingOrder(current).flatMap((e) =>
+            current.editions.flatMap((ed) => entryFile(e, ed.language) ?? []),
+          ),
+        );
         const live = entry.docs.filter((d) => listed.has(d.file));
         const skipped = entry.docs.length - live.length;
         const conflicts = await writePages(

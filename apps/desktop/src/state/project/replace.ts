@@ -13,7 +13,7 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
   /** A book-wide replace is running: a second one is ignored instead of racing it. */
   let replacing = false;
   return {
-    async replaceInBook(opts, replacement) {
+    async replaceInBook(opts, replacement, scope) {
       if (replacing) return 0;
       replacing = true;
       try {
@@ -22,24 +22,31 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
         const docs: NonNullable<HistoryEntry["docs"]> = [];
         let count = 0;
         // Every page is read and parsed before the first write: an unreadable page stops the replace with nothing changed.
-        // The edition the editor shows is the one searched and changed (a translation has its own files).
-        const lang = langOf(manifest);
-        const pages = await loadChaptersIn(lang);
+        // By default only the edition the editor shows is searched and changed (a translation has its own files);
+        // "All languages" visits every edition, each page file once.
+        const langs = scope?.allLanguages
+          ? manifest.editions.map((e) => e.language)
+          : [langOf(manifest)];
+        const loaded = [];
+        for (const lang of langs) loaded.push({ lang, pages: await loadChaptersIn(lang) });
         // Typing that arrived while the pages were being read would be overwritten by the reload below.
         if (get().draft)
           throw new Error(t`The page changed while searching, so nothing was replaced. Try again.`);
-        for (const page of pages) {
-          const file = entryFile(entryOf(manifest, page.id)!, lang); // the pages were read from this same manifest
-          if (!file) continue; // not translated yet: a blank page has no file to change
-          const r = replaceInDoc(page.doc, opts, replacement);
-          if (!r.count) continue;
-          count += r.count;
-          docs.push({
-            file,
-            before: JSON.stringify(page.doc, null, 2),
-            after: JSON.stringify(mergeAdjacentText(r.doc), null, 2),
-          });
-        }
+        const touched = new Set<string>();
+        for (const { lang, pages } of loaded)
+          for (const page of pages) {
+            const file = entryFile(entryOf(manifest, page.id)!, lang); // the pages were read from this same manifest
+            if (!file) continue; // not translated yet: a blank page has no file to change
+            const r = replaceInDoc(page.doc, opts, replacement);
+            if (!r.count) continue;
+            count += r.count;
+            touched.add(lang);
+            docs.push({
+              file,
+              before: JSON.stringify(page.doc, null, 2),
+              after: JSON.stringify(mergeAdjacentText(r.doc), null, 2),
+            });
+          }
         if (!docs.length) return 0;
         const tree = treeOf(manifest);
         const record = (list: typeof docs) =>
@@ -72,7 +79,12 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
         }
         record(docs);
         await reloadCurrent();
-        set({ notice: [t`Replaced ${count} in the book`, ...conflicts].join(". ") });
+        const languages = touched.size;
+        const done =
+          languages > 1
+            ? t`Replaced ${count} in the book, in ${languages} languages`
+            : t`Replaced ${count} in the book`;
+        set({ notice: [done, ...conflicts].join(". ") });
         return count;
       } finally {
         replacing = false;

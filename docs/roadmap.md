@@ -36,7 +36,7 @@ Designs are in the pen (`References / ...`, `Reference viewer / ...`, `Editor wi
 
 ### Editions (translations in one book, v1)
 
-Decision and format in [architecture.md](architecture.md), "Editions". Done: format v4 active, the audiobook per edition (see "Audio"), the editor switcher, Add language (copy or empty), per-edition chapter text, untranslated marks and rename, export per language with "skip untranslated" (`exports/<lang>/`), book details per edition, removal and undo across editions, the file-change watch for translation files, MCP `language` arguments and a `/drive-app` editions scenario. The book details language field and the Add language list use the enabled locales, and MCP has `cadabra_edition_add`. Still open: find and replace all per edition; snapshots and History per edition (they already work per file, not yet tested in a translation). Mixed-language passages inside one edition are not planned.
+Decision and format in [architecture.md](architecture.md), "Editions". Done: format v4 active, the audiobook per edition (see "Audio"), the editor switcher, Add language (copy or empty), per-edition chapter text, untranslated marks and rename, export per language with "skip untranslated" (`exports/<lang>/`), book details per edition, removal and undo across editions, the file-change watch for translation files, MCP `language` arguments and a `/drive-app` editions scenario. The book details language field and the Add language list use the enabled locales, and MCP has `cadabra_edition_add`. Find and replace has an "All languages" scope. Still open: snapshots and History per edition (they already work per file, not yet tested in a translation). Mixed-language passages inside one edition are not planned.
 
 ### Internationalization
 
@@ -85,6 +85,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ## Done
 
+- Find and replace across editions (2026-10-29): an "All languages" scope next to "All chapters" in the find bar (off by default), per-language counts, one book undo step across every edition's files; see architecture.md, "Find and replace across editions".
 - RTF manuscript export: `packages/export-rtf`, File > Export > Rich Text and the Export dialog format, and MCP tools `cadabra_export_rtf` and `cadabra_export_docx` (see architecture.md, "Rich Text (.rtf) export").
 - Home dashboard, as drawn in the pen: continue-writing card, book cards with author, chapters, words and when they were last edited, and the new book tile. Recents carry these facts (see architecture.md, "Home dashboard"). Not built from the pen: the "Last edited" sort button (the list is always newest first) and cover images (covers are tinted title blocks).
 - Chapter snapshots: automatic versions on save, History dialog (compare and restore), Backups settings, recovery offer on open; see architecture.md, "Chapter snapshots and History".

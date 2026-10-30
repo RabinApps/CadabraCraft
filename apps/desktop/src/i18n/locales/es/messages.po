@@ -478,6 +478,10 @@ msgstr "Todos"
 msgid "All chapters"
 msgstr "Todos los capítulos"
 
+#: src/editor/FindBar.tsx
+msgid "All languages"
+msgstr "Todos los idiomas"
+
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
@@ -2062,6 +2066,10 @@ msgstr "Coincidencia {0} de {total}, página {1} ({onPage} en esta página)"
 msgid "Match case"
 msgstr "Distinguir mayúsculas"
 
+#: src/editor/FindBar.tsx
+msgid "Matches by language"
+msgstr "Coincidencias por idioma"
+
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Maybe later"
 msgstr "Quizá más tarde"
@@ -2849,6 +2857,10 @@ msgstr "Reemplazar con"
 #: src/state/project/replace.ts
 msgid "Replaced {count} in the book"
 msgstr "Se reemplazaron {count} en el libro"
+
+#: src/state/project/replace.ts
+msgid "Replaced {count} in the book, in {languages} languages"
+msgstr "Se reemplazaron {count} en el libro, en {languages} idiomas"
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx

@@ -18,7 +18,8 @@ import {
 import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "./findStore";
 import { isInvalidRegex } from "../lib/search/match";
 import { getSearchInfo, searchCommands } from "./search/plugin";
-import { revealCurrent, useBookCounts, useSearchInfo } from "./findHooks";
+import { revealCurrent, useBookCounts, useLanguageCounts, useSearchInfo } from "./findHooks";
+import { nativeName } from "../app/shell/EditionSwitcher";
 import { Chip } from "../ui/Chip";
 import { FindResults } from "./FindResults";
 
@@ -43,6 +44,18 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
     f.regex,
     editorInfo.total,
   );
+  // "All languages" only exists in a book with translations, and only together with "All chapters".
+  const multiLanguage = (manifest?.editions.length ?? 0) > 1;
+  const allLanguages = f.allChapters && f.allLanguages && multiLanguage;
+  const languageTotals = useLanguageCounts(
+    allLanguages,
+    f.query,
+    f.matchCase,
+    f.wholeWord,
+    f.regex,
+    editorInfo.total,
+  );
+  const languageMatches = Object.values(languageTotals).reduce((a, b) => a + b, 0);
   const order = manifest ? readingOrder(manifest).map((e) => e.id) : [];
   const info = f.allChapters ? bookPosition(order, counts, currentId, editorInfo) : editorInfo;
   const findRef = useRef<HTMLInputElement>(null);
@@ -128,7 +141,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
     const { query, replacement, matchCase, wholeWord, regex } = useFind.getState();
     void useProject
       .getState()
-      .actions.replaceInBook({ query, matchCase, wholeWord, regex }, replacement)
+      .actions.replaceInBook({ query, matchCase, wholeWord, regex }, replacement, { allLanguages })
       .catch((e) => useProject.setState({ notice: errText(e) }));
   };
   const toggle = (
@@ -136,6 +149,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
       | { matchCase: boolean }
       | { wholeWord: boolean }
       | { allChapters: boolean }
+      | { allLanguages: boolean }
       | { regex: boolean },
   ) => {
     f.set(patch);
@@ -266,7 +280,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
           <Button
             size="sm"
             onClick={replaceAll}
-            disabled={info.total === 0}
+            disabled={allLanguages ? languageMatches === 0 : info.total === 0}
           >{t`Replace all`}</Button>
         </div>
       )}
@@ -285,6 +299,26 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
         >{t`All chapters`}</Chip>
         <Chip pressed={f.regex} onClick={() => toggle({ regex: !f.regex })}>{t`Regex`}</Chip>
       </div>
+      {f.allChapters && multiLanguage && (
+        <div className="flex items-center gap-1.5">
+          <Chip
+            pressed={f.allLanguages}
+            onClick={() => toggle({ allLanguages: !f.allLanguages })}
+          >{t`All languages`}</Chip>
+        </div>
+      )}
+      {allLanguages && f.query !== "" && !invalid && manifest && (
+        <ul
+          aria-label={t`Matches by language`}
+          className="m-0 flex list-none flex-wrap gap-x-3 gap-y-0.5 p-0 text-xs text-ink-muted"
+        >
+          {manifest.editions.map((e) => (
+            <li key={e.language} className="tabular-nums">
+              {nativeName(e.language)}: {languageTotals[e.language] ?? 0}
+            </li>
+          ))}
+        </ul>
+      )}
       <FindResults rows={rows} onOpen={openRow} />
     </div>
   );

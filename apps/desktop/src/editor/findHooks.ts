@@ -61,6 +61,58 @@ export function useBookCounts(
   return counts;
 }
 
+/**
+ * Matches per edition (language code to total) for the whole book while "All languages" is on, read from disk like
+ * `useBookCounts`. Recounted on the same triggers.
+ */
+export function useLanguageCounts(
+  on: boolean,
+  query: string,
+  matchCase: boolean,
+  wholeWord: boolean,
+  regex: boolean,
+  editorTotal: number,
+): Record<string, number> {
+  const readPages = useProject((s) => s.actions.readPages);
+  const history = useProject((s) => s.history);
+  const root = useProject((s) => s.root);
+  const manifest = useProject((s) => s.manifest);
+  const [totals, setTotals] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (!on || !query || !manifest) {
+      setTotals({});
+      return;
+    }
+    let live = true;
+    const languages = manifest.editions.map((e) => e.language);
+    const id = setTimeout(() => {
+      Promise.all(
+        languages.map(async (language) => {
+          const pages = await readPages(language);
+          return [
+            language,
+            searchBook(pages, { query, matchCase, wholeWord, regex }).total,
+          ] as const;
+        }),
+      )
+        .then((entries) => {
+          if (live) setTotals(Object.fromEntries(entries));
+        })
+        .catch((e) => {
+          if (!live) return;
+          setTotals({});
+          const why = errText(e);
+          if (useProject.getState().notice !== why) useProject.setState({ notice: why });
+        });
+    }, 150);
+    return () => {
+      live = false;
+      clearTimeout(id);
+    };
+  }, [on, query, matchCase, wholeWord, regex, editorTotal, history, root, manifest, readPages]);
+  return totals;
+}
+
 /** Total and 1-based current index, kept in step with the document without re-rendering when nothing changed. */
 export function useSearchInfo(editor: Editor) {
   const [info, setInfo] = useState(() => getSearchInfo(editor));

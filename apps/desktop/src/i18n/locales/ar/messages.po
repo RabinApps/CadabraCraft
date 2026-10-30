@@ -478,6 +478,10 @@ msgstr "الكل"
 msgid "All chapters"
 msgstr "كل الفصول"
 
+#: src/editor/FindBar.tsx
+msgid "All languages"
+msgstr "كل اللغات"
+
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
@@ -2062,6 +2066,10 @@ msgstr "التطابق {0} من {total}، الصفحة {1} ({onPage} في هذه
 msgid "Match case"
 msgstr "مطابقة حالة الأحرف"
 
+#: src/editor/FindBar.tsx
+msgid "Matches by language"
+msgstr "النتائج حسب اللغة"
+
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Maybe later"
 msgstr "ربما لاحقًا"
@@ -2849,6 +2857,10 @@ msgstr "الاستبدال بـ"
 #: src/state/project/replace.ts
 msgid "Replaced {count} in the book"
 msgstr "استُبدل {count} في الكتاب"
+
+#: src/state/project/replace.ts
+msgid "Replaced {count} in the book, in {languages} languages"
+msgstr "تم استبدال {count} في الكتاب، في {languages} لغات"
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
