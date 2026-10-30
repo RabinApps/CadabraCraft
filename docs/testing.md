@@ -33,6 +33,24 @@ All Rust unit tests live in the lib, so CI runs `scripts/cargo-test.sh` (`cargo 
 
 Tests that need a non-root user (read-only folders, mode 000 files) skip their later assertions when the process can still write, so they pass in a root container. Tests that fake an external program with a `#!/bin/sh` script skip on Windows.
 
+## Performance, memory and fuzzing tools (large books)
+
+Details and the baseline update procedure are in `scripts/perf/README.md`. None of this is a PR gate; `.github/workflows/perf-fuzz.yml` runs weekly and on demand.
+
+```bash
+pnpm perf:bookgen --out DIR --preset huge        # a real project on disk (presets small, huge = 500 chapters, giant-chapter = 200k words, media)
+pnpm perf:bookgen --docx F --paragraphs 200000   # a large valid .docx; --docx-bomb node|zip writes hostile ones
+pnpm perf:huge-book [--preset huge] [--update-baseline]   # open, read, write, snapshot, asset, reference and .docx steps: CPU time and peak RSS against scripts/perf/baseline.json
+pnpm perf:leaks                                  # macOS `leaks` around the probe
+pnpm perf:fuzz [target|all] [seconds]            # cargo-fuzz (nightly): docx_archive, docx_xml, docx_import, wav, font_family, image_size, typst_frame, project_resolve
+```
+
+- The tools live in standalone crates (`apps/desktop/src-tauri/tools/perf`, `apps/desktop/src-tauri/fuzz`), each with an empty `[workspace]`, because building anything that links the app crate needs the fetched sidecar binaries and `cadabracraft_lib` exports only `run()`. They compile the app's real files with `#[path]` and a 15-line stub `tauri` crate (`tools/perf/tauri-shim`), so they measure and fuzz the real code; when a module moves, update the include lists. They are outside the app's `cargo llvm-cov` scope.
+- Budgets use CPU time (`getrusage`) per step with a 3x factor (`PERF_FACTOR`) and a 25 ms floor, and peak RSS with `PERF_RSS_FACTOR`; wall time is reported but not gated because fsync-heavy steps vary with disk state. Baselines are per preset and per platform-arch; only darwin-arm64 is recorded, so Linux runs are report-only until a baseline is added.
+- Reference numbers (darwin-arm64, release): 500 chapters open in 1.5 ms, read in 144 ms; a 200k-word chapter reads in 5 ms and writes in about 15 ms CPU; the 500-chapter write takes about 7 s wall (fsync, about 530 ms CPU); a whole-book snapshot of it takes 47 ms; peak RSS about 100 MiB, dominated by the generated `.docx` import.
+- The AddressSanitizer runtime hangs at start-up on macOS 27 beta, so `fuzz.sh` defaults to `--sanitizer none` there and to ASan on Linux (`FUZZ_SANITIZER` overrides); the ASan path and the workflow itself have not run on a CI runner. `huge-book.ts --app` (the real app through the dev bridge) is a documented TODO; use `pnpm automation:measure-large-chapter` meanwhile.
+- Rust lints: `[lints]` in `src-tauri/Cargo.toml` plus `clippy.toml`; CI runs `cargo clippy --all-targets -- -D warnings`.
+
 ## Coverage
 
 ```bash
