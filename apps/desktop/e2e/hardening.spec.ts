@@ -68,8 +68,10 @@ test.describe("hardening: paste, find and export failures", () => {
 
   test("converted blocks pasted into a heading and a table cell stay valid", async ({ page }) => {
     await ready(page);
-    await page.locator(".ProseMirror h1").click();
-    await page.keyboard.press("End");
+    const h1 = page.locator(".ProseMirror h1");
+    const box = await h1.boundingBox();
+    // The right end of the title's line: End scrolls instead of moving the caret on macOS.
+    await h1.click({ position: { x: box!.width - 2, y: box!.height / 2 } });
     // A real key makes ProseMirror read the click's selection before the synthetic paste.
     await page.keyboard.type("Q");
     await page.keyboard.press("Backspace");

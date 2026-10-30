@@ -45,8 +45,6 @@ test("every preference control saves and the section buttons scroll", async ({ p
   for (const name of ["Appearance", "General", "Editor", "Audio", "Backups", "Shortcuts"])
     await sections.getByRole("button", { name }).click();
 
-  await page.getByLabel("Manuscript font").selectOption("inter");
-  await page.getByRole("radio", { name: "Wide" }).click();
   await page.getByRole("switch", { name: "Typewriter scrolling" }).click();
   await page.getByLabel("Session word goal").fill("500");
   await page.getByLabel("When pasting HTML").selectOption("convert");
@@ -55,10 +53,8 @@ test("every preference control saves and the section buttons scroll", async ({ p
     "aria-checked",
     "false",
   );
-  await expect(page.getByLabel("Manuscript font")).toHaveValue("inter");
   await expect(page.getByLabel("When pasting HTML")).toHaveValue("convert");
   await expect(page.getByLabel("Session word goal")).toHaveValue("500");
-  await expect(page.getByRole("radio", { name: "Wide" })).toBeChecked();
 });
 
 test("snapshots to keep is applied on blur and clamped", async ({ page }) => {
@@ -196,6 +192,6 @@ test("the nav scrolls only the content, reaches the last section and follows han
   // Scrolling by hand moves the highlight.
   await page.locator("main").evaluate((m) => (m.scrollTop = 0));
   await expect.poll(async () => (await state()).active).toBe("Appearance");
-  await page.locator("main").evaluate((m) => (m.scrollTop = 700));
+  await page.locator("main").evaluate((m) => (m.scrollTop = 560));
   await expect.poll(async () => (await state()).active).toBe("Editor");
 });

@@ -1304,3 +1304,17 @@ Triggered by a memory-safety and security audit of `apps/desktop/src-tauri`. The
 | Changing `import_docx` to take ownership     | Every test and the contract runner would clone; the owned variant is the app entry point. |
 
 **Limits.** TOCTOU between path resolution and open remains (no `openat`/`O_NOFOLLOW`); only a local attacker racing the app can use it. The Windows Rust job has never run.
+
+## One writing surface: the formatted book (2026-10-30)
+
+**Decision:** the editor always shows the book as it will be printed. At `md` width and up, Write mode is the page stack that was "Page view" (template type, trim-size pages, running heads, page numbers, Typst's breaks when its marks fit). On a phone the same template type, indents, headings and scene breaks are drawn reflowed at the full screen width (`ReflowFrame`, `.prose-reflow`), with no page edges, running heads or page breaks. The Page view header button, the View > Page View menu command (and Cmd/Ctrl+Shift+P), and the Settings rows for the manuscript font and the writing column width are gone; the stored `pageView`, `manuscriptFont` and `writingWidth` values are ignored and dropped on the next save. Only the page zoom (Fit, 75%, 100%, 125%) remains a preference.
+
+**Why:** authors saw their text change shape between the plain editor, Page view, the print preview and the export (font, width, leading, justification, indents, scene breaks, chapter openings), which read as inconsistency. One surface removes the mode to forget about, and the pen already drew it (`docs/design.md`, "Writing surface").
+
+**Rejected:**
+
+- **Keep a plain "Draft" mode next to the formatted one:** it keeps the inconsistency available and doubles the editor styling and tests.
+- **A scaled-down trim-size page on a phone:** the most faithful, but the text ends up too small to write in.
+- **Let writers hide the page edges:** the screen would stop matching the book again; the zoom already controls how much page is visible.
+
+**Follow-ups / caveats:** the template's print font is used only when it is installed, bundled or imported, else the bundled serif (roadmap: bundle Libertinus Serif). The phone reflow uses the template's text size (11 pt for the novel), which is smaller than the old 17 px manuscript text. Read mode and the print preview are unchanged. Not verified on a real phone.

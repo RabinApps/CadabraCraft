@@ -556,3 +556,13 @@ body {
   position: relative;
   left: var(--page-verso-shift);
 }
+
+/* The phone's writing surface: the pages' type without a page (no fixed width, minimum height, margins or chapter sink). */
+.prose-reflow .ProseMirror {
+  width: auto;
+  min-height: 0;
+  padding: 0;
+}
+.prose-reflow .ProseMirror > h1:first-child {
+  margin-top: var(--page-chapter-extra);
+}

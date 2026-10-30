@@ -1,6 +1,6 @@
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { newProject, focusEnd } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -10,8 +10,7 @@ test("Export PDF sends the chosen options to Typst and writes exports/en/book.pd
   page,
 }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Typeset me");
   await page.getByRole("button", { name: "Book details" }).click();
   const details = page.getByRole("dialog", { name: "Book details" });
@@ -55,10 +54,9 @@ test("the trim size is a book setting: chosen at creation, shown read-only in Ex
   const manifest = () => page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   expect((await manifest()).trimSize).toBe("6x9");
 
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Some words to count");
-  await expect(page.getByText(/in the book · ≈ \d+ pages? at 6 × 9 in/)).toBeVisible();
+  await expect(page.getByText(/in the book · \d+ pages? at 6 × 9 in/)).toBeVisible();
 
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
@@ -75,8 +73,7 @@ test("the trim size is a book setting: chosen at creation, shown read-only in Ex
 
 test("Export PDF dialog shows KDP print checks for a very short book", async ({ page }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Just a few words");
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });

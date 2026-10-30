@@ -11,13 +11,13 @@ import {
 import { extensions, shortcutRemap } from "@cadabracraft/editor-schema";
 import { editorRemap, pressed } from "../app/settings/shortcutBindings";
 import type { ChapterDoc } from "@cadabracraft/shared";
-import { editorFontStack, useSettings, writingWidths } from "../state/editorPrefs";
-import { ensureFontLoaded } from "../lib/loadFont";
+import { useSettings } from "../state/editorPrefs";
 import { dirFor } from "../i18n/locales";
 import { Toolbar } from "./Toolbar";
 import { Search } from "./search/plugin";
 import { Pagination } from "./pagination/plugin";
-import { PageFrame } from "./PageFrame";
+import { PageFrame, ReflowFrame } from "./PageFrame";
+import { TabKey } from "./tabKey";
 import { usePageView } from "../app/hooks/usePageView";
 import { FindBar } from "./FindBar";
 import { prefillQuery } from "../lib/search/findHelpers";
@@ -98,6 +98,7 @@ export function Editor({ initial, language, onChange, focus }: Props) {
       ...extensions,
       Search,
       Pagination,
+      TabKey,
       shortcutRemap(editorRemap(useSettings.getState().shortcutOverrides)),
     ],
     editorProps: {
@@ -175,13 +176,7 @@ export function Editor({ initial, language, onChange, focus }: Props) {
       if (useSettings.getState().typewriterScroll) centerCaret(editor);
     },
   });
-  const { manuscriptFont, writingWidth } = useSettings();
   const pageView = usePageView();
-  // A downloaded or imported family is registered from its bytes; if that fails the default serif behind it in the stack is used.
-  useEffect(() => {
-    if (manuscriptFont !== "newsreader" && manuscriptFont !== "inter")
-      void ensureFontLoaded(manuscriptFont);
-  }, [manuscriptFont]);
   const findOpen = useFind((s) => s.open);
   const insertRef = useRef<
     (content: ReturnType<typeof literalContent>, range: { from: number; to: number }) => boolean
@@ -379,20 +374,13 @@ export function Editor({ initial, language, onChange, focus }: Props) {
         </div>
       </Modal>
       {pageView.on ? (
-        <PageFrame editor={editor} manuscriptFont={manuscriptFont}>
+        <PageFrame editor={editor}>
           <EditorContent editor={editor} />
         </PageFrame>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first">
-          <div className="mx-auto md:p-8" style={{ maxWidth: writingWidths[writingWidth] }}>
-            <div
-              className="prose-manuscript p-4 md:rounded-md md:border md:border-border md:bg-paper md:px-14 md:py-12"
-              style={{ fontFamily: editorFontStack(manuscriptFont) }}
-            >
-              <EditorContent editor={editor} />
-            </div>
-          </div>
-        </div>
+        <ReflowFrame>
+          <EditorContent editor={editor} />
+        </ReflowFrame>
       )}
     </div>
   );

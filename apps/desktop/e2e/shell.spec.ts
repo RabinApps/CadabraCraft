@@ -1,6 +1,6 @@
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { newProject, focusEnd } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -64,8 +64,7 @@ test("details panel shows page and book facts on desktop and can be hidden", asy
   await expect(panel).toContainText("E2E Book");
   await expect(panel).toContainText("Tester");
   await expect(panel).toContainText("Chapter One");
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("alpha beta gamma");
   await expect(panel.getByText("Words").locator("xpath=following-sibling::dd")).not.toHaveText("0");
   await page.getByRole("button", { name: "Details", exact: true }).click();
@@ -76,17 +75,4 @@ test("details panel is not shown on a tablet", async ({ page }) => {
   await page.setViewportSize({ width: 820, height: 1180 });
   await newProject(page);
   await expect(page.getByRole("complementary", { name: "Details" })).toBeHidden();
-});
-
-test("settings change the writing width and remember it", async ({ page }) => {
-  await newProject(page);
-  await page.getByRole("button", { name: "Settings" }).click();
-  await page.getByRole("radio", { name: "Wide" }).click();
-  expect(
-    await page.evaluate(
-      () => JSON.parse(localStorage.getItem("cadabracraft.settings") ?? "{}").writingWidth,
-    ),
-  ).toBe("wide");
-  await page.getByRole("button", { name: "Back", exact: true }).click();
-  await expect(page.locator(".ProseMirror")).toBeVisible();
 });

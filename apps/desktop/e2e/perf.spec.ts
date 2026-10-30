@@ -1,7 +1,7 @@
 import { expect, test } from "./support/coverage";
 import { bigChapter } from "../src/test/bigBook";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { newProject, focusEnd } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -17,8 +17,7 @@ test("typing stays responsive in a 20,000-word chapter", async ({ page }) => {
   await page.reload();
   await page.getByRole("button", { name: "Open folder" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Long");
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   // Time from each keydown to the second frame after it, as the author would feel it.
   await page.evaluate(() => {
     const lat: number[] = [];

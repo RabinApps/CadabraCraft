@@ -1,6 +1,6 @@
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, exportBook } from "./support/helpers";
+import { newProject, exportBook, focusEnd } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -21,8 +21,7 @@ test("Export Markdown writes exports/en/book.md, and explains underline until th
   page,
 }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Underlined");
   // ProseMirror learns of a selection made by keys or the mouse from an asynchronous selectionchange, and a state update from
   // that clears a stored mark: Ctrl+U right after typing or moving is lost under load. Retry until the mark is really on.
@@ -51,8 +50,7 @@ test("Export Word writes exports/en/manuscript.docx in manuscript format with th
   page,
 }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Typed for Word");
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });
@@ -93,8 +91,7 @@ test("Export Rich Text writes exports/en/manuscript.rtf in manuscript format wit
   page,
 }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Typed for Rich Text");
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export book" });

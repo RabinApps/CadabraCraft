@@ -316,8 +316,6 @@ test("session goal footer waits for the book count, then shows progress", async 
       "cadabracraft.settings",
       JSON.stringify({
         sessionGoal: 500,
-        manuscriptFont: "newsreader",
-        writingWidth: "medium",
         typewriterScroll: false,
       }),
     );

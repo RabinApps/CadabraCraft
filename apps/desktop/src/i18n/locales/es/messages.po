@@ -309,6 +309,14 @@ msgstr "{pdfPages, plural, one {# página en el PDF} other {# páginas en el PDF
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} de {sessionGoal} palabras en esta sesión"
 
+#: src/editor/PageFrame.tsx
+msgid "{size} · approximate"
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "{size} · breaks as in the PDF"
+msgstr ""
+
 #: src/state/project/history.ts
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr "{skipped, plural, one {# página ya no está en el libro y se omitió} other {# páginas ya no están en el libro y se omitieron}}"
@@ -1690,10 +1698,6 @@ msgstr "Mantén ⌘ o ⌥ junto con la tecla."
 msgid "Hold Ctrl or Alt together with the key."
 msgstr "Mantén Ctrl o Alt junto con la tecla."
 
-#: src/app/settings/Settings.tsx
-msgid "How wide the page is in the editor."
-msgstr "Qué ancho tiene la página en el editor."
-
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
 msgstr "Identificador"
@@ -2053,10 +2057,6 @@ msgstr "Creando muestra… (detener)"
 msgid "Manual order"
 msgstr "Orden manual"
 
-#: src/app/settings/Settings.tsx
-msgid "Manuscript font"
-msgstr "Fuente del manuscrito"
-
 #: src/app/export/Templates.tsx
 msgid "Margins (in/out)"
 msgstr "Márgenes (int./ext.)"
@@ -2090,10 +2090,6 @@ msgstr "Coincidencias por idioma"
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Maybe later"
 msgstr "Quizá más tarde"
-
-#: src/app/settings/Settings.tsx
-msgid "Medium"
-msgstr "Media"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Merge chapter {n} into the previous one"
@@ -2166,10 +2162,6 @@ msgstr "Mover a la papelera"
 #: src/app/shell/EntryList.tsx
 msgid "Move up"
 msgstr "Mover arriba"
-
-#: src/app/settings/Settings.tsx
-msgid "Narrow"
-msgstr "Estrecha"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
@@ -2517,22 +2509,6 @@ msgstr "Texto de la página"
 #: src/app/shell/Sidebar.tsx
 msgid "Page title"
 msgstr "Título de la página"
-
-#: src/app/shell/AppHeader.tsx
-msgid "Page view"
-msgstr "Vista de página"
-
-#: src/app/shell/menuModel.ts
-msgid "Page View"
-msgstr "Vista de página"
-
-#: src/editor/PageFrame.tsx
-msgid "Page view · {size} · approximate"
-msgstr "Vista de página · {size} · aproximada"
-
-#: src/editor/PageFrame.tsx
-msgid "Page view · {size} · breaks as in the PDF"
-msgstr "Vista de página · {size} · saltos como en el PDF"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Page width"
@@ -3501,8 +3477,8 @@ msgid "The system or the text keeps this key. Press another one."
 msgstr "El sistema o el texto se queda con esta tecla. Pulsa otra."
 
 #: src/editor/PageFrame.tsx
-msgid "The template's print font is not installed here, so your manuscript font is used."
-msgstr "La fuente de impresión de la plantilla no está instalada aquí, así que se usa la fuente de tu manuscrito."
+msgid "The template's print font is not installed here, so the bundled serif is used."
+msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
@@ -3841,10 +3817,6 @@ msgstr "Usar el texto más reciente"
 msgid "Use template"
 msgstr "Usar plantilla"
 
-#: src/app/settings/Settings.tsx
-msgid "Used while writing. Your book's print fonts are set in Export."
-msgstr "Se usa mientras escribes. Las fuentes de impresión de tu libro se definen en Exportar."
-
 #. placeholder {0}: update.version
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Version {0} is available"
@@ -3912,10 +3884,6 @@ msgstr "Libro completo"
 msgid "Whole word"
 msgstr "Palabra completa"
 
-#: src/app/settings/Settings.tsx
-msgid "Wide"
-msgstr "Ancha"
-
 #: src/editor/ReadingSettings.tsx
 msgid "Wide page"
 msgstr "Página ancha"
@@ -3969,10 +3937,6 @@ msgstr "Escribe todo el libro como un archivo de Word en formato estándar de ma
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
 msgstr "Escribe todo el libro como un único archivo Markdown en la carpeta de exportaciones, en orden de lectura. No hace falta nada más en este ordenador."
-
-#: src/app/settings/Settings.tsx
-msgid "Writing column width"
-msgstr "Ancho de la columna de escritura"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing Markdown…"

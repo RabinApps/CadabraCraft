@@ -15,7 +15,6 @@ import {
 import { useLayout } from "../../state/layout";
 import { useQuickNav } from "../../state/quickNav";
 import { useSettings } from "../../state/editorPrefs";
-import { usePageView } from "./usePageView";
 import { buildMenuModel } from "../shell/menuModel";
 import { quitApp } from "../shell/quit";
 import { showNativeMenu } from "../shell/nativeMenu";
@@ -73,7 +72,6 @@ export function useAppMenu(h: AppMenuHooks): void {
   const recents = useRecents((s) => s.recents);
   const clearRecents = useRecents((s) => s.clear);
   const { focus, details, references, set: setLayout } = useLayout();
-  const pageView = usePageView();
   const showQuickNav = useQuickNav((s) => s.show);
   const setCreating = useStartDialogs((s) => s.setCreating);
   const setImporting = useStartDialogs((s) => s.setImporting);
@@ -240,12 +238,6 @@ export function useAppMenu(h: AppMenuHooks): void {
     // The outline jumps inside the editor, which exists in Write mode only.
     commands["view.outline"] = { run: () => showQuickNav("outline") };
     commands["view.focus"] = { run: () => setLayout({ focus: !focus }), checked: focus };
-    // Page view is not offered on phones.
-    commands["view.pageView"] = {
-      run: pageView.toggle,
-      checked: pageView.on,
-      enabled: pageView.available,
-    };
   }
   useRegisterCommands(commands);
 

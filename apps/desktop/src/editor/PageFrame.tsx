@@ -27,7 +27,7 @@ import {
 import { usePageView } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useFontList } from "../app/hooks/useFontList";
-import { editorFontStack, type EditorFont } from "../state/editorPrefs";
+import { editorFontStack } from "../state/editorPrefs";
 import { setPageCount, usePageCount } from "../state/pageCount";
 import { breaksReport, usePageMeasure } from "../state/pageMeasure";
 import { useMeasuredChapter } from "../app/hooks/useMeasuredChapter";
@@ -93,9 +93,9 @@ export interface PageLook {
 
 /**
  * The look of the book's pages: geometry from the trim size and template, and the text font (the template's print font when it can
- * be drawn here, else the author's manuscript font).
+ * be drawn here, else the bundled serif).
  */
-export function usePageLook(manuscriptFont: EditorFont): PageLook {
+export function usePageLook(): PageLook {
   const manifest = useProject((s) => s.manifest)!;
   const language = useProject((s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "");
   const { fonts } = useFontList();
@@ -121,7 +121,7 @@ export function usePageLook(manuscriptFont: EditorFont): PageLook {
   }, [printFont]);
   const family =
     loadedFont ?? (printFont && /^(inter|newsreader)$/i.test(printFont) ? printFont : null);
-  const fontStack = family ? pageFontStack(family) : editorFontStack(manuscriptFont);
+  const fontStack = family ? pageFontStack(family) : editorFontStack("newsreader");
   const bookTitle =
     manifest.editions.find((e) => e.language === language)?.title ??
     sourceEdition(manifest.editions).title;
@@ -272,19 +272,17 @@ export function PageStack({
 
 interface Props {
   editor: TipTapEditor;
-  /** The author's manuscript font: used when the template's print font is not available here. */
-  manuscriptFont: EditorFont;
   children: ReactNode;
 }
 
 /** Page view of the open page in Write mode: the page stack in a scroller, with the caption chip. */
-export function PageFrame({ editor, manuscriptFont, children }: Props) {
+export function PageFrame({ editor, children }: Props) {
   const { t } = useLingui();
   const { zoom: zoomPref } = usePageView();
   const manifest = useProject((s) => s.manifest)!;
   const currentId = useProject((s) => s.currentId);
   const wordsBefore = useProject((s) => s.actions.chapterWordsBefore);
-  const look = usePageLook(manuscriptFont);
+  const look = usePageLook();
   const { book, g, trim, family, language } = look;
 
   const section = (currentId ? sectionOf(manifest, currentId) : null) ?? "front";
@@ -346,7 +344,7 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
   const exactBreaks = usePageCount((s) => s.exact);
   const fontNote = family
     ? t`Text is set in ${family}, the font the PDF uses for this template.`
-    : t`The template's print font is not installed here, so your manuscript font is used.`;
+    : t`The template's print font is not installed here, so the bundled serif is used.`;
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col bg-bg">
@@ -359,15 +357,13 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
               : t`Page breaks are approximate: the PDF is the reference.`
           }`}
         >
-          {exactBreaks
-            ? t`Page view · ${size} · breaks as in the PDF`
-            : t`Page view · ${size} · approximate`}
+          {exactBreaks ? t`${size} · breaks as in the PDF` : t`${size} · approximate`}
         </span>
       </div>
       <div
         ref={scroller}
         data-testid="page-scroll"
-        className="min-h-0 flex-1 overflow-auto px-6 pb-12 pt-3"
+        className="min-h-0 flex-1 overflow-x-auto overflow-y-auto px-6 pb-12 pt-3"
       >
         <PageStack
           editor={editor}
@@ -384,6 +380,36 @@ export function PageFrame({ editor, manuscriptFont, children }: Props) {
         >
           {children}
         </PageStack>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The writing surface where a page does not fit (a phone): the same template type, indents, headings and scene breaks as the pages,
+ * at the full width of the screen, with no page edges, running heads or breaks.
+ */
+export function ReflowFrame({ children }: { children: ReactNode }) {
+  const look = usePageLook();
+  const manifest = useProject((s) => s.manifest)!;
+  const currentId = useProject((s) => s.currentId);
+  const chapterNumber = chapterNumberOf(manifest, currentId);
+  const { book, fontStack } = look;
+  const vars = useMemo(
+    () =>
+      ({
+        ...cssVarsStyle(pageCssVars(book, chapterNumber)),
+        "--page-font": fontStack,
+      }) as CSSProperties,
+    [book, chapterNumber, fontStack],
+  );
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first" data-testid="reflow-scroll">
+      <div
+        className="prose-manuscript prose-page prose-reflow mx-auto max-w-xl px-4 pb-8 pt-6"
+        style={vars}
+      >
+        {children}
       </div>
     </div>
   );

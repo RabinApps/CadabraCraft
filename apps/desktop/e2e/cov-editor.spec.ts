@@ -237,7 +237,8 @@ test.describe("Convert HTML in Selection", () => {
   test("refuses a selection that is too large", async ({ page }) => {
     await newProject(page);
     await toEnd(page);
-    await paste(page, "a".repeat(1_000_100)); // longer than the limit: the default paste
+    // Paragraphs of 200 letters: one 1 MB paragraph is a worst case for laying the text out in pages.
+    await paste(page, Array.from({ length: 5_000 }, () => "a".repeat(200)).join("\n")); // longer than the limit: the default paste
     await page.keyboard.press("ControlOrMeta+a");
     await expect
       .poll(() => page.evaluate(() => getSelection()?.toString().length))

@@ -308,6 +308,14 @@ msgstr ""
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr ""
 
+#: src/editor/PageFrame.tsx
+msgid "{size} · approximate"
+msgstr ""
+
+#: src/editor/PageFrame.tsx
+msgid "{size} · breaks as in the PDF"
+msgstr ""
+
 #: src/state/project/history.ts
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr ""
@@ -1689,10 +1697,6 @@ msgstr ""
 msgid "Hold Ctrl or Alt together with the key."
 msgstr ""
 
-#: src/app/settings/Settings.tsx
-msgid "How wide the page is in the editor."
-msgstr ""
-
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
 msgstr ""
@@ -2052,10 +2056,6 @@ msgstr ""
 msgid "Manual order"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
-msgid "Manuscript font"
-msgstr ""
-
 #: src/app/export/Templates.tsx
 msgid "Margins (in/out)"
 msgstr ""
@@ -2088,10 +2088,6 @@ msgstr ""
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Maybe later"
-msgstr ""
-
-#: src/app/settings/Settings.tsx
-msgid "Medium"
 msgstr ""
 
 #: src/app/dialogs/ImportChapterList.tsx
@@ -2164,10 +2160,6 @@ msgstr ""
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
 msgid "Move up"
-msgstr ""
-
-#: src/app/settings/Settings.tsx
-msgid "Narrow"
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -2515,22 +2507,6 @@ msgstr ""
 
 #: src/app/shell/Sidebar.tsx
 msgid "Page title"
-msgstr ""
-
-#: src/app/shell/AppHeader.tsx
-msgid "Page view"
-msgstr ""
-
-#: src/app/shell/menuModel.ts
-msgid "Page View"
-msgstr ""
-
-#: src/editor/PageFrame.tsx
-msgid "Page view · {size} · approximate"
-msgstr ""
-
-#: src/editor/PageFrame.tsx
-msgid "Page view · {size} · breaks as in the PDF"
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -3500,7 +3476,7 @@ msgid "The system or the text keeps this key. Press another one."
 msgstr ""
 
 #: src/editor/PageFrame.tsx
-msgid "The template's print font is not installed here, so your manuscript font is used."
+msgid "The template's print font is not installed here, so the bundled serif is used."
 msgstr ""
 
 #: src/editor/Editor.tsx
@@ -3838,10 +3814,6 @@ msgstr ""
 msgid "Use template"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
-msgid "Used while writing. Your book's print fonts are set in Export."
-msgstr ""
-
 #. placeholder {0}: update.version
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Version {0} is available"
@@ -3909,10 +3881,6 @@ msgstr ""
 msgid "Whole word"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
-msgid "Wide"
-msgstr ""
-
 #: src/editor/ReadingSettings.tsx
 msgid "Wide page"
 msgstr ""
@@ -3965,10 +3933,6 @@ msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
-msgstr ""
-
-#: src/app/settings/Settings.tsx
-msgid "Writing column width"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
