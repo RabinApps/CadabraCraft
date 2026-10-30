@@ -16,6 +16,8 @@ interface FindData {
   regex: boolean;
   /** "All chapters": count, step and replace across the whole book (front and back matter too). Off by default, kept for the session only. */
   allChapters: boolean;
+  /** "All languages" (only with "All chapters", only in a book with translations): counts and Replace all cover every edition. Off by default, kept for the session only. */
+  allLanguages: boolean;
   /** Set when stepping opens another page: the new editor selects its first or last match once it mounts. */
   pendingReveal: "first" | "last" | null;
   /** Bumped whenever Find is invoked: the bar focuses and selects its input and applies its settings. */
@@ -51,6 +53,7 @@ export const useFind = create<FindState>((set) => ({
   wholeWord: false,
   regex: false,
   allChapters: false,
+  allLanguages: false,
   pendingReveal: null,
   focusTick: 0,
   set: (patch) => set(limited(patch)),

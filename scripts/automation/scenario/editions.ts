@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
 /** Language editions: add French, write in it, switch back and forth, and pick up an outside edit of a translation file. */
-export async function editionsSteps({ app, book, shot, dlg, step, status }: Context) {
+export async function editionsSteps({ app, book, shot, dlg, step, status, runMenu }: Context) {
   const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
   const switcher = `[...document.querySelectorAll("button")].find((b) => (b.getAttribute("aria-label") ?? "").startsWith("Edition:"))`;
   const openSwitcher = () =>
@@ -104,6 +104,57 @@ export async function editionsSteps({ app, book, shot, dlg, step, status }: Cont
       await app.sleep(1000);
       assert((await label()).includes("English"), "did not return to English");
       return "French reloaded after an outside edit";
+    },
+  );
+  await step(
+    "find and replace across editions: All languages rewrites the English and French files, book Undo restores both",
+    async () => {
+      const m = manifest().chapters[0];
+      const read = (lang: string) => readFileSync(join(book, m.files[lang]), "utf8");
+      const count = (lang: string, needle: string) => read(lang).split(needle).length - 1;
+      // English (the open edition) gets the word the French page already has.
+      await app.js(
+        `(() => { const ed = document.querySelector('.ProseMirror'); ed.focus(); const s = getSelection(); s.selectAllChildren(ed); s.collapseToEnd(); document.execCommand('insertText', false, ' Bonjour partout.'); })()`,
+      );
+      for (let i = 0; i < 20 && count("en", "Bonjour") === 0; i++) await app.sleep(500);
+      const en = count("en", "Bonjour");
+      const fr = count("fr", "Bonjour");
+      assert(en >= 1 && fr >= 1, `expected Bonjour in both editions (en ${en}, fr ${fr})`);
+      await runMenu("edit.find");
+      await app.fill(0, "Bonjour");
+      await app.click("All chapters");
+      await app.click("All languages");
+      await app.sleep(900);
+      const bar = await app.js<string>(
+        `document.querySelector('[aria-label="Find and replace"]').innerText`,
+      );
+      assert(
+        /English: \d+/.test(bar) && /Français: \d+/.test(bar),
+        `no per-language counts: ${bar.slice(0, 160)}`,
+      );
+      await runMenu("edit.findReplace");
+      await app.fill(1, "Salut");
+      await app.click("Replace all");
+      await app.sleep(1500);
+      assert(
+        count("en", "Bonjour") === 0 && count("fr", "Bonjour") === 0,
+        "Replace all did not rewrite both editions",
+      );
+      assert(
+        count("en", "Salut") === en && count("fr", "Salut") === fr,
+        "wrong replacement counts",
+      );
+      await app.js(
+        `document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`,
+      );
+      await app.sleep(400);
+      await runMenu("edit.bookUndo");
+      await app.sleep(1500);
+      assert(
+        count("en", "Bonjour") === en && count("fr", "Bonjour") === fr,
+        "book Undo did not restore both editions",
+      );
+      return `Replaced in en (${en}) and fr (${fr}) with one step; Undo restored both`;
     },
   );
 }

@@ -335,7 +335,12 @@ export interface ReplaceActions {
    * typing first, writes the changed pages through the normal save path (backup, temp file and rename), reloads the open
    * page, and records ONE book undo step (Undo/Redo, Mod+Alt+Z) that restores or reapplies all of those pages.
    */
-  replaceInBook: (opts: BookSearchOptions, replacement: string) => Promise<number>;
+  replaceInBook: (
+    opts: BookSearchOptions,
+    replacement: string,
+    /** `allLanguages`: every edition's pages, not only the open edition's (one undo step covers all of them). */
+    scope?: { allLanguages?: boolean },
+  ) => Promise<number>;
 }
 
 export interface AssetActions {

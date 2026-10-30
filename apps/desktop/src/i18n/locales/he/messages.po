@@ -478,6 +478,10 @@ msgstr "הכול"
 msgid "All chapters"
 msgstr "כל הפרקים"
 
+#: src/editor/FindBar.tsx
+msgid "All languages"
+msgstr "כל השפות"
+
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
@@ -2062,6 +2066,10 @@ msgstr "התאמה {0} מתוך {total}, עמוד {1} ({onPage} בעמוד זה)
 msgid "Match case"
 msgstr "התאמת רישיות"
 
+#: src/editor/FindBar.tsx
+msgid "Matches by language"
+msgstr "התאמות לפי שפה"
+
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Maybe later"
 msgstr "אולי אחר כך"
@@ -2849,6 +2857,10 @@ msgstr "החלפה ב"
 #: src/state/project/replace.ts
 msgid "Replaced {count} in the book"
 msgstr "הוחלפו {count} בספר"
+
+#: src/state/project/replace.ts
+msgid "Replaced {count} in the book, in {languages} languages"
+msgstr "הוחלפו {count} בספר, ב-{languages} שפות"
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx

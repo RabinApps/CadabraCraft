@@ -391,6 +391,58 @@ test.describe("find and replace", () => {
     await expect(bar(page)).toHaveCount(0);
   });
 
+  test("All languages: appears only with translations, shows per-language counts, replaces in every edition with one undo", async ({
+    page,
+  }) => {
+    await withText(page);
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.keyboard.type("cat");
+    await bar(page).getByRole("button", { name: "All chapters" }).click();
+    await expect(bar(page).getByRole("button", { name: "All languages" })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+
+    await page.getByRole("button", { name: /Edition: English/ }).click();
+    await page.getByRole("menuitem", { name: "Add language" }).click();
+    const dialog = page.getByRole("dialog", { name: "Add language" });
+    await dialog.getByLabel("Language", { exact: true }).selectOption("fr");
+    await dialog.getByRole("button", { name: "Add language", exact: true }).click();
+    await expect(page.getByRole("button", { name: /Edition: Français/ })).toBeVisible();
+    await page.locator(".ProseMirror").click();
+    await page.keyboard.press("ControlOrMeta+End");
+    await page.keyboard.type(" Un cat de plus.");
+    await expect(page.getByRole("status")).toContainText("Saved");
+
+    await page.keyboard.press("ControlOrMeta+f");
+    await expect(bar(page).getByLabel("Find", { exact: true })).toHaveValue("cat");
+    const langs = bar(page).getByRole("button", { name: "All languages" });
+    await expect(langs).toHaveAttribute("aria-pressed", "false"); // the open edition only, by default
+    await expect(bar(page).getByRole("list", { name: "Matches by language" })).toHaveCount(0);
+    await langs.click();
+    const list = bar(page).getByRole("list", { name: "Matches by language" });
+    await expect(list.getByText("English: 3")).toBeVisible();
+    await expect(list.getByText("Français: 4")).toBeVisible();
+
+    await bar(page).getByLabel("Replace with").fill("dog");
+    await bar(page).getByRole("button", { name: "Replace all" }).click();
+    await expect(page.getByRole("status")).toContainText("in 2 languages");
+    const disk = (lang: string) =>
+      page.evaluate(
+        (l) =>
+          Object.entries(window.__disk)
+            .filter(([k]) => k.startsWith(l === "en" ? "manuscript/0" : `manuscript/${l}/`))
+            .map(([, v]) => v as string)
+            .join("\n"),
+        lang,
+      );
+    expect(await disk("en")).not.toContain("cat");
+    expect(await disk("fr")).not.toContain("cat");
+    expect((await disk("fr")).match(/dog/g)).toHaveLength(4);
+
+    await page.keyboard.press("ControlOrMeta+Alt+z");
+    await expect.poll(async () => ((await disk("en")).match(/cat/g) ?? []).length).toBe(3);
+    await expect.poll(async () => ((await disk("fr")).match(/cat/g) ?? []).length).toBe(4);
+  });
+
   test("fits a phone without horizontal overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await withText(page);
