@@ -8,7 +8,8 @@ import {
   useEditorState,
   type Editor as TipTapEditor,
 } from "@tiptap/react";
-import { extensions } from "@cadabracraft/editor-schema";
+import { extensions, shortcutRemap } from "@cadabracraft/editor-schema";
+import { editorRemap, pressed } from "../app/settings/shortcutBindings";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { editorFontStack, useSettings, writingWidths } from "../state/editorPrefs";
 import { ensureFontLoaded } from "../lib/loadFont";
@@ -92,7 +93,13 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     setPending({ text, converted, from, to });
   };
   const editor = useEditor({
-    extensions: [...extensions, Search, Pagination],
+    // Keys the author moved in Settings > Shortcuts are read when the editor is made (the settings page replaces the editor).
+    extensions: [
+      ...extensions,
+      Search,
+      Pagination,
+      shortcutRemap(editorRemap(useSettings.getState().shortcutOverrides)),
+    ],
     editorProps: {
       // A task item's checkbox lives in a non-editable label; clicking it flips `checked` (one undo step).
       handleDOMEvents: {
@@ -266,9 +273,10 @@ export function Editor({ initial, language, onChange, focus }: Props) {
   invokeRef.current = invoke;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.code !== "KeyF") return;
+      const toggle = pressed(e, "edit.findReplace");
+      if (!toggle && !pressed(e, "edit.find")) return;
       e.preventDefault();
-      invokeRef.current(e.altKey ? "toggle" : "find");
+      invokeRef.current(toggle ? "toggle" : "find");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

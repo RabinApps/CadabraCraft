@@ -4,6 +4,7 @@ import { useLingui } from "@lingui/react/macro";
 import { useCommandRegistry, runCommand } from "../../state/commands";
 import { useProject } from "../../state/project/index";
 import { useRecents } from "../../state/recents";
+import { useSettings } from "../../state/editorPrefs";
 import { isMac } from "../../lib/platform";
 import { buildMenuModel } from "../shell/menuModel";
 import { comboFromAccelerator, keysFor } from "../settings/shortcutList";
@@ -20,13 +21,16 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
   const recents = useRecents((s) => s.recents);
   const history = useProject((s) => s.history);
   const mac = isMac();
+  const shortcuts = useSettings((s) => s.shortcutOverrides);
   const undoLabel = history.undo.at(-1)?.label ?? null;
   const redoLabel = history.redo.at(-1)?.label ?? null;
   const entries = useMemo(
     () =>
-      paletteEntries(buildMenuModel({ mac, commands: registry, recents, undoLabel, redoLabel })),
+      paletteEntries(
+        buildMenuModel({ mac, commands: registry, recents, undoLabel, redoLabel, shortcuts }),
+      ),
     // Labels come from the current language.
-    [mac, registry, recents, undoLabel, redoLabel, i18n.locale],
+    [mac, registry, recents, undoLabel, redoLabel, shortcuts, i18n.locale],
   );
   const filter = useCallback(
     (query: string): PickerItem[] =>

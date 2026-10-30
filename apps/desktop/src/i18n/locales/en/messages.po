@@ -482,6 +482,10 @@ msgstr "All chapters"
 msgid "All languages"
 msgstr "All languages"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Already used by “{owner}”. Press another key."
+msgstr "Already used by “{owner}”. Press another key."
+
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
@@ -742,8 +746,13 @@ msgid "Caption"
 msgstr "Caption"
 
 #: src/app/export/PdfPanel.tsx
+#: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
 msgstr "Change"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Change shortcut for {action}"
+msgstr "Change shortcut for {action}"
 
 #: src/app/shell/Details.tsx
 msgid "Change template"
@@ -848,6 +857,14 @@ msgstr "Choose a chapter to start."
 #: src/app/export/Templates.tsx
 msgid "Choose a look for your book"
 msgstr "Choose a look for your book"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
+msgstr "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
+msgstr "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/settings/FontsSection.tsx
@@ -1665,6 +1682,14 @@ msgstr "History · Whole book"
 msgid "History of"
 msgstr "History of"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold ⌘ or ⌥ together with the key."
+msgstr "Hold ⌘ or ⌥ together with the key."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold Ctrl or Alt together with the key."
+msgstr "Hold Ctrl or Alt together with the key."
+
 #: src/app/settings/Settings.tsx
 msgid "How wide the page is in the editor."
 msgstr "How wide the page is in the editor."
@@ -1882,14 +1907,6 @@ msgstr "Keep working"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Keep your research close"
 msgstr "Keep your research close"
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option."
-msgstr "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option."
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. Ctrl is Control."
-msgstr "Keys cannot be changed yet. Ctrl is Control."
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
@@ -2248,6 +2265,10 @@ msgstr "No heading or chapter matches “{q}”."
 msgid "No HTML found in the selection"
 msgstr "No HTML found in the selection"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "No key"
+msgstr "No key"
+
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
 msgstr "No matches"
@@ -2596,6 +2617,10 @@ msgstr "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets fold
 msgid "Preface"
 msgstr "Preface"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Press the new keys…"
+msgstr "Press the new keys…"
+
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
 msgstr "Previous chapter"
@@ -2861,6 +2886,18 @@ msgstr "Replaced {count} in the book"
 #: src/state/project/replace.ts
 msgid "Replaced {count} in the book, in {languages} languages"
 msgstr "Replaced {count} in the book, in {languages} languages"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset"
+msgstr "Reset"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset all"
+msgstr "Reset all"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset shortcut for {action}"
+msgstr "Reset shortcut for {action}"
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -3324,6 +3361,10 @@ msgstr "That file is not a usable font. Choose a .ttf or .otf file."
 msgid "That file name is not valid"
 msgstr "That file name is not valid"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "That key cannot be used. Press another one."
+msgstr "That key cannot be used. Press another one."
+
 #: src/app/export/PrintPreview.tsx
 msgid "That page is not in the book."
 msgstr "That page is not in the book."
@@ -3454,6 +3495,10 @@ msgstr "The PDF gets the same bleed and crop marks. Set them here or in the expo
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
 msgstr "The selection is too large to convert"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "The system or the text keeps this key. Press another one."
+msgstr "The system or the text keeps this key. Press another one."
 
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so your manuscript font is used."

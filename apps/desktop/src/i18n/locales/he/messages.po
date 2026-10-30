@@ -482,6 +482,10 @@ msgstr "כל הפרקים"
 msgid "All languages"
 msgstr "כל השפות"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Already used by “{owner}”. Press another key."
+msgstr "כבר בשימוש על ידי ”{owner}“. לחצו על מקש אחר."
+
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
@@ -742,8 +746,13 @@ msgid "Caption"
 msgstr "כיתוב"
 
 #: src/app/export/PdfPanel.tsx
+#: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
 msgstr "שינוי"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Change shortcut for {action}"
+msgstr "שינוי קיצור המקשים של {action}"
 
 #: src/app/shell/Details.tsx
 msgid "Change template"
@@ -848,6 +857,14 @@ msgstr "בחר פרק כדי להתחיל."
 #: src/app/export/Templates.tsx
 msgid "Choose a look for your book"
 msgstr "בחר מראה לספר שלך"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
+msgstr "בחרו שינוי ואז לחצו על המקשים החדשים. Esc מבטל ו-Backspace מסיר את המקש. ⌘ הוא Command, ⌥ הוא Option."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
+msgstr "בחרו שינוי ואז לחצו על המקשים החדשים. Esc מבטל ו-Backspace מסיר את המקש. Ctrl הוא Control."
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/settings/FontsSection.tsx
@@ -1665,6 +1682,14 @@ msgstr "היסטוריה · הספר כולו"
 msgid "History of"
 msgstr "היסטוריה של"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold ⌘ or ⌥ together with the key."
+msgstr "החזיקו ⌘ או ⌥ יחד עם המקש."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold Ctrl or Alt together with the key."
+msgstr "החזיקו Ctrl או Alt יחד עם המקש."
+
 #: src/app/settings/Settings.tsx
 msgid "How wide the page is in the editor."
 msgstr "מה רוחב העמוד בעורך."
@@ -1882,14 +1907,6 @@ msgstr "להמשיך לעבוד"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Keep your research close"
 msgstr "שמור את המחקר שלך קרוב"
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option."
-msgstr "אי אפשר לשנות מקשים עדיין. ⌘ הוא Command‏, ⌥ הוא Option."
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. Ctrl is Control."
-msgstr "אי אפשר לשנות מקשים עדיין. Ctrl הוא Control."
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
@@ -2248,6 +2265,10 @@ msgstr "אין כותרת או פרק שמתאימים ל־“{q}”."
 msgid "No HTML found in the selection"
 msgstr "לא נמצא HTML בבחירה"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "No key"
+msgstr "ללא מקש"
+
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
 msgstr "אין התאמות"
@@ -2596,6 +2617,10 @@ msgstr "PNG, JPEG או WebP, עד 25 MB. עותק נשמר בתיקיית הנכ
 msgid "Preface"
 msgstr "פתח דבר"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Press the new keys…"
+msgstr "לחצו על המקשים החדשים…"
+
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
 msgstr "הפרק הקודם"
@@ -2861,6 +2886,18 @@ msgstr "הוחלפו {count} בספר"
 #: src/state/project/replace.ts
 msgid "Replaced {count} in the book, in {languages} languages"
 msgstr "הוחלפו {count} בספר, ב-{languages} שפות"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset"
+msgstr "איפוס"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset all"
+msgstr "איפוס הכול"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset shortcut for {action}"
+msgstr "איפוס קיצור המקשים של {action}"
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -3324,6 +3361,10 @@ msgstr "הקובץ הזה אינו גופן שמיש. בחר קובץ ‎.ttf א
 msgid "That file name is not valid"
 msgstr "שם הקובץ אינו תקין"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "That key cannot be used. Press another one."
+msgstr "אי אפשר להשתמש במקש הזה. לחצו על מקש אחר."
+
 #: src/app/export/PrintPreview.tsx
 msgid "That page is not in the book."
 msgstr "העמוד הזה אינו בספר."
@@ -3454,6 +3495,10 @@ msgstr "ה־PDF מקבל את אותם שולי חיתוך וסימני חיתו
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
 msgstr "הבחירה גדולה מדי להמרה"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "The system or the text keeps this key. Press another one."
+msgstr "המערכת או הטקסט שומרים על המקש הזה. לחצו על מקש אחר."
 
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so your manuscript font is used."

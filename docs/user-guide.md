@@ -136,7 +136,7 @@ When you open a book, the app checks each page. If its newest snapshot is clearl
 - **Conflicts.** If the same chapter changed in the app and elsewhere (a sync service, say) before the app could save, the other version is kept next to it as `<name>.conflict-DATE-TIME.json`.
 - **Your own backups.** A book is a folder, so copying it is a complete backup. Do this before big changes.
 
-The Shortcuts page in Settings is not built yet and appears greyed out. See [roadmap.md](roadmap.md).
+Settings > Shortcuts lists every key and lets you change them (see "Keyboard shortcuts" below).
 
 ## Importing a manuscript
 
@@ -240,7 +240,13 @@ On Windows and Linux use Ctrl where the table says Cmd.
 | Bold, italic, underline   | Cmd/Ctrl+B, Cmd/Ctrl+I, Cmd/Ctrl+U        |
 | Inline code               | Cmd/Ctrl+E                                |
 
-Everything else is in the menus. There is no way to change shortcuts yet.
+Everything else is in the menus.
+
+### Changing a shortcut
+
+Open Settings > Shortcuts. Choose **Change** on a row, then press the new keys. Esc cancels, and Backspace removes the key so the action has none. The new keys need Cmd/Ctrl or Alt (or be a function key), so they cannot be typed as text. If another action already uses the keys, the page says which one and keeps the old keys; choose another or change that action first. **Reset** on a row puts its default back, and **Reset all** puts every key back.
+
+Undo, Cut, Copy, Paste and Select All, Tab, Enter and the line break, and Escape in focus mode cannot be changed. Your changes belong to you, not to the book: they are kept in the app's preferences on this computer and are not in the project folder.
 
 ## Troubleshooting
 

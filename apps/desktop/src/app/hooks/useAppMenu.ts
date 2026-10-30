@@ -14,6 +14,7 @@ import {
 } from "../../state/commands";
 import { useLayout } from "../../state/layout";
 import { useQuickNav } from "../../state/quickNav";
+import { useSettings } from "../../state/editorPrefs";
 import { usePageView } from "./usePageView";
 import { buildMenuModel } from "../shell/menuModel";
 import { quitApp } from "../shell/quit";
@@ -250,12 +251,21 @@ export function useAppMenu(h: AppMenuHooks): void {
 
   // The native menu follows the registry: same structure, different availability and a few labels.
   const registry = useCommandRegistry();
+  const shortcuts = useSettings((s) => s.shortcutOverrides);
   const undoLabel = history.undo.at(-1)?.label ?? null;
   const redoLabel = history.redo.at(-1)?.label ?? null;
   const model = useMemo(
-    () => buildMenuModel({ mac: isMac(), commands: registry, recents, undoLabel, redoLabel }),
+    () =>
+      buildMenuModel({
+        mac: isMac(),
+        commands: registry,
+        recents,
+        undoLabel,
+        redoLabel,
+        shortcuts,
+      }),
     // The labels come from the current language, so a language change rebuilds the menu too.
-    [registry, recents, undoLabel, redoLabel, i18n.locale],
+    [registry, recents, undoLabel, redoLabel, shortcuts, i18n.locale],
   );
   useEffect(() => {
     void showNativeMenu(model, (id, arg) => runCommand(id, arg));

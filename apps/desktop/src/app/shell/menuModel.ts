@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import type { MatterKind } from "@cadabracraft/shared";
 import type { Commands } from "../../state/commands";
+import { acceleratorFromCombo, type Overrides } from "../../lib/shortcutCombo";
 
 /** What the native menu shows, as plain data. `nativeMenu.ts` turns it into the operating system's menu. */
 export type PredefinedKind =
@@ -44,6 +45,8 @@ export interface MenuContext {
   /** Label of the book-level edit that Undo / Redo would revert, e.g. "Add Chapter 2". */
   undoLabel: string | null;
   redoLabel: string | null;
+  /** The author's key changes (Settings > Shortcuts); a command that is not in it keeps the key written below. */
+  shortcuts?: Overrides;
 }
 
 const FRONT: MatterKind[] = [
@@ -123,17 +126,31 @@ export const MENU_RECENTS = 8;
  */
 export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
   const { commands } = ctx;
+  const overrides = ctx.shortcuts ?? {};
   const usable = (id: string) => commands[id] !== undefined && commands[id]!.enabled !== false;
-  const cmd = (id: string, text: string, accelerator?: string, arg?: string): MenuEntry => ({
-    kind: "command",
-    id,
-    text,
-    enabled: usable(id),
-    // Toggle items always carry a tick state, so their menu item keeps its type when the command appears or disappears.
-    ...(TOGGLES.has(id) ? { checked: commands[id]?.checked ?? false } : {}),
-    ...(accelerator ? { accelerator } : {}),
-    ...(arg === undefined ? {} : { arg }),
-  });
+  // Only a command that has a key of its own can be moved; the author's choice replaces it (null removes it).
+  const keyFor = (id: string, accelerator?: string): string | undefined => {
+    const moved =
+      accelerator !== undefined && Object.hasOwn(overrides, id) ? overrides[id] : undefined;
+    return moved === undefined
+      ? accelerator
+      : moved === null
+        ? undefined
+        : acceleratorFromCombo(moved);
+  };
+  const cmd = (id: string, text: string, defaultKey?: string, arg?: string): MenuEntry => {
+    const accelerator = keyFor(id, defaultKey);
+    return {
+      kind: "command",
+      id,
+      text,
+      enabled: usable(id),
+      // Toggle items always carry a tick state, so their menu item keeps its type when the command appears or disappears.
+      ...(TOGGLES.has(id) ? { checked: commands[id]?.checked ?? false } : {}),
+      ...(accelerator ? { accelerator } : {}),
+      ...(arg === undefined ? {} : { arg }),
+    };
+  };
   const sep: MenuEntry = { kind: "separator" };
   const pre = (item: PredefinedKind, text: string): MenuEntry => ({
     kind: "predefined",

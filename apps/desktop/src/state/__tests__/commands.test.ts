@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getCommands, modalOpen, registerCommands, runCommand } from "../commands";
+import {
+  getCommands,
+  modalOpen,
+  registerCommands,
+  runCommand,
+  setCapturingKeys,
+} from "../commands";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -9,6 +15,17 @@ describe("command registry", () => {
     const off = registerCommands({ "file.openRecent": { run } });
     expect(runCommand("file.openRecent", "/book")).toBe(true);
     expect(run).toHaveBeenCalledWith("/book");
+    off();
+  });
+
+  it("runs nothing while the shortcut settings wait for a key", () => {
+    const run = vi.fn();
+    const off = registerCommands({ "file.save": { run, global: true } });
+    setCapturingKeys(true);
+    expect(runCommand("file.save")).toBe(false);
+    setCapturingKeys(false);
+    expect(runCommand("file.save")).toBe(true);
+    expect(run).toHaveBeenCalledTimes(1);
     off();
   });
 

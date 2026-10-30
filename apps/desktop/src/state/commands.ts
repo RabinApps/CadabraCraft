@@ -29,10 +29,16 @@ export const getCommands = (): Commands => useRegistry.getState().commands;
 export const modalOpen = (): boolean =>
   typeof document !== "undefined" && document.querySelector("[role=dialog]") !== null;
 
+let capturingKeys = false;
+/** True while Settings > Shortcuts is waiting for a new key: no command may run, so pressing a key that is already used only records it. */
+export const setCapturingKeys = (on: boolean): void => {
+  capturingKeys = on;
+};
+
 /** Runs a command if it is registered and enabled and no dialog is open. Returns whether it ran. */
 export function runCommand(id: string, arg?: string): boolean {
   const c = getCommands()[id];
-  if (!c || c.enabled === false || (modalOpen() && !c.global)) return false;
+  if (capturingKeys || !c || c.enabled === false || (modalOpen() && !c.global)) return false;
   c.run(arg);
   return true;
 }

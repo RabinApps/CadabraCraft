@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { runCommand } from "../../state/commands";
 import { useQuickNav } from "../../state/quickNav";
+import { pressed } from "../settings/shortcutBindings";
 import { CommandPalette } from "./CommandPalette";
 import { OutlineNavigator } from "./OutlineNavigator";
 
@@ -15,9 +16,8 @@ export function QuickNav() {
   const last = useRef({ palette: 0, outline: 0 });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
-      const palette = e.code === "KeyK" && !e.shiftKey;
-      const outline = e.code === "KeyO" && e.shiftKey;
+      const palette = pressed(e, "view.palette");
+      const outline = pressed(e, "view.outline");
       if (!palette && !outline) return;
       e.preventDefault();
       const which = palette ? "palette" : "outline";

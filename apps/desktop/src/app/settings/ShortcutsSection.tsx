@@ -1,18 +1,84 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
+import { Button } from "../../ui/Button";
 import { Field } from "../../ui/Input";
 import { isMac } from "../../lib/platform";
+import { captureKey, comboProblem, MODIFIER_KEYS } from "../../lib/shortcutCombo";
+import { setCapturingKeys } from "../../state/commands";
+import { useSettings } from "../../state/editorPrefs";
+import { applyOverrides, findConflict, withBinding, withoutBinding } from "./shortcutBindings";
 import { buildShortcuts, groupRows, shortcutRows } from "./shortcutList";
 import { KeyCombo } from "./KeyCombo";
 
-/** Settings > Shortcuts: every key the app answers to, searchable by action or by key. Read-only; keys are not rebindable. */
+/** While `active`, every key goes to `onKey` and nowhere else (not to the editor, not to the app's commands). */
+function useKeyCapture(active: boolean, onKey: (e: KeyboardEvent) => void) {
+  useEffect(() => {
+    if (!active) return;
+    setCapturingKeys(true);
+    const listener = (e: KeyboardEvent) => {
+      if (MODIFIER_KEYS.has(e.key)) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      onKey(e);
+    };
+    window.addEventListener("keydown", listener, true);
+    return () => {
+      window.removeEventListener("keydown", listener, true);
+      setCapturingKeys(false);
+    };
+  }, [active, onKey]);
+}
+
+/**
+ * Settings > Shortcuts: every key the app answers to, searchable by action or by key. "Change" on a row waits for the new keys
+ * (Esc cancels, Backspace removes the key), "Reset" puts one back and "Reset all" puts them all back. Keys that belong to the
+ * system or to the structure of the text (Undo, Copy, Tab, Enter...) are listed but fixed. Changes are kept in the app
+ * preferences, not in the book.
+ */
 export function ShortcutsSection({ title }: { title: string }) {
   const { t } = useLingui();
   const [query, setQuery] = useState("");
+  const [recording, setRecording] = useState<string | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  const overrides = useSettings((s) => s.shortcutOverrides);
+  const set = useSettings((s) => s.set);
   const mac = isMac();
-  // Rebuilt when the language changes (the labels come from the active catalog).
-  const rows = useMemo(() => shortcutRows(buildShortcuts(), mac), [mac, title]);
+  // Rebuilt when the language changes (the labels come from the active catalog) or a key changes.
+  const list = useMemo(() => applyOverrides(buildShortcuts(), overrides), [overrides, title]);
+  const rows = useMemo(() => shortcutRows(list, mac), [list, mac]);
   const groups = groupRows(rows, query);
+  const changed = Object.keys(overrides).length > 0;
+
+  const stop = () => {
+    setRecording(null);
+    setProblem(null);
+  };
+  const save = (id: string, combo: string | null) => {
+    set({ shortcutOverrides: withBinding(overrides, id, combo) });
+    stop();
+  };
+  const onKey = (e: KeyboardEvent) => {
+    if (recording === null) return;
+    const key = captureKey(e);
+    if (key.kind === "ignore") return;
+    if (key.kind === "cancel") return stop();
+    if (key.kind === "clear") return save(recording, null);
+    if (key.kind === "none") return setProblem(t`That key cannot be used. Press another one.`);
+    if (comboProblem(key.combo))
+      return setProblem(
+        mac ? t`Hold ⌘ or ⌥ together with the key.` : t`Hold Ctrl or Alt together with the key.`,
+      );
+    const conflict = findConflict(list, recording, key.combo, mac);
+    if (!conflict) return save(recording, key.combo);
+    const owner = conflict.kind === "shortcut" ? conflict.action : "";
+    setProblem(
+      conflict.kind === "shortcut"
+        ? t`Already used by “${owner}”. Press another key.`
+        : t`The system or the text keeps this key. Press another one.`,
+    );
+  };
+  useKeyCapture(recording !== null, onKey);
+
   return (
     <section
       id="shortcuts"
@@ -24,17 +90,31 @@ export function ShortcutsSection({ title }: { title: string }) {
       </h2>
       <p className="text-xs text-ink-muted">
         {mac
-          ? t`Keys cannot be changed yet. ⌘ is Command, ⌥ is Option.`
-          : t`Keys cannot be changed yet. Ctrl is Control.`}
+          ? t`Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option.`
+          : t`Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control.`}
       </p>
-      <Field
-        label={t`Search shortcuts`}
-        hideLabel
-        type="search"
-        placeholder={t`Search by action or key`}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <div className="flex items-end gap-3">
+        <div className="min-w-0 flex-1">
+          <Field
+            label={t`Search shortcuts`}
+            hideLabel
+            type="search"
+            placeholder={t`Search by action or key`}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <Button
+          size="sm"
+          disabled={!changed}
+          onClick={() => {
+            stop();
+            set({ shortcutOverrides: {} });
+          }}
+        >
+          {t`Reset all`}
+        </Button>
+      </div>
       {groups.length === 0 ? (
         <p
           role="status"
@@ -49,19 +129,60 @@ export function ShortcutsSection({ title }: { title: string }) {
               {g.label}
             </h3>
             <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-surface">
-              {g.rows.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex items-center justify-between gap-4 px-4 py-2.5 text-sm"
-                >
-                  <span className="min-w-0">{r.action}</span>
-                  <span className="flex shrink-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
-                    {r.combos.map((keys, i) => (
-                      <KeyCombo key={i} keys={keys} />
-                    ))}
-                  </span>
-                </li>
-              ))}
+              {g.rows.map((r) => {
+                const waiting = recording === r.id;
+                const action = r.action;
+                return (
+                  <li key={r.id} className="flex flex-col gap-1 px-4 py-2.5 text-sm">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="min-w-0">{r.action}</span>
+                      <span className="flex shrink-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
+                        {waiting ? (
+                          <span className="text-ink-muted">{t`Press the new keys…`}</span>
+                        ) : r.combos.length === 0 ? (
+                          <span className="text-ink-muted">{t`No key`}</span>
+                        ) : (
+                          r.combos.map((keys, i) => <KeyCombo key={i} keys={keys} />)
+                        )}
+                        {r.rebindable && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              aria-label={t`Change shortcut for ${action}`}
+                              aria-pressed={waiting}
+                              onClick={() => {
+                                setProblem(null);
+                                setRecording(waiting ? null : r.id);
+                              }}
+                            >
+                              {t`Change`}
+                            </Button>
+                            {Object.hasOwn(overrides, r.id) && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                aria-label={t`Reset shortcut for ${action}`}
+                                onClick={() => {
+                                  stop();
+                                  set({ shortcutOverrides: withoutBinding(overrides, r.id) });
+                                }}
+                              >
+                                {t`Reset`}
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </span>
+                    </div>
+                    {waiting && problem && (
+                      <p role="alert" className="text-xs text-danger">
+                        {problem}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))
