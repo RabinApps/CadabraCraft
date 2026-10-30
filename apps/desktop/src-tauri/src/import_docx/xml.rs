@@ -9,12 +9,63 @@ use super::error::{ImportError, ImportErrorCode};
 use super::text::is_js_space;
 use quick_xml::events::{BytesStart, Event};
 use quick_xml::Reader;
+use std::cell::Cell;
 use std::rc::Rc;
 
 /// fast-xml-parser refuses more than 101 open elements ("Maximum nested tags exceeded").
 const MAX_OPEN_ELEMENTS: usize = 101;
 /// Recursion limit of the tree walks (`MAX_XML_DEPTH` in `docx/xml.ts`).
 pub const MAX_XML_DEPTH: usize = 100;
+
+/// What one import may build as XML trees, summed over every part (a `<w:p/>` is about 150 bytes of tree, so the defaults
+/// keep the trees of a hostile archive near 300 MB however the 200 MB of archive is spent).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct XmlLimits {
+    pub max_elements: usize,
+    pub max_attributes: usize,
+    /// Bytes of character data (after entity decoding).
+    pub max_text_bytes: usize,
+    /// Attributes on one element. Each new attribute is compared with the earlier ones, so this also bounds that quadratic scan.
+    pub max_attributes_per_element: usize,
+}
+
+impl Default for XmlLimits {
+    fn default() -> XmlLimits {
+        XmlLimits { max_elements: 2_000_000, max_attributes: 4_000_000, max_text_bytes: 64 * 1024 * 1024, max_attributes_per_element: 256 }
+    }
+}
+
+/// Running totals against [`XmlLimits`], shared by every `parse_xml_in` call of one import.
+#[derive(Debug, Default)]
+pub struct XmlBudget {
+    limits: XmlLimits,
+    elements: Cell<usize>,
+    attributes: Cell<usize>,
+    text: Cell<usize>,
+}
+
+impl XmlBudget {
+    pub fn new(limits: XmlLimits) -> XmlBudget {
+        XmlBudget { limits, ..XmlBudget::default() }
+    }
+    fn spend(counter: &Cell<usize>, n: usize, max: usize, what: &str, label: &str) -> Result<(), ImportError> {
+        let total = counter.get().saturating_add(n);
+        counter.set(total);
+        if total > max {
+            return Err(ImportError::new(ImportErrorCode::TooManyNodes, format!("{label} is too big to read: the document has more than {max} {what}.")));
+        }
+        Ok(())
+    }
+    fn element(&self, label: &str) -> Result<(), ImportError> {
+        Self::spend(&self.elements, 1, self.limits.max_elements, "elements", label)
+    }
+    fn attribute(&self, label: &str) -> Result<(), ImportError> {
+        Self::spend(&self.attributes, 1, self.limits.max_attributes, "attributes", label)
+    }
+    fn text(&self, n: usize, label: &str) -> Result<(), ImportError> {
+        Self::spend(&self.text, n, self.limits.max_text_bytes, "bytes of text", label)
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum XNode {
@@ -181,7 +232,8 @@ fn resolve_ref(name: &str) -> Option<String> {
     }
 }
 
-fn open_element(e: &BytesStart<'_>, label: &str) -> Result<Element, ImportError> {
+fn open_element(e: &BytesStart<'_>, label: &str, budget: &XmlBudget) -> Result<Element, ImportError> {
+    budget.element(label)?;
     let full = e.name().as_ref().to_string();
     if !valid_name(&full) {
         return Err(invalid(label, format!("tag '{full}' is an invalid name")));
@@ -189,6 +241,10 @@ fn open_element(e: &BytesStart<'_>, label: &str) -> Result<Element, ImportError>
     let mut attrs: Vec<(String, String)> = Vec::new();
     for a in e.attributes() {
         let a = a.map_err(|err| invalid(label, err))?;
+        budget.attribute(label)?;
+        if attrs.len() >= budget.limits.max_attributes_per_element {
+            return Err(ImportError::new(ImportErrorCode::TooManyNodes, format!("{label} has an element with more than {} attributes.", budget.limits.max_attributes_per_element)));
+        }
         let key = a.key.as_ref();
         if !valid_name(key) {
             return Err(invalid(label, format!("attribute '{key}' is an invalid name")));
@@ -205,8 +261,17 @@ fn open_element(e: &BytesStart<'_>, label: &str) -> Result<Element, ImportError>
     Ok(Element { name: local(&full).to_string(), attrs, kids: Vec::new() })
 }
 
-/// Parses an XML part into its top-level elements. Any well-formedness problem is `invalid-xml`; `label` names the part.
+/// [`parse_xml_in`] with a budget of its own (the default limits), for one part on its own.
+#[cfg(test)]
 pub fn parse_xml(bytes: &[u8], label: &str) -> Result<Vec<XNode>, ImportError> {
+    parse_xml_in(bytes, label, &XmlBudget::default())
+}
+
+/// Parses an XML part into its top-level elements. Any well-formedness problem is `invalid-xml`; `label` names the part.
+/// Elements, attributes and text are counted against `budget` as they are built, so a part that would not fit fails
+/// (`too-many-nodes`) before its tree exists instead of after it has used the memory. `bytes` is borrowed as UTF-8 when it
+/// is valid (the usual case); only invalid UTF-8 is copied, with U+FFFD in place of the bad bytes.
+pub fn parse_xml_in(bytes: &[u8], label: &str, budget: &XmlBudget) -> Result<Vec<XNode>, ImportError> {
     // Lossy UTF-8, then any leading byte-order marks removed (the decoder drops one, the importer then drops another).
     let decoded = String::from_utf8_lossy(bytes);
     let src = decoded.strip_prefix('\u{feff}').unwrap_or(&decoded);
@@ -222,9 +287,10 @@ pub fn parse_xml(bytes: &[u8], label: &str) -> Result<Vec<XNode>, ImportError> {
             None => roots.push(XNode::El(Rc::new(n))),
         }
     }
-    fn push_text(stack: &mut [Element], text: &str, label: &str) -> Result<(), ImportError> {
+    fn push_text(stack: &mut [Element], text: &str, label: &str, budget: &XmlBudget) -> Result<(), ImportError> {
         match stack.last_mut() {
             Some(parent) => {
+                budget.text(text.len(), label)?;
                 match parent.kids.last_mut() {
                     Some(XNode::Text(t)) => t.push_str(text),
                     _ => parent.kids.push(XNode::Text(text.to_string())),
@@ -243,10 +309,10 @@ pub fn parse_xml(bytes: &[u8], label: &str) -> Result<Vec<XNode>, ImportError> {
                 if stack.len() >= MAX_OPEN_ELEMENTS {
                     return Err(ImportError::new(ImportErrorCode::InvalidXml, format!("{label} could not be parsed (Maximum nested tags exceeded).")));
                 }
-                stack.push(open_element(&e, label)?);
+                stack.push(open_element(&e, label, budget)?);
             }
             Event::Empty(e) => {
-                let el = open_element(&e, label)?;
+                let el = open_element(&e, label, budget)?;
                 push_node(&mut stack, &mut roots, el);
             }
             Event::End(_) => {
@@ -254,12 +320,12 @@ pub fn parse_xml(bytes: &[u8], label: &str) -> Result<Vec<XNode>, ImportError> {
                 let el = stack.pop().ok_or_else(|| invalid(label, "unexpected closing tag"))?;
                 push_node(&mut stack, &mut roots, el);
             }
-            Event::Text(t) => push_text(&mut stack, &t.xml10_content(), label)?,
-            Event::CData(t) => push_text(&mut stack, &t.xml10_content(), label)?,
+            Event::Text(t) => push_text(&mut stack, &t.xml10_content(), label, budget)?,
+            Event::CData(t) => push_text(&mut stack, &t.xml10_content(), label, budget)?,
             Event::GeneralRef(r) => {
                 let name = r.into_inner();
                 let text = resolve_ref(&name).unwrap_or_else(|| format!("&{name};"));
-                push_text(&mut stack, &text, label)?;
+                push_text(&mut stack, &text, label, budget)?;
             }
             Event::Eof => break,
             Event::Decl(_) | Event::PI(_) | Event::Comment(_) | Event::DocType(_) => {}

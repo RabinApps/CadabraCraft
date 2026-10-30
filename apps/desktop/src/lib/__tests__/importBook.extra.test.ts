@@ -138,6 +138,7 @@ describe("parseText failures", () => {
     ["too-many-entries", /too many parts/],
     ["missing-document", /no document body/],
     ["invalid-xml", /could not be read/],
+    ["too-many-nodes", /too much content/],
     ["input-too-large", /file is too large/],
     ["too-deeply-nested", /nested too deeply/],
   ];

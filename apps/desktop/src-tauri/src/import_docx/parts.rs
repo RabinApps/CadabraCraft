@@ -3,7 +3,7 @@
 use super::archive::Files;
 use super::error::ImportError;
 use super::text::{js_number, js_trim, level_key};
-use super::xml::{attr, child, child_val, children_named, find_root, on, parse_xml, XNode};
+use super::xml::{attr, child, child_val, children_named, find_root, on, parse_xml_in, XNode, XmlBudget};
 use std::collections::HashMap;
 use std::rc::Rc;
 
@@ -31,10 +31,10 @@ impl Rels {
     }
 }
 
-pub fn parse_rels(bytes: Option<&[u8]>, label: &str) -> Result<Rels, ImportError> {
+pub fn parse_rels(bytes: Option<&[u8]>, label: &str, budget: &XmlBudget) -> Result<Rels, ImportError> {
     let mut rels = Rels::default();
     let Some(bytes) = bytes else { return Ok(rels) };
-    let roots = parse_xml(bytes, label)?;
+    let roots = parse_xml_in(bytes, label, budget)?;
     let Some(root) = find_root(&roots, "Relationships") else { return Ok(rels) };
     for r in children_named(root, "Relationship") {
         if let (Some(id), Some(target)) = (attr(r, "Id"), attr(r, "Target")) {
@@ -228,11 +228,12 @@ pub struct Note {
 }
 
 /// Footnotes and endnotes by `<kind>:<id>`, skipping separators and continuation notices.
-pub fn collect_notes(files: &Files) -> Result<HashMap<String, Note>, ImportError> {
+pub fn collect_notes(files: &mut Files, budget: &XmlBudget) -> Result<HashMap<String, Note>, ImportError> {
     let mut notes = HashMap::new();
     for (part, tag, kind, prefix) in [("word/footnotes.xml", "footnotes", "footnote", "footnote"), ("word/endnotes.xml", "endnotes", "endnote", "endnote")] {
-        let Some(bytes) = files.get(part) else { continue };
-        let roots = parse_xml(bytes, part)?;
+        let Some(bytes) = files.take(part) else { continue };
+        let roots = parse_xml_in(&bytes, part, budget)?;
+        drop(bytes);
         let Some(root) = find_root(&roots, tag) else { continue };
         for el in children_named(root, kind) {
             let ty = attr(el, "type");
@@ -250,6 +251,8 @@ pub fn collect_notes(files: &Files) -> Result<HashMap<String, Note>, ImportError
 mod tests {
     use super::*;
 
+    use crate::import_docx::xml::parse_xml;
+
     fn xml(s: &str) -> Vec<XNode> {
         parse_xml(s.as_bytes(), "t.xml").unwrap()
     }
@@ -259,14 +262,15 @@ mod tests {
         let r = parse_rels(
             Some(br#"<Relationships><Relationship Id="a" Target="x.xml"/><Relationship Id="b" Target="http://e/" TargetMode="External"/><Relationship Id="a" Target="y.xml"/><Relationship Target="no-id"/><Relationship Id="c"/><Relationship Id="" Target="e"/><Relationship Id="d" Target=""/></Relationships>"#),
             "r",
+            &XmlBudget::default(),
         )
         .unwrap();
         assert_eq!(r.iter().map(|x| x.target.as_str()).collect::<Vec<_>>(), ["y.xml", "http://e/"]);
         assert!(r.get("b").unwrap().external && !r.get("a").unwrap().external);
         assert!(r.get("c").is_none());
-        assert_eq!(parse_rels(None, "r").unwrap().iter().count(), 0);
-        assert_eq!(parse_rels(Some(b"<other/>"), "r").unwrap().iter().count(), 0);
-        assert!(parse_rels(Some(b"<Relationships>"), "r").is_err());
+        assert_eq!(parse_rels(None, "r", &XmlBudget::default()).unwrap().iter().count(), 0);
+        assert_eq!(parse_rels(Some(b"<other/>"), "r", &XmlBudget::default()).unwrap().iter().count(), 0);
+        assert!(parse_rels(Some(b"<Relationships>"), "r", &XmlBudget::default()).is_err());
     }
 
     #[test]
@@ -388,14 +392,17 @@ mod tests {
             br#"<w:footnotes><w:footnote w:type="separator" w:id="-1"/><w:footnote w:id="1"><w:p/></w:footnote><w:footnote w:type="normal" w:id="2"/><w:footnote w:type="continuationNotice" w:id="3"/><w:footnote/></w:footnotes>"#.to_vec(),
         );
         files.insert("word/endnotes.xml", br#"<w:endnotes><w:endnote w:id="1"/></w:endnotes>"#.to_vec());
-        let n = collect_notes(&files).unwrap();
+        let n = collect_notes(&mut files, &XmlBudget::default()).unwrap();
         let mut keys: Vec<_> = n.keys().cloned().collect();
         keys.sort();
         assert_eq!(keys, ["endnote:1", "footnote:1", "footnote:2"]);
+        // The parts were taken (and freed) by the first call.
+        assert_eq!(files.get("word/footnotes.xml"), Some(&b""[..]));
         files.insert("word/footnotes.xml", b"<other/>".to_vec());
-        assert_eq!(collect_notes(&files).unwrap().len(), 1);
+        files.insert("word/endnotes.xml", br#"<w:endnotes><w:endnote w:id="1"/></w:endnotes>"#.to_vec());
+        assert_eq!(collect_notes(&mut files, &XmlBudget::default()).unwrap().len(), 1);
         files.insert("word/endnotes.xml", b"<w:endnotes>".to_vec());
-        assert!(collect_notes(&files).is_err());
-        assert!(collect_notes(&Files::default()).unwrap().is_empty());
+        assert!(collect_notes(&mut files, &XmlBudget::default()).is_err());
+        assert!(collect_notes(&mut Files::default(), &XmlBudget::default()).unwrap().is_empty());
     }
 }

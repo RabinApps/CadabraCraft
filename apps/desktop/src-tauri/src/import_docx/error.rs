@@ -9,6 +9,8 @@ pub enum ImportErrorCode {
     ArchiveTooLarge,
     MissingDocument,
     InvalidXml,
+    /// An XML part has more elements, attributes or text than the importer will build a tree for.
+    TooManyNodes,
 }
 
 impl ImportErrorCode {
@@ -20,6 +22,7 @@ impl ImportErrorCode {
             ImportErrorCode::ArchiveTooLarge => "archive-too-large",
             ImportErrorCode::MissingDocument => "missing-document",
             ImportErrorCode::InvalidXml => "invalid-xml",
+            ImportErrorCode::TooManyNodes => "too-many-nodes",
         }
     }
 }
@@ -57,6 +60,7 @@ mod tests {
             (ImportErrorCode::ArchiveTooLarge, "archive-too-large"),
             (ImportErrorCode::MissingDocument, "missing-document"),
             (ImportErrorCode::InvalidXml, "invalid-xml"),
+            (ImportErrorCode::TooManyNodes, "too-many-nodes"),
         ];
         for (c, s) in all {
             assert_eq!(c.as_str(), s);
