@@ -6,6 +6,7 @@ import { Node as PMNode } from "@tiptap/pm/model";
 import {
   errMsg,
   isAssetPath,
+  isLangTag,
   normalizeLinkUrl,
   safeHref,
   type ChapterDoc,
@@ -40,6 +41,21 @@ export const Subscript = Mark.create({
   excludes: "superscript",
   parseHTML: () => [{ tag: "sub" }],
   renderHTML: ({ HTMLAttributes }) => ["sub", HTMLAttributes, 0],
+});
+
+/**
+ * The language of a passage when it differs from the book's (WCAG 3.1.2 Language of Parts): `attrs.lang` is a BCP 47 tag
+ * (letters, digits and hyphens, at most 35 characters). Not inclusive, so typing after the passage goes back to the book's language.
+ * A second `lang` mark on the same text replaces the first.
+ */
+export const Lang = Mark.create({
+  name: "lang",
+  inclusive: false,
+  addAttributes: () => ({ lang: { default: null } }),
+  parseHTML: () => [
+    { tag: "span[lang]", getAttrs: (el) => (isLangTag(el.getAttribute("lang")) ? null : false) },
+  ],
+  renderHTML: ({ HTMLAttributes }) => ["span", HTMLAttributes, 0],
 });
 
 /** Inline footnote; its text lives in the node content. */
@@ -260,6 +276,7 @@ export const extensions = [
   SmallCaps,
   Superscript,
   Subscript,
+  Lang,
   Footnote,
   BookTable,
   BookTableRow,
@@ -354,11 +371,14 @@ export function chapterDocProblem(doc: unknown): string | null {
   let badHref: string | null = null;
   let badChecked = false;
   let badDecorative = false;
+  let badLang: unknown = null;
   const walk = (n: RawNode) => {
     if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
     for (const m of n.marks ?? [])
       if (m.type === "link" && safeHref(String(m.attrs?.href ?? "")) === null)
         badHref ??= String(m.attrs?.href ?? "");
+    for (const m of n.marks ?? [])
+      if (m.type === "lang" && !isLangTag(m.attrs?.lang)) badLang ??= m.attrs?.lang ?? "";
     if (
       n.type === "taskItem" &&
       n.attrs?.checked !== undefined &&
@@ -378,6 +398,8 @@ export function chapterDocProblem(doc: unknown): string | null {
   if (bad !== null) return `heading level ${String(bad)} is not allowed (levels 1-3 only)`;
   if (badHref !== null)
     return `link ${JSON.stringify(badHref)} is not allowed (only http, https and mailto links)`;
+  if (badLang !== null)
+    return `language ${JSON.stringify(badLang)} is not allowed (a BCP 47 tag of letters, digits and hyphens, at most 35 characters)`;
   if (badChecked) return "a task item's checked value must be true or false";
   if (badDecorative) return "an image's decorative value must be true or false";
   return tableBad;

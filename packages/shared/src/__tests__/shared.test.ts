@@ -8,6 +8,8 @@ import {
   isAssetPath,
   isBackMatterKind,
   isFrontMatterKind,
+  isLangTag,
+  langAndRegion,
   textDirection,
   wordStarts,
 } from "../index";
@@ -108,5 +110,35 @@ describe("wordStarts", () => {
     // A footnote of n positions is part of no word: it takes room but starts nothing and ends nothing.
     expect(wordStarts(["one", 5, "two three"])).toEqual([0, 12]);
     expect(wordStarts(["one ", 4, " two"])).toEqual([0, 9]);
+  });
+});
+
+describe("language tags", () => {
+  it("accepts letters, digits and single hyphens up to 35 characters", () => {
+    for (const t of ["fr", "fr-CA", "zh-Hans-CN", "es-419", "a".repeat(35)])
+      expect(isLangTag(t)).toBe(true);
+  });
+  it("rejects everything else", () => {
+    for (const t of [
+      "",
+      "fr_CA",
+      "-fr",
+      "fr-",
+      "fr--CA",
+      "fr CA",
+      'fr"',
+      "a".repeat(36),
+      5,
+      null,
+      undefined,
+    ])
+      expect(isLangTag(t)).toBe(false);
+  });
+  it("splits a tag into language and region the way Typst takes them", () => {
+    expect(langAndRegion("FR")).toEqual({ lang: "fr" });
+    expect(langAndRegion("fr-ca")).toEqual({ lang: "fr", region: "CA" });
+    expect(langAndRegion("zh-Hans-CN")).toEqual({ lang: "zh" });
+    expect(langAndRegion("x-klingon")).toBeNull();
+    expect(langAndRegion("")).toBeNull();
   });
 });

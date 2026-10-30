@@ -1,4 +1,4 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { isLangTag, type DocNode, type Mark } from "@cadabracraft/shared";
 import { codeSpan, escapeText, linkDestination } from "./escape";
 import { MarkdownExportError, type Ctx, type Item, type Where } from "./types";
 
@@ -10,6 +10,7 @@ const MARK_ORDER: Mark["type"][] = [
   "strike",
   "underline",
   "smallCaps",
+  "lang",
   "superscript",
   "subscript",
   "code",
@@ -22,7 +23,11 @@ const HTML_MARKS: Partial<Record<Mark["type"], [string, string]>> = {
 };
 
 const sameMark = (a: Mark | undefined, b: Mark | undefined): boolean =>
-  !!a && !!b && a.type === b.type && (a.attrs?.href ?? "") === (b.attrs?.href ?? "");
+  !!a &&
+  !!b &&
+  a.type === b.type &&
+  (a.attrs?.href ?? "") === (b.attrs?.href ?? "") &&
+  (a.attrs?.lang ?? "") === (b.attrs?.lang ?? "");
 
 function canonicalMarks(marks: Mark[] | undefined, ctx: Ctx): Mark[] {
   const seen = new Set<string>();
@@ -38,6 +43,12 @@ function canonicalMarks(marks: Mark[] | undefined, ctx: Ctx): Mark[] {
     }
     if (m.type === "link" && !m.attrs?.href)
       throw new MarkdownExportError("A link mark without an href cannot be written");
+    if (m.type === "lang") {
+      if (!isLangTag(m.attrs?.lang))
+        throw new MarkdownExportError("The language of a passage must be a BCP 47 tag");
+      // Markdown has no syntax for a language: without the HTML option the passage is plain text.
+      if (!ctx.opts.htmlMarks) continue;
+    }
     if (seen.has(m.type)) continue;
     seen.add(m.type);
     out.push(m);
@@ -101,7 +112,10 @@ function renderItems(items: Item[], ctx: Ctx, where: Where, atStart: boolean): s
         const d = out.endsWith("*") || nm === "bold" || nm === "italic" ? "_" : "*";
         out += wrap(inner, d, d);
       } else {
-        const [open, close] = HTML_MARKS[mark.type]!;
+        const [open, close] =
+          mark.type === "lang"
+            ? [`<span lang="${mark.attrs!.lang}">`, "</span>"]
+            : HTML_MARKS[mark.type]!;
         out += wrap(inner, open, close);
       }
     }

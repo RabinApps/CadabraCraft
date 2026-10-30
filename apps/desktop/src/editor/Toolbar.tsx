@@ -13,6 +13,7 @@ import {
   Image as ImageIcon,
   SquarePen,
   Italic,
+  Languages,
   Link,
   List,
   ListOrdered,
@@ -28,8 +29,10 @@ import { IconButton } from "../ui/Button";
 import { useRegisterCommands } from "../state/commands";
 import { attempt } from "../state/attempt";
 import { TableCommands } from "./TableCommands";
-import { ImageDialog, LinkDialog } from "./ToolbarDialogs";
+import { ImageDialog, LangDialog, LinkDialog } from "./ToolbarDialogs";
 import { useImageDialog } from "./useImageDialog";
+import { insertDefinitionList } from "./insertDefinitionList";
+import { useLangDialog } from "./useLangDialog";
 
 interface Item {
   id: string;
@@ -56,6 +59,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
       subscript: e.isActive("subscript"),
       codeBlock: e.isActive("codeBlock"),
       link: e.isActive("link"),
+      lang: e.isActive("lang"),
       h1: e.isActive("heading", { level: 1 }),
       h2: e.isActive("heading", { level: 2 }),
       h3: e.isActive("heading", { level: 3 }),
@@ -75,6 +79,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const [linkError, setLinkError] = useState("");
 
   const { image, setImage, addImage, editImage, applyImage } = useImageDialog(editor, c);
+  const lang = useLangDialog(editor, c);
 
   const setLink = () => {
     if (s.link) {
@@ -234,27 +239,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
       label: t`Definition list`,
       icon: List,
       active: s.definitionList,
-      run: () => {
-        const ran = c()
-          .insertContent({
-            type: "definitionList",
-            content: [
-              { type: "definitionTerm" },
-              { type: "definitionDescription", content: [{ type: "paragraph" }] },
-            ],
-          })
-          .run();
-        // The caret lands after the inserted node; put it in the empty term nearest to it so typing fills the term first.
-        const { doc, selection } = editor.state;
-        let term = -1;
-        doc.descendants((n, pos) => {
-          if (n.type.name === "definitionTerm" && n.content.size === 0)
-            if (term < 0 || Math.abs(pos - selection.head) < Math.abs(term - selection.head))
-              term = pos + 1;
-        });
-        if (term >= 0) c().setTextSelection(term).run();
-        return ran;
-      },
+      run: () => insertDefinitionList(editor),
     },
     {
       id: "strike",
@@ -283,6 +268,20 @@ export function Toolbar({ editor }: { editor: Editor }) {
       icon: Superscript,
       active: s.subscript,
       run: () => c().toggleMark("subscript").run(),
+    },
+    {
+      id: "lang",
+      label: t`Language of selection…`,
+      icon: Languages,
+      active: s.lang,
+      run: lang.openLang,
+    },
+    {
+      id: "clearLang",
+      label: t`Clear language`,
+      icon: Languages,
+      disabled: !s.lang,
+      run: lang.clearLang,
     },
     {
       id: "codeBlock",
@@ -379,6 +378,15 @@ export function Toolbar({ editor }: { editor: Editor }) {
           if (next === null) editor.commands.focus();
         }}
         onInsert={applyImage}
+      />
+      <LangDialog
+        draft={lang.draft}
+        setDraft={(next) => {
+          lang.setDraft(next);
+          if (next === null) editor.commands.focus();
+        }}
+        onApply={lang.applyLang}
+        onClear={lang.clearLang}
       />
       <TableCommands editor={editor} />
       <LinkDialog

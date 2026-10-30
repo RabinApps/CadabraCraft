@@ -4,6 +4,7 @@ import {
   BookTableHeader,
   CaptionedImage,
   Footnote,
+  Lang,
   SceneBreak,
   SmallCaps,
   Subscript,
@@ -33,6 +34,20 @@ describe("node and mark specs", () => {
   ])("%# mark parses %s and renders %s", (ext, tag, el, attrs) => {
     expect(call(ext, "parseHTML")).toEqual([{ tag }]);
     expect(call(ext, "renderHTML", { HTMLAttributes: { id: "a" } })).toEqual([el, attrs, 0]);
+  });
+
+  it("lang mark parses a span with a valid lang and renders the attribute", () => {
+    const [rule] = call(Lang, "parseHTML") as { tag: string; getAttrs: (el: unknown) => unknown }[];
+    expect(rule!.tag).toBe("span[lang]");
+    const el = (lang: string) => ({ getAttribute: () => lang });
+    expect(rule!.getAttrs(el("fr"))).toBeNull();
+    expect(rule!.getAttrs(el("not a tag"))).toBe(false);
+    expect(call(Lang, "renderHTML", { HTMLAttributes: { lang: "fr" } })).toEqual([
+      "span",
+      { lang: "fr" },
+      0,
+    ]);
+    expect(call(Lang, "addAttributes")).toEqual({ lang: { default: null } });
   });
 
   it.each([BookTableCell, BookTableHeader])("%# cells fix colspan and rowspan at 1", (ext) => {

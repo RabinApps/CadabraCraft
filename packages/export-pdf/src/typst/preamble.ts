@@ -1,3 +1,4 @@
+import { langAndRegion } from "@cadabracraft/shared";
 import type { PrintHeadingStyle, Template } from "@cadabracraft/templates";
 import { typstString } from "../escape";
 import { PdfExportError } from "../errors";
@@ -43,9 +44,9 @@ export function preamble(
   }
   const geo = pageGeometry(trim, margins, mirrored, options);
 
-  const langMatch = /^([A-Za-z]{2,3})(?:[-_]([A-Za-z]{2})(?![A-Za-z]))?/.exec(book.language ?? "");
-  const lang = langMatch
-    ? `, lang: ${typstString(langMatch[1]!.toLowerCase())}${langMatch[2] ? `, region: ${typstString(langMatch[2].toUpperCase())}` : ""}`
+  const lr = langAndRegion(book.language ?? "");
+  const lang = lr
+    ? `, lang: ${typstString(lr.lang)}${lr.region ? `, region: ${typstString(lr.region)}` : ""}`
     : "";
 
   const r = p.runningText;

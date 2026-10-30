@@ -16,8 +16,10 @@ export interface Mark {
     | "code"
     | "superscript"
     | "subscript"
-    | "link";
-  attrs?: { href?: string };
+    | "link"
+    | "lang";
+  /** `href` belongs to `link`; `lang` (a BCP 47 tag) to the `lang` mark. */
+  attrs?: { href?: string; lang?: string };
 }
 
 export type DocNode =

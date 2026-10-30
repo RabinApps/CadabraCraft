@@ -332,6 +332,19 @@ describe("marks", () => {
     expect(md).toBe('<u>a</u><span class="small-caps">b</span><sup>c</sup><sub>d</sub>\n');
   });
 
+  it("writes the language of a passage as a span with htmlMarks and as plain text without", () => {
+    const lang = (tag: string): Mark => ({ type: "lang", attrs: { lang: tag } });
+    const d = doc(
+      p(t("a "), t("bonjour", lang("fr")), t(" salut", lang("fr")), t("hi", lang("en"))),
+    );
+    expect(chapterToMarkdown(d, { htmlMarks: true })).toBe(
+      'a <span lang="fr">bonjour salut</span><span lang="en">hi</span>\n',
+    );
+    expect(chapterToMarkdown(d)).toBe("a bonjour salut" + "hi\n");
+    for (const mark of [{ type: "lang" } as Mark, lang("a b")])
+      expect(() => chapterToMarkdown(doc(p(t("x", mark))))).toThrow(/BCP 47/);
+  });
+
   it("throws on unknown marks and nodes instead of dropping them", () => {
     expect(() =>
       chapterToMarkdown(doc(p(t("x", { type: "highlight" } as unknown as Mark)))),

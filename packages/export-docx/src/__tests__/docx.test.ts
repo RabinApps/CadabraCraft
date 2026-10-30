@@ -315,6 +315,12 @@ describe("marks", () => {
     expect(run(m("code"))).toContain('w:ascii="Courier New"');
     expect(run(m("link", "https://x.org"))).toContain("<w:hyperlink");
   });
+  it("writes the language of a passage as w:lang on the run and refuses a bad tag", () => {
+    const lang = (attrs?: object): Mark => ({ type: "lang", ...(attrs ? { attrs } : {}) }) as Mark;
+    expect(run(lang({ lang: "fr-CA" }))).toContain('<w:lang w:val="fr-CA"/>');
+    expect(() => run(lang())).toThrow(/BCP 47/);
+    expect(() => run(lang({ lang: 'fr"/>' }))).toThrow(DocxExportError);
+  });
   it("throws on an unknown mark, a link without href and superscript with subscript", () => {
     expect(() => run({ type: "wobble" } as never)).toThrow(DocxExportError);
     expect(() => run(m("link"))).toThrow(/without an address/);
