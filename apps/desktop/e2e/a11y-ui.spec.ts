@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { newProject } from "./support/helpers";
+import { audit } from "./support/audit";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -151,5 +152,77 @@ test.describe("skip link and landmarks", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "Settings" }).click();
     await expect(page.getByRole("main")).toHaveAttribute("id", "main");
+  });
+});
+
+test.describe("reduced motion", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+  });
+
+  test("dialogs open without their animation", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "New project" }).click();
+    const dialog = page.getByRole("dialog", { name: "New book" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toHaveCSS("animation-name", "none");
+    await expect(page.locator(".motion-overlay")).toHaveCSS("animation-name", "none");
+  });
+
+  test("dialogs animate when motion is welcome", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/");
+    await page.getByRole("button", { name: "New project" }).click();
+    await expect(page.getByRole("dialog", { name: "New book" })).toHaveCSS(
+      "animation-name",
+      "panel-in",
+    );
+  });
+
+  test("the Settings section jump does not scroll smoothly", async ({ page }) => {
+    await page.addInitScript(() => {
+      const calls: unknown[] = [];
+      (window as unknown as { __scrolls: unknown[] }).__scrolls = calls;
+      const original = Element.prototype.scrollTo;
+      Element.prototype.scrollTo = function (this: Element, ...args: unknown[]) {
+        calls.push((args[0] as ScrollToOptions | undefined)?.behavior);
+        return (original as (...a: unknown[]) => void).apply(this, args);
+      } as typeof Element.prototype.scrollTo;
+    });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Settings" }).click();
+    await page
+      .getByRole("navigation", { name: "Settings sections" })
+      .getByRole("button", { name: "Backups" })
+      .click();
+    const behaviors = await page.evaluate(
+      () => (window as unknown as { __scrolls: unknown[] }).__scrolls,
+    );
+    expect(behaviors.length).toBeGreaterThan(0);
+    expect(behaviors).not.toContain("smooth");
+  });
+});
+
+// 400% zoom of a 1280 x 1024 window is a 320 x 256 CSS pixel viewport (WCAG 1.4.10 Reflow): no sideways scrolling, nothing clipped.
+test.describe("reflow at 400% zoom", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 256 });
+  });
+
+  test("home, the New book dialog and the editor do not scroll sideways", async ({ page }) => {
+    await page.goto("/");
+    expect(
+      (await audit(page)).filter((i) => i.kind === "scroll-x" || i.kind === "clipped"),
+    ).toEqual([]);
+    await page.getByRole("button", { name: "New project" }).click();
+    await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
+    expect(
+      (await audit(page)).filter((i) => i.kind === "scroll-x" || i.kind === "clipped"),
+    ).toEqual([]);
+    await page.keyboard.press("Escape");
+    await newProject(page);
+    expect(
+      (await audit(page)).filter((i) => i.kind === "scroll-x" || i.kind === "clipped"),
+    ).toEqual([]);
   });
 });

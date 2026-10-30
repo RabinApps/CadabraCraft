@@ -17,6 +17,17 @@ interface ModalProps {
   size?: ModalSize;
 }
 
+/**
+ * The element focus should return to when a dialog opened from where `active` has focus is closed. A dialog opened by a
+ * menu item would otherwise remember the item, which is gone once the menu closes; the menu's trigger is the opener then.
+ */
+export function openerOf(active: Element | null): HTMLElement | null {
+  if (!(active instanceof HTMLElement)) return null;
+  const triggerId = active.closest("[role=menu]")?.getAttribute("aria-labelledby");
+  const trigger = triggerId ? document.getElementById(triggerId) : null;
+  return trigger ?? active;
+}
+
 export type ModalSize = "sm" | "md" | "wide" | "xl" | "full";
 
 const sizeClass: Record<ModalSize, string> = {
@@ -31,6 +42,25 @@ export const overlayClass = "motion-overlay fixed inset-0 z-(--z-overlay) bg-scr
 export const panelClass =
   "motion-panel fixed z-(--z-dialog) border border-border bg-raised text-ink shadow-dialog focus:outline-none";
 
+/**
+ * Dialogs are controlled and have no Radix Trigger, so remember the opener and give focus back to it (WCAG 2.4.3).
+ * It is read while rendering, before a field with autoFocus can take focus. Pass the result to `onCloseAutoFocus`.
+ */
+export function useFocusReturn(open: boolean): (e: Event) => void {
+  const opener = useRef<HTMLElement | null>(null);
+  const wasOpen = useRef(false);
+  if (open && !wasOpen.current) opener.current = openerOf(document.activeElement);
+  wasOpen.current = open;
+  return (e) => {
+    const back = opener.current;
+    opener.current = null;
+    if (back?.isConnected && back !== document.body) {
+      e.preventDefault();
+      back.focus();
+    }
+  };
+}
+
 export function Modal({
   open,
   onOpenChange,
@@ -39,26 +69,13 @@ export function Modal({
   children,
   size = "sm",
 }: ModalProps) {
-  // Dialogs are controlled and have no Radix Trigger, so remember the opener and give focus back to it (WCAG 2.4.3).
-  // It is read while rendering, before a field with autoFocus can take focus.
-  const opener = useRef<HTMLElement | null>(null);
-  const wasOpen = useRef(false);
-  if (open && !wasOpen.current && document.activeElement instanceof HTMLElement)
-    opener.current = document.activeElement;
-  wasOpen.current = open;
+  const onCloseAutoFocus = useFocusReturn(open);
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
         <D.Overlay className={overlayClass} />
         <D.Content
-          onCloseAutoFocus={(e) => {
-            const back = opener.current;
-            opener.current = null;
-            if (back?.isConnected && back !== document.body) {
-              e.preventDefault();
-              back.focus();
-            }
-          }}
+          onCloseAutoFocus={onCloseAutoFocus}
           {...(description ? {} : { "aria-describedby": undefined })}
           className={cx(
             panelClass,

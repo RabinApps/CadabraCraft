@@ -5,7 +5,7 @@ import { plural } from "@lingui/core/macro";
 import { Check, X } from "lucide-react";
 import { highlightSegments } from "../../lib/fuzzy";
 import { IconButton } from "../../ui/Button";
-import { overlayClass, panelClass } from "../../ui/Dialog";
+import { overlayClass, panelClass, useFocusReturn } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
 import { KeyCombo } from "../settings/KeyCombo";
 import type { Key } from "../settings/shortcutList";
@@ -55,11 +55,16 @@ const sheet =
  * the same in left-to-right and right-to-left layouts.
  */
 export function QuickPicker({ open, onOpenChange, title, ...rest }: Props) {
+  const onCloseAutoFocus = useFocusReturn(open);
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
         <D.Overlay className={overlayClass} />
-        <D.Content aria-describedby={undefined} className={cx(panelClass, sheet)}>
+        <D.Content
+          aria-describedby={undefined}
+          onCloseAutoFocus={onCloseAutoFocus}
+          className={cx(panelClass, sheet)}
+        >
           <D.Title className="sr-only">{title}</D.Title>
           <PickerBody title={title} {...rest} />
         </D.Content>

@@ -79,7 +79,8 @@ export function Settings({
   const jump = (id: (typeof sections)[number]) => {
     setActive(id);
     jumpingUntil.current = Date.now() + 800;
-    scrollTo(id, "smooth");
+    // Smooth scrolling is an animation: skipped when the system asks for reduced motion.
+    scrollTo(id, matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
   };
   // The nav follows the content when it is scrolled by hand.
   const follow = () => {
