@@ -185,6 +185,28 @@ Screens follow `docs/design.md` (Settings, Templates, Export, Print preview). De
 - **Undo, Redo, Cut, Copy, Paste stay the system's predefined items;** book-level undo is a separate pair that names the edit. Rejected: routing text undo through the menu (breaks IME and the editor's history).
 - **Native item clicks are not driven by tests.** Accessibility access is not granted, so the end-to-end scenario runs commands through a dev-only `window.__cadabraMenu.run` and checks what the menu was told to show. Unit tests cover the model and the native adapter against a fake menu API. A real click on a native item is only checked by hand.
 
+## Shortcut rebinding (Settings > Shortcuts)
+
+The author can give most actions another key. **One resolver, three consumers.** `shortcutList.ts` keeps the defaults (menu accelerators from `menuModel`, the editor's keys, the window-wide keys). The author's changes are `shortcutOverrides` in the app preferences (`cadabracraft.settings`): `{ commandId: "Mod+Alt+K" | null }`, absent meaning the default and `null` meaning no key. Combos are `Mod+Alt+Shift+Key` strings (`lib/shortcutCombo.ts`, which also cleans stored values). The pieces that react to a key all read the same data:
+
+- **Native menu and palette.** `buildMenuModel` takes the overrides (`shortcuts`) and sets each accelerator from them; the menu's rebuild signature already contains accelerators, so a change rebuilds the menu. Only a command that has a default accelerator takes an override (the editor's formatting items stay accelerator-free, their keys belong to the editor). The command palette shows the same keys.
+- **Window handlers** (`QuickNav`, Find in `Editor.tsx`, book undo/redo in `useGlobalShortcuts`) call `pressed(event, id)`, which reads the stored choice at the moment of the key, so a change applies without a reload. Matching uses the physical key (`event.code`), so Option+letter on a Mac is the letter.
+- **Editor keys.** `packages/editor-schema` exports `EDITOR_KEY_COMMANDS` (id, default ProseMirror key, what it runs) and `shortcutRemap(remap)`, a high-priority extension that swallows the old key (and its Caps Lock twin) and runs the command on the new one. The desktop passes the overrides in as the option, because packages never import the app. They are read when the editor is created; the Settings page replaces the editor, so the next page opened has the new keys. A test pins the schema's keys to the list, and `shortcutList.test.ts` still fails when the editor registers a key that is not listed.
+
+**Rules.** A key must include Mod or Alt (or be F1 to F12) so it cannot be typed text. A key already in use (by any listed shortcut on this platform, including the fixed ones) is refused and the owner is named; the author frees it first. Reserved: the structural editor keys, Hide (Cmd+H) and F11. Fixed, not rebindable: the system menu items (Undo, Redo, Cut, Copy, Paste, Select All, Minimize, Close Window), Tab and Shift+Tab, the line break (two keys) and Escape in focus mode. While a row waits for a key, `runCommand` is suspended (`setCapturingKeys`) and the key listener runs in the capture phase, so pressing a key that is already used records it instead of running the command. On macOS a key the system menu already owns may still reach the menu first; those are listed as fixed or are caught as conflicts.
+
+**Rejected:**
+
+| Rejected                                        | Why not                                                                                                                |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Storing the keys in Rust or in the project file | Shortcuts belong to the person at this computer, not to the book; a shared book must not change a collaborator's keys. |
+| A swap when the key is taken                    | Surprising (two actions change at once); refusing and naming the owner is clearer.                                     |
+| Recreating the TipTap editor when keys change   | Not needed (Settings replaces the editor), and it would lose the cursor and undo history if it ever stayed mounted.    |
+| Editing StarterKit's own keymaps one by one     | Brittle across TipTap updates; one extension in front of them is one place and is tested against the list.             |
+| Matching on `event.key`                         | Option+letter types a symbol on a Mac and layouts differ; `event.code` names the physical key.                         |
+
+**Not done:** keys for menu items that have none today (the list shows only actions that have a key), and pen frames for the recording and refused states (see roadmap).
+
 ## Sponsor dialog after an export
 
 - **Behaviour.** After a successful EPUB or PDF export (never after a failed one) `ExportDialog` calls `useSponsor.offer(file)` and `SponsorDialog` opens with the exported file name. Three choices: _Sponsor_ opens `SPONSOR_URL` (`app/sponsor.ts`, currently https://github.com/sponsors/RabinApps) in the default browser and closes the dialog; _Maybe later_ stays quiet until the app restarts; _Don't show again_ is stored as an app preference (`cadabracraft.sponsor` in localStorage, never in project files). Closing it any other way (Escape, outside click) asks again at the next export, so only an explicit choice silences it. Designed in the pen as `Sponsor dialog (M3)`.

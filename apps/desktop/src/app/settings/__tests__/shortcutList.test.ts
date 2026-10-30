@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { flattenExtensions, getExtensionField, resolveExtensions } from "@tiptap/react";
-import { extensions } from "@cadabracraft/editor-schema";
+import { EDITOR_KEY_COMMANDS, extensions } from "@cadabracraft/editor-schema";
 import { Search } from "../../../editor/search/plugin";
 import { Pagination } from "../../../editor/pagination/plugin";
 import { buildMenuModel, commandIds, type MenuEntry } from "../../shell/menuModel";
@@ -87,6 +87,13 @@ describe("the shortcut list", () => {
     const registered = new Set(registeredEditorCombos());
     for (const s of editorOnly)
       for (const c of s.combos) expect(registered.has(c), `${s.id} ${c}`).toBe(true);
+  });
+
+  it("can rebind exactly the editor keys that are not fixed, and the schema agrees with the list on the defaults", () => {
+    const rebindable = list.filter((s) => s.id.startsWith("editor.") && !s.fixed);
+    expect(rebindable.map((s) => s.id).sort()).toEqual(Object.keys(EDITOR_KEY_COMMANDS).sort());
+    for (const s of rebindable)
+      expect(s.combos, s.id).toEqual([comboFromTiptapKey(EDITOR_KEY_COMMANDS[s.id]!.key)]);
   });
 
   it("has unique ids, no combo used twice, and only known groups", () => {

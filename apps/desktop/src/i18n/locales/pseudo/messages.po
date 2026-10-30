@@ -477,6 +477,10 @@ msgstr ""
 msgid "All chapters"
 msgstr ""
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Already used by “{owner}”. Press another key."
+msgstr ""
+
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
@@ -737,7 +741,12 @@ msgid "Caption"
 msgstr ""
 
 #: src/app/export/PdfPanel.tsx
+#: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Change shortcut for {action}"
 msgstr ""
 
 #: src/app/shell/Details.tsx
@@ -842,6 +851,14 @@ msgstr ""
 
 #: src/app/export/Templates.tsx
 msgid "Choose a look for your book"
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
@@ -1660,6 +1677,14 @@ msgstr ""
 msgid "History of"
 msgstr ""
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold ⌘ or ⌥ together with the key."
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold Ctrl or Alt together with the key."
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "How wide the page is in the editor."
 msgstr ""
@@ -1876,14 +1901,6 @@ msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Keep your research close"
-msgstr ""
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option."
-msgstr ""
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. Ctrl is Control."
 msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
@@ -2239,6 +2256,10 @@ msgstr ""
 msgid "No HTML found in the selection"
 msgstr ""
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "No key"
+msgstr ""
+
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
 msgstr ""
@@ -2587,6 +2608,10 @@ msgstr ""
 msgid "Preface"
 msgstr ""
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Press the new keys…"
+msgstr ""
+
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
 msgstr ""
@@ -2847,6 +2872,18 @@ msgstr ""
 
 #: src/state/project/replace.ts
 msgid "Replaced {count} in the book"
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset"
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset all"
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset shortcut for {action}"
 msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
@@ -3311,6 +3348,10 @@ msgstr ""
 msgid "That file name is not valid"
 msgstr ""
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "That key cannot be used. Press another one."
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "That page is not in the book."
 msgstr ""
@@ -3440,6 +3481,10 @@ msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "The system or the text keeps this key. Press another one."
 msgstr ""
 
 #: src/editor/PageFrame.tsx

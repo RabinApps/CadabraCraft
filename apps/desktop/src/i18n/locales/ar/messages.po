@@ -478,6 +478,10 @@ msgstr "الكل"
 msgid "All chapters"
 msgstr "كل الفصول"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Already used by “{owner}”. Press another key."
+msgstr "مستخدم بالفعل في «{owner}». اضغط مفتاحًا آخر."
+
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
@@ -738,8 +742,13 @@ msgid "Caption"
 msgstr "تعليق توضيحي"
 
 #: src/app/export/PdfPanel.tsx
+#: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
 msgstr "تغيير"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Change shortcut for {action}"
+msgstr "تغيير اختصار {action}"
 
 #: src/app/shell/Details.tsx
 msgid "Change template"
@@ -844,6 +853,14 @@ msgstr "اختر فصلًا للبدء."
 #: src/app/export/Templates.tsx
 msgid "Choose a look for your book"
 msgstr "اختر مظهرًا لكتابك"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
+msgstr "اختر تغيير ثم اضغط المفاتيح الجديدة. يلغي Esc ويزيل Backspace المفتاح. ⌘ هو Command و⌥ هو Option."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
+msgstr "اختر تغيير ثم اضغط المفاتيح الجديدة. يلغي Esc ويزيل Backspace المفتاح. Ctrl هو Control."
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/settings/FontsSection.tsx
@@ -1661,6 +1678,14 @@ msgstr "السجل · الكتاب كاملًا"
 msgid "History of"
 msgstr "سجل"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold ⌘ or ⌥ together with the key."
+msgstr "أبقِ ⌘ أو ⌥ مضغوطًا مع المفتاح."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold Ctrl or Alt together with the key."
+msgstr "أبقِ Ctrl أو Alt مضغوطًا مع المفتاح."
+
 #: src/app/settings/Settings.tsx
 msgid "How wide the page is in the editor."
 msgstr "مدى عرض الصفحة في المحرر."
@@ -1878,14 +1903,6 @@ msgstr "متابعة العمل"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Keep your research close"
 msgstr "أبقِ أبحاثك قريبة منك"
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option."
-msgstr "لا يمكن تغيير المفاتيح بعد. ⌘ هو Command و⌥ هو Option."
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. Ctrl is Control."
-msgstr "لا يمكن تغيير المفاتيح بعد. Ctrl هو Control."
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
@@ -2240,6 +2257,10 @@ msgstr "لا يطابق أي عنوان أو فصل “{q}”."
 msgid "No HTML found in the selection"
 msgstr "لم يُعثر على HTML في التحديد"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "No key"
+msgstr "بلا مفتاح"
+
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
 msgstr "لا توجد تطابقات"
@@ -2588,6 +2609,10 @@ msgstr "PNG أو JPEG أو WebP، حتى 25 ميغابايت. تُحفظ نسخ�
 msgid "Preface"
 msgstr "تمهيد"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Press the new keys…"
+msgstr "اضغط المفاتيح الجديدة…"
+
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
 msgstr "الفصل السابق"
@@ -2849,6 +2874,18 @@ msgstr "الاستبدال بـ"
 #: src/state/project/replace.ts
 msgid "Replaced {count} in the book"
 msgstr "استُبدل {count} في الكتاب"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset"
+msgstr "إعادة تعيين"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset all"
+msgstr "إعادة تعيين الكل"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset shortcut for {action}"
+msgstr "إعادة تعيين اختصار {action}"
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -3312,6 +3349,10 @@ msgstr "هذا الملف ليس خطًا قابلًا للاستخدام. اخ�
 msgid "That file name is not valid"
 msgstr "اسم الملف هذا غير صالح"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "That key cannot be used. Press another one."
+msgstr "لا يمكن استخدام هذا المفتاح. اضغط مفتاحًا آخر."
+
 #: src/app/export/PrintPreview.tsx
 msgid "That page is not in the book."
 msgstr "هذه الصفحة غير موجودة في الكتاب."
@@ -3442,6 +3483,10 @@ msgstr "يحصل PDF على حافة القص وعلامات القص نفسيه
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
 msgstr "التحديد كبير جدًا للتحويل"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "The system or the text keeps this key. Press another one."
+msgstr "يحتفظ النظام أو النص بهذا المفتاح. اضغط مفتاحًا آخر."
 
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so your manuscript font is used."

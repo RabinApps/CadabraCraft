@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
+import { pressed } from "../settings/shortcutBindings";
 
 /** Escape leaves focus mode, unless a dialog or menu is open and should take the key first. */
 function useFocusEscape(focus: boolean, exitFocus: () => void) {
@@ -21,15 +22,10 @@ function useBookUndo(open: boolean) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (
-        !(e.metaKey || e.ctrlKey) ||
-        !e.altKey ||
-        e.code !== "KeyZ" ||
-        document.querySelector("[role=dialog]")
-      )
-        return;
+      const redo = pressed(e, "book.redo");
+      if ((!redo && !pressed(e, "book.undo")) || document.querySelector("[role=dialog]")) return;
       e.preventDefault();
-      attempt(e.shiftKey ? actions.redo() : actions.undo());
+      attempt(redo ? actions.redo() : actions.undo());
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

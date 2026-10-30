@@ -29,6 +29,8 @@ export interface Shortcut {
   combos: string[];
   /** Only exists on macOS (the system menu items). */
   macOnly?: boolean;
+  /** The key cannot be changed: the system's own items and the structural keys (Tab, Escape, the line break). */
+  fixed?: boolean;
 }
 
 /** One keycap: what it shows, and the words a search matches it by. */
@@ -44,6 +46,8 @@ export interface ShortcutRow {
   group: GroupId;
   action: string;
   combos: Key[][];
+  /** The author can give it another key. */
+  rebindable: boolean;
 }
 
 export interface ShortcutGroup {
@@ -115,6 +119,7 @@ export function editorShortcuts(): Shortcut[] {
     action,
     combos,
   });
+  const fixed = (sh: Shortcut): Shortcut => ({ ...sh, fixed: true });
   return [
     s("editor.bold", "format", t`Bold`, "Mod+B"),
     s("editor.italic", "format", t`Italic`, "Mod+I"),
@@ -129,12 +134,12 @@ export function editorShortcuts(): Shortcut[] {
     s("editor.bullets", "format", t`Bulleted List`, "Mod+Shift+8"),
     s("editor.numbers", "format", t`Numbered List`, "Mod+Shift+7"),
     s("editor.codeBlock", "format", t`Code Block`, "Mod+Alt+C"),
-    s("editor.indent", "format", t`Indent list item`, "Tab"),
-    s("editor.outdent", "format", t`Outdent list item`, "Shift+Tab"),
-    s("editor.lineBreak", "insert", t`Line break`, "Shift+Enter", "Mod+Enter"),
+    fixed(s("editor.indent", "format", t`Indent list item`, "Tab")),
+    fixed(s("editor.outdent", "format", t`Outdent list item`, "Shift+Tab")),
+    fixed(s("editor.lineBreak", "insert", t`Line break`, "Shift+Enter", "Mod+Enter")),
     s("book.undo", "edit", t`Undo book change`, "Mod+Alt+Z"),
     s("book.redo", "edit", t`Redo book change`, "Mod+Alt+Shift+Z"),
-    s("focus.leave", "view", t`Leave Focus Mode`, "Escape"),
+    fixed(s("focus.leave", "view", t`Leave Focus Mode`, "Escape")),
   ];
 }
 
@@ -182,6 +187,7 @@ function fromMenu(
           group,
           action: e.text,
           combos: [known.combo, ...(PREDEFINED_EXTRA[e.item] ?? [])],
+          fixed: true,
           ...(known.macOnly ? { macOnly: true } : {}),
         },
       ];
@@ -257,6 +263,7 @@ export function shortcutRows(list: readonly Shortcut[], mac: boolean): ShortcutR
       group: s.group,
       action: s.action,
       combos: s.combos.map((c) => keysFor(c, mac)),
+      rebindable: !s.fixed,
     }));
 }
 

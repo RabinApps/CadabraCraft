@@ -1,6 +1,7 @@
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import { AUDIO_FORMATS } from "../lib/audioFormats";
 import { createPersistedStore } from "../lib/persisted";
+import { cleanOverrides, type Overrides } from "../lib/shortcutCombo";
 
 /** The font of the manuscript in the editor (not the Word export font, which is `ManuscriptFont` in export-docx). */
 export type EditorFont = "newsreader" | "inter" | (string & {});
@@ -85,6 +86,7 @@ interface Prefs {
   /** Snapshots kept per page. */ snapshotKeep: number;
   /** Show the manuscript as real pages (Write mode, md+ width only). */ pageView: boolean;
   /** Zoom of the pages in Page view. */ pageZoom: PageZoom;
+  /** Keys the author changed in Settings > Shortcuts, by command id; everything else keeps its default. */ shortcutOverrides: Overrides;
 }
 const defaults: Prefs = {
   manuscriptFont: "newsreader",
@@ -97,6 +99,7 @@ const defaults: Prefs = {
   audioFormats: ["opus"],
   pageView: false,
   pageZoom: "fit",
+  shortcutOverrides: {},
 };
 
 /** A whole number in 0..MAX_SESSION_GOAL; anything else becomes 0 (off). */
@@ -124,6 +127,7 @@ function parsePrefs(v: unknown): Prefs | null {
       audioFormats: cleanAudioFormats(o.audioFormats),
       pageView: cleanPageView(o.pageView),
       pageZoom: cleanPageZoom(o.pageZoom),
+      shortcutOverrides: cleanOverrides(o.shortcutOverrides),
     };
   }
   return null;
@@ -145,5 +149,6 @@ export const useSettings = createPersistedStore<Prefs>({
     audioFormats: cleanAudioFormats(p.audioFormats),
     pageView: cleanPageView(p.pageView),
     pageZoom: cleanPageZoom(p.pageZoom),
+    shortcutOverrides: cleanOverrides(p.shortcutOverrides),
   }),
 });

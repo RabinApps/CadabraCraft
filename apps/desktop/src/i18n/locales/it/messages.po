@@ -478,6 +478,10 @@ msgstr "Tutti"
 msgid "All chapters"
 msgstr "Tutti i capitoli"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Already used by “{owner}”. Press another key."
+msgstr "Già usato da “{owner}”. Premi un altro tasto."
+
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
@@ -738,8 +742,13 @@ msgid "Caption"
 msgstr "Didascalia"
 
 #: src/app/export/PdfPanel.tsx
+#: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
 msgstr "Cambia"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Change shortcut for {action}"
+msgstr "Cambia la scorciatoia di {action}"
 
 #: src/app/shell/Details.tsx
 msgid "Change template"
@@ -844,6 +853,14 @@ msgstr "Scegli un capitolo per iniziare."
 #: src/app/export/Templates.tsx
 msgid "Choose a look for your book"
 msgstr "Scegli un aspetto per il tuo libro"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
+msgstr "Scegli Cambia, poi premi i nuovi tasti. Esc annulla e Backspace toglie il tasto. ⌘ è Comando, ⌥ è Opzione."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
+msgstr "Scegli Cambia, poi premi i nuovi tasti. Esc annulla e Backspace toglie il tasto. Ctrl è Control."
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/settings/FontsSection.tsx
@@ -1661,6 +1678,14 @@ msgstr "Cronologia · Libro intero"
 msgid "History of"
 msgstr "Cronologia di"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold ⌘ or ⌥ together with the key."
+msgstr "Tieni premuto ⌘ o ⌥ insieme al tasto."
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Hold Ctrl or Alt together with the key."
+msgstr "Tieni premuto Ctrl o Alt insieme al tasto."
+
 #: src/app/settings/Settings.tsx
 msgid "How wide the page is in the editor."
 msgstr "Quanto è larga la pagina nell’editor."
@@ -1878,14 +1903,6 @@ msgstr "Continua a lavorare"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Keep your research close"
 msgstr "Tieni a portata di mano la tua ricerca"
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. ⌘ is Command, ⌥ is Option."
-msgstr "I tasti non possono ancora essere cambiati. ⌘ è Comando, ⌥ è Opzione."
-
-#: src/app/settings/ShortcutsSection.tsx
-msgid "Keys cannot be changed yet. Ctrl is Control."
-msgstr "I tasti non possono ancora essere cambiati. Ctrl è Control."
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
@@ -2240,6 +2257,10 @@ msgstr "Nessun titolo o capitolo corrisponde a “{q}”."
 msgid "No HTML found in the selection"
 msgstr "Nessun HTML trovato nella selezione"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "No key"
+msgstr "Nessun tasto"
+
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
 msgstr "Nessuna corrispondenza"
@@ -2588,6 +2609,10 @@ msgstr "PNG, JPEG o WebP, fino a 25 MB. Una copia viene conservata nella cartell
 msgid "Preface"
 msgstr "Premessa"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Press the new keys…"
+msgstr "Premi i nuovi tasti…"
+
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
 msgstr "Capitolo precedente"
@@ -2849,6 +2874,18 @@ msgstr "Sostituisci con"
 #: src/state/project/replace.ts
 msgid "Replaced {count} in the book"
 msgstr "Sostituiti {count} nel libro"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset"
+msgstr "Ripristina"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset all"
+msgstr "Ripristina tutto"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset shortcut for {action}"
+msgstr "Ripristina la scorciatoia di {action}"
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -3312,6 +3349,10 @@ msgstr "Quel file non è un carattere utilizzabile. Scegli un file .ttf o .otf."
 msgid "That file name is not valid"
 msgstr "Quel nome di file non è valido"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "That key cannot be used. Press another one."
+msgstr "Questo tasto non si può usare. Premine un altro."
+
 #: src/app/export/PrintPreview.tsx
 msgid "That page is not in the book."
 msgstr "Questa pagina non è nel libro."
@@ -3442,6 +3483,10 @@ msgstr "Il PDF riceve la stessa abbondanza e gli stessi crocini di taglio. Impos
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
 msgstr "La selezione è troppo grande per essere convertita"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "The system or the text keeps this key. Press another one."
+msgstr "Il sistema o il testo si tiene questo tasto. Premine un altro."
 
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so your manuscript font is used."

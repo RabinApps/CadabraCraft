@@ -64,4 +64,28 @@ describe("useSettings with a damaged or unavailable store", () => {
     expect(() => bad.useSettings.getState().set({ rawHtmlPaste: "text" })).not.toThrow();
     expect(bad.useSettings.getState().rawHtmlPaste).toBe("text");
   });
+  it("cleans stored shortcut changes and keeps them across a save", async () => {
+    const { useSettings, data } = await load(
+      JSON.stringify({
+        ...good,
+        shortcutOverrides: {
+          "editor.bold": "Mod+Alt+J",
+          "file.new": null,
+          bad: "J",
+          "x y": "Mod+J",
+        },
+      }),
+    );
+    expect(useSettings.getState().shortcutOverrides).toEqual({
+      "editor.bold": "Mod+Alt+J",
+      "file.new": null,
+    });
+    useSettings.getState().set({ shortcutOverrides: { "view.focus": "Mod+J", z: "nope" } });
+    expect(JSON.parse(data.get(KEY)!).shortcutOverrides).toEqual({ "view.focus": "Mod+J" });
+    expect((await load(JSON.stringify(good))).useSettings.getState().shortcutOverrides).toEqual({});
+    expect(
+      (await load(JSON.stringify({ ...good, shortcutOverrides: [1] }))).useSettings.getState()
+        .shortcutOverrides,
+    ).toEqual({});
+  });
 });
