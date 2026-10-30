@@ -9,6 +9,7 @@ import {
 } from "../types";
 import { PdfExportError } from "../errors";
 import type { Ctx } from "./ctx";
+import { coverAlt } from "../strings";
 import { bodyOf, coverPage } from "./matter";
 import { resolveFonts, resolveMargins, resolveTemplate } from "./options";
 import { preamble } from "./preamble";
@@ -42,6 +43,7 @@ export function buildTypstDocument(
     images: new Map(),
     maxImageIn: Math.max(1, trim.h - margins.top - margins.bottom - 1),
     assets: options.assets,
+    coverAlt: coverAlt(book.language),
     ...(options.blockMarks ? { marks: true } : {}),
     ...(options.charMarks ? { charMarks: charMarkWords(options.charMarks) } : {}),
   };

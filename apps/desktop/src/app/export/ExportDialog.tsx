@@ -140,6 +140,7 @@ export function ExportDialog({
           await exportPdf({
             trimSize: pdf.trimSize,
             pdfA: pdf.pdfA,
+            pdfUa: pdf.pdfUa,
             cover: pdf.withCover,
             template: pdf.current,
             bleedIn: bleedInches(pdf.bleed),

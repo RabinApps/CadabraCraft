@@ -4,6 +4,16 @@ import { fail, kidsOf } from "./helpers";
 import { inline, para } from "./paragraphs";
 import type { Ctx, RunProps } from "./types";
 
+/**
+ * `w:tblLook`: which conditional formats of the table style apply. The first-row flag is on only when the first row is a header row
+ * (all `tableHeader` cells, which are also written as repeating `w:tblHeader` rows), so assistive technology and styles are not told
+ * that a body row is a header. `w:val` is the same flags as a bit mask (first row 0x0020, no vertical banding 0x0400).
+ */
+function tblLook(firstRowIsHeader: boolean): string {
+  const val = (firstRowIsHeader ? 0x0020 : 0) | 0x0400;
+  return `<w:tblLook w:val="${val.toString(16).toUpperCase().padStart(4, "0")}" w:firstRow="${firstRowIsHeader ? 1 : 0}" w:lastRow="0" w:firstColumn="0" w:lastColumn="0" w:noHBand="0" w:noVBand="1"/>`;
+}
+
 export function tableXml(n: DocNode, ctx: Ctx): string {
   const rows = kidsOf(n);
   if (rows.length === 0) fail(ctx, "A table has no rows", "table");
@@ -11,6 +21,7 @@ export function tableXml(n: DocNode, ctx: Ctx): string {
   if (width === 0) fail(ctx, "A table row has no cells", "tableRow");
   const colW = Math.floor(TEXT_WIDTH / width);
   const cellCtx: Ctx = { ...ctx, quote: 0, list: 0 };
+  const firstRowIsHeader = kidsOf(rows[0]!).every((c) => c.type === "tableHeader");
   const body = rows.map((row) => {
     if (row.type !== "tableRow")
       fail(ctx, `The node "${row.type}" cannot be written in a table`, row.type);
@@ -35,7 +46,7 @@ export function tableXml(n: DocNode, ctx: Ctx): string {
     });
     return `<w:tr>${header ? "<w:trPr><w:cantSplit/><w:tblHeader/></w:trPr>" : "<w:trPr><w:cantSplit/></w:trPr>"}${tcs.join("")}</w:tr>`;
   });
-  return `<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/><w:tblW w:w="${colW * width}" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblLook w:val="04A0" w:firstRow="1" w:lastRow="0" w:firstColumn="0" w:lastColumn="0" w:noHBand="0" w:noVBand="1"/></w:tblPr><w:tblGrid>${Array.from({ length: width }, () => `<w:gridCol w:w="${colW}"/>`).join("")}</w:tblGrid>${body.join("")}</w:tbl>`;
+  return `<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/><w:tblW w:w="${colW * width}" w:type="dxa"/><w:tblLayout w:type="fixed"/>${tblLook(firstRowIsHeader)}</w:tblPr><w:tblGrid>${Array.from({ length: width }, () => `<w:gridCol w:w="${colW}"/>`).join("")}</w:tblGrid>${body.join("")}</w:tbl>`;
 }
 
 /** Table markers become an empty paragraph where a table would touch another table or the end of the body (Word merges adjacent tables). */

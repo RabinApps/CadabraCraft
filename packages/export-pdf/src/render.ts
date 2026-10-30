@@ -19,7 +19,10 @@ export async function renderPdf(
   const { source, files, fonts } = await prepareDocument(book, chapters, options, runner);
   let pdf: Uint8Array;
   try {
-    pdf = await runner.compile(source, files, { pdfA: options.pdfA === true });
+    pdf = await runner.compile(source, files, {
+      pdfA: options.pdfA === true,
+      pdfUa: options.pdfUa === true,
+    });
   } catch (e) {
     throw e instanceof PdfExportError ? e : new TypstCompileError(errMsg(e));
   }

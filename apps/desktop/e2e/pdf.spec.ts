@@ -40,6 +40,40 @@ test("Export PDF sends the chosen options to Typst and writes exports/en/book.pd
   expect(manifest.template).toBe("nonfiction");
 });
 
+test("PDF/UA is its own option, off by default, and can be combined with PDF/A", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Print PDF" }).click();
+  const ua = dialog.getByLabel("PDF/UA (accessible)");
+  await expect(ua).not.toBeChecked();
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("status")).toHaveText("Exported exports/en/book.pdf");
+
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await dialog.getByRole("radio", { name: "Print PDF" }).click();
+  await dialog.getByLabel("PDF/UA (accessible)").check();
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await dialog.getByRole("radio", { name: "Print PDF" }).click();
+  await dialog.getByLabel("PDF/UA (accessible)").check();
+  await dialog.getByLabel("PDF/A (archival)").check();
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+
+  const calls = await page.evaluate(() => window.__typstCalls.map((c) => [c.pdfA, c.pdfUa]));
+  expect(calls).toEqual([
+    [false, false],
+    [false, true],
+    [true, true],
+  ]);
+});
+
 test("the trim size is a book setting: chosen at creation, shown read-only in Export, changed in Book details", async ({
   page,
 }) => {

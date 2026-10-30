@@ -639,6 +639,30 @@ describe("multi-chapter output", () => {
     expect(r.chapters.map((c) => c.title)).toEqual(["One", "Two"]);
   });
 
+  it("starts with YAML front matter (title and lang) only when asked, and the body is unchanged", () => {
+    const chapters = [ch("One", "1")];
+    const plain = bookToMarkdown({ title: "Book", language: "de" }, chapters);
+    expect(plain).toBe("# One\n\n1\n");
+    expect(bookToMarkdown({ title: "Book" }, chapters, { frontMatter: false })).toBe(plain);
+    const md = bookToMarkdown(
+      { title: ' The "Long" Road: a #1 story ', language: "de-AT" },
+      chapters,
+      {
+        frontMatter: true,
+      },
+    );
+    expect(md).toBe(
+      '---\ntitle: "The \\"Long\\" Road: a #1 story"\nlang: "de-AT"\n---\n\n# One\n\n1\n',
+    );
+    // Without a language there is no lang line; the per-page strings never carry the block.
+    expect(bookToMarkdown({ title: "Book" }, chapters, { frontMatter: true })).toBe(
+      '---\ntitle: "Book"\n---\n\n# One\n\n1\n',
+    );
+    expect(chaptersToMarkdown({ title: "Book" }, chapters, { frontMatter: true })).toEqual([
+      "# One\n\n1\n",
+    ]);
+  });
+
   it("exports the whole of full-book.json (small caps etc. as HTML)", () => {
     const book = fullBook();
     const md = bookToMarkdown({ title: "x" }, book.chapters, { htmlMarks: true });

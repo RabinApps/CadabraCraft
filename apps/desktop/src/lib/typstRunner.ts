@@ -49,9 +49,9 @@ export function createTauriRunner(
         throw mapTypstError(e);
       }
     },
-    async compile(source, files, { pdfA }) {
+    async compile(source, files, { pdfA, pdfUa }) {
       try {
-        return await bridge.typstCompile(source, [...files], pdfA);
+        return await bridge.typstCompile(source, [...files], pdfA, pdfUa === true);
       } catch (e) {
         throw mapTypstError(e);
       }

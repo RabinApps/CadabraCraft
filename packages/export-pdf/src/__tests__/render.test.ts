@@ -166,6 +166,22 @@ typstSuite("renderPdf with typst", () => {
   );
 
   it(
+    "emits PDF/UA-1 only when asked, alone or together with PDF/A-2b",
+    async () => {
+      const flag = (pdf: Uint8Array): string => Buffer.from(pdf).toString("latin1");
+      const ua = await renderPdf(book, chapters.slice(0, 1), { assets, pdfUa: true });
+      expect(flag(ua.pdf)).toContain("pdfuaid:part");
+      expect(flag(ua.pdf)).not.toContain("pdfaid:part");
+      const both = await renderPdf(book, chapters.slice(0, 1), { assets, pdfA: true, pdfUa: true });
+      expect(flag(both.pdf)).toContain("pdfuaid:part");
+      expect(flag(both.pdf)).toContain("<pdfaid:part>2</pdfaid:part>");
+      const off = await renderPdf(book, chapters.slice(0, 1), { assets });
+      expect(flag(off.pdf)).not.toContain("pdfuaid:part");
+    },
+    T,
+  );
+
+  it(
     "reports a Typst compile error with its message",
     async () => {
       // A margin passes validation but a negative-size image path can't; force an error with a bad asset.

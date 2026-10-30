@@ -74,7 +74,7 @@ export function blockRtf(n: DocNode, ctx: Ctx): string[] {
       const title = String(a.title ?? "");
       const out = [
         para(
-          picture(String(a.src ?? ""), ctx),
+          picture(String(a.src ?? ""), ctx, String(a.alt ?? "")),
           { single: true, firstLine: 0, jc: "c", keepNext: title !== "" },
           ctx,
         ),

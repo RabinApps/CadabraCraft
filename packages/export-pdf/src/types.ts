@@ -59,6 +59,11 @@ export interface PdfOptions {
   /** Emit PDF/A-2b (archival). */
   pdfA?: boolean;
   /**
+   * Emit a tagged PDF that conforms to PDF/UA-1 (accessible). Typst tags headings, lists, tables and images (alt text; an empty alt
+   * marks a decorative image) and marks running headers and page numbers as artifacts. It combines with `pdfA` (PDF/A-2b plus PDF/UA-1).
+   */
+  pdfUa?: boolean;
+  /**
    * Bleed in inches (0 to 0.5, default none): the page grows by this much past the trim on the top, bottom and outside edges
    * (KDP: 0.125 in). Margins stay measured from the trim, so the text does not move. A cover image fills the bleed.
    */

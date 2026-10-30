@@ -130,5 +130,5 @@ export function coverPage(src: string, ctx: Ctx): string {
   if (!["png", "jpg", "jpeg", "webp"].includes(ext))
     throw new PdfExportError(`Unsupported cover image "${src}" (use png, jpg or webp)`);
   const path = imagePath(src, ctx);
-  return `#page(margin: 0pt, header: none, footer: none)[#image(${typstString(path)}, width: 100%, height: 100%, fit: "cover", alt: "Cover")]\n#page(header: none, footer: none)[#counter(page).update(0)]\n\n`;
+  return `#page(margin: 0pt, header: none, footer: none)[#image(${typstString(path)}, width: 100%, height: 100%, fit: "cover", alt: ${typstString(ctx.coverAlt)})]\n#page(header: none, footer: none)[#counter(page).update(0)]\n\n`;
 }

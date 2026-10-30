@@ -14,6 +14,8 @@ import type { PreviewTarget } from "../../lib/previewTarget";
 export interface PdfExportOptions extends ExportScope {
   trimSize: TrimSize;
   pdfA: boolean;
+  /** Tagged PDF/UA-1 (accessible); can be combined with `pdfA`. Default false. */
+  pdfUa?: boolean;
   /** Template id; saved in the manifest when it differs from the current one. */
   template: string;
   /** Put the book's cover (if it has one) first, as a full-page image. Default true. */

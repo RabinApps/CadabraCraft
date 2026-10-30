@@ -6,6 +6,8 @@ export { MarkdownExportError, type MarkdownOptions } from "./markdown";
 export interface MarkdownBook {
   title: string;
   author?: string;
+  /** BCP 47 code; written as `lang` in the front matter (`MarkdownOptions.frontMatter`). */
+  language?: string;
 }
 
 export interface MarkdownChapter {
@@ -70,13 +72,26 @@ export function chaptersToMarkdown(
   });
 }
 
-/** The whole book as one Markdown document: all pages in reading order, separated by a blank line. */
+/** A one-line YAML scalar: JSON strings are valid double-quoted YAML. */
+const yamlString = (s: string): string => JSON.stringify(s);
+
+/** The YAML front matter block (`MarkdownOptions.frontMatter`): the title, and the language when the book has one. */
+function frontMatterOf(book: MarkdownBook): string {
+  const lang = book.language?.trim();
+  return `---\ntitle: ${yamlString(book.title.trim())}\n${lang ? `lang: ${yamlString(lang)}\n` : ""}---\n\n`;
+}
+
+/**
+ * The whole book as one Markdown document: all pages in reading order, separated by a blank line. With
+ * `opts.frontMatter` a YAML block with the title and language comes first.
+ */
 export function bookToMarkdown(
   book: MarkdownBook,
   chapters: MarkdownChapter[],
   opts: MarkdownOptions = {},
 ): string {
-  return chaptersToMarkdown(book, chapters, opts)
+  const body = chaptersToMarkdown(book, chapters, opts)
     .filter((s) => s !== "")
     .join("\n");
+  return opts.frontMatter ? frontMatterOf(book) + body : body;
 }

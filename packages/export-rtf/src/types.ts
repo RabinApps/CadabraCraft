@@ -32,6 +32,8 @@ export interface Shared {
   assets: ReadonlyMap<string, Uint8Array>;
   /** The next paragraph starts a new page. */
   pendingBreak: boolean;
+  /** Windows language id of the book (`\\lang`), written after `\\plain` because `\\plain` resets the character language. */
+  lang?: number | null;
 }
 
 export interface RunProps {

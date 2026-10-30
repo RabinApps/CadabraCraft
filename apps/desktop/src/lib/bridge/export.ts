@@ -12,8 +12,9 @@ export const exportBridge = {
     source: string,
     files: readonly (readonly [string, Uint8Array])[],
     pdfA: boolean,
+    pdfUa = false,
   ): Promise<Uint8Array> =>
-    binary(invoke<RawBytes>("typst_compile", packCompileRequest({ source, files, pdfA }))),
+    binary(invoke<RawBytes>("typst_compile", packCompileRequest({ source, files, pdfA, pdfUa }))),
   /** Runs `typst query` and resolves to its JSON text (`--field value --one`), without making a PDF. Same frame as `typstCompile` with a selector. */
   typstQuery: async (
     source: string,

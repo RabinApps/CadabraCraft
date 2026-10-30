@@ -365,7 +365,7 @@ describe("export_docx / export_rtf", () => {
     const rtf = readFileSync(join(s.root, path, "exports/en-GB/manuscript.rtf"), "latin1");
     expect(rtf.startsWith("{\\rtf1")).toBe(true);
     expect(rtf).toContain("\\fnil\\fcharset0 Lora;");
-    expect(rtf).toContain("{\\pict\\pngblip");
+    expect(rtf).toMatch(/\{\\pict(\{\\\*\\picprop[^\n]*?\}\}\})?\\pngblip/);
     expect(rtf).toContain("Author / THE LONG QUAY / ");
     expect(readdirSync(join(s.root, path, "exports/en-GB"))).toEqual(["manuscript.rtf"]);
   });
