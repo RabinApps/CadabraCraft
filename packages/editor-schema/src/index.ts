@@ -150,6 +150,23 @@ export const DefinitionTerm = Node.create({
   name: "definitionTerm",
   content: "inline*",
   defining: true,
+  addKeyboardShortcuts() {
+    return {
+      // Enter in a term goes on to what follows it (its description, or the next term), the way Enter ends a line of a list: splitting
+      // a term would only make another term, and there would be no way to reach the description from the keyboard.
+      Enter: ({ editor }) => {
+        const { $from, empty } = editor.state.selection;
+        if (!empty || $from.parent.type.name !== this.name) return false;
+        const after = $from.after();
+        const next = editor.state.doc.resolve(after).nodeAfter;
+        if (!next) return false;
+        // Inside a description the caret goes into its first paragraph (one level deeper).
+        return editor.commands.setTextSelection(
+          next.type.name === "definitionDescription" ? after + 2 : after + 1,
+        );
+      },
+    };
+  },
   parseHTML: () => [{ tag: "dt" }],
   renderHTML: ({ HTMLAttributes }) => ["dt", HTMLAttributes, 0],
 });

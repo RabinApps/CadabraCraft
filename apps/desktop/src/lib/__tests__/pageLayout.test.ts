@@ -61,6 +61,14 @@ describe("pageGeometry", () => {
   });
 });
 
+describe("sideMargins in a right-to-left book", () => {
+  it("binds on the right: inside is the right margin of a recto page, and the other way on a verso", () => {
+    const g = pageGeometry({ template: "novel", trimSize: undefined });
+    expect(sideMargins(g, 1, true)).toEqual({ left: g.margins.outside, right: g.margins.inside });
+    expect(sideMargins(g, 2, true)).toEqual({ left: g.margins.inside, right: g.margins.outside });
+  });
+});
+
 describe("sideMargins", () => {
   const g = pageGeometry({ template: "novel" });
   it("puts the inside margin on the left of odd (recto) pages", () => {

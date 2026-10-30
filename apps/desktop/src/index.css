@@ -566,3 +566,15 @@ body {
 .prose-reflow .ProseMirror > h1:first-child {
   margin-top: var(--page-chapter-extra);
 }
+
+/* A picture taller than a page's text block is scaled down to it (the PDF does the same), not allowed to stretch the card. */
+.prose-page .ProseMirror figure.book-image img {
+  max-height: calc(var(--page-h) - var(--page-mt) - var(--page-mb) - 3em);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+/* The hyphen drawn at the foot of a page is not text: it must not be selected or copied. */
+.prose-page .pv-hyphen {
+  user-select: none;
+}

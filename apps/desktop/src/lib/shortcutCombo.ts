@@ -76,11 +76,16 @@ export function comboFromEvent(
   ].join("+");
 }
 
-/** Does this key event press `combo`? A null combo (no key) never matches. */
+/**
+ * Does this key event press `combo`? A null combo (no key) never matches. AltGr (Ctrl+Alt on Windows and Linux) types a character on
+ * many layouts (² € ć), so an event with AltGraph down is text, never a shortcut.
+ */
 export const eventMatches = (
-  e: Pick<KeyboardEvent, "code" | "metaKey" | "ctrlKey" | "altKey" | "shiftKey">,
+  e: Pick<KeyboardEvent, "code" | "metaKey" | "ctrlKey" | "altKey" | "shiftKey"> & {
+    getModifierState?: (key: string) => boolean;
+  },
   combo: string | null,
-): boolean => combo !== null && comboFromEvent(e) === combo;
+): boolean => combo !== null && !e.getModifierState?.("AltGraph") && comboFromEvent(e) === combo;
 
 /** The native menu's accelerator for a combo (`Mod+Shift+K` is `CmdOrCtrl+Shift+K`). */
 export const acceleratorFromCombo = (combo: string): string => combo.replace(/^Mod\b/, "CmdOrCtrl");

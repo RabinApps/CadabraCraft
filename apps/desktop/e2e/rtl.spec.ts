@@ -402,3 +402,31 @@ test("RTL: Page view cuts a table row in each cell where Typst did and does not 
   expect(Math.abs(tops[0]! - tops[1]!)).toBeLessThan(2);
   expect(await noOverflow(page)).toBe(true);
 });
+
+test("RTL: a Hebrew book is bound on the right, so its recto pages have the inside margin on the right", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.evaluate(() => {
+    // The book's language is its edition's: rewrite "en" (the edition and the keys of its chapter files) to Hebrew.
+    window.__disk["cadabra.json"] = (window.__disk["cadabra.json"] as string).replaceAll(
+      '"en"',
+      '"he"',
+    );
+    sessionStorage.setItem("disk", JSON.stringify(window.__disk));
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Open folder" }).click();
+  await expect(page.locator(".ProseMirror")).toHaveAttribute("dir", "rtl");
+  await page.getByLabel("Page zoom").selectOption({ label: "100%" });
+  await expect(page.locator(".page").first()).toBeVisible();
+  const pad = () =>
+    page.evaluate(() => {
+      const cs = getComputedStyle(document.querySelector(".ProseMirror")!);
+      return { left: parseFloat(cs.paddingLeft), right: parseFloat(cs.paddingRight) };
+    });
+  const p = await pad();
+  // The novel template: 0.9 in inside and 0.65 in outside (96 px to the inch).
+  expect(p.right).toBeCloseTo(0.9 * 96, 0);
+  expect(p.left).toBeCloseTo(0.65 * 96, 0);
+});

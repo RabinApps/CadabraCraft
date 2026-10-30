@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { WandSparkles } from "lucide-react";
@@ -18,6 +18,7 @@ import { Search } from "./search/plugin";
 import { Pagination } from "./pagination/plugin";
 import { PageFrame, ReflowFrame } from "./PageFrame";
 import { TabKey } from "./tabKey";
+import { cleanPastedHtml, cleanPastedText } from "./pasteClean";
 import { usePageView } from "../app/hooks/usePageView";
 import { FindBar } from "./FindBar";
 import { prefillQuery } from "../lib/search/findHelpers";
@@ -84,6 +85,8 @@ export function Editor({ initial, language, onChange, focus }: Props) {
   const [remember, setRemember] = useState(false);
   // Set the moment a paste opens the dialog (before React re-renders), so a quick second paste is ignored.
   const askingRef = useRef(false);
+  /** When a key last went down in the editor (typewriter scrolling follows the caret only for keys). */
+  const lastKeyAt = useRef(0);
   const askRef = useRef<(text: string, converted: Converted, from: number, to: number) => void>(
     () => {},
   );
@@ -104,6 +107,10 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     editorProps: {
       // A task item's checkbox lives in a non-editable label; clicking it flips `checked` (one undo step).
       handleDOMEvents: {
+        keydown: () => {
+          lastKeyAt.current = Date.now();
+          return false;
+        },
         mousedown: (view, event) => {
           const label = (event.target as HTMLElement | null)?.closest?.(
             'li[data-type="taskItem"] > label',
@@ -123,7 +130,23 @@ export function Editor({ initial, language, onChange, focus }: Props) {
           return true;
         },
       },
-      attributes: { lang: language, dir: dirFor(language), "aria-label": t`Page text` },
+      // A textbox that holds many paragraphs: screen readers need `aria-multiline` to read it as one (Enter makes a new paragraph).
+      attributes: {
+        lang: language,
+        dir: dirFor(language),
+        "aria-label": t`Page text`,
+        "aria-multiline": "true",
+      },
+      // Pasted text and HTML lose what no export can carry (control characters) and pictures from outside the book.
+      transformPastedText: (text) => cleanPastedText(text),
+      transformPastedHTML: (html) => {
+        const r = cleanPastedHtml(html);
+        if (r.droppedImages > 0)
+          useProject.setState({
+            notice: t`Pasted pictures were left out. Use Insert, Image to add a picture to the book.`,
+          });
+        return r.html;
+      },
       // Only text/plain that looks like HTML is handled here; a real HTML clipboard keeps ProseMirror's own path.
       // Nothing in here may throw or block: on any failure the default paste runs.
       handlePaste: (view, event) => {
@@ -173,7 +196,9 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     content: initial,
     onUpdate: ({ editor }) => onChange?.(editor.getJSON() as ChapterDoc),
     onSelectionUpdate: ({ editor }) => {
-      if (useSettings.getState().typewriterScroll) centerCaret(editor);
+      // Only a caret moved by typing or the keys is followed: a click, a find or an outline jump already chose where to look.
+      if (useSettings.getState().typewriterScroll && Date.now() - lastKeyAt.current < 250)
+        centerCaret(editor);
     },
   });
   const pageView = usePageView();
@@ -327,6 +352,21 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     }
     editor.chain().focus().setTextSelection(Math.min(at, doc.content.size)).scrollIntoView().run();
   }, [editor, currentId]);
+  // The page surface and the phone's reflow are different components, so crossing the breakpoint moves the editor's DOM: the browser
+  // drops the focus and the selection with it. Whether the editor had the focus is read in the render that switches (the DOM has not
+  // moved yet), and the focus and selection are put back once it has.
+  const surface = pageView.on;
+  const lastSurface = useRef(surface);
+  const refocus = useRef(false);
+  if (lastSurface.current !== surface) {
+    lastSurface.current = surface;
+    refocus.current = !!editor && !editor.isDestroyed && editor.view.hasFocus();
+  }
+  useLayoutEffect(() => {
+    if (!refocus.current || !editor || editor.isDestroyed) return;
+    refocus.current = false;
+    editor.view.focus();
+  }, [editor, surface]);
   if (!editor) return null;
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">

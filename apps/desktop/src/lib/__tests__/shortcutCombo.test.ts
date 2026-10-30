@@ -52,6 +52,15 @@ describe("combos from key events", () => {
     expect(eventMatches(ev("KeyK", { metaKey: true, shiftKey: true }), "Mod+K")).toBe(false);
     expect(eventMatches(ev("KeyK", { metaKey: true }), null)).toBe(false);
   });
+  it("never treats AltGr (which types a character on many layouts) as a shortcut", () => {
+    const altGr = {
+      ...ev("KeyE", { ctrlKey: true, altKey: true }),
+      getModifierState: (k: string) => k === "AltGraph",
+    };
+    expect(eventMatches(altGr, "Mod+Alt+E")).toBe(false);
+    const alt = { ...ev("KeyE", { ctrlKey: true, altKey: true }), getModifierState: () => false };
+    expect(eventMatches(alt, "Mod+Alt+E")).toBe(true);
+  });
 });
 
 describe("what can be bound", () => {

@@ -378,11 +378,22 @@ export function Toolbar({ editor }: { editor: Editor }) {
           </div>
         ))}
       </div>
-      <ImageDialog image={image} setImage={setImage} onInsert={applyImage} />
+      <ImageDialog
+        image={image}
+        setImage={(next) => {
+          setImage(next);
+          if (next === null) editor.commands.focus();
+        }}
+        onInsert={applyImage}
+      />
       <TableCommands editor={editor} />
       <LinkDialog
         open={linkOpen}
-        onOpenChange={setLinkOpen}
+        onOpenChange={(open) => {
+          setLinkOpen(open);
+          // Closing without applying (Cancel, Escape) hands the focus back to the text, not to the page.
+          if (!open) editor.commands.focus();
+        }}
         href={href}
         setHref={setHref}
         error={linkError}

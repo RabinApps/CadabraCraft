@@ -63,6 +63,8 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
       at(ctx, n, i, () => {
         if (n.type === "text") {
           let out = esc(n.text);
+          // A tab is collapsed to a space by XHTML. In text it is an em space, so the indent the author typed is in the book; code keeps it.
+          if (!(n.marks ?? []).some((m) => m.type === "code")) out = out.replace(/\t/g, "\u2003");
           for (const m of [...(n.marks ?? [])].reverse()) {
             const tags = MARK_TAGS[m.type] as ((m: Mark) => [string, string]) | undefined;
             if (!tags)

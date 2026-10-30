@@ -76,11 +76,17 @@ export function pageGeometry(book: BookLike): PageGeometry {
   };
 }
 
-/** Left/right margin px for a page number (odd = recto: inside on the left). */
-export function sideMargins(g: PageGeometry, pageNumber: number): { left: number; right: number } {
-  return pageNumber % 2 === 1
-    ? { left: g.margins.inside, right: g.margins.outside }
-    : { left: g.margins.outside, right: g.margins.inside };
+/** Left/right margin px for a page number (odd = recto: inside on the left; in a right-to-left book the binding is on the right, so inside is on the right). */
+export function sideMargins(
+  g: PageGeometry,
+  pageNumber: number,
+  rtl = false,
+): { left: number; right: number } {
+  const ltr =
+    pageNumber % 2 === 1
+      ? { left: g.margins.inside, right: g.margins.outside }
+      : { left: g.margins.outside, right: g.margins.inside };
+  return rtl ? { left: ltr.right, right: ltr.left } : ltr;
 }
 
 /** Zoom that makes the page fill `paneWidthPx` minus `gutterPx` (clamped 0.3..2). */
