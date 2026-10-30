@@ -1,0 +1,86 @@
+name: perf-fuzz
+# Weekly performance smoke test and fuzzing. Never a PR gate: it runs on a schedule and by hand only, and a failure here
+# means "look at it", not "blocked". See scripts/perf/README.md.
+on:
+  schedule:
+    - cron: "17 4 * * 1" # Mondays 04:17 UTC
+  workflow_dispatch:
+    inputs:
+      fuzz_seconds:
+        description: Seconds to fuzz each target
+        default: "60"
+      preset:
+        description: Book preset for the performance smoke test (small, huge, giant-chapter, media)
+        default: small
+permissions:
+  contents: read
+jobs:
+  perf:
+    runs-on: kinhin-container
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Linux deps
+        run: |
+          SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          for i in 1 2 3 4 5; do
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 build-essential && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 26 }
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
+      # The generator and probe are a standalone crate (no sidecar binaries, no pnpm install needed).
+      - name: Huge-book smoke test
+        run: node scripts/perf/huge-book.ts --preset "${{ inputs.preset || 'small' }}"
+        env:
+          PERF_FACTOR: "3"
+      - name: Upload measurements
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: huge-book-perf
+          path: perf-results/huge-book.json
+          if-no-files-found: warn
+
+  fuzz:
+    runs-on: kinhin-container
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false # one target crashing must not hide the others
+      matrix:
+        target:
+          [
+            docx_archive,
+            docx_xml,
+            docx_import,
+            wav,
+            font_family,
+            image_size,
+            typst_frame,
+            project_resolve,
+          ]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Linux deps
+        run: |
+          SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          for i in 1 2 3 4 5; do
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y build-essential unzip && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
+      # cargo-fuzz needs nightly (sanitizer flags). The ref pins the action; the input picks the toolchain.
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
+        with: { toolchain: nightly }
+      - run: cargo install --locked cargo-fuzz@0.13.2
+      - name: Fuzz ${{ matrix.target }}
+        run: bash scripts/perf/fuzz.sh "${{ matrix.target }}" "${{ inputs.fuzz_seconds || '60' }}"
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fuzz-crash-${{ matrix.target }}
+          path: apps/desktop/src-tauri/fuzz/artifacts/${{ matrix.target }}
+          if-no-files-found: warn

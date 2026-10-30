@@ -1,0 +1,27 @@
+# Performance tooling for CadabraCraft: generates huge books and .docx files (bookgen) and times the Rust project layer
+# (perfprobe). A standalone crate on purpose: the app crate's build script needs the Typst/Sherpa/FFmpeg sidecar binaries,
+# which a perf run should not have to download. perfprobe compiles the app's `src/project` and `src/import_docx` sources
+# directly (`#[path]`), so it measures the real code. The lock file is a copy of ../../Cargo.lock (same dependency versions).
+[package]
+name = "cadabra-perf-tools"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+sha2 = "0.11"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+tempfile = "3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+zip = { version = "9", default-features = false, features = ["deflate-flate2"] }
+quick-xml = "0.42"
+# The app sources name tauri::Url and tauri::Error only; see tauri-shim.
+tauri = { path = "tauri-shim" }
+# zip needs a flate2 backend; the app gets one from tauri's dependencies.
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+
+[profile.release]
+debug = 1
