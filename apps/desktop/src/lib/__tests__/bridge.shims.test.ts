@@ -168,10 +168,12 @@ describe("asset commands", () => {
       reference: "a.png",
     });
   });
-  it("importAssetBytes sends the bytes as a plain array", async () => {
-    expect(await sent(() => bridge.importAssetBytes("/r", "a.png", Uint8Array.of(7, 8)))).toEqual([
+  it("importAssetBytes sends the bytes as the raw body with percent-encoded root and name headers", async () => {
+    const bytes = Uint8Array.of(7, 8);
+    expect(await sent(() => bridge.importAssetBytes("/My Book/é", "a b.png", bytes))).toEqual([
       "import_asset_bytes",
-      { root: "/r", name: "a.png", bytes: [7, 8] },
+      bytes,
+      { headers: { root: "%2FMy%20Book%2F%C3%A9", name: "a%20b.png" } },
     ]);
   });
 });

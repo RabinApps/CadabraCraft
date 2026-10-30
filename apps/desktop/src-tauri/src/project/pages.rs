@@ -86,6 +86,10 @@ fn with_lock_in<T>(locks: &PathLocks, path: &Path, f: impl FnOnce() -> T) -> T {
 }
 
 pub(crate) fn write_file_with(root: &Path, rel: &str, contents: &str, base_hash: Option<&str>, snapshot: SnapshotMode) -> Result<WriteResult> {
+    // The same cap as a read: a file written here must be readable again (and a snapshot of it restorable).
+    if contents.len() as u64 > MAX_READ_BYTES {
+        return Err(ProjectError::TooLarge { path: rel.to_string(), max_mb: MAX_READ_BYTES / 1024 / 1024 });
+    }
     let path = resolve(root, rel)?;
     with_path_lock(&path, || write_locked(root, rel, &path, contents, base_hash, snapshot))
 }
@@ -185,6 +189,18 @@ mod tests {
         assert_eq!(read_file(d.path(), "manuscript/big.json").unwrap_err(), ProjectError::TooLarge { path: "manuscript/big.json".into(), max_mb: 32 });
         fs::File::create(&big).unwrap().set_len(MAX_READ_BYTES).unwrap(); // exactly at the cap is allowed
         assert_eq!(read_file(d.path(), "manuscript/big.json").unwrap().unwrap().contents.len() as u64, MAX_READ_BYTES);
+    }
+
+    #[test]
+    fn write_file_caps_contents_at_the_read_cap() {
+        let d = tmp();
+        let at_cap = "x".repeat(MAX_READ_BYTES as usize);
+        write_file(d.path(), "manuscript/big.json", &at_cap, None).unwrap();
+        assert_eq!(read_file(d.path(), "manuscript/big.json").unwrap().unwrap().contents.len() as u64, MAX_READ_BYTES, "what is written can be read back");
+        let over = "x".repeat(MAX_READ_BYTES as usize + 1);
+        assert_eq!(write_file(d.path(), "manuscript/big2.json", &over, None).unwrap_err(), ProjectError::TooLarge { path: "manuscript/big2.json".into(), max_mb: 32 });
+        assert!(!d.path().join("manuscript/big2.json").exists());
+        assert!(write_file(d.path(), "manuscript/empty.json", "", None).is_ok(), "zero bytes are fine");
     }
 
     #[test]

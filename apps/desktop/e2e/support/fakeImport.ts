@@ -150,9 +150,12 @@ export async function fakeImportSources(page: Page, pick: ImportPick, importFold
           case "read_import_image":
             if (a.reference === "img/pixel.png") return f.png;
             throw `image not found: ${a.reference}`;
-          case "import_asset_bytes":
-            w.__disk[`assets/${a.name}`] = a.bytes;
-            return `assets/${a.name}`;
+          case "import_asset_bytes": {
+            // Raw bytes as the body, root and name in percent-encoded headers (like the Rust command).
+            const name = decodeURIComponent(opts.headers.name!);
+            w.__disk[`assets/${name}`] = Array.from(a as unknown as Uint8Array);
+            return `assets/${name}`;
+          }
         }
         return base(cmd, a, opts);
       };

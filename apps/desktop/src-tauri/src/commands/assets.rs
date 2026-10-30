@@ -1,9 +1,11 @@
 //! Image asset commands.
+use super::wire::parse_asset_bytes;
 use super::{PickKind, PickedPaths};
 use crate::platform::blocking;
 use crate::project::{self, ProjectError};
 use std::path::PathBuf;
-use tauri::ipc::Response;
+use tauri::http::HeaderMap;
+use tauri::ipc::{InvokeBody, Request, Response};
 use tauri::State;
 
 /// `import_asset`: the source must be an image the author picked with `pick_image`.
@@ -17,10 +19,18 @@ pub async fn import_asset(picked: State<'_, PickedPaths>, root: String, source: 
     blocking({ let picked = picked.inner().clone(); move || import_picked(&picked, &root, &source) }).await
 }
 
-/// Stores image bytes (from an imported document) in `assets/`; returns the actual `assets/<name>` used.
-#[tauri::command]
-pub async fn import_asset_bytes(root: String, name: String, bytes: Vec<u8>) -> Result<String, ProjectError> {
+/// The body of `import_asset_bytes`, taking the parts of the request so it can run without a webview.
+async fn import_bytes_request(body: &InvokeBody, headers: &HeaderMap) -> Result<String, ProjectError> {
+    let (root, name, bytes) = parse_asset_bytes(body, headers)?;
     blocking(move || project::store_image(&project::require_project(&PathBuf::from(root))?, &name, &bytes)).await
+}
+
+/// Stores image bytes (from an imported document) in `assets/`; returns the actual `assets/<name>` used. The image is
+/// the raw request body and `root` / `name` travel as percent-encoded headers, so a large image is never expanded into a
+/// JSON number array before the size check.
+#[tauri::command]
+pub async fn import_asset_bytes(request: Request<'_>) -> Result<String, ProjectError> {
+    import_bytes_request(request.body(), request.headers()).await
 }
 
 /// Raw bytes of `assets/<image>` for display (sent as binary, not a JSON array).
@@ -33,6 +43,19 @@ pub async fn read_asset(root: String, path: String) -> Result<Response, ProjectE
 mod tests {
     use super::super::testutil::{project, raw, root, run};
     use super::*;
+    use tauri::http::HeaderValue;
+
+    fn headers(root: &str, name: &str) -> HeaderMap {
+        let enc = |s: &str| s.replace('/', "%2F");
+        let mut h = HeaderMap::new();
+        h.insert("root", HeaderValue::from_str(&enc(root)).unwrap());
+        h.insert("name", HeaderValue::from_str(name).unwrap());
+        h
+    }
+
+    fn import_bytes(root: &str, name: &str, bytes: &[u8]) -> Result<String, ProjectError> {
+        run(import_bytes_request(&InvokeBody::Raw(bytes.to_vec()), &headers(root, name)))
+    }
 
     const PNG: [u8; 12] = [0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 1];
 
@@ -45,7 +68,7 @@ mod tests {
         picked.record(PickKind::Image, &cover).unwrap();
         let rel = import_picked(&picked, &root(&book), &cover.to_string_lossy()).unwrap();
         assert!(rel.starts_with("assets/") && rel.ends_with(".png"), "{rel}");
-        let again = run(import_asset_bytes(root(&book), "map.png".into(), PNG.to_vec())).unwrap();
+        let again = import_bytes(&root(&book), "map.png", &PNG).unwrap();
         assert!(again.starts_with("assets/"), "{again}");
         assert_eq!(raw(run(read_asset(root(&book), rel)).unwrap()), PNG);
     }
@@ -55,9 +78,9 @@ mod tests {
         let (plain, book) = (tempfile::tempdir().unwrap(), project());
         let plain = plain.path().to_string_lossy().into_owned();
         assert!(import_picked(&PickedPaths::default(), &plain, "/nope.png").is_err());
-        assert!(run(import_asset_bytes(plain.clone(), "a.png".into(), PNG.to_vec())).is_err());
+        assert!(import_bytes(&plain, "a.png", &PNG).is_err());
         assert!(run(read_asset(plain, "assets/a.png".into())).is_err());
-        assert!(run(import_asset_bytes(root(&book), "a.png".into(), b"not an image".to_vec())).is_err());
+        assert!(import_bytes(&root(&book), "a.png", b"not an image").is_err());
     }
 
     #[test]
@@ -74,5 +97,23 @@ mod tests {
         assert!(import_picked(&picked, &root(&book), &cover.to_string_lossy()).is_ok());
         assert!(import_picked(&picked, &root(&book), &cover.to_string_lossy()).is_ok(), "a pick stays valid for a retry");
         assert!(!book.path().join("assets/other.png").exists());
+    }
+
+    #[test]
+    fn image_bytes_at_the_cap_are_stored_and_one_more_is_refused() {
+        let book = project();
+        let mut img = PNG.to_vec();
+        img.resize(project::MAX_IMAGE_BYTES as usize, 0);
+        assert_eq!(import_bytes(&root(&book), "cap.png", &img).unwrap(), "assets/cap.png");
+        img.push(0);
+        assert!(matches!(import_bytes(&root(&book), "over.png", &img), Err(ProjectError::TooLarge { max_mb: 25, .. })));
+        assert!(matches!(import_bytes(&root(&book), "zero.png", &[]), Err(ProjectError::InvalidImage { .. })));
+    }
+
+    #[test]
+    fn a_json_number_array_body_is_refused() {
+        let book = project();
+        let body = InvokeBody::Json(serde_json::json!({ "root": root(&book), "name": "a.png", "bytes": [1, 2] }));
+        assert!(run(import_bytes_request(&body, &headers(&root(&book), "a.png"))).is_err());
     }
 }

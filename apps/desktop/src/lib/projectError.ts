@@ -31,6 +31,7 @@ export type ProjectError =
   | { kind: "permission_denied"; path: string }
   | { kind: "disk_full"; path: string }
   | { kind: "image_dimensions"; name: string; max_megapixels: number }
+  | { kind: "invalid_manifest" }
   | { kind: "watch_failed"; path: string }
   /** The Rust `.docx` importer refused the file; `code` is an `ImportErrorCode`. */
   | { kind: "import_docx"; code: ImportErrorCode }
@@ -63,6 +64,7 @@ const KINDS = new Set<string>([
   "permission_denied",
   "disk_full",
   "image_dimensions",
+  "invalid_manifest",
   "watch_failed",
   "import_docx",
   "io",
@@ -131,6 +133,8 @@ export function projectErrorMessage(e: ProjectError): string {
       return t`There is no space left on the disk to write ${e.path}`;
     case "image_dimensions":
       return t`${e.name} is larger than ${e.max_megapixels} megapixels`;
+    case "invalid_manifest":
+      return t`The book's cadabra.json is not a JSON object`;
     case "watch_failed":
       return t`Cannot watch ${e.path} for changes made outside the app`;
     case "import_docx":

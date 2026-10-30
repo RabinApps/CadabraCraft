@@ -265,7 +265,7 @@ mod tests {
                 std::fs::write(f, b"x").unwrap();
             }
             let wav = dir.path().join("fixture.wav");
-            std::fs::write(&wav, write_wav(24000, &[1000i16; 2400])).unwrap();
+            std::fs::write(&wav, write_wav(24000, &[1000i16; 2400]).unwrap()).unwrap();
             let engine = dir.path().join("fake-engine");
             let script = format!("#!/bin/sh\nfor a in \"$@\"; do case \"$a\" in --output-filename=*) out=\"${{a#--output-filename=}}\";; esac; OUT=\"$a\"; done\n{}\n", body.replace("$WAV", &wav.to_string_lossy()));
             std::fs::write(&engine, script).unwrap();

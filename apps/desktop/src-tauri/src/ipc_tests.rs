@@ -200,7 +200,9 @@ fn asset_and_import_commands_work_through_the_ipc() {
     pick(&app, commands::PickKind::ImportSource, &src.path().join("book.md"));
     let rel = json_of(call(&w, "import_asset", json!({ "root": r, "source": cover })));
     assert!(rel.as_str().unwrap().starts_with("assets/"), "{rel}");
-    let stored = json_of(call(&w, "import_asset_bytes", json!({ "root": r, "name": "map.png", "bytes": PNG })));
+    let enc = |s: &str| s.replace('/', "%2F");
+    let headers = [("root", enc(&r)), ("name", "map.png".to_string())];
+    let stored = json_of(get_ipc_response(&w, request("import_asset_bytes", InvokeBody::Raw(PNG.to_vec()), &headers)));
     assert!(stored.as_str().unwrap().starts_with("assets/"), "{stored}");
     assert_eq!(raw_of(call(&w, "read_asset", json!({ "root": r, "path": rel }))), PNG);
     assert_eq!(kind_of(call(&w, "read_asset", json!({ "root": r, "path": "assets/none.png" }))), "not_found");
@@ -404,7 +406,6 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("restore_page_from_book_snapshot", json!({ "root": "/r", "snapshot": "s", "path": "p" })),
         ("delete_book_snapshot", json!({ "root": "/r", "snapshot": "s" })),
         ("import_asset", json!({ "root": "/r", "source": "/s" })),
-        ("import_asset_bytes", json!({ "root": "/r", "name": "n", "bytes": [] })),
         ("read_asset", json!({ "root": "/r", "path": "p" })),
         ("import_reference", json!({ "root": "/r", "source": "/s" })),
         ("stat_reference", json!({ "root": "/r", "path": "p" })),

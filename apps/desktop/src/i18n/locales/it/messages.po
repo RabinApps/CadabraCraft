@@ -3348,6 +3348,10 @@ msgstr "Il libro è memorizzato in questa cartella. Nulla lascia il tuo computer
 msgid "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
 msgstr "Il libro usa uno stile di testo che l’esportazione EPUB non può scrivere: {kind} (in {place}). L’esportazione si è fermata per non perdere nulla."
 
+#: src/lib/projectError.ts
+msgid "The book's cadabra.json is not a JSON object"
+msgstr "Il file cadabra.json del libro non è un oggetto JSON"
+
 #: src/state/project/context.ts
 msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
 msgstr "Non è stato possibile leggere l’immagine di copertina {cover}. Sceglila di nuovo in Dettagli del libro, oppure rimuovi la copertina."

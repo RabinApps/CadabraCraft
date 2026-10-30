@@ -105,7 +105,7 @@ pub fn render_sample(req: &SampleRequest, sherpa: &Path, voices: Option<&Path>, 
         return Err(other("a sample is limited to a few sentences"));
     }
     let (samples, rate) = synthesize(&req.chunks, &req.voice, req.speed, sherpa, voices, cancel, &|_| {})?;
-    Ok(write_wav(rate, &samples))
+    write_wav(rate, &samples).map_err(|message| AudioError::Synth { message })
 }
 
 /// Renders one chapter. `progress` receives 0..1 after every batch. Everything is validated before the engine runs,
@@ -132,7 +132,7 @@ fn write_outputs(req: &ChapterRequest, root: &Path, rate: u32, samples: &[i16], 
             return Err(AudioError::Cancelled);
         }
         let encoded = match f.as_str() {
-            "wav" => Ok(write_wav(rate, samples)),
+            "wav" => write_wav(rate, samples),
             "flac" => encode::encode_flac(rate, samples),
             _ => encode::encode_opus(rate, samples),
         };
@@ -208,7 +208,7 @@ mod tests {
                 fs::write(f, b"x").unwrap();
             }
             let wav = dir.path().join("fixture.wav");
-            fs::write(&wav, write_wav(24000, &vec![1000i16; 2400])).unwrap(); // 0.1 s
+            fs::write(&wav, write_wav(24000, &vec![1000i16; 2400]).unwrap()).unwrap(); // 0.1 s
             let engine = script(dir.path(), &body(&wav));
             Fixture { _dir: dir, project, voices, engine }
         }
@@ -332,7 +332,7 @@ mod tests {
         fn an_engine_that_changes_its_sample_rate_part_way_is_a_synth_error() {
             let f = fixture(|wav| {
                 let other = wav.with_file_name("fixture16k.wav");
-                fs::write(&other, write_wav(16000, &vec![1000i16; 1600])).unwrap();
+                fs::write(&other, write_wav(16000, &vec![1000i16; 1600]).unwrap()).unwrap();
                 let seen = wav.with_file_name("seen");
                 format!("if [ -f '{seen}' ]; then cp '{other}' \"$out\"; else touch '{seen}'; cp '{wav}' \"$out\"; fi", seen = seen.display(), other = other.display(), wav = wav.display())
             });

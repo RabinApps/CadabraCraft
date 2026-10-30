@@ -55,6 +55,8 @@ pub enum ProjectError {
     /// A `.docx` the importer could not read: `code` is an `ImportErrorCode` of `packages/import-docx` (`invalid-zip`,
     /// `too-many-entries`, `archive-too-large`, `missing-document`, `invalid-xml`).
     ImportDocx { code: String },
+    /// A `create_project` manifest that is not a JSON object (or not JSON at all).
+    InvalidManifest,
     /// The folder watcher could not start; `path` is the folder name, never an absolute path.
     WatchFailed { path: String },
     /// Any other IO or runtime failure (the OS message).
@@ -92,6 +94,7 @@ impl fmt::Display for ProjectError {
             DiskFull { path } => write!(f, "not enough disk space to write {path}"),
             ImageDimensions { name, max_megapixels } => write!(f, "{name} has more than {max_megapixels} megapixels"),
             ImportDocx { code } => write!(f, "the Word document could not be imported ({code})"),
+            InvalidManifest => write!(f, "the project manifest is not a JSON object"),
             WatchFailed { path } => write!(f, "cannot watch {path} for changes made outside the app"),
             Io { message } => write!(f, "{message}"),
         }
@@ -144,6 +147,7 @@ mod tests {
         assert_eq!(j(ProjectError::TooLarge { path: "a.png".into(), max_mb: 25 }), r#"{"kind":"too_large","path":"a.png","max_mb":25}"#);
         assert_eq!(j(ProjectError::WatchFailed { path: "book".into() }), r#"{"kind":"watch_failed","path":"book"}"#);
         assert_eq!(j(ProjectError::AlreadyExists), r#"{"kind":"already_exists"}"#);
+        assert_eq!(j(ProjectError::InvalidManifest), r#"{"kind":"invalid_manifest"}"#);
         assert_eq!(j(ProjectError::NotAProject { path: "/x".into() }), r#"{"kind":"not_a_project","path":"/x"}"#);
         assert_eq!(j(ProjectError::ImportDocx { code: "invalid-xml".into() }), r#"{"kind":"import_docx","code":"invalid-xml"}"#);
         assert_eq!(j(ProjectError::IcloudPending { path: "a".into() }), r#"{"kind":"icloud_pending","path":"a"}"#);
@@ -205,6 +209,7 @@ mod tests {
             (DiskFull { path: p() }, "not enough disk space to write p"),
             (ImageDimensions { name: p(), max_megapixels: 150 }, "p has more than 150 megapixels"),
             (ImportDocx { code: "invalid-zip".into() }, "the Word document could not be imported (invalid-zip)"),
+            (InvalidManifest, "the project manifest is not a JSON object"),
             (WatchFailed { path: p() }, "cannot watch p for changes made outside the app"),
             (Io { message: "boom".into() }, "boom"),
         ];

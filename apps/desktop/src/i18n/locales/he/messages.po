@@ -3348,6 +3348,10 @@ msgstr "הספר נשמר בתיקייה זו. דבר אינו יוצא מהמח
 msgid "The book uses a text style the EPUB export cannot write: {kind} (at {place}). The export stopped so nothing is lost."
 msgstr "הספר משתמש בסגנון טקסט שייצוא ה־EPUB אינו יכול לכתוב: {kind} (ב־{place}). הייצוא נעצר כדי שלא יאבד דבר."
 
+#: src/lib/projectError.ts
+msgid "The book's cadabra.json is not a JSON object"
+msgstr "הקובץ cadabra.json של הספר אינו אובייקט JSON"
+
 #: src/state/project/context.ts
 msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
 msgstr "לא ניתן היה לקרוא את תמונת הכריכה {cover}. בחר אותה שוב בפרטי הספר, או הסר את הכריכה."

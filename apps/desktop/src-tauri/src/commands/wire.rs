@@ -1,4 +1,4 @@
-//! Decoding of the `write_project_bytes` request.
+//! Decoding of the binary requests (`write_project_bytes`, `import_asset_bytes`).
 use crate::project::ProjectError;
 use tauri::ipc::InvokeBody;
 
@@ -20,30 +20,32 @@ pub(super) fn percent_decode(s: &str) -> Option<String> {
     String::from_utf8(out).ok()
 }
 
-/// Pulls `(root, path, bytes)` out of a `write_project_bytes` call. Preferred form: the invoke payload is the raw file
-/// bytes and `root` / `path` travel in `encodeURIComponent`-encoded headers (no JSON number array). The old form
-/// (JSON body `{ root, path, bytes: number[] }`) is still accepted.
-pub(super) fn parse_write_bytes(body: &InvokeBody, headers: &tauri::http::HeaderMap) -> Result<(String, String, Vec<u8>), ProjectError> {
-    let bad = |what: &str| ProjectError::Io { message: format!("write_project_bytes: {what}") };
-    match body {
-        InvokeBody::Raw(bytes) => {
-            let header = |name: &str| {
-                let v = headers.get(name).and_then(|v| v.to_str().ok()).ok_or_else(|| bad(&format!("missing {name} header")))?;
-                percent_decode(v).ok_or_else(|| bad(&format!("bad {name} header")))
-            };
-            Ok((header("root")?, header("path")?, bytes.clone()))
-        }
-        InvokeBody::Json(v) => {
-            #[derive(serde::Deserialize)]
-            struct Legacy {
-                root: String,
-                path: String,
-                bytes: Vec<u8>,
-            }
-            let l: Legacy = serde_json::from_value(v.clone()).map_err(|e| bad(&e.to_string()))?;
-            Ok((l.root, l.path, l.bytes))
-        }
+/// Pulls the named header values and the raw body out of a binary request: the invoke payload is the raw file bytes and
+/// the small string arguments travel in `encodeURIComponent`-encoded headers (never a JSON number array, which would
+/// use several times the payload in memory before any size check). A JSON body is refused.
+fn parse_raw<const N: usize>(command: &str, names: [&str; N], body: &InvokeBody, headers: &tauri::http::HeaderMap) -> Result<([String; N], Vec<u8>), ProjectError> {
+    let bad = |what: &str| ProjectError::Io { message: format!("{command}: {what}") };
+    let InvokeBody::Raw(bytes) = body else {
+        return Err(bad("expected a binary request body"));
+    };
+    let mut values: [String; N] = std::array::from_fn(|_| String::new());
+    for (slot, name) in values.iter_mut().zip(names) {
+        let v = headers.get(name).and_then(|v| v.to_str().ok()).ok_or_else(|| bad(&format!("missing {name} header")))?;
+        *slot = percent_decode(v).ok_or_else(|| bad(&format!("bad {name} header")))?;
     }
+    Ok((values, bytes.clone()))
+}
+
+/// `(root, path, bytes)` of a `write_project_bytes` call.
+pub(super) fn parse_write_bytes(body: &InvokeBody, headers: &tauri::http::HeaderMap) -> Result<(String, String, Vec<u8>), ProjectError> {
+    let ([root, path], bytes) = parse_raw("write_project_bytes", ["root", "path"], body, headers)?;
+    Ok((root, path, bytes))
+}
+
+/// `(root, name, bytes)` of an `import_asset_bytes` call.
+pub(super) fn parse_asset_bytes(body: &InvokeBody, headers: &tauri::http::HeaderMap) -> Result<(String, String, Vec<u8>), ProjectError> {
+    let ([root, name], bytes) = parse_raw("import_asset_bytes", ["root", "name"], body, headers)?;
+    Ok((root, name, bytes))
 }
 
 #[cfg(test)]
@@ -88,9 +90,20 @@ mod tests {
     }
 
     #[test]
-    fn legacy_json_body_still_works() {
+    fn a_json_body_is_refused() {
         let body = InvokeBody::Json(serde_json::json!({ "root": "/r", "path": "exports/a.pdf", "bytes": [7, 8] }));
-        assert_eq!(parse_write_bytes(&body, &HeaderMap::new()).unwrap(), ("/r".into(), "exports/a.pdf".into(), vec![7, 8]));
-        assert!(parse_write_bytes(&InvokeBody::Json(serde_json::json!({ "root": 1 })), &HeaderMap::new()).is_err());
+        let err = parse_write_bytes(&body, &HeaderMap::new()).unwrap_err();
+        assert!(matches!(&err, ProjectError::Io { message } if message.contains("binary")), "{err:?}");
+        assert!(parse_asset_bytes(&body, &HeaderMap::new()).is_err());
+    }
+
+    #[test]
+    fn asset_bytes_take_root_and_name_from_headers() {
+        let mut h = HeaderMap::new();
+        h.insert("root", HeaderValue::from_static("%2Fr"));
+        h.insert("name", HeaderValue::from_static("my%20pic.png"));
+        let (r, n, b) = parse_asset_bytes(&InvokeBody::Raw(vec![9]), &h).unwrap();
+        assert_eq!((r.as_str(), n.as_str(), b), ("/r", "my pic.png", vec![9]));
+        assert!(parse_asset_bytes(&InvokeBody::Raw(vec![]), &headers("%2Fr", "x")).is_err(), "no name header");
     }
 }
