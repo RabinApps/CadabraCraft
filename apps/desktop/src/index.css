@@ -469,6 +469,15 @@ body {
   letter-spacing: 0.12em;
   text-align: var(--page-h1-align);
 }
+/* The ornament and the label are decoration: an empty alternative keeps them out of the heading's accessible name (WCAG 1.1.1). */
+@supports (content: "a" / "b") {
+  .prose-page .ProseMirror > h1:first-child::before {
+    content: var(--page-chapter-ornament) / "";
+  }
+  .prose-page .ProseMirror > h1:first-child::after {
+    content: var(--page-chapter-label) / "";
+  }
+}
 /* Drop cap on a chapter's first paragraph; min-height is the reservation when the paragraph is shorter than the cap. */
 .prose-page .ProseMirror > h1:first-child + p {
   display: flow-root;
