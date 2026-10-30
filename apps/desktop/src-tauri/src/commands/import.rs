@@ -1,6 +1,6 @@
 //! Commands that read a document the user picked for import. Read-only.
 use super::{PickKind, PickedPaths};
-use crate::import_docx::{frame, import_docx, Options};
+use crate::import_docx::{frame, import_docx_owned, Options};
 use crate::platform::blocking;
 use crate::project::ProjectError;
 use std::path::PathBuf;
@@ -19,6 +19,12 @@ fn image_picked(picked: &PickedPaths, source_file: &str, reference: &str) -> Res
 
 /// `import_docx`: the Word document must be one the author picked; it is read, unzipped and parsed here and the reply is
 /// the framed result (`import_docx::frame`). Nothing is written.
+///
+/// Peak memory (n = file size, at most 200 MB): the file bytes are handed to `import_docx_owned`, which frees them once the
+/// archive is inflated; each XML part's inflated bytes are freed as soon as that part is parsed. So the file never
+/// coexists with a DOM, and only media stay beside the trees. Worst case is about n + inflated parts while unzipping, then
+/// inflated parts + trees (bounded by `Options::xml`) while parsing, then the framed reply (the images once more) at the
+/// end; the full model is on `import_docx_owned`.
 fn docx_picked(picked: &PickedPaths, path: &str, split_heading_level: u8) -> Result<Vec<u8>, ProjectError> {
     if !(1..=3).contains(&split_heading_level) {
         return Err(ProjectError::Io { message: "the split heading level must be 1, 2 or 3".into() });
@@ -30,7 +36,7 @@ fn docx_picked(picked: &PickedPaths, path: &str, split_heading_level: u8) -> Res
         return Err(ProjectError::UnsupportedDocument { name });
     }
     let bytes = crate::import_src::read_source(&file)?;
-    let result = import_docx(&bytes, &Options { split_heading_level, ..Options::default() })?;
+    let result = import_docx_owned(bytes, &Options { split_heading_level, ..Options::default() })?;
     frame::encode(&result).map_err(|e| ProjectError::Io { message: e.to_string() })
 }
 

@@ -14,6 +14,8 @@ export function describeImportCode(code: ImportErrorCode): string {
       return t`This .docx file has no document body. It may be damaged or not a Word document.`;
     case "invalid-xml":
       return t`This document's contents could not be read. It may be damaged.`;
+    case "too-many-nodes":
+      return t`This document has too much content to import safely.`;
     case "input-too-large":
       return t`This file is too large to import.`;
     case "too-deeply-nested":

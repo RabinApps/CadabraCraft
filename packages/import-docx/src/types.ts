@@ -58,7 +58,8 @@ export type ImportErrorCode =
   | "too-many-entries"
   | "archive-too-large"
   | "missing-document"
-  | "invalid-xml";
+  | "invalid-xml"
+  | "too-many-nodes";
 
 export class ImportError extends Error {
   readonly code: ImportErrorCode;

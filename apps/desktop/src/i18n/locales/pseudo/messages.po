@@ -3539,6 +3539,10 @@ msgid "This document contains too many parts to import safely."
 msgstr ""
 
 #: src/lib/importErrorText.ts
+msgid "This document has too much content to import safely."
+msgstr ""
+
+#: src/lib/importErrorText.ts
 msgid "This document is nested too deeply to import."
 msgstr ""
 

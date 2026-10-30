@@ -23,6 +23,13 @@ impl Files {
     pub fn get(&self, name: &str) -> Option<&[u8]> {
         self.index.get(name).map(|i| self.entries[*i].1.as_slice())
     }
+    pub fn contains(&self, name: &str) -> bool {
+        self.index.contains_key(name)
+    }
+    /// Moves a part's bytes out, so the caller can drop them as soon as they are parsed. The name stays listed (`names`, `contains`), with no bytes.
+    pub fn take(&mut self, name: &str) -> Option<Vec<u8>> {
+        self.index.get(name).map(|i| std::mem::take(&mut self.entries[*i].1))
+    }
     pub fn names(&self) -> impl Iterator<Item = &str> {
         self.entries.iter().map(|(n, _)| n.as_str())
     }
@@ -73,14 +80,34 @@ fn is_unsafe_name(name: &str) -> bool {
 }
 
 pub struct Limits {
+    /// Sum of the declared sizes of all entries (media included).
     pub max_decompressed_bytes: u64,
     pub max_entries: usize,
+    /// One `word/document.xml`.
+    pub max_document_bytes: u64,
+    /// Any other XML part (styles, numbering, notes, comments, headers, footers, relationships).
+    pub max_xml_part_bytes: u64,
 }
 
+/// Whole megabytes, rounded half up (`Math.round(n / 1048576)`), in integers.
 fn mb(n: u64) -> u64 {
-    (n as f64 / 1_048_576.0).round() as u64
+    n.saturating_add(524_288) / 1_048_576
 }
 
+/// The cap on one entry's size: XML parts have their own, media only the total.
+fn part_cap(name: &str, limits: &Limits) -> Option<u64> {
+    if name == "word/document.xml" {
+        Some(limits.max_document_bytes)
+    } else if name.starts_with("word/media/") {
+        None
+    } else {
+        Some(limits.max_xml_part_bytes)
+    }
+}
+
+/// Reads the wanted parts of the archive in `bytes`. Memory: the caller's `bytes` plus the inflated parts (at most
+/// `max_decompressed_bytes`); the caller drops `bytes` when this returns. No buffer is sized from a declared length
+/// before that length has passed the caps above.
 pub fn read_archive(bytes: &[u8], limits: &Limits) -> Result<Files, ImportError> {
     if bytes.len() < 22 || bytes[0] != 0x50 || bytes[1] != 0x4b {
         let why = if bytes.is_empty() { "The file is empty." } else { "The file is not a .docx (zip) archive." };
@@ -105,11 +132,15 @@ pub fn read_archive(bytes: &[u8], limits: &Limits) -> Result<Files, ImportError>
         if name.ends_with('/') || !is_wanted(&name) || is_unsafe_name(&name) {
             continue;
         }
+        if let Some(cap) = part_cap(&name, limits).filter(|cap| size > *cap) {
+            return Err(ImportError::new(ImportErrorCode::ArchiveTooLarge, format!("{name} would expand to more than {} MB.", mb(cap))));
+        }
         let entry = zip.by_index(i).map_err(|e| unreadable(&e))?;
+        // `size` has passed the caps, so it is safe to reserve (and one reservation avoids the doubling copies of a growing Vec).
+        let mut data = Vec::with_capacity(usize::try_from(size).map_err(|_| unreadable(&"an entry does not fit in memory"))?);
         // One byte more than declared: reading it proves the entry is longer than it says (and lets the CRC check run at the end of the stream).
-        let mut data = Vec::new();
-        entry.take(size + 1).read_to_end(&mut data).map_err(|e| unreadable(&e))?;
-        if data.len() as u64 != size {
+        entry.take(size.saturating_add(1)).read_to_end(&mut data).map_err(|e| unreadable(&e))?;
+        if u64::try_from(data.len()).ok() != Some(size) {
             return Err(unreadable(&"an entry does not have its declared size"));
         }
         files.insert(&name, data);
@@ -134,7 +165,10 @@ mod tests {
         w.finish().unwrap().into_inner()
     }
 
-    const LIMITS: Limits = Limits { max_decompressed_bytes: 200 * 1024 * 1024, max_entries: 10_000 };
+    const LIMITS: Limits = Limits { max_decompressed_bytes: 200 * 1024 * 1024, max_entries: 10_000, max_document_bytes: 64 << 20, max_xml_part_bytes: 16 << 20 };
+    fn lim(total: u64, entries: usize) -> Limits {
+        Limits { max_decompressed_bytes: total, max_entries: entries, ..LIMITS }
+    }
     fn code(r: Result<Files, ImportError>) -> ImportErrorCode {
         r.unwrap_err().code
     }
@@ -221,13 +255,13 @@ mod tests {
         let many: Vec<(String, Vec<u8>)> = (0..50).map(|i| (format!("junk/{i}.txt"), b"x".to_vec())).collect();
         let refs: Vec<(&str, &[u8])> = many.iter().map(|(n, b)| (n.as_str(), b.as_slice())).collect();
         let z = build(&refs, CompressionMethod::Stored);
-        assert_eq!(code(read_archive(&z, &Limits { max_decompressed_bytes: 1 << 20, max_entries: 10 })), ImportErrorCode::TooManyEntries);
-        assert!(read_archive(&z, &Limits { max_decompressed_bytes: 1 << 20, max_entries: 50 }).is_ok());
+        assert_eq!(code(read_archive(&z, &lim(1 << 20, 10))), ImportErrorCode::TooManyEntries);
+        assert!(read_archive(&z, &lim(1 << 20, 50)).is_ok());
         let z = build(&[("word/document.xml", b"0123456789")], CompressionMethod::Stored);
-        let e = read_archive(&z, &Limits { max_decompressed_bytes: 5, max_entries: 10 }).unwrap_err();
+        let e = read_archive(&z, &lim(5, 10)).unwrap_err();
         assert_eq!(e.code, ImportErrorCode::ArchiveTooLarge);
         assert!(e.message.contains("more than 0 MB"), "{}", e.message);
-        assert!(read_archive(&z, &Limits { max_decompressed_bytes: 10, max_entries: 10 }).is_ok());
+        assert!(read_archive(&z, &lim(10, 10)).is_ok());
     }
 
     #[test]
@@ -235,7 +269,7 @@ mod tests {
         let big = vec![0u8; 12 * 1024 * 1024];
         let z = build(&[("word/document.xml", b"<d/>"), ("word/media/bomb.png", &big)], CompressionMethod::Deflated);
         assert!(z.len() < 200_000, "the archive itself is small: {}", z.len());
-        let e = read_archive(&z, &Limits { max_decompressed_bytes: 10 * 1024 * 1024, max_entries: 10 }).unwrap_err();
+        let e = read_archive(&z, &lim(10 * 1024 * 1024, 10)).unwrap_err();
         assert_eq!(e.code, ImportErrorCode::ArchiveTooLarge);
         assert!(e.message.contains("10 MB"));
     }

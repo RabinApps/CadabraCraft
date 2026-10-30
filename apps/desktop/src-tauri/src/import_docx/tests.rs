@@ -129,7 +129,7 @@ fn bare_ctx() -> ctx::DCtx {
     ctx::DCtx {
         warn: Warnings::new(),
         assets: assets::AssetRegistry::new(),
-        rels: parse_rels(None, "r").unwrap(),
+        rels: parse_rels(None, "r", &crate::import_docx::xml::XmlBudget::default()).unwrap(),
         styles: HashMap::new(),
         numbering: parts::Numbering::default(),
         files: archive::Files::default(),

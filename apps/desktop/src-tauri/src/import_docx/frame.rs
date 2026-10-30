@@ -30,13 +30,23 @@ pub fn header_json(r: &ImportResult) -> serde_json::Result<String> {
     serde_json::to_string(&Header { chapters: &r.chapters, warnings: &r.warnings, assets: r.assets.iter().map(|a| a.info()).collect() })
 }
 
-/// The whole reply body.
+/// A length that must fit the 32-bit offsets of the reader; never truncated.
+fn to_u32(n: usize, what: &str) -> serde_json::Result<u32> {
+    u32::try_from(n).map_err(|_| serde::ser::Error::custom(format!("{what} exceeds 4 GiB")))
+}
+
+/// The whole reply body. Every length that the webview reads as 32 bits (the header, each image, the whole reply's
+/// payload) is checked with `try_from`: a larger one is an error, never a truncated number.
 pub fn encode(r: &ImportResult) -> serde_json::Result<Vec<u8>> {
     let header = header_json(r)?;
-    let total: usize = r.assets.iter().map(|a| a.bytes.len()).sum();
+    let mut total: usize = 0;
+    for a in &r.assets {
+        to_u32(a.bytes.len(), "an imported image")?;
+        total = total.saturating_add(a.bytes.len());
+    }
+    to_u32(total, "the total of the imported images")?;
+    let len = to_u32(header.len(), "the import header")?;
     let mut out = Vec::with_capacity(4 + header.len() + total);
-    // A header over 4 GiB cannot be produced from at most 200 MB of input; `try_from` keeps the cast honest.
-    let len = u32::try_from(header.len()).map_err(|_| serde::ser::Error::custom("import header too large"))?;
     out.extend_from_slice(&len.to_le_bytes());
     out.extend_from_slice(header.as_bytes());
     for a in &r.assets {
@@ -77,6 +87,26 @@ mod tests {
         assert_eq!(header["assets"][0]["len"], 3);
         assert_eq!(header["assets"][1]["len"], 1);
         assert_eq!(&body[4 + len..], [1, 2, 3, 9]);
+    }
+
+    #[test]
+    fn lengths_over_32_bits_are_errors_not_truncations() {
+        assert_eq!(to_u32(7, "x").unwrap(), 7);
+        assert_eq!(to_u32(u32::MAX as usize, "x").unwrap(), u32::MAX);
+        let e = to_u32(u32::MAX as usize + 1, "an imported image").unwrap_err();
+        assert_eq!(e.to_string(), "an imported image exceeds 4 GiB");
+        assert!(to_u32(usize::MAX, "x").is_err());
+    }
+
+    /// `vec![0; n]` is a lazily zeroed allocation, so a 4 GiB payload costs address space only: `encode` refuses it before copying a byte.
+    #[cfg(target_pointer_width = "64")]
+    #[test]
+    fn an_image_or_a_total_over_4_gib_is_refused_before_anything_is_copied() {
+        let image = |n: usize| Asset { source_path: "word/media/a.png".into(), target_path: "assets/a.png".into(), media_type: "image/png", bytes: vec![0u8; n] };
+        let one = ImportResult { chapters: vec![], warnings: vec![], assets: vec![image(u32::MAX as usize + 1)] };
+        assert_eq!(encode(&one).unwrap_err().to_string(), "an imported image exceeds 4 GiB");
+        let two = ImportResult { chapters: vec![], warnings: vec![], assets: vec![image(3 << 30), image(3 << 30)] };
+        assert_eq!(encode(&two).unwrap_err().to_string(), "the total of the imported images exceeds 4 GiB");
     }
 
     #[test]
