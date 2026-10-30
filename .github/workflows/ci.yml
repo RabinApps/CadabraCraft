@@ -24,7 +24,7 @@ jobs:
             sleep $((i * 5))
           done
           exit 1
-      - name: Linux LibreOffice (docx smoke test)
+      - name: Linux LibreOffice (docx and rtf smoke tests)
         if: runner.os == 'Linux'
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
@@ -41,6 +41,21 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/fetch-epubcheck.sh
       - run: bash scripts/fetch-enwik8.sh
+      # PDF/UA and PDF/A validation of the real Typst output (packages/export-pdf verapdf.test.ts). Linux only; elsewhere the
+      # test skips. scripts/fetch-verapdf.sh installs veraPDF into tools/verapdf (needs the Java set up above); Typst and the
+      # Inter fonts come from fetch-typst.sh, found through TYPST_BIN and TYPST_FONT_PATHS.
+      - name: Linux veraPDF and Typst (PDF/UA validation)
+        if: runner.os == 'Linux'
+        run: |
+          bash scripts/fetch-verapdf.sh
+          bash scripts/fetch-typst.sh
+          bin=$(ls "$PWD"/apps/desktop/src-tauri/binaries/typst-* | head -n 1)
+          {
+            echo "REQUIRE_VERAPDF=1"
+            echo "VERAPDF_BIN=$PWD/tools/verapdf/verapdf"
+            echo "TYPST_BIN=$bin"
+            echo "TYPST_FONT_PATHS=$PWD/apps/desktop/src-tauri/binaries/fonts"
+          } >> "$GITHUB_ENV"
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm format:check
