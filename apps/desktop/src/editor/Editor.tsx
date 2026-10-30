@@ -85,6 +85,8 @@ export function Editor({ initial, language, onChange, focus }: Props) {
   const [remember, setRemember] = useState(false);
   // Set the moment a paste opens the dialog (before React re-renders), so a quick second paste is ignored.
   const askingRef = useRef(false);
+  /** When a key last went down in the editor (typewriter scrolling follows the caret only for keys). */
+  const lastKeyAt = useRef(0);
   const askRef = useRef<(text: string, converted: Converted, from: number, to: number) => void>(
     () => {},
   );
@@ -105,6 +107,10 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     editorProps: {
       // A task item's checkbox lives in a non-editable label; clicking it flips `checked` (one undo step).
       handleDOMEvents: {
+        keydown: () => {
+          lastKeyAt.current = Date.now();
+          return false;
+        },
         mousedown: (view, event) => {
           const label = (event.target as HTMLElement | null)?.closest?.(
             'li[data-type="taskItem"] > label',
@@ -184,7 +190,9 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     content: initial,
     onUpdate: ({ editor }) => onChange?.(editor.getJSON() as ChapterDoc),
     onSelectionUpdate: ({ editor }) => {
-      if (useSettings.getState().typewriterScroll) centerCaret(editor);
+      // Only a caret moved by typing or the keys is followed: a click, a find or an outline jump already chose where to look.
+      if (useSettings.getState().typewriterScroll && Date.now() - lastKeyAt.current < 250)
+        centerCaret(editor);
     },
   });
   const pageView = usePageView();

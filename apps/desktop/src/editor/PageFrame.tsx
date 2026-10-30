@@ -27,6 +27,7 @@ import {
 import { usePageView } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useFontList } from "../app/hooks/useFontList";
+import { dirFor } from "../i18n/locales";
 import { editorFontStack } from "../state/editorPrefs";
 import { setPageCount, usePageCount } from "../state/pageCount";
 import { breaksReport, usePageMeasure } from "../state/pageMeasure";
@@ -177,7 +178,8 @@ export function PageStack({
   onCursorPage,
   children,
 }: StackProps) {
-  const { book, g, trim, print, fontStack, family, bookTitle } = look;
+  const { book, g, trim, print, fontStack, family, bookTitle, language } = look;
+  const rtl = dirFor(language) === "rtl";
   const isChapter = section === "chapter";
   const callbacks = useRef({ onLayout, onCursorPage });
   callbacks.current = { onLayout, onCursorPage };
@@ -231,13 +233,14 @@ export function PageStack({
       ...cssVarsStyle(pageCssVars(book, chapterNumber)),
       "--page-mt": `${g.margins.top}px`,
       "--page-mb": `${g.margins.bottom}px`,
-      "--page-ml": `${g.margins.inside}px`,
-      "--page-mr": `${g.margins.outside}px`,
-      "--page-verso-shift": `${g.margins.outside - g.margins.inside}px`,
+      // A right-to-left book is bound on the right: its inside margin is the right one, and the verso shifts the other way.
+      "--page-ml": `${rtl ? g.margins.outside : g.margins.inside}px`,
+      "--page-mr": `${rtl ? g.margins.inside : g.margins.outside}px`,
+      "--page-verso-shift": `${(g.margins.outside - g.margins.inside) * (rtl ? -1 : 1)}px`,
       "--page-head-size": `${print.runningText.sizePt * PX_PER_PT}px`,
       "--page-font": fontStack,
     }),
-    [book, chapterNumber, g, print.runningText.sizePt, fontStack],
+    [book, chapterNumber, g, print.runningText.sizePt, fontStack, rtl],
   ) as CSSProperties;
 
   return (
@@ -260,7 +263,7 @@ export function PageStack({
               page={p}
               head={runningHead(p.kind, p.number, bookTitle, chapterTitle, isChapter)}
               verso={p.number % 2 === 0}
-              left={sideMargins(g, p.number).left}
+              left={sideMargins(g, p.number, rtl).left}
             />
           ))}
         </div>

@@ -285,3 +285,56 @@ test.describe("focus after dialogs", () => {
     }
   });
 });
+
+test.describe("typewriter scrolling", () => {
+  const scroller = (page: Page) =>
+    page.evaluate(
+      () =>
+        document
+          .querySelector<HTMLElement>(".overflow-y-auto .ProseMirror")
+          ?.closest<HTMLElement>(".overflow-y-auto")?.scrollTop ?? -1,
+    );
+
+  test("follows typing but does not move the page when the author clicks", async ({ page }) => {
+    const t = (text: string) => ({ type: "text", text });
+    const para = (i: number) => ({
+      type: "paragraph",
+      content: [
+        t(`Paragraph ${i}. ${"The orchard wall was old and the grass was long. ".repeat(6)}`),
+      ],
+    });
+    await seedChapters(page, [
+      {
+        type: "doc",
+        content: [
+          { type: "heading", attrs: { level: 1 }, content: [t("Chapter One")] },
+          ...Array.from({ length: 40 }, (_, i) => para(i)),
+        ],
+      } as never,
+    ]);
+    await page.evaluate(async () => {
+      const prefs = await import("/src/state/editorPrefs.ts" as string);
+      prefs.useSettings.getState().set({ typewriterScroll: true });
+    });
+    await page.locator(".ProseMirror").click({ position: { x: 100, y: 400 } });
+    await page.keyboard.type("x");
+    await page.waitForTimeout(300);
+    // A click on another line: the page stays where it is.
+    await page.evaluate(() => {
+      document
+        .querySelector<HTMLElement>(".overflow-y-auto .ProseMirror")!
+        .closest<HTMLElement>(".overflow-y-auto")!.scrollTop = 600;
+    });
+    const before = await scroller(page);
+    const area = (await page.locator(".ProseMirror").first().boundingBox())!;
+    const view = page.viewportSize()!;
+    // A point in the visible text (Playwright's own click would scroll the target into view first).
+    await page.mouse.click(area.x + area.width / 2, view.height / 2 - 100);
+    await page.waitForTimeout(400);
+    expect(Math.abs((await scroller(page)) - before)).toBeLessThan(60);
+    // Typing then follows the caret to the middle of the column.
+    await page.keyboard.type("y");
+    await page.waitForTimeout(400);
+    expect(await scroller(page)).not.toBe(before);
+  });
+});
