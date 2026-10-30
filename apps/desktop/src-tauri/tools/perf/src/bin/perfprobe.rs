@@ -256,7 +256,7 @@ fn main() {
     if let Some(d) = &docx {
         let bytes = fs::read(d).unwrap_or_else(|e| die(&format!("{}: {e}", d.display())));
         steps.insert("docx_bytes".into(), json!(bytes.len()));
-        let r = once(&mut steps, "import_docx", || import_docx::import_docx(&bytes, &import_docx::Options::default()));
+        let r = once(&mut steps, "import_docx", || import_docx::import_docx_owned(bytes.clone(), &import_docx::Options::default()));
         steps.insert("import_docx_chapters".into(), json!(r.as_ref().map_or(0, |x| x.chapters.len())));
         steps.insert("import_docx_error".into(), json!(r.err().map(|e| format!("{e:?}"))));
     }
