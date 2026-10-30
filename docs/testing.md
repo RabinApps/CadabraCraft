@@ -14,7 +14,7 @@ cd apps/desktop/src-tauri && cargo test
 
 ## Accessibility
 
-Lint (`jsx-a11y`), the axe e2e spec, the forced-colors and increased-contrast spec (`a11y-forced-colors.spec.ts`), the keyboard-only dialog sweep (`a11y-keyboard.spec.ts`) and the token contrast test run with the checks above. Scope, open items and manual passes are in [accessibility.md](accessibility.md).
+Lint (`jsx-a11y`), the axe e2e spec, the forced-colors and increased-contrast spec (`a11y-forced-colors.spec.ts`), the keyboard-only dialog sweep (`a11y-keyboard.spec.ts`), the accessibility-tree snapshots (`a11y-tree.spec.ts`) and the token contrast test run with the checks above. Scope, open items and manual passes are in [accessibility.md](accessibility.md).
 
 ## WebDriver e2e (real built app)
 
