@@ -82,7 +82,7 @@ pub(crate) fn synthesize(chunks: &[Chunk], voice_id: &str, speed: f64, sherpa: &
             let msg = r.stderr.trim();
             return Err(AudioError::Synth { message: if msg.is_empty() { "the voice engine exited with an error and no message".into() } else { msg.chars().rev().take(2000).collect::<Vec<_>>().into_iter().rev().collect() } });
         }
-        let pcm = parse_wav(&fs::read(&out).map_err(other)?)?;
+        let pcm = parse_wav(&read_batch_wav(&out)?)?;
         if rate != 0 && pcm.rate != rate {
             return Err(AudioError::Synth { message: "the voice engine changed its sample rate part-way".into() });
         }
@@ -99,9 +99,33 @@ pub(crate) fn synthesize(chunks: &[Chunk], voice_id: &str, speed: f64, sherpa: &
     Ok((samples, rate))
 }
 
+/// The most one batch's WAV may hold (a few thousand characters make a few MB; this only stops a runaway engine).
+const MAX_BATCH_WAV_BYTES: u64 = 512 * 1024 * 1024;
+
+/// A batch's WAV, if it is a regular file of at most `cap` bytes: a runaway engine cannot use all memory.
+fn read_capped_wav(out: &Path, cap: u64) -> Result<Vec<u8>, AudioError> {
+    let too_large = || crate::project::ProjectError::TooLarge { path: "batch.wav".into(), max_mb: cap / 1024 / 1024 };
+    crate::project::read_regular(out, cap, "batch.wav", too_large).map_err(|e| AudioError::Synth { message: e.to_string() })
+}
+
+fn read_batch_wav(out: &Path) -> Result<Vec<u8>, AudioError> {
+    read_capped_wav(out, MAX_BATCH_WAV_BYTES)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_batch_wav_over_the_cap_or_not_a_file_is_a_synth_error() {
+        let dir = tempfile::tempdir().unwrap();
+        let wav = dir.path().join("b0.wav");
+        fs::write(&wav, [0u8; 8]).unwrap();
+        assert_eq!(read_capped_wav(&wav, 8).unwrap().len(), 8);
+        assert!(matches!(read_capped_wav(&wav, 7), Err(AudioError::Synth { .. })));
+        assert!(matches!(read_capped_wav(dir.path(), 8), Err(AudioError::Synth { .. })));
+        assert_eq!(read_batch_wav(&wav).unwrap().len(), 8);
+    }
 
     fn fake_bin(dir: &Path, name: &str) -> PathBuf {
         let bin = dir.join(name);
