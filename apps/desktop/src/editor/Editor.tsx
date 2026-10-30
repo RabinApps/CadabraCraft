@@ -130,7 +130,13 @@ export function Editor({ initial, language, onChange, focus }: Props) {
           return true;
         },
       },
-      attributes: { lang: language, dir: dirFor(language), "aria-label": t`Page text` },
+      // A textbox that holds many paragraphs: screen readers need `aria-multiline` to read it as one (Enter makes a new paragraph).
+      attributes: {
+        lang: language,
+        dir: dirFor(language),
+        "aria-label": t`Page text`,
+        "aria-multiline": "true",
+      },
       // Pasted text and HTML lose what no export can carry (control characters) and pictures from outside the book.
       transformPastedText: (text) => cleanPastedText(text),
       transformPastedHTML: (html) => {

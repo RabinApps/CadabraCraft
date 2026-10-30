@@ -338,3 +338,14 @@ test.describe("typewriter scrolling", () => {
     expect(await scroller(page)).not.toBe(before);
   });
 });
+
+test.describe("the editor for assistive technology", () => {
+  test("is a labelled multi-line textbox in the book's language and direction", async ({
+    page,
+  }) => {
+    const box = page.getByRole("textbox", { name: "Page text" });
+    await expect(box).toHaveAttribute("aria-multiline", "true");
+    await expect(box).toHaveAttribute("lang", "en");
+    await expect(box).toHaveAttribute("dir", "ltr");
+  });
+});
