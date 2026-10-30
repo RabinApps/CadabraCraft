@@ -8,6 +8,8 @@ export function escapeText(text: string, atStart: boolean, where: Where): string
   if (where.table) s = s.replace(/\|/g, "\\|");
   // Bare URLs, "www." hosts and e-mail addresses are left alone: GFM linkifies them in the parsed text, so escaping cannot prevent it.
   if (atStart) {
+    // A tab at the start of a paragraph (the editor's Tab key) would read back as an indented code block: a character reference keeps it text.
+    s = s.replace(/^\t/, "&#9;");
     s = s
       .replace(/^(#{1,6})(?=[ \t]|$)/, "\\$1")
       .replace(/^([-+])/, "\\$1")

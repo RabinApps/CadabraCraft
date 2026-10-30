@@ -645,3 +645,21 @@ describe("multi-chapter output", () => {
     expect(importMarkdown(md).chapters.length).toBe(book.chapters.length);
   });
 });
+
+describe("a typed tab (the editor's Tab key)", () => {
+  const withTab = (t: string): ChapterDoc => ({
+    type: "doc",
+    content: [{ type: "paragraph", content: [{ type: "text", text: t }] }],
+  });
+  it("at the start of a paragraph is not left as indentation, which would read back as a code block", () => {
+    const md = chapterToMarkdown(withTab("\tIndented"));
+    expect(md).not.toMatch(/^\t/);
+    expect(md).toContain("&#9;Indented");
+    const back = JSON.stringify(importMarkdown(md).chapters[0]!.doc);
+    expect(back).toContain("\\tIndented");
+    expect(back).not.toContain("codeBlock");
+  });
+  it("inside a line stays a tab", () => {
+    expect(chapterToMarkdown(withTab("a\tb"))).toContain("a\tb");
+  });
+});

@@ -35,27 +35,38 @@ export function escapeMarkup(input: string, opts: EscapeOptions = {}): string {
   let out = "";
   let lineStart = opts.lineStart ?? false;
   let digitCount = 0;
+  let afterCallHere = false;
   for (let i = 0; i < s.length; i++) {
     const c = s[i]!;
     const next = s[i + 1];
     const prev = s[i - 1];
     if (c === "\n") {
+      afterCallHere = false;
       out += "\\\n"; // Typst line break
       lineStart = true;
       digitCount = 0;
       continue;
     }
-    if (lineStart && (c === " " || c === "\t")) {
+    if (c === "\t") {
+      // Typst collapses a tab to a space: the indent the author typed is a fixed gap, as wide as a first-line indent.
+      out += "#h(1.5em)";
+      lineStart = false;
+      afterCallHere = true;
+      continue;
+    }
+    if (lineStart && c === " ") {
       out += c;
       continue;
     }
+    const callJust = afterCallHere;
+    afterCallHere = false;
     let esc = ALWAYS.has(c);
     if (!esc && c === "/") esc = next === "/" || next === "*" || lineStart;
     if (!esc && lineStart && (c === "=" || c === "-" || c === "+")) esc = true;
     if (!esc && c === "-") esc = next === "-" || next === "?" || prev === "-";
     if (!esc && c === "." && s.startsWith("...", i)) esc = true; // would become an ellipsis
     if (!esc && c === "." && lineStart && digitCount > 0) esc = true; // "1." enum marker
-    if (!esc && i === 0 && opts.afterCall && (c === "." || c === "(")) esc = true;
+    if (!esc && (c === "." || c === "(") && ((i === 0 && opts.afterCall) || callJust)) esc = true;
     out += esc ? "\\" + c : c;
     if (lineStart) {
       if (isDigit(c)) digitCount++;

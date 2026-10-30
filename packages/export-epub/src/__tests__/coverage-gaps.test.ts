@@ -322,3 +322,17 @@ describe("SVG images", () => {
     expect(e.message).toMatch(/assets\/a\.svg/);
   });
 });
+
+describe("a typed tab (the editor's Tab key)", () => {
+  it("becomes an em space in text, which XHTML would otherwise collapse to nothing", () => {
+    expect(body({ type: "paragraph", content: [text("\tIndented")] })).toContain(" Indented");
+  });
+  it("is kept in code, where the stylesheet preserves white space", () => {
+    expect(
+      body({
+        type: "paragraph",
+        content: [{ type: "text", text: "a\tb", marks: [{ type: "code" }] }],
+      }),
+    ).toContain("a\tb");
+  });
+});

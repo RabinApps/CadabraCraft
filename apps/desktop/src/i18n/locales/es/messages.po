@@ -2542,6 +2542,10 @@ msgstr "Pegar"
 msgid "Paste as styled text?"
 msgstr "¿Pegar como texto con estilo?"
 
+#: src/editor/Editor.tsx
+msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
+msgstr ""
+
 #: src/app/references/ReferenceRow.tsx
 #: src/app/references/ReferencesPanel.tsx
 msgid "PDF"
