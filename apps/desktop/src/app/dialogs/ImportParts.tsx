@@ -47,7 +47,7 @@ export function PickRow({
           readOnly
           value={value}
           placeholder={placeholder}
-          className="min-w-0 flex-1 rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink-muted placeholder:text-ink-muted"
+          className="min-w-0 flex-1 rounded-md border border-border-strong bg-surface px-3 py-2.5 text-sm text-ink-muted placeholder:text-ink-muted"
         />
         <Button icon={icon} onClick={onPick} disabled={disabled}>
           {button}

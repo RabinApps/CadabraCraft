@@ -119,7 +119,13 @@ export function Settings({
           ))}
         </nav>
         {/* relative: the visually hidden inputs inside are positioned against this box, not the window, so they cannot make the page itself scroll. */}
-        <main ref={mainRef} onScroll={follow} className="relative min-h-0 flex-1 overflow-y-auto">
+        <main
+          id="main"
+          tabIndex={-1}
+          ref={mainRef}
+          onScroll={follow}
+          className="outline-none relative min-h-0 flex-1 overflow-y-auto"
+        >
           {/* The bottom space lets the last sections scroll up to the top, where the nav jump puts them. */}
           <div className="mx-auto flex max-w-[640px] flex-col gap-8 p-4 sm:pb-[70dvh] md:p-10 md:pb-[70dvh]">
             <Section id="appearance" title={navLabels.appearance}>

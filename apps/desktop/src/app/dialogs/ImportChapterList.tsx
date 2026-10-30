@@ -131,7 +131,7 @@ export function ImportChapterList({ result, plan, onChange }: Props) {
                 value={item.title}
                 disabled={!item.include}
                 onChange={(e) => patch(i, { title: e.target.value })}
-                className="min-w-0 flex-1 rounded-md border border-border bg-bg px-2.5 py-1.5 text-sm max-md:min-h-11 disabled:text-ink-muted"
+                className="min-w-0 flex-1 rounded-md border border-border-strong bg-bg px-2.5 py-1.5 text-sm max-md:min-h-11 disabled:text-ink-muted"
               />
             </div>
             <div className="flex flex-wrap items-center gap-x-1 md:ps-8.5">

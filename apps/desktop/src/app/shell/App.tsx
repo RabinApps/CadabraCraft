@@ -263,7 +263,7 @@ function AppScreens() {
         >
           <Sidebar />
         </aside>
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <main id="main" tabIndex={-1} className="outline-none flex min-h-0 min-w-0 flex-1 flex-col">
           {error && (
             <Notice role="alert" className="m-4">
               {error}

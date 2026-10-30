@@ -12,8 +12,8 @@ import { FontsCatalogDialog } from "./FontsCatalogDialog";
 import { Row, Section } from "./SettingsParts";
 
 const badgeTone: Record<FontSource, string> = {
-  bundled: "bg-border text-ink-muted",
-  installed: "bg-border text-ink-muted",
+  bundled: "border border-border-strong bg-bg text-ink-muted",
+  installed: "border border-border-strong bg-bg text-ink-muted",
   downloaded: "bg-accent-soft text-accent",
   imported: "bg-success-soft text-success",
 };

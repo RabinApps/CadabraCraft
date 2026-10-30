@@ -402,9 +402,7 @@ test.describe("reference files", () => {
     const titles = () =>
       panel(page)
         .getByRole("listitem")
-        .evaluateAll((li) =>
-          li.map((x) => x.querySelector("button[aria-label]")!.getAttribute("aria-label")),
-        );
+        .evaluateAll((li) => li.map((x) => x.querySelector("[data-title]")!.textContent));
     await expect.poll(titles).toEqual(["one", "two", "three"]);
     await panel(page).getByRole("button", { name: "Actions for one" }).click();
     await expect(page.getByRole("menuitem", { name: "Move up" })).toBeDisabled();
@@ -458,9 +456,7 @@ test.describe("reference files", () => {
     const titles = () =>
       panel(page)
         .getByRole("listitem")
-        .evaluateAll((li) =>
-          li.map((x) => x.querySelector("button[aria-label]")!.getAttribute("aria-label")),
-        );
+        .evaluateAll((li) => li.map((x) => x.querySelector("[data-title]")!.textContent));
     await expect(panel(page).getByText("3 references")).toBeVisible();
     await expect(panel(page).locator("[data-grip]")).toHaveCount(3);
     await panel(page).getByRole("button", { name: "Sort references" }).click();

@@ -1233,6 +1233,10 @@ msgstr "Detailbereich"
 msgid "Dismiss"
 msgstr "Schließen"
 
+#: src/app/shell/AppHeader.tsx
+msgid "Dismiss message"
+msgstr ""
+
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "Document"
@@ -1303,12 +1307,8 @@ msgstr "Wird heruntergeladen…"
 msgid "Downloading… {0} MB of {1} MB"
 msgstr "Wird heruntergeladen… {0} MB von {1} MB"
 
-#. placeholder {0}: reference.title
-#: src/app/references/ReferenceRow.tsx
-msgid "Drag to reorder {0}"
-msgstr "Ziehen, um {0} umzusortieren"
-
 #: src/app/dialogs/ImportChapterList.tsx
+#: src/app/references/ReferenceRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr "Ziehen oder die Pfeiltasten nach oben und unten drücken"
 
@@ -2830,6 +2830,11 @@ msgstr "Umbenennen"
 msgid "Rename {0}"
 msgstr "{0} umbenennen"
 
+#. placeholder {0}: reference.title
+#: src/app/references/ReferenceRow.tsx
+msgid "Reorder {0}"
+msgstr ""
+
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Reorder chapter {n}"
 msgstr "Kapitel {n} umsortieren"
@@ -3131,6 +3136,10 @@ msgstr "Es wird ein ungefähres Layout angezeigt, weil das echte nicht gesetzt w
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr "SIL Open Font License 1.1"
+
+#: src/ui/SkipLink.tsx
+msgid "Skip to main content"
+msgstr ""
 
 #: src/app/export/AudioExport.tsx
 #: src/app/export/EditionsChecklist.tsx

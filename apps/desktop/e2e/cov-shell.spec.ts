@@ -289,6 +289,10 @@ test("closing the window waits for the unsaved text, and a failed save keeps it 
   await expect(notice(page)).toContainText("Your last changes could not be saved");
   expect(await close()).toBe(3); // asking again leaves anyway
   await page.evaluate(() => (window.__failWrite = undefined));
+  // A save no longer replaces a message the author has not dismissed.
+  await page.getByRole("button", { name: "Dismiss message" }).click();
+  await editor(page).click();
+  await page.keyboard.press("ControlOrMeta+End");
 
   // The best-effort writes of a closing page.
   await page.keyboard.type("last");

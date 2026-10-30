@@ -84,7 +84,7 @@ export function PdfSearch({
             aria-label={t`Search text`}
             placeholder={t`Find in this PDF`}
             onChange={(e) => setQuery(e.target.value)}
-            className="h-8 w-44 rounded-md border border-border bg-paper px-2 text-sm"
+            className="h-8 w-44 rounded-md border border-border-strong bg-paper px-2 text-sm"
           />
           <span className="min-w-20 text-sm text-ink-muted" role="status">
             {hits === null

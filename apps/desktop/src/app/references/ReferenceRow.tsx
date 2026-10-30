@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import * as M from "@radix-ui/react-dropdown-menu";
-import type { PointerEvent } from "react";
+import { useId, type KeyboardEvent, type PointerEvent } from "react";
 import type { Reference } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { referenceKind, type ReferenceKind } from "../../lib/referenceKinds";
@@ -63,6 +63,13 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
   const kind = referenceKind(reference.file);
   const Icon = kindIcon(kind);
   const label = useKindLabel();
+  const id = useId();
+  const keys = (e: KeyboardEvent) => {
+    if (!reorder || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+    e.preventDefault();
+    const delta = e.key === "ArrowUp" ? -1 : 1;
+    if (delta < 0 ? !reorder.first : !reorder.last) reorder.onMove(delta);
+  };
   return (
     <div
       className={cx(
@@ -72,32 +79,43 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
         !reorder?.dragging &&
           (selected
             ? "border-accent bg-accent-soft"
-            : "border-border bg-surface hover:bg-accent-soft/60"),
+            : "border-border-strong bg-surface hover:bg-accent-soft/60"),
       )}
     >
       {reorder && (
-        <span
-          role="presentation"
-          aria-label={t`Drag to reorder ${reference.title}`}
+        <button
+          type="button"
           data-grip
+          aria-label={t`Reorder ${reference.title}`}
+          aria-keyshortcuts="ArrowUp ArrowDown"
+          title={t`Drag, or press the up and down arrow keys`}
           onPointerDown={reorder.onGrab}
-          className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center text-ink-muted"
+          onKeyDown={keys}
+          className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted focus-visible:outline-2 focus-visible:outline-accent"
         >
           <GripVertical size={16} aria-hidden />
-        </span>
+        </button>
       )}
       <button
         type="button"
         onClick={onOpen}
-        aria-label={reference.title}
+        data-open
+        aria-labelledby={`${id}-title`}
+        aria-describedby={`${id}-kind`}
         className="flex min-w-0 flex-1 items-center gap-3 rounded-sm text-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <span className="flex size-11 shrink-0 items-center justify-center rounded-sm bg-accent-soft text-accent">
           <Icon size={20} aria-hidden />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-ink">{reference.title}</span>
-          <span className="block truncate text-xs text-ink-muted">
+          <span
+            id={`${id}-title`}
+            data-title
+            className="block truncate text-sm font-semibold text-ink"
+          >
+            {reference.title}
+          </span>
+          <span id={`${id}-kind`} className="block truncate text-xs text-ink-muted">
             {[label(kind), ...reference.tags].join(" · ")}
           </span>
         </span>

@@ -109,6 +109,16 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
       window.removeEventListener("pointercancel", drop);
     };
   }, [dragId, references, actions]);
+  /** After a keyboard move the grip keeps focus, even if React moved its row in the DOM. */
+  const refocus = useRef<string | null>(null);
+  useEffect(() => {
+    const id = refocus.current;
+    if (!id) return;
+    refocus.current = null;
+    list.current
+      ?.querySelector<HTMLElement>(`[data-ref-id="${CSS.escape(id)}"] [data-grip]`)
+      ?.focus();
+  }, [references]);
   const grab = (id: string, index: number) => (e: PointerEvent<HTMLElement>) => {
     e.preventDefault();
     at.current = index;
@@ -273,7 +283,7 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
         ) : (
           <ul ref={list} className={grid ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2"}>
             {shown.map((r, i) => (
-              <li key={r.id} className="relative min-w-0">
+              <li key={r.id} data-ref-id={r.id} className="relative min-w-0">
                 {drag && drag.at === i && <DropLine />}
                 {drag && drag.at === shown.length && i === shown.length - 1 && <DropLine below />}
                 <div>
@@ -286,7 +296,10 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
                       ? {
                           reorder: {
                             onGrab: grab(r.id, i),
-                            onMove: (d: number) => attempt(actions.moveReference(r.id, i + d)),
+                            onMove: (d: number) => {
+                              refocus.current = r.id;
+                              attempt(actions.moveReference(r.id, i + d));
+                            },
                             first: i === 0,
                             last: i === shown.length - 1,
                             dragging: drag?.id === r.id,

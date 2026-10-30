@@ -89,7 +89,9 @@ export function AddLanguageDialog({ open, onOpenChange }: Props) {
                 key={value}
                 className={cx(
                   option,
-                  mode === value ? "border-accent bg-accent-soft" : "border-border bg-surface",
+                  mode === value
+                    ? "border-accent bg-accent-soft"
+                    : "border-border-strong bg-surface",
                 )}
               >
                 <input

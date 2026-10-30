@@ -4,6 +4,7 @@ import "./index.css";
 import { setAssetUrlResolver } from "@cadabracraft/editor-schema";
 import { App } from "./app/shell/App";
 import { ErrorBoundary } from "./app/shell/ErrorBoundary";
+import { SkipLink } from "./ui/SkipLink";
 import { installRejectionNotice } from "./state/attempt";
 import { useProject } from "./state/project/index";
 import { assetUrl } from "./lib/assets";
@@ -23,6 +24,7 @@ initI18n()
   .then(() => {
     createRoot(document.getElementById("root")!).render(
       <I18nProvider i18n={i18n}>
+        <SkipLink />
         <ErrorBoundary>
           <App />
         </ErrorBoundary>

@@ -78,7 +78,11 @@ export function Home({
         <IconButton icon={Settings} label={t`Settings`} onClick={onSettings} />
       </header>
       {recents.length === 0 ? (
-        <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-4 px-4 pb-24 text-center">
+        <main
+          id="main"
+          tabIndex={-1}
+          className="outline-none mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-4 px-4 pb-24 text-center"
+        >
           <span className="flex size-16 items-center justify-center rounded-full bg-accent-soft text-accent">
             <BookPlus size={28} aria-hidden />
           </span>
@@ -100,7 +104,11 @@ export function Home({
           </p>
         </main>
       ) : (
-        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 pb-10 md:px-16">
+        <main
+          id="main"
+          tabIndex={-1}
+          className="outline-none mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 pb-10 md:px-16"
+        >
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="flex flex-col gap-1">
               <h1 className="font-book text-heading font-semibold md:text-display">{t`Your books`}</h1>
@@ -226,7 +234,7 @@ function NewProjectDialog({
               readOnly
               value={root ?? ""}
               placeholder={t`No folder chosen`}
-              className="min-w-0 flex-1 rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-ink-muted placeholder:text-ink-muted"
+              className="min-w-0 flex-1 rounded-md border border-border-strong bg-surface px-3 py-2.5 text-sm text-ink-muted placeholder:text-ink-muted"
             />
             <Button
               icon={FolderOpen}

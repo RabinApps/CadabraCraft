@@ -63,7 +63,7 @@ export function EntryList({
                   autoFocus
                   aria-label={titleLabel}
                   defaultValue={c.title}
-                  className="min-w-0 flex-1 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
+                  className="min-w-0 flex-1 rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
                   onBlur={(e) => {
                     setEditing(null);
                     // Escape cancels: closing the field can still blur it, which must not save.

@@ -2,7 +2,8 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { chapterAction, newProject } from "./support/helpers";
+import { fakeImportSources } from "./support/fakeImport";
 
 // WCAG 2.0 to 2.2 A and AA (docs/accessibility.md).
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
@@ -37,6 +38,38 @@ for (const theme of ["light", "dark"] as const) {
       await page.getByRole("button", { name: "New project" }).click();
       await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
       await scan(page, "new book dialog");
+    });
+
+    test("settings screen", async ({ page }) => {
+      await page.goto("/");
+      await page.getByRole("button", { name: "Settings" }).click();
+      await expect(page.getByRole("heading", { name: "Settings", level: 1 })).toBeVisible();
+      await scan(page, "settings");
+    });
+
+    test("export dialog and history dialog", async ({ page }) => {
+      await newProject(page);
+      await page.getByRole("button", { name: "Export", exact: true }).click();
+      await expect(page.getByRole("dialog", { name: "Export book" })).toBeVisible();
+      await scan(page, "export dialog");
+      await page.keyboard.press("Escape");
+      await chapterAction(page, "Chapter One", "History");
+      await expect(page.getByRole("dialog", { name: "History · Chapter One" })).toBeVisible();
+      await scan(page, "history dialog");
+    });
+
+    test("import dialog", async ({ page }) => {
+      await fakeImportSources(page, "md");
+      await page.goto("/");
+      await page.getByRole("button", { name: "Import…" }).click();
+      const dialog = page.getByRole("dialog", { name: "Import a manuscript" });
+      await expect(dialog).toBeVisible();
+      await scan(page, "import dialog");
+      await dialog.getByRole("button", { name: "Choose file…" }).click();
+      await expect(dialog.getByLabel("File")).not.toHaveValue("");
+      await dialog.getByRole("button", { name: "Choose…" }).click();
+      await dialog.getByRole("button", { name: "Next" }).click();
+      await scan(page, "import chapter list");
     });
 
     test("editor", async ({ page }) => {

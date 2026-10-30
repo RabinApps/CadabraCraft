@@ -15,6 +15,7 @@ import {
   Save,
   Search,
   Settings as SettingsIcon,
+  X,
 } from "lucide-react";
 import { ReadingSettings } from "../../editor/ReadingSettings";
 import { Badge } from "../../ui/Badge";
@@ -92,12 +93,22 @@ export function AppHeader({
       <h1 className="min-w-0 truncate font-book text-base font-semibold">{title}</h1>
       <EditionSwitcher />
       <Badge tone={unsaved ? "warn" : "success"}>{unsaved ? t`Unsaved` : t`Saved`}</Badge>
-      <span
-        role="status"
-        className="min-w-0 flex-1 truncate text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:empty:hidden"
-      >
-        {notice}
-      </span>
+      {/* The live region stays mounted so a new notice is announced; the text wraps, nothing is cut off for readers. */}
+      <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:has-[span:empty]:hidden">
+        <span role="status" className="min-w-0 flex-1 break-words">
+          {notice}
+        </span>
+        {notice && (
+          <button
+            type="button"
+            aria-label={t`Dismiss message`}
+            onClick={() => useProject.setState({ notice: "" })}
+            className="flex size-6 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            <X size={14} aria-hidden />
+          </button>
+        )}
+      </div>
       <Segmented
         label={t`Write or read`}
         value={mode}

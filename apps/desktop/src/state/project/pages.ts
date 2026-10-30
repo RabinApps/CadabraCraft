@@ -87,7 +87,7 @@ export const createPageActions = (ctx: Ctx): PageActions => {
         hashes: { ...get().hashes, [file]: w.hash },
         notice: w.conflict_copy
           ? t`${titleIn(entry, manifest, lang)} changed outside the app; the other version was kept as ${w.conflict_copy}`
-          : t`Saved`,
+          : get().notice || t`Saved`,
       });
       // Typing in a copy or blank page is the translation: the chapter stops being marked untranslated.
       const newFile = entryFile(entry, lang) === undefined;

@@ -92,7 +92,11 @@ export function Templates({ onBack }: { onBack: () => void }) {
         </Notice>
       )}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8">
+        <main
+          id="main"
+          tabIndex={-1}
+          className="outline-none flex min-w-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8"
+        >
           <h2 className="font-book text-2xl font-semibold">{t`Choose a look for your book`}</h2>
           <div
             role="radiogroup"
