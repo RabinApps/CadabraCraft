@@ -278,8 +278,15 @@ fn create(root: &Path, name: &str, automatic: bool, now: DateTime<Utc>) -> Resul
         return Err(snapshot_too_large());
     }
     // A name already taken (two snapshots in one minute) gets `~2`, never replaces the first.
-    let to = free_copy_name(root, &format!("{SNAPSHOTS_DIR}/{}.json", stamp_of(now)))?;
-    atomic_write(&resolve(root, &to)?, &bytes)?;
+    // The free name is picked and the file written under one lock: the write replaces, so two snapshots taken at once
+    // (a double click, an automatic one during a restore) would otherwise pick the same name and one would be lost.
+    let to = {
+        static NAMES: std::sync::Mutex<()> = std::sync::Mutex::new(());
+        let _held = NAMES.lock().unwrap_or_else(|e| e.into_inner());
+        let to = free_copy_name(root, &format!("{SNAPSHOTS_DIR}/{}.json", stamp_of(now)))?;
+        atomic_write(&resolve(root, &to)?, &bytes)?;
+        to
+    };
     prune_book_snapshots(root, &to, MAX_SNAPSHOTS, MAX_TOTAL_BYTES, now);
     Ok(BookSnapshotEntry { path: to, at: stamp_of(now), name: file.name, automatic, pages: file.pages.into_keys().collect(), assets: file.assets.len(), bytes: bytes.len() as u64 })
 }

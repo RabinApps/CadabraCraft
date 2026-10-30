@@ -362,3 +362,6 @@ mod tests {
         assert!(matches!(read_relative_image(&gone, "pic.png"), Err(ProjectError::NotFound { .. })));
     }
 }
+
+#[cfg(test)]
+mod edge;

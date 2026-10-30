@@ -181,6 +181,12 @@ fn import_reference_with(root: &Path, source: &Path, persist: Persist) -> Result
     }
     let kind = kind_of(&ext);
     let cap = max_bytes(kind);
+    // Look at the type before opening: opening a fifo for reading waits for a writer that never comes. The handle is checked
+    // again below, because the path may have been swapped in between.
+    let before = fs::metadata(source).map_err(|e| open_error(e, source, name))?;
+    if !before.is_file() {
+        return Err(ProjectError::NotAFile { path: name.to_string() });
+    }
     let mut src = File::open(source).map_err(|e| open_error(e, source, name))?;
     let meta = src.metadata().ctx(name)?;
     if !meta.is_file() {
@@ -292,6 +298,10 @@ pub fn reference_path(root: &Path, rel: &str) -> Result<PathBuf> {
 
 pub(super) fn open_regular(root: &Path, rel: &str) -> Result<(File, u64)> {
     let path = reference_path(root, rel)?;
+    // Not opened before its type is known: a fifo would block the open forever (see `import_reference_with`).
+    if !fs::metadata(&path).map_err(|e| open_error(e, &path, rel))?.is_file() {
+        return Err(ProjectError::NotAFile { path: rel.to_string() });
+    }
     let file = File::open(&path).map_err(|e| open_error(e, &path, rel))?;
     let meta = file.metadata().ctx(rel)?;
     if !meta.is_file() {

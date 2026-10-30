@@ -148,3 +148,6 @@ mod tests {
         assert_eq!(parse_wav(&wav).unwrap().rate, MAX_RATE);
     }
 }
+
+#[cfg(test)]
+mod edge;

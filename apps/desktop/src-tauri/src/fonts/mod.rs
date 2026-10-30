@@ -58,3 +58,6 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod edge_tests;
