@@ -232,6 +232,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             mirrored: true,
             pageNumbers: true,
             pdfA: options.pdfA,
+            pdfUa: options.pdfUa === true,
             ...(options.bleedIn ? { bleedIn: options.bleedIn } : {}),
             ...(options.cropMarks ? { cropMarks: true } : {}),
             ...(Object.keys(fonts).length ? { fonts } : {}),

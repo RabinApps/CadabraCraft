@@ -37,7 +37,10 @@ describe("createTauriRunner", () => {
       "src",
       [["assets/x.png", new Uint8Array([5, 6])]],
       true,
+      false,
     );
+    await r.compile("src", new Map(), { pdfA: false, pdfUa: true });
+    expect(typstCompile).toHaveBeenLastCalledWith("src", [], false, true);
   });
   it("converts rejections", async () => {
     const r = createTauriRunner({

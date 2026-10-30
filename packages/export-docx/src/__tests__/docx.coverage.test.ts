@@ -241,6 +241,16 @@ describe("tables", () => {
     expect(d).toContain("<w:b/>");
     expect(d.match(/<w:cantSplit\/>/g)).toHaveLength(2);
   });
+  it("sets the first-row flag of tblLook only when the first row is a header row", () => {
+    const head = { type: "tableHeader", content: [p(t("H"))] } as DocNode;
+    const withHeader = build(chapter("A", table(row(head), row({ type: "tableCell" }))));
+    expect(withHeader).toContain('<w:tblLook w:val="0420" w:firstRow="1"');
+    const without = build(
+      chapter("A", table(row({ type: "tableCell" }), row({ type: "tableCell" }))),
+    );
+    expect(without).toContain('<w:tblLook w:val="0400" w:firstRow="0"');
+    expect(without).not.toContain("<w:tblHeader/>");
+  });
 });
 
 describe("paragraph properties", () => {

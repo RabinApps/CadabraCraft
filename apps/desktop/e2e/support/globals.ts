@@ -66,6 +66,7 @@ export interface SampleCall {
 export interface TypstCall {
   source: string;
   pdfA: boolean;
+  pdfUa?: boolean;
   [field: string]: unknown;
 }
 

@@ -24,7 +24,7 @@ export function paraOpen(o: ParaOpts, ctx: Ctx): string {
   const pb = ctx.s.pendingBreak;
   ctx.s.pendingBreak = false;
   return (
-    `\\pard\\plain${o.cell ? "\\intbl" : ""}${o.mono ? "\\f1" : "\\f0"}\\fs${o.size ?? 24}` +
+    `\\pard\\plain${ctx.s.lang ? `\\lang${ctx.s.lang}` : ""}${o.cell ? "\\intbl" : ""}${o.mono ? "\\f1" : "\\f0"}\\fs${o.size ?? 24}` +
     `\\sl${o.single ? 240 : DOUBLE}\\slmult1\\sb${o.before ?? 0}\\sa${o.after ?? 0}` +
     `\\li${o.left ?? 0}\\ri${o.right ?? 0}\\fi${o.firstLine ?? INDENT}\\q${o.jc ?? "l"}` +
     `${o.keepNext ? "\\keepn" : ""}${pb ? "\\pagebb" : ""}` +

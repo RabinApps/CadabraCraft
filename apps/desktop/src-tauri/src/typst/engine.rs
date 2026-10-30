@@ -216,13 +216,15 @@ pub fn query(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8
 
 /// Writes `source` and `files` into a fresh temp directory under `tmp_base`, runs `typst compile`, returns the PDF.
 /// The directory is removed on every path out (success, error, timeout).
-pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)], pdf_a: bool, timeout: Duration) -> Result<Vec<u8>, TypstError> {
+pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)], pdf_a: bool, pdf_ua: bool, timeout: Duration) -> Result<Vec<u8>, TypstError> {
     let dir = stage(tmp_base, source, files)?;
     let mut args: Vec<String> = vec!["compile".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
     args.extend(font_args(&font_dirs()));
     args.extend(package_args(dir.path())?);
-    if pdf_a {
-        args.extend(["--pdf-standard".into(), "a-2b".into()]);
+    // PDF/A-2b and PDF/UA-1 can be combined; Typst takes them as one comma-separated value.
+    let standards: Vec<&str> = [(pdf_a, "a-2b"), (pdf_ua, "ua-1")].into_iter().filter(|(on, _)| *on).map(|(_, s)| s).collect();
+    if !standards.is_empty() {
+        args.extend(["--pdf-standard".into(), standards.join(",")]);
     }
     args.extend(["main.typ".into(), "out.pdf".into()]);
     let r = run_capture(bin, &args, dir.path(), timeout)?;
@@ -367,7 +369,7 @@ mod tests {
         let base = tempfile::tempdir().unwrap();
         let src = "#import \"@preview/x:1.0.0\"";
         let t = Duration::from_secs(5);
-        assert!(matches!(compile(Path::new("/no/such/typst"), base.path(), src, &[], false, t), Err(TypstError::Compile { .. })));
+        assert!(matches!(compile(Path::new("/no/such/typst"), base.path(), src, &[], false, false, t), Err(TypstError::Compile { .. })));
         assert!(matches!(query(Path::new("/no/such/typst"), base.path(), src, &[], "<x>", t), Err(TypstError::Compile { .. })));
         assert_eq!(leftovers(base.path()), 0);
     }
@@ -378,7 +380,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let base = tempfile::tempdir().unwrap();
         let echo_args = fake(d.path(), "echo \"$@\" > out.pdf; echo \"$@\"");
-        let pdf = String::from_utf8(compile(&echo_args, base.path(), "x", &[], false, COMPILE_TIMEOUT).unwrap()).unwrap();
+        let pdf = String::from_utf8(compile(&echo_args, base.path(), "x", &[], false, false, COMPILE_TIMEOUT).unwrap()).unwrap();
         assert!(pdf.contains("--package-path") && pdf.contains("no-local-packages") && pdf.contains("--package-cache-path") && pdf.contains("no-package-cache"), "{pdf}");
         let q = String::from_utf8(query(&echo_args, base.path(), "x", &[], "<r>", COMPILE_TIMEOUT).unwrap()).unwrap();
         assert!(q.contains("--package-path") && q.contains("--package-cache-path"), "{q}");
@@ -452,9 +454,9 @@ mod tests {
         let loud = fake(d.path(), "echo 'bad things' >&2; exit 2");
         assert!(matches!(version(&loud), Err(TypstError::Other { message }) if message.contains("--version failed") && message.contains("bad things")));
         assert!(matches!(list_fonts(&loud), Err(TypstError::Other { message }) if message.contains("typst fonts failed") && message.contains("bad things")));
-        assert!(matches!(compile(&loud, d.path(), "x", &[], false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message == "bad things"));
+        assert!(matches!(compile(&loud, d.path(), "x", &[], false, false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message == "bad things"));
         let silent = fake(d.path(), "exit 2");
-        assert!(matches!(compile(&silent, d.path(), "x", &[], false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message.contains("no message")));
+        assert!(matches!(compile(&silent, d.path(), "x", &[], false, false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message.contains("no message")));
     }
 
     #[cfg(unix)]
@@ -463,10 +465,15 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let base = tempfile::tempdir().unwrap();
         let echo_args = fake(d.path(), "echo \"$@\" > out.pdf");
-        let pdf = compile(&echo_args, base.path(), "x", &[], true, COMPILE_TIMEOUT).unwrap();
+        let pdf = compile(&echo_args, base.path(), "x", &[], true, false, COMPILE_TIMEOUT).unwrap();
         assert!(String::from_utf8_lossy(&pdf).contains("--pdf-standard a-2b main.typ out.pdf"));
+        // PDF/UA-1 alone, and both (Typst takes the standards as one comma-separated value).
+        let pdf = compile(&echo_args, base.path(), "x", &[], false, true, COMPILE_TIMEOUT).unwrap();
+        assert!(String::from_utf8_lossy(&pdf).contains("--pdf-standard ua-1 main.typ out.pdf"));
+        let pdf = compile(&echo_args, base.path(), "x", &[], true, true, COMPILE_TIMEOUT).unwrap();
+        assert!(String::from_utf8_lossy(&pdf).contains("--pdf-standard a-2b,ua-1 main.typ out.pdf"));
         let nothing = fake(d.path(), "true");
-        assert!(matches!(compile(&nothing, base.path(), "x", &[], false, COMPILE_TIMEOUT), Err(TypstError::Other { .. })));
+        assert!(matches!(compile(&nothing, base.path(), "x", &[], false, false, COMPILE_TIMEOUT), Err(TypstError::Other { .. })));
         assert_eq!(leftovers(base.path()), 0);
     }
 
@@ -482,7 +489,7 @@ mod tests {
     #[test]
     fn compile_rejects_unsafe_names_without_creating_a_directory() {
         let base = tempfile::tempdir().unwrap();
-        let err = compile(Path::new("/definitely/not/typst"), base.path(), "x", &[("../evil.png".into(), vec![1])], false, COMPILE_TIMEOUT);
+        let err = compile(Path::new("/definitely/not/typst"), base.path(), "x", &[("../evil.png".into(), vec![1])], false, false, COMPILE_TIMEOUT);
         assert!(matches!(err, Err(TypstError::Other { .. })));
         assert_eq!(leftovers(base.path()), 0);
         assert!(!base.path().parent().unwrap().join("evil.png").exists());
@@ -491,7 +498,7 @@ mod tests {
     #[test]
     fn missing_binary_cleans_up_and_reports_not_found() {
         let base = tempfile::tempdir().unwrap();
-        let err = compile(Path::new("/definitely/not/typst"), base.path(), "x", &[("assets/a.png".into(), vec![1])], false, COMPILE_TIMEOUT);
+        let err = compile(Path::new("/definitely/not/typst"), base.path(), "x", &[("assets/a.png".into(), vec![1])], false, false, COMPILE_TIMEOUT);
         assert!(matches!(err, Err(TypstError::NotFound { .. })), "{err:?}");
         assert_eq!(leftovers(base.path()), 0);
     }
@@ -500,7 +507,7 @@ mod tests {
     fn compile_with_real_typst_makes_a_pdf_of_the_right_size_and_cleans_up() {
         let Some(bin) = real_typst() else { return };
         let base = tempfile::tempdir().unwrap();
-        let pdf = compile(&bin, base.path(), HELLO, &[], false, COMPILE_TIMEOUT).unwrap();
+        let pdf = compile(&bin, base.path(), HELLO, &[], false, false, COMPILE_TIMEOUT).unwrap();
         assert!(pdf.starts_with(b"%PDF-"));
         let text = String::from_utf8_lossy(&pdf);
         assert!(text.contains("/MediaBox[0 0 360 576]"), "5x8in is 360x576pt");
@@ -514,8 +521,22 @@ mod tests {
         let png = fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/manuscripts/assets/gradient.png")).unwrap();
         let base = tempfile::tempdir().unwrap();
         let src = "#set page(width: 5in, height: 8in)\n#image(\"assets/img-1.png\", width: 2in)\n";
-        let pdf = compile(&bin, base.path(), src, &[("assets/img-1.png".into(), png)], true, COMPILE_TIMEOUT).unwrap();
+        let pdf = compile(&bin, base.path(), src, &[("assets/img-1.png".into(), png)], true, false, COMPILE_TIMEOUT).unwrap();
         assert!(String::from_utf8_lossy(&pdf).contains("<pdfaid:part>2</pdfaid:part>"));
+        assert_eq!(leftovers(base.path()), 0);
+    }
+
+    #[test]
+    fn compile_with_real_typst_pdf_ua_alone_and_with_pdf_a() {
+        let Some(bin) = real_typst() else { return };
+        let base = tempfile::tempdir().unwrap();
+        let src = "#set document(title: \"T\")\n#set text(lang: \"en\")\n= Hi\nHello\n";
+        let ua = compile(&bin, base.path(), src, &[], false, true, COMPILE_TIMEOUT).unwrap();
+        let text = String::from_utf8_lossy(&ua);
+        assert!(text.contains("pdfuaid:part") && !text.contains("pdfaid:part"));
+        let both = compile(&bin, base.path(), src, &[], true, true, COMPILE_TIMEOUT).unwrap();
+        let text = String::from_utf8_lossy(&both);
+        assert!(text.contains("pdfuaid:part") && text.contains("<pdfaid:part>2</pdfaid:part>"));
         assert_eq!(leftovers(base.path()), 0);
     }
 
@@ -523,11 +544,11 @@ mod tests {
     fn compile_errors_carry_typst_message_and_clean_up() {
         let Some(bin) = real_typst() else { return };
         let base = tempfile::tempdir().unwrap();
-        let err = compile(&bin, base.path(), "#nonexistent-function()\n", &[], false, COMPILE_TIMEOUT);
+        let err = compile(&bin, base.path(), "#nonexistent-function()\n", &[], false, false, COMPILE_TIMEOUT);
         assert!(matches!(&err, Err(TypstError::Compile { message }) if message.contains("error")), "{err:?}");
         assert_eq!(leftovers(base.path()), 0);
         // The source cannot read outside the compile directory.
-        let err = compile(&bin, base.path(), "#read(\"/etc/hosts\")\n", &[], false, COMPILE_TIMEOUT);
+        let err = compile(&bin, base.path(), "#read(\"/etc/hosts\")\n", &[], false, false, COMPILE_TIMEOUT);
         assert!(matches!(err, Err(TypstError::Compile { .. })), "{err:?}");
     }
 
@@ -592,7 +613,7 @@ mod tests {
     fn unknown_font_is_refused() {
         let Some(bin) = real_typst() else { return };
         let base = tempfile::tempdir().unwrap();
-        let err = compile(&bin, base.path(), "#set text(font: \"Definitely Not A Font\")\nhi\n", &[], false, COMPILE_TIMEOUT);
+        let err = compile(&bin, base.path(), "#set text(font: \"Definitely Not A Font\")\nhi\n", &[], false, false, COMPILE_TIMEOUT);
         assert!(matches!(&err, Err(TypstError::Font { family }) if family.to_lowercase().contains("definitely not a font")), "{:?}", err.as_ref().err());
     }
 

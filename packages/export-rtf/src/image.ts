@@ -1,5 +1,6 @@
 import { imageMediaType, isAssetPath } from "@cadabracraft/shared";
-import { fail } from "./helpers";
+import { checkText, fail } from "./helpers";
+import { esc } from "./text";
 import { PAGE_HEIGHT, TEXT_WIDTH } from "./layout";
 import type { Ctx } from "./types";
 
@@ -54,8 +55,10 @@ const LINE = 64; // bytes of picture data per line
 /**
  * An embedded picture (`\pict`). RTF has PNG and JPEG blips only: GIF, WebP and SVG throw with a hint, as does a file whose
  * bytes are not the type its extension says. Wide images are scaled down to the text width; the data is lowercase hex.
+ * A non-empty `alt` is written the way Word writes a picture's alternative text: a `\*\picprop` group (shape properties of the
+ * picture) holding the `wzDescription` property. An empty `alt` (a decorative image) writes nothing.
  */
-export function picture(src: string, ctx: Ctx): string {
+export function picture(src: string, ctx: Ctx, alt = ""): string {
   if (!isAssetPath(src))
     fail(ctx, `The image source "${src}" is not a project image (assets/<file>)`, "image");
   const type = imageMediaType(src);
@@ -80,5 +83,10 @@ export function picture(src: string, ctx: Ctx): string {
   const goalH = Math.max(1, Math.round(size.height * TWIPS_PER_PX * scale));
   const hex = Array.from(bytes, (v) => v.toString(16).padStart(2, "0")).join("");
   const lines = hex.match(new RegExp(`.{1,${LINE * 2}}`, "g"))!.join("\n");
-  return `{\\pict${type === "image/png" ? "\\pngblip" : "\\jpegblip"}\\picw${Math.round(size.width * HUNDREDTH_MM_PER_PX)}\\pich${Math.round(size.height * HUNDREDTH_MM_PER_PX)}\\picwgoal${goalW}\\pichgoal${goalH}\n${lines}}`;
+  const description = checkText(alt.trim(), ctx, "An image description");
+  const props =
+    description === ""
+      ? ""
+      : `{\\*\\picprop\\shplid1025{\\sp{\\sn shapeType}{\\sv 75}}{\\sp{\\sn wzDescription}{\\sv ${esc(description)}}}}`;
+  return `{\\pict${props}${type === "image/png" ? "\\pngblip" : "\\jpegblip"}\\picw${Math.round(size.width * HUNDREDTH_MM_PER_PX)}\\pich${Math.round(size.height * HUNDREDTH_MM_PER_PX)}\\picwgoal${goalW}\\pichgoal${goalH}\n${lines}}`;
 }

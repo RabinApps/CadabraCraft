@@ -67,7 +67,11 @@ describe("page marks in the source", () => {
   it("copes with blocks that have no content at all", () => {
     expect(plainItems(undefined)).toEqual([]);
     expect(
-      markedBlocks(undefined, { images: new Map(), maxImageIn: 1, assets: undefined }, 0),
+      markedBlocks(
+        undefined,
+        { images: new Map(), maxImageIn: 1, assets: undefined, coverAlt: "Cover" },
+        0,
+      ),
     ).toBe("");
     expect(marked(chapter({ type: "heading", attrs: { level: 2 } }))).toContain(
       '#heading(level: 2)[#bm-s(0, 0, "h")]',

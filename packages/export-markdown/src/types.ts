@@ -17,6 +17,12 @@ export interface MarkdownOptions {
   htmlMarks?: boolean;
   /** Footnote labels start at `footnoteOffset + 1` (used to keep labels unique when chapters are joined). Default 0. */
   footnoteOffset?: number;
+  /**
+   * Start `bookToMarkdown` with a YAML front matter block holding the book's `title` and, when it has one, `lang` (BCP 47), so
+   * static-site generators and readers can pick up the title and language. Off by default: the output is then exactly the body.
+   * `chaptersToMarkdown` and `chapterToMarkdown` never write it (their strings are meant to be concatenated or imported one by one).
+   */
+  frontMatter?: boolean;
   /** Prefix for relative image paths, e.g. `../` when the file is written to `exports/`. Default none. */
   imageBase?: string;
 }

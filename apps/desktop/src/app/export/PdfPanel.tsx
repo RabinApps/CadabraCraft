@@ -25,6 +25,7 @@ import { CheckList } from "./CheckList";
 /** The print PDF choices, owned by the dialog so it can pass them to the export. */
 export function usePdfOptions(manifest: Manifest | null) {
   const [pdfA, setPdfA] = useState(false);
+  const [pdfUa, setPdfUa] = useState(false);
   const [withCover, setWithCover] = useState(true);
   const [template, setTemplate] = useState<string | null>(null);
   const { bleed, cropMarks } = usePrintSetup();
@@ -41,6 +42,8 @@ export function usePdfOptions(manifest: Manifest | null) {
     trimSize,
     pdfA,
     setPdfA,
+    pdfUa,
+    setPdfUa,
     withCover,
     setWithCover,
     setTemplate,
@@ -71,6 +74,8 @@ export function PdfPanel({
     trimSize,
     pdfA,
     setPdfA,
+    pdfUa,
+    setPdfUa,
     withCover,
     setWithCover,
     setTemplate,
@@ -186,6 +191,13 @@ export function PdfPanel({
         checked={pdfA}
         disabled={running}
         onChange={(e) => setPdfA(e.target.checked)}
+      />
+      <Checkbox
+        label={t`PDF/UA (accessible)`}
+        hint={t`Tags headings, lists, tables and images so screen readers can read the file, and marks page numbers and running headers as decoration. Can be combined with PDF/A. Images need a description (alt text) in the editor.`}
+        checked={pdfUa}
+        disabled={running}
+        onChange={(e) => setPdfUa(e.target.checked)}
       />
       <Checkbox
         label={t`Add bleed (0.125 in)`}

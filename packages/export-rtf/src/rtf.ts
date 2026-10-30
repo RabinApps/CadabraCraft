@@ -2,6 +2,7 @@ import { countWords, textDirection, type ChapterDoc, type Section } from "@cadab
 import { blockRtf } from "./blocks";
 import { RtfExportError } from "./errors";
 import { checkText, fail, kidsOf } from "./helpers";
+import { languageId } from "./language";
 import { HEADER_DISTANCE, MARGIN, PAGE_HEIGHT, PAGE_WIDTH } from "./layout";
 import { inline, para, textRuns } from "./paragraphs";
 import { settleTables } from "./tables";
@@ -89,7 +90,11 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
   const title = bookText(book.title.trim(), "book title");
   const author = bookText(book.author.trim(), "author name");
   const font = manuscriptFont(options.font);
-  const s: Shared = { assets: options.assets ?? new Map(), pendingBreak: false };
+  const s: Shared = {
+    assets: options.assets ?? new Map(),
+    pendingBreak: false,
+    lang: languageId(language),
+  };
 
   const pages = readingOrder(chapters);
   const countable = pages.filter((c) => (c.section ?? "chapter") === "chapter");
@@ -143,9 +148,11 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
   const surname = authorSurname(author);
   const headerLabel = `${surname ? `${surname} / ` : ""}${title.toUpperCase()} / `;
   const modified = options.modified ?? new Date(Date.UTC(2020, 0, 1));
+  const lcid = languageId(language);
+  const langDefaults = lcid === null ? "" : `\\deflang${lcid}\\deflangfe${lcid}`;
   const fonts = `{\\fonttbl{\\f0\\f${font.family}\\fcharset0 ${esc(font.name).replace(/;/g, "\\'3b")};}{\\f1\\fmodern\\fcharset0 Courier New;}}`;
   return (
-    `{\\rtf1\\ansi\\ansicpg1252\\deff0\\uc1\n${fonts}\n{\\colortbl;\\red5\\green99\\blue193;}\n` +
+    `{\\rtf1\\ansi\\ansicpg1252\\deff0\\uc1${langDefaults}\n${fonts}\n{\\colortbl;\\red5\\green99\\blue193;}\n` +
     `{\\info{\\title ${esc(title)}}{\\author ${esc(author)}}${dateGroup(modified)}{\\*\\generator CadabraCraft}}\n` +
     `\\paperw${PAGE_WIDTH}\\paperh${PAGE_HEIGHT}\\margl${MARGIN}\\margr${MARGIN}\\margt${MARGIN}\\margb${MARGIN}\\gutter0\\widowctrl\\ftnbj\\fet0\n` +
     section("", false) +

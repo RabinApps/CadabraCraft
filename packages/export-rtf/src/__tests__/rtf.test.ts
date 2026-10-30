@@ -588,7 +588,7 @@ describe("tables", () => {
   it("joins the paragraphs of a cell and writes empty cells", () => {
     const d = one(table(row(cell(p(t("one")), p(t("two"))), cell())));
     checkRtf(d);
-    expect(d).toMatch(/ one\\par\\pard\\plain\\intbl[^ ]* two\\cell/);
+    expect(d).toMatch(/ one\\par\\pard\\plain\\lang1033\\intbl[^ ]* two\\cell/);
     expect(d).toMatch(/\\intbl[^ ]* \\cell/);
   });
   it("puts a page break before a table that starts a chapter", () => {
@@ -626,6 +626,32 @@ describe("tables", () => {
   });
 });
 
+describe("language", () => {
+  const withLang = (language?: string): string =>
+    buildRtf({ ...book, ...(language ? { language } : {}) }, [chapter("A", p(t("x")))]);
+  it("writes the default and paragraph language as a Windows language id", () => {
+    const d = withLang("de-AT");
+    checkRtf(d);
+    expect(d).toContain("\\uc1\\deflang3079\\deflangfe3079\n");
+    expect(d).toContain("\\pard\\plain\\lang3079\\f0");
+    expect(d).not.toContain("\\lang1033");
+  });
+  it("uses US English without a language and the language's usual region without one", () => {
+    expect(withLang()).toContain("\\deflang1033");
+    expect(withLang("fr")).toContain("\\deflang1036");
+    expect(withLang("pt_BR")).toContain("\\deflang1046");
+    expect(withLang("zh-Hant")).toContain("\\deflang1028");
+    expect(withLang("zh-Hant-TW")).toContain("\\deflang1028");
+    expect(withLang("en-ZZ")).toContain("\\deflang1033"); // an unknown region falls back to the language
+  });
+  it("writes no language for one it has no id for", () => {
+    const d = withLang("sw");
+    expect(d).not.toContain("\\deflang");
+    expect(d).not.toContain("\\lang");
+    checkRtf(d);
+  });
+});
+
 describe("images", () => {
   const assets = new Map([["assets/a.png", png]]);
   const imageDoc = (src: string, extra: Record<string, string | null> = {}): DocNode =>
@@ -633,11 +659,25 @@ describe("images", () => {
   it("embeds a PNG as hex with its size, and a caption from the title", () => {
     const d2 = build([chapter("A", imageDoc("assets/a.png", { title: "Fig <1>" }))], { assets });
     checkRtf(d2);
-    expect(d2).toContain("{\\pict\\pngblip\\picw");
+    expect(d2).toContain("\\pngblip\\picw");
     expect(d2).toContain("\\picwgoal15\\pichgoal15\n");
     expect(d2).toContain(Buffer.from(png).toString("hex").slice(0, 64));
     expect(d2).toContain("\\keepn");
     expect(d2).toContain("\\i Fig <1>\\par");
+  });
+  it("writes the alt text as the picture's wzDescription property, escaped, and nothing for a decorative image", () => {
+    const d = build([chapter("A", imageDoc("assets/a.png", { alt: "A {quay} \\ café" }))], {
+      assets,
+    });
+    checkRtf(d);
+    expect(d).toContain(
+      "{\\pict{\\*\\picprop\\shplid1025{\\sp{\\sn shapeType}{\\sv 75}}{\\sp{\\sn wzDescription}{\\sv A \\{quay\\} \\\\ caf\\u233?}}}\\pngblip",
+    );
+    const decorative = build([chapter("A", imageDoc("assets/a.png", { alt: "" }))], { assets });
+    expect(decorative).toContain("{\\pict\\pngblip");
+    expect(decorative).not.toContain("picprop");
+    const bad = chapter("A", imageDoc("assets/a.png", { alt: "x\u0001" }));
+    expect(message(() => build([bad], { assets }))).toContain("An image description");
   });
   it("scales wide and tall images to the text area and writes JPEGs", () => {
     const wide = new Map([["assets/w.png", pngOf(2000, 100)]]);
@@ -645,7 +685,7 @@ describe("images", () => {
     expect(w).toContain("\\picwgoal9360\\pichgoal468");
     const tall = new Map([["assets/t.jpg", jpegOf(100, 2000)]]);
     const tl = build([chapter("A", imageDoc("assets/t.jpg"))], { assets: tall });
-    expect(tl).toContain("{\\pict\\jpegblip");
+    expect(tl).toContain("\\jpegblip");
     expect(tl).toContain("\\pichgoal12960");
     checkRtf(tl);
   });

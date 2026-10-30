@@ -49,7 +49,7 @@ async fn compile_body(body: &InvokeBody, find: Finder) -> Result<Response, Typst
     let req = parse_compile_request(body)?;
     blocking(move || {
         let bin = find()?;
-        compile(&bin, &std::env::temp_dir(), &req.source, &req.files, req.pdf_a, COMPILE_TIMEOUT)
+        compile(&bin, &std::env::temp_dir(), &req.source, &req.files, req.pdf_a, req.pdf_ua, COMPILE_TIMEOUT)
     })
     .await
     .map(Response::new)

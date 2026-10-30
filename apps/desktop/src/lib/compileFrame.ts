@@ -5,6 +5,8 @@ export interface CompileRequest {
   source: string;
   files: FileList;
   pdfA: boolean;
+  /** PDF/UA-1 (tagged, accessible). Optional: a missing value is false. */
+  pdfUa?: boolean;
 }
 
 /** What `typst_query` needs: the same source and files, and the selector (for example `<page-report>`) to query. */
@@ -38,11 +40,16 @@ function pack(fields: Record<string, unknown>, files: FileList): Uint8Array {
 }
 
 /**
- * Packs a compile request. Header fields: `source`, `pdfA`, `files`. There is no program path: the Rust side runs only its bundled Typst. The Rust side
+ * Packs a compile request. Header fields: `source`, `pdfA`, `pdfUa`, `files`. There is no program path: the Rust side runs only its bundled Typst. The Rust side
  * (`parse_compile_request` in src-tauri/src/typst/request.rs) reads the same layout.
  */
-export function packCompileRequest({ source, files, pdfA }: CompileRequest): Uint8Array {
-  return pack({ source, pdfA }, files);
+export function packCompileRequest({
+  source,
+  files,
+  pdfA,
+  pdfUa = false,
+}: CompileRequest): Uint8Array {
+  return pack({ source, pdfA, pdfUa }, files);
 }
 
 /**

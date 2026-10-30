@@ -2582,6 +2582,10 @@ msgstr ""
 msgid "PDF/A (archival)"
 msgstr ""
 
+#: src/app/export/PdfPanel.tsx
+msgid "PDF/UA (accessible)"
+msgstr ""
+
 #: src/app/export/ExportDialog.tsx
 msgid "Pick an edition to export."
 msgstr ""
@@ -3313,6 +3317,10 @@ msgstr ""
 
 #: src/app/references/ReferenceDetails.tsx
 msgid "Tags"
+msgstr ""
+
+#: src/app/export/PdfPanel.tsx
+msgid "Tags headings, lists, tables and images so screen readers can read the file, and marks page numbers and running headers as decoration. Can be combined with PDF/A. Images need a description (alt text) in the editor."
 msgstr ""
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx

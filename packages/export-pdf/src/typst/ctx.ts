@@ -7,6 +7,8 @@ export interface Ctx {
   /** Max image height in inches. */
   maxImageIn: number;
   assets: Record<string, Uint8Array> | undefined;
+  /** Alt text of the cover image, in the book's language. */
+  coverAlt: string;
   /** `PdfOptions.blockMarks`: chapters carry page marks. */
   marks?: boolean;
   /** Set while a top-level block is written with marks: the page entry's index, the block's index in it and the index the next leaf of the block will have. */
