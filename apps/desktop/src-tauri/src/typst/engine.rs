@@ -75,19 +75,42 @@ fn package_args(dir: &Path) -> Result<Vec<String>, TypstError> {
     Ok(args)
 }
 
-/// `s` without leading whitespace, opening parentheses and comments (`/* .. */`, `// ..`), which Typst ignores between
-/// `import` and its path.
-fn skip_noise(mut s: &str) -> &str {
+/// `s` without leading whitespace, opening parentheses and comments (`/* .. */`, which nest in Typst, and `// ..`),
+/// which Typst ignores between `import` and its path. None when a block comment never ends: the rest of the source is
+/// then unreadable to us, so the caller refuses it (the safest answer; Typst itself would report the error).
+fn skip_noise(mut s: &str) -> Option<&str> {
     loop {
         let t = s.trim_start_matches(|c: char| c.is_whitespace() || c == '(');
         s = if let Some(rest) = t.strip_prefix("/*") {
-            rest.split_once("*/").map_or("", |(_, after)| after)
+            skip_block_comment(rest)?
         } else if let Some(rest) = t.strip_prefix("//") {
             rest.split_once('\n').map_or("", |(_, after)| after)
         } else {
-            return t;
+            return Some(t);
         };
     }
+}
+
+/// What follows the block comment whose `/*` was just consumed, counting nested `/* */`; None if it is unterminated.
+fn skip_block_comment(s: &str) -> Option<&str> {
+    let mut depth = 1usize;
+    let mut i = 0;
+    while i < s.len() {
+        let rest = &s[i..];
+        if rest.starts_with("/*") {
+            depth += 1;
+            i += 2;
+        } else if rest.starts_with("*/") {
+            depth -= 1;
+            i += 2;
+            if depth == 0 {
+                return Some(&s[i..]);
+            }
+        } else {
+            i += rest.chars().next().map_or(1, char::len_utf8);
+        }
+    }
+    None
 }
 
 /// Refuses a source that imports or includes a package (`#import "@preview/name:1.0.0"`). Typst downloads a package
@@ -97,7 +120,7 @@ fn skip_noise(mut s: &str) -> &str {
 fn refuse_packages(source: &str) -> Result<(), TypstError> {
     for kw in ["import", "include"] {
         for (i, _) in source.match_indices(kw) {
-            if skip_noise(&source[i + kw.len()..]).starts_with("\"@") {
+            if skip_noise(&source[i + kw.len()..]).is_none_or(|rest| rest.starts_with("\"@")) {
                 return Err(TypstError::Compile { message: "Packages are not available in the PDF export (it never uses the network): remove the \"@...\" import.".into() });
             }
         }
@@ -327,10 +350,16 @@ mod tests {
             "= Title\n\n#let a = 1\n#import   \"@preview/x:1.0.0\": *",
             "#import /* hidden */ \"@preview/x:1.0.0\"",
             "#include // hidden\n\"@preview/x:1.0.0\"",
+            "#import /* /* */ */ \"@preview/example:0.1.0\"\nhi\n",
+            "#import /* a /* b /* c */ d */ e */ \"@preview/x:1.0.0\"",
+            "#import /* /* */ // */ \"@preview/x:1.0.0\"\n/* */ \"@preview/x:1.0.0\"",
+            "#import /* é /* ü */ */ \"@preview/x:1.0.0\"",
+            "#import /* never closed \"template.typ\"",
+            "#import /* /* only the inner one closes */ \"template.typ\"",
         ] {
             assert!(matches!(refuse_packages(bad), Err(TypstError::Compile { message }) if message.contains("Packages")), "{bad:?}");
         }
-        for ok in ["#import \"template.typ\": *", "Please import \"quoted\" text and write to me@preview/x", "#set page(width: 5in)", "important \"@handle\""] {
+        for ok in ["#import /* nested /* ok */ */ \"template.typ\"", "#import // note\n\"template.typ\"", "#import \"template.typ\": *", "Please import \"quoted\" text and write to me@preview/x", "#set page(width: 5in)", "important \"@handle\""] {
             assert!(refuse_packages(ok).is_ok(), "{ok:?}");
         }
         // The compile and query entry points both refuse, without leaving a temp directory behind.
@@ -528,9 +557,10 @@ mod tests {
             assert!(matches!(err, Err(TypstError::Other { .. })), "{bad:?}: {err:?}");
         }
         assert_eq!(leftovers(base.path()), 0);
-        assert_eq!(skip_noise("  ( /* a */ // b\n \"@x"), "\"@x");
-        assert_eq!(skip_noise("/* never closed"), "");
-        assert_eq!(skip_noise("// no newline"), "");
+        assert_eq!(skip_noise("  ( /* a */ // b\n \"@x"), Some("\"@x"));
+        assert_eq!(skip_noise("/* never closed"), None);
+        assert_eq!(skip_noise("/* /* inner only */"), None);
+        assert_eq!(skip_noise("// no newline"), Some(""));
     }
 
     #[test]
@@ -572,6 +602,3 @@ mod tests {
         assert!(version(&bin).unwrap().starts_with("typst"));
     }
 }
-
-#[cfg(test)]
-mod review_repro;

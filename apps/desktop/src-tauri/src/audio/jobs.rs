@@ -1,5 +1,5 @@
 //! Job cancel flags and the voices folder.
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
@@ -15,18 +15,22 @@ pub(crate) fn voices_root() -> Option<PathBuf> {
     std::env::var_os("CADABRA_VOICES_DIR").map(PathBuf::from).or_else(|| VOICES_DIR.get().cloned())
 }
 
-/// Most cancel flags kept at once; far more than the jobs one author runs together.
+/// Most idle cancel flags kept at once; far more than the jobs one author runs together.
 const MAX_FLAGS: usize = 256;
 
+/// Most cancels remembered for jobs that have not started yet.
+const MAX_EARLY_CANCELS: usize = 64;
+
 /// Cancel flags by job id. A flag is created by whichever of render or cancel comes first, so a Cancel that arrives
-/// between two chapters still stops the next one.
+/// between two chapters still stops the next one. The third field holds ids cancelled before any flag existed.
 #[derive(Default)]
-pub struct AudioJobs(Mutex<HashMap<String, Arc<AtomicBool>>>, Mutex<HashSet<String>>);
+pub struct AudioJobs(Mutex<HashMap<String, Arc<AtomicBool>>>, Mutex<HashSet<String>>, Mutex<VecDeque<String>>);
 
 impl AudioJobs {
-    /// The flag of job `id`. The table holds at most `MAX_FLAGS` entries, because the ids come from the webview: when it is
-    /// full, flags nobody is using any more (their job ended, or a cancel arrived for a job that never started) are
-    /// dropped first. If every flag is in use, the caller gets a flag that is not stored (it works, but `cancel` cannot find it).
+    /// The flag of job `id`. The ids come from the webview, so memory stays bounded: once the table holds `MAX_FLAGS`
+    /// entries, flags nobody is using any more (their job ended) are dropped before a new one is added. Flags that a
+    /// running job holds are always kept (and so always reachable by `cancel`), so the table can only exceed
+    /// `MAX_FLAGS` by the number of jobs actually running. A flag whose id was cancelled before it existed starts set.
     pub(crate) fn flag(&self, id: &str) -> Arc<AtomicBool> {
         let mut map = self.0.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(f) = map.get(id) {
@@ -35,15 +39,33 @@ impl AudioJobs {
         if map.len() >= MAX_FLAGS {
             map.retain(|_, f| Arc::strong_count(f) > 1);
         }
-        let flag = Arc::new(AtomicBool::new(false));
-        if map.len() < MAX_FLAGS {
-            map.insert(id.to_string(), flag.clone());
-        }
+        let early = self.take_early_cancel(id);
+        let flag = Arc::new(AtomicBool::new(early));
+        map.insert(id.to_string(), flag.clone());
         flag
     }
 
+    fn take_early_cancel(&self, id: &str) -> bool {
+        let mut early = self.2.lock().unwrap_or_else(|e| e.into_inner());
+        early.iter().position(|e| e == id).is_some_and(|i| early.remove(i).is_some())
+    }
+
+    /// Cancels job `id`, whether or not it has started. A cancel for a job without a flag is also remembered in a small
+    /// bounded list (oldest dropped first), so sweeping the idle entry cannot lose it.
     pub fn cancel(&self, id: &str) {
-        self.flag(id).store(true, Ordering::Relaxed);
+        // The table lock is held while the mark is stored, so a `flag(id)` cannot slip in between and miss it.
+        let map = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(f) = map.get(id) {
+            f.store(true, Ordering::Relaxed);
+            return;
+        }
+        let mut early = self.2.lock().unwrap_or_else(|e| e.into_inner());
+        if !early.iter().any(|e| e == id) {
+            if early.len() >= MAX_EARLY_CANCELS {
+                early.pop_front();
+            }
+            early.push_back(id.to_string());
+        }
     }
 
     /// Marks a pack as downloading, or None when it already is (two downloads of one pack would write the same `.part`
@@ -54,6 +76,7 @@ impl AudioJobs {
 
     pub fn forget(&self, id: &str) {
         self.0.lock().unwrap_or_else(|e| e.into_inner()).remove(id);
+        self.take_early_cancel(id);
     }
 }
 
@@ -99,16 +122,45 @@ mod tests {
     }
 
     #[test]
-    fn when_every_flag_is_in_use_a_new_job_still_gets_a_working_unstored_flag() {
+    fn cancel_reaches_a_job_even_when_every_flag_is_held() {
         let jobs = AudioJobs::default();
-        let held: Vec<_> = (0..MAX_FLAGS).map(|i| jobs.flag(&format!("job-{i}"))).collect();
-        let extra = jobs.flag("one-more");
-        assert!(!extra.load(Ordering::Relaxed));
-        assert_eq!(jobs.0.lock().unwrap().len(), MAX_FLAGS);
-        jobs.cancel("one-more"); // finds nothing stored: only a new, unrelated flag is set
-        assert!(!extra.load(Ordering::Relaxed));
+        let _held: Vec<_> = (0..MAX_FLAGS).map(|i| jobs.flag(&format!("job-{i}"))).collect();
+        let mine = jobs.flag("mine");
+        assert!(!mine.load(Ordering::Relaxed));
+        jobs.cancel("mine");
+        assert!(mine.load(Ordering::Relaxed), "cancel(id) reaches the running job's flag");
+    }
+
+    #[test]
+    fn held_flags_beyond_the_cap_are_freed_once_their_jobs_end() {
+        let jobs = AudioJobs::default();
+        let held: Vec<_> = (0..MAX_FLAGS + 5).map(|i| jobs.flag(&format!("job-{i}"))).collect();
         drop(held);
-        assert!(!jobs.flag("job-0").load(Ordering::Relaxed));
+        let _ = jobs.flag("next"); // sweeps idle flags
+        assert!(jobs.0.lock().unwrap().len() <= 2);
+    }
+
+    #[test]
+    fn cancel_before_start_survives_the_table_filling_up() {
+        let jobs = AudioJobs::default();
+        jobs.cancel("late");
+        let _held: Vec<_> = (0..MAX_FLAGS).map(|i| jobs.flag(&format!("other-{i}"))).collect(); // the last one sweeps "late"
+        assert!(jobs.flag("late").load(Ordering::Relaxed), "the early cancel was kept; the job starts cancelled");
+    }
+
+    #[test]
+    fn early_cancels_are_bounded_and_forgotten() {
+        let jobs = AudioJobs::default();
+        for i in 0..MAX_EARLY_CANCELS + 10 {
+            jobs.cancel(&format!("c-{i}"));
+        }
+        jobs.cancel("c-70"); // repeat: not stored twice
+        assert_eq!(jobs.2.lock().unwrap().len(), MAX_EARLY_CANCELS);
+        assert!(!jobs.2.lock().unwrap().iter().any(|e| e == "c-0"), "the oldest is dropped");
+        jobs.forget("c-70");
+        assert!(!jobs.2.lock().unwrap().iter().any(|e| e == "c-70"));
+        let _held: Vec<_> = (0..MAX_FLAGS).map(|i| jobs.flag(&format!("o-{i}"))).collect();
+        assert!(!jobs.flag("c-70").load(Ordering::Relaxed), "forget cleared the early cancel");
     }
 
     #[test]
@@ -163,6 +215,3 @@ mod tests {
         assert_eq!(voices_root(), Some(expected));
     }
 }
-
-#[cfg(test)]
-mod review_repro;

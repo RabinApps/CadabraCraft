@@ -6,7 +6,7 @@ use crate::platform::blocking;
 use crate::project::{self, MediaRead, ProjectError};
 use percent_encoding::{percent_decode_str, utf8_percent_encode, AsciiSet, NON_ALPHANUMERIC};
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use tauri::http::{header, Method, Request, Response, StatusCode};
@@ -21,7 +21,21 @@ const NAME_SET: &AsciiSet = &NON_ALPHANUMERIC.remove(b'.').remove(b'-').remove(b
 /// Projects the webview may stream from: opaque token to project folder. A token is a hash of the folder, so the same
 /// project always gets the same URLs (the viewer caches them) and a page cannot name a folder it was not given.
 #[derive(Clone, Default)]
-pub struct MediaRoots(Arc<Mutex<HashMap<String, PathBuf>>>);
+pub struct MediaRoots(Arc<Mutex<Roots>>);
+
+/// Tokens with their folders, `order` from least to most recently used.
+#[derive(Default)]
+struct Roots {
+    map: HashMap<String, PathBuf>,
+    order: VecDeque<String>,
+}
+
+impl Roots {
+    fn touch(&mut self, token: &str) {
+        self.order.retain(|t| t != token);
+        self.order.push_back(token.to_string());
+    }
+}
 
 /// Most projects remembered at once. An author has one or two open; this only bounds what a webview that keeps asking
 /// for URLs of different folders could make the app remember.
@@ -31,19 +45,23 @@ impl MediaRoots {
     fn register(&self, root: &Path) -> String {
         let hash = Sha256::digest(root.to_string_lossy().as_bytes());
         let token: String = hash.iter().take(16).map(|b| format!("{b:02x}")).collect();
-        let mut map = self.0.lock().unwrap_or_else(|e| e.into_inner());
-        if !map.contains_key(&token) && map.len() >= MAX_ROOTS {
-            // Which entry goes is arbitrary: a project that loses its token gets a new one on its next `reference_stream_url`.
-            if let Some(evict) = map.keys().next().cloned() {
-                map.remove(&evict);
+        let mut roots = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        if !roots.map.contains_key(&token) && roots.map.len() >= MAX_ROOTS {
+            // The least recently used token goes: a project that loses its token gets a new one on its next `reference_stream_url`.
+            if let Some(evict) = roots.order.pop_front() {
+                roots.map.remove(&evict);
             }
         }
-        map.insert(token.clone(), root.to_path_buf());
+        roots.map.insert(token.clone(), root.to_path_buf());
+        roots.touch(&token);
         token
     }
 
     fn root_of(&self, token: &str) -> Option<PathBuf> {
-        self.0.lock().unwrap_or_else(|e| e.into_inner()).get(token).cloned()
+        let mut roots = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        let root = roots.map.get(token).cloned()?;
+        roots.touch(token);
+        Some(root)
     }
 }
 
@@ -172,7 +190,7 @@ mod tests {
         for i in 1..MAX_ROOTS + 20 {
             roots.register(Path::new(&format!("/book/{i}")));
         }
-        assert_eq!(roots.0.lock().unwrap().len(), MAX_ROOTS);
+        assert_eq!(roots.0.lock().unwrap().map.len(), MAX_ROOTS);
         assert_eq!(roots.register(Path::new("/book/0")), keep, "a token is a hash of the folder, however often it is evicted");
         assert_eq!(roots.root_of(&keep), Some(PathBuf::from("/book/0")));
         let held = roots.clone();
@@ -184,6 +202,32 @@ mod tests {
         .is_err());
         assert_eq!(roots.root_of(&keep), Some(PathBuf::from("/book/0")));
         assert!(!roots.register(Path::new("/book/last")).is_empty());
+    }
+
+    fn tokens(roots: &MediaRoots, n: usize) -> Vec<String> {
+        (0..n).map(|i| roots.register(Path::new(&format!("/books/{i}")))).collect()
+    }
+
+    #[test]
+    fn the_least_recently_used_token_is_evicted() {
+        let roots = MediaRoots::default();
+        let t = tokens(&roots, MAX_ROOTS);
+        let overflow = roots.register(Path::new("/books/overflow"));
+        assert!(roots.root_of(&t[0]).is_none(), "the oldest token goes");
+        assert!(t[1..].iter().all(|x| roots.root_of(x).is_some()) && roots.root_of(&overflow).is_some());
+    }
+
+    #[test]
+    fn a_looked_up_or_reregistered_token_is_moved_to_most_recent() {
+        let roots = MediaRoots::default();
+        let t = tokens(&roots, MAX_ROOTS);
+        assert!(roots.root_of(&t[0]).is_some()); // lookup refreshes the oldest
+        roots.register(Path::new("/books/1")); // re-register refreshes the next
+        roots.register(Path::new("/books/new-a"));
+        roots.register(Path::new("/books/new-b"));
+        assert!(roots.root_of(&t[0]).is_some() && roots.root_of(&t[1]).is_some());
+        assert!(roots.root_of(&t[2]).is_none() && roots.root_of(&t[3]).is_none(), "the next least recent ones go");
+        assert_eq!(roots.0.lock().unwrap().order.len(), MAX_ROOTS);
     }
 
     #[test]
@@ -227,6 +271,3 @@ mod tests {
         assert_eq!(status(format!("/{t}/clip.mp4")), StatusCode::NOT_FOUND);
     }
 }
-
-#[cfg(test)]
-mod review_repro;
