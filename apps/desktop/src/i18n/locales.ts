@@ -25,6 +25,11 @@ export const LOCALES: LocaleInfo[] = [
 /** Languages in the picker. The 1.0 catalogs are machine drafts that still need native review (docs/roadmap.md). */
 export const ENABLED_LOCALES: string[] = ["en", "es", "it", "fr", "de", "he", "ar"];
 
+/** The locales a book language can be picked from (UI-enabled ones). */
+export const ENABLED_LOCALE_INFO: LocaleInfo[] = LOCALES.filter((l) =>
+  ENABLED_LOCALES.includes(l.code),
+);
+
 /** Dev-only locale that expands and accents every message. */
 export const PSEUDO_LOCALE = "pseudo";
 

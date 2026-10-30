@@ -11,6 +11,9 @@ test("add a French edition, write it, switch back and forth", async ({ page }) =
   await page.getByRole("button", { name: /Edition: English/ }).click();
   await page.getByRole("menuitem", { name: "Add language" }).click();
   const dialog = page.getByRole("dialog", { name: "Add language" });
+  // Only enabled languages are offered: French is, Japanese (not translated yet) is not.
+  await expect(dialog.getByRole("option", { name: "Français" })).toHaveCount(1);
+  await expect(dialog.getByRole("option", { name: "日本語" })).toHaveCount(0);
   await dialog.getByLabel("Language", { exact: true }).selectOption("fr");
   await dialog.getByRole("button", { name: "Add language", exact: true }).click();
 

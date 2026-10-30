@@ -2,18 +2,18 @@ import { randomUUID } from "node:crypto";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import { createManifest, danglingLinks, entryFile, isTranslated, parseManifest, readingOrder, serializeManifest, sourceTitle, translationProgress } from "@cadabracraft/format";
-import { MANIFEST, ProjectFsError, countWords, createProject, imageExt, looksLike, readAsset, readProjectFile, resolveInWorkspace } from "@cadabracraft/project-fs";
+import { addEdition, createManifest, danglingLinks, entryFile, isTranslated, parseManifest, readingOrder, serializeManifest, sourceEdition, sourceTitle, translationProgress } from "@cadabracraft/format";
+import { MANIFEST, ProjectFsError, countWords, createProject, imageExt, looksLike, readAsset, readProjectFile, resolveInWorkspace, writeProjectFile } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate, listTemplates } from "@cadabracraft/templates";
 import { isAssetPath, errMsg, TRIM_SIZE_IDS } from "@cadabracraft/shared";
-import { imageSources, schemaProblem } from "../doc";
+import { emptyChapterDoc, imageSources, schemaProblem } from "../doc";
 import { ToolError } from "../errors";
 import { editionOf, loadProject, projectRoot, readChapterFile, saveManifest, sectionOf } from "../project";
 import { type ToolDef, defineTool, withLock } from "../tooling";
 
 export const PATH = z.string().min(1).describe("Project folder: relative to the workspace root, or an absolute path inside it.");
 
-const validLanguage = (l: string): boolean => {
+export const validLanguage = (l: string): boolean => {
   try {
     return Intl.getCanonicalLocales(l).length === 1;
   } catch {
@@ -194,4 +194,34 @@ export const setTemplate = defineTool({
   },
 });
 
-export const projectTools: ToolDef[] = [projectCreate, projectInfo, projectValidate, listTemplatesTool, setTemplate];
+export const editionAdd = defineTool({
+  name: "cadabra_edition_add",
+  title: "Add edition",
+  description: "Add a translation edition (a language) to the book. Every page gets a file in that language, marked untranslated until written with cadabra_chapter_write_json or _write_markdown (language). mode \"copy\" starts each page as a copy of the source text, \"empty\" as a heading and a blank paragraph. The edition starts with the source title and author and a new identifier. Any valid BCP 47 code is accepted (the app's language list is narrower). Refuses a language the book already has (language_exists).",
+  input: {
+    path: PATH,
+    language: z.string().min(2).describe('BCP 47 language tag of the new edition, e.g. "fr".'),
+    mode: z.enum(["copy", "empty"]).describe("copy: pages start as copies of the source text; empty: pages start blank."),
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+  run: ({ path, language, mode }, ctx) => {
+    if (!validLanguage(language)) throw new ToolError("invalid_input", `"${language}" is not a valid BCP 47 language tag`);
+    const root = projectRoot(ctx, path);
+    return withLock(root, () => {
+      const { manifest, hash } = loadProject(ctx, path);
+      if (manifest.editions.some((e) => e.language === language)) throw new ToolError("language_exists", `the book already has a "${language}" edition`);
+      const source = sourceEdition(manifest.editions);
+      const { manifest: next, files } = addEdition(manifest, { language, title: source.title, author: source.author, identifier: `urn:uuid:${randomUUID()}`, isbn: null, cover: null }, mode);
+      // Read everything first so a missing source file leaves the project untouched.
+      const contents = files.map((f) => {
+        if (readProjectFile(root, f.path)) throw new ToolError("io_error", `${f.path} already exists on disk but is not listed in the book; refusing to overwrite it`);
+        return f.from === null ? JSON.stringify(emptyChapterDoc(f.title), null, 2) : readChapterFile(root, f.from).raw;
+      });
+      files.forEach((f, i) => writeProjectFile(root, f.path, contents[i]!));
+      const w = saveManifest(root, next, hash);
+      return { summary: `Added the "${language}" edition (${files.length} pages, ${mode})`, data: { language, mode, pages: files.length, files: files.map((f) => f.path), manifestHash: w.hash, conflictCopy: w.conflictCopy } };
+    });
+  },
+});
+
+export const projectTools: ToolDef[] = [projectCreate, projectInfo, projectValidate, listTemplatesTool, setTemplate, editionAdd];
