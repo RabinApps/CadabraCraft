@@ -1,12 +1,13 @@
 //! The Tauri command layer for fonts. File work runs on Tauri's blocking pool; downloads are `async` on the runtime
 //! (like the voice downloads) and share the audio job flags, so `fonts_cancel` is `audio_cancel` under another name.
 use super::catalog::{find_family, list_catalog, Family, FontPackInfo};
-use super::error::{other, FontError};
+use super::error::{invalid, other, FontError};
 use super::fonts_root;
 use super::import::import_font;
 use super::store::{delete_font, list_installed, read_font_file, InstalledFont};
 use crate::audio::download::{build_client, download_file, DownloadProgress};
 use crate::audio::jobs::AudioJobs;
+use crate::commands::{PickKind, PickedPaths};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 
@@ -108,11 +109,22 @@ pub fn fonts_cancel(state: tauri::State<'_, AudioJobs>, job_id: String) {
     state.cancel(&job_id);
 }
 
-/// Copies a `.ttf` or `.otf` file the author chose into the fonts folder.
+/// The font file the author picked with `pick_font_file`; any other path is refused (the webview cannot name a file).
+fn picked_font(picked: &PickedPaths, src_path: &str) -> Result<PathBuf, FontError> {
+    picked
+        .require(PickKind::Font, &PathBuf::from(src_path))
+        .map_err(|_| invalid("choose the font file with the Import font button"))
+}
+
+/// Copies a `.ttf` or `.otf` file the author chose (`pick_font_file`) into the fonts folder.
 #[tauri::command]
-pub async fn fonts_import(src_path: String) -> Result<InstalledFont, FontError> {
+pub async fn fonts_import(
+    picked: tauri::State<'_, PickedPaths>,
+    src_path: String,
+) -> Result<InstalledFont, FontError> {
+    let src = picked_font(&picked, &src_path)?;
     let root = require_root(fonts_root())?;
-    crate::platform::blocking(move || import_font(&PathBuf::from(src_path), &root)).await
+    crate::platform::blocking(move || import_font(&src, &root)).await
 }
 
 #[tauri::command]
@@ -497,14 +509,15 @@ mod tests {
             matches!(require_root(None), Err(FontError::Other { message }) if message.contains("no folder for fonts"))
         );
         let src = tempfile::tempdir().unwrap();
-        std::fs::write(src.path().join("a.woff2"), ttf("X")).unwrap();
-        let r = run(fonts_import(
-            src.path().join("a.woff2").to_string_lossy().into_owned(),
-        ));
-        assert!(matches!(
-            r,
-            Err(FontError::InvalidFont { .. }) | Err(FontError::Other { .. })
-        ));
+        let woff = src.path().join("a.woff2");
+        std::fs::write(&woff, ttf("X")).unwrap();
+        let picked = PickedPaths::default();
+        assert!(matches!(picked_font(&picked, &woff.to_string_lossy()), Err(FontError::InvalidFont { .. })), "not picked");
+        picked.record(PickKind::Image, &woff).unwrap();
+        assert!(picked_font(&picked, &woff.to_string_lossy()).is_err(), "picked for another purpose");
+        picked.record(PickKind::Font, &woff).unwrap();
+        assert_eq!(picked_font(&picked, &woff.to_string_lossy()).unwrap(), woff.canonicalize().unwrap());
+        assert!(picked_font(&picked, "/no/such/font.ttf").is_err());
         assert!(matches!(
             run(fonts_delete("../x".into())),
             Err(FontError::UnknownFont { .. }) | Err(FontError::Other { .. })

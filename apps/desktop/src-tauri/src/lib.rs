@@ -16,6 +16,8 @@ macro_rules! app_handlers {
             commands::pick_folder,
             commands::pick_image,
             commands::pick_import_source,
+            commands::pick_reference_files,
+            commands::pick_font_file,
             commands::create_project,
             commands::read_project_file,
             commands::write_project_file,
@@ -93,6 +95,35 @@ fn serve_media<R: tauri::Runtime>(app: &tauri::AppHandle<R>, req: tauri::http::R
     tauri::async_runtime::spawn_blocking(move || responder.respond(commands::respond(&roots, &req).map(std::borrow::Cow::Owned)));
 }
 
+/// Whether the webview may navigate to `url`: only the app's own origin (`tauri://localhost`, or
+/// `http://tauri.localhost` on Windows and Android), plus the Vite dev server in debug builds. Everything else (any
+/// remote page, `file:`, `data:`, `javascript:`) is refused, so a link or script cannot turn the window into a browser
+/// that carries the app's IPC and picked-path rights.
+fn navigation_allowed(url: &tauri::Url, dev: bool) -> bool {
+    match (url.scheme(), url.host_str(), url.port()) {
+        ("tauri", Some("localhost"), None) | ("http", Some("tauri.localhost"), None) => true,
+        ("http", Some("localhost"), Some(1420)) => dev,
+        _ => false,
+    }
+}
+
+/// A plugin whose only job is the navigation guard. A plugin hook is used because the main window is created from
+/// `tauri.conf.json`, so there is no window builder to put `on_navigation` on.
+fn navigation_guard<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
+    tauri::plugin::Builder::new("navigation-guard").on_navigation(|_, url| navigation_allowed(url, cfg!(debug_assertions))).build()
+}
+
+/// Files dropped on the window are remembered as picked references (the drop is the author's own choice, and the
+/// event comes from the operating system, not from the page).
+fn remember_drop<R: tauri::Runtime>(window: &tauri::Window<R>, event: &tauri::WindowEvent) {
+    use tauri::Manager;
+    if let tauri::WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {
+        if let Some(picked) = window.try_state::<commands::PickedPaths>() {
+            commands::record_drop(&picked, paths);
+        }
+    }
+}
+
 pub fn run() {
     let builder = tauri::Builder::default()
         .manage(platform::fs_watch::WatchState::default())
@@ -100,6 +131,8 @@ pub fn run() {
         .manage(commands::MediaRoots::default())
         .manage(commands::PickedPaths::default())
         .register_asynchronous_uri_scheme_protocol(commands::MEDIA_SCHEME, |ctx, req, responder| serve_media(ctx.app_handle(), req, responder))
+        .plugin(navigation_guard())
+        .on_window_event(remember_drop)
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -130,4 +163,39 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running CadabraCraft");
+}
+
+#[cfg(test)]
+mod navigation_tests {
+    use super::navigation_allowed;
+
+    fn allowed(url: &str, dev: bool) -> bool {
+        navigation_allowed(&url.parse().unwrap(), dev)
+    }
+
+    #[test]
+    fn only_the_apps_own_origin_may_be_navigated_to() {
+        for ok in ["tauri://localhost", "tauri://localhost/index.html", "http://tauri.localhost/", "http://tauri.localhost/index.html#x"] {
+            assert!(allowed(ok, false) && allowed(ok, true), "{ok}");
+        }
+        for bad in [
+            "https://example.com", "http://example.com/tauri://localhost", "https://tauri.localhost", "tauri://evil", "tauri://localhost.evil.com", "http://tauri.localhost.evil.com",
+            "http://tauri.localhost:8080/", "http://localhost:1421/", "file:///usr/bin/x", "data:text/html,hi", "javascript:alert(1)", "blob:tauri://localhost/x", "cadabra-ref://localhost/t/a.mp4",
+            "about:blank", "ftp://tauri.localhost",
+        ] {
+            assert!(!allowed(bad, true), "{bad}");
+            assert!(!allowed(bad, false), "{bad}");
+        }
+    }
+
+    #[test]
+    fn the_dev_server_is_allowed_in_debug_builds_only() {
+        assert!(allowed("http://localhost:1420/", true));
+        assert!(allowed("http://localhost:1420/src/main.tsx", true));
+        assert!(!allowed("http://localhost:1420/", false));
+        assert!(!allowed("http://localhost/", true));
+        assert!(!allowed("http://localhost:3000/", true));
+        assert!(!allowed("https://localhost:1420/", true));
+        assert!(!allowed("http://127.0.0.1:1420/", true));
+    }
 }

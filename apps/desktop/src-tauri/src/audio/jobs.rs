@@ -15,14 +15,31 @@ pub(crate) fn voices_root() -> Option<PathBuf> {
     std::env::var_os("CADABRA_VOICES_DIR").map(PathBuf::from).or_else(|| VOICES_DIR.get().cloned())
 }
 
+/// Most cancel flags kept at once; far more than the jobs one author runs together.
+const MAX_FLAGS: usize = 256;
+
 /// Cancel flags by job id. A flag is created by whichever of render or cancel comes first, so a Cancel that arrives
 /// between two chapters still stops the next one.
 #[derive(Default)]
 pub struct AudioJobs(Mutex<HashMap<String, Arc<AtomicBool>>>, Mutex<HashSet<String>>);
 
 impl AudioJobs {
+    /// The flag of job `id`. The table holds at most `MAX_FLAGS` entries, because the ids come from the webview: when it is
+    /// full, flags nobody is using any more (their job ended, or a cancel arrived for a job that never started) are
+    /// dropped first. If every flag is in use, the caller gets a flag that is not stored (it works, but `cancel` cannot find it).
     pub(crate) fn flag(&self, id: &str) -> Arc<AtomicBool> {
-        self.0.lock().unwrap_or_else(|e| e.into_inner()).entry(id.to_string()).or_default().clone()
+        let mut map = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(f) = map.get(id) {
+            return f.clone();
+        }
+        if map.len() >= MAX_FLAGS {
+            map.retain(|_, f| Arc::strong_count(f) > 1);
+        }
+        let flag = Arc::new(AtomicBool::new(false));
+        if map.len() < MAX_FLAGS {
+            map.insert(id.to_string(), flag.clone());
+        }
+        flag
     }
 
     pub fn cancel(&self, id: &str) {
@@ -66,6 +83,32 @@ mod tests {
         assert!(b.load(Ordering::Relaxed));
         jobs.forget("a");
         assert!(!jobs.flag("a").load(Ordering::Relaxed));
+    }
+
+    #[test]
+    fn the_flag_table_is_bounded_and_drops_idle_flags_first() {
+        let jobs = AudioJobs::default();
+        let running = jobs.flag("running"); // held by a job, so it must survive
+        for i in 0..MAX_FLAGS * 2 {
+            jobs.cancel(&format!("spam-{i}"));
+        }
+        assert!(jobs.0.lock().unwrap().len() <= MAX_FLAGS);
+        jobs.cancel("running");
+        assert!(running.load(Ordering::Relaxed), "a flag in use is never evicted");
+        assert!(jobs.flag("running").load(Ordering::Relaxed));
+    }
+
+    #[test]
+    fn when_every_flag_is_in_use_a_new_job_still_gets_a_working_unstored_flag() {
+        let jobs = AudioJobs::default();
+        let held: Vec<_> = (0..MAX_FLAGS).map(|i| jobs.flag(&format!("job-{i}"))).collect();
+        let extra = jobs.flag("one-more");
+        assert!(!extra.load(Ordering::Relaxed));
+        assert_eq!(jobs.0.lock().unwrap().len(), MAX_FLAGS);
+        jobs.cancel("one-more"); // finds nothing stored: only a new, unrelated flag is set
+        assert!(!extra.load(Ordering::Relaxed));
+        drop(held);
+        assert!(!jobs.flag("job-0").load(Ordering::Relaxed));
     }
 
     #[test]

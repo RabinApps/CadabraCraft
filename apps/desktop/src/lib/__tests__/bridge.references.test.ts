@@ -71,23 +71,3 @@ describe("reference commands", () => {
     expect(unlisten).toHaveBeenCalled();
   });
 });
-
-describe("pickReferenceFiles", () => {
-  it("returns a queued automation answer, or nothing for a queued cancel", async () => {
-    invoke.mockResolvedValueOnce({ answer: "/x/a.pdf" }).mockResolvedValueOnce({ answer: null });
-    expect(await bridge.pickReferenceFiles()).toEqual(["/x/a.pdf"]);
-    expect(await bridge.pickReferenceFiles()).toEqual([]);
-    expect(open).not.toHaveBeenCalled();
-  });
-  it("opens the native picker for several files and copes with every answer it can give", async () => {
-    invoke.mockResolvedValue(null);
-    open
-      .mockResolvedValueOnce(["/a", "/b"])
-      .mockResolvedValueOnce("/c")
-      .mockResolvedValueOnce(null);
-    expect(await bridge.pickReferenceFiles()).toEqual(["/a", "/b"]);
-    expect(open).toHaveBeenCalledWith({ multiple: true, directory: false });
-    expect(await bridge.pickReferenceFiles()).toEqual(["/c"]);
-    expect(await bridge.pickReferenceFiles()).toEqual([]);
-  });
-});

@@ -23,16 +23,27 @@ const NAME_SET: &AsciiSet = &NON_ALPHANUMERIC.remove(b'.').remove(b'-').remove(b
 #[derive(Clone, Default)]
 pub struct MediaRoots(Arc<Mutex<HashMap<String, PathBuf>>>);
 
+/// Most projects remembered at once. An author has one or two open; this only bounds what a webview that keeps asking
+/// for URLs of different folders could make the app remember.
+const MAX_ROOTS: usize = 64;
+
 impl MediaRoots {
     fn register(&self, root: &Path) -> String {
         let hash = Sha256::digest(root.to_string_lossy().as_bytes());
         let token: String = hash.iter().take(16).map(|b| format!("{b:02x}")).collect();
-        self.0.lock().expect("media roots lock").insert(token.clone(), root.to_path_buf());
+        let mut map = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        if !map.contains_key(&token) && map.len() >= MAX_ROOTS {
+            // Which entry goes is arbitrary: a project that loses its token gets a new one on its next `reference_stream_url`.
+            if let Some(evict) = map.keys().next().cloned() {
+                map.remove(&evict);
+            }
+        }
+        map.insert(token.clone(), root.to_path_buf());
         token
     }
 
     fn root_of(&self, token: &str) -> Option<PathBuf> {
-        self.0.lock().expect("media roots lock").get(token).cloned()
+        self.0.lock().unwrap_or_else(|e| e.into_inner()).get(token).cloned()
     }
 }
 
@@ -147,6 +158,27 @@ mod tests {
         assert!(!token.contains(&*book.path().to_string_lossy()));
         assert_eq!(roots.root_of(&token), Some(book.path().to_path_buf()));
         assert_eq!(roots.root_of("nope"), None);
+    }
+
+    #[test]
+    fn the_token_table_is_bounded_and_survives_a_poisoned_lock() {
+        let roots = MediaRoots::default();
+        let (keep, _) = (roots.register(Path::new("/book/0")), ());
+        for i in 1..MAX_ROOTS + 20 {
+            roots.register(Path::new(&format!("/book/{i}")));
+        }
+        assert_eq!(roots.0.lock().unwrap().len(), MAX_ROOTS);
+        assert_eq!(roots.register(Path::new("/book/0")), keep, "a token is a hash of the folder, however often it is evicted");
+        assert_eq!(roots.root_of(&keep), Some(PathBuf::from("/book/0")));
+        let held = roots.clone();
+        assert!(std::thread::spawn(move || {
+            let _guard = held.0.lock().unwrap();
+            panic!("poison the lock");
+        })
+        .join()
+        .is_err());
+        assert_eq!(roots.root_of(&keep), Some(PathBuf::from("/book/0")));
+        assert!(!roots.register(Path::new("/book/last")).is_empty());
     }
 
     #[test]

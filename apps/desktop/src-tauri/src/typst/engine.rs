@@ -75,6 +75,21 @@ fn package_args(dir: &Path) -> Result<Vec<String>, TypstError> {
     Ok(args)
 }
 
+/// `s` without leading whitespace, opening parentheses and comments (`/* .. */`, `// ..`), which Typst ignores between
+/// `import` and its path.
+fn skip_noise(mut s: &str) -> &str {
+    loop {
+        let t = s.trim_start_matches(|c: char| c.is_whitespace() || c == '(');
+        s = if let Some(rest) = t.strip_prefix("/*") {
+            rest.split_once("*/").map_or("", |(_, after)| after)
+        } else if let Some(rest) = t.strip_prefix("//") {
+            rest.split_once('\n').map_or("", |(_, after)| after)
+        } else {
+            return t;
+        };
+    }
+}
+
 /// Refuses a source that imports or includes a package (`#import "@preview/name:1.0.0"`). Typst downloads a package
 /// it does not have over the network and its CLI has no offline switch, so the way to keep v1 network-free is to never
 /// let such an import reach it. Our templates import none. Best effort: Typst can also build the path from an
@@ -82,8 +97,7 @@ fn package_args(dir: &Path) -> Result<Vec<String>, TypstError> {
 fn refuse_packages(source: &str) -> Result<(), TypstError> {
     for kw in ["import", "include"] {
         for (i, _) in source.match_indices(kw) {
-            let rest = source[i + kw.len()..].trim_start_matches(|c: char| c.is_whitespace() || c == '(');
-            if rest.starts_with("\"@") {
+            if skip_noise(&source[i + kw.len()..]).starts_with("\"@") {
                 return Err(TypstError::Compile { message: "Packages are not available in the PDF export (it never uses the network): remove the \"@...\" import.".into() });
             }
         }
@@ -161,11 +175,15 @@ fn compile_failure(stderr: &str) -> TypstError {
 /// Runs `typst query` on `source` (with `files` next to it) and returns its stdout: the JSON value of the single
 /// element `selector` matches (`--field value --one`). Same temp directory, timeout and font handling as `compile`; no PDF is made.
 pub fn query(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)], selector: &str, timeout: Duration) -> Result<Vec<u8>, TypstError> {
+    if selector.starts_with('-') || selector.trim().is_empty() {
+        return Err(other(format!("unsafe selector for the PDF export: {selector:?}")));
+    }
     let dir = stage(tmp_base, source, files)?;
     let mut args: Vec<String> = vec!["query".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
     args.extend(font_args(&font_dirs()));
     args.extend(package_args(dir.path())?);
-    args.extend(["main.typ".into(), selector.into(), "--field".into(), "value".into(), "--one".into()]);
+    // Options first, then `--`: nothing after it (the selector included) can be parsed as a flag.
+    args.extend(["--field".into(), "value".into(), "--one".into(), "--".into(), "main.typ".into(), selector.into()]);
     let r = run_capture(bin, &args, dir.path(), timeout)?;
     if !r.success {
         return Err(compile_failure(&r.stderr));
@@ -307,6 +325,8 @@ mod tests {
             "#include \"@preview/x:1.0.0\"",
             "#import(\"@preview/x:1.0.0\")",
             "= Title\n\n#let a = 1\n#import   \"@preview/x:1.0.0\": *",
+            "#import /* hidden */ \"@preview/x:1.0.0\"",
+            "#include // hidden\n\"@preview/x:1.0.0\"",
         ] {
             assert!(matches!(refuse_packages(bad), Err(TypstError::Compile { message }) if message.contains("Packages")), "{bad:?}");
         }
@@ -490,7 +510,7 @@ mod tests {
         let out = query(&echo_args, base.path(), "SRC", &[("assets/a.png".into(), vec![1])], "<page-report>", COMPILE_TIMEOUT).unwrap();
         let text = String::from_utf8_lossy(&out);
         assert!(text.contains("query --root . --diagnostic-format short"), "{text}");
-        assert!(text.contains("main.typ <page-report> --field value --one"), "{text}");
+        assert!(text.contains("--field value --one -- main.typ <page-report>"), "{text}");
         assert!(text.contains("SRC"));
         assert_eq!(leftovers(base.path()), 0);
         let loud = fake(d.path(), "echo 'error: no match' >&2; exit 1");
@@ -498,6 +518,19 @@ mod tests {
         let silent = fake(d.path(), "exit 1");
         assert!(matches!(query(&silent, base.path(), "x", &[], "<a>", COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message.contains("no message")));
         assert_eq!(leftovers(base.path()), 0);
+    }
+
+    #[test]
+    fn a_selector_that_could_be_a_flag_is_refused_before_anything_is_staged() {
+        let base = tempfile::tempdir().unwrap();
+        for bad in ["--root", "-h", "--input=x", "", "  "] {
+            let err = query(Path::new("/definitely/not/typst"), base.path(), "x", &[], bad, COMPILE_TIMEOUT);
+            assert!(matches!(err, Err(TypstError::Other { .. })), "{bad:?}: {err:?}");
+        }
+        assert_eq!(leftovers(base.path()), 0);
+        assert_eq!(skip_noise("  ( /* a */ // b\n \"@x"), "\"@x");
+        assert_eq!(skip_noise("/* never closed"), "");
+        assert_eq!(skip_noise("// no newline"), "");
     }
 
     #[test]

@@ -118,9 +118,9 @@ export async function fakeTauri(page: Page) {
             return "/pics/pic.png";
           case "pick_import_source":
             return "/src/book.md";
-          // The reference and font pickers still run in the webview.
-          case "plugin:dialog|open":
-            if (a?.options?.multiple === true) return window.__pickedRefs ?? [];
+          case "pick_reference_files":
+            return window.__pickedRefs ?? [];
+          case "pick_font_file":
             return window.__pickedFont === undefined
               ? "/fonts/Custom Sans.ttf"
               : window.__pickedFont;

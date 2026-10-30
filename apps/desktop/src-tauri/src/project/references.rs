@@ -44,10 +44,22 @@ pub enum ReferenceKind {
     Other,
 }
 
-/// Programs, scripts, installers and web pages: they could run, or run script, when opened, so they are never imported.
-const BLOCKED: [&str; 32] = [
-    "exe", "bat", "cmd", "com", "msi", "scr", "app", "dmg", "pkg", "sh", "command", "ps1", "vbs", "jar", "dll", "lnk", "appimage", "apk", "js", "mjs",
-    "cjs", "html", "htm", "xhtml", "hta", "reg", "inf", "deb", "rpm", "bin", "run", "wsf",
+/// Programs, scripts, installers, shortcuts, macro-enabled Office files and web pages: they could run, or run script,
+/// when opened, so they are never imported. A list of what to refuse (not of what to allow) so that research files such
+/// as `.docx`, `.xlsx`, `.epub` or `.zip` keep working; the signature checks cover the types that are served inline.
+const BLOCKED: &[&str] = &[
+    // Windows programs, installers and shortcuts
+    "exe", "bat", "cmd", "com", "msi", "msp", "mst", "scr", "dll", "cpl", "lnk", "pif", "inf", "reg", "hta", "chm", "msc", "gadget", "scf", "application", "diagcab",
+    "url", "ps1", "ps1xml", "psc1", "psm1", "psd1", "vbs", "vbe", "vb", "wsf", "wsh", "wsc", "ws", "jse", "ade", "adp", "mde",
+    // macOS and Linux programs, packages, scripts and shortcuts
+    "app", "dmg", "pkg", "mpkg", "command", "action", "workflow", "scpt", "scptd", "terminal", "webloc", "desktop", "appimage", "deb", "rpm", "apk", "bin", "run", "sh", "bash", "zsh",
+    "csh", "tcsh", "ksh", "fish", "iso",
+    // scripts and code that an interpreter or the shell would run
+    "js", "mjs", "cjs", "jar", "py", "pyw", "pyc", "pyz", "rb", "pl", "pm", "php", "cgi", "swf",
+    // web pages
+    "html", "htm", "xhtml",
+    // Office files that can carry macros
+    "docm", "dotm", "xlsm", "xltm", "xlam", "pptm", "potm", "ppam", "ppsm", "sldm",
 ];
 
 pub fn kind_of(ext: &str) -> ReferenceKind {
@@ -98,6 +110,25 @@ fn looks_like(ext: &str, h: &[u8]) -> bool {
         "ogg" | "oga" => at(0, b"OggS"),
         _ => at(0, b"fLaC"), // flac: the caller only asks about the extensions above
     }
+}
+
+/// A file with no extension is kept only when its start identifies it: a known media, image or PDF signature, or plain
+/// text that is not a script (`#!`). Anything else (an ELF or Mach-O program, a Windows executable, unknown bytes) is refused.
+fn sniff_extensionless(h: &[u8]) -> bool {
+    let at = |i: usize, s: &[u8]| h.get(i..i + s.len()) == Some(s);
+    let known = ["svg", "pdf", "mp4", "webm", "mp3", "wav", "ogg", "flac"].iter().any(|e| looks_like(e, h))
+        || at(0, &[0x89, b'P', b'N', b'G'])
+        || at(0, &[0xff, 0xd8, 0xff])
+        || at(0, b"GIF8")
+        || (at(0, b"RIFF") && at(8, b"WEBP"));
+    // The header may end inside a multi-byte character, so a UTF-8 error at the very end is not evidence against text.
+    let text = match std::str::from_utf8(h) {
+        Ok(_) => true,
+        Err(e) => e.error_len().is_none(),
+    };
+    // Text has no control characters other than tab, line breaks and form feed (an ELF header has 0x7f and 0x02).
+    let plain = h.iter().all(|&b| b >= 0x20 && b != 0x7f || matches!(b, b'\t' | b'\n' | b'\r' | 0x0c));
+    known || (text && plain && !at(0, b"#!"))
 }
 
 fn hash_reader(r: &mut impl Read) -> std::io::Result<String> {
@@ -186,6 +217,7 @@ fn import_reference_with(root: &Path, source: &Path, persist: Persist) -> Result
                 return Err(invalid());
             }
         }
+        ReferenceKind::Other if ext.is_empty() && !sniff_extensionless(&header) => return Err(ProjectError::UnsupportedReference { name: name.to_string() }),
         ReferenceKind::Other => {}
         _ if looks_like(&ext, &header) => {}
         _ => return Err(invalid()),
@@ -305,11 +337,12 @@ pub fn trash_reference(root: &Path, rel: &str) -> Result<String> {
 }
 
 /// The file to hand to the operating system's default app. Refuses types that could run or run script when opened
-/// (the import list, plus SVG, which a browser would open with scripts enabled) and files still downloading from iCloud.
+/// (the import list, plus SVG, which a browser would open with scripts enabled, and files with no extension) and files still downloading from iCloud.
 pub fn reference_open_path(root: &Path, rel: &str) -> Result<PathBuf> {
     let path = reference_path(root, rel)?;
     let ext = extension(rel).map_err(|_| ProjectError::UnsupportedReference { name: rel.to_string() })?;
-    if BLOCKED.contains(&ext.as_str()) || ext == "svg" {
+    // No extension: the operating system would decide by content, and a program has none.
+    if BLOCKED.contains(&ext.as_str()) || ext == "svg" || ext.is_empty() {
         return Err(ProjectError::UnsupportedReference { name: rel.to_string() });
     }
     if icloud_pending(&path) {
@@ -374,7 +407,8 @@ mod tests {
             ("book.pdf", b"%PDF-1.7\n".to_vec(), ReferenceKind::Pdf, "references/book.pdf"),
             ("notes.markdown", "# h\u{e9}llo".as_bytes().to_vec(), ReferenceKind::Text, "references/notes.markdown"),
             ("data.xlsx", vec![0, 1, 2, 255], ReferenceKind::Other, "references/data.xlsx"),
-            ("README", vec![1, 2], ReferenceKind::Other, "references/README"),
+            ("README", b"plain text notes".to_vec(), ReferenceKind::Other, "references/README"),
+            ("scan", PNG.to_vec(), ReferenceKind::Other, "references/scan"),
             ("???.pdf", b"%PDF-1".to_vec(), ReferenceKind::Pdf, "references/file.pdf"),
         ];
         for (name, bytes, kind, rel) in cases {
@@ -414,6 +448,17 @@ mod tests {
         let err = |name: &str, bytes: &[u8]| import_reference(proj.path(), &src(&out, name, bytes)).unwrap_err();
         for name in ["setup.exe", "a.SH", "page.html", "x.js", "tool.app"] {
             assert!(matches!(err(name, b"x"), ProjectError::UnsupportedReference { .. }), "{name}");
+        }
+        for name in ["a.py", "a.rb", "a.pl", "a.scpt", "a.terminal", "a.url", "a.webloc", "a.desktop", "a.docm", "a.XLSM", "a.chm", "a.cpl", "a.command", "a.pkg", "a.dmg", "a.jar", "a.ps1", "a.vbs", "a.wsf", "a.hta", "a.lnk", "a.inf", "a.reg", "a.sh", "a.bash", "a.zsh", "a.ps1xml", "a.pptm", "a.workflow"] {
+            assert!(matches!(err(name, b"x"), ProjectError::UnsupportedReference { .. }), "{name}");
+        }
+        for ext in ["docx", "xlsx", "epub", "zip", "csv", "json"] {
+            assert!(!BLOCKED.contains(&ext), "{ext} is ordinary research material");
+        }
+        // No extension: only a recognizable file is kept, never a program or unknown bytes.
+        let programs: [(&str, &[u8]); 7] = [("tool", &[0x7f, b'E', b'L', b'F', 2, 1][..]), ("tool2", &[0xcf, 0xfa, 0xed, 0xfe, 7][..]), ("tool3", b"MZ\x90\0"), ("run", b"#!/bin/sh\necho hi"), ("blob", &[1, 2, 3][..]), ("nul", b"a\0b"), ("latin", &[0x80, 0x81][..])];
+        for (name, bytes) in programs {
+            assert!(matches!(err(name, bytes), ProjectError::UnsupportedReference { .. }), "{name}");
         }
         assert!(matches!(err("weird.ex e", b"x"), ProjectError::UnsupportedReference { .. }));
         assert!(matches!(err("trailing.", b"x"), ProjectError::UnsupportedReference { .. }));
@@ -541,6 +586,10 @@ mod tests {
         assert!(matches!(reference_open_path(proj.path(), &svg.file).unwrap_err(), ProjectError::UnsupportedReference { .. }));
         fs::write(proj.path().join("references/tool.exe"), "MZ").unwrap();
         assert!(matches!(reference_open_path(proj.path(), "references/tool.exe").unwrap_err(), ProjectError::UnsupportedReference { .. }));
+        for name in ["run.py", "x.webloc", "m.docm", "s.command", "noext"] {
+            fs::write(proj.path().join("references").join(name), "x").unwrap();
+            assert!(matches!(reference_open_path(proj.path(), &format!("references/{name}")).unwrap_err(), ProjectError::UnsupportedReference { .. }), "{name}");
+        }
         assert!(matches!(reference_open_path(proj.path(), "references/bad.a.b c").unwrap_err(), ProjectError::UnsupportedReference { .. }));
         assert!(matches!(reference_open_path(proj.path(), "references/gone.pdf").unwrap_err(), ProjectError::NotFound { .. }));
         fs::write(proj.path().join("references/.late.pdf.icloud"), "").unwrap();

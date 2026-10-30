@@ -73,26 +73,37 @@ const PAGE: &str = "manuscript/001-a.json";
 
 #[test]
 fn the_native_pickers_answer_through_the_ipc_and_what_they_pick_is_remembered() {
-    use commands::fake_dialog::{ANSWERS, ASKED};
+    use commands::fake_dialog::{ANSWERS, ANSWERS_MANY, ASKED};
     let (app, w) = mock_app();
     let dir = tempfile::tempdir().unwrap();
     let (folder, image, doc) = (dir.path().join("book"), dir.path().join("a.png"), dir.path().join("a.md"));
     std::fs::create_dir(&folder).unwrap();
     std::fs::write(&image, "x").unwrap();
     std::fs::write(&doc, "x").unwrap();
-    ANSWERS.lock().unwrap().extend([Some(folder.clone()), None, Some(image.clone()), Some(doc.clone()), None]);
+    let (notes, font) = (dir.path().join("notes.txt"), dir.path().join("a.ttf"));
+    std::fs::write(&notes, "x").unwrap();
+    std::fs::write(&font, "x").unwrap();
+    ANSWERS.lock().unwrap().extend([Some(folder.clone()), None, Some(image.clone()), Some(doc.clone()), None, Some(font.clone()), None]);
+    ANSWERS_MANY.lock().unwrap().extend([vec![notes.clone(), doc.clone()], vec![]]);
     let shown = |p: &std::path::Path| json!(p.to_string_lossy());
     assert_eq!(json_of(call(&w, "pick_folder", json!({}))), shown(&folder));
     assert_eq!(json_of(call(&w, "pick_folder", json!({}))), Value::Null, "a cancel");
     assert_eq!(json_of(call(&w, "pick_image", json!({}))), shown(&image));
     assert_eq!(json_of(call(&w, "pick_import_source", json!({}))), shown(&doc));
     assert_eq!(json_of(call(&w, "pick_import_source", json!({}))), Value::Null);
-    assert_eq!(*ASKED.lock().unwrap(), ["Folder", "Folder", "Image", "ImportSource", "ImportSource"]);
+    assert_eq!(json_of(call(&w, "pick_reference_files", json!({}))), json!([notes.to_string_lossy(), doc.to_string_lossy()]));
+    assert_eq!(json_of(call(&w, "pick_reference_files", json!({}))), json!([]), "a cancel");
+    assert_eq!(json_of(call(&w, "pick_font_file", json!({}))), shown(&font));
+    assert_eq!(json_of(call(&w, "pick_font_file", json!({}))), Value::Null);
+    assert_eq!(*ASKED.lock().unwrap(), ["Folder", "Folder", "Image", "ImportSource", "ImportSource", "References", "References", "Font", "Font"]);
     let picked = app.state::<commands::PickedPaths>();
     assert!(picked.require(commands::PickKind::Folder, &folder).is_ok());
     assert!(picked.require(commands::PickKind::Image, &image).is_ok());
     assert!(picked.require(commands::PickKind::ImportSource, &doc).is_ok());
     assert!(picked.require(commands::PickKind::Image, &folder).is_err(), "an answer is only good for its own kind");
+    assert!(picked.require(commands::PickKind::Reference, &notes).is_ok() && picked.require(commands::PickKind::Reference, &doc).is_ok());
+    assert!(picked.require(commands::PickKind::Font, &font).is_ok());
+    assert!(picked.require(commands::PickKind::Font, &notes).is_err() && picked.require(commands::PickKind::Reference, &font).is_err());
 }
 
 #[test]
@@ -223,17 +234,21 @@ fn the_docx_import_command_works_through_the_ipc() {
 
 #[test]
 fn reference_commands_work_through_the_ipc() {
-    let (_app, w) = mock_app();
+    let (app, w) = mock_app();
     let (book, src) = (project(), tempfile::tempdir().unwrap());
     let r = root(&book);
     std::fs::write(src.path().join("notes.md"), "# Notes").unwrap();
     std::fs::write(src.path().join("run.exe"), "MZ").unwrap();
     let notes = src.path().join("notes.md").to_string_lossy().into_owned();
+    let exe = src.path().join("run.exe").to_string_lossy().into_owned();
+    assert_eq!(kind_of(call(&w, "import_reference", json!({ "root": r, "source": notes }))), "not_picked", "a file nobody picked");
+    assert!(!book.path().join("references").exists());
+    pick(&app, commands::PickKind::Reference, &src.path().join("notes.md"));
+    pick(&app, commands::PickKind::Reference, &src.path().join("run.exe"));
     let got = json_of(call(&w, "import_reference", json!({ "root": r, "source": notes })));
     assert_eq!(got, json!({ "file": "references/notes.md", "title": "notes", "size": 7, "kind": "text", "reused": false }));
     assert_eq!(json_of(call(&w, "stat_reference", json!({ "root": r, "path": "references/notes.md" }))), json!({ "size": 7, "kind": "text" }));
     assert_eq!(raw_of(call(&w, "read_reference", json!({ "root": r, "path": "references/notes.md", "offset": 2, "length": 99 }))), b"Notes");
-    let exe = src.path().join("run.exe").to_string_lossy().into_owned();
     assert_eq!(kind_of(call(&w, "import_reference", json!({ "root": r, "source": exe }))), "unsupported_reference");
     assert_eq!(kind_of(call(&w, "open_reference", json!({ "root": r, "path": "assets/a.png" }))), "not_reference");
     assert!(json_of(call(&w, "trash_reference", json!({ "root": r, "path": "references/notes.md" }))).as_str().unwrap().starts_with(".cadabra/trash/"));
@@ -269,10 +284,17 @@ fn updates_supported_answers_a_bool() {
 
 #[test]
 fn the_font_commands_answer_through_the_ipc() {
-    let (_app, w) = mock_app();
+    let (app, w) = mock_app();
     assert_eq!(kind_of(call(&w, "fonts_download", json!({ "fontId": "nope", "jobId": "d", "onProgress": "__CHANNEL__:3" }))), "unknown_font");
     json_of(call(&w, "fonts_cancel", json!({ "jobId": "j" })));
     assert!(call(&w, "fonts_import", json!({ "srcPath": "/no/such/font.woff2" })).is_err());
+    let src = tempfile::tempdir().unwrap();
+    let font = src.path().join("a.ttf");
+    std::fs::write(&font, "not a font").unwrap();
+    let path = font.to_string_lossy().into_owned();
+    assert_eq!(kind_of(call(&w, "fonts_import", json!({ "srcPath": path }))), "invalid_font", "a file nobody picked");
+    pick(&app, commands::PickKind::Image, &font); // picked for another purpose
+    assert_eq!(kind_of(call(&w, "fonts_import", json!({ "srcPath": path }))), "invalid_font");
     assert!(call(&w, "fonts_delete", json!({ "fontId": "../nope" })).is_err());
     assert!(call(&w, "fonts_data", json!({ "fontId": "../nope", "file": "x.ttf" })).is_err());
 }
@@ -361,6 +383,8 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("pick_folder", json!({})),
         ("pick_image", json!({})),
         ("pick_import_source", json!({})),
+        ("pick_reference_files", json!({})),
+        ("pick_font_file", json!({})),
         ("create_project", json!({ "root": "/r", "manifestJson": "{}" })),
         ("read_project_file", json!({ "root": "/r", "path": "p" })),
         ("write_project_file", json!({ "root": "/r", "path": "p", "contents": "c" })),
@@ -450,8 +474,12 @@ fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
                 | "pick_folder"
                 | "pick_image"
                 | "pick_import_source"
+                | "pick_reference_files"
+                | "pick_font_file"
                 | "create_project"
                 | "import_asset"
+                | "import_reference"
+                | "fonts_import"
                 | "read_import_source"
                 | "read_import_image"
                 | "import_docx_source"

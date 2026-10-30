@@ -14,33 +14,41 @@ const BATCH_TIMEOUT: Duration = Duration::from_secs(15 * 60);
 const BINARY: &str = if cfg!(windows) { "sherpa-onnx-offline-tts.exe" } else { "sherpa-onnx-offline-tts" };
 const INSTALL_ADVICE: &str = "The voice engine that ships with CadabraCraft is missing; reinstall the app.";
 
-/// Finds the engine: `SHERPA_TTS_BIN`, then the folder of the app executable (the bundled sidecar), then PATH.
+/// Finds the engine. The webview cannot choose the program: release builds run only the sidecar bundled next to the app
+/// executable. Debug builds (dev runs and tests) also honour `SHERPA_TTS_BIN`, then PATH.
 pub fn find_sherpa() -> Result<PathBuf, AudioError> {
-    find_sherpa_in(std::env::var("SHERPA_TTS_BIN").ok().as_deref(), std::env::current_exe().ok().and_then(|e| e.parent().map(Path::to_path_buf)).as_deref(), std::env::var_os("PATH").as_deref())
+    let dev = cfg!(debug_assertions);
+    let env_bin = if dev { std::env::var("SHERPA_TTS_BIN").ok() } else { None };
+    find_sherpa_in(env_bin.as_deref(), sidecar::bundled_dir().as_deref(), std::env::var_os("PATH").as_deref(), dev)
 }
 
-pub fn find_sherpa_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>) -> Result<PathBuf, AudioError> {
-    if let Some(g) = env_bin.map(str::trim).filter(|g| !g.is_empty()) {
+/// `dev` false: only `bundled`; `env_bin` and `path_var` are ignored. `dev` true: `env_bin` (an error when it is not
+/// runnable), then `bundled` and PATH.
+pub fn find_sherpa_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, dev: bool) -> Result<PathBuf, AudioError> {
+    if let Some(g) = env_bin.map(str::trim).filter(|g| dev && !g.is_empty()) {
         let p = PathBuf::from(g);
         return if is_executable(&p) { Ok(p) } else { Err(AudioError::NotFound { message: format!("No runnable voice engine at {g} (from SHERPA_TTS_BIN). {INSTALL_ADVICE}") }) };
     }
-    find_executable(&[BINARY], &search_dirs(bundled, path_var, &[])).ok_or_else(|| AudioError::NotFound { message: format!("The voice engine was not found. {INSTALL_ADVICE}") })
+    find_executable(&[BINARY], &search_dirs(bundled, path_var.filter(|_| dev), &[])).ok_or_else(|| AudioError::NotFound { message: format!("The voice engine was not found. {INSTALL_ADVICE}") })
 }
 
 const FFMPEG: &str = if cfg!(windows) { "ffmpeg.exe" } else { "ffmpeg" };
 const FFMPEG_ADVICE: &str = "The audio encoder that ships with CadabraCraft (ffmpeg) is missing; reinstall the app.";
 
-/// Finds the encoder used for M4B: `FFMPEG_BIN`, then the folder of the app executable (the bundled sidecar), then PATH.
+/// Finds the encoder used for M4B. Release builds run only the bundled sidecar; debug builds also honour `FFMPEG_BIN`, then PATH.
 pub fn find_ffmpeg() -> Result<PathBuf, AudioError> {
-    find_ffmpeg_in(std::env::var("FFMPEG_BIN").ok().as_deref(), sidecar::bundled_dir().as_deref(), std::env::var_os("PATH").as_deref())
+    let dev = cfg!(debug_assertions);
+    let env_bin = if dev { std::env::var("FFMPEG_BIN").ok() } else { None };
+    find_ffmpeg_in(env_bin.as_deref(), sidecar::bundled_dir().as_deref(), std::env::var_os("PATH").as_deref(), dev)
 }
 
-pub fn find_ffmpeg_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>) -> Result<PathBuf, AudioError> {
-    if let Some(g) = env_bin.map(str::trim).filter(|g| !g.is_empty()) {
+/// Same rules as `find_sherpa_in`.
+pub fn find_ffmpeg_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, dev: bool) -> Result<PathBuf, AudioError> {
+    if let Some(g) = env_bin.map(str::trim).filter(|g| dev && !g.is_empty()) {
         let p = PathBuf::from(g);
         return if is_executable(&p) { Ok(p) } else { Err(AudioError::NotFound { message: format!("No runnable encoder at {g} (from FFMPEG_BIN). {FFMPEG_ADVICE}") }) };
     }
-    find_executable(&[FFMPEG], &search_dirs(bundled, path_var, &[])).ok_or_else(|| AudioError::NotFound { message: format!("The audio encoder was not found. {FFMPEG_ADVICE}") })
+    find_executable(&[FFMPEG], &search_dirs(bundled, path_var.filter(|_| dev), &[])).ok_or_else(|| AudioError::NotFound { message: format!("The audio encoder was not found. {FFMPEG_ADVICE}") })
 }
 
 /// Runs ffmpeg in `cwd` with a timeout and the cancel flag (the same process rules as the voice engine).
@@ -95,36 +103,52 @@ pub(crate) fn synthesize(chunks: &[Chunk], voice_id: &str, speed: f64, sherpa: &
 mod tests {
     use super::*;
 
-    #[test]
-    fn find_sherpa_prefers_the_env_path_and_does_not_fall_back_from_a_wrong_one() {
-        let dir = tempfile::tempdir().unwrap();
-        assert!(matches!(find_sherpa_in(None, Some(dir.path()), None), Err(AudioError::NotFound { .. })));
-        let bin = dir.path().join(BINARY);
+    fn fake_bin(dir: &Path, name: &str) -> PathBuf {
+        let bin = dir.join(name);
         fs::write(&bin, b"#!/bin/sh\n").unwrap();
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
             fs::set_permissions(&bin, fs::Permissions::from_mode(0o755)).unwrap();
         }
-        assert_eq!(find_sherpa_in(None, Some(dir.path()), None).unwrap(), bin);
-        assert_eq!(find_sherpa_in(Some(bin.to_str().unwrap()), None, None).unwrap(), bin);
-        assert!(find_sherpa_in(Some("/nope/engine"), Some(dir.path()), None).is_err());
+        bin
+    }
+
+    #[test]
+    fn find_sherpa_prefers_the_env_path_and_does_not_fall_back_from_a_wrong_one() {
+        let dir = tempfile::tempdir().unwrap();
+        assert!(matches!(find_sherpa_in(None, Some(dir.path()), None, true), Err(AudioError::NotFound { .. })));
+        let bin = fake_bin(dir.path(), BINARY);
+        assert_eq!(find_sherpa_in(None, Some(dir.path()), None, true).unwrap(), bin);
+        assert_eq!(find_sherpa_in(Some(bin.to_str().unwrap()), None, None, true).unwrap(), bin);
+        assert!(find_sherpa_in(Some("/nope/engine"), Some(dir.path()), None, true).is_err());
     }
 
     #[test]
     fn find_ffmpeg_prefers_the_env_path_and_does_not_fall_back_from_a_wrong_one() {
         let dir = tempfile::tempdir().unwrap();
-        assert!(matches!(find_ffmpeg_in(None, Some(dir.path()), None), Err(AudioError::NotFound { .. })));
-        let bin = dir.path().join(FFMPEG);
-        fs::write(&bin, b"#!/bin/sh\n").unwrap();
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            fs::set_permissions(&bin, fs::Permissions::from_mode(0o755)).unwrap();
-        }
-        assert_eq!(find_ffmpeg_in(None, Some(dir.path()), None).unwrap(), bin);
-        assert_eq!(find_ffmpeg_in(Some(bin.to_str().unwrap()), None, None).unwrap(), bin);
-        assert!(find_ffmpeg_in(Some("/nope/ffmpeg"), Some(dir.path()), None).is_err());
+        assert!(matches!(find_ffmpeg_in(None, Some(dir.path()), None, true), Err(AudioError::NotFound { .. })));
+        let bin = fake_bin(dir.path(), FFMPEG);
+        assert_eq!(find_ffmpeg_in(None, Some(dir.path()), None, true).unwrap(), bin);
+        assert_eq!(find_ffmpeg_in(Some(bin.to_str().unwrap()), None, None, true).unwrap(), bin);
+        assert!(find_ffmpeg_in(Some("/nope/ffmpeg"), Some(dir.path()), None, true).is_err());
+    }
+
+    #[test]
+    fn release_builds_ignore_the_env_override_and_path_and_use_only_the_bundled_program() {
+        let (bundled, elsewhere) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let (sherpa, ffmpeg) = (fake_bin(elsewhere.path(), BINARY), fake_bin(elsewhere.path(), FFMPEG));
+        let path = std::env::join_paths([elsewhere.path()]).unwrap();
+        // Nothing bundled: the env override and PATH are not consulted.
+        assert!(matches!(find_sherpa_in(sherpa.to_str(), Some(bundled.path()), Some(&path), false), Err(AudioError::NotFound { .. })));
+        assert!(matches!(find_ffmpeg_in(ffmpeg.to_str(), Some(bundled.path()), Some(&path), false), Err(AudioError::NotFound { .. })));
+        // The same inputs in a debug build find them.
+        assert_eq!(find_sherpa_in(sherpa.to_str(), Some(bundled.path()), Some(&path), true).unwrap(), sherpa);
+        assert_eq!(find_ffmpeg_in(None, Some(bundled.path()), Some(&path), true).unwrap(), ffmpeg);
+        // The bundled one wins in a release build.
+        let (bs, bf) = (fake_bin(bundled.path(), BINARY), fake_bin(bundled.path(), FFMPEG));
+        assert_eq!(find_sherpa_in(sherpa.to_str(), Some(bundled.path()), Some(&path), false).unwrap(), bs);
+        assert_eq!(find_ffmpeg_in(ffmpeg.to_str(), Some(bundled.path()), Some(&path), false).unwrap(), bf);
     }
 
     #[cfg(unix)]
