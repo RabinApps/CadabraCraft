@@ -224,7 +224,7 @@ export function buildEpub(
     files[`OEBPS/${COVER_PAGE}.xhtml`] = strToU8(
       page(
         alt,
-        `<section epub:type="cover"><img src="${esc(cover.path)}" alt="${esc(alt)}" style="max-width:100%;max-height:100%"/></section>`,
+        `<section epub:type="cover"><img role="doc-cover" src="${esc(cover.path)}" alt="${esc(alt)}" style="max-width:100%;max-height:100%"/></section>`,
         ' epub:type="cover" class="cover" style="margin:0;text-align:center"',
       ),
     );
@@ -233,7 +233,7 @@ export function buildEpub(
     const { type, cls } = semantics(c);
     let body: string;
     try {
-      body = chapterToXhtmlBody(c.doc);
+      body = chapterToXhtmlBody(c.doc, meta.language);
     } catch (e) {
       throw e instanceof EpubExportError ? e.inChapter({ id: c.id, title: c.title }) : e;
     }
@@ -263,7 +263,7 @@ export function buildEpub(
   files["OEBPS/nav.xhtml"] = strToU8(
     page(
       meta.title,
-      `<nav epub:type="toc" id="toc"><h1>${esc(contents)}</h1><ol>${toc}</ol></nav>${landmarks}`,
+      `<nav epub:type="toc" role="doc-toc" id="toc"><h1>${esc(contents)}</h1><ol>${toc}</ol></nav>${landmarks}`,
     ),
   );
 
@@ -297,6 +297,7 @@ export function buildEpub(
     imagesMissingAlt: stats.reduce((n, s) => n + s.missingAlt, 0),
     hasCover: cover !== undefined,
     hasGif: [...imageOwners.keys()].some((p) => p.toLowerCase().endsWith(".gif")),
+    hasSvg: [...imageOwners.keys()].some((p) => p.toLowerCase().endsWith(".svg")),
   });
   files["OEBPS/content.opf"] = strToU8(
     `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier>${isbnUrn}<dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language>${retail}<meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta>${a11y}${cover ? '<meta name="cover" content="epub-cover-image"/>' : ""}</metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}${cover ? `<item id="epub-cover-image" href="${esc(cover.path)}" media-type="${coverType}" properties="cover-image"/>` : ""}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,

@@ -1,5 +1,6 @@
 import type { ChapterDoc, DocNode, Mark } from "@cadabracraft/shared";
 import { EpubExportError, type EpubErrorCode } from "./errors";
+import { backToTextLabel } from "./strings";
 
 /** Characters XML 1.0 cannot carry at all (not even escaped): most control characters, U+FFFE/U+FFFF and lone surrogates. */
 const XML_ILLEGAL =
@@ -94,7 +95,7 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
           }
           const id = ctx.notes.length + 1;
           ctx.notes.push(text);
-          return `<a epub:type="noteref" id="ref${id}" href="#fn${id}" class="noteref">${id}</a>`;
+          return `<a epub:type="noteref" role="doc-noteref" id="ref${id}" href="#fn${id}" class="noteref">${id}</a>`;
         }
         if (n.type === "hardBreak") return "<br/>";
         return block(n, ctx);
@@ -303,17 +304,18 @@ function block(n: DocNode, ctx: Ctx): string {
 }
 
 /** Chapter JSON -> XHTML body fragment, with an endnotes section when footnotes exist. */
-export function chapterToXhtmlBody(doc: ChapterDoc): string {
+export function chapterToXhtmlBody(doc: ChapterDoc, language = "en"): string {
   const ctx: Ctx = { notes: [], inNote: false, path: [] };
   const body = doc.content.map((n, i) => at(ctx, n, i, () => block(n, ctx))).join("\n");
   if (!ctx.notes.length) return body;
+  const back = esc(backToTextLabel(language));
   const notes = ctx.notes
     .map(
       (t, i) =>
-        `<li id="fn${i + 1}" epub:type="footnote"><p>${t} <a href="#ref${i + 1}">↩</a></p></li>`,
+        `<li><aside id="fn${i + 1}" epub:type="footnote" role="doc-footnote"><p>${t} <a href="#ref${i + 1}" role="doc-backlink" aria-label="${back}">↩</a></p></aside></li>`,
     )
     .join("");
-  return `${body}\n<aside epub:type="footnotes"><ol>${notes}</ol></aside>`;
+  return `${body}\n<section epub:type="footnotes" role="doc-endnotes"><ol>${notes}</ol></section>`;
 }
 
 /** Every distinct image `src` used in a chapter, in document order. */

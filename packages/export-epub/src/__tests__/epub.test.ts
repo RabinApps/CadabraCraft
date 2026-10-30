@@ -59,7 +59,7 @@ describe("chapterToXhtmlBody", () => {
       '<table><thead><tr><th scope="col"><p>Item</p></th><th scope="col"><p>Cost &amp; note</p></th></tr></thead><tbody>',
     );
     expect(html).toContain("<td><p>a&lt;b</p></td>");
-    expect(html).toMatch(/<td><p>Ten<a epub:type="noteref" id="ref2"/);
+    expect(html).toMatch(/<td><p>Ten<a epub:type="noteref" role="doc-noteref" id="ref2"/);
   });
   it("rejects malformed tables", () => {
     const p = { type: "paragraph" } as never;
