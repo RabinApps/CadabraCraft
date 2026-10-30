@@ -1318,3 +1318,17 @@ Triggered by a memory-safety and security audit of `apps/desktop/src-tauri`. The
 - **Let writers hide the page edges:** the screen would stop matching the book again; the zoom already controls how much page is visible.
 
 **Follow-ups / caveats:** the template's print font is used only when it is installed, bundled or imported, else the bundled serif (roadmap: bundle Libertinus Serif). The phone reflow uses the template's text size (11 pt for the novel), which is smaller than the old 17 px manuscript text. Read mode and the print preview are unchanged. Not verified on a real phone.
+
+## Accessibility targets and tooling (2026-10-30)
+
+**Decision:** the app is held to WCAG 2.2 AA, its EPUBs to EPUB Accessibility 1.1 and its print PDFs to PDF/UA-1. Enforcement is `eslint-plugin-jsx-a11y` in `pnpm lint`, an `@axe-core/playwright` spec in the existing e2e run, and a Vitest check of the design-token contrast ratios. `Modal` remembers the element that opened it and gives focus back on close, because dialogs are controlled and have no Radix Trigger. Details and open work: `docs/accessibility.md`.
+
+**Why:** the code already had good habits but nothing stopped a regression; the first axe run found that closing any dialog dropped focus to the page body.
+
+**Rejected:**
+
+- **Claiming a conformance level:** no independent evaluation exists, and the EPUB `conformsTo` decision (omit it) still holds.
+- **A paid or hosted scanner (Lighthouse CI, VertaaUX):** needs accounts or network calls, against the v1 rules.
+- **Running axe only in CI as a separate job:** the Playwright suite already has the fake backend and fixtures; a spec there runs locally and in CI with no new wiring.
+
+**Caveats:** automated tools find roughly a third of WCAG issues; screen-reader passes are still manual. The `no-autofocus` lint rule is off because dialogs and inline editors move focus on purpose.

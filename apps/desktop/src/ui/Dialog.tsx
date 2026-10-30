@@ -1,6 +1,6 @@
 import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Button } from "./Button";
 import { cx } from "./cx";
 
@@ -39,11 +39,26 @@ export function Modal({
   children,
   size = "sm",
 }: ModalProps) {
+  // Dialogs are controlled and have no Radix Trigger, so remember the opener and give focus back to it (WCAG 2.4.3).
+  // It is read while rendering, before a field with autoFocus can take focus.
+  const opener = useRef<HTMLElement | null>(null);
+  const wasOpen = useRef(false);
+  if (open && !wasOpen.current && document.activeElement instanceof HTMLElement)
+    opener.current = document.activeElement;
+  wasOpen.current = open;
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
         <D.Overlay className={overlayClass} />
         <D.Content
+          onCloseAutoFocus={(e) => {
+            const back = opener.current;
+            opener.current = null;
+            if (back?.isConnected && back !== document.body) {
+              e.preventDefault();
+              back.focus();
+            }
+          }}
           {...(description ? {} : { "aria-describedby": undefined })}
           className={cx(
             panelClass,

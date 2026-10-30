@@ -12,6 +12,8 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 
 ### Editor and app UI
 
+- Accessibility (WCAG 2.2 AA, EPUB Accessibility 1.1, PDF/UA-1): the full plan and open items are in [accessibility.md](accessibility.md). Built so far: jsx-a11y lint, an axe e2e spec for the home screen, New book dialog and editor, a token contrast test, and focus return to the opener for every `Modal`.
+
 UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 
 - M2 follow-ups: EPUBCheck from the app. (Bleed and crop marks in the PDF are built, see "Bleed and crop marks in the print PDF" in architecture.md.)
