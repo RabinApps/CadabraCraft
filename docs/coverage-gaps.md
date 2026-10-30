@@ -57,3 +57,18 @@ The original baseline was 86.9% lines, 74.0% functions. Current measured totals 
 | lib.rs, main.rs                               | 0%          | excluded (builder wiring) |
 
 The explicitly excluded Rust source is `lib.rs` (Tauri builder wiring), `main.rs` (binary entry point, filtered out at collection), and exactly the command-macro wrapper source line `src/commands/project.rs:58`. The underlying command logic is exercised through unit and Tauri IPC tests. The gate removes the generated wrapper line from line totals; it does not discard whole command files. LLVM reports function-instantiation coverage below 100%; the 98% function floor is an interim ratchet, not a claim that Rust has reached 100%.
+
+## Rust edge cases (2026-10-29)
+
+New tests in `src/project/edge_tests.rs`, `src/import_src/edge.rs`, `src/audio/wav/edge.rs`, `src/fonts/edge_tests.rs`, `src/ipc_tests/edge.rs`, `src/import_docx/hostile_tests.rs`:
+
+- **Failed writes:** read-only folders, a file or folder in the way, dangling or escaping links and a failing snapshot give typed errors, keep the original and leave no temp file. A full disk cannot be injected (temp names are random), so it is not covered.
+- **Corrupt content:** bad manifests, damaged snapshot files and non-UTF-8 pages are refused or skipped with typed errors; page text is opaque and round-trips byte for byte; a bad manifest creates nothing.
+- **Names:** 255 and 256+ byte names, 4096-byte and 1000-deep paths, NUL, newline, RLO, zero-width, NFC/NFD and case collisions lose no data. Known limits: a 255-byte page name cannot be trashed (nothing is lost), and a page saved under two Unicode spellings keeps its history under the second. Windows reserved names (CON, NUL, COM1, trailing dot or space) are not refused; the Windows test is written but unverified.
+- **Caps:** cap+1 refusal for every reference kind, text at the cap, zero-byte files per type and range boundaries. Exact-cap success for the 100 to 500 MB kinds is skipped on cost.
+- **Special files:** fifo, socket, device, folder and dangling link are typed errors without a hang at every import, reference, page, asset, media and font entry point (this found and fixed a fifo hang in `import_reference` and `open_regular`).
+- **Link swap:** a link planted before the call is refused; a swap between check and use is a known window (no `openat`/`O_NOFOLLOW`), and the page is never lost.
+- **Concurrency:** concurrent saves, snapshots, trash and listing lose no unseen update and leave no temp files (this found and fixed concurrent book snapshots overwriting each other). No file-watcher storm test yet.
+- **IPC edges:** empty and 1 MB strings, out-of-range numbers, NaN and infinite speed, a 10,000 job-id flood and a media-token flood are bounded and never panic. Error messages echo the offending path.
+- **Clock:** same-minute snapshots get `~N` names; pre-1970, far-future and chrono min/max clocks do not panic.
+- **`.docx` hostile input:** node bomb, attribute flood, huge text node, lying declared sizes, duplicate and overlapping entries, ZIP64, non-UTF-8 entry names, 4 GiB frame lengths.
