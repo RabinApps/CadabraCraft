@@ -395,6 +395,7 @@ dependencies = [
  "chrono",
  "dirs",
  "flacenc",
+ "flate2",
  "notify",
  "notify-debouncer-mini",
  "ogg",

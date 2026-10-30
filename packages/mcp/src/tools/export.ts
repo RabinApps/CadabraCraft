@@ -6,7 +6,7 @@ import { z } from "zod";
 import { buildDocx } from "@cadabracraft/export-docx";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { bookToMarkdown } from "@cadabracraft/export-markdown";
-import { renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
+import { bleedOf, renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import { createNodeRunner } from "@cadabracraft/export-pdf/node";
 import { buildRtf } from "@cadabracraft/export-rtf";
 import { ProjectFsError, writeBytes } from "@cadabracraft/project-fs";
@@ -98,6 +98,7 @@ export const exportPdf = defineTool({
       const id = template ?? templateId;
       const size: TrimSize = trimSize ?? resolveTrimSize({ template: id, ...(manifest.trimSize ? { trimSize: manifest.trimSize } : {}) });
       const bookFonts = { ...resolveBookFonts(manifest), ...(bodyFont ? { body: bodyFont } : {}), ...(headingFont ? { heading: headingFont } : {}) };
+      bleedOf({ ...(bleedIn ? { bleedIn } : {}), ...(cropMarks ? { cropMarks: true } : {}) }); // bad bleed options are refused before Typst is looked up
       const runner = createNodeRunner({ typstPath: typstPath(ctx) });
       const { pdf, fonts } = await renderPdf(
         { title: edition.title, author: edition.author, language: edition.language },

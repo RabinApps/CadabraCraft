@@ -54,6 +54,8 @@ reqwest = { version = "0.13", default-features = false, features = ["rustls-no-p
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
 # .docx import (src/import_docx). zip: deflate only (what Word writes), no encryption, no other codecs, no time. quick-xml: reader only.
 zip = { version = "9", default-features = false, features = ["deflate-flate2"] }
+# zip enables flate2 without a backend; pick one here so no target depends on another crate (png) doing it.
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 quick-xml = "0.42"
 
 [dev-dependencies]

@@ -1,7 +1,7 @@
 export { buildTypst, buildTypstDocument, resolveFonts, requestedFonts } from "./typst";
 export { renderPdf, type RenderPdfOptions } from "./render";
 export type { BlockMarkKind } from "./typst/blocks";
-export { pageBox, type PageBox } from "./typst/bleed";
+export { bleedOf, pageBox, type PageBox } from "./typst/bleed";
 export {
   measurePages,
   parsePageReport,
