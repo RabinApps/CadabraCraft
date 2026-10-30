@@ -12,20 +12,30 @@ fn is_missing(e: &std::io::Error) -> bool {
 /// The deepest part of the path that exists is resolved; the rest does not exist yet, so cannot be a link. A dangling
 /// link is refused, because writing through it would create its target elsewhere.
 fn ensure_contained(root: &Path, abs: &Path, rel: &str) -> Result<()> {
+    ensure_contained_with(root, abs, rel, |p| fs::canonicalize(p))
+}
+
+/// `ensure_contained` with the canonicalising call passed in, so the case where an entry vanishes between the two calls
+/// (a concurrent trash or rename) can be tested.
+fn ensure_contained_with(root: &Path, abs: &Path, rel: &str, canonicalize: impl Fn(&Path) -> std::io::Result<PathBuf>) -> Result<()> {
     let Ok(real_root) = fs::canonicalize(root) else { return Ok(()) }; // no root yet, so no links to follow
     let escape = || ProjectError::PathEscape { path: rel.to_string() };
     let mut cur = abs;
     loop {
         match fs::symlink_metadata(cur) {
-            Ok(_) => {
-                let real = fs::canonicalize(cur).map_err(|_| escape())?; // dangling link or loop
-                return if real.starts_with(&real_root) { Ok(()) } else { Err(escape()) };
-            }
-            Err(e) if is_missing(&e) => match cur.parent() {
-                Some(p) => cur = p,
-                None => return Ok(()),
+            Ok(_) => match canonicalize(cur) {
+                Ok(real) => return if real.starts_with(&real_root) { Ok(()) } else { Err(escape()) },
+                // The entry may have been moved away between the two calls: look again. Only an entry that is still there
+                // is a dangling link or a loop; one that is gone is just missing, like any path that does not exist yet.
+                Err(_) if fs::symlink_metadata(cur).is_err_and(|e| is_missing(&e)) => {}
+                Err(_) => return Err(escape()),
             },
+            Err(e) if is_missing(&e) => {}
             Err(e) => return Err(e.into()),
+        }
+        match cur.parent() {
+            Some(p) => cur = p,
+            None => return Ok(()),
         }
     }
 }
@@ -101,6 +111,27 @@ mod tests {
 
     fn tmp() -> tempfile::TempDir {
         tempfile::tempdir().unwrap()
+    }
+
+    #[test]
+    fn an_entry_that_vanishes_between_the_check_and_the_resolve_is_missing_not_an_escape() {
+        let d = tmp();
+        fs::create_dir_all(d.path().join("manuscript")).unwrap();
+        let page = d.path().join("manuscript/001-a.json");
+        fs::write(&page, "x").unwrap();
+        // Another thread trashes the page after `symlink_metadata` saw it: the canonicalise call finds it gone.
+        let gone = |p: &Path| {
+            if !p.ends_with("001-a.json") {
+                return fs::canonicalize(p); // the folder above it is still there
+            }
+            let _ = fs::remove_file(p);
+            Err(std::io::Error::from(std::io::ErrorKind::NotFound))
+        };
+        assert!(ensure_contained_with(d.path(), &page, "manuscript/001-a.json", gone).is_ok());
+        // An entry that is still there but cannot be resolved (a dangling link or a loop) is refused.
+        fs::write(&page, "x").unwrap();
+        let broken = |_: &Path| Err(std::io::Error::from(std::io::ErrorKind::NotFound));
+        assert_eq!(ensure_contained_with(d.path(), &page, "manuscript/001-a.json", broken), Err(ProjectError::PathEscape { path: "manuscript/001-a.json".into() }));
     }
 
     #[test]
