@@ -62,6 +62,7 @@ macro_rules! app_handlers {
             audio::commands::audio_files_exist,
             audio::commands::audio_sample,
             audio::commands::audio_build_m4b,
+            audio::commands::audio_write_transcript,
             audio::commands::audio_packs,
             audio::commands::audio_download_pack,
             audio::commands::audio_delete_pack,

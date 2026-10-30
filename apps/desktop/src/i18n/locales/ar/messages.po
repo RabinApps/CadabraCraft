@@ -365,6 +365,10 @@ msgstr "يوجد مشروع بالفعل في هذا المجلد"
 msgid "A sample is already being made"
 msgstr "يجري إنشاء عيّنة بالفعل"
 
+#: src/app/export/AudioExport.tsx
+msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "About CadabraCraft"
 msgstr "حول CadabraCraft"
@@ -3000,6 +3004,10 @@ msgstr "مثل الآن"
 msgid "Save"
 msgstr "حفظ"
 
+#: src/app/export/AudioExport.tsx
+msgid "Save a transcript"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Save details"
 msgstr "حفظ التفاصيل"
@@ -3688,6 +3696,10 @@ msgstr "تبديل صف الرأس"
 #: src/lib/exportChecks.ts
 msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
 msgstr "يجب أن تكون الهوامش العلوية والسفلية والخارجية {KDP_MIN_OUTER_IN} بوصة على الأقل لدى KDP."
+
+#: src/app/export/AudioExport.tsx
+msgid "Transcript files"
+msgstr ""
 
 #: src/app/shell/Sidebar.tsx
 #: src/app/shell/TrashDialog.tsx

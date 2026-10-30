@@ -365,6 +365,10 @@ msgstr "כבר קיים פרויקט בתיקייה זו"
 msgid "A sample is already being made"
 msgstr "דוגמה כבר נוצרת"
 
+#: src/app/export/AudioExport.tsx
+msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "About CadabraCraft"
 msgstr "אודות CadabraCraft"
@@ -3000,6 +3004,10 @@ msgstr "כמו עכשיו"
 msgid "Save"
 msgstr "שמירה"
 
+#: src/app/export/AudioExport.tsx
+msgid "Save a transcript"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Save details"
 msgstr "שמירת הפרטים"
@@ -3688,6 +3696,10 @@ msgstr "החלפת מצב שורת כותרת"
 #: src/lib/exportChecks.ts
 msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
 msgstr "שולי העליון, התחתון והחיצוני חייבים להיות לפחות {KDP_MIN_OUTER_IN} אינץ׳ עבור KDP."
+
+#: src/app/export/AudioExport.tsx
+msgid "Transcript files"
+msgstr ""
 
 #: src/app/shell/Sidebar.tsx
 #: src/app/shell/TrashDialog.tsx

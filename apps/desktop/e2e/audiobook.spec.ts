@@ -231,3 +231,98 @@ test("Audiobook offers an edition only the voices that read its language, and sa
   await expect(dialog.getByRole("button", { name: "Export audiobook" })).toBeDisabled();
   await expect(dialog.getByRole("button", { name: "Hear a sample" })).toBeDisabled();
 });
+
+test("Saving a transcript writes a text file and captions from the text the voice reads, and lists them", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  const box = dialog.getByLabel("Save a transcript");
+  await expect(box).not.toBeChecked();
+  await box.check();
+  await dialog.getByRole("button", { name: "Export audiobook" }).click();
+  await expect(dialog.getByText("Your audiobook is ready")).toBeVisible();
+  const transcripts = dialog.getByRole("list", { name: "Transcript files" });
+  await expect(transcripts.getByRole("listitem")).toHaveCount(2);
+  await expect(transcripts.getByRole("listitem").first()).toContainText("-transcript.txt");
+  await expect(transcripts.getByRole("listitem").nth(1)).toContainText(/^01-.*\.vtt$/);
+  await expect(dialog.getByText(/3 files/)).toBeVisible();
+
+  const { text, vtt, spoken } = await page.evaluate(() => {
+    const keys = Object.keys(window.__disk).filter((k) => k.startsWith("exports/en/audio/"));
+    return {
+      text: window.__disk[keys.find((k) => k.endsWith("-transcript.txt"))!] as string,
+      vtt: window.__disk[keys.find((k) => k.endsWith(".vtt"))!] as string,
+      spoken: window.__audioCalls[0]!.chunks.map((c) => c.text),
+    };
+  });
+  // Both files hold exactly the chunks that were sent to the voice.
+  for (const chunk of spoken) {
+    expect(text).toContain(chunk);
+    expect(vtt).toContain(chunk);
+  }
+  expect(vtt).toMatch(/^WEBVTT\nLanguage: en\n/);
+  expect(vtt).toContain("00:00:00.000 --> ");
+});
+
+test("Without the transcript option no transcript is written", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await dialog.getByRole("button", { name: "Export audiobook" }).click();
+  await expect(dialog.getByText("Your audiobook is ready")).toBeVisible();
+  await expect(dialog.getByRole("list", { name: "Transcript files" })).toHaveCount(0);
+  const written = await page.evaluate(() =>
+    Object.keys(window.__disk).filter((k) => /\.(txt|vtt)$/.test(k) && k.startsWith("exports/")),
+  );
+  expect(written).toEqual([]);
+});
+
+test("A transcript that cannot be saved is reported", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__transcriptError = { kind: "disk_full", message: "disk full" };
+  });
+  await newProject(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await dialog.getByLabel("Save a transcript").check();
+  await dialog.getByRole("button", { name: "Export audiobook" }).click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(dialog.getByText("Your audiobook is ready")).toHaveCount(0);
+});
+
+test("The edition's language goes to the chapter files and the M4B so players pick the right voice", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.__audioVoices = [
+      { id: "piper-amy", engine: "piper", installed: true, languages: ["en"] },
+      { id: "piper-fr", engine: "piper", installed: true, languages: ["fr"] },
+    ];
+  });
+  await frenchWithOneChapter(page);
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export book" });
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await dialog.getByLabel("Skip untranslated chapters").check();
+  await dialog.getByLabel("M4B audiobook").check();
+  await dialog.getByLabel("Save a transcript").check();
+  await dialog.getByRole("button", { name: "Export audiobook" }).click();
+  await expect(dialog.getByText("Your audiobook is ready")).toBeVisible();
+  const [chapter] = await page.evaluate(() => window.__audioCalls);
+  expect(chapter!.language).toBe("fr");
+  const [m4b] = await page.evaluate(() => window.__m4bCalls);
+  expect(m4b!.language).toBe("fr");
+  const vtt = await page.evaluate(
+    () =>
+      window.__disk[
+        Object.keys(window.__disk).find((k) => /exports\/fr\/audio\/.*\.vtt$/.test(k))!
+      ],
+  );
+  expect(vtt).toMatch(/^WEBVTT\nLanguage: fr\n/);
+  expect(vtt).toContain("Bonjour");
+});

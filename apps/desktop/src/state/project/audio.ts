@@ -2,14 +2,23 @@ import { isTranslated, sourceEdition } from "@cadabracraft/format";
 import { t } from "@lingui/core/macro";
 import {
   CancelledError,
+  chapterVtt,
   chunkBlocks,
   narrate,
+  plainTranscript,
   renderAudiobook,
   sampleChunks,
   type AudioFormat,
 } from "@cadabracraft/export-audio";
 import { bridge } from "../../lib/bridge";
-import { audioDir, bookBase, createTauriAudioRunner, mapAudioError } from "../../lib/audioRunner";
+import {
+  audioDir,
+  bookBase,
+  chapterCaptionsPath,
+  createTauriAudioRunner,
+  mapAudioError,
+  transcriptPath,
+} from "../../lib/audioRunner";
 import { describeAudioError } from "../../lib/audioErrors";
 import type { AudioChapterState, AudioJob, AudioActions } from "./types";
 import type { Ctx } from "./context";
@@ -134,6 +143,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           cancelling: false,
           durationSec: 0,
           files: 0,
+          transcripts: [],
           dir,
           packing: false,
           error: null,
@@ -203,6 +213,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
               author: edition.author,
               cover: cover && isCoverImage(cover) ? cover : null,
               chapters,
+              language,
             });
           } catch (e) {
             throw mapAudioError(e);
@@ -210,6 +221,24 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
             ctrl.signal.removeEventListener("abort", stop);
           }
           update((j) => ({ ...j, packing: false, files: j.files + 1 }));
+        }
+        if (options.transcript) {
+          // The text is what the voice was given for each chapter, so the transcript matches the audio.
+          const read = results.filter((r) => r.chunks.length > 0);
+          const saved: string[] = [];
+          const save = async (path: string, contents: string) => {
+            await bridge.audioWriteTranscript(root, path, contents);
+            saved.push(path);
+            update((j) => ({ ...j, transcripts: [...saved], files: j.files + 1 }));
+          };
+          try {
+            await save(transcriptPath(dir, edition.title), plainTranscript(edition.title, read));
+            for (const [i, r] of results.entries())
+              if (r.chunks.length > 0)
+                await save(chapterCaptionsPath(dir, i, r.title), chapterVtt(r, language));
+          } catch (e) {
+            throw mapAudioError(e);
+          }
         }
         update((j) => ({ ...j, status: "done", overall: 1 }));
         set({ notice: t`Exported the audiobook to ${dir}` });

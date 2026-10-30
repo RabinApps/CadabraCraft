@@ -365,6 +365,10 @@ msgstr "In diesem Ordner gibt es bereits ein Projekt"
 msgid "A sample is already being made"
 msgstr "Eine Hörprobe wird bereits erstellt"
 
+#: src/app/export/AudioExport.tsx
+msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "About CadabraCraft"
 msgstr "Über CadabraCraft"
@@ -3000,6 +3004,10 @@ msgstr "wie jetzt"
 msgid "Save"
 msgstr "Speichern"
 
+#: src/app/export/AudioExport.tsx
+msgid "Save a transcript"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Save details"
 msgstr "Details speichern"
@@ -3688,6 +3696,10 @@ msgstr "Kopfzeile umschalten"
 #: src/lib/exportChecks.ts
 msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
 msgstr "Oberer, unterer und äußerer Rand müssen für KDP mindestens {KDP_MIN_OUTER_IN} in betragen."
+
+#: src/app/export/AudioExport.tsx
+msgid "Transcript files"
+msgstr ""
 
 #: src/app/shell/Sidebar.tsx
 #: src/app/shell/TrashDialog.tsx

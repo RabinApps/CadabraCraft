@@ -390,6 +390,11 @@ export async function fakeTauri(page: Page) {
             v.setUint32(40, n * 2, true);
             return buf;
           }
+          case "audio_write_transcript":
+            if (window.__transcriptError) throw window.__transcriptError;
+            disk[a.path] = a.contents;
+            persist();
+            return null;
           case "audio_forget":
             return null;
           case "audio_files_exist":

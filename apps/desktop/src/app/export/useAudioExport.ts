@@ -47,6 +47,7 @@ export function useAudioExport({
   const [audioFormats, setAudioFormats] = useState<AudioFormat[]>(
     () => useSettings.getState().audioFormats,
   );
+  const [transcript, setTranscript] = useState(false);
   const [sample, setSample] = useState<"idle" | "making" | "playing">("idle");
   const player = useRef<{ el: HTMLAudioElement; url: string } | null>(null);
   const [audioChapters, setAudioChapters] = useState<string[] | null>(null);
@@ -175,6 +176,7 @@ export function useAudioExport({
       formats: audioFormats,
       language,
       skipUntranslated,
+      transcript,
       ...(audioChapters ? { chapterIds: audioChapters } : {}),
     }).catch((e) => setError(new PdfUiError("other", errText(e))));
   };
@@ -214,6 +216,8 @@ export function useAudioExport({
     setSpeed,
     audioFormats,
     setAudioFormats,
+    transcript,
+    setTranscript,
     audioChapters,
     setAudioChapters,
     sample,

@@ -80,6 +80,16 @@ export function chapterBase(dir: string, index: number, title: string): string {
   return `${dir}/${String(index + 1).padStart(2, "0")}-${slugOf(title) || "chapter"}`;
 }
 
+/** `exports/fr/audio/my-book-transcript.txt`: the plain-text transcript of the whole book. */
+export function transcriptPath(dir: string, title: string): string {
+  return `${bookBase(dir, title)}-transcript.txt`;
+}
+
+/** `exports/fr/audio/03-hostile-characters.vtt`: the captions that go with one chapter's audio file. */
+export function chapterCaptionsPath(dir: string, index: number, title: string): string {
+  return `${chapterBase(dir, index, title)}.vtt`;
+}
+
 /** `exports/fr/audio/my-book`: where the whole-book M4B goes (without the extension). */
 export function bookBase(dir: string, title: string): string {
   return `${dir}/${slugOf(title) || "audiobook"}`;
@@ -133,6 +143,7 @@ export function createTauriAudioRunner(
             speed: req.speed,
             formats: req.formats.filter((f) => f !== "m4b"),
             ...(part ? { part } : {}),
+            language: edition.language,
           },
           onProgress,
         );
