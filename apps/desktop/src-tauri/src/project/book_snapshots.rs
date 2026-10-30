@@ -8,8 +8,12 @@
 //!
 //! Limits: a snapshot file is at most `MAX_SNAPSHOT_BYTES` (the read cap, so one that can be created can always be loaded
 //! and restored; a larger book is refused with `too_large` instead). At most `MAX_SNAPSHOTS` are kept, within
-//! `MAX_TOTAL_BYTES` together: after a new one is taken the oldest beyond that move to `.cadabra/trash/` (never deleted).
-//! Listing reads only the start of each file (a `summary` field written before the texts), not the whole file.
+//! `MAX_TOTAL_BYTES` together: after a new one is taken the oldest beyond that move to `.cadabra/trash/` as
+//! `<stamp>-snapshot__<name>.json`. Automatic ones go first (oldest first); the author's named ones only when the limits
+//! are still exceeded once every automatic one is gone. The app never deletes them, but it does not list or restore
+//! trashed snapshots either: the file is intact there and can be copied back into `.cadabra/snapshots/` by hand.
+//! Listing reads only the start of each file (a `summary` field written before the texts), not the whole file. A file
+//! from before `summary` existed is read through once and rewritten with one (same name, same content).
 use super::fsio::move_to_free_copy_name;
 use super::pages::MAX_READ_BYTES;
 use super::snapshots::{is_snapshotable, SnapshotMode};
@@ -80,7 +84,9 @@ struct Head {
 
 /// Reads fields up to `summary` and then stops by failing on purpose (`deserialize_map` would otherwise insist on
 /// reading the rest of the file); the result is left in the cell.
-struct Scan<'a>(&'a RefCell<Option<Head>>);
+/// With `early` it stops as soon as `automatic` is read (the fields before the summary), leaving the summary empty: enough
+/// to tell whether a snapshot is automatic without looking for the summary.
+struct Scan<'a>(&'a RefCell<Option<Head>>, bool);
 
 impl<'de> Visitor<'de> for Scan<'_> {
     type Value = ();
@@ -95,7 +101,13 @@ impl<'de> Visitor<'de> for Scan<'_> {
             match key.as_str() {
                 "version" => version = Some(map.next_value::<u32>()?),
                 "name" => name = Some(map.next_value::<String>()?),
-                "automatic" => automatic = Some(map.next_value::<bool>()?),
+                "automatic" => {
+                    automatic = Some(map.next_value::<bool>()?);
+                    if let (true, Some(version), Some(name), Some(automatic)) = (self.1, version, name.as_ref(), automatic) {
+                        *self.0.borrow_mut() = Some(Head { version, name: name.clone(), automatic, summary: Summary { pages: vec![], assets: 0 } });
+                        return Err(de::Error::custom("flags complete"));
+                    }
+                }
                 "summary" => {
                     let summary = map.next_value::<Summary>()?;
                     if let (Some(version), Some(name), Some(automatic)) = (version, name, automatic) {
@@ -114,22 +126,63 @@ impl<'de> Visitor<'de> for Scan<'_> {
 
 /// The head of the snapshot at `path` from its first `limit` bytes; None when the file has no summary in them.
 fn scan_head(path: &Path, limit: u64) -> Option<Head> {
+    scan(path, limit, false)
+}
+
+/// Only whether the snapshot at `path` is automatic, from its first `limit` bytes (never streams the whole file).
+fn scan_automatic(path: &Path, limit: u64) -> Option<bool> {
+    scan(path, limit, true).filter(|h| h.version == FORMAT).map(|h| h.automatic)
+}
+
+fn scan(path: &Path, limit: u64, early: bool) -> Option<Head> {
     let mut prefix = vec![];
     fs::File::open(path).ok()?.take(limit).read_to_end(&mut prefix).ok()?;
     let found = RefCell::new(None);
-    let _ = serde_json::Deserializer::from_slice(&prefix).deserialize_map(Scan(&found));
+    let _ = serde_json::Deserializer::from_slice(&prefix).deserialize_map(Scan(&found, early));
     found.into_inner()
 }
 
 /// The head of the snapshot at `path`: the first `limit` bytes when they hold the summary, else the whole file streamed
-/// through the head fields (constant memory, whatever its size).
-fn read_head(path: &Path, limit: u64) -> Option<Head> {
+/// through the head fields (constant memory, whatever its size). The flag says the slow path was needed.
+fn read_head_slow(path: &Path, limit: u64) -> Option<(Head, bool)> {
     if let Some(head) = scan_head(path, limit) {
-        return Some(head);
+        return Some((head, false));
     }
     let file = fs::File::open(path).ok()?;
     let head: BookHead = serde_json::from_reader(std::io::BufReader::new(file)).ok()?;
-    Some(Head { version: head.version, name: head.name, automatic: head.automatic, summary: Summary { pages: head.pages.into_keys().collect(), assets: head.assets.len() } })
+    Some((Head { version: head.version, name: head.name, automatic: head.automatic, summary: Summary { pages: head.pages.into_keys().collect(), assets: head.assets.len() } }, true))
+}
+
+/// Guards every change to the snapshot files (naming and writing a new one, the upgrade below, moving one to the trash,
+/// deleting one), so an upgrade cannot bring back a file that was just deleted or moved.
+static FILES: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+fn files_lock() -> std::sync::MutexGuard<'static, ()> {
+    FILES.lock().unwrap_or_else(|e| e.into_inner())
+}
+
+/// Rewrites a snapshot that has no `summary` in its head with one, so later listings do not read it through. Best effort:
+/// a file over the size cap, one that changed or went away meanwhile, or any failure leaves it exactly as it was. The
+/// name, the version, the texts and the lists are unchanged.
+fn upgrade_legacy(file: &Path) {
+    let Ok(before) = fs::metadata(file) else { return };
+    if before.len() > MAX_SNAPSHOT_BYTES {
+        return;
+    }
+    let Ok(text) = fs::read(file) else { return };
+    let Ok(mut book) = serde_json::from_slice::<BookFile>(&text) else { return };
+    if book.summary.is_some() {
+        return;
+    }
+    book.summary = Some(Summary { pages: book.pages.keys().cloned().collect(), assets: book.assets.len() });
+    let Ok(bytes) = serde_json::to_vec(&book) else { return };
+    if bytes.len() as u64 > MAX_SNAPSHOT_BYTES {
+        return;
+    }
+    let _held = files_lock();
+    if fs::metadata(file).is_ok_and(|now| now.len() == before.len() && now.modified().ok() == before.modified().ok()) {
+        let _ = atomic_write(file, &bytes);
+    }
 }
 
 /// One whole-book snapshot, as listed.
@@ -233,9 +286,12 @@ fn list_with(root: &Path, head_bytes: u64) -> Result<Vec<BookSnapshotEntry>> {
         let Some(key) = parse_name(&name) else { continue };
         let path = format!("{SNAPSHOTS_DIR}/{name}");
         let file = resolve(root, &path)?;
-        let Some(head) = read_head(&file, head_bytes) else { continue };
+        let Some((head, slow)) = read_head_slow(&file, head_bytes) else { continue };
         if head.version != FORMAT {
             continue;
+        }
+        if slow && head_bytes == HEAD_BYTES {
+            upgrade_legacy(&file);
         }
         let Ok(meta) = fs::metadata(&file) else { continue };
         found.push((key.clone(), BookSnapshotEntry { path, at: key.0, name: head.name, automatic: head.automatic, pages: head.summary.pages, assets: head.summary.assets, bytes: meta.len() }));
@@ -281,8 +337,7 @@ fn create(root: &Path, name: &str, automatic: bool, now: DateTime<Utc>) -> Resul
     // The free name is picked and the file written under one lock: the write replaces, so two snapshots taken at once
     // (a double click, an automatic one during a restore) would otherwise pick the same name and one would be lost.
     let to = {
-        static NAMES: std::sync::Mutex<()> = std::sync::Mutex::new(());
-        let _held = NAMES.lock().unwrap_or_else(|e| e.into_inner());
+        let _held = files_lock();
         let to = free_copy_name(root, &format!("{SNAPSHOTS_DIR}/{}.json", stamp_of(now)))?;
         atomic_write(&resolve(root, &to)?, &bytes)?;
         to
@@ -295,23 +350,48 @@ fn snapshot_too_large() -> ProjectError {
     ProjectError::TooLarge { path: SNAPSHOTS_DIR.to_string(), max_mb: MAX_SNAPSHOT_BYTES / 1024 / 1024 }
 }
 
-/// Moves the oldest snapshots to `.cadabra/trash/` until at most `max_count` remain within `max_bytes` together. The
+/// Moves snapshots to `.cadabra/trash/` until at most `max_count` remain within `max_bytes` together: automatic ones
+/// first (oldest first), then, only if the limits are still exceeded, the author's named ones (oldest first). The
 /// snapshot at `keep` (the one just taken) is never moved, and nothing is deleted. Best effort: a snapshot that cannot be
 /// moved stays where it is, and the new snapshot is still reported. Returns the paths moved.
+///
+/// Uses only file names and sizes, plus the first bytes of the files that are candidates (to see whether each is
+/// automatic): never the summary or the texts, so a legacy file is not streamed through here. A file that is not a
+/// snapshot of this format is neither counted nor moved.
 pub(crate) fn prune_book_snapshots(root: &Path, keep: &str, max_count: usize, max_bytes: u64, now: DateTime<Utc>) -> Vec<String> {
-    let Ok(listed) = list_book_snapshots(root) else { return vec![] };
-    let (mut count, mut total) = (listed.len(), listed.iter().map(|e| e.bytes).sum::<u64>());
+    let Ok(names) = file_names(root, SNAPSHOTS_DIR, false) else { return vec![] };
+    let mut files: Vec<((String, u32), String, u64)> = vec![];
+    for name in names {
+        let Some(key) = parse_name(&name) else { continue };
+        let path = format!("{SNAPSHOTS_DIR}/{name}");
+        let Ok(meta) = resolve(root, &path).and_then(|f| fs::metadata(f).map_err(Into::into)) else { continue };
+        files.push((key, path, meta.len()));
+    }
+    files.sort_by(|a, b| a.0.cmp(&b.0));
+    let (mut count, mut total) = (files.len(), files.iter().map(|f| f.2).sum::<u64>());
     let mut moved = vec![];
-    for e in listed.iter().rev().filter(|e| e.path != keep) {
-        if count <= max_count && total <= max_bytes {
-            break;
+    let mut pending: Vec<&((String, u32), String, u64)> = files.iter().filter(|f| f.1 != keep).collect();
+    for want_automatic in [true, false] {
+        let mut next = vec![];
+        for f in pending {
+            if count <= max_count && total <= max_bytes {
+                return moved;
+            }
+            let Ok(file) = resolve(root, &f.1) else { continue };
+            match scan_automatic(&file, HEAD_BYTES) {
+                None => (count, total) = (count - 1, total - f.2), // not a snapshot: not counted, never moved
+                Some(auto) if auto != want_automatic => next.push(f),
+                Some(_) => {
+                    let _held = files_lock();
+                    let want = format!(".cadabra/trash/{}-snapshot__{}", stamp_of(now), f.1.rsplit('/').next().unwrap_or_default());
+                    if move_to_free_copy_name(root, &file, &want, &f.1).is_ok() {
+                        (count, total) = (count - 1, total - f.2);
+                        moved.push(f.1.clone());
+                    }
+                }
+            }
         }
-        let want = format!(".cadabra/trash/{}-snapshot__{}", stamp_of(now), e.path.rsplit('/').next().unwrap_or_default());
-        let from = resolve(root, &e.path);
-        if from.is_ok_and(|from| move_to_free_copy_name(root, &from, &want, &e.path).is_ok()) {
-            (count, total) = (count - 1, total - e.bytes);
-            moved.push(e.path.clone());
-        }
+        pending = next;
     }
     moved
 }
@@ -395,6 +475,7 @@ pub fn restore_book_snapshot(root: &Path, snapshot: &str, now: DateTime<Utc>) ->
 /// Deletes one snapshot file (only ever one under `.cadabra/snapshots` that is listed), at the author's request.
 pub fn delete_book_snapshot(root: &Path, snapshot: &str) -> Result<()> {
     require_listed(root, snapshot)?;
+    let _held = files_lock();
     fs::remove_file(resolve(root, snapshot)?)?;
     Ok(())
 }
@@ -619,8 +700,9 @@ mod tests {
         assert!(scan_head(&d.path().join(&new.path), 10).is_none(), "a prefix that ends before the summary finds nothing");
         assert!(scan_head(&d.path().join("missing.json"), 10).is_none());
         // Listing with a tiny prefix still gives the same entries, by streaming whole files.
+        let normal = list_book_snapshots(d.path()).unwrap(); // also upgrades the old file, so compare after it
         let tiny = list_with(d.path(), 10).unwrap();
-        assert_eq!(tiny, list_book_snapshots(d.path()).unwrap());
+        assert_eq!(tiny, normal);
         let by_name = |n: &str| tiny.iter().find(|e| e.name == n).unwrap().clone();
         assert_eq!((by_name("old").assets, by_name("old").pages), (1, vec!["manuscript/001-a.json".to_string()]));
         assert_eq!(by_name("big").bytes, fs::metadata(d.path().join(&big.path)).unwrap().len(), "size comes from the file's metadata");
@@ -756,7 +838,118 @@ mod tests {
         assert!(prune_book_snapshots(d.path(), &k.path, 1, MAX_TOTAL_BYTES, at("20261028-1000")).is_empty());
         assert!(d.path().join(&a.path).exists());
     }
-}
 
-#[cfg(test)]
-mod review_repro;
+    /// Writes a snapshot-shaped file with `page` as its one page. `summary` false writes the legacy layout.
+    fn write_snap(d: &Path, stamp: &str, name: &str, automatic: bool, summary: bool, page: &str) -> String {
+        let rel = format!("{SNAPSHOTS_DIR}/{stamp}.json");
+        let sum = if summary { "\"summary\":{\"pages\":[\"manuscript/001-a.json\"],\"assets\":0}," } else { "" };
+        put(d, &rel, &format!("{{\"version\":1,\"name\":\"{name}\",\"automatic\":{automatic},{sum}\"manifest\":\"{{}}\",\"pages\":{{\"manuscript/001-a.json\":\"{page}\"}},\"assets\":[]}}"));
+        rel
+    }
+
+    #[test]
+    fn automatic_snapshots_are_pruned_before_named_ones() {
+        let d = book();
+        let named = create_book_snapshot(d.path(), "mine", at("20260101-0000")).unwrap();
+        // Newer automatic ones go before the older named one.
+        let mut autos = vec![];
+        for i in 0..3 {
+            autos.push(create(d.path(), &format!("auto {i}"), true, at("20260102-0000") + chrono::Duration::minutes(i)).unwrap());
+        }
+        let keep = create_book_snapshot(d.path(), "new", at("20260103-0000")).unwrap();
+        let moved = prune_book_snapshots(d.path(), &keep.path, 3, MAX_TOTAL_BYTES, at("20260104-0000"));
+        assert_eq!(moved, [autos[0].path.clone(), autos[1].path.clone()], "oldest automatic first, the named one stays");
+        assert_eq!(snapshot_files(d.path()), ["new", "auto 2", "mine"]);
+        // Once no automatic one is left, a named one may go (oldest first) and the new one is kept.
+        let moved = prune_book_snapshots(d.path(), &keep.path, 1, MAX_TOTAL_BYTES, at("20260104-0000"));
+        assert_eq!(moved, [autos[2].path.clone(), named.path.clone()]);
+        assert_eq!(snapshot_files(d.path()), ["new"]);
+    }
+
+    #[test]
+    fn the_byte_budget_also_takes_automatic_ones_first() {
+        let d = book();
+        let named = create_book_snapshot(d.path(), "mine", at("20260101-0000")).unwrap();
+        let auto = create(d.path(), "auto", true, at("20260102-0000")).unwrap();
+        let keep = create_book_snapshot(d.path(), "new", at("20260103-0000")).unwrap();
+        let budget = named.bytes + keep.bytes;
+        assert_eq!(prune_book_snapshots(d.path(), &keep.path, 50, budget, at("20260104-0000")), [auto.path]);
+        assert_eq!(snapshot_files(d.path()), ["new", "mine"]);
+    }
+
+    #[test]
+    fn more_than_the_limit_of_named_snapshots_still_prunes_the_oldest_into_the_trash_and_keeps_the_new_one() {
+        let d = book();
+        let first = create_book_snapshot(d.path(), "oldest", at("20260101-0000")).unwrap();
+        for i in 1..=MAX_SNAPSHOTS {
+            create_book_snapshot(d.path(), &format!("named-{i}"), at("20260102-0000") + chrono::Duration::minutes(i as i64)).unwrap();
+        }
+        let names = snapshot_files(d.path());
+        assert_eq!(names.len(), MAX_SNAPSHOTS);
+        assert_eq!(names[0], format!("named-{MAX_SNAPSHOTS}"), "the one just taken is kept");
+        assert!(!names.contains(&"oldest".to_string()));
+        let trashed = trashed_snapshot_files(d.path());
+        assert_eq!(trashed.len(), 1);
+        assert!(read(d.path(), &format!(".cadabra/trash/{}", trashed[0])).contains("\"name\":\"oldest\""), "{}", first.path);
+    }
+
+    #[test]
+    fn pruning_does_not_stream_legacy_files_and_leaves_non_snapshots_alone() {
+        let d = book();
+        // A legacy file whose texts are not valid JSON after the first 256 KB: reading it through would fail, so pruning
+        // that still recognizes and moves it proves it only looked at the start.
+        let junk = "x".repeat(300 * 1024);
+        let legacy = write_snap(d.path(), "20260101-0000", "legacy", true, false, &junk);
+        let text = read(d.path(), &legacy);
+        fs::write(d.path().join(&legacy), &text[..text.len() - 20]).unwrap();
+        assert!(read_head_slow(&d.path().join(&legacy), HEAD_BYTES).is_none(), "the whole-file read would fail");
+        let other = write_snap(d.path(), "20260102-0000", "other", false, true, "p");
+        put(d.path(), ".cadabra/snapshots/20260103-0000.json", "not a snapshot");
+        let moved = prune_book_snapshots(d.path(), &other, 1, MAX_TOTAL_BYTES, at("20260104-0000"));
+        assert_eq!(moved, [legacy]);
+        assert!(d.path().join(".cadabra/snapshots/20260103-0000.json").exists(), "a non-snapshot is not touched");
+    }
+
+    #[test]
+    fn a_legacy_snapshot_is_listed_upgraded_once_and_restores_identically() {
+        let d = book();
+        let rel = put_old_format(d.path(), "20260101-0000", "old");
+        let file = d.path().join(&rel);
+        let before: serde_json::Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+        assert!(scan_head(&file, HEAD_BYTES).is_none());
+        let first = list_book_snapshots(d.path()).unwrap();
+        assert_eq!((first[0].name.as_str(), first[0].assets, first[0].pages.clone()), ("old", 1, vec!["manuscript/001-a.json".to_string()]));
+        assert!(scan_head(&file, HEAD_BYTES).is_some(), "the file now has a summary in its head");
+        assert_eq!(first[0].bytes, fs::metadata(&file).unwrap().len(), "bytes are read after the rewrite");
+        let mut after: serde_json::Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+        assert_eq!(after["summary"], serde_json::json!({"pages": ["manuscript/001-a.json"], "assets": 1}));
+        after.as_object_mut().unwrap().remove("summary");
+        assert_eq!(after, before, "nothing but the summary was added");
+        // Listed again: not rewritten.
+        let written = fs::read(&file).unwrap();
+        let again = list_book_snapshots(d.path()).unwrap();
+        assert_eq!(again, first);
+        assert_eq!(fs::read(&file).unwrap(), written);
+        // And it restores identically.
+        write_file(d.path(), "manuscript/001-a.json", "changed", None).unwrap();
+        restore_book_snapshot(d.path(), &rel, at("20260102-0000")).unwrap();
+        assert_eq!(read(d.path(), "manuscript/001-a.json"), "A");
+    }
+
+    #[test]
+    fn a_legacy_snapshot_over_the_cap_is_listed_but_not_rewritten_and_a_failed_rewrite_is_ignored() {
+        let d = book();
+        let big = write_snap(d.path(), "20260101-0000", "big", false, false, &"x".repeat(MAX_SNAPSHOT_BYTES as usize));
+        let bytes = fs::read(d.path().join(&big)).unwrap();
+        assert!(bytes.len() as u64 > MAX_SNAPSHOT_BYTES);
+        assert_eq!(snapshot_files(d.path()), ["big"]);
+        assert_eq!(fs::read(d.path().join(&big)).unwrap(), bytes, "left as it was");
+        // A rewrite that cannot happen (file gone, not a snapshot) changes nothing and does not panic.
+        upgrade_legacy(&d.path().join("missing.json"));
+        let small = put_old_format(d.path(), "20260102-0000", "small");
+        fs::write(d.path().join(&small), "{\"version\":1,\"name\":\"n\",\"automatic\":false,\"summary\":{\"pages\":[],\"assets\":0},\"manifest\":\"\",\"pages\":{},\"assets\":[]}").unwrap();
+        let before = fs::read(d.path().join(&small)).unwrap();
+        upgrade_legacy(&d.path().join(&small));
+        assert_eq!(fs::read(d.path().join(&small)).unwrap(), before, "a file that already has a summary is left alone");
+    }
+}
