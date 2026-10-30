@@ -182,6 +182,23 @@ typstSuite("renderPdf with typst", () => {
   );
 
   it(
+    "exports with PDF/UA when an image has no alt text (it becomes a decorative artifact)",
+    async () => {
+      const first = chapters[0]!;
+      const doc = {
+        ...first.doc,
+        content: [
+          ...(first.doc.content ?? []),
+          { type: "image", attrs: { src: "assets/gradient.png", alt: "" } },
+        ],
+      } as typeof first.doc;
+      const { pdf } = await renderPdf(book, [{ ...first, doc }], { assets, pdfUa: true });
+      expect(Buffer.from(pdf).toString("latin1")).toContain("pdfuaid:part");
+    },
+    T,
+  );
+
+  it(
     "reports a Typst compile error with its message",
     async () => {
       // A margin passes validation but a negative-size image path can't; force an error with a bad asset.

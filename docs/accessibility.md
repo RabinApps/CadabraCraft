@@ -14,14 +14,25 @@ The plan has four phases: foundations and automated gates, app UI fixes, output 
 
 To add: axe over every dialog, the settings, history, export and import screens and RTL; a keyboard-only sweep of each dialog.
 
+## Built
+
+- **App UI:** `ReferenceRow` reorder grip is a keyboard button (Arrow keys); control borders use `border-strong` (3:1); `forced-colors` and `prefers-contrast: more` styles; the "Saved" notice never replaces another notice, wraps, and can be dismissed; a skip link and `id="main"` on each screen's `<main>` (the opening skeleton has none); every `Modal` returns focus to its opener. axe also scans settings, export, history and import.
+- **EPUB:** `doc-noteref`, `doc-endnotes` (a `section`), `doc-footnote` (an `aside` inside each `li`), `doc-backlink` with an accessible name (nine languages, throws for others like the other exporter strings), `doc-toc`, `doc-cover`; `displayTransformability` is claimed (a test keeps the stylesheet free of fixed sizes and colors); the hazard is `unknown` when a GIF or SVG is present. EPUBCheck 5.4.0 rejects `aria-label` on `<nav>` in the navigation document, so the navs are named by their headings. `doc-chapter` is not used (it needs a `section` wrapper on each page). No `page-list`; `dcterms:conformsTo` stays omitted.
+- **PDF:** a "PDF/UA (accessible)" option (`--pdf-standard ua-1`, combinable with PDF/A-2b). Headings, lists, tables and images are tagged; the running header is an artifact. An image with no alt text is a decorative artifact (without that, Typst refuses to compile under PDF/UA). The cover alt text follows the book language and falls back to "Cover".
+- **RTF:** `\deflang` and `\lang` from the book language; image descriptions (`wzDescription`); header rows were already `\trhdr`.
+- **Markdown:** opt-in YAML front matter (`title`, `lang`) in `bookToMarkdown`; not yet in the app or the MCP tool.
+- **DOCX:** `w:tblLook` first-row flag follows the header row. The schema has no table caption.
+- **Audiobook:** the edition language is written to the M4B and to Opus chapter files (not FLAC or WAV). "Save a transcript" writes a book transcript and one WebVTT file per chapter from the text sent to the voice; cue times are estimates, not word-accurate.
+
 ## Open work (not yet done)
 
-- **UI:** `ReferenceRow` grip is pointer-only; field and list-item borders may be under 3:1 (1.4.11); no `forced-colors` or `prefers-contrast` styles; the header notice is overwritten after two seconds and truncated; 59 hover-only `title=` hints; no skip link or landmark audit; no way to edit alt text after insert and no "decorative" choice.
-- **EPUB:** DPUB-ARIA roles on footnotes and sections, an accessible name for the footnote back-link, a labelled landmarks nav, `displayTransformability`, inline `lang`, no `page-list`.
-- **PDF:** only PDF/A-2b is offered; PDF/UA-1, artifacts for running heads and folios, a localised cover alt, and a veraPDF check are open.
-- **Other formats:** RTF has no language or image descriptions; Markdown has no front matter; the missing-alt warning runs for EPUB only.
-- **Audiobook:** no transcript or captions, no language tag in the M4B.
-- **Manual testing:** VoiceOver, NVDA and Orca passes, 200% zoom and Windows High Contrast have not been done (see [platform-checks.md](platform-checks.md)).
+- **Images:** no way to edit alt text after insert and no "decorative" choice; the missing-alt warning runs for EPUB only.
+- **Language:** no per-node `lang` (schema change), so foreign phrases are read in the book language; the EPUB accessibility summary is English only.
+- **UI leftovers:** 59 hover-only `title=` hints; text at 11 px; color-only cues in find highlights and some status rows; axe scans of more screens (RTL, every dialog); keyboard-only sweep of each dialog.
+- **PDF:** run veraPDF (`--flavour ua1`) and open a sample in PAC or Acrobat; the cover and footers have not been checked in a PDF/UA validator.
+- **Pen and design:** the PDF/UA and "Save a transcript" checkboxes are not yet drawn in `cadabracraft.pen` or `docs/design.md`.
+- **Not exercised in real tools:** RTF language and picture descriptions and the DOCX `tblLook` change (Word, LibreOffice); forced-colors on a real Windows High Contrast display; the M4B language tag in a player.
+- **Manual testing:** VoiceOver, NVDA and Orca passes, 200% zoom (see [platform-checks.md](platform-checks.md)).
 
 ## Rules for new UI
 

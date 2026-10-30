@@ -63,7 +63,9 @@
 #show figure.caption: it => text(size: 0.85em, it.body)
 #let fit-image(path, alt, max-height) = layout(size => {
   let img = image(path, width: size.width, alt: alt)
-  if measure(img).height > max-height { image(path, height: max-height, alt: alt) } else { img }
+  let out = if measure(img).height > max-height { image(path, height: max-height, alt: alt) } else { img }
+  // No alt text means decorative: PDF/UA rejects an untagged image, so mark it as an artifact.
+  if alt == none { pdf.artifact(out) } else { out }
 })
 #let task-box(checked) = box(width: 0.7em, height: 0.7em, baseline: 0.05em, stroke: 0.6pt, {
   if checked {
