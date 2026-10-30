@@ -137,8 +137,11 @@ pub async fn audio_delete_pack(pack: String) -> Result<(), AudioError> {
 mod tests {
     use super::*;
     use crate::audio::download::{client, stub};
+    #[cfg(unix)]
     use crate::audio::wav::{parse_wav, write_wav};
-    use crate::commands::testutil::{raw, run, text};
+    #[cfg(unix)]
+    use crate::commands::testutil::raw;
+    use crate::commands::testutil::{run, text};
     use std::sync::{Arc, Mutex};
     use tauri::ipc::Channel;
 

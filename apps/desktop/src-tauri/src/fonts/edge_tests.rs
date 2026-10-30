@@ -1,13 +1,18 @@
 //! Audit edge cases for font import and storage: damaged font files, awkward names, special files and path segments.
 //! Windows-only behaviour is not exercised here (unverified locally).
 use super::import::tests::{font_with_names, ttf, utf16};
-use super::import::{family_name, import_font, read_font, slug};
+use super::import::{family_name, import_font, slug};
+#[cfg(unix)]
+use super::import::read_font;
 use super::store::{family_dir, is_safe_segment};
 use std::fs;
 use std::path::Path;
+#[cfg(unix)]
 use std::sync::mpsc;
+#[cfg(unix)]
 use std::time::Duration;
 
+#[cfg(unix)]
 fn within<T: Send + 'static>(f: impl FnOnce() -> T + Send + 'static) -> T {
     let (tx, rx) = mpsc::channel();
     std::thread::spawn(move || drop(tx.send(f())));

@@ -156,10 +156,15 @@ mod tests {
     use super::*;
     use crate::audio::engine::find_sherpa;
     use crate::audio::jobs::voices_root;
-    use crate::audio::voices::{list_voices, VOICES};
+    use crate::audio::voices::list_voices;
+    #[cfg(unix)]
+    use crate::audio::voices::VOICES;
+    #[cfg(unix)]
     use crate::audio::wav::parse_wav;
     use std::fs;
+    #[cfg(unix)]
     use std::sync::{Arc, Mutex};
+    #[cfg(unix)]
     use std::time::{Duration, Instant};
 
     fn ignore(_: f64) {}

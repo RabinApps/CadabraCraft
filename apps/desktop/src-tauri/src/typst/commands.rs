@@ -83,7 +83,9 @@ pub async fn typst_query(request: Request<'_>) -> Result<Response, TypstError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::commands::testutil::{raw as pdf, run};
+    #[cfg(unix)]
+    use crate::commands::testutil::raw as pdf;
+    use crate::commands::testutil::run;
 
     #[cfg(unix)]
     fn script(dir: &std::path::Path, body: &str) -> PathBuf {

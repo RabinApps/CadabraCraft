@@ -239,6 +239,7 @@ pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(unix)]
     use std::time::Instant;
 
     /// The real typst, or None (test skipped) unless `REQUIRE_TYPST=1`, in which case a missing typst fails the test.

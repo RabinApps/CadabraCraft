@@ -1,9 +1,12 @@
 //! Audit edge cases for the import source readers: special files, awkward names and empty images. Windows-only behaviour
 //! is not exercised here (unverified locally).
 use super::*;
+#[cfg(unix)]
 use std::sync::mpsc;
+#[cfg(unix)]
 use std::time::Duration;
 
+#[cfg(unix)]
 fn within<T: Send + 'static>(f: impl FnOnce() -> T + Send + 'static) -> T {
     let (tx, rx) = mpsc::channel();
     std::thread::spawn(move || drop(tx.send(f())));
