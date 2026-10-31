@@ -2,7 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { fakeImportSources } from "./support/fakeImport";
-import { newProject } from "./support/helpers";
+import { newProject, safariMac, SHIFT_TAB, TAB } from "./support/helpers";
 
 // Keyboard-only sweep of every dialog the fake backend can open (docs/platform-checks.md, "Accessibility passes"):
 // focus never leaves the dialog while Tab and Shift+Tab cycle, Escape closes it, and focus goes back to where it was.
@@ -200,7 +200,9 @@ for (const c of cases) {
           : "";
         return { inside, name };
       });
-    for (const key of ["Tab", "Shift+Tab"]) {
+    // Radix's focus trap wraps plain Tab only and ignores Alt+Tab, the only way to reach buttons in Playwright's WebKit
+    // on macOS, so the wrap is checked on the other engines (Linux WebKit in CI included).
+    for (const key of safariMac ? [] : [TAB, SHIFT_TAB]) {
       for (let i = 0; i < stops + 3; i++) {
         await page.keyboard.press(key);
         const at = await mark();
@@ -209,7 +211,7 @@ for (const c of cases) {
       }
     }
     // The pickers have one stop (the search field; the rows are reached with the arrow keys).
-    expect(seen.size).toBeGreaterThanOrEqual(1);
+    if (!safariMac) expect(seen.size).toBeGreaterThanOrEqual(1);
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(back).toBeFocused();
@@ -254,7 +256,7 @@ test("keyboard only: the settings screen has no focus trap and no lost focus", a
   await expect(page.getByRole("heading", { name: "Settings", level: 1 })).toBeVisible();
   const lost: string[] = [];
   for (let i = 0; i < 60; i++) {
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(TAB);
     const onBody = await page.evaluate(() => document.activeElement === document.body);
     if (onBody) lost.push(`Tab #${i + 1}`);
   }

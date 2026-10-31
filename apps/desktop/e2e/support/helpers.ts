@@ -1,5 +1,17 @@
 import { expect, type Page } from "@playwright/test";
 
+/**
+ * The keys that move focus to the next and previous control. Playwright's WebKit on macOS follows Safari's default of
+ * Tab skipping buttons and links (Option+Tab reaches them); on Linux (WebKitGTK) and in Chromium plain Tab does.
+ */
+export const safariMac = !!process.env.WEBKIT && process.platform === "darwin";
+export const TAB = safariMac ? "Alt+Tab" : "Tab";
+export const SHIFT_TAB = safariMac ? "Alt+Shift+Tab" : "Shift+Tab";
+
+/** Home and End scroll the page in WebKit on macOS; Command+Left/Right move the caret to the line edges. */
+export const LINE_START = safariMac ? "Meta+ArrowLeft" : "Home";
+export const LINE_END = safariMac ? "Meta+ArrowRight" : "End";
+
 export async function newProject(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "New project" }).click();

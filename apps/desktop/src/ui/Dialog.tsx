@@ -28,6 +28,43 @@ export function openerOf(active: Element | null): HTMLElement | null {
   return trigger ?? active;
 }
 
+/**
+ * Safari and WKWebView on macOS do not focus a button when it is clicked: `document.activeElement` is then the body or
+ * the nearest focusable ancestor (the `main` landmark), not the button. So the control pressed a moment ago, if the
+ * last input was a click, stands in for the focused one.
+ */
+const PRESSABLE = "button, a[href], [role=button], [role=menuitem], summary";
+let lastPress: { el: Element; at: number } | null = null;
+if (typeof document !== "undefined") {
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      const el = e.target instanceof Element ? e.target.closest(PRESSABLE) : null;
+      lastPress = el ? { el, at: Date.now() } : null;
+    },
+    true,
+  );
+  document.addEventListener(
+    "keydown",
+    () => {
+      lastPress = null;
+    },
+    true,
+  );
+}
+
+/**
+ * What has focus, except when that is the body or a container of the control a click just pressed (the engine's stand-in
+ * for the unfocused button). A control that keeps focus elsewhere on purpose, like the editor, stays the answer.
+ */
+export function activeOrPressed(): Element | null {
+  const active = document.activeElement;
+  if (!lastPress || !lastPress.el.isConnected || Date.now() - lastPress.at >= 1000) return active;
+  return !active || active === document.body || active.contains(lastPress.el)
+    ? lastPress.el
+    : active;
+}
+
 export type ModalSize = "sm" | "md" | "wide" | "xl" | "full";
 
 const sizeClass: Record<ModalSize, string> = {
@@ -49,7 +86,7 @@ export const panelClass =
 export function useFocusReturn(open: boolean): (e: Event) => void {
   const opener = useRef<HTMLElement | null>(null);
   const wasOpen = useRef(false);
-  if (open && !wasOpen.current) opener.current = openerOf(document.activeElement);
+  if (open && !wasOpen.current) opener.current = openerOf(activeOrPressed());
   wasOpen.current = open;
   return (e) => {
     const back = opener.current;
