@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "pnpm -r test",
+    "a11y": "bash scripts/a11y.sh",
     "typecheck": "pnpm -r typecheck && pnpm typecheck:scripts",
     "typecheck:scripts": "tsc -p scripts/automation/tsconfig.json && tsc -p scripts/perf/tsconfig.json",
     "dev": "pnpm --filter @cadabracraft/desktop dev",

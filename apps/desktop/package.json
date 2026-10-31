@@ -14,6 +14,7 @@
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:webkit": "WEBKIT=1 playwright test --project=webkit",
+    "test:a11y": "playwright test a11y language-mark images.spec",
     "build:native": "tauri build --debug --no-bundle --features dev-automation",
     "test:native": "vitest run --config e2e-native/vitest.config.ts",
     "test:e2e:webdriver": "pnpm test:native",
