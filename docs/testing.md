@@ -12,6 +12,10 @@ pnpm --filter @cadabracraft/desktop test:e2e
 cd apps/desktop/src-tauri && cargo test
 ```
 
+## Running everything for accessibility
+
+`pnpm a11y` runs every automated accessibility check in order and stops at the first failure: eslint, the contrast test, the Playwright a11y specs on Chromium, and the exporter output tests (EPUB, PDF/UA, RTF, DOCX), then prints a stage table. `--fast` skips Playwright, `--webkit` adds the WebKit run, `--tools` adds veraPDF, Ace and LibreOffice when installed (missing tools are reported as skipped). See `scripts/a11y.sh` and the `/a11y` skill.
+
 ## WebDriver e2e (real built app)
 
 `pnpm test:e2e:webdriver` runs `apps/desktop/e2e-native/*.native.ts` (Vitest plus `selenium-webdriver`) against the real debug binary through `tauri-driver`: create a book, autosave and the close flush, EPUB export to a real file, Markdown import with queued dialog answers, and the Save and reopen smoke test. Needs `cargo install --locked tauri-driver@2.1.0`, `webkit2gtk-driver` and a display (`xvfb-run`) on Linux (msedgedriver on Windows), and `pnpm --filter @cadabracraft/desktop build:native` first (override the driver path with `TAURI_DRIVER`). **tauri-driver does not support macOS**: on a Mac every spec skips with a message, so the suite proves nothing there (use `/drive-app` and `pnpm automation:scenario`). CI job `webdriver` (Linux) runs it as `continue-on-error` until it has run green a few times; it is not part of `pnpm test` and not in the coverage numbers. Status: the specs typecheck and skip on macOS; none has run against a real driver yet.
