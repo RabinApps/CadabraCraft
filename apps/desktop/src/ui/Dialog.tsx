@@ -85,17 +85,52 @@ export const panelClass =
  */
 export function useFocusReturn(open: boolean): (e: Event) => void {
   const opener = useRef<HTMLElement | null>(null);
+  const caret = useRef<Caret | null>(null);
   const wasOpen = useRef(false);
-  if (open && !wasOpen.current) opener.current = openerOf(activeOrPressed());
+  if (open && !wasOpen.current) {
+    opener.current = openerOf(activeOrPressed());
+    caret.current = editableCaret(opener.current);
+  }
   wasOpen.current = open;
   return (e) => {
     const back = opener.current;
-    opener.current = null;
+    const saved = caret.current;
+    opener.current = caret.current = null;
     if (back?.isConnected && back !== document.body) {
       e.preventDefault();
+      // The editor may already have taken focus back with its own selection; focusing it again would reset the caret in WebKit.
+      if (back.contains(document.activeElement)) return;
       back.focus();
+      restoreCaret(saved);
     }
   };
+}
+
+interface Caret {
+  anchor: Node;
+  anchorOffset: number;
+  focus: Node;
+  focusOffset: number;
+}
+
+/**
+ * The selection inside an editable opener (the editor), as plain values: WebKit puts the caret at the start when focus()
+ * returns to it. A live Range would not do, because the DOM shifts it when the editor re-renders its text.
+ */
+function editableCaret(opener: HTMLElement | null): Caret | null {
+  const sel = document.getSelection();
+  if (!opener?.isContentEditable || !sel?.anchorNode || !sel.focusNode) return null;
+  if (!opener.contains(sel.anchorNode) || !opener.contains(sel.focusNode)) return null;
+  const { anchorNode: anchor, anchorOffset, focusNode: focus, focusOffset } = sel;
+  return { anchor, anchorOffset, focus, focusOffset };
+}
+
+/** Puts the caret back unless the editor replaced the nodes it pointed into; it then has its own selection to show. */
+function restoreCaret(caret: Caret | null) {
+  if (!caret?.anchor.isConnected || !caret.focus.isConnected) return;
+  document
+    .getSelection()
+    ?.setBaseAndExtent(caret.anchor, caret.anchorOffset, caret.focus, caret.focusOffset);
 }
 
 export function Modal({

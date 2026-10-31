@@ -92,13 +92,7 @@ test.describe("language of a passage", () => {
 
   test("changes a passage's language from inside it, and Clear Language removes it; Cancel keeps it", async ({
     page,
-  }, testInfo) => {
-    // Open question, not yet explained: under the Playwright runner (not in a hand-driven script) Playwright's WebKit puts
-    // the caret at the start of the passage after the dialog is cancelled, so the second open finds no mark to change.
-    test.skip(
-      testInfo.project.name === "webkit",
-      "WebKit moves the caret to the passage start after Cancel",
-    );
+  }) => {
     await newProject(page);
     await typeAndSelect(page, "Guten Tag");
     await run(page, "editor.lang");
@@ -122,6 +116,12 @@ test.describe("language of a passage", () => {
     await expect(pm(page).locator('span[lang="it"]')).toHaveText("Guten Tag");
     await expect(pm(page).locator('span[lang="de"]')).toHaveCount(0);
 
+    // Wait for the dialog to finish closing and hand focus back, then for ProseMirror to read the restored selection.
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(pm(page)).toBeFocused();
+    await page.evaluate(
+      () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+    );
     await run(page, "editor.clearLang");
     await expect(pm(page).locator("span[lang]")).toHaveCount(0);
     await expect(pm(page).locator("p").last()).toHaveText("Guten Tag");
