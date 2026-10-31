@@ -11,6 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       REQUIRE_EPUBCHECK: "1"
+      REQUIRE_ACE: "1"
       REQUIRE_ENWIK8: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -40,6 +41,8 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/fetch-epubcheck.sh
+      # Ace by DAISY (EPUB accessibility): npm installs it into tools/ace and Puppeteer downloads its own Chrome.
+      - run: bash scripts/fetch-ace.sh
       - run: bash scripts/fetch-enwik8.sh
       # PDF/UA and PDF/A validation of the real Typst output (packages/export-pdf verapdf.test.ts). Linux only; elsewhere the
       # test skips. scripts/fetch-verapdf.sh installs veraPDF into tools/verapdf (needs the Java set up above); Typst and the

@@ -198,13 +198,13 @@ function children(
 }
 
 /** An item body: the first paragraph (which may carry a checkbox before its text), then the other blocks. */
-function itemBody(item: DocNode, ctx: Ctx, lead = ""): string {
+function itemBody(item: DocNode, ctx: Ctx, wrap: (text: string) => string = (t) => t): string {
   const kids = ("content" in item ? item.content : undefined) ?? [];
   const first = kids[0];
   if (first?.type !== "paragraph")
     throw fail(ctx, "unsupported-node", `A ${item.type} must start with a paragraph`, item.type);
   return (
-    `<p>${lead}${at(ctx, first, 0, () => inline(first.content, ctx))}</p>` +
+    `<p>${wrap(at(ctx, first, 0, () => inline(first.content, ctx)))}</p>` +
     kids
       .slice(1)
       .map((k, i) => at(ctx, k, i + 1, () => block(k, ctx)))
@@ -224,8 +224,13 @@ function taskList(n: DocNode, ctx: Ctx): string {
           "A task item's checked value must be true or false",
           node.type,
         );
-      const box = `<input type="checkbox" disabled="disabled"${checked ? ' checked="checked"' : ""}/> `;
-      return `<li class="task-item">${itemBody(node, ctx, box)}</li>`;
+      const state = `disabled="disabled"${checked ? ' checked="checked"' : ""}`;
+      // The label gives the checkbox its name (the item's text); with no text there is nothing to name it, so it is hidden from assistive technology.
+      const wrap = (text: string) =>
+        text
+          ? `<label><input type="checkbox" ${state}/> ${text}</label>`
+          : `<input type="checkbox" ${state} aria-hidden="true"/>`;
+      return `<li class="task-item">${itemBody(node, ctx, wrap)}</li>`;
     }),
   );
   return `<ul class="task-list">${items.join("")}</ul>`;
