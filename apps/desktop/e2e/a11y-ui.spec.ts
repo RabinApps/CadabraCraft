@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { newProject, TAB } from "./support/helpers";
 import { audit } from "./support/audit";
 
 test.beforeEach(async ({ page }) => {
@@ -126,7 +126,7 @@ test.describe("skip link and landmarks", () => {
   test("the first Tab stop skips to main on the home screen", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("main")).toBeVisible();
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(TAB);
     const skip = page.getByRole("link", { name: "Skip to main content" });
     await expect(skip).toBeFocused();
     await expect(skip).toBeVisible();

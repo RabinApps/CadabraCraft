@@ -1,4 +1,8 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
+
+/** The specs that also run on Playwright's WebKit (the engine of WKWebView and WebKitGTK); opt in with WEBKIT=1 so the default run stays Chromium only. */
+const webkitSpecs =
+  /(a11y|a11y-ui|a11y-tree|a11y-keyboard|a11y-forced-colors|language-mark|images)\.spec\.ts$/;
 
 const port = Number(process.env.E2E_PORT) || 1420;
 
@@ -14,6 +18,9 @@ export default defineConfig({
     retries: 2,
   }),
   ...(port !== 1420 && { outputDir: `test-results-${port}` }),
+  ...(process.env.WEBKIT && {
+    projects: [{ name: "webkit", testMatch: webkitSpecs, use: { ...devices["Desktop Safari"] } }],
+  }),
   use: { baseURL: `http://localhost:${port}` },
   webServer: {
     command: "pnpm dev",

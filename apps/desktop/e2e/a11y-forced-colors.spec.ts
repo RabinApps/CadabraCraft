@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { newProject, SHIFT_TAB, TAB } from "./support/helpers";
 
 // Windows High Contrast (forced-colors) and "increase contrast" are emulated by Chromium. Computed styles are compared
 // instead of screenshots: a state that depends on a soft fill has to carry a border or outline too, and the states must
@@ -144,11 +144,11 @@ for (const scheme of ["light", "dark"] as const) {
         );
       });
 
-      test("the keyboard focus ring is a solid, visible outline", async ({ page }) => {
+      test("the keyboard focus ring is a solid, visible outline", async ({ page, browserName }) => {
         await newProject(page);
         await page.getByRole("button", { name: "Add chapter" }).focus();
-        await page.keyboard.press("Shift+Tab");
-        await page.keyboard.press("Tab");
+        await page.keyboard.press(SHIFT_TAB);
+        await page.keyboard.press(TAB);
         const focused = page.locator(":focus");
         await expect(focused).toHaveAccessibleName("Add chapter");
         const f = await look(focused);
@@ -156,7 +156,10 @@ for (const scheme of ["light", "dark"] as const) {
         expect(f.outlineWidth).toBeGreaterThanOrEqual(2);
         // Not the same color as the page behind it.
         const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-        expect(ratio(f.outlineColor, bg)).toBeGreaterThanOrEqual(3);
+        // Playwright's WebKit only flips the forced-colors media query and keeps the page colors, so there is no system
+        // outline color to measure in it; the increased-contrast runs still check the ratio there.
+        if (mode === "contrast" || browserName !== "webkit")
+          expect(ratio(f.outlineColor, bg)).toBeGreaterThanOrEqual(3);
       });
 
       test("badges and check rows keep an edge and their text", async ({ page }) => {
@@ -182,7 +185,7 @@ for (const scheme of ["light", "dark"] as const) {
         await dialog.getByRole("radio", { name: "Print PDF" }).click();
         const box = dialog.getByRole("checkbox", { name: "PDF/UA (accessible)" });
         const before = await box.isChecked();
-        await page.keyboard.press("Shift"); // keyboard modality: focus() then shows the focus ring
+        await page.keyboard.press(TAB); // keyboard modality: focus() then shows the focus ring (WebKit ignores a bare modifier key)
         await box.focus();
         // The browser draws a native checkbox in system colors; our CSS must not turn that off.
         expect((await look(box)).forcedColorAdjust).not.toBe("none");

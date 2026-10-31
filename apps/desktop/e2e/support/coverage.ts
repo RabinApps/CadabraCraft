@@ -7,8 +7,9 @@ export * from "@playwright/test";
 /** Playwright's `test` with Chromium V8 coverage of the app source switched on when COVERAGE=1 (see coverageOptions.ts). */
 export const test = base.extend<{ appCoverage: void }>({
   appCoverage: [
-    async ({ page }, use) => {
-      if (!process.env.COVERAGE) {
+    async ({ page, browserName }, use) => {
+      // V8 coverage exists only in Chromium.
+      if (!process.env.COVERAGE || browserName !== "chromium") {
         await use();
         return;
       }
