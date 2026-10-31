@@ -15,6 +15,10 @@ The plan has four phases: foundations and automated gates, app UI fixes, output 
 
 Also in the e2e suite: `a11y-keyboard.spec.ts` (keyboard-only dialog sweep) and `a11y-forced-colors.spec.ts`. To add: axe scans in RTL.
 
+**Running everything.** `pnpm a11y` runs all of these gates in order and stops at the first failure, then prints a stage table (`--fast` skips Playwright, `--webkit` adds the WebKit run, `--tools` adds veraPDF, Ace and LibreOffice when installed). See `scripts/a11y.sh` and the `/a11y` skill.
+
+**WebKit and Ace.** The accessibility specs also run on Playwright's WebKit engine (`pnpm --filter @cadabracraft/desktop test:e2e:webkit`; a CI job on Linux, allowed to fail until it has run green). Ace by DAISY checks the sample EPUBs (`scripts/fetch-ace.sh`, `REQUIRE_ACE=1`); the one accepted finding is `epub-type-has-matching-role` on the chapter `<body>`, because ARIA does not allow `doc-chapter` there.
+
 ## Built
 
 - **App UI:** `ReferenceRow` reorder grip is a keyboard button (Arrow keys); control borders use `border-strong` (3:1); `forced-colors` and `prefers-contrast: more` styles; the "Saved" notice never replaces another notice, wraps, and can be dismissed; a skip link and `id="main"` on each screen's `<main>` (the opening skeleton has none); every `Modal` returns focus to its opener. axe also scans settings, export, history and import.
@@ -26,6 +30,8 @@ Also in the e2e suite: `a11y-keyboard.spec.ts` (keyboard-only dialog sweep) and 
 - **Audiobook:** the edition language is written to the M4B and to Opus chapter files (not FLAC or WAV). "Save a transcript" writes a book transcript and one WebVTT file per chapter from the text sent to the voice; cue times are estimates, not word-accurate.
 - **Images:** inserting an image needs a description or "This image is decorative" (`decorative` attr, see file-format.md); "Image details" in the toolbar edits both on a selected image; the Export dialog warns about images with neither for EPUB, Print PDF, Word and Rich Text.
 - **Chapter heading name:** the page ornament and chapter label (CSS pseudo-elements) have an empty alternative, so the h1 is read as the title alone; the accessibility-tree spec guards it.
+- **Safari engines:** WebKit does not focus a button on click, so dialogs track the control that was pressed and return focus to it. Radix focus traps ignore Option+Tab (the only way Safari reaches buttons), so a Safari user tabbing that way can leave a dialog; WebKit's forced-colors emulation is media-query only, so forced-colors contrast is verified on Chromium alone; macOS WebKit scrolls on Home and End instead of moving the caret.
+- **Task lists in EPUB:** each checkbox sits inside a label with the item text (Ace flagged unnamed checkboxes).
 - **Language of parts (WCAG 3.1.2):** a per-passage `lang` mark (Format > Language of Selection…, and the command palette). EPUB writes `<span lang xml:lang>`, PDF `#text(lang)`, Word `w:lang`, RTF `\lang`, Markdown `<span lang>` only with the HTML option; the audiobook ignores it. A private-use tag such as `x-…` has no effect in the PDF.
 - **Keyboard and focus:** every dialog returns focus to its opener, including dialogs opened from a menu, the command palette and Outline; renaming a chapter returns focus to its Actions button; the Settings jump respects reduced motion. `a11y-keyboard.spec.ts` sweeps 13 dialogs.
 - **Forced colors and increased contrast:** `a11y-forced-colors.spec.ts` (41 tests) checks outlines and borders of selected, pressed, focused, disabled and badge states under Chromium emulation, and axe in both modes. The CSS selectors were narrowed so hover classes no longer match.
@@ -36,6 +42,7 @@ Also in the e2e suite: `a11y-keyboard.spec.ts` (keyboard-only dialog sweep) and 
 
 - **Needs a person:** run the screen-reader checklist in [platform-checks.md](platform-checks.md) with VoiceOver, NVDA (Windows 11, WebView2) and Orca (Wayland and X11), the four Windows contrast themes on a real display, and 200% and 400% zoom by eye. Nothing there has been run.
 - **Validators:** run veraPDF (`--flavour ua1`, and `2b` with PDF/A) on a sample PDF and open it in PAC or Acrobat; run EPUBCheck on a sample with `lang` spans; open the Word and RTF samples in Word.
+- **WebKit follow-up:** one language-mark test is skipped on WebKit (the caret moves to the passage start after the language dialog is cancelled; unexplained, may be a real caret bug). CI for veraPDF and Ace has never run; Ace's Chrome may need `--no-sandbox` or system libraries on Linux runners.
 - **Language:** the EPUB accessibility summary is English only; the Markdown importer does not read `<span lang>` back; there is no toolbar button for the language command (it wrapped the toolbar), and no per-passage voice in audio.
 - **UI leftovers:** 59 hover-only `title=` hints; text at 11 px; color-only cues in find highlights and some status rows; an axe sweep in RTL.
 - **Design (pen and design.md):** the Language of Selection dialog and its two Format menu items; the Image details dialog, the "Image checks" list and the skip link; the increased-contrast treatments.

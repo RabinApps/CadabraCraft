@@ -142,7 +142,8 @@ pkg_stage() {
   fi
 }
 pkg_stage "export-epub a11y tests" packages/export-epub '(a11y|language)'
-pkg_stage "export-pdf PDF/UA tests" packages/export-pdf '(a11y|pdf-?ua|tagged|language)'
+# The PDF/UA tests live inside the render, typst and edges suites, so select them by test name.
+run_stage "export-pdf PDF/UA tests" pnpm --filter @cadabracraft/export-pdf exec vitest run -t "PDF/UA|decorative|language"
 run_stage "export-rtf tests" pnpm --filter @cadabracraft/export-rtf test
 run_stage "export-docx tests" pnpm --filter @cadabracraft/export-docx test
 
