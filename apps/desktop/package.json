@@ -19,7 +19,8 @@
     "test:native": "vitest run --config e2e-native/vitest.config.ts",
     "test:e2e:webdriver": "pnpm test:native",
     "tauri:automate": "tauri dev --features dev-automation --config src-tauri/tauri.automation.conf.json",
-    "test:e2e:coverage": "COVERAGE=1 playwright test"
+    "test:e2e:coverage": "COVERAGE=1 playwright test",
+    "test:voiceover": "playwright test --config e2e-voiceover/playwright.config.ts"
   },
   "dependencies": {
     "@cadabracraft/editor-schema": "workspace:*",
@@ -60,6 +61,8 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@babel/core": "^8.0.9",
+    "@guidepup/guidepup": "^0.39.0",
+    "@guidepup/playwright": "^0.21.0",
     "@guidepup/virtual-screen-reader": "^0.33.0",
     "@lingui/babel-plugin-lingui-macro": "^6.10.1",
     "@lingui/cli": "^6.10.1",
