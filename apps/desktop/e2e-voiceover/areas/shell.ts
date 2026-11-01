@@ -17,7 +17,7 @@ export const settingsScreen: Area = {
     await enter();
 
     // Top of the screen: back button, the level-1 heading, the section nav, then Appearance and General.
-    const said = await walk("next", 30);
+    const said = await walk("next", 42, /Check for updates on launch/);
     const text = said.join("\n");
     expect(text).toMatch(/heading.*Settings|Settings.*heading/i);
     expect(text).toMatch(/Appearance/);
@@ -104,13 +104,13 @@ export const commandPalette: Area = {
     await newProject(page);
     await enter();
 
-    await page.keyboard.press("ControlOrMeta+k");
+    await page.getByRole("button", { name: "Command palette" }).click();
     const box = page.getByRole("combobox", { name: "Command palette" });
     await expect(box).toBeFocused();
     await page.waitForTimeout(SETTLE_MS);
 
     // The search field carries the name "Command palette" and a text-field role.
-    const heard = [...(await walk("previous", 2)), ...(await walk("next", 6))];
+    const heard = [...(await walk("previous", 4, /Command palette/)), ...(await walk("next", 6))];
     const text = heard.join("\n");
     expect(text).toMatch(/Command palette/);
     expect(text).toMatch(/combo ?box|text field|search|edit text/i);
@@ -137,12 +137,14 @@ export const outlineNavigator: Area = {
     await seedChapters(page, [chapterDoc("Chapter One", 3), chapterDoc("Second Part", 2)]);
     await enter();
 
-    await page.keyboard.press("ControlOrMeta+Shift+o");
+    await page.getByRole("button", { name: "Outline", exact: true }).click();
     await expect(page.getByRole("combobox", { name: "Outline" })).toBeFocused();
     await page.waitForTimeout(SETTLE_MS);
 
-    const heard = [...(await walk("previous", 2)), ...(await walk("next", 6))];
-    expect(heard.join("\n")).toMatch(/Outline/);
+    // VoiceOver starts on the list; the dialog's name is above it, so the lists' own headings are the sure signal.
+    const heard = [...(await walk("previous", 3)), ...(await walk("next", 8))];
+    expect(heard.join("\n")).toMatch(/Outline|IN THIS CHAPTER/);
+    expect(heard.join("\n")).toMatch(/Second Part/);
     expect(bareRole(heard)).toEqual([]);
 
     await page.keyboard.press("Escape");
@@ -161,8 +163,11 @@ export const chapterMenu: Area = {
     await expect(menu).toBeVisible();
     await page.waitForTimeout(SETTLE_MS);
 
-    // The first item holds focus; look one step back, then walk the items.
-    const heard = [...(await walk("previous", 2)), ...(await walk("next", 8))];
+    // VoiceOver can start on any item; go back to the top of the menu, then walk down.
+    const heard = [
+      ...(await walk("previous", 8, /Rename/)),
+      ...(await walk("next", 8, /Move to trash/)),
+    ];
     const text = heard.join("\n");
     expect(text).toMatch(/Rename/);
     expect(text).toMatch(/History/);

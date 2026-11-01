@@ -61,7 +61,7 @@ const landmarks: Area = {
 
 const toolbar: Area = {
   name: "editor formatting toolbar",
-  run: async ({ page, enter, find, walk }) => {
+  run: async ({ page, vo, enter, find, walk, cap }) => {
     await newProject(page);
     // Bold is on for the selected text before VoiceOver arrives, so it has a pressed state to announce.
     await typeInLastParagraph(page, "Some bold words");
@@ -70,7 +70,10 @@ const toolbar: Area = {
     await expect(tb(page, "Bold")).toHaveAttribute("aria-pressed", "true");
     await enter();
 
-    const toBold = await find(/Bold/, MAX_TO_EDITOR);
+    // VoiceOver announces the toolbar as a group and skips over its buttons until it interacts with the group.
+    const toToolbar = await find(/Formatting toolbar/, MAX_TO_EDITOR);
+    await cap("interact", vo.interact());
+    const toBold = [...toToolbar, ...(await find(/Bold/, 20))];
     expect(toBold.join("\n")).toMatch(/Undo/);
     expect(toBold.join("\n")).toMatch(/Redo/);
     const boldOn = toBold.at(-1) ?? "";
@@ -112,7 +115,7 @@ const toolbar: Area = {
 
 const typing: Area = {
   name: "editor typing, headings and lists",
-  run: async ({ page, enter, find, cap, vo }) => {
+  run: async ({ page, enter, find, cap, vo, walk }) => {
     await newProject(page);
     await typeInLastParagraph(page, "The fox jumped over the fence.");
     await page.keyboard.press("Enter");
@@ -127,7 +130,8 @@ const typing: Area = {
 
     await find(PAGE_TEXT, MAX_TO_EDITOR);
     await cap("interact", vo.interact());
-    const said: string[] = [];
+    // VoiceOver starts at the caret (the last line): step back to the first paragraph, then read forward.
+    const said: string[] = await walk("previous", 8, /fox jumped over the fence/);
     for (let i = 0; i < 12; i++) {
       await cap("next", vo.next());
       said.push(await cap("lastSpokenPhrase", vo.lastSpokenPhrase()));

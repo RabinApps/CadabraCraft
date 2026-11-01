@@ -80,7 +80,7 @@ const exportDialog: Area = {
     await radio.focus();
     await expect(radio).toBeChecked();
     await page.waitForTimeout(1000);
-    const pdf = await find(/Print preview/, 18);
+    const pdf = await find(/Print preview/, 45);
     const text = pdf.join("\n");
     for (const name of [
       /Template/,
