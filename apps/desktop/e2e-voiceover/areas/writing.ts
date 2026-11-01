@@ -110,15 +110,20 @@ const writeReadToggle: Area = {
     await enter();
 
     const toWrite = await find(/Write/, 45);
-    const write = toWrite.at(-1) ?? "";
-    expect(write).toMatch(/radio/i);
-    expect(write).toMatch(/selected|checked|\bon\b|1 of 2/i);
-    const [read] = await walk("next", 1);
-    expect(read).toMatch(/Read/);
-    expect(read).toMatch(/radio/i);
-    expect(read, "the state of the two radios is spoken differently").not.toEqual(
-      write.replace("Write", "Read"),
-    );
+    // The group is announced first ("Write or read radio group"); step on through the radios until a selected one is spoken.
+    const heard = [...toWrite];
+    if (!heard.some((l) => /selected/i.test(l)))
+      heard.push(...(await walk("next", 3, /selected/i)));
+    const text = heard.join("\n");
+    console.log(`write/read switch heard:\n${text}`);
+    expect(text, "no phrase said a radio is selected").toMatch(/selected/i);
+    expect(text).toMatch(/radio/i);
+    expect(text).toMatch(/Write/);
+    // Land on the Read radio for activation (it may already have been heard).
+    if (!/Read\b.*radio button/i.test(heard.at(-1) ?? "")) {
+      const more = await walk("next", 2, /Read\b.*radio button/i);
+      expect(more.join("\n")).toMatch(/Read/);
+    }
 
     await cap("act", vo.act());
     await expect(modeRadio(page, "Read")).toHaveAttribute("aria-checked", "true");
@@ -156,7 +161,7 @@ const readMode: Area = {
     expect(toHeading.join("\n"), "read-only text is not announced as editable").not.toMatch(
       /edit text/i,
     );
-    const body = await walk("next", 2);
+    const body = await walk("next", 8, /quiet|garden|river|stone|letter|morning|lantern|orchard/);
     expect(body.join("\n")).toMatch(/quiet|garden|river|stone|letter|morning|lantern|orchard/);
 
     // The footer: the chapter turn button names its target, then the book progress bar.

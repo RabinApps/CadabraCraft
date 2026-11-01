@@ -102,7 +102,7 @@ export const skipLink: Area = {
 
 export const commandPalette: Area = {
   name: "command palette opened by its shortcut",
-  run: async ({ page, enter, walk }) => {
+  run: async ({ page, enter, walk, cap, vo }) => {
     await newProject(page);
     await enter();
 
@@ -111,8 +111,17 @@ export const commandPalette: Area = {
     await expect(box).toBeFocused();
     await page.waitForTimeout(SETTLE_MS);
 
+    // VoiceOver's cursor stays on the hidden header button after the click: make it follow focus by re-focusing the field.
+    await box.evaluate((e: HTMLElement) => {
+      e.blur();
+      e.focus();
+    });
+    await page.waitForTimeout(1500);
     // The search field carries the name "Command palette" and a text-field role.
-    const heard = [...(await walk("previous", 4, /Command palette/)), ...(await walk("next", 6))];
+    const heard = [
+      await cap("lastSpokenPhrase", vo.lastSpokenPhrase()),
+      ...(await walk("next", 4)),
+    ];
     const text = heard.join("\n");
     expect(text).toMatch(/Command palette/);
     expect(text).toMatch(/combo ?box|text field|search|edit text/i);
@@ -134,17 +143,25 @@ export const commandPalette: Area = {
 
 export const outlineNavigator: Area = {
   name: "outline navigator opened by its shortcut",
-  run: async ({ page, enter, walk }) => {
+  run: async ({ page, enter, walk, cap, vo }) => {
     await newProject(page);
     await seedChapters(page, [chapterDoc("Chapter One", 3), chapterDoc("Second Part", 2)]);
     await enter();
 
     await page.getByRole("button", { name: "Outline", exact: true }).click();
-    await expect(page.getByRole("combobox", { name: "Outline" })).toBeFocused();
-    await page.waitForTimeout(SETTLE_MS);
+    const outlineBox = page.getByRole("combobox", { name: "Outline" });
+    await expect(outlineBox).toBeFocused();
+    // Make VoiceOver's cursor follow focus into the dialog by re-focusing the field.
+    await outlineBox.evaluate((e: HTMLElement) => {
+      e.blur();
+      e.focus();
+    });
+    await page.waitForTimeout(1500);
 
-    // VoiceOver starts on the list; the dialog's name is above it, so the lists' own headings are the sure signal.
-    const heard = [...(await walk("previous", 3)), ...(await walk("next", 8))];
+    const heard = [
+      await cap("lastSpokenPhrase", vo.lastSpokenPhrase()),
+      ...(await walk("next", 8)),
+    ];
     expect(heard.join("\n")).toMatch(/Outline|IN THIS CHAPTER/);
     expect(heard.join("\n")).toMatch(/Second Part/);
     expect(bareRole(heard)).toEqual([]);
