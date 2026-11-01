@@ -51,7 +51,9 @@ const bareRole = (lines: string[]) =>
 
 test.setTimeout(150_000);
 
-test("the home screen is announced with a heading and named buttons", async ({
+// One test, one navigation: a second navigateToWebContent in the same run stalls (the item chooser does not settle after
+// the first test's browser is closed), and with a modal open it cannot run at all (the dialog traps focus).
+test("the home screen and the New book dialog are announced with names and roles", async ({
   page,
   voiceOver,
 }) => {
@@ -59,35 +61,29 @@ test("the home screen is announced with a heading and named buttons", async ({
   await page.goto("/");
   await expect(page.getByRole("button", { name: "New project" })).toBeVisible();
   await capped("navigateToWebContent", voiceOver.navigateToWebContent(), NAVIGATE_MS);
-  const said = await walk(voiceOver, "next", 15);
-  expect(said.join("\n")).toMatch(/heading/i);
-  expect(said.join("\n")).toMatch(/New project/);
-  expect(bareRole(said)).toEqual([]);
-});
 
-test("the New book dialog is announced as a dialog and keeps VoiceOver inside it", async ({
-  page,
-  voiceOver,
-}) => {
-  await fakeTauri(page);
-  await page.goto("/");
-  await expect(page.getByRole("button", { name: "New project" })).toBeVisible();
-  // Move VoiceOver into the page first: with a modal open, Guidepup's helper cannot reach the web content (the dialog
-  // traps focus and hides the page, so VoiceOver's item chooser never settles). Then open the dialog and listen.
-  await capped("navigateToWebContent", voiceOver.navigateToWebContent(), NAVIGATE_MS);
-  await page.getByRole("button", { name: "New project" }).click();
-  await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
-  // VoiceOver follows the focus into the dialog. Its log only fills for commands the test sends, so read what it last
-  // said, then step back from the focused field to the dialog's name and role.
-  await page.waitForTimeout(4000);
-  const first = await capped("lastSpokenPhrase", voiceOver.lastSpokenPhrase());
-  const before = await walk(voiceOver, "previous", 6, /dialog/i);
-  const opened = [first, ...before].join("\n");
-  expect(opened, "VoiceOver follows focus into the dialog").toMatch(/Title|New book/);
-  expect(opened, "the dialog's name is read").toMatch(/New book/);
-  expect(opened, "VoiceOver says it is a dialog").toMatch(/dialog/i);
-  // Walking on stays inside the dialog and every control has a name.
-  const walked = await walk(voiceOver, "next", 12);
-  expect(walked.join("\n")).not.toMatch(/Settings/);
-  expect(bareRole(walked)).toEqual([]);
+  await test.step("the home screen has a heading and named buttons", async () => {
+    const said = await walk(voiceOver, "next", 15);
+    expect(said.join("\n")).toMatch(/heading/i);
+    expect(said.join("\n")).toMatch(/New project/);
+    expect(bareRole(said)).toEqual([]);
+  });
+
+  await test.step("the New book dialog is a named dialog and keeps VoiceOver inside it", async () => {
+    await page.getByRole("button", { name: "New project" }).click();
+    await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
+    // VoiceOver follows the focus into the dialog. Its log only fills for commands the test sends, so read what it last
+    // said, then step back from the focused field to the dialog's name and role.
+    await page.waitForTimeout(4000);
+    const first = await capped("lastSpokenPhrase", voiceOver.lastSpokenPhrase());
+    const before = await walk(voiceOver, "previous", 6, /dialog/i);
+    const opened = [first, ...before].join("\n");
+    expect(opened, "VoiceOver follows focus into the dialog").toMatch(/Title|New book/);
+    expect(opened, "the dialog's name is read").toMatch(/New book/);
+    expect(opened, "VoiceOver says it is a dialog").toMatch(/dialog/i);
+    // Walking on stays inside the dialog and every control has a name.
+    const walked = await walk(voiceOver, "next", 12);
+    expect(walked.join("\n")).not.toMatch(/Settings/);
+    expect(bareRole(walked)).toEqual([]);
+  });
 });
