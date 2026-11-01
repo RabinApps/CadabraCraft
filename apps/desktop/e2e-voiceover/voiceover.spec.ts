@@ -69,18 +69,20 @@ test("the home screen and the New book dialog are announced with names and roles
     expect(bareRole(said)).toEqual([]);
   });
 
-  await test.step("the New book dialog is a named dialog and keeps VoiceOver inside it", async () => {
+  await test.step("the New book dialog is named and keeps VoiceOver inside it", async () => {
     await page.getByRole("button", { name: "New project" }).click();
     await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
     // VoiceOver follows the focus into the dialog. Its log only fills for commands the test sends, so read what it last
     // said, then step back from the focused field to the dialog's name and role.
     await page.waitForTimeout(4000);
     const first = await capped("lastSpokenPhrase", voiceOver.lastSpokenPhrase());
-    const before = await walk(voiceOver, "previous", 6, /dialog/i);
+    const before = await walk(voiceOver, "previous", 6, /New book/);
     const opened = [first, ...before].join("\n");
     expect(opened, "VoiceOver follows focus into the dialog").toMatch(/Title|New book/);
     expect(opened, "the dialog's name is read").toMatch(/New book/);
-    expect(opened, "VoiceOver says it is a dialog").toMatch(/dialog/i);
+    // Whether VoiceOver says "dialog" as focus enters is not testable this way: stepping by item reads the heading and
+    // fields, not the container's role, and `lastSpokenPhrase` was empty right after the click. The role is checked in
+    // a11y-tree.spec.ts; listening for the announcement is a manual pass (docs/platform-checks.md).
     // Walking on stays inside the dialog and every control has a name.
     const walked = await walk(voiceOver, "next", 12);
     expect(walked.join("\n")).not.toMatch(/Settings/);
