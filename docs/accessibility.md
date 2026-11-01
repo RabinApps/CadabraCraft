@@ -15,7 +15,19 @@ The plan has four phases: foundations and automated gates, app UI fixes, output 
 
 Also in the e2e suite: `a11y-keyboard.spec.ts` (keyboard-only dialog sweep) and `a11y-forced-colors.spec.ts`. To add: axe scans in RTL.
 
-Three more specs look for what axe does not. `a11y-engines.spec.ts` runs the same screens through IBM Equal Access (`accessibility-checker-engine`, WCAG 2.2) and HTML_CodeSniffer (the Pa11y engine); the few reviewed false positives are listed with reasons at the top of the file. `a11y-adaptive.spec.ts` checks text spacing (1.4.12), 320 px reflow (1.4.10) and target size with the spacing exception (2.5.8). `a11y-screenreader.spec.ts` walks the Export dialog, the editor toolbar and Settings with a virtual screen reader (`@guidepup/virtual-screen-reader`, bundled by `e2e/support/virtualScreenReader.ts`) and fails on unnamed controls; it simulates the accessibility tree and does not replace VoiceOver or NVDA. **Real VoiceOver (local only):** `pnpm --filter @cadabracraft/desktop test:voiceover` runs `e2e-voiceover/voiceover.spec.ts` through Guidepup (`@guidepup/playwright`) against the web build in Playwright's WebKit. It needs a one-time setup by the Mac's owner, because it changes macOS settings and asks for an admin password: run `npx @guidepup/setup setup` (enables VoiceOver AppleScript control and grants the terminal the accessibility permission), then `npx @guidepup/setup install`. It takes over the keyboard and speaker while it runs, so it is not part of `pnpm a11y` or CI, and it has not been run yet. It cannot drive the Tauri window itself.
+Three more specs look for what axe does not. `a11y-engines.spec.ts` runs the same screens through IBM Equal Access (`accessibility-checker-engine`, WCAG 2.2) and HTML_CodeSniffer (the Pa11y engine); the few reviewed false positives are listed with reasons at the top of the file. `a11y-adaptive.spec.ts` checks text spacing (1.4.12), 320 px reflow (1.4.10) and target size with the spacing exception (2.5.8). `a11y-screenreader.spec.ts` walks the Export dialog, the editor toolbar and Settings with a virtual screen reader (`@guidepup/virtual-screen-reader`, bundled by `e2e/support/virtualScreenReader.ts`) and fails on unnamed controls; it simulates the accessibility tree and does not replace VoiceOver or NVDA. **Real VoiceOver (local only):** `pnpm --filter @cadabracraft/desktop test:voiceover` runs `e2e-voiceover/voiceover.spec.ts` through Guidepup (`@guidepup/playwright`) against the web build in Playwright's WebKit. It takes over the keyboard and speaker, so it is not part of `pnpm a11y` or CI, and it cannot drive the Tauri window itself.
+
+- **Always use the native Terminal app, never the terminal inside an editor or the Claude app.** Both the setup and every VoiceOver run must happen there, in a Terminal.app that has been given Full Disk Access (System Settings, Privacy & Security, Full Disk Access). Other terminals could not complete the setup (`sudo` found no password prompt, so the permission step failed).
+- **One-time setup**, run in that Terminal.app (the second command from `apps/desktop`, because it looks for the local `@guidepup/guidepup`):
+
+  ```sh
+  npx @guidepup/setup setup --ci --macos-ignore-tcc-db
+  cd apps/desktop && npx @guidepup/setup install
+  ```
+
+  `--ci --macos-ignore-tcc-db` skips the interactive permission step that needs `sudo`; Full Disk Access for Terminal.app replaces it. Guidepup's manual VoiceOver setup is the fallback.
+
+- **First run (Terminal.app, 2 tests, about 75 s):** the home screen test passed. The New book dialog test failed: VoiceOver began inside the dialog at the Author field, so the walk never said "New book" or "dialog" (it read Author, Trim size, Location, Choose…, Cancel and a dimmed Create book button). The assertion needs to start the walk from the dialog's heading, or the dialog is not announced when it opens; check which before changing the test.
 
 First findings: the switch press area was 22 px high on desktop (now 24 px), and the sidebar was wrapped in an unnamed `aside` landmark around its own `nav` (now a `div`).
 
