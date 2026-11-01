@@ -78,10 +78,10 @@ async function stepThroughBox(
   if (backTo) {
     said.push(...(await walk("previous", 30, backTo)));
     // Back in the box on the line before the task list: read on through the lists to the end.
-    // Item stepping leaves the box here, so move the caret down line by line: VoiceOver reads each line it lands on.
+    // Item stepping leaves the box here, so read the following lines one at a time.
     await cap("interact", vo.interact()).catch(() => {});
     for (let i = 0; i < 14; i++) {
-      await cap("ArrowDown", vo.press("ArrowDown"));
+      await cap("readNextLine", vo.perform(vo.keyboardCommands.readNextLine));
       said.push(await cap("lastSpokenPhrase", vo.lastSpokenPhrase()));
       if (until?.test(said.at(-1) ?? "")) break;
     }
