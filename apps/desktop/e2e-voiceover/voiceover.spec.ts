@@ -44,9 +44,17 @@ test("the New book dialog is announced as a dialog and keeps VoiceOver inside it
   await page.getByRole("button", { name: "New project" }).click();
   await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
   await voiceOver.navigateToWebContent();
-  const said = (await walk(voiceOver, 20)).join("\n");
-  expect(said).toMatch(/New book/);
-  expect(said).toMatch(/dialog/i);
+  // VoiceOver starts on the focused field, which is below the title, so look backwards as well as forwards.
+  const after = await walk(voiceOver, 20);
+  for (let i = 0; i < 20; i++) await voiceOver.previous();
+  const before: string[] = [];
+  for (let i = 0; i < 12; i++) {
+    await voiceOver.previous();
+    before.push(await voiceOver.lastSpokenPhrase());
+  }
+  const said = [...before, ...after].join("\n");
+  expect(said, "the dialog's name is read").toMatch(/New book/);
+  expect(said, "VoiceOver says it is a dialog").toMatch(/dialog/i);
   // Nothing from the page behind the dialog is read.
   expect(said).not.toMatch(/Settings/);
 });
