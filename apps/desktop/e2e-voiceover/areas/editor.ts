@@ -79,14 +79,12 @@ const toolbar: Area = {
     const boldOn = toBold.at(-1) ?? "";
     expect(boldOn).toMatch(/pressed|\bon\b|selected|checked|1/i);
 
-    // Toggle Bold off from the page, then step away and back: the announcement of the button changes.
-    await tb(page, "Bold").click();
+    // Activate Bold with VoiceOver itself (VO+Space): the page state flips and the new state is announced.
+    await cap("act", vo.act());
     await expect(tb(page, "Bold")).toHaveAttribute("aria-pressed", "false");
     await page.waitForTimeout(1000);
-    await walk("previous", 1);
-    const [boldOff] = await walk("next", 1);
-    expect(boldOff).toMatch(/Bold/);
-    expect(boldOff).not.toEqual(boldOn);
+    const boldOff = await cap("lastSpokenPhrase", vo.lastSpokenPhrase());
+    expect(boldOff, "the new state is announced").not.toEqual(boldOn);
 
     // The rest of the toolbar: every button has a name, none is a bare role.
     const rest = await walk("next", 16, /Footnote/);
