@@ -45,6 +45,7 @@ export const createPreviewActions = (
         book.edition.author,
         book.edition.language,
         book.chapters,
+        book.toc,
       ]),
     );
     const build = async () => {
@@ -66,6 +67,7 @@ export const createPreviewActions = (
           ...(bleedIn ? { bleedIn } : {}),
           ...(cropMarks ? { cropMarks: true } : {}),
           ...(Object.keys(book.fonts).length ? { fonts: book.fonts } : {}),
+          ...(book.toc ? { toc: book.toc } : {}),
           assets: Object.fromEntries(assets),
           ...(cover ? { cover: cover.path } : {}),
         },

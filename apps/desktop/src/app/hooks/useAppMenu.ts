@@ -45,6 +45,7 @@ const FRONT: MatterKind[] = [
   "copyright",
   "dedication",
   "epigraph",
+  "contents",
   "foreword",
   "preface",
   "custom",

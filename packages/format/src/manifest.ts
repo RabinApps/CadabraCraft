@@ -13,7 +13,7 @@ import { validatePublishing, type Publishing } from "./publishing";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 6;
+export const CURRENT_FORMAT_VERSION = 7;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -28,6 +28,36 @@ export interface Edition {
   publishing?: Publishing;
 }
 
+/** Depth of headings a contents page lists below each page: 0 lists pages only, 1 to 3 add headings up to that level. */
+export type TocDepth = 0 | 1 | 2 | 3;
+
+/** A contents entry the author added by hand (formatVersion 7). Its item key is `custom:<id>`. */
+export interface TocCustom {
+  id: string;
+  /** Language to the entry's text. Has at least one language. */
+  titles: Record<string, string>;
+  /** Item key it follows in the list (a page id, a heading key or another `custom:<id>`). */
+  after: string;
+  /** Item key the entry points at (and takes its page number from). Absent means it points nowhere. */
+  target?: string;
+}
+
+/**
+ * How a contents page differs from the generated list (formatVersion 7). The list itself is never stored: it is built from the
+ * outline, and these are overrides layered on top. Item keys are described in `toc.ts`.
+ */
+export interface TocSettings {
+  depth: TocDepth;
+  pageNumbers: boolean;
+  /** Item keys left out of the list. */
+  hidden: string[];
+  /** Item key to language to replacement text. */
+  titles: Record<string, Record<string, string>>;
+  /** Item keys in the order the author arranged them. Absent means reading order. */
+  order?: string[];
+  custom: TocCustom[];
+}
+
 /** A chapter or matter page, shared by every edition. Text and titles are per language. */
 export interface EditionEntry {
   id: string;
@@ -39,6 +69,8 @@ export interface EditionEntry {
   files: Record<string, string>;
   /** Languages whose text is still a copy of the source or blank, waiting for translation. Absent means none. */
   untranslated?: string[];
+  /** Contents pages only (`kind: "contents"`, formatVersion 7): the author's changes to the generated list. Absent means defaults. */
+  toc?: TocSettings;
 }
 
 /** A research file kept beside the book (formatVersion 5). The file lives in `references/`. */
@@ -186,8 +218,83 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
         throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
       entry.kind = o.kind as MatterKind;
     }
+    if (o.toc !== undefined) {
+      if (entry.kind !== "contents")
+        throw new FormatError(`manifest: "${name}[${i}].toc" belongs on a contents page only`);
+      entry.toc = validateToc(o.toc, `${name}[${i}].toc`);
+    }
     return entry;
   });
+}
+
+const TOC_KEYS = ["depth", "pageNumbers", "hidden", "titles", "order", "custom"] as const;
+const TOC_CUSTOM_KEYS = ["id", "titles", "after", "target"] as const;
+
+const keyList = (v: unknown, name: string): string[] => {
+  if (!Array.isArray(v) || !v.every((k) => typeof k === "string" && k !== ""))
+    throw new FormatError(`manifest: "${name}" must be a list of item keys`);
+  if (new Set(v).size !== v.length) throw new FormatError(`manifest: "${name}" repeats a key`);
+  return v as string[];
+};
+
+function noUnknownKeys(o: Record<string, unknown>, keys: readonly string[], name: string): void {
+  for (const k of Object.keys(o))
+    if (!keys.includes(k)) throw new FormatError(`manifest: unknown key "${name}.${k}"`);
+}
+
+const plainObject = (v: unknown, name: string): Record<string, unknown> => {
+  if (typeof v !== "object" || v === null || Array.isArray(v))
+    throw new FormatError(`manifest: "${name}" must be an object`);
+  return v as Record<string, unknown>;
+};
+
+/** Validates a contents page's `toc` (formatVersion 7). Throws FormatError; unknown keys are refused so a typo is not silently lost. */
+export function validateToc(v: unknown, name = "toc"): TocSettings {
+  const o = plainObject(v, name);
+  noUnknownKeys(o, TOC_KEYS, name);
+  if (o.depth !== 0 && o.depth !== 1 && o.depth !== 2 && o.depth !== 3)
+    throw new FormatError(`manifest: "${name}.depth" must be 0, 1, 2 or 3`);
+  if (typeof o.pageNumbers !== "boolean")
+    throw new FormatError(`manifest: "${name}.pageNumbers" must be true or false`);
+  const titlesIn = plainObject(o.titles, `${name}.titles`);
+  const titles = Object.fromEntries(
+    Object.entries(titlesIn).map(([key, byLang]) => [
+      key,
+      stringMap(byLang, `${name}.titles.${key}`),
+    ]),
+  );
+  if (!Array.isArray(o.custom))
+    throw new FormatError(`manifest: "${name}.custom" must be an array`);
+  const ids = new Set<string>();
+  const custom = o.custom.map((c, i): TocCustom => {
+    const cname = `${name}.custom[${i}]`;
+    const co = plainObject(c, cname);
+    noUnknownKeys(co, TOC_CUSTOM_KEYS, cname);
+    const id = str(co.id, `${cname}.id`);
+    if (!isValidEntryId(id))
+      throw new FormatError(
+        `manifest: "${cname}.id" must start with a letter and use only letters, digits, "-" and "_" (got ${JSON.stringify(id)})`,
+      );
+    if (ids.has(id)) throw new FormatError(`manifest: duplicate custom contents id "${id}"`);
+    ids.add(id);
+    const ctitles = stringMap(co.titles, `${cname}.titles`);
+    if (Object.keys(ctitles).length === 0)
+      throw new FormatError(`manifest: "${cname}.titles" needs at least one language`);
+    return {
+      id,
+      titles: ctitles,
+      after: str(co.after, `${cname}.after`),
+      ...(co.target === undefined ? {} : { target: str(co.target, `${cname}.target`) }),
+    };
+  });
+  return {
+    depth: o.depth,
+    pageNumbers: o.pageNumbers,
+    hidden: keyList(o.hidden, `${name}.hidden`),
+    titles,
+    ...(o.order === undefined ? {} : { order: keyList(o.order, `${name}.order`) }),
+    custom,
+  };
 }
 
 const FONT_KEYS = ["body", "heading"] as const;

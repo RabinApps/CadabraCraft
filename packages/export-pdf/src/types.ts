@@ -80,6 +80,35 @@ export interface PdfOptions {
    * words instead of the word starts, to find where Typst hyphenated a word that runs over a page break.
    */
   charMarks?: CharMark[];
+  /**
+   * The list for the book's `contents` page: the resolved items of `resolveToc` (`@cadabracraft/format`; hidden ones may be left in, they
+   * are not listed but a custom entry can still point at them). Without it the page holds only its own text. Page numbers come from the
+   * layout; `pageNumbers: false`, or `PdfOptions.pageNumbers` false, leaves them and the dot leaders out.
+   */
+  toc?: PdfToc;
+}
+
+/** The part of a `TocItem` (`@cadabracraft/format`) the PDF needs, so a `TocItem` can be passed as is. */
+export interface PdfTocItem {
+  /** Page: the entry id. Heading: `entryId#level:text:nth`. Custom: `custom:<id>`. */
+  key: string;
+  kind: "page" | "heading" | "custom";
+  /** 0 for a page, 1 to 3 for a heading. */
+  level: number;
+  title: string;
+  /** Headings: the entry the heading is in. */
+  entryId?: string;
+  /** Headings: position among the chapter's headings, empty ones included (`OutlineItem.index`). */
+  index?: number;
+  /** Custom entries: the key whose page it shows. */
+  target?: string;
+  hidden?: boolean;
+}
+
+export interface PdfToc {
+  items: PdfTocItem[];
+  /** Page numbers and dot leaders (default true). */
+  pageNumbers?: boolean;
 }
 
 /** A word of a leaf, as `PdfOptions.charMarks` names it: the page entry's index, the top-level block, the leaf among those of the block, the word (`wordStarts` index). */

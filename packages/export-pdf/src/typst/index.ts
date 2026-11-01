@@ -13,6 +13,7 @@ import { bodyOf, coverPage } from "./matter";
 import { resolveFonts, resolveMargins, resolveTemplate } from "./options";
 import { preamble } from "./preamble";
 import { pageReport } from "./report";
+import { tocDefs, tocEntries, tocHeadingKeys } from "./toc";
 
 export { requestedFonts, resolveFonts, resolveTemplate } from "./options";
 
@@ -42,9 +43,15 @@ export function buildTypstDocument(
     images: new Map(),
     maxImageIn: Math.max(1, trim.h - margins.top - margins.bottom - 1),
     assets: options.assets,
+    headingNo: 0,
     ...(options.blockMarks ? { marks: true } : {}),
     ...(options.charMarks ? { charMarks: charMarkWords(options.charMarks) } : {}),
   };
+  const hasContents = chapters.some((c) => c.kind === "contents" && c.section === "front");
+  if (options.toc && hasContents) {
+    ctx.tocEntries = tocEntries(options.toc.items);
+    ctx.tocHeadings = tocHeadingKeys(options.toc.items);
+  }
   const hasFront = chapters.some((c) => (c.section ?? "chapter") === "front");
   const head = preamble(book, t, options, resolved, margins, hasFront);
   const cover = options.cover === undefined ? "" : coverPage(options.cover, ctx);
@@ -54,9 +61,15 @@ export function buildTypstDocument(
     t.print.chapterOpening.dropCap,
     t.print.paragraph.style === "indent" ? t.print.paragraph.indentEm : 0,
   );
+  const tocHead = hasContents
+    ? tocDefs(
+        t.print.chapterOpening.sinkEm,
+        (options.toc?.pageNumbers ?? true) && (options.pageNumbers ?? true),
+      )
+    : "";
   const droplet = ctx.usesDropCap ? '#import "typst-droplet/lib.typ": dropcap\n' : "";
   return {
-    source: `${head}\n${droplet}${cover}${body}${pageReport(hasFront, options.pageNumbers ?? true, options.blockMarks === true)}`,
+    source: `${head}\n${tocHead}${droplet}${cover}${body}${pageReport(hasFront, options.pageNumbers ?? true, options.blockMarks === true)}`,
     images: ctx.images,
     fonts: resolved,
     usesDropCap: ctx.usesDropCap === true,

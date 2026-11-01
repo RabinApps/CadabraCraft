@@ -19,7 +19,25 @@ export interface RtfChapter {
 /** "times" (Times New Roman), "courier" (Courier New) or any non-empty font family name. */
 export type ManuscriptFont = "times" | "courier" | (string & {});
 
+/**
+ * One line of the contents page: structurally a `TocItem` from `@cadabracraft/format`, so pass
+ * `visibleTocItems(resolveToc(manifest, contentsEntry, language, outlines))` (`outlines[id]` = `extractOutline` of each page).
+ */
+export interface RtfContentsItem {
+  /** 0 for a page, 1-3 for a heading; each level indents the line by half an inch. */
+  level: number;
+  title: string;
+  /** Hidden items are skipped, so a full `resolveToc` result can be passed too. */
+  hidden?: boolean;
+}
+
 export interface RtfOptions {
+  /**
+   * The contents list, resolved for the book's language. Written as a static list of titles (indented by level, no page numbers,
+   * no links) on the page of kind "contents", after that page's own content; a contents page with no heading gets its title as
+   * one. Not given: a contents page is written like any other page.
+   */
+  contents?: readonly RtfContentsItem[];
   /** Bytes of every image the chapters use, keyed by the project-relative path stored in the chapter (`assets/a.png`). */
   assets?: ReadonlyMap<string, Uint8Array>;
   /** "times" (Times New Roman 12, default), "courier" (Courier New 12) or any non-empty font family name (12 pt). Code blocks stay Courier New. */

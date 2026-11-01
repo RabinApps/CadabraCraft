@@ -30,6 +30,8 @@ export type {
   PdfChapter,
   PdfMargins,
   PdfOptions,
+  PdfToc,
+  PdfTocItem,
   RenderResult,
   TrimSize,
   FontChoice,

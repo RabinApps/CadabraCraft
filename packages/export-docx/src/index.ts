@@ -4,6 +4,7 @@ export {
   approximateWords,
   type DocxBook,
   type DocxChapter,
+  type DocxContentsItem,
   type DocxOptions,
 } from "./docx";
 export { DocxExportError } from "./errors";

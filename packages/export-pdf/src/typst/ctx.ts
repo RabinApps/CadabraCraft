@@ -13,6 +13,13 @@ export interface Ctx {
   mark?: { chapter: number; block: number; leaf: number } | undefined;
   /** `PdfOptions.charMarks` as the words to mark inside, by `chapter:block:leaf`. */
   charMarks?: Map<string, Set<number>>;
+  /** Contents page: the entries as a Typst array. */
+  tocEntries?: string;
+  /** Contents page: entry id -> heading position -> item key, for the `toc-heading` marks. */
+  tocHeadings?: Map<string, Map<number, string>>;
+  /** While a page entry is written: its headings that get a mark, and how many headings were written so far. */
+  headingKeys?: Map<number, string> | undefined;
+  headingNo: number;
 }
 
 export const unsupported = (type: string): never => {
