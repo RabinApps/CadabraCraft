@@ -75,7 +75,11 @@ async function stepThroughBox(
     said.push(phrase ?? "");
     if (until?.test(phrase ?? "") || LEFT_BOX.test(phrase ?? "")) break;
   }
-  if (backTo) said.push(...(await walk("previous", 30, backTo)));
+  if (backTo) {
+    said.push(...(await walk("previous", 30, backTo)));
+    // Back in the box on the line before the task list: read on through the lists to the end.
+    said.push(...(await walk("next", 20, until)));
+  }
   await cap("stopInteracting", vo.stopInteracting());
   return said;
 }

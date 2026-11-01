@@ -122,8 +122,13 @@ export const commandPalette: Area = {
     const heard = [
       await cap("lastSpokenPhrase", vo.lastSpokenPhrase()),
       ...(await walk("previous", 4, /Command palette/)),
-      ...(await walk("next", 3)),
     ];
+    if (!/Command palette/.test(heard.join("\n"))) {
+      // Stepping back from the first option stayed on it: the list is a group VoiceOver is inside, so leave it first.
+      await cap("stopInteracting", vo.stopInteracting()).catch(() => {});
+      heard.push(...(await walk("previous", 6, /Command palette/)));
+    }
+    heard.push(...(await walk("next", 3)));
     const text = heard.join("\n");
     expect(text).toMatch(/Command palette/);
     expect(text).toMatch(/combo ?box|text field|search|edit text/i);

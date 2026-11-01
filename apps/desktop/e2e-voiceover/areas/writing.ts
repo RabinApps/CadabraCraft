@@ -178,7 +178,7 @@ const readMode: Area = {
     await page.getByRole("button", { name: "Reading settings" }).click();
     await expect(page.getByRole("menu")).toBeVisible();
     await page.waitForTimeout(3000);
-    const before = await walk("previous", 8, /Text size/);
+    const before = await walk("previous", 14, /Text size/);
     expect(before.join("\n")).toMatch(/Text size/);
     const items = await walk("next", 12);
     const heard = items.join("\n");

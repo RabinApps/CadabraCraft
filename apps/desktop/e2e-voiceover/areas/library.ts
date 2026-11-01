@@ -334,15 +334,17 @@ export const focusMode: Area = {
     // The chrome is gone from the page, not just hidden by colour.
     await expect(sidebar(page)).toBeHidden();
     await expect(page.getByRole("banner")).toHaveCount(0);
-    await expect(page.getByRole("contentinfo")).toBeHidden();
+    // The footer sits inside main, so it is not a contentinfo landmark: find it by its element.
+    await expect(page.locator("footer")).toBeHidden();
     await expect(page.locator(".ProseMirror")).toBeVisible();
 
     // VoiceOver follows focus to the exit button, then reaches the page text box (a text box needs interact to read in).
     await focusAndSettle(ctx, exit);
     const heard = [await ctx.cap("lastSpokenPhrase", ctx.vo.lastSpokenPhrase())];
     heard.push(...(await find(/Page text|text/i, 12)));
-    // The exit button comes after the text in reading order: read on until it is heard.
-    heard.push(...(await walk("next", 8, /Exit focus mode/)));
+    // The exit button is the first element of the page, before main: VoiceOver's cursor did not follow focus to it, so
+    // step back from the text until it is heard.
+    heard.push(...(await walk("previous", 12, /Exit focus mode/)));
     const text = heard.join("\n");
     expect(text).toMatch(/Exit focus mode/);
     expect(text).toMatch(/Page text|text/i);
@@ -379,7 +381,7 @@ export const statusBar: Area = {
       const bar = page.getByRole("progressbar", { name: "Session goal" });
       await expect(bar).toHaveAttribute("aria-valuemax", "500");
       await expect(page.getByText(/words in this chapter/)).toBeVisible();
-      await expect(page.getByRole("contentinfo").getByText(/in the book/)).toBeVisible();
+      await expect(page.locator("footer").getByText(/in the book/)).toBeVisible();
       await enter();
 
       // Book history before any change: Undo and Redo are dimmed, by their names.
