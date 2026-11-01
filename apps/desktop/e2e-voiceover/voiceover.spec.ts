@@ -75,13 +75,16 @@ test("the New book dialog is announced as a dialog and keeps VoiceOver inside it
   // Move VoiceOver into the page first: with a modal open, Guidepup's helper cannot reach the web content (the dialog
   // traps focus and hides the page, so VoiceOver's item chooser never settles). Then open the dialog and listen.
   await capped("navigateToWebContent", voiceOver.navigateToWebContent(), NAVIGATE_MS);
-  await capped("clearSpokenPhraseLog", voiceOver.clearSpokenPhraseLog());
   await page.getByRole("button", { name: "New project" }).click();
   await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
-  // VoiceOver follows the focus into the dialog and announces it; give it time to finish speaking.
+  // VoiceOver follows the focus into the dialog. Its log only fills for commands the test sends, so read what it last
+  // said, then step back from the focused field to the dialog's name and role.
   await page.waitForTimeout(4000);
-  const opened = (await capped("spokenPhraseLog", voiceOver.spokenPhraseLog())).join("\n");
-  expect(opened, "opening the dialog announces its name").toMatch(/New book/);
+  const first = await capped("lastSpokenPhrase", voiceOver.lastSpokenPhrase());
+  const before = await walk(voiceOver, "previous", 6, /dialog/i);
+  const opened = [first, ...before].join("\n");
+  expect(opened, "VoiceOver follows focus into the dialog").toMatch(/Title|New book/);
+  expect(opened, "the dialog's name is read").toMatch(/New book/);
   expect(opened, "VoiceOver says it is a dialog").toMatch(/dialog/i);
   // Walking on stays inside the dialog and every control has a name.
   const walked = await walk(voiceOver, "next", 12);
