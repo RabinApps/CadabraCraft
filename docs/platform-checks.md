@@ -30,7 +30,7 @@ The CI smoke test (`packages/export-docx/src/__tests__/libreoffice.test.ts`, Lin
 
 ## Accessibility passes
 
-Part of the WCAG 2.2 AA target in [accessibility.md](accessibility.md). Nothing below has been run by a person yet: the machine that prepared it had no Windows, Linux, NVDA, Orca or Windows High Contrast, and macOS VoiceOver cannot be started without changing a system accessibility setting. The automated specs are listed first so a tester does not repeat them by hand; everything after that needs a person.
+Part of the WCAG 2.2 AA target in [accessibility.md](accessibility.md). Nothing below has been run by a person yet: the machine that prepared it had no Windows, Linux, NVDA, Orca or Windows High Contrast, and that machine could not start macOS VoiceOver without a setup that changes system accessibility settings. Since then VoiceOver has been set up on the author's Mac and a Guidepup suite drives it (`pnpm --filter @cadabracraft/desktop test:voiceover`, see [accessibility.md](accessibility.md), "Real VoiceOver"); it checks names and roles on the web build in WebKit, not the Tauri window and not how speech sounds, so the macOS section below is still a person's pass. The automated specs are listed first so a tester does not repeat them by hand; everything after that needs a person.
 
 ### What is automated (do not redo by hand)
 
