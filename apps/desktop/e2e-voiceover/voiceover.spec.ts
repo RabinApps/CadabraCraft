@@ -15,13 +15,15 @@ interface Reader {
 }
 
 const STEP_MS = 10_000;
+/** Moving VoiceOver into the browser's web content is slow: it takes 10 to 20 s on the first run. */
+const NAVIGATE_MS = 45_000;
 
-async function capped<T>(what: string, work: Promise<T>): Promise<T> {
+async function capped<T>(what: string, work: Promise<T>, limit = STEP_MS): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const stuck = new Promise<never>((_, reject) => {
     timer = setTimeout(
-      () => reject(new Error(`VoiceOver did not finish "${what}" in ${STEP_MS} ms`)),
-      STEP_MS,
+      () => reject(new Error(`VoiceOver did not finish "${what}" in ${limit} ms`)),
+      limit,
     );
   });
   try {
@@ -47,7 +49,7 @@ async function walk(vo: Reader, direction: "next" | "previous", steps: number, u
 const bareRole = (lines: string[]) =>
   lines.filter((l) => /^\s*(button|pop up button|check box|switch|edit text|link)\s*$/i.test(l));
 
-test.setTimeout(90_000);
+test.setTimeout(150_000);
 
 test("the home screen is announced with a heading and named buttons", async ({
   page,
@@ -56,7 +58,7 @@ test("the home screen is announced with a heading and named buttons", async ({
   await fakeTauri(page);
   await page.goto("/");
   await expect(page.getByRole("button", { name: "New project" })).toBeVisible();
-  await capped("navigateToWebContent", voiceOver.navigateToWebContent());
+  await capped("navigateToWebContent", voiceOver.navigateToWebContent(), NAVIGATE_MS);
   const said = await walk(voiceOver, "next", 15);
   expect(said.join("\n")).toMatch(/heading/i);
   expect(said.join("\n")).toMatch(/New project/);
@@ -71,7 +73,7 @@ test("the New book dialog is announced as a dialog and keeps VoiceOver inside it
   await page.goto("/");
   await page.getByRole("button", { name: "New project" }).click();
   await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
-  await capped("navigateToWebContent", voiceOver.navigateToWebContent());
+  await capped("navigateToWebContent", voiceOver.navigateToWebContent(), NAVIGATE_MS);
   // VoiceOver starts on the focused field, below the dialog's title: go back until the name is heard.
   const before = await walk(voiceOver, "previous", 10, /New book/);
   const after = await walk(voiceOver, "next", 10);
