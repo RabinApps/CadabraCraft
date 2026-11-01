@@ -110,7 +110,13 @@ function ReadingChapter({
     editable: false,
     content: page.doc,
     editorProps: {
-      attributes: { lang: look.language, dir: dirFor(look.language), "aria-label": page.title },
+      // Read-only text is a document, not a textbox: TipTap's default role made VoiceOver say "edit text" for each chapter.
+      attributes: {
+        role: "document",
+        lang: look.language,
+        dir: dirFor(look.language),
+        "aria-label": page.title,
+      },
     },
   });
   const onLayout = useCallback(

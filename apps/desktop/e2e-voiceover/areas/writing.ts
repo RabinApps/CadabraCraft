@@ -150,8 +150,12 @@ const readMode: Area = {
     await enter();
 
     // The read-only text is plain web content: the chapter heading, then its paragraphs, in order.
-    const toHeading = await find(/heading.*Chapter One|Chapter One.*heading/i, 45);
-    expect(toHeading.at(-1)).toMatch(/heading/i);
+    // Each chapter is a document with its own name; the text is read on the first step inside it.
+    const toHeading = await find(/Chapter One.*(region|document)|Chapter One quiet/i, 45);
+    expect(toHeading.join("\n")).toMatch(/Chapter One/);
+    expect(toHeading.join("\n"), "read-only text is not announced as editable").not.toMatch(
+      /edit text/i,
+    );
     const body = await walk("next", 2);
     expect(body.join("\n")).toMatch(/quiet|garden|river|stone|letter|morning|lantern|orchard/);
 

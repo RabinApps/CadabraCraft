@@ -18,6 +18,8 @@ export const settingsScreen: Area = {
 
     // Top of the screen: back button, the level-1 heading, the section nav, then Appearance and General.
     const said = await walk("next", 42, /Check for updates on launch/);
+    // VoiceOver reads the label first and the switch itself on the next step.
+    said.push(...(await walk("next", 3)));
     const text = said.join("\n");
     expect(text).toMatch(/heading.*Settings|Settings.*heading/i);
     expect(text).toMatch(/Appearance/);
@@ -31,7 +33,7 @@ export const settingsScreen: Area = {
     expect(text).toMatch(/Interface language/);
     expect(text).toMatch(/pop up button|combo ?box/i);
     // A switch is announced with its name and its state (on for "Check for updates on launch").
-    const updates = said.find((l) => /Check for updates on launch/.test(l));
+    const updates = said.find((l) => /Check for updates on launch/.test(l) && /switch/i.test(l));
     expect(updates, `no phrase named the updates switch:\n${text}`).toBeDefined();
     expect(updates).toMatch(/switch/i);
     expect(updates).toMatch(/\b(on|1|checked)\b/i);

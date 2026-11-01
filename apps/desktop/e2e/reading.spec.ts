@@ -273,3 +273,12 @@ test("a large book mounts only the chapters near the viewport", async ({ page })
   expect(await mounted()).toBeLessThanOrEqual(10);
   expect(await mounted()).toBeGreaterThan(0);
 });
+
+test("read-only chapter text is a named document, not a textbox", async ({ page }) => {
+  await newProject(page);
+  await read(page);
+  const text = sections(page).first().locator(".ProseMirror");
+  await expect(text).toHaveAttribute("role", "document");
+  await expect(text).toHaveAttribute("aria-label", "Chapter One");
+  await expect(page.getByRole("textbox", { name: "Chapter One" })).toHaveCount(0);
+});
