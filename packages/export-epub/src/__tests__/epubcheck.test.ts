@@ -191,6 +191,39 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
   );
 
   it(
+    "validates a contents page with a custom entry that targets a heading and entries with blank titles",
+    () => {
+      const h = (level: number, text: string) => ({
+        type: "heading",
+        attrs: { level },
+        content: [{ type: "text", text }],
+      });
+      const d = (...content: object[]) => ({ type: "doc", content }) as typeof doc;
+      const chapters = [
+        {
+          id: "toc",
+          title: "Contents",
+          doc: d(h(1, "Contents")),
+          section: "front",
+          kind: "contents",
+        },
+        { id: "ch-1", title: "One", doc: d(h(1, "One"), h(2, "Storm"), h(2, "Calm")) },
+      ] as Parameters<typeof buildEpub>[1];
+      const contents = [
+        { kind: "page", entryId: "ch-1", level: 0, title: "  " },
+        { kind: "heading", entryId: "ch-1", level: 1, title: "", index: 1 },
+        { kind: "custom", entryId: "ch-1", level: 0, title: "", targetIndex: 1 },
+        { kind: "custom", entryId: "ch-1", level: 0, title: "Jump to calm", targetIndex: 2 },
+        { kind: "custom", level: 0, title: "" },
+      ] as NonNullable<Parameters<typeof buildEpub>[2]>["contents"];
+      expect(
+        check("contents-target-blank.epub", buildEpub(metaOf("en"), chapters, { contents })),
+      ).toContain("No errors or warnings detected");
+    },
+    JVM_TIMEOUT,
+  );
+
+  it(
     "validates the retail metadata: publisher, description, subjects, rights, date and a series",
     () => {
       const retail = {

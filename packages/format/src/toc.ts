@@ -12,7 +12,10 @@
  * Types
  *   TocItem { key; kind: "page"|"heading"|"custom"; entryId?; level (0 page, 1-3 heading); title; renamed; hidden;
  *             index? (heading: position in the chapter's outline, for editor jumps); page? (printed number text);
- *             stale? (custom entry whose `after` or `target` no longer resolves) }
+ *             stale? (custom entry whose `after` or `target` no longer resolves; an `after` that is the entry itself, part of a loop of
+ *                     custom entries or a chain ending at a missing key counts as unresolved: the entry goes last);
+ *             targetIndex? (custom entry whose `target` is a heading in the same resolved list, hidden-by-override ones included: that
+ *                     heading's `index`; unset for page targets and for missing or beyond-depth headings) }
  *   StaleOverride { kind: "hidden"|"title"|"order"|"custom"; key; field?: "after"|"target" (custom only) }
  *   TocPageStart = { id: string; number: string }    (structurally a PageStart from export-pdf)
  *   Outlines = Record<entryId, OutlineItem[]>        (extractOutline of the chapter in the language being resolved)
@@ -22,7 +25,9 @@
  *   TOC_UNLISTED_KINDS: readonly MatterKind[]                    kinds the list leaves out (title page, copyright, dedication, epigraph, colophon)
  *   tocSettingsOf(entry): TocSettings                            entry.toc or DEFAULT_TOC
  *   resolveToc(manifest, entry, language, outlines): TocItem[]   every item in display order, hidden ones included (flag `hidden`);
- *                                                                excludes contents pages and TOC_UNLISTED_KINDS; headings only up to depth
+ *                                                                excludes contents pages and TOC_UNLISTED_KINDS; headings only up to depth.
+ *                                                                A blank title (empty or whitespace) counts as missing: language override, entry title in
+ *                                                                the language, source override, source title, finally the entry id
  *   visibleTocItems(items): TocItem[]                            drops hidden items (what an exporter writes)
  *   attachPages(items, starts, headingPages?): TocItem[]         sets `page` from entry starts (by id) and heading numbers (by key);
  *                                                                a custom entry takes its `target`'s number; missing or "" leaves `page` unset
@@ -76,6 +81,8 @@ export interface TocItem {
   target?: string;
   /** Printed page number text, set by `attachPages`. */
   page?: string;
+  /** Custom entries whose `target` is a heading in the same list (hidden ones included): that heading's `index`. */
+  targetIndex?: number;
   /** Custom entries only: `after` or `target` no longer resolves. */
   stale?: boolean;
 }
@@ -139,7 +146,14 @@ export function outlineKeys(entryId: string, outline: readonly OutlineItem[]): s
 
 // ---- resolving -------------------------------------------------------------------------------------
 
-/** Override for `key` in `language`, else the entry's own title in that language, else the source text. */
+const isBlank = (text: string | undefined): text is undefined | "" =>
+  text === undefined || text.trim() === "";
+
+/**
+ * Override for `key` in `language`, else the entry's own title in that language, else the source-language override, else the source
+ * text, else `id`. A blank (empty or whitespace-only) candidate counts as missing, so a row is never blank; only a non-blank
+ * override counts as a rename.
+ */
 function pickTitle(
   settings: TocSettings,
   key: string,
@@ -147,13 +161,15 @@ function pickTitle(
   own: string | undefined,
   fallback: string,
   source: string,
+  id: string,
 ): { title: string; renamed: boolean } {
   const byLang = settings.titles[key];
   const over = byLang?.[language];
-  if (over !== undefined) return { title: over, renamed: true };
-  if (own !== undefined) return { title: own, renamed: false };
+  if (!isBlank(over)) return { title: over, renamed: true };
+  if (!isBlank(own)) return { title: own, renamed: false };
   const src = byLang?.[source];
-  return src === undefined ? { title: fallback, renamed: false } : { title: src, renamed: true };
+  if (!isBlank(src)) return { title: src, renamed: true };
+  return { title: isBlank(fallback) ? id : fallback, renamed: false };
 }
 
 function autoItems(
@@ -175,6 +191,7 @@ function autoItems(
       entry.titles[language],
       entry.titles[source]!,
       source,
+      entry.id,
     );
     items.push({
       key: entry.id,
@@ -195,13 +212,32 @@ function autoItems(
         kind: "heading",
         entryId: entry.id,
         level: h.level,
-        ...pickTitle(settings, key, language, h.text, h.text, source),
+        ...pickTitle(settings, key, language, h.text, h.text, source, entry.id),
         hidden: settings.hidden.includes(key),
         index: h.index,
       });
     });
   }
   return items;
+}
+
+/**
+ * Custom entries whose `after` leads nowhere: it is missing, or it follows other custom entries in a loop (itself included) or in a
+ * chain that ends at a missing key. `anchors` are the keys of the generated items.
+ */
+function danglingAfter(custom: readonly TocCustom[], anchors: ReadonlySet<string>): Set<string> {
+  const byKey = new Map(custom.map((c) => [customKey(c.id), c]));
+  const dangling = new Set<string>();
+  for (const c of custom) {
+    const seen = new Set<string>();
+    let at = c.after;
+    while (isCustomKey(at) && byKey.has(at) && !seen.has(at)) {
+      seen.add(at);
+      at = byKey.get(at)!.after;
+    }
+    if (!anchors.has(at)) dangling.add(customKey(c.id));
+  }
+  return dangling;
 }
 
 /** Puts each custom entry after the item it follows (after the customs already there); the ones that cannot be placed go last. */
@@ -213,6 +249,7 @@ function insertCustom(
 ): TocItem[] {
   const result = [...auto];
   const keys = new Set(auto.map((i) => i.key));
+  const dangling = danglingAfter(settings.custom, keys);
   for (const c of settings.custom) keys.add(customKey(c.id));
   const build = (c: TocCustom, level: number): TocItem => {
     const target = c.target;
@@ -222,11 +259,12 @@ function insertCustom(
       kind: "custom",
       ...(targetItem?.entryId === undefined ? {} : { entryId: targetItem.entryId }),
       ...(target === undefined ? {} : { target }),
+      ...(targetItem?.kind === "heading" ? { targetIndex: targetItem.index! } : {}),
       level,
       title: c.titles[language] ?? c.titles[source] ?? Object.values(c.titles)[0]!,
       renamed: false,
       hidden: settings.hidden.includes(customKey(c.id)),
-      stale: !keys.has(c.after) || (target !== undefined && !keys.has(target)),
+      stale: dangling.has(customKey(c.id)) || (target !== undefined && !keys.has(target)),
     };
   };
   let pending = [...settings.custom];
@@ -318,6 +356,10 @@ export function attachPages(
 export function staleOverrides(entry: EditionEntry, items: readonly TocItem[]): StaleOverride[] {
   const settings = tocSettingsOf(entry);
   const keys = new Set(items.map((i) => i.key));
+  const dangling = danglingAfter(
+    settings.custom,
+    new Set(items.filter((i) => i.kind !== "custom").map((i) => i.key)),
+  );
   const out: StaleOverride[] = [];
   for (const key of settings.hidden) if (!keys.has(key)) out.push({ kind: "hidden", key });
   for (const key of Object.keys(settings.titles))
@@ -325,7 +367,7 @@ export function staleOverrides(entry: EditionEntry, items: readonly TocItem[]): 
   for (const key of settings.order ?? []) if (!keys.has(key)) out.push({ kind: "order", key });
   for (const c of settings.custom) {
     const key = customKey(c.id);
-    if (!keys.has(c.after)) out.push({ kind: "custom", key, field: "after" });
+    if (dangling.has(key)) out.push({ kind: "custom", key, field: "after" });
     if (c.target !== undefined && !keys.has(c.target))
       out.push({ kind: "custom", key, field: "target" });
   }

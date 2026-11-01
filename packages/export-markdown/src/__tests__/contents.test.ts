@@ -115,6 +115,30 @@ describe("Markdown contents page", () => {
     );
   });
 
+  it("links a custom entry to the heading its target points at, in one document and in files", () => {
+    const items: MarkdownContentsItem[] = [
+      { kind: "custom", level: 0, title: "Again", entryId: "ch-1", targetIndex: 3 },
+      { kind: "custom", level: 0, title: "Top", entryId: "ch-1" },
+    ];
+    expect(tocOf(chaptersToMarkdown(book, pages(), {}, { items }))).toBe(
+      "# Contents\n\n- [Again](#storm-1)\n- [Top](#one)\n",
+    );
+    const files = { toc: "0.md", "ch-1": "1.md", "ch-2": "2.md", bm: "3.md" };
+    expect(tocOf(chaptersToMarkdown(book, pages(), {}, { items, files }))).toBe(
+      "# Contents\n\n- [Again](1.md#storm-1)\n- [Top](1.md#one)\n",
+    );
+  });
+
+  it("never writes an empty label: a blank title becomes the entry id", () => {
+    const items: MarkdownContentsItem[] = [
+      { kind: "page", level: 0, title: " ", entryId: "ch-1" },
+      { kind: "custom", level: 0, title: "" },
+    ];
+    expect(tocOf(chaptersToMarkdown(book, pages(), {}, { items }))).toBe(
+      "# Contents\n\n- [ch-1](#one)\n- (untitled)\n",
+    );
+  });
+
   it("slugs special characters and other languages like GitHub does", () => {
     const chapters: MarkdownChapter[] = [
       { id: "toc", title: "Inhalt", doc: doc(h(1, "Inhalt")), kind: "contents", section: "front" },

@@ -22,6 +22,7 @@ vi.mock("../../../lib/bridge", async () =>
   }),
 );
 
+import type { DocNode } from "@cadabracraft/shared";
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;
@@ -92,5 +93,54 @@ describe("a book with a contents page", () => {
     typst.sources = [];
     await a().measureChapter(s().manifest!.chapters[0]!.id); // one page alone: no list
     expect(typst.sources.at(-1)).not.toContain("toc-list(");
+  });
+});
+
+describe("a translation edition with an untranslated chapter", () => {
+  const first = () => s().manifest!.chapters[0]!.titles.fr!;
+  beforeEach(async () => {
+    await a().addLanguage("fr", "copy");
+    // Translate the contents page and the first chapter (saving text in an edition marks the page translated).
+    for (const id of [s().manifest!.frontMatter[0]!.id, s().manifest!.chapters[0]!.id]) {
+      await a().selectChapter(id);
+      a().setDraft({
+        type: "doc",
+        content: [heading(1, "Ouverture"), heading(2, "Sous")] as DocNode[],
+      });
+      await a().saveCurrent(s().draft!);
+    }
+    await a().setLanguage("en");
+    await a().add("Two"); // untranslated in French: left out when the edition skips it
+  });
+  it("is refused unless skipped, and the list then names only the pages exported", async () => {
+    await expect(a().exportMarkdown({ htmlMarks: false, language: "fr" })).rejects.toThrow(
+      /not translated/,
+    );
+    await a().exportMarkdown({ htmlMarks: false, language: "fr", skipUntranslated: true });
+    const md = text("exports/fr/book.md");
+    expect(md).toContain(`[${first()}](#`);
+    expect(md).not.toContain("Two");
+    // The English edition has the chapter, so the list does too.
+    await a().exportMarkdown({ htmlMarks: false });
+    expect(text("exports/en/book.md")).toContain("[Two](#");
+  });
+  it("leaves it out of the EPUB, the Rich Text manuscript and the PDF list as well", async () => {
+    await a().exportEpub({ language: "fr", skipUntranslated: true });
+    const files = unzipSync(written.get("exports/fr/book.epub")!);
+    const id = s().manifest!.frontMatter[0]!.id;
+    expect(strFromU8(files[`OEBPS/${id}.xhtml`]!)).not.toContain("Two");
+    expect(strFromU8(files["OEBPS/nav.xhtml"]!)).not.toContain("Two");
+    await a().exportRtf({ font: "times", language: "fr", skipUntranslated: true });
+    expect(text("exports/fr/manuscript.rtf")).not.toContain("Two");
+    typst.sources = [];
+    await a().exportPdf({
+      trimSize: "5.5x8.5",
+      pdfA: false,
+      template: "novel",
+      language: "fr",
+      skipUntranslated: true,
+    });
+    expect(typst.sources.at(-1)).toContain(`title: "${first()}"`);
+    expect(typst.sources.at(-1)).not.toContain('title: "Two"');
   });
 });

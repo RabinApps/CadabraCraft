@@ -76,24 +76,24 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
   const gather = createTypstBook(ctx);
   /** The last measure of each thing measured (the whole book, with or without marks, or a page by its id): the last result is reused while the book is the same. */
   const measured = new Map<string, { key: string; report: PageReport }>();
-  const measure = async (only?: string, marks = true): Promise<PageReport> => {
-    try {
-      // The open page's text is in the draft until it is saved, so measure that instead of the file.
-      const {
-        templateId,
-        edition,
-        chapters,
-        trimSize,
-        fonts,
-        toc,
-        assets: load,
-      } = await gather(only);
-      const key = contentHash(
-        JSON.stringify([templateId, trimSize, fonts, edition.title, chapters, toc]),
-      );
-      const slot = only ?? (marks ? "book" : "book-plain");
-      const last = measured.get(slot);
-      if (last?.key === key) return last.report;
+  /** Measures running now, by slot and content: a second asker (the status bar and the contents preview) waits for the same run. */
+  const running = new Map<string, Promise<PageReport>>();
+  /** Typst's page report for a book as `gather` returned it; one Typst run per distinct content however many callers ask. */
+  const measureBook = async (
+    book: Awaited<ReturnType<typeof gather>>,
+    slot: string,
+    marks: boolean,
+  ): Promise<PageReport> => {
+    const { templateId, edition, chapters, trimSize, fonts, toc, assets: load } = book;
+    const key = contentHash(
+      JSON.stringify([templateId, trimSize, fonts, edition.title, edition.language, chapters, toc]),
+    );
+    const last = measured.get(slot);
+    if (last?.key === key) return last.report;
+    const id = `${slot}\n${key}`;
+    const under = running.get(id);
+    if (under) return under;
+    const run = (async () => {
       const assets = await load();
       const report = await measurePages(
         { title: edition.title, author: edition.author, language: edition.language },
@@ -115,13 +115,25 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
       );
       measured.set(slot, { key, report });
       return report;
+    })();
+    running.set(id, run);
+    try {
+      return await run;
+    } finally {
+      running.delete(id);
+    }
+  };
+  const measure = async (only?: string, marks = true): Promise<PageReport> => {
+    try {
+      // The open page's text is in the draft until it is saved, so measure that instead of the file.
+      return await measureBook(await gather(only), only ?? (marks ? "book" : "book-plain"), marks);
     } catch (e) {
       throw describePdfError(e);
     }
   };
   return {
     ...createPreviewActions(ctx, gather),
-    ...createContentsPreviewActions(ctx, gather),
+    ...createContentsPreviewActions(ctx, gather, (book) => measureBook(book, "book-plain", false)),
     measurePages: (options) => measure(undefined, options?.marks ?? false),
     measureChapter: (id) => measure(id),
     async exportEpub(scope) {

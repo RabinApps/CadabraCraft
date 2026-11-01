@@ -60,6 +60,54 @@ describe("bookContents", () => {
   });
 });
 
+describe("bookContents with pages left out of the export", () => {
+  function twoChapters() {
+    const base = addChapter(book(), "Two").manifest;
+    let { manifest } = addFrontMatter(base, "contents", "Contents");
+    const toc = manifest.frontMatter[0]!.id;
+    const [one, two] = manifest.chapters.map((c) => c.id) as [string, string];
+    manifest = addTocCustom(setTocDepth(manifest, toc, 1), toc, {
+      language: "en",
+      title: "Afterword",
+      after: two,
+      target: two,
+    }).manifest;
+    return { manifest, toc, one, two };
+  }
+  it("lists only the pages in the export, headings included", () => {
+    const { manifest, toc, one, two } = twoChapters();
+    const pages = [
+      { id: toc, doc: doc() },
+      { id: one, doc: doc([1, "Alpha"]) },
+    ];
+    const list = bookContents(manifest, "en", pages)!;
+    expect(list.all.filter((i) => i.kind !== "custom").map((i) => i.entryId)).toEqual([one, one]);
+    expect(list.all.some((i) => i.entryId === two)).toBe(false);
+    // The custom entry stays (its text is the author's) but no longer links to a page that is not there.
+    const custom = list.all.find((i) => i.kind === "custom")!;
+    expect(custom.title).toBe("Afterword");
+    expect(custom.entryId).toBeUndefined();
+    expect(custom.target).toBe(two);
+    expect(list.visible).toEqual(list.all);
+  });
+  it("keeps a custom entry that points at an exported page linked", () => {
+    const { manifest, toc, one, two } = twoChapters();
+    const pages = [toc, one, two].map((id) => ({ id, doc: doc() }));
+    const custom = bookContents(manifest, "en", pages)!.all.find((i) => i.kind === "custom")!;
+    expect(custom.entryId).toBe(two);
+  });
+  it("keeps a custom entry that has no target", () => {
+    const { manifest: base, toc, one } = twoChapters();
+    const manifest = addTocCustom(base, toc, {
+      language: "en",
+      title: "Note",
+      after: one,
+    }).manifest;
+    const pages = [toc, one].map((id) => ({ id, doc: doc() }));
+    expect(bookContents(manifest, "en", pages)!.all.map((i) => i.title)).toContain("Note");
+  });
+});
+
 describe("withContentsList", () => {
   it("appends one paragraph per visible entry to the contents page only", () => {
     let { manifest } = addFrontMatter(book(), "contents", "Contents");

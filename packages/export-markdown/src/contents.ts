@@ -14,6 +14,8 @@ export interface MarkdownContentsItem {
   title: string;
   /** Headings: position among the page's headings (`OutlineItem.index` of `extractOutline`). */
   index?: number;
+  /** A custom entry: `OutlineItem.index` of the heading its target points at (on `entryId`), when it is a heading. */
+  targetIndex?: number;
   /** Hidden items are skipped, so a full `resolveToc` result can be passed too. */
   hidden?: boolean;
 }
@@ -99,7 +101,9 @@ export function contentsMarkdown(
   const href = (item: MarkdownContentsItem): string | undefined => {
     const page = item.entryId === undefined ? undefined : pages.get(item.entryId);
     if (page === undefined) return undefined;
-    const at = item.kind === "heading" && item.index !== undefined ? item.index + page.added : 0;
+    const heading =
+      item.kind === "heading" ? item.index : item.kind === "custom" ? item.targetIndex : undefined;
+    const at = heading !== undefined ? heading + page.added : 0;
     const slug = page.anchors[at] ?? "";
     if (contents.files === undefined) return slug === "" ? undefined : `#${slug}`;
     if (page.file === undefined) return undefined;
@@ -108,7 +112,7 @@ export function contentsMarkdown(
   const lines: string[] = [];
   const render = (nodes: Node[], depth: number) => {
     for (const { item, kids } of nodes) {
-      const title = item.title.replace(/\s+/g, " ").trim();
+      const title = item.title.replace(/\s+/g, " ").trim() || item.entryId?.trim() || "(untitled)";
       const target = href(item);
       const label =
         target === undefined

@@ -88,6 +88,28 @@ describe("renderContentsPreview", () => {
     expect(typst.compiles[1]).toContain('title: "Renamed"');
   });
 
+  it("takes the page range from the status bar's measure of the same text instead of measuring again", async () => {
+    await a().addMatter("front", "contents");
+    await a().measurePages();
+    expect(typst.queries).toHaveLength(1);
+    await a().renderContentsPreview();
+    expect(typst.queries).toHaveLength(1);
+    expect(typst.compiles).toHaveLength(1);
+    // The other way round: a measure after the preview finds the report the preview left.
+    await a().measurePages();
+    expect(typst.queries).toHaveLength(1);
+  });
+
+  it("runs one measure when the status bar and the preview ask at the same time, and again only when the text changes", async () => {
+    await a().addMatter("front", "contents");
+    const id = s().manifest!.frontMatter[0]!.id;
+    await Promise.all([a().measurePages(), a().renderContentsPreview(), a().measurePages()]);
+    expect(typst.queries).toHaveLength(1);
+    await a().renameTocItem(id, s().manifest!.chapters[0]!.id, "Another");
+    await Promise.all([a().renderContentsPreview(), a().measurePages()]);
+    expect(typst.queries).toHaveLength(2);
+  });
+
   it("keeps the last few results, most recently used last", async () => {
     await a().addMatter("front", "contents");
     const id = s().manifest!.frontMatter[0]!.id;

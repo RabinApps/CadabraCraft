@@ -151,6 +151,32 @@ describe("EPUB contents page", () => {
     expect(text(f, "OEBPS/toc.xhtml")).not.toContain('href="ch-1.xhtml">One<');
   });
 
+  it("links a custom entry to the heading its target points at, else to the page", () => {
+    const items: ContentsItem[] = [
+      { kind: "custom", level: 0, title: "Calm", entryId: "ch-1", targetIndex: 3 },
+      { kind: "custom", level: 0, title: "Top", entryId: "ch-1" },
+    ];
+    const f = files(book(), items);
+    expect(navList(f)).toContain(
+      '<li><a href="ch-1.xhtml#h-3">Calm</a></li><li><a href="ch-1.xhtml">Top</a></li>',
+    );
+    expect(text(f, "OEBPS/ch-1.xhtml")).toContain('id="h-3"');
+  });
+
+  it("never writes an empty link or span: a blank title becomes the entry id", () => {
+    const items: ContentsItem[] = [
+      { ...page("ch-1", "  ") },
+      { kind: "custom", level: 0, title: "", entryId: "nowhere" },
+      { kind: "custom", level: 0, title: "" },
+    ];
+    const f = files(book(), items);
+    expect(navList(f)).toContain('<a href="ch-1.xhtml">ch-1</a>');
+    const inBook = text(f, "OEBPS/toc.xhtml");
+    expect(inBook).toContain("<span>nowhere</span>");
+    expect(inBook).toContain("<span>(untitled)</span>");
+    expect(inBook).not.toMatch(/<a [^>]*><\/a>|<span><\/span>/);
+  });
+
   it("leaves entries that point at a page that is not in the book unlinked (stale overrides ignored)", () => {
     const f = files(book(), [page("gone", "Removed chapter"), page("ch-1", "One")]);
     expect(text(f, "OEBPS/toc.xhtml")).toContain("<li><span>Removed chapter</span></li>");

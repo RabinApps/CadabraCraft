@@ -1,3 +1,4 @@
+import { starterTitle } from "@cadabracraft/format";
 import { countWords, textDirection, type ChapterDoc, type Section } from "@cadabracraft/shared";
 import { blockRtf } from "./blocks";
 import { RtfExportError } from "./errors";
@@ -138,7 +139,14 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
     )
       body.push(
         para(
-          textRuns(checkText(c.title.trim() || "Contents", ctx, "The contents title"), ""),
+          textRuns(
+            checkText(
+              c.title.trim() || starterTitle("contents", language),
+              ctx,
+              "The contents title",
+            ),
+            "",
+          ),
           heading,
           ctx,
         ),
@@ -152,7 +160,11 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
     if (c.kind === "contents" && options.contents !== undefined) {
       for (const item of options.contents) {
         if (item.hidden === true) continue;
-        const line = checkText(item.title, ctx, "A contents entry");
+        const line = checkText(
+          item.title.trim() === "" ? item.entryId?.trim() || "(untitled)" : item.title,
+          ctx,
+          "A contents entry",
+        );
         body.push(
           para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * item.level }, ctx),
         );

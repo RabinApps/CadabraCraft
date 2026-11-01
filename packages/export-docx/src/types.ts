@@ -25,6 +25,10 @@ export interface DocxContentsItem {
   /** 0 for a page, 1-3 for a heading; each level indents the line by half an inch. */
   level: number;
   title: string;
+  /** The page the item is on; a blank title is written as this id. */
+  entryId?: string;
+  /** A custom entry: `OutlineItem.index` of the heading its target points at (not used: titles only). */
+  targetIndex?: number;
   /** Hidden items are skipped, so a full `resolveToc` result can be passed too. */
   hidden?: boolean;
 }

@@ -141,6 +141,25 @@ describe("DOCX contents page", () => {
     expect(lines(xml(named, [item(0, "One")])).map((l) => l.text)).toContain("Inhalt");
   });
 
+  it("uses the translated contents word for an untitled page, and 'Contents' for a language with none", () => {
+    const untitled = [toc({ title: " ", doc: doc(p("intro")) }), ...pages().slice(1)];
+    expect(lines(xml(untitled, [item(0, "One")], "it")).map((l) => l.text)).toContain("Indice");
+    expect(lines(xml(untitled, [item(0, "One")], "sv")).map((l) => l.text)).toContain("Contents");
+  });
+
+  it("writes a blank title as the entry id, or a placeholder, never an empty line", () => {
+    const blank = [
+      { level: 0, title: "  ", entryId: " ch-1 " },
+      { level: 1, title: "", targetIndex: 2 },
+      { level: 0, title: "", entryId: " " },
+    ];
+    expect(
+      after(xml(pages(), blank), "Contents")
+        .slice(0, 3)
+        .map((l) => l.text),
+    ).toEqual(["ch-1", "(untitled)", "(untitled)"]);
+  });
+
   it("is unchanged without contents (the page is written like any other)", () => {
     const withPage = xml(pages());
     expect(after(withPage, "Contents")[0]!.text).toBe("One");

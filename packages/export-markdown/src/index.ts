@@ -66,8 +66,8 @@ export function chaptersToMarkdown(
   let offset = opts.footnoteOffset ?? 0;
   const docs = readingOrder(chapters).map((c) => {
     const title = c.title.trim();
-    const added = !title || startsWithTitle(c.doc);
-    const doc: ChapterDoc = added
+    const noTitleAdded = !title || startsWithTitle(c.doc);
+    const doc: ChapterDoc = noTitleAdded
       ? c.doc
       : {
           type: "doc",
@@ -76,7 +76,7 @@ export function chaptersToMarkdown(
             ...c.doc.content,
           ],
         };
-    return { c, doc, added: added ? 0 : 1 };
+    return { c, doc, added: noTitleAdded ? 0 : 1 };
   });
   const pages = new Map<string, ContentsPage>();
   if (contents !== undefined) {

@@ -871,3 +871,141 @@ describe("edit helpers", () => {
     expect(resolve(again, toc)).toEqual(resolve(n, toc));
   });
 });
+
+describe("custom `after` chains", () => {
+  const withCustom = (m: Manifest, toc: string, custom: TocSettings["custom"]): Manifest => ({
+    ...m,
+    frontMatter: m.frontMatter.map((e) =>
+      e.id === toc ? { ...e, toc: { ...tocSettingsOf(e), custom } } : e,
+    ),
+  });
+  const c = (id: string, after: string) => ({ id, titles: { en: id }, after });
+  const run = (custom: TocSettings["custom"]) => {
+    const { m, toc, ch } = book();
+    const t = withCustom(m, toc, custom);
+    const items = resolve(t, toc);
+    return { items, ch, stale: staleOverrides(entryOf(t, toc), items) };
+  };
+
+  it("flags an entry that follows itself, and puts it last", () => {
+    const { items, stale } = run([c("c-1", "custom:c-1")]);
+    expect(items.at(-1)).toMatchObject({ key: "custom:c-1", stale: true, level: 0 });
+    expect(stale).toEqual([{ kind: "custom", key: "custom:c-1", field: "after" }]);
+  });
+  it("flags every entry of a 2-cycle and of a 3-cycle", () => {
+    for (const ids of [
+      ["c-1", "c-2"],
+      ["c-1", "c-2", "c-3"],
+    ]) {
+      const { items, stale } = run(
+        ids.map((id, i) => c(id, `custom:${ids[(i + 1) % ids.length]}`)),
+      );
+      expect(keysOf(items).slice(-ids.length)).toEqual(ids.map((id) => `custom:${id}`));
+      expect(items.slice(-ids.length).every((i) => i.stale === true)).toBe(true);
+      expect(stale.map((s) => s.key)).toEqual(ids.map((id) => `custom:${id}`));
+      expect(stale.every((s) => s.field === "after")).toBe(true);
+    }
+  });
+  it("keeps a chain that ends at a page fine", () => {
+    const { m, toc, ch } = book();
+    const t = withCustom(m, toc, [c("c-2", "custom:c-1"), c("c-1", ch[0]!)]);
+    const items = resolve(t, toc);
+    expect(keysOf(items).slice(0, 3)).toEqual([ch[0], "custom:c-1", "custom:c-2"]);
+    expect(items.filter((i) => i.kind === "custom").map((i) => i.stale)).toEqual([false, false]);
+    expect(staleOverrides(entryOf(t, toc), items)).toEqual([]);
+  });
+  it("flags a chain that ends at a missing key, whole chain last", () => {
+    const { items, stale } = run([c("c-1", "gone"), c("c-2", "custom:c-1")]);
+    expect(keysOf(items).slice(-2)).toEqual(["custom:c-1", "custom:c-2"]);
+    expect(items.slice(-2).map((i) => i.stale)).toEqual([true, true]);
+    expect(stale.map((s) => s.key)).toEqual(["custom:c-1", "custom:c-2"]);
+  });
+  it("does not let a cycle hide a later good entry", () => {
+    const { items } = run([c("c-1", "custom:c-1"), c("c-2", "ch-1")]);
+    expect(items.find((i) => i.key === "custom:c-2")).toMatchObject({ stale: false });
+  });
+});
+
+describe("blank titles", () => {
+  const withEn = (m: Manifest, id: string, title: string): Manifest => ({
+    ...m,
+    chapters: m.chapters.map((e) => (e.id === id ? { ...e, titles: { en: title } } : e)),
+  });
+  const setOver = (m: Manifest, toc: string, key: string, titles: Record<string, string>) => ({
+    ...m,
+    frontMatter: m.frontMatter.map((e) =>
+      e.id === toc ? { ...e, toc: { ...tocSettingsOf(e), titles: { [key]: titles } } } : e,
+    ),
+  });
+
+  it("falls back to the entry id when everything is blank", () => {
+    const { m, toc, ch } = book();
+    for (const blank of ["", "   "]) {
+      expect(resolve(withEn(m, ch[0]!, blank), toc)[0]).toMatchObject({
+        title: ch[0],
+        renamed: false,
+      });
+    }
+  });
+  it("ignores a blank override and keeps `renamed` false", () => {
+    const { m, toc, ch } = book();
+    const t = setOver(m, toc, ch[0]!, { en: "  " });
+    expect(resolve(t, toc)[0]).toMatchObject({ title: "One", renamed: false });
+  });
+  it("walks the chain: language override, own title, source override, source title", () => {
+    const { m, toc, ch } = book();
+    const de: Manifest = {
+      ...m,
+      editions: [...m.editions, { ...m.editions[0]!, language: "de" }],
+      chapters: m.chapters.map((e) =>
+        e.id === ch[0] ? { ...e, titles: { en: "One", de: " " } } : e,
+      ),
+    };
+    // blank German title, no override: source title
+    expect(resolve(de, toc, {}, "de")[0]).toMatchObject({ title: "One", renamed: false });
+    // ... with a source override: that wins and counts as a rename
+    const src = setOver(de, toc, ch[0]!, { en: "Prologue", de: "" });
+    expect(resolve(src, toc, {}, "de")[0]).toMatchObject({ title: "Prologue", renamed: true });
+    // a real German override beats everything
+    const over = setOver(de, toc, ch[0]!, { en: "Prologue", de: "Vorwort" });
+    expect(resolve(over, toc, {}, "de")[0]).toMatchObject({ title: "Vorwort", renamed: true });
+    // blank source title and blank source override: the id
+    const blank = setOver(withEn(de, ch[0]!, ""), toc, ch[0]!, { en: " " });
+    expect(resolve(blank, toc, {}, "en")[0]!.title).toBe(ch[0]);
+  });
+  it("falls back to the id for a blank heading", () => {
+    const { m, toc, ch } = book();
+    const t = setTocDepth(m, toc, 1);
+    const items = resolve(t, toc, { [ch[0]!]: [o(0, 1, "  ")] });
+    expect(items.find((i) => i.kind === "heading")).toMatchObject({ title: ch[0], renamed: false });
+  });
+  it("renameTocItem still refuses an empty custom title", () => {
+    const { m, toc } = book();
+    const r = addTocCustom(m, toc, { language: "en", title: "A", after: "x" });
+    expect(() => renameTocItem(r.manifest, toc, r.key, "en", "  ")).toThrow(/needs a title/);
+  });
+});
+
+describe("targetIndex", () => {
+  it("is the outline index of a heading target, hidden ones included", () => {
+    const { m, toc, ch } = book();
+    const outlines = { [ch[0]!]: [o(0, 1, "A"), o(3, 2, "B")] };
+    let t = setTocDepth(m, toc, 2);
+    const key = `${ch[0]}#2:b:0`;
+    t = addTocCustom(t, toc, { language: "en", title: "X", after: ch[0]!, target: key }).manifest;
+    t = hideTocItem(t, toc, key);
+    expect(resolve(t, toc, outlines).find((i) => i.kind === "custom")).toMatchObject({
+      targetIndex: 3,
+    });
+  });
+  it("is unset for page, missing and beyond-depth targets", () => {
+    const { m, toc, ch } = book();
+    const outlines = { [ch[0]!]: [o(0, 1, "A"), o(1, 2, "B")] };
+    const t0 = setTocDepth(m, toc, 1);
+    for (const target of [ch[1]!, "gone", `${ch[0]}#2:b:0`]) {
+      const t = addTocCustom(t0, toc, { language: "en", title: "X", after: ch[0]!, target });
+      const item = resolve(t.manifest, toc, outlines).find((i) => i.kind === "custom")!;
+      expect("targetIndex" in item).toBe(false);
+    }
+  });
+});

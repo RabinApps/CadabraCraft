@@ -71,19 +71,22 @@ export function printedNumber(
 }
 
 /**
- * Page numbers of the headings in a report made with page marks. A chapter's headings are its `h` marks in document order; they
- * are used only when there are as many as the outline has (otherwise the text moved since the measure and the marks cannot be
- * trusted). Keys are the contents item keys.
+ * Page numbers of the headings in a report made with page marks. A chapter's headings are its `h` marks in document order, empty
+ * headings included (the outline leaves those out but still counts them: `OutlineItem.index`), so an outline item takes the mark
+ * at its `index`. The marks are used only when there is one for every outline item (the outline cannot tell how many empty
+ * headings trail the last one, so that is the strictest check it allows); fewer means the text moved since the measure and the
+ * marks cannot be trusted. Keys are the contents item keys.
  */
 export function headingPageNumbers(report: PageReport, outlines: Outlines): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [id, outline] of Object.entries(outlines)) {
     const start = report.starts.find((s) => s.id === id);
     const marks = (report.blocks?.[id] ?? []).filter((b) => b.kind === "h");
-    if (!start || marks.length !== outline.length) continue;
+    if (!start || outline.length === 0 || marks.length <= outline[outline.length - 1]!.index)
+      continue;
     const keys = outlineKeys(id, outline);
-    marks.forEach((mark, i) => {
-      const number = printedNumber(start, mark.page);
+    outline.forEach((item, i) => {
+      const number = printedNumber(start, marks[item.index]!.page);
       if (number !== null) out[keys[i]!] = number;
     });
   }

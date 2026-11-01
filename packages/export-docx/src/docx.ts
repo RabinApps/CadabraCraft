@@ -1,4 +1,5 @@
 import { strToU8, zipSync } from "fflate";
+import { starterTitle } from "@cadabracraft/format";
 import { countWords, textDirection, type ChapterDoc, type Section } from "@cadabracraft/shared";
 import { blockXml } from "./blocks";
 import { NS_A, NS_PIC, NS_WP } from "./drawing";
@@ -181,7 +182,11 @@ export function buildDocx(
       options.contents !== undefined &&
       !nodes.some((n) => n.type === "heading")
     ) {
-      const heading = checkText(c.title.trim() || "Contents", ctx, "The contents title");
+      const heading = checkText(
+        c.title.trim() || starterTitle("contents", language),
+        ctx,
+        "The contents title",
+      );
       body.push(para(textRuns(heading, ""), { style: "Heading1", spaceBefore: 2880 }, ctx));
     }
     nodes.forEach((n, i) => {
@@ -193,7 +198,11 @@ export function buildDocx(
     if (c.kind === "contents" && options.contents !== undefined) {
       for (const item of options.contents) {
         if (item.hidden === true) continue;
-        const line = checkText(item.title, ctx, "A contents entry");
+        const line = checkText(
+          item.title.trim() === "" ? item.entryId?.trim() || "(untitled)" : item.title,
+          ctx,
+          "A contents entry",
+        );
         body.push(
           para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * item.level }, ctx),
         );

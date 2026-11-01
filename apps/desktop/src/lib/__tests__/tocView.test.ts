@@ -89,6 +89,32 @@ describe("headingPageNumbers", () => {
     expect(headingPageNumbers(r, outlines)).toEqual({});
     expect(headingPageNumbers(report([start("c1", 5, "1")]), outlines)).toEqual({});
   });
+  it("counts empty headings: the outline leaves them out, the marks do not", () => {
+    // Headings "A", "" and "B" of one chapter: the outline has indexes 0 and 2, the report three h marks.
+    const gap = {
+      c1: [
+        { index: 0, level: 1, text: "A" },
+        { index: 2, level: 1, text: "B" },
+      ],
+    };
+    const r = report([start("c1", 5, "1")], {
+      c1: [
+        { kind: "h", page: 5 },
+        { kind: "h", page: 5 },
+        { kind: "h", page: 7 },
+      ],
+    });
+    expect(headingPageNumbers(r, gap)).toEqual({ "c1#1:a:0": "1", "c1#1:b:0": "3" });
+    // Fewer marks than the last heading's position: the text moved since the measure.
+    const short = report([start("c1", 5, "1")], {
+      c1: [
+        { kind: "h", page: 5 },
+        { kind: "h", page: 5 },
+      ],
+    });
+    expect(headingPageNumbers(short, gap)).toEqual({});
+    expect(headingPageNumbers(r, { c1: [] })).toEqual({});
+  });
   it("skips a heading whose page number cannot be told", () => {
     const r = report([start("c2", 10, "x1")], { c2: [{ kind: "h", page: 10 }] });
     expect(headingPageNumbers(r, outlines)).toEqual({});

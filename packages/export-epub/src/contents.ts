@@ -14,9 +14,14 @@ export interface ContentsItem {
   title: string;
   /** Headings: position among the page's headings (`OutlineItem.index`), the target of the link. */
   index?: number;
+  /** A custom entry: `OutlineItem.index` of the heading its target points at (on `entryId`), when it is a heading. */
+  targetIndex?: number;
   /** Hidden items are skipped, so a full `resolveToc` result can be passed too. */
   hidden?: boolean;
 }
+
+/** Last-resort link text for an item with neither a title nor an entry id. */
+const UNTITLED = "(untitled)";
 
 interface Node {
   item: ContentsItem;
@@ -53,10 +58,16 @@ export function contentsList(
 ): string {
   const render = (nodes: Node[]): string => {
     const lines = nodes.flatMap(({ item, kids }) => {
-      const title = esc(item.title);
+      // Never an empty link or span: a blank title falls back to the entry id, then a placeholder.
+      const title = esc(item.title.trim() === "" ? item.entryId?.trim() || UNTITLED : item.title);
       const linked = item.entryId !== undefined && known.has(item.entryId);
-      const anchor =
-        item.kind === "heading" && item.index !== undefined ? `#${headingAnchor(item.index)}` : "";
+      const at =
+        item.kind === "heading"
+          ? item.index
+          : item.kind === "custom"
+            ? item.targetIndex
+            : undefined;
+      const anchor = at !== undefined ? `#${headingAnchor(at)}` : "";
       const label = linked
         ? `<a href="${item.entryId}.xhtml${anchor}">${title}</a>`
         : `<span>${title}</span>`;

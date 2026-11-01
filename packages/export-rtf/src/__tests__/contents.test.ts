@@ -106,6 +106,25 @@ describe("RTF contents page", () => {
     expect(paras(rtf(untitled, [item(0, "One")])).map((l) => l.text)).toContain("Contents");
   });
 
+  it("uses the translated contents word for an untitled page, and 'Contents' for a language with none", () => {
+    const untitled = [toc({ title: " ", doc: doc(p("intro")) }), ...pages().slice(1)];
+    expect(paras(rtf(untitled, [item(0, "One")], "it")).map((l) => l.text)).toContain("Indice");
+    expect(paras(rtf(untitled, [item(0, "One")], "sv")).map((l) => l.text)).toContain("Contents");
+  });
+
+  it("writes a blank title as the entry id, or a placeholder, never an empty line", () => {
+    const blank = [
+      { level: 0, title: "  ", entryId: " ch-1 " },
+      { level: 1, title: "", targetIndex: 2 },
+      { level: 0, title: "", entryId: " " },
+    ];
+    expect(
+      after(rtf(pages(), blank), "Contents")
+        .slice(0, 3)
+        .map((l) => l.text),
+    ).toEqual(["ch-1", "(untitled)", "(untitled)"]);
+  });
+
   it("is unchanged without contents, and only a page of kind contents gets the list", () => {
     expect(after(rtf(pages()), "Contents")[0]!.text).toBe("One");
     expect(rtf(pages(), undefined)).toBe(rtf(pages()));

@@ -537,6 +537,35 @@ test("Read mode shows the generated list on the Contents page", async ({ page })
   await expect(section).toContainText("Calm");
 });
 
+test("Read mode indents the nested entries of the generated list, one step deeper per level", async ({
+  page,
+}) => {
+  await threeChapters(page);
+  await openContents(page);
+  await depth(page, "+H1-H3");
+  await page.getByRole("radio", { name: "Read" }).click();
+  const section = page.locator("[data-reading-id]").first();
+  await expect(section).toContainText("Gulls");
+  // Where the text starts: the left edge of the entry's own characters, past any indent.
+  const left = (title: string) =>
+    section.evaluate((root, wanted) => {
+      for (const p of root.querySelectorAll("p")) {
+        const node = p.firstChild;
+        if (node?.nodeType !== Node.TEXT_NODE || node.textContent?.trim() !== wanted) continue;
+        const text = node.textContent!;
+        const range = document.createRange();
+        range.setStart(node, text.length - wanted.length);
+        range.setEnd(node, text.length);
+        return range.getBoundingClientRect().left - p.getBoundingClientRect().left;
+      }
+      throw new Error(`no entry ${wanted}`);
+    }, title);
+  const [h1, h2, h3] = [await left("Arrival"), await left("The harbour"), await left("Gulls")];
+  // (The page style may indent every paragraph's first line, so only the steps between levels are compared.)
+  expect(h2).toBeGreaterThan(h1 + 8);
+  expect(h3).toBeGreaterThan(h2 + 8);
+});
+
 for (const size of [
   { name: "phone", width: 390, height: 844 },
   { name: "tablet", width: 820, height: 1180 },
