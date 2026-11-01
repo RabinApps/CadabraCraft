@@ -1,91 +1,35 @@
 import { voiceOverTest as test } from "@guidepup/playwright";
-import { expect } from "@playwright/test";
 import { fakeTauri } from "../e2e/support/fakeTauri";
+import { home } from "./areas/home";
+import { makeCtx, type Area } from "./support";
 
 /**
- * What VoiceOver says on the screens that matter most. The phrases are VoiceOver's own wording (macOS version
- * dependent), so the assertions match the parts that carry the meaning: the name and the role. Every VoiceOver command
- * takes about a second, so each test keeps to a few dozen of them, and each one is capped so a stuck command fails the
- * test with a message instead of hanging the run.
+ * The VoiceOver suite: every area is a module in `areas/` that sets up its own screen, enters the page with VoiceOver and
+ * checks what VoiceOver says. One test runs all areas in turn, because a second test in the same run stalls
+ * `navigateToWebContent`. A failing area does not stop the others: the failures are collected and reported together.
+ * Set VO_AREA=<part of a name> to run only the matching areas.
  */
-interface Reader {
-  next: () => Promise<void>;
-  previous: () => Promise<void>;
-  lastSpokenPhrase: () => Promise<string>;
-}
+const areas: Area[] = [home];
 
-const STEP_MS = 10_000;
-/** Moving VoiceOver into the browser's web content is slow: it takes 10 to 20 s on the first run. */
-const NAVIGATE_MS = 45_000;
+test.setTimeout(20 * 60_000);
 
-async function capped<T>(what: string, work: Promise<T>, limit = STEP_MS): Promise<T> {
-  let timer: NodeJS.Timeout | undefined;
-  const stuck = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new Error(`VoiceOver did not finish "${what}" in ${limit} ms`)),
-      limit,
-    );
-  });
-  try {
-    return await Promise.race([work, stuck]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-/** Moves `steps` times in a direction and returns what was said after each move. */
-async function walk(vo: Reader, direction: "next" | "previous", steps: number, until?: RegExp) {
-  const said: string[] = [];
-  for (let i = 0; i < steps; i++) {
-    await capped(direction, vo[direction]());
-    const phrase = await capped("lastSpokenPhrase", vo.lastSpokenPhrase());
-    said.push(phrase);
-    if (until?.test(phrase)) break;
-  }
-  return said;
-}
-
-/** Lines that are a bare role: a control VoiceOver read without a name. */
-const bareRole = (lines: string[]) =>
-  lines.filter((l) => /^\s*(button|pop up button|check box|switch|edit text|link)\s*$/i.test(l));
-
-test.setTimeout(150_000);
-
-// One test, one navigation: a second navigateToWebContent in the same run stalls (the item chooser does not settle after
-// the first test's browser is closed), and with a modal open it cannot run at all (the dialog traps focus).
-test("the home screen and the New book dialog are announced with names and roles", async ({
-  page,
-  voiceOver,
-}) => {
+test("VoiceOver reads every screen with names and roles", async ({ page, voiceOver }) => {
   await fakeTauri(page);
-  await page.goto("/");
-  await expect(page.getByRole("button", { name: "New project" })).toBeVisible();
-  await capped("navigateToWebContent", voiceOver.navigateToWebContent(), NAVIGATE_MS);
-
-  await test.step("the home screen has a heading and named buttons", async () => {
-    const said = await walk(voiceOver, "next", 15);
-    expect(said.join("\n")).toMatch(/heading/i);
-    expect(said.join("\n")).toMatch(/New project/);
-    expect(bareRole(said)).toEqual([]);
-  });
-
-  await test.step("the New book dialog is named and keeps VoiceOver inside it", async () => {
-    await page.getByRole("button", { name: "New project" }).click();
-    await expect(page.getByRole("dialog", { name: "New book" })).toBeVisible();
-    // VoiceOver follows the focus into the dialog. Its log only fills for commands the test sends, so read what it last
-    // said, then step back from the focused field to the dialog's name and role.
-    await page.waitForTimeout(4000);
-    const first = await capped("lastSpokenPhrase", voiceOver.lastSpokenPhrase());
-    const before = await walk(voiceOver, "previous", 6, /New book/);
-    const opened = [first, ...before].join("\n");
-    expect(opened, "VoiceOver follows focus into the dialog").toMatch(/Title|New book/);
-    expect(opened, "the dialog's name is read").toMatch(/New book/);
-    // Whether VoiceOver says "dialog" as focus enters is not testable this way: stepping by item reads the heading and
-    // fields, not the container's role, and `lastSpokenPhrase` was empty right after the click. The role is checked in
-    // a11y-tree.spec.ts; listening for the announcement is a manual pass (docs/platform-checks.md).
-    // Walking on stays inside the dialog and every control has a name.
-    const walked = await walk(voiceOver, "next", 12);
-    expect(walked.join("\n")).not.toMatch(/Settings/);
-    expect(bareRole(walked)).toEqual([]);
-  });
+  const ctx = makeCtx(page, voiceOver);
+  const only = process.env.VO_AREA?.toLowerCase();
+  const failures: string[] = [];
+  for (const area of areas) {
+    if (only && !area.name.toLowerCase().includes(only)) continue;
+    await test.step(area.name, async () => {
+      try {
+        await area.run(ctx);
+      } catch (e) {
+        failures.push(`${area.name}: ${e instanceof Error ? e.message : String(e)}`);
+        // Leave no dialog or menu open for the next area.
+        await page.keyboard.press("Escape").catch(() => {});
+      }
+    });
+  }
+  if (failures.length)
+    throw new Error(`${failures.length} area(s) failed:\n\n${failures.join("\n\n")}`);
 });
