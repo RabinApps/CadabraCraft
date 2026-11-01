@@ -27,7 +27,7 @@ Three more specs look for what axe does not. `a11y-engines.spec.ts` runs the sam
 
   `--ci --macos-ignore-tcc-db` skips the interactive permission step that needs `sudo`; Full Disk Access for Terminal.app replaces it. Guidepup's manual VoiceOver setup is the fallback.
 
-- **First run (Terminal.app, 2 tests, about 75 s):** the home screen test passed. The New book dialog test failed because VoiceOver began on the focused field inside the dialog, below its title, so a forward-only walk never said "New book" or "dialog". The test now also steps backwards from there. If it still fails on the second run, the dialog is not announced when it opens, which is a real bug to fix in `src/ui/Dialog.tsx`.
+- **First run (Terminal.app, 2 tests, about 75 s):** the home screen test passed. The New book dialog test failed because VoiceOver began on the focused field inside the dialog, below its title, so a forward-only walk never said "New book" or "dialog". The test now steps backwards from there until it hears the name. A later run hung in that test (it made about 50 VoiceOver commands at about a second each, and one stuck command stalls the run), so each test now makes at most about 25 commands and every command is capped at 10 s, so a stuck one fails with a message. If it still fails on the second run, the dialog is not announced when it opens, which is a real bug to fix in `src/ui/Dialog.tsx`.
 
 First findings: the switch press area was 22 px high on desktop (now 24 px), and the sidebar was wrapped in an unnamed `aside` landmark around its own `nav` (now a `div`).
 
