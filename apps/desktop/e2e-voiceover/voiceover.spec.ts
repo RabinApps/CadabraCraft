@@ -1,6 +1,9 @@
 import { voiceOverTest as test } from "@guidepup/playwright";
 import { fakeTauri } from "../e2e/support/fakeTauri";
+import { dialogs } from "./areas/dialogs";
+import { editor } from "./areas/editor";
 import { home } from "./areas/home";
+import { shell } from "./areas/shell";
 import { makeCtx, type Area } from "./support";
 
 /**
@@ -9,7 +12,7 @@ import { makeCtx, type Area } from "./support";
  * `navigateToWebContent`. A failing area does not stop the others: the failures are collected and reported together.
  * Set VO_AREA=<part of a name> to run only the matching areas.
  */
-const areas: Area[] = [home];
+const areas: Area[] = [home, ...shell, ...editor, ...dialogs];
 
 test.setTimeout(20 * 60_000);
 
