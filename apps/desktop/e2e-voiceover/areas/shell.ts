@@ -118,9 +118,11 @@ export const commandPalette: Area = {
     });
     await page.waitForTimeout(1500);
     // The search field carries the name "Command palette" and a text-field role.
+    // VoiceOver lands on the list (the first option is read, "Settings… … (1 of 77)"), so step back to the field.
     const heard = [
       await cap("lastSpokenPhrase", vo.lastSpokenPhrase()),
-      ...(await walk("next", 4)),
+      ...(await walk("previous", 4, /Command palette/)),
+      ...(await walk("next", 3)),
     ];
     const text = heard.join("\n");
     expect(text).toMatch(/Command palette/);

@@ -165,10 +165,11 @@ const readMode: Area = {
     expect(body.join("\n")).toMatch(/quiet|garden|river|stone|letter|morning|lantern|orchard/);
 
     // The footer: the chapter turn button names its target, then the book progress bar.
-    const toFooter = await find(/Next chapter|Next page/, 45);
+    // VoiceOver reading to the end scrolls the book to its last chapter, so only "Previous" may exist.
+    const toFooter = await find(/(Next|Previous) (chapter|page)/, 45);
     expect(toFooter.at(-1)).toMatch(/Chapter Two/);
     expect(toFooter.at(-1)).toMatch(/button/i);
-    const footerText = (await walk("previous", 4, /Book progress/)).join("\n");
+    const footerText = (await walk("next", 4, /Book progress/)).join("\n");
     expect(footerText).toMatch(/Book progress/);
     expect(footerText).toMatch(/progress|%|indicator/i);
     expect(bareRole([...toHeading, ...body, ...toFooter])).toEqual([]);

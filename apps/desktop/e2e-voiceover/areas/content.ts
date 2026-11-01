@@ -59,7 +59,13 @@ async function readPage(ctx: Ctx, until: RegExp, max: number): Promise<string[]>
 const LEFT_BOX = /end of|words? in this chapter|Page zoom|complementary/i;
 
 /** Re-enters the page text box and steps through it (up to `max` steps) until `until` or until VoiceOver leaves the box. */
-async function stepThroughBox(ctx: Ctx, max: number, until?: RegExp): Promise<string[]> {
+async function stepThroughBox(
+  ctx: Ctx,
+  max: number,
+  until?: RegExp,
+  /** After the forward walk, step back from where it stopped until this phrase, and add what was said. */
+  backTo?: RegExp,
+): Promise<string[]> {
   const { find, walk, cap, vo } = ctx;
   await find(PAGE_TEXT, MAX_TO_EDITOR);
   await cap("interact", vo.interact());
@@ -69,6 +75,7 @@ async function stepThroughBox(ctx: Ctx, max: number, until?: RegExp): Promise<st
     said.push(phrase ?? "");
     if (until?.test(phrase ?? "") || LEFT_BOX.test(phrase ?? "")) break;
   }
+  if (backTo) said.push(...(await walk("previous", 30, backTo)));
   await cap("stopInteracting", vo.stopInteracting());
   return said;
 }
@@ -168,7 +175,8 @@ const blocks: Area = {
     await expect(boxes.nth(1)).not.toBeChecked();
     await enter();
 
-    const said = await stepThroughBox(ctx, 25, /The end/);
+    // The forward walk left the box after the scene break; the backward walk shows whether the blocks after it can be read.
+    const said = await stepThroughBox(ctx, 25, /The end/, /Task group/);
     console.log(`VoiceOver read the blocks:\n${said.join("\n")}`);
     const heard = said.join("\n");
     expect(heard).toMatch(/To be or not to be/);

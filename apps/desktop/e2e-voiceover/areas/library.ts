@@ -341,6 +341,8 @@ export const focusMode: Area = {
     await focusAndSettle(ctx, exit);
     const heard = [await ctx.cap("lastSpokenPhrase", ctx.vo.lastSpokenPhrase())];
     heard.push(...(await find(/Page text|text/i, 12)));
+    // The exit button comes after the text in reading order: read on until it is heard.
+    heard.push(...(await walk("next", 8, /Exit focus mode/)));
     const text = heard.join("\n");
     expect(text).toMatch(/Exit focus mode/);
     expect(text).toMatch(/Page text|text/i);
@@ -377,7 +379,7 @@ export const statusBar: Area = {
       const bar = page.getByRole("progressbar", { name: "Session goal" });
       await expect(bar).toHaveAttribute("aria-valuemax", "500");
       await expect(page.getByText(/words in this chapter/)).toBeVisible();
-      await expect(page.getByText(/in the book/)).toBeVisible();
+      await expect(page.getByRole("contentinfo").getByText(/in the book/)).toBeVisible();
       await enter();
 
       // Book history before any change: Undo and Redo are dimmed, by their names.
