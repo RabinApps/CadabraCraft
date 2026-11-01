@@ -258,11 +258,12 @@ function AppScreens() {
         />
       )}
       <div className="flex min-h-0 flex-1">
-        <aside
+        {/* A div: the Sidebar's own nav is the landmark, an aside around it would be a second, unnamed one. */}
+        <div
           className={cx("hidden w-66 shrink-0 overflow-y-auto bg-sidebar", focus ? "" : "lg:block")}
         >
           <Sidebar />
-        </aside>
+        </div>
         <main id="main" tabIndex={-1} className="outline-none flex min-h-0 min-w-0 flex-1 flex-col">
           {error && (
             <Notice role="alert" className="m-4">

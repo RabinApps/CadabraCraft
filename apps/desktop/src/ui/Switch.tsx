@@ -18,7 +18,7 @@ export function Switch({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cx(
-        "relative h-[22px] w-10 shrink-0 rounded-full p-[3px] transition-colors after:absolute after:-inset-y-[11px] after:inset-x-0 after:content-[''] md:after:hidden focus-visible:outline-2 focus-visible:outline-accent",
+        "relative h-[22px] w-10 shrink-0 rounded-full p-[3px] transition-colors after:absolute after:-inset-y-2.75 after:inset-x-0 after:content-[''] md:after:-inset-y-px focus-visible:outline-2 focus-visible:outline-accent",
         checked ? "bg-accent" : "bg-border-strong",
       )}
     >
