@@ -1,4 +1,4 @@
-import type { Manifest, Reference, Tree } from "@cadabracraft/format";
+import type { Manifest, Outlines, Reference, Tree, TocDepth, TocItem } from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
@@ -215,6 +215,7 @@ export interface ProjectState {
     ReplaceActions &
     AssetActions &
     ReferenceActions &
+    TocActions &
     ExportActions &
     AudioActions &
     VoiceActions &
@@ -239,6 +240,29 @@ export interface ReferenceActions {
   /** Takes a reference out of the book and moves its file to the project trash. */
   removeReference: (id: string) => Promise<void>;
   dismissReferenceNotices: () => void;
+}
+
+export interface TocActions {
+  /** Reads the headings of every listed page in the shown language (what the generated contents list is built from). A page that cannot be read lists none. */
+  tocOutlines: () => Promise<Outlines>;
+  /** How many heading levels the contents page lists below each page (0 lists pages only). Failures set `notice`. */
+  setTocDepth: (contentsId: string, depth: TocDepth) => Promise<void>;
+  setTocPageNumbers: (contentsId: string, on: boolean) => Promise<void>;
+  /** Renames an item in the shown language; an empty text goes back to the generated one. */
+  renameTocItem: (contentsId: string, key: string, title: string) => Promise<void>;
+  hideTocItem: (contentsId: string, key: string) => Promise<void>;
+  showTocItem: (contentsId: string, key: string) => Promise<void>;
+  /** Puts item `key` at position `to` of `items` (the list as shown, hidden items included). */
+  moveTocItem: (contentsId: string, items: TocItem[], key: string, to: number) => Promise<void>;
+  /** Adds an entry of the author's own after item `after` that points at `target` (its page number). Resolves to the new item's key, or null when it failed. */
+  addTocCustom: (
+    contentsId: string,
+    init: { title: string; after: string; target?: string },
+  ) => Promise<string | null>;
+  /** Clears what the author changed for one item (a custom entry is removed). */
+  removeTocOverride: (contentsId: string, key: string) => Promise<void>;
+  /** Back to the generated list; depth and the page-number switch stay. */
+  resetToc: (contentsId: string) => Promise<void>;
 }
 
 export interface EditionActions {
@@ -391,7 +415,25 @@ export interface ExportActions {
    * the book has no pages. Throws `PdfUiError`.
    */
   previewTarget: (options: PreviewOptions & { page: number }) => Promise<PreviewTarget | null>;
+  /**
+   * The contents page as the PDF prints it, for the preview beside the Contents editor: the book as it is now typeset by Typst (cover,
+   * bleed and crop marks left out) and the physical pages the contents page has in it, kept in memory only. The last few results are
+   * reused while the book and its list are unchanged. `unavailable` when Typst is not installed. Throws `PdfUiError`.
+   */
+  renderContentsPreview: () => Promise<ContentsPreview>;
 }
+
+/** A contents preview from Typst: `first` to `last` are the physical pages of the contents page in `pdf`; `trim` is the page size in inches. */
+export type ContentsPreview =
+  | {
+      kind: "typst";
+      key: string;
+      pdf: Uint8Array;
+      first: number;
+      last: number;
+      trim: { w: number; h: number };
+    }
+  | { kind: "unavailable" };
 
 export interface PreviewOptions {
   trimSize?: TrimSize;

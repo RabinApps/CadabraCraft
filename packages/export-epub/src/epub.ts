@@ -13,10 +13,14 @@ import {
   type MatterKind,
   type Section,
 } from "@cadabracraft/shared";
+import { TOC_UNLISTED_KINDS as UNLISTED } from "@cadabracraft/format";
 import { contentsHeading, coverLabel, landmarksHeading, startOfContentLabel } from "./strings";
 import { accessibilityMetadata } from "./a11y";
 import { EpubExportError } from "./errors";
+import { contentsList, listedItems, type ContentsItem } from "./contents";
 import { chapterToXhtmlBody, collectImageSources, esc, imageAltStats } from "./xhtml";
+
+export type { ContentsItem } from "./contents";
 
 const CSS = `body{font-family:serif;line-height:1.4}
 h1,h2,h3{font-family:sans-serif;page-break-after:avoid}
@@ -25,6 +29,7 @@ blockquote{margin:1em 2em;font-style:italic}
 hr.scene-break{border:0;text-align:center;margin:1.5em 0}hr.scene-break:after{content:"* * *"}
 .small-caps{font-variant:small-caps}.underline{text-decoration:underline}
 a.noteref{font-size:.75em;vertical-align:super}
+nav.contents ol{list-style:none;padding-left:1.2em}nav.contents>ol{padding-left:0}
 ul.task-list{list-style:none;padding-left:0}ul.task-list ul.task-list{padding-left:1.5em}li.task-item p,dd p{text-indent:0}
 dt{font-weight:bold;margin-top:.6em}dd{margin:0 0 .3em 2em}
 img{max-width:100%}
@@ -57,14 +62,6 @@ const BACK_TYPES: Partial<Record<MatterKind, string>> = {
   acknowledgments: "acknowledgments",
   colophon: "colophon",
 };
-/** Pages the table of contents leaves out: they are not places a reader navigates to. */
-const UNLISTED: readonly MatterKind[] = [
-  "title-page",
-  "copyright",
-  "dedication",
-  "epigraph",
-  "colophon",
-];
 
 /** Ids that the package itself uses for its own files and manifest items. */
 const RESERVED_IDS = new Set(["nav", "css", COVER_PAGE, "epub-cover-image"]);
@@ -171,6 +168,13 @@ export interface BuildOptions {
   css?: string;
   /** The cover image: `path` is the project-relative `assets/<name>` (png, jpg or webp) and `bytes` its contents. Adds a cover page first in the reading order, the `cover-image` manifest property and a cover landmark. */
   cover?: { path: string; bytes: Uint8Array };
+  /**
+   * The book's contents list, already resolved for this book's language (see `ContentsItem`). Given, it is written as a nested
+   * list on the page of kind "contents" (if the book has one) and the navigation document is built from the same list, so renames,
+   * hidden entries, order and custom entries apply to both. Every heading gets an `id` so entries can link to it. No page numbers
+   * (a reflowable book has none). Not given: the navigation lists the pages as before and a contents page shows only its own text.
+   */
+  contents?: readonly ContentsItem[];
 }
 
 /** Builds an EPUB3 package as bytes. Output is deterministic for a given input. Throws an `EpubExportError` (naming the page and the place in it) for an unknown node or mark, a malformed table, a heading level outside 1-3, a nested footnote, an XML-illegal character, an invalid or duplicate page id, or a referenced image that is not an allowed `assets/` image or has no bytes. */
@@ -229,13 +233,21 @@ export function buildEpub(
       ),
     );
   }
+  const shown = options.contents === undefined ? undefined : listedItems(options.contents);
+  const known = new Set(chapters.map((c) => c.id));
   for (const c of chapters) {
     const { type, cls } = semantics(c);
     let body: string;
     try {
-      body = chapterToXhtmlBody(c.doc);
+      body = chapterToXhtmlBody(c.doc, { headingIds: shown !== undefined });
     } catch (e) {
       throw e instanceof EpubExportError ? e.inChapter({ id: c.id, title: c.title }) : e;
+    }
+    if (shown !== undefined && c.kind === "contents") {
+      const heading = c.doc.content.some((n) => n.type === "heading")
+        ? ""
+        : `<h1>${esc(contentsHeading(meta.language))}</h1>`;
+      body = `${heading}${body}${shown.length > 0 ? `<nav class="contents">${contentsList(shown, known)}</nav>` : ""}`;
     }
     files[`OEBPS/${c.id}.xhtml`] = strToU8(
       page(c.title, body, ` epub:type="${type}" class="${cls}"`),
@@ -244,9 +256,13 @@ export function buildEpub(
 
   // The contents lists chapters and reading sections; if that leaves nothing (only a title page, say) it lists every page.
   const listed = chapters.filter(listedInToc);
-  const toc = (listed.length ? listed : chapters)
-    .map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`)
-    .join("");
+  const navList = shown !== undefined ? contentsList(shown, known, true) : "";
+  const toc =
+    navList !== ""
+      ? navList
+      : `<ol>${(listed.length ? listed : chapters)
+          .map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`)
+          .join("")}</ol>`;
   const start =
     chapters.find((c) => (c.section ?? "chapter") === "chapter") ??
     (listed.length ? listed : chapters)[0];
@@ -263,7 +279,7 @@ export function buildEpub(
   files["OEBPS/nav.xhtml"] = strToU8(
     page(
       meta.title,
-      `<nav epub:type="toc" id="toc"><h1>${esc(contents)}</h1><ol>${toc}</ol></nav>${landmarks}`,
+      `<nav epub:type="toc" id="toc"><h1>${esc(contents)}</h1>${toc}</nav>${landmarks}`,
     ),
   );
 

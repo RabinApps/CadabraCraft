@@ -4,6 +4,7 @@ export {
   approximateWords,
   type RtfBook,
   type RtfChapter,
+  type RtfContentsItem,
   type RtfOptions,
 } from "./rtf";
 export { RtfExportError } from "./errors";

@@ -191,3 +191,25 @@ describe("rename, move and remove matter", () => {
 it("FormatError is exported for kind validation", () => {
   expect(new FormatError("x")).toBeInstanceOf(Error);
 });
+
+describe("contents page", () => {
+  it("is a single-use front matter kind placed after the epigraph and before the foreword", () => {
+    let m = book();
+    for (const k of ["foreword", "epigraph", "contents", "dedication"] as const)
+      m = addFrontMatter(m, k, k).manifest;
+    expect(m.frontMatter.map((e) => e.kind)).toEqual([
+      "dedication",
+      "epigraph",
+      "contents",
+      "foreword",
+    ]);
+    expect(canAddMatter(m, "contents")).toBe(false);
+    expect(() => addFrontMatter(m, "contents", "Again")).toThrow(/contents/);
+    expect(canAddMatter(book(), "contents")).toBe(true);
+  });
+  it("cannot go in the back matter and frees the slot after removal", () => {
+    expect(() => addBackMatter(book(), "contents" as never, "x")).toThrow(/back matter/);
+    const { manifest, entry } = addFrontMatter(book(), "contents", "Contents");
+    expect(canAddMatter(removeMatter(manifest, entry.id).manifest, "contents")).toBe(true);
+  });
+});

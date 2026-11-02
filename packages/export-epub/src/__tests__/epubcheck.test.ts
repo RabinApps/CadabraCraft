@@ -136,6 +136,94 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
   );
 
   it(
+    "validates a book with a contents page: nested headings, hidden, custom and unlinked entries, left-to-right and right-to-left, every template stylesheet",
+    () => {
+      const h = (level: number, text: string) => ({
+        type: "heading",
+        attrs: { level },
+        content: [{ type: "text", text }],
+      });
+      const d = (...content: object[]) => ({ type: "doc", content }) as typeof doc;
+      const chapters = [
+        {
+          id: "toc",
+          title: "Contents",
+          doc: d(h(1, "Contents")),
+          section: "front",
+          kind: "contents",
+        },
+        {
+          id: "ch-1",
+          title: "One",
+          doc: d(h(1, "One"), h(2, "Storm"), h(3, "Deep"), h(2, "Calm")),
+        },
+        { id: "ch-2", title: "Two", doc: d(h(1, "Two"), h(2, "Storm")) },
+        {
+          id: "bm-1",
+          title: "Thanks",
+          doc: d(h(1, "Thanks")),
+          section: "back",
+          kind: "acknowledgments",
+        },
+      ] as Parameters<typeof buildEpub>[1];
+      const contents = [
+        { kind: "page", entryId: "ch-1", level: 0, title: "One" },
+        { kind: "heading", entryId: "ch-1", level: 1, title: "Storm", index: 1 },
+        { kind: "heading", entryId: "ch-1", level: 2, title: "Deep", index: 2 },
+        { kind: "heading", entryId: "ch-1", level: 1, title: "Calm", index: 3 },
+        { kind: "page", entryId: "ch-2", level: 0, title: "Two (renamed) <&>" },
+        { kind: "page", entryId: "ch-2", level: 0, title: "Hidden", hidden: true },
+        { kind: "custom", entryId: "bm-1", level: 0, title: "Author’s note" },
+        { kind: "custom", level: 0, title: "A line pointing nowhere" },
+        { kind: "page", entryId: "bm-1", level: 0, title: "Thanks" },
+      ] as NonNullable<Parameters<typeof buildEpub>[2]>["contents"];
+      for (const language of ["en", "he"]) {
+        for (const t of listTemplates()) {
+          const out = check(
+            `contents-${language}-${t.id}.epub`,
+            buildEpub(metaOf(language), chapters, { css: t.epub.css, contents }),
+          );
+          expect(out, `${language} ${t.id}`).toContain("No errors or warnings detected");
+        }
+      }
+    },
+    JVM_TIMEOUT * 3,
+  );
+
+  it(
+    "validates a contents page with a custom entry that targets a heading and entries with blank titles",
+    () => {
+      const h = (level: number, text: string) => ({
+        type: "heading",
+        attrs: { level },
+        content: [{ type: "text", text }],
+      });
+      const d = (...content: object[]) => ({ type: "doc", content }) as typeof doc;
+      const chapters = [
+        {
+          id: "toc",
+          title: "Contents",
+          doc: d(h(1, "Contents")),
+          section: "front",
+          kind: "contents",
+        },
+        { id: "ch-1", title: "One", doc: d(h(1, "One"), h(2, "Storm"), h(2, "Calm")) },
+      ] as Parameters<typeof buildEpub>[1];
+      const contents = [
+        { kind: "page", entryId: "ch-1", level: 0, title: "  " },
+        { kind: "heading", entryId: "ch-1", level: 1, title: "", index: 1 },
+        { kind: "custom", entryId: "ch-1", level: 0, title: "", targetIndex: 1 },
+        { kind: "custom", entryId: "ch-1", level: 0, title: "Jump to calm", targetIndex: 2 },
+        { kind: "custom", level: 0, title: "" },
+      ] as NonNullable<Parameters<typeof buildEpub>[2]>["contents"];
+      expect(
+        check("contents-target-blank.epub", buildEpub(metaOf("en"), chapters, { contents })),
+      ).toContain("No errors or warnings detected");
+    },
+    JVM_TIMEOUT,
+  );
+
+  it(
     "validates the retail metadata: publisher, description, subjects, rights, date and a series",
     () => {
       const retail = {

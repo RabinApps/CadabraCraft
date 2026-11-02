@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 5)
+# CadabraCraft project file format (formatVersion 7)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -18,7 +18,7 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 6,
+  "formatVersion": 7,
   "template": "novel",
   "trimSize": "5.5x8.5",
   "fonts": { "body": "EB Garamond", "heading": "Inter" },
@@ -47,6 +47,22 @@ MyBook/
       "kind": "title-page",
       "titles": { "en": "Title Page" },
       "files": { "en": "front-matter/01-title-page.json" }
+    },
+    {
+      "id": "fm-2",
+      "kind": "contents",
+      "titles": { "en": "Contents" },
+      "files": { "en": "front-matter/02-contents.json" },
+      "toc": {
+        "depth": 1,
+        "pageNumbers": true,
+        "hidden": ["ch-1#1:a quiet harbour:0"],
+        "titles": { "ch-1": { "en": "Prologue" } },
+        "order": ["ch-1", "custom:c-1", "ch-1#1:a quiet harbour:0"],
+        "custom": [
+          { "id": "c-1", "titles": { "en": "Map of the coast" }, "after": "ch-1", "target": "ch-1" }
+        ]
+      }
     }
   ],
   "chapters": [
@@ -92,8 +108,16 @@ MyBook/
 ## Front and back matter
 
 - Entries in `frontMatter` and `backMatter` have the same shape as chapters plus an optional `kind` (added in formatVersion 2). Chapters never have a `kind`.
-- Front kinds: `title-page`, `copyright`, `dedication`, `epigraph`, `foreword`, `preface`, `custom`. Back kinds: `acknowledgments`, `about-the-author`, `also-by`, `colophon`, `custom`. An entry without a `kind` (every entry migrated from version 1) is treated as `custom`.
-- A book has at most one `title-page` and one `copyright` page. The app enforces this when adding pages; a hand-edited manifest with more is still opened and exported.
+- Front kinds: `title-page`, `copyright`, `dedication`, `epigraph`, `contents`, `foreword`, `preface`, `custom`. Back kinds: `acknowledgments`, `about-the-author`, `also-by`, `colophon`, `custom`. An entry without a `kind` (every entry migrated from version 1) is treated as `custom`.
+- A book has at most one `title-page`, one `copyright` and one `contents` page. The app enforces this when adding pages; a hand-edited manifest with more is still opened and exported.
+- **Contents page** (`kind: "contents"`, front matter only, added in formatVersion 7). Its file is an ordinary chapter file that holds only a heading; the list itself is never stored. It is generated from the book's outline at preview and export time: every chapter and listed matter page in reading order (the title page, copyright, dedication, epigraph, colophon and contents pages are left out), plus the headings of each chapter down to `toc.depth`. The entry may carry `toc`, the author's changes on top of that live list; absent means the defaults (`depth` 0, `pageNumbers` true, no overrides). A key that is not listed below, a wrong type, or `toc` on any other kind of entry is refused.
+  - `depth`: 0 lists pages only; 1, 2 or 3 add headings up to that level.
+  - `pageNumbers`: whether the printed page numbers are shown (PDF; formats without pages ignore it).
+  - `hidden`: item keys left out of the list (unique, non-empty strings).
+  - `titles`: item key to language to replacement text (non-empty strings). A language with no replacement uses the page's own title in that language, then the source-language replacement, then the source title; a blank (empty or whitespace-only) title counts as missing at every step, and when all are blank the entry id is listed so a row is never empty.
+  - `order` (optional): item keys in the order the author arranged them. Items it does not list (new chapters or headings) are placed after the item that precedes them in reading order; keys that match nothing are ignored. Absent means reading order.
+  - `custom`: entries the author added: `id` (same rules as an entry id, unique within the list), `titles` (language to text, at least one), `after` (the item key it follows) and optional `target` (the item key it points at and takes its page number from). Its item key is `custom:<id>`. An `after` that is the entry itself, part of a loop of custom entries, or a chain ending at a missing key is dangling like a missing one: the entry is listed last and reported as stale.
+  - **Item keys:** a page is its entry `id`; a heading is `<entryId>#<level>:<text>:<n>` where `text` is the heading text with Unicode NFC, collapsed whitespace and lower case, and `n` counts earlier identical headings (same level and text) in that chapter from 0. Keys survive edits elsewhere in the chapter. An override whose key no longer matches anything (a deleted chapter, a reworded heading) is kept in the file and reported as stale by the app, which offers to remove it; it is never dropped silently. Paths never appear in `toc`.
 - Files are `front-matter/NN-slug.json` and `back-matter/NN-slug.json` (`NN` is a position counter that never reuses a name). Ids are `fm-N` and `bm-N`. Renaming changes the title only; reordering changes the array order only.
 - New pages start from generated content (title page: title and author; copyright: © year author, "All rights reserved." and the ISBN when the manifest has one; dedication, acknowledgments, about the author...) written in the book's language, using only the v1 schema nodes. After creation they are ordinary chapter files.
 - Exports: EPUB marks each page with `epub:type` (`titlepage`, `copyright-page`, `dedication`, `epigraph`, `foreword`, `preface`, `acknowledgments`, `colophon`, `frontmatter`, `bodymatter`, `backmatter`); its contents list leaves out the title page, copyright, dedication, epigraph and colophon. PDF: title and copyright pages carry no header or number, front matter is numbered i, ii, iii..., arabic numbering restarts at 1 on a right-hand page at the first chapter, and back matter continues it.
@@ -151,6 +175,7 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 
 ## Versioning
 
+- Version 6 -> 7: adds the `contents` front matter kind and the optional `toc` on a contents entry (see above). The migration changes nothing: no book has a contents page until the author adds one, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 6 app refuses a version 7 project instead of failing on the unknown kind.
 - Version 5 -> 6: editions may carry `publishing` (see above). The migration changes nothing: no edition has one until the author sets it, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes.
 - Version 4 -> 5: adds `references` (an empty list when absent). The migration changes nothing else and moves no file; it backs up `cadabra.json` to `.cadabra/backups/` before it writes.
 - Version 3 -> 4: moves `title`, `author`, `language`, `identifier`, `isbn` and `cover` into `editions` (the first is the source), and turns each entry's `title` and `file` into `titles` and `files` maps keyed by language. No file moves. The migration backs up `cadabra.json` to `.cadabra/backups/` before it writes.

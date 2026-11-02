@@ -67,6 +67,15 @@ describe("starterDoc", () => {
       "Alle Rechte vorbehalten.",
     ]);
   });
+  it("contents page is just a heading in the book's language", () => {
+    const doc = starterDoc("contents", book);
+    expect(lines(doc)).toEqual(["Contents"]);
+    expect(doc.content[0]).toMatchObject({ type: "heading", attrs: { level: 1 } });
+    expect(lines(starterDoc("contents", { ...book, language: "de" }))).toEqual([
+      "Inhaltsverzeichnis",
+    ]);
+    expect(starterTitle("contents", "fr")).toBe("Table des matières");
+  });
   it("dedication is an italic placeholder paragraph", () => {
     const doc = starterDoc("dedication", book);
     expect(doc.content).toHaveLength(1);

@@ -337,6 +337,18 @@ msgstr "{words, plural, one {# Wort in diesem Kapitel} other {# Wörter in diese
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr "{words, plural, one {# Wort auf dieser Seite} other {# Wörter auf dieser Seite}}"
 
+#: src/app/toc/TocEditor.tsx
+msgid "+H1"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "+H1-H2"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "+H1-H3"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "0.125 in"
 msgstr "0,125 in"
@@ -380,9 +392,11 @@ msgid "Acknowledgments"
 msgstr "Danksagung"
 
 #. placeholder {0}: c.title
+#. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Actions for {0}"
 msgstr "Aktionen für {0}"
 
@@ -410,6 +424,19 @@ msgstr "Kapitel hinzufügen"
 #: src/app/shell/menuModel.ts
 msgid "Add Column After"
 msgstr "Spalte danach hinzufügen"
+
+#: src/state/project/toc.ts
+msgid "Add contents entry"
+msgstr ""
+
+#: src/app/toc/AddEntryDialog.tsx
+#: src/app/toc/TocEditor.tsx
+msgid "Add custom entry"
+msgstr ""
+
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Add entry"
+msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Add files"
@@ -498,6 +525,10 @@ msgstr "Bereits nach {0} geschrieben: {1} Kapiteldateien und {2} Bilder; die Kap
 msgid "Also by"
 msgstr "Weitere Bücher des Autors"
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "An entry of your own, such as “Acknowledgments” or a part title. It takes its page number from the entry it points at."
+msgstr ""
+
 #: src/state/project/audio.ts
 #: src/state/project/exports.ts
 msgid "An export is already running"
@@ -518,6 +549,10 @@ msgstr "Darstellung"
 #: src/editor/ToolbarDialogs.tsx
 msgid "Apply"
 msgstr "Anwenden"
+
+#: src/app/toc/TocPreview.tsx
+msgid "Approximate: Typst is not available"
+msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Ask each time"
@@ -712,6 +747,7 @@ msgstr "CadabraCraft ist auf dem neuesten Stand."
 #: src/app/export/ExportDialog.tsx
 #: src/app/home/Home.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/toc/AddEntryDialog.tsx
 #: src/editor/TableCommands.tsx
 #: src/editor/ToolbarDialogs.tsx
 #: src/ui/Dialog.tsx
@@ -750,6 +786,14 @@ msgstr "Bildunterschrift"
 msgid "Change"
 msgstr "Ändern"
 
+#: src/state/project/toc.ts
+msgid "Change contents depth"
+msgstr ""
+
+#: src/state/project/toc.ts
+msgid "Change contents page numbers"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change shortcut for {action}"
 msgstr "Tastenkürzel für {action} ändern"
@@ -761,6 +805,10 @@ msgstr "Vorlage ändern"
 #: src/state/project/project.ts
 msgid "Changes made outside the app may not be noticed. Saving still works."
 msgstr "Änderungen außerhalb der App werden möglicherweise nicht bemerkt. Speichern funktioniert weiterhin."
+
+#: src/app/toc/TocEditor.tsx
+msgid "Changes that no longer match"
+msgstr ""
 
 #: src/app/shell/Details.tsx
 msgid "Chapter"
@@ -823,6 +871,7 @@ msgstr "Kapiteltitel"
 #: src/app/shell/Details.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/Sidebar.tsx
+#: src/app/toc/TocEditor.tsx
 msgid "Chapters"
 msgstr "Kapitel"
 
@@ -971,6 +1020,20 @@ msgstr "Verglichen mit dem aktuellen Text"
 msgid "Comparison"
 msgstr "Vergleich"
 
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+#: src/app/toc/TocEditor.tsx
+msgid "Contents"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Contents entries"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Contents view"
+msgstr ""
+
 #: src/app/home/Dashboard.tsx
 msgid "Continue writing"
 msgstr "Weiterschreiben"
@@ -1023,6 +1086,10 @@ msgstr "Das Bild konnte nicht hinzugefügt werden: {0}"
 msgid "Could not be read"
 msgstr "Konnte nicht gelesen werden"
 
+#: src/state/project/toc.ts
+msgid "Could not change the contents page: {why}"
+msgstr ""
+
 #: src/editor/Editor.tsx
 msgid "Could not convert the HTML in the selection"
 msgstr "Das HTML in der Auswahl konnte nicht umgewandelt werden"
@@ -1030,6 +1097,10 @@ msgstr "Das HTML in der Auswahl konnte nicht umgewandelt werden"
 #: src/editor/Editor.tsx
 msgid "Could not convert the HTML, so it was pasted as text"
 msgstr "Das HTML konnte nicht umgewandelt werden und wurde als Text eingefügt"
+
+#: src/app/toc/TocPreview.tsx
+msgid "Could not draw the preview"
+msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Could not install the update: {error}"
@@ -1084,6 +1155,7 @@ msgid "Could not save: {0}"
 msgstr "Speichern nicht möglich: {0}"
 
 #: src/app/export/TypstSpread.tsx
+#: src/app/toc/TocPreview.tsx
 msgid "Could not show the preview: {error}"
 msgstr "Die Vorschau konnte nicht angezeigt werden: {error}"
 
@@ -1135,6 +1207,10 @@ msgstr "Schnittmarken machen die Seite größer als Seitenformat plus Beschnitt.
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
 msgstr "Aktuell"
+
+#: src/app/toc/TocRow.tsx
+msgid "Custom"
+msgstr ""
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -1295,8 +1371,10 @@ msgstr "Wird heruntergeladen…"
 msgid "Downloading… {0} MB of {1} MB"
 msgstr "Wird heruntergeladen… {0} MB von {1} MB"
 
+#. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Drag to reorder {0}"
 msgstr "Ziehen, um {0} umzusortieren"
 
@@ -1331,6 +1409,7 @@ msgstr "Frühere Versionen dieser Seite. Wähle eine aus, um sie mit dem aktuell
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
+#: src/app/toc/TocEditor.tsx
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -1383,6 +1462,11 @@ msgstr "Vollbild aktivieren"
 msgid "Enter the series name first."
 msgstr "Gib zuerst den Namen der Reihe ein."
 
+#: src/app/toc/AddEntryDialog.tsx
+#: src/app/toc/TocRow.tsx
+msgid "Entry title"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Epigraph"
@@ -1404,6 +1488,10 @@ msgstr "Geschätzt {estimatedPages} Seiten: KDP-Taschenbücher erlauben höchste
 msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
 msgstr "Geschätzt {estimatedPages} Seiten: KDP-Taschenbücher brauchen mindestens {KDP_MIN_PAGES}. Das ist eine Schätzung."
 
+#: src/app/toc/TocRow.tsx
+msgid "Estimated page"
+msgstr ""
+
 #. placeholder {0}: chosen?.name ?? ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Every chapter and the chapter list go back to “{0}”. The book as it is now is kept as an automatic snapshot first."
@@ -1416,6 +1504,10 @@ msgstr "Jedes Kapitel beginnt leer."
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Every language is already in this book."
 msgstr "Jede Sprache ist bereits in diesem Buch."
+
+#: src/app/toc/TocPreview.tsx
+msgid "Exact pages from Typst"
+msgstr ""
 
 #: src/app/shell/App.tsx
 msgid "Exit focus mode"
@@ -1648,6 +1740,10 @@ msgstr "Überschrift 3"
 msgid "Heading font"
 msgstr "Überschriftenschrift"
 
+#: src/app/toc/TocEditor.tsx
+msgid "Headings to list"
+msgstr ""
+
 #: src/app/export/AudioFooter.tsx
 msgid "Hear a sample"
 msgstr "Hörprobe anhören"
@@ -1657,9 +1753,21 @@ msgstr "Hörprobe anhören"
 msgid "Help"
 msgstr "Hilfe"
 
+#: src/app/toc/TocRow.tsx
+msgid "Hidden"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Hide CadabraCraft"
 msgstr "CadabraCraft ausblenden"
+
+#: src/state/project/toc.ts
+msgid "Hide contents entry"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Hide from contents"
+msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Hide Others"
@@ -1871,6 +1979,10 @@ msgstr "Sie wird in den Projekt-Papierkorb innerhalb deines Buchordners verschob
 msgid "Italic"
 msgstr "Kursiv"
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Its page number is shown. Choose “Nothing” for an entry without a number."
+msgstr ""
+
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "JavaScript libraries"
 msgstr "JavaScript-Bibliotheken"
@@ -2008,6 +2120,10 @@ msgstr "Link…"
 msgid "Linked chapters"
 msgstr "Verknüpfte Kapitel"
 
+#: src/app/toc/TocEditor.tsx
+msgid "List"
+msgstr ""
+
 #: src/editor/ReadingBook.tsx
 msgid "Loading the book"
 msgstr "Buch wird geladen"
@@ -2048,6 +2164,10 @@ msgstr "Erstellt eine Audiodatei pro Kapitel mit einer Stimme, die auf deinem Co
 #: src/app/export/AudioFooter.tsx
 msgid "Making sample… (stop)"
 msgstr "Hörprobe wird erstellt… (stoppen)"
+
+#: src/app/toc/TocPreview.tsx
+msgid "Making the preview…"
+msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Manual order"
@@ -2152,8 +2272,13 @@ msgstr "Kapitel {n} nach unten verschieben"
 msgid "Move chapter {n} up"
 msgstr "Kapitel {n} nach oben verschieben"
 
+#: src/state/project/toc.ts
+msgid "Move contents entry"
+msgstr ""
+
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Move down"
 msgstr "Nach unten"
 
@@ -2164,6 +2289,7 @@ msgstr "In den Papierkorb verschieben"
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Move up"
 msgstr "Nach oben"
 
@@ -2357,6 +2483,10 @@ msgstr "Noch nicht übersetzt in {language}: {names}. Übersetze sie oder übers
 msgid "Note"
 msgstr "Notiz"
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Nothing"
+msgstr ""
+
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 msgstr "Es wird nirgendwohin etwas gesendet, außer du drückst auf Sponsor; das öffnet GitHub in deinem Browser."
@@ -2364,6 +2494,10 @@ msgstr "Es wird nirgendwohin etwas gesendet, außer du drückst auf Sponsor; das
 #: src/app/references/RemovedReferencesDialog.tsx
 msgid "Nothing removed"
 msgstr "Nichts entfernt"
+
+#: src/app/toc/TocEditor.tsx
+msgid "Nothing to list yet. Add a chapter and it appears here."
+msgstr ""
 
 #: src/app/dialogs/ImportParts.tsx
 #: src/app/dialogs/ImportReportDialog.tsx
@@ -2477,6 +2611,11 @@ msgstr "Gliederung …"
 msgid "Packing the audiobook…"
 msgstr "Hörbuch wird gepackt…"
 
+#. placeholder {0}: p.index + 1
+#: src/app/toc/TocPreview.tsx
+msgid "Page {0} of {total}"
+msgstr ""
+
 #: src/app/shell/PageEstimate.tsx
 msgid "Page {current} of ≈ {count}"
 msgstr "Seite {current} von ≈ {count}"
@@ -2505,6 +2644,10 @@ msgstr "Seitenumbrüche sind ungefähr: Das PDF ist maßgeblich."
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
 msgstr "Die Seitenumbrüche sind die des PDFs: Jede Seite enthält den Text, den sie dort enthält. Der Zeilenumbruch innerhalb einer Seite kann leicht abweichen."
+
+#: src/app/toc/TocEditor.tsx
+msgid "Page numbers"
+msgstr ""
 
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
@@ -2604,6 +2747,10 @@ msgstr "Piper · LibriTTS (schnell)"
 msgid "Piper voices: Amy and LibriTTS"
 msgstr "Piper-Stimmen: Amy und LibriTTS"
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Place after"
+msgstr ""
+
 #: src/app/home/Dashboard.tsx
 msgid "Place in the book"
 msgstr "Platz im Buch"
@@ -2611,6 +2758,10 @@ msgstr "Platz im Buch"
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 msgstr "PNG, JPEG oder WebP, bis 25 MB. Eine Kopie wird im Ordner „assets“ des Buchs gespeichert. Hochformat, etwa 1600 × 2400 px, funktioniert am besten."
+
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Points to"
+msgstr ""
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -2620,6 +2771,11 @@ msgstr "Vorwort"
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Press the new keys…"
 msgstr "Neue Tasten drücken …"
+
+#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocPreview.tsx
+msgid "Preview"
+msgstr ""
 
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
@@ -2673,6 +2829,10 @@ msgstr "Druckvorschau"
 #: src/app/shell/menuModel.ts
 msgid "Print Preview…"
 msgstr "Druckvorschau…"
+
+#: src/app/toc/TocPreview.tsx
+msgid "Printed entries"
+msgstr ""
 
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Programs and fonts"
@@ -2806,6 +2966,10 @@ msgstr "Neu laden"
 msgid "Remember my choice"
 msgstr "Meine Wahl merken"
 
+#: src/app/toc/TocEditor.tsx
+msgid "Remove"
+msgstr ""
+
 #. placeholder {0}: ref.title
 #: src/state/project/references.ts
 msgid "Remove {0}"
@@ -2816,9 +2980,21 @@ msgstr "{0} entfernen"
 msgid "Remove {0} from recent projects"
 msgstr "{0} aus den letzten Projekten entfernen"
 
+#: src/app/toc/TocEditor.tsx
+msgid "Remove change for {label}"
+msgstr ""
+
+#: src/state/project/toc.ts
+msgid "Remove contents change"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Remove cover"
 msgstr "Cover entfernen"
+
+#: src/app/toc/TocRow.tsx
+msgid "Remove entry"
+msgstr ""
 
 #: src/app/references/ReferenceDetails.tsx
 #: src/app/references/ReferenceRow.tsx
@@ -2842,6 +3018,7 @@ msgid "Removed references ({removedCount})"
 msgstr "Entfernte Referenzen ({removedCount})"
 
 #: src/app/shell/EntryList.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Rename"
 msgstr "Umbenennen"
 
@@ -2849,6 +3026,14 @@ msgstr "Umbenennen"
 #: src/state/project/pages.ts
 msgid "Rename {0}"
 msgstr "{0} umbenennen"
+
+#: src/state/project/toc.ts
+msgid "Rename contents entry"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
+msgstr ""
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Reorder chapter {n}"
@@ -2895,9 +3080,25 @@ msgstr "Zurücksetzen"
 msgid "Reset all"
 msgstr "Alle zurücksetzen"
 
+#: src/state/project/toc.ts
+msgid "Reset contents to outline"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset shortcut for {action}"
 msgstr "Tastenkürzel für {action} zurücksetzen"
+
+#: src/app/toc/TocEditor.tsx
+msgid "Reset the contents to the outline?"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Reset this entry"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Reset to outline"
+msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -2962,6 +3163,10 @@ msgstr "Wird wiederhergestellt…"
 #: src/editor/FindResults.tsx
 msgid "Results by page"
 msgstr "Ergebnisse nach Seite"
+
+#: src/app/toc/TocPreview.tsx
+msgid "Retry"
+msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Rich Text (.rtf)"
@@ -3140,6 +3345,14 @@ msgstr "Als Liste anzeigen"
 msgid "Show chapters"
 msgstr "Kapitel anzeigen"
 
+#: src/state/project/toc.ts
+msgid "Show contents entry"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Show in contents"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Show margins"
 msgstr "Ränder anzeigen"
@@ -3225,6 +3438,10 @@ msgstr "CadabraCraft sponsern…"
 #: src/app/export/TypstSpread.tsx
 msgid "Spread controls"
 msgstr "Steuerung der Doppelseite"
+
+#: src/app/toc/TocRow.tsx
+msgid "Stale"
+msgstr ""
 
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
@@ -3405,6 +3622,10 @@ msgstr "Das Buch verwendet einen Textstil, den der EPUB-Export nicht schreiben k
 msgid "The book's cadabra.json is not a JSON object"
 msgstr "Die cadabra.json des Buchs ist kein JSON-Objekt"
 
+#: src/state/project/contentsPreview.ts
+msgid "The contents page is not in the typeset book."
+msgstr ""
+
 #: src/state/project/context.ts
 msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
 msgstr "Das Coverbild {cover} konnte nicht gelesen werden. Wähle es in den Buchdetails erneut aus oder entferne das Cover."
@@ -3467,6 +3688,10 @@ msgstr "Die Kennung darf nicht leer sein."
 #: src/lib/projectError.ts
 msgid "The image {0} is outside the document's folder"
 msgstr "Das Bild {0} liegt außerhalb des Dokumentordners"
+
+#: src/app/toc/TocEditor.tsx
+msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
+msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
@@ -3575,6 +3800,10 @@ msgstr "Es gibt nichts zum Vorlesen, daher gibt es kein Hörbuch zu erstellen."
 msgid "These are routine adjustments; nothing was lost."
 msgstr "Das sind routinemäßige Anpassungen; nichts ging verloren."
 
+#: src/app/toc/TocEditor.tsx
+msgid "These changes belong to a chapter or heading that is gone or was edited. They are kept until you remove them."
+msgstr ""
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "These fonts come from Google Fonts and are free to use under the SIL Open Font Licence. A font is downloaded only when you click Download; nothing else is sent."
 msgstr "Diese Schriften stammen von Google Fonts und sind unter der SIL Open Font License frei nutzbar. Eine Schrift wird nur geladen, wenn du auf Herunterladen klickst; sonst wird nichts gesendet."
@@ -3620,6 +3849,10 @@ msgstr "Der Inhalt dieses Dokuments konnte nicht gelesen werden. Es ist möglich
 #: src/lib/importErrorText.ts
 msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
 msgstr "Das sieht nicht nach einer gültigen .docx-Datei aus (sie konnte nicht als Word-Dokument geöffnet werden)."
+
+#: src/state/project/contentsPreview.ts
+msgid "This edition has no contents page to draw."
+msgstr ""
 
 #: src/lib/importBook.ts
 msgid "This file does not look like text. It may be damaged or saved in another format."
@@ -3735,6 +3968,10 @@ msgid "Typst could not build the PDF:\n"
 msgstr "Typst konnte das PDF nicht erstellen:\n"
 "{0}"
 
+#: src/app/toc/TocPreview.tsx
+msgid "Typst is not installed on this computer, so this is an approximation: the layout is drawn by the app and page numbers marked ≈ are estimates. Install Typst to see the exact page."
+msgstr ""
+
 #. placeholder {0}: e.seconds
 #: src/lib/pdfErrors.ts
 msgid "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
@@ -3810,6 +4047,10 @@ msgstr "Ohne Titel"
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Update available"
 msgstr "Update verfügbar"
+
+#: src/app/toc/TocPreview.tsx
+msgid "Updating the preview"
+msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Use a number such as 1 or 2.5."

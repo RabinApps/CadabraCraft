@@ -138,7 +138,11 @@ function heading(n: Exclude<DocNode, { type: "text" }>, ctx: Ctx): string {
       `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
     );
   const { mark, body } = leafText(kids, ctx, "h");
-  return `#heading(level: ${level})[${mark}${body}]`;
+  // Same walk as `extractOutline`, so the position of a heading is the `index` of its contents item.
+  const key = ctx.headingKeys?.get(ctx.headingNo);
+  ctx.headingNo++;
+  const toc = key === undefined ? "" : `#mark("toc-heading", info: (key: ${typstString(key)}))`;
+  return `#heading(level: ${level})[${toc}${mark}${body}]`;
 }
 
 /** The start mark of the block being marked (see `markedBlocks`): where a leaf of text, an image or a code block begins. */

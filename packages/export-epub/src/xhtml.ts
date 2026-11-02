@@ -39,6 +39,10 @@ interface Ctx {
   inNote: boolean;
   /** Where the walk is, outermost first ("bulletList 2", "listItem 1", ...). Only used to say where an error happened. */
   path: string[];
+  /** Write `id="h-N"` on every heading (N = position among the chapter's headings, as `extractOutline` numbers them). */
+  headingIds: boolean;
+  /** Headings seen so far. */
+  headings: number;
 }
 
 /** Runs `fn` for child `i` of its parent, so errors thrown inside can name the place. */
@@ -246,7 +250,9 @@ function block(n: DocNode, ctx: Ctx): string {
           `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
           "heading",
         );
-      return `<h${level}>${inline(kids, ctx)}</h${level}>`;
+      const id = ctx.headingIds ? ` id="${headingAnchor(ctx.headings)}"` : "";
+      ctx.headings += 1;
+      return `<h${level}${id}>${inline(kids, ctx)}</h${level}>`;
     }
     case "blockquote":
       return `<blockquote>${blocks(kids, ctx)}</blockquote>`;
@@ -302,9 +308,24 @@ function block(n: DocNode, ctx: Ctx): string {
   }
 }
 
-/** Chapter JSON -> XHTML body fragment, with an endnotes section when footnotes exist. */
-export function chapterToXhtmlBody(doc: ChapterDoc): string {
-  const ctx: Ctx = { notes: [], inNote: false, path: [] };
+/** The fragment id of the Nth heading of a page (what a contents entry links to). */
+export const headingAnchor = (index: number): string => `h-${index}`;
+
+/**
+ * Chapter JSON -> XHTML body fragment, with an endnotes section when footnotes exist. `headingIds` puts `id="h-N"` on each
+ * heading so a contents page can link to it; off by default.
+ */
+export function chapterToXhtmlBody(
+  doc: ChapterDoc,
+  options: { headingIds?: boolean } = {},
+): string {
+  const ctx: Ctx = {
+    notes: [],
+    inNote: false,
+    path: [],
+    headingIds: options.headingIds ?? false,
+    headings: 0,
+  };
   const body = doc.content.map((n, i) => at(ctx, n, i, () => block(n, ctx))).join("\n");
   if (!ctx.notes.length) return body;
   const notes = ctx.notes

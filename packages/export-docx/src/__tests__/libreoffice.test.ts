@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { ChapterDoc, DocNode } from "@cadabracraft/shared";
-import { buildDocx, type DocxChapter } from "../index";
+import { buildDocx, type DocxChapter, type DocxContentsItem } from "../index";
 
 // Each conversion starts LibreOffice (a few seconds warm, much slower on a cold profile or a loaded CI machine).
 const SOFFICE_TIMEOUT = 180_000;
@@ -73,9 +73,19 @@ function convert(docxPath: string, filter: string, ext: string): string {
   return join(work, out[0]!);
 }
 
-const writeDocx = (title: string, chapters: DocxChapter[]): string => {
+const writeDocx = (
+  title: string,
+  chapters: DocxChapter[],
+  contents?: DocxContentsItem[],
+): string => {
   const f = join(mkdtempSync(join(tmpdir(), "lo-in-")), "book.docx");
-  writeFileSync(f, buildDocx({ title, author: "Ada Q. Lovelace" }, chapters, { assets }));
+  writeFileSync(
+    f,
+    buildDocx({ title, author: "Ada Q. Lovelace" }, chapters, {
+      assets,
+      ...(contents ? { contents } : {}),
+    }),
+  );
   return f;
 };
 const pageCount = (pdf: Buffer): number =>
@@ -119,6 +129,43 @@ describe.skipIf(!soffice && !process.env.REQUIRE_SOFFICE)("LibreOffice opens the
       expect(pdf.subarray(0, 4).toString("latin1")).toBe("%PDF");
       expect(pageCount(pdf)).toBeGreaterThanOrEqual(1);
       expect(toText(docx)).toContain("Sentence one & two.");
+    },
+    SOFFICE_TIMEOUT,
+  );
+
+  it(
+    "converts a book with a contents page and lists its titles in order",
+    () => {
+      const h1 = (text: string): DocNode => ({
+        type: "heading",
+        attrs: { level: 1 },
+        content: [{ type: "text", text }],
+      });
+      const docx = writeDocx(
+        "Contents Book",
+        [
+          {
+            id: "toc",
+            title: "Contents",
+            kind: "contents",
+            section: "front",
+            doc: { type: "doc", content: [h1("Contents")] },
+          },
+          { id: "a", title: "Alpha", doc: { type: "doc", content: [h1("Alpha"), para("a1")] } },
+          { id: "b", title: "Beta", doc: { type: "doc", content: [h1("Beta"), para("b1")] } },
+        ],
+        [
+          { level: 0, title: "Alpha & <Omega>" },
+          { level: 1, title: "Sub entry" },
+          { level: 0, title: "Beta" },
+        ],
+      );
+      const pdf = toPdf(docx);
+      expect(pdf.subarray(0, 4).toString("latin1")).toBe("%PDF");
+      const text = toText(docx);
+      const at = ["Contents", "Alpha & <Omega>", "Sub entry", "Beta"].map((t) => text.indexOf(t));
+      expect(at, text).not.toContain(-1);
+      expect([...at].sort((x, y) => x - y)).toEqual(at);
     },
     SOFFICE_TIMEOUT,
   );

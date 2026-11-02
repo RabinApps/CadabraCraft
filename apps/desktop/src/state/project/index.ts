@@ -11,6 +11,7 @@ import { createProjectActions } from "./project";
 import { createReferenceActions } from "./references";
 import { createReplaceActions } from "./replace";
 import { createSnapshotActions } from "./snapshots";
+import { createTocActions } from "./toc";
 import { createTrashActions } from "./trash";
 import { NO_HISTORY } from "./util";
 import { createVoiceActions } from "./voices";
@@ -74,6 +75,7 @@ export const useProject = create<ProjectState>((set, get) => {
       ...createReplaceActions(ctx),
       ...createAssetActions(ctx),
       ...createReferenceActions(ctx),
+      ...createTocActions(ctx),
       ...createExportActions(ctx),
       ...createAudioActions(ctx),
       ...createVoiceActions(ctx),

@@ -177,3 +177,47 @@ describe("renderAudiobook", () => {
     ).rejects.toBeInstanceOf(CancelledError);
   });
 });
+
+describe("contents page", () => {
+  const contents: AudioChapter = {
+    id: "toc",
+    title: "Contents",
+    kind: "contents",
+    doc: doc("Contents"),
+  };
+
+  it("is skipped by kind: never narrated, not in the results, other pages unchanged", async () => {
+    const runner = fakeRunner();
+    const results = await renderAudiobook([contents, ...book], options, runner);
+    expect(runner.requests.map((r) => r.chapterId)).toEqual(["a", "b", "c"]);
+    expect(results.map((r) => r.id)).toEqual(["a", "b", "c"]);
+    // indexes and cache keys match a book without the page
+    const plain = fakeRunner();
+    await renderAudiobook(book, options, plain);
+    expect(runner.requests).toEqual(plain.requests);
+  });
+
+  it("is skipped even when picked by id, and a book with only that page has nothing to render", async () => {
+    const runner = fakeRunner();
+    await renderAudiobook([contents, ...book], { ...options, chapterIds: ["toc", "b"] }, runner);
+    expect(runner.requests.map((r) => r.chapterId)).toEqual(["b"]);
+    await expect(
+      renderAudiobook([contents], { ...options, chapterIds: ["toc"] }, fakeRunner()),
+    ).rejects.toThrow(/no chapters/);
+  });
+
+  it("does not hide unknown nodes in other pages, and a page of another kind is still narrated", async () => {
+    const bad: AudioChapter = {
+      id: "bad",
+      title: "Bad",
+      kind: "preface",
+      doc: { type: "doc", content: [{ type: "mystery" }] } as unknown as ChapterDoc,
+    };
+    const runner = fakeRunner();
+    await expect(renderAudiobook([contents, bad], options, runner)).rejects.toThrow(/mystery/);
+    expect(runner.requests).toEqual([]);
+    const ok = fakeRunner();
+    await renderAudiobook([{ ...book[0]!, kind: "preface" }], options, ok);
+    expect(ok.requests.map((r) => r.chapterId)).toEqual(["a"]);
+  });
+});
