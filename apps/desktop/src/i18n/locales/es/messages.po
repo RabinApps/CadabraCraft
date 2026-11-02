@@ -117,7 +117,7 @@ msgstr "No se pudo escribir {0}:\n"
 #. placeholder {0}: packName(p)
 #: src/app/settings/AudioSection.tsx
 msgid "{0} deleted from this computer."
-msgstr ""
+msgstr "{0} eliminado de este ordenador."
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
@@ -316,11 +316,11 @@ msgstr "{sessionWritten} de {sessionGoal} palabras en esta sesión"
 
 #: src/editor/PageFrame.tsx
 msgid "{size} · approximate"
-msgstr ""
+msgstr "{size} · aproximado"
 
 #: src/editor/PageFrame.tsx
 msgid "{size} · breaks as in the PDF"
-msgstr ""
+msgstr "{size} · saltos como en el PDF"
 
 #: src/state/project/history.ts
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
@@ -352,15 +352,15 @@ msgstr "{words, plural, one {# palabra en esta página} other {# palabras en est
 
 #: src/app/toc/TocEditor.tsx
 msgid "+H1"
-msgstr ""
+msgstr "+H1"
 
 #: src/app/toc/TocEditor.tsx
 msgid "+H1-H2"
-msgstr ""
+msgstr "+H1-H2"
 
 #: src/app/toc/TocEditor.tsx
 msgid "+H1-H3"
-msgstr ""
+msgstr "+H1-H3"
 
 #: src/app/export/PrintPreview.tsx
 msgid "0.125 in"
@@ -368,7 +368,7 @@ msgstr "0,125 in"
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage."
-msgstr ""
+msgstr "Una etiqueta BCP 47 como fr, fr-CA o zh-Hans. Los lectores de pantalla y las exportaciones la usan para pronunciar y separar en sílabas el pasaje."
 
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image."
@@ -396,11 +396,11 @@ msgstr "Ya se está generando una muestra"
 
 #: src/app/export/AudioExport.tsx
 msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
-msgstr ""
+msgstr "Un archivo de texto de todo el libro y un archivo de subtítulos WebVTT por capítulo, a partir del texto exacto que lee la voz. Los tiempos de los subtítulos son estimados."
 
 #: src/app/shell/EntryList.tsx
 msgid "A title cannot be empty, so the old title was kept."
-msgstr ""
+msgstr "Un título no puede estar vacío, así que se conservó el título anterior."
 
 #: src/app/shell/menuModel.ts
 msgid "About CadabraCraft"
@@ -452,16 +452,16 @@ msgstr "Añadir columna después"
 
 #: src/state/project/toc.ts
 msgid "Add contents entry"
-msgstr ""
+msgstr "Añadir entrada del contenido"
 
 #: src/app/toc/AddEntryDialog.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Add custom entry"
-msgstr ""
+msgstr "Añadir entrada personalizada"
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Add entry"
-msgstr ""
+msgstr "Añadir entrada"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Add files"
@@ -536,7 +536,7 @@ msgstr "Todos los idiomas"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "All shortcuts reset to default"
-msgstr ""
+msgstr "Todos los atajos se restablecieron a los predeterminados"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Already used by “{owner}”. Press another key."
@@ -556,7 +556,7 @@ msgstr "Del mismo autor"
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "An entry of your own, such as “Acknowledgments” or a part title. It takes its page number from the entry it points at."
-msgstr ""
+msgstr "Una entrada propia, como “Agradecimientos” o el título de una parte. Toma su número de página de la entrada a la que apunta."
 
 #: src/state/project/audio.ts
 #: src/state/project/exports.ts
@@ -581,7 +581,7 @@ msgstr "Aplicar"
 
 #: src/app/toc/TocPreview.tsx
 msgid "Approximate: Typst is not available"
-msgstr ""
+msgstr "Aproximado: Typst no está disponible"
 
 #: src/app/settings/Settings.tsx
 msgid "Ask each time"
@@ -798,7 +798,7 @@ msgstr "Cancelar la descarga de {0}"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Cancelled. Shortcut for {action} unchanged."
-msgstr ""
+msgstr "Cancelado. El atajo de {action} no ha cambiado."
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
@@ -821,11 +821,11 @@ msgstr "Cambiar"
 
 #: src/state/project/toc.ts
 msgid "Change contents depth"
-msgstr ""
+msgstr "Cambiar la profundidad del contenido"
 
 #: src/state/project/toc.ts
 msgid "Change contents page numbers"
-msgstr ""
+msgstr "Cambiar los números de página del contenido"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change shortcut for {action}"
@@ -841,7 +841,7 @@ msgstr "Puede que no se detecten los cambios hechos fuera de la aplicación. Gua
 
 #: src/app/toc/TocEditor.tsx
 msgid "Changes that no longer match"
-msgstr ""
+msgstr "Cambios que ya no coinciden"
 
 #: src/app/shell/Details.tsx
 msgid "Chapter"
@@ -974,11 +974,11 @@ msgstr "Aclaraciones"
 #: src/editor/Toolbar.tsx
 #: src/editor/ToolbarDialogs.tsx
 msgid "Clear language"
-msgstr ""
+msgstr "Quitar idioma"
 
 #: src/app/shell/menuModel.ts
 msgid "Clear Language"
-msgstr ""
+msgstr "Quitar idioma"
 
 #: src/app/shell/menuModel.ts
 msgid "Clear Menu"
@@ -1066,15 +1066,15 @@ msgstr "Comparación"
 #: src/app/shell/Sidebar.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Contents"
-msgstr ""
+msgstr "Contenido"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Contents entries"
-msgstr ""
+msgstr "Entradas del contenido"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Contents view"
-msgstr ""
+msgstr "Vista del contenido"
 
 #: src/app/home/Dashboard.tsx
 msgid "Continue writing"
@@ -1130,7 +1130,7 @@ msgstr "No se pudo leer"
 
 #: src/state/project/toc.ts
 msgid "Could not change the contents page: {why}"
-msgstr ""
+msgstr "No se pudo cambiar la página de contenido: {why}"
 
 #: src/editor/Editor.tsx
 msgid "Could not convert the HTML in the selection"
@@ -1140,13 +1140,31 @@ msgstr "No se pudo convertir el HTML de la selección"
 msgid "Could not convert the HTML, so it was pasted as text"
 msgstr "No se pudo convertir el HTML, así que se pegó como texto"
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not delete the snapshot ({reason}). It is still in the list. Try again."
+msgstr "No se pudo eliminar la instantánea ({reason}). Sigue en la lista. Inténtalo de nuevo."
+
 #: src/app/toc/TocPreview.tsx
 msgid "Could not draw the preview"
-msgstr ""
+msgstr "No se pudo dibujar la vista previa"
+
+#. placeholder {0}: errText(err)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not import ({0}). Your original file was not changed. Try again, or go back and choose a different file."
+msgstr "No se pudo importar ({0}). Tu archivo original no se modificó. Inténtalo de nuevo o vuelve atrás y elige otro archivo."
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Could not install the update: {error}"
 msgstr "No se pudo instalar la actualización: {error}"
+
+#: src/app/settings/Settings.tsx
+msgid "Could not load {name}. The language stays as it was. Choose it again, or pick another language."
+msgstr "No se pudo cargar {name}. El idioma queda como estaba. Elígelo de nuevo o elige otro idioma."
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Could not load the earlier versions ({0}). Close this dialog and open History again to retry."
+msgstr "No se pudieron cargar las versiones anteriores ({0}). Cierra este diálogo y abre el Historial de nuevo para reintentar."
 
 #. placeholder {0}: errText(e)
 #: src/app/dialogs/SponsorDialog.tsx
@@ -1158,13 +1176,33 @@ msgid "Could not open {title}: {error}"
 msgstr "No se pudo abrir {title}: {error}"
 
 #. placeholder {0}: errText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not open the chooser ({0}). Try again."
+msgstr "No se pudo abrir el selector ({0}). Inténtalo de nuevo."
+
+#. placeholder {0}: errText(e)
 #: src/app/home/Home.tsx
 msgid "Could not open this book: {0}"
 msgstr "No se pudo abrir este libro: {0}"
 
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
+msgstr "No se pudieron leer las instantáneas del libro ({0}). Cierra este diálogo y abre el Historial de nuevo para reintentar."
+
+#. placeholder {0}: errText(e)
+#: src/app/shell/TrashDialog.tsx
+msgid "Could not read the trash ({0}). Close this dialog and open the trash again to retry."
+msgstr "No se pudo leer la papelera ({0}). Cierra este diálogo y abre la papelera de nuevo para reintentar."
+
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Could not read this document: {error}"
 msgstr "No se pudo leer este documento: {error}"
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not read this file ({0}). Choose a different file (Word .docx, Markdown or HTML) and try again."
+msgstr "No se pudo leer este archivo ({0}). Elige otro archivo (Word .docx, Markdown o HTML) e inténtalo de nuevo."
 
 #: src/state/project/history.ts
 msgid "Could not redo: {why}"
@@ -1181,10 +1219,29 @@ msgstr "No se pudo eliminar {0}: {1}"
 msgid "Could not reorder the references: {0}"
 msgstr "No se pudieron reordenar las referencias: {0}"
 
+#. placeholder {0}: x.title
+#. placeholder {1}: errText(e)
+#: src/app/shell/TrashDialog.tsx
+msgid "Could not restore {0} ({1}). It is still in the trash. Try again, or restore another page."
+msgstr "No se pudo restaurar {0} ({1}). Sigue en la papelera. Inténtalo de nuevo o restaura otra página."
+
 #. placeholder {0}: errText(e)
 #: src/state/project/references.ts
 msgid "Could not restore {name}: {0}"
 msgstr "No se pudo restaurar {name}: {0}"
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not restore the book ({reason}). Try again, or pick another snapshot."
+msgstr "No se pudo restaurar el libro ({reason}). Inténtalo de nuevo o elige otra instantánea."
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not restore this page ({reason}). Your current text was not changed. Try again, or pick another snapshot."
+msgstr "No se pudo restaurar esta página ({reason}). Tu texto actual no se modificó. Inténtalo de nuevo o elige otra instantánea."
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
+msgstr "No se pudo restaurar esta versión ({0}). Tu texto actual no se modificó. Inténtalo de nuevo o elige otra versión."
 
 #. placeholder {0}: errText(e)
 #: src/state/project/references.ts
@@ -1205,9 +1262,23 @@ msgstr "No se pudo mostrar la vista previa: {error}"
 msgid "Could not show this PDF: {error}"
 msgstr "No se pudo mostrar este PDF: {error}"
 
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not split the file at that heading level ({0}). Pick another heading level, or go back and choose a different file."
+msgstr "No se pudo dividir el archivo en ese nivel de título ({0}). Elige otro nivel de título o vuelve atrás y elige otro archivo."
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not take the snapshot ({reason}). Your name is kept. Try again, or free some space and retry."
+msgstr "No se pudo crear la instantánea ({reason}). Se conserva tu nombre. Inténtalo de nuevo o libera espacio y reintenta."
+
 #: src/state/project/history.ts
 msgid "Could not undo: {why}"
 msgstr "No se pudo deshacer: {why}"
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/RecoverDialog.tsx
+msgid "Could not use the newer text ({0}). Your saved text was not changed. Try again, or choose Keep saved text."
+msgstr "No se pudo usar el texto más reciente ({0}). Tu texto guardado no se modificó. Inténtalo de nuevo o elige Conservar el texto guardado."
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/export/ApproxSpread.tsx
@@ -1252,7 +1323,7 @@ msgstr "Actual"
 
 #: src/app/toc/TocRow.tsx
 msgid "Custom"
-msgstr ""
+msgstr "Personalizada"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -1301,7 +1372,7 @@ msgstr "Eliminar {0}"
 #. placeholder {0}: packName(p)
 #: src/app/settings/AudioSection.tsx
 msgid "Delete {0} from this computer?"
-msgstr ""
+msgstr "¿Eliminar {0} de este ordenador?"
 
 #: src/app/shell/menuModel.ts
 msgid "Delete Column"
@@ -1329,7 +1400,7 @@ msgstr "Eliminar voces"
 
 #: src/editor/useImageDialog.ts
 msgid "Describe the image, or tick \"This image is decorative\"."
-msgstr ""
+msgstr "Describe la imagen o marca “Esta imagen es decorativa”."
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Description"
@@ -1354,7 +1425,7 @@ msgstr "Descartar"
 
 #: src/app/shell/AppHeader.tsx
 msgid "Dismiss message"
-msgstr ""
+msgstr "Descartar mensaje"
 
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/references/ReferenceRow.tsx
@@ -1515,7 +1586,7 @@ msgstr "Escribe primero el nombre de la serie."
 #: src/app/toc/AddEntryDialog.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Entry title"
-msgstr ""
+msgstr "Título de la entrada"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -1540,7 +1611,7 @@ msgstr "Se estiman {estimatedPages} páginas: los libros de tapa blanda de KDP n
 
 #: src/app/toc/TocRow.tsx
 msgid "Estimated page"
-msgstr ""
+msgstr "Página estimada"
 
 #. placeholder {0}: chosen?.name ?? ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
@@ -1557,7 +1628,7 @@ msgstr "Todos los idiomas ya están en este libro."
 
 #: src/app/toc/TocPreview.tsx
 msgid "Exact pages from Typst"
-msgstr ""
+msgstr "Páginas exactas de Typst"
 
 #: src/app/shell/App.tsx
 msgid "Exit focus mode"
@@ -1714,7 +1785,7 @@ msgstr "Nota al pie"
 #: src/editor/Editor.tsx
 #: src/editor/ReadingSection.tsx
 msgid "Footnote {n}"
-msgstr ""
+msgstr "Nota al pie {n}"
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "For example, Before the rewrite"
@@ -1797,7 +1868,7 @@ msgstr "Fuente de los títulos"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Headings to list"
-msgstr ""
+msgstr "Títulos que incluir"
 
 #: src/app/export/AudioFooter.tsx
 msgid "Hear a sample"
@@ -1810,7 +1881,7 @@ msgstr "Ayuda"
 
 #: src/app/toc/TocRow.tsx
 msgid "Hidden"
-msgstr ""
+msgstr "Oculta"
 
 #: src/app/shell/menuModel.ts
 msgid "Hide CadabraCraft"
@@ -1818,11 +1889,11 @@ msgstr "Ocultar CadabraCraft"
 
 #: src/state/project/toc.ts
 msgid "Hide contents entry"
-msgstr ""
+msgstr "Ocultar entrada del contenido"
 
 #: src/app/toc/TocRow.tsx
 msgid "Hide from contents"
-msgstr ""
+msgstr "Ocultar del contenido"
 
 #: src/app/shell/menuModel.ts
 msgid "Hide Others"
@@ -1875,12 +1946,12 @@ msgstr "No se pudo guardar la imagen {0}: {1}"
 
 #: src/app/export/AltTextCheck.tsx
 msgid "Image checks"
-msgstr ""
+msgstr "Comprobaciones de imágenes"
 
 #: src/editor/Toolbar.tsx
 #: src/editor/ToolbarDialogs.tsx
 msgid "Image details"
-msgstr ""
+msgstr "Detalles de la imagen"
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Image file"
@@ -2027,7 +2098,7 @@ msgstr "ISBN"
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "It adds nothing to the text, so screen readers skip it."
-msgstr ""
+msgstr "No añade nada al texto, así que los lectores de pantalla la omiten."
 
 #: src/app/references/Previews.tsx
 msgid "It is stored with your book. Open it in another app to read it."
@@ -2045,7 +2116,7 @@ msgstr "Cursiva"
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Its page number is shown. Choose “Nothing” for an entry without a number."
-msgstr ""
+msgstr "Se muestra su número de página. Elige “Nada” para una entrada sin número."
 
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "JavaScript libraries"
@@ -2114,19 +2185,19 @@ msgstr "Idioma de los menús y los cuadros de diálogo."
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Language of selection"
-msgstr ""
+msgstr "Idioma de la selección"
 
 #: src/editor/Toolbar.tsx
 msgid "Language of selection…"
-msgstr ""
+msgstr "Idioma de la selección…"
 
 #: src/app/shell/menuModel.ts
 msgid "Language of Selection…"
-msgstr ""
+msgstr "Idioma de la selección…"
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Language tag"
-msgstr ""
+msgstr "Etiqueta de idioma"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Larger text"
@@ -2203,7 +2274,7 @@ msgstr "Capítulos vinculados"
 
 #: src/app/toc/TocEditor.tsx
 msgid "List"
-msgstr ""
+msgstr "Incluir"
 
 #: src/editor/ReadingBook.tsx
 msgid "Loading the book"
@@ -2248,7 +2319,7 @@ msgstr "Creando muestra… (detener)"
 
 #: src/app/toc/TocPreview.tsx
 msgid "Making the preview…"
-msgstr ""
+msgstr "Preparando la vista previa…"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Manual order"
@@ -2347,7 +2418,7 @@ msgstr "Mover el capítulo {n} arriba"
 
 #: src/state/project/toc.ts
 msgid "Move contents entry"
-msgstr ""
+msgstr "Mover entrada del contenido"
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
@@ -2371,7 +2442,7 @@ msgstr "Mover arriba"
 #. placeholder {2}: rows.length
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
-msgstr ""
+msgstr "{0} movido a la posición {1} de {2}"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
@@ -2455,9 +2526,17 @@ msgid "No file chosen"
 msgstr "Ningún archivo elegido"
 
 #: src/app/dialogs/ImportDialogs.tsx
+msgid "No file is chosen. Choose the file to import."
+msgstr "No hay ningún archivo elegido. Elige el archivo que quieres importar."
+
+#: src/app/dialogs/ImportDialogs.tsx
 #: src/app/home/Home.tsx
 msgid "No folder chosen"
 msgstr "Ninguna carpeta elegida"
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "No folder is chosen. Choose an empty folder for the new book."
+msgstr "No hay ninguna carpeta elegida. Elige una carpeta vacía para el nuevo libro."
 
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "No heading or chapter matches “{q}”."
@@ -2561,7 +2640,7 @@ msgstr "Nota"
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Nothing"
-msgstr ""
+msgstr "Nada"
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
@@ -2573,7 +2652,7 @@ msgstr "Nada eliminado"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
-msgstr ""
+msgstr "Todavía no hay nada que incluir. Añade un capítulo y aparecerá aquí."
 
 #: src/app/dialogs/ImportParts.tsx
 #: src/app/dialogs/ImportReportDialog.tsx
@@ -2671,8 +2750,8 @@ msgid "Other"
 msgstr "Otro"
 
 #: src/editor/ToolbarDialogs.tsx
-msgid "Other (type a tag below)"
-msgstr ""
+msgid "Other (use the Language tag field)"
+msgstr "Otro (usa el campo Etiqueta de idioma)"
 
 #: src/app/settings/shortcutList.ts
 msgid "Outdent list item"
@@ -2694,7 +2773,7 @@ msgstr "Empaquetando el audiolibro…"
 #. placeholder {0}: p.index + 1
 #: src/app/toc/TocPreview.tsx
 msgid "Page {0} of {total}"
-msgstr ""
+msgstr "Página {0} de {total}"
 
 #: src/app/shell/PageEstimate.tsx
 msgid "Page {current} of ≈ {count}"
@@ -2727,7 +2806,7 @@ msgstr "Los saltos de página son los del PDF: cada página contiene el texto qu
 
 #: src/app/toc/TocEditor.tsx
 msgid "Page numbers"
-msgstr ""
+msgstr "Números de página"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
@@ -2776,7 +2855,7 @@ msgstr "¿Pegar como texto con estilo?"
 
 #: src/editor/Editor.tsx
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
-msgstr ""
+msgstr "Las imágenes pegadas se omitieron. Usa Insertar, Imagen para añadir una imagen al libro."
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/references/ReferencesPanel.tsx
@@ -2797,7 +2876,7 @@ msgstr "PDF/A (archivo)"
 
 #: src/app/export/PdfPanel.tsx
 msgid "PDF/UA (accessible)"
-msgstr ""
+msgstr "PDF/UA (accesible)"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Pick an edition to export."
@@ -2822,7 +2901,7 @@ msgstr "Voces de Piper: Amy y LibriTTS"
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Place after"
-msgstr ""
+msgstr "Colocar después de"
 
 #: src/app/home/Dashboard.tsx
 msgid "Place in the book"
@@ -2834,7 +2913,7 @@ msgstr "PNG, JPEG o WebP, hasta 25 MB. Se guarda una copia en la carpeta de recu
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Points to"
-msgstr ""
+msgstr "Apunta a"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -2843,7 +2922,7 @@ msgstr "Prefacio"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Press the new keys for {action}. Esc cancels."
-msgstr ""
+msgstr "Pulsa las teclas nuevas para {action}. Esc cancela."
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Press the new keys…"
@@ -2852,7 +2931,7 @@ msgstr "Pulsa las teclas nuevas…"
 #: src/app/toc/TocEditor.tsx
 #: src/app/toc/TocPreview.tsx
 msgid "Preview"
-msgstr ""
+msgstr "Vista previa"
 
 #: src/editor/ReadingFooter.tsx
 msgid "Previous chapter"
@@ -2910,7 +2989,7 @@ msgstr "Vista previa de impresión…"
 
 #: src/app/toc/TocPreview.tsx
 msgid "Printed entries"
-msgstr ""
+msgstr "Entradas impresas"
 
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Programs and fonts"
@@ -2952,7 +3031,7 @@ msgstr "Leer"
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
-msgstr ""
+msgstr "Los lectores de pantalla la leen en voz alta. Describe lo que muestra la imagen."
 
 #: src/editor/ReadingSettings.tsx
 msgid "Reading settings"
@@ -3046,7 +3125,7 @@ msgstr "Recordar mi elección"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Remove"
-msgstr ""
+msgstr "Quitar"
 
 #. placeholder {0}: ref.title
 #: src/state/project/references.ts
@@ -3060,11 +3139,11 @@ msgstr "Quitar {0} de los proyectos recientes"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Remove change for {label}"
-msgstr ""
+msgstr "Quitar el cambio de {label}"
 
 #: src/state/project/toc.ts
 msgid "Remove contents change"
-msgstr ""
+msgstr "Quitar cambio del contenido"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Remove cover"
@@ -3072,7 +3151,7 @@ msgstr "Quitar portada"
 
 #: src/app/toc/TocRow.tsx
 msgid "Remove entry"
-msgstr ""
+msgstr "Quitar entrada"
 
 #: src/app/references/ReferenceDetails.tsx
 #: src/app/references/ReferenceRow.tsx
@@ -3107,18 +3186,18 @@ msgstr "Renombrar {0}"
 
 #: src/state/project/toc.ts
 msgid "Rename contents entry"
-msgstr ""
+msgstr "Renombrar entrada del contenido"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
-msgstr ""
+msgstr "Se quitan las entradas renombradas, ocultas, movidas y personalizadas. La profundidad y el ajuste de números de página se mantienen."
 
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
-msgstr ""
+msgstr "Reordenar {0}"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Reorder chapter {n}"
@@ -3167,7 +3246,7 @@ msgstr "Restablecer todo"
 
 #: src/state/project/toc.ts
 msgid "Reset contents to outline"
-msgstr ""
+msgstr "Restablecer el contenido al esquema"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset shortcut for {action}"
@@ -3175,19 +3254,19 @@ msgstr "Restablecer el atajo de {action}"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Reset the contents to the outline?"
-msgstr ""
+msgstr "¿Restablecer el contenido al esquema?"
 
 #: src/app/toc/TocRow.tsx
 msgid "Reset this entry"
-msgstr ""
+msgstr "Restablecer esta entrada"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset to default"
-msgstr ""
+msgstr "Restablecer valores predeterminados"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Reset to outline"
-msgstr ""
+msgstr "Restablecer al esquema"
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -3255,7 +3334,7 @@ msgstr "Resultados por página"
 
 #: src/app/toc/TocPreview.tsx
 msgid "Retry"
-msgstr ""
+msgstr "Reintentar"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Rich Text (.rtf)"
@@ -3297,7 +3376,7 @@ msgstr "Guardar"
 
 #: src/app/export/AudioExport.tsx
 msgid "Save a transcript"
-msgstr ""
+msgstr "Guardar una transcripción"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Save details"
@@ -3375,7 +3454,7 @@ msgstr "Selecciona texto dentro de una celda o un párrafo para convertirlo"
 
 #: src/editor/useLangDialog.ts
 msgid "Select the text first."
-msgstr ""
+msgstr "Selecciona primero el texto."
 
 #: src/editor/Toolbar.tsx
 msgid "Select the text you want to link first."
@@ -3426,11 +3505,11 @@ msgstr "Ajustes…"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Shortcut for {action} removed."
-msgstr ""
+msgstr "Atajo de {action} quitado."
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Shortcut for {action} saved."
-msgstr ""
+msgstr "Atajo de {action} guardado."
 
 #: src/app/settings/Settings.tsx
 msgid "Shortcuts"
@@ -3454,11 +3533,11 @@ msgstr "Mostrar capítulos"
 
 #: src/state/project/toc.ts
 msgid "Show contents entry"
-msgstr ""
+msgstr "Mostrar entrada del contenido"
 
 #: src/app/toc/TocRow.tsx
 msgid "Show in contents"
-msgstr ""
+msgstr "Mostrar en el contenido"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Show margins"
@@ -3474,7 +3553,7 @@ msgstr "Licencia SIL Open Font 1.1"
 
 #: src/ui/SkipLink.tsx
 msgid "Skip to main content"
-msgstr ""
+msgstr "Saltar al contenido principal"
 
 #: src/app/export/AudioExport.tsx
 #: src/app/export/EditionsChecklist.tsx
@@ -3552,7 +3631,7 @@ msgstr "Controles del pliego"
 
 #: src/app/toc/TocRow.tsx
 msgid "Stale"
-msgstr ""
+msgstr "Desactualizada"
 
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
@@ -3646,7 +3725,7 @@ msgstr "Etiquetas"
 
 #: src/app/export/PdfPanel.tsx
 msgid "Tags headings, lists, tables and images so screen readers can read the file, and marks page numbers and running headers as decoration. Can be combined with PDF/A. Images need a description (alt text) in the editor."
-msgstr ""
+msgstr "Etiqueta los títulos, listas, tablas e imágenes para que los lectores de pantalla puedan leer el archivo, y marca los números de página y los encabezados corrientes como decoración. Se puede combinar con PDF/A. Las imágenes necesitan una descripción (texto alternativo) en el editor."
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Take snapshot"
@@ -3726,6 +3805,10 @@ msgstr "El libro todavía no tiene capítulos que leer en voz alta. Añade prime
 msgid "The book has no pages to export yet. Add a chapter first."
 msgstr "El libro todavía no tiene páginas que exportar. Añade primero un capítulo."
 
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "The book has no title. Type one."
+msgstr "El libro no tiene título. Escribe uno."
+
 #: src/app/home/Home.tsx
 msgid "The book is stored in this folder. Nothing leaves your computer."
 msgstr "El libro se guarda en esta carpeta. Nada sale de tu ordenador."
@@ -3740,7 +3823,7 @@ msgstr "El cadabra.json del libro no es un objeto JSON"
 
 #: src/state/project/contentsPreview.ts
 msgid "The contents page is not in the typeset book."
-msgstr ""
+msgstr "La página de contenido no está en el libro maquetado."
 
 #: src/state/project/context.ts
 msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
@@ -3782,7 +3865,7 @@ msgstr "El archivo descargado estaba dañado y se eliminó. Intenta la descarga 
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "The entry has no title."
-msgstr ""
+msgstr "La entrada no tiene título."
 
 #: src/editor/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
@@ -3811,7 +3894,7 @@ msgstr "La imagen {0} está fuera de la carpeta del documento"
 
 #: src/app/toc/TocEditor.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
-msgstr ""
+msgstr "La lista sigue tus capítulos. Renombra, oculta, reordena o añade entradas aquí; las exportaciones y la vista previa de impresión usan esta lista."
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
@@ -3841,13 +3924,17 @@ msgstr "El PDF recibe el mismo sangrado y las mismas marcas de corte. Ajústalos
 msgid "The selection is too large to convert"
 msgstr "La selección es demasiado grande para convertirla"
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "The snapshot has no name. Type one, for example “Before the rewrite”."
+msgstr "La instantánea no tiene nombre. Escribe uno, por ejemplo “Antes de la reescritura”."
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "The system or the text keeps this key. Press another one."
 msgstr "El sistema o el texto se queda con esta tecla. Pulsa otra."
 
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so the bundled serif is used."
-msgstr ""
+msgstr "La fuente de impresión de la plantilla no está instalada aquí, así que se usa la serif incluida."
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
@@ -3922,7 +4009,7 @@ msgstr "Son ajustes rutinarios; no se perdió nada."
 
 #: src/app/toc/TocEditor.tsx
 msgid "These changes belong to a chapter or heading that is gone or was edited. They are kept until you remove them."
-msgstr ""
+msgstr "Estos cambios pertenecen a un capítulo o título que ya no existe o que se editó. Se conservan hasta que los quites."
 
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "These fonts come from Google Fonts and are free to use under the SIL Open Font Licence. A font is downloaded only when you click Download; nothing else is sent."
@@ -3972,7 +4059,7 @@ msgstr "Esto no parece un archivo .docx válido (no se pudo abrir como documento
 
 #: src/state/project/contentsPreview.ts
 msgid "This edition has no contents page to draw."
-msgstr ""
+msgstr "Esta edición no tiene página de contenido que dibujar."
 
 #: src/lib/importBook.ts
 msgid "This file does not look like text. It may be damaged or saved in another format."
@@ -3992,7 +4079,7 @@ msgstr "Esta fuente ya no está disponible."
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "This image is decorative"
-msgstr ""
+msgstr "Esta imagen es decorativa"
 
 #. placeholder {0}: e.reference
 #: src/lib/projectError.ts
@@ -4048,7 +4135,7 @@ msgstr "Los márgenes superior, inferior y exterior deben ser de al menos {KDP_M
 
 #: src/app/export/AudioExport.tsx
 msgid "Transcript files"
-msgstr ""
+msgstr "Archivos de transcripción"
 
 #: src/app/shell/Sidebar.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -4079,7 +4166,7 @@ msgstr "Escribe un comando"
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Type the name that should appear in the contents."
-msgstr ""
+msgstr "Escribe el nombre que debe aparecer en el contenido."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"
@@ -4102,7 +4189,7 @@ msgstr "Typst no pudo crear el PDF:\n"
 
 #: src/app/toc/TocPreview.tsx
 msgid "Typst is not installed on this computer, so this is an approximation: the layout is drawn by the app and page numbers marked ≈ are estimates. Install Typst to see the exact page."
-msgstr ""
+msgstr "Typst no está instalado en este ordenador, así que esto es una aproximación: la aplicación dibuja el diseño y los números de página marcados con ≈ son estimaciones. Instala Typst para ver la página exacta."
 
 #. placeholder {0}: e.seconds
 #: src/lib/pdfErrors.ts
@@ -4182,7 +4269,7 @@ msgstr "Actualización disponible"
 
 #: src/app/toc/TocPreview.tsx
 msgid "Updating the preview"
-msgstr ""
+msgstr "Actualizando la vista previa"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Use a number such as 1 or 2.5."
@@ -4194,7 +4281,7 @@ msgstr "Usa una sola línea."
 
 #: src/editor/TableCommands.tsx
 msgid "Use a whole number from 1 to {max}."
-msgstr ""
+msgstr "Usa un número entero de 1 a {max}."
 
 #. placeholder {0}: p.max
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -4212,7 +4299,7 @@ msgstr "Usa http, https o mailto."
 
 #: src/editor/useLangDialog.ts
 msgid "Use letters, digits and single hyphens, up to 35 characters (for example fr-CA)."
-msgstr ""
+msgstr "Usa letras, dígitos y guiones simples, hasta 35 caracteres (por ejemplo fr-CA)."
 
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "Use newer text"
