@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { fakeImportSources } from "./fakeImport";
-import { newProject, noVoices, seedSnapshot } from "./helpers";
+import { addPage, newProject, noVoices, seedSnapshot } from "./helpers";
 
 /** A screen or dialog the accessibility specs audit: its name and how to reach it from a blank page. */
 export type Screen = {
@@ -51,6 +51,34 @@ const chapterMenu = (item: string) => async (page: Page) => {
 const lastParagraph = async (page: Page) => {
   await newProject(page);
   await page.locator(".ProseMirror p").last().click();
+};
+
+const contentsRegion = (page: Page) => page.getByRole("region", { name: "Contents", exact: true });
+const preview = (page: Page) => page.getByRole("region", { name: "Preview", exact: true });
+/** Typst's page report puts the contents page on pages 2 and 3 of 6 (the fake PDF has blank pages). Set before the page is added. */
+const typstPages = (page: Page) =>
+  page.evaluate(() => {
+    window.__typstPages = 6;
+    window.__typstQueryResultFor = (source: string) => {
+      const id = /#contents-page\("([^"]+)"/.exec(source)?.[1];
+      return id
+        ? JSON.stringify({
+            total: 6,
+            starts: [{ id, kind: "contents", page: 2, end: 3, number: "ii" }],
+          })
+        : undefined;
+    };
+  });
+/** A book with its Contents page open (the list is generated from the chapters). */
+const contentsPage = async (page: Page, before?: (page: Page) => Promise<unknown>) => {
+  await newProject(page);
+  await before?.(page);
+  await addPage(page, "Contents");
+  await shown(contentsRegion(page));
+};
+const contentsMenu = async (page: Page) => {
+  await contentsPage(page);
+  await contentsRegion(page).getByRole("button", { name: "Actions for Chapter One" }).click();
 };
 
 /** Every screen, dialog and panel the fake backend can reach. */
@@ -321,6 +349,71 @@ export const screens: Screen[] = [
       await newProject(p);
       await p.getByRole("button", { name: "Focus mode" }).click();
       await shown(p.getByRole("button", { name: "Exit focus mode" }));
+    },
+  },
+  { name: "Contents editor", open: contentsPage },
+  {
+    name: "Contents editor, renaming an entry",
+    open: async (p) => {
+      await contentsMenu(p);
+      await p.getByRole("menuitem", { name: "Rename" }).click();
+      await shown(contentsRegion(p).getByRole("textbox", { name: "Entry title" }));
+    },
+  },
+  {
+    name: "Contents row actions menu",
+    open: async (p) => {
+      await contentsMenu(p);
+      await shown(p.getByRole("menuitem", { name: "Rename" }));
+    },
+  },
+  {
+    name: "Add custom entry dialog",
+    open: async (p) => {
+      await contentsPage(p);
+      await contentsRegion(p).getByRole("button", { name: "Add custom entry" }).click();
+      await shown(dialogOf(p, "Add custom entry"));
+    },
+  },
+  {
+    name: "Reset to outline confirmation",
+    open: async (p) => {
+      await contentsMenu(p);
+      await p.getByRole("menuitem", { name: "Hide from contents" }).click();
+      await contentsRegion(p).getByRole("button", { name: "Reset to outline" }).click();
+      await shown(dialogOf(p, "Reset the contents to the outline?"));
+    },
+  },
+  {
+    name: "Contents preview (Typst pages)",
+    open: async (p) => {
+      await contentsPage(p, typstPages);
+      await shown(preview(p));
+      await expect(preview(p).locator("canvas").first()).toBeVisible({ timeout: 15_000 });
+    },
+  },
+  {
+    name: "Contents preview (approximation, Typst missing)",
+    open: async (p) => {
+      await contentsPage(p, (q) =>
+        q.evaluate(() => {
+          window.__typstError = { kind: "not_found", message: "The typst program was not found." };
+        }),
+      );
+      await shown(preview(p));
+      await expect(p.getByTestId("toc-preview-page").first()).toBeVisible({ timeout: 15_000 });
+    },
+  },
+  {
+    name: "Contents preview alone (narrow window)",
+    open: async (p) => {
+      await p.addInitScript(() =>
+        localStorage.setItem("cadabracraft.tocPane", JSON.stringify({ pane: "preview" })),
+      );
+      await contentsPage(p, typstPages);
+      await p.setViewportSize({ width: 800, height: 700 });
+      await shown(preview(p));
+      await expect(preview(p).locator("canvas").first()).toBeVisible({ timeout: 15_000 });
     },
   },
 ];

@@ -7,6 +7,7 @@ import { exportTools } from "./tools/export";
 import { importTools } from "./tools/import";
 import { projectTools } from "./tools/project";
 import { referenceTools } from "./tools/references";
+import { tocTools } from "./tools/toc";
 import { errMsg } from "@cadabracraft/shared";
 
 export interface ServerOptions {
@@ -27,6 +28,7 @@ All paths are relative to the workspace root (or absolute inside it); anything o
 Typical flow: cadabra_project_create or cadabra_import_file, then cadabra_chapter_add / cadabra_chapter_write_markdown, cadabra_project_validate, cadabra_export_epub / cadabra_export_pdf / cadabra_export_markdown / cadabra_export_docx / cadabra_export_rtf.
 Editions: cadabra_edition_add adds a translation (copy or empty); write it with the chapter write tools and their language argument.
 Reference files (research kept in references/, never exported): cadabra_reference_list, cadabra_reference_add (copies a workspace file in), cadabra_reference_update.
+Contents page (generated list of chapters and headings, with overrides): cadabra_toc_get, cadabra_toc_update (add_page, set_depth, rename, hide, move, ...).
 Nothing is deleted for good: removed chapters go to .cadabra/trash/, replaced chapter text is kept in .cadabra/backups/, exports go to exports/.
 Read cadabra://docs/file-format and cadabra://docs/import for the format and the Markdown mappings. Errors are tool errors with a stable code.`;
 
@@ -58,6 +60,7 @@ export function createServer(opts: ServerOptions): McpServer {
     ...chapterTools,
     ...importTools,
     ...referenceTools,
+    ...tocTools,
     ...exportTools,
   ]);
   registerResources(server, ctx);

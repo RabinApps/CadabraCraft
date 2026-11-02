@@ -3,6 +3,7 @@ import { FormatError } from "./errors";
 import { migrateV3ToV4 } from "./editions";
 import { migrateV4ToV5 } from "./references";
 import { migrateV5ToV6 } from "./publishing";
+import { migrateV6ToV7 } from "./toc";
 import { errMsg } from "@cadabracraft/shared";
 
 /** A migration upgrades a raw manifest object from `from` to `from + 1`. */
@@ -23,6 +24,8 @@ export const MIGRATIONS: Migration[] = [
   { from: 4, up: migrateV4ToV5 },
   // v5 -> v6: editions may carry `publishing`. Nothing changes and no file moves.
   { from: 5, up: migrateV5ToV6 },
+  // v6 -> v7: a "contents" page kind with optional `toc` settings. Nothing changes and no file moves.
+  { from: 6, up: migrateV6ToV7 },
 ];
 
 export interface MigrationResult {

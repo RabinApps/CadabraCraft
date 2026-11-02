@@ -41,8 +41,8 @@ describe("DPUB-ARIA roles and accessible names", () => {
     expect(html).toContain('role="doc-backlink" aria-label="Back to text">↩</a>');
   });
   it("names the back-link in the book language and throws for one without a translation", () => {
-    expect(chapterToXhtmlBody(note, "de")).toContain('aria-label="Zurück zum Text"');
-    expect(() => chapterToXhtmlBody(note, "xx")).toThrow(/Back to text/);
+    expect(chapterToXhtmlBody(note, { language: "de" })).toContain('aria-label="Zurück zum Text"');
+    expect(() => chapterToXhtmlBody(note, { language: "xx" })).toThrow(/Back to text/);
   });
   it("marks the toc as doc-toc and names both navs by their heading (EPUBCheck rejects aria-label on nav)", () => {
     const nav = t(files("fr"), "OEBPS/nav.xhtml");

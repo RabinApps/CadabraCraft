@@ -8,3 +8,5 @@ export * from "./lookup";
 export * from "./translations";
 export * from "./references";
 export * from "./publishing";
+export * from "./outline";
+export * from "./toc";

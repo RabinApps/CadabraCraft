@@ -1,4 +1,4 @@
-import type { ChapterDoc } from "@cadabracraft/shared";
+import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import { errMsg } from "@cadabracraft/shared";
 import { chunkBlocks, type Chunk } from "./chunk";
 import {
@@ -35,7 +35,12 @@ export interface AudioChapter {
   id: string;
   title: string;
   doc: ChapterDoc;
+  /** Front/back matter kind. A page of kind "contents" is a generated list, not narration: it is left out of the audiobook. */
+  kind?: MatterKind;
 }
+
+/** Kinds that are never narrated. */
+const SKIPPED_KINDS: readonly MatterKind[] = ["contents"];
 
 export interface RenderRequest {
   chapterId: string;
@@ -120,9 +125,10 @@ export async function renderAudiobook(
   const voice = (await runner.listVoices()).find((v) => v.id === options.voice);
   if (!voice?.installed) throw new VoiceNotInstalledError(options.voice);
 
+  const narrated = chapters.filter((c) => c.kind === undefined || !SKIPPED_KINDS.includes(c.kind));
   const picked = options.chapterIds
-    ? chapters.filter((c) => options.chapterIds?.includes(c.id))
-    : chapters;
+    ? narrated.filter((c) => options.chapterIds?.includes(c.id))
+    : narrated;
   if (picked.length === 0)
     throw new AudioExportError("There are no chapters to turn into audio. Add a chapter first.");
 

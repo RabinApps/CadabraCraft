@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { chapterAction, newProject } from "./support/helpers";
+import { addPage, chapterAction, newProject } from "./support/helpers";
 import { fakeImportSources } from "./support/fakeImport";
 
 // WCAG 2.0 to 2.2 A and AA (docs/accessibility.md).
@@ -19,6 +19,21 @@ async function scan(page: Page, what: string) {
   );
   expect(summary, `${what}: axe violations`).toEqual([]);
 }
+
+const preview = (page: Page) => page.getByRole("region", { name: "Preview", exact: true });
+const typstPages = (page: Page) =>
+  page.evaluate(() => {
+    window.__typstPages = 6;
+    window.__typstQueryResultFor = (source: string) => {
+      const id = /#contents-page\("([^"]+)"/.exec(source)?.[1];
+      return id
+        ? JSON.stringify({
+            total: 6,
+            starts: [{ id, kind: "contents", page: 2, end: 3, number: "ii" }],
+          })
+        : undefined;
+    };
+  });
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -75,6 +90,63 @@ for (const theme of ["light", "dark"] as const) {
     test("editor", async ({ page }) => {
       await newProject(page);
       await scan(page, "editor");
+    });
+
+    test("contents page: list, preview and its dialogs", async ({ page }) => {
+      await newProject(page);
+      await typstPages(page);
+      await addPage(page, "Contents");
+      const contents = page.getByRole("region", { name: "Contents", exact: true });
+      await expect(contents).toBeVisible();
+      await expect(
+        page.getByRole("region", { name: "Preview", exact: true }).locator("canvas").first(),
+      ).toBeVisible({ timeout: 15_000 });
+      await scan(page, "contents list and preview");
+      // (The open row menu is not scanned: Radix hides the page behind any menu, and axe's aria-hidden-focus then
+      // flags every scrollable area of the shell, the same as for the chapter menu.)
+      await contents.getByRole("button", { name: "Actions for Chapter One" }).click();
+      await page.getByRole("menuitem", { name: "Rename" }).click();
+      await expect(contents.getByRole("textbox", { name: "Entry title" })).toBeFocused();
+      await scan(page, "contents entry being renamed");
+      await page.keyboard.press("Escape");
+      await contents.getByRole("button", { name: "Add custom entry" }).click();
+      await expect(page.getByRole("dialog", { name: "Add custom entry" })).toBeVisible();
+      await scan(page, "add custom entry dialog");
+      await page.getByRole("button", { name: "Add entry" }).click();
+      await expect(page.getByRole("alert")).toBeVisible();
+      await scan(page, "add custom entry dialog with its error");
+      await page.keyboard.press("Escape");
+      await contents.getByRole("button", { name: "Actions for Chapter One" }).click();
+      await page.getByRole("menuitem", { name: "Hide from contents" }).click();
+      await contents.getByRole("button", { name: "Reset to outline" }).click();
+      await expect(
+        page.getByRole("dialog", { name: "Reset the contents to the outline?" }),
+      ).toBeVisible();
+      await scan(page, "reset to outline confirmation");
+    });
+
+    test("contents page below the wide layout: one pane at a time", async ({ page }) => {
+      await newProject(page);
+      await typstPages(page);
+      await addPage(page, "Contents");
+      await page.setViewportSize({ width: 800, height: 800 });
+      const contents = page.getByRole("region", { name: "Contents", exact: true });
+      await scan(page, "contents, Edit pane");
+      await contents.getByRole("radio", { name: "Preview" }).click();
+      await expect(page.getByRole("region", { name: "Preview", exact: true })).toBeVisible();
+      await expect(preview(page).locator("canvas").first()).toBeVisible({ timeout: 15_000 });
+      await scan(page, "contents, Preview pane");
+    });
+
+    test("contents preview drawn by the app when Typst is missing", async ({ page }) => {
+      await newProject(page);
+      await page.evaluate(() => {
+        window.__typstError = { kind: "not_found", message: "The typst program was not found." };
+      });
+      await addPage(page, "Contents");
+      await expect(page.getByTestId("toc-preview-page").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId("toc-preview-fallback")).toBeVisible();
+      await scan(page, "contents approximation");
     });
   });
 }

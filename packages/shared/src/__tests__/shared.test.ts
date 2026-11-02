@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   BACK_MATTER_KINDS,
   FRONT_MATTER_KINDS,
+  SINGLE_USE_KINDS,
   countWords,
   errMsg,
   imageMediaType,
@@ -70,6 +71,11 @@ describe("matter kind predicates", () => {
     expect(isBackMatterKind("preface")).toBe(false);
     expect(isFrontMatterKind(undefined)).toBe(false);
     expect(isBackMatterKind(3)).toBe(false);
+  });
+  it("has a front-only, single-use contents kind", () => {
+    expect(isFrontMatterKind("contents")).toBe(true);
+    expect(isBackMatterKind("contents")).toBe(false);
+    expect(SINGLE_USE_KINDS).toEqual(["title-page", "copyright", "contents"]);
   });
   it("share only the custom kind", () => {
     expect(

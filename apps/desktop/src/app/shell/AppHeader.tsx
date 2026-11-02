@@ -103,7 +103,7 @@ export function AppHeader({
             type="button"
             aria-label={t`Dismiss message`}
             onClick={() => useProject.setState({ notice: "" })}
-            className="flex size-6 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent"
+            className="flex size-6 max-md:size-11 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent"
           >
             <X size={14} aria-hidden />
           </button>

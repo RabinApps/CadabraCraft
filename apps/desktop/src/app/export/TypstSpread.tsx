@@ -25,7 +25,7 @@ const PAD = 24;
 const PAGE_GAP = 8;
 
 /** Opens `pdf` with pdf.js (loaded when the first preview opens) and reports its page count; null until it is ready. */
-function usePdfDocument(pdf: Uint8Array, onPages: (n: number) => void) {
+export function usePdfDocument(pdf: Uint8Array, onPages: (n: number) => void) {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -81,7 +81,7 @@ async function wordClickAt(
   return wordAtPoint(runs, x, y);
 }
 
-interface PageProps {
+export interface PageProps {
   doc: PDFDocumentProxy;
   page: number;
   /** The text box to outline, or null. */
@@ -95,7 +95,7 @@ interface PageProps {
 }
 
 /** One page of the PDF on a canvas, with the margins outlined when asked. */
-function PdfPage({ doc, page, outline, stale, pxPerIn, onOpen }: PageProps) {
+export function PdfPage({ doc, page, outline, stale, pxPerIn, onOpen }: PageProps) {
   const { t } = useLingui();
   const canvas = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);

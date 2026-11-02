@@ -19,6 +19,7 @@ interface Words {
   copyright: string;
   dedication: string;
   epigraph: string;
+  contents: string;
   foreword: string;
   preface: string;
   acknowledgments: string;
@@ -43,6 +44,7 @@ const WORDS: Record<string, Words> = {
     copyright: "Copyright",
     dedication: "Dedication",
     epigraph: "Epigraph",
+    contents: "Contents",
     foreword: "Foreword",
     preface: "Preface",
     acknowledgments: "Acknowledgments",
@@ -60,6 +62,7 @@ const WORDS: Record<string, Words> = {
     copyright: "זכויות יוצרים",
     dedication: "הקדשה",
     epigraph: "מוטו",
+    contents: "תוכן העניינים",
     foreword: "הקדמה",
     preface: "פתח דבר",
     acknowledgments: "תודות",
@@ -75,6 +78,7 @@ const WORDS: Record<string, Words> = {
     copyright: "حقوق النشر",
     dedication: "إهداء",
     epigraph: "اقتباس افتتاحي",
+    contents: "المحتويات",
     foreword: "تقديم",
     preface: "مقدمة",
     acknowledgments: "شكر وتقدير",
@@ -90,6 +94,7 @@ const WORDS: Record<string, Words> = {
     copyright: "Copyright",
     dedication: "Dedica",
     epigraph: "Epigrafe",
+    contents: "Indice",
     foreword: "Prefazione",
     preface: "Premessa",
     acknowledgments: "Ringraziamenti",
@@ -105,6 +110,7 @@ const WORDS: Record<string, Words> = {
     copyright: "著作権",
     dedication: "献辞",
     epigraph: "エピグラフ",
+    contents: "目次",
     foreword: "序文",
     preface: "まえがき",
     acknowledgments: "謝辞",
@@ -120,6 +126,7 @@ const WORDS: Record<string, Words> = {
     copyright: "Авторские права",
     dedication: "Посвящение",
     epigraph: "Эпиграф",
+    contents: "Содержание",
     foreword: "Предисловие",
     preface: "Вступление",
     acknowledgments: "Благодарности",
@@ -135,6 +142,7 @@ const WORDS: Record<string, Words> = {
     copyright: "Copyright",
     dedication: "Dédicace",
     epigraph: "Épigraphe",
+    contents: "Table des matières",
     foreword: "Avant-propos",
     preface: "Préface",
     acknowledgments: "Remerciements",
@@ -150,6 +158,7 @@ const WORDS: Record<string, Words> = {
     copyright: "Impressum",
     dedication: "Widmung",
     epigraph: "Motto",
+    contents: "Inhaltsverzeichnis",
     foreword: "Vorwort",
     preface: "Einleitung",
     acknowledgments: "Danksagung",
@@ -165,6 +174,7 @@ const WORDS: Record<string, Words> = {
     copyright: "Derechos de autor",
     dedication: "Dedicatoria",
     epigraph: "Epígrafe",
+    contents: "Índice",
     foreword: "Prólogo",
     preface: "Prefacio",
     acknowledgments: "Agradecimientos",
@@ -192,6 +202,8 @@ export function starterTitle(kind: MatterKind, language: string): string {
       return w.dedication;
     case "epigraph":
       return w.epigraph;
+    case "contents":
+      return w.contents;
     case "foreword":
       return w.foreword;
     case "preface":
@@ -239,6 +251,8 @@ export function starterDoc(kind: MatterKind, book: StarterBook): ChapterDoc {
         return [para(w.dedicationText, true)];
       case "epigraph":
         return [para("…", true), para("— …")];
+      case "contents":
+        return [h1(starterTitle(kind, book.language))];
       case "also-by":
         return [h1(alsoByTitle(w, book.author)), para()];
       case "custom":

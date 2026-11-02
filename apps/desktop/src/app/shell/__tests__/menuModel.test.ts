@@ -131,9 +131,16 @@ describe("menu structure", () => {
     const front = submenu(insert, "Front Matter");
     const back = submenu(insert, "Back Matter");
     expect(front.map((e) => (e as { id: string }).id)).toEqual(
-      ["title-page", "copyright", "dedication", "epigraph", "foreword", "preface", "custom"].map(
-        (k) => `insert.front.${k}`,
-      ),
+      [
+        "title-page",
+        "copyright",
+        "dedication",
+        "epigraph",
+        "contents",
+        "foreword",
+        "preface",
+        "custom",
+      ].map((k) => `insert.front.${k}`),
     );
     expect(back.map((e) => (e as { id: string }).id)).toEqual(
       ["acknowledgments", "about-the-author", "also-by", "colophon", "custom"].map(

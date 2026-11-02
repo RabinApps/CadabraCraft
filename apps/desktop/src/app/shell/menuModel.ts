@@ -54,6 +54,7 @@ const FRONT: MatterKind[] = [
   "copyright",
   "dedication",
   "epigraph",
+  "contents",
   "foreword",
   "preface",
   "custom",
@@ -70,6 +71,8 @@ function kindLabel(kind: MatterKind): string {
       return t`Dedication`;
     case "epigraph":
       return t`Epigraph`;
+    case "contents":
+      return t`Contents`;
     case "foreword":
       return t`Foreword`;
     case "preface":

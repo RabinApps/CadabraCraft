@@ -20,8 +20,10 @@ import { bridge } from "../../lib/bridge";
 import { describePdfError } from "../../lib/pdfErrors";
 import { describeEpubError } from "../../lib/epubErrors";
 import { createTauriRunner } from "../../lib/typstRunner";
+import { bookContents, pdfToc } from "../../lib/tocExport";
 import type { ExportActions, ExportScope } from "./types";
 import type { Ctx } from "./context";
+import { createContentsPreviewActions } from "./contentsPreview";
 import { createPreviewActions } from "./preview";
 import { createTypstBook } from "./typstBook";
 
@@ -41,6 +43,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
       book: { title: string; author: string; language: string },
       pages: Parameters<typeof buildDocx>[1],
       assets: Map<string, Uint8Array>,
+      contents: ReturnType<typeof bookContents>,
     ) => Uint8Array,
   ) => {
     if (get().exportStage) throw new Error(t`An export is already running`);
@@ -54,12 +57,14 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
       const assets = await loadAssets(chapters);
       set({ exportStage: "rendering" });
+      const contents = bookContents(manifest, edition.language, chapters);
       // A page with an empty title is named by its file in error messages.
       const pages = chapters.map((c) => ({ ...c, id: sourceFileById(manifest, c.id)! }));
       const bytes = build(
         { title: edition.title, author: edition.author, language: edition.language },
         pages,
         assets,
+        contents,
       );
       set({ exportStage: "saving" });
       await bridge.writeBytes(root, `${dir}/${file}`, bytes);
@@ -71,16 +76,24 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
   const gather = createTypstBook(ctx);
   /** The last measure of each thing measured (the whole book, with or without marks, or a page by its id): the last result is reused while the book is the same. */
   const measured = new Map<string, { key: string; report: PageReport }>();
-  const measure = async (only?: string, marks = true): Promise<PageReport> => {
-    try {
-      // The open page's text is in the draft until it is saved, so measure that instead of the file.
-      const { templateId, edition, chapters, trimSize, fonts, assets: load } = await gather(only);
-      const key = contentHash(
-        JSON.stringify([templateId, trimSize, fonts, edition.title, chapters]),
-      );
-      const slot = only ?? (marks ? "book" : "book-plain");
-      const last = measured.get(slot);
-      if (last?.key === key) return last.report;
+  /** Measures running now, by slot and content: a second asker (the status bar and the contents preview) waits for the same run. */
+  const running = new Map<string, Promise<PageReport>>();
+  /** Typst's page report for a book as `gather` returned it; one Typst run per distinct content however many callers ask. */
+  const measureBook = async (
+    book: Awaited<ReturnType<typeof gather>>,
+    slot: string,
+    marks: boolean,
+  ): Promise<PageReport> => {
+    const { templateId, edition, chapters, trimSize, fonts, toc, assets: load } = book;
+    const key = contentHash(
+      JSON.stringify([templateId, trimSize, fonts, edition.title, edition.language, chapters, toc]),
+    );
+    const last = measured.get(slot);
+    if (last?.key === key) return last.report;
+    const id = `${slot}\n${key}`;
+    const under = running.get(id);
+    if (under) return under;
+    const run = (async () => {
       const assets = await load();
       const report = await measurePages(
         { title: edition.title, author: edition.author, language: edition.language },
@@ -95,18 +108,32 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
           // 100,000 words, so only the measures that need the breaks ask for it.
           ...(marks ? { blockMarks: true } : {}),
           ...(Object.keys(fonts).length ? { fonts } : {}),
+          ...(toc ? { toc } : {}),
           assets: Object.fromEntries(assets),
         },
         createTauriRunner(bridge),
       );
       measured.set(slot, { key, report });
       return report;
+    })();
+    running.set(id, run);
+    try {
+      return await run;
+    } finally {
+      running.delete(id);
+    }
+  };
+  const measure = async (only?: string, marks = true): Promise<PageReport> => {
+    try {
+      // The open page's text is in the draft until it is saved, so measure that instead of the file.
+      return await measureBook(await gather(only), only ?? (marks ? "book" : "book-plain"), marks);
     } catch (e) {
       throw describePdfError(e);
     }
   };
   return {
     ...createPreviewActions(ctx, gather),
+    ...createContentsPreviewActions(ctx, gather, (book) => measureBook(book, "book-plain", false)),
     measurePages: (options) => measure(undefined, options?.marks ?? false),
     measureChapter: (id) => measure(id),
     async exportEpub(scope) {
@@ -119,6 +146,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         const assets = await loadAssets(chapters);
         const cover = await loadCover(edition.cover);
         set({ exportStage: "rendering" });
+        const contents = bookContents(manifest, edition.language, chapters);
         const bytes = buildEpub(
           {
             title: edition.title,
@@ -133,6 +161,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
           {
             assets,
             cover,
+            ...(contents ? { contents: contents.visible } : {}),
             css: getTemplate(
               hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID,
             ).epub.css,
@@ -160,12 +189,14 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
           throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
         set({ exportStage: "rendering" });
         const opts = { htmlMarks, imageBase: "../" };
+        const contents = bookContents(manifest, edition.language, chapters);
         let markdown: string;
         try {
           markdown = bookToMarkdown(
             { title: edition.title, author: edition.author },
             chapters,
             opts,
+            contents && { items: contents.visible },
           );
         } catch (e) {
           if (!(e instanceof MarkdownExportError)) throw e;
@@ -193,7 +224,13 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
       const { dir, skipped } = await writeManuscript(
         scope,
         "manuscript.docx",
-        (book, pages, assets) => buildDocx(book, pages, { assets, font, modified: new Date() }),
+        (book, pages, assets, contents) =>
+          buildDocx(book, pages, {
+            assets,
+            font,
+            modified: new Date(),
+            ...(contents ? { contents: contents.visible } : {}),
+          }),
       );
       set({ notice: t`Exported ${dir}/manuscript.docx` + left(skipped.length) });
     },
@@ -201,9 +238,16 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
       const { dir, skipped } = await writeManuscript(
         scope,
         "manuscript.rtf",
-        (book, pages, assets) =>
+        (book, pages, assets, contents) =>
           // RTF is 7-bit ASCII (everything else is a \u escape), so UTF-8 encoding is the same bytes.
-          new TextEncoder().encode(buildRtf(book, pages, { assets, font, modified: new Date() })),
+          new TextEncoder().encode(
+            buildRtf(book, pages, {
+              assets,
+              font,
+              modified: new Date(),
+              ...(contents ? { contents: contents.visible } : {}),
+            }),
+          ),
       );
       set({ notice: t`Exported ${dir}/manuscript.rtf` + left(skipped.length) });
     },
@@ -221,6 +265,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         if (cover) assets.set(cover.path, cover.bytes);
         set({ exportStage: "rendering" });
         const runner = createTauriRunner(bridge);
+        const toc = pdfToc(bookContents(manifest, edition.language, chapters));
         // The book's own choice unless the caller names fonts; only the keys that are set (the rest follow the template).
         const fonts = options.fonts ?? resolveBookFonts(manifest);
         const { pdf } = await renderPdf(
@@ -236,6 +281,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             ...(options.bleedIn ? { bleedIn: options.bleedIn } : {}),
             ...(options.cropMarks ? { cropMarks: true } : {}),
             ...(Object.keys(fonts).length ? { fonts } : {}),
+            ...(toc ? { toc } : {}),
             assets: Object.fromEntries(assets),
             ...(cover ? { cover: cover.path } : {}),
           },

@@ -29,7 +29,12 @@ function sectionOf(c: PdfChapter): Section {
 }
 
 /** Pages that always open on a right-hand page, and the kinds after which the next page must (so the verso stays blank). */
-const ALWAYS_RECTO: readonly (MatterKind | undefined)[] = ["title-page", "dedication", "epigraph"];
+const ALWAYS_RECTO: readonly (MatterKind | undefined)[] = [
+  "title-page",
+  "contents",
+  "dedication",
+  "epigraph",
+];
 const BLANK_VERSO_AFTER: readonly (MatterKind | undefined)[] = ["dedication", "epigraph"];
 
 /**
@@ -85,6 +90,8 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
       out.push('#pagebreak(weak: true, to: "odd")\n');
     }
     prev = kind;
+    ctx.headingKeys = ctx.tocHeadings?.get(page.id);
+    ctx.headingNo = 0;
     const content =
       (kind === undefined && dropCap
         ? dropCapOpening(page.doc.content, ctx, indentEm, index)
@@ -100,6 +107,9 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
         break;
       case "copyright":
         out.push(`#copyright-page(${info})[\n${content}\n]\n`);
+        break;
+      case "contents":
+        out.push(`#contents-page(${info}, ${ctx.tocEntries ?? "()"})[\n${content}\n]\n`);
         break;
       case "dedication":
       case "epigraph":

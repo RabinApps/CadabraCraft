@@ -69,7 +69,7 @@ describe("page marks in the source", () => {
     expect(
       markedBlocks(
         undefined,
-        { images: new Map(), maxImageIn: 1, assets: undefined, coverAlt: "Cover" },
+        { images: new Map(), headingNo: 0, maxImageIn: 1, assets: undefined, coverAlt: "Cover" },
         0,
       ),
     ).toBe("");

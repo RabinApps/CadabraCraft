@@ -10,6 +10,7 @@ import { useMeasuredPages } from "../app/hooks/useMeasuredPages";
 import { fitZoom } from "../lib/pageLayout";
 import { chapterPageCount, chapterStart, bookWordsPerPage } from "../lib/pageNumbering";
 import { reportStartNumber, usableReport } from "../lib/pageReport";
+import { bookContents, withContentsList } from "../lib/tocExport";
 import {
   chainFirstPages,
   pageAtLine,
@@ -39,7 +40,7 @@ const LINE = 0.3;
  * chapter is drawn as trim-size pages (cards, running heads, page numbers chained from chapter to chapter); on a phone it is the
  * plain reading layout. Every chapter is its own read-only editor and only the ones near the viewport are mounted.
  */
-function ReadingScroll({ pages }: { pages: BookPage[] }) {
+function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   const currentId = useProject((s) => s.currentId);
   const selectChapter = useProject((s) => s.actions.selectChapter);
   const { size, width } = useReading();
@@ -333,8 +334,15 @@ export function ReadingBook() {
       live = false;
     };
   }, [readPages]);
+  const manifest = useProject((s) => s.manifest);
+  const language = useProject((s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "");
+  // The generated contents list is part of the contents page as the reader shows it.
+  const shown = useMemo(
+    () => pages && manifest && withContentsList(pages, bookContents(manifest, language, pages)),
+    [pages, manifest, language],
+  );
   const { t } = useLingui();
-  if (!pages)
+  if (!shown)
     return <div className="flex-1 bg-paper" role="status" aria-label={t`Loading the book`} />;
-  return <ReadingScroll pages={pages} />;
+  return <ReadingScroll pages={shown} />;
 }

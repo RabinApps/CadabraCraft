@@ -9,6 +9,7 @@ import {
 } from "@cadabracraft/format";
 import { Minimize2, Plus } from "lucide-react";
 import { Editor } from "../../editor/Editor";
+import { TocEditor } from "../toc/TocEditor";
 import { ReadingBook } from "../../editor/ReadingBook";
 import { ReadingFooter } from "../../editor/ReadingFooter";
 import { bridge } from "../../lib/bridge";
@@ -230,6 +231,8 @@ function AppScreens() {
   const pages = entryRowsIn(readingOrder(manifest), manifest.editions, activeLanguage);
   const index = pages.findIndex((c) => c.id === currentId);
   const section = currentId ? sectionOf(manifest, currentId) : null;
+  // A contents page has no text to edit: its list is generated, and the editor for it is the list.
+  const contents = manifest.frontMatter.find((e) => e.id === currentId && e.kind === "contents");
   const chapterNo = chapters.findIndex((c) => c.id === currentId) + 1;
   // In Read mode the footer follows the scroll position, not the open chapter (which catches up a moment later).
   const readIndex = pages.findIndex((c) => c.id === readPosition.id);
@@ -273,6 +276,8 @@ function AppScreens() {
           {reader && pages.length ? (
             // Keyed on the book, not the chapter: the open chapter follows the scroll without remounting the reader.
             <ReadingBook key={`${root}:${activeLanguage}:${reloadCount}`} />
+          ) : contents && currentDoc && !reader ? (
+            <TocEditor key={contents.id} entry={contents} />
           ) : currentDoc && currentId && !reader ? (
             <Editor
               key={`${currentId}:${reloadCount}`}

@@ -19,6 +19,8 @@ const EXPECTED = [
   "cadabra_reference_list",
   "cadabra_reference_add",
   "cadabra_reference_update",
+  "cadabra_toc_get",
+  "cadabra_toc_update",
   "cadabra_export_epub",
   "cadabra_export_pdf",
   "cadabra_export_markdown",
@@ -38,6 +40,7 @@ const READ_ONLY = [
   "inspect_epub",
   "list_templates",
   "reference_list",
+  "toc_get",
 ].map((n) => `cadabra_${n}`);
 
 describe("tool registry", () => {
@@ -69,6 +72,12 @@ describe("tool registry", () => {
     });
     expect(by["cadabra_chapter_rename"]!.idempotentHint).toBe(true);
     expect(by["cadabra_chapter_move"]!.idempotentHint).toBe(false);
+    expect(by["cadabra_toc_update"]).toMatchObject({
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+    });
+    expect(by["cadabra_toc_get"]!.idempotentHint).toBe(true);
     expect(by["cadabra_export_epub"]!.destructiveHint).toBe(false);
   });
 

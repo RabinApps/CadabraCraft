@@ -349,6 +349,18 @@ msgstr ""
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr ""
 
+#: src/app/toc/TocEditor.tsx
+msgid "+H1"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "+H1-H2"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "+H1-H3"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "0.125 in"
 msgstr ""
@@ -404,9 +416,11 @@ msgid "Acknowledgments"
 msgstr ""
 
 #. placeholder {0}: c.title
+#. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Actions for {0}"
 msgstr ""
 
@@ -433,6 +447,19 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Add Column After"
+msgstr ""
+
+#: src/state/project/toc.ts
+msgid "Add contents entry"
+msgstr ""
+
+#: src/app/toc/AddEntryDialog.tsx
+#: src/app/toc/TocEditor.tsx
+msgid "Add custom entry"
+msgstr ""
+
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Add entry"
 msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
@@ -526,6 +553,10 @@ msgstr ""
 msgid "Also by"
 msgstr ""
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "An entry of your own, such as “Acknowledgments” or a part title. It takes its page number from the entry it points at."
+msgstr ""
+
 #: src/state/project/audio.ts
 #: src/state/project/exports.ts
 msgid "An export is already running"
@@ -545,6 +576,10 @@ msgstr ""
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Apply"
+msgstr ""
+
+#: src/app/toc/TocPreview.tsx
+msgid "Approximate: Typst is not available"
 msgstr ""
 
 #: src/app/settings/Settings.tsx
@@ -740,6 +775,7 @@ msgstr ""
 #: src/app/export/ExportDialog.tsx
 #: src/app/home/Home.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/toc/AddEntryDialog.tsx
 #: src/editor/TableCommands.tsx
 #: src/editor/ToolbarDialogs.tsx
 #: src/ui/Dialog.tsx
@@ -782,6 +818,14 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
+#: src/state/project/toc.ts
+msgid "Change contents depth"
+msgstr ""
+
+#: src/state/project/toc.ts
+msgid "Change contents page numbers"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change shortcut for {action}"
 msgstr ""
@@ -792,6 +836,10 @@ msgstr ""
 
 #: src/state/project/project.ts
 msgid "Changes made outside the app may not be noticed. Saving still works."
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Changes that no longer match"
 msgstr ""
 
 #: src/app/shell/Details.tsx
@@ -855,6 +903,7 @@ msgstr ""
 #: src/app/shell/Details.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/Sidebar.tsx
+#: src/app/toc/TocEditor.tsx
 msgid "Chapters"
 msgstr ""
 
@@ -1012,6 +1061,20 @@ msgstr ""
 msgid "Comparison"
 msgstr ""
 
+#: src/app/shell/menuModel.ts
+#: src/app/shell/Sidebar.tsx
+#: src/app/toc/TocEditor.tsx
+msgid "Contents"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Contents entries"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Contents view"
+msgstr ""
+
 #: src/app/home/Dashboard.tsx
 msgid "Continue writing"
 msgstr ""
@@ -1064,12 +1127,20 @@ msgstr ""
 msgid "Could not be read"
 msgstr ""
 
+#: src/state/project/toc.ts
+msgid "Could not change the contents page: {why}"
+msgstr ""
+
 #: src/editor/Editor.tsx
 msgid "Could not convert the HTML in the selection"
 msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "Could not convert the HTML, so it was pasted as text"
+msgstr ""
+
+#: src/app/toc/TocPreview.tsx
+msgid "Could not draw the preview"
 msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
@@ -1125,6 +1196,7 @@ msgid "Could not save: {0}"
 msgstr ""
 
 #: src/app/export/TypstSpread.tsx
+#: src/app/toc/TocPreview.tsx
 msgid "Could not show the preview: {error}"
 msgstr ""
 
@@ -1175,6 +1247,10 @@ msgstr ""
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Custom"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -1351,6 +1427,7 @@ msgstr ""
 
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr ""
 
@@ -1381,6 +1458,7 @@ msgstr ""
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
+#: src/app/toc/TocEditor.tsx
 msgid "Edit"
 msgstr ""
 
@@ -1433,6 +1511,11 @@ msgstr ""
 msgid "Enter the series name first."
 msgstr ""
 
+#: src/app/toc/AddEntryDialog.tsx
+#: src/app/toc/TocRow.tsx
+msgid "Entry title"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Epigraph"
@@ -1454,6 +1537,10 @@ msgstr ""
 msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
 msgstr ""
 
+#: src/app/toc/TocRow.tsx
+msgid "Estimated page"
+msgstr ""
+
 #. placeholder {0}: chosen?.name ?? ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Every chapter and the chapter list go back to “{0}”. The book as it is now is kept as an automatic snapshot first."
@@ -1465,6 +1552,10 @@ msgstr ""
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Every language is already in this book."
+msgstr ""
+
+#: src/app/toc/TocPreview.tsx
+msgid "Exact pages from Typst"
 msgstr ""
 
 #: src/app/shell/App.tsx
@@ -1703,6 +1794,10 @@ msgstr ""
 msgid "Heading font"
 msgstr ""
 
+#: src/app/toc/TocEditor.tsx
+msgid "Headings to list"
+msgstr ""
+
 #: src/app/export/AudioFooter.tsx
 msgid "Hear a sample"
 msgstr ""
@@ -1712,8 +1807,20 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
+#: src/app/toc/TocRow.tsx
+msgid "Hidden"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Hide CadabraCraft"
+msgstr ""
+
+#: src/state/project/toc.ts
+msgid "Hide contents entry"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Hide from contents"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -1935,6 +2042,10 @@ msgstr ""
 msgid "Italic"
 msgstr ""
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Its page number is shown. Choose “Nothing” for an entry without a number."
+msgstr ""
+
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "JavaScript libraries"
 msgstr ""
@@ -2089,6 +2200,10 @@ msgstr ""
 msgid "Linked chapters"
 msgstr ""
 
+#: src/app/toc/TocEditor.tsx
+msgid "List"
+msgstr ""
+
 #: src/editor/ReadingBook.tsx
 msgid "Loading the book"
 msgstr ""
@@ -2128,6 +2243,10 @@ msgstr ""
 
 #: src/app/export/AudioFooter.tsx
 msgid "Making sample… (stop)"
+msgstr ""
+
+#: src/app/toc/TocPreview.tsx
+msgid "Making the preview…"
 msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
@@ -2225,8 +2344,13 @@ msgstr ""
 msgid "Move chapter {n} up"
 msgstr ""
 
+#: src/state/project/toc.ts
+msgid "Move contents entry"
+msgstr ""
+
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Move down"
 msgstr ""
 
@@ -2237,7 +2361,15 @@ msgstr ""
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/EntryList.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Move up"
+msgstr ""
+
+#. placeholder {0}: item.title
+#. placeholder {1}: i + delta + 1
+#. placeholder {2}: rows.length
+#: src/app/toc/TocEditor.tsx
+msgid "Moved {0} to position {1} of {2}"
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -2426,12 +2558,20 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Nothing"
+msgstr ""
+
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
 msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
 msgid "Nothing removed"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr ""
 
 #: src/app/dialogs/ImportParts.tsx
@@ -2550,6 +2690,11 @@ msgstr ""
 msgid "Packing the audiobook…"
 msgstr ""
 
+#. placeholder {0}: p.index + 1
+#: src/app/toc/TocPreview.tsx
+msgid "Page {0} of {total}"
+msgstr ""
+
 #: src/app/shell/PageEstimate.tsx
 msgid "Page {current} of ≈ {count}"
 msgstr ""
@@ -2579,6 +2724,10 @@ msgstr ""
 msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
 msgstr ""
 
+#: src/app/toc/TocEditor.tsx
+msgid "Page numbers"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Page setup"
 msgstr ""
@@ -2600,6 +2749,7 @@ msgid "Page zoom"
 msgstr ""
 
 #: src/app/export/PrintPreview.tsx
+#: src/app/toc/TocPreview.tsx
 msgid "Pages"
 msgstr ""
 
@@ -2669,12 +2819,20 @@ msgstr ""
 msgid "Piper voices: Amy and LibriTTS"
 msgstr ""
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Place after"
+msgstr ""
+
 #: src/app/home/Dashboard.tsx
 msgid "Place in the book"
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
+msgstr ""
+
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Points to"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -2688,6 +2846,11 @@ msgstr ""
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Press the new keys…"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocPreview.tsx
+msgid "Preview"
 msgstr ""
 
 #: src/editor/ReadingFooter.tsx
@@ -2741,6 +2904,10 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Print Preview…"
+msgstr ""
+
+#: src/app/toc/TocPreview.tsx
+msgid "Printed entries"
 msgstr ""
 
 #: src/app/dialogs/LicensesDialog.tsx
@@ -2875,6 +3042,10 @@ msgstr ""
 msgid "Remember my choice"
 msgstr ""
 
+#: src/app/toc/TocEditor.tsx
+msgid "Remove"
+msgstr ""
+
 #. placeholder {0}: ref.title
 #: src/state/project/references.ts
 msgid "Remove {0}"
@@ -2885,8 +3056,20 @@ msgstr ""
 msgid "Remove {0} from recent projects"
 msgstr ""
 
+#: src/app/toc/TocEditor.tsx
+msgid "Remove change for {label}"
+msgstr ""
+
+#: src/state/project/toc.ts
+msgid "Remove contents change"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Remove cover"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Remove entry"
 msgstr ""
 
 #: src/app/references/ReferenceDetails.tsx
@@ -2911,6 +3094,7 @@ msgid "Removed references ({removedCount})"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Rename"
 msgstr ""
 
@@ -2919,8 +3103,18 @@ msgstr ""
 msgid "Rename {0}"
 msgstr ""
 
+#: src/state/project/toc.ts
+msgid "Rename contents entry"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
+msgstr ""
+
+#. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
+#: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr ""
 
@@ -2969,12 +3163,28 @@ msgstr ""
 msgid "Reset all"
 msgstr ""
 
+#: src/state/project/toc.ts
+msgid "Reset contents to outline"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset shortcut for {action}"
 msgstr ""
 
+#: src/app/toc/TocEditor.tsx
+msgid "Reset the contents to the outline?"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Reset this entry"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset to default"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "Reset to outline"
 msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
@@ -3039,6 +3249,10 @@ msgstr ""
 
 #: src/editor/FindResults.tsx
 msgid "Results by page"
+msgstr ""
+
+#: src/app/toc/TocPreview.tsx
+msgid "Retry"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
@@ -3235,6 +3449,14 @@ msgstr ""
 msgid "Show chapters"
 msgstr ""
 
+#: src/state/project/toc.ts
+msgid "Show contents entry"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Show in contents"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Show margins"
 msgstr ""
@@ -3323,6 +3545,10 @@ msgstr ""
 
 #: src/app/export/TypstSpread.tsx
 msgid "Spread controls"
+msgstr ""
+
+#: src/app/toc/TocRow.tsx
+msgid "Stale"
 msgstr ""
 
 #: src/app/home/Dashboard.tsx
@@ -3508,6 +3734,10 @@ msgstr ""
 msgid "The book's cadabra.json is not a JSON object"
 msgstr ""
 
+#: src/state/project/contentsPreview.ts
+msgid "The contents page is not in the typeset book."
+msgstr ""
+
 #: src/state/project/context.ts
 msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
 msgstr ""
@@ -3546,6 +3776,10 @@ msgstr ""
 msgid "The downloaded file was damaged and was deleted. Try the download again."
 msgstr ""
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "The entry has no title."
+msgstr ""
+
 #: src/editor/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr ""
@@ -3569,6 +3803,10 @@ msgstr ""
 #. placeholder {0}: e.reference
 #: src/lib/projectError.ts
 msgid "The image {0} is outside the document's folder"
+msgstr ""
+
+#: src/app/toc/TocEditor.tsx
+msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
 msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
@@ -3677,6 +3915,10 @@ msgstr ""
 msgid "These are routine adjustments; nothing was lost."
 msgstr ""
 
+#: src/app/toc/TocEditor.tsx
+msgid "These changes belong to a chapter or heading that is gone or was edited. They are kept until you remove them."
+msgstr ""
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "These fonts come from Google Fonts and are free to use under the SIL Open Font Licence. A font is downloaded only when you click Download; nothing else is sent."
 msgstr ""
@@ -3721,6 +3963,10 @@ msgstr ""
 
 #: src/lib/importErrorText.ts
 msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
+msgstr ""
+
+#: src/state/project/contentsPreview.ts
+msgid "This edition has no contents page to draw."
 msgstr ""
 
 #: src/lib/importBook.ts
@@ -3826,6 +4072,10 @@ msgstr ""
 msgid "Type a command"
 msgstr ""
 
+#: src/app/toc/AddEntryDialog.tsx
+msgid "Type the name that should appear in the contents."
+msgstr ""
+
 #: src/app/export/ExportDialog.tsx
 msgid "Typesetting the book with Typst…"
 msgstr ""
@@ -3842,6 +4092,10 @@ msgstr ""
 #: src/lib/pdfErrors.ts
 msgid "Typst could not build the PDF:\n"
 "{0}"
+msgstr ""
+
+#: src/app/toc/TocPreview.tsx
+msgid "Typst is not installed on this computer, so this is an approximation: the layout is drawn by the app and page numbers marked ≈ are estimates. Install Typst to see the exact page."
 msgstr ""
 
 #. placeholder {0}: e.seconds
@@ -3918,6 +4172,10 @@ msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Update available"
+msgstr ""
+
+#: src/app/toc/TocPreview.tsx
+msgid "Updating the preview"
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx

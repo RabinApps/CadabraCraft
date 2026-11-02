@@ -1,4 +1,5 @@
 import { strToU8, zipSync } from "fflate";
+import { starterTitle } from "@cadabracraft/format";
 import { countWords, textDirection, type ChapterDoc, type Section } from "@cadabracraft/shared";
 import { blockXml } from "./blocks";
 import { NS_A, NS_PIC, NS_WP } from "./drawing";
@@ -26,8 +27,10 @@ import { settleTables } from "./tables";
 import type { Ctx, DocxBook, DocxChapter, DocxOptions, Shared } from "./types";
 import { esc, illegalXmlChar, XML_HEAD } from "./xml";
 
-export type { DocxBook, DocxChapter, DocxOptions } from "./types";
+export type { DocxBook, DocxChapter, DocxContentsItem, DocxOptions } from "./types";
 
+/** Indent of a contents line per level, in twentieths of a point (half an inch). */
+const CONTENTS_INDENT = 720;
 const SECTION_RANK: Record<Section, number> = { front: 0, chapter: 1, back: 2 };
 const RIGHT_TO_LEFT_HINT = "Right-to-left languages are not supported in Word export yet";
 
@@ -174,12 +177,37 @@ export function buildDocx(
         ),
       );
     }
+    if (
+      c.kind === "contents" &&
+      options.contents !== undefined &&
+      !nodes.some((n) => n.type === "heading")
+    ) {
+      const heading = checkText(
+        c.title.trim() || starterTitle("contents", language),
+        ctx,
+        "The contents title",
+      );
+      body.push(para(textRuns(heading, ""), { style: "Heading1", spaceBefore: 2880 }, ctx));
+    }
     nodes.forEach((n, i) => {
       if (i === 0 && titled) {
         const runs = inline(kidsOf(n), ctx);
         if (runs !== "") body.push(para(runs, { style: "Heading1", spaceBefore: 2880 }, ctx));
       } else body.push(...blockXml(n, ctx));
     });
+    if (c.kind === "contents" && options.contents !== undefined) {
+      for (const item of options.contents) {
+        if (item.hidden === true) continue;
+        const line = checkText(
+          item.title.trim() === "" ? item.entryId?.trim() || "(untitled)" : item.title,
+          ctx,
+          "A contents entry",
+        );
+        body.push(
+          para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * item.level }, ctx),
+        );
+      }
+    }
     // A page with no content still starts on its own page.
     if (s.pendingBreak) body.push(para("", {}, ctx));
     s.pendingBreak = false;

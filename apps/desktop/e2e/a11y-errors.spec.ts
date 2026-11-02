@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "./support/coverage";
 import { covBackend, failOn, stopFailing } from "./support/cov";
 import { fakeTauri } from "./support/fakeTauri";
-import { chapterAction, newProject, sidebar } from "./support/helpers";
+import { addPage, chapterAction, newProject, sidebar } from "./support/helpers";
 
 // WCAG 3.3.1 Error Identification, 3.3.3 Error Suggestion and 4.1.3 Status Messages: when the app refuses input, the
 // error is text (never colour alone), it is announced (role=alert/status), the field at fault is aria-invalid and
@@ -344,6 +344,85 @@ test.describe("book dialogs", () => {
       .last()
       .click();
     await expectAlert(page.getByRole("alert").first(), "No space left on device");
+  });
+});
+
+test.describe("contents", () => {
+  const open = async (page: Page) => {
+    await newProject(page);
+    await addPage(page, "Contents");
+    const contents = page.getByRole("region", { name: "Contents", exact: true });
+    await contents.getByRole("button", { name: "Add custom entry" }).click();
+    return { contents, dialog: page.getByRole("dialog", { name: "Add custom entry" }) };
+  };
+
+  test("Add custom entry: an empty title is an alert tied to the field, which takes focus and says what to type", async ({
+    page,
+  }) => {
+    const { contents, dialog } = await open(page);
+    const field = dialog.getByLabel("Entry title");
+    await expect(field).not.toHaveAttribute("aria-invalid", "true");
+    // The button is not dead: pressing it explains what is missing.
+    await expect(dialog.getByRole("button", { name: "Add entry" })).toBeEnabled();
+    await dialog.getByLabel("Place after").focus();
+    await dialog.getByRole("button", { name: "Add entry" }).click();
+    await expectFieldError(
+      field,
+      dialog.getByRole("alert"),
+      "The entry has no title.",
+      "Type the name that should appear in the contents.",
+    );
+    // Spaces are no title either.
+    await field.fill("   ");
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
+    await page.keyboard.press("Enter");
+    await expectFieldError(
+      field,
+      dialog.getByRole("alert"),
+      "The entry has no title.",
+      "Type the name that should appear in the contents.",
+    );
+    await expect(contents.getByRole("listitem").filter({ hasText: "Custom" })).toHaveCount(0);
+    // Typing clears the error, and the entry is added.
+    await field.fill("Afterword");
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
+    await expect(field).not.toHaveAttribute("aria-invalid", "true");
+    await page.keyboard.press("Enter");
+    await expect(dialog).toHaveCount(0);
+    await expect(contents.getByRole("listitem").filter({ hasText: "Afterword" })).toBeVisible();
+  });
+
+  test("Add custom entry: a cancelled form starts empty the next time", async ({ page }) => {
+    const { contents, dialog } = await open(page);
+    await dialog.getByLabel("Entry title").fill("Draft");
+    await dialog.getByRole("button", { name: "Add entry" }).focus();
+    await dialog.getByRole("button", { name: "Cancel" }).click();
+    await contents.getByRole("button", { name: "Add custom entry" }).click();
+    await expect(dialog.getByLabel("Entry title")).toHaveValue("");
+    await dialog.getByRole("button", { name: "Add entry" }).click();
+    await expect(dialog.getByRole("alert")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await contents.getByRole("button", { name: "Add custom entry" }).click();
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
+    await expect(dialog.getByLabel("Entry title")).not.toHaveAttribute("aria-invalid", "true");
+  });
+
+  test("Contents preview: a preview that cannot be drawn is an alert with a Retry button", async ({
+    page,
+  }) => {
+    await newProject(page);
+    await page.evaluate(() => {
+      window.__compileError = { kind: "compile", message: "main.typ:4:2: error: boom" };
+    });
+    await addPage(page, "Contents");
+    const alert = page.getByRole("region", { name: "Preview", exact: true }).getByRole("alert");
+    await expect(alert).toContainText("Could not draw the preview", { timeout: 15_000 });
+    await expect(alert).toContainText("boom");
+    await expect(alert.getByRole("button", { name: "Retry" })).toBeVisible();
+    // The status line next to the title is a polite live region, so the failure is also spoken there.
+    await expect(
+      page.getByTestId("toc-preview-status").locator("xpath=ancestor::*[@aria-live][1]"),
+    ).toHaveAttribute("aria-live", "polite");
   });
 });
 

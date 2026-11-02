@@ -1,3 +1,4 @@
+import { starterTitle } from "@cadabracraft/format";
 import { countWords, textDirection, type ChapterDoc, type Section } from "@cadabracraft/shared";
 import { blockRtf } from "./blocks";
 import { RtfExportError } from "./errors";
@@ -9,8 +10,10 @@ import { settleTables } from "./tables";
 import { esc, illegalChar } from "./text";
 import type { Ctx, RtfBook, RtfChapter, RtfOptions, Shared } from "./types";
 
-export type { RtfBook, RtfChapter, RtfOptions } from "./types";
+export type { RtfBook, RtfChapter, RtfContentsItem, RtfOptions } from "./types";
 
+/** Indent of a contents line per level, in twips (half an inch). */
+const CONTENTS_INDENT = 720;
 const SECTION_RANK: Record<Section, number> = { front: 0, chapter: 1, back: 2 };
 const RIGHT_TO_LEFT_HINT = "Right-to-left languages are not supported in RTF export yet";
 
@@ -134,12 +137,44 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
       body.push(
         para(textRuns(checkText(c.title.trim(), ctx, "The chapter title"), ""), heading, ctx),
       );
+    if (
+      c.kind === "contents" &&
+      options.contents !== undefined &&
+      !c.doc.content.some((n) => n.type === "heading")
+    )
+      body.push(
+        para(
+          textRuns(
+            checkText(
+              c.title.trim() || starterTitle("contents", language),
+              ctx,
+              "The contents title",
+            ),
+            "",
+          ),
+          heading,
+          ctx,
+        ),
+      );
     c.doc.content.forEach((n, i) => {
       if (i === 0 && titled) {
         const runs = inline(kidsOf(n), ctx);
         if (runs !== "") body.push(para(runs, heading, ctx));
       } else body.push(...blockRtf(n, ctx));
     });
+    if (c.kind === "contents" && options.contents !== undefined) {
+      for (const item of options.contents) {
+        if (item.hidden === true) continue;
+        const line = checkText(
+          item.title.trim() === "" ? item.entryId?.trim() || "(untitled)" : item.title,
+          ctx,
+          "A contents entry",
+        );
+        body.push(
+          para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * item.level }, ctx),
+        );
+      }
+    }
     // A page with no content still starts on its own page.
     if (s.pendingBreak) body.push(para("", {}, ctx));
     s.pendingBreak = false;

@@ -99,10 +99,24 @@ Page breaks are approximate, which is why the chip above the pages says so: the 
 
 The list on the left has three parts: front matter, chapters and back matter. Reading order is simply the order of this list.
 
-- **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page and one copyright page.
+- **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, contents, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page, one copyright page and one contents page (see [Contents page](#contents-page)).
 - The `...` menu next to each entry lets you **Rename**, **Move up**, **Move down** or **Move to trash**.
 - **Trash** (bottom of the list) shows pages you moved to the trash. **Restore** puts one back at the end of its section. Nothing is ever permanently deleted by the app; trashed files stay in `.cadabra/trash/` inside your book folder until you delete them yourself.
 - **Book undo and redo** (the arrows at the bottom of the list, or Edit > Undo ... / Redo ..., Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z) reverse changes to the structure: adding, renaming, moving, trashing and restoring. The button says what it will undo. They do not undo typing (normal Cmd/Ctrl+Z does that) and they start fresh each time you open the book.
+
+### Contents page
+
+**Add page, Contents** adds a contents page to the front matter. You do not type its list: it is built from your book and follows it. Add, rename, move or trash a chapter and the list changes with it. Select the page in the list and the editor is replaced by the list itself:
+
+- **Chapters, +H1, +H1-H2, +H1-H3** choose how much to list: only the chapters, or also the headings inside them down to that level.
+- **Page numbers** switches the numbers (and, in print, the dot leaders) on or off. They show the page the PDF will print: from the real layout when the book has been typeset, otherwise an estimate from the word counts marked with "≈". Heading numbers need the real layout and show a dash until it is known. The numbers apply to the print PDF only; an e-book has none.
+- Each entry has a **grip** (drag to reorder) and a `...` menu: **Rename** (or double-click the title), **Move up**, **Move down** (the keyboard and touch way to reorder), **Hide from contents** / **Show in contents** and, for an entry you changed, **Reset this entry**. Your changes are layered on top of the generated list; the chapter itself is never renamed or moved.
+- **Add custom entry** adds a line of your own (for example a part title): where it goes, and which entry it points at, which is where its page number comes from.
+- **Reset to outline** (after a confirmation) removes every rename, hidden entry, custom entry and new order, and keeps the depth and the page-number switch.
+- A change that points at a chapter or heading that is gone or was edited is kept and listed under **Changes that no longer match**, with a **Remove** button; a custom entry whose target is gone shows a **Stale** badge. Nothing is dropped without you removing it.
+- **Preview** shows the contents page as it will be printed, at your book's trim size, next to the list (on a window at least 1280 px wide) or behind an **Edit | Preview** switch under the title (on narrower windows; the app remembers which one you left open). It follows every change you make a moment after you make it. The heading says where it comes from: **Exact pages from Typst** means it is the real page from the same layout as the PDF, so the numbers and line breaks match (roman numerals in the front matter, arabic in the body, no numbers or dot leaders when **Page numbers** is off, more pages when the list is long). Without Typst on your computer the preview says **Approximate: Typst is not available** and draws the same list itself: numbers marked "≈" are estimates and the line breaks are only close. **Could not draw the preview** has a **Retry** button and keeps the last page on screen. Nothing is made while the preview is hidden.
+
+Changes to the contents page are part of **Book undo and redo**. In a translation edition each entry has its own title for that language. The contents page shows its list in Read mode, in the print preview and in every export (see [Exporting](#exporting)); Page view shows the page's own title only.
 
 Book details (File > Book Details…, or the book icon at the top) hold the title, author, language, ISBN, identifier and cover image. The cover is a PNG, JPEG or WebP image up to 25 MB; portrait and about 1600 x 2400 pixels works best. Change the look of the printed book on the **Templates** page (Change template in the details panel). The Novel, Nonfiction and Modern templates are included.
 
@@ -157,9 +171,13 @@ You cannot import into a book that is already open; import into a new book, then
 
 File > Export opens the Export dialog (or use the shortcuts below). Files are saved in the `exports/` folder of your book as `book.epub`, `book.pdf` and `book.md`. Exporting again replaces the previous file of the same name, so move one elsewhere if you want to keep it. The `exports/` folder is safe to delete; the app can always make the files again.
 
+A contents page appears in every format that has pages to put it on: EPUB, print PDF, Markdown, and the Word and Rich Text manuscripts (the manuscripts list the titles indented by level, without page numbers or links). The audiobook skips it.
+
 ### EPUB (e-book)
 
 EPUB 3 works with most e-readers and stores. The dialog first checks what it can see, such as a book with no chapters or untitled chapters. The EPUB format itself is checked with the standard EPUBCheck tool during development; the app does not run EPUBCheck on your file. If a store rejects an EPUB, see [Troubleshooting](#troubleshooting).
+
+The contents page, when the book has one, is written as a nested list of links built from the same list you edit (renames, hidden entries, order and your own entries apply), and the e-reader's navigation menu uses it too. Without a contents page the navigation lists the chapters as before.
 
 ### Print PDF
 
@@ -169,11 +187,13 @@ Above the options a list of **Print checks** compares your book with Amazon KDP 
 
 Below the template, **Body font** and **Heading font** let you pick the fonts of the PDF. "Template default" uses the template's own font, and "Same as body" sets headings in the body font. The choice is saved with the book. The font file is not: if you open the book on a computer that does not have the font, the export stops and says so, with an **Open Fonts** button that takes you to Settings, Fonts (see [Fonts](#fonts)). CadabraCraft never swaps in a different font for you.
 
+A contents page is typeset as a list with dot leaders and the printed page numbers (roman numerals in the front matter, then arabic), indented by level; turn **Page numbers** off on the contents page for a plain list. The numbers come from the same layout as the PDF, so they match its pages.
+
 The PDF is built by Typst. Installers are meant to ship with it (see Troubleshooting for builds from source).
 
 ### Markdown
 
-Writes the whole book as one Markdown file in reading order. Underline, small caps, superscript and subscript have no Markdown form, so by default the export stops and names the chapter; tick **Keep underline and small caps** to write them as HTML tags instead.
+Writes the whole book as one Markdown file in reading order. A contents page becomes a nested list of links to the chapters and headings. Underline, small caps, superscript and subscript have no Markdown form, so by default the export stops and names the chapter; tick **Keep underline and small caps** to write them as HTML tags instead.
 
 After an export finishes the app may offer a sponsor dialog; you can say "Maybe later" or "Don't show again".
 

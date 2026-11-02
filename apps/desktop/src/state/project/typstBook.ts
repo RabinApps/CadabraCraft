@@ -5,6 +5,7 @@ import {
   resolveBookFonts,
   resolveTrimSize,
 } from "@cadabracraft/templates";
+import { bookContents, pdfToc } from "../../lib/tocExport";
 import type { Ctx } from "./context";
 
 /**
@@ -35,6 +36,9 @@ export const createTypstBook = (ctx: Ctx) => {
       templateId,
       edition,
       chapters,
+      // The contents list the page of kind "contents" shows (a measure of one page leaves it out).
+      toc:
+        only === undefined ? pdfToc(bookContents(manifest, edition.language, chapters)) : undefined,
       trimSize: resolveTrimSize(manifest),
       fonts: resolveBookFonts(manifest),
       assets: () => loadAssets(chapters),
