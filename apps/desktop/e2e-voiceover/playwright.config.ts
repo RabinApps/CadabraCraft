@@ -13,7 +13,14 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   outputDir: "../test-results-voiceover",
-  use: { ...devices["Desktop Safari"], headless: false, baseURL: `http://localhost:${port}` },
+  use: {
+    ...devices["Desktop Safari"],
+    headless: false,
+    baseURL: `http://localhost:${port}`,
+    // Without these a click on an element that never becomes ready waits for the whole two-hour test and hides which area hung.
+    actionTimeout: 15_000,
+    navigationTimeout: 30_000,
+  },
   projects: [{ name: "voiceover-webkit" }],
   webServer: {
     command: "pnpm dev",
