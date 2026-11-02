@@ -133,9 +133,10 @@ describe("withContentsList", () => {
   });
   it("changes nothing without a list", () => {
     const pages = [{ id: "a", doc: doc() }];
-    expect(withContentsList(pages, undefined)).toEqual(pages);
-    expect(
-      withContentsList(pages, { entryId: "a", all: [], visible: [], pageNumbers: true }),
-    ).toEqual(pages);
+    // The very same array, not a copy: the reader keeps its scroll state against the pages it was given.
+    expect(withContentsList(pages, undefined)).toBe(pages);
+    expect(withContentsList(pages, { entryId: "a", all: [], visible: [], pageNumbers: true })).toBe(
+      pages,
+    );
   });
 });

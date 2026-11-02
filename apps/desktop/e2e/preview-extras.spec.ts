@@ -210,6 +210,10 @@ test("a click on a word of a page opens the editor at that word; on the margin o
   await preview(page);
   await page.evaluate((r) => (window.__typstQueryResult = r), report(id));
   await page.getByRole("button", { name: "Next pages" }).click();
+  // The canvas has the HTML default size (300 x 150) until pdf.js has opened the page: wait for the real one before measuring.
+  await expect
+    .poll(async () => (await pageImg(page, 2).boundingBox())!.height)
+    .toBeGreaterThan(300);
   const box = (await pageImg(page, 2).boundingBox())!;
   // The PDF is 72 pt to the inch and drawn at 50 px to the inch: line k (0 is the head) has its baseline 72 + 16k pt from the top.
   const lineY = (k: number) => ((72 + 16 * k - 4) / 72) * 50;

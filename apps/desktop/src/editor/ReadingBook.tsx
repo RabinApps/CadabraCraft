@@ -41,7 +41,7 @@ const LINE = 0.3;
  * chapter is drawn as trim-size pages (cards, running heads, page numbers chained from chapter to chapter); on a phone it is the
  * plain reading layout. Every chapter is its own read-only editor and only the ones near the viewport are mounted.
  */
-function ReadingScroll({ pages }: { pages: BookPage[] }) {
+function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   const currentId = useProject((s) => s.currentId);
   const selectChapter = useProject((s) => s.actions.selectChapter);
   const { size, width } = useReading();

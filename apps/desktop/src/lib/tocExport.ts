@@ -78,8 +78,10 @@ const EM_SPACE = "\u2003";
 export function withContentsList<P extends { id: string; doc: ChapterDoc }>(
   pages: readonly P[],
   contents: BookContents | undefined,
-): P[] {
-  if (!contents || contents.visible.length === 0) return [...pages];
+): readonly P[] {
+  // Nothing to add: hand back the same array. The reader keeps its scroll state against what it was given, so a new array with the
+  // same pages (a book without a contents page, rebuilt whenever the manifest object changes) must not reach it.
+  if (!contents || contents.visible.length === 0) return pages;
   const list = contents.visible.map((item) => ({
     type: "paragraph" as const,
     content: [
