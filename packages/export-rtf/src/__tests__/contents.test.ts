@@ -63,7 +63,7 @@ describe("RTF contents page", () => {
       { text: "Deeper", left: 2160 },
       { text: "Two", left: 0 },
     ]);
-    expect(out).not.toMatch(/PAGEREF|\\\\tab/);
+    expect(out).not.toMatch(/PAGEREF|\\tab\b/);
     // the next page starts on a new page
     const alpha = paras(out).findIndex((l) => l.text === "alpha");
     expect(out.slice(out.indexOf("Deeper"), out.indexOf("alpha"))).toContain("\\pagebb");

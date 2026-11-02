@@ -202,7 +202,8 @@ function autoItems(
       hidden: settings.hidden.includes(entry.id),
     });
     if (settings.depth === 0) continue;
-    const outline = outlines[entry.id] ?? [];
+    // Own properties only: an entry id such as "constructor" must not find a member of Object.prototype.
+    const outline = Object.hasOwn(outlines, entry.id) ? outlines[entry.id]! : [];
     const keys = outlineKeys(entry.id, outline);
     outline.forEach((h, i) => {
       if (h.level > settings.depth) return;
@@ -343,7 +344,10 @@ export function attachPages(
     const base = { ...item };
     delete base.page;
     const ref = item.kind === "custom" ? item.target : item.key;
-    const page = ref === undefined ? undefined : (byId.get(ref) ?? headingPages[ref]);
+    const page =
+      ref === undefined
+        ? undefined
+        : (byId.get(ref) ?? (Object.hasOwn(headingPages, ref) ? headingPages[ref] : undefined));
     return page ? { ...base, page } : base;
   });
 }
@@ -497,7 +501,13 @@ export function removeTocCustom(m: Manifest, contentsId: string, customId: strin
 
 /** Clears what the author set for one item: hidden, renamed, its place in the order; a `custom:` key removes that entry. */
 export function removeTocOverride(m: Manifest, contentsId: string, key: string): Manifest {
-  if (isCustomKey(key)) return removeTocCustom(m, contentsId, key.slice("custom:".length));
+  if (isCustomKey(key)) {
+    const id = key.slice("custom:".length);
+    const entry = m.frontMatter.find((e) => e.id === contentsId);
+    // A `custom:` key whose entry is gone is a stale override (hidden or ordered): it is cleared below like any other key.
+    if (entry !== undefined && tocSettingsOf(entry).custom.some((c) => c.id === id))
+      return removeTocCustom(m, contentsId, id);
+  }
   return update(m, contentsId, (t) => {
     const { [key]: _gone, ...titles } = t.titles;
     return {

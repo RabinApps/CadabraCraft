@@ -187,6 +187,24 @@ test("rename in place (double-click, menu, Enter, Escape) and revert to the gene
   await expect(row(page, "Storm")).toBeVisible();
 });
 
+test("Enter that confirms an input-method candidate does not commit the rename", async ({
+  page,
+}) => {
+  await threeChapters(page);
+  await openContents(page);
+  await row(page, "Storm").getByText("Storm").dblclick();
+  const field = page.getByLabel("Entry title");
+  await field.fill("あらし");
+  // The Enter that picks a conversion candidate arrives with isComposing set: the field stays open and nothing is saved.
+  await field.dispatchEvent("keydown", { key: "Enter", isComposing: true });
+  await expect(field).toBeVisible();
+  expect((await tocOf(page)).toc).toBeUndefined(); // nothing was saved: the page still has no settings
+  // The Enter that follows, once the text is confirmed, commits it.
+  await page.keyboard.press("Enter");
+  await expect(row(page, "あらし")).toBeVisible();
+  expect((await tocOf(page)).toc.titles).toEqual({ "chapter-2": { en: "あらし" } });
+});
+
 test("hide and show an entry", async ({ page }) => {
   await threeChapters(page);
   await openContents(page);

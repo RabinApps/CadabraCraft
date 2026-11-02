@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // resolveToc runs before the manifest is saved: the hook lets one test change cadabra.json from outside at that moment.
-const hook = vi.hoisted(() => ({ beforeSave: null as null | (() => void) }));
+const hook = vi.hoisted(() => ({ beforeSave: null as null | (() => void), failSave: false }));
 vi.mock("@cadabracraft/format", async (orig) => {
   const real = await orig<typeof import("@cadabracraft/format")>();
   return {
@@ -15,11 +15,24 @@ vi.mock("@cadabracraft/format", async (orig) => {
   };
 });
 
+// One test makes the manifest save fail, after the Contents file has been written.
+vi.mock("../project", async (orig) => {
+  const real = await orig<typeof import("../project")>();
+  return {
+    ...real,
+    saveManifest: (...a: Parameters<typeof real.saveManifest>) => {
+      if (hook.failSave) throw new Error("disk full");
+      return real.saveManifest(...a);
+    },
+  };
+});
+
 import { type Session, connect, seedBook } from "./helpers";
 
 let s: Session;
 afterEach(async () => {
   hook.beforeSave = null;
+  hook.failSave = false;
   await s.close();
 });
 
@@ -95,6 +108,32 @@ describe("cadabra_toc_update add_page", () => {
     await book();
     expect(await fail("cadabra_toc_update", { action: "add_page" })).toBe("toc_page_exists");
     expect(manifest().frontMatter).toHaveLength(1);
+  });
+
+  it("takes the new file back when the manifest cannot be saved, so adding the page can be retried", async () => {
+    await book(false);
+    hook.failSave = true;
+    expect(await fail("cadabra_toc_update", { action: "add_page" })).not.toBe("toc_page_exists");
+    const dir = join(s.root, "book/front-matter");
+    expect(existsSync(dir) ? readdirSync(dir) : []).toEqual([]);
+    expect(manifest().frontMatter).toEqual([]);
+    hook.failSave = false;
+    const retry = await update({ action: "add_page" });
+    expect(retry.changed).toBe(true);
+    expect(readdirSync(dir)).toHaveLength(1);
+  });
+
+  it("a failed save of any other action changes nothing and removes no file", async () => {
+    await book(true);
+    const before = readFileSync(manifestPath(), "utf8");
+    const dir = join(s.root, "book/front-matter");
+    const files = readdirSync(dir);
+    hook.failSave = true;
+    expect(await fail("cadabra_toc_update", { action: "set_depth", depth: 2 })).not.toBe(
+      "toc_no_contents_page",
+    );
+    expect(readFileSync(manifestPath(), "utf8")).toBe(before);
+    expect(readdirSync(dir)).toEqual(files);
   });
 
   it("refuses to overwrite a file that exists but is not listed", async () => {

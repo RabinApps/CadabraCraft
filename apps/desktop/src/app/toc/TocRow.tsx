@@ -84,6 +84,8 @@ export function TocRow({
               if (text !== item.title && !(custom && text === "")) onRename(text);
             }}
             onKeyDown={(e) => {
+              // Enter that confirms an input-method candidate (Japanese, Chinese, Korean) must not commit the half-typed title.
+              if (e.nativeEvent.isComposing) return;
               if (e.key === "Enter") e.currentTarget.blur();
               if (e.key === "Escape") {
                 e.currentTarget.dataset.cancelled = "true";

@@ -1009,3 +1009,39 @@ describe("targetIndex", () => {
     }
   });
 });
+
+describe("review fixes", () => {
+  it("an entry id that is also an Object.prototype member resolves without outlines instead of throwing", () => {
+    const { m, toc } = book();
+    const odd: Manifest = {
+      ...m,
+      chapters: m.chapters.map((c, i) => (i === 0 ? { ...c, id: "constructor" } : c)),
+    };
+    const deep = setTocDepth(odd, toc, 2);
+    const items = resolve(deep, toc, {});
+    expect(keysOf(items)).toContain("constructor");
+    expect(items.filter((i) => i.kind === "heading")).toEqual([]);
+  });
+
+  it("attachPages does not take a page number from Object.prototype", () => {
+    const item = {
+      key: "custom:c",
+      kind: "custom",
+      level: 0,
+      title: "x",
+      renamed: false,
+      hidden: false,
+      target: "toString",
+    } as TocItem;
+    expect(attachPages([item], [], {})).toEqual([item]);
+    expect("page" in attachPages([item], [], {})[0]!).toBe(false);
+  });
+
+  it("removeTocOverride clears a stale override that belongs to a custom entry that no longer exists", () => {
+    const { m, toc } = book();
+    const stale = hideTocItem(m, toc, "custom:ghost");
+    expect(tocSettingsOf(entryOf(stale, toc)).hidden).toEqual(["custom:ghost"]);
+    const cleared = removeTocOverride(stale, toc, "custom:ghost");
+    expect(tocSettingsOf(entryOf(cleared, toc)).hidden).toEqual([]);
+  });
+});

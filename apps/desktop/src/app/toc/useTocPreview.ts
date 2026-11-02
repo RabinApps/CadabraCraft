@@ -87,7 +87,12 @@ export function useTocPreview(active: boolean, approx: ApproxInput): TocPreviewS
   });
   const key = useMemo(() => approxKey(approx), [approx]);
   // What Typst sees changes with the book: the manifest (the list's settings, titles, order) and the saved text of any page.
-  const book = useMemo(() => contentHash(JSON.stringify([manifest, hashes])), [manifest, hashes]);
+  // The edition on screen counts too: switching it changes the book Typst is given while the manifest and the hashes stay the same.
+  const language = useProject((s) => s.activeLanguage);
+  const book = useMemo(
+    () => contentHash(JSON.stringify([manifest, hashes, language])),
+    [manifest, hashes, language],
+  );
   // Once Typst is known to be missing the list itself is the thing to watch (the book changing without the list changing draws nothing).
   const watch = fallback ? key : `book:${book}`;
   useEffect(() => {

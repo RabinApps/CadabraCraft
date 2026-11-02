@@ -1,5 +1,7 @@
 // Table of contents tools: read the resolved contents list and change the Contents page's settings and overrides.
 // The list itself is generated (packages/format toc.ts); the manifest only keeps depth, page numbers and the author's overrides.
+import { rmSync } from "node:fs";
+import { join } from "node:path";
 import { z } from "zod";
 import {
   addFrontMatter,
@@ -162,6 +164,7 @@ export const tocUpdate = defineTool({
       const lang = editionOf(manifest, language).language;
       let next: Manifest;
       let created: string | undefined;
+      let createdFile: string | undefined;
       if (action === "add_page") {
         if (!canAddMatter(manifest, "contents"))
           throw new ToolError("toc_page_exists", "the book already has a Contents page");
@@ -185,6 +188,7 @@ export const tocUpdate = defineTool({
           year: new Date().getFullYear(),
         });
         writeProjectFile(root, file, JSON.stringify(doc, null, 2));
+        createdFile = file;
         next = added.manifest;
         created = added.entry.id;
       } else {
@@ -253,7 +257,16 @@ export const tocUpdate = defineTool({
         }
       }
       const changed = next !== manifest;
-      const w = changed ? saveManifest(root, next, hash) : null;
+      let w: ReturnType<typeof saveManifest> | null = null;
+      if (changed) {
+        try {
+          w = saveManifest(root, next, hash);
+        } catch (e) {
+          // The Contents file was written before the manifest: take it back, or a retry would refuse to overwrite the unlisted file.
+          if (createdFile !== undefined) rmSync(join(root, createdFile), { force: true });
+          throw e;
+        }
+      }
       const toc = describeToc(root, next, lang);
       return {
         summary: `${action}: Contents ${toc.contentsId} now lists ${toc.items.length} item(s)`,
