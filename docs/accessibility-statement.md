@@ -17,14 +17,14 @@ What has been done:
 - Automated checks run on every change: axe, IBM Equal Access, contrast, keyboard, forced-colors, text spacing, reflow and target-size tests.
 - Reflow, text spacing, target size and control names are checked on about 45 screens and dialogs, and error messages on 13 forms.
 - Real VoiceOver on macOS reads 48 areas of the app (screens, dialogs, menus and the editor) in an automated suite, and all 48 pass.
-- The EPUB output passes EPUBCheck and Ace by DAISY. The print PDF is tagged for PDF/UA.
+- The EPUB output passes EPUBCheck and Ace by DAISY. The print PDF is tagged for PDF/UA and passes the veraPDF PDF/UA-1 validator, including its Contents page.
 
 What has **not** been done yet:
 
 - Testing with NVDA, JAWS, Narrator or Orca, or with VoiceOver on the packaged app (we tested the web version in Safari's engine).
 - Testing on real Windows contrast themes and at 200% zoom by eye.
 - Testing by people who use assistive technology every day.
-- Independent validation of the PDF with veraPDF, and of Word files with Word's own checker.
+- Checking the PDF in PAC or Acrobat, and Word files with Word's own checker.
 
 ## Known problems
 

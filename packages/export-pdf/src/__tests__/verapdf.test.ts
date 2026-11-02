@@ -11,6 +11,7 @@ import { loadFullBook } from "./fixtures";
 import { createNodeRunner } from "../node";
 import { renderPdf as render } from "../render";
 import type { PdfOptions } from "../types";
+import { itemsAtDepth, tocBook } from "./tocBook";
 
 const required = process.env.REQUIRE_VERAPDF === "1";
 const fetched = fileURLToPath(new URL("../../../../tools/verapdf/verapdf", import.meta.url));
@@ -74,6 +75,46 @@ suite("veraPDF validates the full fixture book", () => {
     "is PDF/UA-1 compliant with pdfUa",
     async () => {
       const { pdf } = await renderBook({ pdfUa: true });
+      expectCompliant(pdf, "ua1");
+    },
+    T,
+  );
+
+  it(
+    "is PDF/UA-1 compliant with a Contents page (linked entries, dot leaders and page numbers)",
+    async () => {
+      const b = tocBook({
+        chapters: 3,
+        paragraphs: 6,
+        headings: [[2, "The Storm"]],
+        foreword: true,
+      });
+      const items = itemsAtDepth(b.items, 2);
+      const { pdf } = await render(
+        b.book,
+        b.pages,
+        { toc: { items }, pdfUa: true },
+        createNodeRunner(),
+      );
+      expectCompliant(pdf, "ua1");
+    },
+    T,
+  );
+
+  it(
+    "is PDF/UA-1 compliant with a Contents page without page numbers and an entry that links nowhere",
+    async () => {
+      const b = tocBook({ chapters: 2, paragraphs: 6 });
+      const items = [
+        ...b.items,
+        { key: "custom:x", kind: "custom" as const, level: 0, title: "A note" },
+      ];
+      const { pdf } = await render(
+        b.book,
+        b.pages,
+        { toc: { items, pageNumbers: false }, pdfUa: true },
+        createNodeRunner(),
+      );
       expectCompliant(pdf, "ua1");
     },
     T,
