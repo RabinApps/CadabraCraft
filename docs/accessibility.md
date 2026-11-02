@@ -4,6 +4,8 @@ Target: **WCAG 2.2 level AA** for the desktop app, **EPUB Accessibility 1.1** fo
 
 The plan has four phases: foundations and automated gates, app UI fixes, output documents, then manual screen-reader testing. Open items live in the table below and in [roadmap.md](roadmap.md).
 
+The public documents are the [accessibility statement](accessibility-statement.md) and the [conformance report](accessibility-conformance-report.md); update both when a gap here is closed or a new one is found.
+
 ## Automated gates
 
 | Gate                                   | Where                                         | Covers                                                                                                                                                                                                                                                                                                                     |
