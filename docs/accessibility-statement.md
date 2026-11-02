@@ -47,7 +47,7 @@ CadabraCraft runs as a desktop app on macOS (WebKit), Windows (WebView2) and Lin
 
 If you cannot use a part of CadabraCraft, or a file it made is hard to read with your tools, please tell us:
 
-- **Contact:** `[CONTACT TO BE SET BEFORE PUBLISHING: an email address or a public issue tracker. The GitHub repository is private, so its issues cannot be used.]`
+- **Email:** <support@cadabracraft.com> (put "Accessibility" in the subject line).
 - Say what you were trying to do, your system and your assistive technology. Do not include your book's text if it is private; a description is enough.
 
 We aim to read every accessibility report promptly, and we put accessibility problems ahead of new features. If you need the information in another format, ask in the same place.

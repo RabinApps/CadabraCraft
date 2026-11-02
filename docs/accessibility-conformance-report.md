@@ -9,7 +9,7 @@ Based on VPAT® 2.5 (WCAG edition, WCAG 2.2). This is a self-assessment written 
 | Name and version     | CadabraCraft 0.1.0 (desktop book editor: Tauri 2, React, TipTap)                                                                                                      |
 | Report date          | 2026-11-01                                                                                                                                                            |
 | Product description  | A local-first desktop app for writing books and exporting them to EPUB, print PDF, Word, Rich Text, Markdown and audiobook files.                                     |
-| Contact              | To be set before publishing (see the statement). The GitHub repository is private.                                                                                    |
+| Contact              | <support@cadabracraft.com> (see the statement).                                                                                                                       |
 | Evaluated by         | The developer, with automated tools and one real screen reader (VoiceOver). No third party. No person who uses assistive technology every day has tested the app yet. |
 | Applicable standards | WCAG 2.2 level A and AA. For the files the app produces: EPUB Accessibility 1.1 (EPUB output) and PDF/UA-1 (print PDF). Section 508 and EN 301 549 point to WCAG.     |
 
