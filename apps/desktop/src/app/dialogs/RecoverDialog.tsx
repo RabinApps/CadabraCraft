@@ -27,7 +27,7 @@ export function RecoverDialog() {
       description={t`A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way.`}
     >
       {error && (
-        <p role="alert" className="mb-3 text-sm text-danger">
+        <p id="recover-error" role="alert" className="mb-3 text-sm text-danger">
           {error}
         </p>
       )}
@@ -36,9 +36,16 @@ export function RecoverDialog() {
         <Button
           variant="primary"
           icon={History}
+          aria-describedby={error ? "recover-error" : undefined}
           onClick={() => {
             setError("");
-            void actions.restoreSnapshot(next.id, next.snapshot).catch((e) => setError(errText(e)));
+            void actions
+              .restoreSnapshot(next.id, next.snapshot)
+              .catch((e) =>
+                setError(
+                  t`Could not use the newer text (${errText(e)}). Your saved text was not changed. Try again, or choose Keep saved text.`,
+                ),
+              );
           }}
         >{t`Use newer text`}</Button>
       </div>

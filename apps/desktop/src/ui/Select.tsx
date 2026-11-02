@@ -6,11 +6,22 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   /** Keep the label for screen readers only, when the row already shows the name. */
   hideLabel?: boolean;
   hint?: string;
+  /** The id of an error message shown elsewhere: marks the select invalid and is read with it. */
+  errorId?: string;
   children: ReactNode;
 }
 
 /** Native select with the same label and field styling as `Field`. */
-export function Select({ label, hideLabel, hint, className, id, children, ...rest }: SelectProps) {
+export function Select({
+  label,
+  hideLabel,
+  hint,
+  errorId,
+  className,
+  id,
+  children,
+  ...rest
+}: SelectProps) {
   const auto = useId();
   const selectId = id ?? auto;
   return (
@@ -23,7 +34,10 @@ export function Select({ label, hideLabel, hint, className, id, children, ...res
       </label>
       <select
         id={selectId}
-        aria-describedby={hint ? `${selectId}-hint` : undefined}
+        aria-invalid={errorId ? true : undefined}
+        aria-describedby={
+          [errorId, hint && `${selectId}-hint`].filter(Boolean).join(" ") || undefined
+        }
         className={cx(
           "w-full rounded-md border border-border-strong bg-surface px-3 py-2.5 text-sm max-md:min-h-11 text-ink focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-50",
           className,

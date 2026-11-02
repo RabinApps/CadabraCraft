@@ -185,7 +185,7 @@ export function LangDialog({
             setDraft((d) => d && { ...d, tag: e.target.value || d.tag, error: undefined })
           }
         >
-          <option value="">{t`Other (type a tag below)`}</option>
+          <option value="">{t`Other (use the Language tag field)`}</option>
           {ENABLED_LOCALE_INFO.map((l) => (
             <option key={l.code} value={l.code}>
               {l.nativeName} ({l.code})

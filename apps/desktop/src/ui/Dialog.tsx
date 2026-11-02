@@ -1,6 +1,6 @@
 import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
-import { useRef, type ReactNode } from "react";
+import { useRef, type FocusEvent, type ReactNode } from "react";
 import { Button } from "./Button";
 import { cx } from "./cx";
 
@@ -133,6 +133,14 @@ function restoreCaret(caret: Caret | null) {
     ?.setBaseAndExtent(caret.anchor, caret.anchorOffset, caret.focus, caret.focusOffset);
 }
 
+/**
+ * Radix moves focus inside the dialog without scrolling (`preventScroll`), so when Tab wraps from the last control to the first
+ * in a dialog that scrolls, the focused control stays out of view (WCAG 2.4.11). Bring it into view, doing nothing when it is.
+ */
+export const keepFocusInView = (e: FocusEvent<HTMLElement>) => {
+  if (e.target instanceof HTMLElement) e.target.scrollIntoView({ block: "nearest" });
+};
+
 export function Modal({
   open,
   onOpenChange,
@@ -148,6 +156,7 @@ export function Modal({
         <D.Overlay className={overlayClass} />
         <D.Content
           onCloseAutoFocus={onCloseAutoFocus}
+          onFocus={keepFocusInView}
           {...(description ? {} : { "aria-describedby": undefined })}
           className={cx(
             panelClass,

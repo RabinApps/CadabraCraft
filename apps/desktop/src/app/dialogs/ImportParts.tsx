@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { FileUp } from "lucide-react";
@@ -28,6 +29,8 @@ export function PickRow({
   onPick,
   hint,
   disabled,
+  id,
+  errorId,
 }: {
   label: string;
   value: string;
@@ -37,13 +40,24 @@ export function PickRow({
   onPick: () => void;
   hint?: string;
   disabled?: boolean;
+  /** Lets a refused submit move focus here. */
+  id?: string;
+  /** The id of an error message shown elsewhere: marks the box invalid and is read with it. */
+  errorId?: string;
 }) {
+  const auto = useId();
+  const inputId = id ?? auto;
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-xs font-semibold text-ink-muted">{label}</span>
       <div className="flex gap-2">
         <input
+          id={inputId}
           aria-label={label}
+          aria-invalid={errorId ? true : undefined}
+          aria-describedby={
+            [errorId, hint && `${inputId}-hint`].filter(Boolean).join(" ") || undefined
+          }
           readOnly
           value={value}
           placeholder={placeholder}
@@ -53,7 +67,11 @@ export function PickRow({
           {button}
         </Button>
       </div>
-      {hint && <p className="text-xs text-ink-muted">{hint}</p>}
+      {hint && (
+        <p id={`${inputId}-hint`} className="text-xs text-ink-muted">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }
