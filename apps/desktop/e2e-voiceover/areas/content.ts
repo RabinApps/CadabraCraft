@@ -303,7 +303,11 @@ const alt: Area = {
     await expect(pm(page).locator("figure")).toHaveCount(0);
 
     // The controls are reachable by name.
-    const fields = await walk("next", 14);
+    // The refused Insert moves focus to the description field, so VoiceOver is already past its label: step back to it.
+    const fields = [
+      ...(await walk("previous", 4, /Description \(alt text\)/)),
+      ...(await walk("next", 14)),
+    ];
     const heard = fields.join("\n");
     expect(heard).toMatch(/Description|alt text/i);
     expect(heard).toMatch(/decorative/i);
