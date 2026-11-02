@@ -4,7 +4,7 @@ import { plural } from "@lingui/core/macro";
 import { Camera, Trash2, Undo2 } from "lucide-react";
 import { Button } from "../../ui/Button";
 import { Confirm } from "../../ui/Dialog";
-import { Field } from "../../ui/Input";
+import { Field, focusField } from "../../ui/Input";
 import { cx } from "../../ui/cx";
 import { bridge, type BookSnapshotEntry } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
@@ -16,6 +16,9 @@ import type { HistoryPage } from "./HistoryDialog";
 const MAX_NAME = 100;
 
 type Pending = "book" | "delete" | null;
+
+const NAME_ID = "snapshot-name";
+const ERROR_ID = "snapshot-error";
 
 /**
  * Snapshots of the whole book: take a named one, restore the whole book (or just the page History was opened from) or delete one.
@@ -38,6 +41,8 @@ export function BookSnapshotsPanel({
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  /** What the message is about: the name field (refused), the Take button (failed) or another action. */
+  const [errorAbout, setErrorAbout] = useState<"name" | "take" | "other">("other");
   const [pending, setPending] = useState<Pending>(null);
 
   const refresh = useCallback(
@@ -57,7 +62,12 @@ export function BookSnapshotsPanel({
     setLoading(true);
     refresh()
       .catch((e) => {
-        if (live) setError(errText(e));
+        if (live) {
+          setErrorAbout("other");
+          setError(
+            t`Could not read the book snapshots (${errText(e)}). Close this dialog and open History again to retry.`,
+          );
+        }
       })
       .finally(() => {
         if (live) setLoading(false);
@@ -68,47 +78,75 @@ export function BookSnapshotsPanel({
   }, [refresh]);
 
   /** Runs one action: the buttons stay off until it settles, and a failure is shown here. */
-  const run = async (job: () => Promise<void>) => {
+  const run = async (
+    job: () => Promise<void>,
+    failure: (reason: string) => string,
+    about: "take" | "other" = "other",
+  ) => {
     setBusy(true);
     setError("");
     try {
       await job();
     } catch (e) {
-      setError(errText(e));
+      setErrorAbout(about);
+      setError(failure(errText(e)));
     } finally {
       setBusy(false);
     }
   };
 
-  const take = () =>
-    run(async () => {
-      if (!root) return;
-      await actions.flush(); // so the snapshot has what was just typed
-      const made = await bridge.createBookSnapshot(root, name);
-      setName("");
-      await refresh(made.path);
-    });
+  const take = () => {
+    if (!name.trim()) {
+      // The button is not dead: pressing it says what is missing and puts the cursor where it goes.
+      setErrorAbout("name");
+      setError(t`The snapshot has no name. Type one, for example “Before the rewrite”.`);
+      focusField(NAME_ID);
+      return;
+    }
+    void run(
+      async () => {
+        if (!root) return;
+        await actions.flush(); // so the snapshot has what was just typed
+        const made = await bridge.createBookSnapshot(root, name);
+        setName("");
+        await refresh(made.path);
+      },
+      (reason) =>
+        t`Could not take the snapshot (${reason}). Your name is kept. Try again, or free some space and retry.`,
+      "take",
+    );
+  };
 
   const chosen = list.find((e) => e.path === selected);
   const hasPage = !!page && !!chosen && chosen.pages.includes(page.file);
   const restoreBook = () =>
-    run(async () => {
-      if (!chosen) return;
-      await actions.restoreBook(chosen.path);
-      onDone();
-    });
+    run(
+      async () => {
+        if (!chosen) return;
+        await actions.restoreBook(chosen.path);
+        onDone();
+      },
+      (reason) => t`Could not restore the book (${reason}). Try again, or pick another snapshot.`,
+    );
   const restorePage = () =>
-    run(async () => {
-      if (!chosen || !page) return;
-      await actions.restorePageFromBook(page.id, chosen.path);
-      onDone();
-    });
+    run(
+      async () => {
+        if (!chosen || !page) return;
+        await actions.restorePageFromBook(page.id, chosen.path);
+        onDone();
+      },
+      (reason) =>
+        t`Could not restore this page (${reason}). Your current text was not changed. Try again, or pick another snapshot.`,
+    );
   const remove = () =>
-    run(async () => {
-      if (!root || !chosen) return;
-      await bridge.deleteBookSnapshot(root, chosen.path);
-      await refresh();
-    });
+    run(
+      async () => {
+        if (!root || !chosen) return;
+        await bridge.deleteBookSnapshot(root, chosen.path);
+        await refresh();
+      },
+      (reason) => t`Could not delete the snapshot (${reason}). It is still in the list. Try again.`,
+    );
 
   const detail = (e: BookSnapshotEntry) =>
     `${plural(e.pages.length, { one: "# page", other: "# pages" })} · ${plural(e.assets, { one: "# image", other: "# images" })}`;
@@ -119,27 +157,33 @@ export function BookSnapshotsPanel({
         className="flex flex-wrap items-end gap-2.5"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (name.trim() && !busy) void take();
+          if (!busy) take();
         }}
       >
         <div className="min-w-0 flex-1 basis-56">
           <Field
+            id={NAME_ID}
             label={t`Snapshot name`}
             placeholder={t`For example, Before the rewrite`}
             maxLength={MAX_NAME}
             value={name}
-            onChange={(ev) => setName(ev.target.value)}
+            errorId={error && errorAbout === "name" ? ERROR_ID : undefined}
+            onChange={(ev) => {
+              setName(ev.target.value);
+              if (errorAbout === "name") setError("");
+            }}
           />
         </div>
         <Button
           type="submit"
           variant="primary"
           icon={Camera}
-          disabled={!name.trim() || busy}
+          disabled={busy}
+          aria-describedby={error && errorAbout === "take" ? ERROR_ID : undefined}
         >{t`Take snapshot`}</Button>
       </form>
       {error && (
-        <p role="alert" className="m-0 text-sm text-danger">
+        <p id={ERROR_ID} role="alert" className="m-0 text-sm text-danger">
           {error}
         </p>
       )}

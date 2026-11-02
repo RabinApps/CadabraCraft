@@ -190,7 +190,8 @@ export function TocPreview({ state, lines, layout, serif }: Props) {
   return (
     <section
       aria-label={t`Preview`}
-      className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-md border border-border bg-surface"
+      // Scrolls when large text leaves it too short for its header and message (WCAG 1.4.4): nothing is cut off.
+      className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto rounded-md border border-border bg-surface"
     >
       <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
         <h3 className="text-sm font-semibold">{t`Preview`}</h3>

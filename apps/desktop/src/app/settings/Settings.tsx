@@ -8,6 +8,7 @@ import { currentSection, SECTION_TOP_GAP } from "../../lib/settingsScroll";
 import { cx } from "../../ui/cx";
 import { Field } from "../../ui/Input";
 import { Segmented } from "../../ui/Segmented";
+import { Notice } from "../../ui/Notice";
 import { Select } from "../../ui/Select";
 import { languageOptions } from "../../ui/LanguagePicker";
 import { Switch } from "../../ui/Switch";
@@ -52,6 +53,16 @@ export function Settings({
   const checkOnLaunch = useUpdates((s) => s.checkOnLaunch);
   const setCheckOnLaunch = useUpdates((s) => s.setCheckOnLaunch);
   const { locale, setLocale } = useLocale();
+  const [languageError, setLanguageError] = useState("");
+  const changeLanguage = (code: string) => {
+    setLanguageError("");
+    setLocale(code).catch(() => {
+      const name = languageOptions.find((o) => o.code === code)?.name ?? code;
+      setLanguageError(
+        t`Could not load ${name}. The language stays as it was. Choose it again, or pick another language.`,
+      );
+    });
+  };
   const navLabels: Record<(typeof sections)[number], string> = {
     appearance: t`Appearance`,
     general: t`General`,
@@ -158,7 +169,8 @@ export function Settings({
                       hideLabel
                       className="py-2"
                       value={locale}
-                      onChange={(e) => void setLocale(e.target.value)}
+                      errorId={languageError ? "language-error" : undefined}
+                      onChange={(e) => changeLanguage(e.target.value)}
                     >
                       {languageOptions.map((o) => (
                         <option
@@ -170,6 +182,11 @@ export function Settings({
                         </option>
                       ))}
                     </Select>
+                    {languageError && (
+                      <Notice id="language-error" role="alert" className="mt-2 text-xs">
+                        {languageError}
+                      </Notice>
+                    )}
                   </div>
                 }
               />

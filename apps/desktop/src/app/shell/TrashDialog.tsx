@@ -19,10 +19,19 @@ export function TrashDialog({
   const trash = useProject((s) => s.trash);
   const actions = useProject((s) => s.actions);
   const [error, setError] = useState("");
+  /** The page whose restore failed, so its button is described by the error. */
+  const [failed, setFailed] = useState<string | null>(null);
   useEffect(() => {
     if (!open) return;
     setError("");
-    actions.refreshTrash().catch((e) => setError(errText(e)));
+    setFailed(null);
+    actions
+      .refreshTrash()
+      .catch((e) =>
+        setError(
+          t`Could not read the trash (${errText(e)}). Close this dialog and open the trash again to retry.`,
+        ),
+      );
   }, [open, actions]);
   return (
     <Modal
@@ -32,7 +41,7 @@ export function TrashDialog({
       description={t`Pages you moved to the trash. Restoring puts a page back at the end of its section.`}
     >
       {error && (
-        <p role="alert" className="mb-2 text-sm text-danger">
+        <p id="trash-error" role="alert" className="mb-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -46,14 +55,21 @@ export function TrashDialog({
               <Button
                 icon={Undo2}
                 aria-label={t`Restore ${x.title}`}
+                aria-describedby={error && failed === x.path ? "trash-error" : undefined}
                 onClick={() => {
                   setError("");
+                  setFailed(null);
                   void actions.restoreTrash(x.path).then(
                     () => {
                       onOpenChange(false);
                       onNavigate?.();
                     },
-                    (e) => setError(errText(e)),
+                    (e) => {
+                      setFailed(x.path);
+                      setError(
+                        t`Could not restore ${x.title} (${errText(e)}). It is still in the trash. Try again, or restore another page.`,
+                      );
+                    },
                   );
                 }}
               >

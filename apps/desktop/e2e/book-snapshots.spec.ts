@@ -25,7 +25,7 @@ test("a named snapshot is taken, listed, restored for the whole book and deleted
   let dialog = await openBookSnapshots(page);
   await expect(dialog).toContainText("No book snapshots yet");
   const take = dialog.getByRole("button", { name: "Take snapshot" });
-  await expect(take).toBeDisabled();
+  await expect(take).toBeEnabled();
   await dialog.getByLabel("Snapshot name").fill("Before the rewrite");
   await take.click();
   const list = dialog.getByRole("list", { name: "Book snapshots" });
@@ -179,5 +179,7 @@ test("a failed snapshot or restore is shown in the dialog and nothing else chang
   await failOn(page, "list_book_snapshots", "listing broke");
   await page.keyboard.press("Escape");
   dialog = await openBookSnapshots(page);
-  await expect(dialog.getByRole("alert")).toHaveText("listing broke");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Could not read the book snapshots (listing broke)",
+  );
 });

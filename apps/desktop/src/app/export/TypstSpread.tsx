@@ -99,6 +99,17 @@ export function PdfPage({ doc, page, outline, stale, pxPerIn, onOpen }: PageProp
   const { t } = useLingui();
   const canvas = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+  // The "Edit this page" hint covers the foot of the page while hovered or focused: Escape hides it until the pointer or focus
+  // leaves and comes back (WCAG 1.4.13, dismissible).
+  const [hintOff, setHintOff] = useState(false);
+  const [over, setOver] = useState({ pointer: false, focus: false });
+  const hinted = over.pointer || over.focus;
+  useEffect(() => {
+    if (!hinted) return setHintOff(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setHintOff(true);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [hinted]);
   useEffect(() => {
     const target = canvas.current!;
     let task: { cancel: () => void; promise: Promise<unknown> } | null = null;
@@ -150,9 +161,14 @@ export function PdfPage({ doc, page, outline, stale, pxPerIn, onOpen }: PageProp
                 : { x: e.clientX - r.left, y: e.clientY - r.top };
             onOpen(page, at ? at.x / r.width : -1, at ? at.y / r.height : -1);
           }}
+          data-hint-off={hintOff ? "" : undefined}
+          onPointerEnter={() => setOver((o) => ({ ...o, pointer: true }))}
+          onPointerLeave={() => setOver((o) => ({ ...o, pointer: false }))}
+          onFocus={() => setOver((o) => ({ ...o, focus: true }))}
+          onBlur={() => setOver((o) => ({ ...o, focus: false }))}
           className="group absolute inset-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent"
         >
-          <span className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 pointer-coarse:opacity-100">
+          <span className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 pointer-coarse:opacity-100 group-data-hint-off:opacity-0!">
             <span className="flex items-center gap-1 rounded-full bg-ink px-2.5 py-1 text-xs font-semibold text-bg shadow-page">
               <PenLine size={12} aria-hidden />
               {t`Edit this page`}

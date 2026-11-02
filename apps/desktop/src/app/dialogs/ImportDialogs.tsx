@@ -5,7 +5,7 @@ import type { ImportResult } from "@cadabracraft/import-docx";
 import { Segmented } from "../../ui/Segmented";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Field } from "../../ui/Input";
+import { Field, focusField } from "../../ui/Input";
 import {
   loadImport,
   parseImport,
@@ -39,6 +39,11 @@ interface ImportProps {
 }
 
 type Level = 1 | 2 | 3;
+/** The box a message is about, so it is marked invalid and read with the message. */
+type About = "file" | "title" | "folder" | null;
+
+const IDS = { file: "import-file", title: "import-title", folder: "import-folder" } as const;
+const ERROR_ID = "import-error";
 interface Preview {
   loaded: LoadedSource;
   level: Level;
@@ -63,8 +68,8 @@ export function ImportDialog({
   const [author, setAuthor] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [error, setError] = useState("");
+  const [about, setAbout] = useState<About>(null);
   const [busy, setBusy] = useState(false);
-  const ready = source !== null && (append || (root !== null && title.trim() !== "")) && !busy;
   const kept = preview ? keptCount(preview.plan) : 0;
   // Bumped whenever the dialog closes or the source changes: an answer that arrives for an older state is dropped.
   const gen = useRef(0);
@@ -78,12 +83,19 @@ export function ImportDialog({
       setAuthor("");
       setPreview(null);
       setError("");
+      setAbout(null);
     }
     onOpenChange(o);
   };
-  const pick = (f: () => Promise<string | null>, then: (p: string) => void) => {
+  const fail = (message: string, field: About = null) => {
+    setAbout(field);
+    setError(message);
+    if (field) focusField(IDS[field]);
+  };
+  const pick = (f: () => Promise<string | null>, then: (p: string) => void, field: About) => {
     if (busy) return;
     setError("");
+    setAbout(null);
     const mine = gen.current;
     // A cancelled picker answers null; a picker that answers after the dialog was closed is ignored.
     f()
@@ -91,7 +103,8 @@ export function ImportDialog({
         if (p && mine === gen.current) then(p);
       })
       .catch((e) => {
-        if (mine === gen.current) setError(errText(e));
+        if (mine === gen.current)
+          fail(t`Could not open the chooser (${errText(e)}). Try again.`, field);
       });
   };
   const parse = async (loaded: LoadedSource, level: Level) => {
@@ -99,12 +112,23 @@ export function ImportDialog({
     setPreview({ loaded, level, result, plan: initialPlan(result) });
   };
   const next = () => {
-    if (!source || busy) return;
+    if (busy) return;
+    // The button is not dead: pressing it says what is missing and puts the cursor there.
+    if (!source) return fail(t`No file is chosen. Choose the file to import.`, "file");
+    if (!append && !title.trim()) return fail(t`The book has no title. Type one.`, "title");
+    if (!append && !root)
+      return fail(t`No folder is chosen. Choose an empty folder for the new book.`, "folder");
     setBusy(true);
     setError("");
+    setAbout(null);
     loadImport(source)
       .then((l) => parse(l, 1))
-      .catch((e) => setError(errText(e)))
+      .catch((e) =>
+        fail(
+          t`Could not read this file (${errText(e)}). Choose a different file (Word .docx, Markdown or HTML) and try again.`,
+          "file",
+        ),
+      )
       .finally(() => setBusy(false));
   };
   // A Word document is parsed again in Rust, which can take a moment on a large manuscript: the buttons wait for it.
@@ -113,7 +137,11 @@ export function ImportDialog({
     setBusy(true);
     setError("");
     parse(preview.loaded, level)
-      .catch((e) => setError(errText(e)))
+      .catch((e) =>
+        fail(
+          t`Could not split the file at that heading level (${errText(e)}). Pick another heading level, or go back and choose a different file.`,
+        ),
+      )
       .finally(() => setBusy(false));
   };
   const setPlan = useCallback((plan: ImportPlan) => setPreview((p) => p && { ...p, plan }), []);
@@ -132,11 +160,13 @@ export function ImportDialog({
       })
       .catch((err) => {
         setBusy(false);
-        setError(errText(err));
+        fail(
+          t`Could not import (${errText(err)}). Your original file was not changed. Try again, or go back and choose a different file.`,
+        );
       });
   };
   const errorBox = error && (
-    <Notice role="alert" className="max-h-40 overflow-y-auto break-words">
+    <Notice id={ERROR_ID} role="alert" className="max-h-40 overflow-y-auto wrap-break-word">
       {error}
     </Notice>
   );
@@ -156,7 +186,7 @@ export function ImportDialog({
           className="flex flex-col gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            if (ready) next();
+            next();
           }}
         >
           <PickRow
@@ -166,16 +196,31 @@ export function ImportDialog({
             button={t`Choose file…`}
             icon={FileUp}
             disabled={busy}
+            id={IDS.file}
+            errorId={error && about === "file" ? ERROR_ID : undefined}
             onPick={() =>
-              pick(pickSource, (p) => {
-                setSource(p);
-                setTitle((cur) => cur || titleFromFile(p));
-              })
+              pick(
+                pickSource,
+                (p) => {
+                  setSource(p);
+                  setTitle((cur) => cur || titleFromFile(p));
+                },
+                "file",
+              )
             }
           />
           {!append && (
             <>
-              <Field label={t`Title`} value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Field
+                id={IDS.title}
+                label={t`Title`}
+                value={title}
+                errorId={error && about === "title" ? ERROR_ID : undefined}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (about === "title") setError("");
+                }}
+              />
               <Field label={t`Author`} value={author} onChange={(e) => setAuthor(e.target.value)} />
               <PickRow
                 label={t`New book folder`}
@@ -184,7 +229,9 @@ export function ImportDialog({
                 button={t`Choose…`}
                 icon={FolderOpen}
                 disabled={busy}
-                onPick={() => pick(pickFolder, setRoot)}
+                id={IDS.folder}
+                errorId={error && about === "folder" ? ERROR_ID : undefined}
+                onPick={() => pick(pickFolder, setRoot, "folder")}
                 hint={t`Pick or create an empty folder. The imported book is stored there.`}
               />
             </>
@@ -192,7 +239,7 @@ export function ImportDialog({
           {errorBox}
           <div className="flex justify-end gap-2.5">
             <Button onClick={() => change(false)} disabled={busy}>{t`Cancel`}</Button>
-            <Button type="submit" variant="primary" icon={ArrowRight} disabled={!ready}>
+            <Button type="submit" variant="primary" icon={ArrowRight} disabled={busy}>
               {busy ? t`Reading…` : t`Next`}
             </Button>
           </div>

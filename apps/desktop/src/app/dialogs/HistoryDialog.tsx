@@ -104,7 +104,10 @@ export function HistoryDialog({
       }
     })()
       .catch((e) => {
-        if (live) setError(errText(e));
+        if (live)
+          setError(
+            t`Could not load the earlier versions (${errText(e)}). Close this dialog and open History again to retry.`,
+          );
       })
       .finally(() => {
         if (live) setLoading(false);
@@ -123,7 +126,10 @@ export function HistoryDialog({
         onOpenChange(false);
         onNavigate?.();
       },
-      (e) => setError(errText(e)),
+      (e) =>
+        setError(
+          t`Could not restore this version (${errText(e)}). Your current text was not changed. Try again, or pick another version.`,
+        ),
     );
   };
   const detail = (v: Version) => {
@@ -175,7 +181,7 @@ export function HistoryDialog({
       ) : (
         <>
           {error && (
-            <p role="alert" className="mb-3 text-sm text-danger">
+            <p id="history-error" role="alert" className="mb-3 text-sm text-danger">
               {error}
             </p>
           )}
@@ -259,6 +265,7 @@ export function HistoryDialog({
                 variant="primary"
                 icon={Undo2}
                 disabled={!chosen || chosen.words === null}
+                aria-describedby={error ? "history-error" : undefined}
                 onClick={restore}
               >{t`Restore this version`}</Button>
             </div>

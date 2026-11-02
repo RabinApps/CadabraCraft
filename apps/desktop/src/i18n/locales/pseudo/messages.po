@@ -1139,12 +1139,30 @@ msgstr ""
 msgid "Could not convert the HTML, so it was pasted as text"
 msgstr ""
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not delete the snapshot ({reason}). It is still in the list. Try again."
+msgstr ""
+
 #: src/app/toc/TocPreview.tsx
 msgid "Could not draw the preview"
 msgstr ""
 
+#. placeholder {0}: errText(err)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not import ({0}). Your original file was not changed. Try again, or go back and choose a different file."
+msgstr ""
+
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Could not install the update: {error}"
+msgstr ""
+
+#: src/app/settings/Settings.tsx
+msgid "Could not load {name}. The language stays as it was. Choose it again, or pick another language."
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Could not load the earlier versions ({0}). Close this dialog and open History again to retry."
 msgstr ""
 
 #. placeholder {0}: errText(e)
@@ -1157,12 +1175,32 @@ msgid "Could not open {title}: {error}"
 msgstr ""
 
 #. placeholder {0}: errText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not open the chooser ({0}). Try again."
+msgstr ""
+
+#. placeholder {0}: errText(e)
 #: src/app/home/Home.tsx
 msgid "Could not open this book: {0}"
 msgstr ""
 
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/app/shell/TrashDialog.tsx
+msgid "Could not read the trash ({0}). Close this dialog and open the trash again to retry."
+msgstr ""
+
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Could not read this document: {error}"
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not read this file ({0}). Choose a different file (Word .docx, Markdown or HTML) and try again."
 msgstr ""
 
 #: src/state/project/history.ts
@@ -1180,9 +1218,28 @@ msgstr ""
 msgid "Could not reorder the references: {0}"
 msgstr ""
 
+#. placeholder {0}: x.title
+#. placeholder {1}: errText(e)
+#: src/app/shell/TrashDialog.tsx
+msgid "Could not restore {0} ({1}). It is still in the trash. Try again, or restore another page."
+msgstr ""
+
 #. placeholder {0}: errText(e)
 #: src/state/project/references.ts
 msgid "Could not restore {name}: {0}"
+msgstr ""
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not restore the book ({reason}). Try again, or pick another snapshot."
+msgstr ""
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not restore this page ({reason}). Your current text was not changed. Try again, or pick another snapshot."
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
 msgstr ""
 
 #. placeholder {0}: errText(e)
@@ -1204,8 +1261,22 @@ msgstr ""
 msgid "Could not show this PDF: {error}"
 msgstr ""
 
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not split the file at that heading level ({0}). Pick another heading level, or go back and choose a different file."
+msgstr ""
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not take the snapshot ({reason}). Your name is kept. Try again, or free some space and retry."
+msgstr ""
+
 #: src/state/project/history.ts
 msgid "Could not undo: {why}"
+msgstr ""
+
+#. placeholder {0}: errText(e)
+#: src/app/dialogs/RecoverDialog.tsx
+msgid "Could not use the newer text ({0}). Your saved text was not changed. Try again, or choose Keep saved text."
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -2454,8 +2525,16 @@ msgid "No file chosen"
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
+msgid "No file is chosen. Choose the file to import."
+msgstr ""
+
+#: src/app/dialogs/ImportDialogs.tsx
 #: src/app/home/Home.tsx
 msgid "No folder chosen"
+msgstr ""
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "No folder is chosen. Choose an empty folder for the new book."
 msgstr ""
 
 #: src/app/quicknav/OutlineNavigator.tsx
@@ -2670,7 +2749,7 @@ msgid "Other"
 msgstr ""
 
 #: src/editor/ToolbarDialogs.tsx
-msgid "Other (type a tag below)"
+msgid "Other (use the Language tag field)"
 msgstr ""
 
 #: src/app/settings/shortcutList.ts
@@ -3725,6 +3804,10 @@ msgstr ""
 msgid "The book has no pages to export yet. Add a chapter first."
 msgstr ""
 
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "The book has no title. Type one."
+msgstr ""
+
 #: src/app/home/Home.tsx
 msgid "The book is stored in this folder. Nothing leaves your computer."
 msgstr ""
@@ -3838,6 +3921,10 @@ msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The selection is too large to convert"
+msgstr ""
+
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "The snapshot has no name. Type one, for example “Before the rewrite”."
 msgstr ""
 
 #: src/app/settings/ShortcutsSection.tsx

@@ -93,7 +93,9 @@ test("recover dialog: Escape keeps the saved text, a failed restore is shown, th
   await reopen(page, () => {}, null);
   await failOn(page, "restore_page_snapshot", "restore broke");
   await dialog.getByRole("button", { name: "Use newer text" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("restore broke");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Could not use the newer text (restore broke)",
+  );
   await dialog.getByRole("button", { name: "Keep saved text" }).click();
   await expect(dialog).toHaveCount(0);
 
@@ -334,7 +336,9 @@ test("history: unreadable, invalid, equal and different versions, and a failed r
 
   await failOn(page, "restore_page_snapshot", "restore broke");
   await dialog.getByRole("button", { name: "Restore this version" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("restore broke");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Could not restore this version (restore broke)",
+  );
   await stopFailing(page, "restore_page_snapshot");
   await dialog.getByRole("button", { name: "Restore this version" }).click();
   await expect(dialog).toHaveCount(0);
@@ -375,7 +379,9 @@ test("history: closing while the versions load drops the answer, and a failed li
   await release(page, "list_page_snapshots");
 
   await chapterAction(page, "Chapter One", "History");
-  await expect(dialog.getByRole("alert")).toHaveText("listing broke");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Could not load the earlier versions (listing broke)",
+  );
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(dialog).toHaveCount(0);
 });

@@ -202,9 +202,10 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
       aria-label={t`Find and replace`}
       onKeyDown={onKeyDown}
       className={cx(
-        "absolute z-(--z-panel) flex flex-col gap-2 border border-border bg-raised p-2 text-ink shadow-popover",
-        "max-md:inset-x-0 max-md:top-0 max-md:border-x-0 max-md:border-t-0",
-        "md:end-4 md:w-[380px] md:rounded-lg",
+        "z-(--z-panel) flex flex-col gap-2 border border-border bg-raised p-2 text-ink shadow-popover",
+        // On a phone the bar sits above the text, not over it: the whole short chapter would be hidden behind it (WCAG 2.4.11).
+        "max-md:relative max-md:border-x-0 max-md:border-t-0",
+        "md:absolute md:end-4 md:w-[380px] md:rounded-lg",
         focusMode ? "md:top-14" : "md:top-3",
       )}
     >

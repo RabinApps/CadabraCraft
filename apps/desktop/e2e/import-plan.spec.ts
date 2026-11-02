@@ -178,7 +178,7 @@ test("importing into the open book appends the chapters and never touches the ex
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel("Title")).toHaveCount(0);
   await expect(dialog.getByLabel("New book folder")).toHaveCount(0);
-  await expect(dialog.getByRole("button", { name: "Next" })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Next" })).toBeEnabled(); // pressing it says the file is missing
   await dialog.getByRole("button", { name: "Choose file…" }).click();
   await dialog.getByRole("button", { name: "Next" }).click();
   await dialog.getByRole("button", { name: "Move chapter 3 up" }).click();

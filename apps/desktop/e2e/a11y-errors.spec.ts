@@ -1,7 +1,8 @@
 import { expect, test, type Locator, type Page } from "./support/coverage";
-import { covBackend, failOn, stopFailing } from "./support/cov";
+import { covBackend, failOn, reopen, stopFailing } from "./support/cov";
+import { fakeImportSources } from "./support/fakeImport";
 import { fakeTauri } from "./support/fakeTauri";
-import { addPage, chapterAction, newProject, sidebar } from "./support/helpers";
+import { addPage, chapterAction, newProject, seedSnapshot, sidebar } from "./support/helpers";
 
 // WCAG 3.3.1 Error Identification, 3.3.3 Error Suggestion and 4.1.3 Status Messages: when the app refuses input, the
 // error is text (never colour alone), it is announced (role=alert/status), the field at fault is aria-invalid and
@@ -306,19 +307,88 @@ test.describe("book dialogs", () => {
     await expectAlert(dialog.getByRole("alert"), "image is too large");
   });
 
-  test("Book snapshots: a snapshot that cannot be taken is an alert and the name is kept for a retry", async ({
+  test("Book snapshots: an empty name is refused with focus on the field and a hint of what to type", async ({
     page,
   }) => {
     await newProject(page);
     await sidebar(page).getByRole("button", { name: "Book snapshots" }).click();
     const dialog = page.getByRole("dialog", { name: "History · Whole book" });
     const name = dialog.getByLabel("Snapshot name");
+    const take = dialog.getByRole("button", { name: "Take snapshot" });
+    await expect(name).not.toHaveAttribute("aria-invalid", "true");
+    // The button is not dead: pressing it explains what is missing.
+    await expect(take).toBeEnabled();
+    await name.focus();
+    await take.click();
+    await expectFieldError(
+      name,
+      dialog.getByRole("alert"),
+      "The snapshot has no name.",
+      "Type one, for example",
+    );
+    // Spaces are no name either, and Enter in the field gives the same answer.
+    await name.fill("   ");
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
+    await page.keyboard.press("Enter");
+    await expectFieldError(
+      name,
+      dialog.getByRole("alert"),
+      "The snapshot has no name.",
+      "Type one",
+    );
+    await name.fill("v1");
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
+    await expect(name).not.toHaveAttribute("aria-invalid", "true");
+    await take.click();
+    await expect(dialog.getByRole("list", { name: "Book snapshots" })).toContainText("v1");
+  });
+
+  test("Book snapshots: a snapshot that cannot be taken is an alert that says what to do, tied to the button, and the name is kept", async ({
+    page,
+  }) => {
+    await newProject(page);
+    await sidebar(page).getByRole("button", { name: "Book snapshots" }).click();
+    const dialog = page.getByRole("dialog", { name: "History · Whole book" });
+    const name = dialog.getByLabel("Snapshot name");
+    const take = dialog.getByRole("button", { name: "Take snapshot" });
     await name.fill("v1");
     await failOn(page, "create_book_snapshot", { kind: "disk_full", path: ".cadabra/snapshots" });
-    await dialog.getByRole("button", { name: "Take snapshot" }).click();
-    await expectAlert(dialog.getByRole("alert"), /\w+ \w+ \w+/);
+    await take.click();
+    const alert = dialog.getByRole("alert");
+    await expectAlert(alert, "Could not take the snapshot");
+    await expect(alert).toContainText("There is no space left on the disk");
+    await expect(alert).toContainText("Try again, or free some space");
+    await expect(take).toHaveAccessibleDescription(contains("Could not take the snapshot"));
     await expect(name).toHaveValue("v1");
+    // The name is fine, so the field is not marked invalid.
+    await expect(name).not.toHaveAttribute("aria-invalid", "true");
     await stopFailing(page, "create_book_snapshot");
+  });
+
+  test("Book snapshots: a failed restore and a failed delete are alerts that say what is unchanged", async ({
+    page,
+  }) => {
+    await newProject(page);
+    await sidebar(page).getByRole("button", { name: "Book snapshots" }).click();
+    const dialog = page.getByRole("dialog", { name: "History · Whole book" });
+    await dialog.getByLabel("Snapshot name").fill("v1");
+    await dialog.getByRole("button", { name: "Take snapshot" }).click();
+    await expect(dialog.getByRole("list", { name: "Book snapshots" })).toContainText("v1");
+    await failOn(page, "restore_book_snapshot", { kind: "io", message: "disk is read-only" });
+    await dialog.getByRole("button", { name: "Restore whole book" }).click();
+    await page
+      .getByRole("dialog", { name: "Restore the whole book?" })
+      .getByRole("button", { name: "Restore whole book" })
+      .click();
+    await expectAlert(dialog.getByRole("alert"), "Could not restore the book (disk is read-only)");
+    await expect(dialog.getByRole("alert")).toContainText("pick another snapshot");
+    await failOn(page, "delete_book_snapshot", { kind: "io", message: "disk is read-only" });
+    await dialog.getByRole("button", { name: "Delete snapshot" }).click();
+    await page
+      .getByRole("dialog", { name: "Delete this snapshot?" })
+      .getByRole("button", { name: "Delete snapshot" })
+      .click();
+    await expectAlert(dialog.getByRole("alert"), "It is still in the list. Try again.");
   });
 
   test("Add language: a failure is an alert inside the dialog", async ({ page }) => {
@@ -499,5 +569,236 @@ test.describe("home and settings", () => {
       .click();
     await expectAlert(dialog.getByRole("alert"), /\w+ \w+ \w+/);
     await expect(dialog.getByRole("button", { name: /^(Download|Retry)/ }).first()).toBeEnabled();
+  });
+});
+
+test.describe("history, trash, recover and language", () => {
+  const diskFull = { kind: "disk_full", path: "chapters/chapter-1.json" };
+
+  test("Settings, Interface language: a language that cannot be loaded is an alert tied to the picker, and the old language stays", async ({
+    page,
+  }) => {
+    await page.route(/locales\/de\/messages\.po/, (route) => route.abort());
+    await page.goto("/");
+    await page.getByRole("button", { name: "Settings" }).click();
+    const picker = page.getByLabel("Interface language");
+    await expect(picker).not.toHaveAttribute("aria-invalid", "true");
+    await picker.selectOption("de");
+    const alert = page.getByRole("alert").filter({ hasText: "Could not load" });
+    await expectAlert(alert, "Could not load Deutsch.");
+    await expect(alert).toContainText("Choose it again, or pick another language.");
+    await expect(picker).toHaveAttribute("aria-invalid", "true");
+    await expect(picker).toHaveAccessibleDescription(contains("Could not load Deutsch."));
+    // The language did not change, and the picker still shows the one in use.
+    await expect(picker).toHaveValue("en");
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    // A language that loads clears the message.
+    await picker.selectOption("pseudo");
+    await expect(page.getByRole("alert").filter({ hasText: "Could not load" })).toHaveCount(0);
+    await expect(picker).not.toHaveAttribute("aria-invalid", "true");
+  });
+
+  test("History: a version that cannot be restored is an alert that says the text is unchanged and what to try, and the button stays focused", async ({
+    page,
+  }) => {
+    await newProject(page);
+    await seedSnapshot(page, "older words");
+    await chapterAction(page, "Chapter One", "History");
+    const dialog = page.getByRole("dialog", { name: "History · Chapter One" });
+    const restore = dialog.getByRole("button", { name: "Restore this version" });
+    await expect(restore).toBeEnabled();
+    await failOn(page, "restore_page_snapshot", diskFull);
+    await restore.focus(); // Safari does not focus a button on click, so activate it from the keyboard
+    await page.keyboard.press("Enter");
+    const alert = dialog.getByRole("alert");
+    await expectAlert(alert, "Could not restore this version");
+    await expect(alert).toContainText("There is no space left on the disk");
+    await expect(alert).toContainText("Your current text was not changed.");
+    await expect(alert).toContainText("Try again, or pick another version.");
+    await expect(restore).toHaveAccessibleDescription(contains("Could not restore this version"));
+    await expect(restore).toBeFocused();
+    await stopFailing(page, "restore_page_snapshot");
+    await restore.click();
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test("History: a list that cannot be read is an alert that says how to retry", async ({
+    page,
+  }) => {
+    await newProject(page);
+    await failOn(page, "list_page_snapshots", { kind: "io", message: "listing broke" });
+    await chapterAction(page, "Chapter One", "History");
+    const dialog = page.getByRole("dialog", { name: "History · Chapter One" });
+    await expectAlert(
+      dialog.getByRole("alert"),
+      "Could not load the earlier versions (listing broke)",
+    );
+    await expect(dialog.getByRole("alert")).toContainText("open History again to retry");
+  });
+
+  test("Trash: a page that cannot be restored is an alert tied to its button that says it is still in the trash", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await newProject(page);
+    await page.getByRole("button", { name: "Add chapter" }).click();
+    await chapterAction(page, "Chapter 2", "Move to trash");
+    await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
+    await page.getByRole("button", { name: "Trash", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Trash" });
+    const restore = dialog.getByRole("button", { name: "Restore Chapter 2" });
+    await failOn(page, "restore_project_trash", { kind: "cannot_restore", path: "x" });
+    await restore.focus();
+    await page.keyboard.press("Enter");
+    const alert = dialog.getByRole("alert");
+    await expectAlert(alert, "Could not restore Chapter 2");
+    await expect(alert).toContainText(
+      "It is still in the trash. Try again, or restore another page.",
+    );
+    await expect(restore).toHaveAccessibleDescription(contains("Could not restore Chapter 2"));
+    await expect(restore).toBeFocused();
+    await stopFailing(page, "restore_project_trash");
+    await restore.click();
+    await expect(dialog).toHaveCount(0);
+    await expect(
+      sidebar(page).getByRole("button", { name: "Chapter 2", exact: true }),
+    ).toBeVisible();
+  });
+
+  test("Trash: a trash that cannot be read is an alert that says how to retry", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await newProject(page);
+    await failOn(page, "list_project_trash", { kind: "io", message: "Trash unreadable" });
+    await page.getByRole("button", { name: "Trash", exact: true }).click();
+    const alert = page.getByRole("dialog", { name: "Trash" }).getByRole("alert");
+    await expectAlert(alert, "Could not read the trash (Trash unreadable)");
+    await expect(alert).toContainText("open the trash again to retry");
+  });
+
+  test("Recover: newer text that cannot be used is an alert tied to the button that says the saved text is unchanged", async ({
+    page,
+  }) => {
+    await newProject(page);
+    const { file, path } = await seedSnapshot(page, "the newer text");
+    await page.evaluate((x) => sessionStorage.setItem("stale", JSON.stringify([x])), {
+      path: file,
+      snapshot: path,
+    });
+    await reopen(page, () => {}, null);
+    const dialog = page.getByRole("dialog", { name: "Recover newer text for “Chapter One”?" });
+    const use = dialog.getByRole("button", { name: "Use newer text" });
+    await failOn(page, "restore_page_snapshot", diskFull);
+    await use.focus();
+    await page.keyboard.press("Enter");
+    const alert = dialog.getByRole("alert");
+    await expectAlert(alert, "Could not use the newer text");
+    await expect(alert).toContainText("Your saved text was not changed.");
+    await expect(alert).toContainText("Try again, or choose Keep saved text.");
+    await expect(use).toHaveAccessibleDescription(contains("Could not use the newer text"));
+    await expect(use).toBeFocused();
+    await stopFailing(page, "restore_page_snapshot");
+    await use.click();
+    await expect(dialog).toHaveCount(0);
+  });
+});
+
+test.describe("import", () => {
+  const open = async (page: Page, pick: "md" | "broken" = "md") => {
+    await fakeImportSources(page, pick, false);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Import…" }).click();
+    const dialog = page.getByRole("dialog", { name: "Import a manuscript" });
+    return {
+      dialog,
+      file: dialog.getByLabel("File", { exact: true }),
+      title: dialog.getByLabel("Title"),
+      folder: dialog.getByLabel("New book folder"),
+      next: dialog.getByRole("button", { name: "Next" }),
+    };
+  };
+
+  test("Import: Next names what is missing, marks that box and moves focus to it, in order", async ({
+    page,
+  }) => {
+    const { dialog, file, title, folder, next } = await open(page);
+    await expect(next).toBeEnabled();
+    await next.click();
+    await expectFieldError(
+      file,
+      dialog.getByRole("alert"),
+      "No file is chosen.",
+      "Choose the file to import.",
+    );
+    await dialog.getByRole("button", { name: "Choose file…" }).click();
+    await expect(file).not.toHaveValue("");
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
+    await expect(file).not.toHaveAttribute("aria-invalid", "true");
+
+    await next.click();
+    await expectFieldError(
+      folder,
+      dialog.getByRole("alert"),
+      "No folder is chosen.",
+      "Pick or create an empty folder.",
+    );
+    await dialog.getByRole("button", { name: "Choose…" }).click();
+    await expect(folder).toHaveValue(/\S/);
+
+    await title.fill("  ");
+    await next.click();
+    await expectFieldError(title, dialog.getByRole("alert"), "The book has no title.", "Type one.");
+    await title.fill("Mine");
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
+    await expect(title).not.toHaveAttribute("aria-invalid", "true");
+    await next.click();
+    await expect(dialog.getByRole("button", { name: "Import", exact: true })).toBeVisible();
+  });
+
+  test("Import: a folder chooser that fails is an alert tied to the folder box that says to try again", async ({
+    page,
+  }) => {
+    const { dialog, folder } = await open(page);
+    await failOn(page, "pick_folder", "no access", 1);
+    await dialog.getByRole("button", { name: "Choose…" }).click();
+    await expectFieldError(
+      folder,
+      dialog.getByRole("alert"),
+      "Could not open the chooser (no access).",
+      "Try again.",
+    );
+  });
+
+  test("Import: a file that cannot be read is an alert tied to the file box that says what to choose instead", async ({
+    page,
+  }) => {
+    const { dialog, file, next } = await open(page, "broken");
+    await dialog.getByRole("button", { name: "Choose file…" }).click();
+    await dialog.getByRole("button", { name: "Choose…" }).click();
+    await next.click();
+    await expectFieldError(
+      file,
+      dialog.getByRole("alert"),
+      "Could not read this file",
+      "Choose a different file (Word .docx, Markdown or HTML) and try again.",
+    );
+    await expect(dialog).toBeVisible();
+  });
+
+  test("Import: a book that cannot be written is an alert that says the original is unchanged and what to try", async ({
+    page,
+  }) => {
+    const { dialog, next } = await open(page);
+    await dialog.getByRole("button", { name: "Choose file…" }).click();
+    await dialog.getByRole("button", { name: "Choose…" }).click();
+    await next.click();
+    await failOn(page, "create_project", { kind: "disk_full", path: "/newbook" });
+    await failOn(page, "write_project_file", { kind: "disk_full", path: "/newbook" });
+    await dialog.getByRole("button", { name: "Import", exact: true }).click();
+    const alert = dialog.getByRole("alert");
+    await expectAlert(alert, "Could not import");
+    await expect(alert).toContainText("Your original file was not changed.");
+    await expect(alert).toContainText("Try again, or go back and choose a different file.");
   });
 });
