@@ -1,13 +1,15 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowDown, ArrowUp, Ellipsis, History, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Ellipsis, GripVertical, History, Pencil, Trash2 } from "lucide-react";
 import type { LanguageRow } from "@cadabracraft/format";
 import { Badge } from "../../ui/Badge";
 import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
+import { DropLine } from "../../ui/DropLine";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
 import { SectionHeading } from "../../ui/SectionHeading";
+import { dropPosition, insertionIndex } from "../../lib/referenceKinds";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import type { HistoryPage } from "../dialogs/HistoryDialog";
@@ -44,10 +46,55 @@ export function EntryList({
   /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
   const afterClose = useRef<(() => void) | null>(null);
   const moveFocus = (f: () => void) => () => void (afterClose.current = f);
+  const list = useRef<HTMLUListElement>(null);
+  const [drag, setDrag] = useState<{ id: string; at: number } | null>(null);
+  const at = useRef(0);
+  /** A moved page is announced (the grip keeps focus and its name does not change, so nothing else would say it moved). */
+  const [said, setSaid] = useState("");
+  const dragId = drag?.id;
+  useEffect(() => {
+    if (!dragId) return;
+    const move = (e: globalThis.PointerEvent) => {
+      const boxes = [...list.current!.children].map((li) => li.getBoundingClientRect());
+      at.current = insertionIndex(
+        boxes.map((r) => r.top + r.height / 2),
+        e.clientY,
+      );
+      setDrag({ id: dragId, at: at.current });
+    };
+    const drop = () => {
+      const from = entries.findIndex((c) => c.id === dragId);
+      setDrag(null);
+      const to = dropPosition(from, at.current);
+      if (to !== from) attempt(actions.move(dragId, to - from));
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", drop);
+    window.addEventListener("pointercancel", drop);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", drop);
+      window.removeEventListener("pointercancel", drop);
+    };
+  }, [dragId, entries, actions]);
+  // The grip is the keyboard alternative to dragging (WCAG 2.5.7): the arrow keys move the page one place.
+  const gripKeys = (i: number) => (e: KeyboardEvent) => {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    const delta = e.key === "ArrowUp" ? -1 : 1;
+    if (i + delta < 0 || i + delta > last) return;
+    attempt(actions.move(entries[i]!.id, delta));
+    setSaid(t`Moved ${entries[i]!.title} to position ${i + delta + 1} of ${entries.length}`);
+  };
+  const grab = (id: string, index: number) => (e: PointerEvent<HTMLElement>) => {
+    e.preventDefault();
+    at.current = index;
+    setDrag({ id, at: index });
+  };
   return (
     <section aria-label={heading} className="flex flex-col gap-0.5">
       <SectionHeading className="px-2.5 pt-1">{heading}</SectionHeading>
-      <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
+      <ul ref={list} className="m-0 flex list-none flex-col gap-0.5 p-0">
         {entries.map((c, i) => {
           const current = c.id === currentId;
           return (
@@ -56,8 +103,23 @@ export function EntryList({
               className={cx(
                 "group relative flex items-center gap-1 rounded-md ps-1",
                 current && "bg-accent-soft",
+                drag?.id === c.id && "opacity-40",
               )}
             >
+              {drag && drag.at === i && <DropLine />}
+              {drag && drag.at === entries.length && i === last && <DropLine below />}
+              <button
+                type="button"
+                data-grip
+                aria-label={t`Reorder ${c.title}`}
+                aria-keyshortcuts="ArrowUp ArrowDown"
+                title={t`Drag, or press the up and down arrow keys`}
+                onPointerDown={grab(c.id, i)}
+                onKeyDown={gripKeys(i)}
+                className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
+              >
+                <GripVertical size={16} aria-hidden />
+              </button>
               {editing?.id === c.id ? (
                 <input
                   autoFocus
@@ -176,6 +238,9 @@ export function EntryList({
           );
         })}
       </ul>
+      <p aria-live="polite" className="sr-only">
+        {said}
+      </p>
     </section>
   );
 }

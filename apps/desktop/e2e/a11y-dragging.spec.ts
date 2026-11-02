@@ -12,6 +12,7 @@ import { addPage, newProject } from "./support/helpers";
 //   1. Reference list reorder (grip, ReferenceRow)          -> row menu "Move up" / "Move down", grip arrow keys
 //   2. Import preview chapter reorder (grip)                -> "Move chapter N up/down" buttons, grip arrow keys
 //   2b. Contents entry reorder (grip, TocRow)              -> row menu "Move up" / "Move down", grip arrow keys
+//   2c. Sidebar chapter reorder (grip, EntryList)          -> row menu "Move up" / "Move down", grip arrow keys
 //   3. Dropping files on the window to add references       -> "Add files" button (file picker)
 //   4. Native textarea resize handle (`resize-y`)           -> user-agent control, exempt from 2.5.7; no test
 
@@ -174,4 +175,23 @@ test("2.5.7 contents: the grip is a button that moves an entry with the arrow ke
   await page.keyboard.press("ArrowUp");
   await expect.poll(() => tocTitles(page)).toEqual(["Chapter 2", "Chapter One", "Chapter 3"]);
   await expect(grip("Chapter One")).toBeFocused();
+});
+
+test("2.5.7 sidebar: the row menu and the grip arrow keys reorder chapters without dragging", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  const names = () =>
+    page.evaluate(() =>
+      JSON.parse(window.__disk["cadabra.json"] as string).chapters.map(
+        (c: { titles: { en: string } }) => c.titles.en,
+      ),
+    );
+  await page.getByRole("button", { name: "Actions for Chapter 2" }).click();
+  await page.getByRole("menuitem", { name: "Move up" }).click();
+  await expect.poll(names).toEqual(["Chapter 2", "Chapter One"]);
+  await page.getByRole("button", { name: "Reorder Chapter 2" }).focus();
+  await page.keyboard.press("ArrowDown");
+  await expect.poll(names).toEqual(["Chapter One", "Chapter 2"]);
 });

@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { newProject, titles, chapterAction, focusEnd } from "./support/helpers";
@@ -61,6 +62,43 @@ test("rename, reorder and delete chapters", async ({ page }) => {
     Object.keys(window.__disk).filter((k) => k.startsWith(".cadabra/trash/")),
   );
   expect(trashed).toHaveLength(1);
+});
+
+const order = (page: Page) =>
+  page.evaluate(() =>
+    JSON.parse(window.__disk["cadabra.json"] as string).chapters.map(
+      (c: { titles: { en: string } }) => c.titles.en,
+    ),
+  );
+
+test("the sidebar grip reorders a chapter with the arrow keys", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  const grip = page.getByRole("button", { name: "Reorder Chapter 2" });
+  await grip.focus();
+  await page.keyboard.press("ArrowUp");
+  await expect.poll(() => order(page)).toEqual(["Chapter 2", "Chapter One"]);
+  await expect(grip).toBeFocused();
+  await expect(page.getByText("Moved Chapter 2 to position 1 of 2")).toBeAttached();
+  await page.keyboard.press("ArrowUp"); // already first: nothing happens
+  await page.keyboard.press("ArrowDown");
+  await expect.poll(() => order(page)).toEqual(["Chapter One", "Chapter 2"]);
+});
+
+test("dragging the sidebar grip drops a chapter at the line", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+  await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+  const grip = (await page.getByRole("button", { name: "Reorder Chapter 3" }).boundingBox())!;
+  const first = (await page
+    .getByRole("button", { name: "Chapter One", exact: true })
+    .boundingBox())!;
+  await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(first.x + 10, first.y + 2, { steps: 5 });
+  await expect(page.locator("[data-drop-line]")).toHaveCount(1);
+  await page.mouse.up();
+  await expect.poll(() => order(page)).toEqual(["Chapter 3", "Chapter One", "Chapter 2"]);
 });
 
 test("keyboard: chapter controls are reachable with Tab", async ({ page }) => {
