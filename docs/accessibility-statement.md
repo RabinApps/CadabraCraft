@@ -22,6 +22,7 @@ What has been done:
 What has **not** been done yet:
 
 - Testing with NVDA, JAWS, Narrator or Orca, or with VoiceOver on the packaged app (we tested the web version in Safari's engine).
+- Testing the packaged app with a screen reader on each system. A reported WebView2 problem (NVDA can lose the page after the window loses and regains focus) is on the Windows checklist and has not been tried.
 - Testing on real Windows contrast themes and at 200% zoom by eye.
 - Testing by people who use assistive technology every day.
 - Checking the PDF in PAC or Acrobat, and Word files with Word's own checker.

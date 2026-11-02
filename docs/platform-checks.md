@@ -32,6 +32,8 @@ The CI smoke test (`packages/export-docx/src/__tests__/libreoffice.test.ts`, Lin
 
 Part of the WCAG 2.2 AA target in [accessibility.md](accessibility.md). Nothing below has been run by a person yet: the machine that prepared it had no Windows, Linux, NVDA, Orca or Windows High Contrast, and that machine could not start macOS VoiceOver without a setup that changes system accessibility settings. Since then VoiceOver has been set up on the author's Mac and a Guidepup suite drives it (`pnpm --filter @cadabracraft/desktop test:voiceover`, see [accessibility.md](accessibility.md), "Real VoiceOver"); it checks names and roles on the web build in WebKit, not the Tauri window and not how speech sounds, so the macOS section below is still a person's pass. The automated specs are listed first so a tester does not repeat them by hand; everything after that needs a person.
 
+Per-platform checklists for the packaged app, with their own ids: [Windows (NVDA, WebView2)](platform-checks-windows.md), [macOS (VoiceOver)](platform-checks-macos.md) and [Linux (Orca, WebKitGTK)](platform-checks-linux.md). Tauri uses each system's own webview, so a screen reader can behave differently from the web build we test; see [tauri#15624](https://github.com/tauri-apps/tauri/issues/15624) for a reported WebView2 problem after the window loses and regains focus.
+
 ### What is automated (do not redo by hand)
 
 | Spec (`apps/desktop/e2e/`)   | Proves                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -249,7 +251,7 @@ Settings, Accessibility, Contrast themes. Do the table once for each of **Aquati
 
 Setup:
 
-1. A current GNOME session. Run on Wayland and on X11 if both are available. Note the distribution, Orca and WebKitGTK versions. Use an AppImage or `.deb` from a release dry run. AT-SPI must be on (`gsettings get org.gnome.desktop.interface toolkit-accessibility` prints `true`); if WebKitGTK exposes nothing to Orca, record that and stop.
+1. A current GNOME session. Run on Wayland and on X11 if both are available. Note the distribution, Orca and WebKitGTK versions. Use the AppImage from a release dry run (the bundle targets are app, dmg, nsis and appimage; there is no `.deb`). AT-SPI must be on (`gsettings get org.gnome.desktop.interface toolkit-accessibility` prints `true`); if WebKitGTK exposes nothing to Orca, record that and stop.
 2. The Orca key is Insert or CapsLock. Useful: Orca+Space preferences, Orca+Z toggles speech, D and Shift+D next and previous landmark in browse mode, Orca+A toggles focus and browse mode where the toolkit allows.
 3. Run A to M. Orca specifics:
    - A dialog's title and first control are both spoken; record when only the control is.

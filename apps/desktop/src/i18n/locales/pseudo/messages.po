@@ -2899,6 +2899,7 @@ msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 #: src/app/export/PrintPreview.tsx
+#: src/app/shell/App.tsx
 msgid "Print preview"
 msgstr ""
 
@@ -3409,6 +3410,7 @@ msgstr ""
 
 #: src/app/home/Home.tsx
 #: src/app/settings/Settings.tsx
+#: src/app/shell/App.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Settings"
 msgstr ""
@@ -3667,6 +3669,7 @@ msgid "Template default ({templateBody})"
 msgstr ""
 
 #: src/app/export/Templates.tsx
+#: src/app/shell/App.tsx
 msgid "Templates"
 msgstr ""
 

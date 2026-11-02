@@ -2900,6 +2900,7 @@ msgstr "Druck-PDF…"
 
 #: src/app/export/ExportDialog.tsx
 #: src/app/export/PrintPreview.tsx
+#: src/app/shell/App.tsx
 msgid "Print preview"
 msgstr "Druckvorschau"
 
@@ -3410,6 +3411,7 @@ msgstr "Legt die Seitengröße für das Drucklayout fest. Du kannst sie später 
 
 #: src/app/home/Home.tsx
 #: src/app/settings/Settings.tsx
+#: src/app/shell/App.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Settings"
 msgstr "Einstellungen"
@@ -3668,6 +3670,7 @@ msgid "Template default ({templateBody})"
 msgstr "Vorlagenstandard ({templateBody})"
 
 #: src/app/export/Templates.tsx
+#: src/app/shell/App.tsx
 msgid "Templates"
 msgstr "Vorlagen"
 

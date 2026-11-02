@@ -18,13 +18,13 @@ export function Switch({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cx(
-        "relative h-[22px] w-10 shrink-0 rounded-full p-[3px] transition-colors after:absolute after:-inset-y-2.75 after:inset-x-0 after:content-[''] md:after:-inset-y-px focus-visible:outline-2 focus-visible:outline-accent",
+        "relative h-[22px] w-10 shrink-0 rounded-full p-[3px] outline outline-1 -outline-offset-1 outline-transparent transition-colors motion-reduce:transition-none after:absolute after:-inset-y-2.75 after:inset-x-0 after:content-[''] md:after:-inset-y-px focus-visible:outline-2 focus-visible:outline-accent",
         checked ? "bg-accent" : "bg-border-strong",
       )}
     >
       <span
         className={cx(
-          "block size-4 rounded-full bg-surface transition-transform",
+          "block size-4 rounded-full bg-surface transition-transform motion-reduce:transition-none",
           checked && "translate-x-[18px] rtl:-translate-x-[18px]",
         )}
       />

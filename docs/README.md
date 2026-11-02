@@ -22,13 +22,16 @@ Back to the [project README](../README.md).
 
 ## Development and testing
 
-| Doc                                          | What it covers                                                    |
-| -------------------------------------------- | ----------------------------------------------------------------- |
-| [testing.md](testing.md)                     | Unit, e2e and coverage commands, thresholds and exclusions        |
-| [agent-testing.md](agent-testing.md)         | Driving the real app through the dev-only bridge                  |
-| [sync-testing.md](sync-testing.md)           | Manual checklist for iCloud Drive, Google Drive and Dropbox       |
-| [release-checklist.md](release-checklist.md) | Ordered steps for a release dry run and the updater round trip    |
-| [platform-checks.md](platform-checks.md)     | Checks that need Windows, Linux, sync clients or a word processor |
+| Doc                                                      | What it covers                                                       |
+| -------------------------------------------------------- | -------------------------------------------------------------------- |
+| [testing.md](testing.md)                                 | Unit, e2e and coverage commands, thresholds and exclusions           |
+| [agent-testing.md](agent-testing.md)                     | Driving the real app through the dev-only bridge                     |
+| [sync-testing.md](sync-testing.md)                       | Manual checklist for iCloud Drive, Google Drive and Dropbox          |
+| [release-checklist.md](release-checklist.md)             | Ordered steps for a release dry run and the updater round trip       |
+| [platform-checks.md](platform-checks.md)                 | Checks that need Windows, Linux, sync clients or a word processor    |
+| [platform-checks-windows.md](platform-checks-windows.md) | NVDA and WebView2 on the packaged app (WIN-1 to WIN-32)              |
+| [platform-checks-macos.md](platform-checks-macos.md)     | VoiceOver and display settings on the packaged app (MAC-1 to MAC-25) |
+| [platform-checks-linux.md](platform-checks-linux.md)     | Orca and AT-SPI on WebKitGTK (LIN-1 to LIN-11)                       |
 
 ## Planning
 

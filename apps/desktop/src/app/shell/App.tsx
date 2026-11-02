@@ -29,6 +29,7 @@ import { ImportDialog, ImportReportDialog } from "../dialogs/ImportDialogs";
 import { useStartDialogs } from "../../state/commands";
 import { PrintPreview } from "../export/PrintPreview";
 import { Settings } from "../settings/Settings";
+import { useWindowTitle } from "../hooks/useWindowTitle";
 import { SponsorDialog } from "../dialogs/SponsorDialog";
 import { LicensesDialog } from "../dialogs/LicensesDialog";
 import { UpdateDialog } from "../dialogs/UpdateDialog";
@@ -92,6 +93,16 @@ function AppScreens() {
   const [drawer, setDrawer] = useState(false);
   const { mode, setMode } = useViewMode();
   const [view, setView] = useState<View>("book");
+  useWindowTitle(
+    view === "settings" || view === "fonts"
+      ? t`Settings`
+      : view === "templates"
+        ? t`Templates`
+        : view === "print"
+          ? t`Print preview`
+          : undefined,
+    title,
+  );
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [refsSheet, setRefsSheet] = useState(false);
