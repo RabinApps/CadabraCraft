@@ -11,7 +11,7 @@ Options: `--fast` skips Playwright (what `/verify` runs), `--webkit` also runs `
 
 1. `eslint`: the full `pnpm lint`.
 2. `contrast`: `apps/desktop/src/__tests__/contrast.test.ts`, WCAG contrast of the design token pairs.
-3. `playwright a11y (chromium)`: the `a11y`, `a11y-ui`, `a11y-tree`, `a11y-keyboard`, `a11y-forced-colors`, `a11y-adaptive`, `a11y-engines`, `a11y-screenreader`, `language-mark` and `images` specs (`pnpm --filter @cadabracraft/desktop test:a11y` runs the same set).
+3. `playwright a11y (chromium)`: the `a11y`, `a11y-ui`, `a11y-tree`, `a11y-keyboard`, `a11y-forced-colors`, `a11y-adaptive`, `a11y-dragging`, `a11y-label-in-name`, `a11y-engines`, `a11y-screenreader`, `language-mark` and `images` specs (`pnpm --filter @cadabracraft/desktop test:a11y` runs the same set).
 4. Output tests: `export-epub` (a11y markup, language), `export-pdf` (PDF/UA, tagging, language), `export-rtf` and `export-docx`.
 5. With `--tools`: veraPDF on a real PDF, Ace on a real EPUB, LibreOffice round trips.
 
