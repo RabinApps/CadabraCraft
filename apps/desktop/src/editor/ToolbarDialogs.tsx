@@ -5,6 +5,7 @@ import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { Notice } from "../ui/Notice";
 import { Select } from "../ui/Select";
+import { isLangTag } from "@cadabracraft/shared";
 import { ENABLED_LOCALE_INFO } from "../i18n/locales";
 
 export interface ImageDraft {
@@ -50,6 +51,8 @@ export function ImageDialog({
           disabled={image?.decorative ?? false}
           onChange={(e) => setImage((i) => i && { ...i, alt: e.target.value, error: undefined })}
           hint={t`Read aloud by screen readers. Describe what the picture shows.`}
+          id="image-alt"
+          errorId={image?.error ? "image-error" : undefined}
           autoFocus
         />
         <Checkbox
@@ -66,7 +69,11 @@ export function ImageDialog({
           onChange={(e) => setImage((i) => i && { ...i, caption: e.target.value })}
           hint={t`Optional. Shown below the image.`}
         />
-        {image?.error && <Notice role="alert">{image.error}</Notice>}
+        {image?.error && (
+          <Notice id="image-error" role="alert">
+            {image.error}
+          </Notice>
+        )}
         <div className="flex justify-end gap-2.5">
           <Button onClick={() => setImage(null)}>{t`Cancel`}</Button>
           <Button type="submit" variant="primary">
@@ -114,9 +121,15 @@ export function LinkDialog({
             clearError();
           }}
           hint={t`Use http, https or mailto.`}
+          id="link-address"
+          errorId={error ? "link-error" : undefined}
           autoFocus
         />
-        {error && <Notice role="alert">{error}</Notice>}
+        {error && (
+          <Notice id="link-error" role="alert">
+            {error}
+          </Notice>
+        )}
         <div className="flex justify-end gap-2.5">
           <Button onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>
           <Button type="submit" variant="primary">{t`Apply`}</Button>
@@ -150,6 +163,8 @@ export function LangDialog({
   const { t } = useLingui();
   const tag = draft?.tag ?? "";
   const known = ENABLED_LOCALE_INFO.some((l) => l.code === tag);
+  // The error is about the tag unless the tag is fine and only the selection is missing.
+  const tagInvalid = Boolean(draft?.error) && !isLangTag(tag.trim());
   return (
     <Modal
       open={draft !== null}
@@ -182,9 +197,15 @@ export function LangDialog({
           value={tag}
           onChange={(e) => setDraft((d) => d && { ...d, tag: e.target.value, error: undefined })}
           hint={t`A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage.`}
+          id="lang-tag"
+          errorId={tagInvalid ? "lang-error" : undefined}
           autoFocus
         />
-        {draft?.error && <Notice role="alert">{draft.error}</Notice>}
+        {draft?.error && (
+          <Notice id="lang-error" role="alert">
+            {draft.error}
+          </Notice>
+        )}
         <div className="flex justify-end gap-2.5">
           {draft?.current && <Button onClick={onClear}>{t`Clear language`}</Button>}
           <Button onClick={() => setDraft(null)}>{t`Cancel`}</Button>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
 import { isLangTag } from "@cadabracraft/shared";
+import { focusField } from "../ui/Input";
 import type { LangDraft } from "./ToolbarDialogs";
 
 /**
@@ -24,6 +25,7 @@ export function useLangDialog(editor: Editor, chain: () => ReturnType<Editor["ch
         ...draft,
         error: t`Use letters, digits and single hyphens, up to 35 characters (for example fr-CA).`,
       });
+      focusField("lang-tag");
       return;
     }
     if (editor.state.selection.empty && !draft.current) {

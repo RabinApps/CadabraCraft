@@ -114,6 +114,11 @@ msgid "{0} could not be written:\n"
 msgstr "Impossible d’écrire {0} :\n"
 "{1}"
 
+#. placeholder {0}: packName(p)
+#: src/app/settings/AudioSection.tsx
+msgid "{0} deleted from this computer."
+msgstr ""
+
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
 msgid "{0} does not exist"
@@ -381,6 +386,10 @@ msgstr "Un échantillon est déjà en cours de création"
 msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
 msgstr ""
 
+#: src/app/shell/EntryList.tsx
+msgid "A title cannot be empty, so the old title was kept."
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "About CadabraCraft"
 msgstr "À propos de CadabraCraft"
@@ -497,6 +506,10 @@ msgstr "Tous les chapitres"
 #: src/editor/FindBar.tsx
 msgid "All languages"
 msgstr "Toutes les langues"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "All shortcuts reset to default"
+msgstr ""
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Already used by “{owner}”. Press another key."
@@ -746,6 +759,10 @@ msgstr "Annuler l’export"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Cancel the download of {0}"
 msgstr "Annuler le téléchargement de {0}"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Cancelled. Shortcut for {action} unchanged."
+msgstr ""
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
@@ -1205,6 +1222,11 @@ msgstr "Supprimer"
 msgid "Delete {0}"
 msgstr "Supprimer {0}"
 
+#. placeholder {0}: packName(p)
+#: src/app/settings/AudioSection.tsx
+msgid "Delete {0} from this computer?"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Delete Column"
 msgstr "Supprimer la colonne"
@@ -1597,6 +1619,11 @@ msgstr "Les polices ne sont téléchargées depuis Google Fonts que lorsque vous
 #: src/editor/Toolbar.tsx
 msgid "Footnote"
 msgstr "Note de bas de page"
+
+#: src/editor/Editor.tsx
+#: src/editor/ReadingSection.tsx
+msgid "Footnote {n}"
+msgstr ""
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "For example, Before the rewrite"
@@ -2657,6 +2684,10 @@ msgid "Preface"
 msgstr "Préface"
 
 #: src/app/settings/ShortcutsSection.tsx
+msgid "Press the new keys for {action}. Esc cancels."
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
 msgid "Press the new keys…"
 msgstr "Appuyez sur les nouvelles touches…"
 
@@ -2943,6 +2974,10 @@ msgstr "Tout rétablir"
 msgid "Reset shortcut for {action}"
 msgstr "Rétablir le raccourci de {action}"
 
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Reset to default"
+msgstr ""
+
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
 msgid "Restore"
@@ -3172,6 +3207,14 @@ msgstr "Sections des réglages"
 #: src/app/shell/menuModel.ts
 msgid "Settings…"
 msgstr "Réglages…"
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Shortcut for {action} removed."
+msgstr ""
+
+#: src/app/settings/ShortcutsSection.tsx
+msgid "Shortcut for {action} saved."
+msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Shortcuts"
@@ -3887,6 +3930,10 @@ msgstr "Utilisez un nombre comme 1 ou 2,5."
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Use a single line."
 msgstr "Utilisez une seule ligne."
+
+#: src/editor/TableCommands.tsx
+msgid "Use a whole number from 1 to {max}."
+msgstr ""
 
 #. placeholder {0}: p.max
 #: src/app/dialogs/BookDetailsDialog.tsx

@@ -68,7 +68,11 @@ export function EntryList({
                     setEditing(null);
                     // Escape cancels: closing the field can still blur it, which must not save.
                     if (e.target.dataset.cancelled) return;
-                    if (e.target.value.trim() && e.target.value !== c.title)
+                    if (!e.target.value.trim())
+                      useProject.setState({
+                        notice: t`A title cannot be empty, so the old title was kept.`,
+                      });
+                    else if (e.target.value !== c.title)
                       attempt(actions.rename(c.id, e.target.value.trim()));
                   }}
                   onKeyDown={(e) => {

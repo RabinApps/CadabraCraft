@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
 import { IconButton } from "../ui/Button";
+import { focusField } from "../ui/Input";
 import { useRegisterCommands } from "../state/commands";
 import { attempt } from "../state/attempt";
 import { TableCommands } from "./TableCommands";
@@ -94,6 +95,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
     const url = normalizeLinkUrl(href);
     if (!url) {
       setLinkError(t`That address can't be used as a link.`);
+      focusField("link-address");
       return;
     }
     if (editor.state.selection.empty) {

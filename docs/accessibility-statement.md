@@ -15,6 +15,7 @@ CadabraCraft **partially conforms** with WCAG 2.2 level AA. That means some part
 What has been done:
 
 - Automated checks run on every change: axe, IBM Equal Access, contrast, keyboard, forced-colors, text spacing, reflow and target-size tests.
+- Reflow, text spacing, target size and control names are checked on about 35 screens and dialogs, and error messages on 13 forms.
 - Real VoiceOver on macOS reads 48 areas of the app (screens, dialogs, menus and the editor) in an automated suite.
 - The EPUB output passes EPUBCheck and Ace by DAISY. The print PDF is tagged for PDF/UA.
 
@@ -27,10 +28,8 @@ What has **not** been done yet:
 
 ## Known problems
 
-- A footnote in the editor has no marker or role that a screen reader announces.
 - With VoiceOver, reading the editor item by item may leave the text after a scene break. We have not confirmed whether the text after it can still be reached another way.
-- Some messages are not announced: pressing keys to record a new shortcut, and the swap of buttons when confirming "Delete voices" in Audio settings.
-- After "Reset" on a keyboard shortcut, keyboard focus is lost.
+- Some error messages from the system (a failed font download or export, for example) say what went wrong but not how to fix it.
 - A few cues rely on colour alone (search highlights and some status rows), some text is 11 px, and about 59 controls explain themselves only in a hover hint.
 - In Safari, Option+Tab can move focus out of a dialog.
 - The EPUB accessibility summary is in English only, and exported EPUBs do not claim conformance.

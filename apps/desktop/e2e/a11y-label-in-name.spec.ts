@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { screens } from "./support/a11yScreens";
 
 // WCAG 2.5.3 Label in Name: a control with visible text has an accessible name that contains that text, so a
 // Voice Control or Dragon user can say what they see. The name is computed in the page (aria-labelledby, aria-label,
@@ -111,86 +111,13 @@ async function audit(page: Page): Promise<{ checked: number; bad: Mismatch[] }> 
   });
 }
 
-const screens: [string, (page: Page) => Promise<void>][] = [
-  [
-    "home",
-    async (p) => {
-      await p.goto("/");
-      await expect(p.getByRole("heading", { level: 1 })).toBeVisible();
-    },
-  ],
-  ["editor", async (p) => newProject(p)],
-  [
-    "export dialog",
-    async (p) => {
-      await newProject(p);
-      await p.getByRole("button", { name: "Export", exact: true }).click();
-      await expect(p.getByRole("dialog", { name: "Export book" })).toBeVisible();
-    },
-  ],
-  [
-    "settings",
-    async (p) => {
-      await p.goto("/");
-      await p.getByRole("button", { name: "Settings" }).click();
-      await expect(p.getByRole("heading", { name: "Settings", level: 1 })).toBeVisible();
-    },
-  ],
-  [
-    "New book dialog",
-    async (p) => {
-      await p.goto("/");
-      await p.getByRole("button", { name: "New project" }).click();
-      await expect(p.getByRole("dialog", { name: "New book" })).toBeVisible();
-    },
-  ],
-  [
-    "Book details dialog",
-    async (p) => {
-      await newProject(p);
-      await p.getByRole("button", { name: "Book details" }).first().click();
-      await expect(p.getByRole("dialog", { name: "Book details" })).toBeVisible();
-    },
-  ],
-  [
-    "command palette",
-    async (p) => {
-      await newProject(p);
-      await p.getByRole("button", { name: "Command palette" }).first().click();
-      await expect(p.getByRole("dialog", { name: "Command palette" })).toBeVisible();
-    },
-  ],
-  [
-    "chapter actions menu",
-    async (p) => {
-      await newProject(p);
-      await p.getByRole("button", { name: "Actions for Chapter One" }).click();
-      await expect(p.getByRole("menuitem").first()).toBeVisible();
-    },
-  ],
-  [
-    "find bar",
-    async (p) => {
-      await newProject(p);
-      await p.locator(".ProseMirror").click();
-      await p.keyboard.press("ControlOrMeta+f");
-      await expect(
-        p
-          .getByRole("search")
-          .or(p.getByRole("textbox", { name: /find/i }))
-          .first(),
-      ).toBeVisible();
-    },
-  ],
-];
-
-for (const [name, open] of screens) {
+for (const { name, open, noText } of screens) {
   test(`label in name (2.5.3): visible text is in the accessible name on ${name}`, async ({
     page,
   }) => {
     await open(page);
     const { checked, bad } = await audit(page);
-    expect(checked, "the audit found no controls with text").toBeGreaterThan(0);
+    if (!noText) expect(checked, "the audit found no controls with text").toBeGreaterThan(0);
     expect(bad).toEqual([]);
   });
 }

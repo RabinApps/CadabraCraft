@@ -213,7 +213,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
           <Field
             ref={findRef}
             label={t`Find`}
-            aria-invalid={invalid || undefined}
+            errorId={invalid ? "find-count" : undefined}
             hideLabel
             placeholder={t`Find`}
             value={f.query}
@@ -232,6 +232,7 @@ export function FindBar({ editor, focusMode }: { editor: Editor; focusMode?: boo
           />
         </div>
         <span
+          id="find-count"
           aria-live="polite"
           className={cx(
             "min-w-14 shrink-0 text-end text-xs tabular-nums",

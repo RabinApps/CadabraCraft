@@ -17,7 +17,7 @@ import {
 import { trimLabel } from "../../lib/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Field } from "../../ui/Input";
+import { Field, focusField } from "../../ui/Input";
 import { Textarea } from "../../ui/Textarea";
 import { Select } from "../../ui/Select";
 import { useProject, type BookDetails } from "../../state/project/index";
@@ -163,6 +163,17 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
           ? problemText(problem)
           : "";
 
+  // The field Save refused, while its message is the one showing (see `save`).
+  const badField = !form.title.trim()
+    ? "title"
+    : !form.author.trim()
+      ? "author"
+      : !form.identifier.trim()
+        ? "identifier"
+        : problem?.field;
+  const flagged = error !== "" && error === missing ? badField : undefined;
+  const flagId = (field: string) => (flagged === field ? "details-error" : undefined);
+
   const choose = async () => {
     setError("");
     const picked = await importCover();
@@ -172,6 +183,10 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
   const save = async () => {
     if (missing) {
       setError(missing);
+      // A publishing field sits in the collapsed section: open it so the field can take focus.
+      if (badField && !["title", "author", "identifier"].includes(badField))
+        document.getElementById("details-publishing")?.setAttribute("open", "");
+      if (badField) focusField(`details-${badField}`);
       return;
     }
     setBusy(true);
@@ -223,11 +238,15 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
         <div className="flex min-w-0 flex-1 flex-col gap-3.5">
           <Field
             label={t`Title`}
+            id="details-title"
+            errorId={flagId("title")}
             value={form.title}
             onChange={(e) => set({ title: e.target.value })}
           />
           <Field
             label={t`Author`}
+            id="details-author"
+            errorId={flagId("author")}
             value={form.author}
             onChange={(e) => set({ author: e.target.value })}
           />
@@ -266,11 +285,13 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
           </Select>
           <Field
             label={t`Identifier`}
+            id="details-identifier"
+            errorId={flagId("identifier")}
             value={form.identifier}
             onChange={(e) => set({ identifier: e.target.value })}
             hint={t`Unique id stored in the EPUB. Change it only if a store or library asked you to.`}
           />
-          <details className="group rounded-md border border-border">
+          <details id="details-publishing" className="group rounded-md border border-border">
             <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2.5 text-sm max-md:min-h-11 font-semibold text-ink focus-visible:outline-2 focus-visible:outline-accent">
               <ChevronRight
                 size={16}
@@ -283,6 +304,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
               <p className="text-xs leading-relaxed text-ink-muted">{t`Stored in the EPUB for stores and libraries. Everything here is optional.`}</p>
               <Field
                 label={t`Publisher`}
+                id="details-publisher"
                 value={publishing.publisher}
                 error={problemFor("publisher")}
                 onChange={(e) => setPublishing({ publisher: e.target.value })}
@@ -291,6 +313,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
                 <div className="min-w-0 flex-1">
                   <Field
                     label={t`Series`}
+                    id="details-series"
                     value={publishing.series}
                     error={problemFor("series")}
                     onChange={(e) => setPublishing({ series: e.target.value })}
@@ -299,6 +322,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
                 <div className="sm:w-28">
                   <Field
                     label={t`Number in series`}
+                    id="details-seriesNumber"
                     inputMode="decimal"
                     value={publishing.seriesNumber}
                     error={problemFor("seriesNumber")}
@@ -308,6 +332,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
               </div>
               <Field
                 label={t`Publication date`}
+                id="details-published"
                 type="date"
                 value={publishing.published}
                 error={problemFor("published")}
@@ -315,6 +340,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
               />
               <Textarea
                 label={t`Subjects`}
+                id="details-subjects"
                 rows={3}
                 value={publishing.subjects}
                 error={problemFor("subjects")}
@@ -323,6 +349,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
               />
               <Textarea
                 label={t`Description`}
+                id="details-description"
                 rows={4}
                 value={publishing.description}
                 error={problemFor("description")}
@@ -331,6 +358,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
               />
               <Field
                 label={t`Rights`}
+                id="details-rights"
                 value={publishing.rights}
                 error={problemFor("rights")}
                 onChange={(e) => setPublishing({ rights: e.target.value })}
@@ -338,7 +366,11 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
               />
             </div>
           </details>
-          {error && <Notice role="alert">{error}</Notice>}
+          {error && (
+            <Notice id="details-error" role="alert">
+              {error}
+            </Notice>
+          )}
           <div className="mt-auto flex justify-end gap-2.5 pt-2">
             <Button disabled={busy} onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>
             <Button

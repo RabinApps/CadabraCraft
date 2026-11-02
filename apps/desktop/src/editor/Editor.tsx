@@ -18,6 +18,7 @@ import { Search } from "./search/plugin";
 import { Pagination } from "./pagination/plugin";
 import { PageFrame, ReflowFrame } from "./PageFrame";
 import { TabKey } from "./tabKey";
+import { FootnoteA11y } from "./footnoteA11y";
 import { cleanPastedHtml, cleanPastedText } from "./pasteClean";
 import { usePageView } from "../app/hooks/usePageView";
 import { FindBar } from "./FindBar";
@@ -102,6 +103,7 @@ export function Editor({ initial, language, onChange, focus }: Props) {
       Search,
       Pagination,
       TabKey,
+      FootnoteA11y((n) => t`Footnote ${n}`),
       shortcutRemap(editorRemap(useSettings.getState().shortcutOverrides)),
     ],
     editorProps: {

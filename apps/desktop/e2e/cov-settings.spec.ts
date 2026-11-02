@@ -115,6 +115,30 @@ test("a voice pack can be deleted after confirming, or kept", async ({ page }) =
   await expect(kokoro.getByRole("button")).toHaveCount(0);
 });
 
+test("the delete confirmation moves focus, is named, and returns focus", async ({ page }) => {
+  await openSettings(page);
+  const kokoro = page.getByText("Kokoro: Heart", { exact: true }).locator("xpath=../..");
+  const del = kokoro.getByRole("button", { name: "Delete", exact: true });
+  await del.click();
+  const group = page.getByRole("group", { name: "Delete Kokoro: Heart from this computer?" });
+  await expect(group).toBeVisible();
+  await expect(group.getByRole("button", { name: "Keep" })).toBeFocused();
+  // Cancelling returns focus to the Delete button.
+  await page.keyboard.press("Escape");
+  await expect(group).toHaveCount(0);
+  await expect(del).toBeFocused();
+  await del.click();
+  await group.getByRole("button", { name: "Keep" }).click();
+  await expect(del).toBeFocused();
+  // Confirming announces the result and focuses it.
+  await del.click();
+  await group.getByRole("button", { name: "Delete voices" }).click();
+  const result = page
+    .getByRole("status")
+    .filter({ hasText: "Kokoro: Heart deleted from this computer." });
+  await expect(result).toBeFocused();
+});
+
 test("a failed pack deletion is shown", async ({ page }) => {
   await page.addInitScript(() => {
     (window as unknown as W).__deleteError = true;

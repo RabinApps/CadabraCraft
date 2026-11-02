@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
 import { useProject } from "../state/project/index";
+import { focusField } from "../ui/Input";
 import type { ImageDraft } from "./ToolbarDialogs";
 
 /** State and actions of the Add image / Image details dialog: pick a file, edit the selected image, insert or save with its alt text. */
@@ -28,6 +29,7 @@ export function useImageDialog(editor: Editor, chain: () => ReturnType<Editor["c
     const alt = image.decorative ? "" : image.alt.trim();
     if (!image.decorative && alt === "") {
       setImage({ ...image, error: t`Describe the image, or tick "This image is decorative".` });
+      focusField("image-alt");
       return;
     }
     const attrs = { alt, decorative: image.decorative, title: image.caption.trim() || null };

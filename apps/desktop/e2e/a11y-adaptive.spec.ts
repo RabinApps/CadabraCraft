@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { screens } from "./support/a11yScreens";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -35,28 +35,7 @@ async function clippedText(page: Page) {
   });
 }
 
-const screens: [string, (page: Page) => Promise<void>][] = [
-  ["home", async (p) => void (await p.goto("/"))],
-  ["editor", async (p) => newProject(p)],
-  [
-    "export dialog",
-    async (p) => {
-      await newProject(p);
-      await p.getByRole("button", { name: "Export", exact: true }).click();
-      await expect(p.getByRole("dialog", { name: "Export book" })).toBeVisible();
-    },
-  ],
-  [
-    "settings",
-    async (p) => {
-      await p.goto("/");
-      await p.getByRole("button", { name: "Settings" }).click();
-      await expect(p.getByRole("heading", { name: "Settings", level: 1 })).toBeVisible();
-    },
-  ],
-];
-
-for (const [name, open] of screens) {
+for (const { name, open } of screens) {
   test(`text spacing (1.4.12): nothing is cut off on ${name}`, async ({ page }) => {
     await open(page);
     const before = await clippedText(page);
@@ -87,6 +66,8 @@ for (const [name, open] of screens) {
       for (const el of document.querySelectorAll<HTMLElement>(sel)) {
         const r = el.getBoundingClientRect();
         if (r.width === 0 || r.height === 0) continue;
+        // Behind a modal dialog the page is hidden from the user (aria-hidden or inert), so it is not a target.
+        if (el.closest("[aria-hidden=true], [inert]")) continue;
         if (r.width >= 24 && r.height >= 24) continue;
         // The press area counts, not the drawn box: a pseudo-element or the control's label can extend it.
         const cx = r.left + r.width / 2;

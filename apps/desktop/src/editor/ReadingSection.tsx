@@ -7,9 +7,11 @@ import {
   type CSSProperties,
   type MutableRefObject,
 } from "react";
+import { useLingui } from "@lingui/react/macro";
 import { EditorContent, useEditor } from "@tiptap/react";
 import type { PageReport } from "@cadabracraft/export-pdf";
 import { extensions } from "@cadabracraft/editor-schema";
+import { FootnoteA11y } from "./footnoteA11y";
 import { Pagination } from "./pagination/plugin";
 import { PageStack, type PageLook } from "./PageFrame";
 import { dirFor } from "../i18n/locales";
@@ -105,8 +107,10 @@ function ReadingChapter({
   report,
   reportAt,
 }: SectionProps) {
+  const { t } = useLingui();
+  const noteLabels = FootnoteA11y((n) => t`Footnote ${n}`);
   const editor = useEditor({
-    extensions: paged ? [...extensions, Pagination] : extensions,
+    extensions: paged ? [...extensions, Pagination, noteLabels] : [...extensions, noteLabels],
     editable: false,
     content: page.doc,
     editorProps: {

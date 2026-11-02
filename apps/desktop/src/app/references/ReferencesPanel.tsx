@@ -178,10 +178,10 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
           <M.Trigger asChild>
             <button
               type="button"
-              aria-label={t`Sort references`}
               className="flex h-8 items-center gap-1.5 rounded-md border border-border-strong px-2.5 text-xs font-semibold text-ink data-[state=open]:border-accent data-[state=open]:bg-accent-soft data-[state=open]:text-accent focus-visible:outline-2 focus-visible:outline-accent"
             >
               <ArrowUpDown size={14} aria-hidden />
+              <span className="sr-only">{t`Sort references`} </span>
               {sorts.find(([k]) => k === sort)![1]}
               <ChevronDown size={14} aria-hidden />
             </button>

@@ -6,11 +6,25 @@ interface FieldProps extends ComponentPropsWithRef<"input"> {
   hint?: string;
   /** An error message shown under the field; marks the input invalid and is read with it. */
   error?: string;
+  /** The id of an error message shown elsewhere (a `Notice` under the form): marks the input invalid and is read with it. */
+  errorId?: string;
   /** Keep the label for screen readers but do not show it. */
   hideLabel?: boolean;
 }
 
-export function Field({ label, hint, error, hideLabel, className, id, ...rest }: FieldProps) {
+/** Moves focus to the field with this id (after a refused submit, so the person lands on what to fix). */
+export const focusField = (id: string) => document.getElementById(id)?.focus();
+
+export function Field({
+  label,
+  hint,
+  error,
+  errorId,
+  hideLabel,
+  className,
+  id,
+  ...rest
+}: FieldProps) {
   const auto = useId();
   const inputId = id ?? auto;
   return (
@@ -23,10 +37,11 @@ export function Field({ label, hint, error, hideLabel, className, id, ...rest }:
       </label>
       <input
         id={inputId}
-        aria-invalid={error ? true : undefined}
+        aria-invalid={error || errorId ? true : undefined}
         aria-describedby={
-          [error && `${inputId}-error`, hint && `${inputId}-hint`].filter(Boolean).join(" ") ||
-          undefined
+          [error && `${inputId}-error`, errorId, hint && `${inputId}-hint`]
+            .filter(Boolean)
+            .join(" ") || undefined
         }
         className={cx(
           "w-full rounded-md border border-border-strong bg-surface px-3 py-2.5 text-sm max-md:min-h-11 text-ink placeholder:text-ink-muted focus-visible:outline-2 focus-visible:outline-accent read-only:text-ink-muted",

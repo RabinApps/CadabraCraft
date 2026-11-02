@@ -216,6 +216,7 @@ function NewProjectDialog({
         <Field label={t`Author`} value={author} onChange={(e) => setAuthor(e.target.value)} />
         <Select
           label={t`Trim size`}
+          className="h-10"
           value={trimSize}
           onChange={(e) => setTrimSize(e.target.value as TrimSize)}
           hint={t`Sets the page size for the print layout. You can change it later in Book details.`}

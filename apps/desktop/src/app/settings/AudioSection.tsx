@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Button } from "../../ui/Button";
 import { Checkbox } from "../../ui/Checkbox";
@@ -31,6 +31,14 @@ export function AudioSection({
   const [packs, setPacks] = useState<VoicePack[]>([]);
   const [confirm, setConfirm] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState("");
+  // Element id to focus after the next render: the controls swap in place, so focus would otherwise be dropped on the page.
+  const focusId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!focusId.current) return;
+    document.getElementById(focusId.current)?.focus();
+    focusId.current = null;
+  }, [confirm, done]);
   const refresh = useCallback(async (live: () => boolean = () => true) => {
     try {
       const [v, p] = await Promise.all([bridge.audioVoices(), bridge.audioPacks()]);
@@ -49,18 +57,25 @@ export function AudioSection({
       live = false;
     };
   }, [refresh]);
-  const remove = async (id: string) => {
+  const packName = (p: VoicePack) =>
+    p.id === "piper" ? t`Piper voices: Amy and LibriTTS` : t`Kokoro: Heart`;
+  const cancel = (id: string) => {
+    focusId.current = `audio-delete-${id}`;
+    setConfirm(null);
+  };
+  const remove = async (p: VoicePack) => {
+    focusId.current = "audio-delete-result";
     setConfirm(null);
     setError(null);
+    setDone("");
     try {
-      await bridge.audioDeletePack(id);
+      await bridge.audioDeletePack(p.id);
+      setDone(t`${packName(p)} deleted from this computer.`);
     } catch (e) {
       setError(describeAudioError(e).message);
     }
     await refresh();
   };
-  const packName = (p: VoicePack) =>
-    p.id === "piper" ? t`Piper voices: Amy and LibriTTS` : t`Kokoro: Heart`;
   const installed = voices.filter((v) => v.installed);
   return (
     <Section id="audio" title={title}>
@@ -118,20 +133,43 @@ export function AudioSection({
           control={
             p.installed ? (
               confirm === p.id ? (
-                <div className="flex gap-2">
-                  <Button onClick={() => setConfirm(null)}>{t`Keep`}</Button>
+                <div
+                  role="group"
+                  aria-label={t`Delete ${packName(p)} from this computer?`}
+                  className="flex gap-2"
+                >
+                  <Button
+                    id={`audio-keep-${p.id}`}
+                    onKeyDown={(e) => e.key === "Escape" && cancel(p.id)}
+                    onClick={() => cancel(p.id)}
+                  >{t`Keep`}</Button>
                   <Button
                     variant="danger"
-                    onClick={() => void remove(p.id)}
+                    onKeyDown={(e) => e.key === "Escape" && cancel(p.id)}
+                    onClick={() => void remove(p)}
                   >{t`Delete voices`}</Button>
                 </div>
               ) : (
-                <Button onClick={() => setConfirm(p.id)}>{t`Delete`}</Button>
+                <Button
+                  id={`audio-delete-${p.id}`}
+                  onClick={() => {
+                    focusId.current = `audio-keep-${p.id}`;
+                    setConfirm(p.id);
+                  }}
+                >{t`Delete`}</Button>
               )
             ) : null
           }
         />
       ))}
+      <p
+        id="audio-delete-result"
+        role="status"
+        tabIndex={-1}
+        className={done ? "px-4 py-3 text-sm text-ink-muted" : "sr-only"}
+      >
+        {done}
+      </p>
       {error && (
         <p role="alert" className="px-4 py-3 text-sm text-danger">
           {error}

@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [babel({ plugins: ["@lingui/babel-plugin-lingui-macro"] }), lingui()],
   test: {
     setupFiles: ["./src/i18n/test-setup.ts"],
-    exclude: ["e2e/**", "e2e-native/**", "node_modules/**"],
+    exclude: ["e2e/**", "e2e-native/**", "e2e-voiceover/**", "node_modules/**"],
     // Pure TypeScript only: components and hooks are measured through Playwright (see coverageScopes.ts).
     coverage: {
       ...coverage,
