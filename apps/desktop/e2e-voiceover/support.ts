@@ -72,7 +72,13 @@ export function makeCtx(page: Page, vo: VoiceOverPlaywright): Ctx {
     cap,
     walk,
     enter: async () => {
-      await cap("navigateToWebContent", vo.navigateToWebContent(), NAVIGATE_MS);
+      // The item chooser stalls now and then (the status bar area did once in a full run and passed on its own): retry once.
+      try {
+        await cap("navigateToWebContent", vo.navigateToWebContent(), NAVIGATE_MS);
+      } catch {
+        await page.waitForTimeout(3000);
+        await cap("navigateToWebContent", vo.navigateToWebContent(), NAVIGATE_MS);
+      }
     },
     find: async (match, max = 30) => {
       const said = await walk("next", max, match);

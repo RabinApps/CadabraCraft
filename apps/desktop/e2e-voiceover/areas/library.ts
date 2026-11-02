@@ -231,6 +231,8 @@ export const editions: Area = {
     await enter();
 
     const opener = page.getByRole("button", { name: /Edition: English/ });
+    // Entering the page leaves VoiceOver (and focus) on the skip link, which unfolds over this button at the top left.
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
     await opener.click();
     const menu = page.getByRole("menu");
     await expect(menu.getByRole("menuitem", { name: "Add language" })).toBeVisible();
