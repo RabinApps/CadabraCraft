@@ -55264,9 +55264,9 @@
                       "name": "Feather",
                       "width": 96,
                       "height": 64,
-                      "fill": "$accent-soft",
+                      "fill": "$raised",
                       "cornerRadius": "$radius-sm",
-                      "stroke": "$accent",
+                      "stroke": "$border",
                       "strokeWidth": 1,
                       "layout": "vertical",
                       "gap": 4,
@@ -55285,13 +55285,13 @@
                           "height": 20,
                           "icon": "feather",
                           "library": "lucide",
-                          "fill": "$accent"
+                          "fill": "$ink"
                         },
                         {
                           "type": "text",
                           "id": "NNFex",
                           "name": "Label",
-                          "fill": "$accent",
+                          "fill": "$ink",
                           "content": "Feather",
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-caption",
@@ -55692,10 +55692,10 @@
                       "name": "Moon",
                       "width": 96,
                       "height": 64,
-                      "fill": "$raised",
+                      "fill": "$accent-soft",
                       "cornerRadius": "$radius-sm",
-                      "stroke": "$border",
-                      "strokeWidth": 1,
+                      "stroke": "$accent",
+                      "strokeWidth": 2,
                       "layout": "vertical",
                       "gap": 4,
                       "padding": [
@@ -55713,17 +55713,30 @@
                           "height": 20,
                           "icon": "moon",
                           "library": "lucide",
-                          "fill": "$ink"
+                          "fill": "$accent"
                         },
                         {
                           "type": "text",
                           "id": "Cp3qR",
                           "name": "Label",
-                          "fill": "$ink",
+                          "fill": "$accent",
                           "content": "Moon",
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-caption",
                           "fontWeight": "normal"
+                        },
+                        {
+                          "type": "icon",
+                          "id": "wHfxT",
+                          "layoutPosition": "absolute",
+                          "x": 76,
+                          "y": 6,
+                          "name": "Check",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$accent"
                         }
                       ]
                     },
@@ -56996,9 +57009,9 @@
                       "name": "Feather",
                       "width": 96,
                       "height": 64,
-                      "fill": "$accent-soft",
+                      "fill": "$raised",
                       "cornerRadius": "$radius-sm",
-                      "stroke": "$accent",
+                      "stroke": "$border",
                       "strokeWidth": 1,
                       "layout": "vertical",
                       "gap": 4,
@@ -57017,13 +57030,13 @@
                           "height": 20,
                           "icon": "feather",
                           "library": "lucide",
-                          "fill": "$accent"
+                          "fill": "$ink"
                         },
                         {
                           "type": "text",
                           "id": "FiHXa",
                           "name": "Label",
-                          "fill": "$accent",
+                          "fill": "$ink",
                           "content": "Feather",
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-caption",
@@ -57424,10 +57437,10 @@
                       "name": "Moon",
                       "width": 96,
                       "height": 64,
-                      "fill": "$raised",
+                      "fill": "$accent-soft",
                       "cornerRadius": "$radius-sm",
-                      "stroke": "$border",
-                      "strokeWidth": 1,
+                      "stroke": "$accent",
+                      "strokeWidth": 2,
                       "layout": "vertical",
                       "gap": 4,
                       "padding": [
@@ -57445,17 +57458,30 @@
                           "height": 20,
                           "icon": "moon",
                           "library": "lucide",
-                          "fill": "$ink"
+                          "fill": "$accent"
                         },
                         {
                           "type": "text",
                           "id": "B1jde",
                           "name": "Label",
-                          "fill": "$ink",
+                          "fill": "$accent",
                           "content": "Moon",
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-caption",
                           "fontWeight": "normal"
+                        },
+                        {
+                          "type": "icon",
+                          "id": "eSVVX",
+                          "layoutPosition": "absolute",
+                          "x": 76,
+                          "y": 6,
+                          "name": "Check",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$accent"
                         }
                       ]
                     },

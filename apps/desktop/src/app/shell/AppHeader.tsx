@@ -118,7 +118,7 @@ export function AppHeader({
           { value: "read", label: t`Read`, icon: BookOpen, collapse: true },
         ]}
       />
-      <div className="ms-auto flex items-center gap-2">
+      <div className="ms-auto flex flex-wrap items-center justify-end gap-2">
         {audio?.status === "running" && (
           <button
             type="button"

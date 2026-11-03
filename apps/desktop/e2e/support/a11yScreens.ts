@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { fakeImportSources } from "./fakeImport";
-import { answer, covBackend } from "./cov";
+import { answer, covBackend, failOn } from "./cov";
 import { addPage, newProject, noVoices, seedSnapshot } from "./helpers";
 
 /** A screen or dialog the accessibility specs audit: its name and how to reach it from a blank page. */
@@ -441,6 +441,17 @@ const withReference = async (page: Page) => {
   await page.getByRole("button", { name: "Add files" }).click();
   await shown(page.getByRole("region", { name: "References" }).locator("[data-open]").first());
 };
+const PIXEL =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+/** Starts an audiobook export with the default options (the fake engine renders at once unless `__audioHold` is set). */
+const startAudiobook = async (page: Page, before?: () => Promise<unknown>) => {
+  await newProject(page);
+  await before?.();
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = dialogOf(page, "Export book");
+  await dialog.getByRole("radio", { name: "Audiobook" }).click();
+  await dialog.getByRole("button", { name: "Export audiobook" }).click();
+};
 const snapshotsDialog = (page: Page) => dialogOf(page, /Book snapshots|History · Whole book/);
 /** The whole-book History dialog with one snapshot taken and selected. */
 const withSnapshot = async (page: Page) => {
@@ -582,6 +593,104 @@ export const moreScreens: Screen[] = [
       await p.setViewportSize({ width: 400, height: 800 });
       await p.getByRole("button", { name: "Show chapters" }).click();
       await shown(p.getByRole("navigation", { name: "Chapters" }));
+    },
+  },
+  {
+    name: "audiobook export, rendering",
+    open: async (p) => {
+      await p.addInitScript(() => {
+        window.__audioHold = true;
+      });
+      await startAudiobook(p);
+      await shown(dialogOf(p, "Export book").getByRole("progressbar"));
+      // The spinner turns forever, and the specs wait for every animation to finish before they measure; it is not a
+      // fault (motion-reduce turns it off), so it is stopped here.
+      await p.evaluate(() => {
+        for (const a of document.getAnimations())
+          if (a.effect?.getComputedTiming().iterations === Infinity) a.cancel();
+      });
+    },
+  },
+  {
+    name: "audiobook export, done",
+    open: async (p) => {
+      await startAudiobook(p);
+      await shown(dialogOf(p, "Export book").getByRole("button", { name: "Done" }));
+    },
+  },
+  {
+    name: "audiobook export, error",
+    open: async (p) => {
+      await covBackend(p);
+      await startAudiobook(p, async () => {
+        await failOn(p, "audio_render_chapter", { kind: "synth", message: "engine broke" });
+      });
+      await shown(dialogOf(p, "Export book").getByRole("alert"));
+    },
+  },
+  {
+    name: "Import report dialog",
+    open: async (p) => {
+      await fakeImportSources(p, "md");
+      await home(p);
+      await p.getByRole("button", { name: "Import…" }).click();
+      const dialog = dialogOf(p, "Import a manuscript");
+      await dialog.getByRole("button", { name: "Choose file…" }).click();
+      await expect(dialog.getByLabel("File")).not.toHaveValue("");
+      await dialog.getByRole("button", { name: "Choose…" }).click();
+      await expect(dialog.getByLabel("New book folder")).toHaveValue("/newbook");
+      await dialog.getByRole("button", { name: "Next" }).click();
+      await dialog.getByRole("button", { name: "Import", exact: true }).click();
+      await shown(dialogOf(p, "Import report"));
+    },
+  },
+  {
+    name: "Removed references dialog",
+    open: async (p) => {
+      await newProject(p);
+      await p.evaluate(
+        (contents) => {
+          window.__pickedRefs = ["/refs/one.png"];
+          window.__refFiles = { "/refs/one.png": contents };
+        },
+        refBytes(atob(PIXEL)),
+      );
+      const panel = p.getByRole("region", { name: "References" });
+      await p.getByRole("button", { name: "References", exact: true }).first().click();
+      await p.getByRole("button", { name: "Add files" }).click();
+      await panel.getByRole("button", { name: "Actions for one" }).click();
+      await p.getByRole("menuitem", { name: "Remove from book" }).click();
+      await panel.getByRole("button", { name: "Removed references (1)" }).click();
+      await shown(dialogOf(p, "Removed references"));
+    },
+  },
+  {
+    name: "Paste HTML dialog",
+    open: async (p) => {
+      await lastParagraph(p);
+      await p.keyboard.type("Q");
+      await p.evaluate(() => {
+        const dt = new DataTransfer();
+        dt.setData("text/plain", "<p>The gate was <b>old</b></p>");
+        document
+          .querySelector(".ProseMirror")!
+          .dispatchEvent(
+            new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }),
+          );
+      });
+      await shown(dialogOf(p, "Paste as styled text?"));
+    },
+  },
+  {
+    name: "error screen",
+    open: async (p) => {
+      await newProject(p);
+      // A render crash: the open book's manifest becomes something the shell cannot read.
+      await p.evaluate(async () => {
+        const { useProject } = await import("/src/state/project/index.ts" as string);
+        useProject.setState({ manifest: { chapters: 1, pages: 1 } });
+      });
+      await shown(p.getByRole("heading", { name: "Something went wrong", level: 1 }));
     },
   },
   {
