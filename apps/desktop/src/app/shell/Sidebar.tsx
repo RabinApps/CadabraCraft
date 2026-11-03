@@ -9,6 +9,7 @@ import { Button, IconButton } from "../../ui/Button";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import { HistoryDialog, type HistoryPage } from "../dialogs/HistoryDialog";
+import { IconDialog, type IconPage } from "../dialogs/IconDialog";
 import { EntryList, type Editing } from "./EntryList";
 import { TrashDialog } from "./TrashDialog";
 import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
@@ -65,6 +66,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
   const [versionsOf, setVersionsOf] = useState<HistoryPage | null>(null);
+  const [iconOf, setIconOf] = useState<IconPage | null>(null);
   const [bookHistory, setBookHistory] = useState(false);
   const kinds = useKindLabels();
   if (!manifest) return null;
@@ -74,6 +76,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     setEditing,
     setDeleting,
     setHistory: setVersionsOf,
+    setIcon: setIconOf,
     onNavigate,
   };
   const preset = (section: "front" | "back", kind: MatterKind) => (
@@ -103,6 +106,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           {...shared}
           entries={entryRowsIn(manifest.chapters, manifest.editions, language)}
           heading={t`Chapters`}
+          chapters
           titleLabel={t`Chapter title`}
         />
         {manifest.backMatter.length > 0 && (
@@ -177,6 +181,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         }}
         onNavigate={onNavigate}
       />
+      <IconDialog page={iconOf} onClose={() => setIconOf(null)} />
       <TrashDialog open={trashOpen} onOpenChange={setTrashOpen} onNavigate={onNavigate} />
       <Confirm
         open={deleting !== null}

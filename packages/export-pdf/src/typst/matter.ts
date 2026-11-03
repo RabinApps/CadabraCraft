@@ -70,6 +70,7 @@ function dropCapOpening(
   return `${cap}${rest === "" ? "" : `\n\n${indent}${rest}`}`;
 }
 
+/** `dropCap` is the template's choice, which a chapter's own `dropCap` overrides. */
 export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm: number): string {
   const out: string[] = [];
   let chapterNo = 0;
@@ -93,7 +94,7 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
     ctx.headingKeys = ctx.tocHeadings?.get(page.id);
     ctx.headingNo = 0;
     const content =
-      (kind === undefined && dropCap
+      (kind === undefined && (page.dropCap ?? dropCap)
         ? dropCapOpening(page.doc.content, ctx, indentEm, index)
         : null) ??
       (ctx.marks ? markedBlocks(page.doc.content, ctx, index) : blocks(page.doc.content, ctx));

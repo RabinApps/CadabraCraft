@@ -13,7 +13,7 @@ import { validatePublishing, type Publishing } from "./publishing";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 7;
+export const CURRENT_FORMAT_VERSION = 8;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -69,6 +69,10 @@ export interface EditionEntry {
   files: Record<string, string>;
   /** Languages whose text is still a copy of the source or blank, waiting for translation. Absent means none. */
   untranslated?: string[];
+  /** Sidebar icon, a name from `ENTRY_ICONS`. Shown in the app only, never exported. Absent means none. Added without a version bump: older apps ignore it. */
+  icon?: string;
+  /** Chapters only (formatVersion 8): a big first letter on this chapter's opening paragraph (true) or none (false). Absent follows the book's `dropCap`. */
+  dropCap?: boolean;
   /** Contents pages only (`kind: "contents"`, formatVersion 7): the author's changes to the generated list. Absent means defaults. */
   toc?: TocSettings;
 }
@@ -101,6 +105,8 @@ export interface Manifest {
   trimSize?: TrimSize;
   /** Font families chosen for the book's PDF and editor. Absent means the template's fonts. Added without a version bump: older apps ignore it. */
   fonts?: BookFonts;
+  /** Big first letter on chapter openings (formatVersion 8). Absent means the template decides; a chapter's own `dropCap` wins. */
+  dropCap?: boolean;
   frontMatter: EditionEntry[];
   chapters: EditionEntry[];
   backMatter: EditionEntry[];
@@ -143,6 +149,7 @@ export function readingOrder(m: Manifest): EditionEntry[] {
   return [...m.frontMatter, ...m.chapters, ...m.backMatter];
 }
 
+const ICON_NAME = /^[a-z][a-z0-9-]{0,39}$/;
 const COVER_PATH = /^assets\/[A-Za-z0-9_-]+\.(png|jpe?g|webp)$/;
 
 const str = (v: unknown, name: string): string => {
@@ -208,6 +215,19 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
       )
         throw new FormatError(`manifest: "${name}[${i}].untranslated" must be a list of languages`);
       entry.untranslated = o.untranslated as string[];
+    }
+    if (o.icon !== undefined) {
+      // Names this app does not know are kept (a newer app wrote them) and shown as no icon.
+      if (typeof o.icon !== "string" || !ICON_NAME.test(o.icon))
+        throw new FormatError(`manifest: "${name}[${i}].icon" must be an icon name`);
+      entry.icon = o.icon;
+    }
+    if (o.dropCap !== undefined) {
+      if (section !== "chapter")
+        throw new FormatError(`manifest: "${name}[${i}].dropCap" belongs on a chapter only`);
+      if (typeof o.dropCap !== "boolean")
+        throw new FormatError(`manifest: "${name}[${i}].dropCap" must be true or false`);
+      entry.dropCap = o.dropCap;
     }
     if (o.kind !== undefined) {
       const ok =
@@ -348,6 +368,11 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     m.trimSize = o.trimSize;
   }
   if (o.fonts !== undefined) m.fonts = validateFonts(o.fonts);
+  if (o.dropCap !== undefined) {
+    if (typeof o.dropCap !== "boolean")
+      throw new FormatError(`manifest: "dropCap" must be true or false`);
+    m.dropCap = o.dropCap;
+  }
   validateEditions(m.editions, readingOrder(m));
   const seen = new Set<string>();
   for (const e of readingOrder(m)) {

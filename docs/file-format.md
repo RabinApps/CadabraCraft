@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 7)
+# CadabraCraft project file format (formatVersion 8)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -18,9 +18,10 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 7,
+  "formatVersion": 8,
   "template": "novel",
   "trimSize": "5.5x8.5",
+  "dropCap": true,
   "fonts": { "body": "EB Garamond", "heading": "Inter" },
   "editions": [
     {
@@ -69,7 +70,9 @@ MyBook/
     {
       "id": "ch-1",
       "titles": { "en": "Chapter One" },
-      "files": { "en": "manuscript/001-chapter-one.json" }
+      "files": { "en": "manuscript/001-chapter-one.json" },
+      "icon": "feather",
+      "dropCap": false
     }
   ],
   "backMatter": [
@@ -97,6 +100,7 @@ MyBook/
 - `formatVersion` is an integer. Readers reject versions newer than they know; older versions are migrated on open after a backup copy goes to `.cadabra/backups/`.
 - Reading order is the order of the `frontMatter`, `chapters` and `backMatter` arrays, never filenames.
 - `trimSize` (optional) is the print page size the book is written for: one of `4.25x6.87`, `5x8`, `5.25x8`, `5.5x8.5`, `6x9`, `7x10`, `8.5x11` (inches, width x height). Absent means the template's default size. It was added without a `formatVersion` bump (see architecture.md): older apps ignore it, and an unknown value is refused.
+- `dropCap` (optional, formatVersion 8) is `true` or `false`: whether chapters open with a large first letter in the PDF, the EPUB and Page view. Absent means the template decides (only the novel template has one). A chapter's own `dropCap` (see below) wins over the book's. Any other type is refused.
 - `fonts` (optional) holds the font families the author chose for the book: `body` and `heading`, either or both. Each is a family name (not a file path), a non-empty trimmed string of at most 100 characters without control characters; any other key inside `fonts`, or a `fonts` that is not an object, is refused. Absent (or a missing key) means the template's fonts. The PDF export uses a chosen family exactly and refuses the export when it is not installed instead of substituting another; the Word export writes `body` as the document font name. It was added without a `formatVersion` bump (see architecture.md): older apps ignore it.
 - `publishing` (optional, per edition, added in formatVersion 6) holds the retail details the EPUB writes as OPF metadata. Every key is optional and an absent key means "not set"; an empty `publishing` is not written. Keys: `publisher` (one line, at most 200 characters), `description` (plain text, at most 4000 characters, line breaks allowed), `subjects` (a list of at most 20 distinct one-line strings of at most 100 characters, for example BISAC codes or keywords), `series` (one line, at most 200 characters) with `seriesNumber` (digits with an optional decimal part, `"1"` or `"2.5"`; only with a `series`), `rights` (one line, at most 500 characters) and `published` (a calendar date `YYYY-MM-DD`). Any other key, or a value of the wrong type, is refused. A `publishing` kept by an older app would be dropped on save, which is why this bumps the version.
 - `editions` lists the languages of the book. The first is the source edition. Each edition has its own `language`, `title`, `author`, `identifier`, `isbn`, `cover` and optional `publishing`. Languages are unique.
@@ -104,6 +108,8 @@ MyBook/
 - `identifier` is a UUID URN or an ISBN. `language` is a BCP 47 tag. `isbn` is free text; the EPUB export writes it as an extra `urn:isbn:` identifier only when it is a valid ISBN-10 or ISBN-13, and skips it otherwise.
 - `cover` (added in formatVersion 3, per edition since 4) is `null` or the relative path of the cover image, always `assets/<name>` with a png, jpg, jpeg or webp extension (same naming rules as other assets). The file is a copy inside the project, never a link to the original. Removing the cover sets `null` and leaves the file in `assets/`.
 - Exports: EPUB gets a cover page first in the reading order (`epub:type="cover"`, left out of the contents list), the image as the `cover-image` manifest item, a `cover` landmark and the EPUB 2 `<meta name="cover">`. Print PDF puts the image on a full-bleed first page with no header or number, then a blank page behind it, so the book starts on page 3 and its numbering and left/right pages are as without a cover (the Export dialog can leave the cover out). An export stops with a message when the cover file cannot be read.
+
+- A chapter, front matter or back matter entry may carry `icon` (a Lucide icon name such as `feather`, lower case letters, digits and `-`, at most 40 characters) and a chapter may carry `dropCap` (`true` or `false`, overriding the book's `dropCap` for that chapter; refused on front and back matter, which never have a big first letter). `icon` is shown in the app's chapter list and is never exported. A name the app does not know is kept and shown as no icon, so a file written by a newer app opens in an older one and the name survives a save. Both were added in formatVersion 8.
 
 ## Front and back matter
 
@@ -175,6 +181,7 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 
 ## Versioning
 
+- Version 7 -> 8: the manifest may carry `dropCap` and an entry may carry `icon` and (chapters only) `dropCap` (see above). The migration changes nothing: no book has them until the author sets them, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 7 app refuses a version 8 project instead of dropping the per-chapter settings and icons on its next save, which is why this bumps the version (`trimSize` and `fonts` did not: they are book-wide and cosmetic).
 - Version 6 -> 7: adds the `contents` front matter kind and the optional `toc` on a contents entry (see above). The migration changes nothing: no book has a contents page until the author adds one, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 6 app refuses a version 7 project instead of failing on the unknown kind.
 - Version 5 -> 6: editions may carry `publishing` (see above). The migration changes nothing: no edition has one until the author sets it, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes.
 - Version 4 -> 5: adds `references` (an empty list when absent). The migration changes nothing else and moves no file; it backs up `cadabra.json` to `.cadabra/backups/` before it writes.

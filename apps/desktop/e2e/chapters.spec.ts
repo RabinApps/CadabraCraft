@@ -13,7 +13,7 @@ test("creating a project shows a first chapter in the editor", async ({ page }) 
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
   const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   expect(manifest).toMatchObject({
-    formatVersion: 7,
+    formatVersion: 8,
     editions: [{ title: "E2E Book", author: "Tester" }],
   });
 });
@@ -106,4 +106,52 @@ test("keyboard: chapter controls are reachable with Tab", async ({ page }) => {
   await page.getByRole("button", { name: "Chapter One", exact: true }).focus();
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Actions for Chapter One" })).toBeFocused();
+});
+
+test("a chapter icon is picked in a dialog, shown before the title, kept on disk and undone", async ({
+  page,
+}) => {
+  await newProject(page);
+  const icon = page.getByRole("button", { name: "Chapter One", exact: true }).locator("svg");
+  await expect(icon).toHaveCount(0);
+  await chapterAction(page, "Chapter One", "Change icon…");
+  const dialog = page.getByRole("dialog", { name: "Icon for “Chapter One”" });
+  await expect(dialog.getByRole("button", { name: "None" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await dialog.getByRole("button", { name: "Moon" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(icon).toHaveCount(1);
+  await expect(icon).toHaveAttribute("aria-hidden", "true");
+  const saved = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
+  expect(saved.chapters[0].icon).toBe("moon");
+  await chapterAction(page, "Chapter One", "Change icon…");
+  await expect(page.getByRole("button", { name: "Moon" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "None" }).click();
+  await expect(icon).toHaveCount(0);
+  await page.getByRole("button", { name: /^Undo: Change icon/ }).click();
+  await expect(icon).toHaveCount(1);
+});
+
+test("a chapter's first letter is Default, Big or Normal from its menu, and undone", async ({
+  page,
+}) => {
+  await newProject(page);
+  const dropCap = () =>
+    page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string).chapters[0].dropCap);
+  const open = async () => {
+    await page.getByRole("button", { name: "Actions for Chapter One" }).click();
+    return page.getByRole("menu");
+  };
+  let menu = await open();
+  await expect(menu.getByRole("menuitemradio", { name: "Default" })).toBeChecked();
+  await menu.getByRole("menuitemradio", { name: "Normal" }).click();
+  await expect.poll(dropCap).toBe(false);
+  menu = await open();
+  await expect(menu.getByRole("menuitemradio", { name: "Normal" })).toBeChecked();
+  await menu.getByRole("menuitemradio", { name: "Big" }).click();
+  await expect.poll(dropCap).toBe(true);
+  await page.getByRole("button", { name: /^Undo: Change first letter/ }).click();
+  await expect.poll(dropCap).toBe(false);
 });

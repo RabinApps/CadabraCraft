@@ -216,6 +216,13 @@ export const screens: Screen[] = [
     },
   },
   {
+    name: "chapter icon picker",
+    open: async (p) => {
+      await chapterMenu("Change icon…")(p);
+      await shown(dialogOf(p, "Icon for “Chapter One”"));
+    },
+  },
+  {
     name: "Move to trash confirmation",
     open: async (p) => {
       await chapterMenu("Move to trash")(p);

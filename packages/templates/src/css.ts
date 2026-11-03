@@ -54,11 +54,13 @@ blockquote{margin:1.2em 0;padding:0 0 0 1.2em;border-left:.15em solid currentCol
 hr.scene-break{border:0;margin:2em 0;height:0;border-top:.05em solid #999;width:3em}
 ${BASE}`;
 
-/** Chapter-opening rules generated from template data, so the EPUB follows `chapterOpening.dropCap` and `.ornament`. */
-export function openingCss(o: { dropCap: boolean; ornament: string | null }): string {
-  const drop = o.dropCap
-    ? "body.chapter h1+p::first-letter{float:left;font-size:3.2em;line-height:.8;padding:.05em .08em 0 0}"
-    : "";
+/**
+ * Chapter-opening rules generated from template data. The ornament follows the template; the big first letter follows the
+ * `dropcap` class the exporter puts on a chapter's body (the author's choice, see `resolveDropCap`), so every template carries it.
+ */
+export function openingCss(o: { ornament: string | null }): string {
+  const drop =
+    "body.chapter.dropcap h1+p::first-letter{float:left;font-size:3.2em;line-height:.8;padding:.05em .08em 0 0}";
   const orn =
     o.ornament === null
       ? ""

@@ -172,8 +172,8 @@ describe("migration v6 -> v7", () => {
     const { m } = book();
     return { ...JSON.parse(JSON.stringify(m)), formatVersion: 6 };
   };
-  it("is registered after v5 -> v6 and the current version is 7", () => {
-    expect(CURRENT_FORMAT_VERSION).toBe(7);
+  it("is registered after v5 -> v6 and the current version is 8", () => {
+    expect(CURRENT_FORMAT_VERSION).toBe(8);
     expect(MIGRATIONS.find((x) => x.from === 6)?.up).toBe(migrateV6ToV7);
   });
   it("copies the manifest without changing any key", () => {
@@ -189,14 +189,14 @@ describe("migration v6 -> v7", () => {
     const r = parseManifest(JSON.stringify(raw));
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(6);
-    expect(JSON.parse(serializeManifest(r.manifest))).toEqual({ ...raw, formatVersion: 7 });
+    expect(JSON.parse(serializeManifest(r.manifest))).toEqual({ ...raw, formatVersion: 8 });
     expect(entryOf(r.manifest, "fm-2").toc).toBeUndefined();
   });
   it("refuses a manifest from a newer version", () => {
-    const raw = { ...v6(), formatVersion: 8 };
-    expect(() => parseManifest(JSON.stringify(raw))).toThrow(/newer than this app supports \(7\)/);
+    const raw = { ...v6(), formatVersion: 9 };
+    expect(() => parseManifest(JSON.stringify(raw))).toThrow(/newer than this app supports \(8\)/);
   });
-  it("a v7 book reopens without migrating", () => {
+  it("a current book reopens without migrating", () => {
     const { m } = book();
     expect(parseManifest(serializeManifest(m)).migrated).toBe(false);
   });

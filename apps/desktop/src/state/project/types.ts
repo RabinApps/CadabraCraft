@@ -173,6 +173,8 @@ export interface BookPage {
   doc: ChapterDoc;
   section: "front" | "chapter" | "back";
   kind?: MatterKind;
+  /** Chapters only: the author's big-first-letter choice (the chapter's own, else the book's). Absent follows the template. */
+  dropCap?: boolean;
 }
 /** The whole project store: the open book, what is in progress, and the actions that change them. */
 export interface ProjectState {
@@ -304,6 +306,8 @@ export interface ProjectActions {
   dismissImportReport: () => void;
   /** Sets the book's template (cadabra.json). A no-op when it is already set. */
   setTemplate: (id: string) => Promise<void>;
+  /** Sets the book's big first letter on chapter openings (`manifest.dropCap`): true, false, or null to follow the template. A no-op when nothing changes. */
+  setBookDropCap: (dropCap: boolean | null) => Promise<void>;
   /** Saves the book's print fonts (`manifest.fonts`). A missing or empty key means the template's own font; no key at all removes `fonts`. A no-op when nothing changes. */
   setBookFonts: (fonts: { body?: string; heading?: string }) => Promise<void>;
   /** Saves the book details (cadabra.json) of `edition` (default: the source; a translation keeps its language). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
@@ -323,6 +327,10 @@ export interface PageActions {
   /** Rename, move and remove work on chapters, front matter and back matter alike (`id` decides). */
   rename: (id: string, title: string) => Promise<void>;
   move: (id: string, delta: number) => Promise<void>;
+  /** Sets the sidebar icon of a page (a name from the format package's `ENTRY_ICONS`), or removes it with null. Not exported; undoable. */
+  setIcon: (id: string, icon: string | null) => Promise<void>;
+  /** Sets a chapter's own big first letter: true, false, or null to follow the book. Undoable. */
+  setChapterDropCap: (id: string, dropCap: boolean | null) => Promise<void>;
   remove: (id: string) => Promise<void>;
   /** Every page in reading order (of `language`, default the open edition) with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
   readPages: (language?: string) => Promise<BookPage[]>;

@@ -97,6 +97,42 @@ describe("buildTypst content", () => {
     expect(plain.usesDropCap).toBe(false);
     expect(plain.source).not.toContain("dropcap");
   });
+  it("lets each chapter turn the drop cap on or off whatever the template says", () => {
+    const two = (a?: boolean, b?: boolean): PdfChapter[] => [
+      {
+        id: "a",
+        title: "A",
+        doc: { type: "doc", content: [para(text("Alpha opens."))] },
+        ...(a === undefined ? {} : { dropCap: a }),
+      },
+      {
+        id: "b",
+        title: "B",
+        doc: { type: "doc", content: [para(text("Beta opens."))] },
+        ...(b === undefined ? {} : { dropCap: b }),
+      },
+    ];
+    const novel = buildTypstDocument(book, two(false), { template: "novel" }).source;
+    expect(novel).not.toContain("[Alpha opens.]");
+    expect(novel).toContain("#dropcap(height: 3, gap: 0.12em)[Beta opens.]");
+    const poetry = buildTypstDocument(book, two(true), { template: "poetry" }).source;
+    expect(poetry).toContain("#dropcap(height: 3, gap: 0.12em)[Alpha opens.]");
+    expect(poetry).not.toContain("[Beta opens.]");
+    expect(buildTypstDocument(book, two(false, false), { template: "novel" }).usesDropCap).toBe(
+      false,
+    );
+  });
+  it("never sets a drop cap on a matter page, whatever it says", () => {
+    const page: PdfChapter = {
+      id: "d",
+      title: "D",
+      doc: { type: "doc", content: [para(text("For you."))] },
+      section: "front",
+      kind: "dedication",
+      dropCap: true,
+    };
+    expect(buildTypstDocument(book, [page], { template: "novel" }).usesDropCap).toBe(false);
+  });
   it("skips the drop cap when the chapter does not open with a plain-text paragraph", () => {
     expect(
       buildTypstDocument(book, ch(para(text("Bold start", [{ type: "bold" }]))), {

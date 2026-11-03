@@ -4,6 +4,7 @@ import {
   entryFile,
   exportDir,
   exportPlan,
+  sectionOf,
   sourceTitle,
   type Edition,
   type EditionEntry,
@@ -27,7 +28,8 @@ export interface Book {
   dir: string;
   /** Pages left out because they are not translated yet (only with `skipUntranslated`). */
   skipped: EditionEntry[];
-  chapters: { id: string; title: string; doc: ChapterDoc }[];
+  /** `dropCap` is the author's own choice for the chapter (its own, else the book's); absent follows the template. */
+  chapters: { id: string; title: string; doc: ChapterDoc; dropCap?: boolean }[];
   /** Image bytes keyed by the project-relative `assets/<name>` path used in the chapters. */
   assets: Map<string, Uint8Array>;
   /** The manifest's template if it exists, else the default (as the app does). */
@@ -65,10 +67,13 @@ export function loadBook(ctx: Ctx, path: string, scope: ExportScope = {}): Book 
         "invalid_chapter_doc",
         `${file} is not valid in the editor schema: ${schemaProblem(doc)}`,
       );
+    const dropCap =
+      sectionOf(manifest, e.id) === "chapter" ? (e.dropCap ?? manifest.dropCap) : undefined;
     return {
       id: e.id,
       title: e.titles[edition.language] ?? sourceTitle(e, manifest.editions),
       doc,
+      ...(dropCap === undefined ? {} : { dropCap }),
     };
   });
   const assets = new Map<string, Uint8Array>();

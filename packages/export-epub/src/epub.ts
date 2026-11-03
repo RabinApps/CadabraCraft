@@ -55,6 +55,8 @@ export interface EpubChapter {
   section?: Section;
   /** Front/back matter pages only. */
   kind?: MatterKind;
+  /** Chapters only: a big first letter on this chapter's opening paragraph, the author's choice. Absent follows `BuildOptions.dropCap`. */
+  dropCap?: boolean;
 }
 
 const FRONT_TYPES: Partial<Record<MatterKind, string>> = {
@@ -173,6 +175,8 @@ export interface BuildOptions {
   assets?: ReadonlyMap<string, Uint8Array>;
   /** Stylesheet to use instead of the built-in default, e.g. a template's `epub.css`. */
   css?: string;
+  /** Whether chapters with no `dropCap` of their own get a big first letter (the template's choice). The stylesheet draws it for a chapter body with the class `dropcap`. Default false. */
+  dropCap?: boolean;
   /** The cover image: `path` is the project-relative `assets/<name>` (png, jpg or webp) and `bytes` its contents. Adds a cover page first in the reading order, the `cover-image` manifest property and a cover landmark. */
   cover?: { path: string; bytes: Uint8Array };
   /**
@@ -243,7 +247,9 @@ export function buildEpub(
   const shown = options.contents === undefined ? undefined : listedItems(options.contents);
   const known = new Set(chapters.map((c) => c.id));
   for (const c of chapters) {
-    const { type, cls } = semantics(c);
+    const { type, cls: base } = semantics(c);
+    const cls =
+      base === "chapter" && (c.dropCap ?? options.dropCap ?? false) ? "chapter dropcap" : base;
     let body: string;
     try {
       body = chapterToXhtmlBody(c.doc, {

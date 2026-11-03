@@ -567,6 +567,10 @@ msgstr "هناك تصدير قيد التشغيل بالفعل"
 msgid "An import is already running"
 msgstr "هناك استيراد قيد التشغيل بالفعل"
 
+#: src/lib/useIconChoices.ts
+msgid "Anchor"
+msgstr "مرساة"
+
 #: src/app/export/Templates.tsx
 msgid "Any page"
 msgstr "أي صفحة"
@@ -574,6 +578,10 @@ msgstr "أي صفحة"
 #: src/app/settings/Settings.tsx
 msgid "Appearance"
 msgstr "المظهر"
+
+#: src/app/export/Templates.tsx
+msgid "Applies to every chapter that has no choice of its own. Set one chapter from its menu in the chapter list."
+msgstr "ينطبق على كل فصل ليس له اختيار خاص به. اضبط فصلًا واحدًا من قائمته في قائمة الفصول."
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Apply"
@@ -666,6 +674,18 @@ msgstr "قبل أن يستبدل الحفظ نصًا مختلفًا، مرة و�
 #: src/app/settings/AudioSection.tsx
 msgid "Best installed voice"
 msgstr "أفضل صوت مثبّت"
+
+#: src/app/shell/EntryList.tsx
+msgid "Big"
+msgstr "كبير"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter"
+msgstr "الحرف الأول الكبير"
+
+#: src/lib/useIconChoices.ts
+msgid "Bird"
+msgstr "طائر"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Bleed"
@@ -814,6 +834,10 @@ msgstr "تعذّرت مراقبة التغييرات التي تُجرى على 
 msgid "Caption"
 msgstr "تعليق توضيحي"
 
+#: src/lib/useIconChoices.ts
+msgid "Castle"
+msgstr "قلعة"
+
 #: src/app/export/PdfPanel.tsx
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
@@ -826,6 +850,20 @@ msgstr "تغيير عمق المحتويات"
 #: src/state/project/toc.ts
 msgid "Change contents page numbers"
 msgstr "تغيير أرقام صفحات المحتويات"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change first letter of {0}"
+msgstr "تغيير الحرف الأول في {0}"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change icon of {0}"
+msgstr "تغيير أيقونة {0}"
+
+#: src/app/shell/EntryList.tsx
+msgid "Change icon…"
+msgstr "تغيير الأيقونة…"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change shortcut for {action}"
@@ -1061,6 +1099,10 @@ msgstr "مقارنةً بالنص الحالي"
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Comparison"
 msgstr "المقارنة"
+
+#: src/lib/useIconChoices.ts
+msgid "Compass"
+msgstr "بوصلة"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -1316,6 +1358,10 @@ msgstr "علامات القص"
 msgid "Crop marks make the page larger than the trim size plus bleed. KDP does not accept them; use them only if your printer asks."
 msgstr "علامات القص تجعل الصفحة أكبر من حجم الصفحة بعد القص مع حافة القص. لا يقبلها KDP؛ استخدمها فقط إذا طلبتها المطبعة."
 
+#: src/lib/useIconChoices.ts
+msgid "Crown"
+msgstr "تاج"
+
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
@@ -1343,6 +1389,10 @@ msgstr "داكن"
 #: src/app/shell/Sidebar.tsx
 msgid "Dedication"
 msgstr "الإهداء"
+
+#: src/app/shell/EntryList.tsx
+msgid "Default"
+msgstr "افتراضي"
 
 #: src/app/settings/AudioSection.tsx
 msgid "Default formats"
@@ -1499,6 +1549,7 @@ msgstr "جارٍ التنزيل… {0} ميغابايت من {1} ميغاباي�
 
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr "اسحب، أو اضغط على مفتاحي السهم لأعلى ولأسفل"
@@ -1689,9 +1740,17 @@ msgstr "صُدّر الكتاب الصوتي إلى {dir}"
 msgid "Exporting…"
 msgstr "جارٍ التصدير…"
 
+#: src/lib/useIconChoices.ts
+msgid "Eye"
+msgstr "عين"
+
 #: src/app/export/AudioExport.tsx
 msgid "Fast and clear."
 msgstr "سريع وواضح."
+
+#: src/lib/useIconChoices.ts
+msgid "Feather"
+msgstr "ريشة"
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/references/ReferenceRow.tsx
@@ -1732,6 +1791,10 @@ msgstr "بحث…"
 msgid "Finding the page in your chapter…"
 msgstr "جارٍ البحث عن الصفحة في فصلك…"
 
+#: src/app/shell/EntryList.tsx
+msgid "First letter"
+msgstr "الحرف الأول"
+
 #: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 msgid "Fit to window"
@@ -1744,6 +1807,14 @@ msgstr "ملاءمة العرض"
 #: src/app/hooks/useAudioLabels.ts
 msgid "FLAC"
 msgstr "FLAC"
+
+#: src/lib/useIconChoices.ts
+msgid "Flag"
+msgstr "علم"
+
+#: src/lib/useIconChoices.ts
+msgid "Flame"
+msgstr "لهب"
 
 #: src/app/shell/AppHeader.tsx
 msgid "Focus mode"
@@ -1795,6 +1866,10 @@ msgstr "مثلًا: قبل إعادة الكتابة"
 msgid "For example: © 2026 A. Writer. All rights reserved."
 msgstr "مثال: © 2026 أ. كاتب. جميع الحقوق محفوظة."
 
+#: src/lib/useIconChoices.ts
+msgid "Forest"
+msgstr "غابة"
+
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Foreword"
@@ -1829,9 +1904,17 @@ msgstr "الصفحات التمهيدية"
 msgid "Front matter: {0}"
 msgstr "الصفحات التمهيدية: {0}"
 
+#: src/lib/useIconChoices.ts
+msgid "Gem"
+msgstr "جوهرة"
+
 #: src/app/settings/Settings.tsx
 msgid "General"
 msgstr "عام"
+
+#: src/lib/useIconChoices.ts
+msgid "Ghost"
+msgstr "شبح"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Give the book a title."
@@ -1873,6 +1956,10 @@ msgstr "العناوين المراد إدراجها"
 #: src/app/export/AudioFooter.tsx
 msgid "Hear a sample"
 msgstr "الاستماع إلى عيّنة"
+
+#: src/lib/useIconChoices.ts
+msgid "Heart"
+msgstr "قلب"
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
@@ -1923,6 +2010,11 @@ msgstr "أبقِ ⌘ أو ⌥ مضغوطًا مع المفتاح."
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Hold Ctrl or Alt together with the key."
 msgstr "أبقِ Ctrl أو Alt مضغوطًا مع المفتاح."
+
+#. placeholder {0}: page?.title ?? ""
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon for “{0}”"
+msgstr "أيقونة «{0}»"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
@@ -2155,6 +2247,10 @@ msgstr "متابعة العمل"
 msgid "Keep your research close"
 msgstr "أبقِ أبحاثك قريبة منك"
 
+#: src/lib/useIconChoices.ts
+msgid "Key"
+msgstr "مفتاح"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
 msgstr "النوع"
@@ -2206,6 +2302,10 @@ msgstr "نص أكبر"
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Later"
 msgstr "لاحقًا"
+
+#: src/lib/useIconChoices.ts
+msgid "Leaf"
+msgstr "ورقة شجر"
 
 #: src/app/settings/shortcutList.ts
 msgid "Leave Focus Mode"
@@ -2305,6 +2405,10 @@ msgstr "بلا فقد، نحو 60% من حجم WAV."
 msgid "M4B audiobook"
 msgstr "كتاب صوتي M4B"
 
+#: src/lib/useIconChoices.ts
+msgid "Magic wand"
+msgstr "عصا سحرية"
+
 #: src/app/export/PdfPanel.tsx
 msgid "Makes each page larger by 0.125 in on the top, bottom and outside edges, as Amazon KDP asks for when artwork or images run to the edge. Margins stay measured from the trim."
 msgstr "يكبّر كل صفحة بمقدار 0.125 بوصة من الحافة العلوية والسفلية والخارجية، كما يطلب Amazon KDP عندما تمتد الرسوم أو الصور إلى الحافة. تبقى الهوامش مقيسة من حجم القص."
@@ -2324,6 +2428,10 @@ msgstr "جارٍ إنشاء المعاينة…"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Manual order"
 msgstr "ترتيب يدوي"
+
+#: src/lib/useIconChoices.ts
+msgid "Map"
+msgstr "خريطة"
 
 #: src/app/export/Templates.tsx
 msgid "Margins (in/out)"
@@ -2385,6 +2493,10 @@ msgstr "ملف الصورة مفقود {0}"
 msgid "Missing image file {src}"
 msgstr "ملف الصورة مفقود {src}"
 
+#: src/lib/useIconChoices.ts
+msgid "Moon"
+msgstr "قمر"
+
 #: src/app/shell/AppHeader.tsx
 msgid "More actions"
 msgstr "المزيد من الإجراءات"
@@ -2392,6 +2504,10 @@ msgstr "المزيد من الإجراءات"
 #: src/app/export/AudioExport.tsx
 msgid "Most natural, slower."
 msgstr "الأكثر طبيعية، وأبطأ."
+
+#: src/lib/useIconChoices.ts
+msgid "Mountain"
+msgstr "جبل"
 
 #. placeholder {0}: deleting?.title ?? ""
 #: src/app/shell/Sidebar.tsx
@@ -2437,12 +2553,19 @@ msgstr "نقل إلى سلة المهملات"
 msgid "Move up"
 msgstr "نقل لأعلى"
 
+#. placeholder {0}: entries[i]!.title
 #. placeholder {0}: item.title
 #. placeholder {1}: i + delta + 1
+#. placeholder {2}: entries.length
 #. placeholder {2}: rows.length
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
 msgstr "نُقل {0} إلى الموضع {1} من {2}"
+
+#: src/lib/useIconChoices.ts
+msgid "Music"
+msgstr "موسيقى"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
@@ -2588,6 +2711,7 @@ msgstr "لا نص بعد"
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr "لا يوجد صوت على هذا الحاسوب يقرأ {0} حتى الآن. الأصوات التي يستطيع CadabraCraft تنزيلها تقرأ الإنجليزية فقط."
 
+#: src/app/dialogs/IconDialog.tsx
 #: src/app/export/PrintPreview.tsx
 msgid "None"
 msgstr "بلا"
@@ -2595,6 +2719,10 @@ msgstr "بلا"
 #: src/lib/pdfErrors.ts
 msgid "None of the fonts {fonts} are on this computer. Download one in Settings, Fonts, or pick another font."
 msgstr "لا يوجد أي من الخطوط {fonts} على هذا الحاسوب. نزّل واحدًا من الإعدادات، الخطوط، أو اختر خطًا آخر."
+
+#: src/app/shell/EntryList.tsx
+msgid "Normal"
+msgstr "عادي"
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
@@ -2680,6 +2808,10 @@ msgstr "قائمة مرقّمة"
 msgid "Numbered List"
 msgstr "قائمة مرقّمة"
 
+#: src/app/export/Templates.tsx
+msgid "Off"
+msgstr "إيقاف"
+
 #: src/app/settings/Settings.tsx
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr "تُزال اللقطات الأقدم، لكن كل ما يعود إلى آخر 30 يومًا يبقى."
@@ -2687,6 +2819,10 @@ msgstr "تُزال اللقطات الأقدم، لكن كل ما يعود إل�
 #: src/app/references/ReferencesPanel.tsx
 msgid "Oldest first"
 msgstr "الأقدم أولًا"
+
+#: src/app/export/Templates.tsx
+msgid "On"
+msgstr "تشغيل"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
@@ -2707,6 +2843,10 @@ msgstr "فتح"
 #: src/app/settings/Settings.tsx
 msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 msgstr "افتح سجل الفصل من قائمته في قائمة الفصول للمقارنة والاستعادة. أبقِ ‎.cadabra خارج المزامنة السحابية: اللقطات تخص هذا الحاسوب."
+
+#: src/lib/useIconChoices.ts
+msgid "Open book"
+msgstr "كتاب مفتوح"
 
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
@@ -3192,9 +3332,11 @@ msgstr "إعادة تسمية إدخال المحتويات"
 msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
 msgstr "تُزال الإدخالات المعاد تسميتها والمخفية والمنقولة والمخصّصة. يبقى العمق وإعداد أرقام الصفحات."
 
+#. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr "إعادة ترتيب {0}"
@@ -3416,6 +3558,10 @@ msgstr "فاصل مشهد"
 msgid "Scene Break"
 msgstr "فاصل مشهد"
 
+#: src/lib/useIconChoices.ts
+msgid "Scroll"
+msgstr "مخطوطة"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search by action or key"
 msgstr "البحث حسب الإجراء أو المفتاح"
@@ -3503,6 +3649,14 @@ msgstr "أقسام الإعدادات"
 msgid "Settings…"
 msgstr "الإعدادات…"
 
+#: src/lib/useIconChoices.ts
+msgid "Shield"
+msgstr "درع"
+
+#: src/lib/useIconChoices.ts
+msgid "Ship"
+msgstr "سفينة"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Shortcut for {action} removed."
 msgstr "أُزيل اختصار {action}."
@@ -3547,6 +3701,10 @@ msgstr "إظهار الهوامش"
 msgid "Showing an approximate layout, because the real one could not be typeset:"
 msgstr "يُعرض تخطيط تقريبي لأن التخطيط الفعلي تعذّرت صفّه:"
 
+#: src/app/dialogs/IconDialog.tsx
+msgid "Shown beside the title in the chapter list. It is not part of the exported book."
+msgstr "تظهر بجانب العنوان في قائمة الفصول. وهي ليست جزءًا من الكتاب المُصدَّر."
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr "ترخيص SIL Open Font 1.1"
@@ -3559,6 +3717,10 @@ msgstr "انتقل إلى المحتوى الرئيسي"
 #: src/app/export/EditionsChecklist.tsx
 msgid "Skip untranslated chapters"
 msgstr "تخطي الفصول غير المترجمة"
+
+#: src/lib/useIconChoices.ts
+msgid "Skull"
+msgstr "جمجمة"
 
 #: src/editor/Toolbar.tsx
 msgid "Small caps"
@@ -3633,6 +3795,10 @@ msgstr "عناصر التحكم في عرض الصفحتين"
 msgid "Stale"
 msgstr "غير محدّث"
 
+#: src/lib/useIconChoices.ts
+msgid "Star"
+msgstr "نجمة"
+
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
 msgstr "بدء كتاب جديد"
@@ -3682,6 +3848,10 @@ msgstr "يُخزَّن في EPUB للمتاجر والمكتبات. كل ما ه
 msgid "Stored on this computer. No account needed."
 msgstr "يُخزَّن على هذا الحاسوب. لا حاجة إلى حساب."
 
+#: src/lib/useIconChoices.ts
+msgid "Storm"
+msgstr "عاصفة"
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -3697,6 +3867,10 @@ msgstr "المواضيع"
 msgid "Subscript"
 msgstr "منخفض"
 
+#: src/lib/useIconChoices.ts
+msgid "Sun"
+msgstr "شمس"
+
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Superscript"
@@ -3705,6 +3879,10 @@ msgstr "مرتفع"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Switch to Manual order to reorder"
 msgstr "انتقل إلى الترتيب اليدوي لإعادة الترتيب"
+
+#: src/lib/useIconChoices.ts
+msgid "Swords"
+msgstr "سيوف"
 
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
@@ -3747,6 +3925,14 @@ msgstr "القالب"
 #: src/app/export/PdfPanel.tsx
 msgid "Template default ({templateBody})"
 msgstr "الافتراضي للقالب ({templateBody})"
+
+#: src/app/export/Templates.tsx
+msgid "Template default (off)"
+msgstr "افتراضي القالب (إيقاف)"
+
+#: src/app/export/Templates.tsx
+msgid "Template default (on)"
+msgstr "افتراضي القالب (تشغيل)"
 
 #: src/app/export/Templates.tsx
 #: src/app/shell/App.tsx

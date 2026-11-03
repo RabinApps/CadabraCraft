@@ -1,18 +1,30 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowDown, ArrowUp, Ellipsis, GripVertical, History, Pencil, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Check,
+  Ellipsis,
+  GripVertical,
+  History,
+  Pencil,
+  Shapes,
+  Trash2,
+} from "lucide-react";
 import type { LanguageRow } from "@cadabracraft/format";
 import { Badge } from "../../ui/Badge";
 import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { DropLine } from "../../ui/DropLine";
-import { menuContentClass, menuItemClass } from "../../ui/Menu";
+import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
 import { SectionHeading } from "../../ui/SectionHeading";
 import { dropPosition, insertionIndex } from "../../lib/referenceKinds";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import type { HistoryPage } from "../dialogs/HistoryDialog";
+import type { IconPage } from "../dialogs/IconDialog";
+import { iconComponent } from "../../lib/chapterIcons";
 
 export type Editing = { id: string } | null;
 
@@ -20,11 +32,14 @@ interface ListProps {
   entries: LanguageRow[];
   heading: string;
   titleLabel: string;
+  /** Chapters get a First letter choice in the row menu; front and back matter never have a big first letter. */
+  chapters?: boolean;
   currentId: string | null;
   editing: Editing;
   setEditing: (e: Editing) => void;
   setDeleting: (d: { id: string; title: string }) => void;
   setHistory: (p: HistoryPage) => void;
+  setIcon: (p: IconPage) => void;
   onNavigate?: () => void;
 }
 
@@ -33,11 +48,13 @@ export function EntryList({
   entries,
   heading,
   titleLabel,
+  chapters,
   currentId,
   editing,
   setEditing,
   setDeleting,
   setHistory,
+  setIcon,
   onNavigate,
 }: ListProps) {
   const { t } = useLingui();
@@ -97,6 +114,7 @@ export function EntryList({
       <ul ref={list} className="m-0 flex list-none flex-col gap-0.5 p-0">
         {entries.map((c, i) => {
           const current = c.id === currentId;
+          const Icon = iconComponent(c.icon);
           return (
             <li
               key={c.id}
@@ -164,6 +182,9 @@ export function EntryList({
                     onNavigate?.();
                   }}
                 >
+                  {Icon && (
+                    <Icon size={14} aria-hidden className="me-2 inline shrink-0 align-[-2px]" />
+                  )}
                   {c.title}
                 </button>
               )}
@@ -201,6 +222,15 @@ export function EntryList({
                     </M.Item>
                     <M.Item
                       className={menuItemClass()}
+                      onSelect={moveFocus(() =>
+                        setIcon({ id: c.id, title: c.title, icon: c.icon }),
+                      )}
+                    >
+                      <Shapes size={14} aria-hidden />
+                      {t`Change icon…`}
+                    </M.Item>
+                    <M.Item
+                      className={menuItemClass()}
                       disabled={i === 0}
                       onSelect={() => attempt(actions.move(c.id, -1))}
                     >
@@ -215,6 +245,45 @@ export function EntryList({
                       <ArrowDown size={14} aria-hidden />
                       {t`Move down`}
                     </M.Item>
+                    {chapters && (
+                      <>
+                        <M.Separator className="my-1 h-px bg-border" />
+                        <M.Group>
+                          <M.Label className={menuLabelClass}>{t`First letter`}</M.Label>
+                          <M.RadioGroup
+                            value={
+                              c.dropCap === undefined ? "default" : c.dropCap ? "big" : "normal"
+                            }
+                            onValueChange={(v) =>
+                              attempt(
+                                actions.setChapterDropCap(
+                                  c.id,
+                                  v === "default" ? null : v === "big",
+                                ),
+                              )
+                            }
+                          >
+                            {(
+                              [
+                                ["default", t`Default`],
+                                ["big", t`Big`],
+                                ["normal", t`Normal`],
+                              ] as const
+                            ).map(([value, text]) => (
+                              <M.RadioItem key={value} value={value} className={menuItemClass()}>
+                                <span className="flex size-3.5 items-center justify-center text-accent">
+                                  <M.ItemIndicator>
+                                    <Check size={14} aria-hidden />
+                                  </M.ItemIndicator>
+                                </span>
+                                {text}
+                              </M.RadioItem>
+                            ))}
+                          </M.RadioGroup>
+                        </M.Group>
+                        <M.Separator className="my-1 h-px bg-border" />
+                      </>
+                    )}
                     <M.Item
                       className={menuItemClass()}
                       onSelect={moveFocus(() =>

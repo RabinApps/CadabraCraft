@@ -648,3 +648,18 @@ describe("paginate: oversized and empty blocks", () => {
     expect(r.pageCount).toBe(r.breaks.length + 1);
   });
 });
+
+describe("drop cap choice", () => {
+  const lines = (template: string, dropCap?: boolean) =>
+    pageCssVars({ template }, 1, dropCap)["--page-dropcap-lines"];
+  it("follows the template when the author has not chosen", () => {
+    expect(lines("novel")).toBe("3");
+    expect(lines("poetry")).toBe("0");
+  });
+  it("the author's choice wins over the template either way", () => {
+    expect(lines("novel", false)).toBe("0");
+    expect(lines("poetry", true)).toBe("3");
+    expect(pageCssVars({ template: "novel" }, 1, false)["--page-dropcap-float"]).toBe("none");
+    expect(pageCssVars({ template: "poetry" }, 1, true)["--page-dropcap-float"]).toBe("left");
+  });
+});

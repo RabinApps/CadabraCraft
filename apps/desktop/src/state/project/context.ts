@@ -194,12 +194,14 @@ export function createContext(set: Set, get: Get) {
       const file = entryFile(c, lang);
       const r = file ? await bridge.readFile(root, file) : null;
       if (file && !r) throw new Error(t`Missing chapter file ${file}`);
+      const dropCap = sectionFor(c) === "chapter" ? (c.dropCap ?? manifest.dropCap) : undefined;
       pages.push({
         id: c.id,
         title: titleIn(c, manifest, lang),
         doc: r && file ? parseChapter(r.contents, file) : emptyDoc(titleIn(c, manifest, lang)),
         section: sectionFor(c),
         ...(c.kind ? { kind: c.kind } : {}),
+        ...(dropCap === undefined ? {} : { dropCap }),
       });
     }
     return pages;

@@ -49,6 +49,34 @@ describe("export_epub / inspect_epub", () => {
     expect(info.entries).toContain("OEBPS/assets/gradient.png");
   });
 
+  it("draws the big first letter by the chapter's own choice, else the book's, else the template's", async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "d", title: "T", author: "A" });
+    for (const title of ["One", "Two", "Three"])
+      await s.ok("cadabra_chapter_add", { path: "d", title });
+    const manifestPath = join(s.root, "d/cadabra.json");
+    const classes = async () => {
+      await s.ok("cadabra_export_epub", { path: "d" });
+      const zip = unzipSync(new Uint8Array(readFileSync(join(s.root, "d/exports/en/book.epub"))));
+      return ["ch-1", "ch-2", "ch-3"].map(
+        (id) => /<body[^>]*class="([^"]*)"/.exec(strFromU8(zip[`OEBPS/${id}.xhtml`]!))![1],
+      );
+    };
+    const edit = (
+      f: (
+        m: Record<string, unknown> & { chapters: Record<string, unknown>[]; dropCap?: boolean },
+      ) => void,
+    ) => {
+      const m = JSON.parse(readFileSync(manifestPath, "utf8"));
+      f(m);
+      writeFileSync(manifestPath, JSON.stringify(m));
+    };
+    expect(await classes()).toEqual(["chapter dropcap", "chapter dropcap", "chapter dropcap"]); // novel
+    edit((m) => (m.dropCap = false));
+    edit((m) => (m.chapters[1]!.dropCap = true));
+    expect(await classes()).toEqual(["chapter", "chapter dropcap", "chapter"]);
+  });
+
   it("refuses an empty book, a missing chapter file and a missing image without writing anything", async () => {
     s = await connect({ epubcheckJar: null });
     await s.ok("cadabra_project_create", { path: "e", title: "T", author: "A" });

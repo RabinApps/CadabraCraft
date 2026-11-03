@@ -13,8 +13,7 @@ const h = (o: Partial<PrintHeadingStyle>): PrintHeadingStyle => ({
 });
 
 /** Template CSS plus the rules for the template's own chapter opening. */
-const epubCss = (css: string, o: { dropCap: boolean; ornament: string | null }): string =>
-  `${css}\n${openingCss(o)}`;
+const epubCss = (css: string, o: { ornament: string | null }): string => `${css}\n${openingCss(o)}`;
 
 const novelOpening: PrintChapterOpening = {
   startOn: "recto",

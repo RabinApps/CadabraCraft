@@ -289,6 +289,13 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
       if (manifest.template === id) return;
       await saveManifest({ ...manifest, template: id });
     },
+    async setBookDropCap(dropCap) {
+      const { manifest } = need();
+      const { dropCap: _old, ...rest } = manifest;
+      const next: Manifest = dropCap === null ? rest : { ...rest, dropCap };
+      if (JSON.stringify(next) === JSON.stringify(manifest)) return;
+      await saveManifest(next);
+    },
     async setBookFonts(fonts) {
       const { manifest } = need();
       const chosen = {

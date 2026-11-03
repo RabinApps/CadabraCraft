@@ -364,13 +364,13 @@ describe("project store", () => {
       await a().openProject("/p");
       expect(s().currentId).toBe("fm-1");
     });
-    it("upgrades a v1 project on open: backs up first, then saves as v7", async () => {
+    it("upgrades a v1 project on open: backs up first, then saves as v8", async () => {
       const v1 = { ...manifestOnDisk(), formatVersion: 1 };
       disk.set("cadabra.json", JSON.stringify(v1));
       useProject.setState({ manifest: null, currentId: null, currentDoc: null, hashes: {} });
       await a().openProject("/p");
       expect(s().notice).toMatch(/upgraded from format 1/);
-      expect(manifestOnDisk().formatVersion).toBe(7);
+      expect(manifestOnDisk().formatVersion).toBe(8);
     });
   });
   describe("book details and cover", () => {

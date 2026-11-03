@@ -4,6 +4,7 @@ import {
   GALLERY_TEMPLATE_IDS,
   getTemplate,
   hasTemplate,
+  resolveDropCap,
   listTemplates,
   resolveBookFonts,
   resolveTrimSize,
@@ -20,9 +21,14 @@ describe("template registry", () => {
     for (const t of listTemplates()) expect(validateTemplate(t), t.id).toEqual([]);
   });
   it("EPUB css follows the chapter opening data", () => {
-    expect(getTemplate("novel").epub.css).toContain("h1+p::first-letter");
     expect(getTemplate("novel").epub.css).toContain('content:"⁂"');
-    expect(getTemplate("poetry").epub.css).not.toContain("::first-letter");
+    expect(getTemplate("poetry").epub.css).not.toContain("::before");
+  });
+  it("every template's EPUB css draws the big first letter on a chapter marked dropcap, and only there", () => {
+    for (const t of listTemplates()) {
+      expect(t.epub.css, t.id).toContain("body.chapter.dropcap h1+p::first-letter{");
+      expect(t.epub.css, t.id).not.toContain("body.chapter h1+p::first-letter");
+    }
   });
   it("rejects a multi-character ornament", () => {
     const bad = structuredClone(getTemplate("novel"));
@@ -225,5 +231,23 @@ describe("registry construction", () => {
   it("refuses an invalid built-in template", async () => {
     const bad = { ...structuredClone(getTemplate("novel")), name: "" };
     await expect(loadWith([bad])).rejects.toThrow(/Invalid template "novel": name required/);
+  });
+});
+
+describe("resolveDropCap", () => {
+  const novel = getTemplate("novel");
+  const poetry = getTemplate("poetry");
+  it("follows the template when neither the book nor the chapter chooses", () => {
+    expect(resolveDropCap(novel, {}, {})).toBe(true);
+    expect(resolveDropCap(poetry, {}, {})).toBe(false);
+  });
+  it("lets the book override the template", () => {
+    expect(resolveDropCap(novel, { dropCap: false }, {})).toBe(false);
+    expect(resolveDropCap(poetry, { dropCap: true }, {})).toBe(true);
+  });
+  it("lets the chapter override the book and the template", () => {
+    expect(resolveDropCap(novel, { dropCap: true }, { dropCap: false })).toBe(false);
+    expect(resolveDropCap(poetry, { dropCap: false }, { dropCap: true })).toBe(true);
+    expect(resolveDropCap(novel, {}, { dropCap: false })).toBe(false);
   });
 });

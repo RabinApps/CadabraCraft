@@ -149,6 +149,8 @@ interface StackProps {
   section: "front" | "chapter" | "back";
   chapterTitle: string;
   chapterNumber: number | undefined;
+  /** The author's big-first-letter choice for this chapter (its own, else the book's); undefined follows the template. */
+  dropCap?: boolean | undefined;
   firstPage: number;
   /** Typst's page breaks for this chapter (Page view in Write mode); `exactKey` changes with it. Without them the breaks are estimated. */
   exact?: ExactSource | null;
@@ -171,6 +173,7 @@ export function PageStack({
   section,
   chapterTitle,
   chapterNumber,
+  dropCap,
   firstPage,
   exact = null,
   exactKey = "",
@@ -202,7 +205,7 @@ export function PageStack({
   const stackH = Math.max(g.page.h, layout?.height ?? 0);
   const startsOn = chapterStart(book);
   const slackPx = pageFillSlackPx(book);
-  const layoutKey = `${book.template}|${trim}|${fontStack}|${family ?? ""}`;
+  const layoutKey = `${book.template}|${trim}|${fontStack}|${family ?? ""}|${String(dropCap)}`;
   const controller = (
     editor.storage as unknown as { pagination: { controller: PaginationController } }
   ).pagination.controller;
@@ -230,7 +233,7 @@ export function PageStack({
 
   const vars = useMemo(
     () => ({
-      ...cssVarsStyle(pageCssVars(book, chapterNumber)),
+      ...cssVarsStyle(pageCssVars(book, chapterNumber, dropCap)),
       "--page-mt": `${g.margins.top}px`,
       "--page-mb": `${g.margins.bottom}px`,
       // A right-to-left book is bound on the right: its inside margin is the right one, and the verso shifts the other way.
@@ -240,7 +243,7 @@ export function PageStack({
       "--page-head-size": `${print.runningText.sizePt * PX_PER_PT}px`,
       "--page-font": fontStack,
     }),
-    [book, chapterNumber, g, print.runningText.sizePt, fontStack, rtl],
+    [book, chapterNumber, dropCap, g, print.runningText.sizePt, fontStack, rtl],
   ) as CSSProperties;
 
   return (
@@ -375,6 +378,7 @@ export function PageFrame({ editor, children }: Props) {
           section={section}
           chapterTitle={chapterTitle}
           chapterNumber={chapterNumber}
+          dropCap={entry?.dropCap ?? manifest.dropCap}
           firstPage={firstPage}
           exact={exact}
           exactKey={exactKey}
@@ -397,14 +401,16 @@ export function ReflowFrame({ children }: { children: ReactNode }) {
   const manifest = useProject((s) => s.manifest)!;
   const currentId = useProject((s) => s.currentId);
   const chapterNumber = chapterNumberOf(manifest, currentId);
+  const dropCap =
+    readingOrder(manifest).find((e) => e.id === currentId)?.dropCap ?? manifest.dropCap;
   const { book, fontStack } = look;
   const vars = useMemo(
     () =>
       ({
-        ...cssVarsStyle(pageCssVars(book, chapterNumber)),
+        ...cssVarsStyle(pageCssVars(book, chapterNumber, dropCap)),
         "--page-font": fontStack,
       }) as CSSProperties,
-    [book, chapterNumber, fontStack],
+    [book, chapterNumber, dropCap, fontStack],
   );
   return (
     <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first" data-testid="reflow-scroll">

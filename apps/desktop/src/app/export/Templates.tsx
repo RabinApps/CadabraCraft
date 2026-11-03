@@ -14,6 +14,7 @@ import { cx } from "../../ui/cx";
 import { useProject } from "../../state/project/index";
 import { errText } from "../../lib/projectError";
 import { Notice } from "../../ui/Notice";
+import { Segmented } from "../../ui/Segmented";
 
 const PREVIEW_LINES = [0, 1, 2, 3, 4, 5, 6, 7];
 
@@ -39,6 +40,7 @@ export function Templates({ onBack }: { onBack: () => void }) {
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const setTemplate = useProject((s) => s.actions.setTemplate);
+  const setBookDropCap = useProject((s) => s.actions.setBookDropCap);
   const current =
     manifest && hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID;
   const [selected, setSelected] = useState(current);
@@ -59,6 +61,11 @@ export function Templates({ onBack }: { onBack: () => void }) {
     } catch (e) {
       setError(errText(e));
     }
+  };
+  const dropCap = manifest?.dropCap === undefined ? "default" : manifest.dropCap ? "on" : "off";
+  const chooseDropCap = (v: "default" | "on" | "off") => {
+    setError("");
+    setBookDropCap(v === "default" ? null : v === "on").catch((e) => setError(errText(e)));
   };
   const rows: [string, string][] = [
     [t`Trim size`, `${trim.w} × ${trim.h} in`],
@@ -170,6 +177,27 @@ export function Templates({ onBack }: { onBack: () => void }) {
               </div>
             ))}
           </dl>
+          <section aria-labelledby="first-letter" className="flex flex-col gap-2">
+            <h3 id="first-letter" className="text-sm font-semibold">{t`Big first letter`}</h3>
+            <Segmented
+              label={t`Big first letter`}
+              value={dropCap}
+              onChange={chooseDropCap}
+              items={[
+                {
+                  value: "default",
+                  label: print.chapterOpening.dropCap
+                    ? t`Template default (on)`
+                    : t`Template default (off)`,
+                },
+                { value: "on", label: t`On` },
+                { value: "off", label: t`Off` },
+              ]}
+            />
+            <p className="text-xs text-ink-muted">
+              {t`Applies to every chapter that has no choice of its own. Set one chapter from its menu in the chapter list.`}
+            </p>
+          </section>
         </aside>
       </div>
     </div>

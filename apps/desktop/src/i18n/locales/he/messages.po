@@ -567,6 +567,10 @@ msgstr "ייצוא כבר מתבצע"
 msgid "An import is already running"
 msgstr "ייבוא כבר מתבצע"
 
+#: src/lib/useIconChoices.ts
+msgid "Anchor"
+msgstr "עוגן"
+
 #: src/app/export/Templates.tsx
 msgid "Any page"
 msgstr "כל עמוד"
@@ -574,6 +578,10 @@ msgstr "כל עמוד"
 #: src/app/settings/Settings.tsx
 msgid "Appearance"
 msgstr "מראה"
+
+#: src/app/export/Templates.tsx
+msgid "Applies to every chapter that has no choice of its own. Set one chapter from its menu in the chapter list."
+msgstr "חל על כל פרק שאין לו בחירה משלו. אפשר להגדיר פרק אחד מהתפריט שלו ברשימת הפרקים."
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Apply"
@@ -666,6 +674,18 @@ msgstr "לפני ששמירה מחליפה טקסט שונה, לכל היותר 
 #: src/app/settings/AudioSection.tsx
 msgid "Best installed voice"
 msgstr "הקול המותקן הטוב ביותר"
+
+#: src/app/shell/EntryList.tsx
+msgid "Big"
+msgstr "גדולה"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter"
+msgstr "אות פתיחה גדולה"
+
+#: src/lib/useIconChoices.ts
+msgid "Bird"
+msgstr "ציפור"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Bleed"
@@ -814,6 +834,10 @@ msgstr "לא ניתן לעקוב אחר שינויים ב־{0} שנעשים מח
 msgid "Caption"
 msgstr "כיתוב"
 
+#: src/lib/useIconChoices.ts
+msgid "Castle"
+msgstr "טירה"
+
 #: src/app/export/PdfPanel.tsx
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
@@ -826,6 +850,20 @@ msgstr "שינוי עומק תוכן העניינים"
 #: src/state/project/toc.ts
 msgid "Change contents page numbers"
 msgstr "שינוי מספרי העמודים בתוכן העניינים"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change first letter of {0}"
+msgstr "שינוי אות הפתיחה של {0}"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change icon of {0}"
+msgstr "שינוי הסמל של {0}"
+
+#: src/app/shell/EntryList.tsx
+msgid "Change icon…"
+msgstr "שינוי סמל…"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change shortcut for {action}"
@@ -1061,6 +1099,10 @@ msgstr "בהשוואה לטקסט הנוכחי"
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Comparison"
 msgstr "השוואה"
+
+#: src/lib/useIconChoices.ts
+msgid "Compass"
+msgstr "מצפן"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -1316,6 +1358,10 @@ msgstr "סימני חיתוך"
 msgid "Crop marks make the page larger than the trim size plus bleed. KDP does not accept them; use them only if your printer asks."
 msgstr "סימני חיתוך מגדילים את העמוד מעבר לגודל החיתוך ועוד שולי חיתוך. KDP אינה מקבלת אותם; השתמש בהם רק אם בית הדפוס שלך מבקש."
 
+#: src/lib/useIconChoices.ts
+msgid "Crown"
+msgstr "כתר"
+
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
@@ -1343,6 +1389,10 @@ msgstr "כהה"
 #: src/app/shell/Sidebar.tsx
 msgid "Dedication"
 msgstr "הקדשה"
+
+#: src/app/shell/EntryList.tsx
+msgid "Default"
+msgstr "ברירת מחדל"
 
 #: src/app/settings/AudioSection.tsx
 msgid "Default formats"
@@ -1499,6 +1549,7 @@ msgstr "מוריד… {0} MB מתוך {1} MB"
 
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr "גרור, או לחץ על מקשי החצים למעלה ולמטה"
@@ -1689,9 +1740,17 @@ msgstr "ספר השמע יוצא אל {dir}"
 msgid "Exporting…"
 msgstr "מייצא…"
 
+#: src/lib/useIconChoices.ts
+msgid "Eye"
+msgstr "עין"
+
 #: src/app/export/AudioExport.tsx
 msgid "Fast and clear."
 msgstr "מהיר וברור."
+
+#: src/lib/useIconChoices.ts
+msgid "Feather"
+msgstr "נוצה"
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/references/ReferenceRow.tsx
@@ -1732,6 +1791,10 @@ msgstr "חיפוש…"
 msgid "Finding the page in your chapter…"
 msgstr "מחפש את העמוד בפרק שלך…"
 
+#: src/app/shell/EntryList.tsx
+msgid "First letter"
+msgstr "האות הראשונה"
+
 #: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 msgid "Fit to window"
@@ -1744,6 +1807,14 @@ msgstr "התאמה לרוחב"
 #: src/app/hooks/useAudioLabels.ts
 msgid "FLAC"
 msgstr "FLAC"
+
+#: src/lib/useIconChoices.ts
+msgid "Flag"
+msgstr "דגל"
+
+#: src/lib/useIconChoices.ts
+msgid "Flame"
+msgstr "להבה"
 
 #: src/app/shell/AppHeader.tsx
 msgid "Focus mode"
@@ -1795,6 +1866,10 @@ msgstr "לדוגמה, לפני הכתיבה מחדש"
 msgid "For example: © 2026 A. Writer. All rights reserved."
 msgstr "לדוגמה: ‏© 2026 א׳ כותב. כל הזכויות שמורות."
 
+#: src/lib/useIconChoices.ts
+msgid "Forest"
+msgstr "יער"
+
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Foreword"
@@ -1829,9 +1904,17 @@ msgstr "חלקי פתיחה"
 msgid "Front matter: {0}"
 msgstr "חלקי פתיחה: {0}"
 
+#: src/lib/useIconChoices.ts
+msgid "Gem"
+msgstr "אבן חן"
+
 #: src/app/settings/Settings.tsx
 msgid "General"
 msgstr "כללי"
+
+#: src/lib/useIconChoices.ts
+msgid "Ghost"
+msgstr "רוח רפאים"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Give the book a title."
@@ -1873,6 +1956,10 @@ msgstr "כותרות להצגה ברשימה"
 #: src/app/export/AudioFooter.tsx
 msgid "Hear a sample"
 msgstr "האזנה לדוגמה"
+
+#: src/lib/useIconChoices.ts
+msgid "Heart"
+msgstr "לב"
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
@@ -1923,6 +2010,11 @@ msgstr "החזיקו ⌘ או ⌥ יחד עם המקש."
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Hold Ctrl or Alt together with the key."
 msgstr "החזיקו Ctrl או Alt יחד עם המקש."
+
+#. placeholder {0}: page?.title ?? ""
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon for “{0}”"
+msgstr "סמל עבור „{0}”"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
@@ -2155,6 +2247,10 @@ msgstr "להמשיך לעבוד"
 msgid "Keep your research close"
 msgstr "שמור את המחקר שלך קרוב"
 
+#: src/lib/useIconChoices.ts
+msgid "Key"
+msgstr "מפתח"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
 msgstr "סוג"
@@ -2206,6 +2302,10 @@ msgstr "טקסט גדול יותר"
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Later"
 msgstr "אחר כך"
+
+#: src/lib/useIconChoices.ts
+msgid "Leaf"
+msgstr "עלה"
 
 #: src/app/settings/shortcutList.ts
 msgid "Leave Focus Mode"
@@ -2305,6 +2405,10 @@ msgstr "ללא אובדן, כ־60% מגודל WAV."
 msgid "M4B audiobook"
 msgstr "ספר שמע M4B"
 
+#: src/lib/useIconChoices.ts
+msgid "Magic wand"
+msgstr "שרביט קסמים"
+
 #: src/app/export/PdfPanel.tsx
 msgid "Makes each page larger by 0.125 in on the top, bottom and outside edges, as Amazon KDP asks for when artwork or images run to the edge. Margins stay measured from the trim."
 msgstr "מגדיל כל עמוד ב־0.125 אינץ׳ בקצה העליון, התחתון והחיצוני, כפי ש־Amazon KDP דורשת כשאיור או תמונות מגיעים עד הקצה. השוליים ממשיכים להימדד מגבול החיתוך."
@@ -2324,6 +2428,10 @@ msgstr "יוצר את התצוגה המקדימה…"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Manual order"
 msgstr "סדר ידני"
+
+#: src/lib/useIconChoices.ts
+msgid "Map"
+msgstr "מפה"
 
 #: src/app/export/Templates.tsx
 msgid "Margins (in/out)"
@@ -2385,6 +2493,10 @@ msgstr "קובץ תמונה חסר {0}"
 msgid "Missing image file {src}"
 msgstr "קובץ תמונה חסר {src}"
 
+#: src/lib/useIconChoices.ts
+msgid "Moon"
+msgstr "ירח"
+
 #: src/app/shell/AppHeader.tsx
 msgid "More actions"
 msgstr "פעולות נוספות"
@@ -2392,6 +2504,10 @@ msgstr "פעולות נוספות"
 #: src/app/export/AudioExport.tsx
 msgid "Most natural, slower."
 msgstr "הטבעי ביותר, איטי יותר."
+
+#: src/lib/useIconChoices.ts
+msgid "Mountain"
+msgstr "הר"
 
 #. placeholder {0}: deleting?.title ?? ""
 #: src/app/shell/Sidebar.tsx
@@ -2437,12 +2553,19 @@ msgstr "העברה לאשפה"
 msgid "Move up"
 msgstr "הזזה למעלה"
 
+#. placeholder {0}: entries[i]!.title
 #. placeholder {0}: item.title
 #. placeholder {1}: i + delta + 1
+#. placeholder {2}: entries.length
 #. placeholder {2}: rows.length
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
 msgstr "{0} הועבר למיקום {1} מתוך {2}"
+
+#: src/lib/useIconChoices.ts
+msgid "Music"
+msgstr "מוזיקה"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
@@ -2588,6 +2711,7 @@ msgstr "אין עדיין טקסט"
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr "אין עדיין קול במחשב זה שמקריא {0}. הקולות ש־CadabraCraft יכולה להוריד מקריאים באנגלית בלבד."
 
+#: src/app/dialogs/IconDialog.tsx
 #: src/app/export/PrintPreview.tsx
 msgid "None"
 msgstr "ללא"
@@ -2595,6 +2719,10 @@ msgstr "ללא"
 #: src/lib/pdfErrors.ts
 msgid "None of the fonts {fonts} are on this computer. Download one in Settings, Fonts, or pick another font."
 msgstr "אף אחד מהגופנים {fonts} אינו במחשב זה. הורד אחד בהגדרות, גופנים, או בחר גופן אחר."
+
+#: src/app/shell/EntryList.tsx
+msgid "Normal"
+msgstr "רגילה"
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
@@ -2680,6 +2808,10 @@ msgstr "רשימה ממוספרת"
 msgid "Numbered List"
 msgstr "רשימה ממוספרת"
 
+#: src/app/export/Templates.tsx
+msgid "Off"
+msgstr "כבוי"
+
 #: src/app/settings/Settings.tsx
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr "תצלומי מצב ישנים יותר מוסרים, אך כל מה שמ־30 הימים האחרונים נשאר."
@@ -2687,6 +2819,10 @@ msgstr "תצלומי מצב ישנים יותר מוסרים, אך כל מה ש�
 #: src/app/references/ReferencesPanel.tsx
 msgid "Oldest first"
 msgstr "הישנים תחילה"
+
+#: src/app/export/Templates.tsx
+msgid "On"
+msgstr "פועל"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
@@ -2707,6 +2843,10 @@ msgstr "פתיחה"
 #: src/app/settings/Settings.tsx
 msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 msgstr "פתח את ההיסטוריה של פרק מהתפריט שלו ברשימת הפרקים כדי להשוות ולשחזר. השאר את ‎.cadabra מחוץ לסנכרון בענן: תצלומי המצב שייכים למחשב זה."
+
+#: src/lib/useIconChoices.ts
+msgid "Open book"
+msgstr "ספר פתוח"
 
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
@@ -3192,9 +3332,11 @@ msgstr "שינוי שם של פריט בתוכן העניינים"
 msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
 msgstr "פריטים ששמם שונה, מוסתרים, מועברים ומותאמים אישית יוסרו. העומק והגדרת מספרי העמודים נשארים."
 
+#. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr "סידור מחדש של {0}"
@@ -3416,6 +3558,10 @@ msgstr "מעבר סצנה"
 msgid "Scene Break"
 msgstr "מעבר סצנה"
 
+#: src/lib/useIconChoices.ts
+msgid "Scroll"
+msgstr "מגילה"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search by action or key"
 msgstr "חיפוש לפי פעולה או מקש"
@@ -3503,6 +3649,14 @@ msgstr "חלקי ההגדרות"
 msgid "Settings…"
 msgstr "הגדרות…"
 
+#: src/lib/useIconChoices.ts
+msgid "Shield"
+msgstr "מגן"
+
+#: src/lib/useIconChoices.ts
+msgid "Ship"
+msgstr "ספינה"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Shortcut for {action} removed."
 msgstr "קיצור המקשים של {action} הוסר."
@@ -3547,6 +3701,10 @@ msgstr "הצגת שוליים"
 msgid "Showing an approximate layout, because the real one could not be typeset:"
 msgstr "מוצגת פריסה משוערת, כי לא ניתן היה לסדר את הפריסה האמיתית:"
 
+#: src/app/dialogs/IconDialog.tsx
+msgid "Shown beside the title in the chapter list. It is not part of the exported book."
+msgstr "מוצג ליד הכותרת ברשימת הפרקים. אינו חלק מהספר המיוצא."
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr "רישיון SIL Open Font 1.1"
@@ -3559,6 +3717,10 @@ msgstr "דלג לתוכן הראשי"
 #: src/app/export/EditionsChecklist.tsx
 msgid "Skip untranslated chapters"
 msgstr "דילוג על פרקים שלא תורגמו"
+
+#: src/lib/useIconChoices.ts
+msgid "Skull"
+msgstr "גולגולת"
 
 #: src/editor/Toolbar.tsx
 msgid "Small caps"
@@ -3633,6 +3795,10 @@ msgstr "פקדי פריסת הכפולה"
 msgid "Stale"
 msgstr "לא עדכני"
 
+#: src/lib/useIconChoices.ts
+msgid "Star"
+msgstr "כוכב"
+
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
 msgstr "התחלת ספר חדש"
@@ -3682,6 +3848,10 @@ msgstr "נשמר ב־EPUB עבור חנויות וספריות. כל מה שכא
 msgid "Stored on this computer. No account needed."
 msgstr "נשמר במחשב זה. אין צורך בחשבון."
 
+#: src/lib/useIconChoices.ts
+msgid "Storm"
+msgstr "סערה"
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -3697,6 +3867,10 @@ msgstr "נושאים"
 msgid "Subscript"
 msgstr "כתב תחתי"
 
+#: src/lib/useIconChoices.ts
+msgid "Sun"
+msgstr "שמש"
+
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Superscript"
@@ -3705,6 +3879,10 @@ msgstr "כתב עילי"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Switch to Manual order to reorder"
 msgstr "עבור לסדר ידני כדי לסדר מחדש"
+
+#: src/lib/useIconChoices.ts
+msgid "Swords"
+msgstr "חרבות"
 
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
@@ -3747,6 +3925,14 @@ msgstr "תבנית"
 #: src/app/export/PdfPanel.tsx
 msgid "Template default ({templateBody})"
 msgstr "ברירת המחדל של התבנית ({templateBody})"
+
+#: src/app/export/Templates.tsx
+msgid "Template default (off)"
+msgstr "ברירת המחדל של התבנית (כבוי)"
+
+#: src/app/export/Templates.tsx
+msgid "Template default (on)"
+msgstr "ברירת המחדל של התבנית (פועל)"
 
 #: src/app/export/Templates.tsx
 #: src/app/shell/App.tsx

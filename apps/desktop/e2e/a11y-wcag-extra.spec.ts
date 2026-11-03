@@ -489,7 +489,10 @@ test.describe("3.2.4 consistent identification", () => {
           const icon =
             [...svg.classList].find((c) => /^lucide-[a-z0-9-]+$/.test(c) && c !== "lucide") ?? "";
           const name = (el.getAttribute("aria-label") ?? "").replace(/\s+/g, " ").trim();
-          out.push([icon, name.replace(/^(Actions for|Undo:|Redo:)\s.*$/, "$1").trim() || name]);
+          out.push([
+            icon,
+            name.replace(/^(Actions for|Reorder|Undo:|Redo:)\s.*$/, "$1").trim() || name,
+          ]);
         }
         return out;
       });
@@ -674,10 +677,11 @@ test.describe("2.5.2 pointer cancellation", () => {
         ),
       )
       .filter((l) => !/preventDefault\(\)/.test(l));
-    // Reorder grips (TocRow, ReferenceRow, ImportChapterList) only pick the row up: the move is committed on release, with Escape to cancel.
+    // Reorder grips (TocRow, ReferenceRow, ImportChapterList, EntryList) only pick the row up: the move is committed on release, with Escape to cancel.
     expect(found.map((l) => l.split(":")[0]).sort()).toEqual([
       "src/app/dialogs/ImportChapterList.tsx",
       "src/app/references/ReferenceRow.tsx",
+      "src/app/shell/EntryList.tsx",
       "src/app/toc/TocRow.tsx",
     ]);
   });

@@ -10,6 +10,8 @@ import {
   removeMatter,
   renameChapter,
   renameMatter,
+  setChapterDropCap,
+  setEntryIcon,
   sectionOf,
   starterDoc,
   starterTitle,
@@ -175,6 +177,18 @@ export const createPageActions = (ctx: Ctx): PageActions => {
         sectionOf(m, id) === "chapter" ? moveChapter(m, id, delta) : moveMatter(m, id, delta);
       await saveManifest(next);
       record({ label: t`Move ${sourceTitleById(m, id)!}` }, m, next);
+    },
+    async setIcon(id, icon) {
+      const m = need().manifest;
+      const next = setEntryIcon(m, id, icon);
+      await saveManifest(next);
+      record({ label: t`Change icon of ${sourceTitleById(m, id)!}` }, m, next);
+    },
+    async setChapterDropCap(id, dropCap) {
+      const m = need().manifest;
+      const next = setChapterDropCap(m, id, dropCap);
+      await saveManifest(next);
+      record({ label: t`Change first letter of ${sourceTitleById(m, id)!}` }, m, next);
     },
     async remove(id) {
       await flush(); // typing in the page being removed would otherwise be written back after it went to trash

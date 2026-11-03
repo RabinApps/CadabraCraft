@@ -68,6 +68,36 @@ export function renameChapter(m: Manifest, id: string, title: string): Manifest 
   };
 }
 
+/** Sets or clears (`null`) the sidebar icon of a chapter, front matter page or back matter page. */
+export function setEntryIcon(m: Manifest, id: string, icon: string | null): Manifest {
+  if (!sectionOf(m, id)) throw new Error(`no page ${id}`);
+  const set = (list: EditionEntry[]) =>
+    list.map((e) => {
+      if (e.id !== id) return e;
+      const { icon: _old, ...rest } = e;
+      return icon === null ? rest : { ...rest, icon };
+    });
+  return {
+    ...m,
+    frontMatter: set(m.frontMatter),
+    chapters: set(m.chapters),
+    backMatter: set(m.backMatter),
+  };
+}
+
+/** Sets or clears (`null` follows the book) a chapter's own big-first-letter choice. */
+export function setChapterDropCap(m: Manifest, id: string, dropCap: boolean | null): Manifest {
+  if (!m.chapters.some((c) => c.id === id)) throw new Error(`no chapter ${id}`);
+  return {
+    ...m,
+    chapters: m.chapters.map((c) => {
+      if (c.id !== id) return c;
+      const { dropCap: _old, ...rest } = c;
+      return dropCap === null ? rest : { ...rest, dropCap };
+    }),
+  };
+}
+
 /** Moves a chapter by `delta` positions, clamped to the list. Order lives in the manifest, not in file names. */
 export function moveChapter(m: Manifest, id: string, delta: number): Manifest {
   const from = m.chapters.findIndex((c) => c.id === id);

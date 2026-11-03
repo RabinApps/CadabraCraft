@@ -638,9 +638,33 @@ Hostile input: parse5 builds the tree iteratively, but its open-element stack ma
 
 ## Drop caps in the PDF
 
-Typst has no drop cap, so print uses the `droplet` package (MIT, 0.3.1). It is vendored unmodified in `packages/export-pdf/src/vendor/droplet.ts` and written into the compile directory as `typst-droplet/` only when a chapter uses it. The first paragraph of a chapter becomes a three-line drop cap when the template sets `chapterOpening.dropCap` and the paragraph starts with an unmarked letter; otherwise it is set normally. Typst counts the paragraph after the drop cap block as a first paragraph, so indenting templates get their indent put back with `#h()`.
+Typst has no drop cap, so print uses the `droplet` package (MIT, 0.3.1). It is vendored unmodified in `packages/export-pdf/src/vendor/droplet.ts` and written into the compile directory as `typst-droplet/` only when a chapter uses it. The first paragraph of a chapter becomes a three-line drop cap when the template sets `chapterOpening.dropCap` and the paragraph starts with an unmarked letter; otherwise it is set normally. The author can override the template per book and per chapter (see "Big first letter" below). Typst counts the paragraph after the drop cap block as a first paragraph, so indenting templates get their indent put back with `#h()`.
 
 Rejected: importing `@preview/droplet` (Typst would download it at compile time, which breaks "no network calls" and offline exports); a hand-written drop cap (measuring and wrapping text around a letter is what the package already does and tests); drawing the letter as an image (not selectable text, breaks PDF/A text extraction).
+
+### Big first letter: per book and per chapter (2026-11-02)
+
+**Decision:** the author can turn the drop cap on or off for the whole book and for single chapters. It is a three-state choice at each level: unset, on, off. `resolveDropCap(template, book, entry)` in `packages/templates` is the one rule: the chapter's own `dropCap`, else the manifest's `dropCap`, else the template's `chapterOpening.dropCap`. Only chapters have one; front and back matter never get a big first letter (the manifest refuses `dropCap` on them).
+
+- **Where it is applied:** the desktop reads the pages with the author's choice already merged (`entry.dropCap ?? manifest.dropCap`, absent when neither is set) and the exporters fall back to the template for those: the PDF (`PdfChapter.dropCap`, used by `bodyOf` per chapter instead of the template flag), the EPUB (`EpubChapter.dropCap` and `BuildOptions.dropCap`) and Page view (`pageCssVars(book, chapterNumber, dropCap)`). The EPUB stylesheet no longer draws the letter for every chapter of a template that has one: every template carries `body.chapter.dropcap h1+p::first-letter`, and the exporter adds the `dropcap` class to the body of the chapters that resolve to on. Word, RTF and Markdown have no drop cap, so nothing changes there.
+- **Format version 8:** a new per-chapter setting is visible in the book, and an older app would drop it silently on its next save, so it bumps `formatVersion` 7 to 8 with a no-op migration and a backup (`trimSize` and `fonts` did not bump: they are book-wide and an older app can ignore them without the author noticing a missing choice). The page icons (below) ride on the same bump.
+- **Controls:** a "Big first letter" choice (Template default / On / Off) on the Templates page for the book, and a "First letter" Default / Big / Normal group in a chapter's row menu. The book choice is saved at once and has no undo (like fonts); the chapter choice goes through the book history.
+
+Rejected: a boolean per chapter with no "follow the book" state (changing the book setting would not reach chapters that were ever touched); one global switch only (the author asked for per chapter); keeping the EPUB rule template-wide and overriding with a `no-dropcap` class (a template-level rule would still need the template's default repeated in every exporter caller); skipping the version bump (a silent loss of a visible setting).
+
+### Chapter icons (2026-11-02)
+
+**Decision:** a page (chapter, front or back matter) may carry an `icon`: a Lucide icon name from a list of 29 in `packages/format/src/icons.ts` (`ENTRY_ICONS`). The desktop maps each name to a component in `lib/chapterIcons.ts` and shows it, `aria-hidden`, before the title in the chapter list; "Change icon…" in the row menu opens a dialog with one labelled button per icon and None. It is never exported (a test runs the EPUB, Markdown, DOCX, RTF and PDF exports before and after setting one and compares the bytes). Setting one goes through the book history.
+
+- **Unknown names are kept:** the manifest only checks that `icon` looks like an icon name (lower case letters, digits and `-`, at most 40 characters). A name that is not in the list is shown as no icon but stays in the file, so a book written by a newer app opens and saves in an older one without losing it.
+- **Why Lucide:** it is already a dependency (ISC licence), so no new download; importing only the 29 components keeps the bundle small. Phosphor and Tabler (both MIT) are the free alternatives if the author wants a different style; adding either is a dependency decision to record here first.
+- **A dialog, not a popover:** the app has no popover component and `@radix-ui/react-popover` would be a new dependency for one use; the existing `Modal` gives focus return and Escape for free and holds the grid at any size.
+
+Rejected: free-form emoji (renders differently per platform and font); an icon per language (the chapter tree is shared by every edition); storing the SVG in the file (bigger files, nothing to validate).
+
+### Reordering chapters in the sidebar (2026-11-02)
+
+**Decision:** a grip on each row reorders pages inside their own section by dragging (the pointer logic and drop line of the references panel, `insertionIndex` and `dropPosition`), and with ArrowUp and ArrowDown when the grip has focus (WCAG 2.5.7); "Move up" and "Move down" stay in the row menu. A move is announced in a live region and goes through the book history like any other tree edit. Rejected: the HTML5 drag-and-drop API (not reliable in the Tauri webviews and no keyboard path), a drag library (a dependency for one list).
 
 ## Chapter snapshots and History
 

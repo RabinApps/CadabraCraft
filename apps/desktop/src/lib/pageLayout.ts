@@ -34,6 +34,7 @@ import {
   DEFAULT_TEMPLATE_ID,
   getTemplate as lookupTemplate,
   hasTemplate,
+  resolveDropCap,
   resolveTrimSize,
   type PrintHeadingStyle,
 } from "@cadabracraft/templates";
@@ -125,17 +126,21 @@ const ORNAMENT_SIZE_EM = 1.2;
 export const DROP_CAP_LINES = 3;
 
 /**
- * Drop cap of the first paragraph: `lines` is 0 when the template has none. Like droplet, the letter's cap height spans the lines
+ * Drop cap of the first paragraph: `lines` is 0 when the chapter has none (`dropCap` is the author's choice for it, else the template's). Like droplet, the letter's cap height spans the lines
  * (n caps + n-1 leadings), so `sizeEm` is that over the font's cap height; `lineHeight` makes the float box exactly `lines` pitches
  * tall, which is also the height the paragraph reserves (`--page-dropcap-height`) when it is shorter than that.
  */
-export function dropCapMetrics(book: BookLike): {
+export function dropCapMetrics(
+  book: BookLike,
+  dropCap?: boolean,
+): {
   lines: number;
   sizeEm: number;
   lineHeight: number;
 } {
-  const p = getTemplate(book.template).print;
-  if (!p.chapterOpening.dropCap) return { lines: 0, sizeEm: 1, lineHeight: 1 };
+  const template = getTemplate(book.template);
+  const p = template.print;
+  if (!resolveDropCap(template, {}, { dropCap })) return { lines: 0, sizeEm: 1, lineHeight: 1 };
   const cap = CAP_HEIGHT_EM[fontKindOf(book.template)];
   const n = DROP_CAP_LINES;
   const sizeEm = (n * cap + (n - 1) * p.leadingEm) / cap;
@@ -186,7 +191,11 @@ function headingVars(
  * `--page-line-height` is unitless (the line pitch in em), `--page-para-space` is the gap between paragraphs net of the trailing
  * leading a CSS line box already contains (negative when the template's spacing is smaller than its leading), so DOM heights and Typst heights agree.
  */
-export function pageCssVars(book: BookLike, chapterNumber?: number): Record<string, string> {
+export function pageCssVars(
+  book: BookLike,
+  chapterNumber?: number,
+  dropCap?: boolean,
+): Record<string, string> {
   const t = getTemplate(book.template);
   const p = t.print;
   const g = pageGeometry(book);
@@ -204,7 +213,7 @@ export function pageCssVars(book: BookLike, chapterNumber?: number): Record<stri
     o.label === null || chapterNumber === undefined
       ? "none"
       : JSON.stringify(o.label.replace("{n}", String(chapterNumber)).toUpperCase());
-  const drop = dropCapMetrics(book);
+  const drop = dropCapMetrics(book, dropCap);
   return {
     "--page-w": px(g.page.w),
     "--page-h": px(g.page.h),

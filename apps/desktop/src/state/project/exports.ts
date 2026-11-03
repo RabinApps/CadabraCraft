@@ -13,6 +13,7 @@ import { contentHash } from "@cadabracraft/export-audio";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
+  resolveDropCap,
   hasTemplate,
   resolveBookFonts,
 } from "@cadabracraft/templates";
@@ -147,6 +148,9 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         const cover = await loadCover(edition.cover);
         set({ exportStage: "rendering" });
         const contents = bookContents(manifest, edition.language, chapters);
+        const template = getTemplate(
+          hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID,
+        );
         const bytes = buildEpub(
           {
             title: edition.title,
@@ -162,9 +166,8 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             assets,
             cover,
             ...(contents ? { contents: contents.visible } : {}),
-            css: getTemplate(
-              hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID,
-            ).epub.css,
+            css: template.epub.css,
+            dropCap: resolveDropCap(template, manifest, {}),
           },
         );
         set({ exportStage: "saving" });

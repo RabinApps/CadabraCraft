@@ -17,6 +17,25 @@ test("templates page sets the book's template from the details panel", async ({ 
   expect(manifest.template).toBe("poetry");
 });
 
+test("the templates page sets the book's big first letter apart from the template", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Change template" }).click();
+  const group = page.getByRole("radiogroup", { name: "Big first letter" });
+  await expect(group.getByRole("radio", { name: "Template default (on)" })).toBeChecked();
+  await page.getByRole("radio", { name: /^Poetry/ }).click();
+  await expect(group.getByRole("radio", { name: "Template default (off)" })).toBeVisible();
+  await group.getByRole("radio", { name: "On", exact: true }).click();
+  const dropCap = () =>
+    page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string).dropCap);
+  await expect.poll(dropCap).toBe(true);
+  await group.getByRole("radio", { name: "Off", exact: true }).click();
+  await expect.poll(dropCap).toBe(false);
+  await group.getByRole("radio", { name: /^Template default/ }).click();
+  await expect.poll(dropCap).toBeUndefined();
+});
+
 test("print preview opens from the export dialog and returns to the book", async ({ page }) => {
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();

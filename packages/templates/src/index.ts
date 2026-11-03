@@ -10,3 +10,4 @@ export {
   resolveTrimSize,
 } from "./registry";
 export { GALLERY_TEMPLATE_IDS, poetry } from "./builtin";
+export { resolveDropCap, type DropCapChoice } from "./dropCap";

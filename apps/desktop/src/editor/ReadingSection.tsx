@@ -141,6 +141,7 @@ function ReadingChapter({
         section={page.section}
         chapterTitle={page.title}
         chapterNumber={chapterNumber}
+        dropCap={page.dropCap}
         firstPage={firstPage}
         exact={exact}
         exactKey={`${page.id}:${reportAt}`}

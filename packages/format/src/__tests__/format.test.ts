@@ -23,9 +23,9 @@ const base = (): Manifest => ({
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
 
 describe("manifest", () => {
-  it("creates a v7 book with one source edition and no references", () => {
+  it("creates a v8 book with one source edition and no references", () => {
     const m = createManifest({ title: "T", author: "A", language: "fr", identifier: "urn:uuid:x" });
-    expect(m.formatVersion).toBe(7);
+    expect(m.formatVersion).toBe(8);
     expect(m.references).toEqual([]);
     expect(m.editions).toEqual([
       {
@@ -141,10 +141,10 @@ describe("migration v1 -> v4 (front/back matter kinds, cover, editions)", () => 
     const v1 = JSON.parse(v1Json);
     expect(v1.formatVersion).toBe(1);
     const r = parseManifest(v1Json);
-    expect(CURRENT_FORMAT_VERSION).toBe(7);
+    expect(CURRENT_FORMAT_VERSION).toBe(8);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(1);
-    expect(r.manifest.formatVersion).toBe(7);
+    expect(r.manifest.formatVersion).toBe(8);
     expect(r.manifest.editions[0]).toMatchObject({ language: v1.language, title: v1.title });
     expect(readingOrder(r.manifest).map((e) => e.id)).toEqual([
       "title-page",
@@ -153,10 +153,10 @@ describe("migration v1 -> v4 (front/back matter kinds, cover, editions)", () => 
       "about",
     ]);
   });
-  it("serializes as v7 and reopens without migrating again", () => {
+  it("serializes as v8 and reopens without migrating again", () => {
     const again = parseManifest(serializeManifest(parseManifest(v1Json).manifest));
     expect(again.migrated).toBe(false);
-    expect(again.manifest.formatVersion).toBe(7);
+    expect(again.manifest.formatVersion).toBe(8);
   });
   it("validates kinds: unknown kinds, wrong section and kinds on chapters are rejected", () => {
     const m = base();
@@ -189,7 +189,7 @@ describe("migration v2 -> v4 (cover, then editions)", () => {
     const r = parseManifest(v2Json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(2);
-    expect(r.manifest.formatVersion).toBe(7);
+    expect(r.manifest.formatVersion).toBe(8);
     expect(r.manifest.editions).toEqual([
       {
         language: v2.language,
@@ -223,7 +223,7 @@ describe("migration v3 -> v4 (real v3 project file)", () => {
     const r = parseManifest(v3Json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(3);
-    expect(r.manifest.formatVersion).toBe(7);
+    expect(r.manifest.formatVersion).toBe(8);
     expect(r.manifest.editions).toHaveLength(1);
     expect(r.manifest.editions[0]).toEqual({
       language: "en",
@@ -276,7 +276,7 @@ describe("shared contract fixtures (also read by Rust)", () => {
     expect(r.manifest.chapters[0]!.files.fr).toBe("manuscript/fr/001-chapitre-un.json");
     expect(r.manifest.chapters[1]!.files.fr).toBeUndefined();
   });
-  it("migrates the v5 manifest to v7 and loses nothing", () => {
+  it("migrates the v5 manifest to v8 and loses nothing", () => {
     const json = read("../../../../fixtures/contract/manifest-v5.json");
     const r = parseManifest(json);
     expect(r.migrated).toBe(true);
@@ -288,7 +288,7 @@ describe("shared contract fixtures (also read by Rust)", () => {
     expect(r.manifest.editions.every((e) => e.publishing === undefined)).toBe(true);
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
       ...JSON.parse(json),
-      formatVersion: 7,
+      formatVersion: 8,
     });
   });
   it("migrates the v6 manifest with publishing details and changes only the version", () => {
@@ -305,7 +305,23 @@ describe("shared contract fixtures (also read by Rust)", () => {
     expect(r.manifest.editions[1]!.publishing).toBeUndefined();
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
       ...JSON.parse(json),
-      formatVersion: 7,
+      formatVersion: 8,
+    });
+  });
+
+  it("migrates the v7 manifest, with a contents page, to v8 and changes only the version", () => {
+    const json = read("../../../../fixtures/contract/manifest-v7.json");
+    const r = parseManifest(json);
+    expect(r.migrated).toBe(true);
+    expect(r.fromVersion).toBe(7);
+    expect(r.manifest.frontMatter.at(-1)!.toc).toMatchObject({ depth: 1 });
+    expect(r.manifest.dropCap).toBeUndefined();
+    expect(r.manifest.chapters.every((c) => c.dropCap === undefined && c.icon === undefined)).toBe(
+      true,
+    );
+    expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
+      ...JSON.parse(json),
+      formatVersion: 8,
     });
   });
 });

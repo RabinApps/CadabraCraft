@@ -567,6 +567,10 @@ msgstr "Ya hay una exportación en curso"
 msgid "An import is already running"
 msgstr "Ya hay una importación en curso"
 
+#: src/lib/useIconChoices.ts
+msgid "Anchor"
+msgstr "Ancla"
+
 #: src/app/export/Templates.tsx
 msgid "Any page"
 msgstr "Cualquier página"
@@ -574,6 +578,10 @@ msgstr "Cualquier página"
 #: src/app/settings/Settings.tsx
 msgid "Appearance"
 msgstr "Apariencia"
+
+#: src/app/export/Templates.tsx
+msgid "Applies to every chapter that has no choice of its own. Set one chapter from its menu in the chapter list."
+msgstr "Se aplica a todos los capítulos que no tienen una elección propia. Ajusta un capítulo desde su menú en la lista de capítulos."
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Apply"
@@ -666,6 +674,18 @@ msgstr "Antes de que un guardado reemplace texto distinto, como máximo una vez 
 #: src/app/settings/AudioSection.tsx
 msgid "Best installed voice"
 msgstr "La mejor voz instalada"
+
+#: src/app/shell/EntryList.tsx
+msgid "Big"
+msgstr "Grande"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter"
+msgstr "Letra capital grande"
+
+#: src/lib/useIconChoices.ts
+msgid "Bird"
+msgstr "Pájaro"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Bleed"
@@ -814,6 +834,10 @@ msgstr "No se pueden vigilar los cambios que se hagan fuera de la aplicación en
 msgid "Caption"
 msgstr "Leyenda"
 
+#: src/lib/useIconChoices.ts
+msgid "Castle"
+msgstr "Castillo"
+
 #: src/app/export/PdfPanel.tsx
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
@@ -826,6 +850,20 @@ msgstr "Cambiar la profundidad del contenido"
 #: src/state/project/toc.ts
 msgid "Change contents page numbers"
 msgstr "Cambiar los números de página del contenido"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change first letter of {0}"
+msgstr "Cambiar la letra inicial de {0}"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change icon of {0}"
+msgstr "Cambiar el icono de {0}"
+
+#: src/app/shell/EntryList.tsx
+msgid "Change icon…"
+msgstr "Cambiar icono…"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change shortcut for {action}"
@@ -1061,6 +1099,10 @@ msgstr "Comparado con el texto actual"
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Comparison"
 msgstr "Comparación"
+
+#: src/lib/useIconChoices.ts
+msgid "Compass"
+msgstr "Brújula"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
@@ -1316,6 +1358,10 @@ msgstr "Marcas de corte"
 msgid "Crop marks make the page larger than the trim size plus bleed. KDP does not accept them; use them only if your printer asks."
 msgstr "Las marcas de corte hacen la página más grande que el tamaño de corte más el sangrado. KDP no las acepta; úsalas solo si tu imprenta lo pide."
 
+#: src/lib/useIconChoices.ts
+msgid "Crown"
+msgstr "Corona"
+
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
@@ -1343,6 +1389,10 @@ msgstr "Oscuro"
 #: src/app/shell/Sidebar.tsx
 msgid "Dedication"
 msgstr "Dedicatoria"
+
+#: src/app/shell/EntryList.tsx
+msgid "Default"
+msgstr "Predeterminado"
 
 #: src/app/settings/AudioSection.tsx
 msgid "Default formats"
@@ -1499,6 +1549,7 @@ msgstr "Descargando… {0} MB de {1} MB"
 
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr "Arrastra, o pulsa las flechas arriba y abajo"
@@ -1689,9 +1740,17 @@ msgstr "Se exportó el audiolibro a {dir}"
 msgid "Exporting…"
 msgstr "Exportando…"
 
+#: src/lib/useIconChoices.ts
+msgid "Eye"
+msgstr "Ojo"
+
 #: src/app/export/AudioExport.tsx
 msgid "Fast and clear."
 msgstr "Rápido y claro."
+
+#: src/lib/useIconChoices.ts
+msgid "Feather"
+msgstr "Pluma"
 
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/references/ReferenceRow.tsx
@@ -1732,6 +1791,10 @@ msgstr "Buscar…"
 msgid "Finding the page in your chapter…"
 msgstr "Buscando la página en tu capítulo…"
 
+#: src/app/shell/EntryList.tsx
+msgid "First letter"
+msgstr "Primera letra"
+
 #: src/app/export/TypstSpread.tsx
 #: src/app/references/ImagePreview.tsx
 msgid "Fit to window"
@@ -1744,6 +1807,14 @@ msgstr "Ajustar al ancho"
 #: src/app/hooks/useAudioLabels.ts
 msgid "FLAC"
 msgstr "FLAC"
+
+#: src/lib/useIconChoices.ts
+msgid "Flag"
+msgstr "Bandera"
+
+#: src/lib/useIconChoices.ts
+msgid "Flame"
+msgstr "Llama"
 
 #: src/app/shell/AppHeader.tsx
 msgid "Focus mode"
@@ -1795,6 +1866,10 @@ msgstr "Por ejemplo, Antes de la reescritura"
 msgid "For example: © 2026 A. Writer. All rights reserved."
 msgstr "Por ejemplo: © 2026 A. Escritor. Todos los derechos reservados."
 
+#: src/lib/useIconChoices.ts
+msgid "Forest"
+msgstr "Bosque"
+
 #: src/app/shell/menuModel.ts
 #: src/app/shell/Sidebar.tsx
 msgid "Foreword"
@@ -1829,9 +1904,17 @@ msgstr "Partes preliminares"
 msgid "Front matter: {0}"
 msgstr "Partes preliminares: {0}"
 
+#: src/lib/useIconChoices.ts
+msgid "Gem"
+msgstr "Gema"
+
 #: src/app/settings/Settings.tsx
 msgid "General"
 msgstr "General"
+
+#: src/lib/useIconChoices.ts
+msgid "Ghost"
+msgstr "Fantasma"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Give the book a title."
@@ -1873,6 +1956,10 @@ msgstr "Títulos que incluir"
 #: src/app/export/AudioFooter.tsx
 msgid "Hear a sample"
 msgstr "Escuchar una muestra"
+
+#: src/lib/useIconChoices.ts
+msgid "Heart"
+msgstr "Corazón"
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
@@ -1923,6 +2010,11 @@ msgstr "Mantén ⌘ o ⌥ junto con la tecla."
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Hold Ctrl or Alt together with the key."
 msgstr "Mantén Ctrl o Alt junto con la tecla."
+
+#. placeholder {0}: page?.title ?? ""
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon for “{0}”"
+msgstr "Icono de «{0}»"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
@@ -2155,6 +2247,10 @@ msgstr "Seguir trabajando"
 msgid "Keep your research close"
 msgstr "Ten tu investigación a mano"
 
+#: src/lib/useIconChoices.ts
+msgid "Key"
+msgstr "Llave"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
 msgstr "Tipo"
@@ -2206,6 +2302,10 @@ msgstr "Texto más grande"
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Later"
 msgstr "Más tarde"
+
+#: src/lib/useIconChoices.ts
+msgid "Leaf"
+msgstr "Hoja"
 
 #: src/app/settings/shortcutList.ts
 msgid "Leave Focus Mode"
@@ -2305,6 +2405,10 @@ msgstr "Sin pérdida, aproximadamente el 60 % del tamaño de WAV."
 msgid "M4B audiobook"
 msgstr "Audiolibro M4B"
 
+#: src/lib/useIconChoices.ts
+msgid "Magic wand"
+msgstr "Varita mágica"
+
 #: src/app/export/PdfPanel.tsx
 msgid "Makes each page larger by 0.125 in on the top, bottom and outside edges, as Amazon KDP asks for when artwork or images run to the edge. Margins stay measured from the trim."
 msgstr "Hace cada página 0,125 in más grande en los bordes superior, inferior y exterior, como pide Amazon KDP cuando las ilustraciones o imágenes llegan hasta el borde. Los márgenes se siguen midiendo desde el corte."
@@ -2324,6 +2428,10 @@ msgstr "Preparando la vista previa…"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Manual order"
 msgstr "Orden manual"
+
+#: src/lib/useIconChoices.ts
+msgid "Map"
+msgstr "Mapa"
 
 #: src/app/export/Templates.tsx
 msgid "Margins (in/out)"
@@ -2385,6 +2493,10 @@ msgstr "Falta el archivo de imagen {0}"
 msgid "Missing image file {src}"
 msgstr "Falta el archivo de imagen {src}"
 
+#: src/lib/useIconChoices.ts
+msgid "Moon"
+msgstr "Luna"
+
 #: src/app/shell/AppHeader.tsx
 msgid "More actions"
 msgstr "Más acciones"
@@ -2392,6 +2504,10 @@ msgstr "Más acciones"
 #: src/app/export/AudioExport.tsx
 msgid "Most natural, slower."
 msgstr "La más natural, más lenta."
+
+#: src/lib/useIconChoices.ts
+msgid "Mountain"
+msgstr "Montaña"
 
 #. placeholder {0}: deleting?.title ?? ""
 #: src/app/shell/Sidebar.tsx
@@ -2437,12 +2553,19 @@ msgstr "Mover a la papelera"
 msgid "Move up"
 msgstr "Mover arriba"
 
+#. placeholder {0}: entries[i]!.title
 #. placeholder {0}: item.title
 #. placeholder {1}: i + delta + 1
+#. placeholder {2}: entries.length
 #. placeholder {2}: rows.length
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
 msgstr "{0} movido a la posición {1} de {2}"
+
+#: src/lib/useIconChoices.ts
+msgid "Music"
+msgstr "Música"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
@@ -2588,6 +2711,7 @@ msgstr "Todavía no hay texto"
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr "Aún no hay ninguna voz en este ordenador que lea {0}. Las voces que CadabraCraft puede descargar leen solo inglés."
 
+#: src/app/dialogs/IconDialog.tsx
 #: src/app/export/PrintPreview.tsx
 msgid "None"
 msgstr "Ninguno"
@@ -2595,6 +2719,10 @@ msgstr "Ninguno"
 #: src/lib/pdfErrors.ts
 msgid "None of the fonts {fonts} are on this computer. Download one in Settings, Fonts, or pick another font."
 msgstr "Ninguna de las fuentes {fonts} está en este ordenador. Descarga una en Ajustes, Fuentes, o elige otra fuente."
+
+#: src/app/shell/EntryList.tsx
+msgid "Normal"
+msgstr "Normal"
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
@@ -2680,6 +2808,10 @@ msgstr "Lista numerada"
 msgid "Numbered List"
 msgstr "Lista numerada"
 
+#: src/app/export/Templates.tsx
+msgid "Off"
+msgstr "Desactivado"
+
 #: src/app/settings/Settings.tsx
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr "Las instantáneas más antiguas se eliminan, pero todo lo de los últimos 30 días se conserva."
@@ -2687,6 +2819,10 @@ msgstr "Las instantáneas más antiguas se eliminan, pero todo lo de los último
 #: src/app/references/ReferencesPanel.tsx
 msgid "Oldest first"
 msgstr "Más antiguos primero"
+
+#: src/app/export/Templates.tsx
+msgid "On"
+msgstr "Activado"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
@@ -2707,6 +2843,10 @@ msgstr "Abrir"
 #: src/app/settings/Settings.tsx
 msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 msgstr "Abre el Historial de un capítulo desde su menú en la lista de capítulos para comparar y restaurar. Mantén .cadabra fuera de la sincronización en la nube: las instantáneas pertenecen a este ordenador."
+
+#: src/lib/useIconChoices.ts
+msgid "Open book"
+msgstr "Libro abierto"
 
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
@@ -3192,9 +3332,11 @@ msgstr "Renombrar entrada del contenido"
 msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
 msgstr "Se quitan las entradas renombradas, ocultas, movidas y personalizadas. La profundidad y el ajuste de números de página se mantienen."
 
+#. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
+#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr "Reordenar {0}"
@@ -3416,6 +3558,10 @@ msgstr "Separador de escena"
 msgid "Scene Break"
 msgstr "Separador de escena"
 
+#: src/lib/useIconChoices.ts
+msgid "Scroll"
+msgstr "Pergamino"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search by action or key"
 msgstr "Buscar por acción o tecla"
@@ -3503,6 +3649,14 @@ msgstr "Secciones de ajustes"
 msgid "Settings…"
 msgstr "Ajustes…"
 
+#: src/lib/useIconChoices.ts
+msgid "Shield"
+msgstr "Escudo"
+
+#: src/lib/useIconChoices.ts
+msgid "Ship"
+msgstr "Barco"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Shortcut for {action} removed."
 msgstr "Atajo de {action} quitado."
@@ -3547,6 +3701,10 @@ msgstr "Mostrar márgenes"
 msgid "Showing an approximate layout, because the real one could not be typeset:"
 msgstr "Se muestra una maquetación aproximada, porque no se pudo componer la real:"
 
+#: src/app/dialogs/IconDialog.tsx
+msgid "Shown beside the title in the chapter list. It is not part of the exported book."
+msgstr "Se muestra junto al título en la lista de capítulos. No forma parte del libro exportado."
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr "Licencia SIL Open Font 1.1"
@@ -3559,6 +3717,10 @@ msgstr "Saltar al contenido principal"
 #: src/app/export/EditionsChecklist.tsx
 msgid "Skip untranslated chapters"
 msgstr "Omitir capítulos sin traducir"
+
+#: src/lib/useIconChoices.ts
+msgid "Skull"
+msgstr "Calavera"
 
 #: src/editor/Toolbar.tsx
 msgid "Small caps"
@@ -3633,6 +3795,10 @@ msgstr "Controles del pliego"
 msgid "Stale"
 msgstr "Desactualizada"
 
+#: src/lib/useIconChoices.ts
+msgid "Star"
+msgstr "Estrella"
+
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
 msgstr "Empezar un libro nuevo"
@@ -3682,6 +3848,10 @@ msgstr "Se guarda en el EPUB para tiendas y bibliotecas. Todo lo de aquí es opc
 msgid "Stored on this computer. No account needed."
 msgstr "Se guarda en este ordenador. No hace falta cuenta."
 
+#: src/lib/useIconChoices.ts
+msgid "Storm"
+msgstr "Tormenta"
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -3697,6 +3867,10 @@ msgstr "Temas"
 msgid "Subscript"
 msgstr "Subíndice"
 
+#: src/lib/useIconChoices.ts
+msgid "Sun"
+msgstr "Sol"
+
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Superscript"
@@ -3705,6 +3879,10 @@ msgstr "Superíndice"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Switch to Manual order to reorder"
 msgstr "Cambia al orden manual para reordenar"
+
+#: src/lib/useIconChoices.ts
+msgid "Swords"
+msgstr "Espadas"
 
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
@@ -3747,6 +3925,14 @@ msgstr "Plantilla"
 #: src/app/export/PdfPanel.tsx
 msgid "Template default ({templateBody})"
 msgstr "Predeterminado de la plantilla ({templateBody})"
+
+#: src/app/export/Templates.tsx
+msgid "Template default (off)"
+msgstr "Predeterminado de la plantilla (desactivado)"
+
+#: src/app/export/Templates.tsx
+msgid "Template default (on)"
+msgstr "Predeterminado de la plantilla (activado)"
 
 #: src/app/export/Templates.tsx
 #: src/app/shell/App.tsx

@@ -23,6 +23,10 @@ export interface EntryRow {
   id: string;
   title: string;
   file: string;
+  /** The page's sidebar icon name, when it has one. */
+  icon?: string;
+  /** The page's own big-first-letter choice, when it has one (chapters only). */
+  dropCap?: boolean;
 }
 
 /** `{ id, title, file }` rows in the source language, for lists of one section of the book. */
@@ -31,6 +35,8 @@ export const entryRows = (entries: EditionEntry[], editions: Edition[]): EntryRo
     id: e.id,
     title: sourceTitle(e, editions),
     file: sourceFile(e, editions),
+    ...(e.icon ? { icon: e.icon } : {}),
+    ...(e.dropCap === undefined ? {} : { dropCap: e.dropCap }),
   }));
 
 /** A list row in one language: its title (the source's when not translated yet) and whether the text is translated. */
@@ -49,4 +55,6 @@ export const entryRowsIn = (
     title: e.titles[language] ?? sourceTitle(e, editions),
     file: e.files[language] ?? sourceFile(e, editions),
     translated: isTranslated(e, language, editions),
+    ...(e.icon ? { icon: e.icon } : {}),
+    ...(e.dropCap === undefined ? {} : { dropCap: e.dropCap }),
   }));

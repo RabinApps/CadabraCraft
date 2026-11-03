@@ -26,6 +26,8 @@ export const MIGRATIONS: Migration[] = [
   { from: 5, up: migrateV5ToV6 },
   // v6 -> v7: a "contents" page kind with optional `toc` settings. Nothing changes and no file moves.
   { from: 6, up: migrateV6ToV7 },
+  // v7 -> v8: a manifest `dropCap` and, on entries, `icon` and (chapters) `dropCap`. Nothing changes and no file moves.
+  { from: 7, up: (raw) => ({ ...raw }) },
 ];
 
 export interface MigrationResult {
