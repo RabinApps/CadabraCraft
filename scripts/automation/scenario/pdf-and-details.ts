@@ -294,7 +294,6 @@ export async function pdfAndDetailsSteps({
         "write_project_file",
         { root: notProject, path: "manuscript/x.json", contents: "{}", baseHash: null },
       ],
-      ["write_project_bytes", { root: notProject, path: "exports/x.pdf", bytes: [1] }],
       ["read_asset", { root: notProject, path: "assets/x.png" }],
       ["list_project_trash", { root: notProject }],
     ] as [string, { root: string }][]) {
@@ -304,6 +303,14 @@ export async function pdfAndDetailsSteps({
         `${cmd} on ${args.root}: ${r}`,
       );
     }
+    // write_project_bytes takes the bytes as the raw body and the root and path as percent-encoded headers.
+    const bytes = await app.js<string>(
+      `window.__TAURI__.core.invoke("write_project_bytes", new Uint8Array([1]), { headers: { root: encodeURIComponent(${JSON.stringify(notProject)}), path: encodeURIComponent("exports/x.pdf") } }).then((r) => "resolved:" + JSON.stringify(r), (e) => "rejected:" + JSON.stringify(e))`,
+    );
+    assert(
+      bytes.startsWith("rejected:") && bytes.includes("not_a_project"),
+      `write_project_bytes on ${notProject}: ${bytes}`,
+    );
     assert(
       !existsSync(join(notProject, "manuscript")) && !existsSync(join(notProject, "exports")),
       "a refused command still wrote into the folder",

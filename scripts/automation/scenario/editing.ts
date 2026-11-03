@@ -222,7 +222,7 @@ export async function editingSteps({
       await runMenu("editor.codeBlock");
       await type("let x = 1 < 2;");
       assert(
-        (await editorHtml()).includes("<pre><code>let x = 1 &lt; 2;</code></pre>"),
+        /<pre[^>]*><code>let x = 1 &lt; 2;<\/code><\/pre>/.test(await editorHtml()),
         "code block did not reach the editor",
       );
       await key("Enter");

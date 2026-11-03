@@ -13,7 +13,7 @@ export async function referencesSteps({ app, book, src, shot, step }: Context) {
   writeFileSync(exe, "MZ");
   const clickLabelled = (label: string) =>
     app.js(
-      `(() => { const b = [...document.querySelectorAll("button")].find((b) => b.getAttribute("aria-label") === ${JSON.stringify(label)} || b.textContent.trim() === ${JSON.stringify(label)});
+      `(() => { const b = [...document.querySelectorAll("button")].find((b) => b.getAttribute("aria-label") === ${JSON.stringify(label)} || b.textContent.trim() === ${JSON.stringify(label)} || b.querySelector("[data-title]")?.textContent.trim() === ${JSON.stringify(label)});
       if (!b) throw new Error("no button: ${label}"); b.click(); return "clicked"; })()`,
     );
 

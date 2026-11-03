@@ -35,7 +35,7 @@ export async function exportSteps({
     await app.sleep(1500);
     assert((await editorH1()) === "About the Author", "about-the-author page did not open");
     const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
-    assert(manifest.formatVersion === 6, "manifest is not format 6");
+    assert(manifest.formatVersion === 8, "manifest is not format 8");
     assert(
       manifest.frontMatter[0]?.kind === "title-page" &&
         manifest.backMatter[0]?.kind === "about-the-author",
@@ -147,13 +147,6 @@ export async function exportSteps({
         app.js<string>(
           `[...document.querySelectorAll("span")].map((s) => s.textContent).find((t) => t.includes("in the book")) ?? ""`,
         );
-      // The preference is remembered between launches, so set it rather than toggling it.
-      const pageViewOn = () =>
-        app.js<boolean>(
-          `document.querySelector('button[aria-label="Page view"]')?.getAttribute("aria-pressed") === "true"`,
-        );
-      const wasOn = await pageViewOn();
-      if (!wasOn) await app.click("Page view");
       try {
         let text = "";
         for (let i = 0; i < 40; i++) {
@@ -162,7 +155,7 @@ export async function exportSteps({
           await app.sleep(1000);
         }
         const state = await app.js<string>(
-          `JSON.stringify({ pressed: document.querySelector('button[aria-label="Page view"]')?.getAttribute("aria-pressed"), cards: document.querySelectorAll(".page").length, width: innerWidth, modeWrite: document.querySelector('[role="radio"][aria-checked="true"]')?.textContent })`,
+          `JSON.stringify({ cards: document.querySelectorAll(".page").length, width: innerWidth, modeWrite: document.querySelector('[role="radio"][aria-checked="true"]')?.textContent })`,
         );
         assert(
           new RegExp(`· ${expected} pages? at`).test(text),
@@ -170,7 +163,7 @@ export async function exportSteps({
         );
         return `${expected} pages in the status bar, without "≈" (PDF: ${total} pages, the chapter starts on page ${first})`;
       } finally {
-        if ((await pageViewOn()) !== wasOn) await app.click("Page view");
+        // Page view is always on, nothing to restore.
       }
     },
   );
