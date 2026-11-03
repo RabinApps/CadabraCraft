@@ -56,10 +56,11 @@ test("reference grip is a button that reorders with the arrow keys and keeps foc
   await expect(grip("one")).toBeFocused();
 });
 
-test("a reference row is named by its title and described by its kind", async ({ page }) => {
+test("a reference row is named by its title and its kind, as it reads", async ({ page }) => {
   await withThreeReferences(page);
-  const open = panel(page).getByRole("button", { name: "one", exact: true });
-  await expect(open).toHaveAccessibleDescription(/Image/);
+  // The visible text is the title and the kind, so both are in the name (2.5.3), title first.
+  const open = panel(page).getByRole("button", { name: /^one\b.*Image/ });
+  await expect(open).toHaveCount(1);
   await expect(open).not.toHaveAttribute("aria-label");
 });
 

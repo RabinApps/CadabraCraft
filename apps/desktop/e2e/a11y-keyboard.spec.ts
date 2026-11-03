@@ -81,6 +81,19 @@ const cases: Case[] = [
     },
   },
   {
+    name: "Chapter icon",
+    dialog: "Icon for “Chapter One”",
+    open: async (page) => {
+      await newProject(page);
+      const actions = page.getByRole("button", { name: "Actions for Chapter One" });
+      await actions.focus();
+      await page.keyboard.press("Enter");
+      await page.getByRole("menuitem", { name: "Change icon…" }).focus();
+      await page.keyboard.press("Enter");
+      return actions;
+    },
+  },
+  {
     name: "Move to trash confirmation",
     dialog: /^Move “Chapter One” to trash\?$/,
     open: async (page) => {

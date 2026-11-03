@@ -333,6 +333,26 @@ msgstr ""
 msgid "{styleCount} styles · {size} MB"
 msgstr ""
 
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already first"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already last"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: big first letter"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: first letter follows the book"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: normal first letter"
+msgstr ""
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr ""
@@ -680,6 +700,18 @@ msgstr ""
 
 #: src/app/export/Templates.tsx
 msgid "Big first letter"
+msgstr ""
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: off"
+msgstr ""
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: on"
+msgstr ""
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: template default"
 msgstr ""
 
 #: src/lib/useIconChoices.ts
@@ -1546,9 +1578,12 @@ msgstr ""
 msgid "Downloading… {0} MB of {1} MB"
 msgstr ""
 
+#: src/app/shell/EntryList.tsx
+msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
+msgstr ""
+
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr ""
@@ -2013,6 +2048,14 @@ msgstr ""
 #. placeholder {0}: page?.title ?? ""
 #: src/app/dialogs/IconDialog.tsx
 msgid "Icon for “{0}”"
+msgstr ""
+
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon of “{title}” changed"
+msgstr ""
+
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon of “{title}” removed"
 msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -2552,14 +2595,21 @@ msgstr ""
 msgid "Move up"
 msgstr ""
 
-#. placeholder {0}: entries[i]!.title
 #. placeholder {0}: item.title
 #. placeholder {1}: i + delta + 1
-#. placeholder {2}: entries.length
 #. placeholder {2}: rows.length
-#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
+msgstr ""
+
+#. placeholder {0}: entries.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} down to position {place} of {0}"
+msgstr ""
+
+#. placeholder {0}: entries.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} up to position {place} of {0}"
 msgstr ""
 
 #: src/lib/useIconChoices.ts

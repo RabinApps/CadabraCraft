@@ -48,6 +48,19 @@ const boundaries: [string, string][] = [
   ["border-strong", "raised"],
 ];
 
+// WCAG 1.4.11 for what is not text: the grip and row icons (ink-muted), the focus ring and the pressed border (accent),
+// on every surface they sit on, including the highlighted row (accent-soft).
+const nonText: [string, string][] = [
+  ["ink-muted", "bg"],
+  ["ink-muted", "sidebar"],
+  ["ink-muted", "surface"],
+  ["ink-muted", "accent-soft"],
+  ["accent", "bg"],
+  ["accent", "sidebar"],
+  ["accent", "surface"],
+  ["accent", "accent-soft"],
+];
+
 describe.each([
   ["light", ":root"],
   ["dark", ':root[data-theme="dark"]'],
@@ -60,4 +73,10 @@ describe.each([
   it.each(boundaries)("%s against %s is at least 3:1", (fg, bg) => {
     expect(ratio(t[fg]!, t[bg]!)).toBeGreaterThanOrEqual(3);
   });
+  it.each(nonText)(
+    "%s against %s (icons, focus ring, pressed border) is at least 3:1",
+    (fg, bg) => {
+      expect(ratio(t[fg]!, t[bg]!)).toBeGreaterThanOrEqual(3);
+    },
+  );
 });

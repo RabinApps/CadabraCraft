@@ -4,6 +4,7 @@ import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { addPage, chapterAction, newProject } from "./support/helpers";
 import { fakeImportSources } from "./support/fakeImport";
+import { moreScreens, screens as everyScreen } from "./support/a11yScreens";
 
 // WCAG 2.0 to 2.2 A and AA (docs/accessibility.md).
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
@@ -13,7 +14,12 @@ async function scan(page: Page, what: string) {
   await page.evaluate(() =>
     Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))),
   );
-  const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+  // An open modal menu (Radix) marks the page behind it aria-hidden and traps focus in the menu, so nothing behind it can be
+  // reached; axe cannot tell and reports every focusable element there, so that one rule is off while a menu is open.
+  const menuOpen = (await page.getByRole("menu").count()) > 0;
+  const axe = new AxeBuilder({ page }).withTags(TAGS);
+  if (menuOpen) axe.disableRules(["aria-hidden-focus"]);
+  const { violations } = await axe.analyze();
   const summary = violations.map(
     (v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`,
   );
@@ -46,6 +52,16 @@ for (const theme of ["light", "dark"] as const) {
         document.documentElement.dataset.theme = th;
       }, theme);
     });
+
+    for (const { name, open } of [
+      ...moreScreens,
+      ...everyScreen.filter((x) => /menu/i.test(x.name) && !moreScreens.includes(x)),
+    ]) {
+      test(`axe: ${name}`, async ({ page }) => {
+        await open(page);
+        await scan(page, name);
+      });
+    }
 
     test("home screen and new book dialog", async ({ page }) => {
       await page.goto("/");

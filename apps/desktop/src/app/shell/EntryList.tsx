@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import {
@@ -68,6 +68,25 @@ export function EntryList({
   const at = useRef(0);
   /** A moved page is announced (the grip keeps focus and its name does not change, so nothing else would say it moved). */
   const [said, setSaid] = useState("");
+  const gripHelp = useId();
+  useEffect(() => {
+    if (!said) return;
+    const timer = setTimeout(() => setSaid(""), 4000);
+    return () => clearTimeout(timer);
+  }, [said]);
+  /** Moves a page one place and says where it went, or that it cannot go further. */
+  const step = (i: number, delta: -1 | 1) => {
+    const title = entries[i]!.title;
+    if (i + delta < 0) return setSaid(t`${title} is already first`);
+    if (i + delta > last) return setSaid(t`${title} is already last`);
+    attempt(actions.move(entries[i]!.id, delta));
+    const place = i + delta + 1;
+    setSaid(
+      delta < 0
+        ? t`Moved ${title} up to position ${place} of ${entries.length}`
+        : t`Moved ${title} down to position ${place} of ${entries.length}`,
+    );
+  };
   const dragId = drag?.id;
   useEffect(() => {
     if (!dragId) return;
@@ -79,6 +98,10 @@ export function EntryList({
       );
       setDrag({ id: dragId, at: at.current });
     };
+    const cancel = () => setDrag(null);
+    const escape = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") cancel();
+    };
     const drop = () => {
       const from = entries.findIndex((c) => c.id === dragId);
       setDrag(null);
@@ -87,21 +110,20 @@ export function EntryList({
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", drop);
-    window.addEventListener("pointercancel", drop);
+    window.addEventListener("pointercancel", cancel);
+    window.addEventListener("keydown", escape);
     return () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", drop);
-      window.removeEventListener("pointercancel", drop);
+      window.removeEventListener("pointercancel", cancel);
+      window.removeEventListener("keydown", escape);
     };
   }, [dragId, entries, actions]);
   // The grip is the keyboard alternative to dragging (WCAG 2.5.7): the arrow keys move the page one place.
   const gripKeys = (i: number) => (e: KeyboardEvent) => {
     if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
     e.preventDefault();
-    const delta = e.key === "ArrowUp" ? -1 : 1;
-    if (i + delta < 0 || i + delta > last) return;
-    attempt(actions.move(entries[i]!.id, delta));
-    setSaid(t`Moved ${entries[i]!.title} to position ${i + delta + 1} of ${entries.length}`);
+    step(i, e.key === "ArrowUp" ? -1 : 1);
   };
   const grab = (id: string, index: number) => (e: PointerEvent<HTMLElement>) => {
     e.preventDefault();
@@ -131,7 +153,7 @@ export function EntryList({
                 data-grip
                 aria-label={t`Reorder ${c.title}`}
                 aria-keyshortcuts="ArrowUp ArrowDown"
-                title={t`Drag, or press the up and down arrow keys`}
+                aria-describedby={gripHelp}
                 onPointerDown={grab(c.id, i)}
                 onKeyDown={gripKeys(i)}
                 className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
@@ -232,7 +254,7 @@ export function EntryList({
                     <M.Item
                       className={menuItemClass()}
                       disabled={i === 0}
-                      onSelect={() => attempt(actions.move(c.id, -1))}
+                      onSelect={() => step(i, -1)}
                     >
                       <ArrowUp size={14} aria-hidden />
                       {t`Move up`}
@@ -240,7 +262,7 @@ export function EntryList({
                     <M.Item
                       className={menuItemClass()}
                       disabled={i === last}
-                      onSelect={() => attempt(actions.move(c.id, 1))}
+                      onSelect={() => step(i, 1)}
                     >
                       <ArrowDown size={14} aria-hidden />
                       {t`Move down`}
@@ -248,20 +270,31 @@ export function EntryList({
                     {chapters && (
                       <>
                         <M.Separator className="my-1 h-px bg-border" />
-                        <M.Group>
-                          <M.Label className={menuLabelClass}>{t`First letter`}</M.Label>
+                        <>
+                          <M.Label className={menuLabelClass} aria-hidden>
+                            {t`First letter`}
+                          </M.Label>
                           <M.RadioGroup
+                            aria-label={t`First letter`}
                             value={
                               c.dropCap === undefined ? "default" : c.dropCap ? "big" : "normal"
                             }
-                            onValueChange={(v) =>
+                            onValueChange={(v) => {
                               attempt(
                                 actions.setChapterDropCap(
                                   c.id,
                                   v === "default" ? null : v === "big",
                                 ),
-                              )
-                            }
+                              );
+                              const title = c.title;
+                              setSaid(
+                                v === "default"
+                                  ? t`${title}: first letter follows the book`
+                                  : v === "big"
+                                    ? t`${title}: big first letter`
+                                    : t`${title}: normal first letter`,
+                              );
+                            }}
                           >
                             {(
                               [
@@ -280,7 +313,7 @@ export function EntryList({
                               </M.RadioItem>
                             ))}
                           </M.RadioGroup>
-                        </M.Group>
+                        </>
                         <M.Separator className="my-1 h-px bg-border" />
                       </>
                     )}
@@ -307,6 +340,9 @@ export function EntryList({
           );
         })}
       </ul>
+      <p id={gripHelp} className="sr-only">
+        {t`Drag to move, or press the up and down arrow keys. Escape cancels a drag.`}
+      </p>
       <p aria-live="polite" className="sr-only">
         {said}
       </p>

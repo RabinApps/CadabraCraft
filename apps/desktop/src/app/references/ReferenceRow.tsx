@@ -100,8 +100,7 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
         type="button"
         onClick={onOpen}
         data-open
-        aria-labelledby={`${id}-title`}
-        aria-describedby={`${id}-kind`}
+        aria-labelledby={`${id}-title ${id}-kind`}
         className="flex min-w-0 flex-1 items-center gap-3 rounded-sm text-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <span className="flex size-11 shrink-0 items-center justify-center rounded-sm bg-accent-soft text-accent">
@@ -114,7 +113,7 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
             className="block truncate text-sm font-semibold text-ink"
           >
             {reference.title}
-          </span>
+          </span>{" "}
           <span id={`${id}-kind`} className="block truncate text-xs text-ink-muted">
             {[label(kind), ...reference.tags].join(" · ")}
           </span>

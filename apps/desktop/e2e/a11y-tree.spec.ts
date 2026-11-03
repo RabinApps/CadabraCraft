@@ -148,3 +148,52 @@ test("Add image dialog and images: a described image has a name, a decorative on
   await expect(editor.getByRole("img", { name: "A single pixel" })).toHaveCount(1);
   await expect(editor.getByRole("img")).toHaveCount(1);
 });
+
+test("chapter row menu: the First letter group and its three choices are named", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Actions for Chapter One" }).click();
+  await expect(page.getByRole("menu")).toMatchAriaSnapshot(`
+    - menu "Actions for Chapter One":
+      - menuitem "Rename"
+      - menuitem "Change icon…"
+      - menuitem "Move up" [disabled]
+      - menuitem "Move down" [disabled]
+      - separator
+      - group "First letter":
+        - menuitemradio "Default" [checked]
+        - menuitemradio "Big"
+        - menuitemradio "Normal"
+      - separator
+      - menuitem "History"
+      - menuitem "Move to trash"
+  `);
+});
+
+test("chapter icon picker: one pressed choice, named by its icon", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Actions for Chapter One" }).click();
+  await page.getByRole("menuitem", { name: "Change icon…" }).click();
+  const dialog = page.getByRole("dialog", { name: "Icon for “Chapter One”" });
+  await expect(dialog.getByRole("button", { name: "None" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(dialog.getByRole("button", { pressed: true })).toHaveCount(1);
+  await expect(dialog.getByRole("button", { name: "Moon" })).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+});
+
+test("templates panel: the big first letter is one named radio group", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Change template" }).click();
+  const group = page.getByRole("radiogroup", { name: "Big first letter" });
+  await expect(group.getByRole("radio")).toHaveText(["Template default (on)", "On", "Off"]);
+  await expect(group.getByRole("radio", { checked: true })).toHaveCount(1);
+  await expect(page.getByRole("heading", { name: "Big first letter" })).toBeVisible();
+  await group.getByRole("radio", { name: "On", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Big first letter: on" })).toBeAttached();
+});

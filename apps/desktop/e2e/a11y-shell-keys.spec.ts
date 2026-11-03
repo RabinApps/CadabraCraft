@@ -61,6 +61,10 @@ const OWNERS: Record<"Tab" | "Arrow" | "Escape", { selector: string; why: string
       why: "drag handles reorder with the arrow keys",
     },
     {
+      selector: "[data-grip]",
+      why: "a reorder grip moves its page one place with the arrow keys, the keyboard alternative to dragging (2.5.7)",
+    },
+    {
       selector: "[data-testid=toc-preview-page], [role=region][aria-label=Preview]",
       why: "the spread preview pages with the arrow keys",
     },

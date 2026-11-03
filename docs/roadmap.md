@@ -102,3 +102,6 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - M3: front/back matter (built in M1), metadata editor and cover picker (see architecture.md, "Book cover"); the cover is also shown in the print preview.
 - Rust project errors return codes with params, translated in `lib/projectError.ts`.
 - Wait for the final save on window close; convert `typst_compile` to raw-bytes IPC; restrict `root` and set a real CSP; run `/drive-app` on the native IPC (see architecture.md, "Safety follow-ups").
+
+- Accessibility: screens still outside `apps/desktop/e2e/support/a11yScreens.ts` are the audiobook rendering, done and error states, the Import report, Removed references and Paste HTML dialogs, the error screen and the opening skeleton (its 200% zoom check hangs while the open is held). Manual checks that need a person (screen readers, Windows contrast themes, PAC and Word) are listed in `docs/platform-checks.md`.
+- Pen: the chapter icon picker now draws a check mark on the chosen icon (1.4.1); redraw `Chapter icon picker / light|dark` and run `/sync-design`.

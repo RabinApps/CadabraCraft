@@ -334,6 +334,26 @@ msgstr "{stuck, plural, one {לא ניתן היה להחזיר עמוד # למק
 msgid "{styleCount} styles · {size} MB"
 msgstr "{styleCount} סגנונות · {size} MB"
 
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already first"
+msgstr "{title} כבר ראשון"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already last"
+msgstr "{title} כבר אחרון"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: big first letter"
+msgstr "{title}: אות ראשונה גדולה"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: first letter follows the book"
+msgstr "{title}: האות הראשונה נקבעת לפי הספר"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: normal first letter"
+msgstr "{title}: אות ראשונה רגילה"
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {לפרק # אין כותרת} other {ל־# פרקים אין כותרת}}"
@@ -682,6 +702,18 @@ msgstr "גדולה"
 #: src/app/export/Templates.tsx
 msgid "Big first letter"
 msgstr "אות פתיחה גדולה"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: off"
+msgstr "אות ראשונה גדולה: כבויה"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: on"
+msgstr "אות ראשונה גדולה: מופעלת"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: template default"
+msgstr "אות ראשונה גדולה: ברירת המחדל של התבנית"
 
 #: src/lib/useIconChoices.ts
 msgid "Bird"
@@ -1547,9 +1579,12 @@ msgstr "מוריד…"
 msgid "Downloading… {0} MB of {1} MB"
 msgstr "מוריד… {0} MB מתוך {1} MB"
 
+#: src/app/shell/EntryList.tsx
+msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
+msgstr "גררו כדי להזיז, או הקישו על חיצי המעלה והמטה. Esc מבטל את הגרירה."
+
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr "גרור, או לחץ על מקשי החצים למעלה ולמטה"
@@ -2015,6 +2050,14 @@ msgstr "החזיקו Ctrl או Alt יחד עם המקש."
 #: src/app/dialogs/IconDialog.tsx
 msgid "Icon for “{0}”"
 msgstr "סמל עבור „{0}”"
+
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon of “{title}” changed"
+msgstr "הסמל של “{title}” שונה"
+
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon of “{title}” removed"
+msgstr "הסמל של “{title}” הוסר"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
@@ -2553,15 +2596,22 @@ msgstr "העברה לאשפה"
 msgid "Move up"
 msgstr "הזזה למעלה"
 
-#. placeholder {0}: entries[i]!.title
 #. placeholder {0}: item.title
 #. placeholder {1}: i + delta + 1
-#. placeholder {2}: entries.length
 #. placeholder {2}: rows.length
-#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
 msgstr "{0} הועבר למיקום {1} מתוך {2}"
+
+#. placeholder {0}: entries.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} down to position {place} of {0}"
+msgstr "{title} הוזז למטה למקום {place} מתוך {0}"
+
+#. placeholder {0}: entries.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} up to position {place} of {0}"
+msgstr "{title} הוזז למעלה למקום {place} מתוך {0}"
 
 #: src/lib/useIconChoices.ts
 msgid "Music"

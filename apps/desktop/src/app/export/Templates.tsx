@@ -63,9 +63,20 @@ export function Templates({ onBack }: { onBack: () => void }) {
     }
   };
   const dropCap = manifest?.dropCap === undefined ? "default" : manifest.dropCap ? "on" : "off";
+  const [dropCapSaid, setDropCapSaid] = useState("");
   const chooseDropCap = (v: "default" | "on" | "off") => {
     setError("");
-    setBookDropCap(v === "default" ? null : v === "on").catch((e) => setError(errText(e)));
+    setBookDropCap(v === "default" ? null : v === "on").then(
+      () =>
+        setDropCapSaid(
+          v === "default"
+            ? t`Big first letter: template default`
+            : v === "on"
+              ? t`Big first letter: on`
+              : t`Big first letter: off`,
+        ),
+      (e) => setError(errText(e)),
+    );
   };
   const rows: [string, string][] = [
     [t`Trim size`, `${trim.w} × ${trim.h} in`],
@@ -141,7 +152,7 @@ export function Templates({ onBack }: { onBack: () => void }) {
                   data-template={tpl.id}
                   onClick={() => setSelected(tpl.id)}
                   className={cx(
-                    "flex w-[250px] flex-col items-center gap-3 rounded-lg border bg-surface p-4 text-start transition-colors focus-visible:outline-2 focus-visible:outline-accent",
+                    "flex w-62.5 flex-col items-center gap-3 rounded-lg border bg-surface p-4 text-start transition-colors focus-visible:outline-2 focus-visible:outline-accent",
                     on
                       ? "border-accent bg-accent-soft/40"
                       : "border-border-strong hover:bg-accent-soft/40",
@@ -177,8 +188,8 @@ export function Templates({ onBack }: { onBack: () => void }) {
               </div>
             ))}
           </dl>
-          <section aria-labelledby="first-letter" className="flex flex-col gap-2">
-            <h3 id="first-letter" className="text-sm font-semibold">{t`Big first letter`}</h3>
+          <div className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold">{t`Big first letter`}</h3>
             <Segmented
               label={t`Big first letter`}
               value={dropCap}
@@ -197,7 +208,10 @@ export function Templates({ onBack }: { onBack: () => void }) {
             <p className="text-xs text-ink-muted">
               {t`Applies to every chapter that has no choice of its own. Set one chapter from its menu in the chapter list.`}
             </p>
-          </section>
+            <p role="status" className="sr-only">
+              {dropCapSaid}
+            </p>
+          </div>
         </aside>
       </div>
     </div>

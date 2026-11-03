@@ -79,7 +79,7 @@ test("the sidebar grip reorders a chapter with the arrow keys", async ({ page })
   await page.keyboard.press("ArrowUp");
   await expect.poll(() => order(page)).toEqual(["Chapter 2", "Chapter One"]);
   await expect(grip).toBeFocused();
-  await expect(page.getByText("Moved Chapter 2 to position 1 of 2")).toBeAttached();
+  await expect(page.getByText("Moved Chapter 2 up to position 1 of 2")).toBeAttached();
   await page.keyboard.press("ArrowUp"); // already first: nothing happens
   await page.keyboard.press("ArrowDown");
   await expect.poll(() => order(page)).toEqual(["Chapter One", "Chapter 2"]);
@@ -154,4 +154,23 @@ test("a chapter's first letter is Default, Big or Normal from its menu, and undo
   await expect.poll(dropCap).toBe(true);
   await page.getByRole("button", { name: /^Undo: Change first letter/ }).click();
   await expect.poll(dropCap).toBe(false);
+});
+
+test("the First letter group is named, and each choice and icon change is announced", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Actions for Chapter One" }).click();
+  const group = page.getByRole("menu").getByRole("group", { name: "First letter" });
+  await expect(group.getByRole("menuitemradio")).toHaveCount(3);
+  await group.getByRole("menuitemradio", { name: "Big" }).click();
+  await expect(page.getByText("Chapter One: big first letter")).toBeAttached();
+  // Focus goes back to the row's menu button, not to the page.
+  await expect(page.getByRole("button", { name: "Actions for Chapter One" })).toBeFocused();
+  await chapterAction(page, "Chapter One", "Change icon…");
+  await page.getByRole("dialog").getByRole("button", { name: "Moon" }).click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Icon of “Chapter One” changed" }),
+  ).toBeAttached();
+  await expect(page.getByRole("button", { name: "Actions for Chapter One" })).toBeFocused();
 });

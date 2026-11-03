@@ -510,6 +510,10 @@ test.describe("3.2.4 consistent identification", () => {
       "lucide-undo-2":
         "Undo (the text, in the formatting toolbar) and Undo book change (the chapter list)",
       "lucide-redo-2": "Redo (the text) and Redo book change (the chapter list)",
+      "lucide-search":
+        "Command palette (search the app's commands) and Search in PDF (search the text of the open reference)",
+      "lucide-x":
+        "Close a dialog, Close viewer, Close chapters and Dismiss message all take something away; the name says what",
       "lucide-a-large-small": "Small caps (format) and Reading settings (the Read mode panel)",
     };
     const report = [...byIcon]
@@ -527,10 +531,12 @@ test.describe("1.3.3 sensory characteristics", () => {
   const SENSORY =
     /\b(on the|to the|at the)\s+(left|right|top|bottom)\b|\b(left|right)[- ]hand\b|\b(above|below)\b(?! the)|\b(red|green|blue|yellow|orange)\s+(button|icon|text|dot|badge|line|circle|square)\b|\b(round|square|circular|triangular)\s+(button|icon)\b|\bclick the (?:\w+ )?(?:icon|button|dot)\b/i;
   // Reviewed matches that are names or measurements, not directions to look somewhere: the table commands "Add Row Below" and
-  // "Add Column After" name an action, and the bleed hint says which edges of the printed page grow.
+  // "Add Column After" name an action, "Right-hand page" is the book term for a recto, and the bleed hint says which edges of the printed page grow.
   const DESCRIPTIVE = [
     /\bAdd (Row|Column) (Above|Below)\b/,
     /on the top, bottom and outside edges/,
+    // A kind of page in a printed book (the chapter opener starts on a recto), not a direction to look.
+    /^Right-hand page$/,
   ];
   for (const { name, open } of screens) {
     test(`no instruction on ${name} points only by place, colour or shape`, async ({ page }) => {

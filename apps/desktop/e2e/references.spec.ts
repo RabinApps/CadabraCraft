@@ -50,7 +50,10 @@ async function withReferences(page: Page, files: Record<string, number[]>) {
 }
 
 const panel = (page: Page) => page.getByRole("region", { name: "References" });
-const row = (page: Page, name: string) => panel(page).getByRole("button", { name, exact: true });
+const row = (page: Page, name: string) =>
+  panel(page)
+    .locator("[data-open]")
+    .filter({ has: page.getByText(name, { exact: true }) });
 
 test.describe("reference files", () => {
   test("shows an empty library, adds files and keeps them in the manifest", async ({ page }) => {
@@ -555,7 +558,7 @@ test.describe("reference files", () => {
     await page.getByRole("button", { name: "References", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: "References" });
     await sheet.getByRole("button", { name: "Add files" }).click();
-    await sheet.getByRole("button", { name: "notes", exact: true }).click();
+    await sheet.getByRole("button", { name: /^notes/ }).click();
     await expect(page.getByRole("dialog", { name: "notes" })).toBeVisible();
     await expect(page.getByRole("dialog", { name: "References" })).toHaveCount(0);
   });

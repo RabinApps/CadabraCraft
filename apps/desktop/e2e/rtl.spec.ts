@@ -430,3 +430,40 @@ test("RTL: a Hebrew book is bound on the right, so its recto pages have the insi
   expect(p.right).toBeCloseTo(0.9 * 96, 0);
   expect(p.left).toBeCloseTo(0.65 * 96, 0);
 });
+
+test("RTL: the chapter row menu, icon picker and templates control mirror and do not overflow", async ({
+  page,
+}) => {
+  await newProject(page);
+  await forceRtl(page);
+  const vw = page.viewportSize()?.width ?? 1280;
+  // The grip sits at the start (right) of the row, before the title.
+  const grip = await page.getByRole("button", { name: "Reorder Chapter One" }).boundingBox();
+  const title = await page.getByRole("button", { name: "Chapter One", exact: true }).boundingBox();
+  expect(grip && title && grip.x > title.x).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+
+  await page.getByRole("button", { name: "Actions for Chapter One" }).click();
+  const menu = page.getByRole("menu");
+  await expect(menu.getByRole("group", { name: "First letter" })).toBeVisible();
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "chapter-menu");
+  await page.getByRole("menuitem", { name: "Change icon…" }).click();
+  const dialog = page.getByRole("dialog", { name: /Icon for/ });
+  await expect(dialog).toBeVisible();
+  const box = await dialog.boundingBox();
+  expect(box && Math.abs(box.x + box.width / 2 - vw / 2) < 2).toBe(true);
+  // The check mark of the pressed choice sits at the end corner of its button, which is the left one in RTL.
+  const none = dialog.getByRole("button", { name: "None" });
+  const mark = await none.locator("svg").boundingBox();
+  const nb = await none.boundingBox();
+  expect(mark && nb && mark.x + mark.width / 2 < nb.x + nb.width / 2).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "icon-picker");
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "Change template" }).click();
+  await expect(page.getByRole("radiogroup", { name: "Big first letter" })).toBeVisible();
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "templates");
+});

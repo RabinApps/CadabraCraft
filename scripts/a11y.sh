@@ -96,7 +96,7 @@ files_matching() {
 tool_on_path() { command -v "$1" >/dev/null 2>&1; }
 
 desktop=@cadabracraft/desktop
-e2e_specs="a11y.spec.ts a11y-ui.spec.ts a11y-tree.spec.ts a11y-keyboard.spec.ts a11y-forced-colors.spec.ts a11y-adaptive.spec.ts a11y-dragging.spec.ts a11y-errors.spec.ts a11y-label-in-name.spec.ts a11y-shell-keys.spec.ts a11y-os-settings.spec.ts a11y-wcag-extra.spec.ts a11y-engines.spec.ts a11y-screenreader.spec.ts language-mark.spec.ts images.spec.ts"
+e2e_specs="a11y.spec.ts a11y-ui.spec.ts a11y-tree.spec.ts a11y-keyboard.spec.ts a11y-forced-colors.spec.ts a11y-adaptive.spec.ts a11y-dragging.spec.ts a11y-errors.spec.ts a11y-label-in-name.spec.ts a11y-shell-keys.spec.ts a11y-os-settings.spec.ts a11y-wcag-extra.spec.ts a11y-engines.spec.ts a11y-screenreader.spec.ts footnote-a11y.spec.ts rtl.spec.ts language-mark.spec.ts images.spec.ts"
 
 # 1. eslint
 run_stage "eslint (pnpm lint)" pnpm lint

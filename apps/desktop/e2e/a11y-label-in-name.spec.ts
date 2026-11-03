@@ -47,7 +47,9 @@ async function audit(page: Page): Promise<{ checked: number; bad: Mismatch[] }> 
         return "";
       // Form controls inside a label do not add their own value to the label.
       if (node.matches("input, select, textarea, svg")) return "";
-      return [...node.childNodes].map(visibleText).join(node.matches("div, p, li") ? " " : "");
+      return [...node.childNodes]
+        .map(visibleText)
+        .join(node.matches("div, p, li") || getComputedStyle(node).display === "block" ? " " : "");
     };
     /** Text of a node for the name: like visibleText but sr-only text counts. */
     const nameText = (node: Node, viaLabelledby = false): string => {

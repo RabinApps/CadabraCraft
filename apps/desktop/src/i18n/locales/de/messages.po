@@ -334,6 +334,26 @@ msgstr "{stuck, plural, one {# Seite konnte nicht zurückgesetzt werden und ist 
 msgid "{styleCount} styles · {size} MB"
 msgstr "{styleCount} Stile · {size} MB"
 
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already first"
+msgstr "{title} steht schon ganz vorn"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already last"
+msgstr "{title} steht schon ganz hinten"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: big first letter"
+msgstr "{title}: großer erster Buchstabe"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: first letter follows the book"
+msgstr "{title}: erster Buchstabe folgt dem Buch"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: normal first letter"
+msgstr "{title}: normaler erster Buchstabe"
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {# Kapitel hat keinen Titel} other {# Kapitel haben keinen Titel}}"
@@ -682,6 +702,18 @@ msgstr "Groß"
 #: src/app/export/Templates.tsx
 msgid "Big first letter"
 msgstr "Große Initiale"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: off"
+msgstr "Großer erster Buchstabe: aus"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: on"
+msgstr "Großer erster Buchstabe: an"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: template default"
+msgstr "Großer erster Buchstabe: Vorlagenstandard"
 
 #: src/lib/useIconChoices.ts
 msgid "Bird"
@@ -1547,9 +1579,12 @@ msgstr "Wird heruntergeladen…"
 msgid "Downloading… {0} MB of {1} MB"
 msgstr "Wird heruntergeladen… {0} MB von {1} MB"
 
+#: src/app/shell/EntryList.tsx
+msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
+msgstr "Zum Verschieben ziehen oder die Pfeiltasten nach oben und unten drücken. Esc bricht das Ziehen ab."
+
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr "Ziehen oder die Pfeiltasten nach oben und unten drücken"
@@ -2015,6 +2050,14 @@ msgstr "Halten Sie Strg oder Alt zusammen mit der Taste gedrückt."
 #: src/app/dialogs/IconDialog.tsx
 msgid "Icon for “{0}”"
 msgstr "Symbol für „{0}“"
+
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon of “{title}” changed"
+msgstr "Symbol von „{title}“ geändert"
+
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon of “{title}” removed"
+msgstr "Symbol von „{title}“ entfernt"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
@@ -2553,15 +2596,22 @@ msgstr "In den Papierkorb verschieben"
 msgid "Move up"
 msgstr "Nach oben"
 
-#. placeholder {0}: entries[i]!.title
 #. placeholder {0}: item.title
 #. placeholder {1}: i + delta + 1
-#. placeholder {2}: entries.length
 #. placeholder {2}: rows.length
-#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
 msgstr "{0} an Position {1} von {2} verschoben"
+
+#. placeholder {0}: entries.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} down to position {place} of {0}"
+msgstr "{title} nach unten auf Position {place} von {0} verschoben"
+
+#. placeholder {0}: entries.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} up to position {place} of {0}"
+msgstr "{title} nach oben auf Position {place} von {0} verschoben"
 
 #: src/lib/useIconChoices.ts
 msgid "Music"

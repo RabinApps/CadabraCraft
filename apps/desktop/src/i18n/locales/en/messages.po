@@ -334,6 +334,26 @@ msgstr "{stuck, plural, one {# page could not be put back and is now in the othe
 msgid "{styleCount} styles · {size} MB"
 msgstr "{styleCount} styles · {size} MB"
 
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already first"
+msgstr "{title} is already first"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already last"
+msgstr "{title} is already last"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: big first letter"
+msgstr "{title}: big first letter"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: first letter follows the book"
+msgstr "{title}: first letter follows the book"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: normal first letter"
+msgstr "{title}: normal first letter"
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
@@ -682,6 +702,18 @@ msgstr "Big"
 #: src/app/export/Templates.tsx
 msgid "Big first letter"
 msgstr "Big first letter"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: off"
+msgstr "Big first letter: off"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: on"
+msgstr "Big first letter: on"
+
+#: src/app/export/Templates.tsx
+msgid "Big first letter: template default"
+msgstr "Big first letter: template default"
 
 #: src/lib/useIconChoices.ts
 msgid "Bird"
@@ -1547,9 +1579,12 @@ msgstr "Downloading…"
 msgid "Downloading… {0} MB of {1} MB"
 msgstr "Downloading… {0} MB of {1} MB"
 
+#: src/app/shell/EntryList.tsx
+msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
+msgstr "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
+
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr "Drag, or press the up and down arrow keys"
@@ -2015,6 +2050,14 @@ msgstr "Hold Ctrl or Alt together with the key."
 #: src/app/dialogs/IconDialog.tsx
 msgid "Icon for “{0}”"
 msgstr "Icon for “{0}”"
+
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon of “{title}” changed"
+msgstr "Icon of “{title}” changed"
+
+#: src/app/dialogs/IconDialog.tsx
+msgid "Icon of “{title}” removed"
+msgstr "Icon of “{title}” removed"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Identifier"
@@ -2553,15 +2596,22 @@ msgstr "Move to trash"
 msgid "Move up"
 msgstr "Move up"
 
-#. placeholder {0}: entries[i]!.title
 #. placeholder {0}: item.title
 #. placeholder {1}: i + delta + 1
-#. placeholder {2}: entries.length
 #. placeholder {2}: rows.length
-#: src/app/shell/EntryList.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
 msgstr "Moved {0} to position {1} of {2}"
+
+#. placeholder {0}: entries.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} down to position {place} of {0}"
+msgstr "Moved {title} down to position {place} of {0}"
+
+#. placeholder {0}: entries.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} up to position {place} of {0}"
+msgstr "Moved {title} up to position {place} of {0}"
 
 #: src/lib/useIconChoices.ts
 msgid "Music"

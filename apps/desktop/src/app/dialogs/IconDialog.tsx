@@ -1,4 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
+import { Check } from "lucide-react";
 import { Modal } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
 import { useIconChoices } from "../../lib/useIconChoices";
@@ -12,7 +13,7 @@ export interface IconPage {
 }
 
 const choiceClass =
-  "flex min-h-11 flex-col items-center justify-center gap-1 rounded-md border border-border px-1 py-2 text-center text-small text-ink hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent aria-pressed:border-accent aria-pressed:bg-accent-soft";
+  "relative flex min-h-11 flex-col items-center justify-center gap-1 rounded-md border border-border px-1 py-2 text-center text-small text-ink hover:border-ink-muted focus-visible:outline-2 focus-visible:outline-accent aria-pressed:border-2 aria-pressed:border-accent aria-pressed:bg-accent-soft";
 
 /** Picks the sidebar icon of a page: one button per allowed icon, plus None. The choice is saved at once and the dialog closes. */
 export function IconDialog({ page, onClose }: { page: IconPage | null; onClose: () => void }) {
@@ -20,7 +21,14 @@ export function IconDialog({ page, onClose }: { page: IconPage | null; onClose: 
   const actions = useProject((s) => s.actions);
   const choices = useIconChoices();
   const pick = (icon: string | null) => {
-    if (page) attempt(actions.setIcon(page.id, icon));
+    if (page) {
+      attempt(actions.setIcon(page.id, icon));
+      const title = page.title;
+      // The notice is the header's polite status, so the change is spoken once the dialog has closed.
+      useProject.setState({
+        notice: icon ? t`Icon of “${title}” changed` : t`Icon of “${title}” removed`,
+      });
+    }
     onClose();
   };
   return (
@@ -38,6 +46,9 @@ export function IconDialog({ page, onClose }: { page: IconPage | null; onClose: 
           className={cx(choiceClass, "col-span-full")}
           onClick={() => pick(null)}
         >
+          {!page?.icon && (
+            <Check size={14} aria-hidden className="absolute inset-e-1.5 top-1.5 text-accent" />
+          )}
           {t`None`}
         </button>
         {choices.map(({ name, Icon, label }) => (
@@ -48,6 +59,9 @@ export function IconDialog({ page, onClose }: { page: IconPage | null; onClose: 
             className={choiceClass}
             onClick={() => pick(name)}
           >
+            {page?.icon === name && (
+              <Check size={14} aria-hidden className="absolute inset-e-1.5 top-1.5 text-accent" />
+            )}
             <Icon size={20} aria-hidden />
             {label}
           </button>

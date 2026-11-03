@@ -4,6 +4,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { chapterAction, newProject } from "./support/helpers";
+import { screens as allScreens } from "./support/a11yScreens";
 
 /**
  * The same screens as a11y.spec.ts through two engines other than axe-core: IBM Equal Access (WCAG 2.2 A and AA) and
@@ -116,6 +117,18 @@ const screens: [string, (page: Page) => Promise<void>][] = [
     },
   ],
 ];
+
+// The newest panels and dialogs, from the shared list the other accessibility specs use.
+const ENGINE_SCREENS = [
+  "chapter icon picker",
+  "Templates panel",
+  "References panel with a PDF",
+  "Reference viewer (PDF)",
+  "Book snapshots, one snapshot selected",
+  "Licenses dialog",
+];
+for (const s of allScreens.filter((x) => ENGINE_SCREENS.includes(x.name)))
+  screens.push([s.name, s.open]);
 
 for (const [name, open] of screens) {
   test(`IBM Equal Access finds no violations on ${name}`, async ({ page }) => {

@@ -195,3 +195,43 @@ test("2.5.7 sidebar: the row menu and the grip arrow keys reorder chapters witho
   await page.keyboard.press("ArrowDown");
   await expect.poll(names).toEqual(["Chapter One", "Chapter 2"]);
 });
+
+test("2.5.7 and 4.1.3 sidebar: the grip says where a page went, and why it did not move", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  const said = page.locator("section[aria-label] [aria-live=polite]").filter({ hasText: /./ });
+  const grip = page.getByRole("button", { name: "Reorder Chapter 2" });
+  await expect(grip).toHaveAccessibleDescription(/Escape cancels a drag/);
+  await grip.focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(said.first()).toHaveText("Chapter 2 is already last");
+  await page.keyboard.press("ArrowUp");
+  await expect(said.first()).toHaveText("Moved Chapter 2 up to position 1 of 2");
+  // The message clears itself so the next one is announced even if identical.
+  await expect(said).toHaveCount(0, { timeout: 8000 });
+});
+
+test("2.5.2 sidebar: Escape cancels a drag and nothing moves", async ({ page }) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  const names = () =>
+    page.evaluate(() =>
+      JSON.parse(window.__disk["cadabra.json"] as string).chapters.map(
+        (c: { titles: { en: string } }) => c.titles.en,
+      ),
+    );
+  const grip = (await page.getByRole("button", { name: "Reorder Chapter 2" }).boundingBox())!;
+  const first = (await page
+    .getByRole("button", { name: "Chapter One", exact: true })
+    .boundingBox())!;
+  await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(first.x + 10, first.y + 2, { steps: 5 });
+  await expect(page.locator("[data-drop-line]")).toHaveCount(1);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("[data-drop-line]")).toHaveCount(0);
+  await page.mouse.up();
+  expect(await names()).toEqual(["Chapter One", "Chapter 2"]);
+});

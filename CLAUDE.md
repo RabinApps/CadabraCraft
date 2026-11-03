@@ -25,4 +25,4 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 
 Style skills (e.g. `solid`) are guidance only: this repo's conventions and the surrounding code win. In particular, keep the existing functional TypeScript style (pure functions, plain data) and do not introduce value-object classes or the 10-line/2-field limits.
 
-`/drive-app` clicks through the real app via the dev-only bridge, `/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision`, `/sync-design`, `/a11y` accessibility checks (in `.claude/skills`).
+`/drive-app` clicks through the real app via the dev-only bridge, `/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision`, `/sync-design`, `/a11y` accessibility checks, `/quality-gates` the checklist every plan ends with (feature completeness, typecheck, lint, i18n, ADA, coverage) and runs after the work (in `.claude/skills`).
