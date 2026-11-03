@@ -2,6 +2,7 @@
  * Read mode's continuous book: pure helpers for chaining page numbers across chapters, sizing the placeholders of chapters that are
  * not mounted, picking the chapter and page at the reading line, and the zoom of the pages. No React, no DOM.
  */
+import type { PageZoom } from "../state/editorPrefs";
 
 export type ReadingSection = "front" | "chapter" | "back";
 
@@ -85,6 +86,9 @@ export const READING_ZOOM_STEPS = [0.8, 0.9, 1, 1.12, 1.25];
 /** Space left beside the pages: "wide" uses most of the pane. */
 export const readingGutter = (width: "narrow" | "wide"): number => (width === "wide" ? 16 : 48);
 
-/** Zoom of the pages in Read mode: the fit-width zoom times the step of the chosen size, within 0.3 to 2. */
-export const readingZoom = (fit: number, size: number): number =>
-  Math.min(2, Math.max(0.3, fit * (READING_ZOOM_STEPS[size] ?? 1)));
+/**
+ * Zoom of the pages in Read mode: the page zoom the reader chose ("fit" is the fit-width zoom, else a fixed scale, the same
+ * choice as in Write mode) times the step of the chosen text size, within 0.3 to 2.
+ */
+export const readingZoom = (fit: number, size: number, choice: PageZoom = "fit"): number =>
+  Math.min(2, Math.max(0.3, (choice === "fit" ? fit : choice) * (READING_ZOOM_STEPS[size] ?? 1)));

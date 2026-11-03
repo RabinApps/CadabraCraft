@@ -282,3 +282,39 @@ test("read-only chapter text is a named document, not a textbox", async ({ page 
   await expect(text).toHaveAttribute("aria-label", "Chapter One");
   await expect(page.getByRole("textbox", { name: "Chapter One" })).toHaveCount(0);
 });
+
+test("Read mode has the same page zoom select as Write mode, and the two share the choice", async ({
+  page,
+}) => {
+  await newProject(page);
+  await book(page);
+  await read(page);
+  const select = page.getByLabel("Page zoom");
+  const zoom = async () =>
+    Number(await page.locator(".page-stack").first().getAttribute("data-zoom"));
+  await expect(select).toBeVisible();
+  await expect(select).toHaveValue("fit");
+  await expect(select.locator("option")).toHaveText(["Fit width", "75%", "100%", "125%"]);
+  await select.selectOption({ label: "75%" });
+  await expect.poll(zoom).toBeCloseTo(0.75, 2);
+  await select.selectOption({ label: "125%" });
+  await expect.poll(zoom).toBeCloseTo(1.25, 2);
+  // The text size still scales on top of the chosen zoom.
+  await page.getByRole("button", { name: "Reading settings" }).click();
+  await page.getByRole("menuitem", { name: "Larger text" }).click();
+  await page.keyboard.press("Escape");
+  await expect.poll(zoom).toBeGreaterThan(1.25);
+  // Write mode shows the same choice.
+  await page.getByRole("radio", { name: "Write" }).click();
+  await expect(select).toHaveValue("1.25");
+});
+
+test("a phone has no page zoom in Read mode, because the book is not drawn as pages", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 780 });
+  await newProject(page);
+  await read(page);
+  await expect(scroller(page)).toBeVisible();
+  await expect(page.getByLabel("Page zoom")).toHaveCount(0);
+});

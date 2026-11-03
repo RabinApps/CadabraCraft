@@ -47,7 +47,7 @@ test("Read mode draws its own pages, and Write mode comes back to the page surfa
   await newProject(page);
   await page.getByRole("radio", { name: "Read" }).click();
   await expect(page.locator(".ProseMirror")).toHaveAttribute("contenteditable", "false");
-  await expect(zoom(page)).toHaveCount(0);
+  await expect(zoom(page)).toBeVisible(); // the reading footer has the same zoom select
   await expect(page.locator(".page").first()).toBeVisible();
   await expect(page.locator(".prose-reading")).toHaveCount(0);
   await page.getByRole("radio", { name: "Write" }).click();

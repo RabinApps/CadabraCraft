@@ -157,6 +157,15 @@ describe("reading zoom", () => {
     expect(readingZoom(1, 99)).toBe(1);
   });
 
+  it("starts from the chosen page zoom instead of the fit when one is given", () => {
+    expect(readingZoom(0.8, 2, "fit")).toBeCloseTo(0.8);
+    expect(readingZoom(0.8, 2, 1)).toBeCloseTo(1);
+    expect(readingZoom(0.8, 2, 0.75)).toBeCloseTo(0.75);
+    expect(readingZoom(0.8, 4, 1)).toBeCloseTo(1.25); // the text size still scales it
+    expect(readingZoom(0.8, 4, 1.25)).toBeCloseTo(1.5625);
+    expect(readingZoom(0.8, 0, 0.75)).toBeCloseTo(0.6);
+  });
+
   it("leaves a smaller gutter for the wide setting", () => {
     expect(readingGutter("wide")).toBeLessThan(readingGutter("narrow"));
   });

@@ -22,6 +22,7 @@ import {
 } from "../lib/readingBook";
 import { errText } from "../lib/projectError";
 import { attempt } from "../state/attempt";
+import { useSettings } from "../state/editorPrefs";
 import { readingPaged } from "../state/pageView";
 import { usePageMeasure } from "../state/pageMeasure";
 import { useProject } from "../state/project/index";
@@ -44,6 +45,7 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   const currentId = useProject((s) => s.currentId);
   const selectChapter = useProject((s) => s.actions.selectChapter);
   const { size, width } = useReading();
+  const pageZoom = useSettings((s) => s.pageZoom);
   const wide = useIsMd();
   const paged = readingPaged("read", wide);
   const look = usePageLook();
@@ -56,7 +58,9 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   const scroller = useRef<HTMLDivElement>(null);
   const paneW = usePaneWidth(scroller);
   const gutter = readingGutter(width);
-  const zoom = paged ? readingZoom(fitZoom(g, paneW || g.page.w + gutter, gutter), size) : 1;
+  const zoom = paged
+    ? readingZoom(fitZoom(g, paneW || g.page.w + gutter, gutter), size, pageZoom)
+    : 1;
 
   // A chapter chosen elsewhere (the sidebar, Previous and Next) is scrolled to: to its opening page, not the blank page before it.
   // Its pages are not laid out when it was far away or has just been mounted, so the scroll is repeated each time that chapter

@@ -21,7 +21,7 @@ export function PageZoomSelect({
       onChange={(e) =>
         onChange(cleanPageZoom(e.target.value === "fit" ? "fit" : Number(e.target.value)))
       }
-      className="w-auto px-2 py-0.5 text-xs"
+      className="w-auto shrink-0 px-2 py-0.5 text-xs"
     >
       <option value="fit">{t`Fit width`}</option>
       <option value="0.75">75%</option>
