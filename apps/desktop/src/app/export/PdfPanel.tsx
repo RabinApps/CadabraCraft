@@ -1,7 +1,6 @@
 import { sourceEdition } from "@cadabracraft/format";
 import { useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { countWords } from "@cadabracraft/shared";
 import type { TrimSize } from "@cadabracraft/export-pdf";
 import {
   DEFAULT_TEMPLATE_ID,
@@ -11,9 +10,9 @@ import {
   resolveTrimSize,
 } from "@cadabracraft/templates";
 import type { Manifest } from "@cadabracraft/format";
-import type { ExportScope } from "../../state/project/types";
+import type { BookPage, ExportScope } from "../../state/project/types";
 import { pdfChecks } from "../../lib/exportChecks";
-import { bookPageCount } from "../../lib/pageNumbering";
+import { layoutOfPages } from "../../lib/bookPages";
 import { trimLabel } from "../../lib/trimLabels";
 import { Checkbox } from "../../ui/Checkbox";
 import { Select } from "../../ui/Select";
@@ -84,16 +83,15 @@ export function PdfPanel({
     cropMarks,
   } = options;
   const templates = listTemplates();
-  const [words, setWords] = useState<number[] | null>(null);
+  const [pages, setPages] = useState<BookPage[] | null>(null);
   useEffect(() => {
     let live = true;
     readPages(language).then(
-      (pages) => {
-        if (live)
-          setWords(pages.filter((p) => p.section === "chapter").map((p) => countWords(p.doc)));
+      (read) => {
+        if (live) setPages(read);
       },
       () => {
-        if (live) setWords(null);
+        if (live) setPages(null);
       },
     );
     return () => {
@@ -104,17 +102,17 @@ export function PdfPanel({
     (e) => e.language === (language ?? sourceEdition(manifest.editions).language),
   );
   const pdfCheckList = useMemo(() => {
-    if (!manifest || !edition || words === null) return [];
+    if (!manifest || !edition || pages === null) return [];
     const print = getTemplate(current).print;
     const margins = print.defaults.marginsIn;
     return pdfChecks({
-      estimatedPages: bookPageCount({ template: current, trimSize }, words).pages,
+      estimatedPages: layoutOfPages({ template: current, trimSize }, pages).physical,
       margins,
       hasCover: edition?.cover != null,
       bleed,
       cropMarks,
     });
-  }, [manifest, words, current, trimSize, edition, bleed, cropMarks]);
+  }, [manifest, pages, current, trimSize, edition, bleed, cropMarks]);
   const bodyFont = manifest?.fonts?.body ?? "";
   const headingFont = manifest?.fonts?.heading ?? "";
   // The book's own choice stays in the list when this computer lacks it, so the select shows it instead of the wrong font.

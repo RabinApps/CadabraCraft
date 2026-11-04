@@ -20,6 +20,8 @@ export interface PageConfig {
   firstPage: number;
   startsOn: "recto" | "any";
   opensChapter: boolean;
+  /** A blank verso comes first (the book layout's `blankBefore`). */
+  blankBefore: boolean;
   zoom: number;
   /** Typst's marks for this chapter: where its pages break. Null (or marks that do not fit the text) keeps the estimate. */
   exact: ExactSource | null;
@@ -44,6 +46,7 @@ const configKey = (c: PageConfig): string =>
     c.firstPage,
     c.startsOn,
     c.opensChapter,
+    c.blankBefore,
     c.layoutKey,
     c.exactKey,
     c.zoom,
@@ -225,6 +228,7 @@ export function createController() {
         firstPage: c.firstPage,
         startsOn: c.startsOn,
         opensChapter: c.opensChapter,
+        blankBefore: c.blankBefore,
       });
       hyphenate = getComputedStyle(root).hyphens === "auto";
       for (const gap of result.gaps)

@@ -333,6 +333,11 @@ export interface PaginateOptions {
   startsOn: "recto" | "any";
   opensChapter: boolean;
   /**
+   * A blank verso comes before the content (`layoutBook`'s `blankBefore`, the book's one answer to where every entry starts). When it
+   * is given it is used as it is; without it the recto rule above is applied to `firstPage`, for callers that do not know the book.
+   */
+  blankBefore?: boolean;
+  /**
    * Page breaks decided elsewhere (Typst's, in order, none of them blank): they are used as they are and nothing is simulated, so
    * block heights only matter to whoever draws the pages. A blank verso before the chapter is still added.
    */
@@ -377,7 +382,9 @@ export function paginate(
 ): { breaks: PageBreak[]; pageCount: number } {
   if (blocks.length === 0) return { breaks: [], pageCount: 0 };
   const breaks: PageBreak[] = [];
-  const blank = opts.opensChapter && opts.startsOn === "recto" && opts.firstPage % 2 === 0;
+  const blank =
+    opts.blankBefore ??
+    (opts.opensChapter && opts.startsOn === "recto" && opts.firstPage % 2 === 0);
   if (blank) breaks.push({ block: 0, linesBefore: 0, blankBefore: true });
   if (opts.forced) {
     breaks.push(...opts.forced);

@@ -22,7 +22,11 @@ export function useContentsView(entry: EditionEntry, measure = true) {
     [toc.rows, toc.settings.pageNumbers],
   );
   const title = entry.titles[toc.language] ?? Object.values(entry.titles)[0] ?? t`Contents`;
-  const before = manifest.frontMatter.findIndex((e) => e.id === entry.id);
+  // Where the contents page itself falls: a continuation card's folio follows it in roman (the layout knows, the front-matter index is the fallback while it is built).
+  const placed = toc.layout?.byId.get(entry.id);
+  const before = placed
+    ? placed.start - 1
+    : manifest.frontMatter.findIndex((e) => e.id === entry.id);
   const rtl = dirFor(toc.language) === "rtl";
   const serif = fontKindOf(manifest.template) === "serif";
   return { ...toc, lines, layout, title, before, rtl, serif };

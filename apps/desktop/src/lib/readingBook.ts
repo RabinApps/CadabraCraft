@@ -1,48 +1,9 @@
 /**
- * Read mode's continuous book: pure helpers for chaining page numbers across chapters, sizing the placeholders of chapters that are
- * not mounted, picking the chapter and page at the reading line, and the zoom of the pages. No React, no DOM.
+ * Read mode's continuous book: pure helpers for sizing the placeholders of sections that are not mounted, picking the chapter and
+ * page at the reading line, and the zoom of the pages. No React, no DOM. Where a section starts and what it prints there is the
+ * book layout's (`lib/pageNumbering.ts`), the same one Write mode uses.
  */
 import type { PageZoom } from "../state/editorPrefs";
-
-export type ReadingSection = "front" | "chapter" | "back";
-
-export interface ChainEntry {
-  id: string;
-  section: ReadingSection;
-  /** The pages the laid-out chapter really has (a leading blank page included), once its editor has measured it. */
-  measured: number | null;
-  /** Pages from its word count, without any blank page: used until it is measured. */
-  estimate: number;
-}
-
-/**
- * The first page number to give each entry's pagination, top to bottom. A chapter starts after the previous chapter's last page
- * (its actual laid-out count, else the estimate); where the template starts chapters on a right-hand page, an even number makes
- * the chapter draw a blank left-hand page first (the pagination does that itself). Typst's printed number for the chapter's
- * opening page, when there is one, wins over the chain; when it is one page past the chain and odd, the blank page before it is
- * drawn too. Front and back matter are numbered from 1 and take no part in the chain, as in Page view.
- */
-export function chainFirstPages(
-  entries: readonly ChainEntry[],
-  startsOn: "recto" | "any",
-  typst: (id: string) => number | null = () => null,
-): Map<string, number> {
-  const out = new Map<string, number>();
-  let next = 1;
-  for (const e of entries) {
-    if (e.section !== "chapter") {
-      out.set(e.id, 1);
-      continue;
-    }
-    const printed = typst(e.id) ?? next;
-    const first =
-      startsOn === "recto" && printed % 2 === 1 && printed - next === 1 ? printed - 1 : printed;
-    const blank = startsOn === "recto" && first % 2 === 0 ? 1 : 0;
-    out.set(e.id, first);
-    next = first + (e.measured ?? e.estimate + blank);
-  }
-  return out;
-}
 
 /** Height of a chapter drawn as pages that has not been laid out yet: `pages` cards with the gap between them, at `zoom`. */
 export const pagedHeight = (pages: number, pageH: number, gap: number, zoom: number): number =>

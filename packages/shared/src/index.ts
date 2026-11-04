@@ -89,3 +89,4 @@ export * from "./errors";
 export * from "./wordcount";
 export * from "./trim";
 export * from "./words";
+export * from "./pageNumbering";

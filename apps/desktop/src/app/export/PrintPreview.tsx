@@ -10,9 +10,8 @@ import {
   hasTemplate,
   resolveTrimSize,
 } from "@cadabracraft/templates";
-import { countWords } from "@cadabracraft/shared";
 import { errText } from "../../lib/projectError";
-import { bookPageCount } from "../../lib/pageNumbering";
+import { layoutOfPages } from "../../lib/bookPages";
 import { plainBlocks } from "../../lib/printEstimate";
 import { trimLabel } from "../../lib/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
@@ -93,10 +92,10 @@ export function PrintPreview({ onBack, onExport }: Props) {
   useEffect(() => {
     readPages().then(setPages, (e: unknown) => setError(errText(e)));
   }, [readPages]);
-  // Counting walks every page's document; only redo it when the pages are read again, not on each option change.
-  const chapterWords = useMemo(
-    () => (pages ?? []).filter((p) => p.section === "chapter").map((p) => countWords(p.doc)),
-    [pages],
+  // The book's length as the layout has it (front matter and blank pages included); only redone when the pages are read again.
+  const estimate = useMemo(
+    () => (pages ? layoutOfPages({ template: template.id, trimSize: trim }, pages).physical : 0),
+    [pages, template.id, trim],
   );
 
   if (!manifest) return null;
@@ -105,7 +104,6 @@ export function PrintPreview({ onBack, onExport }: Props) {
   const box = pageBox(size, margins, true, { bleedIn, cropMarks });
   const scale = PAGE_PX / size.w; // px per inch
   const heightPx = PAGE_PX * (size.h / size.w);
-  const estimate = bookPageCount({ template: template.id, trimSize: trim }, chapterWords).pages;
   const first = (pages ?? []).find((p) => p.section === "chapter") ?? pages?.[0];
   const blocks = first ? plainBlocks(first.doc).filter((b) => b !== first.title) : [];
   const bodyFont = /serif/i.test(template.print.bodyFonts[0] ?? "")

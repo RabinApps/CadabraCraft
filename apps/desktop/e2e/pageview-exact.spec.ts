@@ -153,7 +153,9 @@ test("marks that do not fit the text leave the estimate, and a stale report is n
   await page.locator(".ProseMirror p").first().click();
   await page.keyboard.press("End");
   await page.keyboard.insertText(" x");
-  await expect(page.getByTestId("page-position")).toHaveText(/Page ≈ 1 of 3$/, {
+  // The breaks are the app's own here (the chip says "approximate"), but the page number is not: the chapter opens the book and
+  // the editor measured its three pages, so page 1 of 3 is where the cursor is. Only a page after an estimated entry gets "≈".
+  await expect(page.getByTestId("page-position")).toHaveText(/Page 1 of 3$/, {
     timeout: 10_000,
   });
   await expect(page.locator(".page-chip")).toHaveText("5.5 × 8.5 in · approximate");

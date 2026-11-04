@@ -15,6 +15,7 @@ import { FootnoteA11y } from "./footnoteA11y";
 import { ReadingContents } from "./ReadingContents";
 import { useProject } from "../state/project/index";
 import { Pagination } from "./pagination/plugin";
+import type { PageLayoutResult } from "./pagination/core";
 import { PageStack, type PageLook } from "./PageFrame";
 import { pageIsBare, pageIsCentred } from "./centring";
 import { dirFor } from "../i18n/locales";
@@ -38,7 +39,12 @@ export interface SectionProps {
   first: boolean;
   look: PageLook;
   zoom: number;
+  /** Physical page of the section's first card (the book layout's `cardStart`). */
   firstPage: number;
+  /** The book layout says a blank verso comes first. */
+  blankBefore: boolean;
+  /** The number the book prints on a physical page (see `PageStack`). */
+  folioFor: (physical: number) => string;
   chapterNumber: number | undefined;
   size: number;
   width: Width;
@@ -124,6 +130,8 @@ function ReadingChapter({
   look,
   zoom,
   firstPage,
+  blankBefore,
+  folioFor,
   chapterNumber,
   size,
   width,
@@ -147,8 +155,9 @@ function ReadingChapter({
       },
     },
   });
+  // The pages of this section (a blank verso before it not counted): later sections start after them.
   const onLayout = useCallback(
-    (l: { pages: unknown[] }) => onPages(page.id, l.pages.length),
+    (l: PageLayoutResult) => onPages(page.id, l.pages.filter((p) => p.kind !== "blank").length),
     [onPages, page.id],
   );
   const exact = useMemo(
@@ -170,6 +179,8 @@ function ReadingChapter({
         verticalCenter={centred}
         bare={pageIsBare(centred, page.section, page.kind)}
         firstPage={firstPage}
+        blankBefore={blankBefore}
+        folioFor={folioFor}
         exact={exact}
         exactKey={`${page.id}:${reportAt}`}
         onLayout={onLayout}

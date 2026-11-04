@@ -47,7 +47,7 @@ export function StatusBar(p: Props) {
           ? plural(words, { one: "# word in this chapter", other: "# words in this chapter" })
           : plural(words, { one: "# word on this page", other: "# words on this page" })}
         {bookWords !== null && ` · ${t`${bookWords} in the book`}`}
-        <PageEstimate words={bookWords} />
+        <PageEstimate />
         {pageView.on && <PagePosition />}
       </span>
       <span className="flex items-center gap-3">

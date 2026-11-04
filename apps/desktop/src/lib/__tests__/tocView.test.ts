@@ -2,14 +2,17 @@ import { addTocCustom, DEFAULT_TOC, type EditionEntry, type TocItem } from "@cad
 import type { PageReport } from "@cadabracraft/export-pdf";
 import { describe, expect, it } from "vitest";
 import {
-  estimateStarts,
   headingPageNumbers,
   needsOutlines,
   printedNumber,
   staleKeys,
   staleLabel,
   tocRows,
+  type TocNumber,
 } from "../tocView";
+
+/** A layout number: `estimated` unless it is a measured count. */
+const n = (text: string | null, estimated = false): TocNumber => ({ text, estimated });
 
 const page = (key: string, title = key): TocItem => ({
   key,
@@ -146,7 +149,7 @@ describe("tocRows page-number precedence", () => {
     const rows = tocRows(items, {
       report: report([start("c1", 1, "1"), start("c2", 9, "9")]),
       current: true,
-      estimates: { c1: 1, c2: 4, c3: 5 },
+      numbers: { c1: n("1"), c2: n("4"), c3: n("5", true) },
       outlines: {},
     });
     expect(rows.map((r) => [r.text, r.estimated])).toEqual([
@@ -159,22 +162,22 @@ describe("tocRows page-number precedence", () => {
     const rows = tocRows(items, {
       report: report([start("c1", 1, "1")]),
       current: false,
-      estimates: {},
+      numbers: {},
       outlines: {},
     });
     expect(rows[0]).toMatchObject({ text: "1", estimated: true });
     expect(rows[1]).toMatchObject({ text: null, estimated: false });
   });
-  it("falls back to the estimate without a report, and to nothing without either", () => {
+  it("falls back to the layout's numbers without a report, and to nothing without either", () => {
     const rows = tocRows(items, {
       report: null,
       current: false,
-      estimates: { c1: 1, c2: 3 },
+      numbers: { c1: n("i", true), c2: n("7", true) },
       outlines: {},
     });
     expect(rows.map((r) => [r.text, r.estimated])).toEqual([
-      ["1", true],
-      ["3", true],
+      ["i", true],
+      ["7", true],
       [null, false],
     ]);
   });
@@ -185,14 +188,14 @@ describe("tocRows page-number precedence", () => {
     const rows = tocRows([items[0]!, heading, custom], {
       report: r,
       current: true,
-      estimates: {},
+      numbers: {},
       outlines: { c1: outline([1, "A"]) },
     });
     expect(rows.map((x) => x.text)).toEqual(["1", "2", "9"]);
     const guessed = tocRows([custom], {
       report: null,
       current: false,
-      estimates: { c2: 4 },
+      numbers: { c2: n("4", true) },
       outlines: {},
     });
     expect(guessed[0]).toMatchObject({ text: "4", estimated: true });
@@ -201,20 +204,10 @@ describe("tocRows page-number precedence", () => {
     const rows = tocRows([page("c1"), { ...custom, target: undefined } as TocItem], {
       report: report([start("c1", 1, "")]),
       current: true,
-      estimates: {},
+      numbers: {},
       outlines: {},
     });
     expect(rows.map((x) => x.text)).toEqual([null, null]);
-  });
-});
-
-describe("estimateStarts", () => {
-  it("estimates each chapter's first page from the words before it", () => {
-    const book = { template: "novel" };
-    const starts = estimateStarts(book, ["a", "b", "c"], [10, 10]);
-    expect(starts.a).toBe(1);
-    expect(starts.b).toBeGreaterThan(1);
-    expect(starts.c).toBeUndefined(); // no word count for it
   });
 });
 

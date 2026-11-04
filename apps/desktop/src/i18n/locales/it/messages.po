@@ -59,7 +59,9 @@ msgid "{0, plural, one {# page that was not in the snapshot is in the trash.} ot
 msgstr "{0, plural, one {# pagina che non era nell’istantanea è nel cestino.} other {# pagine che non erano nell’istantanea sono nel cestino.}}"
 
 #. placeholder {0}: e.pages.length
+#. placeholder {0}: layout.physical
 #: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/shell/PageEstimate.tsx
 msgid "{0, plural, one {# page} other {# pages}}"
 msgstr "{0, plural, one {# pagina} other {# pagine}}"
 
@@ -81,6 +83,11 @@ msgstr "{0, plural, one {# risultato} other {# risultati}}"
 #: src/app/home/Dashboard.tsx
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# parola} other {# parole}}"
+
+#. placeholder {0}: layout.physical
+#: src/app/shell/PageEstimate.tsx
+msgid "{0, plural, one {≈ # page} other {≈ # pages}}"
+msgstr "{0, plural, one {≈ # pagina} other {≈ # pagine}}"
 
 #. placeholder {0}: picked ? picked.length : chapters.length
 #: src/app/export/AudioExport.tsx
@@ -276,14 +283,6 @@ msgstr "{bookWords} nel libro"
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {Importato # capitolo da {fileName}.} other {Importati # capitoli da {fileName}.}}"
-
-#: src/app/shell/PageEstimate.tsx
-msgid "{count, plural, one {# page} other {# pages}}"
-msgstr "{count, plural, one {# pagina} other {# pagine}}"
-
-#: src/app/shell/PageEstimate.tsx
-msgid "{count, plural, one {≈ # page} other {≈ # pages}}"
-msgstr "{count, plural, one {≈ # pagina} other {≈ # pagine}}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
@@ -3077,10 +3076,6 @@ msgstr "Preparazione dell’audiolibro…"
 msgid "Page {0} of {total}"
 msgstr "Pagina {0} di {total}"
 
-#: src/app/shell/PageEstimate.tsx
-msgid "Page {current} of ≈ {count}"
-msgstr "Pagina {current} di ≈ {count}"
-
 #: src/app/export/TypstSpread.tsx
 msgid "Page {first} of {total}"
 msgstr "Pagina {first} di {total}"
@@ -3090,13 +3085,20 @@ msgstr "Pagina {first} di {total}"
 msgid "Page {page}"
 msgstr "Pagina {page}"
 
+#. placeholder {0}: layout.physical
 #: src/app/shell/PageEstimate.tsx
-msgid "Page {shown} of {exact}"
-msgstr "Pagina {shown} di {exact}"
+msgid "Page {shown} of {0}"
+msgstr "Pagina {shown} di {0}"
 
+#. placeholder {0}: layout.physical
 #: src/app/shell/PageEstimate.tsx
-msgid "Page ≈ {shown} of {exact}"
-msgstr "Pagina ≈ {shown} di {exact}"
+msgid "Page {shown} of ≈ {0}"
+msgstr "Pagina {shown} di ≈ {0}"
+
+#. placeholder {0}: layout.physical
+#: src/app/shell/PageEstimate.tsx
+msgid "Page ≈ {shown} of {0}"
+msgstr "Pagina ≈ {shown} di {0}"
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."

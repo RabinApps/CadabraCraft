@@ -48,7 +48,7 @@ export const createPageActions = (ctx: Ctx): PageActions => {
     load,
     loadChaptersIn,
     countBook,
-    countChapters,
+    countEntries,
   } = ctx;
   let autosave: ReturnType<typeof setTimeout> | undefined;
   /** Fires AUTOSAVE_MAX_MS after the first unsaved keystroke, so continuous typing is still written. */
@@ -244,8 +244,8 @@ export const createPageActions = (ctx: Ctx): PageActions => {
     async bookWords() {
       return countBook();
     },
-    async chapterWordsBefore(id) {
-      return countChapters(id);
+    async entryWords() {
+      return countEntries();
     },
   };
 };

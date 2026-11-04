@@ -178,6 +178,15 @@ export interface BookPage {
   /** Front and back matter only: the author's own vertical position choice, centred (true) or at the top (false). Absent follows the template's kinds (`resolveVerticalCenter`). */
   verticalCenter?: boolean;
 }
+/** The words of one page of the book, with what the page numbering needs to know about it. */
+export interface EntryWords {
+  id: string;
+  section: "front" | "chapter" | "back";
+  kind?: MatterKind | undefined;
+  /** The author's own vertical position choice for a matter page (see `BookPage.verticalCenter`). */
+  verticalCenter?: boolean | undefined;
+  words: number;
+}
 /** The whole project store: the open book, what is in progress, and the actions that change them. */
 export interface ProjectState {
   root: string | null;
@@ -342,8 +351,8 @@ export interface PageActions {
   readPages: (language?: string) => Promise<BookPage[]>;
   /** Words in all chapters (front and back matter excluded). Pages whose file is unchanged since they were last counted are not read again; the open page is counted from memory. */
   bookWords: () => Promise<number>;
-  /** Words of each chapter before the entry `id` in reading order (front and back matter excluded), for Page view's page numbers. */
-  chapterWordsBefore: (id: string) => Promise<number[]>;
+  /** The words of every page in reading order (front and back matter included), for the page numbers: pages with no text in the open language are left out. Same cache as `bookWords`. */
+  entryWords: () => Promise<EntryWords[]>;
 }
 
 export interface HistoryActions {

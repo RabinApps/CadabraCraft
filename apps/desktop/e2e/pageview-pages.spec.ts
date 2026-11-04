@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, focusEnd } from "./support/helpers";
+import { newProject, focusEnd, manifestOf } from "./support/helpers";
 import { bigChapter } from "../src/test/bigBook";
 
 // Page view: the chapter as real pages (cards at the trim's shape, mirrored margins, running heads, page numbers, split paragraphs).
@@ -90,8 +90,8 @@ test("a long chapter is paginated: running heads, numbers, mirrored margins and 
   await pageViewAt100(page);
   await expect.poll(() => cards(page).count()).toBeGreaterThan(4);
   const n = await cards(page).count();
-  // The status bar counts the same pages.
-  await expect(page.getByTestId("page-position")).toHaveText(new RegExp(`Page 1 of ≈ ${n}$`));
+  // The status bar counts the same pages, exactly: the editor laid this chapter out, so its count is the book's.
+  await expect(page.getByTestId("page-position")).toHaveText(new RegExp(`Page 1 of ${n}$`));
   // Numbers count up from 1; the chapter's opening page has no running head, the pages after it do.
   expect(await page.locator(".page .page-number").allTextContents()).toEqual(
     Array.from({ length: n }, (_, i) => String(i + 1)),
@@ -224,13 +224,13 @@ test("typing a lot adds pages; nothing of the pagination reaches the saved chapt
   await newProject(page);
   await pageViewAt100(page);
   await expect(cards(page)).toHaveCount(1);
-  await expect(page.getByTestId("page-position")).toHaveText(/Page 1 of ≈ 1$/);
+  await expect(page.getByTestId("page-position")).toHaveText(/Page 1 of 1$/);
   await focusEnd(page);
   const typed = Array.from({ length: 30 }, (_, i) => para(110, i)).join(" ");
   await page.keyboard.insertText(typed);
   await expect.poll(() => cards(page).count()).toBeGreaterThanOrEqual(4);
   const n = await cards(page).count();
-  await expect(page.getByTestId("page-position")).toHaveText(new RegExp(`of ≈ ${n}$`));
+  await expect(page.getByTestId("page-position")).toHaveText(new RegExp(`of ${n}$`));
   // The cursor is at the end of the text: the position follows it.
   await expect(page.getByTestId("page-position")).toHaveText(new RegExp(`Page ${n} of`));
   await expect
@@ -311,7 +311,8 @@ test("a chapter that would open on a left-hand page gets a blank verso page firs
     title: document.querySelector(".ProseMirror h1")!.getBoundingClientRect().top,
   }));
   expect(boxes.title).toBeGreaterThan(boxes.blank);
-  await expect(page.getByTestId("page-position")).toHaveText(/of ≈ 2$/);
+  // Three pages in the book: chapter 1, the blank verso, chapter 2 (where the cursor is).
+  await expect(page.getByTestId("page-position")).toHaveText(/Page 3 of 3$/);
 });
 
 test("the second chapter is numbered after the first and opens on a right-hand page", async ({
@@ -323,6 +324,8 @@ test("the second chapter is numbered after the first and opens on a right-hand p
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
   await expect(cards(page).first()).toBeVisible();
   const opening = page.locator(".page:not([data-blank])").first();
+  // The new chapter's words are counted once it is open; until then its page prints no number.
+  await expect(opening).not.toHaveAttribute("data-page", "", { timeout: 10_000 });
   const number = Number(await opening.getAttribute("data-page"));
   expect(number % 2).toBe(1);
   expect(number).toBeGreaterThan(8);
@@ -372,7 +375,7 @@ test("a long chapter (100,000 words in one document) stays responsive", async ({
   await expect.poll(() => cards(page).count(), { timeout: 90_000 }).toBeGreaterThan(200);
   const first = Date.now() - t0;
   const n = await cards(page).count();
-  await expect(page.getByTestId("page-position")).toHaveText(new RegExp(`of ≈ ${n}$`));
+  await expect(page.getByTestId("page-position")).toHaveText(new RegExp(`of ${n}$`));
   await focusEnd(page);
   await page.evaluate(() => {
     const lat: number[] = [];
@@ -511,12 +514,13 @@ test("Typst's page report replaces the estimate in the status bar and the chapte
   page,
 }) => {
   await newProject(page);
-  await page.evaluate(() => {
+  const chapterId = (await manifestOf(page)).chapters[0].id as string;
+  await page.evaluate((id) => {
     window.__typstQueryResult = JSON.stringify({
       total: 40,
-      starts: [{ id: "chapter-1", kind: "chapter", page: 1, end: 1, number: "1" }],
+      starts: [{ id, kind: "chapter", page: 1, end: 1, number: "1" }],
     });
-  });
+  }, chapterId);
   await page.locator(".ProseMirror").click();
   await page.keyboard.insertText("A few words.");
   await pageViewAt100(page);
@@ -536,7 +540,9 @@ test("Typst's page report replaces the estimate in the status bar and the chapte
   );
 });
 
-test("the chapter's first page takes the number Typst printed for it", async ({ page }) => {
+test("the chapter's first page sits where Typst put it, and the book takes its total", async ({
+  page,
+}) => {
   await newProject(page);
   await page.locator(".ProseMirror").click();
   await page.keyboard.insertText("A few words.");
@@ -549,16 +555,18 @@ test("the chapter's first page takes the number Typst printed for it", async ({ 
       )![1]!,
   );
   expect(await page.locator(".page .page-number").first().textContent()).toBe("1");
-  // The book gains pages before this chapter, so Typst now numbers it from page 5 (a right-hand page).
+  // Typst puts two blank pages before the chapter, so it opens on page 3 and the book is 42 pages long: the stack gains the blank
+  // verso the book layout asks for and the opening page takes Typst's page, the status bar its total.
   await page.evaluate((chapterId) => {
     window.__typstQueryResult = JSON.stringify({
-      total: 12,
-      starts: [{ id: chapterId, kind: "chapter", page: 9, end: 9, number: "5" }],
+      total: 42,
+      starts: [{ id: chapterId, kind: "chapter", page: 3, end: 3, number: "3" }],
     });
   }, id);
   await focusEnd(page);
   await page.keyboard.insertText(" More words.");
-  await expect(page.locator(".page .page-number").first()).toHaveText("5", { timeout: 10_000 });
-  // The chapter's own length is Typst's too: no "≈" on the total (the cursor's page is still the editor's).
-  await expect(page.getByTestId("page-position")).toHaveText(/Page ≈ 1 of 1$/);
+  await expect(page.locator(".page .page-number").first()).toHaveText("2", { timeout: 10_000 });
+  await expect(page.locator(".page[data-blank] .page-number")).toHaveText("2");
+  await expect(page.locator(".page:not([data-blank])").first()).toHaveAttribute("data-page", "3");
+  await expect(page.getByTestId("page-position")).toHaveText(/Page 3 of 42$/);
 });

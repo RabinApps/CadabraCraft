@@ -15,13 +15,15 @@ import { usePageView } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useTypewriterSlack } from "./typewriter";
 import { dirFor } from "../i18n/locales";
-import { setPageCount, usePageCount } from "../state/pageCount";
+import { setEntryPages, setPageCount, usePageCount } from "../state/pageCount";
 import { breaksReport, usePageMeasure } from "../state/pageMeasure";
 import { useMeasuredChapter } from "../app/hooks/useMeasuredChapter";
+import { useBookLayout } from "../app/hooks/useBookLayout";
 import type { ExactSource } from "../lib/exactBreaks";
-import { reportChapterMarks, reportStartNumber, usableReport } from "../lib/pageReport";
+import { reportChapterMarks } from "../lib/pageReport";
+import { folioText } from "@cadabracraft/shared";
 import { useProject } from "../state/project/index";
-import { chapterStart, firstPageNumber } from "../lib/pageNumbering";
+import { chapterStart } from "../lib/pageNumbering";
 import { trimLabel } from "../lib/trimLabels";
 import { cx } from "../ui/cx";
 import { pageIsBare, pageIsCentred, useCentredColumn } from "./centring";
@@ -38,13 +40,16 @@ interface CardProps {
   head: string | null;
   verso: boolean;
   left: number;
+  /** The number the PDF prints on this page ("iv", "12"), or "" when it prints none. */
+  folio: string;
 }
 
-const PageCard = memo(function PageCard({ page, head, verso, left }: CardProps) {
+const PageCard = memo(function PageCard({ page, head, verso, left, folio }: CardProps) {
   return (
     <div
       className="page page-card"
-      data-page={page.number}
+      data-page={folio}
+      data-physical={page.number}
       data-index={page.index}
       data-blank={page.kind === "blank" ? "true" : undefined}
       data-kind={page.kind}
@@ -53,7 +58,7 @@ const PageCard = memo(function PageCard({ page, head, verso, left }: CardProps) 
       }
     >
       {head && <div className={`page-head ${verso ? "is-verso" : "is-recto"}`}>{head}</div>}
-      <div className="page-number">{page.number}</div>
+      {folio !== "" && <div className="page-number">{folio}</div>}
     </div>
   );
 });
@@ -75,7 +80,12 @@ interface StackProps {
   verticalCenter?: boolean | undefined;
   /** No chapter opening above the first heading (see `pageIsBare`). */
   bare?: boolean | undefined;
+  /** Physical page of the first card (the book layout's `cardStart`), a blank verso included. */
   firstPage: number;
+  /** The book layout says a blank verso comes first (`blankBefore`): the first card is that blank page. */
+  blankBefore?: boolean | undefined;
+  /** The number the book prints on a physical page: roman in the front matter, arabic from chapter 1 on, "" where it prints none. */
+  folioFor: (physical: number) => string;
   /** Typst's page breaks for this chapter (Page view in Write mode); `exactKey` changes with it. Without them the breaks are estimated. */
   exact?: ExactSource | null;
   exactKey?: string;
@@ -101,6 +111,8 @@ export function PageStack({
   verticalCenter = false,
   bare = false,
   firstPage,
+  blankBefore = false,
+  folioFor,
   exact = null,
   exactKey = "",
   onLayout,
@@ -148,6 +160,7 @@ export function PageStack({
       firstPage,
       startsOn,
       opensChapter: isChapter,
+      blankBefore,
       zoom,
       layoutKey,
       exact,
@@ -158,7 +171,19 @@ export function PageStack({
       },
       onCursorPage: (p) => callbacks.current.onCursorPage?.(p),
     });
-  }, [controller, g, slackPx, firstPage, startsOn, isChapter, zoom, layoutKey, exact, exactKey]);
+  }, [
+    controller,
+    g,
+    slackPx,
+    firstPage,
+    blankBefore,
+    startsOn,
+    isChapter,
+    zoom,
+    layoutKey,
+    exact,
+    exactKey,
+  ]);
   useEffect(() => () => controller.configure(null), [controller]);
 
   const vars = useMemo(
@@ -197,6 +222,7 @@ export function PageStack({
               head={runningHead(p.kind, p.number, bookTitle, chapterTitle, isChapter)}
               verso={p.number % 2 === 0}
               left={sideMargins(g, p.number, rtl).left}
+              folio={folioFor(p.number)}
             />
           ))}
         </div>
@@ -226,37 +252,25 @@ export function PageFrame({ editor, children }: Props) {
   const { zoom: zoomPref } = usePageView();
   const manifest = useProject((s) => s.manifest)!;
   const currentId = useProject((s) => s.currentId);
-  const wordsBefore = useProject((s) => s.actions.chapterWordsBefore);
   const look = usePageLook();
-  const { book, g, trim, family, language } = look;
+  const { book, g, trim, family, fontStack, language } = look;
 
   const section = (currentId ? sectionOf(manifest, currentId) : null) ?? "front";
-  const isChapter = section === "chapter";
   const entry = readingOrder(manifest).find((e) => e.id === currentId);
   const chapterNumber = chapterNumberOf(manifest, currentId);
   const chapterTitle = entry
     ? (entry.titles[language] ?? sourceTitle(entry, manifest.editions))
     : "";
 
-  // Which page number this chapter starts on, from the earlier chapters' word counts (see lib/pageNumbering.ts).
-  const [estimatedFirst, setEstimatedFirst] = useState(1);
-  useEffect(() => {
-    if (!isChapter || !currentId) return setEstimatedFirst(1);
-    let live = true;
-    wordsBefore(currentId)
-      .then((w) => live && setEstimatedFirst(firstPageNumber(book, w)))
-      .catch(() => live && setEstimatedFirst(1));
-    return () => {
-      live = false;
-    };
-  }, [isChapter, currentId, book, wordsBefore, manifest.chapters]);
-  // Typst's printed number for this chapter's first page replaces the estimate. The last report is used even while an edit makes
-  // it stale: a few words rarely move a chapter's start, and swapping numbers on every keystroke would reflow the page cards.
-  const typstFirst = usePageMeasure((s) => {
-    const report = usableReport(s.report);
-    return report && currentId ? reportStartNumber(report, currentId) : null;
-  });
-  const firstPage = isChapter && typstFirst !== null ? typstFirst : estimatedFirst;
+  // Where this page starts in the book and what number it prints there, from the book's layout: Typst's report, the editors'
+  // measures and the word estimate (see lib/pageNumbering.ts). A blank verso before the page is part of the stack.
+  const bookPages = useBookLayout();
+  const placed = currentId ? bookPages?.byId.get(currentId) : undefined;
+  const firstPage = placed?.cardStart ?? 1;
+  const folioFor = useCallback(
+    (physical: number) => (bookPages ? folioText(bookPages, physical) : ""),
+    [bookPages],
+  );
   // Typst's breaks inside this page entry, from the newest report that has it (the chapter's own measure comes much sooner than the
   // book's). The plugin checks they still fit the text, so a stale report is only used while the edits left the blocks as they were.
   useMeasuredChapter(true, currentId);
@@ -276,9 +290,16 @@ export function PageFrame({ editor, children }: Props) {
   const zoom = zoomPref === "fit" ? fitZoom(g, paneW || g.page.w + 48) : zoomPref;
   const slack = useTypewriterSlack(scroller);
 
+  // The pages this entry really takes (a blank verso before it not counted): later entries' starts follow it, so the numbers of
+  // the whole book stay right while the author works through a chapter.
+  const measureKey = `${book.template}|${trim}|${fontStack}|${family ?? ""}`;
   const onLayout = useCallback(
-    (l: PageLayoutResult) => setPageCount(l.pages.length, undefined, l.exact),
-    [],
+    (l: PageLayoutResult) => {
+      setPageCount(l.pages.length, undefined, l.exact);
+      if (currentId)
+        setEntryPages(currentId, l.pages.filter((p) => p.kind !== "blank").length, measureKey);
+    },
+    [currentId, measureKey],
   );
   const onCursor = useCallback(
     (p: number) => setPageCount(usePageCount.getState().count, p + 1),
@@ -327,6 +348,8 @@ export function PageFrame({ editor, children }: Props) {
           verticalCenter={centredNow}
           bare={pageIsBare(centredNow, section, entry?.kind)}
           firstPage={firstPage}
+          blankBefore={placed?.blankBefore ?? false}
+          folioFor={folioFor}
           exact={exact}
           exactKey={exactKey}
           onLayout={onLayout}

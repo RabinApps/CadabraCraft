@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { countWords } from "@cadabracraft/shared";
+import { countWords, folioText } from "@cadabracraft/shared";
 import { PAGE_GAP } from "./pagination/core";
 import { usePageLook } from "./PageFrame";
 import { ReadingSection } from "./ReadingSection";
+import { useBookLayout } from "../app/hooks/useBookLayout";
 import { useIsMd } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useMeasuredPages } from "../app/hooks/useMeasuredPages";
 import { fitZoom } from "../lib/pageLayout";
-import { chapterPageCount, chapterStart, bookWordsPerPage } from "../lib/pageNumbering";
-import { reportStartNumber, usableReport } from "../lib/pageReport";
+import { chapterPageCount, bookWordsPerPage } from "../lib/pageNumbering";
+import { usableReport } from "../lib/pageReport";
 import {
-  chainFirstPages,
   pageAtLine,
   pagedHeight,
   plainHeight,
@@ -23,6 +23,7 @@ import { errText } from "../lib/projectError";
 import { attempt } from "../state/attempt";
 import { useSettings } from "../state/editorPrefs";
 import { readingPaged } from "../state/pageView";
+import { setEntryPages } from "../state/pageCount";
 import { usePageMeasure } from "../state/pageMeasure";
 import { useProject } from "../state/project/index";
 import type { BookPage } from "../state/project/types";
@@ -51,7 +52,7 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   const wide = useIsMd();
   const paged = readingPaged("read", wide);
   const look = usePageLook();
-  const { g, book } = look;
+  const { g, book, trim, fontStack, family } = look;
   // The reader draws the pages as Typst broke them, in every chapter: the book is measured with the marks that say where.
   useMeasuredPages(paged, true);
   const report = usePageMeasure((s) => usableReport(s.report));
@@ -119,27 +120,32 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     },
     [capture],
   );
-  // Pages each chapter has: from its words until its editor has laid it out.
+  // Where every section starts in the book and what number it prints there: the same layout Write mode uses (Typst's report,
+  // the editors' measures and the words), never a chain of its own. `laid` is which sections have laid out their pages here, for
+  // the placeholder heights.
+  const layout = useBookLayout();
   const perPage = bookWordsPerPage(book);
   const words = useMemo(() => pages.map((p) => countWords(p.doc)), [pages]);
-  const [measured, setMeasured] = useState<Record<string, number>>({});
-  const onPages = useCallback((id: string, n: number) => {
-    setMeasured((m) => (m[id] === n ? m : { ...m, [id]: n }));
-    if (pending.current?.id === id) setAlignTick((t) => t + 1);
-  }, []);
-  const firstPages = useMemo(
-    () =>
-      chainFirstPages(
-        pages.map((p, i) => ({
-          id: p.id,
-          section: p.section,
-          measured: measured[p.id] ?? null,
-          estimate: chapterPageCount(words[i]!, perPage),
-        })),
-        chapterStart(book),
-        (id) => (report ? reportStartNumber(report, id) : null),
-      ),
-    [pages, words, measured, perPage, book, report],
+  const [laid, setLaid] = useState<ReadonlySet<string>>(() => new Set());
+  // A section's pages are the book's: they go to the shared layout (later sections start after them), and the section counts as laid
+  // out for the placeholder heights. `n` is its content pages, a blank verso before it not counted.
+  const measureKey = `${book.template}|${trim}|${fontStack}|${family ?? ""}`;
+  const onPages = useCallback(
+    (id: string, n: number) => {
+      setEntryPages(id, n, measureKey);
+      setLaid((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+      if (pending.current?.id === id) setAlignTick((t) => t + 1);
+    },
+    [measureKey],
+  );
+  const folioFor = useCallback(
+    (physical: number) => (layout ? folioText(layout, physical) : ""),
+    [layout],
+  );
+  /** Content pages of a section (a blank verso before it not counted): its measured layout, else the estimate. */
+  const pagesOf = useCallback(
+    (id: string, i: number) => layout?.byId.get(id)?.pages ?? chapterPageCount(words[i]!, perPage),
+    [layout, words, perPage],
   );
 
   // Which chapters are near the viewport (and so have an editor), and the last measured height of each.
@@ -190,12 +196,14 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     const cards = paged
       ? Array.from(el.querySelectorAll<HTMLElement>(".page-card")).map((c) => ({
           top: c.getBoundingClientRect().top,
-          number: Number(c.dataset.page),
+          number: Number(c.dataset.physical),
         }))
       : [];
     visible.current = el.dataset.readingId!;
-    setReadingPosition(visible.current, pageAtLine(cards, lineY));
-  }, [paged, ready]);
+    // The footer names the page as the PDF prints it (roman in the front matter, arabic later), not its position in the book.
+    const line = pageAtLine(cards, lineY);
+    setReadingPosition(visible.current, line === null ? null : folioFor(line));
+  }, [paged, ready, folioFor]);
   useEffect(() => {
     const sc = scroller.current!;
     capture();
@@ -223,7 +231,7 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   useEffect(() => {
     const raf = requestAnimationFrame(measure);
     return () => cancelAnimationFrame(raf);
-  }, [measure, measured, firstPages]);
+  }, [measure, laid, layout]);
   useEffect(() => () => setReadingPosition(null, null), []);
 
   // The open chapter follows the reader (after a pause, so scrolling does not reload it at every chapter boundary) ...
@@ -248,6 +256,12 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     events.forEach((e) => sc.addEventListener(e, stop, { passive: true }));
     return () => events.forEach((e) => sc.removeEventListener(e, stop));
   }, []);
+  // `align` and `measure` are new functions whenever the book layout is (a section measured), so the effects below read the
+  // latest through refs: re-running a jump because a page count arrived would scroll the reader back while they read.
+  const alignNow = useRef(align);
+  alignNow.current = align;
+  const measureNow = useRef(measure);
+  measureNow.current = measure;
   useLayoutEffect(() => {
     if (!currentId || !ready) return;
     if (echo.current === currentId) {
@@ -259,16 +273,20 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     const asked = jump.current?.id === currentId ? jump.current.heading : undefined;
     const mine = { id: currentId, heading: asked };
     pending.current = mine;
-    align(currentId, asked);
-    measure();
+    // The layout changing (a section measured) makes `align` and `measure` new functions; they are read through refs so this
+    // effect runs only when the open chapter changes, never while the reader is scrolling.
+    alignNow.current(currentId, asked);
+    measureNow.current();
     const timer = setTimeout(() => {
       if (pending.current === mine) pending.current = null;
     }, 2500);
     return () => clearTimeout(timer);
-  }, [currentId, ready, measure, align]);
+  }, [currentId, ready]);
+  // Only a section of the pending chapter finishing its layout asks for the jump again: `align` is a new function whenever the
+  // book layout is, and aligning again then would scroll the reader back to the chapter they came from.
   useLayoutEffect(() => {
-    if (alignTick && pending.current) align(pending.current.id, pending.current.heading);
-  }, [alignTick, align]);
+    if (alignTick && pending.current) alignNow.current(pending.current.id, pending.current.heading);
+  }, [alignTick]);
   // An entry of the Contents page was chosen: open that chapter and scroll to it (or to its heading), also when it is already the
   // open one or is on screen, which the effect above would leave where it is.
   const jump = useRef<{ id: string; heading?: number } | null>(null);
@@ -286,13 +304,15 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     if (!jumpTick || !j || !ready) return;
     const mine = { ...j };
     pending.current = mine;
-    align(j.id, j.heading);
-    measure();
+    // Read through refs, so a chapter that lays out (a new layout, and so new `align` and `measure`) does not re-run the jump:
+    // that would send the reader back to the last Contents link they followed, over a chapter they chose since.
+    alignNow.current(j.id, j.heading);
+    measureNow.current();
     const timer = setTimeout(() => {
       if (pending.current === mine) pending.current = null;
     }, 2500);
     return () => clearTimeout(timer);
-  }, [jumpTick, ready, align, measure]);
+  }, [jumpTick, ready]);
 
   const column = Math.min(widths[width], paneW || widths[width]) - 48;
   const gap = paged ? Math.round(PAGE_GAP * zoom) : 0;
@@ -326,16 +346,11 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
           key={page.id}
           page={page}
           near={near.has(page.id)}
-          settled={!paged || measured[page.id] !== undefined}
+          settled={!paged || laid.has(page.id)}
           placeholder={
             heights.current.get(page.id) ??
             (paged
-              ? pagedHeight(
-                  measured[page.id] ?? chapterPageCount(words[i]!, perPage),
-                  g.page.h,
-                  PAGE_GAP,
-                  zoom,
-                )
+              ? pagedHeight(pagesOf(page.id, i), g.page.h, PAGE_GAP, zoom)
               : plainHeight(words[i]!, sizes[size]!, column))
           }
           observer={observer}
@@ -345,7 +360,9 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
           first={i === 0}
           look={look}
           zoom={zoom}
-          firstPage={firstPages.get(page.id) ?? 1}
+          firstPage={layout?.byId.get(page.id)?.cardStart ?? 1}
+          blankBefore={layout?.byId.get(page.id)?.blankBefore ?? false}
+          folioFor={folioFor}
           chapterNumber={chapterNumbers.get(page.id)}
           size={size}
           width={width}

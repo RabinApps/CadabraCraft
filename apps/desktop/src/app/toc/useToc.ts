@@ -6,10 +6,11 @@ import {
   type EditionEntry,
   type Outlines,
 } from "@cadabracraft/format";
-import { estimateStarts, needsOutlines, tocRows } from "../../lib/tocView";
+import { needsOutlines, tocRows, type TocNumber } from "../../lib/tocView";
 import { usableReport } from "../../lib/pageReport";
 import { usePageMeasure } from "../../state/pageMeasure";
 import { useProject } from "../../state/project/index";
+import { useBookLayout } from "../hooks/useBookLayout";
 import { useMeasuredPages } from "../hooks/useMeasuredPages";
 
 const NONE: Outlines = {};
@@ -27,7 +28,7 @@ export function useToc(entry: EditionEntry, measure = true) {
   const actions = useProject((s) => s.actions);
   const settings = tocSettingsOf(entry);
   const [outlines, setOutlines] = useState<Outlines | null>(null);
-  const [estimates, setEstimates] = useState<Record<string, number>>({});
+  const layout = useBookLayout();
   useMeasuredPages(measure, settings.depth > 0);
   const report = usePageMeasure((s) => usableReport(s.report));
   const current = usePageMeasure((s) => s.fresh);
@@ -44,24 +45,14 @@ export function useToc(entry: EditionEntry, measure = true) {
       live = false;
     };
   }, [wanted, manifest, hashes, language, actions]);
-  useEffect(() => {
-    let live = true;
-    actions.chapterWordsBefore("").then(
-      (words) =>
-        live &&
-        setEstimates(
-          estimateStarts(
-            manifest,
-            manifest.chapters.map((c) => c.id),
-            words,
-          ),
-        ),
-      () => live && setEstimates({}),
-    );
-    return () => {
-      live = false;
-    };
-  }, [manifest, hashes, actions]);
+  // The numbers the book layout prints for every entry: roman in the front matter, arabic from chapter 1 on. Built once per layout,
+  // so the list, the preview and Read mode all show the number the page will print.
+  const numbers = useMemo(() => {
+    const out: Record<string, TocNumber> = {};
+    for (const e of layout?.entries ?? [])
+      out[e.id] = { text: e.folio === "" ? null : e.folio, estimated: !e.exact };
+    return out;
+  }, [layout]);
   const known = outlines ?? NONE;
   const items = useMemo(
     () => resolveToc(manifest, entry, language, known),
@@ -78,7 +69,7 @@ export function useToc(entry: EditionEntry, measure = true) {
     const shown = items.map((i) =>
       i.kind === "custom" ? { ...i, stale: dangling.has(i.key) } : i,
     );
-    return tocRows(shown, { report, current, estimates, outlines: known });
-  }, [items, stale, report, current, estimates, known]);
-  return { settings, items, rows, stale, language };
+    return tocRows(shown, { report, current, numbers, outlines: known });
+  }, [items, stale, report, current, numbers, known]);
+  return { settings, items, rows, stale, language, layout };
 }

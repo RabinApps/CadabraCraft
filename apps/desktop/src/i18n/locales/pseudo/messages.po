@@ -59,7 +59,9 @@ msgid "{0, plural, one {# page that was not in the snapshot is in the trash.} ot
 msgstr ""
 
 #. placeholder {0}: e.pages.length
+#. placeholder {0}: layout.physical
 #: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/shell/PageEstimate.tsx
 msgid "{0, plural, one {# page} other {# pages}}"
 msgstr ""
 
@@ -80,6 +82,11 @@ msgstr ""
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/home/Dashboard.tsx
 msgid "{0, plural, one {# word} other {# words}}"
+msgstr ""
+
+#. placeholder {0}: layout.physical
+#: src/app/shell/PageEstimate.tsx
+msgid "{0, plural, one {≈ # page} other {≈ # pages}}"
 msgstr ""
 
 #. placeholder {0}: picked ? picked.length : chapters.length
@@ -273,14 +280,6 @@ msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
-msgstr ""
-
-#: src/app/shell/PageEstimate.tsx
-msgid "{count, plural, one {# page} other {# pages}}"
-msgstr ""
-
-#: src/app/shell/PageEstimate.tsx
-msgid "{count, plural, one {≈ # page} other {≈ # pages}}"
 msgstr ""
 
 #: src/app/export/PrintPreview.tsx
@@ -3075,10 +3074,6 @@ msgstr ""
 msgid "Page {0} of {total}"
 msgstr ""
 
-#: src/app/shell/PageEstimate.tsx
-msgid "Page {current} of ≈ {count}"
-msgstr ""
-
 #: src/app/export/TypstSpread.tsx
 msgid "Page {first} of {total}"
 msgstr ""
@@ -3088,12 +3083,19 @@ msgstr ""
 msgid "Page {page}"
 msgstr ""
 
+#. placeholder {0}: layout.physical
 #: src/app/shell/PageEstimate.tsx
-msgid "Page {shown} of {exact}"
+msgid "Page {shown} of {0}"
 msgstr ""
 
+#. placeholder {0}: layout.physical
 #: src/app/shell/PageEstimate.tsx
-msgid "Page ≈ {shown} of {exact}"
+msgid "Page {shown} of ≈ {0}"
+msgstr ""
+
+#. placeholder {0}: layout.physical
+#: src/app/shell/PageEstimate.tsx
+msgid "Page ≈ {shown} of {0}"
 msgstr ""
 
 #: src/editor/PageFrame.tsx

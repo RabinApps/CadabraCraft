@@ -1547,3 +1547,102 @@ Title pages, dedications and epigraphs are one short block that looks wrong at t
 | Wrapping every Markdown block, lists included | `<div>` inside a list item or a table cell changes what the Markdown means, and CommonMark does not allow it there; plain text is the honest lossy output.                            |
 
 **Follow-ups / caveats:** pen frames for the toolbar button and its menu, the Format > Alignment submenu (ticked and unticked) and the RTL mirrored button are not drawn (the pen is not changed by this work; a roadmap line was added). Word and RTF map logical start/end to left/right, so they are only right for left-to-right books. The EPUB rules are appended after a template stylesheet at equal specificity, so a template that styles `p` with a more specific selector (an id or `!important`) would still win. Aligning a whole list means selecting its items; there is no "align the list" command.
+
+## Page numbering (2026-11-03)
+
+### Decision
+
+One pure function owns the page numbers of the book: `layoutBook(entries, { startsOn, numbered })` in `packages/shared/src/pageNumbering.ts`. It takes the book's reading order, the template's chapter opening and one page count per entry, and returns for every entry the physical page it starts on (blank verso included), whether a blank verso precedes it, its last page, its numbering style (`roman`/`arabic`) and the number printed on its first page, plus the book's physical length, where arabic 1 is and whether every count was measured. Every surface that names a page — Write page cards, the status bar, Read mode, the print preview, the Contents page and the checks in the PDF dialog — calls it (directly or through the two desktop adapters below) and nothing else.
+
+**The rules are the PDF's** (`packages/export-pdf/src/typst/matter.ts`, which `pagenumbers.render.test.ts` checks against real Typst for three templates):
+
+- Physical pages count from 1, the cover not counted (the measure runs without a cover, so the report's pages are interior pages).
+- Front matter is numbered in lower-case roman by physical page. The title, copyright and contents pages print no folio; every other front matter page prints its roman number.
+- The first page after the front matter opens on a right-hand (odd) page and restarts at arabic 1; every later page, back matter and blank versos included, continues that count. A book with no front matter is arabic from page 1.
+- Title page, contents, dedication and epigraph always open on a right-hand page, and so does the page after a dedication or epigraph. A chapter, and a front or back matter page that is not laid out in the vertical middle, opens like the template says (`chapterOpening.startOn`: `recto` puts a blank verso first when the next page would be even). Every other entry opens on the next page.
+- A blank verso counts in the page numbers and prints its folio, and has no running head; it is never a page entry of its own.
+- When Typst's report is of the text as it is now and has every entry, its `start` pages win over the rules: the layout then _is_ the PDF, blank pages and all.
+
+**Where the numbers come from**, best first: Typst's report for the current text (`measurePages`, `PageReport.starts`); the page count an editor laid out for an entry (a blank page before it not counted, `state/pageCount.ts`'s `byId`); Typst's page count from an older report (a chapter's start may move, its length rarely does); else `ceil(words / words per page)` from the book's template and trim, at least one page. Each entry says whether its count is `exact`; the book is exact when all are. The words come from `entryWords()` in the project store, which counts every page in reading order including front and back matter and gives an entry with no file in the open language 0 words, so an untranslated page still takes its page.
+
+**The adapters**, so no surface does its own arithmetic:
+
+- `apps/desktop/src/lib/pageNumbering.ts`: `bookLayout(book, entries, sources)` turns the template (trim, margins, font, `startOn`) and `PageSources` (report, `fresh`, measured map, `numbered`) into `layoutBook` inputs. `chapterStart`, `bookWordsPerPage` and `chapterPageCount` stay here as the estimate's inputs.
+- `apps/desktop/src/lib/bookPages.ts`: `layoutOfPages(book, pages, sources)` does the same from a `BookPage[]` (Read mode, the print preview and the PDF panel read the book that way), and `bookPages()` is the summary the print checks need (`trimSize`, `pages` = `physical`, `exact`).
+- `apps/desktop/src/app/hooks/useBookLayout.ts` is the single hook Write mode, the status bar and the Contents editor mount: it refreshes the word count when the book changes (`state/bookWords.ts`), reads the report (`state/pageMeasure.ts`) and the editors' measures (`state/pageCount.ts`), and returns the `BookPages`. The store is keyed by template/trim/font so a measure under another layout is dropped.
+
+**How each surface consumes it:**
+
+| Surface                           | Reads                                                                                                | Shows                                                                                                                                                                                                                                                         |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Write page cards                  | the open entry's `cardStart` as the pagination's `firstPage`, `folioText(layout, physical)` per card | physical page numbers on blank cards, roman on front matter, nothing on title/copyright/contents, arabic from chapter 1 on; running heads by physical parity                                                                                                  |
+| Write status bar (`Page n of m`)  | the cursor card's physical page → `folioAt`, `layout.physical`                                       | the book's number of the page under the cursor and the book's last page; `≈` before the number only when an entry before it is estimated (so an entry's own unmeasured length never marks its first page), `≈` before the total when any count is an estimate |
+| Write status bar (`PageEstimate`) | `layout.physical`, `layout.exact`                                                                    | " · 174 pages at 6 × 9 in", `≈` while estimated: total including front and back matter and blank versos                                                                                                                                                       |
+| Read mode                         | the same layout, from the pages it loaded                                                            | the same cards and folios as Write, chained across every section; the footer's page is `folioAt` of the card at the reading line                                                                                                                              |
+| Print preview                     | the real Typst PDF (`TypstSpread`); the layout only for the fallback count and the "About N pages"   | the PDF's own folios; the fallback counts `physical`, `≈` while estimated                                                                                                                                                                                     |
+| PDF dialog checks                 | `bookPages()`                                                                                        | `physical` pages for the print checks                                                                                                                                                                                                                         |
+| Contents page                     | the layout per entry (report when fresh; estimate marked `≈`)                                        | roman on front matter, nothing for title/copyright/contents ("–"), arabic for chapters and back matter, exactly the numbers the PDF's `toc-list` prints                                                                                                       |
+| EPUB                              | —                                                                                                    | no page list or pagebreak markers are written; reflowable, so there is nothing to number                                                                                                                                                                      |
+
+In Read mode every section's page count goes back into the same store (`setEntryPages`), so the reader's chain is Write mode's, not a chain of its own; the reader's "scroll to the open chapter" effects read `align`/`measure` through refs and depend only on the open chapter, because a page count arriving makes those functions new and re-running a jump would scroll the reader back to the chapter they came from.
+
+**While measurement is pending** the layout is built from estimates and marked `≈`; it is never a structurally wrong 1. Front matter is still roman (the title page is `i`, the contents page `iii`, not `1`), and chapter 2 still starts after chapter 1's estimated pages. A floored page count of one page per empty entry keeps the chain from collapsing. The surfaces keep the last numbers while a new count arrives (they never flash a placeholder), and a stale report may still supply page _counts_ (but not starts).
+
+**Editions.** The layout is per edition: it counts the pages the open edition has. An entry with no file in that language is an empty page in the layout (so chapter 3 of a partly translated edition starts after the two empty chapters before it, as the export's PDF would lay them out). `countEntries` no longer skips those entries. An export with `skipUntranslated` leaves them out, and that export's own Typst report is its truth.
+
+**Hidden and untranslated Contents entries** do not change pagination (hiding is a list setting, not a layout one). A custom Contents entry shows its target's number. Heading numbers still come from the report's `h` marks (`printedNumber`), which is also the only source that can be exact for a heading.
+
+**RTL books** use the same numbers: recto is still the odd physical page (Typst's `pagebreak(to: "odd")` is physical), the binding side only moves the margins (`sideMargins`) and the running heads. Roman numerals are written in the same order (they are not mirrored in the PDF either).
+
+**`numbered: false`** (the PDF dialog's switch) gives every entry `number: null`: the layout still places pages and reports lengths, but no folio is drawn anywhere.
+
+### Why
+
+The app had four page-number chains: chapters chained from their word counts in Write (`firstPageNumber`), from measured card counts in Read (`chainFirstPages`), from the Typst report per chapter, and front and back matter restarted at 1 in every one of them; the totals (`bookPageCount`) counted chapters only. Each was right about a different part and they disagreed about front matter, blank versos, estimates and failed counts, so the same book showed `1` on its title page, `1` on its acknowledgments, `2 of 6` on every chapter in the status bar and a total that left the front matter out. One function with the PDF's rules and one set of inputs makes every surface agree by construction, and the render test fixes the rules to Typst's rather than to our reading of them. It also removes the estimate's missing blank verso, which made chapter starts jump by a page when Typst's report arrived (estimate 6, PDF 7).
+
+### Rejected alternatives
+
+| Rejected                                                                  | Why not                                                                                                                                                                     |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Keep a per-surface chain and align them by hand                           | What the bug was: four implementations, three answers. Any new surface restarts the same drift.                                                                             |
+| Compile each chapter with Typst and read its first page number            | A per-chapter compile resets `counter(page)`; making it not reset means compiling the whole book anyway, and it would need Typst for a number the app must show without it. |
+| Number front matter in arabic (physical page)                             | The PDF prints roman (and none on the title, copyright and contents pages); the editor would disagree with the export it is previewing.                                     |
+| Number each entry from its own page 1 and show only the chapter's numbers | That is the current bug in the status bar; an author needs the printed page to find it in the PDF or a proof.                                                               |
+| A mutable "next page" cursor shared through the store                     | Order-dependent and untestable; a pure function over the reading order gives every surface the same answer and is unit-testable at 100%.                                    |
+| Count pages from words only                                               | Exact page counts exist (Typst's report, the editor's own layout); throwing them away makes the numbers jump when the report lands.                                         |
+| Start the estimate at 0 and let each surface add one                      | It hides the off-by-one in each caller instead of in one place; the first arabic page is a rule of the layout.                                                              |
+| Re-measure the whole book on every edit so numbers are never estimates    | Seconds per measure on a large book; the estimate with `≈` is the honest answer in between.                                                                                 |
+
+### Test matrix
+
+`pagenumbers.render.test.ts` (real Typst, three templates) pins the rules to the PDF. `packages/shared` unit tests cover every rule and branch at 100%. The Playwright spec `page-numbers.spec.ts` uses one book — title page, copyright, contents, dedication, three chapters of several pages and two back matter pages — and asserts:
+
+| Situation                     | Write cards                               | Status bar         | Read cards             | Contents                     | Preview / checks                              |
+| ----------------------------- | ----------------------------------------- | ------------------ | ---------------------- | ---------------------------- | --------------------------------------------- |
+| Estimates only (no Typst)     | i / – / – / v / 1, 7, 13, back matter 19  | `Page 7 of ≈ 24`   | same as Write, chained | roman + arabic, `≈`          | `About 24 pages`, `≈`                         |
+| Typst report current          | the report's pages, blank versos included | exact, no `≈`      | same                   | the report's numbers, no `≈` | real PDF counts, no `≈`                       |
+| Book with no front matter     | chapter 1 = 1                             | `Page 1 of 17`     | same                   | arabic only                  | —                                             |
+| `startsOn: "any"` template    | no blank versos, numbers consecutive      | —                  | same                   | —                            | —                                             |
+| Page numbers off (PDF switch) | no folios                                 | —                  | no folios              | "–"                          | PDF prints none                               |
+| Page view off / phone width   | reflow (no cards)                         | the book's numbers | plain reading          | numbers still right          | —                                             |
+| Untranslated earlier chapter  | the later chapter keeps its slot          | —                  | same                   | same                         | `skipUntranslated` export uses its own report |
+| RTL edition (he/ar)           | same numbers, mirrored margins            | —                  | same                   | same                         | —                                             |
+
+### Quality gates
+
+| Gate                 | Applies                 | Command / rule                                                                                                                                                                                                              |
+| -------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Feature completeness | Yes                     | Every surface above reads `layoutBook`; `docs/architecture.md` (this section), README/`docs/testing.md` notes updated. No pen change: no new screen, control or state (folios and status-bar text change, layout does not). |
+| Typecheck            | Yes                     | `pnpm typecheck`                                                                                                                                                                                                            |
+| Lint and format      | Yes                     | `pnpm lint`, `pnpm format:check`                                                                                                                                                                                            |
+| i18n                 | Yes if a string changes | `pnpm --filter @cadabracraft/desktop i18n:extract`, fill en/es/it/fr/de/he/ar to 0 missing, `i18n:check` after staging                                                                                                      |
+| ADA (WCAG 2.2 AA)    | Only text changes       | `/a11y --fast`; no new screen, so no new entry in `a11yScreens.ts`; page cards stay `aria-hidden`, the status bar stays a live text node                                                                                    |
+| Test coverage        | Yes                     | `packages/shared` 100%; desktop unit floors (lines/statements/functions/branches) 99/99/99/98 and the page-view/reading/toc/export specs in Chromium with a unique `E2E_PORT`                                               |
+| EPUB                 | Not changed             | `/validate-epub` not required (no exporter touched); run it anyway if `export-epub` changes                                                                                                                                 |
+
+### Follow-ups / caveats
+
+- The estimate counts a contents page as its title's words, so without Typst a long contents list can add a page the estimate does not know about; the report corrects it, and the estimate is marked `≈`.
+- The status bar total is the interior page count (no cover). With a cover the printed PDF has two more pages before arabic 1, as the export dialog already says.
+- Real-Typst checks need the `typst` binary; the render tests skip without it and say so (`REQUIRE_TYPST=1` makes that a failure in CI).
+- Word, RTF and Markdown exports have no pages and are unaffected.

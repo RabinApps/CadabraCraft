@@ -1,17 +1,40 @@
+import type { BookPages } from "@cadabracraft/shared";
 import type { TrimSize } from "@cadabracraft/export-pdf";
-import type { Manifest } from "@cadabracraft/format";
+import { countWords } from "@cadabracraft/shared";
 import { resolveTrimSize } from "@cadabracraft/templates";
-import { bookPageCount } from "./pageNumbering";
+import { bookLayout, type EntryWords, type PageSources } from "./pageNumbering";
+import type { BookPage } from "../state/project/types";
+
+type BookLike = { template: string; trimSize?: TrimSize };
+
+/** The words of every page in reading order, as the layout takes them (front and back matter included, an empty page at 0). */
+export const entryWordsOf = (pages: readonly BookPage[]): EntryWords[] =>
+  pages.map((p) => ({
+    id: p.id,
+    section: p.section,
+    kind: p.kind,
+    verticalCenter: p.verticalCenter,
+    words: countWords(p.doc),
+  }));
 
 /**
- * The book's print page size and page count, counted like Page view does (see `firstPageNumber`): `words` is each chapter's word
- * count in order, `measured` the pages Page view measured for some of them (chapter index to count). `exact` is false while any
- * chapter is only estimated from its words: the PDF is the reference.
+ * The page layout of a book whose pages are in memory (Read mode, the print preview, the PDF dialog): the same
+ * `bookLayout` Write mode uses, so every surface gives a page the number the PDF prints there.
  */
+export function layoutOfPages(
+  book: BookLike,
+  pages: readonly BookPage[],
+  sources: PageSources = {},
+): BookPages {
+  return bookLayout(book, entryWordsOf(pages), sources);
+}
+
+/** The book's print page size and page count (`physical`, blank pages and front and back matter included), and whether every count is measured. */
 export function bookPages(
-  manifest: Pick<Manifest, "template" | "trimSize">,
-  words: number[],
-  measured?: ReadonlyMap<number, number>,
+  book: BookLike,
+  pages: readonly BookPage[],
+  sources: PageSources = {},
 ): { trimSize: TrimSize; pages: number; exact: boolean } {
-  return { trimSize: resolveTrimSize(manifest), ...bookPageCount(manifest, words, measured) };
+  const layout = layoutOfPages(book, pages, sources);
+  return { trimSize: resolveTrimSize(book), pages: layout.physical, exact: layout.exact };
 }

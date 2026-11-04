@@ -19,7 +19,7 @@ import { countWords, type ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
 import { errText, whyText } from "../../lib/projectError";
 import { alertOf, emptyDoc, parseChapter, PartialWrite, HISTORY_LIMIT } from "./util";
-import type { BookPage, HistoryEntry, ProjectState } from "./types";
+import type { BookPage, EntryWords, HistoryEntry, ProjectState } from "./types";
 
 type Set = StoreApi<ProjectState>["setState"];
 type Get = StoreApi<ProjectState>["getState"];
@@ -233,43 +233,48 @@ export function createContext(set: Set, get: Get) {
   /** Word count per chapter file, valid while the store's hash for that file is the one it was counted under. */
   let wordCache = new Map<string, { hash: string | undefined; words: number }>();
   /**
-   * Words of each chapter in reading order (front and back matter excluded), reading only pages that changed since they were last
-   * counted. The open page is counted from the draft or the loaded doc. With `before`, stops at that entry (its own words and the
-   * ones after it are left out).
+   * Words of every page of the book in reading order (front and back matter included, those with no text in the open language
+   * left out), reading only pages that changed since they were last counted. The open page is counted from the draft or the
+   * loaded doc.
    */
-  const countChapters = async (before?: string) => {
+  const countEntries = async (): Promise<EntryWords[]> => {
     const { root, manifest } = need();
     const currentId = get().currentId;
     const lang = langOf(manifest);
-    const counts: number[] = [];
+    const out: EntryWords[] = [];
     for (const c of readingOrder(manifest)) {
-      if (c.id === before) break;
-      if (sectionOf(manifest, c.id) !== "chapter") continue;
+      const section = sectionOf(manifest, c.id)!;
+      const own = { id: c.id, section, kind: c.kind, verticalCenter: c.verticalCenter };
       if (c.id === currentId) {
         const open = get().draft ?? get().currentDoc;
         if (open) {
-          counts.push(countWords(open));
+          out.push({ ...own, words: countWords(open) });
           continue;
         }
       }
       const file = entryFile(c, lang);
-      if (!file) continue; // no text in this language yet
+      // No text in this language yet: the page is still in the book (the PDF exports its title), with no words.
+      if (!file) {
+        out.push({ ...own, words: 0 });
+        continue;
+      }
       const hash = get().hashes[file];
       const hit = wordCache.get(file);
       if (hit && hit.hash === hash) {
-        counts.push(hit.words);
+        out.push({ ...own, words: hit.words });
         continue;
       }
       const r = await bridge.readFile(root, file);
       if (!r) throw new Error(t`Missing chapter file ${file}`);
       const words = countWords(parseChapter(r.contents, file));
       wordCache.set(file, { hash, words });
-      counts.push(words);
+      out.push({ ...own, words });
     }
-    return counts;
+    return out;
   };
   /** Words in the book's chapters. */
-  const countBook = async () => (await countChapters()).reduce((a, b) => a + b, 0);
+  const countBook = async () =>
+    (await countEntries()).reduce((a, e) => (e.section === "chapter" ? a + e.words : a), 0);
   /** Bytes of every image the chapters use. */
   const loadAssets = async (chapters: { doc: ChapterDoc }[]) => {
     const { root } = need();
@@ -326,7 +331,7 @@ export function createContext(set: Set, get: Get) {
     loadChaptersIn,
     loadExportPages,
     countBook,
-    countChapters,
+    countEntries,
     loadAssets,
     loadCover,
     resetWordCache,

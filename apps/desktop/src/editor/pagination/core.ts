@@ -80,6 +80,8 @@ export interface LayoutInput {
   firstPage: number;
   startsOn: "recto" | "any";
   opensChapter: boolean;
+  /** A blank verso comes first (the book layout's `blankBefore`). */
+  blankBefore?: boolean | undefined;
   /** Typst's page breaks (see `PaginateOptions.forced`); the layout then follows them instead of estimating. */
   forced?: PageBreak[];
 }
@@ -183,6 +185,7 @@ export function layoutPages(input: LayoutInput): PageLayoutResult {
     firstPage: input.firstPage,
     startsOn: input.startsOn,
     opensChapter: input.opensChapter,
+    ...(input.blankBefore === undefined ? {} : { blankBefore: input.blankBefore }),
     ...(input.forced ? { forced: input.forced } : {}),
   });
   const lineY = (br: PageBreak): number =>

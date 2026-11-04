@@ -10,7 +10,6 @@ import {
   tocSettingsOf,
 } from "@cadabracraft/format";
 import type { PageReport, PageStart } from "@cadabracraft/export-pdf";
-import { firstPageNumber } from "./pageNumbering";
 
 /** The page number to show for one list row: `text` is null when nothing is known (shown as a dash), `estimated` when it comes from the word-count estimate. */
 export interface TocRow {
@@ -93,31 +92,43 @@ export function headingPageNumbers(report: PageReport, outlines: Outlines): Reco
   return out;
 }
 
+export interface TocNumber {
+  /** The number printed for an entry ("iv", "12"), already in its style; null when its page prints none (title, copyright, contents). */
+  text: string | null;
+  /** The number comes from an estimate (the words or an editor's layout), not from Typst. */
+  estimated: boolean;
+}
+
 export interface TocPageSource {
   /** The book's page report (Typst's own numbers), when there is a current one. */
   report: PageReport | null;
   /** The report is of the text as it is now. A report the book has moved on from still shows its numbers, marked as estimates. */
   current: boolean;
-  /** Fallback: the estimated first page of each chapter (entry id to number), used for every entry the report does not cover. */
-  estimates: Readonly<Record<string, number>>;
+  /** Every entry's number from the book layout (front matter roman, chapters and back matter arabic), by entry id. */
+  numbers: Readonly<Record<string, TocNumber>>;
   outlines: Outlines;
 }
 
 /**
- * The rows of the contents editor with their page numbers. Precedence: Typst's report (exact), then the estimate for chapters
- * (marked `estimated`), else no number. Headings take theirs from the report's marks only. A custom entry shows its target's number.
+ * The rows of the contents editor with their page numbers. Precedence: Typst's report (exact), then the book layout's number (marked
+ * `estimated` unless its count was measured), else no number. Headings take theirs from the report's marks only. A custom entry shows
+ * its target's number. The numbers are the ones the PDF's list prints: roman in the front matter, arabic from chapter 1 on.
  */
 export function tocRows(items: readonly TocItem[], source: TocPageSource): TocRow[] {
   const { report } = source;
   const reported: TocPageStart[] = report
-    ? report.starts.map((s) => ({ id: s.id, number: s.number }))
+    ? report.starts.filter((s) => s.number !== "").map((s) => ({ id: s.id, number: s.number }))
     : [];
-  const known = new Set(reported.filter((s) => s.number !== "").map((s) => s.id));
-  const guessed: TocPageStart[] = Object.entries(source.estimates)
-    .filter(([id]) => !known.has(id))
-    .map(([id, n]) => ({ id, number: String(n) }));
+  const known = new Set(reported.map((s) => s.id));
+  const guessed: TocPageStart[] = Object.entries(source.numbers)
+    .filter(([id, n]) => !known.has(id) && n.text !== null)
+    .map(([id, n]) => ({ id, number: n.text! }));
   const heading = report ? headingPageNumbers(report, source.outlines) : {};
-  const estimatedIds = new Set(guessed.map((s) => s.id));
+  const estimatedIds = new Set(
+    Object.entries(source.numbers)
+      .filter(([id, n]) => !known.has(id) && n.estimated)
+      .map(([id]) => id),
+  );
   return attachPages(items, [...reported, ...guessed], heading).map((item, i) => {
     const original = items[i]!;
     const ref = original.kind === "custom" ? original.target : original.key;
@@ -149,22 +160,6 @@ export function staleKeys(stale: readonly StaleOverride[]): string[] {
 
 /** Insertion point under a pointer (see `insertionIndex` in `referenceKinds`): kept here for the contents list, which drops onto item positions. */
 export { insertionIndex, dropPosition } from "./referenceKinds";
-
-/**
- * The estimated first page of each chapter (entry id to number), from the chapters' word counts: `words[i]` belongs to
- * `chapterIds[i]`. Front and back matter have no estimate (they are not part of the chapter count).
- */
-export function estimateStarts(
-  book: Parameters<typeof firstPageNumber>[0],
-  chapterIds: readonly string[],
-  words: readonly number[],
-): Record<string, number> {
-  const out: Record<string, number> = {};
-  chapterIds.forEach((id, i) => {
-    if (i < words.length) out[id] = firstPageNumber(book, words.slice(0, i));
-  });
-  return out;
-}
 
 /** True when the list or an override mentions a heading, so the pages' headings must be read (a list of pages alone needs no file). */
 export function needsOutlines(settings: TocSettings): boolean {

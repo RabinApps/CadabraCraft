@@ -377,7 +377,9 @@ test("page numbers: Typst's report when it has one, an estimate with ≈ otherwi
   await expect(pageOf("Arrival")).toHaveText("1", { timeout: 15_000 });
   await expect(pageOf("Storm")).toHaveText("9");
   await expect(pageOf("Calm")).toHaveText("27");
-  await expect(pageOf("Chapter 4")).toContainText("≈");
+  // The chapter added after the report is not in it, so its own length is an estimate; where it starts is not, because the three
+  // chapters before it are measured: 27 + 10 pages, so 37, with no "≈".
+  await expect(pageOf("Chapter 4")).toHaveText("37");
   await depth(page, "+H1-H2");
   // Headings: Arrival 1; The harbour (page 6 -> 2); The inn (page 10 -> 6).
   await expect(row(page, "The harbour").first().locator("[data-toc-page]")).toHaveText("2", {

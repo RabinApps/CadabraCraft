@@ -1,65 +1,92 @@
 import { describe, expect, it } from "vitest";
+import type { PageReport } from "@cadabracraft/export-pdf";
 import {
-  bookPageCount,
+  bookLayout,
   bookWordsPerPage,
   chapterPageCount,
   chapterStart,
-  firstPageNumber,
+  type EntryWords,
 } from "../pageNumbering";
 
-describe("measured pages and book totals", () => {
-  const book = { template: "modern" };
+const book = { template: "modern" };
+const front = (id: string, kind: EntryWords["kind"]): EntryWords => ({
+  id,
+  section: "front",
+  kind,
+  words: 0,
+});
+const chapter = (id: string, words = 0): EntryWords => ({ id, section: "chapter", words });
+const report = (starts: PageReport["starts"]): PageReport => ({ total: 40, starts });
+const start = (id: string, page: number, end: number, number: string) => ({
+  id,
+  kind: "chapter",
+  page,
+  end,
+  number,
+});
 
-  it("replaces a chapter's estimate with its measured count", () => {
-    expect(firstPageNumber(book, [0, 0, 0], new Map([[1, 5]]))).toBe(1 + 1 + 5 + 1);
-  });
-
-  it("counts a book's pages with the recto skips, and none for no chapters", () => {
-    expect(bookPageCount({ template: "novel" }, [0, 0])).toEqual({ pages: 3, exact: false });
-    expect(bookPageCount(book, [0, 0])).toEqual({ pages: 2, exact: false });
-    expect(bookPageCount(book, [])).toEqual({ pages: 0, exact: false });
-  });
-
-  it("is exact only when every chapter is measured", () => {
-    expect(bookPageCount(book, [10, 10], new Map([[0, 4]])).exact).toBe(false);
-    const both = new Map([
-      [0, 4],
-      [1, 3],
+describe("bookLayout", () => {
+  it("numbers the front matter in roman and the chapters from arabic 1 on, continuing through the book", () => {
+    const layout = bookLayout(
+      book,
+      [front("title", "title-page"), front("contents", "contents"), chapter("c1"), chapter("c2")],
+      {},
+    );
+    expect(layout.entries.map((e) => [e.id, e.style, e.folio])).toEqual([
+      ["title", "roman", ""],
+      ["contents", "roman", ""],
+      ["c1", "arabic", "1"],
+      ["c2", "arabic", "2"],
     ]);
-    expect(bookPageCount(book, [10, 10], both)).toEqual({ pages: 7, exact: true });
+    expect(layout.arabicFrom).toBe(5);
+    expect(layout.bodyPages).toBe(2);
   });
 
-  it("gives a words-per-page and a one-page minimum per chapter", () => {
-    expect(bookWordsPerPage(book)).toBeGreaterThanOrEqual(50);
-    expect(chapterPageCount(0, 250)).toBe(1);
-    expect(chapterPageCount(251, 250)).toBe(2);
+  it("estimates an entry's pages from its words, and marks the count as an estimate", () => {
+    const perPage = bookWordsPerPage(book);
+    const layout = bookLayout(book, [chapter("c1", perPage * 2 + 1), chapter("c2")], {});
+    expect(layout.byId.get("c1")).toMatchObject({ pages: 3, exact: false });
+    expect(layout.byId.get("c2")!.folio).toBe("4");
+    expect(layout.exact).toBe(false);
+  });
+
+  it("takes Typst's page counts from a report, and its starts only while the report is current", () => {
+    const pages = report([start("c1", 1, 2, "1"), start("c2", 6, 7, "6")]);
+    const stale = bookLayout(book, [chapter("c1"), chapter("c2")], { report: pages, fresh: false });
+    // The counts are Typst's (c2 takes 2 pages, so c1's start stands), but the text moved on since: they stay estimates.
+    expect(stale.byId.get("c2")).toMatchObject({ pages: 2, start: 3, exact: false });
+    const fresh = bookLayout(book, [chapter("c1"), chapter("c2")], { report: pages, fresh: true });
+    expect(fresh.byId.get("c2")).toMatchObject({ start: 6, folio: "6" });
+  });
+
+  it("takes an editor's measured count over a stale report's", () => {
+    const pages = report([start("c1", 1, 3, "1"), start("c2", 7, 8, "6")]);
+    const layout = bookLayout(book, [chapter("c1"), chapter("c2")], {
+      report: pages,
+      fresh: false,
+      measured: new Map([["c1", 2]]),
+    });
+    expect(layout.byId.get("c1")).toMatchObject({ pages: 2, exact: true });
+    expect(layout.byId.get("c2")!.start).toBe(3);
+  });
+
+  it("numbers nothing when the book prints no page numbers", () => {
+    const layout = bookLayout(book, [chapter("c1")], { numbered: false });
+    expect(layout.entries.map((e) => e.folio)).toEqual([""]);
+    expect(layout.numbered).toBe(false);
   });
 });
 
-describe("firstPageNumber", () => {
-  it("is page 1 for the first chapter", () => {
-    expect(firstPageNumber({ template: "novel" }, [])).toBe(1);
-  });
-
-  it("counts earlier chapters from the word estimate and keeps recto starts on odd pages", () => {
-    const book = { template: "novel" };
-    expect(chapterStart(book)).toBe("recto");
-    const n = firstPageNumber(book, [3000, 100, 5000]);
-    expect(n % 2).toBe(1);
-    expect(n).toBeGreaterThan(10);
-    // More words before never moves a chapter earlier.
-    expect(firstPageNumber(book, [3000, 100, 9000])).toBeGreaterThanOrEqual(n);
-  });
-
-  it("gives an empty chapter one page, and falls back for an unknown template", () => {
-    expect(firstPageNumber({ template: "novel" }, [0])).toBe(2);
-    expect(firstPageNumber({ template: "gone" }, [0, 0])).toBe(
-      firstPageNumber({ template: "novel" }, [0, 0]),
-    );
-  });
-
-  it("does not skip a page where chapters may start anywhere", () => {
+describe("print parameters", () => {
+  it("takes the chapter opening from the template", () => {
+    expect(chapterStart({ template: "novel" })).toBe("recto");
     expect(chapterStart({ template: "modern" })).toBe("any");
-    expect(firstPageNumber({ template: "modern" }, [0, 0, 0])).toBe(4);
+    expect(chapterStart({ template: "gone" })).toBe(chapterStart({ template: "novel" }));
+  });
+
+  it("gives a words-per-page and a one-page minimum per entry", () => {
+    expect(bookWordsPerPage(book)).toBeGreaterThanOrEqual(50);
+    expect(chapterPageCount(0, 250)).toBe(1);
+    expect(chapterPageCount(251, 250)).toBe(2);
   });
 });

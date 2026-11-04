@@ -11,8 +11,8 @@ import { ProgressBar } from "../ui/ProgressBar";
 interface Props {
   /** The page at the reading line (its position in `pages`). */
   index: number;
-  /** The page number printed at the reading line when the book is drawn as pages, else null. */
-  page?: number | null;
+  /** The number printed on the page at the reading line ("12", "iv") when the book is drawn as pages, else null. */
+  page?: string | null;
   /** Every page in reading order (front matter, chapters, back matter). */
   pages: { id: string; title: string }[];
   /** Ids of the chapters among `pages`, for "Chapter n of m". */
