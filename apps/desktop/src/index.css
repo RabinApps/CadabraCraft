@@ -457,6 +457,44 @@ body {
 .prose-page.page-centred-after-blank .ProseMirror:not(.pv-natural) > .pv-gap:first-child + * {
   margin-top: var(--page-centre-top, 0px);
 }
+/*
+ * A centred matter page is the PDF's centred page: text in a block 78 % of the text width, its lines centred (see `pageIsNarrow`).
+ * The width is set in both passes, so the pagination measures the width the page draws; the PDF keeps the block on the pages a
+ * centred page runs onto as well, and only the centring between the margins goes.
+ */
+.prose-page.page-narrow .ProseMirror {
+  padding-left: calc(var(--page-ml) + var(--page-narrow-inset));
+  padding-right: calc(var(--page-mr) + var(--page-narrow-inset));
+}
+.prose-page.page-narrow .ProseMirror p {
+  text-align: center;
+}
+/*
+ * The copyright page is the PDF's `copyright-page`: its printer's imprint at the foot of the text box, in 0.85 em with 0.7 em between
+ * paragraphs, flush (no first-line indent, ragged). The bottom alignment waits for the measuring pass (.pv-natural), which must see the
+ * text flow from the top margin: an auto margin there would move every block the page's empty space down and paginate it as overflow.
+ * An imprint taller than its page overflows the way the text does, not above the top margin.
+ */
+.prose-page.page-copyright .ProseMirror {
+  font-size: var(--page-imprint-size);
+  padding-bottom: var(--page-mb);
+}
+.prose-page.page-copyright .ProseMirror:not(.pv-natural) {
+  display: flex;
+  flex-direction: column;
+}
+.prose-page.page-copyright .ProseMirror:not(.pv-natural) > :first-child:not(.pv-gap),
+.prose-page.page-copyright .ProseMirror:not(.pv-natural) > .pv-gap:first-child + * {
+  margin-top: auto;
+}
+.prose-page.page-copyright .ProseMirror p {
+  margin: 0 0 var(--page-imprint-space);
+  text-indent: 0;
+  text-align: start;
+}
+.prose-page.page-copyright .ProseMirror > :last-child {
+  margin-bottom: 0;
+}
 .prose-page .ProseMirror p {
   margin: 0 0 var(--page-para-space);
   text-indent: var(--page-indent);

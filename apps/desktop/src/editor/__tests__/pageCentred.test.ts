@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getTemplate } from "@cadabracraft/templates";
-import { centredPage, pageIsBare, pageIsCentred } from "../centring";
+import { centredPage, pageIsBare, pageIsCentred, pageIsCopyright, pageIsNarrow } from "../centring";
 import { centreOffsetPx } from "../../lib/pageLayout";
 
 const look = { print: getTemplate("novel").print };
@@ -32,6 +32,28 @@ describe("centredPage", () => {
     expect(centredPage(true, ["body", "body"])).toBe(false);
     expect(centredPage(true, ["blank", "body", "body"])).toBe(false);
     expect(centredPage(false, ["body"])).toBe(false);
+  });
+});
+
+describe("pageIsNarrow", () => {
+  it("is the PDF's centred page for a centred matter page, never for a title page or a chapter", () => {
+    expect(pageIsNarrow(true, "front", "dedication")).toBe(true);
+    expect(pageIsNarrow(true, "front", "foreword")).toBe(true);
+    expect(pageIsNarrow(true, "back", undefined)).toBe(true); // a custom page
+    // A title page is a layout of its own in the PDF (`title-page`), full width.
+    expect(pageIsNarrow(true, "front", "title-page")).toBe(false);
+    // The block follows the page's choice, not the page count: a centred page that runs on keeps it.
+    expect(pageIsNarrow(false, "front", "dedication")).toBe(false);
+    expect(pageIsNarrow(true, "chapter", undefined)).toBe(false);
+  });
+});
+
+describe("pageIsCopyright", () => {
+  it("is the copyright page only, in the front or back matter", () => {
+    expect(pageIsCopyright("front", "copyright")).toBe(true);
+    expect(pageIsCopyright("front", "title-page")).toBe(false);
+    expect(pageIsCopyright("front", undefined)).toBe(false);
+    expect(pageIsCopyright("chapter", "copyright")).toBe(false);
   });
 });
 

@@ -108,7 +108,7 @@ test("scratch: the book's page view", async ({ page }) => {
     });
     console.log(`PAGE ${i} ${label}`, JSON.stringify(cards), JSON.stringify({ ...metrics, outline: undefined }));
     if (process.env.OUTLINE && label.includes(process.env.OUTLINE))
-      console.log("OUTLINE\n" + metrics.outline.join("\n"));
+      console.log("OUTLINE\n" + metrics.outline?.join("\n"));
     await page.screenshot({ path: `${OUT}/${String(i).padStart(2, "0")}-${label}.png`, fullPage: true });
   }
 });

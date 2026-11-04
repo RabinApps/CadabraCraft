@@ -79,6 +79,52 @@ test("a phone gets the reflowed page look: no page cards or zoom, the template's
   await expect(page.locator(".prose-reflow")).toHaveCount(0);
 });
 
+// The copyright page is the PDF's `copyright-page`: its printer's imprint at the foot of the text box, in 0.85 em with 0.7 em between
+// paragraphs, flush. Page view draws the page the print book will have, not the text at the top in the body's size.
+test("the copyright page sets its imprint at the foot, small and flush, as the print page does", async ({
+  page,
+}) => {
+  await newProject(page);
+  await addPage(page, "Copyright page");
+  await expect(page.locator(".ProseMirror p").first()).toContainText("©");
+  await zoom(page).selectOption({ label: "100%" });
+  await expect(page.locator(".page-copyright")).toBeVisible();
+  const imprint = await page.evaluate(() => {
+    const stack = document.querySelector("body .page-stack") as HTMLElement;
+    const pm = stack.querySelector(".ProseMirror") as HTMLElement;
+    const cs = getComputedStyle(stack);
+    const n = (name: string) => parseFloat(cs.getPropertyValue(name));
+    const zoom = Number(stack.getAttribute("data-zoom"));
+    const r = stack.getBoundingClientRect();
+    const card = stack.querySelector(".page-card")!.getBoundingClientRect();
+    const pageTop = (card.top - r.top) / zoom;
+    const ps = [...pm.querySelectorAll("p")];
+    const first = ps[0]!;
+    const last = ps[ps.length - 1]!;
+    const pcs = getComputedStyle(first);
+    return {
+      size: parseFloat(getComputedStyle(pm).fontSize),
+      body: n("--page-font-size"),
+      indent: pcs.textIndent,
+      align: pcs.textAlign,
+      space: parseFloat(getComputedStyle(ps[1] ?? first).marginBottom),
+      textSize: parseFloat(pcs.fontSize),
+      firstTop: (first.getBoundingClientRect().top - r.top) / zoom,
+      lastBottom: (last.getBoundingClientRect().bottom - r.top) / zoom,
+      boxTop: pageTop + n("--page-mt"),
+      boxBottom: pageTop + card.height / zoom - n("--page-mb"),
+    };
+  });
+  expect(imprint.size).toBeCloseTo(imprint.body * 0.85, 1); // 0.85 em, not the body's 10.5 pt
+  expect(imprint.indent).toBe("0px");
+  expect(imprint.align).toBe("start");
+  // 0.7 em at that size, net of the leading a line box already holds (novel: 1.28 em pitch − 0.66 em cap = 0.62 em leading).
+  expect(imprint.space).toBeCloseTo(imprint.textSize * (0.7 - 0.62), 1);
+  // The imprint's last line sits on the bottom margin, and the first line is nowhere near the top one.
+  expect(Math.abs(imprint.lastBottom - imprint.boxBottom)).toBeLessThan(2);
+  expect(imprint.firstTop).toBeGreaterThan(imprint.boxTop + 100);
+});
+
 // Chapter opening (novel: ornament above the title, drop cap on the first paragraph). The pseudo-elements fill the space
 // `--page-chapter-extra` reserves, so the title keeps its place and the first paragraph keeps at least three lines of height.
 test("a novel chapter draws its ornament and a drop cap on the page, and keeps them when it reflows", async ({

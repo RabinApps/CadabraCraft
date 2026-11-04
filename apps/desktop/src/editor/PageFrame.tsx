@@ -11,6 +11,7 @@ import {
 import { useLingui } from "@lingui/react/macro";
 import type { Editor as TipTapEditor } from "@tiptap/react";
 import { readingOrder, sectionOf, sourceTitle } from "@cadabracraft/format";
+import type { MatterKind } from "@cadabracraft/shared";
 import { usePageView } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useTypewriterSlack } from "./typewriter";
@@ -27,7 +28,14 @@ import { useProject } from "../state/project/index";
 import { chapterStart } from "../lib/pageNumbering";
 import { trimLabel } from "../lib/trimLabels";
 import { cx } from "../ui/cx";
-import { centredPage, pageIsBare, pageIsCentred, useCentredColumn } from "./centring";
+import {
+  centredPage,
+  pageIsBare,
+  pageIsCentred,
+  pageIsCopyright,
+  pageIsNarrow,
+  useCentredColumn,
+} from "./centring";
 import { PX_PER_INCH, fitZoom, pageCssVars, pageFillSlackPx, sideMargins } from "../lib/pageLayout";
 import type { PageLayoutResult, PageSpec } from "./pagination/core";
 import { cssVarsStyle, runningHead } from "./pagination/frame";
@@ -81,6 +89,8 @@ interface StackProps {
   verticalCenter?: boolean | undefined;
   /** No chapter opening above the first heading (see `pageIsBare`). */
   bare?: boolean | undefined;
+  /** The page's matter kind: the copyright page and a centred page have layouts of their own (see `pageIsCopyright`, `pageIsNarrow`). */
+  kind?: MatterKind | undefined;
   /** Physical page of the first card (the book layout's `cardStart`), a blank verso included. */
   firstPage: number;
   /** The book layout says a blank verso comes first (`blankBefore`): the first card is that blank page. */
@@ -111,6 +121,7 @@ export function PageStack({
   dropCap,
   verticalCenter = false,
   bare = false,
+  kind,
   firstPage,
   blankBefore = false,
   folioFor,
@@ -161,6 +172,10 @@ export function PageStack({
     );
   const afterBlank = pages[0]?.kind === "blank";
   const column = useCentredColumn(centred, g.text.h, zoom, `${layoutKey}`);
+  // The two matter layouts Page view draws as the print page does (see index.css). The block of a centred page follows the page's
+  // choice rather than the page count, so the width the pagination measures is the width the page draws.
+  const narrow = pageIsNarrow(verticalCenter, section, kind);
+  const copyright = pageIsCopyright(section, kind);
 
   useEffect(() => {
     controller.configure({
@@ -243,6 +258,8 @@ export function PageStack({
             centred && "page-centred",
             centred && afterBlank && "page-centred-after-blank",
             bare && "page-bare",
+            narrow && "page-narrow",
+            copyright && "page-copyright",
           )}
         >
           {children}
@@ -361,6 +378,7 @@ export function PageFrame({ editor, children }: Props) {
           dropCap={entry?.dropCap ?? manifest.dropCap}
           verticalCenter={centredNow}
           bare={pageIsBare(centredNow, section, entry?.kind)}
+          kind={entry?.kind}
           firstPage={firstPage}
           blankBefore={placed?.blankBefore ?? false}
           folioFor={folioFor}

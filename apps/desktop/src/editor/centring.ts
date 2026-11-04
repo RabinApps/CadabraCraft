@@ -32,6 +32,21 @@ export const pageIsBare = (centred: boolean, section: string, kind: MatterKind |
   centred || (section !== "chapter" && OWN_LAYOUT_KINDS.includes(kind));
 
 /**
+ * Whether the page is drawn as the PDF's centred page: a block 78 % of the text width with its lines centred (`centered-page`).
+ * It follows the page's choice, not the page count, so a page that outgrows one page keeps the block and loses only the vertical
+ * centring, as in the PDF. A title page is a layout of its own (full width) and is never this block.
+ */
+export const pageIsNarrow = (centred: boolean, section: string, kind: MatterKind | undefined) =>
+  centred && section !== "chapter" && kind !== "title-page";
+
+/**
+ * Whether the page is drawn as the PDF's copyright page: the printer's imprint at the foot of the text box, in 0.85 em with 0.7 em
+ * between paragraphs (`copyright-page`). No other kind has that layout, and a chapter never does.
+ */
+export const pageIsCopyright = (section: string, kind: MatterKind | undefined) =>
+  section !== "chapter" && kind === "copyright";
+
+/**
  * Whether the page is drawn centred: the author or the template centres it, and it is a single page of its own.
  *
  * The blank left-hand page the book inserts before a dedication, epigraph or title page (the layout's `blankBefore`) is a card of the

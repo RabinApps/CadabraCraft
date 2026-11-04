@@ -178,6 +178,7 @@ function ReadingChapter({
         dropCap={page.dropCap}
         verticalCenter={centred}
         bare={pageIsBare(centred, page.section, page.kind)}
+        kind={page.kind}
         firstPage={firstPage}
         blankBefore={blankBefore}
         folioFor={folioFor}

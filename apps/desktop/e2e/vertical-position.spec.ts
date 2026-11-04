@@ -40,6 +40,25 @@ const placement = (page: Page, scope: string, card = 0) =>
     [scope, card] as const,
   );
 
+/**
+ * The block a matter page's text sits in: its width against the page's text width, the alignment of its paragraphs, and whether the
+ * page carries the PDF's centred-page block at all (see index.css).
+ */
+const block = (page: Page) =>
+  page.evaluate(() => {
+    const pm = document.querySelector("body .ProseMirror") as HTMLElement;
+    const stack = pm.closest(".page-stack") as HTMLElement;
+    const textW = parseFloat(getComputedStyle(stack).getPropertyValue("--page-text-w"));
+    const cs = getComputedStyle(pm);
+    const p = pm.querySelector("p");
+    return {
+      textW,
+      width: pm.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight),
+      align: p ? getComputedStyle(p).textAlign : "",
+      narrow: pm.closest(".prose-page")!.classList.contains("page-narrow"),
+    };
+  });
+
 const TOLERANCE = 14; // px at zoom 1: the trailing paragraph spacing and line leading
 
 test("the title page is centred between the margins in Page view and Read mode, and a Top choice and undo work", async ({
@@ -52,6 +71,8 @@ test("the title page is centred between the margins in Page view and Read mode, 
   let p = await placement(page, "body");
   expect(Math.abs(p.mid - p.boxMid)).toBeLessThan(TOLERANCE);
   expect(p.top).toBeGreaterThan(p.mt + 60); // not at the top
+  // A title page is a layout of its own in the PDF: centred, but not in the 78 % block of a centred page.
+  expect((await block(page)).narrow).toBe(false);
 
   // Read mode draws the same page.
   await page.getByRole("radio", { name: "Read" }).click();
@@ -100,11 +121,20 @@ test("a foreword starts at the top, Centred centres it, and Default follows the 
   await expect.poll(async () => (await placement(page, "body")).centred).toBe(true);
   const p = await placement(page, "body");
   expect(Math.abs(p.mid - p.boxMid)).toBeLessThan(TOLERANCE);
+  // The PDF's centred page: a block 78 % of the text width, its lines centred.
+  const centredBlock = await block(page);
+  expect(centredBlock.narrow).toBe(true);
+  expect(centredBlock.width).toBeCloseTo(centredBlock.textW * 0.78, 0);
+  expect(centredBlock.align).toBe("center");
   await page.getByRole("button", { name: "Actions for Foreword" }).click();
   await page.getByRole("menuitemradio", { name: "Default" }).click();
   await expect(page.getByText("Foreword: vertical position follows the template")).toBeAttached();
   await expect.poll(async () => (await placement(page, "body")).centred).toBe(false);
   expect((await manifestOf(page)).frontMatter[0]).not.toHaveProperty("verticalCenter");
+  // Default takes the block away with the centring: the page is the template's plain one again.
+  const plain = await block(page);
+  expect(plain.narrow).toBe(false);
+  expect(plain.width).toBeCloseTo(plain.textW, 0);
 });
 
 test("a centred page that grows past one page is not centred and not pushed down or clipped", async ({
@@ -125,6 +155,10 @@ test("a centred page that grows past one page is not centred and not pushed down
   expect(p.centred).toBe(false);
   // The first block still starts at the top margin.
   expect(Math.abs(p.top - p.mt)).toBeLessThan(2);
+  // The block stays: the PDF keeps a centred page's 78 % width on the pages it runs onto and drops only the centring.
+  const grown = await block(page);
+  expect(grown.narrow).toBe(true);
+  expect(grown.width).toBeCloseTo(grown.textW * 0.78, 0);
 });
 
 /** A dedication after a title page opens on a right-hand page, so the book puts a blank left-hand page before it. */

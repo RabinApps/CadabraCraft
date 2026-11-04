@@ -124,6 +124,14 @@ const LABEL_SIZE_EM = 0.85;
 const ORNAMENT_SIZE_EM = 1.2;
 /** Lines a drop cap spans (the PDF uses `dropcap(height: 3)`). */
 export const DROP_CAP_LINES = 3;
+/**
+ * The copyright page's printer's imprint, as the PDF's `copyright-page` sets it: text at 0.85 em with 0.7 em between paragraphs, at the
+ * foot of the text box.
+ */
+const IMPRINT_SIZE_EM = 0.85;
+const IMPRINT_SPACING_EM = 0.7;
+/** The PDF's centred page (`centered-page`) sets the page's text in a block 78 % of the text width, centred. */
+const CENTRED_BLOCK = 0.78;
 
 /**
  * Drop cap of the first paragraph: `lines` is 0 when the chapter has none (`dropCap` is the author's choice for it, else the template's). Like droplet, the letter's cap height spans the lines
@@ -252,6 +260,10 @@ export function pageCssVars(
     "--page-dropcap-lh": drop.lines === 0 ? "inherit" : String(rd(drop.lineHeight)),
     "--page-dropcap-gap": drop.lines === 0 ? "0em" : "0.12em",
     "--page-dropcap-height": px(drop.lines * linePitchEm(book) * fontPx),
+    // The copyright page's imprint at the foot, and the block of a centred page (see `pageIsCopyright` and `pageIsNarrow`).
+    "--page-imprint-size": px(fontPx * IMPRINT_SIZE_EM),
+    "--page-imprint-space": emStr(IMPRINT_SPACING_EM - p.leadingEm),
+    "--page-narrow-inset": px((g.text.w * (1 - CENTRED_BLOCK)) / 2),
     "--page-bq-indent": px(q.indentEm * fontPx),
     "--page-bq-size": emStr(q.sizeEm),
     "--page-bq-space": px(q.spaceEm * fontPx),

@@ -176,6 +176,9 @@ describe("pageCssVars", () => {
     "--page-dropcap-lh",
     "--page-dropcap-gap",
     "--page-dropcap-height",
+    "--page-imprint-size",
+    "--page-imprint-space",
+    "--page-narrow-inset",
     "--page-bq-indent",
     "--page-bq-size",
     "--page-bq-space",
@@ -243,6 +246,21 @@ describe("pageCssVars", () => {
     expect(v.hyphens).toBe("auto");
     expect(v["--page-h1-size"]).toBe("1.7em");
     expect(v["--page-h1-align"]).toBe("center");
+  });
+
+  it("sizes the copyright page's imprint and the block of a centred page as the PDF does", () => {
+    const v = pageCssVars({ template: "novel" });
+    const p = getTemplate("novel").print;
+    const fontPx = (p.fontSizePt * 96) / 72;
+    // `copyright-page`: 0.85 em text, 0.7 em between paragraphs (net of the trailing leading a CSS line box already holds).
+    expect(px(v["--page-imprint-size"])).toBeCloseTo(fontPx * 0.85, 2);
+    expect(px(v["--page-imprint-space"])).toBeCloseTo(0.7 - p.leadingEm, 3);
+    // `centered-page`: a block 78 % of the text width, so 11 % of it is inset on each side.
+    const g = pageGeometry({ template: "novel" });
+    expect(px(v["--page-narrow-inset"])).toBeCloseTo(g.text.w * 0.11, 2);
+    expect(pageCssVars({ template: "modern" })["--page-imprint-space"]).toBe(
+      `${Math.round((0.7 - getTemplate("modern").print.leadingEm) * 1000) / 1000}em`,
+    );
   });
 
   it("derives paragraph space from spacing minus leading, and allows a negative value", () => {
