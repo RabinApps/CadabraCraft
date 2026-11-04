@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { newProject, focusEnd, manifestOf } from "./support/helpers";
+import { settledFolio } from "./support/pageCards";
 import { bigChapter } from "../src/test/bigBook";
 
 // Page view: the chapter as real pages (cards at the trim's shape, mirrored margins, running heads, page numbers, split paragraphs).
@@ -92,10 +93,11 @@ test("a long chapter is paginated: running heads, numbers, mirrored margins and 
   const n = await cards(page).count();
   // The status bar counts the same pages, exactly: the editor laid this chapter out, so its count is the book's.
   await expect(page.getByTestId("page-position")).toHaveText(new RegExp(`Page 1 of ${n}$`));
-  // Numbers count up from 1; the chapter's opening page has no running head, the pages after it do.
-  expect(await page.locator(".page .page-number").allTextContents()).toEqual(
-    Array.from({ length: n }, (_, i) => String(i + 1)),
-  );
+  // Numbers count up from 1; the chapter's opening page has no running head, the pages after it do. Read the whole list under one
+  // retried assertion: a read of the cards while the book's layout is being redone can catch a number that is about to change.
+  await expect
+    .poll(() => page.locator(".page .page-number").allTextContents())
+    .toEqual(Array.from({ length: n }, (_, i) => String(i + 1)));
   await expect(page.locator('.page[data-page="1"] .page-head')).toHaveCount(0);
   await expect(page.locator('.page[data-page="2"] .page-head')).toHaveText("E2E Book"); // verso: the book
   await expect(page.locator('.page[data-page="3"] .page-head')).toHaveText("Chapter One"); // recto: the chapter
@@ -320,15 +322,16 @@ test("the second chapter is numbered after the first and opens on a right-hand p
 }) => {
   await newProject(page);
   await seed(page, 70);
+  // Chapter 1's last page prints the chapter's page count (the book has no front matter); it has settled before the book changes.
+  const firstPages = await settledFolio(cards(page).last());
+  expect(firstPages).toBeGreaterThan(8);
   await page.getByRole("button", { name: "Add chapter" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
-  await expect(cards(page).first()).toBeVisible();
+  // The new chapter's words are counted once it is open, and only then does the book's layout place it: wait for the number it
+  // prints there, the next right-hand page (a blank left-hand page goes before it when the page after chapter 1 is even).
+  const right = firstPages % 2 === 0 ? firstPages + 1 : firstPages + 2;
   const opening = page.locator(".page:not([data-blank])").first();
-  // The new chapter's words are counted once it is open; until then its page prints no number.
-  await expect(opening).not.toHaveAttribute("data-page", "", { timeout: 10_000 });
-  const number = Number(await opening.getAttribute("data-page"));
-  expect(number % 2).toBe(1);
-  expect(number).toBeGreaterThan(8);
+  await expect(opening).toHaveAttribute("data-page", String(right), { timeout: 10_000 });
   await expect(page.locator(".page-head")).toHaveCount(0);
 });
 
@@ -554,7 +557,8 @@ test("the chapter's first page sits where Typst put it, and the book takes its t
         window.__typstQueryCalls[0]!.source,
       )![1]!,
   );
-  expect(await page.locator(".page .page-number").first().textContent()).toBe("1");
+  // The chapter starts the count at 1; the card's number is printed once the book's layout has placed it.
+  await expect(page.locator(".page .page-number").first()).toHaveText("1");
   // Typst puts two blank pages before the chapter, so it opens on page 3 and the book is 42 pages long: the stack gains the blank
   // verso the book layout asks for and the opening page takes Typst's page, the status bar its total.
   await page.evaluate((chapterId) => {

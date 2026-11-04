@@ -46,6 +46,19 @@ export const pageIsNarrow = (centred: boolean, section: string, kind: MatterKind
 export const pageIsCopyright = (section: string, kind: MatterKind | undefined) =>
   section !== "chapter" && kind === "copyright";
 
+/** Pages the PDF lays out without a running head at all: the title page (and its copyright page), the contents and any centred page. */
+const HEADLESS_KINDS: readonly (MatterKind | undefined)[] = ["title-page", "copyright", "contents"];
+
+/**
+ * Whether a front or back matter page prints a running head on the pages it runs onto, as the PDF's header does: the book title on the
+ * left-hand pages and the page's own title on the right-hand ones. The title page, the copyright page behind it and the contents page
+ * print none (`folio-off`), and neither does a centred page (`header-off`). The page the entry opens on has none either: the PDF
+ * skips the header on the page where `chapter-start` sits, and `PageStack` asks for a head only on the cards after the entry's first
+ * one. A chapter heads its pages whatever these rules say.
+ */
+export const matterHeadsOn = (centred: boolean, section: string, kind: MatterKind | undefined) =>
+  section !== "chapter" && !centred && !HEADLESS_KINDS.includes(kind);
+
 /**
  * Whether the page is drawn centred: the author or the template centres it, and it is a single page of its own.
  *

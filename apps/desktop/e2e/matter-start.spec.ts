@@ -1,32 +1,12 @@
 import { expect, test, type Locator, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { addPage, manifestOf, newProject, sidebar } from "./support/helpers";
+import { opening, writeCards } from "./support/pageCards";
 
 // Two writing-surface fixes: a front matter page that the book's rules push to a right-hand page can follow on instead (no blank
 // page the author cannot delete), and scrolling on past the last page of a section opens the next one (and up from the top, the
 // previous one), so front matter and chapters read as one flow while writing.
 
-interface Card {
-  folio: string;
-  physical: number;
-  blank: boolean;
-}
-
-const writeCards = (page: Page) =>
-  page
-    .getByTestId("page-scroll")
-    .locator(".page")
-    .evaluateAll((els) =>
-      els.map((e) => {
-        const el = e as HTMLElement;
-        return {
-          folio: el.dataset.page ?? "",
-          physical: Number(el.dataset.physical),
-          blank: el.dataset.blank === "true",
-        };
-      }),
-    );
-const opening = (cards: Card[]) => cards.find((c) => !c.blank);
 const open = async (page: Page, title: string) => {
   const entry = sidebar(page).getByRole("button", { name: title, exact: true });
   await entry.click();

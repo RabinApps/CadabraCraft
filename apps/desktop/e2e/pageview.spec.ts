@@ -89,6 +89,8 @@ test("the copyright page sets its imprint at the foot, small and flush, as the p
   await expect(page.locator(".ProseMirror p").first()).toContainText("©");
   await zoom(page).selectOption({ label: "100%" });
   await expect(page.locator(".page-copyright")).toBeVisible();
+  // The PDF prints neither a header nor a folio on it (`folio-off`).
+  await expect(page.locator(".page-head")).toHaveCount(0);
   const imprint = await page.evaluate(() => {
     const stack = document.querySelector("body .page-stack") as HTMLElement;
     const pm = stack.querySelector(".ProseMirror") as HTMLElement;

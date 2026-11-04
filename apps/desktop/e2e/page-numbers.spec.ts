@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "./support/coverage";
+import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import {
   addPage,
@@ -9,34 +9,11 @@ import {
   seedChapters,
   sidebar,
 } from "./support/helpers";
+import { cardsOf, lastOf, opening, settledCards, writeCards } from "./support/pageCards";
 
 // The page numbers of the whole book, on every surface that shows one: front matter in roman (no folio on the title, copyright and
 // contents pages), chapter 1 on arabic 1 after it, and each chapter on from the last one's end, with a blank verso where the
 // template opens chapters on a right-hand page. The bug these cover: every section and chapter started at 1.
-
-interface Card {
-  /** The number printed on the card ("" when it prints none). */
-  folio: string;
-  /** Physical page of the book. */
-  physical: number;
-  blank: boolean;
-}
-
-const cardsOf = (scope: Locator) =>
-  scope.locator(".page").evaluateAll((els) =>
-    els.map((e) => {
-      const el = e as HTMLElement;
-      return {
-        folio: el.dataset.page ?? "",
-        physical: Number(el.dataset.physical),
-        blank: el.dataset.blank === "true",
-      };
-    }),
-  );
-const writeCards = (page: Page) => cardsOf(page.getByTestId("page-scroll"));
-/** The card the entry opens on (not the blank verso before it). */
-const opening = (cards: Card[]) => cards.find((c) => !c.blank);
-const lastOf = (cards: Card[]) => cards[cards.length - 1];
 
 const open = async (page: Page, title: string) => {
   const entry = sidebar(page).getByRole("button", { name: title, exact: true });
@@ -48,23 +25,6 @@ const openPage = async (page: Page, title: string) => {
   await open(page, title);
   await expect(page.locator(".page").first()).toBeVisible();
 };
-/**
- * The page's cards once one of them prints a number and two reads a moment apart agree: a page's words are counted after it opens,
- * so the first cards have none, and the stack is redrawn as the count arrives.
- */
-const numberedCards = async (page: Page) => {
-  await expect.poll(async () => opening(await writeCards(page))?.folio ?? "").not.toBe("");
-  let last = "";
-  for (let i = 0; i < 60; i++) {
-    const cards = await writeCards(page);
-    const sig = JSON.stringify(cards);
-    if (cards.length > 0 && opening(cards)?.folio && sig === last) return cards;
-    last = sig;
-    await page.waitForTimeout(100);
-  }
-  return writeCards(page);
-};
-
 const read = (page: Page) => page.getByRole("radio", { name: "Read" }).click();
 const sections = (page: Page) => page.getByTestId("reading-section");
 /**
@@ -120,12 +80,12 @@ test("numbers continue through the book: roman front matter, chapter 1 on arabic
   await expect(page.locator(".page .page-number")).toHaveCount(0);
 
   await openPage(page, "Chapter One");
-  const one = await numberedCards(page);
+  const one = await settledCards(page);
   expect(opening(one)?.folio).toBe("1");
   expect(opening(one)?.physical).toBeGreaterThan(4); // after the front matter
 
   await openPage(page, "Chapter Two");
-  const two = await numberedCards(page);
+  const two = await settledCards(page);
   const lastOne = Number(lastOf(one)?.folio);
   // The template opens chapters on a right-hand page: one more blank verso when the next page would be even.
   const expected = lastOne + 1 + ((lastOne + 1) % 2 === 0 ? 1 : 0);
@@ -134,12 +94,12 @@ test("numbers continue through the book: roman front matter, chapter 1 on arabic
   if (two[0]?.blank) expect(two[0]?.folio).toBe(String(expected - 1));
 
   await openPage(page, "Chapter Three");
-  const three = await numberedCards(page);
+  const three = await settledCards(page);
   expect(Number(opening(three)?.folio)).toBeGreaterThan(Number(opening(two)?.folio));
 
   // The book's last page: the status bar's total is the whole interior, front and back matter included.
   await openPage(page, "Acknowledgments");
-  const total = lastOf(await numberedCards(page))?.physical;
+  const total = lastOf(await settledCards(page))?.physical;
   expect(total).toBeGreaterThan(Number(lastOf(three)?.folio));
 
   // The status bar names the page under the cursor as the PDF prints it, and the book's last page.

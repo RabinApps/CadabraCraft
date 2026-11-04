@@ -1752,7 +1752,7 @@ The page view is a preview of the printed page: an author sets the page they can
 
 ### Follow-ups / caveats
 
-- Of the three print layouts Page view drew plainly, two are drawn as the PDF sets them since 2026-11-04 (see "Page view draws the copyright imprint and a centred page's block" below): the copyright page's imprint at the foot in 0.85 em with 0.7 em spacing, and a centred matter page's 78 % block with centred lines. The third is still open: a running head on a matter page's continuation pages (Page view gives matter pages no head at all). Listed in [roadmap.md](roadmap.md).
+- Of the three print layouts Page view drew plainly, two are drawn as the PDF sets them since 2026-11-04 (see "Page view draws the copyright imprint and a centred page's block" below): the copyright page's imprint at the foot in 0.85 em with 0.7 em spacing, and a centred matter page's 78 % block with centred lines. The third — a running head on a matter page's continuation pages — is drawn since the same day too (see "Running heads on matter pages' continuation pages" below), so all three now match the PDF.
 - `fixtures/golden/sample-chapter.typ` is regenerated (`UPDATE_GOLDEN=1`), because the preamble changed; the diff is the `blank-line` helper and the `opening` parameter.
 - Checked with the real Typst 0.15.1 binary: `blankline.render.test.ts` (a blank line is exactly one line pitch, and keeps its place under a title and a cap) and the rest of the render suite; `typst.test.ts` covers the source for all three.
 
@@ -1787,7 +1787,38 @@ The page view is what the author judges a page by, so a page that the print PDF 
 
 ### Follow-ups / caveats
 
-- Still drawn plainly: a running head on a matter page's continuation pages (Page view gives matter pages no head at all). The last of the three, listed in [roadmap.md](roadmap.md).
+- The running head on a matter page's continuation pages, the last of the three, is drawn as well (see "Running heads on matter pages' continuation pages" below).
 - An imprint taller than its text box is drawn from the top margin and clipped at the card's foot rather than above the top margin; the foot alignment has nothing to give up at that point. The pagination handles it as any long matter page.
 - No pen change: the pen does not draw front or back matter pages in Page view (see "Front and back matter (not drawn in the pen)" in design.md), so `docs/design.md` only gains a sentence in the Page view "As built" note. No string changes, so no i18n work.
 - Checked by Playwright: `pageview.spec.ts` (the imprint's size against the body's, its flush paragraphs and gap, and its last line on the bottom margin) and `vertical-position.spec.ts` (a centred page's 78 % width and centred lines, a title page full width, Default removing the block, and a page that grows keeping it). Unit tests: `pageCentred.test.ts` for both rules, `pageLayout.test.ts` for the three properties.
+
+## Running heads on matter pages' continuation pages (2026-11-04)
+
+### Decision
+
+Page view and Read mode head a front or back matter page's continuation pages as the PDF does: the book title on the left-hand pages, the page's own title on the right-hand ones, and nothing on the page the entry opens on. Before this, matter pages had no running head at all — the last of the three print layouts Page view approximated (see "PDF fidelity: blank lines, the drop cap, the chapter opening" and the section above).
+
+- **Which entries.** `matterHeadsOn(centred, section, kind)` in `apps/desktop/src/editor/centring.ts`: a chapter is never asked (it heads its pages by its own rule, the opening card being `open`); the title page, the copyright page behind it and the contents page print no head (the PDF's `folio-off` pages), and neither does any centred page (`header-off`, so a dedication, an epigraph, or a page the author centred).
+- **Which cards.** A matter entry's opening card prints none: the PDF's header skips the page where `chapter-start` sits, so a one-page matter page is always bare and only the pages it runs onto are headed. `PageStack` finds the first card that is not a blank verso and asks `runningHead` for a head on the cards after it (`headsOn && i !== firstTextCard`). The card kinds `open` and `blank` already print none.
+- **The title.** The entry's own title for the open edition, from the manifest — the same string the PDF puts in `state("chapter-title")` with `chapter-start(title, none, …)` when it starts a matter page. A page whose document heading differs from its list title therefore prints the list title in both surfaces.
+- **Code.** `runningHead` in `apps/desktop/src/editor/pagination/frame.ts` keeps its `headed` flag, which `PageStack` now asks per card; its fourth parameter is named for the entry rather than the chapter, because a matter page uses it too.
+
+### Why
+
+The PDF's header rule is per page, not per entry, and a matter page that runs onto three or four pages read as one undifferentiated block in the preview while the printed book gave the reader the book title and the page title. Since a page view exists to show the page the author will print, the last surface difference in that list had to go.
+
+### Rejected alternatives
+
+| Rejected                                                                    | Why not                                                                                                                                                                                                                                                                                                                                          |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Head the matter entry's first page too                                      | The printed book does not: the header is suppressed on the page a chapter or matter page starts on, where the title is either in the heading or deliberately absent. A preview that added one would push the author towards a head the PDF will not print.                                                                                       |
+| Mark a matter entry's first card `open` so the existing rule hides its head | `PageSpec.kind` says where a card sits in the pagination (the chapter's opening is drawn without the sink and ornament and is treated as the entry's start everywhere), and a matter page's first card is a body card there. Turning it `open` would answer a header question with a layout kind and quietly change other readers of that field. |
+| A per-page "running head" switch                                            | The PDF has no such choice, and the rule follows from the kind and the author's centring choice, not from a new decision per page. Nothing asked for it.                                                                                                                                                                                         |
+| Draw the head in Page view but not in Read mode (or the reverse)            | Both draw the same page through `PageStack`; a page that differs between the two is the same bug as a page that differs from the print.                                                                                                                                                                                                          |
+
+### Follow-ups / caveats
+
+- With this, all three print layouts that Page view approximated match the PDF; the roadmap line for them is gone.
+- The head's type and position are the template's `runningText` (size and italics) in the top margin, as for chapters, so a template with small caps or italics heads sets matter pages the same way.
+- No pen change (the pen draws no matter pages in Page view); `docs/design.md` only gains a sentence in the Page view "As built" note. No string changes, so no i18n work.
+- Checked by Playwright: the new `pageview-pages.spec.ts` case (a foreword long enough for several pages: no head on its first card, then the book title and page title by side, and all heads gone once the page is centred) and the copyright case in `pageview.spec.ts` (no head on a `folio-off` page). Unit tests: `runningHead.test.ts` covers both rules, every branch.

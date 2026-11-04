@@ -26,12 +26,14 @@ export const pageFontStack = (family: string): string => {
   );
 };
 
-/** Running head of a page: the book title on left-hand pages and the chapter title on right-hand ones; none on a chapter opening or a blank page. */
+/**
+ * Running head of a page: the book title on left-hand pages and the entry's title (a chapter's, or a matter page's own) on right-hand
+ * ones; none on an opening page, a blank page, or a page of an entry that prints none (`headed`, see `matterHeadsOn`).
+ */
 export const runningHead = (
   kind: PageKind,
   number: number,
   bookTitle: string,
-  chapterTitle: string,
+  entryTitle: string,
   headed: boolean,
-): string | null =>
-  !headed || kind !== "body" ? null : number % 2 === 0 ? bookTitle : chapterTitle;
+): string | null => (!headed || kind !== "body" ? null : number % 2 === 0 ? bookTitle : entryTitle);

@@ -145,15 +145,26 @@ test("a wide window reads the book as trim-size pages: cards, running heads, cha
   await expect.poll(() => cards(0).count()).toBeGreaterThan(3);
   const numbers = async (i: number) =>
     (await cards(i).locator(".page-number").allTextContents()).map(Number);
-  const first = await numbers(0);
-  const second = await numbers(1);
-  expect(first).toEqual(first.map((_, k) => k + 1));
-  expect(second[0]).toBe(first.at(-1)! + 1);
-  expect(second).toEqual(second.map((_, k) => second[0]! + k));
-  const openNo = Number(
-    await section(page, 1).locator('.page[data-kind="open"] .page-number').textContent(),
-  );
-  expect(openNo === second[0] || openNo === second[0]! + 1).toBe(true);
+  const openNo = async () =>
+    Number(
+      (await section(page, 1).locator('.page[data-kind="open"] .page-number').textContent()) ?? NaN,
+    );
+  // Each section counts up from its own first page and its first card follows the one before it. The reader lays a section out as
+  // it comes near the viewport and the book's layout settles behind it, so read every number in one pass and retry until they are
+  // the settled ones rather than catching a section halfway drawn.
+  await expect
+    .poll(async () => {
+      const [first, second] = await Promise.all([numbers(0), numbers(1)]);
+      const open = await openNo();
+      const last = first.at(-1);
+      return {
+        rising: first.every((v, k) => v === k + 1) && second.every((v, k) => v === second[0]! + k),
+        chained: last === undefined ? null : second[0]! - last,
+        // The opening card is the section's first, or its second behind a blank left-hand page.
+        opensChapter: open - second[0]! === 0 || open - second[0]! === 1,
+      };
+    })
+    .toEqual({ rising: true, chained: 1, opensChapter: true });
   // The footer says which page the reader is on.
   await expect(page.getByText(/Chapter 2 of 3 · Page \d+/)).toBeVisible();
   // Dropping the Write-mode preference changes nothing: Read always draws pages.

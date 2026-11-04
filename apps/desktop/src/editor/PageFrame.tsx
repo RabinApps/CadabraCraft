@@ -30,6 +30,7 @@ import { trimLabel } from "../lib/trimLabels";
 import { cx } from "../ui/cx";
 import {
   centredPage,
+  matterHeadsOn,
   pageIsBare,
   pageIsCentred,
   pageIsCopyright,
@@ -79,7 +80,7 @@ interface StackProps {
   editor: TipTapEditor;
   look: PageLook;
   zoom: number;
-  /** A chapter gets the opening, running heads and the page-number chain; matter is plain pages. */
+  /** A chapter gets the opening, running heads and the page-number chain; a matter page heads the pages it runs onto (see `matterHeadsOn`). */
   section: "front" | "chapter" | "back";
   chapterTitle: string;
   chapterNumber: number | undefined;
@@ -176,6 +177,10 @@ export function PageStack({
   // choice rather than the page count, so the width the pagination measures is the width the page draws.
   const narrow = pageIsNarrow(verticalCenter, section, kind);
   const copyright = pageIsCopyright(section, kind);
+  // Running heads: a chapter heads every page but its opening, a matter page heads the pages it runs onto (never the page the entry
+  // opens on, and never a page laid out without a head; see `matterHeadsOn`). A blank verso before the entry is not a page of it.
+  const headsOn = isChapter || matterHeadsOn(verticalCenter, section, kind);
+  const firstTextCard = pages.findIndex((p) => p.kind !== "blank");
 
   useEffect(() => {
     controller.configure({
@@ -240,11 +245,17 @@ export function PageStack({
         }}
       >
         <div className="page-cards pointer-events-none absolute inset-0" aria-hidden="true">
-          {pages.map((p) => (
+          {pages.map((p, i) => (
             <PageCard
               key={p.index}
               page={p}
-              head={runningHead(p.kind, p.number, bookTitle, chapterTitle, isChapter)}
+              head={runningHead(
+                p.kind,
+                p.number,
+                bookTitle,
+                chapterTitle,
+                headsOn && i !== firstTextCard,
+              )}
               verso={p.number % 2 === 0}
               left={sideMargins(g, p.number, rtl).left}
               folio={folioFor(p.number)}
