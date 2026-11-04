@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
-import { canAddMatter, readingOrder } from "@cadabracraft/format";
+import { canAddMatter, chaptersOf, readingOrder } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
@@ -194,8 +194,9 @@ export function useAppMenu(h: AppMenuHooks): void {
       "edit.bookUndo": { run: guard(actions.undo), enabled: history.undo.length > 0 },
       "edit.bookRedo": { run: guard(actions.redo), enabled: history.redo.length > 0 },
       "insert.chapter": {
-        run: guard(() => actions.add(t`Chapter ${manifest!.chapters.length + 1}`)),
+        run: guard(() => actions.add(t`Chapter ${chaptersOf(manifest!).length + 1}`)),
       },
+      "insert.blank": { run: guard(() => actions.addBlank()) },
       "view.write": { run: () => h.setMode("write"), checked: h.mode === "write" },
       "view.read": {
         run: guard(async () => {

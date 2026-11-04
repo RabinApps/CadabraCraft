@@ -48,6 +48,8 @@ interface Props {
   onChange?: (doc: ChapterDoc) => void;
   /** Focus mode: hide the formatting toolbar (shortcuts still work). */
   focus?: boolean;
+  /** The page holds no text (a blank page the author added): its page is drawn, but nothing can be typed into it. */
+  readOnly?: boolean;
 }
 
 /** Tells the author when a conversion left something out. */
@@ -61,7 +63,7 @@ function warnNotice(warnings: number) {
     });
 }
 
-export function Editor({ initial, language, onChange, focus }: Props) {
+export function Editor({ initial, language, onChange, focus, readOnly }: Props) {
   const { t } = useLingui();
   // Pasted text that holds HTML tags, waiting for the author's answer in the dialog.
   const [pending, setPending] = useState<{
@@ -84,6 +86,7 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     setPending({ text, converted, from, to });
   };
   const editor = useEditor({
+    editable: !readOnly,
     // Keys the author moved in Settings > Shortcuts are read when the editor is made (the settings page replaces the editor).
     extensions: [
       ...extensions,

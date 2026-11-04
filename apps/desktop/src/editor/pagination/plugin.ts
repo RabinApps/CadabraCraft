@@ -68,6 +68,14 @@ function forcedBreaks(
   exactPos: Map<string, number>,
 ): PageBreak[] | undefined {
   const doc = v.state.doc;
+  // The report comes from a render of the text as it was then, and it has no way to say that the author has since put a page break
+  // in it: its pages would leave the break out, and the cards would disagree with the PDF. The estimate honours every break instead,
+  // and the chip says the breaks are approximate until the text is rendered again.
+  let breaksPages = false;
+  doc.forEach((n) => {
+    if (n.type.name === "pageBreak") breaksPages = true;
+  });
+  if (breaksPages) return undefined;
   const leaves = docLeaves(doc);
   const typst = exactBreaks(c.exact!, leaves);
   if (!typst) return undefined;

@@ -30,6 +30,53 @@ const back = (id: string, kind: PageEntryInput["kind"], pages = 1, extra = {}): 
 });
 const startOf = (b: ReturnType<typeof layoutBook>, id: string) => b.byId.get(id)!;
 
+describe("layoutBook: a blank page the author added", () => {
+  it("is a page of its own that follows the page before it, prints no number and gets no blank page of its own", () => {
+    const b = layoutBook(
+      [
+        front("t", "title-page"),
+        front("e", "epigraph", 2),
+        front("b1", "blank"),
+        front("b2", "blank"),
+        front("p", "preface"),
+        ch("a", 4),
+      ],
+      { startsOn: "recto" },
+    );
+    // The title page and the epigraph open on right-hand pages; the two blank pages then follow the epigraph's last page.
+    expect(b.entries.map((e) => [e.id, e.start, e.blankBefore, e.folio])).toEqual([
+      ["t", 1, false, ""],
+      ["e", 3, true, "iii"],
+      ["b1", 5, false, ""],
+      ["b2", 6, false, ""],
+      ["p", 7, false, "vii"],
+      ["a", 9, true, "1"],
+    ]);
+  });
+
+  it("is not pushed to a right-hand page, even straight after a dedication", () => {
+    const b = layoutBook(
+      [front("t", "title-page"), front("d", "dedication", 1), front("b", "blank")],
+      { startsOn: "recto" },
+    );
+    expect(startOf(b, "d")).toMatchObject({ start: 3, blankBefore: true });
+    expect(startOf(b, "b")).toMatchObject({
+      start: 4,
+      blankBefore: false,
+      number: null,
+      folio: "",
+    });
+  });
+
+  it("keeps its place when a report says where Typst put it", () => {
+    const b = layoutBook([front("t", "title-page"), front("b", "blank"), front("p", "preface")], {
+      startsOn: "recto",
+    });
+    expect(startOf(b, "b")).toMatchObject({ start: 2, blankBefore: false, number: null });
+    expect(startOf(b, "p")).toMatchObject({ start: 3, blankBefore: false });
+  });
+});
+
 describe("layoutBook: chapters only", () => {
   it("continues the count from chapter to chapter, with a blank left-hand page where the next would be even", () => {
     const b = layoutBook([ch("a", 5), ch("b", 6), ch("c", 5)], { startsOn: "recto" });
@@ -337,5 +384,35 @@ describe("formatFolio, folioAt and folioText", () => {
   it("is all roman for a book with only front matter", () => {
     const b = layoutBook([front("f", "foreword")], { startsOn: "any" });
     expect(folioAt(b, 1)).toEqual({ style: "roman", number: 1 });
+  });
+});
+
+describe("layoutBook: a blank page between two chapters", () => {
+  const chBlank = (id: string, pages = 1): PageEntryInput => ({
+    id,
+    section: "chapter",
+    kind: "blank",
+    pages,
+    exact: true,
+  });
+
+  it("follows the chapter before it, prints no number, and the next chapter still opens on a right-hand page", () => {
+    const b = layoutBook([ch("a", 4), chBlank("b"), ch("c", 1)], { startsOn: "recto" });
+    expect(b.entries.map((e) => [e.id, e.start, e.blankBefore, e.number])).toEqual([
+      ["a", 1, false, 1],
+      ["b", 5, false, null],
+      ["c", 7, true, 7],
+    ]);
+    expect(startOf(b, "b").folio).toBe("");
+  });
+
+  it("does not restart the arabic count before the first chapter that has text", () => {
+    const b = layoutBook([front("t", "title-page"), chBlank("b"), ch("c", 3)], {
+      startsOn: "recto",
+    });
+    expect(startOf(b, "b")).toMatchObject({ start: 2, blankBefore: false, number: null });
+    // The first page with text after the front matter is arabic 1, so the blank page's side is not counted as a chapter page.
+    expect(startOf(b, "c")).toMatchObject({ start: 3, number: 1 });
+    expect(b.arabicFrom).toBe(3);
   });
 });

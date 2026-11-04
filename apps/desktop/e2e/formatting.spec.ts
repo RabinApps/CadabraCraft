@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { newProject, exportBook } from "./support/helpers";
+import { writeCards } from "./support/pageCards";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -66,6 +67,21 @@ test.describe("formatting toolbar", () => {
     const saved = await page.evaluate(() => window.__disk["manuscript/001-chapter-one.json"]);
     expect(saved).toContain("sceneBreak");
     expect(saved).toContain("footnote");
+  });
+
+  test("a page break starts the next paragraph on a new page, and two in a row leave an empty page", async ({
+    page,
+  }) => {
+    await typeLine(page, "first");
+    await tb(page, "More formatting").click();
+    await page.getByRole("menuitem", { name: "Page break" }).click();
+    await expect(ed(page).locator("hr.page-break")).toHaveCount(1);
+    // The break ends the page it is on: the text before it is one page, what follows is another.
+    await expect.poll(async () => (await writeCards(page)).length).toBe(2);
+    // It is saved like any other block, and the EPUB export carries the break.
+    await exportBook(page, "EPUB 3");
+    const saved = await page.evaluate(() => window.__disk["manuscript/001-chapter-one.json"]);
+    expect(saved).toContain("pageBreak");
   });
 
   test("task lists toggle a checkbox on click and definition lists insert a term and description, and both export", async ({

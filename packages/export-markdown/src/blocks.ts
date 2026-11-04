@@ -229,6 +229,9 @@ function block(n: DocNode, ctx: Ctx, alt: boolean, top: boolean): string {
       return table(n, ctx);
     case "sceneBreak":
       return "* * *";
+    case "pageBreak":
+      // Markdown has no pages: the break is a comment, which reads as nothing and still marks where the book breaks.
+      return "<!-- page break -->";
     case "image":
       return image(n, ctx);
     default:

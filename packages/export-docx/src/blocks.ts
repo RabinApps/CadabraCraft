@@ -68,6 +68,8 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
     }
     case "sceneBreak":
       return [para("<w:r><w:t>#</w:t></w:r>", { style: "SceneBreak" }, ctx)];
+    case "pageBreak":
+      return [para('<w:r><w:br w:type="page"/></w:r>', {}, ctx)];
     case "image": {
       const a = attrsOf(n);
       const alt = a.decorative ? "" : String(a.alt ?? "");

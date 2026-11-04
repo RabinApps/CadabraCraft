@@ -6,6 +6,7 @@ import {
   sourceEdition,
   entryRows,
   entryRowsIn,
+  chaptersOf,
 } from "@cadabracraft/format";
 import { Minimize2, Plus } from "lucide-react";
 import { Editor } from "../../editor/Editor";
@@ -129,7 +130,7 @@ function AppScreens() {
   useEffect(() => {
     if (!root || !manifest || bookWords === null) return;
     const source = sourceEdition(manifest.editions);
-    const rows = entryRows(manifest.chapters, manifest.editions);
+    const rows = entryRows(chaptersOf(manifest), manifest.editions);
     const at = rows.findIndex((r) => r.id === currentId);
     const stats = {
       author: source.author,
@@ -254,12 +255,15 @@ function AppScreens() {
       </>
     );
   }
-  const chapters = manifest.chapters;
+  const chapters = chaptersOf(manifest);
   const pages = entryRowsIn(readingOrder(manifest), manifest.editions, activeLanguage);
   const index = pages.findIndex((c) => c.id === currentId);
   const section = currentId ? sectionOf(manifest, currentId) : null;
   // A contents page has no text to edit: its list is generated, and the editor for it is the list.
   const contents = manifest.frontMatter.find((e) => e.id === currentId && e.kind === "contents");
+  // A blank page holds no text either: Page view draws its page, and the editor is read-only, so nothing can be typed into it and
+  // then left out of the PDF.
+  const blank = readingOrder(manifest).find((e) => e.id === currentId)?.kind === "blank";
   const chapterNo = chapters.findIndex((c) => c.id === currentId) + 1;
   // In Read mode the footer follows the scroll position, not the open chapter (which catches up a moment later).
   const readIndex = pages.findIndex((c) => c.id === readPosition.id);
@@ -312,6 +316,7 @@ function AppScreens() {
               language={activeLanguage}
               onChange={actions.setDraft}
               focus={focus}
+              readOnly={blank}
             />
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">

@@ -178,11 +178,16 @@ export function canAddMatter(m: Manifest, kind: MatterKind): boolean {
   return ![...m.frontMatter, ...m.backMatter].some((e) => e.kind === kind);
 }
 
+/**
+ * Adds a page to a section. Front matter follows the conventional kind order; a blank page instead goes straight after `afterId`
+ * (the page that was open), because its whole point is a place between two particular pages.
+ */
 function addMatter(
   m: Manifest,
   section: MatterSection,
   kind: MatterKind,
   title: string,
+  afterId?: string,
 ): { manifest: Manifest; entry: EditionEntry } {
   const front = section === "frontMatter";
   if (!(front ? isFrontMatterKind(kind) : isBackMatterKind(kind)))
@@ -206,17 +211,54 @@ function addMatter(
   const list = [...m[section]];
   // Front matter follows the conventional order (title page, copyright, dedication...); custom pages go last. Back matter is appended.
   const order: readonly MatterKind[] = front ? FRONT_MATTER_KINDS : BACK_MATTER_KINDS;
-  const at = front
-    ? list.findIndex((e) => order.indexOf(e.kind ?? "custom") > order.indexOf(kind))
-    : -1;
+  const after =
+    kind === "blank" && afterId !== undefined ? list.findIndex((e) => e.id === afterId) : -1;
+  const at =
+    after >= 0
+      ? after + 1
+      : front
+        ? list.findIndex((e) => order.indexOf(e.kind ?? "custom") > order.indexOf(kind))
+        : -1;
   list.splice(at < 0 ? list.length : at, 0, entry);
   return { manifest: { ...m, [section]: list }, entry };
 }
 
-export const addFrontMatter = (m: Manifest, kind: MatterKind, title: string) =>
-  addMatter(m, "frontMatter", kind, title);
-export const addBackMatter = (m: Manifest, kind: MatterKind, title: string) =>
-  addMatter(m, "backMatter", kind, title);
+/**
+ * Adds a blank page after `afterId`, in whichever part of the book that page is in (front matter, chapters or back matter): a blank
+ * page belongs wherever the author put it, and with no open page it goes at the end of the chapters.
+ */
+export function addBlank(
+  m: Manifest,
+  afterId: string | undefined,
+  title: string,
+): { manifest: Manifest; entry: EditionEntry } {
+  const section = afterId ? sectionOf(m, afterId) : "chapter";
+  if (section === "chapter") {
+    const lang = sourceOf(m);
+    const used = allEntries(m);
+    const files = usedFiles(m);
+    let n = m.chapters.length + 1;
+    while (used.some((e) => e.id === `ch-${n}`)) n++;
+    let pos = m.chapters.length + 1;
+    while (files.has(`manuscript/${chapterFileName(pos, title)}`)) pos++;
+    const entry: EditionEntry = {
+      id: `ch-${n}`,
+      kind: "blank",
+      titles: { [lang]: title },
+      files: { [lang]: `manuscript/${chapterFileName(pos, title)}` },
+    };
+    const list = [...m.chapters];
+    const after = afterId === undefined ? -1 : list.findIndex((e) => e.id === afterId);
+    list.splice(after < 0 ? list.length : after + 1, 0, entry);
+    return { manifest: { ...m, chapters: list }, entry };
+  }
+  return addMatter(m, section === "front" ? "frontMatter" : "backMatter", "blank", title, afterId);
+}
+
+export const addFrontMatter = (m: Manifest, kind: MatterKind, title: string, afterId?: string) =>
+  addMatter(m, "frontMatter", kind, title, afterId);
+export const addBackMatter = (m: Manifest, kind: MatterKind, title: string, afterId?: string) =>
+  addMatter(m, "backMatter", kind, title, afterId);
 
 function matterSection(m: Manifest, id: string): MatterSection {
   if (m.frontMatter.some((e) => e.id === id)) return "frontMatter";

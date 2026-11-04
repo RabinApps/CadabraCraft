@@ -35,6 +35,7 @@ describe("v1 editor schema", () => {
       "codeBlock",
       "image",
       "sceneBreak",
+      "pageBreak",
       "footnote",
       "table",
       "tableRow",

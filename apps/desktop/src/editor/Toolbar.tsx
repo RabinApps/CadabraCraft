@@ -24,6 +24,7 @@ import {
   ListOrdered,
   ListTodo,
   Quote,
+  SeparatorHorizontal,
   Redo2,
   Strikethrough,
   Subscript,
@@ -246,6 +247,16 @@ export function Toolbar({ editor }: { editor: Editor }) {
           .run(),
     },
     {
+      // Prints nothing of its own: the block after it starts on a new page, so two in a row leave an empty page.
+      id: "pageBreak",
+      label: t`Page break`,
+      icon: SeparatorHorizontal,
+      run: () =>
+        c()
+          .insertContent([{ type: "pageBreak" }])
+          .run(),
+    },
+    {
       id: "taskList",
       label: t`Task list`,
       icon: ListTodo,
@@ -398,7 +409,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const moreSections = [
     more(["strike", "code", "superscript", "subscript"]),
     more(["lang", "clearLang"]),
-    more(["imageDetails", "sceneBreak", "codeBlock", "taskList", "definitionList"]),
+    more(["imageDetails", "sceneBreak", "pageBreak", "codeBlock", "taskList", "definitionList"]),
   ];
 
   return (

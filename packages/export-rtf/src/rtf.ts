@@ -1,5 +1,11 @@
 import { contentsLines, starterTitle } from "@cadabracraft/format";
-import { countWords, textDirection, type ChapterDoc, type Section } from "@cadabracraft/shared";
+import {
+  countWords,
+  dropLeadingPageBreak,
+  textDirection,
+  type ChapterDoc,
+  type Section,
+} from "@cadabracraft/shared";
 import { blockRtf } from "./blocks";
 import { RtfExportError } from "./errors";
 import { checkText, fail, kidsOf } from "./helpers";
@@ -124,14 +130,17 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
   for (const c of pages) {
     const sec = c.section ?? "chapter";
     // The generated manuscript title page replaces a "title-page" matter page (which only holds the title and author).
-    if (c.kind === "title-page") continue;
+    // A blank page has no text; Rich Text has no page layout of its own here, so it is left out.
+    if (c.kind === "title-page" || c.kind === "blank") continue;
     const label = c.title.trim() || c.id || "(untitled page)";
     const ctx: Ctx = { s, chapter: label, quote: 0, list: 0, inNote: false, runProps: {} };
     if (!c.doc || c.doc.type !== "doc" || !Array.isArray(c.doc.content))
       fail(ctx, 'A chapter document must be an object with type "doc"');
     s.pendingBreak = !first;
     first = false;
-    const titled = startsWithTitle(c.doc);
+    // A break as the page's first block asks for nothing (the page already starts on a new one); kept, it would print a blank page.
+    const { doc } = dropLeadingPageBreak(c.doc);
+    const titled = startsWithTitle(doc);
     const heading = { before: 2880, firstLine: 0, keepNext: true, outline: 0, jc: "c" } as const;
     if (!titled && sec === "chapter" && c.title.trim() !== "")
       body.push(
@@ -140,7 +149,7 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
     if (
       c.kind === "contents" &&
       options.contents !== undefined &&
-      !c.doc.content.some((n) => n.type === "heading")
+      !doc.content.some((n) => n.type === "heading")
     )
       body.push(
         para(
@@ -156,7 +165,7 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
           ctx,
         ),
       );
-    c.doc.content.forEach((n, i) => {
+    doc.content.forEach((n, i) => {
       if (i === 0 && titled) {
         const runs = inline(kidsOf(n), ctx);
         if (runs !== "") body.push(para(runs, heading, ctx));

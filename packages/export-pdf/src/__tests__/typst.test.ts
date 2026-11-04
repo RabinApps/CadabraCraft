@@ -57,6 +57,22 @@ describe("buildTypst content", () => {
   it("is deterministic", () => {
     expect(buildTypst(book, [{ id: "ch1", title: "Chapter One", doc: sample }])).toBe(src);
   });
+  it("writes a page break where the author put one, and nothing else on the page", () => {
+    const out = buildTypst(
+      book,
+      ch(para(text("Before.")), { type: "pageBreak" } as DocNode, para(text("After."))),
+    );
+    expect(out).toContain("#pagebreak(weak: true)");
+    // A break is invisible in the book: no rule, no text, no scene break of its own.
+    expect(out).not.toContain("#scene-break()");
+  });
+
+  it("drops a break that is the chapter's first block, so it adds no page", () => {
+    const breakFirst = buildTypst(book, ch({ type: "pageBreak" } as DocNode, para(text("First."))));
+    // `#chapter-start` puts the opening on the page; a break kept here would fire after it and leave the ornament alone on a page.
+    expect(breakFirst).toBe(buildTypst(book, ch(para(text("First.")))));
+  });
+
   it("renders tables with a repeating header row and escaped cells", () => {
     expect(src).toContain(
       "#table(\n  columns: (1fr, 1fr),\n  table.header([Item], [Cost & note]),",

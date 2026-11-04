@@ -338,7 +338,11 @@ export function PageFrame({ editor, children }: Props) {
     (l: PageLayoutResult) => {
       setPageCount(l.pages.length, undefined, l.exact);
       if (currentId)
-        setEntryPages(currentId, l.pages.filter((p) => p.kind !== "blank").length, measureKey);
+        setEntryPages(
+          currentId,
+          entry?.kind === "blank" ? 1 : l.pages.filter((p) => p.kind !== "blank").length,
+          measureKey,
+        );
     },
     [currentId, measureKey],
   );
@@ -348,7 +352,9 @@ export function PageFrame({ editor, children }: Props) {
   );
   useEffect(() => () => setPageCount(0), []);
 
-  const centredNow = pageIsCentred(look, section, entry?.kind, entry ?? {});
+  // A blank page between two chapters is not a chapter opening: it is laid out, and prints, like a page of the matter.
+  const pageSection = entry?.kind === "blank" ? "front" : section;
+  const centredNow = pageIsCentred(look, pageSection, entry?.kind, entry ?? {});
   const size = trimLabel(trim);
   const exactBreaks = usePageCount((s) => s.exact);
   const fontNote = family
@@ -383,12 +389,12 @@ export function PageFrame({ editor, children }: Props) {
           editor={editor}
           look={look}
           zoom={zoom}
-          section={section}
+          section={pageSection}
           chapterTitle={chapterTitle}
           chapterNumber={chapterNumber}
           dropCap={entry?.dropCap ?? manifest.dropCap}
           verticalCenter={centredNow}
-          bare={pageIsBare(centredNow, section, entry?.kind)}
+          bare={pageIsBare(centredNow, pageSection, entry?.kind)}
           kind={entry?.kind}
           firstPage={firstPage}
           blankBefore={placed?.blankBefore ?? false}

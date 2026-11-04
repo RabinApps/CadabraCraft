@@ -280,6 +280,7 @@ export type BlockKind =
   | "paragraph"
   | "blockquote"
   | "sceneBreak"
+  | "pageBreak"
   | "list"
   | "table"
   | "image"
@@ -415,6 +416,17 @@ export function paginate(
   let prev: MeasuredBlock | undefined;
   for (let i = 0; i < blocks.length; i++) {
     const b = blocks[i]!;
+    // A page break ends the page it is on: the block after it begins the next one. A break that is already at the top of a page asks
+    // for nothing, unless another break came straight before it: that page is empty on purpose, and the second break is what keeps it.
+    if (
+      i > 0 &&
+      blocks[i - 1]!.kind === "pageBreak" &&
+      (y > 0 || (i >= 2 && blocks[i - 2]!.kind === "pageBreak"))
+    ) {
+      breaks.push({ block: i, linesBefore: 0, blankBefore: false });
+      y = 0;
+      atTop = true;
+    }
     // `rest` is what remains of this block (undefined = all of it); `done` the lines already placed on earlier pages.
     let done = 0;
     for (;;) {

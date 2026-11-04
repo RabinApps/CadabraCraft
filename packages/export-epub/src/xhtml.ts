@@ -337,6 +337,8 @@ function block(n: DocNode, ctx: Ctx): string {
       return table(n, ctx);
     case "sceneBreak":
       return `<hr class="scene-break"/>`;
+    case "pageBreak":
+      return `<hr class="page-break"/>`;
     case "image": {
       const a = n.attrs ?? {};
       // A decorative image keeps an empty alt on purpose and is hidden from assistive technology.

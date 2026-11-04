@@ -1,6 +1,8 @@
 import {
+  dropLeadingPageBreak,
   isBackMatterKind,
   isFrontMatterKind,
+  type ChapterDoc,
   type DocNode,
   type MatterKind,
   type Section,
@@ -16,8 +18,9 @@ import { em } from "./units";
 
 function sectionOf(c: PdfChapter): Section {
   const section = c.section ?? "chapter";
+  // A blank page may sit anywhere in the book, the chapters included.
   const ok =
-    c.kind === undefined
+    c.kind === undefined || c.kind === "blank"
       ? true
       : section === "front"
         ? isFrontMatterKind(c.kind)
@@ -33,8 +36,8 @@ function sectionOf(c: PdfChapter): Section {
  * A level-1 heading as the page's first block: the page's own title, above which the template's chapter opening (sink, ornament,
  * label) sits. Page view and the EPUB hang it on the same heading (`h1:first-child`).
  */
-function opensWithTitle(page: PdfChapter): boolean {
-  const first = page.doc.content?.[0];
+function opensWithTitle(doc: ChapterDoc): boolean {
+  const first = doc.content?.[0];
   return first?.type === "heading" && Number(first.attrs?.level ?? 1) === 1;
 }
 
@@ -61,6 +64,8 @@ function dropCapOpening(
   ctx: Ctx,
   indentEm: number,
   chapter: number,
+  /** How many of the page's first blocks were dropped (see `dropLeadingPageBreak`): the marks' block indices are offset by it. */
+  off = 0,
 ): string | null {
   // A chapter that opens with its own title heading takes the cap on the paragraph under it, where Page view and the EPUB put it
   // (`h1:first-child + p`); a chapter with no heading of its own opens on its first block.
@@ -77,7 +82,9 @@ function dropCapOpening(
     at === 0
       ? ""
       : `${
-          ctx.marks ? markedBlocks(doc!.slice(0, at), ctx, chapter) : blocks(doc!.slice(0, at), ctx)
+          ctx.marks
+            ? markedBlocks(doc!.slice(0, at), ctx, chapter, off)
+            : blocks(doc!.slice(0, at), ctx)
         }\n\n`;
   ctx.usesDropCap = true;
   // Typst treats the paragraph after the drop cap block as a first paragraph, so an indenting template needs its indent put back by hand;
@@ -92,15 +99,15 @@ function dropCapOpening(
         )
       : -1;
   const indent = indentAt < 0 ? "" : `#h(${em(indentEm)})`;
-  const before = emit(indentAt < 0 ? rest : rest.slice(0, indentAt), at + 1);
-  const after = indentAt < 0 ? "" : emit(rest.slice(indentAt), at + 1 + indentAt);
+  const before = emit(indentAt < 0 ? rest : rest.slice(0, indentAt), off + at + 1);
+  const after = indentAt < 0 ? "" : emit(rest.slice(indentAt), off + at + 1 + indentAt);
   const tail = [before, indent === "" ? after : `${indent}${after}`]
     .filter((s) => s !== "")
     .join("\n\n");
   // The drop cap package takes the paragraph apart and sets its pieces again; the marks in it survive that (checked with real Typst).
   let cap: string;
   if (ctx.marks) {
-    ctx.mark = { chapter, block: at, leaf: 0 };
+    ctx.mark = { chapter, block: off + at, leaf: 0 };
     const { mark, body } = leafText(kids, ctx, "p");
     ctx.mark = undefined;
     cap = `${mark}\n\n#dropcap(height: 3, gap: 0.12em)[${body}]`;
@@ -123,9 +130,20 @@ export function bodyOf(
   let prev: MatterKind | undefined;
   for (const [index, page] of pages.entries()) {
     const section = sectionOf(page);
-    const kind = section === "chapter" ? undefined : (page.kind ?? "custom");
+    // A blank page keeps its kind wherever it is: a chapter's pages have none, but a blank page between two chapters is not a chapter.
+    const kind = page.kind ?? (section === "chapter" ? undefined : "custom");
     if (section === "front") sawFront = true;
     const restart = sawFront && section !== "front" && !restarted;
+    // A blank page the author added is a page of its own with nothing on it: no header, no number and no text, the same page the
+    // book inserts before a page that must open on a right-hand one. It follows the page before it, so it never breaks to an odd page
+    // and the page after it still follows the rules (a blank page before a dedication still sees the dedication, not the blank).
+    if (kind === "blank") {
+      out.push("#page(header: none, footer: none)[]\n");
+      continue;
+    }
+    // A break as the page's first block is at the top of the page already: kept, it would break after `#chapter-start` and leave the
+    // ornament alone on an empty page. `dropped` keeps the marks' block indices in step with the editor's document.
+    const { doc, dropped } = dropLeadingPageBreak(page.doc);
     // The numbering restart puts the first page after the front matter on a right-hand page, unless the author let that page follow
     // on: the choice wins over every rule that would push it (see `layoutBook` in @cadabracraft/shared).
     const break_ =
@@ -149,9 +167,9 @@ export function bodyOf(
     ctx.headingNo = 0;
     const content =
       (kind === undefined && (page.dropCap ?? dropCap)
-        ? dropCapOpening(page.doc.content, ctx, indentEm, index)
+        ? dropCapOpening(doc.content, ctx, indentEm, index, dropped)
         : null) ??
-      (ctx.marks ? markedBlocks(page.doc.content, ctx, index) : blocks(page.doc.content, ctx));
+      (ctx.marks ? markedBlocks(doc.content, ctx, index, dropped) : blocks(doc.content, ctx));
     const title = typstString(page.title);
     const id = typstString(page.id);
     const info = `${id}, ${typstString(kind ?? "chapter")}`;
@@ -187,7 +205,7 @@ export function bodyOf(
           centred
             ? `#centered-page(${info})[\n${content}\n]\n`
             : `#chapter-start(${title}, none, ${named}${
-                opensWithTitle(page) ? "" : ", opening: false"
+                opensWithTitle(doc) ? "" : ", opening: false"
               })\n\n${content}\n\n#mark("chapter-end")\n`,
         );
     }

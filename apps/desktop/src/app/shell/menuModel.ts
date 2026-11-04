@@ -79,6 +79,8 @@ function kindLabel(kind: MatterKind): string {
       return t`Preface`;
     case "custom":
       return t`Custom page`;
+    case "blank":
+      return t`Blank page`;
     case "acknowledgments":
       return t`Acknowledgments`;
     case "about-the-author":
@@ -238,6 +240,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
 
   const insert = sub(t`Insert`, [
     cmd("insert.chapter", t`New Chapter`, "CmdOrCtrl+Shift+N"),
+    cmd("insert.blank", t`Blank page`),
     sub(
       t`Front Matter`,
       FRONT.map((k) => cmd(`insert.front.${k}`, kindLabel(k))),
@@ -248,6 +251,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     ),
     sep,
     cmd("editor.sceneBreak", t`Scene Break`),
+    cmd("editor.pageBreak", t`Page break`),
     cmd("editor.image", t`Image…`),
     cmd("editor.footnote", t`Footnote`),
     cmd("editor.link", t`Link…`),

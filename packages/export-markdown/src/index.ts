@@ -1,4 +1,10 @@
-import type { ChapterDoc, DocNode, MatterKind, Section } from "@cadabracraft/shared";
+import {
+  dropLeadingPageBreak,
+  type ChapterDoc,
+  type DocNode,
+  type MatterKind,
+  type Section,
+} from "@cadabracraft/shared";
 import { renderChapter, type MarkdownOptions } from "./markdown";
 import {
   contentsMarkdown,
@@ -66,20 +72,25 @@ export function chaptersToMarkdown(
   contents?: MarkdownContents,
 ): string[] {
   let offset = opts.footnoteOffset ?? 0;
-  const docs = readingOrder(chapters).map((c) => {
-    const title = c.title.trim();
-    const noTitleAdded = !title || startsWithTitle(c.doc);
-    const doc: ChapterDoc = noTitleAdded
-      ? c.doc
-      : {
-          type: "doc",
-          content: [
-            { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] },
-            ...c.doc.content,
-          ],
-        };
-    return { c, doc, added: noTitleAdded ? 0 : 1 };
-  });
+  // A blank page has no text and Markdown has no pages, so it is left out.
+  const docs = readingOrder(chapters)
+    .filter((c) => c.kind !== "blank")
+    .map((c) => {
+      // A break as the page's first block asks for nothing (the page is already at the top of its own document).
+      const { doc: body } = dropLeadingPageBreak(c.doc);
+      const title = c.title.trim();
+      const noTitleAdded = !title || startsWithTitle(body);
+      const doc: ChapterDoc = noTitleAdded
+        ? body
+        : {
+            type: "doc",
+            content: [
+              { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] },
+              ...body.content,
+            ],
+          };
+      return { c, doc, added: noTitleAdded ? 0 : 1 };
+    });
   const pages = new Map<string, ContentsPage>();
   if (contents !== undefined) {
     // One document: anchors are unique across all pages. One file per page: unique within the file.

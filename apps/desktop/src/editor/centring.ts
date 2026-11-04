@@ -22,6 +22,7 @@ const OWN_LAYOUT_KINDS: readonly (MatterKind | undefined)[] = [
   "title-page",
   "dedication",
   "epigraph",
+  "blank",
 ];
 
 /**
@@ -47,7 +48,12 @@ export const pageIsCopyright = (section: string, kind: MatterKind | undefined) =
   section !== "chapter" && kind === "copyright";
 
 /** Pages the PDF lays out without a running head at all: the title page (and its copyright page), the contents and any centred page. */
-const HEADLESS_KINDS: readonly (MatterKind | undefined)[] = ["title-page", "copyright", "contents"];
+const HEADLESS_KINDS: readonly (MatterKind | undefined)[] = [
+  "title-page",
+  "copyright",
+  "contents",
+  "blank",
+];
 
 /**
  * Whether a front or back matter page prints a running head on the pages it runs onto, as the PDF's header does: the book title on the

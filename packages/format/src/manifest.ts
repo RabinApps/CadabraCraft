@@ -153,6 +153,14 @@ export function readingOrder(m: Manifest): EditionEntry[] {
   return [...m.frontMatter, ...m.chapters, ...m.backMatter];
 }
 
+/**
+ * The book's chapters, without the blank pages the author put between them: the pages a chapter number counts, a narration reads and
+ * a "Chapter 3" title numbers. A blank page in the chapters list is a page of the book, not a chapter.
+ */
+export function chaptersOf(m: Manifest): EditionEntry[] {
+  return m.chapters.filter((e) => e.kind !== "blank");
+}
+
 const ICON_NAME = /^[a-z][a-z0-9-]{0,39}$/;
 const COVER_PATH = /^assets\/[A-Za-z0-9_-]+\.(png|jpe?g|webp)$/;
 
@@ -234,10 +242,13 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
       entry.dropCap = o.dropCap;
     }
     if (o.kind !== undefined) {
+      // Chapters have no kind, except a blank page the author put between two of them: it is a page of the book, not a chapter.
       const ok =
         section === "front"
           ? isFrontMatterKind(o.kind)
-          : section === "back" && isBackMatterKind(o.kind);
+          : section === "back"
+            ? isBackMatterKind(o.kind)
+            : o.kind === "blank";
       if (!ok)
         throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
       entry.kind = o.kind as MatterKind;

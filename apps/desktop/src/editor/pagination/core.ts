@@ -113,6 +113,8 @@ export function blockKind(name: string, level: number | undefined, index: number
       return "code";
     case "sceneBreak":
       return "sceneBreak";
+    case "pageBreak":
+      return "pageBreak";
     case "table":
       return "table";
     case "image":

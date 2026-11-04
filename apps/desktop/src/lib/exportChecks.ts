@@ -1,4 +1,4 @@
-import { sourceEdition, sourceTitle } from "@cadabracraft/format";
+import { chaptersOf, sourceEdition, sourceTitle } from "@cadabracraft/format";
 import { plural, t } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { imageAltStats } from "@cadabracraft/export-epub";
@@ -133,9 +133,9 @@ export function epubChecks(
 ): ExportCheck[] {
   const checks: ExportCheck[] = [];
   const language = scope.language ?? sourceEdition(manifest.editions).language;
-  if (manifest.chapters.length === 0)
+  if (chaptersOf(manifest).length === 0)
     checks.push({ tone: "warn", text: t`This book has no chapters yet.` });
-  const untitled = manifest.chapters.filter(
+  const untitled = chaptersOf(manifest).filter(
     (c) => (c.titles[language] ?? sourceTitle(c, manifest.editions)).trim() === "",
   ).length;
   if (untitled > 0)

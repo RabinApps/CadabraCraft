@@ -1,9 +1,17 @@
 import { FormatError } from "./errors";
 import { LANGUAGE_CODE, sourceEdition, sourceFile, translationFile } from "./editions";
-import { readingOrder, type Edition, type EditionEntry, type Manifest } from "./manifest";
+import {
+  chaptersOf,
+  readingOrder,
+  type Edition,
+  type EditionEntry,
+  type Manifest,
+} from "./manifest";
 
 /** True when the entry's text in `language` is written by a translator (or is the source). Missing files and copies are not translated. */
 export const isTranslated = (entry: EditionEntry, language: string, editions: Edition[]): boolean =>
+  // A blank page has no text to translate, so every edition has it.
+  entry.kind === "blank" ||
   language === sourceEdition(editions).language ||
   (entry.files[language] !== undefined && !(entry.untranslated ?? []).includes(language));
 
@@ -12,7 +20,7 @@ export const translationProgress = (
   m: Manifest,
   language: string,
 ): { translated: number; total: number } => {
-  const chapters = m.chapters;
+  const chapters = chaptersOf(m);
   return {
     translated: chapters.filter((c) => isTranslated(c, language, m.editions)).length,
     total: chapters.length,

@@ -30,6 +30,17 @@ export const SceneBreak = Node.create({
   renderHTML: () => ["hr", { class: "scene-break" }],
 });
 
+/**
+ * A page break inside a chapter: whatever follows it starts on a new page. It prints as nothing but the break (no line, no text), so
+ * two in a row leave an empty page — the way an author puts a blank page in the middle of a chapter.
+ */
+export const PageBreak = Node.create({
+  name: "pageBreak",
+  group: "block",
+  parseHTML: () => [{ tag: "hr.page-break" }],
+  renderHTML: () => ["hr", { class: "page-break" }],
+});
+
 export const SmallCaps = Mark.create({
   name: "smallCaps",
   parseHTML: () => [{ tag: "span.small-caps" }],
@@ -373,6 +384,7 @@ export const extensions = [
   }),
   CaptionedImage,
   SceneBreak,
+  PageBreak,
   SmallCaps,
   Superscript,
   Subscript,

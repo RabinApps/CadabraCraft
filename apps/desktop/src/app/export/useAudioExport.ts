@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
-import { entryRowsIn, isTranslated, sourceEdition } from "@cadabracraft/format";
+import { chaptersOf, entryRowsIn, isTranslated, sourceEdition } from "@cadabracraft/format";
 import { bridge, type VoicePack } from "../../lib/bridge";
 import { AUDIO_SPEEDS, voicesFor } from "../../lib/audioFormats";
 import { PdfUiError } from "../../lib/pdfErrors";
@@ -95,11 +95,11 @@ export function useAudioExport({
   };
   // Chapters (not matter) the edition has no translation of yet: they stop the export unless skipped.
   const untranslated = manifest
-    ? manifest.chapters.filter((e) => !isTranslated(e, language, manifest.editions))
+    ? chaptersOf(manifest).filter((e) => !isTranslated(e, language, manifest.editions))
     : [];
   const blocked = untranslated.length > 0 && !skipUntranslated;
   const rows = manifest
-    ? entryRowsIn(manifest.chapters, manifest.editions, language).filter(
+    ? entryRowsIn(chaptersOf(manifest), manifest.editions, language).filter(
         (r) => !skipUntranslated || r.translated,
       )
     : [];

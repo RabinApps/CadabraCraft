@@ -278,6 +278,18 @@ body {
   content: "* * *";
   color: var(--ink-muted);
 }
+/* A page break in Write view: a thin labelled rule, where the page ends. In Page view it is the page's own edge, so it takes no room. */
+.prose-manuscript .ProseMirror hr.page-break {
+  border: 0;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+.prose-manuscript .ProseMirror hr.page-break::after {
+  content: "PAGE BREAK";
+  font-size: 0.7em;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
 .prose-manuscript .ProseMirror table {
   width: 100%;
   table-layout: fixed;
@@ -646,6 +658,15 @@ body {
 .prose-page .ProseMirror hr.scene-break::after {
   content: var(--page-scene-glyph);
   color: inherit;
+}
+.prose-page .ProseMirror hr.page-break {
+  display: block;
+  height: 0;
+  margin: 0;
+  border: 0;
+}
+.prose-page .ProseMirror hr.page-break::after {
+  content: none;
 }
 .prose-page .ProseMirror pre {
   margin: 1em 0;

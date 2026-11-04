@@ -1,4 +1,4 @@
-import { isTranslated, sourceEdition } from "@cadabracraft/format";
+import { chaptersOf, isTranslated, sourceEdition } from "@cadabracraft/format";
 import { t } from "@lingui/core/macro";
 import {
   CancelledError,
@@ -85,7 +85,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
     const language = o.language ?? sourceEdition(manifest.editions).language;
     const edition = manifest.editions.find((e) => e.language === language);
     if (!edition) throw new Error(t`This book has no ${language} edition.`);
-    const missing = manifest.chapters.filter(
+    const missing = chaptersOf(manifest).filter(
       (e) =>
         !isTranslated(e, language, manifest.editions) &&
         (!o.chapterIds || o.chapterIds.includes(e.id)),
@@ -98,6 +98,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
     const pages = (await loadChaptersIn(language)).filter(
       (p) =>
         p.section === "chapter" &&
+        p.kind !== "blank" &&
         !left.has(p.id) &&
         (!o.chapterIds || o.chapterIds.includes(p.id)),
     );

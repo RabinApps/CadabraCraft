@@ -13,6 +13,7 @@ export function useKindLabels() {
     foreword: t`Foreword`,
     preface: t`Preface`,
     custom: t`Custom page`,
+    blank: t`Blank page`,
     acknowledgments: t`Acknowledgments`,
     "about-the-author": t`About the author`,
     "also-by": t`Also by`,

@@ -341,6 +341,8 @@ export interface PageActions {
   add: (title: string) => Promise<void>;
   /** Adds a front or back matter page of `kind` with generated starter content and opens it. Throws when a limited kind (title page, copyright) already exists. */
   addMatter: (section: "front" | "back", kind: MatterKind, title?: string) => Promise<void>;
+  /** Adds a blank page right after the open page, in whatever part of the book it is in. */
+  addBlank: () => Promise<void>;
   /** Rename, move and remove work on chapters, front matter and back matter alike (`id` decides). */
   rename: (id: string, title: string) => Promise<void>;
   move: (id: string, delta: number) => Promise<void>;

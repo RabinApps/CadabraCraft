@@ -110,6 +110,7 @@ export const DEFAULT_TOC: TocSettings = {
 
 /** Pages the list leaves out: they are not places a reader navigates to (same set the EPUB navigation leaves out). */
 export const TOC_UNLISTED_KINDS: readonly MatterKind[] = [
+  "blank",
   "title-page",
   "copyright",
   "dedication",

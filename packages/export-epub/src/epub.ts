@@ -1,5 +1,6 @@
 import { zipSync, strToU8 } from "fflate";
 import {
+  dropLeadingPageBreak,
   imageMediaType,
   isAssetPath,
   isBackMatterKind,
@@ -41,6 +42,7 @@ h1,h2,h3{font-family:sans-serif;page-break-after:avoid}
 p{margin:0;text-indent:1.2em}h1+p,h2+p,h3+p,hr+p{text-indent:0}
 blockquote{margin:1em 2em;font-style:italic}
 hr.scene-break{border:0;text-align:center;margin:1.5em 0}hr.scene-break:after{content:"* * *"}
+hr.page-break{border:0;margin:0;page-break-after:always;break-after:page}
 .small-caps{font-variant:small-caps}.underline{text-decoration:underline}
 a.noteref{font-size:.75em;vertical-align:super}
 nav.contents ol{list-style:none;padding-left:1.2em}nav.contents>ol{padding-left:0}
@@ -208,6 +210,8 @@ export function buildEpub(
   chapters: EpubChapter[],
   options: BuildOptions = {},
 ): Uint8Array {
+  // A blank page the author added has nothing to reflow: an e-reader has no pages to leave empty, so it is left out.
+  chapters = chapters.filter((c) => c.kind !== "blank");
   checkIds(chapters);
   const lang = esc(meta.language);
   const rtl = textDirection(meta.language) === "rtl";
@@ -262,6 +266,9 @@ export function buildEpub(
   const known = new Set(chapters.map((c) => c.id));
   for (const c of chapters) {
     const { type, cls: base } = semantics(c);
+    // A break as the page's first block asks for nothing (the page is a document of its own, already at the top); kept, it would draw
+    // a break at the top of the page.
+    const { doc } = dropLeadingPageBreak(c.doc);
     const centred =
       c.kind !== undefined && (c.verticalCenter ?? options.centerKinds?.includes(c.kind) ?? false);
     const cls =
@@ -272,7 +279,7 @@ export function buildEpub(
           : base;
     let body: string;
     try {
-      body = chapterToXhtmlBody(c.doc, {
+      body = chapterToXhtmlBody(doc, {
         headingIds: shown !== undefined,
         language: meta.language,
       });
@@ -280,7 +287,7 @@ export function buildEpub(
       throw e instanceof EpubExportError ? e.inChapter({ id: c.id, title: c.title }) : e;
     }
     if (shown !== undefined && c.kind === "contents") {
-      const own = c.doc.content.some((n) => n.type === "heading");
+      const own = doc.content.some((n) => n.type === "heading");
       // The page's first heading carries id h-0 (headingIds); a generated one gets its own id. The nav is named by it (aria-labelledby).
       const heading = own
         ? ""

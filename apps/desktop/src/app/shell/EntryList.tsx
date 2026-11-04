@@ -235,22 +235,28 @@ export function EntryList({
                     }}
                     className={menuContentClass("min-w-44")}
                   >
-                    <M.Item
-                      className={menuItemClass()}
-                      onSelect={moveFocus(() => setEditing({ id: c.id }))}
-                    >
-                      <Pencil size={14} aria-hidden />
-                      {t`Rename`}
-                    </M.Item>
-                    <M.Item
-                      className={menuItemClass()}
-                      onSelect={moveFocus(() =>
-                        setIcon({ id: c.id, title: c.title, icon: c.icon }),
-                      )}
-                    >
-                      <Shapes size={14} aria-hidden />
-                      {t`Change icon…`}
-                    </M.Item>
+                    {/* A blank page holds no text: there is no title to change, no text to give an icon to, no headings to list, and
+                        no position or page start to choose (it is already the blank page, and it follows the page before it). */}
+                    {c.kind !== "blank" && (
+                      <>
+                        <M.Item
+                          className={menuItemClass()}
+                          onSelect={moveFocus(() => setEditing({ id: c.id }))}
+                        >
+                          <Pencil size={14} aria-hidden />
+                          {t`Rename`}
+                        </M.Item>
+                        <M.Item
+                          className={menuItemClass()}
+                          onSelect={moveFocus(() =>
+                            setIcon({ id: c.id, title: c.title, icon: c.icon }),
+                          )}
+                        >
+                          <Shapes size={14} aria-hidden />
+                          {t`Change icon…`}
+                        </M.Item>
+                      </>
+                    )}
                     <M.Item
                       className={menuItemClass()}
                       disabled={i === 0}
@@ -317,62 +323,65 @@ export function EntryList({
                         <M.Separator className="my-1 h-px bg-border" />
                       </>
                     )}
-                    {!chapters && c.kind !== "contents" && c.kind !== "copyright" && (
-                      <>
-                        <M.Separator className="my-1 h-px bg-border" />
-                        <M.Label className={menuLabelClass} aria-hidden>
-                          {t`Vertical position`}
-                        </M.Label>
-                        <M.RadioGroup
-                          aria-label={t`Vertical position`}
-                          value={
-                            c.verticalCenter === undefined
-                              ? "default"
-                              : c.verticalCenter
-                                ? "centred"
-                                : "top"
-                          }
-                          onValueChange={(v) => {
-                            attempt(
-                              actions.setVerticalCenter(
-                                c.id,
-                                v === "default" ? null : v === "centred",
-                              ),
-                            );
-                            const title = c.title;
-                            setSaid(
-                              v === "default"
-                                ? t`${title}: vertical position follows the template`
-                                : v === "centred"
-                                  ? t`${title}: centred on the page`
-                                  : t`${title}: at the top of the page`,
-                            );
-                          }}
-                        >
-                          {(
-                            [
-                              ["default", t`Default`],
-                              ["centred", t`Centred`],
-                              ["top", t`Top`],
-                            ] as const
-                          ).map(([value, text]) => (
-                            <M.RadioItem key={value} value={value} className={menuItemClass()}>
-                              <span className="flex size-3.5 items-center justify-center text-accent">
-                                <M.ItemIndicator>
-                                  <Check size={14} aria-hidden />
-                                </M.ItemIndicator>
-                              </span>
-                              {text}
-                            </M.RadioItem>
-                          ))}
-                        </M.RadioGroup>
-                      </>
-                    )}
+                    {!chapters &&
+                      c.kind !== "contents" &&
+                      c.kind !== "copyright" &&
+                      c.kind !== "blank" && (
+                        <>
+                          <M.Separator className="my-1 h-px bg-border" />
+                          <M.Label className={menuLabelClass} aria-hidden>
+                            {t`Vertical position`}
+                          </M.Label>
+                          <M.RadioGroup
+                            aria-label={t`Vertical position`}
+                            value={
+                              c.verticalCenter === undefined
+                                ? "default"
+                                : c.verticalCenter
+                                  ? "centred"
+                                  : "top"
+                            }
+                            onValueChange={(v) => {
+                              attempt(
+                                actions.setVerticalCenter(
+                                  c.id,
+                                  v === "default" ? null : v === "centred",
+                                ),
+                              );
+                              const title = c.title;
+                              setSaid(
+                                v === "default"
+                                  ? t`${title}: vertical position follows the template`
+                                  : v === "centred"
+                                    ? t`${title}: centred on the page`
+                                    : t`${title}: at the top of the page`,
+                              );
+                            }}
+                          >
+                            {(
+                              [
+                                ["default", t`Default`],
+                                ["centred", t`Centred`],
+                                ["top", t`Top`],
+                              ] as const
+                            ).map(([value, text]) => (
+                              <M.RadioItem key={value} value={value} className={menuItemClass()}>
+                                <span className="flex size-3.5 items-center justify-center text-accent">
+                                  <M.ItemIndicator>
+                                    <Check size={14} aria-hidden />
+                                  </M.ItemIndicator>
+                                </span>
+                                {text}
+                              </M.RadioItem>
+                            ))}
+                          </M.RadioGroup>
+                        </>
+                      )}
                     {/* Where the page numbering puts a matter page: the book's rules (a dedication, epigraph or title page opens on a
                         right-hand page, with a blank left-hand page before it when that is what it takes), the next page whatever the
                         rules say (no blank page before it), or a right-hand page (a blank page inserted when the rules leave it on a
                         verso). All three are always offered: a page can be taken off a blank it no longer wants, or given one. */}
-                    {!chapters && (
+                    {!chapters && c.kind !== "blank" && (
                       <>
                         <M.Separator className="my-1 h-px bg-border" />
                         <M.Label className={menuLabelClass} aria-hidden>
@@ -416,15 +425,17 @@ export function EntryList({
                         <M.Separator className="my-1 h-px bg-border" />
                       </>
                     )}
-                    <M.Item
-                      className={menuItemClass()}
-                      onSelect={moveFocus(() =>
-                        setHistory({ id: c.id, title: c.title, file: c.file }),
-                      )}
-                    >
-                      <History size={14} aria-hidden />
-                      {t`History`}
-                    </M.Item>
+                    {c.kind !== "blank" && (
+                      <M.Item
+                        className={menuItemClass()}
+                        onSelect={moveFocus(() =>
+                          setHistory({ id: c.id, title: c.title, file: c.file }),
+                        )}
+                      >
+                        <History size={14} aria-hidden />
+                        {t`History`}
+                      </M.Item>
+                    )}
                     <M.Item
                       className={menuItemClass("text-danger")}
                       onSelect={moveFocus(() => setDeleting({ id: c.id, title: c.title }))}

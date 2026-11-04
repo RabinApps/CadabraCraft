@@ -72,6 +72,8 @@ export function blockRtf(n: DocNode, ctx: Ctx): string[] {
     }
     case "sceneBreak":
       return [para("#", { firstLine: 0, jc: "c" }, ctx)];
+    case "pageBreak":
+      return [para("\\page", { firstLine: 0 }, ctx)];
     case "image": {
       const a = attrsOf(n);
       const title = String(a.title ?? "");

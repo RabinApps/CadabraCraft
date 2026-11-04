@@ -172,7 +172,7 @@ function ReadingChapter({
         editor={editor}
         look={look}
         zoom={zoom}
-        section={page.section}
+        section={page.kind === "blank" ? "front" : page.section}
         chapterTitle={page.title}
         chapterNumber={chapterNumber}
         dropCap={page.dropCap}

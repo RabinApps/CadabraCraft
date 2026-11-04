@@ -98,8 +98,14 @@ const OWN_OPENING: readonly (MatterKind | undefined)[] = [
   "contents",
   "dedication",
   "epigraph",
+  "blank",
 ];
-const NO_FOLIO: readonly (MatterKind | undefined)[] = ["title-page", "copyright", "contents"];
+const NO_FOLIO: readonly (MatterKind | undefined)[] = [
+  "title-page",
+  "copyright",
+  "contents",
+  "blank",
+];
 
 /** Whether the entry opens with the template's chapter opening (a chapter, or matter that is not laid out in the middle of the page). */
 const usesChapterOpening = (e: PageEntryInput): boolean =>
@@ -123,14 +129,18 @@ export function layoutBook(
   // Every count up to the entry being placed is Typst's or an editor's, so where it starts is the real page it starts on.
   let countsExact = true;
   for (const e of entries) {
-    const restart = hasFront && arabicFrom === null && e.section !== "front";
+    // A blank page never restarts the arabic count: the first page after the front matter that has text does.
+    const restart = hasFront && arabicFrom === null && e.section !== "front" && e.kind !== "blank";
     // The author's "right-hand page" wins over every rule and adds the blank page where the rules would have left it on a verso.
+    // A blank page the author added is already that blank page: it follows the page before it, prints nothing and never gets a
+    // blank page of its own.
     const recto =
-      e.startOnNext === false ||
-      restart ||
-      ALWAYS_RECTO.includes(e.kind) ||
-      BLANK_VERSO_AFTER.includes(previous) ||
-      (opts.startsOn === "recto" && usesChapterOpening(e));
+      e.kind !== "blank" &&
+      (e.startOnNext === false ||
+        restart ||
+        ALWAYS_RECTO.includes(e.kind) ||
+        BLANK_VERSO_AFTER.includes(previous) ||
+        (opts.startsOn === "recto" && usesChapterOpening(e)));
     let start = next;
     if (e.start !== undefined) start = Math.max(e.start, 1);
     else if (recto && e.startOnNext !== true && start % 2 === 0) start += 1;

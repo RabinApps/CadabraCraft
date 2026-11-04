@@ -80,7 +80,7 @@ describe("matter kind predicates", () => {
   it("share only the custom kind", () => {
     expect(
       FRONT_MATTER_KINDS.filter((k) => (BACK_MATTER_KINDS as readonly string[]).includes(k)),
-    ).toEqual(["custom"]);
+    ).toEqual(["custom", "blank"]);
   });
 });
 

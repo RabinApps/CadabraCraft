@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
  */
 const ALLOWED: Record<string, { max: number; why: string }> = {
   "index.css": {
-    max: 8,
+    max: 10,
     why: "Page view sheet, page card and drop cap geometry is physical (left/right pages)",
   },
   "editor/PageFrame.tsx": {
@@ -34,6 +34,10 @@ const ALLOWED: Record<string, { max: number; why: string }> = {
     why: "Centring (left-1/2 with -translate-x-1/2) is symmetric",
   },
   "ui/Switch.tsx": { max: 1, why: "The knob translation has its own rtl: variant" },
+  "app/shell/EntryList.tsx": {
+    max: 2,
+    why: 'The row menu\'s live announcement repeats the Page start label "Start on a right-hand page"; the words are prose, not a layout direction',
+  },
 };
 
 const CLASS_PATTERNS = [

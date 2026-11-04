@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import { Camera, FilePlus, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
-import { canAddMatter, entryRowsIn } from "@cadabracraft/format";
+import { canAddMatter, chaptersOf, entryRowsIn } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
 import { Confirm } from "../../ui/Dialog";
 import { Button, IconButton } from "../../ui/Button";
@@ -103,7 +103,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         variant="ghost"
         icon={Plus}
         className="justify-start"
-        onClick={() => attempt(actions.add(t`Chapter ${manifest.chapters.length + 1}`))}
+        onClick={() => attempt(actions.add(t`Chapter ${chaptersOf(manifest).length + 1}`))}
       >{t`Add chapter`}</Button>
       <M.Root>
         <M.Trigger asChild>
@@ -111,6 +111,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </M.Trigger>
         <M.Portal>
           <M.Content align="start" className={menuContentClass("min-w-52")}>
+            {/* A blank page goes wherever the open page is: front matter, between two chapters or the back matter. */}
+            <M.Item
+              className={menuItemClass()}
+              onSelect={() => attempt(actions.addBlank().then(() => onNavigate?.()))}
+            >
+              {kinds.blank}
+            </M.Item>
+            <M.Separator className="my-1 h-px bg-border" />
             <M.Group>
               <M.Label className={menuLabelClass}>{t`Front matter`}</M.Label>
               {FRONT_PRESETS.map((k) => preset("front", k))}

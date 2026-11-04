@@ -385,6 +385,45 @@ describe("paginate: basics", () => {
     });
   });
 
+  it("starts the block after a page break on a new page, and two breaks in a row leave an empty page", () => {
+    const pb = () => ({
+      ...para(1),
+      kind: "pageBreak" as const,
+      height: 0,
+      lines: 0,
+      lineHeight: 0,
+    });
+    // Four lines of ten fit a page: without the break both paragraphs share it.
+    expect(paginate([para(4), para(4)], H, plain)).toEqual({ breaks: [], pageCount: 1 });
+    expect(paginate([para(4), pb(), para(4)], H, plain)).toEqual({
+      breaks: [brk(2)],
+      pageCount: 2,
+    });
+    // The second break falls at the top of the page the first one started: that page stays empty.
+    expect(paginate([para(4), pb(), pb(), para(4)], H, plain)).toEqual({
+      breaks: [brk(2), brk(3)],
+      pageCount: 3,
+    });
+    // A break that is already at the top of a page asks for nothing.
+    expect(paginate([pb(), para(4)], H, plain)).toEqual({ breaks: [], pageCount: 1 });
+  });
+
+  it("breaks the page at every page break wherever it sits, including before the chapter title", () => {
+    const pb = () => ({
+      ...para(1),
+      kind: "pageBreak" as const,
+      height: 0,
+      lines: 0,
+      lineHeight: 0,
+    });
+    expect(
+      paginate([pb(), pb(), block("chapterTitle", 2), pb(), para(1)], H, {
+        ...plain,
+        opensChapter: true,
+      }),
+    ).toEqual({ breaks: [brk(2), brk(4)], pageCount: 3 });
+  });
+
   it("keeps a short chapter on one page", () => {
     expect(paginate([para(3), para(2)], H, plain)).toEqual({ breaks: [], pageCount: 1 });
   });

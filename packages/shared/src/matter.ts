@@ -8,6 +8,7 @@ export const FRONT_MATTER_KINDS = [
   "foreword",
   "preface",
   "custom",
+  "blank",
 ] as const;
 export const BACK_MATTER_KINDS = [
   "acknowledgments",
@@ -15,6 +16,7 @@ export const BACK_MATTER_KINDS = [
   "also-by",
   "colophon",
   "custom",
+  "blank",
 ] as const;
 
 export type FrontMatterKind = (typeof FRONT_MATTER_KINDS)[number];

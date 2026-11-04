@@ -92,6 +92,9 @@ function block(n: N, indent = ""): string {
     }
     case "sceneBreak":
       return `${indent}* * *`;
+    case "pageBreak":
+      // The text the tools hand to a model has no pages: say where the book breaks, the way a scene break is a line of its own.
+      return `${indent}[page break]`;
     case "table":
       // One line per row, cells separated by " | " (paragraphs within a cell are joined by a space).
       return (n.content ?? [])

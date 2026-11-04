@@ -38,6 +38,7 @@ const SKIPPED = new Set([
   "tableRow",
   "tableCell",
   "tableHeader",
+  "pageBreak",
 ]);
 
 const squash = (s: string): string => s.replace(/\s+/g, " ").trim();

@@ -28,6 +28,7 @@ interface Words {
   alsoBy: string;
   colophon: string;
   newPage: string;
+  blank: string;
   rights: string;
   /** Rights paragraph for the copyright page. Only written for languages that have one (English for now). */
   reproduction?: string;
@@ -52,6 +53,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "Also by {author}",
     colophon: "Colophon",
     newPage: "New Page",
+    blank: "Blank page",
     rights: "All rights reserved.",
     reproduction:
       "No part of this book may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of the author, except for brief quotations in reviews.",
@@ -70,6 +72,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "עוד מאת {author}",
     colophon: "קולופון",
     newPage: "עמוד חדש",
+    blank: "עמוד ריק",
     rights: "כל הזכויות שמורות.",
     dedicationText: "ל…",
   },
@@ -86,6 +89,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "مؤلفات أخرى لـ {author}",
     colophon: "بيانات الإنتاج",
     newPage: "صفحة جديدة",
+    blank: "صفحة فارغة",
     rights: "جميع الحقوق محفوظة.",
     dedicationText: "إلى …",
   },
@@ -102,6 +106,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "Altri libri di {author}",
     colophon: "Colophon",
     newPage: "Nuova pagina",
+    blank: "Pagina bianca",
     rights: "Tutti i diritti riservati.",
     dedicationText: "A …",
   },
@@ -118,6 +123,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "{author}の他の作品",
     colophon: "奥付",
     newPage: "新しいページ",
+    blank: "空白のページ",
     rights: "無断転載を禁じます。",
     dedicationText: "…へ",
   },
@@ -134,6 +140,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "Другие книги автора: {author}",
     colophon: "Выходные данные",
     newPage: "Новая страница",
+    blank: "Пустая страница",
     rights: "Все права защищены.",
     dedicationText: "Для …",
   },
@@ -150,6 +157,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "Autres livres de {author}",
     colophon: "Colophon",
     newPage: "Nouvelle page",
+    blank: "Page blanche",
     rights: "Tous droits réservés.",
     dedicationText: "À …",
   },
@@ -166,6 +174,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "Weitere Bücher von {author}",
     colophon: "Kolophon",
     newPage: "Neue Seite",
+    blank: "Leere Seite",
     rights: "Alle Rechte vorbehalten.",
     dedicationText: "Für …",
   },
@@ -182,6 +191,7 @@ const WORDS: Record<string, Words> = {
     alsoBy: "Otros libros de {author}",
     colophon: "Colofón",
     newPage: "Nueva página",
+    blank: "Página en blanco",
     rights: "Todos los derechos reservados.",
     dedicationText: "Para …",
   },
@@ -218,6 +228,8 @@ export function starterTitle(kind: MatterKind, language: string): string {
       return w.colophon;
     case "custom":
       return w.newPage;
+    case "blank":
+      return w.blank;
   }
 }
 
@@ -257,6 +269,10 @@ export function starterDoc(kind: MatterKind, book: StarterBook): ChapterDoc {
         return [h1(alsoByTitle(w, book.author)), para()];
       case "custom":
         return [h1(w.newPage), para()];
+      // A blank page holds no text at all: one empty paragraph keeps the document valid, and the PDF prints an empty page
+      // for the kind whatever it holds.
+      case "blank":
+        return [para()];
       default:
         return [h1(starterTitle(kind, book.language)), para()];
     }

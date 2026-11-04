@@ -1,4 +1,4 @@
-import { sourceEdition } from "@cadabracraft/format";
+import { chaptersOf, sourceEdition } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
@@ -80,7 +80,7 @@ export function Details({
           />
           <Row label={t`ISBN`} value={edition.isbn ?? "-"} />
           <Row label={t`Cover`} value={edition.cover?.replace("assets/", "") ?? "-"} />
-          <Row label={t`Chapters`} value={String(manifest.chapters.length)} />
+          <Row label={t`Chapters`} value={String(chaptersOf(manifest).length)} />
         </dl>
         <Button
           className="mt-3 w-full"

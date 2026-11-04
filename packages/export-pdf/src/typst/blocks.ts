@@ -230,6 +230,9 @@ function block(n: DocNode, ctx: Ctx): string {
       return tableBlock(n, ctx);
     case "sceneBreak":
       return marked(ctx, "s", "#scene-break()");
+    case "pageBreak":
+      // A weak break does nothing at the top of a page, which is what "the next block starts on a new page" means.
+      return "#pagebreak(weak: true)";
     case "image": {
       const a = n.attrs ?? {};
       const src = String(a.src ?? "");

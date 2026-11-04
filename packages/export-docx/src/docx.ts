@@ -1,6 +1,12 @@
 import { strToU8, zipSync } from "fflate";
 import { contentsLines, starterTitle } from "@cadabracraft/format";
-import { countWords, textDirection, type ChapterDoc, type Section } from "@cadabracraft/shared";
+import {
+  countWords,
+  dropLeadingPageBreak,
+  textDirection,
+  type ChapterDoc,
+  type Section,
+} from "@cadabracraft/shared";
 import { blockXml } from "./blocks";
 import { NS_A, NS_PIC, NS_WP } from "./drawing";
 import { DocxExportError } from "./errors";
@@ -159,15 +165,19 @@ export function buildDocx(
   let first = true;
   for (const c of pages) {
     const section = c.section ?? "chapter";
-    if (c.kind === "title-page") continue;
+    // A blank page has no text; Word paginates itself, so it is left out (as in the RTF and Markdown exports).
+    if (c.kind === "title-page" || c.kind === "blank") continue;
     const label = c.title.trim() || c.id || "(untitled page)";
     const ctx: Ctx = { s, chapter: label, quote: 0, list: 0, inNote: false, runProps: {} };
     if (!c.doc || c.doc.type !== "doc" || !Array.isArray(c.doc.content))
       fail(ctx, 'A chapter document must be an object with type "doc"');
     s.pendingBreak = !first;
     first = false;
-    const titled = startsWithTitle(c.doc);
-    const nodes = c.doc.content;
+    // A break as the page's first block asks for nothing (the page already starts on a new one); kept, Word would print a blank page
+    // before the chapter.
+    const { doc } = dropLeadingPageBreak(c.doc);
+    const titled = startsWithTitle(doc);
+    const nodes = doc.content;
     if (!titled && section === "chapter" && c.title.trim() !== "") {
       body.push(
         para(

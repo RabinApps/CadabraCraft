@@ -17,9 +17,20 @@ const px = (v: string): number => {
 /** The top-level block elements of the editor (not the spacers or other widgets), in document order. */
 function blockElements(view: EditorView): HTMLElement[] {
   const out: HTMLElement[] = [];
+  // The editor's children are the document's blocks in order, with the page spacers and hyphens (decorations' widgets) between them.
+  // `nodeDOM` can come back without an element for an atom block (a page break is one), so that list is the fallback: a block with no
+  // measurement is a block the pagination cannot see, and a page break it cannot see would never break the page.
+  const children = Array.from(view.dom.children).filter(
+    (el): el is HTMLElement =>
+      el instanceof HTMLElement &&
+      !el.classList.contains("pv-gap") &&
+      !el.classList.contains("pv-hyphen"),
+  );
+  let index = 0;
   view.state.doc.forEach((_node, offset) => {
-    const el = view.nodeDOM(offset);
-    out.push(el as HTMLElement);
+    const dom = view.nodeDOM(offset);
+    out.push((dom instanceof HTMLElement ? dom : children[index])!);
+    index++;
   });
   return out;
 }

@@ -141,6 +141,31 @@ async function twoChapters(page: Page) {
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
 }
 
+test("a blank page added while a chapter is open goes between the chapters, read-only and with no page number", async ({
+  page,
+}) => {
+  await twoChapters(page);
+  // The Add page menu offers the blank page for the whole book, not only for the matter: it goes straight after the open page, so
+  // opening a chapter puts it between that chapter and the next.
+  await addPage(page, "Blank page");
+  await expect
+    .poll(async () =>
+      (await manifestOf(page)).chapters.map((c: { kind?: string }) => c.kind ?? null),
+    )
+    .toEqual([null, "blank", null]);
+  const rows = sidebar(page).getByRole("button", { name: "Blank page", exact: true });
+  await expect(rows).toHaveCount(1);
+  await rows.click();
+  await expect(rows).toHaveAttribute("aria-current", "true");
+  // Nothing can be typed into a page the PDF prints empty.
+  await expect(page.locator(".ProseMirror")).toHaveAttribute("contenteditable", "false");
+  // It is one empty page of its own with no number printed on it, and no text to type.
+  const cards = await writeCards(page);
+  expect(cards).toHaveLength(1);
+  expect(cards[0]?.blank).toBe(false);
+  expect(cards[0]?.folio ?? "").toBe("");
+});
+
 test("scrolling on past the last page of a chapter opens the next one, and back up the previous one's last page", async ({
   page,
 }) => {

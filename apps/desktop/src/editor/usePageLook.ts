@@ -71,7 +71,7 @@ export function usePageLook(): PageLook {
 export function chapterNumberOf(manifest: Manifest, id: string | null): number | undefined {
   if (!id || sectionOf(manifest, id) !== "chapter") return undefined;
   const n = readingOrder(manifest)
-    .filter((e) => sectionOf(manifest, e.id) === "chapter")
+    .filter((e) => sectionOf(manifest, e.id) === "chapter" && e.kind !== "blank")
     .findIndex((e) => e.id === id);
   return n >= 0 ? n + 1 : undefined;
 }
