@@ -48,11 +48,15 @@ export function describeFontError(e: unknown): FontUiError {
       case "disk_full":
         return new FontUiError(
           "disk-full",
-          t`There is not enough disk space for this font.`,
+          t`There is not enough disk space for this font. Free some space and try again.`,
           cause,
         );
       case "unknown_font":
-        return new FontUiError("unknown", t`This font is not available any more.`, cause);
+        return new FontUiError(
+          "unknown",
+          t`This font is not available any more. Choose another font.`,
+          cause,
+        );
       case "invalid_font":
         return new FontUiError(
           "invalid",
@@ -62,8 +66,8 @@ export function describeFontError(e: unknown): FontUiError {
       case "cancelled":
         return new FontUiError("cancelled", t`The download was cancelled.`, cause);
       case "other":
-        return new FontUiError("other", r.message, cause);
+        return new FontUiError("other", t`${r.message}. Try again.`, cause);
     }
   }
-  return new FontUiError("other", errText(e), cause);
+  return new FontUiError("other", t`${errText(e)}. Try again.`, cause);
 }

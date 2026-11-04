@@ -1,3 +1,5 @@
+import { primaryLanguage } from "@cadabracraft/shared";
+import { accessibilitySummaryText } from "./strings";
 import { esc } from "./xhtml";
 
 /** What the book contains, as far as accessibility metadata is concerned. */
@@ -18,9 +20,9 @@ export interface A11yFacts {
  * Schema.org accessibility metadata for the OPF (the EPUB Accessibility 1.1 discovery metadata; schema is a reserved
  * prefix, so no prefix attribute is needed). It lists only what this exporter really delivers: a navigation document
  * with a table of contents, a linear reading order and, for alternative text, only a book whose every image has alt text.
- * No `dcterms:conformsTo` or `a11y:certifiedBy`: conformance to WCAG or EPUB Accessibility needs an evaluation we do not make.
+ * The summary is written in the book's language (xml:lang is its primary language). No `dcterms:conformsTo` or `a11y:certifiedBy`: conformance to WCAG or EPUB Accessibility needs an evaluation we do not make.
  */
-export function accessibilityMetadata(f: A11yFacts): string {
+export function accessibilityMetadata(f: A11yFacts, language: string): string {
   const visual = f.images > 0 || f.hasCover;
   const allAlt = f.imagesMissingAlt === 0;
   const features = [
@@ -31,15 +33,10 @@ export function accessibilityMetadata(f: A11yFacts): string {
     "displayTransformability",
     ...(visual && allAlt ? ["alternativeText"] : []),
   ];
-  const summary = [
-    "This publication is reflowable text with a table of contents and a linear reading order.",
-    visual
-      ? allAlt
-        ? "Every image has alternative text."
-        : "Some images have no alternative text."
-      : "It has no images.",
-    "Its accessibility has not been formally evaluated against a standard.",
-  ].join(" ");
+  const summary = accessibilitySummaryText(
+    language,
+    !visual ? "none" : allAlt ? "all-alt" : "some-missing-alt",
+  );
   const meta = (property: string, value: string, attrs = "") =>
     `<meta property="schema:${property}"${attrs}>${esc(value)}</meta>`;
   return [
@@ -48,6 +45,6 @@ export function accessibilityMetadata(f: A11yFacts): string {
     meta("accessModeSufficient", visual && !allAlt ? "textual,visual" : "textual"),
     ...features.map((x) => meta("accessibilityFeature", x)),
     meta("accessibilityHazard", f.hasGif || f.hasSvg ? "unknown" : "none"),
-    meta("accessibilitySummary", summary, ' xml:lang="en"'),
+    meta("accessibilitySummary", summary, ` xml:lang="${esc(primaryLanguage(language))}"`),
   ].join("");
 }

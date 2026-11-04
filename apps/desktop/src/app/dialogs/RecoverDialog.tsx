@@ -2,7 +2,7 @@ import { useLingui } from "@lingui/react/macro";
 import { History } from "lucide-react";
 import { Modal } from "../../ui/Dialog";
 import { Button } from "../../ui/Button";
-import { errText } from "../../lib/projectError";
+import { causeText } from "../../lib/projectError";
 import { useProject } from "../../state/project/index";
 import { useState } from "react";
 
@@ -43,7 +43,7 @@ export function RecoverDialog() {
               .restoreSnapshot(next.id, next.snapshot)
               .catch((e) =>
                 setError(
-                  t`Could not use the newer text (${errText(e)}). Your saved text was not changed. Try again, or choose Keep saved text.`,
+                  t`Could not use the newer text (${causeText(e)}). Your saved text was not changed. Try again, or choose Keep saved text.`,
                 ),
               );
           }}

@@ -27,8 +27,8 @@ import {
   linksOf,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
-import { emptyDoc, AUTOSAVE_MS, AUTOSAVE_MAX_MS } from "./util";
+import { whyText } from "../../lib/projectError";
+import { alertOf, emptyDoc, AUTOSAVE_MS, AUTOSAVE_MAX_MS } from "./util";
 import type { HistoryEntry, PageActions } from "./types";
 import type { Ctx } from "./context";
 
@@ -57,7 +57,12 @@ export const createPageActions = (ctx: Ctx): PageActions => {
     clearTimeout(maxWait);
     autosave = maxWait = undefined;
     flush().catch((e) => {
-      set({ notice: t`Could not save: ${errText(e)}` });
+      const why = whyText(e);
+      set(
+        alertOf(
+          t`Could not save: ${why}. Your text is still in the editor and CadabraCraft will try again. Free some space or check the folder if it keeps failing.`,
+        ),
+      );
       // Typing is still unsaved: try again, so a short write error does not leave it for the window close.
       if (get().draft && autosave === undefined) autosave = setTimeout(runAutosave, AUTOSAVE_MS);
     });

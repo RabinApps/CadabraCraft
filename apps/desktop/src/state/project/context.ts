@@ -17,8 +17,8 @@ import {
 import { collectImageSources } from "@cadabracraft/export-epub";
 import { countWords, type ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
-import { emptyDoc, parseChapter, PartialWrite, HISTORY_LIMIT } from "./util";
+import { errText, whyText } from "../../lib/projectError";
+import { alertOf, emptyDoc, parseChapter, PartialWrite, HISTORY_LIMIT } from "./util";
 import type { BookPage, HistoryEntry, ProjectState } from "./types";
 
 type Set = StoreApi<ProjectState>["setState"];
@@ -168,7 +168,15 @@ export function createContext(set: Set, get: Get) {
       doc = r && file ? parseChapter(r.contents, file) : emptyDoc(titleIn(entry, manifest, lang));
     } catch (e) {
       // Show no editor for a corrupt page, so nothing can be typed over it and saved.
-      set({ currentId: null, currentDoc: null, draft: null, notice: errText(e) });
+      const why = whyText(e);
+      set({
+        currentId: null,
+        currentDoc: null,
+        draft: null,
+        ...alertOf(
+          t`This page could not be opened: ${why}. Restore an earlier version from History, or choose another page.`,
+        ),
+      });
       return;
     }
     set({

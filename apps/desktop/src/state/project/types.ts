@@ -186,6 +186,8 @@ export interface ProjectState {
   /** Loaded content of the current chapter; the editor owns edits until saveCurrent. */
   currentDoc: ChapterDoc | null;
   notice: string;
+  /** The `notice` text when it reports a failure or lost data: the header announces it assertively (role alert), everything else politely. */
+  alertNotice: string;
   hashes: Record<string, string>;
   /** Unsaved editor content for the current chapter; flushed before switching chapters or exporting. */
   draft: ChapterDoc | null;

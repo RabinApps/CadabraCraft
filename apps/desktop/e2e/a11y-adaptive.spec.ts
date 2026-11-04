@@ -1,7 +1,7 @@
-import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { screens } from "./support/a11yScreens";
+import { applyE2eLocale, clippedText, inLocaleRun } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -15,29 +15,10 @@ const TEXT_SPACING = `* {
 }
 p { margin-bottom: 2em !important; }`;
 
-/** Text that a fixed-size, overflow-hidden box cuts off (the way text spacing or a narrow window loses content). */
-async function clippedText(page: Page) {
-  return page.evaluate(() => {
-    const out: string[] = [];
-    for (const el of document.querySelectorAll<HTMLElement>("body *")) {
-      if (!el.offsetParent && getComputedStyle(el).position !== "fixed") continue;
-      const s = getComputedStyle(el);
-      const hides = [s.overflowX, s.overflowY].some((o) => o === "hidden" || o === "clip");
-      if (!hides || s.textOverflow === "ellipsis") continue;
-      if (!el.textContent?.trim() || el.matches(".sr-only")) continue; // sr-only text is hidden on purpose
-      if (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) {
-        out.push(
-          `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} "${el.textContent.trim().slice(0, 30)}"`,
-        );
-      }
-    }
-    return out;
-  });
-}
-
 for (const { name, open } of screens) {
   test(`text spacing (1.4.12): nothing is cut off on ${name}`, async ({ page }) => {
     await open(page);
+    await applyE2eLocale(page);
     const before = await clippedText(page);
     await page.addStyleTag({ content: TEXT_SPACING });
     const after = (await clippedText(page)).filter((c) => !before.includes(c));
@@ -48,6 +29,7 @@ for (const { name, open } of screens) {
     page,
   }) => {
     await open(page);
+    await applyE2eLocale(page);
     await page.setViewportSize({ width: 320, height: 640 });
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -59,6 +41,7 @@ for (const { name, open } of screens) {
     page,
   }) => {
     await open(page);
+    await applyE2eLocale(page);
     const small = await page.evaluate(() => {
       const out: string[] = [];
       const sel =
@@ -105,4 +88,23 @@ for (const { name, open } of screens) {
     });
     expect(small).toEqual([]);
   });
+}
+
+// Only in the locale runs (`pnpm test:a11y:locales`): longer text (pseudo) or mirrored text (he, ar) must not
+// push the page sideways or cut text off at the normal window size.
+if (inLocaleRun) {
+  for (const { name, open } of screens) {
+    test(`locale overflow: ${name} has no horizontal overflow and no clipped text`, async ({
+      page,
+    }) => {
+      await open(page);
+      const before = await clippedText(page);
+      await applyE2eLocale(page);
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow).toBeLessThanOrEqual(0);
+      expect((await clippedText(page)).filter((c) => !before.includes(c))).toEqual([]);
+    });
+  }
 }

@@ -12,7 +12,7 @@ import { useStartDialogs } from "../../state/commands";
 import type { ImportChoices } from "../../lib/importBook";
 import { ImportDialog } from "../dialogs/ImportDialogs";
 import { useRecents } from "../../state/recents";
-import { errText, isMissingFolder } from "../../lib/projectError";
+import { isMissingFolder, whyText } from "../../lib/projectError";
 import { Notice } from "../../ui/Notice";
 import { BookCard, ContinueCard, NewBookTile } from "./Dashboard";
 
@@ -58,7 +58,7 @@ export function Home({
           root,
           isMissingFolder(e)
             ? t`Folder not found. Remove it from the list or move it back.`
-            : t`Could not open this book: ${errText(e)}`,
+            : t`Could not open this book: ${whyText(e)}. Check the folder is not open elsewhere, or remove it from the list and open it again.`,
         ),
       ),
     );
@@ -243,7 +243,10 @@ function NewProjectDialog({
                 setPickError("");
                 pickFolder()
                   .then((r) => r && setRoot(r))
-                  .catch((e) => setPickError(errText(e)));
+                  .catch((e) => {
+                    const why = whyText(e);
+                    setPickError(t`Could not choose that folder: ${why}. Try again.`);
+                  });
               }}
             >{t`Choose…`}</Button>
           </div>

@@ -266,9 +266,12 @@ test.describe("outline navigator", () => {
     await expect(list.getByRole("group", { name: "In this chapter" })).toBeVisible();
     await expect(list.getByRole("group", { name: "Chapters" })).toBeVisible();
     const headings = list.getByRole("group", { name: "In this chapter" }).getByRole("option");
-    await expect(headings).toHaveText(["Chapter One", "The harbor", "Lantern light"]);
-    await expect(headings.nth(1)).toHaveAttribute("aria-level", "2");
-    await expect(headings.nth(2)).toHaveAttribute("aria-level", "3");
+    // aria-level is not allowed on an option, so the level is read as part of the name (and shown by the indent).
+    await expect(headings).toHaveText([
+      "Heading 1: Chapter One",
+      "Heading 2: The harbor",
+      "Heading 3: Lantern light",
+    ]);
     const pages = list.getByRole("group", { name: "Chapters" }).getByRole("option");
     await expect(pages).toHaveText(["Chapter OneCurrent", "Second Part"]);
     await expect(pages.first()).toHaveAttribute("aria-current", "true");
@@ -312,7 +315,7 @@ test.describe("outline navigator", () => {
     const headings = outline(page)
       .getByRole("group", { name: "In this chapter" })
       .getByRole("option");
-    await expect(headings).toHaveText(["Second Part"]);
+    await expect(headings).toHaveText(["Heading 1: Second Part"]);
     await expect(
       outline(page)
         .getByRole("option", { name: /Second Part/ })

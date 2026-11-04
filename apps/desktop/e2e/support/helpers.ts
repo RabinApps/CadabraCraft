@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 /**
  * The keys that move focus to the next and previous control. Playwright's WebKit on macOS follows Safari's default of
@@ -166,4 +166,56 @@ export async function remeasure(page: Page) {
   await page.getByRole("radio", { name: "Read" }).click();
   await page.getByRole("radio", { name: "Write" }).click();
   await expect(page.locator(".page").first()).toBeVisible();
+}
+
+/** True in `pnpm test:a11y:locales` (the locale-he, locale-ar and locale-pseudo projects) or with `E2E_LOCALE` set. */
+export const inLocaleRun = !!(process.env.E2E_LOCALES || process.env.E2E_LOCALE);
+
+/**
+ * The locale the a11y specs run in: `E2E_LOCALE` (he, ar, pseudo or pseudo-rtl) or else the locale of the Playwright
+ * project; empty means English, the normal run.
+ */
+export const e2eLocale = (): string =>
+  process.env.E2E_LOCALE || String(test.info().project.metadata.locale ?? "");
+
+/**
+ * Switches the interface language of an open page without a reload (the screens open with English names). `pseudo-rtl`
+ * is the pseudo locale with the direction forced to right to left, which checks mirroring with text that is longer.
+ */
+export async function setLocale(page: Page, code: string) {
+  const loaded = code === "pseudo-rtl" ? "pseudo" : code;
+  await page.evaluate(
+    async (c) => (await import("/src/i18n/i18n.ts" as string)).useLocale.getState().setLocale(c),
+    loaded,
+  );
+  if (code === "pseudo-rtl") await page.evaluate(() => (document.documentElement.dir = "rtl"));
+  await page.evaluate(() =>
+    Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))),
+  );
+}
+
+/** Applies the run's locale to the open page, if there is one. */
+export async function applyE2eLocale(page: Page) {
+  const code = e2eLocale();
+  if (code) await setLocale(page, code);
+}
+
+/** Text that a fixed-size, overflow-hidden box cuts off (the way text spacing or a narrow window loses content). */
+export async function clippedText(page: Page) {
+  return page.evaluate(() => {
+    const out: string[] = [];
+    for (const el of document.querySelectorAll<HTMLElement>("body *")) {
+      if (!el.offsetParent && getComputedStyle(el).position !== "fixed") continue;
+      const s = getComputedStyle(el);
+      const hides = [s.overflowX, s.overflowY].some((o) => o === "hidden" || o === "clip");
+      if (!hides || s.textOverflow === "ellipsis") continue;
+      if (!el.textContent?.trim() || el.matches(".sr-only")) continue; // sr-only text is hidden on purpose
+      if (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) {
+        out.push(
+          `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} "${el.textContent.trim().slice(0, 30)}"`,
+        );
+      }
+    }
+    return out;
+  });
 }

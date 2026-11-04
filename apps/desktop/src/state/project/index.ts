@@ -51,6 +51,7 @@ export const useProject = create<ProjectState>((set, get) => {
     currentDoc: null,
     activeLanguage: null,
     notice: "",
+    alertNotice: "",
     hashes: {},
     draft: null,
     reloadCount: 0,

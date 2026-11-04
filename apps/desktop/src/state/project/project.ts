@@ -20,10 +20,10 @@ import { forgetProjectAssets } from "../../lib/assets";
 import { forgetProjectReferences } from "../../lib/references";
 import { runImport, runImportInto } from "../../lib/importBook";
 import { publishingFromForm, type PublishingForm } from "../../lib/publishingForm";
-import { errText, noManifestMessage } from "../../lib/projectError";
+import { noManifestMessage, whyText } from "../../lib/projectError";
 import { useSettings } from "../editorPrefs";
 import { useRecents } from "../recents";
-import { parseChapter, bestEffort, NO_HISTORY } from "./util";
+import { alertOf, parseChapter, bestEffort, NO_HISTORY } from "./util";
 import type { ProjectActions, ProjectState } from "./types";
 import type { Ctx } from "./context";
 
@@ -174,9 +174,11 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
             notice: t`Chapter list updated from outside the app`,
           });
         } catch {
-          set({
-            notice: t`cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version`,
-          });
+          set(
+            alertOf(
+              t`cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version. Restore the book's list from History if chapters are missing.`,
+            ),
+          );
         }
         return;
       }
@@ -195,7 +197,12 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => {
         doc = parseChapter(r.contents, path);
       } catch (e) {
         // Keep what is open and its old hash, so a later save keeps the unreadable version as a conflict copy instead of replacing it silently.
-        set({ notice: errText(e) });
+        const why = whyText(e);
+        set(
+          alertOf(
+            t`A change made outside the app could not be read: ${why}. The version you have open is kept; saving keeps a copy of the changed file. You can also restore an earlier version from History.`,
+          ),
+        );
         return;
       }
       set({

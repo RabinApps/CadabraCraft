@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { addPage, chapterAction, newProject } from "./support/helpers";
+import { addPage, applyE2eLocale, chapterAction, inLocaleRun, newProject } from "./support/helpers";
 import { fakeImportSources } from "./support/fakeImport";
 import { moreScreens, screens as everyScreen } from "./support/a11yScreens";
 
@@ -54,11 +54,16 @@ for (const theme of ["light", "dark"] as const) {
     });
 
     for (const { name, open } of [
-      ...moreScreens,
-      ...everyScreen.filter((x) => /menu/i.test(x.name) && !moreScreens.includes(x)),
+      ...(inLocaleRun
+        ? everyScreen
+        : [
+            ...moreScreens,
+            ...everyScreen.filter((x) => /menu/i.test(x.name) && !moreScreens.includes(x)),
+          ]),
     ]) {
       test(`axe: ${name}`, async ({ page }) => {
         await open(page);
+        await applyE2eLocale(page);
         await scan(page, name);
       });
     }

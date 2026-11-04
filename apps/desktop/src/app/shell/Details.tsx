@@ -28,9 +28,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5 text-sm">
       <dt className="text-ink-muted">{label}</dt>
-      <dd className="min-w-0 truncate text-end font-medium" title={value}>
-        {value}
-      </dd>
+      <dd className="min-w-0 break-words text-end font-medium">{value}</dd>
     </div>
   );
 }

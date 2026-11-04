@@ -348,8 +348,9 @@ test("find still highlights, editing keeps working and undo restores the text in
   await expect(page.locator(".ProseMirror p").nth(3)).toContainText("extra");
   await page.keyboard.press("ControlOrMeta+z");
   await expect(page.locator(".ProseMirror p").nth(3)).toHaveText(before!);
-  // The tooltip of the chip says which font sets the text.
-  await expect(page.locator(".page-chip")).toHaveAttribute("title", /Libertinus Serif/);
+  // The description of the chip says which font sets the text.
+  await expect(page.locator(".page-chip")).toHaveAttribute("aria-describedby", "page-chip-note");
+  await expect(page.getByTestId("page-chip-note")).toContainText(/Libertinus Serif/);
 });
 
 test("a long chapter (100,000 words in one document) stays responsive", async ({ page }) => {

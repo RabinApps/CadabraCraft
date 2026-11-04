@@ -14,7 +14,7 @@ import {
   type LoadedSource,
 } from "../../lib/importBook";
 import { baseName } from "../../lib/paths";
-import { errText } from "../../lib/projectError";
+import { causeText } from "../../lib/projectError";
 import { initialPlan, keptCount, type ImportPlan } from "../../lib/importPlan";
 import { ImportChapterList } from "./ImportChapterList";
 import { PickRow, Summary } from "./ImportParts";
@@ -104,7 +104,7 @@ export function ImportDialog({
       })
       .catch((e) => {
         if (mine === gen.current)
-          fail(t`Could not open the chooser (${errText(e)}). Try again.`, field);
+          fail(t`Could not open the chooser (${causeText(e)}). Try again.`, field);
       });
   };
   const parse = async (loaded: LoadedSource, level: Level) => {
@@ -125,7 +125,7 @@ export function ImportDialog({
       .then((l) => parse(l, 1))
       .catch((e) =>
         fail(
-          t`Could not read this file (${errText(e)}). Choose a different file (Word .docx, Markdown or HTML) and try again.`,
+          t`Could not read this file (${causeText(e)}). Choose a different file (Word .docx, Markdown or HTML) and try again.`,
           "file",
         ),
       )
@@ -139,7 +139,7 @@ export function ImportDialog({
     parse(preview.loaded, level)
       .catch((e) =>
         fail(
-          t`Could not split the file at that heading level (${errText(e)}). Pick another heading level, or go back and choose a different file.`,
+          t`Could not split the file at that heading level (${causeText(e)}). Pick another heading level, or go back and choose a different file.`,
         ),
       )
       .finally(() => setBusy(false));
@@ -161,7 +161,7 @@ export function ImportDialog({
       .catch((err) => {
         setBusy(false);
         fail(
-          t`Could not import (${errText(err)}). Your original file was not changed. Try again, or go back and choose a different file.`,
+          t`Could not import (${causeText(err)}). Your original file was not changed. Try again, or go back and choose a different file.`,
         );
       });
   };

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { useProject } from "../project/index";
+import { noticeIsAlert } from "../project/util";
 import { attempt, installRejectionNotice } from "../attempt";
 
 describe("attempt", () => {
@@ -8,7 +9,19 @@ describe("attempt", () => {
     attempt(Promise.reject(new Error("could not rename")));
     await Promise.resolve();
     await Promise.resolve();
-    expect(useProject.getState().notice).toBe("could not rename");
+    expect(useProject.getState().notice).toBe("That did not work: could not rename. Try again.");
+  });
+
+  it("marks a failure as an alert, which the header announces assertively", async () => {
+    useProject.setState({ notice: "", alertNotice: "" });
+    attempt(Promise.reject(new Error("nope")));
+    await Promise.resolve();
+    await Promise.resolve();
+    const s = useProject.getState();
+    expect(noticeIsAlert(s)).toBe(true);
+    useProject.setState({ notice: "Saved" });
+    expect(noticeIsAlert(useProject.getState())).toBe(false);
+    expect(noticeIsAlert({ notice: "", alertNotice: "" })).toBe(false);
   });
 
   it("leaves the notice alone when the action succeeds", async () => {
@@ -34,7 +47,9 @@ describe("installRejectionNotice", () => {
     const preventDefault = vi.fn();
     handler({ reason: new Error("boom"), preventDefault });
     expect(preventDefault).toHaveBeenCalled();
-    expect(useProject.getState().notice).toBe("boom");
+    expect(useProject.getState().notice).toBe(
+      "Something went wrong: boom. Try again, or restart CadabraCraft if it keeps happening.",
+    );
     off();
     expect(target.removeEventListener).toHaveBeenCalledWith("unhandledrejection", handler);
   });

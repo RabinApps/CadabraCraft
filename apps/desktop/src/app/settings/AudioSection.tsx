@@ -72,7 +72,7 @@ export function AudioSection({
       await bridge.audioDeletePack(p.id);
       setDone(t`${packName(p)} deleted from this computer.`);
     } catch (e) {
-      setError(describeAudioError(e).message);
+      setError(t`${packName(p)} was not deleted. ${describeAudioError(e).message}`);
     }
     await refresh();
   };
@@ -152,6 +152,7 @@ export function AudioSection({
               ) : (
                 <Button
                   id={`audio-delete-${p.id}`}
+                  aria-describedby={error ? "audio-error" : undefined}
                   onClick={() => {
                     focusId.current = `audio-keep-${p.id}`;
                     setConfirm(p.id);
@@ -171,7 +172,7 @@ export function AudioSection({
         {done}
       </p>
       {error && (
-        <p role="alert" className="px-4 py-3 text-sm text-danger">
+        <p id="audio-error" role="alert" className="px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}

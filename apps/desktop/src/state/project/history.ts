@@ -13,8 +13,8 @@ import {
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { forgetReference } from "../../lib/references";
-import { errText } from "../../lib/projectError";
-import { PartialWrite, retargetEntry } from "./util";
+import { whyText } from "../../lib/projectError";
+import { alertOf, PartialWrite, retargetEntry } from "./util";
 import type { HistoryEntry, HistoryActions } from "./types";
 import type { Ctx } from "./context";
 
@@ -199,14 +199,19 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
           .catch(() => {});
       return true;
     } catch (e) {
-      const why = errText(e);
+      const why = whyText(e);
       const stuck = e instanceof PartialWrite ? e.stuck.length : 0;
-      const base = from === "undo" ? t`Could not undo: ${why}` : t`Could not redo: ${why}`;
-      set({
-        notice: stuck
-          ? `${base}. ${plural(stuck, { one: "# page could not be put back and is now in the other state", other: "# pages could not be put back and are now in the other state" })}`
-          : base,
-      });
+      const base =
+        from === "undo"
+          ? t`Could not undo: ${why}. Try again, or restore the page from History.`
+          : t`Could not redo: ${why}. Try again, or restore the page from History.`;
+      set(
+        alertOf(
+          stuck
+            ? `${base} ${plural(stuck, { one: "# page could not be put back and is now in the other state.", other: "# pages could not be put back and are now in the other state." })}`
+            : base,
+        ),
+      );
       return false;
     } finally {
       historyBusy = false;

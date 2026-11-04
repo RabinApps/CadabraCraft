@@ -42,6 +42,7 @@ const LINE = 0.3;
  * plain reading layout. Every chapter is its own read-only editor and only the ones near the viewport are mounted.
  */
 function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
+  const { t } = useLingui();
   const currentId = useProject((s) => s.currentId);
   const selectChapter = useProject((s) => s.actions.selectChapter);
   const { size, width } = useReading();
@@ -272,6 +273,11 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     <div
       ref={scroller}
       data-testid="reading-scroll"
+      // A scrolling area with nothing focusable in it is reached by keyboard through the area itself (WCAG 2.1.1).
+      role="region"
+      aria-label={t`Pages`}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
       data-paged={paged}
       className={cx(
         "relative min-h-0 flex-1 overflow-y-auto",

@@ -362,6 +362,16 @@ test.describe("3.2.2 on input", () => {
           const next = values.find((v) => v !== current);
           if (next === undefined) continue;
           await control.selectOption(next);
+          if (label?.trim() === "Interface language") {
+            // A new language changes the page title and heading on purpose, and its catalog loads a moment later: wait until
+            // the page has settled in it so the next control is measured against the new language, not caught mid-change.
+            await page.waitForFunction(
+              (v) => document.documentElement.lang.startsWith(v),
+              next.split("-")[0]!,
+            );
+            await page.waitForTimeout(300);
+            continue;
+          }
         } else {
           await control.click({ force: true });
         }
@@ -747,8 +757,11 @@ test.describe("1.4.13 content on hover or focus", () => {
       .filter(
         ({ file, text }) =>
           // TypstSpread is the print preview's hint (tested below); Toolbar's onFocus only tracks which button the arrow keys start from.
-          // ui/Dialog.tsx's onFocus scrolls the focused control into view.
-          !/TypstSpread|editor\/Toolbar\.tsx$|ui\/Dialog\.tsx$/.test(file) &&
+          // ui/Dialog.tsx's onFocus scrolls the focused control into view. ui/Tooltip.tsx is the one tooltip (Radix: hover and focus,
+          // Esc, hoverable; tested in a11y-hover-hints.spec.ts) and ui/Button.tsx is its only user.
+          !/TypstSpread|editor\/Toolbar\.tsx$|ui\/Dialog\.tsx$|ui\/Tooltip\.tsx$|ui\/Button\.tsx$/.test(
+            file,
+          ) &&
           /group-hover:(?:block|visible|opacity-100|flex)|group-focus[\w-]*:(?:block|visible|opacity-100|flex)|peer-hover|role="tooltip"|<Tooltip|<Popover|HoverCard|onMouseEnter|onPointerEnter|onMouseOver|onFocus=\{/.test(
             text,
           ),
@@ -775,8 +788,11 @@ test.describe("1.4.13 content on hover or focus", () => {
       // Anything hover or focus adds is a new element (a tooltip, a popover, a hint); the elements already there only restyle.
       const snapshot = () =>
         page.evaluate(() => ({
-          count: document.body.getElementsByTagName("*").length,
-          tooltips: document.querySelectorAll("[role=tooltip], [popover]:popover-open").length,
+          // The shared Tooltip (a Radix popper portal) is the one thing hover and focus may add; it is audited in a11y-hover-hints.spec.ts.
+          count: [...document.body.getElementsByTagName("*")].filter(
+            (e) => !e.closest("[data-radix-popper-content-wrapper]"),
+          ).length,
+          tooltips: document.querySelectorAll("[popover]:popover-open").length,
         }));
       const bad: string[] = [];
       for (let i = 0; i < count; i++) {

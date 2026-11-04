@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  causeText,
   errText,
   isMissingFolder,
   isProjectError,
@@ -47,7 +48,9 @@ describe("projectErrorMessage", () => {
   for (const [e, re] of cases)
     it(`describes ${e.kind}`, () => expect(projectErrorMessage(e)).toMatch(re));
   it("uses the operating system's message for io", () =>
-    expect(projectErrorMessage({ kind: "io", message: "disk full" })).toBe("disk full"));
+    expect(projectErrorMessage({ kind: "io", message: "disk full" })).toBe(
+      "disk full. Try again, and check the file is not open in another program.",
+    ));
 });
 
 describe("errText", () => {
@@ -85,5 +88,19 @@ describe("isMissingFolder", () => {
     expect(isMissingFolder({ kind: "permission_denied", path: "/x" })).toBe(false);
     expect(isMissingFolder(new Error("cadabra.json is not valid JSON"))).toBe(false);
     expect(isMissingFolder("nope")).toBe(false);
+  });
+});
+
+describe("causeText", () => {
+  it("leaves off the step an unexplained OS error gets on its own, so a sentence with its own step does not say it twice", () => {
+    const io: ProjectError = { kind: "io", message: "disk is read-only" };
+    expect(errText(io)).toMatch(/Try again, and check the file is not open/);
+    expect(causeText(io)).toBe("disk is read-only");
+    expect(causeText({ kind: "io", message: "disk is read-only." })).toBe("disk is read-only");
+  });
+  it("is the message without its closing full stop for every other error", () => {
+    expect(causeText({ kind: "already_exists" })).not.toMatch(/\.$/);
+    expect(causeText(new Error("it broke."))).toBe("it broke");
+    expect(causeText("plain text")).toBe("plain text");
   });
 });

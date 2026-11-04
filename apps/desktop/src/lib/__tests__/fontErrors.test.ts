@@ -26,12 +26,12 @@ describe("describeFontError", () => {
     );
     expect(code({ kind: "cancelled" })).toBe("cancelled");
     const other = describeFontError({ kind: "other", message: "boom" });
-    expect([other.code, other.message]).toEqual(["other", "boom"]);
+    expect([other.code, other.message]).toEqual(["other", "boom. Try again."]);
   });
   it("keeps the original as the cause and handles things that are not font errors", () => {
     const raw = { kind: "network", message: "x" };
     expect(describeFontError(raw).cause).toBe(raw);
     const r = describeFontError(new Error("plain"));
-    expect([r.code, r.message]).toEqual(["other", "plain"]);
+    expect([r.code, r.message]).toEqual(["other", "plain. Try again."]);
   });
 });

@@ -1,4 +1,4 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { isLangTag, type DocNode, type Mark } from "@cadabracraft/shared";
 import {
   cellParagraphs,
   flattenItems,
@@ -150,14 +150,14 @@ function element(
       const small =
         hasClass(el, "small-caps") ||
         /font-variant(?:-caps)?\s*:\s*(?:all-)?small-caps/i.test(attr(el, "style") ?? "");
-      return flow(
-        el.childNodes,
-        ctx,
-        small ? [...marks, { type: "smallCaps" }] : marks,
-        f,
-        depth,
-        dom,
-      );
+      // A passage in another language (what the editor writes as span[lang] and the Markdown exporter as <span lang>).
+      const lang = attr(el, "lang")?.trim();
+      const spanMarks: Mark[] = [
+        ...marks,
+        ...(small ? [{ type: "smallCaps" } as const] : []),
+        ...(isLangTag(lang) ? [{ type: "lang", attrs: { lang } } as const] : []),
+      ];
+      return flow(el.childNodes, ctx, spanMarks, f, depth, dom);
     }
     case "blockquote": {
       flush(f, ctx);

@@ -168,6 +168,9 @@ export function ShortcutsSection({ title }: { title: string }) {
                                 id={`shortcut-change-${r.id}`}
                                 aria-label={t`Change shortcut for ${action}`}
                                 aria-pressed={waiting}
+                                aria-describedby={
+                                  waiting && problem ? `shortcut-problem-${r.id}` : undefined
+                                }
                                 onClick={() => {
                                   setProblem(null);
                                   setRecording(waiting ? null : r.id);
@@ -201,7 +204,11 @@ export function ShortcutsSection({ title }: { title: string }) {
                         </span>
                       </div>
                       {waiting && problem && (
-                        <p role="alert" className="text-xs text-danger">
+                        <p
+                          id={`shortcut-problem-${r.id}`}
+                          role="alert"
+                          className="text-xs text-danger"
+                        >
                           {problem}
                         </p>
                       )}

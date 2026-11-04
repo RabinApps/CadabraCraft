@@ -25,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 const waitForCall = (page: Page, cmd: string, n: number) =>
   expect.poll(() => calls(page, cmd)).toBe(n);
 
-test("update dialog: Escape and Later wait for the next launch, a failed install keeps the dialog, an install blocks closing", async ({
+test("update dialog: Escape and Later wait for the next launch, a failed install keeps the dialog and offers Try again, an install blocks closing", async ({
   page,
 }) => {
   await newProject(page);
@@ -61,10 +61,11 @@ test("update dialog: Escape and Later wait for the next launch, a failed install
   await expect(failed).toBeVisible();
   await failOn(page, "plugin:updater|download_and_install", "disk full");
   await release(page, "plugin:updater|download_and_install");
-  await expect(failed.getByRole("alert")).toHaveText("Could not install the update: disk full");
-  await expect(failed.getByRole("button", { name: "Install now" })).toBeDisabled();
+  // The failed install keeps the update, so Try again can run it without checking first.
+  await expect(dialog.getByRole("alert")).toContainText("Could not install the update: disk full.");
+  await expect(dialog.getByRole("button", { name: "Try again" })).toBeEnabled();
   await page.keyboard.press("Escape");
-  await expect(failed).toHaveCount(0);
+  await expect(dialog).toHaveCount(0);
 
   // After a failure the next check starts again, and this time the install goes through.
   await stopFailing(page, "plugin:updater|download_and_install");
@@ -121,8 +122,8 @@ test("sponsor dialog: a browser that cannot be opened is reported", async ({ pag
   const sponsor = page.getByRole("dialog", { name: "Enjoying CadabraCraft?" });
   await sponsor.getByRole("button", { name: "Sponsor", exact: true }).click();
   await expect(sponsor).toHaveCount(0);
-  await expect(page.getByRole("status")).toHaveText(
-    "Could not open https://github.com/sponsors/RabinApps: no browser",
+  await expect(page.getByRole("alert")).toHaveText(
+    "Could not open https://github.com/sponsors/RabinApps: no browser. Copy the address into your browser instead.",
   );
 });
 
@@ -199,15 +200,15 @@ test("book details: validation, a cancelled or failed cover picker, an unreadabl
 
   await dialog.getByLabel("Author").fill("");
   await save.click();
-  await expect(alert).toHaveText("Give the book an author.");
+  await expect(alert).toContainText("Give the book an author.");
   await dialog.getByLabel("Author").fill("Someone");
   await dialog.getByLabel("Identifier").fill("");
   await save.click();
-  await expect(alert).toHaveText("The identifier cannot be empty.");
+  await expect(alert).toContainText("The identifier cannot be empty.");
   await dialog.getByLabel("Identifier").fill("urn:test:1");
   await dialog.getByLabel("Title").fill("");
   await save.click();
-  await expect(alert).toHaveText("Give the book a title.");
+  await expect(alert).toContainText("Give the book a title.");
   await dialog.getByLabel("Title").fill("Renamed");
 
   // The picker is cancelled (nothing happens), then the copy of the image fails (the reason is shown).

@@ -62,7 +62,7 @@ test("Settings, Fonts says so when a file cannot be imported, and ignores a canc
     window.__fontImportError = { kind: "invalid_font", message: "no family name" };
   });
   await page.getByRole("button", { name: "Choose file…" }).click();
-  await expect(page.getByRole("alert")).toHaveText(
+  await expect(page.getByRole("alert")).toContainText(
     "That file is not a usable font. Choose a .ttf or .otf file.",
   );
   await page.evaluate(() => {
@@ -102,7 +102,7 @@ test("the catalog downloads a font with progress, can cancel it, shows a failure
     window.__fontError = { kind: "network", message: "offline" };
   });
   await lora.getByRole("button", { name: "Download Lora" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText(
+  await expect(dialog.getByRole("alert")).toContainText(
     "The download failed. Check your connection and try again.",
   );
   await lora.getByRole("button", { name: "Try again to download Lora" }).click();
@@ -167,7 +167,7 @@ test("Export PDF explains a missing font and Open Fonts goes to Settings, Fonts"
     window.__fontsInstalled = [];
   });
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toHaveText(
+  await expect(dialog.getByRole("alert")).toContainText(
     "The font “Lora” is not on this computer. Download it in Settings, Fonts, or pick another font.",
   );
   // The book's font stays selectable, so the notice and the select agree.

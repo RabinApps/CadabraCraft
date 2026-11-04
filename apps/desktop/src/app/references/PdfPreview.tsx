@@ -128,7 +128,9 @@ export function PdfPreview({ root, file }: { root: string; file: string }) {
                       data-match={i === hits.at ? "current" : "other"}
                       style={toScreen(r, transform)}
                       className={`pointer-events-none absolute mix-blend-multiply ${
-                        i === hits.at ? "bg-accent/50 outline-2 outline-accent" : "bg-accent/25"
+                        i === hits.at
+                          ? "bg-accent/50 outline-2 outline-accent"
+                          : "bg-accent/25 outline-1 outline-dashed outline-accent"
                       }`}
                     />
                   )),

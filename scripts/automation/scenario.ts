@@ -16,6 +16,7 @@ import { editionsSteps } from "./scenario/editions.ts";
 import { importAndCloseSteps } from "./scenario/import-and-close.ts";
 import { referencesSteps } from "./scenario/references.ts";
 import { chapterIconsSteps } from "./scenario/chapter-icons.ts";
+import { moreFormattingSteps } from "./scenario/more-formatting.ts";
 import { osA11ySteps } from "./scenario/os-a11y.ts";
 
 const ctx = await createContext(process.argv.slice(2));
@@ -23,6 +24,7 @@ const { app, child, out, results } = ctx;
 
 try {
   await editingSteps(ctx);
+  await moreFormattingSteps(ctx);
   await osA11ySteps(ctx);
   await referencesSteps(ctx);
   await exportSteps(ctx);

@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
 import { Trans } from "@lingui/react/macro";
 import { TriangleAlert } from "lucide-react";
 import { useProject } from "../../state/project/index";
@@ -15,9 +15,15 @@ interface State {
  */
 export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   state: State = { error: null };
+  private alert = createRef<HTMLDivElement>();
 
   static getDerivedStateFromError(e: unknown): State {
     return { error: errText(e) };
+  }
+
+  componentDidUpdate() {
+    // The crash replaced whatever had focus: move it to the message so a screen reader reads it.
+    if (this.state.error !== null) this.alert.current?.focus();
   }
 
   componentDidCatch(_error: Error, _info: ErrorInfo) {
@@ -31,8 +37,10 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
     if (this.state.error === null) return this.props.children;
     return (
       <div
+        ref={this.alert}
+        tabIndex={-1}
         role="alert"
-        className="flex h-dvh flex-col items-center justify-center gap-3 bg-bg p-6 text-center"
+        className="flex h-dvh flex-col outline-none items-center justify-center gap-3 bg-bg p-6 text-center"
       >
         <span className="flex size-16 items-center justify-center rounded-full bg-danger-soft text-danger">
           <TriangleAlert size={28} aria-hidden />
@@ -41,7 +49,11 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           <Trans>Something went wrong</Trans>
         </h1>
         <p className="text-sm text-ink">
-          <Trans>Your last changes were saved if possible.</Trans>
+          <Trans>
+            Your last changes were saved if possible. Choose Reload to open the app again. If this
+            keeps happening, restart CadabraCraft; your books are in their folders, and earlier
+            versions are in History.
+          </Trans>
         </p>
         <p dir="ltr" className="max-w-xl break-words font-mono text-xs text-ink-muted">
           {this.state.error}

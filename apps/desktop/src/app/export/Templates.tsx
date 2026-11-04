@@ -12,7 +12,7 @@ import {
 import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { useProject } from "../../state/project/index";
-import { errText } from "../../lib/projectError";
+import { whyText } from "../../lib/projectError";
 import { Notice } from "../../ui/Notice";
 import { Segmented } from "../../ui/Segmented";
 
@@ -59,7 +59,10 @@ export function Templates({ onBack }: { onBack: () => void }) {
       await setTemplate(selected);
       onBack();
     } catch (e) {
-      setError(errText(e));
+      const why = whyText(e);
+      setError(
+        t`The template could not be applied: ${why}. Try again, or choose another template.`,
+      );
     }
   };
   const dropCap = manifest?.dropCap === undefined ? "default" : manifest.dropCap ? "on" : "off";
@@ -75,7 +78,10 @@ export function Templates({ onBack }: { onBack: () => void }) {
               ? t`Big first letter: on`
               : t`Big first letter: off`,
         ),
-      (e) => setError(errText(e)),
+      (e) => {
+        const why = whyText(e);
+        setError(t`The big first letter setting could not be saved: ${why}. Try again.`);
+      },
     );
   };
   const rows: [string, string][] = [
@@ -182,9 +188,7 @@ export function Templates({ onBack }: { onBack: () => void }) {
             {rows.map(([label, value]) => (
               <div key={label} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
                 <dt className="text-ink-muted">{label}</dt>
-                <dd className="min-w-0 truncate text-end font-medium" title={value}>
-                  {value}
-                </dd>
+                <dd className="min-w-0 break-words text-end font-medium">{value}</dd>
               </div>
             ))}
           </dl>

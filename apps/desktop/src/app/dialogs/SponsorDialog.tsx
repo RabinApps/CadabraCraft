@@ -1,7 +1,8 @@
 import { useLingui } from "@lingui/react/macro";
 import { CircleCheck, Heart } from "lucide-react";
 import { bridge } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
+import { whyText } from "../../lib/projectError";
+import { alertOf } from "../../state/project/util";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
 import { SPONSOR_URL, useSponsor } from "../../state/sponsor";
@@ -22,7 +23,12 @@ export function SponsorDialog() {
     try {
       await bridge.openUrl(SPONSOR_URL);
     } catch (e) {
-      useProject.setState({ notice: t`Could not open ${SPONSOR_URL}: ${errText(e)}` });
+      const why = whyText(e);
+      useProject.setState(
+        alertOf(
+          t`Could not open ${SPONSOR_URL}: ${why}. Copy the address into your browser instead.`,
+        ),
+      );
     }
   };
   return (

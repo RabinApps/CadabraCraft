@@ -68,6 +68,31 @@ test.describe("language of a passage", () => {
     await expect(pm(page).locator("span[lang]")).toHaveCount(0);
   });
 
+  test("is reachable from the More formatting menu: Language of selection opens the dialog, Clear language needs a language", async ({
+    page,
+  }) => {
+    await newProject(page);
+    await typeAndSelect(page, "Hola amigos");
+    const more = page.getByRole("button", { name: "More formatting" });
+    const item = (name: string) => page.getByRole("menuitem", { name });
+    await more.click();
+    await expect(item("Clear language")).toBeDisabled();
+    await item("Language of selection…").click();
+    await expect(dialog(page)).toBeVisible();
+    await pick(page).selectOption("es");
+    await dialog(page).getByRole("button", { name: "Apply" }).click();
+    await expect(pm(page).locator('span[lang="es"]')).toHaveText("Hola amigos");
+    await expect(pm(page)).toBeFocused();
+
+    // With the caret in the passage, Clear language is available and removes the mark.
+    await pm(page).locator('span[lang="es"]').click();
+    await expect.poll(() => langChecked(page)).toBe(true);
+    await more.click();
+    await expect(item("Clear language")).toBeEnabled();
+    await item("Clear language").click();
+    await expect(pm(page).locator("span[lang]")).toHaveCount(0);
+  });
+
   test("takes any BCP 47 tag, refuses a bad one, and needs a selection", async ({ page }) => {
     await newProject(page);
     // Nothing selected.
@@ -75,7 +100,7 @@ test.describe("language of a passage", () => {
     await run(page, "editor.lang");
     await dialog(page).getByLabel("Language tag").fill("fr-CA");
     await dialog(page).getByRole("button", { name: "Apply" }).click();
-    await expect(dialog(page).getByRole("alert")).toHaveText("Select the text first.");
+    await expect(dialog(page).getByRole("alert")).toContainText(/Select the text first\./);
     await page.keyboard.press("Escape");
     await expect(dialog(page)).toHaveCount(0);
 

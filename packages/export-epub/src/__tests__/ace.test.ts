@@ -75,7 +75,7 @@ describe.skipIf(!existsSync(ace) && !process.env.REQUIRE_ACE)("Ace by DAISY", ()
     ).toEqual([]);
     expect(all.filter((f) => !accepted(f))).toEqual([]);
     // Ace reads the discovery metadata back from the package: it must be what accessibilityMetadata promises.
-    const ours = accessibilityMetadata(facts);
+    const ours = accessibilityMetadata(facts, meta.language);
     const m = r["earl:testSubject"].metadata;
     expect([m["schema:accessibilityFeature"]].flat()).toEqual(prop(ours, "accessibilityFeature"));
     expect([m["schema:accessMode"]].flat()).toEqual(prop(ours, "accessMode"));

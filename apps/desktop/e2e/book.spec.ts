@@ -69,7 +69,7 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   await page.getByRole("button", { name: "Book details" }).click();
   await dialog.getByLabel("Title").fill("");
   await dialog.getByRole("button", { name: "Save details" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("Give the book a title.");
+  await expect(dialog.getByRole("alert")).toContainText("Give the book a title.");
   await dialog.getByLabel("Title").fill("Renamed Book");
   await dialog.getByRole("button", { name: "Remove cover" }).click();
   await dialog.getByRole("button", { name: "Save details" }).click();
@@ -89,7 +89,7 @@ test("Book details: publishing details save to the book, a wrong value is explai
   await dialog.getByLabel("Series", { exact: true }).fill("Harbour Lights");
   await dialog.getByLabel("Number in series").fill("one");
   await dialog.getByRole("button", { name: "Save details" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("Use a number such as 1 or 2.5.");
+  await expect(dialog.getByRole("alert")).toContainText("Use a number such as 1 or 2.5.");
   await expect(dialog.getByLabel("Number in series")).toHaveAttribute("aria-invalid", "true");
   await dialog.getByLabel("Number in series").fill("2");
   await dialog.getByLabel("Publication date").fill("2026-11-03");

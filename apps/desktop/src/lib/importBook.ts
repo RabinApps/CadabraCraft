@@ -20,7 +20,7 @@ import { bridge } from "./bridge";
 import { baseName, stem } from "./paths";
 import { decodeDocxImport } from "./docxFrame";
 import { describeImportCode } from "./importErrorText";
-import { errText, isProjectError } from "./projectError";
+import { errText, isProjectError, whyText } from "./projectError";
 import { applyPlan, type ImportPlan } from "./importPlan";
 
 export interface ImportReport {
@@ -271,7 +271,7 @@ async function readImages(
           data = await bridge.readImportImage(sourcePath, candidate);
           break;
         } catch (e) {
-          why = errText(e);
+          why = whyText(e);
         }
       }
     }
@@ -280,7 +280,7 @@ async function readImages(
       warnings.push({
         code: "image-not-imported",
         severity: "warning",
-        message: t`Image ${a.sourcePath} could not be imported: ${why}`,
+        message: t`Image ${a.sourcePath} could not be imported: ${why}. Add the picture to the page yourself after the import.`,
         examples: [a.sourcePath],
       });
   }
@@ -311,7 +311,7 @@ async function writeBody(
       warnings.push({
         code: "image-not-imported",
         severity: "warning",
-        message: t`Image ${img.name} could not be stored: ${errText(e)}`,
+        message: t`Image ${img.name} could not be stored: ${whyText(e)}. Add the picture to the page yourself after the import.`,
         examples: [img.name],
       });
     }

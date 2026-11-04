@@ -342,7 +342,7 @@ test("page numbers: Typst's report when it has one, an estimate with ≈ otherwi
   await openContents(page);
   const pageOf = (title: string) => row(page, title).locator("[data-toc-page]");
   // No report (the fake Typst answers with an empty book): the word-count estimate, marked.
-  await expect(pageOf("Arrival")).toHaveText("≈ 1");
+  await expect(pageOf("Arrival")).toContainText("≈ 1");
   await expect(pageOf("Calm")).toContainText("≈");
   const m = await manifestOf(page);
   const ids = m.chapters.map((c: { id: string }) => c.id) as string[];

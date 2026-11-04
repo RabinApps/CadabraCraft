@@ -11,7 +11,7 @@ import { cx } from "../../ui/cx";
 import { BookSnapshotsPanel } from "./BookSnapshotsPanel";
 import { formatStamp } from "./formatStamp";
 import { bridge, type SnapshotEntry } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
+import { causeText } from "../../lib/projectError";
 import { changeSummary, diffChapters, paragraphsOf, type DiffLine } from "../../lib/wordDiff";
 import { useProject } from "../../state/project/index";
 
@@ -106,7 +106,7 @@ export function HistoryDialog({
       .catch((e) => {
         if (live)
           setError(
-            t`Could not load the earlier versions (${errText(e)}). Close this dialog and open History again to retry.`,
+            t`Could not load the earlier versions (${causeText(e)}). Close this dialog and open History again to retry.`,
           );
       })
       .finally(() => {
@@ -128,7 +128,7 @@ export function HistoryDialog({
       },
       (e) =>
         setError(
-          t`Could not restore this version (${errText(e)}). Your current text was not changed. Try again, or pick another version.`,
+          t`Could not restore this version (${causeText(e)}). Your current text was not changed. Try again, or pick another version.`,
         ),
     );
   };
@@ -220,8 +220,8 @@ export function HistoryDialog({
               <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                 <div className="flex flex-wrap items-center gap-2.5 text-xs">
                   <span className="text-ink-muted">{t`Compared with the current text`}</span>
-                  <ins className="rounded-sm bg-success-soft px-2 py-0.5 font-semibold text-success no-underline">{t`In this version only`}</ins>
-                  <del className="rounded-sm bg-danger-soft px-2 py-0.5 font-semibold text-danger">{t`Only in the current text`}</del>
+                  <ins className="rounded-sm bg-success-soft px-2 py-0.5 font-semibold text-success underline">{t`In this version only`}</ins>
+                  <del className="rounded-sm bg-danger-soft px-2 py-0.5 font-semibold text-danger line-through">{t`Only in the current text`}</del>
                 </div>
                 <div
                   aria-label={t`Comparison`}
@@ -239,11 +239,13 @@ export function HistoryDialog({
                         <span key={j}>
                           {j > 0 && " "}
                           {part.kind === "add" ? (
-                            <ins className="rounded-sm bg-success-soft px-0.5 text-success no-underline">
+                            <ins className="rounded-sm bg-success-soft px-0.5 text-success underline">
+                              <span className="sr-only">{t`Inserted:`} </span>
                               {part.text}
                             </ins>
                           ) : part.kind === "del" ? (
-                            <del className="rounded-sm bg-danger-soft px-0.5 text-danger">
+                            <del className="rounded-sm bg-danger-soft px-0.5 text-danger line-through">
+                              <span className="sr-only">{t`Deleted:`} </span>
                               {part.text}
                             </del>
                           ) : (

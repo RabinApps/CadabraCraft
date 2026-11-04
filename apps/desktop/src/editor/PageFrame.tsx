@@ -357,13 +357,16 @@ export function PageFrame({ editor, children }: Props) {
       <div className="flex shrink-0 justify-center px-4 pb-1 pt-3">
         <span
           className="page-chip rounded-full border border-border bg-surface px-3 py-1 text-xs text-ink-muted"
-          title={`${fontNote} ${
+          aria-describedby="page-chip-note"
+        >
+          {exactBreaks ? t`${size} · breaks as in the PDF` : t`${size} · approximate`}
+        </span>
+        <span id="page-chip-note" data-testid="page-chip-note" className="sr-only">
+          {`${fontNote} ${
             exactBreaks
               ? t`Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little.`
               : t`Page breaks are approximate: the PDF is the reference.`
           }`}
-        >
-          {exactBreaks ? t`${size} · breaks as in the PDF` : t`${size} · approximate`}
         </span>
       </div>
       <div

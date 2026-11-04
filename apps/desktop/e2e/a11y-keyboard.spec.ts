@@ -186,6 +186,20 @@ const cases: Case[] = [
     },
   },
   {
+    name: "Language of selection (from the More formatting menu)",
+    dialog: "Language of selection",
+    open: async (page) => {
+      await newProject(page);
+      await page.locator(".ProseMirror p").last().click();
+      await toolbarButton(page, "More formatting").focus();
+      await page.keyboard.press("Enter");
+      await page.getByRole("menuitem", { name: "Language of selection…" }).focus();
+      await page.keyboard.press("Enter");
+      // The dialog hands the focus back to the text, as the Link and Image dialogs do.
+      return page.locator(".ProseMirror");
+    },
+  },
+  {
     name: "Add custom entry",
     dialog: "Add custom entry",
     open: async (page) => {
@@ -262,7 +276,28 @@ for (const c of cases) {
   });
 }
 
-test("keyboard only: the Image details dialog opens from the toolbar and closes with Escape", async ({
+test("keyboard only: the More formatting menu opens with Enter, Space and ArrowDown and Escape returns focus to its button", async ({
+  page,
+}) => {
+  await newProject(page);
+  const trigger = toolbarButton(page, "More formatting");
+  const menu = page.getByRole("menu", { name: "More formatting" });
+  for (const key of ["Enter", "Space", "ArrowDown"]) {
+    await trigger.focus();
+    await page.keyboard.press(key);
+    await expect(menu).toBeVisible();
+    await expect(menu.getByRole("menuitemcheckbox").first()).toBeFocused();
+    // Arrow keys move inside the menu and do not leave it for the toolbar.
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowRight");
+    await expect(menu).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  }
+});
+
+test("keyboard only: the Image details dialog opens from the More formatting menu and closes with Escape", async ({
   page,
 }) => {
   await newProject(page);
@@ -277,7 +312,9 @@ test("keyboard only: the Image details dialog opens from the toolbar and closes 
   await expect(page.locator(".ProseMirror figure img")).toBeVisible();
   // The selected picture enables "Image details".
   await page.locator(".ProseMirror figure img").click();
-  const details = toolbarButton(page, "Image details");
+  await toolbarButton(page, "More formatting").focus();
+  await page.keyboard.press("Enter");
+  const details = page.getByRole("menuitem", { name: "Image details" });
   await expect(details).toBeEnabled();
   await details.focus();
   await page.keyboard.press("Enter");

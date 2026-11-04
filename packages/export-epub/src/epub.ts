@@ -327,13 +327,16 @@ export function buildEpub(
       : "";
   const retail = retailMetadata(meta.publishing);
   const stats = chapters.map((c) => imageAltStats(c.doc));
-  const a11y = accessibilityMetadata({
-    images: stats.reduce((n, s) => n + s.total, 0),
-    imagesMissingAlt: stats.reduce((n, s) => n + s.missingAlt, 0),
-    hasCover: cover !== undefined,
-    hasGif: [...imageOwners.keys()].some((p) => p.toLowerCase().endsWith(".gif")),
-    hasSvg: [...imageOwners.keys()].some((p) => p.toLowerCase().endsWith(".svg")),
-  });
+  const a11y = accessibilityMetadata(
+    {
+      images: stats.reduce((n, s) => n + s.total, 0),
+      imagesMissingAlt: stats.reduce((n, s) => n + s.missingAlt, 0),
+      hasCover: cover !== undefined,
+      hasGif: [...imageOwners.keys()].some((p) => p.toLowerCase().endsWith(".gif")),
+      hasSvg: [...imageOwners.keys()].some((p) => p.toLowerCase().endsWith(".svg")),
+    },
+    meta.language,
+  );
   files["OEBPS/content.opf"] = strToU8(
     `${xmlHead}<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${esc(meta.identifier)}</dc:identifier>${isbnUrn}<dc:title>${esc(meta.title)}</dc:title><dc:creator>${esc(meta.author)}</dc:creator><dc:language>${lang}</dc:language>${retail}<meta property="dcterms:modified">${isoNoMs(meta.modified)}</meta>${a11y}${cover ? '<meta name="cover" content="epub-cover-image"/>' : ""}</metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>${manifest}${imageItems.join("")}${cover ? `<item id="epub-cover-image" href="${esc(cover.path)}" media-type="${coverType}" properties="cover-image"/>` : ""}</manifest><spine${rtl ? ' page-progression-direction="rtl"' : ""}>${spine}</spine></package>`,
   );

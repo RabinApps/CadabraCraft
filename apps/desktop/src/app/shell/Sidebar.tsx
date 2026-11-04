@@ -158,14 +158,16 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <IconButton
           icon={Undo2}
           label={lastUndo ? t`Undo: ${lastUndo.label}` : t`Undo book change`}
-          title={`${lastUndo ? t`Undo: ${lastUndo.label}` : t`Undo book change`} (${isMac ? "⌘⌥Z" : "Ctrl+Alt+Z"})`}
+          hint={isMac ? "⌘⌥Z" : "Ctrl+Alt+Z"}
+          aria-keyshortcuts={isMac ? "Meta+Alt+Z" : "Control+Alt+Z"}
           disabled={!lastUndo}
           onClick={() => attempt(actions.undo())}
         />
         <IconButton
           icon={Redo2}
           label={lastRedo ? t`Redo: ${lastRedo.label}` : t`Redo book change`}
-          title={`${lastRedo ? t`Redo: ${lastRedo.label}` : t`Redo book change`} (${isMac ? "⌘⌥⇧Z" : "Ctrl+Alt+Shift+Z"})`}
+          hint={isMac ? "⌘⌥⇧Z" : "Ctrl+Alt+Shift+Z"}
+          aria-keyshortcuts={isMac ? "Meta+Alt+Shift+Z" : "Control+Alt+Shift+Z"}
           disabled={!lastRedo}
           onClick={() => attempt(actions.redo())}
         />

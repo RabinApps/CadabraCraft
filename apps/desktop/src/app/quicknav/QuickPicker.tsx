@@ -202,6 +202,9 @@ function Option({
   onHover: () => void;
   onChoose: () => void;
 }) {
+  const { t } = useLingui();
+  // aria-level is not allowed on an option, so the heading level is part of its name (hidden on screen, the indent shows it).
+  const levelName = { 1: t`Heading 1`, 2: t`Heading 2`, 3: t`Heading 3` }[item.level ?? 0];
   return (
     <div
       id={id}
@@ -209,7 +212,6 @@ function Option({
       aria-selected={active}
       aria-disabled={item.enabled ? undefined : true}
       {...(item.checked === undefined ? {} : { "aria-checked": item.checked })}
-      {...(item.level === undefined ? {} : { "aria-level": item.level })}
       {...(item.current ? { "aria-current": "true" as const } : {})}
       // The input keeps focus; a press on a row must not take it away.
       onMouseDown={(e) => e.preventDefault()}
@@ -223,6 +225,7 @@ function Option({
       )}
     >
       <span className="min-w-0 flex-1 break-words">
+        {levelName ? <span className="sr-only">{levelName}: </span> : null}
         {highlightSegments(item.label, item.positions).map((s, i) =>
           s.hit ? (
             <mark key={i} className="bg-transparent font-bold text-accent underline">

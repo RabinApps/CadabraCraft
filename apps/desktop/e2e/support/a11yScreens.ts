@@ -17,12 +17,15 @@ const dialogOf = (page: Page, name: string | RegExp) => page.getByRole("dialog",
 const shown = (l: Locator) => expect(l).toBeVisible();
 
 /** Runs a menu command by id (the same entry point the native menu uses). */
-const menu = (page: Page, id: string) =>
-  page.evaluate(
+const menu = async (page: Page, id: string) => {
+  // The bridge is installed when the app mounts; under load a screen can be asked for before that.
+  await page.waitForFunction(() => "__cadabraMenu" in window);
+  await page.evaluate(
     (c) =>
       (window as never as { __cadabraMenu: { run: (id: string) => void } }).__cadabraMenu.run(c),
     id,
   );
+};
 const command = (page: Page, id: string) =>
   page.evaluate(async (c) => {
     (await import("/src/state/commands.ts" as string)).runCommand(c);
@@ -312,7 +315,8 @@ const baseScreens: Screen[] = [
       await dialogOf(p, "Add image").getByLabel("Description (alt text)").fill("x");
       await p.keyboard.press("Enter");
       await p.locator(".ProseMirror figure img").click();
-      await toolbar(p, "Image details").click();
+      await toolbar(p, "More formatting").click();
+      await p.getByRole("menuitem", { name: "Image details" }).click();
       await shown(dialogOf(p, "Image details"));
     },
   },
@@ -466,6 +470,14 @@ const withSnapshot = async (page: Page) => {
 
 /** Dialogs, panels and shell states added for the second accessibility sweep. */
 export const moreScreens: Screen[] = [
+  {
+    name: "editor toolbar, More formatting menu open",
+    open: async (p) => {
+      await lastParagraph(p);
+      await toolbar(p, "More formatting").click();
+      await shown(p.getByRole("menu", { name: "More formatting" }));
+    },
+  },
   {
     name: "Templates panel",
     open: async (p) => {

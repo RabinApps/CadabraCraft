@@ -12,8 +12,8 @@ export interface MarkdownOptions {
   /**
    * Write underline, small caps, superscript and subscript as inline HTML (`<u>`, `<span class="small-caps">`, `<sup>`,
    * `<sub>`). Off by default: Markdown has no syntax for them, so other tools may show the tags as text (the CadabraCraft
-   * importer reads exactly these four tags back as marks). Without this option such marks make the export throw.
-   * A passage in another language (the `lang` mark) is written as `<span lang="fr">` with this option (the importer does not read it back yet); without it the
+   * importer reads exactly these tags back as marks). Without this option such marks make the export throw.
+   * A passage in another language (the `lang` mark) is written as `<span lang="fr">` with this option (the CadabraCraft importer reads it back as the lang mark); without it the
    * passage is plain text, because Markdown cannot say which language it is in.
    */
   htmlMarks?: boolean;

@@ -147,7 +147,9 @@ describe("undo and redo, rare paths", () => {
     const { trashPath: _t, ...bare } = entry!;
     useProject.setState({ history: { undo: [], redo: [bare] } });
     expect(await a().redo()).toBe(false);
-    expect(s().notice).toBe("Could not redo: the page is no longer in the trash");
+    expect(s().notice).toBe(
+      "Could not redo: the page is no longer in the trash. Try again, or restore the page from History.",
+    );
     expect(s().history.redo).toHaveLength(1);
   });
 

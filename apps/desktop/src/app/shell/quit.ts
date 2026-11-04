@@ -2,6 +2,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { t } from "@lingui/core/macro";
 import { createCloseHandler } from "./closeGuard";
 import { useProject } from "../../state/project/index";
+import { alertOf } from "../../state/project/util";
 
 /**
  * The one close handler, shared by the window's close request and the Quit menu item, so a failed save is remembered
@@ -13,9 +14,11 @@ export const closeRequest = createCloseHandler(
     hasUnsaved: () => useProject.getState().draft !== null,
     flush: () => useProject.getState().actions.flush(),
     onSaveFailed: (message) =>
-      useProject.setState({
-        notice: t`Your last changes could not be saved (${message}). Close the window again to leave without them.`,
-      }),
+      useProject.setState(
+        alertOf(
+          t`Your last changes could not be saved (${message}). Close the window again to leave without them, or free some space and try again.`,
+        ),
+      ),
   },
   () => getCurrentWindow().destroy(),
 );

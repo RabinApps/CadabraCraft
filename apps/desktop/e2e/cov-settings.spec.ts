@@ -147,7 +147,7 @@ test("a failed pack deletion is shown", async ({ page }) => {
   const piper = page.getByText("Piper voices: Amy and LibriTTS").locator("xpath=../..");
   await piper.getByRole("button", { name: "Delete", exact: true }).click();
   await piper.getByRole("button", { name: "Delete voices" }).click();
-  await expect(page.getByRole("alert")).toHaveText(/Could not delete/);
+  await expect(page.getByRole("alert")).toContainText(/Could not delete/);
 });
 
 test("a voice list that cannot be read is reported", async ({ page }) => {
@@ -155,7 +155,7 @@ test("a voice list that cannot be read is reported", async ({ page }) => {
     (window as unknown as W).__voicesError = true;
   });
   await openSettings(page);
-  await expect(page.getByRole("alert")).toHaveText(/Voices unavailable/);
+  await expect(page.getByRole("alert")).toContainText(/Voices unavailable/);
 });
 
 test("leaving Settings before the voice list arrives drops the answer", async ({ page }) => {

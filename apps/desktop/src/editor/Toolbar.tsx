@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
@@ -7,6 +7,7 @@ import {
   Asterisk,
   Bold,
   Code,
+  Code2,
   Heading1,
   Heading2,
   Heading3,
@@ -17,8 +18,11 @@ import {
   Link,
   List,
   ListOrdered,
+  ListTodo,
   Quote,
   Redo2,
+  Strikethrough,
+  Subscript,
   Superscript,
   Underline,
   Undo2,
@@ -29,11 +33,17 @@ import { IconButton } from "../ui/Button";
 import { focusField } from "../ui/Input";
 import { useRegisterCommands } from "../state/commands";
 import { attempt } from "../state/attempt";
+import { useSettings } from "../state/editorPrefs";
+import { effectiveCombo } from "../app/settings/shortcutBindings";
+import { MoreFormatting, type MoreItem } from "./MoreFormatting";
+import { moveInToolbar } from "./toolbarKeys";
 import { TableCommands } from "./TableCommands";
 import { ImageDialog, LangDialog, LinkDialog } from "./ToolbarDialogs";
 import { useImageDialog } from "./useImageDialog";
 import { insertDefinitionList } from "./insertDefinitionList";
 import { useLangDialog } from "./useLangDialog";
+
+const MORE = "more";
 
 interface Item {
   id: string;
@@ -206,13 +216,6 @@ export function Toolbar({ editor }: { editor: Editor }) {
       },
       { id: "image", label: t`Image`, icon: ImageIcon, run: () => attempt(addImage()) },
       {
-        id: "imageDetails",
-        label: t`Image details`,
-        icon: SquarePen,
-        disabled: !s.image,
-        run: editImage,
-      },
-      {
         id: "footnote",
         label: t`Footnote`,
         icon: Superscript,
@@ -224,12 +227,19 @@ export function Toolbar({ editor }: { editor: Editor }) {
     ],
   ];
 
-  // Less common marks live in the Format menu (and Code Block in Insert) only, to keep the toolbar short.
+  // Less common marks and blocks sit in the More formatting menu at the end of the bar (and in the Format and Insert menus).
   const menuOnly: Item[] = [
+    {
+      id: "imageDetails",
+      label: t`Image details`,
+      icon: SquarePen,
+      disabled: !s.image,
+      run: editImage,
+    },
     {
       id: "taskList",
       label: t`Task list`,
-      icon: List,
+      icon: ListTodo,
       active: s.taskList,
       run: () =>
         s.taskList
@@ -246,14 +256,14 @@ export function Toolbar({ editor }: { editor: Editor }) {
     {
       id: "strike",
       label: t`Strikethrough`,
-      icon: Underline,
+      icon: Strikethrough,
       active: s.strike,
       run: () => c().toggleStrike().run(),
     },
     {
       id: "code",
       label: t`Code`,
-      icon: Underline,
+      icon: Code,
       active: s.code,
       run: () => c().toggleCode().run(),
     },
@@ -267,7 +277,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
     {
       id: "subscript",
       label: t`Subscript`,
-      icon: Superscript,
+      icon: Subscript,
       active: s.subscript,
       run: () => c().toggleMark("subscript").run(),
     },
@@ -288,7 +298,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
     {
       id: "codeBlock",
       label: t`Code Block`,
-      icon: Code,
+      icon: Code2,
       active: s.codeBlock,
       run: () => c().toggleCodeBlock().run(),
     },
@@ -314,29 +324,23 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const barRef = useRef<HTMLDivElement>(null);
   const [stop, setStop] = useState<string | null>(null);
   const all = groups.flat();
-  const stopId = (all.find((b) => b.id === stop && !b.disabled) ?? all.find((b) => !b.disabled))
+  // The More formatting button is the last stop of the bar and is never disabled.
+  const stops = [...all, { id: MORE, disabled: false }];
+  const stopId = (stops.find((b) => b.id === stop && !b.disabled) ?? stops.find((b) => !b.disabled))
     ?.id;
-  const onBarKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const bar = barRef.current;
-    if (!bar) return;
-    const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"));
-    const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
-    if (at < 0) return;
-    const rtl = getComputedStyle(bar).direction === "rtl";
-    const to =
-      e.key === "ArrowRight"
-        ? at + (rtl ? -1 : 1)
-        : e.key === "ArrowLeft"
-          ? at + (rtl ? 1 : -1)
-          : e.key === "Home"
-            ? 0
-            : e.key === "End"
-              ? buttons.length - 1
-              : null;
-    if (to === null) return;
-    e.preventDefault();
-    buttons[(to + buttons.length) % buttons.length]?.focus();
-  };
+  const overrides = useSettings((p) => p.shortcutOverrides);
+  const more = (ids: string[]): MoreItem[] =>
+    ids.map((id) => {
+      const b = menuOnly.find((m) => m.id === id)!;
+      // The language command opens a dialog, so it is a plain item; its tick would not mean on or off.
+      const active = id === "lang" ? undefined : b.active;
+      return { ...b, active, combo: effectiveCombo(`editor.${id}`, overrides) };
+    });
+  const moreSections = [
+    more(["strike", "code", "superscript", "subscript"]),
+    more(["lang", "clearLang"]),
+    more(["imageDetails", "codeBlock", "taskList", "definitionList"]),
+  ];
 
   return (
     <>
@@ -344,7 +348,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
         ref={barRef}
         role="toolbar"
         aria-label={t`Formatting`}
-        onKeyDown={onBarKeyDown}
+        onKeyDown={(e) => moveInToolbar(e, barRef.current)}
         onFocus={(e) => {
           const id = (e.target as HTMLElement).closest("button")?.dataset.toolbarId;
           if (id) setStop(id);
@@ -372,6 +376,9 @@ export function Toolbar({ editor }: { editor: Editor }) {
             ))}
           </div>
         ))}
+        <div role="group" className="flex shrink-0 items-center border-s border-border ps-1.5">
+          <MoreFormatting sections={moreSections} tabStop={stopId === MORE} />
+        </div>
       </div>
       <ImageDialog
         image={image}

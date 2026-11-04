@@ -263,7 +263,7 @@ test("print preview: opening a page says it is looking, leaves Read mode for Wri
     window.__compileError = undefined;
   });
   await page.getByRole("button", { name: "Open page 1 in the editor" }).click();
-  await expect(page.getByRole("alert")).toHaveText("That page is not in the book.");
+  await expect(page.getByRole("alert")).toContainText("That page is not in the book.");
   // The book is read, not written, when the preview is opened: the jump goes to the editor.
   await page.evaluate((r) => (window.__typstQueryResult = r), report(id));
   await page.getByRole("button", { name: "Back", exact: true }).click();

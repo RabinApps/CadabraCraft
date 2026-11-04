@@ -4,7 +4,7 @@ import { Undo2 } from "lucide-react";
 import { Modal } from "../../ui/Dialog";
 import { Button } from "../../ui/Button";
 import { useProject } from "../../state/project/index";
-import { errText } from "../../lib/projectError";
+import { causeText } from "../../lib/projectError";
 
 export function TrashDialog({
   open,
@@ -29,7 +29,7 @@ export function TrashDialog({
       .refreshTrash()
       .catch((e) =>
         setError(
-          t`Could not read the trash (${errText(e)}). Close this dialog and open the trash again to retry.`,
+          t`Could not read the trash (${causeText(e)}). Close this dialog and open the trash again to retry.`,
         ),
       );
   }, [open, actions]);
@@ -67,7 +67,7 @@ export function TrashDialog({
                     (e) => {
                       setFailed(x.path);
                       setError(
-                        t`Could not restore ${x.title} (${errText(e)}). It is still in the trash. Try again, or restore another page.`,
+                        t`Could not restore ${x.title} (${causeText(e)}). It is still in the trash. Try again, or restore another page.`,
                       );
                     },
                   );

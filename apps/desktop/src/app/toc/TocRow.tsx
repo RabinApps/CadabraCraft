@@ -4,6 +4,7 @@ import { useLingui } from "@lingui/react/macro";
 import { Ellipsis, Eye, EyeOff, GripVertical, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import { Badge } from "../../ui/Badge";
 import { cx } from "../../ui/cx";
+import { useGripHint } from "../../ui/GripHint";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
 import type { TocRow as Row } from "../../lib/tocView";
 
@@ -45,6 +46,7 @@ export function TocRow({
 }: Props) {
   const { t } = useLingui();
   const { item } = row;
+  const grip = useGripHint();
   const custom = item.kind === "custom";
   /** The rename field opens once the menu has closed, so it can take focus. */
   const afterClose = useRef<(() => void) | null>(null);
@@ -70,13 +72,14 @@ export function TocRow({
         data-grip
         aria-label={t`Reorder ${item.title}`}
         aria-keyshortcuts="ArrowUp ArrowDown"
-        title={t`Drag, or press the up and down arrow keys`}
+        aria-describedby={grip.describedBy}
         onPointerDown={onGrab}
         onKeyDown={keys}
         className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
       >
         <GripVertical size={16} aria-hidden />
       </button>
+      {grip.hint}
       <div
         className="flex min-w-0 flex-1 items-center gap-2"
         style={{ paddingInlineStart: item.level * 16 }}
@@ -126,12 +129,9 @@ export function TocRow({
         {item.hidden && <span className="text-xs text-ink-muted">{t`Hidden`}</span>}
       </div>
       {numbers && (
-        <span
-          data-toc-page
-          title={row.estimated && row.text !== null ? t`Estimated page` : undefined}
-          className="w-14 shrink-0 text-end text-sm tabular-nums text-ink-muted"
-        >
+        <span data-toc-page className="w-14 shrink-0 text-end text-sm tabular-nums text-ink-muted">
           {row.text === null ? "–" : `${row.estimated ? "≈ " : ""}${row.text}`}
+          {row.estimated && row.text !== null && <span className="sr-only"> {t`(estimated)`}</span>}
         </span>
       )}
       <M.Root>

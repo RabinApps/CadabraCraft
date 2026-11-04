@@ -35,15 +35,18 @@ describe("describePdfError", () => {
   it("shows the compiler output", () => {
     const r = describePdfError(new TypstCompileError(" oops \n"));
     expect(r.code).toBe("compile");
-    expect(r.message).toMatch(/oops$/);
+    expect(r.message).toMatch(/oops\nCheck the text/);
   });
   it("names the timeout, the missing images and anything else", () => {
     expect(describePdfError(new TypstTimeoutError(60))).toMatchObject({ code: "timeout" });
     expect(describePdfError(new TypstTimeoutError(60)).message).toContain("60 seconds");
     const a = describePdfError(new MissingAssetError(["a.png", "b.png"]));
-    expect([a.code, a.message]).toEqual(["asset", "Missing image file a.png, b.png"]);
+    expect([a.code, a.message]).toEqual([
+      "asset",
+      "Missing image file a.png, b.png. Add the image again or remove it from the page, then export again.",
+    ]);
     const o = describePdfError(new Error("weird"));
-    expect([o.code, o.message]).toEqual(["other", "weird"]);
+    expect([o.code, o.message]).toEqual(["other", "weird. Try again."]);
     expect(o.cause).toBeInstanceOf(Error);
   });
 });

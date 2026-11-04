@@ -1,4 +1,4 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { isLangTag, type DocNode, type Mark } from "@cadabracraft/shared";
 import type { Definition, FootnoteDefinition, Nodes, PhrasingContent } from "mdast";
 import {
   AssetRegistry,
@@ -36,17 +36,22 @@ export function toText(n: Nodes): string {
   return "";
 }
 
-/** The inline HTML tags `export-markdown` writes for `htmlMarks`: `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>`. */
+/** The inline HTML tags `export-markdown` writes for `htmlMarks`: `<u>`, `<span class="small-caps">`, `<span lang="xx">`, `<sup>`, `<sub>`. */
 const HTML_MARK = /^<(\/)?(u|sup|sub|span)(\s[^>]*)?>$/i;
 function htmlMark(value: string): { close: boolean; tag: string; mark: Mark } | null {
   const m = HTML_MARK.exec(value.trim());
   if (!m) return null;
   const tag = m[2]!.toLowerCase();
   const close = !!m[1];
-  if (tag === "span")
-    return /^\s+class\s*=\s*["']small-caps["']\s*$/i.test(m[3] ?? "") || (close && !m[3])
-      ? { close, tag, mark: { type: "smallCaps" } }
-      : null;
+  if (tag === "span") {
+    // A close tag has no attributes and pairs with the nearest open span of any kind (its mark is not used).
+    if ((close && !m[3]) || /^\s+class\s*=\s*["']small-caps["']\s*$/i.test(m[3] ?? ""))
+      return { close, tag, mark: { type: "smallCaps" } };
+    const lang = /^\s+lang\s*=\s*(?:"([^"]*)"|'([^']*)')\s*$/i.exec(m[3] ?? "");
+    const value = lang?.[1] ?? lang?.[2];
+    // (CommonMark only parses attributes on an opening tag, so a close tag never reaches here with a lang.)
+    return isLangTag(value) ? { close, tag, mark: { type: "lang", attrs: { lang: value } } } : null;
+  }
   if (m[3]) return null;
   return {
     close,

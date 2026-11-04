@@ -3,7 +3,8 @@ import { fakeTauri } from "./support/fakeTauri";
 import { frenchWithOneChapter, newProject, seedChapters, sidebar } from "./support/helpers";
 import type { Page } from "@playwright/test";
 
-// No Hebrew or Arabic catalog exists yet, so the layout is checked with the direction forced (English text, mirrored layout).
+// The layout is checked here with the direction forced (English text, mirrored layout). The Hebrew and Arabic catalogs have their own
+// sweeps over every screen: `pnpm --filter @cadabracraft/desktop test:a11y:locales` (docs/accessibility.md), and locales.spec.ts drives them through the picker.
 const forceRtl = (page: Page) =>
   page.evaluate(() => {
     document.documentElement.dir = "rtl";

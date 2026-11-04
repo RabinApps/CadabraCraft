@@ -15,6 +15,7 @@ import type { Reference } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { referenceKind, type ReferenceKind } from "../../lib/referenceKinds";
 import { cx } from "../../ui/cx";
+import { useGripHint } from "../../ui/GripHint";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
 
 const ICONS: Record<ReferenceKind, LucideIcon> = {
@@ -64,6 +65,7 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
   const Icon = kindIcon(kind);
   const label = useKindLabel();
   const id = useId();
+  const grip = useGripHint();
   const keys = (e: KeyboardEvent) => {
     if (!reorder || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
     e.preventDefault();
@@ -88,7 +90,7 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
           data-grip
           aria-label={t`Reorder ${reference.title}`}
           aria-keyshortcuts="ArrowUp ArrowDown"
-          title={t`Drag, or press the up and down arrow keys`}
+          aria-describedby={grip.describedBy}
           onPointerDown={reorder.onGrab}
           onKeyDown={keys}
           className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted focus-visible:outline-2 focus-visible:outline-accent"
@@ -96,6 +98,7 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
           <GripVertical size={16} aria-hidden />
         </button>
       )}
+      {reorder && grip.hint}
       <button
         type="button"
         onClick={onOpen}

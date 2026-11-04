@@ -29,7 +29,7 @@
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 14px;
-  --text-micro: 0.6875rem;
+  --text-micro: 0.75rem;
   --text-small: 0.8125rem;
   --text-title: 1.25rem;
   --text-title--line-height: 1.4;
@@ -244,13 +244,30 @@ body {
   color: var(--accent);
   text-decoration: underline;
 }
+/* Not by colour alone (WCAG 1.4.1): every match has an outline, the current one a heavier outline and an underline;
+   the outlines are real borders-in-outline so they also show in forced-colors mode. */
 .prose-manuscript .ProseMirror .search-match {
   background: var(--accent-soft);
   border-radius: 2px;
+  outline: 1px solid var(--accent);
 }
 .prose-manuscript .ProseMirror .search-match-current {
   background: var(--accent);
   color: var(--accent-ink);
+  outline: 2px solid var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+@media (forced-colors: active) {
+  .prose-manuscript .ProseMirror .search-match {
+    outline: 1px solid Highlight;
+  }
+  .prose-manuscript .ProseMirror .search-match-current {
+    outline: 3px solid Highlight;
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
 }
 .prose-manuscript .ProseMirror hr.scene-break {
   border: 0;

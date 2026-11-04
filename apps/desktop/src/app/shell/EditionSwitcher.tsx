@@ -4,7 +4,8 @@ import { useLingui } from "@lingui/react/macro";
 import { Check, ChevronDown, Globe, Plus } from "lucide-react";
 import { translationProgress } from "@cadabracraft/format";
 import { LOCALES } from "../../i18n/locales";
-import { errText } from "../../lib/projectError";
+import { whyText } from "../../lib/projectError";
+import { alertOf } from "../../state/project/util";
 import { AddLanguageDialog } from "../dialogs/AddLanguageDialog";
 import { useProject } from "../../state/project/index";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
@@ -22,7 +23,12 @@ export function EditionSwitcher() {
   if (!manifest) return null;
   const choose = (language: string) => {
     if (language === active) return;
-    void actions.setLanguage(language).catch((e) => useProject.setState({ notice: errText(e) }));
+    void actions.setLanguage(language).catch((e) => {
+      const why = whyText(e);
+      useProject.setState(
+        alertOf(t`Could not switch to that edition: ${why}. Try again, or choose another edition.`),
+      );
+    });
   };
   return (
     <>

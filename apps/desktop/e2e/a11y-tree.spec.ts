@@ -60,9 +60,31 @@ test("editor: toolbar, chapter list and heading expose names and states", async 
       - group:
         - button "Scene break"
         - button "Image"
-        - button "Image details" [disabled]
         - button "Footnote"
+      - group:
+        - button "More formatting"
   `);
+  // The overflow menu holds the rarely used marks and blocks and the language command; toggles are checkbox items.
+  await page.getByRole("button", { name: "More formatting" }).click();
+  await expect(page.getByRole("menu", { name: "More formatting" })).toMatchAriaSnapshot(`
+    - menu "More formatting":
+      - group:
+        - menuitemcheckbox "Strikethrough"
+        - menuitemcheckbox "Code"
+        - menuitemcheckbox "Superscript"
+        - menuitemcheckbox "Subscript"
+      - separator
+      - group:
+        - menuitem "Language of selection…"
+        - menuitem "Clear language" [disabled]
+      - separator
+      - group:
+        - menuitem "Image details" [disabled]
+        - menuitemcheckbox "Code Block"
+        - menuitemcheckbox "Task list"
+        - menuitemcheckbox "Definition list"
+  `);
+  await page.keyboard.press("Escape");
   await expect(page.getByRole("navigation", { name: "Chapters" })).toMatchAriaSnapshot(`
     - navigation "Chapters":
       - region "Chapters":

@@ -177,7 +177,7 @@ const imageDetails: Area = {
     const { page } = ctx;
     await newProject(page);
 
-    // Put a described picture in the chapter and select it, so the toolbar enables "Image details".
+    // Put a described picture in the chapter and select it, so the More formatting menu enables "Image details".
     await page.locator(".ProseMirror p").last().click();
     await toolbarButton(ctx, "Image").click();
     const add = page.getByRole("dialog", { name: "Add image" });
@@ -185,11 +185,12 @@ const imageDetails: Area = {
     await add.getByRole("button", { name: "Insert" }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await page.locator(".ProseMirror figure img").click();
-    const opener = toolbarButton(ctx, "Image details");
-    await expect(opener).toBeEnabled();
+    // "Image details" is in the More formatting menu at the end of the toolbar.
+    const opener = toolbarButton(ctx, "More formatting");
     await ctx.enter();
 
     await opener.click();
+    await page.getByRole("menuitem", { name: "Image details" }).click();
     await expect(page.getByRole("dialog", { name: "Image details" })).toBeVisible();
     await hearHeading(ctx, /Image details/);
 

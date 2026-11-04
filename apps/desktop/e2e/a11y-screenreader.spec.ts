@@ -69,6 +69,8 @@ test("the editor toolbar is read as a toolbar of named buttons", async ({ page }
   await newProject(page);
   const log = await spoken(page, "[role=toolbar]", /^end of toolbar/);
   expect(log.filter((l) => l.startsWith("button")).length).toBeGreaterThan(8);
+  // The overflow button says it opens a menu.
+  expect(log.some((l) => l.includes("More formatting") && l.includes("menu"))).toBe(true);
   expect(unnamed(log)).toEqual([]);
 });
 

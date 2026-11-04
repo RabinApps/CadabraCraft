@@ -17,8 +17,8 @@ import {
   type OutlineItem,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
-import { parseChapter } from "./util";
+import { whyText } from "../../lib/projectError";
+import { alertOf, parseChapter } from "./util";
 import type { TocActions } from "./types";
 import type { Ctx } from "./context";
 
@@ -42,11 +42,11 @@ export const createTocActions = (ctx: Ctx): TocActions => {
       record({ label }, before, after);
       return true;
     } catch (e) {
-      set({ notice: failure(errText(e)) });
+      set(alertOf(failure(whyText(e))));
       return false;
     }
   };
-  const couldNot = (why: string) => t`Could not change the contents page: ${why}`;
+  const couldNot = (why: string) => t`Could not change the contents page: ${why}. Try again.`;
   return {
     async tocOutlines() {
       const { root, manifest } = need();

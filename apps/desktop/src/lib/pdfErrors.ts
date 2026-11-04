@@ -39,7 +39,11 @@ export function describePdfError(e: unknown): PdfUiError {
     );
   }
   if (e instanceof TypstCompileError)
-    return new PdfUiError("compile", t`Typst could not build the PDF:\n${e.stderr.trim()}`, cause);
+    return new PdfUiError(
+      "compile",
+      t`Typst could not build the PDF:\n${e.stderr.trim()}\nCheck the text for unusual characters, then try again.`,
+      cause,
+    );
   if (e instanceof TypstTimeoutError)
     return new PdfUiError(
       "timeout",
@@ -47,6 +51,10 @@ export function describePdfError(e: unknown): PdfUiError {
       cause,
     );
   if (e instanceof MissingAssetError)
-    return new PdfUiError("asset", t`Missing image file ${e.srcs.join(", ")}`, cause);
-  return new PdfUiError("other", errText(e), cause);
+    return new PdfUiError(
+      "asset",
+      t`Missing image file ${e.srcs.join(", ")}. Add the image again or remove it from the page, then export again.`,
+      cause,
+    );
+  return new PdfUiError("other", t`${errText(e)}. Try again.`, cause);
 }

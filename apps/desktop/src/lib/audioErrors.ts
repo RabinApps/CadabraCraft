@@ -40,18 +40,24 @@ export class AudioUiError extends Error {
 
 function reason(e: unknown): { code: AudioErrorCode; text: string } {
   if (e instanceof VoiceNotInstalledError)
-    return { code: "voice-missing", text: t`the voice "${e.voice}" is not installed` };
+    return {
+      code: "voice-missing",
+      text: t`the voice "${e.voice}" is not installed. Download it in Settings, or choose another voice`,
+    };
   if (e instanceof EngineNotFoundError)
     return {
       code: "engine-missing",
       text: t`the voice engine that comes with CadabraCraft is missing. Reinstall the app.`,
     };
   if (e instanceof SynthesisError)
-    return { code: "engine-failed", text: t`the voice engine stopped:\n${e.detail.trim()}` };
+    return {
+      code: "engine-failed",
+      text: t`the voice engine stopped:\n${e.detail.trim()}\nTry again, or choose another voice`,
+    };
   if (e instanceof EncodeError)
     return {
       code: "encode",
-      text: t`${e.format.toUpperCase()} could not be written:\n${e.detail.trim()}`,
+      text: t`${e.format.toUpperCase()} could not be written:\n${e.detail.trim()}\nCheck the folder can be written to and try again`,
     };
   if (e instanceof DownloadError)
     return {
@@ -64,13 +70,16 @@ function reason(e: unknown): { code: AudioErrorCode; text: string } {
       text: t`the downloaded file ${e.file} was damaged and was deleted. Try the download again`,
     };
   if (e instanceof DiskFullError)
-    return { code: "disk-full", text: t`there is not enough disk space` };
+    return {
+      code: "disk-full",
+      text: t`there is not enough disk space. Free some space and try again`,
+    };
   if (e instanceof AudioTimeoutError)
     return {
       code: "timeout",
-      text: t`the voice engine took longer than ${e.seconds} seconds and was stopped`,
+      text: t`the voice engine took longer than ${e.seconds} seconds and was stopped. Try again, or export fewer chapters`,
     };
-  return { code: "other", text: errText(e) };
+  return { code: "other", text: t`${errText(e)}. Try again` };
 }
 
 /** Maps export-audio errors to translated, actionable messages. A failure inside a chapter names the chapter. */

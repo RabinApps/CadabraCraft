@@ -36,6 +36,16 @@ export function titleOfDoc(doc: unknown, file: string): string {
   );
 }
 
+/** A notice that reports a failure or lost data: the header announces it assertively. */
+export const alertOf = (text: string): { notice: string; alertNotice: string } => ({
+  notice: text,
+  alertNotice: text,
+});
+
+/** True while the shown notice is a failure, which the header announces assertively. */
+export const noticeIsAlert = (s: { notice: string; alertNotice: string }): boolean =>
+  s.notice !== "" && s.notice === s.alertNotice;
+
 export const NO_HISTORY: History = { undo: [], redo: [] };
 export const HISTORY_LIMIT = 100;
 

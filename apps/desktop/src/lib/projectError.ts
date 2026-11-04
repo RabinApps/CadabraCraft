@@ -84,25 +84,25 @@ export function projectErrorMessage(e: ProjectError): string {
     case "unsafe_path":
       return t`Unsafe project path: ${e.path}`;
     case "path_escape":
-      return t`${e.path} leaves the project folder through a symbolic link`;
+      return t`${e.path} leaves the project folder through a symbolic link. Move the real file into the book's folder and try again.`;
     case "not_found":
-      return t`${e.path} does not exist`;
+      return t`${e.path} does not exist. Choose another file, or restore it from History if it was removed.`;
     case "already_exists":
       return t`A project already exists in this folder`;
     case "not_a_project":
       return t`${e.path} is not a CadabraCraft project folder`;
     case "not_utf8":
-      return t`${e.path} is not valid UTF-8 text`;
+      return t`${e.path} is not valid UTF-8 text. Choose another file, or save it as UTF-8 and try again.`;
     case "icloud_pending":
       return t`${e.path} is still downloading from iCloud; try again in a moment`;
     case "too_large":
-      return t`${e.path} is larger than ${e.max_mb} MB`;
+      return t`${e.path} is larger than ${e.max_mb} MB. Choose a smaller file.`;
     case "not_a_file":
       return t`${e.path} is not a file`;
     case "unsupported_image":
       return t`Unsupported image type: ${e.name}`;
     case "invalid_image":
-      return t`${e.name} is not a valid ${e.ext} image`;
+      return t`${e.name} is not a valid ${e.ext} image. Choose another image file.`;
     case "unsupported_document":
       return t`${e.name} is not a .docx, .md, .markdown, .html, .htm or .txt file`;
     case "not_image_asset":
@@ -128,19 +128,19 @@ export function projectErrorMessage(e: ProjectError): string {
     case "not_picked":
       return t`${e.name} was not chosen in a file or folder dialog`;
     case "permission_denied":
-      return t`CadabraCraft does not have permission to use ${e.path}`;
+      return t`CadabraCraft does not have permission to use ${e.path}. Check the file is not open elsewhere and that your account can change it, then try again.`;
     case "disk_full":
-      return t`There is no space left on the disk to write ${e.path}`;
+      return t`There is no space left on the disk to write ${e.path}. Free some space and try again.`;
     case "image_dimensions":
       return t`${e.name} is larger than ${e.max_megapixels} megapixels`;
     case "invalid_manifest":
-      return t`The book's cadabra.json is not a JSON object`;
+      return t`The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups.`;
     case "watch_failed":
-      return t`Cannot watch ${e.path} for changes made outside the app`;
+      return t`Cannot watch ${e.path} for changes made outside the app. Saving still works; reopen the book to try again.`;
     case "import_docx":
       return describeImportCode(e.code);
     case "io":
-      return e.message;
+      return t`${e.message}. Try again, and check the file is not open in another program.`;
   }
 }
 
@@ -152,6 +152,16 @@ export function isMissingFolder(e: unknown): boolean {
   if (isProjectError(e)) return e.kind === "not_found" || e.kind === "not_a_project";
   return e instanceof Error && e.message === noManifestMessage();
 }
+
+/** `errText` without its closing full stop, for putting inside a longer sentence. */
+export const whyText = (e: unknown): string => errText(e).replace(/[.\s]+$/, "");
+
+/**
+ * Only the cause, for a sentence that gives its own next step: the "Try again, and check the file is not open elsewhere" that
+ * an unexplained OS error gets on its own is left off, so the step is not said twice.
+ */
+export const causeText = (e: unknown): string =>
+  isProjectError(e) && e.kind === "io" ? e.message.replace(/[.\s]+$/, "") : whyText(e);
 
 /** Message of anything a bridge call can reject with: a Rust `ProjectError`, any `{ message }` object, an Error or a string. */
 export function errText(e: unknown): string {

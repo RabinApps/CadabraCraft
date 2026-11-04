@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cx } from "./cx";
 import { mirrorClass } from "./directional";
+import { Tooltip } from "./Tooltip";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -60,6 +61,8 @@ interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
   icon: LucideIcon;
   /** Required: becomes the accessible name and tooltip. */
   label: string;
+  /** Shown after the label in the tooltip (a keyboard shortcut); also set `aria-keyshortcuts`. */
+  hint?: string;
   active?: boolean;
 }
 
@@ -67,26 +70,28 @@ interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
 export function IconButton({
   icon: Icon,
   label,
+  hint,
   active,
   className,
   type = "button",
   ...rest
 }: IconButtonProps) {
   return (
-    <button
-      type={type}
-      aria-label={label}
-      title={label}
-      aria-pressed={active}
-      className={cx(
-        "inline-flex size-11 items-center justify-center rounded-md transition-colors disabled:pointer-events-none disabled:opacity-40 md:size-9",
-        active ? "bg-accent-soft text-accent" : "text-ink hover:bg-accent-soft",
-        focus,
-        className,
-      )}
-      {...rest}
-    >
-      <Icon size={18} aria-hidden className={mirrorClass(Icon)} />
-    </button>
+    <Tooltip content={hint ? `${label} (${hint})` : label}>
+      <button
+        type={type}
+        aria-label={label}
+        aria-pressed={active}
+        className={cx(
+          "inline-flex size-11 items-center justify-center rounded-md transition-colors disabled:pointer-events-none disabled:opacity-40 md:size-9",
+          active ? "bg-accent-soft text-accent" : "text-ink hover:bg-accent-soft",
+          focus,
+          className,
+        )}
+        {...rest}
+      >
+        <Icon size={18} aria-hidden className={mirrorClass(Icon)} />
+      </button>
+    </Tooltip>
   );
 }

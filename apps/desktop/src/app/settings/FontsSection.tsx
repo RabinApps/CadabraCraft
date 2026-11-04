@@ -24,6 +24,8 @@ export function FontsSection({ title }: { title: string }) {
   const { fonts, refresh } = useFontList();
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The control whose action failed, so the message is read with it.
+  const [failedAt, setFailedAt] = useState<"import" | "delete" | null>(null);
   const [busy, setBusy] = useState(false);
   const badge: Record<FontSource, string> = {
     bundled: t`Installed`,
@@ -48,7 +50,8 @@ export function FontsSection({ title }: { title: string }) {
       await bridge.fontsDelete(f.id);
       forgetLoadedFonts();
     } catch (e) {
-      setError(describeFontError(e).message);
+      setFailedAt("delete");
+      setError(t`${f.family} was not deleted. ${describeFontError(e).message}`);
     }
     await refresh();
   };
@@ -59,6 +62,7 @@ export function FontsSection({ title }: { title: string }) {
       const path = await bridge.pickFontFile();
       if (path) await bridge.fontsImport(path);
     } catch (e) {
+      setFailedAt("import");
       setError(describeFontError(e).message);
     } finally {
       setBusy(false);
@@ -109,11 +113,15 @@ export function FontsSection({ title }: { title: string }) {
         title={t`Import a font file`}
         hint={t`.ttf and .otf files. A copy is kept in the app, never in your book.`}
         control={
-          <Button disabled={busy} onClick={() => void importFile()}>{t`Choose file…`}</Button>
+          <Button
+            disabled={busy}
+            aria-describedby={error && failedAt === "import" ? "fonts-error" : undefined}
+            onClick={() => void importFile()}
+          >{t`Choose file…`}</Button>
         }
       />
       {error && (
-        <p role="alert" className="px-4 py-3 text-sm text-danger">
+        <p id="fonts-error" role="alert" className="px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}

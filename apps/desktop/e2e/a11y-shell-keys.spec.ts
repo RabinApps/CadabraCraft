@@ -77,6 +77,10 @@ const OWNERS: Record<"Tab" | "Arrow" | "Escape", { selector: string; why: string
     },
     { selector: "[role=menu]", why: "closes the menu" },
     {
+      selector: "body:has([role=tooltip])",
+      why: "an open tooltip closes on Escape before anything else does (1.4.13 dismissible)",
+    },
+    {
       selector: "input, textarea, [role=combobox], [role=search], .ProseMirror",
       why: "cancels an inline edit, closes a suggestion list or the find bar, or clears a field",
     },

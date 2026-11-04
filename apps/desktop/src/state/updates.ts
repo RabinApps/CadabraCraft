@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { bridge } from "../lib/bridge";
 import { useProject } from "./project/index";
 import { readStored, writeStored } from "../lib/persisted";
-import { errText } from "../lib/projectError";
+import { errText, whyText } from "../lib/projectError";
 
 const KEY = "cadabracraft.updates";
 
@@ -19,7 +19,8 @@ export type UpdateStatus =
   | { kind: "installing" }
   /** This copy is updated by its package manager (a Linux package other than an AppImage). */
   | { kind: "unsupported" }
-  | { kind: "error"; message: string };
+  /** `update` is set when an install failed, so Install can be tried again without checking first. */
+  | { kind: "error"; message: string; update?: Update };
 
 interface Updates {
   checkOnLaunch: boolean;
@@ -66,16 +67,22 @@ export const useUpdates = create<Updates>((set, get) => ({
   later: () => set({ dialogOpen: false }),
   install: async () => {
     const { status } = get();
-    if (status.kind !== "available") return;
+    const update =
+      status.kind === "available"
+        ? status.update
+        : status.kind === "error"
+          ? status.update
+          : undefined;
+    if (!update) return;
     set({ status: { kind: "installing" } });
     try {
       // The relaunch ends the process without a close request, so unsaved typing is written first; a failure aborts.
       await useProject.getState().actions.flush();
-      await status.update.downloadAndInstall();
+      await update.downloadAndInstall();
       await useProject.getState().actions.flush();
       await bridge.relaunch();
     } catch (e) {
-      set({ status: { kind: "error", message: errText(e) }, dialogOpen: true });
+      set({ status: { kind: "error", message: whyText(e), update }, dialogOpen: true });
     }
   },
 }));

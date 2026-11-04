@@ -48,7 +48,7 @@ Click a chapter in the list on the left to edit it. Changes are saved automatica
 The toolbar and the **Format** and **Insert** menus offer:
 
 - Bold, italic, underline, small caps, strikethrough, code, superscript and subscript
-- Language of selection (**Format** menu or the command palette): marks a passage in another language than the book's, such as a French phrase in an English book, so screen readers pronounce it right and the exports carry it. Pick a language or type any tag such as `fr-CA`; **Clear language** removes it. Markdown carries it only when the HTML marks option is on; the audiobook reads every passage with the edition's voice
+- Language of selection (the **More formatting** button at the end of the toolbar, the **Format** menu or the command palette): marks a passage in another language than the book's, such as a French phrase in an English book, so screen readers pronounce it right and the exports carry it. Pick a language or type any tag such as `fr-CA`; **Clear language** removes it. Markdown carries it only when the HTML marks option is on; the audiobook reads every passage with the edition's voice
 - Heading 1, 2 and 3
 - Block quote, bulleted list and numbered list
 - Links (http, https or mailto addresses only)

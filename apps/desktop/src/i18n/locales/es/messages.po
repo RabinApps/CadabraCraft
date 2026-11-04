@@ -28,6 +28,10 @@ msgstr "“{page}” usa un estilo de texto que la exportación a EPUB no puede 
 msgid "“{page}”: {detail}"
 msgstr "“{page}”: {detail}"
 
+#: src/app/toc/TocRow.tsx
+msgid "(estimated)"
+msgstr "(estimada)"
+
 #. placeholder {0}: r.stats.chapters
 #. placeholder {1}: r.stats.words
 #: src/app/home/Dashboard.tsx
@@ -110,9 +114,11 @@ msgstr "{0} cambió fuera de la aplicación; la otra versión se conservó como 
 #. placeholder {1}: e.detail.trim()
 #: src/lib/audioErrors.ts
 msgid "{0} could not be written:\n"
-"{1}"
+"{1}\n"
+"Check the folder can be written to and try again"
 msgstr "No se pudo escribir {0}:\n"
-"{1}"
+"{1}\n"
+"Comprueba que se pueda escribir en la carpeta e inténtalo de nuevo."
 
 #. placeholder {0}: packName(p)
 #: src/app/settings/AudioSection.tsx
@@ -121,8 +127,8 @@ msgstr "{0} eliminado de este ordenador."
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
-msgid "{0} does not exist"
-msgstr "{0} no existe"
+msgid "{0} does not exist. Choose another file, or restore it from History if it was removed."
+msgstr "{0} no existe. Elige otro archivo o restáuralo desde el Historial si se eliminó."
 
 #. placeholder {0}: job.files
 #. placeholder {1}: job.dir
@@ -138,8 +144,8 @@ msgstr "{0} es un tipo de archivo que no se puede añadir como referencia"
 #. placeholder {0}: e.path
 #. placeholder {1}: e.max_mb
 #: src/lib/projectError.ts
-msgid "{0} is larger than {1} MB"
-msgstr "{0} pesa más de {1} MB"
+msgid "{0} is larger than {1} MB. Choose a smaller file."
+msgstr "{0} supera {1} MB. Elige un archivo más pequeño."
 
 #. placeholder {0}: e.name
 #. placeholder {1}: e.max_megapixels
@@ -171,13 +177,13 @@ msgstr "{0} no es un archivo {1} válido"
 #. placeholder {0}: e.name
 #. placeholder {1}: e.ext
 #: src/lib/projectError.ts
-msgid "{0} is not a valid {1} image"
-msgstr "{0} no es una imagen {1} válida"
+msgid "{0} is not a valid {1} image. Choose another image file."
+msgstr "{0} no es una imagen {1} válida. Elige otro archivo de imagen."
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
-msgid "{0} is not valid UTF-8 text"
-msgstr "{0} no es texto UTF-8 válido"
+msgid "{0} is not valid UTF-8 text. Choose another file, or save it as UTF-8 and try again."
+msgstr "{0} no es texto UTF-8 válido. Elige otro archivo o guárdalo como UTF-8 e inténtalo de nuevo."
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
@@ -186,8 +192,8 @@ msgstr "{0} todavía se está descargando de iCloud; inténtalo de nuevo en un m
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
-msgid "{0} leaves the project folder through a symbolic link"
-msgstr "{0} sale de la carpeta del proyecto mediante un enlace simbólico"
+msgid "{0} leaves the project folder through a symbolic link. Move the real file into the book's folder and try again."
+msgstr "{0} sale de la carpeta del proyecto mediante un enlace simbólico. Mueve el archivo real a la carpeta del libro e inténtalo de nuevo."
 
 #. placeholder {0}: written.chapters
 #. placeholder {1}: written.images
@@ -219,11 +225,20 @@ msgstr "{0} de {1} MB"
 msgid "{0} was not chosen in a file or folder dialog"
 msgstr "{0} no se eligió en un cuadro de diálogo de archivos o carpetas"
 
+#. placeholder {0}: f.family
+#. placeholder {0}: packName(p)
+#. placeholder {1}: describeAudioError(e).message
+#. placeholder {1}: describeFontError(e).message
+#: src/app/settings/AudioSection.tsx
+#: src/app/settings/FontsSection.tsx
+msgid "{0} was not deleted. {1}"
+msgstr "{0} no se eliminó. {1}"
+
 #. placeholder {0}: ref.title
-#. placeholder {1}: errText(e)
+#. placeholder {1}: whyText(e)
 #: src/state/project/references.ts
-msgid "{0} was removed, but its file could not be moved to the trash: {1}"
-msgstr "Se eliminó {0}, pero no se pudo mover su archivo a la papelera: {1}"
+msgid "{0} was removed, but its file could not be moved to the trash: {1}. You can delete the file from the references folder yourself."
+msgstr "{0} se quitó, pero su archivo no se pudo mover a la papelera: {1}. Puedes eliminar el archivo tú mismo desde la carpeta de referencias."
 
 #. placeholder {0}: ctx.titleIn(entry, manifest, language)
 #: src/state/project/project.ts
@@ -236,6 +251,23 @@ msgstr "{0} se actualizó desde fuera de la aplicación"
 #: src/app/export/AudioExport.tsx
 msgid "{0}: {1} of {2} chapters"
 msgstr "{0}: {1} de {2} capítulos"
+
+#. placeholder {0}: errText(e)
+#: src/lib/audioErrors.ts
+msgid "{0}. Try again"
+msgstr "{0}. Inténtalo de nuevo"
+
+#. placeholder {0}: e.message
+#: src/lib/projectError.ts
+msgid "{0}. Try again, and check the file is not open in another program."
+msgstr "{0}. Inténtalo de nuevo y comprueba que el archivo no esté abierto en otro programa."
+
+#. placeholder {0}: errText(e)
+#. placeholder {0}: r.message
+#: src/lib/fontErrors.ts
+#: src/lib/pdfErrors.ts
+msgid "{0}. Try again."
+msgstr "{0}. Inténtalo de nuevo."
 
 #: src/app/shell/StatusBar.tsx
 msgid "{bookWords} in the book"
@@ -327,8 +359,8 @@ msgid "{skipped, plural, one {# page is no longer in the book and was left out} 
 msgstr "{skipped, plural, one {# página ya no está en el libro y se omitió} other {# páginas ya no están en el libro y se omitieron}}"
 
 #: src/state/project/history.ts
-msgid "{stuck, plural, one {# page could not be put back and is now in the other state} other {# pages could not be put back and are now in the other state}}"
-msgstr "{stuck, plural, one {No se pudo restituir # página y ahora está en el otro estado} other {No se pudieron restituir # páginas y ahora están en el otro estado}}"
+msgid "{stuck, plural, one {# page could not be put back and is now in the other state.} other {# pages could not be put back and are now in the other state.}}"
+msgstr "{stuck, plural, one {No se pudo restaurar # página y ahora está en el otro estado.} other {No se pudieron restaurar # páginas y ahora están en el otro estado.}}"
 
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "{styleCount} styles · {size} MB"
@@ -390,9 +422,13 @@ msgstr "0,125 in"
 msgid "A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage."
 msgstr "Una etiqueta BCP 47 como fr, fr-CA o zh-Hans. Los lectores de pantalla y las exportaciones la usan para pronunciar y separar en sílabas el pasaje."
 
+#: src/state/project/project.ts
+msgid "A change made outside the app could not be read: {why}. The version you have open is kept; saving keeps a copy of the changed file. You can also restore an earlier version from History."
+msgstr "No se pudo leer un cambio hecho fuera de la aplicación: {why}. Se conserva la versión que tienes abierta; al guardar se guardará una copia del archivo cambiado. También puedes restaurar una versión anterior desde el Historial."
+
 #: src/state/project/assets.ts
-msgid "A cover must be a PNG, JPEG or WebP image."
-msgstr "Una portada debe ser una imagen PNG, JPEG o WebP."
+msgid "A cover must be a PNG, JPEG or WebP image. Choose another file."
+msgstr "Una portada debe ser una imagen PNG, JPEG o WebP. Elige otro archivo."
 
 #: src/state/project/voices.ts
 msgid "A download is already running"
@@ -801,13 +837,13 @@ msgid "cadabra.json changed outside the app; your previous copy was kept as {0}"
 msgstr "cadabra.json cambió fuera de la aplicación; tu copia anterior se conservó como {0}"
 
 #: src/state/project/project.ts
-msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version"
-msgstr "cadabra.json se cambió fuera de la aplicación y no se pudo leer; al guardar se conservará una copia de esa versión"
+msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version. Restore the book's list from History if chapters are missing."
+msgstr "cadabra.json se cambió fuera de la aplicación y no se pudo leer; al guardar se conservará una copia de esa versión. Restaura la lista del libro desde el Historial si faltan capítulos."
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
-msgid "CadabraCraft does not have permission to use {0}"
-msgstr "CadabraCraft no tiene permiso para usar {0}"
+msgid "CadabraCraft does not have permission to use {0}. Check the file is not open elsewhere and that your account can change it, then try again."
+msgstr "CadabraCraft no tiene permiso para usar {0}. Comprueba que el archivo no esté abierto en otro sitio y que tu cuenta pueda modificarlo, e inténtalo de nuevo."
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
@@ -859,8 +895,8 @@ msgstr "No se puede restaurar {0}"
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
-msgid "Cannot watch {0} for changes made outside the app"
-msgstr "No se pueden vigilar los cambios que se hagan fuera de la aplicación en {0}"
+msgid "Cannot watch {0} for changes made outside the app. Saving still works; reopen the book to try again."
+msgstr "No se pueden vigilar los cambios en {0} hechos fuera de la aplicación. Guardar sigue funcionando; vuelve a abrir el libro para intentarlo de nuevo."
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Caption"
@@ -1183,28 +1219,34 @@ msgstr "Copiar informe"
 msgid "Copyright page"
 msgstr "Página de derechos de autor"
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
-msgid "Could not add {name}: {0}"
-msgstr "No se pudo añadir {name}: {0}"
+msgid "Could not add {name}: {0}. Choose another file and try again."
+msgstr "No se pudo añadir {name}: {0}. Elige otro archivo e inténtalo de nuevo."
 
-#. placeholder {0}: errText(e)
 #: src/state/project/assets.ts
-msgid "Could not add the cover: {0}"
-msgstr "No se pudo añadir la portada: {0}"
+msgid "Could not add the cover: {why}. Choose another image and try again."
+msgstr "No se pudo añadir la portada: {why}. Elige otra imagen e inténtalo de nuevo."
 
-#. placeholder {0}: errText(e)
 #: src/state/project/assets.ts
-msgid "Could not add the image: {0}"
-msgstr "No se pudo añadir la imagen: {0}"
+msgid "Could not add the image: {why}. Choose another image and try again."
+msgstr "No se pudo añadir la imagen: {why}. Elige otra imagen e inténtalo de nuevo."
+
+#: src/app/dialogs/AddLanguageDialog.tsx
+msgid "Could not add the language: {why}. Choose another language, or try again."
+msgstr "No se pudo añadir el idioma: {why}. Elige otro idioma o inténtalo de nuevo."
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not be read"
 msgstr "No se pudo leer"
 
 #: src/state/project/toc.ts
-msgid "Could not change the contents page: {why}"
-msgstr "No se pudo cambiar la página de contenido: {why}"
+msgid "Could not change the contents page: {why}. Try again."
+msgstr "No se pudo cambiar la página de contenidos: {why}. Inténtalo de nuevo."
+
+#: src/app/home/Home.tsx
+msgid "Could not choose that folder: {why}. Try again."
+msgstr "No se pudo elegir esa carpeta: {why}. Inténtalo de nuevo."
 
 #: src/editor/Editor.tsx
 msgid "Could not convert the HTML in the selection"
@@ -1222,87 +1264,86 @@ msgstr "No se pudo eliminar la instantánea ({reason}). Sigue en la lista. Inté
 msgid "Could not draw the preview"
 msgstr "No se pudo dibujar la vista previa"
 
-#. placeholder {0}: errText(err)
+#. placeholder {0}: causeText(err)
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Could not import ({0}). Your original file was not changed. Try again, or go back and choose a different file."
 msgstr "No se pudo importar ({0}). Tu archivo original no se modificó. Inténtalo de nuevo o vuelve atrás y elige otro archivo."
 
 #: src/app/dialogs/UpdateDialog.tsx
-msgid "Could not install the update: {error}"
-msgstr "No se pudo instalar la actualización: {error}"
+msgid "Could not install the update: {error}. Nothing was changed. Check your connection and choose Try again."
+msgstr "No se pudo instalar la actualización: {error}. No se cambió nada. Comprueba tu conexión y elige «Intentar de nuevo»."
 
 #: src/app/settings/Settings.tsx
 msgid "Could not load {name}. The language stays as it was. Choose it again, or pick another language."
 msgstr "No se pudo cargar {name}. El idioma queda como estaba. Elígelo de nuevo o elige otro idioma."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: causeText(e)
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not load the earlier versions ({0}). Close this dialog and open History again to retry."
 msgstr "No se pudieron cargar las versiones anteriores ({0}). Cierra este diálogo y abre el Historial de nuevo para reintentar."
 
-#. placeholder {0}: errText(e)
 #: src/app/dialogs/SponsorDialog.tsx
-msgid "Could not open {SPONSOR_URL}: {0}"
-msgstr "No se pudo abrir {SPONSOR_URL}: {0}"
+msgid "Could not open {SPONSOR_URL}: {why}. Copy the address into your browser instead."
+msgstr "No se pudo abrir {SPONSOR_URL}: {why}. Copia la dirección en tu navegador."
 
 #: src/app/references/Previews.tsx
 msgid "Could not open {title}: {error}"
 msgstr "No se pudo abrir {title}: {error}"
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: causeText(e)
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Could not open the chooser ({0}). Try again."
 msgstr "No se pudo abrir el selector ({0}). Inténtalo de nuevo."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: whyText(e)
 #: src/app/home/Home.tsx
-msgid "Could not open this book: {0}"
-msgstr "No se pudo abrir este libro: {0}"
+msgid "Could not open this book: {0}. Check the folder is not open elsewhere, or remove it from the list and open it again."
+msgstr "No se pudo abrir este libro: {0}. Comprueba que la carpeta no esté abierta en otro sitio, o quítala de la lista y ábrela de nuevo."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: causeText(e)
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
 msgstr "No se pudieron leer las instantáneas del libro ({0}). Cierra este diálogo y abre el Historial de nuevo para reintentar."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: causeText(e)
 #: src/app/shell/TrashDialog.tsx
 msgid "Could not read the trash ({0}). Close this dialog and open the trash again to retry."
 msgstr "No se pudo leer la papelera ({0}). Cierra este diálogo y abre la papelera de nuevo para reintentar."
 
 #: src/app/dialogs/LicensesDialog.tsx
-msgid "Could not read this document: {error}"
-msgstr "No se pudo leer este documento: {error}"
+msgid "Could not read this document: {error}. Try again, or choose another document."
+msgstr "No se pudo leer este documento: {error}. Inténtalo de nuevo o elige otro documento."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: causeText(e)
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Could not read this file ({0}). Choose a different file (Word .docx, Markdown or HTML) and try again."
 msgstr "No se pudo leer este archivo ({0}). Elige otro archivo (Word .docx, Markdown o HTML) e inténtalo de nuevo."
 
 #: src/state/project/history.ts
-msgid "Could not redo: {why}"
-msgstr "No se pudo rehacer: {why}"
+msgid "Could not redo: {why}. Try again, or restore the page from History."
+msgstr "No se pudo rehacer: {why}. Inténtalo de nuevo o restaura la página desde el Historial."
 
 #. placeholder {0}: ref.title
-#. placeholder {1}: errText(e)
+#. placeholder {1}: whyText(e)
 #: src/state/project/references.ts
-msgid "Could not remove {0}: {1}"
-msgstr "No se pudo eliminar {0}: {1}"
+msgid "Could not remove {0}: {1}. Try again."
+msgstr "No se pudo quitar {0}: {1}. Inténtalo de nuevo."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
-msgid "Could not reorder the references: {0}"
-msgstr "No se pudieron reordenar las referencias: {0}"
+msgid "Could not reorder the references: {0}. Try again."
+msgstr "No se pudieron reordenar las referencias: {0}. Inténtalo de nuevo."
 
 #. placeholder {0}: x.title
-#. placeholder {1}: errText(e)
+#. placeholder {1}: causeText(e)
 #: src/app/shell/TrashDialog.tsx
 msgid "Could not restore {0} ({1}). It is still in the trash. Try again, or restore another page."
 msgstr "No se pudo restaurar {0} ({1}). Sigue en la papelera. Inténtalo de nuevo o restaura otra página."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
-msgid "Could not restore {name}: {0}"
-msgstr "No se pudo restaurar {name}: {0}"
+msgid "Could not restore {name}: {0}. Try again, or add the file again."
+msgstr "No se pudo restaurar {name}: {0}. Inténtalo de nuevo o vuelve a añadir el archivo."
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Could not restore the book ({reason}). Try again, or pick another snapshot."
@@ -1312,20 +1353,19 @@ msgstr "No se pudo restaurar el libro ({reason}). Inténtalo de nuevo o elige ot
 msgid "Could not restore this page ({reason}). Your current text was not changed. Try again, or pick another snapshot."
 msgstr "No se pudo restaurar esta página ({reason}). Tu texto actual no se modificó. Inténtalo de nuevo o elige otra instantánea."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: causeText(e)
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
 msgstr "No se pudo restaurar esta versión ({0}). Tu texto actual no se modificó. Inténtalo de nuevo o elige otra versión."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
-msgid "Could not save the reference: {0}"
-msgstr "No se pudo guardar la referencia: {0}"
+msgid "Could not save the reference: {0}. Try again."
+msgstr "No se pudo guardar la referencia: {0}. Inténtalo de nuevo."
 
-#. placeholder {0}: errText(e)
 #: src/state/project/pages.ts
-msgid "Could not save: {0}"
-msgstr "No se pudo guardar: {0}"
+msgid "Could not save: {why}. Your text is still in the editor and CadabraCraft will try again. Free some space or check the folder if it keeps failing."
+msgstr "No se pudo guardar: {why}. Tu texto sigue en el editor y CadabraCraft lo intentará de nuevo. Libera espacio o revisa la carpeta si sigue fallando."
 
 #: src/app/export/TypstSpread.tsx
 #: src/app/toc/TocPreview.tsx
@@ -1336,20 +1376,24 @@ msgstr "No se pudo mostrar la vista previa: {error}"
 msgid "Could not show this PDF: {error}"
 msgstr "No se pudo mostrar este PDF: {error}"
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: causeText(e)
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Could not split the file at that heading level ({0}). Pick another heading level, or go back and choose a different file."
 msgstr "No se pudo dividir el archivo en ese nivel de título ({0}). Elige otro nivel de título o vuelve atrás y elige otro archivo."
+
+#: src/app/shell/EditionSwitcher.tsx
+msgid "Could not switch to that edition: {why}. Try again, or choose another edition."
+msgstr "No se pudo cambiar a esa edición: {why}. Inténtalo de nuevo o elige otra edición."
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Could not take the snapshot ({reason}). Your name is kept. Try again, or free some space and retry."
 msgstr "No se pudo crear la instantánea ({reason}). Se conserva tu nombre. Inténtalo de nuevo o libera espacio y reintenta."
 
 #: src/state/project/history.ts
-msgid "Could not undo: {why}"
-msgstr "No se pudo deshacer: {why}"
+msgid "Could not undo: {why}. Try again, or restore the page from History."
+msgstr "No se pudo deshacer: {why}. Inténtalo de nuevo o restaura la página desde el Historial."
 
-#. placeholder {0}: errText(e)
+#. placeholder {0}: causeText(e)
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "Could not use the newer text ({0}). Your saved text was not changed. Try again, or choose Keep saved text."
 msgstr "No se pudo usar el texto más reciente ({0}). Tu texto guardado no se modificó. Inténtalo de nuevo o elige Conservar el texto guardado."
@@ -1480,6 +1524,10 @@ msgstr "¿Eliminar esta instantánea?"
 msgid "Delete voices"
 msgstr "Eliminar voces"
 
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Deleted:"
+msgstr "Eliminado:"
+
 #: src/editor/useImageDialog.ts
 msgid "Describe the image, or tick \"This image is decorative\"."
 msgstr "Describe la imagen o marca “Esta imagen es decorativa”."
@@ -1527,6 +1575,10 @@ msgstr "No volver a mostrar"
 #: src/app/export/AudioFooter.tsx
 msgid "Done"
 msgstr "Hecho"
+
+#: src/ui/Notice.tsx
+msgid "Done:"
+msgstr "Hecho:"
 
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Download"
@@ -1583,9 +1635,7 @@ msgstr "Descargando… {0} MB de {1} MB"
 msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
 msgstr "Arrastra para mover o pulsa las flechas arriba y abajo. Esc cancela el arrastre."
 
-#: src/app/dialogs/ImportChapterList.tsx
-#: src/app/references/ReferenceRow.tsx
-#: src/app/toc/TocRow.tsx
+#: src/ui/GripHint.tsx
 msgid "Drag, or press the up and down arrow keys"
 msgstr "Arrastra, o pulsa las flechas arriba y abajo"
 
@@ -1687,6 +1737,11 @@ msgstr "EPUB 3"
 msgid "EPUB…"
 msgstr "EPUB…"
 
+#: src/app/export/CheckList.tsx
+#: src/ui/Notice.tsx
+msgid "Error:"
+msgstr "Error:"
+
 #: src/lib/exportChecks.ts
 msgid "Estimated {estimatedPages} pages: KDP paperbacks allow at most {KDP_MAX_PAGES}. This is an estimate."
 msgstr "Se estiman {estimatedPages} páginas: los libros de tapa blanda de KDP admiten como máximo {KDP_MAX_PAGES}. Es una estimación."
@@ -1694,10 +1749,6 @@ msgstr "Se estiman {estimatedPages} páginas: los libros de tapa blanda de KDP a
 #: src/lib/exportChecks.ts
 msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
 msgstr "Se estiman {estimatedPages} páginas: los libros de tapa blanda de KDP necesitan al menos {KDP_MIN_PAGES}. Es una estimación."
-
-#: src/app/toc/TocRow.tsx
-msgid "Estimated page"
-msgstr "Página estimada"
 
 #. placeholder {0}: chosen?.name ?? ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
@@ -1960,6 +2011,7 @@ msgid "Give the book an author."
 msgstr "Ponle un autor al libro."
 
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -1967,6 +2019,7 @@ msgid "Heading 1"
 msgstr "Título 1"
 
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -1974,6 +2027,7 @@ msgid "Heading 2"
 msgstr "Título 2"
 
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -2070,14 +2124,14 @@ msgstr "Imagen"
 
 #. placeholder {0}: a.sourcePath
 #: src/lib/importBook.ts
-msgid "Image {0} could not be imported: {why}"
-msgstr "No se pudo importar la imagen {0}: {why}"
+msgid "Image {0} could not be imported: {why}. Add the picture to the page yourself after the import."
+msgstr "No se pudo importar la imagen {0}: {why}. Añade la imagen a la página tú mismo después de importar."
 
 #. placeholder {0}: img.name
-#. placeholder {1}: errText(e)
+#. placeholder {1}: whyText(e)
 #: src/lib/importBook.ts
-msgid "Image {0} could not be stored: {1}"
-msgstr "No se pudo guardar la imagen {0}: {1}"
+msgid "Image {0} could not be stored: {1}. Add the picture to the page yourself after the import."
+msgstr "No se pudo guardar la imagen {0}: {1}. Añade la imagen a la página tú mismo después de importar."
 
 #: src/app/export/AltTextCheck.tsx
 msgid "Image checks"
@@ -2195,6 +2249,10 @@ msgstr "Insertar"
 #: src/editor/TableCommands.tsx
 msgid "Insert table"
 msgstr "Insertar tabla"
+
+#: src/app/dialogs/HistoryDialog.tsx
+msgid "Inserted:"
+msgstr "Insertado:"
 
 #: src/lib/exportChecks.ts
 msgid "Inside margin {inside} in is below KDP's {gutter} in minimum for about {estimatedPages} pages (estimate)."
@@ -2529,8 +2587,8 @@ msgstr "Falta el archivo de capítulo {file}"
 
 #. placeholder {0}: e.srcs.join(", ")
 #: src/lib/pdfErrors.ts
-msgid "Missing image file {0}"
-msgstr "Falta el archivo de imagen {0}"
+msgid "Missing image file {0}. Add the image again or remove it from the page, then export again."
+msgstr "Falta el archivo de imagen {0}. Vuelve a añadir la imagen o quítala de la página y exporta de nuevo."
 
 #: src/state/project/context.ts
 msgid "Missing image file {src}"
@@ -2543,6 +2601,10 @@ msgstr "Luna"
 #: src/app/shell/AppHeader.tsx
 msgid "More actions"
 msgstr "Más acciones"
+
+#: src/editor/MoreFormatting.tsx
+msgid "More formatting"
+msgstr "Más formato"
 
 #: src/app/export/AudioExport.tsx
 msgid "Most natural, slower."
@@ -2816,6 +2878,10 @@ msgstr "Sin traducir todavía en {language}: {names}. Tradúcelos u omítelos."
 msgid "Note"
 msgstr "Nota"
 
+#: src/ui/Notice.tsx
+msgid "Note:"
+msgstr "Nota:"
+
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Nothing"
 msgstr "Nada"
@@ -3020,6 +3086,7 @@ msgstr "Zoom de página"
 
 #: src/app/export/PrintPreview.tsx
 #: src/app/toc/TocPreview.tsx
+#: src/editor/ReadingBook.tsx
 msgid "Pages"
 msgstr "Páginas"
 
@@ -3817,6 +3884,10 @@ msgstr "No se pudo conservar parte del contenido o del formato. Revísalo antes 
 msgid "Something went wrong"
 msgstr "Algo salió mal"
 
+#: src/state/attempt.ts
+msgid "Something went wrong: {why}. Try again, or restart CadabraCraft if it keeps happening."
+msgstr "Algo salió mal: {why}. Inténtalo de nuevo o reinicia CadabraCraft si sigue pasando."
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Sort references"
 msgstr "Ordenar referencias"
@@ -4001,6 +4072,10 @@ msgstr "Tamaño del texto"
 msgid "That address can't be used as a link."
 msgstr "Esa dirección no se puede usar como enlace."
 
+#: src/state/attempt.ts
+msgid "That did not work: {why}. Try again."
+msgstr "Eso no funcionó: {why}. Inténtalo de nuevo."
+
 #: src/lib/fontErrors.ts
 msgid "That file is not a usable font. Choose a .ttf or .otf file."
 msgstr "Ese archivo no es una fuente utilizable. Elige un archivo .ttf o .otf."
@@ -4024,6 +4099,10 @@ msgstr "Los formatos de audio marcados al abrir la exportación."
 #: src/lib/audioErrors.ts
 msgid "The audiobook was cancelled. Chapters that were finished are kept."
 msgstr "Se canceló el audiolibro. Se conservan los capítulos que ya estaban terminados."
+
+#: src/app/export/Templates.tsx
+msgid "The big first letter setting could not be saved: {why}. Try again."
+msgstr "No se pudo guardar el ajuste de la letra capital: {why}. Inténtalo de nuevo."
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "The blurb shown in stores. Plain text."
@@ -4054,8 +4133,8 @@ msgid "The book uses a text style the EPUB export cannot write: {kind} (at {plac
 msgstr "El libro usa un estilo de texto que la exportación a EPUB no puede escribir: {kind} (en {place}). La exportación se detuvo para no perder nada."
 
 #: src/lib/projectError.ts
-msgid "The book's cadabra.json is not a JSON object"
-msgstr "El cadabra.json del libro no es un objeto JSON"
+msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
+msgstr "El cadabra.json del libro no es un objeto JSON. Restáuralo desde el Historial o desde una copia en .cadabra/backups."
 
 #: src/state/project/contentsPreview.ts
 msgid "The contents page is not in the typeset book."
@@ -4072,6 +4151,10 @@ msgstr "No se pudo leer la imagen de portada."
 #: src/app/export/PrintPreview.tsx
 msgid "The cover is the first page, with a blank page behind it, unless you turn it off in the export dialog."
 msgstr "La portada es la primera página, con una página en blanco detrás, salvo que la desactives en el cuadro de exportación."
+
+#: src/app/dialogs/BookDetailsDialog.tsx
+msgid "The details could not be saved: {why}. Try again; nothing was changed."
+msgstr "No se pudieron guardar los detalles: {why}. Inténtalo de nuevo; no se cambió nada."
 
 #. placeholder {0}: e.detail
 #: src/lib/audioErrors.ts
@@ -4168,6 +4251,10 @@ msgstr "La instantánea no tiene nombre. Escribe uno, por ejemplo “Antes de la
 msgid "The system or the text keeps this key. Press another one."
 msgstr "El sistema o el texto se queda con esta tecla. Pulsa otra."
 
+#: src/app/export/Templates.tsx
+msgid "The template could not be applied: {why}. Try again, or choose another template."
+msgstr "No se pudo aplicar la plantilla: {why}. Inténtalo de nuevo o elige otra plantilla."
+
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so the bundled serif is used."
 msgstr "La fuente de impresión de la plantilla no está instalada aquí, así que se usa la serif incluida."
@@ -4182,15 +4269,17 @@ msgstr "La papelera está vacía."
 
 #. placeholder {0}: e.voice
 #: src/lib/audioErrors.ts
-msgid "the voice \"{0}\" is not installed"
-msgstr "la voz “{0}” no está instalada"
+msgid "the voice \"{0}\" is not installed. Download it in Settings, or choose another voice"
+msgstr "la voz «{0}» no está instalada. Descárgala en Ajustes o elige otra voz"
 
 #. placeholder {0}: e.detail.trim()
 #: src/lib/audioErrors.ts
 msgid "the voice engine stopped:\n"
-"{0}"
+"{0}\n"
+"Try again, or choose another voice"
 msgstr "el motor de voz se detuvo:\n"
-"{0}"
+"{0}\n"
+"Inténtalo de nuevo o elige otra voz"
 
 #: src/lib/audioErrors.ts
 msgid "the voice engine that comes with CadabraCraft is missing. Reinstall the app."
@@ -4198,8 +4287,8 @@ msgstr "falta el motor de voz que viene con CadabraCraft. Vuelve a instalar la a
 
 #. placeholder {0}: e.seconds
 #: src/lib/audioErrors.ts
-msgid "the voice engine took longer than {0} seconds and was stopped"
-msgstr "el motor de voz tardó más de {0} segundos y se detuvo"
+msgid "the voice engine took longer than {0} seconds and was stopped. Try again, or export fewer chapters"
+msgstr "el motor de voz tardó más de {0} segundos y se detuvo. Inténtalo de nuevo o exporta menos capítulos"
 
 #: src/app/settings/AudioSection.tsx
 msgid "The voice the audiobook export starts with. Only installed voices can be picked."
@@ -4216,20 +4305,20 @@ msgstr "Tema"
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts
-msgid "There is no space left on the disk to write {0}"
-msgstr "No queda espacio en el disco para escribir {0}"
+msgid "There is no space left on the disk to write {0}. Free some space and try again."
+msgstr "No queda espacio en el disco para escribir {0}. Libera espacio e inténtalo de nuevo."
 
 #: src/lib/importBook.ts
 msgid "There is no text to import in this file."
 msgstr "No hay texto que importar en este archivo."
 
-#: src/lib/audioErrors.ts
-msgid "there is not enough disk space"
-msgstr "no hay suficiente espacio en disco"
-
 #: src/lib/fontErrors.ts
-msgid "There is not enough disk space for this font."
-msgstr "No hay suficiente espacio en disco para esta fuente."
+msgid "There is not enough disk space for this font. Free some space and try again."
+msgstr "No hay suficiente espacio en el disco para esta fuente. Libera espacio e inténtalo de nuevo."
+
+#: src/lib/audioErrors.ts
+msgid "there is not enough disk space. Free some space and try again"
+msgstr "no hay suficiente espacio en el disco. Libera espacio e inténtalo de nuevo"
 
 #: src/state/project/audio.ts
 msgid "There is nothing to read aloud in this chapter."
@@ -4252,8 +4341,8 @@ msgid "These fonts come from Google Fonts and are free to use under the SIL Open
 msgstr "Estas fuentes provienen de Google Fonts y son de uso libre bajo la licencia SIL Open Font. Una fuente se descarga solo cuando haces clic en Descargar; no se envía nada más."
 
 #: src/lib/importErrorText.ts
-msgid "This .docx file has no document body. It may be damaged or not a Word document."
-msgstr "Este archivo .docx no tiene cuerpo de documento. Puede estar dañado o no ser un documento de Word."
+msgid "This .docx file has no document body. It may be damaged or not a Word document. Choose another file."
+msgstr "Este archivo .docx no tiene cuerpo de documento. Puede estar dañado o no ser un documento de Word. Elige otro archivo."
 
 #: src/state/project/audio.ts
 #: src/state/project/editions.ts
@@ -4270,28 +4359,28 @@ msgid "This book has no cover image. KDP takes the cover as a separate file."
 msgstr "Este libro no tiene imagen de portada. KDP recibe la portada como archivo aparte."
 
 #: src/lib/importErrorText.ts
-msgid "This document contains too many parts to import safely."
-msgstr "Este documento contiene demasiadas partes para importarlo de forma segura."
+msgid "This document contains too many parts to import safely. Choose another file, or split it into parts."
+msgstr "Este documento contiene demasiadas partes para importarlo con seguridad. Elige otro archivo o divídelo en partes."
 
 #: src/lib/importErrorText.ts
-msgid "This document has too much content to import safely."
-msgstr "Este documento tiene demasiado contenido para importarlo de forma segura."
+msgid "This document has too much content to import safely. Split it into smaller files."
+msgstr "Este documento tiene demasiado contenido para importarlo con seguridad. Divídelo en archivos más pequeños."
 
 #: src/lib/importErrorText.ts
-msgid "This document is nested too deeply to import."
-msgstr "Este documento está anidado a demasiada profundidad para importarlo."
+msgid "This document is nested too deeply to import. Simplify its lists and tables, then try again."
+msgstr "Este documento tiene un anidamiento demasiado profundo para importarlo. Simplifica sus listas y tablas e inténtalo de nuevo."
 
 #: src/lib/importErrorText.ts
-msgid "This document is too large to import safely."
-msgstr "Este documento es demasiado grande para importarlo de forma segura."
+msgid "This document is too large to import safely. Choose a smaller file, or split it into parts."
+msgstr "Este documento es demasiado grande para importarlo con seguridad. Elige un archivo más pequeño o divídelo en partes."
 
 #: src/lib/importErrorText.ts
-msgid "This document's contents could not be read. It may be damaged."
-msgstr "No se pudo leer el contenido de este documento. Puede estar dañado."
+msgid "This document's contents could not be read. It may be damaged. Open it in Word, save a copy and try again."
+msgstr "No se pudo leer el contenido de este documento. Puede estar dañado. Ábrelo en Word, guarda una copia e inténtalo de nuevo."
 
 #: src/lib/importErrorText.ts
-msgid "This does not look like a valid .docx file (it could not be opened as a Word document)."
-msgstr "Esto no parece un archivo .docx válido (no se pudo abrir como documento de Word)."
+msgid "This does not look like a valid .docx file (it could not be opened as a Word document). Choose another file."
+msgstr "Esto no parece un archivo .docx válido (no se pudo abrir como documento de Word). Elige otro archivo."
 
 #: src/state/project/contentsPreview.ts
 msgid "This edition has no contents page to draw."
@@ -4306,12 +4395,12 @@ msgid "This file is too large or too deeply nested to import."
 msgstr "Este archivo es demasiado grande o está anidado a demasiada profundidad para importarlo."
 
 #: src/lib/importErrorText.ts
-msgid "This file is too large to import."
-msgstr "Este archivo es demasiado grande para importarlo."
+msgid "This file is too large to import. Choose a smaller file."
+msgstr "Este archivo es demasiado grande para importarlo. Elige un archivo más pequeño."
 
 #: src/lib/fontErrors.ts
-msgid "This font is not available any more."
-msgstr "Esta fuente ya no está disponible."
+msgid "This font is not available any more. Choose another font."
+msgstr "Esta fuente ya no está disponible. Elige otra fuente."
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "This image is decorative"
@@ -4326,6 +4415,10 @@ msgstr "No se permite esta ruta de imagen: {0}"
 #: src/app/shell/Details.tsx
 msgid "This page"
 msgstr "Esta página"
+
+#: src/state/project/context.ts
+msgid "This page could not be opened: {why}. Restore an earlier version from History, or choose another page."
+msgstr "No se pudo abrir esta página: {why}. Restaura una versión anterior desde el Historial o elige otra página."
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "This version has the same words as the current text."
@@ -4386,6 +4479,8 @@ msgstr "Papelera"
 msgid "Trim size"
 msgstr "Tamaño de página"
 
+#: src/app/dialogs/LicensesDialog.tsx
+#: src/app/dialogs/UpdateDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again"
@@ -4419,9 +4514,11 @@ msgstr "Desplazamiento de máquina de escribir"
 #. placeholder {0}: e.stderr.trim()
 #: src/lib/pdfErrors.ts
 msgid "Typst could not build the PDF:\n"
-"{0}"
+"{0}\n"
+"Check the text for unusual characters, then try again."
 msgstr "Typst no pudo crear el PDF:\n"
-"{0}"
+"{0}\n"
+"Revisa el texto en busca de caracteres inusuales e inténtalo de nuevo."
 
 #: src/app/toc/TocPreview.tsx
 msgid "Typst is not installed on this computer, so this is an approximation: the layout is drawn by the app and page numbers marked ≈ are estimates. Install Typst to see the exact page."
@@ -4584,6 +4681,11 @@ msgstr "En espera"
 msgid "Warning"
 msgstr "Aviso"
 
+#: src/app/export/CheckList.tsx
+#: src/ui/Notice.tsx
+msgid "Warning:"
+msgstr "Aviso:"
+
 #: src/app/hooks/useAudioLabels.ts
 msgid "WAV"
 msgstr "WAV"
@@ -4700,12 +4802,12 @@ msgid "Your fonts"
 msgstr "Tus fuentes"
 
 #: src/app/shell/quit.ts
-msgid "Your last changes could not be saved ({message}). Close the window again to leave without them."
-msgstr "No se pudieron guardar tus últimos cambios ({message}). Cierra la ventana de nuevo para salir sin ellos."
+msgid "Your last changes could not be saved ({message}). Close the window again to leave without them, or free some space and try again."
+msgstr "No se pudieron guardar tus últimos cambios ({message}). Cierra la ventana otra vez para salir sin ellos, o libera espacio e inténtalo de nuevo."
 
 #: src/app/shell/ErrorBoundary.tsx
-msgid "Your last changes were saved if possible."
-msgstr "Tus últimos cambios se guardaron si fue posible."
+msgid "Your last changes were saved if possible. Choose Reload to open the app again. If this keeps happening, restart CadabraCraft; your books are in their folders, and earlier versions are in History."
+msgstr "Tus últimos cambios se guardaron si fue posible. Elige Recargar para abrir la aplicación de nuevo. Si sigue pasando, reinicia CadabraCraft; tus libros están en sus carpetas y las versiones anteriores en el Historial."
 
 #: src/app/hooks/useAppMenu.ts
 msgid "Your package manager updates this copy of CadabraCraft."

@@ -7,7 +7,7 @@ import { useLingui } from "@lingui/react/macro";
 import { ChevronRight, ImagePlus, Image as ImageIcon, Save, Trash2 } from "lucide-react";
 import { ENABLED_LOCALE_INFO, LOCALES } from "../../i18n/locales";
 import { assetUrl } from "../../lib/assets";
-import { errText } from "../../lib/projectError";
+import { whyText } from "../../lib/projectError";
 import {
   publishingProblem,
   publishingToForm,
@@ -194,7 +194,8 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
       await updateDetails(form, activeLanguage ?? undefined);
       onOpenChange(false);
     } catch (e) {
-      setError(errText(e));
+      const why = whyText(e);
+      setError(t`The details could not be saved: ${why}. Try again; nothing was changed.`);
     } finally {
       setBusy(false);
     }

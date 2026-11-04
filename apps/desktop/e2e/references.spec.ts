@@ -50,6 +50,12 @@ async function withReferences(page: Page, files: Record<string, number[]>) {
 }
 
 const panel = (page: Page) => page.getByRole("region", { name: "References" });
+/** Closes the viewer with Escape. A tooltip that opened on the focused button takes the first Escape (1.4.13), so press again. */
+async function escapeViewer(page: Page) {
+  if ((await page.locator("[role=tooltip]").count()) > 0) await page.keyboard.press("Escape");
+  await page.keyboard.press("Escape");
+}
+
 const row = (page: Page, name: string) =>
   panel(page)
     .locator("[data-open]")
@@ -144,13 +150,13 @@ test.describe("reference files", () => {
     await row(page, "notes").click();
     await expect(viewer.getByLabel("notes").first()).toContainText("Storm on the 3rd.");
     await expect(viewer.getByRole("button", { name: "Open in default app" })).toHaveCount(0);
-    await page.keyboard.press("Escape");
+    await escapeViewer(page);
     await row(page, "song").click();
     await expect(viewer.locator("audio")).toHaveAttribute("src", /^blob:/);
-    await page.keyboard.press("Escape");
+    await escapeViewer(page);
     await row(page, "dusk").click();
     await expect(viewer.locator("video")).toHaveAttribute("src", /^blob:/);
-    await page.keyboard.press("Escape");
+    await escapeViewer(page);
     await row(page, "data").click();
     await expect(viewer.getByText("No preview for this file type")).toBeVisible();
     await viewer.getByRole("button", { name: "Open in default app" }).click();
@@ -297,7 +303,7 @@ test.describe("reference files", () => {
       .getByRole("dialog")
       .getByLabel("Link to a chapter")
       .selectOption({ label: "Chapter One" });
-    await page.keyboard.press("Escape");
+    await escapeViewer(page);
     await page.getByRole("button", { name: "Add chapter" }).click();
     await page.getByRole("button", { name: "Actions for Chapter One" }).click();
     await page.getByRole("menuitem", { name: "Move to trash" }).click();

@@ -139,7 +139,7 @@ export function PdfPanel({
               type="button"
               disabled={running}
               onClick={onChangeTrimSize}
-              className="text-xs font-semibold text-accent hover:underline disabled:opacity-50 max-md:min-h-11 max-md:px-2"
+              className="min-h-6 min-w-6 text-xs font-semibold text-accent hover:underline disabled:opacity-50 max-md:min-h-11 max-md:px-2"
             >{t`Change`}</button>
           )}
         </div>

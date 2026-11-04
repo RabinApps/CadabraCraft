@@ -4,7 +4,7 @@ import { Modal } from "../../ui/Dialog";
 import { Button } from "../../ui/Button";
 import { Select } from "../../ui/Select";
 import { cx } from "../../ui/cx";
-import { errText } from "../../lib/projectError";
+import { whyText } from "../../lib/projectError";
 import { ENABLED_LOCALE_INFO, LOCALES } from "../../i18n/locales";
 import { useProject } from "../../state/project/index";
 
@@ -43,7 +43,8 @@ export function AddLanguageDialog({ open, onOpenChange }: Props) {
       await actions.addLanguage(language, mode);
       onOpenChange(false);
     } catch (e) {
-      setError(errText(e));
+      const why = whyText(e);
+      setError(t`Could not add the language: ${why}. Choose another language, or try again.`);
     } finally {
       setBusy(false);
     }
@@ -63,6 +64,7 @@ export function AddLanguageDialog({ open, onOpenChange }: Props) {
           <Select
             label={t`Language`}
             value={language}
+            errorId={error ? "add-language-error" : undefined}
             onChange={(e) => setLanguage(e.target.value)}
           >
             {available.map((l) => (
@@ -110,7 +112,7 @@ export function AddLanguageDialog({ open, onOpenChange }: Props) {
             ))}
           </fieldset>
           {error && (
-            <p role="alert" className="text-sm text-danger">
+            <p id="add-language-error" role="alert" className="text-sm text-danger">
               {error}
             </p>
           )}

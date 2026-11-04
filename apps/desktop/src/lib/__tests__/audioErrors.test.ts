@@ -22,13 +22,18 @@ describe("describeAudioError", () => {
       /^The voice "amy" is not installed/,
     ],
     ["engine", new EngineNotFoundError("/x"), "engine-missing", /Reinstall the app/],
-    ["synthesis", new SynthesisError(" boom \n"), "engine-failed", /stopped:\nboom$/],
-    ["encode", new EncodeError("flac", " bad "), "encode", /^FLAC could not be written:\nbad$/],
+    ["synthesis", new SynthesisError(" boom \n"), "engine-failed", /stopped:\nboom\nTry again/],
+    [
+      "encode",
+      new EncodeError("flac", " bad "),
+      "encode",
+      /^FLAC could not be written:\nbad\nCheck the folder/,
+    ],
     ["download", new DownloadError("offline"), "download", /download failed: offline/],
     ["checksum", new ChecksumError("a.onnx"), "download", /a\.onnx was damaged/],
     ["disk", new DiskFullError(), "disk-full", /not enough disk space/],
     ["timeout", new AudioTimeoutError(30), "timeout", /longer than 30 seconds/],
-    ["other", new Error("weird"), "other", /^Weird$/],
+    ["other", new Error("weird"), "other", /^Weird\. Try again$/],
   ];
   it.each(cases)("maps %s with an upper-cased first letter", (_n, err, code, text) => {
     const r = describeAudioError(err);

@@ -86,9 +86,12 @@ test.describe("images", () => {
 
     // Select the image and give it a description.
     await page.locator(".ProseMirror p").last().click();
-    await expect(tb(page, "Image details")).toBeDisabled();
+    await tb(page, "More formatting").click();
+    await expect(page.getByRole("menuitem", { name: "Image details" })).toBeDisabled();
+    await page.keyboard.press("Escape");
     await img.click();
-    await tb(page, "Image details").click();
+    await tb(page, "More formatting").click();
+    await page.getByRole("menuitem", { name: "Image details" }).click();
     const edit = page.getByRole("dialog", { name: "Image details" });
     await expect(edit.getByLabel("This image is decorative")).toBeChecked();
     await edit.getByLabel("This image is decorative").uncheck();
@@ -135,7 +138,7 @@ test.describe("images", () => {
       window.__importError = "pic.png is larger than 25 MB";
     });
     await tb(page, "Image").click();
-    await expect(page.getByRole("status")).toContainText(
+    await expect(page.getByRole("alert")).toContainText(
       "Could not add the image: pic.png is larger than 25 MB",
     );
     await expect(page.getByRole("dialog")).toHaveCount(0);

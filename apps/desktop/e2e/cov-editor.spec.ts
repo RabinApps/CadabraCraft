@@ -423,7 +423,7 @@ test.describe("toolbar", () => {
     await tb(page, "Link").click();
     await link(page).getByLabel("Address").fill("https://example.com");
     await link(page).getByRole("button", { name: "Apply" }).click();
-    await expect(link(page).getByRole("alert")).toHaveText(
+    await expect(link(page).getByRole("alert")).toContainText(
       "Select the text you want to link first.",
     );
     await link(page).getByRole("button", { name: "Cancel" }).click();
@@ -435,7 +435,9 @@ test.describe("toolbar", () => {
     await tb(page, "Link").click();
     await link(page).getByLabel("Address").fill("javascript:alert(1)");
     await link(page).getByRole("button", { name: "Apply" }).click();
-    await expect(link(page).getByRole("alert")).toHaveText("That address can't be used as a link.");
+    await expect(link(page).getByRole("alert")).toContainText(
+      "That address can't be used as a link.",
+    );
     await link(page).getByLabel("Address").fill("https://example.com");
     await expect(link(page).getByRole("alert")).toHaveCount(0);
     await link(page).getByRole("button", { name: "Apply" }).click();

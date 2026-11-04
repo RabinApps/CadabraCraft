@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { screens } from "./support/a11yScreens";
+import { applyE2eLocale } from "./support/helpers";
 
 // WCAG 2.5.3 Label in Name: a control with visible text has an accessible name that contains that text, so a
 // Voice Control or Dragon user can say what they see. The name is computed in the page (aria-labelledby, aria-label,
@@ -118,6 +119,7 @@ for (const { name, open, noText } of screens) {
     page,
   }) => {
     await open(page);
+    await applyE2eLocale(page);
     const { checked, bad } = await audit(page);
     if (!noText) expect(checked, "the audit found no controls with text").toBeGreaterThan(0);
     expect(bad).toEqual([]);

@@ -9,9 +9,9 @@ import {
 import { bridge } from "../../lib/bridge";
 import { baseName } from "../../lib/paths";
 import { forgetReference } from "../../lib/references";
-import { errText, isProjectError } from "../../lib/projectError";
+import { isProjectError, whyText } from "../../lib/projectError";
 import { removedReferences, titleFromFile } from "../../lib/referenceKinds";
-import { HISTORY_LIMIT } from "./util";
+import { alertOf, HISTORY_LIMIT } from "./util";
 import type { ReferenceActions, ReferenceNotice } from "./types";
 import type { Ctx } from "./context";
 
@@ -44,7 +44,10 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
           });
           await saveManifest(added.manifest);
         } catch (e) {
-          notices.push({ tone: "danger", text: t`Could not add ${name}: ${errText(e)}` });
+          notices.push({
+            tone: "danger",
+            text: t`Could not add ${name}: ${whyText(e)}. Choose another file and try again.`,
+          });
         }
       }
       set({ referenceImport: null, referenceNotices: notices });
@@ -53,7 +56,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       try {
         await saveManifest(updateInManifest(need().manifest, id, patch));
       } catch (e) {
-        set({ notice: t`Could not save the reference: ${errText(e)}` });
+        set(alertOf(t`Could not save the reference: ${whyText(e)}. Try again.`));
       }
     },
     async refreshRemovedReferences() {
@@ -75,7 +78,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
         });
         await saveManifest(added.manifest);
       } catch (e) {
-        return t`Could not restore ${name}: ${errText(e)}`;
+        return t`Could not restore ${name}: ${whyText(e)}. Try again, or add the file again.`;
       }
       set({ removedReferences: get().removedReferences.filter((r) => r.path !== trashPath) });
       return null;
@@ -84,7 +87,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       try {
         await saveManifest(moveInManifest(need().manifest, id, to));
       } catch (e) {
-        set({ notice: t`Could not reorder the references: ${errText(e)}` });
+        set(alertOf(t`Could not reorder the references: ${whyText(e)}. Try again.`));
       }
     },
     async removeReference(id) {
@@ -94,7 +97,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       try {
         await saveManifest(removeFromManifest(manifest, id).manifest);
       } catch (e) {
-        set({ notice: t`Could not remove ${ref.title}: ${errText(e)}` });
+        set(alertOf(t`Could not remove ${ref.title}: ${whyText(e)}. Try again.`));
         return;
       }
       forgetReference(root, ref.file);
@@ -120,9 +123,11 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       } catch (e) {
         // A file that is already gone needs nothing; any other failure leaves the file behind, which is harmless.
         if (!(isProjectError(e) && e.kind === "not_found"))
-          set({
-            notice: t`${ref.title} was removed, but its file could not be moved to the trash: ${errText(e)}`,
-          });
+          set(
+            alertOf(
+              t`${ref.title} was removed, but its file could not be moved to the trash: ${whyText(e)}. You can delete the file from the references folder yourself.`,
+            ),
+          );
       }
     },
     dismissReferenceNotices() {

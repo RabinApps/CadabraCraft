@@ -170,6 +170,90 @@ test.describe("formatting toolbar", () => {
     await expect(ed(page).locator("a")).toHaveCount(0);
   });
 
+  const more = (page: Page) => tb(page, "More formatting");
+
+  test("the More formatting menu holds the rarely used marks and blocks and shows their state", async ({
+    page,
+  }) => {
+    await typeLine(page, "styled");
+    await selectLine(page);
+    await more(page).click();
+    const menu = page.getByRole("menu", { name: "More formatting" });
+    for (const [name, sel] of [
+      ["Strikethrough", "s"],
+      ["Code", "code"],
+      ["Superscript", "sup"],
+      ["Subscript", "sub"],
+    ] as const) {
+      await menu.getByRole("menuitemcheckbox", { name, exact: true }).click();
+      await expect(ed(page).locator(`p ${sel}`)).toHaveText("styled");
+      // The choice returns the focus to the text.
+      await expect(ed(page)).toBeFocused();
+      await more(page).click();
+      await expect(menu.getByRole("menuitemcheckbox", { name, exact: true })).toHaveAttribute(
+        "aria-checked",
+        "true",
+      );
+      await menu.getByRole("menuitemcheckbox", { name, exact: true }).click();
+      await expect(ed(page).locator(`p ${sel}`)).toHaveCount(0);
+      await more(page).click();
+    }
+    // Strikethrough shows its key.
+    await expect(menu.getByRole("menuitemcheckbox", { name: "Strikethrough" })).toHaveAttribute(
+      "aria-keyshortcuts",
+      /^(Control|Meta)\+Shift\+S$/,
+    );
+    await menu.getByRole("menuitemcheckbox", { name: "Code Block" }).click();
+    await expect(ed(page).locator("pre")).toHaveCount(1);
+    await more(page).click();
+    await menu.getByRole("menuitemcheckbox", { name: "Code Block" }).click();
+    await more(page).click();
+    await menu.getByRole("menuitemcheckbox", { name: "Task list" }).click();
+    await expect(ed(page).locator("ul[data-type=taskList]")).toHaveCount(1);
+  });
+
+  test("the More formatting button is the last stop of the toolbar: arrows reach it, Escape returns to it", async ({
+    page,
+  }) => {
+    await tb(page, "Bold").focus();
+    await page.keyboard.press("End");
+    await expect(more(page)).toBeFocused();
+    await expect(more(page)).toHaveAttribute("tabindex", "0");
+    await expect(tb(page, "Bold")).toHaveAttribute("tabindex", "-1");
+    await page.keyboard.press("ArrowRight");
+    await expect(tb(page, "Undo")).toBeDisabled();
+    await expect(tb(page, "Bold")).toBeFocused(); // wraps to the first enabled button
+    await page.keyboard.press("ArrowLeft");
+    await expect(more(page)).toBeFocused();
+    await page.keyboard.press("Enter");
+    const menu = page.getByRole("menu", { name: "More formatting" });
+    await expect(menu).toBeVisible();
+    await expect(menu.getByRole("menuitemcheckbox", { name: "Strikethrough" })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+    await expect(more(page)).toBeFocused();
+  });
+
+  test("the toolbar stays on one row from 768 px up, and does not scroll sideways at 320 px", async ({
+    page,
+  }) => {
+    const bar = page.getByRole("toolbar", { name: "Formatting" });
+    for (const width of [1280, 1024, 768]) {
+      await page.setViewportSize({ width, height: 800 });
+      const tops = await bar
+        .getByRole("button")
+        .evaluateAll(
+          (bs) => new Set(bs.map((b) => Math.round(b.getBoundingClientRect().top))).size,
+        );
+      expect(tops, `${width}px`).toBe(1);
+    }
+    await page.setViewportSize({ width: 320, height: 640 });
+    await expect(more(page)).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      320,
+    );
+  });
+
   test("undo and redo are available from the toolbar", async ({ page }) => {
     await typeLine(page, "oops");
     await tb(page, "Undo").click();

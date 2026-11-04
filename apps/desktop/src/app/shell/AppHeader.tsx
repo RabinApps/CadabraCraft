@@ -26,6 +26,7 @@ import { HeaderMenu } from "./HeaderMenu";
 import { useLayout } from "../../state/layout";
 import { useQuickNav } from "../../state/quickNav";
 import { useProject } from "../../state/project/index";
+import { noticeIsAlert } from "../../state/project/util";
 import { useStartDialogs } from "../../state/commands";
 
 interface Props {
@@ -66,6 +67,7 @@ export function AppHeader({
   );
   const unsaved = useProject((s) => s.draft !== null);
   const notice = useProject((s) => s.notice);
+  const isAlert = useProject(noticeIsAlert);
   const audio = useProject((s) => s.audio);
   const actions = useProject((s) => s.actions);
   const { details, references, set: setLayout } = useLayout();
@@ -94,9 +96,13 @@ export function AppHeader({
       <EditionSwitcher />
       <Badge tone={unsaved ? "warn" : "success"}>{unsaved ? t`Unsaved` : t`Saved`}</Badge>
       {/* The live region stays mounted so a new notice is announced; the text wraps, nothing is cut off for readers. */}
-      <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:has-[span:empty]:hidden">
-        <span role="status" className="min-w-0 flex-1 break-words">
-          {notice}
+      <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:has-[[role=status]:empty+[role=alert]:empty]:hidden">
+        {/* A failure is assertive (role alert), everything else polite (role status). Both stay in the accessibility tree even when empty (sr-only, never display:none), or a message put into a hidden region may not be announced. */}
+        <span role="status" className="min-w-0 break-words empty:sr-only">
+          {isAlert ? "" : notice}
+        </span>
+        <span role="alert" className="min-w-0 break-words font-semibold text-danger empty:sr-only">
+          {isAlert ? notice : ""}
         </span>
         {notice && (
           <button

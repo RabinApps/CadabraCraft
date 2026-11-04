@@ -80,3 +80,45 @@ describe.each([
     },
   );
 });
+
+// "Increase contrast" (prefers-contrast: more) restates two tokens in index.css: the hairline --border becomes --border-strong
+// and --ink-muted becomes --ink. The pairs are checked after that override, read from the style sheet so a change there
+// is caught (a11y-forced-colors.spec.ts measures the same in a browser).
+const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+const moreBlock = indexCss.slice(indexCss.indexOf("@media (prefers-contrast: more)"));
+const overrides = Object.fromEntries(
+  [...moreBlock.slice(0, moreBlock.indexOf("}")).matchAll(/--([\w-]+):\s*var\(--([\w-]+)\)/g)].map(
+    (m) => [m[1]!, m[2]!],
+  ),
+);
+
+describe("the overrides under prefers-contrast: more", () => {
+  it("restate the two tokens the docs name", () => {
+    expect(overrides).toEqual({ border: "border-strong", "ink-muted": "ink" });
+  });
+});
+
+describe.each([
+  ["light", ":root"],
+  ["dark", ':root[data-theme="dark"]'],
+])("%s tokens with increased contrast", (_name, selector) => {
+  const base: Record<string, string> = { ...block(":root"), ...block(selector) };
+  const t = { ...base };
+  for (const [name, source] of Object.entries(overrides)) t[name] = base[source]!;
+  const surfaces = ["bg", "sidebar", "surface", "raised", "accent-soft"];
+  it.each(surfaces)("muted text (ink-muted) on %s is at least 4.5:1", (bg) => {
+    expect(ratio(t["ink-muted"]!, t[bg]!)).toBeGreaterThanOrEqual(4.5);
+  });
+  it.each(surfaces)("muted icons (ink-muted) against %s are at least 3:1", (bg) => {
+    expect(ratio(t["ink-muted"]!, t[bg]!)).toBeGreaterThanOrEqual(3);
+  });
+  it.each(["bg", "surface", "raised"])("the border against %s is at least 3:1", (bg) => {
+    expect(ratio(t["border"]!, t[bg]!)).toBeGreaterThanOrEqual(3);
+  });
+  it.each(["bg", "sidebar", "surface", "accent-soft"])(
+    "the focus ring and pressed border (accent) against %s stay at least 3:1",
+    (bg) => {
+      expect(ratio(t["accent"]!, t[bg]!)).toBeGreaterThanOrEqual(3);
+    },
+  );
+});

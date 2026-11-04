@@ -7,7 +7,7 @@ import { Confirm } from "../../ui/Dialog";
 import { Field, focusField } from "../../ui/Input";
 import { cx } from "../../ui/cx";
 import { bridge, type BookSnapshotEntry } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
+import { causeText } from "../../lib/projectError";
 import { useProject } from "../../state/project/index";
 import { formatStamp } from "./formatStamp";
 import type { HistoryPage } from "./HistoryDialog";
@@ -65,7 +65,7 @@ export function BookSnapshotsPanel({
         if (live) {
           setErrorAbout("other");
           setError(
-            t`Could not read the book snapshots (${errText(e)}). Close this dialog and open History again to retry.`,
+            t`Could not read the book snapshots (${causeText(e)}). Close this dialog and open History again to retry.`,
           );
         }
       })
@@ -89,7 +89,7 @@ export function BookSnapshotsPanel({
       await job();
     } catch (e) {
       setErrorAbout(about);
-      setError(failure(errText(e)));
+      setError(failure(causeText(e)));
     } finally {
       setBusy(false);
     }
