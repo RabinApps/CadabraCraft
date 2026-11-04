@@ -12,6 +12,9 @@
  * - Title page, contents, dedication and epigraph open on a right-hand page, and the entry after a dedication or epigraph does too.
  *   A chapter, and a front or back matter page that is not laid out centred, opens like the template's chapter opening says
  *   (`startsOn`): "recto" puts a blank left-hand page first when the next page would be even. Every other entry starts on the next page.
+ * - A front or back matter page can say it starts on the next page (`startOnNext`, the author's choice): no rule above pushes it to a
+ *   right-hand page, so no blank page comes before it. A page that also restarts the arabic count keeps its choice and the count
+ *   starts at 1 there, even when that puts the first numbered page on a left-hand page.
  */
 import type { MatterKind, Section } from "./matter";
 
@@ -28,6 +31,8 @@ export interface PageEntryInput {
   exact: boolean;
   /** A matter page laid out in the vertical middle of the page: it does not use the chapter opening. */
   centred?: boolean | undefined;
+  /** The page starts on the next page even when that is a left-hand page: no blank page goes before it (front and back matter only). */
+  startOnNext?: boolean | undefined;
   /** The physical page Typst started the entry on (1-based): used as it is, over the rules above. */
   start?: number | undefined;
 }
@@ -121,7 +126,7 @@ export function layoutBook(
       (opts.startsOn === "recto" && usesChapterOpening(e));
     let start = next;
     if (e.start !== undefined) start = Math.max(e.start, 1);
-    else if (recto && start % 2 === 0) start += 1;
+    else if (recto && e.startOnNext !== true && start % 2 === 0) start += 1;
     if (restart) arabicFrom = start;
     const pages = Math.max(1, e.pages);
     placed.push({

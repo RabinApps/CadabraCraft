@@ -32,6 +32,8 @@ export interface EntryRow {
   kind?: MatterKind;
   /** The page's own vertical position choice, when it has one (front and back matter only). */
   verticalCenter?: boolean;
+  /** The page starts on the next page, blank left-hand page or not (front and back matter only). */
+  startOnNext?: boolean;
 }
 
 /** `{ id, title, file }` rows in the source language, for lists of one section of the book. */
@@ -44,6 +46,7 @@ export const entryRows = (entries: EditionEntry[], editions: Edition[]): EntryRo
     ...(e.icon ? { icon: e.icon } : {}),
     ...(e.dropCap === undefined ? {} : { dropCap: e.dropCap }),
     ...(e.verticalCenter === undefined ? {} : { verticalCenter: e.verticalCenter }),
+    ...(e.startOnNext === undefined ? {} : { startOnNext: e.startOnNext }),
   }));
 
 /** A list row in one language: its title (the source's when not translated yet) and whether the text is translated. */
@@ -66,4 +69,5 @@ export const entryRowsIn = (
     ...(e.icon ? { icon: e.icon } : {}),
     ...(e.dropCap === undefined ? {} : { dropCap: e.dropCap }),
     ...(e.verticalCenter === undefined ? {} : { verticalCenter: e.verticalCenter }),
+    ...(e.startOnNext === undefined ? {} : { startOnNext: e.startOnNext }),
   }));

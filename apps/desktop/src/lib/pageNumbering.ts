@@ -44,6 +44,8 @@ export interface EntryWords {
   kind?: MatterKind | undefined;
   /** The author's own vertical position choice for a matter page. */
   verticalCenter?: boolean | undefined;
+  /** The author's choice to let a matter page start on the next page, left-hand page or not (no blank page before it). */
+  startOnNext?: boolean | undefined;
   words: number;
 }
 
@@ -93,6 +95,7 @@ export function bookLayout(
       centred:
         e.section !== "chapter" &&
         resolveVerticalCenter({ print }, e.kind, { verticalCenter: e.verticalCenter }),
+      ...(e.startOnNext === undefined ? {} : { startOnNext: e.startOnNext }),
       ...(current && s ? { start: s.page } : {}),
     };
   });

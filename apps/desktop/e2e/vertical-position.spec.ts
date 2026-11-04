@@ -9,26 +9,36 @@ test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
 });
 
-/** Where the content block of the first page stack in `scope` sits: its middle and the middle of the text box, at zoom 1. */
-const placement = (page: Page, scope: string) =>
-  page.evaluate((sel) => {
-    const stack = document.querySelector(`${sel} .page-stack`) as HTMLElement;
-    const cs = getComputedStyle(stack);
-    const n = (name: string) => parseFloat(cs.getPropertyValue(name));
-    const zoom = Number(stack.getAttribute("data-zoom"));
-    const pm = stack.querySelector(".ProseMirror")!;
-    const r = stack.getBoundingClientRect();
-    const top = (pm.firstElementChild!.getBoundingClientRect().top - r.top) / zoom;
-    const bottom = (pm.lastElementChild!.getBoundingClientRect().bottom - r.top) / zoom;
-    return {
-      mid: (top + bottom) / 2,
-      boxMid: (n("--page-mt") + n("--page-h") - n("--page-mb")) / 2,
-      top,
-      mt: n("--page-mt"),
-      centred: stack.querySelector(".page-centred") !== null,
-      cards: stack.querySelectorAll(".page-card").length,
-    };
-  }, scope);
+/**
+ * Where the content blocks of the first page stack in `scope` sit: their middle and the middle of the text box of page `card` (0 is
+ * the first card; the page's blank verso, when there is one, is a page-break spacer rather than a block), at zoom 1.
+ */
+const placement = (page: Page, scope: string, card = 0) =>
+  page.evaluate(
+    ([sel, index]) => {
+      const stack = document.querySelector(`${sel} .page-stack`) as HTMLElement;
+      const cs = getComputedStyle(stack);
+      const n = (name: string) => parseFloat(cs.getPropertyValue(name));
+      const zoom = Number(stack.getAttribute("data-zoom"));
+      const pm = stack.querySelector(".ProseMirror")!;
+      const blocks = [...pm.children].filter((el) => !el.classList.contains("pv-gap"));
+      const r = stack.getBoundingClientRect();
+      const top = (blocks[0]!.getBoundingClientRect().top - r.top) / zoom;
+      const bottom = (blocks[blocks.length - 1]!.getBoundingClientRect().bottom - r.top) / zoom;
+      const pageCard = stack.querySelectorAll(".page-card")[index]!.getBoundingClientRect();
+      const pageTop = (pageCard.top - r.top) / zoom;
+      return {
+        mid: (top + bottom) / 2,
+        boxMid: pageTop + (n("--page-mt") + pageCard.height / zoom - n("--page-mb")) / 2,
+        top,
+        pageTop,
+        mt: n("--page-mt"),
+        centred: stack.querySelector(".page-centred") !== null,
+        cards: stack.querySelectorAll(".page-card").length,
+      };
+    },
+    [scope, card] as const,
+  );
 
 const TOLERANCE = 14; // px at zoom 1: the trailing paragraph spacing and line leading
 
@@ -115,6 +125,22 @@ test("a centred page that grows past one page is not centred and not pushed down
   expect(p.centred).toBe(false);
   // The first block still starts at the top margin.
   expect(Math.abs(p.top - p.mt)).toBeLessThan(2);
+});
+
+/** A dedication after a title page opens on a right-hand page, so the book puts a blank left-hand page before it. */
+test("a page the book puts a blank verso before is centred on its own page, below the blank", async ({
+  page,
+}) => {
+  await newProject(page);
+  await addPage(page, "Title page");
+  await addPage(page, "Dedication");
+  await sidebar(page).getByRole("button", { name: "Dedication", exact: true }).click();
+  await expect.poll(async () => (await placement(page, "body", 1)).cards).toBe(2);
+  const p = await placement(page, "body", 1);
+  expect(p.centred).toBe(true);
+  // The text sits in the middle of the dedication's page, not of the blank one and not at the top of its own.
+  expect(Math.abs(p.mid - p.boxMid)).toBeLessThan(TOLERANCE);
+  expect(p.top).toBeGreaterThan(p.pageTop + p.mt + 60);
 });
 
 test("a phone shows a matter page as plain reading text, never centred and never clipped", async ({

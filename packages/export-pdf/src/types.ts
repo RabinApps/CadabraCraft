@@ -28,6 +28,8 @@ export interface PdfChapter {
   dropCap?: boolean;
   /** Front/back matter pages only: the author's choice to centre the page's content between the margins (true) or keep it at the top (false). Absent follows the template's kinds. */
   verticalCenter?: boolean;
+  /** Front/back matter pages only: start on the next page even when that is a left-hand page, instead of opening on a right-hand one. Absent follows the book's rules, the blank left-hand page included. */
+  startOnNext?: boolean;
 }
 
 /** Margins in inches. `inside` is the gutter side when `mirrored`, else the left margin. */

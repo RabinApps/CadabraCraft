@@ -225,6 +225,6 @@ describe("manifest validation", () => {
 describe("legacy fixtures", () => {
   it("each one migrates to the current format", () => {
     for (const fixture of [v1, v2, v3])
-      expect(parseManifest(JSON.stringify(fixture)).manifest.formatVersion).toBe(9);
+      expect(parseManifest(JSON.stringify(fixture)).manifest.formatVersion).toBe(10);
   });
 });

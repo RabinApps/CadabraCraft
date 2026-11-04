@@ -150,6 +150,61 @@ describe("layoutBook: front and back matter", () => {
     expect(any.entries.map((e) => e.start)).toEqual([1, 2]);
   });
 
+  it("lets the author start a page on the next one, so no blank page comes before it", () => {
+    const b = layoutBook(
+      [
+        front("t", "title-page"),
+        front("d", "dedication", 1, { startOnNext: true }),
+        front("f", "foreword", 1, { centred: true }),
+      ],
+      { startsOn: "any" },
+    );
+    expect(b.entries.map((e) => [e.id, e.start, e.blankBefore])).toEqual([
+      ["t", 1, false],
+      ["d", 2, false],
+      ["f", 3, false],
+    ]);
+    // Without the choice the dedication opens on a right-hand page, with a blank left-hand page before it.
+    const plain = layoutBook([front("t", "title-page"), front("d", "dedication")], {
+      startsOn: "any",
+    });
+    expect(plain.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [3, true],
+    ]);
+  });
+
+  it("lets the page after a dedication follow it on the left, or start on a right-hand page as usual", () => {
+    const followOn = layoutBook(
+      [front("d", "epigraph"), front("f", "foreword", 1, { centred: true, startOnNext: true })],
+      { startsOn: "any" },
+    );
+    expect(followOn.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [2, false],
+    ]);
+    const rules = layoutBook(
+      [front("d", "epigraph"), front("f", "foreword", 1, { centred: true })],
+      { startsOn: "any" },
+    );
+    expect(rules.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [3, true],
+    ]);
+  });
+
+  it("still restarts the arabic count on a right-hand page whatever the last front matter page chose", () => {
+    const b = layoutBook(
+      [front("f", "foreword", 1, { startOnNext: true }), ch("one", 1)],
+      { startsOn: "recto" },
+    );
+    expect(b.entries.map((e) => [e.start, e.style, e.number])).toEqual([
+      [1, "roman", 1],
+      [3, "arabic", 1],
+    ]);
+    expect(b.arabicFrom).toBe(3);
+  });
+
   it("opens the page after an epigraph on a right-hand page", () => {
     const b = layoutBook([front("e", "epigraph"), front("f", "foreword", 1, { centred: true })], {
       startsOn: "any",

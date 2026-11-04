@@ -12,6 +12,7 @@ import {
   renameMatter,
   setChapterDropCap,
   setMatterVerticalCenter,
+  setMatterStartOnNext,
   setEntryIcon,
   sectionOf,
   starterDoc,
@@ -201,6 +202,12 @@ export const createPageActions = (ctx: Ctx): PageActions => {
       const next = setMatterVerticalCenter(m, id, verticalCenter);
       await saveManifest(next);
       record({ label: t`Change vertical position of ${sourceTitleById(m, id)!}` }, m, next);
+    },
+    async setStartOnNext(id, startOnNext) {
+      const m = need().manifest;
+      const next = setMatterStartOnNext(m, id, startOnNext);
+      await saveManifest(next);
+      record({ label: t`Change page start of ${sourceTitleById(m, id)!}` }, m, next);
     },
     async remove(id) {
       await flush(); // typing in the page being removed would otherwise be written back after it went to trash

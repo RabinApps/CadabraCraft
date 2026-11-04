@@ -13,7 +13,7 @@ import { validatePublishing, type Publishing } from "./publishing";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 9;
+export const CURRENT_FORMAT_VERSION = 10;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -75,6 +75,8 @@ export interface EditionEntry {
   dropCap?: boolean;
   /** Front and back matter pages only, except contents and copyright (formatVersion 9): centre the page's content between the margins (true) or keep it at the top (false). Absent follows the template's default for the kind. */
   verticalCenter?: boolean;
+  /** Front and back matter pages only (formatVersion 10): start on the next page even when that is a left-hand page, instead of opening on a right-hand page. Absent follows the book's rules, the blank left-hand page included. */
+  startOnNext?: boolean;
   /** Contents pages only (`kind: "contents"`, formatVersion 7): the author's changes to the generated list. Absent means defaults. */
   toc?: TocSettings;
 }
@@ -248,6 +250,15 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
       if (typeof o.verticalCenter !== "boolean")
         throw new FormatError(`manifest: "${name}[${i}].verticalCenter" must be true or false`);
       entry.verticalCenter = o.verticalCenter;
+    }
+    if (o.startOnNext !== undefined) {
+      if (section === "chapter")
+        throw new FormatError(
+          `manifest: "${name}[${i}].startOnNext" belongs on a front or back matter page`,
+        );
+      if (typeof o.startOnNext !== "boolean")
+        throw new FormatError(`manifest: "${name}[${i}].startOnNext" must be true or false`);
+      entry.startOnNext = o.startOnNext;
     }
     if (o.toc !== undefined) {
       if (entry.kind !== "contents")

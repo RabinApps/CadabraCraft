@@ -14,6 +14,7 @@ import { readingOrder, sectionOf, sourceTitle } from "@cadabracraft/format";
 import { usePageView } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useTypewriterSlack } from "./typewriter";
+import { useSectionScroll } from "./useSectionScroll";
 import { dirFor } from "../i18n/locales";
 import { setEntryPages, setPageCount, usePageCount } from "../state/pageCount";
 import { breaksReport, usePageMeasure } from "../state/pageMeasure";
@@ -26,7 +27,7 @@ import { useProject } from "../state/project/index";
 import { chapterStart } from "../lib/pageNumbering";
 import { trimLabel } from "../lib/trimLabels";
 import { cx } from "../ui/cx";
-import { pageIsBare, pageIsCentred, useCentredColumn } from "./centring";
+import { centredPage, pageIsBare, pageIsCentred, useCentredColumn } from "./centring";
 import { PX_PER_INCH, fitZoom, pageCssVars, pageFillSlackPx, sideMargins } from "../lib/pageLayout";
 import type { PageLayoutResult, PageSpec } from "./pagination/core";
 import { cssVarsStyle, runningHead } from "./pagination/frame";
@@ -148,8 +149,17 @@ export function PageStack({
     editor.storage as unknown as { pagination: { controller: PaginationController } }
   ).pagination.controller;
 
-  // A short page is centred between its margins; one that needs more than a page is not (it fills them anyway).
-  const centred = verticalCenter && pages.length <= 1;
+  // A short page is centred between its margins; one that needs more than a page is not (it fills them anyway). The blank verso the
+  // book puts before a dedication is a card here but not a page of the entry, so it does not count (see `centredPage`), and the
+  // offset goes below its spacer rather than above it (see index.css). Not until the pages are laid out: the pagination reads the
+  // spacers' places to place the cards, and before the first layout there is no blank page to put the offset below.
+  const centred =
+    layout !== null &&
+    centredPage(
+      verticalCenter,
+      pages.map((p) => p.kind),
+    );
+  const afterBlank = pages[0]?.kind === "blank";
   const column = useCentredColumn(centred, g.text.h, zoom, `${layoutKey}`);
 
   useEffect(() => {
@@ -231,6 +241,7 @@ export function PageStack({
           className={cx(
             "prose-manuscript prose-page relative z-[1]",
             centred && "page-centred",
+            centred && afterBlank && "page-centred-after-blank",
             bare && "page-bare",
           )}
         >
@@ -289,6 +300,8 @@ export function PageFrame({ editor, children }: Props) {
   const paneW = usePaneWidth(scroller);
   const zoom = zoomPref === "fit" ? fitZoom(g, paneW || g.page.w + 48) : zoomPref;
   const slack = useTypewriterSlack(scroller);
+  // Scrolling on past the last page opens the next section; above the first page, the previous one.
+  const { onWheel } = useSectionScroll(scroller);
 
   // The pages this entry really takes (a blank verso before it not counted): later entries' starts follow it, so the numbers of
   // the whole book stay right while the author works through a chapter.
@@ -336,6 +349,7 @@ export function PageFrame({ editor, children }: Props) {
         data-testid="page-scroll"
         className="min-h-0 flex-1 overflow-x-auto overflow-y-auto px-6 pb-12 pt-3"
         style={slack ? { paddingBottom: slack } : undefined}
+        onWheel={onWheel}
       >
         <PageStack
           editor={editor}
@@ -376,6 +390,7 @@ export function ReflowFrame({ children }: { children: ReactNode }) {
   const { book, fontStack } = look;
   const scroller = useRef<HTMLDivElement>(null);
   const slack = useTypewriterSlack(scroller);
+  const { onWheel } = useSectionScroll(scroller);
   const vars = useMemo(
     () =>
       ({
@@ -390,6 +405,7 @@ export function ReflowFrame({ children }: { children: ReactNode }) {
       className="min-h-0 flex-1 overflow-y-auto max-md:order-first"
       data-testid="reflow-scroll"
       style={slack ? { paddingBottom: slack } : undefined}
+      onWheel={onWheel}
     >
       <div
         className="prose-manuscript prose-page prose-reflow mx-auto max-w-xl px-4 pb-8 pt-6"

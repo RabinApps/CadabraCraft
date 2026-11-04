@@ -70,7 +70,7 @@ describe("verticalCenter in the manifest", () => {
     const back = reopen(JSON.parse(serializeManifest(m)));
     expect(back.frontMatter.find((e) => e.kind === "dedication")!.verticalCenter).toBe(false);
     expect(back.backMatter[0]!.verticalCenter).toBe(true);
-    expect(back.formatVersion).toBe(9);
+    expect(back.formatVersion).toBe(10);
   });
 
   it("refuses a value that is not true or false", () => {
@@ -109,7 +109,7 @@ describe("verticalCenter in the manifest", () => {
   });
 });
 
-describe("migration v8 -> v9", () => {
+describe("migration v8 -> current", () => {
   const json = readFileSync(
     new URL("../../../../fixtures/contract/manifest-v8.json", import.meta.url),
     "utf8",
@@ -123,7 +123,7 @@ describe("migration v8 -> v9", () => {
     expect(r.manifest.frontMatter.some((e) => e.verticalCenter !== undefined)).toBe(false);
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
       ...JSON.parse(json),
-      formatVersion: 9,
+      formatVersion: 10,
     });
   });
 });

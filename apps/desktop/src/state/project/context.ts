@@ -211,6 +211,7 @@ export function createContext(set: Set, get: Get) {
         ...(c.kind ? { kind: c.kind } : {}),
         ...(dropCap === undefined ? {} : { dropCap }),
         ...(c.verticalCenter === undefined ? {} : { verticalCenter: c.verticalCenter }),
+        ...(c.startOnNext === undefined ? {} : { startOnNext: c.startOnNext }),
       });
     }
     return pages;
@@ -244,7 +245,13 @@ export function createContext(set: Set, get: Get) {
     const out: EntryWords[] = [];
     for (const c of readingOrder(manifest)) {
       const section = sectionOf(manifest, c.id)!;
-      const own = { id: c.id, section, kind: c.kind, verticalCenter: c.verticalCenter };
+      const own = {
+        id: c.id,
+        section,
+        kind: c.kind,
+        verticalCenter: c.verticalCenter,
+        startOnNext: c.startOnNext,
+      };
       if (c.id === currentId) {
         const open = get().draft ?? get().currentDoc;
         if (open) {

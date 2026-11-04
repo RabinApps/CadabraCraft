@@ -39,6 +39,23 @@ describe("buildTypst with front and back matter", () => {
     expect(src).toContain('#chapter-start("About the Author", none,');
     expect(src).toContain("© 2026 Test Author");
   });
+  it("lets a matter page the author chose follow on, keeping the rest of the right-hand pages", () => {
+    const front = matterPages().front;
+    // The dedication opens on a right-hand page, so a blank left-hand page goes before it: `odd` is what the author turns off.
+    expect(src).toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#centered-page\("fm-3"/);
+    const chosen = front.map((p) => (p.id === "fm-3" ? { ...p, startOnNext: true } : p));
+    const driven = buildTypst(book, [...chosen, ...chapters]);
+    expect(driven).not.toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#centered-page\("fm-3"/);
+    expect(driven).toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#title-page\("fm-1"/);
+    // A page laid out like a chapter carries the choice into the chapter opening, so it does not push to a right-hand page either.
+    const foreword = front.map((p) => (p.id === "fm-4" ? { ...p, startOnNext: true } : p));
+    const laid = buildTypst(book, [...foreword, ...chapters]);
+    expect(laid).toContain(
+      '#chapter-start("Foreword", none, id: "fm-4", kind: "foreword", odd: false)',
+    );
+    expect(laid).toContain('#chapter-start("Preface", none, id: "fm-5", kind: "preface")');
+  });
+
   it("numbers only chapters, not matter pages", () => {
     expect(src).toContain('#chapter-start("The Quay", 1,');
     expect(src).toContain('#chapter-start("Afterword", 4,');

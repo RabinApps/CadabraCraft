@@ -177,6 +177,8 @@ export interface BookPage {
   dropCap?: boolean;
   /** Front and back matter only: the author's own vertical position choice, centred (true) or at the top (false). Absent follows the template's kinds (`resolveVerticalCenter`). */
   verticalCenter?: boolean;
+  /** Front and back matter only: starts on the next page, left-hand page or not, so no blank page goes before it. Absent follows the book's rules. */
+  startOnNext?: boolean;
 }
 /** The words of one page of the book, with what the page numbering needs to know about it. */
 export interface EntryWords {
@@ -185,6 +187,8 @@ export interface EntryWords {
   kind?: MatterKind | undefined;
   /** The author's own vertical position choice for a matter page (see `BookPage.verticalCenter`). */
   verticalCenter?: boolean | undefined;
+  /** The page starts on the next page, blank left-hand page or not (see `BookPage.startOnNext`). */
+  startOnNext?: boolean | undefined;
   words: number;
 }
 /** The whole project store: the open book, what is in progress, and the actions that change them. */
@@ -346,6 +350,8 @@ export interface PageActions {
   setChapterDropCap: (id: string, dropCap: boolean | null) => Promise<void>;
   /** Sets a front or back matter page's own vertical position: true centres it between the margins, false keeps it at the top, null follows the template. Undoable. */
   setVerticalCenter: (id: string, verticalCenter: boolean | null) => Promise<void>;
+  /** Lets a front or back matter page start on the next page, left-hand page or not (true), or puts it back under the book's rules (null). Undoable. */
+  setStartOnNext: (id: string, startOnNext: boolean | null) => Promise<void>;
   remove: (id: string) => Promise<void>;
   /** Every page in reading order (of `language`, default the open edition) with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
   readPages: (language?: string) => Promise<BookPage[]>;

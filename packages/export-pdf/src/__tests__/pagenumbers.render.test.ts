@@ -52,47 +52,85 @@ function book(): PdfChapter[] {
   ];
 }
 
+/** Renders `chapters` with Typst and checks that `layoutBook` reports the same pages, and the same numbers printed on them. */
+async function sameAsTypst(chapters: PdfChapter[], id: "novel" | "nonfiction" | "modern") {
+  const template = getTemplate(id);
+  const report = await measurePages(
+    { title: "T", author: "A", language: "en" },
+    chapters,
+    {
+      template: id,
+      trimSize: "5.5x8.5",
+      pageNumbers: true,
+      fonts: { body: "Libertinus Serif" },
+    },
+    createNodeRunner(),
+  );
+  const entries: PageEntryInput[] = chapters.map((c) => {
+    const s = report.starts.find((r) => r.id === c.id)!;
+    return {
+      id: c.id,
+      section: c.section ?? "chapter",
+      kind: c.kind as MatterKind | undefined,
+      pages: s.end - s.page + 1,
+      exact: true,
+      startOnNext: c.startOnNext,
+    };
+  });
+  const laid = layoutBook(entries, { startsOn: template.print.chapterOpening.startOn });
+  for (const s of report.starts) {
+    const own = laid.byId.get(s.id)!;
+    const printed = own.number === null ? "" : formatFolio(own.number, own.style);
+    expect([s.id, own.start, printed], JSON.stringify(report.starts)).toEqual([
+      s.id,
+      s.page,
+      s.number,
+    ]);
+  }
+  expect(laid.physical).toBe(report.total);
+  return report;
+}
+
 suite("the page layout equals Typst's", () => {
   for (const id of ["novel", "nonfiction", "modern"] as const) {
-    it(
-      `${id}: starts and printed numbers`,
-      async () => {
-        const template = getTemplate(id);
-        const chapters = book();
-        const report = await measurePages(
-          { title: "T", author: "A", language: "en" },
-          chapters,
-          {
-            template: id,
-            trimSize: "5.5x8.5",
-            pageNumbers: true,
-            fonts: { body: "Libertinus Serif" },
-          },
-          createNodeRunner(),
-        );
-        const entries: PageEntryInput[] = chapters.map((c) => {
-          const s = report.starts.find((r) => r.id === c.id)!;
-          return {
-            id: c.id,
-            section: c.section ?? "chapter",
-            kind: c.kind as MatterKind | undefined,
-            pages: s.end - s.page + 1,
-            exact: true,
-          };
-        });
-        const laid = layoutBook(entries, { startsOn: template.print.chapterOpening.startOn });
-        for (const s of report.starts) {
-          const own = laid.byId.get(s.id)!;
-          const printed = own.number === null ? "" : formatFolio(own.number, own.style);
-          expect([s.id, own.start, printed], JSON.stringify(report.starts)).toEqual([
-            s.id,
-            s.page,
-            s.number,
-          ]);
-        }
-        expect(laid.physical).toBe(report.total);
-      },
-      T,
-    );
+    it(`${id}: starts and printed numbers`, () => sameAsTypst(book(), id), T);
   }
+});
+
+suite("a page the author starts on the next one, real Typst", () => {
+  const choose = (id: string) => book().map((c) => (c.id === id ? { ...c, startOnNext: true } : c));
+
+  it(
+    "drops the blank page before a dedication and its page still counts",
+    async () => {
+      const rules = await sameAsTypst(book(), "novel");
+      const chosen = await sameAsTypst(choose("fm-3"), "novel");
+      const at = (r: typeof rules, id: string) => r.starts.find((s) => s.id === id)!.page;
+      // The dedication opens on a right-hand page by rule, so a blank left-hand page goes before it; the choice removes it.
+      expect(at(rules, "fm-3") % 2).toBe(1);
+      expect(at(chosen, "fm-3")).toBe(at(rules, "fm-3") - 1);
+      expect(at(chosen, "fm-3") % 2).toBe(0);
+      // The book is shorter, and by more than the one page: the shift also takes away a blank a later chapter no longer needs.
+      expect(chosen.total).toBeLessThan(rules.total);
+      expect(chosen.total).toBeGreaterThanOrEqual(rules.total - 2);
+      // The foreword after a dedication still opens on a right-hand page; on the back of a verso dedication that is the next page.
+      expect(at(chosen, "fm-4")).toBe(at(chosen, "fm-3") + 1);
+      expect(at(chosen, "fm-4") % 2).toBe(1);
+    },
+    T,
+  );
+
+  it(
+    "lets the first page after the front matter follow on when the author chooses, restarting the count there",
+    async () => {
+      const { front, back } = matterPages();
+      const pages = [...front, { ...back[0]!, startOnNext: true }, ...back.slice(1)];
+      const report = await sameAsTypst(pages, "novel");
+      // The restart would put the acknowledgments on a right-hand page; the choice keeps them on the next one.
+      const first = report.starts.find((s) => s.id === "bm-1")!;
+      expect(first.page).toBe(report.starts.find((s) => s.id === "fm-5")!.end + 1);
+      expect(first.number).toBe("1");
+    },
+    T,
+  );
 });

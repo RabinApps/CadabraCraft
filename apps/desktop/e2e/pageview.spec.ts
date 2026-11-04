@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { addPage, newProject, sidebar } from "./support/helpers";
 
 // The writing surface is always the formatted book: pages at md+ width, the reflowed page look on a phone. There is no toggle or
 // menu command (the dev build exposes what each native menu item runs); this covers the zoom select and the surface by width.
@@ -132,4 +132,86 @@ test("a novel chapter draws its ornament and a drop cap on the page, and keeps t
   const reflowed = await style();
   expect(reflowed.ornament).toContain("⁂");
   expect(reflowed.capFloat).toBe("left");
+});
+
+/** The first content block of the open page (a blank verso before the page is a page-break spacer, not content). */
+const firstBlock = (page: Page) =>
+  page.evaluate(() => {
+    const pm = document.querySelector("body .ProseMirror")!;
+    const block = [...pm.children].find((el) => !el.classList.contains("pv-gap"))!;
+    const stack = block.closest(".page-stack") as HTMLElement;
+    const cs = getComputedStyle(stack);
+    return {
+      ornament: getComputedStyle(block, "::before").content,
+      position: getComputedStyle(block).position,
+      marginTop: parseFloat(getComputedStyle(block).marginTop),
+      centreTop: parseFloat(
+        getComputedStyle(block.closest(".prose-page")!).getPropertyValue("--page-centre-top"),
+      ),
+      sink:
+        parseFloat(cs.getPropertyValue("--page-chapter-sink")) +
+        parseFloat(cs.getPropertyValue("--page-chapter-extra")),
+      classes: block.closest(".prose-page")!.className,
+      cards: [...document.querySelectorAll('[data-testid="page-scroll"] .page')].map((c) => ({
+        blank: (c as HTMLElement).dataset.blank === "true",
+      })),
+    };
+  });
+
+// The blank verso the book puts before a page is the editor's first child, so the "first block" rules have to look past it: the
+// chapter opening keeps its sink, ornament and drop cap, and a page laid out without one still has none.
+test("a chapter that opens after a blank verso keeps its sink, ornament and drop cap", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  // Chapter One is one page, so Chapter 2 is pushed to a right-hand page: a blank left-hand page comes first.
+  await sidebar(page).getByRole("button", { name: "Chapter 2", exact: true }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await expect.poll(async () => (await firstBlock(page)).cards.length).toBe(2);
+  const opening = await firstBlock(page);
+  expect(opening.cards[0]?.blank).toBe(true);
+  expect(opening.ornament).toContain("⁂");
+  expect(opening.position).toBe("relative");
+  expect(opening.marginTop).toBeCloseTo(opening.sink, 0);
+  const capFloat = await page.evaluate(
+    () => getComputedStyle(document.querySelector(".ProseMirror h1 + p")!, "::first-letter").float,
+  );
+  expect(capFloat).toBe("left");
+});
+
+test("a centred matter page that opens on a heading after a blank verso shows no chapter opening", async ({
+  page,
+}) => {
+  await newProject(page);
+  await addPage(page, "Title page");
+  await addPage(page, "Dedication");
+  // The author's dedication, written with a heading first.
+  await page.evaluate(() => {
+    const m = JSON.parse(window.__disk["cadabra.json"] as string);
+    const entry = m.frontMatter.find((e: { kind: string }) => e.kind === "dedication");
+    const file = entry.files[Object.keys(entry.files)[0]!] as string;
+    window.__disk[file] = JSON.stringify({
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "In memory" }] },
+        { type: "paragraph", content: [{ type: "text", text: "Of …" }] },
+      ],
+    });
+    sessionStorage.setItem("disk", JSON.stringify(window.__disk));
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Open folder" }).click();
+  // The row keeps the page's title from the manifest; the page itself is the document written above.
+  await sidebar(page).getByRole("button", { name: "Dedication", exact: true }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("In memory");
+  await expect.poll(async () => (await firstBlock(page)).cards.length).toBe(2);
+  const page1 = await firstBlock(page);
+  // A dedication opens on a right-hand page, after the title page: the blank left-hand page comes first.
+  expect(page1.cards[0]?.blank).toBe(true);
+  expect(page1.classes).toContain("page-bare");
+  expect(page1.ornament).toBe("none");
+  // No chapter sink above it either: the space above the heading is the centring offset, not the opening's drop.
+  expect(page1.marginTop).toBeCloseTo(page1.centreTop, 0);
+  expect(page1.marginTop).not.toBeCloseTo(page1.sink, 0);
 });

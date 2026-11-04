@@ -369,6 +369,33 @@ export function EntryList({
                         <M.Separator className="my-1 h-px bg-border" />
                       </>
                     )}
+                    {/* Where the page numbering puts a matter page: a dedication, epigraph or title page opens on a right-hand page, and a
+                        blank page comes before it when the next one is a left-hand page. This lets the author let it follow on instead. */}
+                    {!chapters && (
+                      <>
+                        <M.Separator className="my-1 h-px bg-border" />
+                        <M.CheckboxItem
+                          className={menuItemClass()}
+                          checked={c.startOnNext === true}
+                          onCheckedChange={(v) => {
+                            attempt(actions.setStartOnNext(c.id, v ? true : null));
+                            setSaid(
+                              v
+                                ? t`${c.title}: starts on the next page`
+                                : t`${c.title}: page start follows the book`,
+                            );
+                          }}
+                        >
+                          <span className="flex size-3.5 items-center justify-center text-accent">
+                            <M.ItemIndicator>
+                              <Check size={14} aria-hidden />
+                            </M.ItemIndicator>
+                          </span>
+                          {t`Start on the next page`}
+                        </M.CheckboxItem>
+                        <M.Separator className="my-1 h-px bg-border" />
+                      </>
+                    )}
                     <M.Item
                       className={menuItemClass()}
                       onSelect={moveFocus(() =>

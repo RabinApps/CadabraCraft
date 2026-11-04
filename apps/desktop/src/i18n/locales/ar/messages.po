@@ -259,6 +259,16 @@ msgstr "حُدِّث {0} من خارج التطبيق"
 msgid "{0}: {1} of {2} chapters"
 msgstr "{0}: {1} من {2} فصلًا"
 
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "{0}: page start follows the book"
+msgstr "{0}: بداية الصفحة تتبع الكتاب"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "{0}: starts on the next page"
+msgstr "{0}: يبدأ في الصفحة التالية"
+
 #. placeholder {0}: errText(e)
 #: src/lib/audioErrors.ts
 msgid "{0}. Try again"
@@ -977,6 +987,11 @@ msgstr "تغيير أيقونة {0}"
 #: src/app/shell/EntryList.tsx
 msgid "Change icon…"
 msgstr "تغيير الأيقونة…"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change page start of {0}"
+msgstr "تغيير بداية الصفحة لـ {0}"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change shortcut for {action}"
@@ -4045,6 +4060,10 @@ msgstr "البدء فارغًا"
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start from a copy of the source"
 msgstr "البدء من نسخة من المصدر"
+
+#: src/app/shell/EntryList.tsx
+msgid "Start on the next page"
+msgstr "البدء في الصفحة التالية"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start the new edition"

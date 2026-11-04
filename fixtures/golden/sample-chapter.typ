@@ -80,8 +80,8 @@
   body
 }))
 #let scene-break() = align(center, block(above: 1em, below: 1em, "*   *   *"))
-#let chapter-start(title, n, id: "", kind: "chapter") = {
-  pagebreak(weak: true, to: "odd")
+#let chapter-start(title, n, id: "", kind: "chapter", odd: true) = {
+  if odd { pagebreak(weak: true, to: "odd") } else { pagebreak(weak: true) }
   mark("chapter-start", info: (id: id, kind: kind))
   state("chapter-title").update(title)
   counter(footnote).update(0)

@@ -32,10 +32,23 @@ export const pageIsBare = (centred: boolean, section: string, kind: MatterKind |
   centred || (section !== "chapter" && OWN_LAYOUT_KINDS.includes(kind));
 
 /**
+ * Whether the page is drawn centred: the author or the template centres it, and it is a single page of its own.
+ *
+ * The blank left-hand page the book inserts before a dedication, epigraph or title page (the layout's `blankBefore`) is a card of the
+ * page's stack but not a page of the entry (see `layoutBook`), so it is not counted: a one-page dedication with a blank before it is
+ * still one page and is still centred.
+ */
+export const centredPage = (verticalCenter: boolean, kinds: readonly string[]): boolean =>
+  verticalCenter && kinds.filter((kind) => kind !== "blank").length <= 1;
+
+/**
  * The ref of the column that holds a page's editor. While `centred`, it keeps `--page-centre-top` (see index.css) at half of the
  * free height of the text box (`textH`, at zoom 1), measured again whenever the content changes size; otherwise the property is
  * removed. The content's height does not depend on the padding that centres it, so there is no feedback loop. `again` is anything
  * else that should make it measure again (the layout key).
+ *
+ * The page-break spacers (`.pv-gap`) are skipped: a blank page before the entry is one of them, and it sits above the text, so
+ * measuring from it would place the page's centre on the blank page.
  */
 export function useCentredColumn(centred: boolean, textH: number, zoom: number, again: string) {
   const column = useRef<HTMLDivElement>(null);
@@ -46,8 +59,9 @@ export function useCentredColumn(centred: boolean, textH: number, zoom: number, 
     const pm = el.querySelector<HTMLElement>(".ProseMirror");
     if (!pm) return;
     const place = () => {
-      const first = pm.firstElementChild;
-      const last = pm.lastElementChild;
+      const content = [...pm.children].filter((el) => !el.classList.contains("pv-gap"));
+      const first = content[0];
+      const last = content[content.length - 1];
       if (!first || !last) return;
       const h = (last.getBoundingClientRect().bottom - first.getBoundingClientRect().top) / zoom;
       el.style.setProperty("--page-centre-top", `${centreOffsetPx(h, textH)}px`);

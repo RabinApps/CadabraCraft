@@ -259,6 +259,16 @@ msgstr "{0} a été mis à jour depuis l’extérieur de l’application"
 msgid "{0}: {1} of {2} chapters"
 msgstr "{0} : {1} chapitres sur {2}"
 
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "{0}: page start follows the book"
+msgstr "{0} : le début de page suit le livre"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "{0}: starts on the next page"
+msgstr "{0} : commence sur la page suivante"
+
 #. placeholder {0}: errText(e)
 #: src/lib/audioErrors.ts
 msgid "{0}. Try again"
@@ -977,6 +987,11 @@ msgstr "Modifier l’icône de {0}"
 #: src/app/shell/EntryList.tsx
 msgid "Change icon…"
 msgstr "Modifier l’icône…"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change page start of {0}"
+msgstr "Modifier le début de page de {0}"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change shortcut for {action}"
@@ -4045,6 +4060,10 @@ msgstr "Commencer vide"
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start from a copy of the source"
 msgstr "Partir d’une copie de la source"
+
+#: src/app/shell/EntryList.tsx
+msgid "Start on the next page"
+msgstr "Commencer sur la page suivante"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start the new edition"

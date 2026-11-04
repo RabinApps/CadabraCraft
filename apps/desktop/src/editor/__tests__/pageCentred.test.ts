@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getTemplate } from "@cadabracraft/templates";
-import { pageIsBare, pageIsCentred } from "../centring";
+import { centredPage, pageIsBare, pageIsCentred } from "../centring";
 import { centreOffsetPx } from "../../lib/pageLayout";
 
 const look = { print: getTemplate("novel").print };
@@ -19,6 +19,19 @@ describe("pageIsCentred", () => {
     expect(pageIsCentred(look, "front", undefined, {})).toBe(false);
     expect(pageIsCentred(look, "back", undefined, { verticalCenter: true })).toBe(true);
     expect(pageIsCentred(look, "chapter", undefined, { verticalCenter: true })).toBe(false);
+  });
+});
+
+describe("centredPage", () => {
+  it("centres a page of its own, not counting the blank verso the book puts before it", () => {
+    expect(centredPage(true, ["body"])).toBe(true);
+    expect(centredPage(true, ["blank", "body"])).toBe(true);
+    expect(centredPage(true, ["open"])).toBe(true);
+  });
+  it("never centres a page that runs to more than one page, nor one the author did not centre", () => {
+    expect(centredPage(true, ["body", "body"])).toBe(false);
+    expect(centredPage(true, ["blank", "body", "body"])).toBe(false);
+    expect(centredPage(false, ["body"])).toBe(false);
   });
 });
 

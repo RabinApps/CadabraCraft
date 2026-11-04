@@ -102,12 +102,14 @@ Turn on **Page view** (the page button in the header, or View, Page View, Cmd/Ct
 
 Page breaks are approximate, which is why the chip above the pages says so: the PDF is the reference, and its breaks can differ by a line or two (and a few pages in a long book). The pages are set in your template's print font when that font is on this computer; otherwise your manuscript font is used, and the chip's tooltip tells you which. Page numbers count from the word counts of the chapters before this one. Page view is for Write mode on a computer-sized window, not on a phone and not in Read mode.
 
+Write mode scrolls on through the book: when you reach the last page of the open front matter page, chapter or back matter page and keep scrolling, the next one opens at its first page. Scrolling up at its first page goes back to the previous one and shows its last page. Each page is still its own file, so undo, find, the word counts and page breaks stay per page; only the scrolling carries on from one to the next. A page that fits on the screen hands over with one wheel notch at its end. The phone's plain reading text does the same.
+
 ## Organising your book
 
 The list on the left has three parts: front matter, chapters and back matter. Reading order is simply the order of this list.
 
 - **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, contents, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page, one copyright page and one contents page (see [Contents page](#contents-page)).
-- The `...` menu next to each entry lets you **Rename**, **Change icon**, **Move up**, **Move down** or **Move to trash**. Chapters also have a **First letter** choice, and front and back matter pages (except contents and copyright) have a **Vertical position** choice (see [Vertical position of front and back matter](#vertical-position-of-front-and-back-matter)).
+- The `...` menu next to each entry lets you **Rename**, **Change icon**, **Move up**, **Move down** or **Move to trash**. Chapters also have a **First letter** choice, and front and back matter pages (except contents and copyright) have a **Vertical position** choice (see [Vertical position of front and back matter](#vertical-position-of-front-and-back-matter)). Front and back matter pages can also be told to **Start on the next page** (see [Blank pages and where a page starts](#blank-pages-and-where-a-page-starts)).
 - **Trash** (bottom of the list) shows pages you moved to the trash. **Restore** puts one back at the end of its section. Nothing is ever permanently deleted by the app; trashed files stay in `.cadabra/trash/` inside your book folder until you delete them yourself.
 - **Book undo and redo** (the arrows at the bottom of the list, or Edit > Undo ... / Redo ..., Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z) reverse changes to the structure: adding, renaming, moving, trashing and restoring. The button says what it will undo. They do not undo typing (normal Cmd/Ctrl+Z does that) and they start fresh each time you open the book.
 
@@ -138,6 +140,14 @@ To change one page, open its `...` menu in the list and choose **Vertical positi
 - **Top** keeps it at the top, for example a long epigraph or a title page you want at the top.
 
 The choice goes through book undo and redo, and the screen reader hears it ("Dedication: centred on the page"). A page that is longer than one page is never centred, so nothing is pushed off the page; it simply starts at the top. In the PDF the text sits exactly between the margins. An EPUB is reflowable, so the e-reader decides: most readers centre the page on the screen, and the others leave a margin above the text. On a phone-sized window the editor shows plain reading text, which is never centred. Word, RTF and Markdown exports have no page layout, so this choice does not change them.
+
+### Blank pages and where a page starts
+
+A printed book opens its title page, contents page, dedication and epigraph on a right-hand page, and it starts the page after a dedication or an epigraph on a right-hand page too. To make that happen the book puts a blank left-hand page in between when it needs one. Those blanks are part of the book, not pages you wrote: you cannot type in them, rename them or delete them, and in the PDF they are blank.
+
+Two quotes in a row, or a dedication followed by a short epigraph, can therefore leave blank pages between front matter pages. To remove one, open the `...` menu of the page that comes after the blank and tick **Start on the next page**. That page then follows the page before it, left-hand or right-hand, so no blank page goes before it, in the page view, in Read mode and in the exported PDF. Untick it (or undo) and the blank page comes back. The choice goes through book undo and redo, and the screen reader hears it ("Epigraph: starts on the next page").
+
+Chapter openings follow the template's own setting instead (the Templates page says whether chapters open on a right-hand page); a chapter always starts exactly where its page cards say it does.
 
 ## History, backups and keeping your work safe
 

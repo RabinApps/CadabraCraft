@@ -14,6 +14,7 @@ export const entryWordsOf = (pages: readonly BookPage[]): EntryWords[] =>
     section: p.section,
     kind: p.kind,
     verticalCenter: p.verticalCenter,
+    startOnNext: p.startOnNext,
     words: countWords(p.doc),
   }));
 

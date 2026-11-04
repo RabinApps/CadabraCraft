@@ -117,6 +117,26 @@ export function setMatterVerticalCenter(
   return { ...m, frontMatter: set(m.frontMatter), backMatter: set(m.backMatter) };
 }
 
+/**
+ * Sets or clears (`null` follows the book's rules) a front or back matter page's start: on the next page, even when that is a left-hand
+ * page (`true`), or where the page numbering puts it, a blank left-hand page before it included (`null`).
+ */
+export function setMatterStartOnNext(
+  m: Manifest,
+  id: string,
+  startOnNext: boolean | null,
+): Manifest {
+  const entry = [...m.frontMatter, ...m.backMatter].find((e) => e.id === id);
+  if (!entry) throw new Error(`no front or back matter page ${id}`);
+  const set = (list: EditionEntry[]) =>
+    list.map((e) => {
+      if (e.id !== id) return e;
+      const { startOnNext: _old, ...rest } = e;
+      return startOnNext === null ? rest : { ...rest, startOnNext };
+    });
+  return { ...m, frontMatter: set(m.frontMatter), backMatter: set(m.backMatter) };
+}
+
 /** Moves a chapter by `delta` positions, clamped to the list. Order lives in the manifest, not in file names. */
 export function moveChapter(m: Manifest, id: string, delta: number): Manifest {
   const from = m.chapters.findIndex((c) => c.id === id);

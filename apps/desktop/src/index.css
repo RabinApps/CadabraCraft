@@ -425,12 +425,16 @@ body {
 .prose-page .ProseMirror > :first-child {
   margin-top: 0;
 }
-/* No chapter opening above the heading of a title page, dedication, epigraph or centred page: the PDF sets these with their own layout. */
-.prose-page.page-bare .ProseMirror > h1:first-child {
+/*
+ * No chapter opening above the heading of a title page, dedication, epigraph or centred page: the PDF sets these with their own layout.
+ * A blank verso before the page is a page-break spacer and the first child of the editor, so the page's first block is the spacer's
+ * next sibling, and every "first block" rule below names both (see `centredPage`).
+ */
+.prose-page.page-bare .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1) {
   margin-top: 0;
 }
-.prose-page.page-bare .ProseMirror > h1:first-child::before,
-.prose-page.page-bare .ProseMirror > h1:first-child::after {
+.prose-page.page-bare .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::before,
+.prose-page.page-bare .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::after {
   content: none;
 }
 /*
@@ -441,6 +445,17 @@ body {
  */
 .prose-page.page-centred .ProseMirror:not(.pv-natural) {
   padding-top: calc(var(--page-mt) + var(--page-centre-top, 0px));
+}
+/*
+ * A blank verso before the page (page-centred-after-blank, the book's recto rule) is a page-break spacer at the top of the column, and
+ * the pages' cards are placed from those spacers' bottoms. The offset therefore goes below it, on the page's first block: as padding
+ * at the top it would move the blank page and every card down with the text and leave the page uncentred.
+ */
+.prose-page.page-centred-after-blank .ProseMirror:not(.pv-natural) {
+  padding-top: var(--page-mt);
+}
+.prose-page.page-centred-after-blank .ProseMirror:not(.pv-natural) > .pv-gap:first-child + * {
+  margin-top: var(--page-centre-top, 0px);
 }
 .prose-page .ProseMirror p {
   margin: 0 0 var(--page-para-space);
@@ -469,13 +484,13 @@ body {
   text-align: var(--page-h1-align);
   margin: var(--page-h1-above) 0 var(--page-h1-below);
 }
-.prose-page .ProseMirror > h1:first-child {
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1) {
   position: relative;
   margin-top: calc(var(--page-chapter-sink) + var(--page-chapter-extra));
 }
 /* Chapter ornament and label sit in the space --page-chapter-extra reserves above the title (as the PDF's chapter-start). */
-.prose-page .ProseMirror > h1:first-child::before,
-.prose-page .ProseMirror > h1:first-child::after {
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::before,
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::after {
   position: absolute;
   left: 0;
   right: 0;
@@ -486,7 +501,7 @@ body {
   pointer-events: none;
   user-select: none;
 }
-.prose-page .ProseMirror > h1:first-child::before {
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::before {
   content: var(--page-chapter-ornament);
   top: var(--page-chapter-ornament-top);
   height: var(--page-chapter-ornament-h);
@@ -494,7 +509,7 @@ body {
   line-height: var(--page-chapter-ornament-h);
   text-align: center;
 }
-.prose-page .ProseMirror > h1:first-child::after {
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::after {
   content: var(--page-chapter-label);
   top: var(--page-chapter-label-top);
   height: var(--page-chapter-label-h);
@@ -505,19 +520,25 @@ body {
 }
 /* The ornament and the label are decoration: an empty alternative keeps them out of the heading's accessible name (WCAG 1.1.1). */
 @supports (content: "a" / "b") {
-  .prose-page .ProseMirror > h1:first-child::before {
+  .prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::before {
     content: var(--page-chapter-ornament) / "";
   }
-  .prose-page .ProseMirror > h1:first-child::after {
+  .prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::after {
     content: var(--page-chapter-label) / "";
   }
 }
 /* Drop cap on a chapter's first paragraph; min-height is the reservation when the paragraph is shorter than the cap. */
-.prose-page .ProseMirror > h1:first-child + p:not([data-text-align]) {
+.prose-page
+  .ProseMirror
+  > :is(h1:first-child, .pv-gap:first-child + h1)
+  + p:not([data-text-align]) {
   display: flow-root;
   min-height: var(--page-dropcap-height);
 }
-.prose-page .ProseMirror > h1:first-child + p:not([data-text-align])::first-letter {
+.prose-page
+  .ProseMirror
+  > :is(h1:first-child, .pv-gap:first-child + h1)
+  + p:not([data-text-align])::first-letter {
   float: var(--page-dropcap-float);
   font-size: var(--page-dropcap-size);
   line-height: var(--page-dropcap-lh);

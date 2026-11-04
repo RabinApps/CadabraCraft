@@ -145,8 +145,12 @@ ${headingRule(3, p.headings[3], fonts.heading)}
   body
 }))
 #let scene-break() = align(center, block(above: ${em(p.sceneBreak.spaceEm)}, below: ${em(p.sceneBreak.spaceEm)}, ${typstString(p.sceneBreak.glyph)}))
-#let chapter-start(title, n, id: "", kind: "chapter") = {
-  pagebreak(weak: true${startOn === "recto" ? ', to: "odd"' : ""})
+#let chapter-start(title, n, id: "", kind: "chapter", odd: true) = {
+  ${
+    startOn === "recto"
+      ? 'if odd { pagebreak(weak: true, to: "odd") } else { pagebreak(weak: true) }'
+      : 'pagebreak(weak: true)'
+  }
   mark("chapter-start", info: (id: id, kind: kind))
   state("chapter-title").update(title)
   counter(footnote).update(0)
