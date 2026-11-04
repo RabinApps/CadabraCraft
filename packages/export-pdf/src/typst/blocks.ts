@@ -7,6 +7,13 @@ import { inch } from "./units";
 
 const IMAGE_EXT = new Set(["png", "jpg", "jpeg", "gif", "svg", "webp"]);
 
+/**
+ * A paragraph with no text at all: the blank line the author left. The page view and the EPUB give it the height of a line, so the PDF
+ * sets it as one too (`#blank-line`), and it is no leaf of the page marks: there is no text to find there.
+ */
+export const isBlank = (kids: DocNode[] | undefined): boolean =>
+  (kids ?? []).every((k) => k.type === "text" && k.text.trim() === "");
+
 export function imagePath(src: string, ctx: Ctx): string {
   const known = ctx.images.get(src);
   if (known) return known;
@@ -186,8 +193,9 @@ function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
     case "paragraph": {
+      if (isBlank(kids)) return "#blank-line()";
       const { mark, body } = leafText(kids, ctx, "p");
-      return body.trim() === "" ? "" : aligned(n, `${mark}${body}`);
+      return aligned(n, `${mark}${body}`);
     }
     case "heading":
       return heading(n, ctx);

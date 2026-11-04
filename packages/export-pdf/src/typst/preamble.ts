@@ -145,15 +145,21 @@ ${headingRule(3, p.headings[3], fonts.heading)}
   body
 }))
 #let scene-break() = align(center, block(above: ${em(p.sceneBreak.spaceEm)}, below: ${em(p.sceneBreak.spaceEm)}, ${typstString(p.sceneBreak.glyph)}))
-#let chapter-start(title, n, id: "", kind: "chapter", odd: true) = {
+// A paragraph the author left empty is one line of the body, as in the page view and the EPUB: the pitch of a line is measured there, so
+// it follows the font, the size and the leading of whatever it sits in, and the paragraph spacing on either side stays as it is.
+#let blank-line() = context v(measure([a\\ b]).height - measure([a]).height)
+// opening: the template's chapter opening above the title (the sink, the ornament and the label). A page that does not open with a
+// level-1 heading has no title to hang them on (Page view and the EPUB give it none either), so the page starts at the top margin.
+#let chapter-start(title, n, id: "", kind: "chapter", odd: true, opening: true) = {
   ${
     startOn === "recto"
       ? 'if odd { pagebreak(weak: true, to: "odd") } else { pagebreak(weak: true) }'
-      : 'pagebreak(weak: true)'
+      : "pagebreak(weak: true)"
   }
   mark("chapter-start", info: (id: id, kind: kind))
   state("chapter-title").update(title)
   counter(footnote).update(0)
+  if opening {
   v(${sink})
 ${
   p.chapterOpening.ornament === null
@@ -169,7 +175,7 @@ ${
     v(0.8em)
   }
 `
-  }}
+  }}}
 // Front and back matter pages with their own layout. The marks sit inside the aligned block so they stay on the page they describe.
 #let matter-marks(id, kind, start, end, body) = {
   mark("chapter-start", info: (id: id, kind: kind))

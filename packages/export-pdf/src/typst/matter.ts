@@ -9,7 +9,7 @@ import { resolveVerticalCenter, type Template } from "@cadabracraft/templates";
 import { typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import type { PdfChapter } from "../types";
-import { blocks, imagePath, leafText, markedBlocks } from "./blocks";
+import { blocks, imagePath, isBlank, leafText, markedBlocks } from "./blocks";
 import type { Ctx } from "./ctx";
 import { inline } from "./inline";
 import { em } from "./units";
@@ -27,6 +27,15 @@ function sectionOf(c: PdfChapter): Section {
       `Page "${c.id}": kind "${String(c.kind)}" is not allowed in the ${section} section`,
     );
   return section;
+}
+
+/**
+ * A level-1 heading as the page's first block: the page's own title, above which the template's chapter opening (sink, ornament,
+ * label) sits. Page view and the EPUB hang it on the same heading (`h1:first-child`).
+ */
+function opensWithTitle(page: PdfChapter): boolean {
+  const first = page.doc.content?.[0];
+  return first?.type === "heading" && Number(first.attrs?.level ?? 1) === 1;
 }
 
 /**
@@ -52,28 +61,50 @@ function dropCapOpening(
   indentEm: number,
   chapter: number,
 ): string | null {
-  const first = doc?.[0];
+  // A chapter that opens with its own title heading takes the cap on the paragraph under it, where Page view and the EPUB put it
+  // (`h1:first-child + p`); a chapter with no heading of its own opens on its first block.
+  const at = doc?.[0]?.type === "heading" && Number(doc[0].attrs?.level ?? 1) === 1 ? 1 : 0;
+  const first = doc?.[at];
   // A paragraph the author aligned has no big first letter: a drop cap hangs from the left margin of justified text.
   if (first?.type === "paragraph" && first.attrs?.textAlign) return null;
   const kids = first?.type === "paragraph" && "content" in first ? first.content : undefined;
   const lead = kids?.[0];
   if (lead?.type !== "text" || (lead.marks?.length ?? 0) > 0 || !/^\p{L}.{1,}/u.test(lead.text))
     return null;
-  const rest = ctx.marks
-    ? markedBlocks(doc!.slice(1), ctx, chapter, 1)
-    : blocks(doc!.slice(1), ctx);
+  // The title heading the cap hangs under is still the chapter's first block: it is set above the cap, with the marks of block 0.
+  const head =
+    at === 0
+      ? ""
+      : `${
+          ctx.marks ? markedBlocks(doc!.slice(0, at), ctx, chapter) : blocks(doc!.slice(0, at), ctx)
+        }\n\n`;
   ctx.usesDropCap = true;
-  // Typst treats the paragraph after the drop cap block as a first paragraph, so an indenting template needs its indent put back by hand.
-  const indent = indentEm > 0 && doc![1]?.type === "paragraph" ? `#h(${em(indentEm)})` : "";
+  // Typst treats the paragraph after the drop cap block as a first paragraph, so an indenting template needs its indent put back by hand;
+  // a blank line the author left under the title keeps its place, so the indent goes to the first paragraph that has text.
+  const rest = doc!.slice(at + 1);
+  const emit = (nodes: DocNode[], first: number): string =>
+    ctx.marks ? markedBlocks(nodes, ctx, chapter, first) : blocks(nodes, ctx);
+  const indentAt =
+    indentEm > 0
+      ? rest.findIndex(
+          (n) => n.type === "paragraph" && !isBlank("content" in n ? n.content : undefined),
+        )
+      : -1;
+  const indent = indentAt < 0 ? "" : `#h(${em(indentEm)})`;
+  const before = emit(indentAt < 0 ? rest : rest.slice(0, indentAt), at + 1);
+  const after = indentAt < 0 ? "" : emit(rest.slice(indentAt), at + 1 + indentAt);
+  const tail = [before, indent === "" ? after : `${indent}${after}`]
+    .filter((s) => s !== "")
+    .join("\n\n");
   // The drop cap package takes the paragraph apart and sets its pieces again; the marks in it survive that (checked with real Typst).
   let cap: string;
   if (ctx.marks) {
-    ctx.mark = { chapter, block: 0, leaf: 0 };
+    ctx.mark = { chapter, block: at, leaf: 0 };
     const { mark, body } = leafText(kids, ctx, "p");
     ctx.mark = undefined;
     cap = `${mark}\n\n#dropcap(height: 3, gap: 0.12em)[${body}]`;
   } else cap = `#dropcap(height: 3, gap: 0.12em)[${inline(kids, ctx, true)}]`;
-  return `${cap}${rest === "" ? "" : `\n\n${indent}${rest}`}`;
+  return `${head}${cap}${tail === "" ? "" : `\n\n${tail}`}`;
 }
 
 /** `dropCap` is the template's choice, which a chapter's own `dropCap` overrides. */
@@ -152,7 +183,9 @@ export function bodyOf(
         out.push(
           centred
             ? `#centered-page(${info})[\n${content}\n]\n`
-            : `#chapter-start(${title}, none, ${named})\n\n${content}\n\n#mark("chapter-end")\n`,
+            : `#chapter-start(${title}, none, ${named}${
+                opensWithTitle(page) ? "" : ", opening: false"
+              })\n\n${content}\n\n#mark("chapter-end")\n`,
         );
     }
   }

@@ -122,6 +122,61 @@ describe("buildTypst content", () => {
       false,
     );
   });
+  it("puts the drop cap under a chapter's own title heading, where Page view and the EPUB put it", () => {
+    const h1 = (t: string): DocNode => ({
+      type: "heading",
+      attrs: { level: 1 },
+      content: [text(t)],
+    });
+    const doc = buildTypstDocument(book, ch(h1("The Quay"), para(text("Once upon a time."))), {
+      template: "novel",
+    });
+    expect(doc.usesDropCap).toBe(true);
+    expect(doc.source).toContain("#dropcap(height: 3, gap: 0.12em)[Once upon a time.]");
+    expect(doc.source).toContain("#heading(level: 1)[The Quay]");
+    // A heading with no attributes is still the title: `level` is optional, and a missing one is level 1.
+    expect(
+      buildTypstDocument(
+        book,
+        ch({ type: "heading", content: [text("Bare")] }, para(text("Once."))),
+        {
+          template: "novel",
+        },
+      ).usesDropCap,
+    ).toBe(true);
+    // A blank line after the cap keeps its place, and the indent goes to the first paragraph that has text (novel indents by 1.4 em).
+    const spaced = buildTypstDocument(
+      book,
+      ch(
+        h1("The Quay"),
+        para(text("Once upon a time.")),
+        { type: "paragraph" },
+        para(text("Second.")),
+      ),
+      { template: "novel" },
+    ).source;
+    expect(spaced).toContain(
+      "#dropcap(height: 3, gap: 0.12em)[Once upon a time.]\n\n#blank-line()\n\n#h(1.4em)Second.",
+    );
+    // A second-level heading opens nothing: the cap stays on the first paragraph, as in the page view (`h1 + p`).
+    const h2: DocNode = { type: "heading", attrs: { level: 2 }, content: [text("A Section")] };
+    expect(
+      buildTypstDocument(book, ch(h2, para(text("Once upon a time."))), { template: "novel" })
+        .usesDropCap,
+    ).toBe(false);
+  });
+  it("sets a paragraph the author left empty as one line of the body, with no page mark", () => {
+    const blanks = ch(para(text("First.")), para(), para(text("Last.")));
+    const blank = buildTypstDocument(book, blanks, { template: "poetry" });
+    expect(blank.source).toContain("// A paragraph the author left empty is one line of the body");
+    expect(blank.source).toContain("#let blank-line() = context v(measure([a\\ b]).height");
+    expect(blank.source).toContain("First.\n\n#blank-line()\n\nLast.");
+    // A blank line is no leaf: marked source carries a start mark for the two paragraphs and none for the blank between them.
+    const marked = buildTypstDocument(book, blanks, { template: "poetry", blockMarks: true });
+    expect(marked.source).toContain('#bm-s(0, 0, "p")');
+    expect(marked.source).toContain('#bm-s(0, 2, "p")');
+    expect(marked.source).not.toContain('#bm-s(0, 1, "p")');
+  });
   it("never sets a drop cap on a matter page, whatever it says", () => {
     const page: PdfChapter = {
       id: "d",
@@ -132,6 +187,42 @@ describe("buildTypst content", () => {
       dropCap: true,
     };
     expect(buildTypstDocument(book, [page], { template: "novel" }).usesDropCap).toBe(false);
+  });
+  it("starts a matter page at the top margin when it has no level-1 title heading", () => {
+    const h2: DocNode = { type: "heading", attrs: { level: 2 }, content: [text("Notice")] };
+    const matter = (id: string, kind: "custom" | "foreword", ...content: DocNode[]): PdfChapter =>
+      ({ id, title: id, section: "front", kind, doc: { type: "doc", content } }) as PdfChapter;
+    // A heading 2 is a section title, not the page's title: no sink, ornament or label above it (as in Page view and the EPUB).
+    const disclaimer = buildTypstDocument(book, [matter("d", "custom", h2, para(text("Body.")))], {
+      template: "modern",
+    }).source;
+    expect(disclaimer).toContain(
+      '#chapter-start("d", none, id: "d", kind: "custom", opening: false)',
+    );
+    // A page that opens with its own level-1 heading keeps the template's opening.
+    const foreword = buildTypstDocument(
+      book,
+      [
+        matter(
+          "f",
+          "foreword",
+          { type: "heading", attrs: { level: 1 }, content: [text("F")] },
+          para(text("Body.")),
+        ),
+      ],
+      { template: "modern" },
+    ).source;
+    expect(foreword).toContain('#chapter-start("f", none, id: "f", kind: "foreword")');
+    // A heading with no attributes is a level 1 heading here too, so the page keeps its opening.
+    expect(
+      buildTypstDocument(
+        book,
+        [matter("b", "custom", { type: "heading", content: [text("Bare")] }, para(text("Body.")))],
+        { template: "modern" },
+      ).source,
+    ).toContain('#chapter-start("b", none, id: "b", kind: "custom")');
+    // A chapter always opens a chapter, heading or not: its label and ornament are the template's, not the document's.
+    expect(buildTypst(book, ch(para(text("Body."))))).toContain('#chapter-start("C", 1,');
   });
   it("skips the drop cap when the chapter does not open with a plain-text paragraph", () => {
     expect(
@@ -206,10 +297,16 @@ describe("buildTypst content", () => {
     );
     expect(out).toContain("#underline[#emph[#strong[x]]]");
   });
-  it("skips empty paragraphs and empty text", () => {
-    const out = buildTypst(book, ch(para(), para(text("")), para(text("kept"))));
-    expect(out).toContain("kept");
-    expect(out.split("#chapter-start")[1]).not.toMatch(/\n\n\n\n/);
+  it("sets an empty paragraph as a blank line and skips an empty text run", () => {
+    const out = buildTypst(
+      book,
+      ch(para(), { type: "paragraph" }, para(text("")), para(text(""), text("kept"))),
+    );
+    const body = out.split("#chapter-start")[1];
+    // An empty paragraph is one line of the body, whether it has no content at all or an empty text node.
+    expect(body).toContain("#blank-line()\n\n#blank-line()\n\n#blank-line()\n\nkept");
+    // An empty text run inside a paragraph that has text is skipped, leaving no gap in the source.
+    expect(body).not.toMatch(/\n\n\n\n/);
   });
 });
 

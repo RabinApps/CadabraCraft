@@ -80,15 +80,21 @@
   body
 }))
 #let scene-break() = align(center, block(above: 1em, below: 1em, "*   *   *"))
-#let chapter-start(title, n, id: "", kind: "chapter", odd: true) = {
+// A paragraph the author left empty is one line of the body, as in the page view and the EPUB: the pitch of a line is measured there, so
+// it follows the font, the size and the leading of whatever it sits in, and the paragraph spacing on either side stays as it is.
+#let blank-line() = context v(measure([a\ b]).height - measure([a]).height)
+// opening: the template's chapter opening above the title (the sink, the ornament and the label). A page that does not open with a
+// level-1 heading has no title to hang them on (Page view and the EPUB give it none either), so the page starts at the top margin.
+#let chapter-start(title, n, id: "", kind: "chapter", odd: true, opening: true) = {
   if odd { pagebreak(weak: true, to: "odd") } else { pagebreak(weak: true) }
   mark("chapter-start", info: (id: id, kind: kind))
   state("chapter-title").update(title)
   counter(footnote).update(0)
+  if opening {
   v(8em)
   align(center, text(size: 1.2em, "⁂"))
   v(0.6em)
-}
+}}
 // Front and back matter pages with their own layout. The marks sit inside the aligned block so they stay on the page they describe.
 #let matter-marks(id, kind, start, end, body) = {
   mark("chapter-start", info: (id: id, kind: kind))
@@ -122,11 +128,12 @@
   })))
 }
 
+#import "typst-droplet/lib.typ": dropcap
 #chapter-start("Chapter One", 1, id: "ch1", kind: "chapter")
 
 #heading(level: 1)[Chapter One]
 
-It was a #strong[bright] cold day & the clocks were #emph[striking] thirteen#footnote[Orwell, 1949.]\.
+#dropcap(height: 3, gap: 0.12em)[It was a #strong[bright] cold day & the clocks were #emph[striking] thirteen#footnote[Orwell, 1949.]\.]
 
 #quote(block: true)[
 A quoted \<line\>.
@@ -147,7 +154,7 @@ One
   ],
 )
 
-#strike[struck] #raw("a<b") H#sub[2]O x#super[2]
+#h(1.4em)#strike[struck] #raw("a<b") H#sub[2]O x#super[2]
 
 #enum(start: 3, 
   [
