@@ -101,6 +101,18 @@ describe("merging and splitting", () => {
       { sources: [2], title: "C", include: true },
     ]);
   });
+  it("keeps the author's title for a chapter the parser gave no title", () => {
+    const merged = mergePlanItemUp(mergePlanItemUp(plan, 1), 1).map((p) => ({
+      ...p,
+      title: "Whole",
+    }));
+    const untitled = { ...result(), chapters: [] };
+    expect(splitPlanItem(merged, 0, untitled).map((p) => p.title)).toEqual([
+      "Whole",
+      "Whole",
+      "Whole",
+    ]);
+  });
   it("does not split a single chapter or a missing row", () => {
     expect(canSplit(plan, 0)).toBe(false);
     expect(canSplit(plan, 9)).toBe(false);

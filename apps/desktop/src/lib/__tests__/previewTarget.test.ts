@@ -33,6 +33,20 @@ describe("pageTarget", () => {
     expect(pageTarget(report, 11)).toEqual({ id: "c2", block: 0, leaf: 0, word: null });
   });
 
+  it("keeps the block the page is inside of when later blocks start after it", () => {
+    const later: PageReport = {
+      total: 5,
+      starts: [start("c", 1, 5)],
+      blocks: {
+        c: [
+          { block: 0, leaf: 0, kind: "p", page: 1, splits: [] },
+          { block: 1, leaf: 0, kind: "p", page: 4, splits: [] },
+        ],
+      },
+    };
+    expect(pageTarget(later, 2)).toEqual({ id: "c", block: 0, leaf: 0, word: null });
+  });
+
   it("is the entry's start when the report has no marks for it", () => {
     expect(pageTarget(report, 3)).toEqual({ id: "front", block: 0, leaf: 0, word: null });
   });

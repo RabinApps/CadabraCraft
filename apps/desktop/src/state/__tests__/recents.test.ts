@@ -51,6 +51,14 @@ describe("recent book stats", () => {
     const next = addRecent(withStats, r("/a", 5, "Renamed"));
     expect(next[0]).toMatchObject({ title: "Renamed", openedAt: 5, stats: stats(100) });
   });
+  it("updates one book without touching the others", () => {
+    const list = [r("/a"), r("/b"), r("/c")];
+    const next = updateStats(list, "/b", stats(5), 9);
+    expect(next.map((x) => x.root)).toEqual(["/a", "/b", "/c"]);
+    expect(next[1]).toMatchObject({ stats: stats(5) });
+    expect(next[0]).toBe(list[0]);
+    expect(next[2]).toBe(list[2]);
+  });
   it("records the first stats without calling the book edited", () => {
     const [first] = updateStats([r("/a")], "/a", stats(100), 9);
     expect(first).toMatchObject({ stats: stats(100) });
