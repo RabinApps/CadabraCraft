@@ -48,14 +48,22 @@ function roundTrip(d: ChapterDoc): ChapterDoc {
   return unlink(out) as ChapterDoc;
 }
 
-/** Marks that survive the Markdown round trip; the others have no syntax. */
+/** Marks that survive the Markdown round trip; the others have no syntax. So does a text alignment (a block attribute). */
 const LOSSY = new Set(["underline", "smallCaps", "superscript", "subscript"]);
 function stripLossy(n: DocNode): DocNode {
   if (n.type === "text") {
     const marks = (n.marks ?? []).filter((x) => !LOSSY.has(x.type));
     return marks.length ? { ...n, marks } : { type: "text", text: n.text };
   }
-  return "content" in n && n.content ? { ...n, content: merge(n.content.map(stripLossy)) } : n;
+  const attrs = "attrs" in n && n.attrs ? { ...n.attrs } : undefined;
+  if (attrs) delete (attrs as { textAlign?: unknown }).textAlign;
+  const bare =
+    attrs && Object.keys(attrs).length > 0
+      ? { ...n, attrs }
+      : (({ attrs: _a, ...rest }) => rest)(n);
+  return "content" in bare && bare.content
+    ? { ...bare, content: merge(bare.content.map(stripLossy)) }
+    : bare;
 }
 function merge(nodes: DocNode[]): DocNode[] {
   const out: DocNode[] = [];
@@ -474,7 +482,7 @@ describe("htmlMarks round trip", () => {
 });
 
 describe("round trip of the fixtures", () => {
-  it("sample-chapter.json without the marks that have no syntax comes back identical", () => {
+  it("sample-chapter.json without the marks and alignment that have no syntax comes back identical", () => {
     const d = normalised(sample());
     expect(roundTrip(d)).toEqual(d);
   });

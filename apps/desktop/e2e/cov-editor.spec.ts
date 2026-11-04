@@ -346,7 +346,6 @@ test.describe("toolbar", () => {
       "Block quote",
       "Bulleted list",
       "Numbered list",
-      "Scene break",
       "Footnote",
       "Undo",
       "Redo",

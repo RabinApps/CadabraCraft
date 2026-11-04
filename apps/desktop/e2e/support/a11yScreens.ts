@@ -505,6 +505,14 @@ export const moreScreens: Screen[] = [
     },
   },
   {
+    name: "editor toolbar, Text alignment menu open",
+    open: async (p) => {
+      await lastParagraph(p);
+      await toolbar(p, "Text alignment").click();
+      await shown(p.getByRole("menu", { name: "Text alignment" }));
+    },
+  },
+  {
     name: "Templates panel",
     open: async (p) => {
       await newProject(p);

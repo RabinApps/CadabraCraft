@@ -1,5 +1,5 @@
 import type { DocNode } from "@cadabracraft/shared";
-import { fail, kidsOf } from "./helpers";
+import { fail, jcOf, kidsOf } from "./helpers";
 import { TEXT_WIDTH } from "./layout";
 import { inline, paraOpen } from "./paragraphs";
 import type { Ctx, RunProps } from "./types";
@@ -34,7 +34,10 @@ export function tableRtf(n: DocNode, ctx: Ctx): string {
         const ps = kidsOf(c).map((p) => {
           if (p.type !== "paragraph")
             fail(ctx, `The node "${p.type}" cannot be written in a table cell`, p.type);
-          const open = paraOpen({ cell: true, single: true, firstLine: 0 }, cellCtx);
+          const open = paraOpen(
+            { cell: true, single: true, firstLine: 0, jc: jcOf(p, cellCtx) },
+            cellCtx,
+          );
           return `${open} ${inline(kidsOf(p), { ...cellCtx, runProps: props })}`;
         });
         // The cell mark ends the last paragraph, so only the paragraphs before it get a \par.

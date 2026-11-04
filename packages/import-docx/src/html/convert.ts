@@ -7,6 +7,7 @@ import {
   isSep,
   listNodes,
   cleanText,
+  alignFrom,
   paragraphOf,
   safeHref,
   tableOf,
@@ -21,6 +22,7 @@ import {
   MARK_TAGS,
   PLAIN_INLINE,
   SKIP,
+  alignOf,
   attr,
   collapse,
   hasClass,
@@ -93,11 +95,14 @@ function element(
   if (mark) return flow(el.childNodes, ctx, withMark(marks, mark), f, depth, dom);
   if (/^h[1-6]$/.test(tag)) return heading(el, ctx, marks, f, depth, dom);
   switch (tag) {
-    case "p":
+    case "p": {
       flush(f, ctx);
+      const from = f.out.length;
       flow(el.childNodes, ctx, marks, f, depth, dom);
       flush(f, ctx);
+      alignFrom(f.out, from, alignOf(el));
       return;
+    }
     case "br":
       f.run.push({ sep: "break" });
       return;
@@ -199,8 +204,11 @@ function element(
   }
   if (CONTAINERS.has(tag)) {
     flush(f, ctx);
+    const from = f.out.length;
     flow(el.childNodes, ctx, marks, f, depth, dom);
     flush(f, ctx);
+    // A container's alignment is inherited by the paragraphs and headings in it that have none of their own.
+    alignFrom(f.out, from, alignOf(el));
     return;
   }
   if (!PLAIN_INLINE.has(tag))
@@ -232,6 +240,7 @@ function heading(
   dom: number,
 ): void {
   flush(f, ctx);
+  const from = f.out.length;
   let level = Number(el.tagName[1]);
   if (level > 3) {
     ctx.warn.at("heading-clamped", "warning", `Heading level ${level} was changed to level 3.`);
@@ -248,6 +257,7 @@ function heading(
   );
   for (const i of items) if (isSep(i) && i.sep === "block") f.out.push(i.node);
   f.out.push(...inner.out);
+  alignFrom(f.out, from, alignOf(el));
 }
 
 /** The checkbox that makes a list item a task item: an `<input type=checkbox>` first in the item, alone or inside a `<label>`. */

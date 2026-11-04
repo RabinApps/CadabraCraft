@@ -23,20 +23,21 @@
   })
 #set text(font: "Libertinus Serif", size: 11pt, hyphenate: true, lang: "en")
 #set par(justify: true, leading: 0.62em, spacing: 0.62em, first-line-indent: (amount: 1.4em, all: false))
+#let heading-align(it, template) = if it.supplement == [ha-center] { center } else if it.supplement == [ha-end] { end } else if it.supplement == [ha-start] { start } else { template }
 #show heading.where(level: 1): it => block(width: 100%, above: 0pt, below: 2.2em, sticky: true, {
-  set align(center)
+  set align(heading-align(it, center))
   set text(font: "Libertinus Serif", size: 1.7em, weight: "regular", style: "normal")
   set par(first-line-indent: 0pt, justify: false, hanging-indent: 0pt)
   it.body
 })
 #show heading.where(level: 2): it => block(width: 100%, above: 2em, below: 1em, sticky: true, {
-  set align(center)
+  set align(heading-align(it, center))
   set text(font: "Libertinus Serif", size: 1.2em, weight: "regular", style: "normal")
   set par(first-line-indent: 0pt, justify: false, hanging-indent: 0pt)
   smallcaps(it.body)
 })
 #show heading.where(level: 3): it => block(width: 100%, above: 1.5em, below: 0.75em, sticky: true, {
-  set align(left)
+  set align(heading-align(it, left))
   set text(font: "Libertinus Serif", size: 1em, weight: "regular", style: "italic")
   set par(first-line-indent: 0pt, justify: false, hanging-indent: 0pt)
   it.body
@@ -186,6 +187,20 @@ A fixed signal light.
   table.header([Item], [Cost & note]),
   [a\<b], [Ten#footnote[In cells.]],
 )
+
+#[#set align(center)
+#set par(first-line-indent: 0pt, justify: false)
+A centred line.]
+
+#[#set align(end)
+#set par(first-line-indent: 0pt, justify: false)
+A right-aligned line, #emph[with emphasis]\.]
+
+#[#set align(start)
+#set par(first-line-indent: 0pt, justify: false)
+A left-aligned line.]
+
+#heading(level: 3, supplement: [ha-center])[A centred heading]
 
 #mark("chapter-end")
 

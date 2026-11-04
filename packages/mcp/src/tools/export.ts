@@ -54,7 +54,7 @@ export const exportMarkdown = defineTool({
   name: "cadabra_export_markdown",
   title: "Export Markdown",
   description:
-    "Write exports/<language>/book.md (CommonMark + GFM: footnotes, tables, strikethrough) with every page in reading order; chapters without a level-1 heading get '# Title'. Image paths are written relative to exports/ (../assets/x.png). Underline, small caps, superscript and subscript have no Markdown syntax: the export fails (markdown_error) unless htmlMarks is true, which writes them as inline HTML. Only writes under exports/.",
+    "Write exports/<language>/book.md (CommonMark + GFM: footnotes, tables, strikethrough) with every page in reading order; chapters without a level-1 heading get '# Title'. Image paths are written relative to exports/ (../assets/x.png). Underline, small caps, superscript and subscript have no Markdown syntax: the export fails (markdown_error) unless htmlMarks is true, which writes them as inline HTML. Left, centred and right aligned paragraphs and headings are wrapped in <div align=...> with htmlMarks, and written as plain text without it. Only writes under exports/.",
   input: { path: PATH, htmlMarks: z.boolean().optional().describe("Write underline, small caps, superscript and subscript as inline HTML instead of failing."), language: LANGUAGE, skipUntranslated: SKIP },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
   run: ({ path, htmlMarks, language, skipUntranslated }, ctx) =>

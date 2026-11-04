@@ -1,4 +1,4 @@
-import { wordStarts, type DocNode } from "@cadabracraft/shared";
+import { parseTextAlign, wordStarts, type DocNode } from "@cadabracraft/shared";
 import { escapeMarkup, typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import { unsupported, type Ctx } from "./ctx";
@@ -130,6 +130,28 @@ export function leafText(
   };
 }
 
+/** The alignment the author chose for a paragraph or heading (`textAlign`), null when the template decides. */
+function alignOf(n: Exclude<DocNode, { type: "text" }>): "start" | "center" | "end" | null {
+  const align = parseTextAlign(n.attrs?.textAlign);
+  if (align === undefined)
+    throw new PdfExportError(
+      `Text alignment ${JSON.stringify(n.attrs?.textAlign)} is not allowed (start, center or end)`,
+    );
+  return align;
+}
+
+/**
+ * A paragraph with the alignment the author chose, or `text` as it is when there is none (the template's own). The paragraph is set
+ * in a scope of its own: aligned, with no first-line indent and not justified (justified text has no side to align to, and an indent
+ * would push a centred line off centre). `start` and `end` follow the book's text direction, like CSS.
+ */
+function aligned(n: Exclude<DocNode, { type: "text" }>, text: string): string {
+  const align = alignOf(n);
+  return align === null
+    ? text
+    : `#[#set align(${align})\n#set par(first-line-indent: 0pt, justify: false)\n${text}]`;
+}
+
 function heading(n: Exclude<DocNode, { type: "text" }>, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   const level = Number(n.attrs?.level ?? 1);
@@ -142,7 +164,11 @@ function heading(n: Exclude<DocNode, { type: "text" }>, ctx: Ctx): string {
   const key = ctx.headingKeys?.get(ctx.headingNo);
   ctx.headingNo++;
   const toc = key === undefined ? "" : `#mark("toc-heading", info: (key: ${typstString(key)}))`;
-  return `#heading(level: ${level})[${toc}${mark}${body}]`;
+  // The template's heading rule sets the alignment inside its own block, so a heading says what it wants through its `supplement`
+  // (read by `heading-align` in the preamble; a heading is never referenced, so the supplement is free).
+  const align = alignOf(n);
+  const supplement = align === null ? "" : `, supplement: [ha-${align}]`;
+  return `#heading(level: ${level}${supplement})[${toc}${mark}${body}]`;
 }
 
 /** The start mark of the block being marked (see `markedBlocks`): where a leaf of text, an image or a code block begins. */
@@ -161,7 +187,7 @@ function block(n: DocNode, ctx: Ctx): string {
   switch (n.type) {
     case "paragraph": {
       const { mark, body } = leafText(kids, ctx, "p");
-      return body.trim() === "" ? "" : `${mark}${body}`;
+      return body.trim() === "" ? "" : aligned(n, `${mark}${body}`);
     }
     case "heading":
       return heading(n, ctx);

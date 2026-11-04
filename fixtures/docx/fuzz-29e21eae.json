@@ -317,7 +317,10 @@
                "type": "text",
                "text": "**"
               }
-             ]
+             ],
+             "attrs": {
+              "textAlign": "center"
+             }
             }
            ]
           }

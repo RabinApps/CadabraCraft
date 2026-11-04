@@ -21,7 +21,7 @@ pub fn split_chapters(blocks: Vec<Node>, level: u8, untitled: &str, warn: &mut W
     let mut chapters: Vec<Cur> = Vec::new();
     let mut saw_heading = false;
     for b in blocks {
-        if b.is("heading") && matches!(b.attrs, Some(Attrs::Heading { level: l }) if l == level) {
+        if b.is("heading") && matches!(b.attrs, Some(Attrs::Heading { level: l, .. }) if l == level) {
             saw_heading = true;
             let t = js_trim(&plain_text(b.children())).to_string();
             let title = if t.is_empty() { untitled.to_string() } else { t };
@@ -201,7 +201,7 @@ mod tests {
         Node::with("paragraph", vec![t(s)])
     }
     fn heading(level: u8, s: &str) -> Node {
-        Node::with_attrs("heading", Attrs::Heading { level }, if s.is_empty() { vec![] } else { vec![t(s)] })
+        Node::with_attrs("heading", Attrs::Heading { level, align: None }, if s.is_empty() { vec![] } else { vec![t(s)] })
     }
     fn titles(c: &[Chapter]) -> Vec<&str> {
         c.iter().map(|c| c.title.as_str()).collect()

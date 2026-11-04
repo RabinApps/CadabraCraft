@@ -73,7 +73,10 @@
             }
            ]
           }
-         ]
+         ],
+         "attrs": {
+          "textAlign": "center"
+         }
         }
        ]
       },
@@ -171,7 +174,10 @@
          "type": "text",
          "text": "# #"
         }
-       ]
+       ],
+       "attrs": {
+        "textAlign": "center"
+       }
       }
      ]
     }

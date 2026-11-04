@@ -1,5 +1,5 @@
 import type { DocNode } from "@cadabracraft/shared";
-import { attrsOf, fail, kidsOf } from "./helpers";
+import { attrsOf, fail, jcOf, kidsOf } from "./helpers";
 import { inline, INDENT, para } from "./paragraphs";
 import { esc } from "./text";
 import type { Ctx } from "./types";
@@ -73,8 +73,9 @@ export function listRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer): string[]
     for (const c of kidsOf(li)) {
       if (c.type === "paragraph") {
         const runs = inline(kidsOf(c), inner);
-        if (first) out.push(para(label + runs, { left, firstLine: -360 }, ctx));
-        else if (runs !== "") out.push(para(runs, { left, firstLine: 0 }, ctx));
+        const jc = jcOf(c, ctx);
+        if (first) out.push(para(label + runs, { left, firstLine: -360, jc }, ctx));
+        else if (runs !== "") out.push(para(runs, { left, firstLine: 0, jc }, ctx));
       } else {
         if (first) out.push(para(label, { left, firstLine: -360 }, ctx));
         out.push(...blockRtf(c, inner));
@@ -102,11 +103,17 @@ export function taskListRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer): stri
     const label = `${esc(checked ? "☒" : "☐")}\\tab `;
     const [head, ...rest] = kidsOf(li);
     if (head?.type !== "paragraph") fail(ctx, "A task item must start with a paragraph", li.type);
-    out.push(para(label + inline(kidsOf(head!), inner), { left, firstLine: -360 }, ctx));
+    out.push(
+      para(
+        label + inline(kidsOf(head!), inner),
+        { left, firstLine: -360, jc: jcOf(head!, ctx) },
+        ctx,
+      ),
+    );
     for (const c of rest) {
       if (c.type === "paragraph") {
         const runs = inline(kidsOf(c), inner);
-        if (runs !== "") out.push(para(runs, { left, firstLine: 0 }, ctx));
+        if (runs !== "") out.push(para(runs, { left, firstLine: 0, jc: jcOf(c, ctx) }, ctx));
       } else out.push(...blockRtf(c, inner));
     }
   }
@@ -127,11 +134,11 @@ export function definitionListRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer)
       const [head, ...rest] = kidsOf(k);
       if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
       const opts = { left: base + INDENT, firstLine: 0 };
-      out.push(para(inline(kidsOf(head!), ctx), opts, ctx));
+      out.push(para(inline(kidsOf(head!), ctx), { ...opts, jc: jcOf(head!, ctx) }, ctx));
       for (const c of rest) {
         if (c.type === "paragraph") {
           const runs = inline(kidsOf(c), ctx);
-          if (runs !== "") out.push(para(runs, opts, ctx));
+          if (runs !== "") out.push(para(runs, { ...opts, jc: jcOf(c, ctx) }, ctx));
         } else out.push(...blockRtf(c, inner));
       }
     } else fail(ctx, `The node "${k.type}" cannot be written in a definition list`, k.type);

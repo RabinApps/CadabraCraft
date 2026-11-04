@@ -513,11 +513,11 @@ body {
   }
 }
 /* Drop cap on a chapter's first paragraph; min-height is the reservation when the paragraph is shorter than the cap. */
-.prose-page .ProseMirror > h1:first-child + p {
+.prose-page .ProseMirror > h1:first-child + p:not([data-text-align]) {
   display: flow-root;
   min-height: var(--page-dropcap-height);
 }
-.prose-page .ProseMirror > h1:first-child + p::first-letter {
+.prose-page .ProseMirror > h1:first-child + p:not([data-text-align])::first-letter {
   float: var(--page-dropcap-float);
   font-size: var(--page-dropcap-size);
   line-height: var(--page-dropcap-lh);
@@ -539,6 +539,24 @@ body {
   font-variant: var(--page-h3-variant);
   text-align: var(--page-h3-align);
   margin: var(--page-h3-above) 0 var(--page-h3-below);
+}
+/*
+ * Text alignment the author chose (the textAlign attribute, drawn as data-text-align). start and end are the logical sides, so a
+ * right-to-left page flips them. It wins over the template's alignment (justified body text, a centred heading), and an aligned
+ * paragraph has no first-line indent, like in the PDF. The doubled attribute raises the specificity above the page rules above
+ * and the editor's own, whatever the surface (editor, Page view, Read mode).
+ */
+.ProseMirror :is(p, h1, h2, h3)[data-text-align][data-text-align="start"] {
+  text-align: start;
+}
+.ProseMirror :is(p, h1, h2, h3)[data-text-align][data-text-align="center"] {
+  text-align: center;
+}
+.ProseMirror :is(p, h1, h2, h3)[data-text-align][data-text-align="end"] {
+  text-align: end;
+}
+.ProseMirror :is(p, h1, h2, h3)[data-text-align][data-text-align] {
+  text-indent: 0;
 }
 .prose-page .ProseMirror blockquote {
   margin: var(--page-bq-space) 0;

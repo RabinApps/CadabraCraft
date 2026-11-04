@@ -1,5 +1,5 @@
 import type { DocNode } from "@cadabracraft/shared";
-import { attrsOf, checkText, fail, kidsOf } from "./helpers";
+import { attrsOf, checkText, fail, jcOf, kidsOf } from "./helpers";
 import { picture } from "./image";
 import { definitionListRtf, listRtf, taskListRtf } from "./lists";
 import { inline, INDENT, para, textRuns } from "./paragraphs";
@@ -12,11 +12,13 @@ export function blockRtf(n: DocNode, ctx: Ctx): string[] {
   switch (n.type) {
     case "paragraph": {
       const runs = inline(kids, ctx);
+      const jc = jcOf(n, ctx);
       if (runs === "") return [];
       return [
         ctx.quote > 0
-          ? para(runs, { left: ctx.quote * INDENT, right: INDENT, firstLine: 0 }, ctx)
-          : para(runs, {}, ctx),
+          ? para(runs, { left: ctx.quote * INDENT, right: INDENT, firstLine: 0, jc }, ctx)
+          : // The first-line indent would push an aligned line off its side or its centre.
+            para(runs, jc ? { jc, firstLine: 0 } : {}, ctx),
       ];
     }
     case "heading": {
@@ -28,6 +30,7 @@ export function blockRtf(n: DocNode, ctx: Ctx): string[] {
           "heading",
         );
       const runs = inline(kids, ctx);
+      const jc = jcOf(n, ctx) ?? (level === 1 ? "c" : undefined);
       return runs === ""
         ? []
         : [
@@ -37,7 +40,7 @@ export function blockRtf(n: DocNode, ctx: Ctx): string[] {
                 firstLine: 0,
                 keepNext: true,
                 outline: level - 1,
-                ...(level === 1 ? { jc: "c" } : {}),
+                jc,
               },
               ctx,
             ),

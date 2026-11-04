@@ -28,6 +28,14 @@ import {
 
 export type { ContentsItem } from "./contents";
 
+/**
+ * The author's alignment of a paragraph or heading (`class="align-start|center|end"`). Added to the built-in stylesheet and to a
+ * template's, after it: an aligned paragraph is ragged (a centred, justified line has no meaning) and has no first-line indent or
+ * drop cap, which is how the PDF sets it.
+ */
+export const ALIGN_CSS = `.align-start{text-align:start;text-indent:0}.align-center{text-align:center;text-indent:0}.align-end{text-align:end;text-indent:0}
+body.chapter.dropcap h1+p.align-start::first-letter,body.chapter.dropcap h1+p.align-center::first-letter,body.chapter.dropcap h1+p.align-end::first-letter{float:none;font-size:inherit;line-height:inherit;padding:0}`;
+
 const CSS = `body{font-family:serif;line-height:1.4}
 h1,h2,h3{font-family:sans-serif;page-break-after:avoid}
 p{margin:0;text-indent:1.2em}h1+p,h2+p,h3+p,hr+p{text-indent:0}
@@ -213,7 +221,7 @@ export function buildEpub(
   files["META-INF/container.xml"] = strToU8(
     `${xmlHead}<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`,
   );
-  files["OEBPS/style.css"] = strToU8(options.css ?? CSS);
+  files["OEBPS/style.css"] = strToU8(`${options.css ?? CSS}\n${ALIGN_CSS}`);
   // Images keep their relative `assets/<name>` path inside OEBPS, so chapter srcs need no rewriting.
   const cover = options.cover;
   const coverType = cover ? (isAssetPath(cover.path) ? imageMediaType(cover.path) : null) : null;

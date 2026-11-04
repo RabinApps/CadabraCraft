@@ -6,7 +6,10 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Attrs {
-    Heading { level: u8 },
+    /// `align` is the author's `textAlign` (`start`, `center` or `end`), absent when the template decides.
+    Heading { level: u8, align: Option<&'static str> },
+    /// A paragraph with an alignment; a paragraph without one has no attrs.
+    Align { align: &'static str },
     Image { src: String, alt: Option<String> },
     Task { checked: bool },
 }
@@ -14,9 +17,17 @@ pub enum Attrs {
 impl Serialize for Attrs {
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
         match self {
-            Attrs::Heading { level } => {
-                let mut m = s.serialize_map(Some(1))?;
+            Attrs::Heading { level, align } => {
+                let mut m = s.serialize_map(Some(1 + usize::from(align.is_some())))?;
                 m.serialize_entry("level", level)?;
+                if let Some(a) = align {
+                    m.serialize_entry("textAlign", a)?;
+                }
+                m.end()
+            }
+            Attrs::Align { align } => {
+                let mut m = s.serialize_map(Some(1))?;
+                m.serialize_entry("textAlign", align)?;
                 m.end()
             }
             Attrs::Image { src, alt } => {
@@ -65,6 +76,18 @@ impl Node {
     }
     pub fn paragraph() -> Node {
         Node::new("paragraph")
+    }
+    /// This paragraph or heading with the alignment `align` (`None`, and any other node, stay as they are).
+    pub fn aligned(mut self, align: Option<&'static str>) -> Node {
+        let Some(align) = align else { return self };
+        match (&self.ty, &self.attrs) {
+            (&"paragraph", None) => self.attrs = Some(Attrs::Align { align }),
+            (&"heading", Some(Attrs::Heading { level, align: None })) => {
+                self.attrs = Some(Attrs::Heading { level: *level, align: Some(align) });
+            }
+            _ => {}
+        }
+        self
     }
     pub fn children(&self) -> &[Node] {
         self.content.as_deref().unwrap_or(&[])

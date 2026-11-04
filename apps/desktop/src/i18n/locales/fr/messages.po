@@ -589,6 +589,22 @@ msgstr "Ajoute les chapitres d’un fichier Word (.docx), Markdown ou HTML aprè
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "Ajoute la couverture comme première page, avec une page blanche derrière. Désactivez-le pour un intérieur prêt à imprimer ; les imprimeurs veulent généralement la couverture dans un fichier séparé."
 
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Align to End"
+msgstr "Aligner à la fin"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Align to Start"
+msgstr "Aligner au début"
+
+#: src/app/shell/menuModel.ts
+msgid "Alignment"
+msgstr "Alignement"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "All"
 msgstr "Tout"
@@ -917,6 +933,12 @@ msgstr "Légende"
 #: src/lib/useIconChoices.ts
 msgid "Castle"
 msgstr "Château"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Centre"
+msgstr "Centrer"
 
 #: src/app/shell/EntryList.tsx
 msgid "Centred"
@@ -4072,6 +4094,11 @@ msgstr "Liste de tâches"
 msgid "Template"
 msgstr "Modèle"
 
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Template Default"
+msgstr "Par défaut du modèle"
+
 #: src/app/export/PdfPanel.tsx
 msgid "Template default ({templateBody})"
 msgstr "Modèle par défaut ({templateBody})"
@@ -4088,6 +4115,10 @@ msgstr "Défaut du modèle (activé)"
 #: src/app/shell/App.tsx
 msgid "Templates"
 msgstr "Modèles"
+
+#: src/editor/AlignmentMenu.tsx
+msgid "Text alignment"
+msgstr "Alignement du texte"
 
 #: src/editor/PageFrame.tsx
 msgid "Text is set in {family}, the font the PDF uses for this template."

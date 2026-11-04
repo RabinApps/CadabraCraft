@@ -7,6 +7,8 @@ import {
   definitionNodes,
   flattenItems,
   isSep,
+  alignFrom,
+  alignOfCss,
   listNodes,
   paragraphOf,
   tableOf,
@@ -64,8 +66,20 @@ function definitionBlocks(entries: DefEntry[], ctx: Ctx, line: number | undefine
   );
 }
 
+/**
+ * The wrapper `export-markdown` writes (with `htmlMarks`) around an aligned paragraph or heading: `<div align="center">`, then the
+ * Markdown after a blank line, then `</div>`. Both tags are blocks of their own, so what lies between them is read as Markdown.
+ */
+const ALIGN_OPEN = /^<div align="(left|center|right)">\s*$/;
+const ALIGN_CLOSE = /^<\/div>\s*$/;
+
 export function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[] {
   const out: DocNode[] = [];
+  let scope: { from: number; align: ReturnType<typeof alignOfCss> } | null = null;
+  const closeScope = () => {
+    if (scope) alignFrom(out, scope.from, scope.align);
+    scope = null;
+  };
   for (const n of groupDefinitions(nodes, ctx.source ?? "")) {
     if (n.type === "defGroup") {
       out.push(...definitionBlocks(n.entries, ctx, n.position?.start.line));
@@ -141,9 +155,15 @@ export function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[]
         });
         break;
       }
-      case "html":
-        out.push(...htmlSnippetBlocks(n.value, ctx));
+      case "html": {
+        const open = ALIGN_OPEN.exec(n.value);
+        if (open) {
+          closeScope();
+          scope = { from: out.length, align: alignOfCss(open[1]) };
+        } else if (scope && ALIGN_CLOSE.test(n.value)) closeScope();
+        else out.push(...htmlSnippetBlocks(n.value, ctx));
         break;
+      }
       case "table": {
         // GFM: the first row is the header.
         let flattened = false;
@@ -181,5 +201,7 @@ export function blocks(nodes: RootContent[], ctx: Ctx, depth: number): DocNode[]
       }
     }
   }
+  // A wrapper that is never closed holds the rest of the document.
+  closeScope();
   return out;
 }

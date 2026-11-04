@@ -2,7 +2,7 @@ import type { DocNode } from "@cadabracraft/shared";
 import { drawing } from "./drawing";
 import { INDENT } from "./parts";
 import { esc } from "./xml";
-import { attrsOf, checkText, fail, kidsOf } from "./helpers";
+import { attrsOf, checkText, fail, jcOf, kidsOf } from "./helpers";
 import { definitionListXml, listXml, taskListXml } from "./lists";
 import { inline, para, textRuns } from "./paragraphs";
 import { tableXml } from "./tables";
@@ -13,15 +13,17 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
   switch (n.type) {
     case "paragraph": {
       const runs = inline(kids, ctx);
+      const jc = jcOf(n, ctx);
       if (runs === "") return [];
       return [
         ctx.quote > 0
           ? para(
               runs,
-              { style: "BlockQuote", left: ctx.quote * INDENT, right: INDENT, firstLine: 0 },
+              { style: "BlockQuote", left: ctx.quote * INDENT, right: INDENT, firstLine: 0, jc },
               ctx,
             )
-          : para(runs, {}, ctx),
+          : // The style indents the first line, which would push an aligned line off its side or its centre.
+            para(runs, jc ? { jc, firstLine: 0 } : {}, ctx),
       ];
     }
     case "heading": {
@@ -33,7 +35,8 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
           "heading",
         );
       const runs = inline(kids, ctx);
-      return runs === "" ? [] : [para(runs, { style: `Heading${level}` }, ctx)];
+      const jc = jcOf(n, ctx);
+      return runs === "" ? [] : [para(runs, { style: `Heading${level}`, jc }, ctx)];
     }
     case "blockquote":
       return kids.flatMap((c) => blockXml(c, { ...ctx, quote: ctx.quote + 1 }));

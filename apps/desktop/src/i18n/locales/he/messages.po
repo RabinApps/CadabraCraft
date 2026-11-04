@@ -589,6 +589,22 @@ msgstr "מוסיף את הפרקים של קובץ Word (‎.docx), Markdown א�
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "מוסיף את הכריכה כעמוד הראשון, עם עמוד ריק מאחוריה. כבה זאת עבור קובץ פנים מוכן להדפסה; בדרך כלל בדפוס רוצים את הכריכה כקובץ נפרד."
 
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Align to End"
+msgstr "יישור לסוף"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Align to Start"
+msgstr "יישור להתחלה"
+
+#: src/app/shell/menuModel.ts
+msgid "Alignment"
+msgstr "יישור"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "All"
 msgstr "הכול"
@@ -917,6 +933,12 @@ msgstr "כיתוב"
 #: src/lib/useIconChoices.ts
 msgid "Castle"
 msgstr "טירה"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Centre"
+msgstr "מרכוז"
 
 #: src/app/shell/EntryList.tsx
 msgid "Centred"
@@ -4072,6 +4094,11 @@ msgstr "רשימת משימות"
 msgid "Template"
 msgstr "תבנית"
 
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Template Default"
+msgstr "ברירת המחדל של התבנית"
+
 #: src/app/export/PdfPanel.tsx
 msgid "Template default ({templateBody})"
 msgstr "ברירת המחדל של התבנית ({templateBody})"
@@ -4088,6 +4115,10 @@ msgstr "ברירת המחדל של התבנית (פועל)"
 #: src/app/shell/App.tsx
 msgid "Templates"
 msgstr "תבניות"
+
+#: src/editor/AlignmentMenu.tsx
+msgid "Text alignment"
+msgstr "יישור טקסט"
 
 #: src/editor/PageFrame.tsx
 msgid "Text is set in {family}, the font the PDF uses for this template."

@@ -4,6 +4,9 @@ import { useEditorState } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
 import {
   ALargeSmall,
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   Asterisk,
   Bold,
   Code,
@@ -12,6 +15,7 @@ import {
   Heading2,
   Heading3,
   Image as ImageIcon,
+  Pilcrow,
   SquarePen,
   Italic,
   Languages,
@@ -28,7 +32,7 @@ import {
   Undo2,
   type LucideIcon,
 } from "lucide-react";
-import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
+import { normalizeLinkUrl, textAlignAt } from "@cadabracraft/editor-schema";
 import { IconButton } from "../ui/Button";
 import { focusField } from "../ui/Input";
 import { useRegisterCommands } from "../state/commands";
@@ -36,6 +40,7 @@ import { attempt } from "../state/attempt";
 import { useSettings } from "../state/editorPrefs";
 import { effectiveCombo } from "../app/settings/shortcutBindings";
 import { MoreFormatting, type MoreItem } from "./MoreFormatting";
+import { AlignmentMenu, type AlignItem } from "./AlignmentMenu";
 import { moveInToolbar } from "./toolbarKeys";
 import { TableCommands } from "./TableCommands";
 import { ImageDialog, LangDialog, LinkDialog } from "./ToolbarDialogs";
@@ -44,6 +49,7 @@ import { insertDefinitionList } from "./insertDefinitionList";
 import { useLangDialog } from "./useLangDialog";
 
 const MORE = "more";
+const ALIGN = "align";
 
 interface Item {
   id: string;
@@ -80,6 +86,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
       taskList: e.isActive("taskList"),
       definitionList: e.isActive("definitionList"),
       image: e.isActive("image"),
+      align: textAlignAt(e),
       canUndo: e.can().undo(),
       canRedo: e.can().redo(),
     }),
@@ -205,15 +212,6 @@ export function Toolbar({ editor }: { editor: Editor }) {
       },
     ],
     [
-      {
-        id: "sceneBreak",
-        label: t`Scene break`,
-        icon: Asterisk,
-        run: () =>
-          c()
-            .insertContent([{ type: "sceneBreak" }, { type: "paragraph" }])
-            .run(),
-      },
       { id: "image", label: t`Image`, icon: ImageIcon, run: () => attempt(addImage()) },
       {
         id: "footnote",
@@ -235,6 +233,17 @@ export function Toolbar({ editor }: { editor: Editor }) {
       icon: SquarePen,
       disabled: !s.image,
       run: editImage,
+    },
+    {
+      // Off the bar like Image details: the alignment button is the eighteenth one it could not hold (see docs/architecture.md,
+      // "Toolbar overflow menu"). It stays in the Format menu and on the palette.
+      id: "sceneBreak",
+      label: t`Scene break`,
+      icon: Asterisk,
+      run: () =>
+        c()
+          .insertContent([{ type: "sceneBreak" }, { type: "paragraph" }])
+          .run(),
     },
     {
       id: "taskList",
@@ -304,10 +313,50 @@ export function Toolbar({ editor }: { editor: Editor }) {
     },
   ];
 
+  // Text alignment: the blocks the author aligned say how (start, centre, end); the rest follow the template.
+  const alignNow: AlignItem["id"] =
+    s.align === "start"
+      ? "alignLeft"
+      : s.align === "center"
+        ? "alignCenter"
+        : s.align === "end"
+          ? "alignRight"
+          : "alignDefault";
+  const alignItems: AlignItem[] = [
+    {
+      id: "alignLeft",
+      label: t`Align to Start`,
+      icon: AlignLeft,
+      combo: null,
+      run: () => c().setTextAlign("start").run(),
+    },
+    {
+      id: "alignCenter",
+      label: t`Centre`,
+      icon: AlignCenter,
+      combo: null,
+      run: () => c().setTextAlign("center").run(),
+    },
+    {
+      id: "alignRight",
+      label: t`Align to End`,
+      icon: AlignRight,
+      combo: null,
+      run: () => c().setTextAlign("end").run(),
+    },
+    {
+      id: "alignDefault",
+      label: t`Template Default`,
+      icon: Pilcrow,
+      combo: null,
+      run: () => c().setTextAlign(null).run(),
+    },
+  ];
+
   // The same actions as menu commands (Insert and Format), available while the toolbar is shown. Undo and redo stay the system's.
   useRegisterCommands(
-    Object.fromEntries(
-      [...groups.flat(), ...menuOnly]
+    Object.fromEntries([
+      ...[...groups.flat(), ...menuOnly]
         .filter((b) => b.id !== "undo" && b.id !== "redo")
         .map((b) => [
           `editor.${b.id}`,
@@ -317,18 +366,28 @@ export function Toolbar({ editor }: { editor: Editor }) {
             ...(b.active === undefined ? {} : { checked: b.active }),
           },
         ]),
-    ),
+      ...alignItems.map((b) => [
+        `editor.${b.id}`,
+        { run: b.run, enabled: true, checked: b.id === alignNow },
+      ]),
+    ]),
   );
 
   // One tab stop for the whole toolbar; arrow keys move between the buttons (the WAI-ARIA toolbar pattern).
   const barRef = useRef<HTMLDivElement>(null);
   const [stop, setStop] = useState<string | null>(null);
   const all = groups.flat();
-  // The More formatting button is the last stop of the bar and is never disabled.
-  const stops = [...all, { id: MORE, disabled: false }];
+  // The alignment button and the More formatting button are stops of the bar too, and are never disabled.
+  const stops = [...all, { id: ALIGN, disabled: false }, { id: MORE, disabled: false }];
   const stopId = (stops.find((b) => b.id === stop && !b.disabled) ?? stops.find((b) => !b.disabled))
     ?.id;
   const overrides = useSettings((p) => p.shortcutOverrides);
+  // The keys the menu shows next to each alignment (the editor's own keys, changed in Settings > Shortcuts).
+  const alignWithKeys = alignItems.map((b) => ({
+    ...b,
+    combo: b.id === "alignDefault" ? null : effectiveCombo(`editor.${b.id}`, overrides),
+  }));
+  const alignIcon = alignWithKeys.find((b) => b.id === alignNow)!.icon;
   const more = (ids: string[]): MoreItem[] =>
     ids.map((id) => {
       const b = menuOnly.find((m) => m.id === id)!;
@@ -339,7 +398,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const moreSections = [
     more(["strike", "code", "superscript", "subscript"]),
     more(["lang", "clearLang"]),
-    more(["imageDetails", "codeBlock", "taskList", "definitionList"]),
+    more(["imageDetails", "sceneBreak", "codeBlock", "taskList", "definitionList"]),
   ];
 
   return (
@@ -374,6 +433,16 @@ export function Toolbar({ editor }: { editor: Editor }) {
                 onClick={b.run}
               />
             ))}
+            {/* Alignment shares the block types' group, after the lists: a group of its own wraps the bar at 1280 px. */}
+            {i === 3 && (
+              <AlignmentMenu
+                items={alignWithKeys}
+                active={alignNow}
+                icon={alignIcon}
+                disabled={false}
+                tabStop={stopId === ALIGN}
+              />
+            )}
           </div>
         ))}
         <div role="group" className="flex shrink-0 items-center border-s border-border ps-1.5">

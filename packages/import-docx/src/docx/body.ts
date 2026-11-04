@@ -1,4 +1,4 @@
-import type { DocNode } from "@cadabracraft/shared";
+import type { DocNode, TextAlign } from "@cadabracraft/shared";
 import {
   SCENE_BREAK_TEXT,
   type Item,
@@ -13,6 +13,7 @@ import {
   plainText,
   tableOf,
   taskItemOf,
+  withAlign,
 } from "../common";
 import {
   MAX_XML_DEPTH,
@@ -235,6 +236,10 @@ export class BodyBuilder {
 
     const text = plainText(st.items.filter((i): i is DocNode => !isSep(i)));
     const jc = pPr ? attr(child(pPr, "jc") ?? {}, "val") : undefined;
+    // Only a paragraph's own centre or right is the author's choice. Left (and start, and justified) is what the style says, which
+    // generators write on every paragraph, so reading it would make a whole book ragged.
+    const align: TextAlign | null =
+      jc === "center" ? "center" : jc === "right" || jc === "end" ? "end" : null;
     const hasBlocks = st.items.some((i) => isSep(i) && i.sep === "block");
 
     if (
@@ -262,12 +267,17 @@ export class BodyBuilder {
       }
       const flat = flattenItems(st.items);
       if (plainText(flat).trim() !== "" || flat.some((n) => n.type === "footnote"))
-        this.out.push({ type: "heading", attrs: { level }, content: flat });
+        this.out.push({
+          type: "heading",
+          attrs: { level, ...(align ? { textAlign: align } : {}) },
+          content: flat,
+        });
       for (const i of st.items) if (isSep(i) && i.sep === "block") this.out.push(i.node);
       return;
     }
 
-    const { blocks, brokeLines } = splitItems(st.items);
+    const { blocks: plain, brokeLines } = splitItems(st.items);
+    const blocks = align ? plain.map((b) => withAlign(b, align)) : plain;
     if (brokeLines)
       ctx.warn.tally(
         "line-break",

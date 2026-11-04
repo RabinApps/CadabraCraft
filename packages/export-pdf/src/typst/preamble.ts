@@ -16,7 +16,7 @@ function headingRule(level: 1 | 2 | 3, s: PrintHeadingStyle, headingFont: string
   const body = s.smallCaps ? "smallcaps(it.body)" : "it.body";
   const above = level === 1 ? "0pt" : em(s.spaceAboveEm);
   return `#show heading.where(level: ${level}): it => block(width: 100%, above: ${above}, below: ${em(s.spaceBelowEm)}, sticky: true, {
-  set align(${s.align})
+  set align(heading-align(it, ${s.align}))
   set text(font: ${typstString(headingFont)}, size: ${em(s.sizeEm)}, weight: ${s.bold ? '"bold"' : '"regular"'}, style: ${s.italic ? '"italic"' : '"normal"'})
   set par(first-line-indent: 0pt, justify: false, hanging-indent: 0pt)
   ${body}
@@ -101,6 +101,7 @@ ${
 #set par(justify: ${p.justify}, leading: ${em(p.leadingEm)}, spacing: ${em(spacing)}, first-line-indent: ${
     indent ? `(amount: ${em(p.paragraph.indentEm)}, all: false)` : "0pt"
   })
+#let heading-align(it, template) = if it.supplement == [ha-center] { center } else if it.supplement == [ha-end] { end } else if it.supplement == [ha-start] { start } else { template }
 ${headingRule(1, p.headings[1], fonts.heading)}
 ${headingRule(2, p.headings[2], fonts.heading)}
 ${headingRule(3, p.headings[3], fonts.heading)}

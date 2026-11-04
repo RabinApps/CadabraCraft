@@ -587,6 +587,22 @@ msgstr ""
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr ""
 
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Align to End"
+msgstr ""
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Align to Start"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Alignment"
+msgstr ""
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "All"
 msgstr ""
@@ -914,6 +930,12 @@ msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Castle"
+msgstr ""
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Centre"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
@@ -4070,6 +4092,11 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Template Default"
+msgstr ""
+
 #: src/app/export/PdfPanel.tsx
 msgid "Template default ({templateBody})"
 msgstr ""
@@ -4085,6 +4112,10 @@ msgstr ""
 #: src/app/export/Templates.tsx
 #: src/app/shell/App.tsx
 msgid "Templates"
+msgstr ""
+
+#: src/editor/AlignmentMenu.tsx
+msgid "Text alignment"
 msgstr ""
 
 #: src/editor/PageFrame.tsx

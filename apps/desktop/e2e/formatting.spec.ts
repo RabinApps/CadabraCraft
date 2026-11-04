@@ -55,7 +55,9 @@ test.describe("formatting toolbar", () => {
 
   test("scene break and footnote insert, and export contains them", async ({ page }) => {
     await typeLine(page, "text");
-    await tb(page, "Scene break").click();
+    // The scene break lives in the More formatting menu (the bar has no room for the alignment button otherwise).
+    await tb(page, "More formatting").click();
+    await page.getByRole("menuitem", { name: "Scene break" }).click();
     await expect(ed(page).locator("hr.scene-break")).toHaveCount(1);
     await tb(page, "Footnote").click();
     await expect(ed(page).locator("span.footnote")).toHaveCount(1);

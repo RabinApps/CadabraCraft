@@ -50,6 +50,7 @@ The toolbar and the **Format** and **Insert** menus offer:
 - Bold, italic, underline, small caps, strikethrough, code, superscript and subscript
 - Language of selection (the **More formatting** button at the end of the toolbar, the **Format** menu or the command palette): marks a passage in another language than the book's, such as a French phrase in an English book, so screen readers pronounce it right and the exports carry it. Pick a language or type any tag such as `fr-CA`; **Clear language** removes it. Markdown carries it only when the HTML marks option is on; the audiobook reads every passage with the edition's voice
 - Heading 1, 2 and 3
+- Text alignment (the align button in the toolbar, Format > Alignment, or Cmd/Ctrl+Shift+L, +C and +R): **Align to Start**, **Centre**, **Align to End** and **Template Default**. It applies to the paragraph or heading where the cursor is, or to every paragraph you have selected, including paragraphs in quotes, lists and table cells. The wording is start and end because that is what it does in a right-to-left book: start is the left in an English book and the right in a Hebrew or Arabic one. A centred or aligned paragraph is set without the first-line indent and without justification, as in the finished book, and an aligned first paragraph of a chapter has no large first letter. **Template Default** puts the block back to what the template does (indented, justified body text). Markdown has no way to say it: the alignment appears in a Markdown export only when you turn on HTML marks
 - Block quote, bulleted list and numbered list
 - Links (http, https or mailto addresses only)
 - Task lists (Format > Task List; click a box to tick it) and definition lists (Insert > Definition List: a term line, then its description)
@@ -58,7 +59,7 @@ The toolbar and the **Format** and **Insert** menus offer:
 
 ### Chapter headings and scene breaks
 
-Use **Heading 1** for a chapter title; headings 2 and 3 are for sections inside a chapter. A **scene break** (Insert > Scene Break, or the asterisk button) marks a shift in time or place. In the finished book it is shown with the template's own ornament, so you never have to type rows of asterisks.
+Use **Heading 1** for a chapter title; headings 2 and 3 are for sections inside a chapter. A **scene break** (Insert > Scene Break, or **More formatting** at the end of the toolbar) marks a shift in time or place. In the finished book it is shown with the template's own ornament, so you never have to type rows of asterisks.
 
 ### Footnotes
 
@@ -273,6 +274,7 @@ On Windows and Linux use Ctrl where the table says Cmd.
 | Leave focus mode          | Escape                                    |
 | Bold, italic, underline   | Cmd/Ctrl+B, Cmd/Ctrl+I, Cmd/Ctrl+U        |
 | Inline code               | Cmd/Ctrl+E                                |
+| Align start, centre, end  | Cmd/Ctrl+Shift+L, +C, +R                  |
 
 Everything else is in the menus.
 

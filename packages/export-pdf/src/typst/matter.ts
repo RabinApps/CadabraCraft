@@ -50,6 +50,8 @@ function dropCapOpening(
   chapter: number,
 ): string | null {
   const first = doc?.[0];
+  // A paragraph the author aligned has no big first letter: a drop cap hangs from the left margin of justified text.
+  if (first?.type === "paragraph" && first.attrs?.textAlign) return null;
   const kids = first?.type === "paragraph" && "content" in first ? first.content : undefined;
   const lead = kids?.[0];
   if (lead?.type !== "text" || (lead.marks?.length ?? 0) > 0 || !/^\p{L}.{1,}/u.test(lead.text))

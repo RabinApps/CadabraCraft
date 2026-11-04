@@ -83,7 +83,8 @@
       {
        "type": "heading",
        "attrs": {
-        "level": 3
+        "level": 3,
+        "textAlign": "center"
        },
        "content": [
         {

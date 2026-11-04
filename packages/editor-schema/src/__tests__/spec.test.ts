@@ -166,6 +166,82 @@ describe("image node view", () => {
     expect(next({ src: "c.png" }, {})).toBe(false);
     expect(img.src).toBe("b.png");
   });
+
+  it("leaves the alt empty for a decorative image, whatever alt it carries", () => {
+    const { img } = make({ src: "a.png", alt: "ignored", decorative: true });
+    expect(img.alt).toBe("");
+  });
+});
+
+describe("decorative images", () => {
+  const attrs = () =>
+    call(CaptionedImage, "addAttributes") as Record<
+      string,
+      {
+        default?: boolean;
+        parseHTML: (e: unknown) => boolean;
+        renderHTML: (a: Record<string, unknown>) => unknown;
+      }
+    >;
+  const el = (v: string | null) => ({ getAttribute: () => v });
+
+  it("stores nothing by default, and reads and writes data-decorative", () => {
+    const decorative = attrs().decorative!;
+    expect(decorative.default).toBe(false);
+    expect(decorative.parseHTML(el("true"))).toBe(true);
+    expect(decorative.parseHTML(el(null))).toBe(false);
+    expect(decorative.renderHTML({ decorative: true })).toEqual({ "data-decorative": "true" });
+    expect(decorative.renderHTML({ decorative: false })).toEqual({});
+  });
+});
+
+describe("definition term Enter", () => {
+  const press = (opts: {
+    empty?: boolean;
+    parent?: string;
+    after?: number;
+    next?: { type: { name: string } } | null;
+  }) => {
+    const selected: number[] = [];
+    const editor = {
+      state: {
+        selection: {
+          empty: opts.empty ?? true,
+          $from: {
+            parent: { type: { name: opts.parent ?? "definitionTerm" } },
+            after: () => opts.after ?? 4,
+          },
+        },
+        doc: { resolve: () => ({ nodeAfter: opts.next ?? null }) },
+      },
+      commands: { setTextSelection: (n: number) => selected.push(n) > 0 },
+    };
+    const keys = (
+      cfg(DefinitionTerm).addKeyboardShortcuts as unknown as () => Record<
+        string,
+        (p: unknown) => boolean
+      >
+    ).call({ name: "definitionTerm", editor });
+    const ran = keys.Enter!({ editor });
+    return { ran, selected };
+  };
+
+  it("moves into the first paragraph of the description that follows the term", () => {
+    const next = { type: { name: "definitionDescription" } };
+    expect(press({ after: 4, next })).toEqual({ ran: true, selected: [6] });
+  });
+
+  it("moves to the next term itself when no description follows", () => {
+    const next = { type: { name: "definitionTerm" } };
+    expect(press({ after: 4, next })).toEqual({ ran: true, selected: [5] });
+  });
+
+  it("leaves Enter alone outside a term, with a selection and at the end", () => {
+    const next = { type: { name: "definitionDescription" } };
+    expect(press({ empty: false, next }).ran).toBe(false);
+    expect(press({ parent: "paragraph", next }).ran).toBe(false);
+    expect(press({ next: null }).ran).toBe(false);
+  });
 });
 
 import {

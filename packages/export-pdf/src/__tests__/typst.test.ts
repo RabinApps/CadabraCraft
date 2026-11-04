@@ -487,3 +487,63 @@ describe("resolveFonts", () => {
     );
   });
 });
+
+describe("text alignment", () => {
+  const withAlign = (type: "paragraph" | "heading", textAlign: unknown, t: string): DocNode => ({
+    type,
+    attrs:
+      type === "heading"
+        ? { level: 2, textAlign: textAlign as string }
+        : { textAlign: textAlign as string },
+    content: [text(t)],
+  });
+  const scope = (align: string, body: string): string =>
+    `#[#set align(${align})\n#set par(first-line-indent: 0pt, justify: false)\n${body}]`;
+
+  it("sets an aligned paragraph in a scope with no indent and no justification, and leaves the others alone", () => {
+    const src = buildTypst(
+      book,
+      ch(
+        withAlign("paragraph", "center", "Middle"),
+        withAlign("paragraph", "end", "Right"),
+        withAlign("paragraph", "start", "Left"),
+        para(text("Plain")),
+        { type: "paragraph", attrs: { textAlign: null }, content: [text("Default")] },
+      ),
+    );
+    expect(src).toContain(scope("center", "Middle"));
+    expect(src).toContain(scope("end", "Right"));
+    expect(src).toContain(scope("start", "Left"));
+    expect(src).toContain("\n\nPlain\n\n");
+    expect(src).toContain("\n\nDefault");
+  });
+  it("aligns headings, quotes, list items and table cells the same way", () => {
+    const src = buildTypst(
+      book,
+      ch(withAlign("heading", "center", "Title"), {
+        type: "blockquote",
+        content: [withAlign("paragraph", "end", "Quoted")],
+      }),
+    );
+    // A heading says its alignment through its supplement: the template's heading rule sets the alignment inside its own block.
+    expect(src).toContain("#heading(level: 2, supplement: [ha-center])[Title]");
+    expect(src).toContain("#let heading-align(it, template)");
+    expect(src).toContain("set align(heading-align(it, center))");
+    expect(src).toContain(`#quote(block: true)[\n${scope("end", "Quoted")}\n]`);
+  });
+  it("refuses an alignment that is not start, center or end", () => {
+    expect(() => buildTypst(book, ch(withAlign("paragraph", "justify", "x")))).toThrow(
+      /Text alignment "justify" is not allowed/,
+    );
+    expect(() => buildTypst(book, ch(withAlign("heading", 3, "x")))).toThrow(PdfExportError);
+  });
+  it("gives an aligned first paragraph no drop cap", () => {
+    const doc = buildTypstDocument(
+      book,
+      ch(withAlign("paragraph", "center", "Once upon a time."), para(text("Second."))),
+      { template: "novel" },
+    );
+    expect(doc.usesDropCap).toBe(false);
+    expect(doc.source).toContain(scope("center", "Once upon a time."));
+  });
+});

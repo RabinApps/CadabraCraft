@@ -171,7 +171,8 @@ declare global {
     __m4bCalls: M4bCall[];
     __sampleError?: FakeError;
     __transcriptError?: FakeError;
-    __cadabraMenu: { run: (id: string) => boolean };
+    /** The dev-only menu bridge: what the native menu was told to show, and a way to run a command as its item would. */
+    __cadabraMenu: { run: (id: string) => boolean; model: unknown[]; error: string | null };
     __calls?: RecordedCall[];
     __sources?: Record<string, number[]>;
     __lat: number[];

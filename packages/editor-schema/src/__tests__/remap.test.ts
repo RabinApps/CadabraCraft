@@ -72,6 +72,9 @@ describe("shortcutRemap", () => {
       "editor.bullets": "toggleBulletList",
       "editor.numbers": "toggleOrderedList",
       "editor.codeBlock": "toggleCodeBlock",
+      "editor.alignLeft": 'setTextAlign:"start"',
+      "editor.alignCenter": 'setTextAlign:"center"',
+      "editor.alignRight": 'setTextAlign:"end"',
     };
     expect(Object.keys(EDITOR_KEY_COMMANDS).sort()).toEqual(Object.keys(expected).sort());
     for (const [id, call] of Object.entries(expected)) {

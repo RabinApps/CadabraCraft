@@ -1,4 +1,9 @@
-import type { ChapterDoc, DocNode } from "@cadabracraft/shared";
+import {
+  parseTextAlign,
+  textAlignProblem,
+  type ChapterDoc,
+  type DocNode,
+} from "@cadabracraft/shared";
 import { ENTITY, escapeText } from "./escape";
 import { inline } from "./marks";
 import { MarkdownExportError, type Ctx, type MarkdownOptions } from "./types";
@@ -172,11 +177,28 @@ function definitionList(n: DocNode, ctx: Ctx): string {
   return lines.join("\n");
 }
 
-function block(n: DocNode, ctx: Ctx, alt: boolean): string {
+const ALIGN_ATTR = { start: "left", center: "center", end: "right" } as const;
+
+/**
+ * A paragraph or heading the author aligned. Markdown has no syntax for it, so with `htmlMarks` the block is wrapped in
+ * `<div align="center">` (blank lines inside, so its Markdown is still read as Markdown; GitHub and CadabraCraft read it back) and
+ * without it the block is written as it is. Only the blocks at the top level of a chapter are wrapped: a `<div>` cannot sit in a
+ * list item, a quote or a table cell without changing what they mean. `align` is physical, so `start` and `end` are written as left
+ * and right (left-to-right text).
+ */
+function aligned(n: DocNode, md: string, ctx: Ctx, top: boolean): string {
+  const raw = attrsOf(n).textAlign;
+  const align = parseTextAlign(raw);
+  if (align === undefined) throw new MarkdownExportError(textAlignProblem(raw)!);
+  if (align === null || md === "" || !top || !ctx.opts.htmlMarks) return md;
+  return `<div align="${ALIGN_ATTR[align]}">\n\n${md}\n\n</div>`;
+}
+
+function block(n: DocNode, ctx: Ctx, alt: boolean, top: boolean): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
     case "paragraph":
-      return inline(kids, ctx);
+      return aligned(n, inline(kids, ctx), ctx, top);
     case "heading": {
       const level = Number(n.attrs?.level ?? 1);
       if (![1, 2, 3].includes(level))
@@ -184,7 +206,7 @@ function block(n: DocNode, ctx: Ctx, alt: boolean): string {
           `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
         );
       const text = inline(kids, ctx, { heading: true }).replace(/(\s)(#+)$/, "$1\\$2");
-      return `${"#".repeat(level)}${text ? ` ${text}` : ""}`;
+      return aligned(n, `${"#".repeat(level)}${text ? ` ${text}` : ""}`, ctx, top);
     }
     case "blockquote": {
       const inner = blockList(kids, ctx).join("\n\n");
@@ -215,7 +237,7 @@ function block(n: DocNode, ctx: Ctx, alt: boolean): string {
 }
 
 /** Rendered blocks, empty ones (empty paragraphs) left out. */
-export function blockList(nodes: DocNode[] | undefined, ctx: Ctx): string[] {
+export function blockList(nodes: DocNode[] | undefined, ctx: Ctx, top = false): string[] {
   const out: string[] = [];
   let prevType = "";
   let prevAlt = false;
@@ -224,7 +246,7 @@ export function blockList(nodes: DocNode[] | undefined, ctx: Ctx): string[] {
     const alt: boolean = kind !== "" && prevType === kind ? !prevAlt : false;
     prevType = kind;
     prevAlt = alt;
-    const md = block(n, ctx, alt);
+    const md = block(n, ctx, alt, top);
     if (md !== "") out.push(md);
   }
   return out;
@@ -240,7 +262,7 @@ export function renderChapter(doc: ChapterDoc, opts: MarkdownOptions = {}): Rend
   if (!doc || doc.type !== "doc" || !Array.isArray(doc.content))
     throw new MarkdownExportError('A chapter document must be an object with type "doc"');
   const ctx: Ctx = { opts, notes: [] };
-  const parts = blockList(doc.content, ctx);
+  const parts = blockList(doc.content, ctx, true);
   const offset = opts.footnoteOffset ?? 0;
   const defs = ctx.notes.map((t, i) => `[^${offset + i + 1}]: ${t}`.trimEnd());
   const body = parts.join("\n\n");

@@ -3,7 +3,7 @@ import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { WandSparkles } from "lucide-react";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
-import { extensions, shortcutRemap } from "@cadabracraft/editor-schema";
+import { chapterJson, extensions, shortcutRemap } from "@cadabracraft/editor-schema";
 import { editorRemap, pressed } from "../app/settings/shortcutBindings";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { useSettings } from "../state/editorPrefs";
@@ -188,7 +188,7 @@ export function Editor({ initial, language, onChange, focus }: Props) {
       },
     },
     content: initial,
-    onUpdate: ({ editor }) => onChange?.(editor.getJSON() as ChapterDoc),
+    onUpdate: ({ editor }) => onChange?.(chapterJson(editor)),
     onSelectionUpdate: ({ editor }) => {
       // Only a caret moved by typing or the keys is followed: a click, a find or an outline jump already chose where to look.
       if (useSettings.getState().typewriterScroll && Date.now() - lastKeyAt.current < KEY_WINDOW_MS)

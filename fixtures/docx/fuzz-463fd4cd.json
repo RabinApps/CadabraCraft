@@ -109,7 +109,10 @@
               }
              ]
             }
-           ]
+           ],
+           "attrs": {
+            "textAlign": "center"
+           }
           },
           {
            "type": "paragraph",
@@ -127,7 +130,10 @@
              "type": "text",
              "text": "gamma"
             }
-           ]
+           ],
+           "attrs": {
+            "textAlign": "center"
+           }
           },
           {
            "type": "paragraph",
@@ -136,7 +142,10 @@
              "type": "text",
              "text": "#"
             }
-           ]
+           ],
+           "attrs": {
+            "textAlign": "center"
+           }
           }
          ]
         }

@@ -1,6 +1,6 @@
 import type { DocNode } from "@cadabracraft/shared";
 import { TEXT_WIDTH } from "./parts";
-import { fail, kidsOf } from "./helpers";
+import { fail, jcOf, kidsOf } from "./helpers";
 import { inline, para } from "./paragraphs";
 import type { Ctx, RunProps } from "./types";
 
@@ -38,7 +38,7 @@ export function tableXml(n: DocNode, ctx: Ctx): string {
           fail(ctx, `The node "${p.type}" cannot be written in a table cell`, p.type);
         return para(
           inline(kidsOf(p), { ...cellCtx, runProps: props }),
-          { style: "TableText" },
+          { style: "TableText", jc: jcOf(p, cellCtx) },
           cellCtx,
         );
       });

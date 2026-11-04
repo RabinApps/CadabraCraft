@@ -1,4 +1,6 @@
 import {
+  AlignLeft,
+  AlignRight,
   ArrowLeft,
   ArrowRight,
   ChevronLeft,
@@ -12,6 +14,9 @@ import {
 
 /** Icons whose meaning is a direction along the reading axis: they mirror in right-to-left layouts. */
 const DIRECTIONAL: ReadonlySet<LucideIcon> = new Set([
+  // Alignment is stored as start and end, so in a right-to-left book the start is on the right.
+  AlignLeft,
+  AlignRight,
   ArrowLeft,
   ArrowRight,
   ChevronLeft,

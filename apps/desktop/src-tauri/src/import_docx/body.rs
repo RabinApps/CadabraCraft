@@ -259,6 +259,13 @@ impl BodyBuilder {
         let inline: Vec<Node> = st.items.iter().filter_map(|i| if let Item::Node(n) = i { Some(n.clone()) } else { None }).collect();
         let text = plain_text(&inline);
         let jc = ppr.and_then(|p| child_val(p, "jc"));
+        // Only a paragraph's own centre or right is the author's choice. Left (start, justified) is what the style says, which
+        // generators write on every paragraph, so reading it would make a whole book ragged.
+        let align = match jc {
+            Some("center") => Some("center"),
+            Some("right" | "end") => Some("end"),
+            _ => None,
+        };
         let has_blocks = st.items.iter().any(|i| matches!(i, Item::Block(_)));
 
         if matches!(cls, Cls::Normal { .. }) && jc == Some("center") && !has_blocks && is_scene_break_text(js_trim(&text)) {
@@ -276,7 +283,7 @@ impl BodyBuilder {
             }
             let flat = flatten_items(&st.items);
             if !js_trim(&plain_text(&flat)).is_empty() || flat.iter().any(|n| n.is("footnote")) {
-                self.out.push(Node::with_attrs("heading", Attrs::Heading { level }, flat));
+                self.out.push(Node::with_attrs("heading", Attrs::Heading { level, align }, flat));
             }
             for i in st.items {
                 if let Item::Block(n) = i {
@@ -287,6 +294,7 @@ impl BodyBuilder {
         }
 
         let (blocks, broke_lines) = split_items(&st.items);
+        let blocks: Vec<Node> = blocks.into_iter().map(|b| b.aligned(align)).collect();
         if broke_lines {
             ctx.warn.tally("line-break", Severity::Info, "Manual line breaks split the paragraph into separate paragraphs.", None);
         }

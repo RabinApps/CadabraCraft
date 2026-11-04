@@ -57,8 +57,8 @@ test("editor: toolbar, chapter list and heading expose names and states", async 
         - button "Block quote"
         - button "Bulleted list"
         - button "Numbered list"
+        - button "Text alignment"
       - group:
-        - button "Scene break"
         - button "Image"
         - button "Footnote"
       - group:
@@ -80,6 +80,7 @@ test("editor: toolbar, chapter list and heading expose names and states", async 
       - separator
       - group:
         - menuitem "Image details" [disabled]
+        - menuitem "Scene break"
         - menuitemcheckbox "Code Block"
         - menuitemcheckbox "Task list"
         - menuitemcheckbox "Definition list"

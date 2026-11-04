@@ -69,7 +69,10 @@
               }
              ]
             }
-           ]
+           ],
+           "attrs": {
+            "textAlign": "center"
+           }
           }
          ]
         }

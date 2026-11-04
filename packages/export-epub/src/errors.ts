@@ -8,6 +8,7 @@ export type EpubErrorCode =
   | "invalid-section"
   | "invalid-id"
   | "invalid-heading"
+  | "invalid-alignment"
   | "invalid-text"
   | "nested-footnote"
   | "other";

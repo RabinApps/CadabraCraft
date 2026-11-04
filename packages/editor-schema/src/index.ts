@@ -1,4 +1,12 @@
-import { Extension, Mark, Node, getSchema, mergeAttributes, type Editor } from "@tiptap/core";
+import {
+  Extension,
+  Mark,
+  Node,
+  getSchema,
+  mergeAttributes,
+  type Editor,
+  type JSONContent,
+} from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
@@ -9,7 +17,10 @@ import {
   isLangTag,
   normalizeLinkUrl,
   safeHref,
+  parseTextAlign,
+  textAlignProblem,
   type ChapterDoc,
+  type TextAlign,
 } from "@cadabracraft/shared";
 
 export const SceneBreak = Node.create({
@@ -261,6 +272,95 @@ export const CaptionedImage = Image.extend({
   },
 });
 
+/** The blocks that can be aligned: paragraphs (also in quotes, list items, task items, definitions and table cells) and headings. */
+const ALIGNABLE = ["paragraph", "heading"];
+
+/** The alignment a pasted element asks for: our own attribute, or `text-align` / the `align` attribute of other editors' HTML (left is the start in the left-to-right text the paste assumes). Justified and anything else is the template's. */
+export function alignOfElement(el: HTMLElement): TextAlign | null {
+  const own = parseTextAlign(el.getAttribute("data-text-align"));
+  if (own) return own;
+  const css = (el.style?.textAlign || el.getAttribute("align") || "").toLowerCase();
+  return css === "center"
+    ? "center"
+    : css === "left" || css === "start"
+      ? "start"
+      : css === "right" || css === "end"
+        ? "end"
+        : null;
+}
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    textAlign: {
+      /** Align the paragraphs and headings of the selection; `null` goes back to what the template does. */
+      setTextAlign: (align: TextAlign | null) => ReturnType;
+    };
+  }
+}
+
+/**
+ * Text alignment as a global attribute of paragraphs and headings: `textAlign` is `start`, `center` or `end` (logical, like CSS) or null
+ * for the template's own. HTML form: `data-text-align`, which the editor CSS, Page view and Read mode style. Enter keeps the alignment
+ * on the new block, like a word processor. Keys: Mod-Shift-L / C / R (start, centre, end).
+ */
+export const TextAlignment = Extension.create({
+  name: "textAlignment",
+  addGlobalAttributes: () => [
+    {
+      types: ALIGNABLE,
+      attributes: {
+        textAlign: {
+          default: null,
+          parseHTML: alignOfElement,
+          renderHTML: (attrs) => (attrs.textAlign ? { "data-text-align": attrs.textAlign } : {}),
+        },
+      },
+    },
+  ],
+  addCommands: () => ({
+    setTextAlign:
+      (align) =>
+      ({ commands }) =>
+        ALIGNABLE.map((type) => commands.updateAttributes(type, { textAlign: align })).every(
+          Boolean,
+        ),
+  }),
+  addKeyboardShortcuts() {
+    const keys: Record<string, () => boolean> = {};
+    for (const id of ["editor.alignLeft", "editor.alignCenter", "editor.alignRight"]) {
+      const command = EDITOR_KEY_COMMANDS[id]!;
+      for (const k of withCase(command.key)) keys[k] = () => command.run(this.editor);
+    }
+    return keys;
+  },
+});
+
+/** The alignment of the block the selection starts in (null: the template's), for the toolbar and the menus. */
+export function textAlignAt(editor: Editor): TextAlign | null {
+  return parseTextAlign(editor.state.selection.$from.parent.attrs.textAlign) ?? null;
+}
+
+/**
+ * The chapter JSON of an editor, as it goes to disk: `getJSON` writes `textAlign: null` on every paragraph and heading, and a
+ * paragraph's empty `attrs`, which is noise (and a diff on every chapter that was never aligned); both are left out.
+ */
+export function chapterJson(editor: Editor): ChapterDoc {
+  const clean = (n: JSONContent): JSONContent => {
+    const { attrs, content, ...rest } = n;
+    const kept = attrs
+      ? Object.fromEntries(
+          Object.entries(attrs).filter(([k, v]) => !(k === "textAlign" && v === null)),
+        )
+      : undefined;
+    return {
+      ...rest,
+      ...(kept && Object.keys(kept).length > 0 ? { attrs: kept } : {}),
+      ...(content ? { content: content.map(clean) } : {}),
+    };
+  };
+  return clean(editor.getJSON()) as ChapterDoc;
+}
+
 /**
  * The fixed schema. Headings limited to levels 1-3. Horizontal rules are disabled (the scene break replaces them). Code blocks are plain text with an optional `language` string.
  * StarterKit 3 bundles underline, link, strike and inline code; superscript and subscript are our own marks.
@@ -287,6 +387,7 @@ export const extensions = [
   DefinitionList,
   DefinitionTerm,
   DefinitionDescription,
+  TextAlignment,
 ];
 
 /**
@@ -309,6 +410,10 @@ export const EDITOR_KEY_COMMANDS: Readonly<
   "editor.bullets": { key: "Mod-Shift-8", run: (e) => e.commands.toggleBulletList() },
   "editor.numbers": { key: "Mod-Shift-7", run: (e) => e.commands.toggleOrderedList() },
   "editor.codeBlock": { key: "Mod-Alt-c", run: (e) => e.commands.toggleCodeBlock() },
+  "editor.alignLeft": { key: "Mod-Shift-l", run: (e) => e.commands.setTextAlign("start") },
+  // C, not E: Mod+Shift+E is Print PDF in the menu (a menu accelerator wins the key before the editor sees it).
+  "editor.alignCenter": { key: "Mod-Shift-c", run: (e) => e.commands.setTextAlign("center") },
+  "editor.alignRight": { key: "Mod-Shift-r", run: (e) => e.commands.setTextAlign("end") },
 };
 
 /** A key with its Caps Lock twin: ProseMirror names a letter by the character it types, so `Mod-b` and `Mod-B` are two keys. */
@@ -372,6 +477,7 @@ export function chapterDocProblem(doc: unknown): string | null {
   let badChecked = false;
   let badDecorative = false;
   let badLang: unknown = null;
+  let badAlign: string | null = null;
   const walk = (n: RawNode) => {
     if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
     for (const m of n.marks ?? [])
@@ -391,6 +497,8 @@ export function chapterDocProblem(doc: unknown): string | null {
       typeof n.attrs.decorative !== "boolean"
     )
       badDecorative = true;
+    if (n.type === "paragraph" || n.type === "heading")
+      badAlign ??= textAlignProblem(n.attrs?.textAlign);
     if (n.type === "table") tableBad ??= tableProblem(n);
     for (const c of n.content ?? []) walk(c);
   };
@@ -400,6 +508,7 @@ export function chapterDocProblem(doc: unknown): string | null {
     return `link ${JSON.stringify(badHref)} is not allowed (only http, https and mailto links)`;
   if (badLang !== null)
     return `language ${JSON.stringify(badLang)} is not allowed (a BCP 47 tag of letters, digits and hyphens, at most 35 characters)`;
+  if (badAlign !== null) return badAlign;
   if (badChecked) return "a task item's checked value must be true or false";
   if (badDecorative) return "an image's decorative value must be true or false";
   return tableBad;

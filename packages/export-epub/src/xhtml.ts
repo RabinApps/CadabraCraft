@@ -1,4 +1,10 @@
-import { isLangTag, type ChapterDoc, type DocNode, type Mark } from "@cadabracraft/shared";
+import {
+  isLangTag,
+  parseTextAlign,
+  type ChapterDoc,
+  type DocNode,
+  type Mark,
+} from "@cadabracraft/shared";
 import { EpubExportError, type EpubErrorCode } from "./errors";
 import { backToTextLabel } from "./strings";
 
@@ -63,6 +69,23 @@ const fail = (ctx: Ctx, code: EpubErrorCode, detail: string, nodeType: string): 
 
 const blocks = (kids: DocNode[] | undefined, ctx: Ctx): string =>
   (kids ?? []).map((k, i) => at(ctx, k, i, () => block(k, ctx))).join("");
+
+/**
+ * The ` class="align-center"` of a paragraph or heading the author aligned ("" for the template's own): a class, not an inline style,
+ * so the stylesheet decides and the text still reflows. `start` and `end` are CSS's logical sides, so a right-to-left book flips them.
+ */
+function alignAttr(n: DocNode, ctx: Ctx): string {
+  const raw = "attrs" in n ? n.attrs?.textAlign : undefined;
+  const align = parseTextAlign(raw);
+  if (align === undefined)
+    throw fail(
+      ctx,
+      "invalid-alignment",
+      `Text alignment ${JSON.stringify(raw)} is not allowed (start, center or end)`,
+      n.type,
+    );
+  return align === null ? "" : ` class="align-${align}"`;
+}
 
 function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
   return (nodes ?? [])
@@ -208,7 +231,7 @@ function itemBody(item: DocNode, ctx: Ctx, wrap: (text: string) => string = (t) 
   if (first?.type !== "paragraph")
     throw fail(ctx, "unsupported-node", `A ${item.type} must start with a paragraph`, item.type);
   return (
-    `<p>${wrap(at(ctx, first, 0, () => inline(first.content, ctx)))}</p>` +
+    `<p${alignAttr(first, ctx)}>${wrap(at(ctx, first, 0, () => inline(first.content, ctx)))}</p>` +
     kids
       .slice(1)
       .map((k, i) => at(ctx, k, i + 1, () => block(k, ctx)))
@@ -257,7 +280,7 @@ function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
     case "paragraph":
-      return `<p>${inline(kids, ctx)}</p>`;
+      return `<p${alignAttr(n, ctx)}>${inline(kids, ctx)}</p>`;
     case "heading": {
       const level = Number(n.attrs?.level ?? 1);
       if (![1, 2, 3].includes(level))
@@ -269,7 +292,7 @@ function block(n: DocNode, ctx: Ctx): string {
         );
       const id = ctx.headingIds ? ` id="${headingAnchor(ctx.headings)}"` : "";
       ctx.headings += 1;
-      return `<h${level}${id}>${inline(kids, ctx)}</h${level}>`;
+      return `<h${level}${id}${alignAttr(n, ctx)}>${inline(kids, ctx)}</h${level}>`;
     }
     case "blockquote":
       return `<blockquote>${blocks(kids, ctx)}</blockquote>`;

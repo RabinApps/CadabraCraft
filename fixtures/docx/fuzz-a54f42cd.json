@@ -65,7 +65,10 @@
                "type": "text",
                "text": "**"
               }
-             ]
+             ],
+             "attrs": {
+              "textAlign": "center"
+             }
             },
             {
              "type": "paragraph",

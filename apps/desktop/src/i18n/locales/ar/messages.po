@@ -589,6 +589,22 @@ msgstr "يضيف فصول ملف Word (‎.docx) أو Markdown أو HTML بعد 
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "يضيف الغلاف كأول صفحة، وخلفه صفحة فارغة. عطّل هذا للحصول على ملف داخلي جاهز للطباعة؛ فالمطابع تفضّل عادةً الغلاف في ملف منفصل."
 
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Align to End"
+msgstr "محاذاة إلى النهاية"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Align to Start"
+msgstr "محاذاة إلى البداية"
+
+#: src/app/shell/menuModel.ts
+msgid "Alignment"
+msgstr "محاذاة"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "All"
 msgstr "الكل"
@@ -917,6 +933,12 @@ msgstr "تعليق توضيحي"
 #: src/lib/useIconChoices.ts
 msgid "Castle"
 msgstr "قلعة"
+
+#: src/app/settings/shortcutList.ts
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Centre"
+msgstr "توسيط"
 
 #: src/app/shell/EntryList.tsx
 msgid "Centred"
@@ -4072,6 +4094,11 @@ msgstr "قائمة مهام"
 msgid "Template"
 msgstr "القالب"
 
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Template Default"
+msgstr "الافتراضي في القالب"
+
 #: src/app/export/PdfPanel.tsx
 msgid "Template default ({templateBody})"
 msgstr "الافتراضي للقالب ({templateBody})"
@@ -4088,6 +4115,10 @@ msgstr "افتراضي القالب (تشغيل)"
 #: src/app/shell/App.tsx
 msgid "Templates"
 msgstr "القوالب"
+
+#: src/editor/AlignmentMenu.tsx
+msgid "Text alignment"
+msgstr "محاذاة النص"
 
 #: src/editor/PageFrame.tsx
 msgid "Text is set in {family}, the font the PDF uses for this template."

@@ -244,7 +244,8 @@ describe("custom stylesheet", () => {
   it("uses the supplied css instead of the default", () => {
     const css = "body{color:#123456}";
     const f = unzipSync(buildEpub(meta, [{ id: "ch1", title: "One", doc }], { css }));
-    expect(strFromU8(f["OEBPS/style.css"]!)).toBe(css);
+    // The alignment rules follow the supplied css.
+    expect(strFromU8(f["OEBPS/style.css"]!).startsWith(`${css}\n`)).toBe(true);
     expect(
       strFromU8(unzipSync(buildEpub(meta, [{ id: "ch1", title: "One", doc }]))["OEBPS/style.css"]!),
     ).not.toBe(css);

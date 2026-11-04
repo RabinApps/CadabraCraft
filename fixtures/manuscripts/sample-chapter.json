@@ -59,6 +59,10 @@
         { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "a<b" }] }] },
         { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Ten" }, { "type": "footnote", "content": [{ "type": "text", "text": "In cells." }] }] }] }
       ] }
-    ] }
+    ] },
+    { "type": "paragraph", "attrs": { "textAlign": "center" }, "content": [{ "type": "text", "text": "A centred line." }] },
+    { "type": "paragraph", "attrs": { "textAlign": "end" }, "content": [{ "type": "text", "text": "A right-aligned line, " }, { "type": "text", "text": "with emphasis", "marks": [{ "type": "italic" }] }, { "type": "text", "text": "." }] },
+    { "type": "paragraph", "attrs": { "textAlign": "start" }, "content": [{ "type": "text", "text": "A left-aligned line." }] },
+    { "type": "heading", "attrs": { "level": 3, "textAlign": "center" }, "content": [{ "type": "text", "text": "A centred heading" }] }
   ]
 }
