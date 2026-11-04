@@ -7,7 +7,10 @@ jobs:
     strategy:
       fail-fast: false # one OS failing must not hide how the others do
       matrix:
-        os: [kinhin-container, kinhin-xcode, windows-latest]
+        # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
+        # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
+        # there are still in place.
+        os: [kinhin-container, kinhin-xcode]
     runs-on: ${{ matrix.os }}
     env:
       REQUIRE_EPUBCHECK: "1"
@@ -209,7 +212,10 @@ jobs:
     strategy:
       fail-fast: false # one OS failing must not hide how the others do
       matrix:
-        os: [kinhin-container, kinhin-xcode, windows-latest]
+        # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
+        # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
+        # there are still in place.
+        os: [kinhin-container, kinhin-xcode]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
