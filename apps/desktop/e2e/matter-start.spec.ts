@@ -88,14 +88,38 @@ test("a dedication's blank page is gone once its row says it starts on the next 
   await page.keyboard.press("Escape");
 });
 
+test("a page the book already puts on the next page says so, and its start choice has nothing to change", async ({
+  page,
+}) => {
+  await newProject(page);
+  await addPage(page, "Preface");
+  await page.getByRole("button", { name: "Actions for Preface" }).click();
+  // The first page of the book has no page before it, so no rule can push it back one: the choice could only do nothing.
+  const item = startItem(page);
+  await expect(item).toBeVisible();
+  await expect(item).toBeDisabled();
+  await expect(menu(page).getByText("This page already starts on the next page.")).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  // A page put in front of it turns the same row into one with a blank to remove, so the choice becomes usable there.
+  await addPage(page, "Title page");
+  await open(page, "Preface");
+  await page.getByRole("button", { name: "Actions for Preface" }).click();
+  await expect(startItem(page)).toBeEnabled();
+  await expect(menu(page).getByText("This page already starts on the next page.")).toHaveCount(0);
+  await expect.poll(async () => (await writeCards(page)).length).toBe(2);
+  await page.keyboard.press("Escape");
+});
+
 test("the page start choice is kept when the book is opened again, and chapters have none", async ({
   page,
 }) => {
   await newProject(page);
+  await addPage(page, "Title page");
   await addPage(page, "Epigraph");
   await page.getByRole("button", { name: "Actions for Epigraph" }).click();
   await startItem(page).click();
-  await expect.poll(async () => (await manifestOf(page)).frontMatter[0].startOnNext).toBe(true);
+  await expect.poll(async () => (await manifestOf(page)).frontMatter[1].startOnNext).toBe(true);
   await page.reload();
   await page.getByRole("button", { name: "Open folder" }).click();
   await open(page, "Epigraph");

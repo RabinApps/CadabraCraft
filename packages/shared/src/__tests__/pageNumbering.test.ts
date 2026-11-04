@@ -193,11 +193,41 @@ describe("layoutBook: front and back matter", () => {
     ]);
   });
 
-  it("still restarts the arabic count on a right-hand page whatever the last front matter page chose", () => {
+  it("reports where the start choice has a blank page left to remove", () => {
     const b = layoutBook(
-      [front("f", "foreword", 1, { startOnNext: true }), ch("one", 1)],
-      { startsOn: "recto" },
+      [front("t", "title-page"), front("d", "dedication"), front("p", "preface")],
+      { startsOn: "any" },
     );
+    expect(b.entries.map((e) => [e.id, e.start, e.canFollowOn])).toEqual([
+      ["t", 1, false], // nothing comes before the first page
+      ["d", 3, true], // a blank left-hand page, ii, comes before it
+      ["p", 5, true], // it would open on a right-hand page, a blank one comes before it
+    ]);
+    // Ticked, the dedication is already the next page: the choice has nothing left to change there, and no other page moves.
+    const chosen = layoutBook(
+      [
+        front("t", "title-page"),
+        front("d", "dedication", 1, { startOnNext: true }),
+        front("p", "preface"),
+      ],
+      { startsOn: "any" },
+    );
+    expect(chosen.entries.map((e) => [e.id, e.start, e.canFollowOn])).toEqual([
+      ["t", 1, false],
+      ["d", 2, true],
+      ["p", 3, false], // it already follows the dedication on page 3, so nothing would move it
+    ]);
+    // Pages the book never pushes to a right-hand page have nothing to choose either.
+    const any = layoutBook([front("f", "foreword"), front("p", "preface")], {
+      startsOn: "any",
+    });
+    expect(any.entries.map((e) => e.canFollowOn)).toEqual([false, false]);
+  });
+
+  it("still restarts the arabic count on a right-hand page whatever the last front matter page chose", () => {
+    const b = layoutBook([front("f", "foreword", 1, { startOnNext: true }), ch("one", 1)], {
+      startsOn: "recto",
+    });
     expect(b.entries.map((e) => [e.start, e.style, e.number])).toEqual([
       [1, "roman", 1],
       [3, "arabic", 1],

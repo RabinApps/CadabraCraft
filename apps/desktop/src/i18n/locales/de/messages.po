@@ -4550,6 +4550,10 @@ msgstr "Dieser Bildpfad ist nicht erlaubt: {0}"
 msgid "This page"
 msgstr "Diese Seite"
 
+#: src/app/shell/EntryList.tsx
+msgid "This page already starts on the next page."
+msgstr "Diese Seite beginnt bereits auf der nächsten Seite."
+
 #: src/state/project/context.ts
 msgid "This page could not be opened: {why}. Restore an earlier version from History, or choose another page."
 msgstr "Diese Seite konnte nicht geöffnet werden: {why}. Stellen Sie eine frühere Version aus dem Verlauf wieder her oder wählen Sie eine andere Seite."

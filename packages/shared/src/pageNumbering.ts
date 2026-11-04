@@ -45,6 +45,11 @@ export interface PlacedEntry {
   start: number;
   /** A blank left-hand page, `start - 1`, comes first: the page stack draws it, the entry does not start there. */
   blankBefore: boolean;
+  /**
+   * The book's rules would open the entry a page later, so the author's "start on the next page" choice has a page to remove. False
+   * when the entry is already the next page whatever the author chooses: the choice would change nothing on it.
+   */
+  canFollowOn: boolean;
   /** Physical page of the first page the page stack draws for the entry: `start`, or the blank page before it. */
   cardStart: number;
   pages: number;
@@ -124,6 +129,8 @@ export function layoutBook(
       ALWAYS_RECTO.includes(e.kind) ||
       BLANK_VERSO_AFTER.includes(previous) ||
       (opts.startsOn === "recto" && usesChapterOpening(e));
+    // Whether the author's choice about the start has anything to change: only a page the rules would push back a page.
+    const canFollowOn = recto && next % 2 === 0;
     let start = next;
     if (e.start !== undefined) start = Math.max(e.start, 1);
     else if (recto && e.startOnNext !== true && start % 2 === 0) start += 1;
@@ -135,6 +142,7 @@ export function layoutBook(
       kind: e.kind,
       start,
       blankBefore: start > next,
+      canFollowOn,
       cardStart: start > next ? start - 1 : start,
       pages,
       end: start + pages - 1,

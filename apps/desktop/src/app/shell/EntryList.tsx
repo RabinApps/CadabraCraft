@@ -20,6 +20,7 @@ import { DropLine } from "../../ui/DropLine";
 import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
 import { SectionHeading } from "../../ui/SectionHeading";
 import { dropPosition, insertionIndex } from "../../lib/referenceKinds";
+import { useBookLayout } from "../hooks/useBookLayout";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import type { HistoryPage } from "../dialogs/HistoryDialog";
@@ -59,6 +60,9 @@ export function EntryList({
 }: ListProps) {
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
+  // Only a page the book's rules would push to a right-hand one has a blank left-hand page to remove, so only there does the start
+  // choice change anything (see `canFollowOn` in `layoutBook`).
+  const bookPages = useBookLayout();
   const last = entries.length - 1;
   /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
   const afterClose = useRef<(() => void) | null>(null);
@@ -137,6 +141,8 @@ export function EntryList({
         {entries.map((c, i) => {
           const current = c.id === currentId;
           const Icon = iconComponent(c.icon);
+          // Offered until the layout knows the page: a book still being counted must not claim a page already follows on.
+          const canFollowOn = bookPages?.byId.get(c.id)?.canFollowOn ?? true;
           return (
             <li
               key={c.id}
@@ -377,6 +383,7 @@ export function EntryList({
                         <M.CheckboxItem
                           className={menuItemClass()}
                           checked={c.startOnNext === true}
+                          disabled={!canFollowOn}
                           onCheckedChange={(v) => {
                             attempt(actions.setStartOnNext(c.id, v ? true : null));
                             setSaid(
@@ -393,6 +400,12 @@ export function EntryList({
                           </span>
                           {t`Start on the next page`}
                         </M.CheckboxItem>
+                        {/* Nothing to do on a page the rules already put next: say so instead of letting the tick do nothing. */}
+                        {!canFollowOn && (
+                          <div className="px-2.5 pb-1.5 text-micro leading-snug text-ink-muted">
+                            {t`This page already starts on the next page.`}
+                          </div>
+                        )}
                         <M.Separator className="my-1 h-px bg-border" />
                       </>
                     )}

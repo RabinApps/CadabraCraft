@@ -147,6 +147,8 @@ A printed book opens its title page, contents page, dedication and epigraph on a
 
 Two quotes in a row, or a dedication followed by a short epigraph, can therefore leave blank pages between front matter pages. To remove one, open the `...` menu of the page that comes after the blank and tick **Start on the next page**. That page then follows the page before it, left-hand or right-hand, so no blank page goes before it, in the page view, in Read mode and in the exported PDF. Untick it (or undo) and the blank page comes back. The choice goes through book undo and redo, and the screen reader hears it ("Epigraph: starts on the next page").
 
+Only a page the book would put a blank before has that choice: a page that already follows on, like the first page of the book or a preface that few pages precede, shows **Start on the next page** greyed out, with "This page already starts on the next page." under it, because there is no blank page there to remove.
+
 Chapter openings follow the template's own setting instead (the Templates page says whether chapters open on a right-hand page); a chapter always starts exactly where its page cards say it does.
 
 ## History, backups and keeping your work safe
