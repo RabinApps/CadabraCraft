@@ -266,6 +266,11 @@ msgstr "{0}: Seitenbeginn folgt dem Buch"
 
 #. placeholder {0}: c.title
 #: src/app/shell/EntryList.tsx
+msgid "{0}: starts on a right-hand page"
+msgstr "{0}: beginnt auf einer rechten Seite"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
 msgid "{0}: starts on the next page"
 msgstr "{0}: beginnt auf der nächsten Seite"
 
@@ -2006,6 +2011,10 @@ msgstr "Ordner nicht gefunden. Entferne ihn aus der Liste oder lege ihn zurück.
 msgid "Follow the system or pick one."
 msgstr "Dem System folgen oder eines wählen."
 
+#: src/app/shell/EntryList.tsx
+msgid "Follows the book"
+msgstr "Folgt dem Buch"
+
 #: src/app/export/ManuscriptPanel.tsx
 msgid "Font"
 msgstr "Schrift"
@@ -3172,6 +3181,10 @@ msgstr "Seitenzahlen"
 msgid "Page setup"
 msgstr "Seiteneinrichtung"
 
+#: src/app/shell/EntryList.tsx
+msgid "Page start"
+msgstr "Seitenbeginn"
+
 #: src/editor/Editor.tsx
 msgid "Page text"
 msgstr "Seitentext"
@@ -4062,6 +4075,10 @@ msgid "Start from a copy of the source"
 msgstr "Mit einer Kopie der Quelle beginnen"
 
 #: src/app/shell/EntryList.tsx
+msgid "Start on a right-hand page"
+msgstr "Auf einer rechten Seite beginnen"
+
+#: src/app/shell/EntryList.tsx
 msgid "Start on the next page"
 msgstr "Auf der nächsten Seite beginnen"
 
@@ -4549,10 +4566,6 @@ msgstr "Dieser Bildpfad ist nicht erlaubt: {0}"
 #: src/app/shell/Details.tsx
 msgid "This page"
 msgstr "Diese Seite"
-
-#: src/app/shell/EntryList.tsx
-msgid "This page already starts on the next page."
-msgstr "Diese Seite beginnt bereits auf der nächsten Seite."
 
 #: src/state/project/context.ts
 msgid "This page could not be opened: {why}. Restore an earlier version from History, or choose another page."

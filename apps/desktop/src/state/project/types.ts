@@ -177,7 +177,7 @@ export interface BookPage {
   dropCap?: boolean;
   /** Front and back matter only: the author's own vertical position choice, centred (true) or at the top (false). Absent follows the template's kinds (`resolveVerticalCenter`). */
   verticalCenter?: boolean;
-  /** Front and back matter only: starts on the next page, left-hand page or not, so no blank page goes before it. Absent follows the book's rules. */
+  /** Front and back matter only: true starts on the next page, left-hand page or not, so no blank page goes before it; false starts on a right-hand page, with a blank page before it when needed. Absent follows the book's rules. */
   startOnNext?: boolean;
 }
 /** The words of one page of the book, with what the page numbering needs to know about it. */
@@ -187,7 +187,7 @@ export interface EntryWords {
   kind?: MatterKind | undefined;
   /** The author's own vertical position choice for a matter page (see `BookPage.verticalCenter`). */
   verticalCenter?: boolean | undefined;
-  /** The page starts on the next page, blank left-hand page or not (see `BookPage.startOnNext`). */
+  /** The author's start for a matter page (see `BookPage.startOnNext`). */
   startOnNext?: boolean | undefined;
   words: number;
 }

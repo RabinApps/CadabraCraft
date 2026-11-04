@@ -1,9 +1,12 @@
 import { cx } from "./cx";
 
-/** Class for a Radix dropdown-menu content panel; `min-w-*` and other sizing go in `extra`. */
+/**
+ * Class for a Radix dropdown-menu content panel; `min-w-*` and other sizing go in `extra`. A menu with more items than the window is
+ * tall (the matter row menu's groups) is capped at the space Radix says it has and scrolls, so no item is out of reach.
+ */
 export const menuContentClass = (extra?: string | false) =>
   cx(
-    "motion-panel z-(--z-menu) rounded-md border border-border bg-raised p-1 text-ink shadow-popover",
+    "motion-panel z-(--z-menu) max-h-(--radix-dropdown-menu-content-available-height) overflow-y-auto overscroll-contain rounded-md border border-border bg-raised p-1 text-ink shadow-popover",
     extra,
   );
 

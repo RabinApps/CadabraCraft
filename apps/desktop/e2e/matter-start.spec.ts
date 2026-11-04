@@ -14,7 +14,11 @@ const open = async (page: Page, title: string) => {
 };
 const menu = (page: Page) => page.getByRole("menu");
 const startItem = (page: Page) =>
-  menu(page).getByRole("menuitemcheckbox", { name: "Start on the next page" });
+  menu(page).getByRole("menuitemradio", { name: "Start on the next page" });
+const rightItem = (page: Page) =>
+  menu(page).getByRole("menuitemradio", { name: "Start on a right-hand page" });
+const bookItem = (page: Page) =>
+  menu(page).getByRole("menuitemradio", { name: "Follows the book" });
 const cardsAre = (page: Page, n: number) =>
   expect.poll(async () => (await writeCards(page)).length).toBe(n);
 
@@ -64,31 +68,46 @@ test("a dedication's blank page is gone once its row says it starts on the next 
   await expect.poll(async () => (await dedication())?.startOnNext).toBeUndefined();
   await cardsAre(page, 2);
   await page.getByRole("button", { name: "Actions for Dedication" }).click();
-  await expect(startItem(page)).not.toBeChecked();
+  await expect(bookItem(page)).toBeChecked();
   await page.keyboard.press("Escape");
 });
 
-test("a page the book already puts on the next page says so, and its start choice has nothing to change", async ({
+test("a page the book leaves on the next one gets a blank page before it when its row starts it on a right-hand page", async ({
   page,
 }) => {
   await newProject(page);
-  await addPage(page, "Preface");
-  await page.getByRole("button", { name: "Actions for Preface" }).click();
-  // The first page of the book has no page before it, so no rule can push it back one: the choice could only do nothing.
-  const item = startItem(page);
-  await expect(item).toBeVisible();
-  await expect(item).toBeDisabled();
-  await expect(menu(page).getByText("This page already starts on the next page.")).toBeVisible();
-  await page.keyboard.press("Escape");
-
-  // A page put in front of it turns the same row into one with a blank to remove, so the choice becomes usable there.
   await addPage(page, "Title page");
+  await addPage(page, "Preface");
   await open(page, "Preface");
+  // Laid out centred, a preface does not open like a chapter, so the book puts it straight after the title page: page 2, no blank.
   await page.getByRole("button", { name: "Actions for Preface" }).click();
-  await expect(startItem(page)).toBeEnabled();
-  await expect(menu(page).getByText("This page already starts on the next page.")).toHaveCount(0);
-  await expect.poll(async () => (await writeCards(page)).length).toBe(2);
-  await page.keyboard.press("Escape");
+  await menu(page).getByRole("menuitemradio", { name: "Centred" }).click();
+  await cardsAre(page, 1);
+  const flush = await writeCards(page);
+  expect(flush[0]?.blank).toBe(false);
+  expect(opening(flush)?.physical).toBe(2);
+
+  // The choice inserts the empty page the author asked for and the preface opens on the right-hand page after it.
+  await page.getByRole("button", { name: "Actions for Preface" }).click();
+  await expect(bookItem(page)).toBeChecked();
+  await rightItem(page).click();
+  await expect(page.getByText("Preface: starts on a right-hand page")).toBeAttached();
+  await expect.poll(async () => (await manifestOf(page)).frontMatter[1].startOnNext).toBe(false);
+  await cardsAre(page, 2);
+  const withBlank = await writeCards(page);
+  expect(withBlank[0]?.blank).toBe(true);
+  expect(opening(withBlank)?.physical).toBe(3);
+
+  // And back to the book's rules, which takes the empty page away again.
+  await page.getByRole("button", { name: "Actions for Preface" }).click();
+  await bookItem(page).click();
+  await expect
+    .poll(async () => (await manifestOf(page)).frontMatter[1].startOnNext)
+    .toBeUndefined();
+  await cardsAre(page, 1);
+  const alone = await writeCards(page);
+  expect(alone[0]?.blank).toBe(false);
+  expect(opening(alone)?.physical).toBe(2);
 });
 
 test("the page start choice is kept when the book is opened again, and chapters have none", async ({
@@ -105,11 +124,11 @@ test("the page start choice is kept when the book is opened again, and chapters 
   await open(page, "Epigraph");
   await expect.poll(async () => (await writeCards(page)).length).toBe(1);
 
-  // A chapter opens where the template says and has no such item.
+  // A chapter opens where the template says and has no such choice.
   await open(page, "Chapter One");
   await page.getByRole("button", { name: "Actions for Chapter One" }).click();
   await expect(menu(page)).toBeVisible();
-  await expect(startItem(page)).toHaveCount(0);
+  await expect(menu(page).getByRole("group", { name: "Page start" })).toHaveCount(0);
   await page.keyboard.press("Escape");
 });
 

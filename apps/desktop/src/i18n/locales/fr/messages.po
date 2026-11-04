@@ -266,6 +266,11 @@ msgstr "{0} : le début de page suit le livre"
 
 #. placeholder {0}: c.title
 #: src/app/shell/EntryList.tsx
+msgid "{0}: starts on a right-hand page"
+msgstr "{0} : commence sur une page de droite"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
 msgid "{0}: starts on the next page"
 msgstr "{0} : commence sur la page suivante"
 
@@ -2006,6 +2011,10 @@ msgstr "Dossier introuvable. Retirez-le de la liste ou remettez-le à sa place."
 msgid "Follow the system or pick one."
 msgstr "Suit le système, ou choisissez-en un."
 
+#: src/app/shell/EntryList.tsx
+msgid "Follows the book"
+msgstr "Suit le livre"
+
 #: src/app/export/ManuscriptPanel.tsx
 msgid "Font"
 msgstr "Police"
@@ -3172,6 +3181,10 @@ msgstr "Numéros de page"
 msgid "Page setup"
 msgstr "Mise en page"
 
+#: src/app/shell/EntryList.tsx
+msgid "Page start"
+msgstr "Début de page"
+
 #: src/editor/Editor.tsx
 msgid "Page text"
 msgstr "Texte de la page"
@@ -4062,6 +4075,10 @@ msgid "Start from a copy of the source"
 msgstr "Partir d’une copie de la source"
 
 #: src/app/shell/EntryList.tsx
+msgid "Start on a right-hand page"
+msgstr "Commencer sur une page de droite"
+
+#: src/app/shell/EntryList.tsx
 msgid "Start on the next page"
 msgstr "Commencer sur la page suivante"
 
@@ -4549,10 +4566,6 @@ msgstr "Ce chemin d’image n’est pas autorisé : {0}"
 #: src/app/shell/Details.tsx
 msgid "This page"
 msgstr "Cette page"
-
-#: src/app/shell/EntryList.tsx
-msgid "This page already starts on the next page."
-msgstr "Cette page commence déjà sur la page suivante."
 
 #: src/state/project/context.ts
 msgid "This page could not be opened: {why}. Restore an earlier version from History, or choose another page."

@@ -264,6 +264,11 @@ msgstr ""
 
 #. placeholder {0}: c.title
 #: src/app/shell/EntryList.tsx
+msgid "{0}: starts on a right-hand page"
+msgstr ""
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
 msgid "{0}: starts on the next page"
 msgstr ""
 
@@ -2004,6 +2009,10 @@ msgstr ""
 msgid "Follow the system or pick one."
 msgstr ""
 
+#: src/app/shell/EntryList.tsx
+msgid "Follows the book"
+msgstr ""
+
 #: src/app/export/ManuscriptPanel.tsx
 msgid "Font"
 msgstr ""
@@ -3170,6 +3179,10 @@ msgstr ""
 msgid "Page setup"
 msgstr ""
 
+#: src/app/shell/EntryList.tsx
+msgid "Page start"
+msgstr ""
+
 #: src/editor/Editor.tsx
 msgid "Page text"
 msgstr ""
@@ -4060,6 +4073,10 @@ msgid "Start from a copy of the source"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
+msgid "Start on a right-hand page"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
 msgid "Start on the next page"
 msgstr ""
 
@@ -4544,10 +4561,6 @@ msgstr ""
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/shell/Details.tsx
 msgid "This page"
-msgstr ""
-
-#: src/app/shell/EntryList.tsx
-msgid "This page already starts on the next page."
 msgstr ""
 
 #: src/state/project/context.ts

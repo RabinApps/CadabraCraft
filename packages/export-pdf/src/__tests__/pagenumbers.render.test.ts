@@ -121,6 +121,25 @@ suite("a page the author starts on the next one, real Typst", () => {
   );
 
   it(
+    "inserts the blank page before a page the author starts on a right-hand one",
+    async () => {
+      const choose = (id: string) =>
+        book().map((c) => (c.id === id ? { ...c, startOnNext: false } : c));
+      const rules = await sameAsTypst(book(), "modern");
+      const chosen = await sameAsTypst(choose("fm-5"), "modern");
+      const at = (r: typeof rules, id: string) => r.starts.find((s) => s.id === id)!.page;
+      // Modern Memoir starts chapters on any page, so the preface follows on; the choice gives it the blank left-hand page.
+      expect(at(rules, "fm-5") % 2).toBe(0);
+      expect(at(chosen, "fm-5")).toBe(at(rules, "fm-5") + 1);
+      expect(at(chosen, "fm-5") % 2).toBe(1);
+      // The inserted blank page makes the book at least a page longer (a later page that lands on a right-hand one differently
+      // can add or drop one of its own).
+      expect(chosen.total).toBeGreaterThan(rules.total);
+    },
+    T,
+  );
+
+  it(
     "lets the first page after the front matter follow on when the author chooses, restarting the count there",
     async () => {
       const { front, back } = matterPages();

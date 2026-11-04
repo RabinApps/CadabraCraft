@@ -1542,7 +1542,7 @@ A front or back matter page can be set to start on the next page, even when the 
 - **Manifest:** `startOnNext?: boolean` on a front or back matter entry, refused on a chapter and for any value but true or false. An older app would drop the setting on its next save, so `formatVersion` goes 9 to 10 with a no-op migration, a backup and a v9 contract fixture (`fixtures/contract/manifest-v9.json`), as `verticalCenter` did for 8 to 9. `setMatterStartOnNext(m, id, value | null)` in `packages/format/src/edit.ts` sets or clears it; `EntryRow` carries it.
 - **One layout rule:** `layoutBook` in `packages/shared/src/pageNumbering.ts` takes `startOnNext` through `PageEntryInput` and skips the right-hand-page push for that page, including the push of the page that restarts the arabic count (that page then starts on a left-hand page, with the count still starting at 1 there). Every surface reads that one function: the Write and Read page cards, the status bar, the Contents estimate and the print preview.
 - **PDF (Typst):** `bodyOf` in `packages/export-pdf/src/typst/matter.ts` leaves out the `#pagebreak(weak: true, to: "odd")` before a page that says so, and passes `odd: false` to `#chapter-start`, which the preamble now accepts (`odd: true` by default, so every other page is generated exactly as before). The wrappers that give a page its layout by kind (`title-page`, `copyright-page`, `contents-page`, `centered-page`) do a weak break that starts nothing new, so leaving the break out is enough for them; the page after a dedication or epigraph still opens on a right-hand page unless it too says it starts on the next one.
-- **Where the choice is offered:** `layoutBook` also reports `canFollowOn` per entry: the rules would open that entry a page later, so the choice has a blank page to remove. The row menu disables the checkbox and says "This page already starts on the next page." when it is false. Front matter often has no blank to remove (the first page, a preface a few pages in, two pages the rules already put flush), and a tick that changed nothing there read as a broken setting.
+- **Where the choice is offered:** `layoutBook` also reported `canFollowOn` per entry: the rules would open that entry a page later, so the choice had a blank page to remove. The row menu disabled the checkbox and said "This page already starts on the next page." when it was false. Front matter often has no blank to remove (the first page, a preface a few pages in, two pages the rules already put flush), and a tick that changed nothing there read as a broken setting. Both are gone: the menu offers three starts instead, see "Page start: three choices" below.
 - **Checked against real Typst:** `packages/export-pdf/src/__tests__/pagenumbers.render.test.ts` renders a fixture book with the choice on and asserts that `layoutBook` gives the same start pages, printed numbers and total page count as Typst, and that the blank page before the dedication is gone while the foreword after it still opens on a right-hand page. A second case puts the choice on the first back matter page of a book without chapters, where it meets the arabic restart.
 
 ### Why
@@ -1562,8 +1562,38 @@ Front matter is often several short pages in a row (two quotes, a dedication and
 
 ### Follow-ups
 
-- The pen does not draw the row menu item: the app adds a checkbox item ("Start on the next page") after the matter page's group, as it did for the vertical position group. Roadmap line added.
-- A blank page that the rules insert is still not a page the author can select or annotate; the choice is the only way to remove it.
+- The pen does not draw the row menu group: the app adds a "Page start" radio group (see "Page start: three choices") after the matter page's groups, as it did for the vertical position group. Roadmap line added.
+- A blank page, whether the rules insert it or the author asks for it, is still not a page the author can select or annotate; the "Page start" choice is the only way to add or remove one.
+
+## Page start: three choices (2026-11-04)
+
+### Decision
+
+The row menu's single "Start on the next page" checkbox is a three-way **Page start** radio group, laid out like the "Vertical position" group above it: **Follows the book** (no `startOnNext`), **Start on the next page** (`true`) and **Start on a right-hand page** (`false`). The first two were the old tick and its unticked state. The third is new: it inserts the blank left-hand page that puts the page on a right-hand one, on a page the rules would otherwise leave on a left-hand page (a disclaimer, a quote page, a preface of a template that starts chapters on any page).
+
+- **One layout rule:** `layoutBook` in `packages/shared/src/pageNumbering.ts` treats `startOnNext === false` as a right-hand start whatever the rules and the template say, and `true` still skips every right-hand push, the arabic restart's included. `PlacedEntry.canFollowOn` is gone with the disabled state and the "This page already starts on the next page." note it fed: the group is always offered, because a page can be given a blank page as well as have one taken away.
+- **PDF (Typst):** `bodyOf` in `packages/export-pdf/src/typst/matter.ts` breaks `to: "odd"` before a page whose choice is `false`, the page that restarts the arabic count included, and passes `odd: false` to `#chapter-start` only for `true`. The weak break is enough for the wrappers that lay out a page by kind (`centered-page`, `copyright-page`), which start nothing new of their own.
+- **The menu:** `EntryList.tsx` renders a Radix `RadioGroup` with the label "Page start"; choosing writes `setMatterStartOnNext(m, id, true | false | null)`, so the three choices go through book undo and redo like any other structure change, and the live region announces the result ("Preface: starts on a right-hand page"). Chapters still have no such group.
+- **Checked against real Typst:** the shared layout's start pages, printed folios and page total for `startOnNext: false` are compared with a real Typst render of the fixture book (Modern Memoir, which starts chapters on any page, so the preface has a blank page to gain) in `packages/export-pdf/src/__tests__/pagenumbers.render.test.ts`; `matter.test.ts` checks the emitted break for both a page using the chapter opening and a centred one, and `matter-start.spec.ts` drives the group in the app and counts the page cards.
+
+### Why
+
+The old checkbox could only take a blank page away. On the two pages whose author asked about it — a disclaimer and a quote page that had been set to follow on earlier — the tick was already on and greyed out, with a note saying there was nothing to change there, and the author who wanted the blank page back had no way to ask for it. Naming the three starts says what the page does, instead of leaving the author to work the book's printing rules out from the page cards.
+
+### Rejected alternatives
+
+| Rejected                                                 | Why not                                                                                                                                                                                                                                        |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Make the tick insert a blank page when it is on          | It already means the opposite everywhere else ("follows on, left-hand page or not") and that is the behaviour authors ticked it for; reusing it would turn their pages around.                                                                 |
+| Keep the checkbox and hide it where it changes nothing   | That was the reported bug: the pages that need a blank page inserted are exactly the ones the old menu greyed out.                                                                                                                             |
+| Offer only "Start on a right-hand page" and "Follows on" | The book's rules are the right answer most of the time (a dedication opens on a right-hand page, a chapter follows the template); an author should not have to restate them to keep them.                                                      |
+| Move the arabic restart with the choice                  | A page that both restarts the count and starts on the next page keeps its choice, keeps 1 on a left-hand page, and the layout and the PDF agree (see "Pages that start on the next page").                                                     |
+| `formatVersion` 11                                       | Nothing in the file changes shape: `startOnNext` is still a boolean, `false` was already valid and an older app keeps it on its next save. It draws that page without the blank, which is what that app did before, and no setting is dropped. |
+
+### Follow-ups
+
+- The pen does not draw the group: the app adds the "Page start" radio group after the matter page's other groups, as it does for "Vertical position". Roadmap line added.
+- The three labels sit close to one another in meaning. If authors still ask for "start on the next page" to mean "leave a blank page", the labels ("Follows the book" / "Start on the next page" / "Start on a right-hand page") are where to say so more plainly.
 
 ## Scrolling between sections in Write mode (2026-11-03)
 

@@ -56,6 +56,25 @@ describe("buildTypst with front and back matter", () => {
     expect(laid).toContain('#chapter-start("Preface", none, id: "fm-5", kind: "preface")');
   });
 
+  it("inserts the blank page before a page the author starts on a right-hand one", () => {
+    const front = matterPages().front;
+    // A template that starts chapters on any page leaves the preface on the next page; the choice puts the blank before it.
+    const modern = (pages: typeof front) =>
+      buildTypst(book, [...pages, ...chapters], { template: "modern" });
+    expect(modern(front)).not.toMatch(
+      /#pagebreak\(weak: true, to: "odd"\)\n\n#chapter-start\("Preface"/,
+    );
+    const forced = front.map((p) => (p.id === "fm-5" ? { ...p, startOnNext: false } : p));
+    expect(modern(forced)).toMatch(
+      /#pagebreak\(weak: true, to: "odd"\)\n\n#chapter-start\("Preface", none, id: "fm-5", kind: "preface"\)/,
+    );
+    // A centred page the rules never push gets the same break in front of it.
+    const centred = front.map((p) =>
+      p.id === "fm-5" ? { ...p, verticalCenter: true, startOnNext: false } : p,
+    );
+    expect(modern(centred)).toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#centered-page\("fm-5"/);
+  });
+
   it("numbers only chapters, not matter pages", () => {
     expect(src).toContain('#chapter-start("The Quay", 1,');
     expect(src).toContain('#chapter-start("Afterword", 4,');

@@ -266,6 +266,11 @@ msgstr "{0}: el inicio de página sigue el libro"
 
 #. placeholder {0}: c.title
 #: src/app/shell/EntryList.tsx
+msgid "{0}: starts on a right-hand page"
+msgstr "{0}: empieza en una página derecha"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
 msgid "{0}: starts on the next page"
 msgstr "{0}: empieza en la página siguiente"
 
@@ -2006,6 +2011,10 @@ msgstr "Carpeta no encontrada. Quítala de la lista o devuélvela a su sitio."
 msgid "Follow the system or pick one."
 msgstr "Sigue el sistema o elige uno."
 
+#: src/app/shell/EntryList.tsx
+msgid "Follows the book"
+msgstr "Sigue el libro"
+
 #: src/app/export/ManuscriptPanel.tsx
 msgid "Font"
 msgstr "Fuente"
@@ -3172,6 +3181,10 @@ msgstr "Números de página"
 msgid "Page setup"
 msgstr "Configuración de página"
 
+#: src/app/shell/EntryList.tsx
+msgid "Page start"
+msgstr "Inicio de página"
+
 #: src/editor/Editor.tsx
 msgid "Page text"
 msgstr "Texto de la página"
@@ -4062,6 +4075,10 @@ msgid "Start from a copy of the source"
 msgstr "Empezar con una copia del original"
 
 #: src/app/shell/EntryList.tsx
+msgid "Start on a right-hand page"
+msgstr "Empezar en una página derecha"
+
+#: src/app/shell/EntryList.tsx
 msgid "Start on the next page"
 msgstr "Empezar en la página siguiente"
 
@@ -4549,10 +4566,6 @@ msgstr "No se permite esta ruta de imagen: {0}"
 #: src/app/shell/Details.tsx
 msgid "This page"
 msgstr "Esta página"
-
-#: src/app/shell/EntryList.tsx
-msgid "This page already starts on the next page."
-msgstr "Esta página ya empieza en la página siguiente."
 
 #: src/state/project/context.ts
 msgid "This page could not be opened: {why}. Restore an earlier version from History, or choose another page."

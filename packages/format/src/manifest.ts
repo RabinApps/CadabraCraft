@@ -75,7 +75,7 @@ export interface EditionEntry {
   dropCap?: boolean;
   /** Front and back matter pages only, except contents and copyright (formatVersion 9): centre the page's content between the margins (true) or keep it at the top (false). Absent follows the template's default for the kind. */
   verticalCenter?: boolean;
-  /** Front and back matter pages only (formatVersion 10): start on the next page even when that is a left-hand page, instead of opening on a right-hand page. Absent follows the book's rules, the blank left-hand page included. */
+  /** Front and back matter pages only (formatVersion 10): true starts on the next page even when that is a left-hand page (no blank page before it), false opens on a right-hand page, with a blank left-hand page before it when needed. Absent follows the book's rules, their blank pages included. */
   startOnNext?: boolean;
   /** Contents pages only (`kind: "contents"`, formatVersion 7): the author's changes to the generated list. Absent means defaults. */
   toc?: TocSettings;

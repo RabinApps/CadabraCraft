@@ -44,7 +44,7 @@ export interface EntryWords {
   kind?: MatterKind | undefined;
   /** The author's own vertical position choice for a matter page. */
   verticalCenter?: boolean | undefined;
-  /** The author's choice to let a matter page start on the next page, left-hand page or not (no blank page before it). */
+  /** The author's start for a matter page: the next page, left-hand page or not (no blank page before it), or a right-hand page (a blank page before it when needed). */
   startOnNext?: boolean | undefined;
   words: number;
 }

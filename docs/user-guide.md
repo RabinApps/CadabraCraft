@@ -109,7 +109,7 @@ Write mode scrolls on through the book: when you reach the last page of the open
 The list on the left has three parts: front matter, chapters and back matter. Reading order is simply the order of this list.
 
 - **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, contents, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page, one copyright page and one contents page (see [Contents page](#contents-page)).
-- The `...` menu next to each entry lets you **Rename**, **Change icon**, **Move up**, **Move down** or **Move to trash**. Chapters also have a **First letter** choice, and front and back matter pages (except contents and copyright) have a **Vertical position** choice (see [Vertical position of front and back matter](#vertical-position-of-front-and-back-matter)). Front and back matter pages can also be told to **Start on the next page** (see [Blank pages and where a page starts](#blank-pages-and-where-a-page-starts)).
+- The `...` menu next to each entry lets you **Rename**, **Change icon**, **Move up**, **Move down** or **Move to trash**. Chapters also have a **First letter** choice, and front and back matter pages (except contents and copyright) have a **Vertical position** choice (see [Vertical position of front and back matter](#vertical-position-of-front-and-back-matter)). Front and back matter pages also have a **Page start** choice (see [Blank pages and where a page starts](#blank-pages-and-where-a-page-starts)).
 - **Trash** (bottom of the list) shows pages you moved to the trash. **Restore** puts one back at the end of its section. Nothing is ever permanently deleted by the app; trashed files stay in `.cadabra/trash/` inside your book folder until you delete them yourself.
 - **Book undo and redo** (the arrows at the bottom of the list, or Edit > Undo ... / Redo ..., Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z) reverse changes to the structure: adding, renaming, moving, trashing and restoring. The button says what it will undo. They do not undo typing (normal Cmd/Ctrl+Z does that) and they start fresh each time you open the book.
 
@@ -145,9 +145,15 @@ The choice goes through book undo and redo, and the screen reader hears it ("Ded
 
 A printed book opens its title page, contents page, dedication and epigraph on a right-hand page, and it starts the page after a dedication or an epigraph on a right-hand page too. To make that happen the book puts a blank left-hand page in between when it needs one. Those blanks are part of the book, not pages you wrote: you cannot type in them, rename them or delete them, and in the PDF they are blank.
 
-Two quotes in a row, or a dedication followed by a short epigraph, can therefore leave blank pages between front matter pages. To remove one, open the `...` menu of the page that comes after the blank and tick **Start on the next page**. That page then follows the page before it, left-hand or right-hand, so no blank page goes before it, in the page view, in Read mode and in the exported PDF. Untick it (or undo) and the blank page comes back. The choice goes through book undo and redo, and the screen reader hears it ("Epigraph: starts on the next page").
+Two quotes in a row, or a dedication followed by a short epigraph, can therefore leave blank pages between front matter pages. Every front and back matter page has a **Page start** choice in its `...` menu, with three answers:
 
-Only a page the book would put a blank before has that choice: a page that already follows on, like the first page of the book or a preface that few pages precede, shows **Start on the next page** greyed out, with "This page already starts on the next page." under it, because there is no blank page there to remove.
+- **Follows the book** (the default) lets the rules above decide, blank pages included.
+- **Start on the next page** makes the page follow the one before it, left-hand or right-hand, so no blank page goes before it.
+- **Start on a right-hand page** gives the page a blank left-hand page when it would otherwise land on a left-hand one, for example a disclaimer or a quote page that should open on the right.
+
+All three change the page view, Read mode and the exported PDF. The choice goes through book undo and redo, and the screen reader hears it ("Epigraph: starts on the next page", "Disclaimer: starts on a right-hand page").
+
+Every page can be given a blank page or have one taken away, whatever the rules above would do with it: a page that already follows on can be put on a right-hand page this way, and a page whose blank you no longer want can be told to start on the next page. Chapters have no such choice.
 
 Chapter openings follow the template's own setting instead (the Templates page says whether chapters open on a right-hand page); a chapter always starts exactly where its page cards say it does.
 

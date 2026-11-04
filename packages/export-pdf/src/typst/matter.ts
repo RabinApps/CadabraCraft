@@ -39,8 +39,9 @@ function opensWithTitle(page: PdfChapter): boolean {
 }
 
 /**
- * Pages that always open on a right-hand page, and the kinds after which the next page must (so the verso stays blank). A page whose
- * author said it starts on the next page (`startOnNext`) is exempt: it follows the one before it, left-hand page or not.
+ * Pages that always open on a right-hand page, and the kinds after which the next page must (so the verso stays blank). The author's
+ * start wins either way: `startOnNext: true` exempts the page (it follows the one before it, left-hand page or not) and
+ * `startOnNext: false` puts it on a right-hand page even where the template starts chapters on any page.
  */
 const ALWAYS_RECTO: readonly (MatterKind | undefined)[] = [
   "title-page",
@@ -137,8 +138,9 @@ export function bodyOf(
         `${break_}\n#set page(numbering: "1")\n#counter(page).update(1)\n#mark("numbering-arabic")\n`,
       );
     } else if (
-      page.startOnNext !== true &&
-      (ALWAYS_RECTO.includes(kind) || BLANK_VERSO_AFTER.includes(prev))
+      page.startOnNext === false ||
+      (page.startOnNext !== true &&
+        (ALWAYS_RECTO.includes(kind) || BLANK_VERSO_AFTER.includes(prev)))
     ) {
       out.push('#pagebreak(weak: true, to: "odd")\n');
     }
@@ -156,7 +158,8 @@ export function bodyOf(
     // A page that is not centred has its content at the top of the text box; the author can centre a kind that is not by default.
     const centred = resolveVerticalCenter(template, kind, page);
     const top = centred ? "" : ", centre: false";
-    // A page the author let follow on opens on the next page, left-hand or not: `chapter-start` must not push it to a right-hand one.
+    // A page the author let follow on opens on the next page, left-hand or not: `chapter-start` must not push it to a right-hand one
+    // (a page the author put on a right-hand page is pushed by the break above, and `chapter-start`'s own is then a no-op).
     const named = `id: ${id}, kind: ${typstString(kind ?? "chapter")}${
       page.startOnNext === true ? ", odd: false" : ""
     }`;

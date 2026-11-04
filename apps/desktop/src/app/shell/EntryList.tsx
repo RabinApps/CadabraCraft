@@ -20,7 +20,6 @@ import { DropLine } from "../../ui/DropLine";
 import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
 import { SectionHeading } from "../../ui/SectionHeading";
 import { dropPosition, insertionIndex } from "../../lib/referenceKinds";
-import { useBookLayout } from "../hooks/useBookLayout";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import type { HistoryPage } from "../dialogs/HistoryDialog";
@@ -60,9 +59,6 @@ export function EntryList({
 }: ListProps) {
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
-  // Only a page the book's rules would push to a right-hand one has a blank left-hand page to remove, so only there does the start
-  // choice change anything (see `canFollowOn` in `layoutBook`).
-  const bookPages = useBookLayout();
   const last = entries.length - 1;
   /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
   const afterClose = useRef<(() => void) | null>(null);
@@ -141,8 +137,6 @@ export function EntryList({
         {entries.map((c, i) => {
           const current = c.id === currentId;
           const Icon = iconComponent(c.icon);
-          // Offered until the layout knows the page: a book still being counted must not claim a page already follows on.
-          const canFollowOn = bookPages?.byId.get(c.id)?.canFollowOn ?? true;
           return (
             <li
               key={c.id}
@@ -372,40 +366,53 @@ export function EntryList({
                             </M.RadioItem>
                           ))}
                         </M.RadioGroup>
-                        <M.Separator className="my-1 h-px bg-border" />
                       </>
                     )}
-                    {/* Where the page numbering puts a matter page: a dedication, epigraph or title page opens on a right-hand page, and a
-                        blank page comes before it when the next one is a left-hand page. This lets the author let it follow on instead. */}
+                    {/* Where the page numbering puts a matter page: the book's rules (a dedication, epigraph or title page opens on a
+                        right-hand page, with a blank left-hand page before it when that is what it takes), the next page whatever the
+                        rules say (no blank page before it), or a right-hand page (a blank page inserted when the rules leave it on a
+                        verso). All three are always offered: a page can be taken off a blank it no longer wants, or given one. */}
                     {!chapters && (
                       <>
                         <M.Separator className="my-1 h-px bg-border" />
-                        <M.CheckboxItem
-                          className={menuItemClass()}
-                          checked={c.startOnNext === true}
-                          disabled={!canFollowOn}
-                          onCheckedChange={(v) => {
-                            attempt(actions.setStartOnNext(c.id, v ? true : null));
+                        <M.Label className={menuLabelClass} aria-hidden>
+                          {t`Page start`}
+                        </M.Label>
+                        <M.RadioGroup
+                          aria-label={t`Page start`}
+                          value={
+                            c.startOnNext === undefined ? "book" : c.startOnNext ? "next" : "recto"
+                          }
+                          onValueChange={(v) => {
+                            attempt(
+                              actions.setStartOnNext(c.id, v === "book" ? null : v === "next"),
+                            );
                             setSaid(
-                              v
-                                ? t`${c.title}: starts on the next page`
-                                : t`${c.title}: page start follows the book`,
+                              v === "book"
+                                ? t`${c.title}: page start follows the book`
+                                : v === "next"
+                                  ? t`${c.title}: starts on the next page`
+                                  : t`${c.title}: starts on a right-hand page`,
                             );
                           }}
                         >
-                          <span className="flex size-3.5 items-center justify-center text-accent">
-                            <M.ItemIndicator>
-                              <Check size={14} aria-hidden />
-                            </M.ItemIndicator>
-                          </span>
-                          {t`Start on the next page`}
-                        </M.CheckboxItem>
-                        {/* Nothing to do on a page the rules already put next: say so instead of letting the tick do nothing. */}
-                        {!canFollowOn && (
-                          <div className="px-2.5 pb-1.5 text-micro leading-snug text-ink-muted">
-                            {t`This page already starts on the next page.`}
-                          </div>
-                        )}
+                          {(
+                            [
+                              ["book", t`Follows the book`],
+                              ["next", t`Start on the next page`],
+                              ["recto", t`Start on a right-hand page`],
+                            ] as const
+                          ).map(([value, text]) => (
+                            <M.RadioItem key={value} value={value} className={menuItemClass()}>
+                              <span className="flex size-3.5 items-center justify-center text-accent">
+                                <M.ItemIndicator>
+                                  <Check size={14} aria-hidden />
+                                </M.ItemIndicator>
+                              </span>
+                              {text}
+                            </M.RadioItem>
+                          ))}
+                        </M.RadioGroup>
                         <M.Separator className="my-1 h-px bg-border" />
                       </>
                     )}
