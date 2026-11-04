@@ -77,6 +77,30 @@ describe("export_epub / inspect_epub", () => {
     expect(await classes()).toEqual(["chapter", "chapter dropcap", "chapter"]);
   });
 
+  it("centres a matter page by its own choice, else by the template's kinds, and never a chapter", async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "v", title: "T", author: "A" });
+    for (const title of ["One", "Two", "Three", "Four", "Five"])
+      await s.ok("cadabra_chapter_add", { path: "v", title });
+    const manifestPath = join(s.root, "v/cadabra.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    const [a, b, c, d] = manifest.chapters.splice(0, 4);
+    manifest.frontMatter.push({ ...a, kind: "title-page" });
+    manifest.frontMatter.push({ ...b, kind: "dedication", verticalCenter: false });
+    manifest.backMatter.push({ ...c, kind: "about-the-author", verticalCenter: true });
+    manifest.frontMatter.push(d); // an old page with no kind is a custom page
+    writeFileSync(manifestPath, JSON.stringify(manifest));
+    await s.ok("cadabra_export_epub", { path: "v" });
+    const zip = unzipSync(new Uint8Array(readFileSync(join(s.root, "v/exports/en/book.epub"))));
+    const classOf = (id: string) =>
+      /<body[^>]*class="([^"]*)"/.exec(strFromU8(zip[`OEBPS/${id}.xhtml`]!))![1];
+    expect(classOf(a.id)).toBe("title-page vcenter"); // the novel template centres it
+    expect(classOf(b.id)).toBe("dedication"); // the page's own choice: top
+    expect(classOf(c.id)).toBe("about-the-author vcenter"); // not a template kind, but the page asks
+    expect(classOf(d.id)).toBe("custom");
+    expect(classOf("ch-5")).toBe("chapter dropcap");
+  });
+
   it("refuses an empty book, a missing chapter file and a missing image without writing anything", async () => {
     s = await connect({ epubcheckJar: null });
     await s.ok("cadabra_project_create", { path: "e", title: "T", author: "A" });

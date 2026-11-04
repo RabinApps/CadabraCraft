@@ -65,36 +65,3 @@ export function bookContents(
 /** The PDF's `toc` option: every item (hidden flagged) and the page-number switch. */
 export const pdfToc = (c: BookContents | undefined): PdfToc | undefined =>
   c && { items: c.all, pageNumbers: c.pageNumbers };
-
-/** An em space: unlike an ordinary space, HTML keeps leading ones, so the indent shows without a new node or style. */
-const EM_SPACE = "\u2003";
-
-/**
- * Read mode shows a contents page as the pages are laid out in the reader (read-only editors), so the generated list is appended to
- * the page's own document as one paragraph per visible entry: the title indented by two em spaces per level (text only: the editor
- * schema is the exporters' contract, so there is no indent node), top-level entries in bold. This is the Read-mode view only: no
- * exporter sees it. Page numbers are Typst's and live in the print preview and the PDF; the reader shows the entries only.
- */
-export function withContentsList<P extends { id: string; doc: ChapterDoc }>(
-  pages: readonly P[],
-  contents: BookContents | undefined,
-): readonly P[] {
-  // Nothing to add: hand back the same array. The reader keeps its scroll state against what it was given, so a new array with the
-  // same pages (a book without a contents page, rebuilt whenever the manifest object changes) must not reach it.
-  if (!contents || contents.visible.length === 0) return pages;
-  const list = contents.visible.map((item) => ({
-    type: "paragraph" as const,
-    content: [
-      {
-        type: "text" as const,
-        text: `${EM_SPACE.repeat(item.level * 2)}${item.title}`,
-        ...(item.level === 0 ? { marks: [{ type: "bold" as const }] } : {}),
-      },
-    ],
-  }));
-  return pages.map((p) =>
-    p.id === contents.entryId
-      ? { ...p, doc: { ...p.doc, content: [...p.doc.content, ...list] } }
-      : p,
-  );
-}

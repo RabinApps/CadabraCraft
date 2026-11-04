@@ -110,6 +110,34 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
   );
 
   it(
+    "validates vertically centred pages (the vcenter class and its flex rule) with every template stylesheet, left-to-right and right-to-left",
+    () => {
+      // The template's kinds, plus a foreword and an about-the-author page the author centred.
+      const pages = matterBook().map((c) =>
+        c.kind === "foreword" || c.kind === "about-the-author" ? { ...c, verticalCenter: true } : c,
+      );
+      for (const t of listTemplates())
+        for (const language of ["en", "he"]) {
+          const bytes = buildEpub(metaOf(language), pages, {
+            css: t.epub.css,
+            centerKinds: t.print.matter.verticalCenter,
+          });
+          expect(check(`vcenter-${t.id}-${language}.epub`, bytes), `${t.id} ${language}`).toContain(
+            "No errors or warnings detected",
+          );
+        }
+      // The built-in default stylesheet has the same rules.
+      expect(
+        check(
+          "vcenter-default.epub",
+          buildEpub(metaOf("en"), pages, { centerKinds: ["title-page", "dedication", "epigraph"] }),
+        ),
+      ).toContain("No errors or warnings detected");
+    },
+    JVM_TIMEOUT,
+  );
+
+  it(
     "validates a book with a cover, left-to-right, right-to-left and with front matter only",
     () => {
       const png = new Uint8Array(

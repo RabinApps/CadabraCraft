@@ -326,7 +326,7 @@ export function resolveToc(
   return arrange(insertCustom(auto, settings, language, source), settings.order);
 }
 
-export const visibleTocItems = (items: readonly TocItem[]): TocItem[] =>
+export const visibleTocItems = <T extends { hidden?: boolean }>(items: readonly T[]): T[] =>
   items.filter((i) => !i.hidden);
 
 /**

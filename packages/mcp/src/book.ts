@@ -12,7 +12,7 @@ import {
 } from "@cadabracraft/format";
 import { ProjectFsError, imageExt, looksLike, readAsset } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, hasTemplate } from "@cadabracraft/templates";
-import { isAssetPath, type ChapterDoc } from "@cadabracraft/shared";
+import { isAssetPath, type ChapterDoc, type MatterKind, type Section } from "@cadabracraft/shared";
 import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { imageSources, schemaProblem } from "./doc";
 import { ToolError } from "./errors";
@@ -29,7 +29,17 @@ export interface Book {
   /** Pages left out because they are not translated yet (only with `skipUntranslated`). */
   skipped: EditionEntry[];
   /** `dropCap` is the author's own choice for the chapter (its own, else the book's); absent follows the template. */
-  chapters: { id: string; title: string; doc: ChapterDoc; dropCap?: boolean }[];
+  chapters: {
+    id: string;
+    title: string;
+    doc: ChapterDoc;
+    dropCap?: boolean;
+    /** Where the page sits and what it is (matter pages only), so the exporters lay front and back matter out as such. */
+    section?: Section;
+    kind?: MatterKind;
+    /** The page's own vertical position choice (matter pages only); absent follows the template's kinds. */
+    verticalCenter?: boolean;
+  }[];
   /** Image bytes keyed by the project-relative `assets/<name>` path used in the chapters. */
   assets: Map<string, Uint8Array>;
   /** The manifest's template if it exists, else the default (as the app does). */
@@ -69,11 +79,19 @@ export function loadBook(ctx: Ctx, path: string, scope: ExportScope = {}): Book 
       );
     const dropCap =
       sectionOf(manifest, e.id) === "chapter" ? (e.dropCap ?? manifest.dropCap) : undefined;
+    const section = sectionOf(manifest, e.id)!;
     return {
       id: e.id,
       title: e.titles[edition.language] ?? sourceTitle(e, manifest.editions),
       doc,
       ...(dropCap === undefined ? {} : { dropCap }),
+      ...(section === "chapter"
+        ? {}
+        : {
+            section,
+            ...(e.kind ? { kind: e.kind } : {}),
+            ...(e.verticalCenter === undefined ? {} : { verticalCenter: e.verticalCenter }),
+          }),
     };
   });
   const assets = new Map<string, Uint8Array>();

@@ -199,6 +199,15 @@ const baseScreens: Screen[] = [
     },
   },
   {
+    name: "matter page actions menu (Vertical position)",
+    open: async (p) => {
+      await newProject(p);
+      await addPage(p, "Title page");
+      await p.getByRole("button", { name: "Actions for Title Page" }).click();
+      await shown(p.getByRole("group", { name: "Vertical position" }));
+    },
+  },
+  {
     name: "find bar",
     open: async (p) => {
       await newProject(p);
@@ -363,6 +372,14 @@ const baseScreens: Screen[] = [
       await shown(p.getByRole("button", { name: "Exit focus mode" }));
     },
   },
+  {
+    name: "editor with typewriter scrolling on (end slack)",
+    open: async (p) => {
+      await newProject(p);
+      await menu(p, "view.typewriter");
+      await expect(p.getByTestId("page-scroll")).toHaveCSS("padding-bottom", /^[1-9]\d{2,}/);
+    },
+  },
   { name: "Contents editor", open: contentsPage },
   {
     name: "Contents editor, renaming an entry",
@@ -470,6 +487,15 @@ const withSnapshot = async (page: Page) => {
 
 /** Dialogs, panels and shell states added for the second accessibility sweep. */
 export const moreScreens: Screen[] = [
+  {
+    name: "Read mode, Contents page",
+    open: async (p) => {
+      await contentsPage(p);
+      await p.getByRole("radio", { name: "Read" }).click();
+      await shown(p.getByTestId("reading-contents"));
+      await shown(p.getByTestId("reading-contents").getByRole("link").first());
+    },
+  },
   {
     name: "editor toolbar, More formatting menu open",
     open: async (p) => {

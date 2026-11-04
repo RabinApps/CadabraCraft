@@ -1,3 +1,4 @@
+import { isBackMatterKind, isFrontMatterKind } from "@cadabracraft/shared";
 import { BUILTIN_TEMPLATES } from "./builtin";
 import type { PrintHeadingStyle, Template, TrimSizeId } from "./types";
 
@@ -51,6 +52,17 @@ export function validateTemplate(t: Template): string[] {
   const orn = p.chapterOpening?.ornament;
   if (orn !== null && (typeof orn !== "string" || [...orn].length !== 1))
     e.push("print.chapterOpening.ornament must be null or a single character");
+  const centred = p.matter?.verticalCenter;
+  if (
+    !Array.isArray(centred) ||
+    !centred.every(
+      (k) => (isFrontMatterKind(k) || isBackMatterKind(k)) && k !== "contents" && k !== "copyright",
+    ) ||
+    new Set(centred).size !== centred.length
+  )
+    e.push(
+      "print.matter.verticalCenter must be a list of distinct matter kinds (not contents or copyright)",
+    );
   if (!isNum(p.blockQuote?.indentEm, 0, 6)) e.push("print.blockQuote.indentEm out of range");
   if (!isNum(p.blockQuote?.sizeEm, 0.5, 2)) e.push("print.blockQuote.sizeEm out of range");
   if (!isNum(p.blockQuote?.spaceEm, 0, 5)) e.push("print.blockQuote.spaceEm out of range");

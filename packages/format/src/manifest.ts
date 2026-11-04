@@ -13,7 +13,7 @@ import { validatePublishing, type Publishing } from "./publishing";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 8;
+export const CURRENT_FORMAT_VERSION = 9;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -73,6 +73,8 @@ export interface EditionEntry {
   icon?: string;
   /** Chapters only (formatVersion 8): a big first letter on this chapter's opening paragraph (true) or none (false). Absent follows the book's `dropCap`. */
   dropCap?: boolean;
+  /** Front and back matter pages only, except contents and copyright (formatVersion 9): centre the page's content between the margins (true) or keep it at the top (false). Absent follows the template's default for the kind. */
+  verticalCenter?: boolean;
   /** Contents pages only (`kind: "contents"`, formatVersion 7): the author's changes to the generated list. Absent means defaults. */
   toc?: TocSettings;
 }
@@ -237,6 +239,15 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
       if (!ok)
         throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
       entry.kind = o.kind as MatterKind;
+    }
+    if (o.verticalCenter !== undefined) {
+      if (section === "chapter" || entry.kind === "contents" || entry.kind === "copyright")
+        throw new FormatError(
+          `manifest: "${name}[${i}].verticalCenter" belongs on a front or back matter page other than contents and copyright`,
+        );
+      if (typeof o.verticalCenter !== "boolean")
+        throw new FormatError(`manifest: "${name}[${i}].verticalCenter" must be true or false`);
+      entry.verticalCenter = o.verticalCenter;
     }
     if (o.toc !== undefined) {
       if (entry.kind !== "contents")

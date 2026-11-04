@@ -425,6 +425,23 @@ body {
 .prose-page .ProseMirror > :first-child {
   margin-top: 0;
 }
+/* No chapter opening above the heading of a title page, dedication, epigraph or centred page: the PDF sets these with their own layout. */
+.prose-page.page-bare .ProseMirror > h1:first-child {
+  margin-top: 0;
+}
+.prose-page.page-bare .ProseMirror > h1:first-child::before,
+.prose-page.page-bare .ProseMirror > h1:first-child::after {
+  content: none;
+}
+/*
+ * A short matter page (title page, dedication, epigraph) sits in the vertical middle of the page: PageStack adds .page-centred while
+ * the page is a single card and sets --page-centre-top to half of the free height. Only the column moves down, so the text column,
+ * indents and alignment are as on any other page, the DOM order is unchanged, and when the content fills the box the offset is 0.
+ * The measuring pass (.pv-natural) never sees it.
+ */
+.prose-page.page-centred .ProseMirror:not(.pv-natural) {
+  padding-top: calc(var(--page-mt) + var(--page-centre-top, 0px));
+}
 .prose-page .ProseMirror p {
   margin: 0 0 var(--page-para-space);
   text-indent: var(--page-indent);

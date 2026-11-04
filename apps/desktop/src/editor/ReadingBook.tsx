@@ -10,7 +10,6 @@ import { useMeasuredPages } from "../app/hooks/useMeasuredPages";
 import { fitZoom } from "../lib/pageLayout";
 import { chapterPageCount, chapterStart, bookWordsPerPage } from "../lib/pageNumbering";
 import { reportStartNumber, usableReport } from "../lib/pageReport";
-import { bookContents, withContentsList } from "../lib/tocExport";
 import {
   chainFirstPages,
   pageAtLine,
@@ -35,6 +34,8 @@ import { cx } from "../ui/cx";
 const PRELOAD_PX = 900;
 /** The reading line, as a fraction of the viewport height from its top: the chapter and page there is "where the reader is". */
 const LINE = 0.3;
+/** The headings of a chapter, in document order (what a Contents entry's heading position counts). */
+const HEADINGS = "h1, h2, h3, h4, h5, h6";
 
 /**
  * Read mode: the whole book in one vertical scroller, front matter, chapters and back matter in reading order. At md and up each
@@ -67,7 +68,7 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   // Its pages are not laid out when it was far away or has just been mounted, so the scroll is repeated each time that chapter
   // lays out, until the reader scrolls on their own (or a couple of seconds pass). The chapters above it are kept in place by the
   // height compensation.
-  const pending = useRef<{ id: string } | null>(null);
+  const pending = useRef<{ id: string; heading?: number } | null>(null);
   const [alignTick, setAlignTick] = useState(0);
   // What the reader is looking at, as the section at the top edge and how far below the edge it starts. WebKit has no scroll
   // anchoring, so when a section changes height this puts that section back at the same offset (and does nothing if it did not move).
@@ -100,11 +101,16 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     a.top = sc.scrollTop;
   }, [capture]);
   const align = useCallback(
-    (id: string) => {
+    (id: string, heading?: number) => {
       const sc = scroller.current;
       const el = sc?.querySelector<HTMLElement>(`[data-reading-id="${CSS.escape(id)}"]`);
       if (!sc || !el) return;
-      const card = el.querySelector<HTMLElement>(".page-card:not([data-blank])");
+      // A heading of the chapter (a Contents entry for one), once the chapter has an editor; else the chapter's opening page.
+      const target =
+        heading === undefined
+          ? undefined
+          : (el.querySelectorAll<HTMLElement>(HEADINGS)[heading] ?? undefined);
+      const card = target ?? el.querySelector<HTMLElement>(".page-card:not([data-blank])");
       const top = card
         ? card.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop
         : el.offsetTop;
@@ -249,9 +255,11 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
       return;
     }
     if (visible.current === currentId) return;
-    const mine = { id: currentId };
+    // A Contents entry for a heading of this chapter asked for it: keep the heading to scroll to.
+    const asked = jump.current?.id === currentId ? jump.current.heading : undefined;
+    const mine = { id: currentId, heading: asked };
     pending.current = mine;
-    align(currentId);
+    align(currentId, asked);
     measure();
     const timer = setTimeout(() => {
       if (pending.current === mine) pending.current = null;
@@ -259,8 +267,32 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     return () => clearTimeout(timer);
   }, [currentId, ready, measure, align]);
   useLayoutEffect(() => {
-    if (alignTick && pending.current) align(pending.current.id);
+    if (alignTick && pending.current) align(pending.current.id, pending.current.heading);
   }, [alignTick, align]);
+  // An entry of the Contents page was chosen: open that chapter and scroll to it (or to its heading), also when it is already the
+  // open one or is on screen, which the effect above would leave where it is.
+  const jump = useRef<{ id: string; heading?: number } | null>(null);
+  const [jumpTick, setJumpTick] = useState(0);
+  const open = useCallback(
+    (id: string, heading?: number) => {
+      jump.current = { id, heading };
+      setJumpTick((n) => n + 1);
+      attempt(selectChapter(id));
+    },
+    [selectChapter],
+  );
+  useLayoutEffect(() => {
+    const j = jump.current;
+    if (!jumpTick || !j || !ready) return;
+    const mine = { ...j };
+    pending.current = mine;
+    align(j.id, j.heading);
+    measure();
+    const timer = setTimeout(() => {
+      if (pending.current === mine) pending.current = null;
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [jumpTick, ready, align, measure]);
 
   const column = Math.min(widths[width], paneW || widths[width]) - 48;
   const gap = paged ? Math.round(PAGE_GAP * zoom) : 0;
@@ -321,6 +353,7 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
           onPages={onPages}
           report={report}
           reportAt={reportAt}
+          onOpen={open}
         />
       ))}
     </div>
@@ -344,15 +377,8 @@ export function ReadingBook() {
       live = false;
     };
   }, [readPages]);
-  const manifest = useProject((s) => s.manifest);
-  const language = useProject((s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "");
-  // The generated contents list is part of the contents page as the reader shows it.
-  const shown = useMemo(
-    () => pages && manifest && withContentsList(pages, bookContents(manifest, language, pages)),
-    [pages, manifest, language],
-  );
   const { t } = useLingui();
-  if (!shown)
+  if (!pages)
     return <div className="flex-1 bg-paper" role="status" aria-label={t`Loading the book`} />;
-  return <ReadingScroll pages={shown} />;
+  return <ReadingScroll pages={pages} />;
 }

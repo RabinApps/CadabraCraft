@@ -73,6 +73,8 @@ export function useAppMenu(h: AppMenuHooks): void {
   const recents = useRecents((s) => s.recents);
   const clearRecents = useRecents((s) => s.clear);
   const { focus, details, references, set: setLayout } = useLayout();
+  const typewriter = useSettings((s) => s.typewriterScroll);
+  const setPrefs = useSettings((s) => s.set);
   const showQuickNav = useQuickNav((s) => s.show);
   const setCreating = useStartDialogs((s) => s.setCreating);
   const setImporting = useStartDialogs((s) => s.setImporting);
@@ -239,6 +241,10 @@ export function useAppMenu(h: AppMenuHooks): void {
     // The outline jumps inside the editor, which exists in Write mode only.
     commands["view.outline"] = { run: () => showQuickNav("outline") };
     commands["view.focus"] = { run: () => setLayout({ focus: !focus }), checked: focus };
+    commands["view.typewriter"] = {
+      run: () => setPrefs({ typewriterScroll: !typewriter }),
+      checked: typewriter,
+    };
   }
   useRegisterCommands(commands);
 

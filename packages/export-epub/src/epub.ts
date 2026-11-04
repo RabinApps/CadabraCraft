@@ -40,7 +40,9 @@ ul.task-list{list-style:none;padding-left:0}ul.task-list ul.task-list{padding-le
 dt{font-weight:bold;margin-top:.6em}dd{margin:0 0 .3em 2em}
 img{max-width:100%}
 body.title-page,body.dedication,body.epigraph{text-align:center}body.copyright p,body.title-page p,body.dedication p,body.epigraph p{text-indent:0}
-body.dedication,body.epigraph{margin-top:25%}body.dedication p{font-style:italic}body.copyright{font-size:.85em}`;
+body.title-page h1{margin:0 0 .5em}body.dedication p{font-style:italic}body.copyright{font-size:.85em}
+body.vcenter{margin-top:25%}body.title-page.vcenter{margin-top:30%}
+@supports (display:flex){body.vcenter,body.title-page.vcenter{display:flex;flex-direction:column;justify-content:center;min-height:90vh;margin-top:0}}`;
 
 const COVER_PAGE = "epub-cover";
 const CONTENTS_HEADING_ID = "contents-title";
@@ -57,6 +59,8 @@ export interface EpubChapter {
   kind?: MatterKind;
   /** Chapters only: a big first letter on this chapter's opening paragraph, the author's choice. Absent follows `BuildOptions.dropCap`. */
   dropCap?: boolean;
+  /** Front and back matter pages only: the author's choice to sit the page's content in the vertical middle (true) or at the top (false). Absent follows `BuildOptions.centerKinds`. */
+  verticalCenter?: boolean;
 }
 
 const FRONT_TYPES: Partial<Record<MatterKind, string>> = {
@@ -177,6 +181,8 @@ export interface BuildOptions {
   css?: string;
   /** Whether chapters with no `dropCap` of their own get a big first letter (the template's choice). The stylesheet draws it for a chapter body with the class `dropcap`. Default false. */
   dropCap?: boolean;
+  /** Matter kinds that sit in the vertical middle when the page has no `verticalCenter` of its own (the template's choice, `print.matter.verticalCenter`). The page body gets the class `vcenter`, which the stylesheet centres (see `openingCss` and the default stylesheet). Default none. */
+  centerKinds?: readonly MatterKind[];
   /** The cover image: `path` is the project-relative `assets/<name>` (png, jpg or webp) and `bytes` its contents. Adds a cover page first in the reading order, the `cover-image` manifest property and a cover landmark. */
   cover?: { path: string; bytes: Uint8Array };
   /**
@@ -248,8 +254,14 @@ export function buildEpub(
   const known = new Set(chapters.map((c) => c.id));
   for (const c of chapters) {
     const { type, cls: base } = semantics(c);
+    const centred =
+      c.kind !== undefined && (c.verticalCenter ?? options.centerKinds?.includes(c.kind) ?? false);
     const cls =
-      base === "chapter" && (c.dropCap ?? options.dropCap ?? false) ? "chapter dropcap" : base;
+      base === "chapter" && (c.dropCap ?? options.dropCap ?? false)
+        ? "chapter dropcap"
+        : centred
+          ? `${base} vcenter`
+          : base;
     let body: string;
     try {
       body = chapterToXhtmlBody(c.doc, {

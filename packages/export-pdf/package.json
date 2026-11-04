@@ -15,6 +15,7 @@
     "build:sample": "tsx scripts/build-sample.ts"
   },
   "dependencies": {
+    "@cadabracraft/format": "workspace:*",
     "@cadabracraft/shared": "workspace:*",
     "@cadabracraft/templates": "workspace:*"
   },

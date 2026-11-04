@@ -98,6 +98,25 @@ export function setChapterDropCap(m: Manifest, id: string, dropCap: boolean | nu
   };
 }
 
+/** Sets or clears (`null` follows the template) a front or back matter page's own vertical position choice: centred (`true`) or at the top (`false`). */
+export function setMatterVerticalCenter(
+  m: Manifest,
+  id: string,
+  verticalCenter: boolean | null,
+): Manifest {
+  const entry = [...m.frontMatter, ...m.backMatter].find((e) => e.id === id);
+  if (!entry) throw new Error(`no front or back matter page ${id}`);
+  if (entry.kind === "contents" || entry.kind === "copyright")
+    throw new Error(`page ${id} has a layout of its own and is never centred`);
+  const set = (list: EditionEntry[]) =>
+    list.map((e) => {
+      if (e.id !== id) return e;
+      const { verticalCenter: _old, ...rest } = e;
+      return verticalCenter === null ? rest : { ...rest, verticalCenter };
+    });
+  return { ...m, frontMatter: set(m.frontMatter), backMatter: set(m.backMatter) };
+}
+
 /** Moves a chapter by `delta` positions, clamped to the list. Order lives in the manifest, not in file names. */
 export function moveChapter(m: Manifest, id: string, delta: number): Manifest {
   const from = m.chapters.findIndex((c) => c.id === id);

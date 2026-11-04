@@ -11,3 +11,4 @@ export {
 } from "./registry";
 export { GALLERY_TEMPLATE_IDS, poetry } from "./builtin";
 export { resolveDropCap, type DropCapChoice } from "./dropCap";
+export { resolveVerticalCenter, type VerticalCenterChoice } from "./verticalCenter";

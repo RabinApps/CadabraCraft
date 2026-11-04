@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 8)
+# CadabraCraft project file format (formatVersion 9)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -18,7 +18,7 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 8,
+  "formatVersion": 9,
   "template": "novel",
   "trimSize": "5.5x8.5",
   "dropCap": true,
@@ -110,6 +110,7 @@ MyBook/
 - Exports: EPUB gets a cover page first in the reading order (`epub:type="cover"`, left out of the contents list), the image as the `cover-image` manifest item, a `cover` landmark and the EPUB 2 `<meta name="cover">`. Print PDF puts the image on a full-bleed first page with no header or number, then a blank page behind it, so the book starts on page 3 and its numbering and left/right pages are as without a cover (the Export dialog can leave the cover out). An export stops with a message when the cover file cannot be read.
 
 - A chapter, front matter or back matter entry may carry `icon` (a Lucide icon name such as `feather`, lower case letters, digits and `-`, at most 40 characters) and a chapter may carry `dropCap` (`true` or `false`, overriding the book's `dropCap` for that chapter; refused on front and back matter, which never have a big first letter). `icon` is shown in the app's chapter list and is never exported. A name the app does not know is kept and shown as no icon, so a file written by a newer app opens in an older one and the name survives a save. Both were added in formatVersion 8.
+- A front matter or back matter entry may carry `verticalCenter` (`true` or `false`, formatVersion 9): `true` centres the page's content block vertically between the top and bottom margins, `false` keeps it at the top, and absent follows the template (`print.matter.verticalCenter` lists the kinds a template centres; every built-in one centres `title-page`, `dedication` and `epigraph`). It is used by Page view, Read mode, the PDF and the EPUB; Word, RTF and Markdown have no page layout and ignore it. A page that needs more than one page is never centred. It is refused on chapters, on `contents` pages and on `copyright` pages (which have a layout of their own), and any value but `true` or `false` is refused.
 
 ## Front and back matter
 
@@ -181,6 +182,7 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 
 ## Versioning
 
+- Version 8 -> 9: front and back matter entries may carry `verticalCenter` (see above). The migration changes nothing: no page has it until the author sets it, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 8 app refuses a version 9 project instead of dropping the per-page choice on its next save, which is why this bumps the version. Contract fixture: `fixtures/contract/manifest-v8.json`.
 - Version 7 -> 8: the manifest may carry `dropCap` and an entry may carry `icon` and (chapters only) `dropCap` (see above). The migration changes nothing: no book has them until the author sets them, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 7 app refuses a version 8 project instead of dropping the per-chapter settings and icons on its next save, which is why this bumps the version (`trimSize` and `fonts` did not: they are book-wide and cosmetic).
 - Version 6 -> 7: adds the `contents` front matter kind and the optional `toc` on a contents entry (see above). The migration changes nothing: no book has a contents page until the author adds one, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 6 app refuses a version 7 project instead of failing on the unknown kind.
 - Version 5 -> 6: editions may carry `publishing` (see above). The migration changes nothing: no edition has one until the author sets it, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes.

@@ -1,5 +1,5 @@
 import { openingCss, MODERN_CSS, NONFICTION_CSS, NOVEL_CSS, POETRY_CSS } from "./css";
-import type { PrintChapterOpening, PrintHeadingStyle, Template } from "./types";
+import type { PrintChapterOpening, PrintMatter, PrintHeadingStyle, Template } from "./types";
 
 const h = (o: Partial<PrintHeadingStyle>): PrintHeadingStyle => ({
   sizeEm: 1,
@@ -44,6 +44,9 @@ const poetryOpening: PrintChapterOpening = {
   ornament: null,
 };
 
+/** Short pages that look best in the middle of the page; the same in every built-in template. */
+const matter: PrintMatter = { verticalCenter: ["title-page", "dedication", "epigraph"] };
+
 const SERIF = ["Libertinus Serif"];
 
 export const novel: Template = {
@@ -64,6 +67,7 @@ export const novel: Template = {
       3: h({ sizeEm: 1, italic: true, spaceAboveEm: 1.5, spaceBelowEm: 0.75 }),
     },
     chapterOpening: novelOpening,
+    matter,
     blockQuote: { indentEm: 1.5, sizeEm: 0.95, italic: false, ruleLeft: false, spaceEm: 0.8 },
     sceneBreak: { glyph: "*   *   *", spaceEm: 1 },
     runningText: { sizePt: 9, smallCaps: true, italic: false },
@@ -95,6 +99,7 @@ export const nonfiction: Template = {
       3: h({ sizeEm: 1.05, bold: true, italic: true, spaceAboveEm: 1.5, spaceBelowEm: 0.5 }),
     },
     chapterOpening: nonfictionOpening,
+    matter,
     blockQuote: { indentEm: 1.2, sizeEm: 0.95, italic: false, ruleLeft: true, spaceEm: 1 },
     sceneBreak: { glyph: "⁂", spaceEm: 1 },
     runningText: { sizePt: 9, smallCaps: false, italic: true },
@@ -123,6 +128,7 @@ export const modern: Template = {
       3: h({ sizeEm: 1, bold: true, spaceAboveEm: 1.5, spaceBelowEm: 0.5 }),
     },
     chapterOpening: modernOpening,
+    matter,
     blockQuote: { indentEm: 1.2, sizeEm: 1, italic: false, ruleLeft: true, spaceEm: 1 },
     sceneBreak: { glyph: "—", spaceEm: 1.2 },
     runningText: { sizePt: 8.5, smallCaps: false, italic: false },
@@ -150,6 +156,7 @@ export const poetry: Template = {
       3: h({ sizeEm: 1, align: "center", italic: true, spaceAboveEm: 1.5, spaceBelowEm: 0.75 }),
     },
     chapterOpening: poetryOpening,
+    matter,
     blockQuote: { indentEm: 2, sizeEm: 0.95, italic: true, ruleLeft: false, spaceEm: 1 },
     sceneBreak: { glyph: "*   *   *", spaceEm: 1.2 },
     runningText: { sizePt: 9, smallCaps: false, italic: true },

@@ -5,6 +5,7 @@ import {
   type MatterKind,
   type Section,
 } from "@cadabracraft/shared";
+import { resolveVerticalCenter, type Template } from "@cadabracraft/templates";
 import { typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import type { PdfChapter } from "../types";
@@ -71,7 +72,13 @@ function dropCapOpening(
 }
 
 /** `dropCap` is the template's choice, which a chapter's own `dropCap` overrides. */
-export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm: number): string {
+export function bodyOf(
+  pages: PdfChapter[],
+  ctx: Ctx,
+  dropCap: boolean,
+  indentEm: number,
+  template: Pick<Template, "print">,
+): string {
   const out: string[] = [];
   let chapterNo = 0;
   let sawFront = false;
@@ -101,10 +108,13 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
     const title = typstString(page.title);
     const id = typstString(page.id);
     const info = `${id}, ${typstString(kind ?? "chapter")}`;
+    // A page that is not centred has its content at the top of the text box; the author can centre a kind that is not by default.
+    const centred = resolveVerticalCenter(template, kind, page);
+    const top = centred ? "" : ", centre: false";
     const named = `id: ${id}, kind: ${typstString(kind ?? "chapter")}`;
     switch (kind) {
       case "title-page":
-        out.push(`#title-page(${info})[\n${content}\n]\n`);
+        out.push(`#title-page(${info}${top})[\n${content}\n]\n`);
         break;
       case "copyright":
         out.push(`#copyright-page(${info})[\n${content}\n]\n`);
@@ -114,7 +124,7 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
         break;
       case "dedication":
       case "epigraph":
-        out.push(`#centered-page(${info})[\n${content}\n]\n`);
+        out.push(`#centered-page(${info}${top})[\n${content}\n]\n`);
         break;
       case undefined:
         out.push(
@@ -123,7 +133,9 @@ export function bodyOf(pages: PdfChapter[], ctx: Ctx, dropCap: boolean, indentEm
         break;
       default:
         out.push(
-          `#chapter-start(${title}, none, ${named})\n\n${content}\n\n#mark("chapter-end")\n`,
+          centred
+            ? `#centered-page(${info})[\n${content}\n]\n`
+            : `#chapter-start(${title}, none, ${named})\n\n${content}\n\n#mark("chapter-end")\n`,
         );
     }
   }

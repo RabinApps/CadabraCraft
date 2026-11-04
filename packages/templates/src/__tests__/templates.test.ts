@@ -5,6 +5,7 @@ import {
   getTemplate,
   hasTemplate,
   resolveDropCap,
+  resolveVerticalCenter,
   listTemplates,
   resolveBookFonts,
   resolveTrimSize,
@@ -249,5 +250,60 @@ describe("resolveDropCap", () => {
     expect(resolveDropCap(novel, { dropCap: true }, { dropCap: false })).toBe(false);
     expect(resolveDropCap(poetry, { dropCap: false }, { dropCap: true })).toBe(true);
     expect(resolveDropCap(novel, {}, { dropCap: false })).toBe(false);
+  });
+});
+
+describe("print.matter.verticalCenter", () => {
+  const clone = (): Template => structuredClone(getTemplate("novel"));
+  const msg =
+    "print.matter.verticalCenter must be a list of distinct matter kinds (not contents or copyright)";
+  it("every built-in template centres the title page, dedication and epigraph", () => {
+    for (const t of listTemplates())
+      expect(t.print.matter.verticalCenter, t.id).toEqual(["title-page", "dedication", "epigraph"]);
+  });
+  it("accepts back matter kinds and an empty list", () => {
+    const t = clone();
+    t.print.matter.verticalCenter = ["about-the-author"];
+    expect(validateTemplate(t)).toEqual([]);
+    t.print.matter.verticalCenter = [];
+    expect(validateTemplate(t)).toEqual([]);
+  });
+  it.each([
+    ["not a list", "title-page"],
+    ["an unknown kind", ["poem"]],
+    ["contents", ["contents"]],
+    ["copyright", ["copyright"]],
+    ["a repeat", ["epigraph", "epigraph"]],
+  ])("refuses %s", (_name, value) => {
+    const t = clone();
+    t.print.matter = { verticalCenter: value as never };
+    expect(validateTemplate(t)).toEqual([msg]);
+  });
+  it("refuses a template with no matter block", () => {
+    const t = clone();
+    t.print.matter = undefined as never;
+    expect(validateTemplate(t)).toEqual([msg]);
+  });
+});
+
+describe("resolveVerticalCenter", () => {
+  const novel = getTemplate("novel");
+  it("follows the template for the kind when the page has no choice", () => {
+    expect(resolveVerticalCenter(novel, "title-page", {})).toBe(true);
+    expect(resolveVerticalCenter(novel, "epigraph", {})).toBe(true);
+    expect(resolveVerticalCenter(novel, "foreword", {})).toBe(false);
+    expect(resolveVerticalCenter(novel, "about-the-author", {})).toBe(false);
+  });
+  it("lets the page's own choice win either way", () => {
+    expect(resolveVerticalCenter(novel, "dedication", { verticalCenter: false })).toBe(false);
+    expect(resolveVerticalCenter(novel, "custom", { verticalCenter: true })).toBe(true);
+  });
+  it("never centres the contents or copyright page, whatever the page says", () => {
+    expect(resolveVerticalCenter(novel, "contents", { verticalCenter: true })).toBe(false);
+    expect(resolveVerticalCenter(novel, "copyright", { verticalCenter: true })).toBe(false);
+  });
+  it("never centres a chapter", () => {
+    expect(resolveVerticalCenter(novel, undefined, {})).toBe(false);
+    expect(resolveVerticalCenter(novel, undefined, { verticalCenter: true })).toBe(false);
   });
 });

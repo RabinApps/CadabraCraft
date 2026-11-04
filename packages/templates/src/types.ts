@@ -1,3 +1,5 @@
+import type { MatterKind } from "@cadabracraft/shared";
+
 /** Template data. A template is plain data: no code, so it can be validated, diffed and shipped as JSON later. */
 
 export type HeadingAlign = "left" | "center";
@@ -26,6 +28,11 @@ export interface PrintChapterOpening {
   ornament: string | null;
 }
 
+export interface PrintMatter {
+  /** Matter kinds whose page content sits in the vertical middle of the page by default (an author's per-page choice wins). Never `contents` or `copyright`. */
+  verticalCenter: MatterKind[];
+}
+
 export type TrimSizeId = "4.25x6.87" | "5x8" | "5.25x8" | "5.5x8.5" | "6x9" | "7x10" | "8.5x11";
 
 /** Typst-oriented print settings. Lengths in pt or em as named; the exporter turns them into Typst. */
@@ -42,6 +49,8 @@ export interface PrintSettings {
   paragraph: { style: "indent" | "spaced"; indentEm: number; spacingEm: number };
   headings: { 1: PrintHeadingStyle; 2: PrintHeadingStyle; 3: PrintHeadingStyle };
   chapterOpening: PrintChapterOpening;
+  /** Front and back matter layout. */
+  matter: PrintMatter;
   blockQuote: {
     indentEm: number;
     sizeEm: number;

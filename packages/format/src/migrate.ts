@@ -28,6 +28,8 @@ export const MIGRATIONS: Migration[] = [
   { from: 6, up: migrateV6ToV7 },
   // v7 -> v8: a manifest `dropCap` and, on entries, `icon` and (chapters) `dropCap`. Nothing changes and no file moves.
   { from: 7, up: (raw) => ({ ...raw }) },
+  // v8 -> v9: front and back matter entries may carry `verticalCenter`. Nothing changes and no file moves.
+  { from: 8, up: (raw) => ({ ...raw }) },
 ];
 
 export interface MigrationResult {

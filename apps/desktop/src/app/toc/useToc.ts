@@ -18,9 +18,9 @@ const NONE: Outlines = {};
  * Everything the contents editor shows for one contents page: the resolved list (it follows the book: a chapter added, renamed,
  * moved or trashed, or a heading edited, changes it), the page numbers (Typst's report while the book is measured, else the
  * word-count estimate) and the overrides that no longer match. Heading numbers need the page marks, so the book is measured with
- * them only while headings are listed.
+ * them only while headings are listed. `measure` false leaves the measuring to a caller that already does it (Read mode).
  */
-export function useToc(entry: EditionEntry) {
+export function useToc(entry: EditionEntry, measure = true) {
   const manifest = useProject((s) => s.manifest)!;
   const hashes = useProject((s) => s.hashes);
   const language = useProject((s) => s.activeLanguage ?? s.manifest!.editions[0]!.language);
@@ -28,7 +28,7 @@ export function useToc(entry: EditionEntry) {
   const settings = tocSettingsOf(entry);
   const [outlines, setOutlines] = useState<Outlines | null>(null);
   const [estimates, setEstimates] = useState<Record<string, number>>({});
-  useMeasuredPages(true, settings.depth > 0);
+  useMeasuredPages(measure, settings.depth > 0);
   const report = usePageMeasure((s) => usableReport(s.report));
   const current = usePageMeasure((s) => s.fresh);
   // The headings of every page, read again when the book or any page's saved text changes.

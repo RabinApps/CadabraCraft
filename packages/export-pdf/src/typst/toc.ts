@@ -1,3 +1,4 @@
+import { contentsLines, CONTENTS_MAX_LEVEL } from "@cadabracraft/format";
 import { typstString } from "../escape";
 import { PdfExportError } from "../errors";
 import type { PdfTocItem } from "../types";
@@ -23,14 +24,12 @@ export function tocHeadingKeys(items: readonly PdfTocItem[]): Map<string, Map<nu
 
 /** The visible items as a Typst array of `(key, level, title, target)`; `target` is the key whose page the entry shows, or `none`. */
 export function tocEntries(items: readonly PdfTocItem[]): string {
-  const rows = items
-    .filter((i) => i.hidden !== true)
-    .map((i) => {
-      if (!Number.isInteger(i.level) || i.level < 0 || i.level > 3)
-        throw new PdfExportError(`Contents entry "${i.key}": level ${i.level} is not 0 to 3`);
-      const target = i.kind === "custom" ? i.target : i.key;
-      return `  (key: ${typstString(i.key)}, level: ${i.level}, title: ${typstString(i.title)}, target: ${target === undefined ? "none" : typstString(target)}),`;
-    });
+  const rows = contentsLines(items).map(({ item: i, title }) => {
+    if (!Number.isInteger(i.level) || i.level < 0 || i.level > CONTENTS_MAX_LEVEL)
+      throw new PdfExportError(`Contents entry "${i.key}": level ${i.level} is not 0 to 3`);
+    const target = i.kind === "custom" ? i.target : i.key;
+    return `  (key: ${typstString(i.key)}, level: ${i.level}, title: ${typstString(title)}, target: ${target === undefined ? "none" : typstString(target)}),`;
+  });
   return rows.length === 0 ? "()" : `(\n${rows.join("\n")}\n)`;
 }
 

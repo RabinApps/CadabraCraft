@@ -210,6 +210,7 @@ export function createContext(set: Set, get: Get) {
         section: sectionFor(c),
         ...(c.kind ? { kind: c.kind } : {}),
         ...(dropCap === undefined ? {} : { dropCap }),
+        ...(c.verticalCenter === undefined ? {} : { verticalCenter: c.verticalCenter }),
       });
     }
     return pages;

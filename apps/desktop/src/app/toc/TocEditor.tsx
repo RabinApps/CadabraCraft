@@ -4,9 +4,6 @@ import { Plus, RotateCcw, X } from "lucide-react";
 import type { EditionEntry, TocDepth } from "@cadabracraft/format";
 import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
-import { dirFor } from "../../i18n/locales";
-import { fontKindOf } from "../../lib/pageLayout";
-import { contentsLayout, previewLines } from "../../lib/tocPreview";
 import { dropPosition, insertionIndex, staleKeys, staleLabel } from "../../lib/tocView";
 import { useTocPane, type TocPane } from "../../state/tocPane";
 import { Button } from "../../ui/Button";
@@ -18,7 +15,7 @@ import { useIsXl } from "../hooks/useIsXl";
 import { AddEntryDialog } from "./AddEntryDialog";
 import { TocPreview } from "./TocPreview";
 import { TocRow } from "./TocRow";
-import { useToc } from "./useToc";
+import { useContentsView } from "./useContentsView";
 import { useTocPreview } from "./useTocPreview";
 
 /**
@@ -28,22 +25,14 @@ import { useTocPreview } from "./useTocPreview";
 export function TocEditor({ entry }: { entry: EditionEntry }) {
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
-  const manifest = useProject((s) => s.manifest)!;
-  const { settings, items, rows, stale, language } = useToc(entry);
+  const { settings, items, rows, stale, language, lines, layout, title, before, rtl, serif } =
+    useContentsView(entry);
   // From `xl` the list and its preview sit side by side; below it one shows at a time (the choice is remembered).
   const wide = useIsXl();
   const pane = useTocPane((s) => s.pane);
   const setPane = useTocPane((s) => s.set);
   const showEdit = wide || pane === "edit";
   const showPreview = wide || pane === "preview";
-  const layout = useMemo(() => contentsLayout(manifest), [manifest]);
-  const lines = useMemo(
-    () => previewLines(rows, settings.pageNumbers),
-    [rows, settings.pageNumbers],
-  );
-  const title = entry.titles[language] ?? Object.values(entry.titles)[0] ?? t`Contents`;
-  const before = manifest.frontMatter.findIndex((e) => e.id === entry.id);
-  const rtl = dirFor(language) === "rtl";
   const approx = useMemo(
     () => ({ title, lines, layout, before, rtl }),
     [title, lines, layout, before, rtl],
@@ -300,12 +289,7 @@ export function TocEditor({ entry }: { entry: EditionEntry }) {
               {switcher}
             </header>
           )}
-          <TocPreview
-            state={preview}
-            lines={lines}
-            layout={layout}
-            serif={fontKindOf(manifest.template) === "serif"}
-          />
+          <TocPreview state={preview} lines={lines} layout={layout} serif={serif} />
         </div>
       )}
       <p aria-live="polite" className="sr-only">

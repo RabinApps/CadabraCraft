@@ -15,6 +15,7 @@ import { useProject } from "../../state/project/index";
 import { whyText } from "../../lib/projectError";
 import { Notice } from "../../ui/Notice";
 import { Segmented } from "../../ui/Segmented";
+import { useKindLabels } from "../shell/useKindLabels";
 
 const PREVIEW_LINES = [0, 1, 2, 3, 4, 5, 6, 7];
 
@@ -84,6 +85,8 @@ export function Templates({ onBack }: { onBack: () => void }) {
       },
     );
   };
+  const kindLabels = useKindLabels();
+  const centred = print.matter.verticalCenter;
   const rows: [string, string][] = [
     [t`Trim size`, `${trim.w} × ${trim.h} in`],
     [t`Body font`, `${print.bodyFonts[0]} ${print.fontSizePt} pt`],
@@ -94,6 +97,10 @@ export function Templates({ onBack }: { onBack: () => void }) {
       print.chapterOpening.startOn === "recto" ? t`Right-hand page` : t`Any page`,
     ],
     [t`Scene break`, print.sceneBreak.glyph],
+    [
+      t`Pages centred on the page`,
+      centred.length === 0 ? t`None` : centred.map((k) => kindLabels[k]).join(", "),
+    ],
   ];
 
   return (

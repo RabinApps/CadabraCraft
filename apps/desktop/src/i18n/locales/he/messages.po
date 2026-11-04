@@ -375,8 +375,16 @@ msgid "{title} is already last"
 msgstr "{title} כבר אחרון"
 
 #: src/app/shell/EntryList.tsx
+msgid "{title}: at the top of the page"
+msgstr "{title}: בראש העמוד"
+
+#: src/app/shell/EntryList.tsx
 msgid "{title}: big first letter"
 msgstr "{title}: אות ראשונה גדולה"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: centred on the page"
+msgstr "{title}: במרכז העמוד"
 
 #: src/app/shell/EntryList.tsx
 msgid "{title}: first letter follows the book"
@@ -385,6 +393,10 @@ msgstr "{title}: האות הראשונה נקבעת לפי הספר"
 #: src/app/shell/EntryList.tsx
 msgid "{title}: normal first letter"
 msgstr "{title}: אות ראשונה רגילה"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: vertical position follows the template"
+msgstr "{title}: המיקום האנכי נקבע לפי התבנית"
 
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
@@ -463,12 +475,12 @@ msgid "About CadabraCraft"
 msgstr "אודות CadabraCraft"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "About the author"
 msgstr "אודות המחבר"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Acknowledgments"
 msgstr "הכרת תודה"
 
@@ -606,7 +618,7 @@ msgid "Already written to {0}: {1} chapter files and {2} images; the book's chap
 msgstr "כבר נכתבו אל {0}: {1} קובצי פרקים ו־{2} תמונות; רשימת הפרקים של הספר לא נשמרה."
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Also by"
 msgstr "מאת אותו מחבר"
 
@@ -906,6 +918,10 @@ msgstr "כיתוב"
 msgid "Castle"
 msgstr "טירה"
 
+#: src/app/shell/EntryList.tsx
+msgid "Centred"
+msgstr "במרכז"
+
 #: src/app/export/PdfPanel.tsx
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
@@ -940,6 +956,11 @@ msgstr "שינוי קיצור המקשים של {action}"
 #: src/app/shell/Details.tsx
 msgid "Change template"
 msgstr "החלפת תבנית"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change vertical position of {0}"
+msgstr "שינוי המיקום האנכי של {0}"
 
 #: src/state/project/project.ts
 msgid "Changes made outside the app may not be noticed. Saving still works."
@@ -1139,7 +1160,7 @@ msgid "Code Block"
 msgstr "בלוק קוד"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Colophon"
 msgstr "קולופון"
 
@@ -1173,12 +1194,14 @@ msgid "Compass"
 msgstr "מצפן"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/useContentsView.ts
 msgid "Contents"
 msgstr "תוכן העניינים"
 
 #: src/app/toc/TocEditor.tsx
+#: src/editor/ReadingContents.tsx
 msgid "Contents entries"
 msgstr "פריטי תוכן העניינים"
 
@@ -1215,7 +1238,7 @@ msgid "Copy report"
 msgstr "העתקת הדוח"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Copyright page"
 msgstr "עמוד זכויות יוצרים"
 
@@ -1448,7 +1471,7 @@ msgid "Custom"
 msgstr "מותאם אישית"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Custom page"
 msgstr "עמוד מותאם אישית"
 
@@ -1462,7 +1485,7 @@ msgid "Dark"
 msgstr "כהה"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Dedication"
 msgstr "הקדשה"
 
@@ -1725,7 +1748,7 @@ msgid "Entry title"
 msgstr "כותרת הפריט"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Epigraph"
 msgstr "מוטו"
 
@@ -1957,7 +1980,7 @@ msgid "Forest"
 msgstr "יער"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Foreword"
 msgstr "הקדמה"
 
@@ -2825,6 +2848,7 @@ msgstr "אין עדיין קול במחשב זה שמקריא {0}. הקולות 
 
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/PrintPreview.tsx
+#: src/app/export/Templates.tsx
 msgid "None"
 msgstr "ללא"
 
@@ -3027,7 +3051,7 @@ msgid "Packing the audiobook…"
 msgstr "אורז את ספר השמע…"
 
 #. placeholder {0}: p.index + 1
-#: src/app/toc/TocPreview.tsx
+#: src/app/toc/ContentsSheets.tsx
 msgid "Page {0} of {total}"
 msgstr "עמוד {0} מתוך {total}"
 
@@ -3093,6 +3117,10 @@ msgstr "עמודים"
 #: src/app/export/TypstSpread.tsx
 msgid "Pages {first} and {last} of {total}"
 msgstr "עמודים {first} ו־{last} מתוך {total}"
+
+#: src/app/export/Templates.tsx
+msgid "Pages centred on the page"
+msgstr "עמודים שממורכזים בעמוד"
 
 #: src/app/shell/TrashDialog.tsx
 msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
@@ -3173,7 +3201,7 @@ msgid "Points to"
 msgstr "מצביע אל"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Preface"
 msgstr "פתח דבר"
 
@@ -3244,6 +3272,7 @@ msgstr "תצוגה מקדימה להדפסה"
 msgid "Print Preview…"
 msgstr "תצוגה מקדימה להדפסה…"
 
+#: src/app/toc/ContentsSheets.tsx
 #: src/app/toc/TocPreview.tsx
 msgid "Printed entries"
 msgstr "פריטים מודפסים"
@@ -4446,7 +4475,7 @@ msgid "Title of chapter {0}"
 msgstr "כותרת פרק {0}"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Title page"
 msgstr "עמוד שער"
 
@@ -4457,6 +4486,10 @@ msgstr "כותרת ת׳–א׳"
 #: src/app/shell/menuModel.ts
 msgid "Toggle Header Row"
 msgstr "החלפת מצב שורת כותרת"
+
+#: src/app/shell/EntryList.tsx
+msgid "Top"
+msgstr "למעלה"
 
 #: src/lib/exportChecks.ts
 msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
@@ -4509,6 +4542,10 @@ msgstr "מסדר את התצוגה המקדימה באמצעות Typst…"
 
 #: src/app/settings/Settings.tsx
 msgid "Typewriter scrolling"
+msgstr "גלילת מכונת כתיבה"
+
+#: src/app/shell/menuModel.ts
+msgid "Typewriter Scrolling"
 msgstr "גלילת מכונת כתיבה"
 
 #. placeholder {0}: e.stderr.trim()
@@ -4646,6 +4683,10 @@ msgstr "שימוש בתבנית"
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Version {0} is available"
 msgstr "גרסה {0} זמינה"
+
+#: src/app/shell/EntryList.tsx
+msgid "Vertical position"
+msgstr "מיקום אנכי"
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/references/ReferencesPanel.tsx

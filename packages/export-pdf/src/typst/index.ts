@@ -62,6 +62,7 @@ export function buildTypstDocument(
     ctx,
     t.print.chapterOpening.dropCap,
     t.print.paragraph.style === "indent" ? t.print.paragraph.indentEm : 0,
+    t,
   );
   const tocHead = hasContents
     ? tocDefs(

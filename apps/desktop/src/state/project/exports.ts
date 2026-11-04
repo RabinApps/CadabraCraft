@@ -168,6 +168,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
             ...(contents ? { contents: contents.visible } : {}),
             css: template.epub.css,
             dropCap: resolveDropCap(template, manifest, {}),
+            centerKinds: template.print.matter.verticalCenter,
           },
         );
         set({ exportStage: "saving" });

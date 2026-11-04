@@ -11,6 +11,7 @@ import {
   renameChapter,
   renameMatter,
   setChapterDropCap,
+  setMatterVerticalCenter,
   setEntryIcon,
   sectionOf,
   starterDoc,
@@ -194,6 +195,12 @@ export const createPageActions = (ctx: Ctx): PageActions => {
       const next = setChapterDropCap(m, id, dropCap);
       await saveManifest(next);
       record({ label: t`Change first letter of ${sourceTitleById(m, id)!}` }, m, next);
+    },
+    async setVerticalCenter(id, verticalCenter) {
+      const m = need().manifest;
+      const next = setMatterVerticalCenter(m, id, verticalCenter);
+      await saveManifest(next);
+      record({ label: t`Change vertical position of ${sourceTitleById(m, id)!}` }, m, next);
     },
     async remove(id) {
       await flush(); // typing in the page being removed would otherwise be written back after it went to trash

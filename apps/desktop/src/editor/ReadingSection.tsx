@@ -12,8 +12,11 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import type { PageReport } from "@cadabracraft/export-pdf";
 import { extensions } from "@cadabracraft/editor-schema";
 import { FootnoteA11y } from "./footnoteA11y";
+import { ReadingContents } from "./ReadingContents";
+import { useProject } from "../state/project/index";
 import { Pagination } from "./pagination/plugin";
 import { PageStack, type PageLook } from "./PageFrame";
+import { pageIsBare, pageIsCentred } from "./centring";
 import { dirFor } from "../i18n/locales";
 import type { BookPage } from "../state/project/types";
 import { sizes, widths, type Width } from "../state/reading";
@@ -45,11 +48,17 @@ export interface SectionProps {
   report: PageReport | null;
   /** Changes with `report`. */
   reportAt: number;
+  /** An entry of the Contents page was chosen: scroll to that page, and to one of its headings when given. */
+  onOpen: (id: string, heading?: number) => void;
 }
 
 /** One chapter of the book: a section that is a placeholder until it is near the viewport, then a read-only editor. */
 export const ReadingSection = memo(function ReadingSection(p: SectionProps) {
   const { page, near, observer, onResize, heights } = p;
+  // A Contents page is drawn from the generated list, not from its text: the same page as in the editor's preview.
+  const contents = useProject((s) =>
+    page.kind === "contents" ? s.manifest?.frontMatter.find((e) => e.id === page.id) : undefined,
+  );
   const ref = useRef<HTMLElement>(null);
   const nearRef = useRef(near);
   nearRef.current = near;
@@ -88,7 +97,22 @@ export const ReadingSection = memo(function ReadingSection(p: SectionProps) {
       // The placeholder keeps its height until the laid-out chapter is there, so mounting an editor moves nothing.
       style={{ height: near && p.settled ? undefined : p.placeholder, marginBottom: p.gap }}
     >
-      {near && <ReadingChapter key={p.paged ? "paged" : "plain"} {...p} />}
+      {near &&
+        (contents ? (
+          <ReadingContents
+            key={p.paged ? "paged" : "plain"}
+            entry={contents}
+            paged={p.paged}
+            zoom={p.zoom}
+            language={p.look.language}
+            size={p.size}
+            width={p.width}
+            onPages={p.onPages}
+            onOpen={p.onOpen}
+          />
+        ) : (
+          <ReadingChapter key={p.paged ? "paged" : "plain"} {...p} />
+        ))}
     </section>
   );
 });
@@ -132,6 +156,7 @@ function ReadingChapter({
     [report, page.id],
   );
   if (!editor) return null;
+  const centred = pageIsCentred(look, page.section, page.kind, page);
   if (paged)
     return (
       <PageStack
@@ -142,6 +167,8 @@ function ReadingChapter({
         chapterTitle={page.title}
         chapterNumber={chapterNumber}
         dropCap={page.dropCap}
+        verticalCenter={centred}
+        bare={pageIsBare(centred, page.section, page.kind)}
         firstPage={firstPage}
         exact={exact}
         exactKey={`${page.id}:${reportAt}`}

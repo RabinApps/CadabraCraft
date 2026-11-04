@@ -1,0 +1,47 @@
+import { describe, expect, it } from "vitest";
+import { getTemplate } from "@cadabracraft/templates";
+import { pageIsBare, pageIsCentred } from "../centring";
+import { centreOffsetPx } from "../../lib/pageLayout";
+
+const look = { print: getTemplate("novel").print };
+
+describe("pageIsCentred", () => {
+  it("centres the template's kinds, and a page the author chose either way", () => {
+    expect(pageIsCentred(look, "front", "title-page", {})).toBe(true);
+    expect(pageIsCentred(look, "front", "foreword", {})).toBe(false);
+    expect(pageIsCentred(look, "front", "foreword", { verticalCenter: true })).toBe(true);
+    expect(pageIsCentred(look, "front", "dedication", { verticalCenter: false })).toBe(false);
+    expect(pageIsCentred(look, "back", "about-the-author", { verticalCenter: undefined })).toBe(
+      false,
+    );
+  });
+  it("treats a matter page with no kind as a custom page, and never centres a chapter", () => {
+    expect(pageIsCentred(look, "front", undefined, {})).toBe(false);
+    expect(pageIsCentred(look, "back", undefined, { verticalCenter: true })).toBe(true);
+    expect(pageIsCentred(look, "chapter", undefined, { verticalCenter: true })).toBe(false);
+  });
+});
+
+describe("pageIsBare", () => {
+  it("is true for the PDF's own matter layouts and for any centred page, never for a chapter's opening", () => {
+    expect(pageIsBare(false, "front", "title-page")).toBe(true);
+    expect(pageIsBare(false, "front", "dedication")).toBe(true);
+    expect(pageIsBare(false, "front", "epigraph")).toBe(true);
+    expect(pageIsBare(true, "back", "about-the-author")).toBe(true);
+    expect(pageIsBare(false, "front", "foreword")).toBe(false);
+    expect(pageIsBare(false, "front", undefined)).toBe(false);
+    expect(pageIsBare(false, "chapter", undefined)).toBe(false);
+  });
+});
+
+describe("centreOffsetPx", () => {
+  it("is half of the free height, rounded", () => {
+    expect(centreOffsetPx(100, 500)).toBe(200);
+    expect(centreOffsetPx(101, 500)).toBe(200);
+    expect(centreOffsetPx(0, 500)).toBe(250);
+  });
+  it("is zero when the content fills or overflows the text box", () => {
+    expect(centreOffsetPx(500, 500)).toBe(0);
+    expect(centreOffsetPx(900, 500)).toBe(0);
+  });
+});

@@ -375,8 +375,16 @@ msgid "{title} is already last"
 msgstr "{title} steht schon ganz hinten"
 
 #: src/app/shell/EntryList.tsx
+msgid "{title}: at the top of the page"
+msgstr "{title}: oben auf der Seite"
+
+#: src/app/shell/EntryList.tsx
 msgid "{title}: big first letter"
 msgstr "{title}: großer erster Buchstabe"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: centred on the page"
+msgstr "{title}: auf der Seite zentriert"
 
 #: src/app/shell/EntryList.tsx
 msgid "{title}: first letter follows the book"
@@ -385,6 +393,10 @@ msgstr "{title}: erster Buchstabe folgt dem Buch"
 #: src/app/shell/EntryList.tsx
 msgid "{title}: normal first letter"
 msgstr "{title}: normaler erster Buchstabe"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: vertical position follows the template"
+msgstr "{title}: vertikale Position folgt der Vorlage"
 
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
@@ -463,12 +475,12 @@ msgid "About CadabraCraft"
 msgstr "Über CadabraCraft"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "About the author"
 msgstr "Über den Autor"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Acknowledgments"
 msgstr "Danksagung"
 
@@ -606,7 +618,7 @@ msgid "Already written to {0}: {1} chapter files and {2} images; the book's chap
 msgstr "Bereits nach {0} geschrieben: {1} Kapiteldateien und {2} Bilder; die Kapitelliste des Buchs wurde nicht gespeichert."
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Also by"
 msgstr "Weitere Bücher des Autors"
 
@@ -906,6 +918,10 @@ msgstr "Bildunterschrift"
 msgid "Castle"
 msgstr "Burg"
 
+#: src/app/shell/EntryList.tsx
+msgid "Centred"
+msgstr "Zentriert"
+
 #: src/app/export/PdfPanel.tsx
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
@@ -940,6 +956,11 @@ msgstr "Tastenkürzel für {action} ändern"
 #: src/app/shell/Details.tsx
 msgid "Change template"
 msgstr "Vorlage ändern"
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change vertical position of {0}"
+msgstr "Vertikale Position von {0} ändern"
 
 #: src/state/project/project.ts
 msgid "Changes made outside the app may not be noticed. Saving still works."
@@ -1139,7 +1160,7 @@ msgid "Code Block"
 msgstr "Codeblock"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Colophon"
 msgstr "Impressum"
 
@@ -1173,12 +1194,14 @@ msgid "Compass"
 msgstr "Kompass"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/useContentsView.ts
 msgid "Contents"
 msgstr "Inhaltsverzeichnis"
 
 #: src/app/toc/TocEditor.tsx
+#: src/editor/ReadingContents.tsx
 msgid "Contents entries"
 msgstr "Einträge des Inhaltsverzeichnisses"
 
@@ -1215,7 +1238,7 @@ msgid "Copy report"
 msgstr "Bericht kopieren"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Copyright page"
 msgstr "Copyright-Seite"
 
@@ -1448,7 +1471,7 @@ msgid "Custom"
 msgstr "Benutzerdefiniert"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Custom page"
 msgstr "Eigene Seite"
 
@@ -1462,7 +1485,7 @@ msgid "Dark"
 msgstr "Dunkel"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Dedication"
 msgstr "Widmung"
 
@@ -1725,7 +1748,7 @@ msgid "Entry title"
 msgstr "Titel des Eintrags"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Epigraph"
 msgstr "Motto"
 
@@ -1957,7 +1980,7 @@ msgid "Forest"
 msgstr "Wald"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Foreword"
 msgstr "Vorwort"
 
@@ -2825,6 +2848,7 @@ msgstr "Auf diesem Computer liest noch keine Stimme {0}. Die Stimmen, die Cadabr
 
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/PrintPreview.tsx
+#: src/app/export/Templates.tsx
 msgid "None"
 msgstr "Keine"
 
@@ -3027,7 +3051,7 @@ msgid "Packing the audiobook…"
 msgstr "Hörbuch wird gepackt…"
 
 #. placeholder {0}: p.index + 1
-#: src/app/toc/TocPreview.tsx
+#: src/app/toc/ContentsSheets.tsx
 msgid "Page {0} of {total}"
 msgstr "Seite {0} von {total}"
 
@@ -3093,6 +3117,10 @@ msgstr "Seiten"
 #: src/app/export/TypstSpread.tsx
 msgid "Pages {first} and {last} of {total}"
 msgstr "Seiten {first} und {last} von {total}"
+
+#: src/app/export/Templates.tsx
+msgid "Pages centred on the page"
+msgstr "Auf der Seite zentrierte Seiten"
 
 #: src/app/shell/TrashDialog.tsx
 msgid "Pages you moved to the trash. Restoring puts a page back at the end of its section."
@@ -3173,7 +3201,7 @@ msgid "Points to"
 msgstr "Verweist auf"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Preface"
 msgstr "Vorwort"
 
@@ -3244,6 +3272,7 @@ msgstr "Druckvorschau"
 msgid "Print Preview…"
 msgstr "Druckvorschau…"
 
+#: src/app/toc/ContentsSheets.tsx
 #: src/app/toc/TocPreview.tsx
 msgid "Printed entries"
 msgstr "Gedruckte Einträge"
@@ -4446,7 +4475,7 @@ msgid "Title of chapter {0}"
 msgstr "Titel von Kapitel {0}"
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Title page"
 msgstr "Titelseite"
 
@@ -4457,6 +4486,10 @@ msgstr "Titel Z–A"
 #: src/app/shell/menuModel.ts
 msgid "Toggle Header Row"
 msgstr "Kopfzeile umschalten"
+
+#: src/app/shell/EntryList.tsx
+msgid "Top"
+msgstr "Oben"
 
 #: src/lib/exportChecks.ts
 msgid "Top, bottom and outside margins must be at least {KDP_MIN_OUTER_IN} in for KDP."
@@ -4509,6 +4542,10 @@ msgstr "Die Vorschau wird mit Typst gesetzt …"
 
 #: src/app/settings/Settings.tsx
 msgid "Typewriter scrolling"
+msgstr "Schreibmaschinen-Scrollen"
+
+#: src/app/shell/menuModel.ts
+msgid "Typewriter Scrolling"
 msgstr "Schreibmaschinen-Scrollen"
 
 #. placeholder {0}: e.stderr.trim()
@@ -4646,6 +4683,10 @@ msgstr "Vorlage verwenden"
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Version {0} is available"
 msgstr "Version {0} ist verfügbar"
+
+#: src/app/shell/EntryList.tsx
+msgid "Vertical position"
+msgstr "Vertikale Position"
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/references/ReferencesPanel.tsx

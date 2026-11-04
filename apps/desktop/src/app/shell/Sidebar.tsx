@@ -10,6 +10,7 @@ import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import { HistoryDialog, type HistoryPage } from "../dialogs/HistoryDialog";
 import { IconDialog, type IconPage } from "../dialogs/IconDialog";
+import { useKindLabels } from "./useKindLabels";
 import { EntryList, type Editing } from "./EntryList";
 import { TrashDialog } from "./TrashDialog";
 import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
@@ -31,26 +32,6 @@ const BACK_PRESETS: MatterKind[] = [
   "colophon",
   "custom",
 ];
-
-/** Menu label of a page preset. Literal strings so Lingui can extract them. */
-function useKindLabels() {
-  const { t } = useLingui();
-  const labels: Record<MatterKind, string> = {
-    "title-page": t`Title page`,
-    copyright: t`Copyright page`,
-    dedication: t`Dedication`,
-    epigraph: t`Epigraph`,
-    contents: t`Contents`,
-    foreword: t`Foreword`,
-    preface: t`Preface`,
-    custom: t`Custom page`,
-    acknowledgments: t`Acknowledgments`,
-    "about-the-author": t`About the author`,
-    "also-by": t`Also by`,
-    colophon: t`Colophon`,
-  };
-  return labels;
-}
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { t } = useLingui();

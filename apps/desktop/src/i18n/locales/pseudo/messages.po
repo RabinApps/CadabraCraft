@@ -373,7 +373,15 @@ msgid "{title} is already last"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
+msgid "{title}: at the top of the page"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
 msgid "{title}: big first letter"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: centred on the page"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
@@ -382,6 +390,10 @@ msgstr ""
 
 #: src/app/shell/EntryList.tsx
 msgid "{title}: normal first letter"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
+msgid "{title}: vertical position follows the template"
 msgstr ""
 
 #: src/lib/exportChecks.ts
@@ -461,12 +473,12 @@ msgid "About CadabraCraft"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "About the author"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Acknowledgments"
 msgstr ""
 
@@ -604,7 +616,7 @@ msgid "Already written to {0}: {1} chapter files and {2} images; the book's chap
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Also by"
 msgstr ""
 
@@ -904,6 +916,10 @@ msgstr ""
 msgid "Castle"
 msgstr ""
 
+#: src/app/shell/EntryList.tsx
+msgid "Centred"
+msgstr ""
+
 #: src/app/export/PdfPanel.tsx
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Change"
@@ -937,6 +953,11 @@ msgstr ""
 
 #: src/app/shell/Details.tsx
 msgid "Change template"
+msgstr ""
+
+#. placeholder {0}: sourceTitleById(m, id)
+#: src/state/project/pages.ts
+msgid "Change vertical position of {0}"
 msgstr ""
 
 #: src/state/project/project.ts
@@ -1137,7 +1158,7 @@ msgid "Code Block"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Colophon"
 msgstr ""
 
@@ -1171,12 +1192,14 @@ msgid "Compass"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/useContentsView.ts
 msgid "Contents"
 msgstr ""
 
 #: src/app/toc/TocEditor.tsx
+#: src/editor/ReadingContents.tsx
 msgid "Contents entries"
 msgstr ""
 
@@ -1213,7 +1236,7 @@ msgid "Copy report"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Copyright page"
 msgstr ""
 
@@ -1446,7 +1469,7 @@ msgid "Custom"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Custom page"
 msgstr ""
 
@@ -1460,7 +1483,7 @@ msgid "Dark"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Dedication"
 msgstr ""
 
@@ -1723,7 +1746,7 @@ msgid "Entry title"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Epigraph"
 msgstr ""
 
@@ -1955,7 +1978,7 @@ msgid "Forest"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Foreword"
 msgstr ""
 
@@ -2823,6 +2846,7 @@ msgstr ""
 
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/PrintPreview.tsx
+#: src/app/export/Templates.tsx
 msgid "None"
 msgstr ""
 
@@ -3025,7 +3049,7 @@ msgid "Packing the audiobook…"
 msgstr ""
 
 #. placeholder {0}: p.index + 1
-#: src/app/toc/TocPreview.tsx
+#: src/app/toc/ContentsSheets.tsx
 msgid "Page {0} of {total}"
 msgstr ""
 
@@ -3090,6 +3114,10 @@ msgstr ""
 
 #: src/app/export/TypstSpread.tsx
 msgid "Pages {first} and {last} of {total}"
+msgstr ""
+
+#: src/app/export/Templates.tsx
+msgid "Pages centred on the page"
 msgstr ""
 
 #: src/app/shell/TrashDialog.tsx
@@ -3171,7 +3199,7 @@ msgid "Points to"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Preface"
 msgstr ""
 
@@ -3242,6 +3270,7 @@ msgstr ""
 msgid "Print Preview…"
 msgstr ""
 
+#: src/app/toc/ContentsSheets.tsx
 #: src/app/toc/TocPreview.tsx
 msgid "Printed entries"
 msgstr ""
@@ -4442,7 +4471,7 @@ msgid "Title of chapter {0}"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Title page"
 msgstr ""
 
@@ -4452,6 +4481,10 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Toggle Header Row"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
+msgid "Top"
 msgstr ""
 
 #: src/lib/exportChecks.ts
@@ -4505,6 +4538,10 @@ msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Typewriter scrolling"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Typewriter Scrolling"
 msgstr ""
 
 #. placeholder {0}: e.stderr.trim()
@@ -4639,6 +4676,10 @@ msgstr ""
 #. placeholder {0}: update.version
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Version {0} is available"
+msgstr ""
+
+#: src/app/shell/EntryList.tsx
+msgid "Vertical position"
 msgstr ""
 
 #: src/app/references/ReferenceRow.tsx

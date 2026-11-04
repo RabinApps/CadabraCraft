@@ -26,6 +26,7 @@ import {
 } from "@cadabracraft/format";
 import { usePageView } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
+import { useTypewriterSlack } from "./typewriter";
 import { useFontList } from "../app/hooks/useFontList";
 import { dirFor } from "../i18n/locales";
 import { editorFontStack } from "../state/editorPrefs";
@@ -38,6 +39,8 @@ import { useProject } from "../state/project/index";
 import { ensureFontLoaded } from "../lib/loadFont";
 import { chapterStart, firstPageNumber } from "../lib/pageNumbering";
 import { trimLabel } from "../lib/trimLabels";
+import { cx } from "../ui/cx";
+import { pageIsBare, pageIsCentred, useCentredColumn } from "./centring";
 import {
   PX_PER_INCH,
   fitZoom,
@@ -151,6 +154,10 @@ interface StackProps {
   chapterNumber: number | undefined;
   /** The author's big-first-letter choice for this chapter (its own, else the book's); undefined follows the template. */
   dropCap?: boolean | undefined;
+  /** The page's content sits in the vertical middle of its page (see `pageIsCentred`); only while it is a single page. */
+  verticalCenter?: boolean | undefined;
+  /** No chapter opening above the first heading (see `pageIsBare`). */
+  bare?: boolean | undefined;
   firstPage: number;
   /** Typst's page breaks for this chapter (Page view in Write mode); `exactKey` changes with it. Without them the breaks are estimated. */
   exact?: ExactSource | null;
@@ -174,6 +181,8 @@ export function PageStack({
   chapterTitle,
   chapterNumber,
   dropCap,
+  verticalCenter = false,
+  bare = false,
   firstPage,
   exact = null,
   exactKey = "",
@@ -209,6 +218,10 @@ export function PageStack({
   const controller = (
     editor.storage as unknown as { pagination: { controller: PaginationController } }
   ).pagination.controller;
+
+  // A short page is centred between its margins; one that needs more than a page is not (it fills them anyway).
+  const centred = verticalCenter && pages.length <= 1;
+  const column = useCentredColumn(centred, g.text.h, zoom, `${layoutKey}`);
 
   useEffect(() => {
     controller.configure({
@@ -270,7 +283,16 @@ export function PageStack({
             />
           ))}
         </div>
-        <div className="prose-manuscript prose-page relative z-[1]">{children}</div>
+        <div
+          ref={column}
+          className={cx(
+            "prose-manuscript prose-page relative z-[1]",
+            centred && "page-centred",
+            bare && "page-bare",
+          )}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -335,6 +357,7 @@ export function PageFrame({ editor, children }: Props) {
   const scroller = useRef<HTMLDivElement>(null);
   const paneW = usePaneWidth(scroller);
   const zoom = zoomPref === "fit" ? fitZoom(g, paneW || g.page.w + 48) : zoomPref;
+  const slack = useTypewriterSlack(scroller);
 
   const onLayout = useCallback(
     (l: PageLayoutResult) => setPageCount(l.pages.length, undefined, l.exact),
@@ -346,6 +369,7 @@ export function PageFrame({ editor, children }: Props) {
   );
   useEffect(() => () => setPageCount(0), []);
 
+  const centredNow = pageIsCentred(look, section, entry?.kind, entry ?? {});
   const size = trimLabel(trim);
   const exactBreaks = usePageCount((s) => s.exact);
   const fontNote = family
@@ -373,6 +397,7 @@ export function PageFrame({ editor, children }: Props) {
         ref={scroller}
         data-testid="page-scroll"
         className="min-h-0 flex-1 overflow-x-auto overflow-y-auto px-6 pb-12 pt-3"
+        style={slack ? { paddingBottom: slack } : undefined}
       >
         <PageStack
           editor={editor}
@@ -382,6 +407,8 @@ export function PageFrame({ editor, children }: Props) {
           chapterTitle={chapterTitle}
           chapterNumber={chapterNumber}
           dropCap={entry?.dropCap ?? manifest.dropCap}
+          verticalCenter={centredNow}
+          bare={pageIsBare(centredNow, section, entry?.kind)}
           firstPage={firstPage}
           exact={exact}
           exactKey={exactKey}
@@ -407,6 +434,8 @@ export function ReflowFrame({ children }: { children: ReactNode }) {
   const dropCap =
     readingOrder(manifest).find((e) => e.id === currentId)?.dropCap ?? manifest.dropCap;
   const { book, fontStack } = look;
+  const scroller = useRef<HTMLDivElement>(null);
+  const slack = useTypewriterSlack(scroller);
   const vars = useMemo(
     () =>
       ({
@@ -416,7 +445,12 @@ export function ReflowFrame({ children }: { children: ReactNode }) {
     [book, chapterNumber, dropCap, fontStack],
   );
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto max-md:order-first" data-testid="reflow-scroll">
+    <div
+      ref={scroller}
+      className="min-h-0 flex-1 overflow-y-auto max-md:order-first"
+      data-testid="reflow-scroll"
+      style={slack ? { paddingBottom: slack } : undefined}
+    >
       <div
         className="prose-manuscript prose-page prose-reflow mx-auto max-w-xl px-4 pb-8 pt-6"
         style={vars}

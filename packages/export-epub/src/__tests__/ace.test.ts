@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { accessibilityMetadata, buildEpub, type A11yFacts } from "../index";
+import { matterBook } from "./matterBook";
 
 const win = process.platform === "win32";
 const ace = fileURLToPath(
@@ -93,6 +94,21 @@ describe.skipIf(!existsSync(ace) && !process.env.REQUIRE_ACE)("Ace by DAISY", ()
           cover: { path: "assets/cover.png", bytes: png },
         }),
         { images: 0, imagesMissingAlt: 0, hasCover: true, hasGif: false, hasSvg: false },
+      );
+    },
+    ACE_TIMEOUT,
+  );
+
+  it(
+    "finds no serious or critical issue in a book with vertically centred matter pages",
+    () => {
+      const pages = matterBook().map((c) =>
+        c.kind === "foreword" ? { ...c, verticalCenter: true } : c,
+      );
+      check(
+        "vcenter.epub",
+        buildEpub(meta, pages, { centerKinds: ["title-page", "dedication", "epigraph"] }),
+        { images: 0, imagesMissingAlt: 0, hasCover: false, hasGif: false, hasSvg: false },
       );
     },
     ACE_TIMEOUT,

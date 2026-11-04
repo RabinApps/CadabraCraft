@@ -2,12 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { WandSparkles } from "lucide-react";
-import {
-  EditorContent,
-  useEditor,
-  useEditorState,
-  type Editor as TipTapEditor,
-} from "@tiptap/react";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import { extensions, shortcutRemap } from "@cadabracraft/editor-schema";
 import { editorRemap, pressed } from "../app/settings/shortcutBindings";
 import type { ChapterDoc } from "@cadabracraft/shared";
@@ -17,6 +12,7 @@ import { Toolbar } from "./Toolbar";
 import { Search } from "./search/plugin";
 import { Pagination } from "./pagination/plugin";
 import { PageFrame, ReflowFrame } from "./PageFrame";
+import { KEY_WINDOW_MS, followCaret } from "./typewriter";
 import { TabKey } from "./tabKey";
 import { FootnoteA11y } from "./footnoteA11y";
 import { cleanPastedHtml, cleanPastedText } from "./pasteClean";
@@ -44,15 +40,6 @@ import {
   tryConvertHtmlText,
   type Converted,
 } from "./htmlPaste";
-
-/** Typewriter scrolling: keeps the caret line near the middle of the scrolling column. */
-function centerCaret(editor: TipTapEditor) {
-  const scroller = editor.view.dom.closest<HTMLElement>(".overflow-y-auto");
-  if (!scroller) return;
-  const caret = editor.view.coordsAtPos(editor.state.selection.from);
-  const box = scroller.getBoundingClientRect();
-  scroller.scrollTop += caret.top - (box.top + box.height / 2);
-}
 
 interface Props {
   initial: ChapterDoc;
@@ -110,6 +97,11 @@ export function Editor({ initial, language, onChange, focus }: Props) {
       // A task item's checkbox lives in a non-editable label; clicking it flips `checked` (one undo step).
       handleDOMEvents: {
         keydown: () => {
+          lastKeyAt.current = Date.now();
+          return false;
+        },
+        // Committing IME text counts as typing: the line settles once the composition ends.
+        compositionend: () => {
           lastKeyAt.current = Date.now();
           return false;
         },
@@ -199,8 +191,8 @@ export function Editor({ initial, language, onChange, focus }: Props) {
     onUpdate: ({ editor }) => onChange?.(editor.getJSON() as ChapterDoc),
     onSelectionUpdate: ({ editor }) => {
       // Only a caret moved by typing or the keys is followed: a click, a find or an outline jump already chose where to look.
-      if (useSettings.getState().typewriterScroll && Date.now() - lastKeyAt.current < 250)
-        centerCaret(editor);
+      if (useSettings.getState().typewriterScroll && Date.now() - lastKeyAt.current < KEY_WINDOW_MS)
+        followCaret(editor);
     },
   });
   const pageView = usePageView();

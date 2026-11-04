@@ -39,7 +39,7 @@ export const exportEpub = defineTool({
       const EPUB = `${dir}/book.epub`;
       let bytes: Uint8Array;
       try {
-        bytes = buildEpub({ title: edition.title, author: edition.author, language: edition.language, identifier: edition.identifier, isbn: edition.isbn, publishing: edition.publishing, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css, dropCap: getTemplate(templateId).print.chapterOpening.dropCap });
+        bytes = buildEpub({ title: edition.title, author: edition.author, language: edition.language, identifier: edition.identifier, isbn: edition.isbn, publishing: edition.publishing, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css, dropCap: getTemplate(templateId).print.chapterOpening.dropCap, centerKinds: getTemplate(templateId).print.matter.verticalCenter });
       } catch (e) {
         throw new ToolError("epub_error", errMsg(e));
       }

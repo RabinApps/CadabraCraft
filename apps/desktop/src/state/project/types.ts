@@ -175,6 +175,8 @@ export interface BookPage {
   kind?: MatterKind;
   /** Chapters only: the author's big-first-letter choice (the chapter's own, else the book's). Absent follows the template. */
   dropCap?: boolean;
+  /** Front and back matter only: the author's own vertical position choice, centred (true) or at the top (false). Absent follows the template's kinds (`resolveVerticalCenter`). */
+  verticalCenter?: boolean;
 }
 /** The whole project store: the open book, what is in progress, and the actions that change them. */
 export interface ProjectState {
@@ -333,6 +335,8 @@ export interface PageActions {
   setIcon: (id: string, icon: string | null) => Promise<void>;
   /** Sets a chapter's own big first letter: true, false, or null to follow the book. Undoable. */
   setChapterDropCap: (id: string, dropCap: boolean | null) => Promise<void>;
+  /** Sets a front or back matter page's own vertical position: true centres it between the margins, false keeps it at the top, null follows the template. Undoable. */
+  setVerticalCenter: (id: string, verticalCenter: boolean | null) => Promise<void>;
   remove: (id: string) => Promise<void>;
   /** Every page in reading order (of `language`, default the open edition) with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
   readPages: (language?: string) => Promise<BookPage[]>;

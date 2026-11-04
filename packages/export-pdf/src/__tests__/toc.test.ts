@@ -171,6 +171,16 @@ describe("Contents page escaping", () => {
         PdfExportError,
       );
   });
+  it("takes its entries from the shared contents lines: hidden dropped, a blank title falls back like the other exports", () => {
+    const s = tocEntries([
+      { key: "a", kind: "page", level: 0, title: "  ", entryId: "ch-1" },
+      { key: "b", kind: "page", level: 0, title: "", entryId: " " },
+      { key: "c", kind: "page", level: 0, title: "Gone", entryId: "c", hidden: true },
+    ]);
+    expect(s).toContain('title: "ch-1"');
+    expect(s).toContain('title: "(untitled)"');
+    expect(s).not.toContain("Gone");
+  });
   it("ignores heading items without entry or position, groups the rest by entry", () => {
     const m = tocHeadingKeys([
       { key: "a", kind: "heading", level: 1, title: "t" },

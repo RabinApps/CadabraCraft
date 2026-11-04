@@ -326,6 +326,9 @@ importers:
 
   packages/export-markdown:
     dependencies:
+      '@cadabracraft/format':
+        specifier: workspace:*
+        version: link:../format
       '@cadabracraft/shared':
         specifier: workspace:*
         version: link:../shared
@@ -345,6 +348,9 @@ importers:
 
   packages/export-pdf:
     dependencies:
+      '@cadabracraft/format':
+        specifier: workspace:*
+        version: link:../format
       '@cadabracraft/shared':
         specifier: workspace:*
         version: link:../shared
@@ -497,7 +503,11 @@ importers:
 
   packages/shared: {}
 
-  packages/templates: {}
+  packages/templates:
+    dependencies:
+      '@cadabracraft/shared':
+        specifier: workspace:*
+        version: link:../shared
 
 packages:
 

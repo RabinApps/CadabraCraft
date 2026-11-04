@@ -71,7 +71,7 @@ Insert > Image… lets you pick a picture (png, jpg, gif, webp or svg, up to 25 
 ### Focus mode, typewriter scrolling and a word goal
 
 - **Focus mode** (View > Focus Mode, Cmd/Ctrl+Shift+F) hides everything but the page. Press Escape or click the button at the top right to leave.
-- **Typewriter scrolling** keeps the line you are writing in the middle of the screen. Turn it on in Settings, Editor.
+- **Typewriter scrolling** keeps the line you are writing in the middle of the screen: the text moves up under the caret as you type, press Enter or use the arrow keys. Turn it on in View > Typewriter Scrolling (Cmd/Ctrl+Alt+T), in the command palette, or in Settings, Editor. It is off by default and is a setting of the app, not of the book. Clicking with the mouse, scrolling with the wheel or the trackpad, Find and the outline never move the page by themselves; the next key you type brings the line back to the middle. The first lines of a chapter stay near the top (the page cannot scroll above its start), and extra space at the end lets the last line reach the middle. Nothing animates, so the page does not glide when you have asked your system for less motion.
 - **Session word goal** (Settings, Editor) is the number of words you want to write each time you open a book. While it is above 0, a small progress bar at the bottom of the window shows how many words you have written since you opened the book. Set it to 0 to turn it off.
 - Settings, Editor also has the manuscript font, the width of the writing column and what to do when you paste text that contains HTML tags.
 
@@ -100,7 +100,7 @@ Page breaks are approximate, which is why the chip above the pages says so: the 
 The list on the left has three parts: front matter, chapters and back matter. Reading order is simply the order of this list.
 
 - **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, contents, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page, one copyright page and one contents page (see [Contents page](#contents-page)).
-- The `...` menu next to each entry lets you **Rename**, **Move up**, **Move down** or **Move to trash**.
+- The `...` menu next to each entry lets you **Rename**, **Change icon**, **Move up**, **Move down** or **Move to trash**. Chapters also have a **First letter** choice, and front and back matter pages (except contents and copyright) have a **Vertical position** choice (see [Vertical position of front and back matter](#vertical-position-of-front-and-back-matter)).
 - **Trash** (bottom of the list) shows pages you moved to the trash. **Restore** puts one back at the end of its section. Nothing is ever permanently deleted by the app; trashed files stay in `.cadabra/trash/` inside your book folder until you delete them yourself.
 - **Book undo and redo** (the arrows at the bottom of the list, or Edit > Undo ... / Redo ..., Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z) reverse changes to the structure: adding, renaming, moving, trashing and restoring. The button says what it will undo. They do not undo typing (normal Cmd/Ctrl+Z does that) and they start fresh each time you open the book.
 
@@ -116,9 +116,21 @@ The list on the left has three parts: front matter, chapters and back matter. Re
 - A change that points at a chapter or heading that is gone or was edited is kept and listed under **Changes that no longer match**, with a **Remove** button; a custom entry whose target is gone shows a **Stale** badge. Nothing is dropped without you removing it.
 - **Preview** shows the contents page as it will be printed, at your book's trim size, next to the list (on a window at least 1280 px wide) or behind an **Edit | Preview** switch under the title (on narrower windows; the app remembers which one you left open). It follows every change you make a moment after you make it. The heading says where it comes from: **Exact pages from Typst** means it is the real page from the same layout as the PDF, so the numbers and line breaks match (roman numerals in the front matter, arabic in the body, no numbers or dot leaders when **Page numbers** is off, more pages when the list is long). Without Typst on your computer the preview says **Approximate: Typst is not available** and draws the same list itself: numbers marked "≈" are estimates and the line breaks are only close. **Could not draw the preview** has a **Retry** button and keeps the last page on screen. Nothing is made while the preview is hidden.
 
-Changes to the contents page are part of **Book undo and redo**. In a translation edition each entry has its own title for that language. The contents page shows its list in Read mode, in the print preview and in every export (see [Exporting](#exporting)); Page view shows the page's own title only.
+Changes to the contents page are part of **Book undo and redo**. In a translation edition each entry has its own title for that language. Read mode draws the contents page the way the preview does: the same entries in the same order (renames, hidden entries and depth applied), dot leaders and page numbers (Typst's when the book has been measured, marked "≈" when estimated, none when **Page numbers** is off), mirrored in a right-to-left book. Each entry is a link: choose it (or press Enter on it) and the reader scrolls to that chapter or heading. The list also appears in the print preview and in every export (see [Exporting](#exporting)); Page view shows the page's own title only.
 
 Book details (File > Book Details…, or the book icon at the top) hold the title, author, language, ISBN, identifier and cover image. The cover is a PNG, JPEG or WebP image up to 25 MB; portrait and about 1600 x 2400 pixels works best. Change the look of the printed book on the **Templates** page (Change template in the details panel). The Novel, Nonfiction and Modern templates are included.
+
+### Vertical position of front and back matter
+
+Short pages look best in the middle of the page. The title page, dedication and epigraph are **centred** by default: their text sits halfway between the top and bottom margins, in the editor's page view, in Read mode, in the print PDF and in the EPUB. Every other page starts at the top, like the first page of a chapter.
+
+To change one page, open its `...` menu in the list and choose **Vertical position**:
+
+- **Default** follows the template (the Templates page lists "Pages centred on the page" for each template).
+- **Centred** puts the page's text in the middle of the page, for example a short foreword or an "About the author" page.
+- **Top** keeps it at the top, for example a long epigraph or a title page you want at the top.
+
+The choice goes through book undo and redo, and the screen reader hears it ("Dedication: centred on the page"). A page that is longer than one page is never centred, so nothing is pushed off the page; it simply starts at the top. In the PDF the text sits exactly between the margins. An EPUB is reflowable, so the e-reader decides: most readers centre the page on the screen, and the others leave a margin above the text. On a phone-sized window the editor shows plain reading text, which is never centred. Word, RTF and Markdown exports have no page layout, so this choice does not change them.
 
 ## History, backups and keeping your work safe
 
@@ -253,6 +265,7 @@ On Windows and Linux use Ctrl where the table says Cmd.
 | Find and replace          | Cmd/Ctrl+Alt+F                            |
 | New chapter               | Cmd/Ctrl+Shift+N                          |
 | Focus mode                | Cmd/Ctrl+Shift+F                          |
+| Typewriter scrolling      | Cmd/Ctrl+Alt+T                            |
 | Page view                 | Cmd/Ctrl+Shift+P                          |
 | Previous page / next page | Cmd/Ctrl+[ and Cmd/Ctrl+]                 |
 | Undo / redo typing        | the usual Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z |

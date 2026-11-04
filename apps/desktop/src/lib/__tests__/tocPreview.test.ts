@@ -8,6 +8,7 @@ import {
   cardScale,
   contentsLayout,
   previewDelay,
+  numberText,
   previewLines,
   typstKey,
   type PreviewLine,
@@ -61,6 +62,28 @@ describe("previewLines", () => {
   it("marks an estimate with ≈ and an unknown page with a dash", () => {
     const lines = previewLines([row("a", "A", 0, "4", {}, true), row("b", "B", 0, null)], true);
     expect(lines.map((l) => l.number)).toEqual(["≈4", "–"]);
+    expect(numberText({ text: "4", estimated: false })).toBe("4");
+  });
+  it("says where each entry goes: its page, and for a heading (or a custom entry pointing at one) its position", () => {
+    const lines = previewLines(
+      [
+        row("a", "Arrival", 0, "1", { entryId: "a" }),
+        row("a#1:x:0", "The harbour", 1, "2", { entryId: "a", index: 3 }),
+        row("custom:1", "See harbour", 1, "2", { kind: "custom", entryId: "a", targetIndex: 3 }),
+        row("custom:2", "Elsewhere", 0, "5", { kind: "custom" }),
+      ],
+      true,
+    );
+    expect(lines.map((l) => [l.entryId, l.heading])).toEqual([
+      ["a", undefined],
+      ["a", 3],
+      ["a", 3],
+      [undefined, undefined],
+    ]);
+  });
+  it("falls back to the entry id for a blank title, as the exports do", () => {
+    const [line] = previewLines([row("a", "  ", 0, "1", { entryId: "ch-1" })], false);
+    expect(line!.title).toBe("ch-1");
   });
 });
 

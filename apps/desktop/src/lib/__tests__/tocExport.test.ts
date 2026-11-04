@@ -8,7 +8,7 @@ import {
 } from "@cadabracraft/format";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { describe, expect, it } from "vitest";
-import { bookContents, pdfToc, withContentsList } from "../tocExport";
+import { bookContents, pdfToc } from "../tocExport";
 
 const doc = (...headings: [number, string][]): ChapterDoc => ({
   type: "doc",
@@ -105,38 +105,5 @@ describe("bookContents with pages left out of the export", () => {
     }).manifest;
     const pages = [toc, one].map((id) => ({ id, doc: doc() }));
     expect(bookContents(manifest, "en", pages)!.all.map((i) => i.title)).toContain("Note");
-  });
-});
-
-describe("withContentsList", () => {
-  it("appends one paragraph per visible entry to the contents page only", () => {
-    let { manifest } = addFrontMatter(book(), "contents", "Contents");
-    const toc = manifest.frontMatter[0]!.id;
-    const ch = manifest.chapters[0]!.id;
-    manifest = addTocCustom(setTocDepth(manifest, toc, 1), toc, {
-      language: "en",
-      title: "Afterword",
-      after: ch,
-    }).manifest;
-    const pages = [
-      { id: toc, doc: doc([1, "Contents"]) },
-      { id: ch, doc: doc([1, "One"]) },
-    ];
-    const shown = withContentsList(pages, bookContents(manifest, "en", pages));
-    expect(shown[1]).toBe(pages[1]);
-    const added = shown[0]!.doc.content.slice(1);
-    expect(added.map((n) => JSON.stringify(n))).toEqual([
-      expect.stringContaining('"text":"One","marks"'),
-      expect.stringContaining('"text":"Afterword","marks"'),
-      expect.stringContaining("\u2003\u2003One"),
-    ]);
-  });
-  it("changes nothing without a list", () => {
-    const pages = [{ id: "a", doc: doc() }];
-    // The very same array, not a copy: the reader keeps its scroll state against the pages it was given.
-    expect(withContentsList(pages, undefined)).toBe(pages);
-    expect(withContentsList(pages, { entryId: "a", all: [], visible: [], pageNumbers: true })).toBe(
-      pages,
-    );
   });
 });

@@ -96,9 +96,9 @@
   mark(end)
   mark("chapter-end")
 }
-#let title-page(id, kind, body) = {
+#let title-page(id, kind, body, centre: true) = {
   pagebreak(weak: true)
-  align(center + horizon, matter-marks(id, kind, "folio-off-start", "folio-off-end", {
+  align(center + if centre { horizon } else { top }, matter-marks(id, kind, "folio-off-start", "folio-off-end", {
     show heading: it => block(width: 100%, below: 1em, text(font: "Libertinus Serif", size: if it.level == 1 { 1.9em } else { 1.1em }, weight: "bold", it.body))
     set par(first-line-indent: 0pt, justify: false)
     set text(size: 1.25em)
@@ -113,9 +113,9 @@
     body
   })))
 }
-#let centered-page(id, kind, body) = {
+#let centered-page(id, kind, body, centre: true) = {
   pagebreak(weak: true)
-  align(center + horizon, block(width: 78%, matter-marks(id, kind, "header-off-start", "header-off-end", {
+  align(center + if centre { horizon } else { top }, block(width: 78%, matter-marks(id, kind, "header-off-start", "header-off-end", {
     set par(first-line-indent: 0pt, justify: false)
     body
   })))

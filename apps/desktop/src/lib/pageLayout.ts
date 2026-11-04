@@ -167,6 +167,13 @@ export function pageFillSlackPx(book: BookLike): number {
   return p.leadingEm * fontPx + SOFT_FILL_LINES * linePitchEm(book) * fontPx;
 }
 
+/**
+ * Space to add above a short page's content so that it sits in the middle of the text box: half of what is left of `textH` after
+ * `contentH`. Zero when the content fills the box or overflows it, so a page that needs the room is never pushed down or clipped.
+ */
+export const centreOffsetPx = (contentH: number, textH: number): number =>
+  Math.max(0, Math.round((textH - contentH) / 2));
+
 function headingVars(
   level: 1 | 2 | 3,
   s: PrintHeadingStyle,

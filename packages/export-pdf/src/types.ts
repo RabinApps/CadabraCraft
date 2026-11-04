@@ -26,6 +26,8 @@ export interface PdfChapter {
   kind?: MatterKind;
   /** Chapters only: a big first letter on this chapter's opening paragraph (true) or none (false), the author's choice. Absent follows the template. */
   dropCap?: boolean;
+  /** Front/back matter pages only: the author's choice to centre the page's content between the margins (true) or keep it at the top (false). Absent follows the template's kinds. */
+  verticalCenter?: boolean;
 }
 
 /** Margins in inches. `inside` is the gutter side when `mirrored`, else the left margin. */

@@ -4,6 +4,7 @@
  */
 import type { TrimSize } from "@cadabracraft/export-pdf";
 import { contentHash } from "@cadabracraft/export-audio";
+import { contentsLines } from "@cadabracraft/format";
 import { DEFAULT_TEMPLATE_ID, getTemplate, hasTemplate } from "@cadabracraft/templates";
 import { linePitchEm, pageGeometry, PX_PER_INCH } from "./pageLayout";
 import { toRoman, type TocRow } from "./tocView";
@@ -29,19 +30,37 @@ export interface PreviewLine {
   bold: boolean;
   /** The number at the right edge, "≈" first when it is an estimate; null when the page has no numbers. */
   number: string | null;
+  /** The page the entry is on (or a custom entry points at), when there is one: what Read mode's link scrolls to. */
+  entryId?: string;
+  /** The heading the entry is on, as its position among the page's headings (`OutlineItem.index`); unset for a whole page. */
+  heading?: number;
 }
 
-/** The visible entries (hidden ones dropped, custom ones kept) with the number each is printed with. `numbers` false is a plain list. */
+/** The text printed for a row's number: the number, "≈" first for an estimate, a dash when none is known. */
+export const numberText = (row: Pick<TocRow, "text" | "estimated">): string =>
+  row.text === null ? "–" : row.estimated ? `≈${row.text}` : row.text;
+
+/**
+ * The visible entries (hidden ones dropped, custom ones kept) with the number each is printed with. `numbers` false is a plain list.
+ * The entries come from `contentsLines` in `@cadabracraft/format`, the function the exports take theirs from.
+ */
 export function previewLines(rows: readonly TocRow[], numbers: boolean): PreviewLine[] {
-  return rows
-    .filter((r) => !r.item.hidden)
-    .map(({ item, text, estimated }) => ({
+  const byKey = new Map(rows.map((r) => [r.item.key, r]));
+  return contentsLines(
+    rows.map((r) => r.item),
+    numbers ? (item) => numberText(byKey.get(item.key)!) : undefined,
+  ).map(({ item, title, level, bold, number }) => {
+    const heading = item.kind === "heading" ? item.index : item.targetIndex;
+    return {
       key: item.key,
-      title: item.title,
-      level: item.level,
-      bold: item.level === 0,
-      number: !numbers ? null : text === null ? "–" : estimated ? `≈${text}` : text,
-    }));
+      title,
+      level,
+      bold,
+      number,
+      ...(item.entryId !== undefined && { entryId: item.entryId }),
+      ...(heading !== undefined && { heading }),
+    };
+  });
 }
 
 /** Where the lines of a contents page fall: how many fit under the heading on the first page and on each further page, and the page's size in px at 96 per inch. */

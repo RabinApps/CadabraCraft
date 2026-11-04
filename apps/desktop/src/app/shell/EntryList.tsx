@@ -317,6 +317,58 @@ export function EntryList({
                         <M.Separator className="my-1 h-px bg-border" />
                       </>
                     )}
+                    {!chapters && c.kind !== "contents" && c.kind !== "copyright" && (
+                      <>
+                        <M.Separator className="my-1 h-px bg-border" />
+                        <M.Label className={menuLabelClass} aria-hidden>
+                          {t`Vertical position`}
+                        </M.Label>
+                        <M.RadioGroup
+                          aria-label={t`Vertical position`}
+                          value={
+                            c.verticalCenter === undefined
+                              ? "default"
+                              : c.verticalCenter
+                                ? "centred"
+                                : "top"
+                          }
+                          onValueChange={(v) => {
+                            attempt(
+                              actions.setVerticalCenter(
+                                c.id,
+                                v === "default" ? null : v === "centred",
+                              ),
+                            );
+                            const title = c.title;
+                            setSaid(
+                              v === "default"
+                                ? t`${title}: vertical position follows the template`
+                                : v === "centred"
+                                  ? t`${title}: centred on the page`
+                                  : t`${title}: at the top of the page`,
+                            );
+                          }}
+                        >
+                          {(
+                            [
+                              ["default", t`Default`],
+                              ["centred", t`Centred`],
+                              ["top", t`Top`],
+                            ] as const
+                          ).map(([value, text]) => (
+                            <M.RadioItem key={value} value={value} className={menuItemClass()}>
+                              <span className="flex size-3.5 items-center justify-center text-accent">
+                                <M.ItemIndicator>
+                                  <Check size={14} aria-hidden />
+                                </M.ItemIndicator>
+                              </span>
+                              {text}
+                            </M.RadioItem>
+                          ))}
+                        </M.RadioGroup>
+                        <M.Separator className="my-1 h-px bg-border" />
+                      </>
+                    )}
                     <M.Item
                       className={menuItemClass()}
                       onSelect={moveFocus(() =>

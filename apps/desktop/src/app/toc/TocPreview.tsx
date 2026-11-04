@@ -1,9 +1,8 @@
-import { useRef, type CSSProperties } from "react";
+import { useRef } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import { Button } from "../../ui/Button";
 import { Notice } from "../../ui/Notice";
-import { cx } from "../../ui/cx";
 import {
   cardScale,
   PREVIEW_GAP_PX,
@@ -14,7 +13,8 @@ import {
 import { PX_PER_INCH } from "../../lib/pageLayout";
 import { usePaneWidth } from "../hooks/usePaneWidth";
 import { PdfPage, usePdfDocument } from "../export/TypstSpread";
-import type { ApproxResult, TocPreviewState } from "./useTocPreview";
+import { ContentsSheets } from "./ContentsSheets";
+import type { TocPreviewState } from "./useTocPreview";
 
 const noop = () => {};
 
@@ -36,110 +36,6 @@ function Skeleton({ width, height }: { width: number; height: number }) {
         />
       ))}
     </div>
-  );
-}
-
-interface ApproxProps {
-  result: ApproxResult;
-  scale: number;
-  serif: boolean;
-  stale: boolean;
-}
-
-/** The approximate contents pages: HTML at the trim size, scaled to the pane. The cards are laid out left to right like the print preview's pages; the text inside follows the book's direction. */
-function ApproxPages({ result, scale, serif, stale }: ApproxProps) {
-  const { t } = useLingui();
-  const { pages, title, rtl } = result;
-  const { page, margins, fontPx, entryPx } = result.layout;
-  const total = pages.length;
-  return (
-    <>
-      {pages.map((p) => {
-        const recto = p.index % 2 === 0;
-        const sheet: CSSProperties = {
-          width: page.w,
-          height: page.h,
-          transform: `scale(${scale})`,
-          transformOrigin: "0 0",
-        };
-        const text: CSSProperties = {
-          fontSize: fontPx,
-          fontFamily: serif ? "var(--font-book)" : "var(--font-ui)",
-          paddingTop: margins.top,
-          paddingBottom: margins.bottom,
-          paddingInlineStart: recto ? margins.inside : margins.outside,
-          paddingInlineEnd: recto ? margins.outside : margins.inside,
-        };
-        return (
-          <div
-            key={p.index}
-            dir="ltr"
-            data-testid="toc-preview-page"
-            role="group"
-            aria-label={t`Page ${p.index + 1} of ${total}`}
-            className={cx(
-              "relative shrink-0 rounded-sm border border-border bg-paper text-ink shadow-page transition-opacity",
-              stale && "opacity-50",
-            )}
-            style={{ width: page.w * scale, height: page.h * scale }}
-          >
-            <div className="absolute top-0 start-0 overflow-hidden" style={sheet}>
-              <div
-                dir={rtl ? "rtl" : "ltr"}
-                className="relative flex size-full flex-col overflow-hidden"
-                style={text}
-              >
-                {p.index === 0 && (
-                  <p
-                    className="font-book text-center font-semibold"
-                    style={{ fontSize: "1.6em", margin: `${fontPx * 3}px 0 ${fontPx * 1.5}px` }}
-                  >
-                    {title}
-                  </p>
-                )}
-                <ol className="m-0 flex list-none flex-col p-0" aria-label={t`Printed entries`}>
-                  {p.lines.map((line) => (
-                    <li
-                      key={line.key}
-                      data-preview-line={line.key}
-                      className={cx("flex items-baseline", line.bold ? "font-bold" : "font-normal")}
-                      style={{
-                        paddingInlineStart: line.level * 16,
-                        minHeight: entryPx,
-                        fontSize: line.level > 0 ? "0.92em" : undefined,
-                      }}
-                    >
-                      <span className="min-w-0 wrap-break-word">{line.title}</span>
-                      {line.number !== null && (
-                        <>
-                          <span
-                            aria-hidden
-                            data-leader
-                            className="mx-1.5 min-w-4 flex-1 translate-y-[-0.2em] self-end border-b-2 border-dotted border-ink-muted"
-                          />
-                          <span className="shrink-0 tabular-nums" data-number>
-                            {line.number}
-                          </span>
-                        </>
-                      )}
-                    </li>
-                  ))}
-                </ol>
-                {p.folio && (
-                  <span
-                    data-folio
-                    className="absolute inset-x-0 text-center text-ink-muted"
-                    style={{ bottom: margins.bottom * 0.4 }}
-                  >
-                    {p.folio}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </>
   );
 }
 
@@ -269,7 +165,15 @@ export function TocPreview({ state, lines, layout, serif }: Props) {
           </ol>
         )}
         {result?.kind === "approx" && (
-          <ApproxPages result={result} scale={scale} serif={serif} stale={busy} />
+          <ContentsSheets
+            title={result.title}
+            rtl={result.rtl}
+            layout={result.layout}
+            pages={result.pages}
+            serif={serif}
+            scale={scale}
+            stale={busy}
+          />
         )}
       </div>
     </section>
