@@ -1,14 +1,6 @@
 import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
-import {
-  Circle,
-  CircleAlert,
-  CircleCheck,
-  CircleX,
-  Download,
-  Info,
-  LoaderCircle,
-} from "lucide-react";
+import { Circle, CircleAlert, CircleCheck, CircleX, Download, LoaderCircle } from "lucide-react";
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
 import { Checkbox } from "../../ui/Checkbox";
 import { Segmented } from "../../ui/Segmented";
@@ -124,8 +116,7 @@ export function AudioFields({
         ))}
       </Select>
       {voices && installed.length === 0 && edition && (
-        <Notice tone="warn" role="status" className="-mt-2 flex items-start gap-2">
-          <Info size={16} className="mt-0.5 shrink-0" aria-hidden />
+        <Notice tone="warn" role="status" className="-mt-2">
           {t`No voice on this computer reads ${nativeName(edition.language)} yet. The voices CadabraCraft can download read English only.`}
         </Notice>
       )}
@@ -206,8 +197,7 @@ export function AudioFields({
           other: "Reads # chapters, one audio file each. Front and back matter are not read.",
         })}
       </p>
-      <Notice tone="warn" className="flex items-start gap-2">
-        <Info size={16} className="mt-0.5 shrink-0" aria-hidden />
+      <Notice tone="warn">
         {t`Some audiobook stores do not accept synthetic voices. Check their rules before you upload.`}
       </Notice>
     </>

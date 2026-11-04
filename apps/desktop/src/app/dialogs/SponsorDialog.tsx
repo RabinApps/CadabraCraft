@@ -1,5 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
-import { CircleCheck, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { bridge } from "../../lib/bridge";
 import { whyText } from "../../lib/projectError";
 import { alertOf } from "../../state/project/util";
@@ -40,8 +40,7 @@ export function SponsorDialog() {
       title={t`Enjoying CadabraCraft?`}
     >
       <div className="flex flex-col gap-4">
-        <Notice tone="success" strong className="flex items-center gap-2">
-          <CircleCheck size={16} aria-hidden />
+        <Notice tone="success" strong>
           {t`Exported ${exported ?? ""}`}
         </Notice>
         <p className="text-sm leading-relaxed">{t`CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it.`}</p>

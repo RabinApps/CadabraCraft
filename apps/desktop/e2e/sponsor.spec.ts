@@ -31,6 +31,8 @@ test.describe("sponsor dialog after an export", () => {
     await exportEpub(page);
     await expect(sponsor(page)).toBeVisible();
     await expect(sponsor(page).getByText("Exported exports/en/book.epub")).toBeVisible();
+    // The Notice draws the tone's icon itself, so a second one in its slot would show two ticks beside the file name.
+    await expect(sponsor(page).locator("[data-tone-icon]")).toHaveCount(1);
     for (const name of ["Don't show again", "Maybe later", "Sponsor"])
       await expect(sponsor(page).getByRole("button", { name })).toBeVisible();
   });
