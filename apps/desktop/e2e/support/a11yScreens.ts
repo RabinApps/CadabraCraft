@@ -740,6 +740,14 @@ export const moreScreens: Screen[] = [
     },
   },
   {
+    name: "welcome screen",
+    open: async (p) => {
+      await newProject(p);
+      await menu(p, "help.welcome");
+      await shown(p.getByRole("heading", { name: "Welcome to CadabraCraft", level: 1 }));
+    },
+  },
+  {
     name: "skip link focused",
     open: async (p) => {
       await newProject(p);

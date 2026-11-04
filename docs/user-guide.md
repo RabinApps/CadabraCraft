@@ -6,6 +6,12 @@ CadabraCraft is a desktop app for writing a book and turning it into an e-book (
 
 ## Getting started
 
+### The welcome screen
+
+The first time you open CadabraCraft it shows a welcome screen instead of the start screen: what the app can do, and that it is 100% supported by sponsors. **Get started** takes you to the start screen. **Sponsor CadabraCraft** opens the sponsorship page in your browser; nothing is sent from the app itself, and nothing in your book changes.
+
+You see it once. To read it again, choose **Help > Welcome to CadabraCraft…**. **Get started** then brings you back to where you were.
+
 ### Make or open a book
 
 On the start screen choose:

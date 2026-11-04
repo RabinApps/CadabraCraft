@@ -26,7 +26,7 @@ import { isMac } from "../../lib/platform";
 import type { ExportFormat } from "../export/exportFormat";
 import { useProject } from "../../state/project/index";
 
-type View = "book" | "settings" | "fonts" | "templates" | "print";
+type View = "book" | "settings" | "fonts" | "templates" | "print" | "welcome";
 
 export interface AppMenuHooks {
   view: View;
@@ -35,6 +35,8 @@ export interface AppMenuHooks {
   setMode: (m: "write" | "read") => void;
   openExport: (format: ExportFormat) => void;
   openDetails: () => void;
+  /** Help > Welcome to CadabraCraft…: the first-run screen, shown over the current page. */
+  openWelcome: () => void;
   /** Shows a failure from a menu action in the page's error banner. */
   fail: (message: string) => void;
 }
@@ -131,6 +133,7 @@ export function useAppMenu(h: AppMenuHooks): void {
       },
     },
     "file.clearRecents": { run: clearRecents, enabled: recents.length > 0 },
+    "help.welcome": { run: () => h.openWelcome() },
     "help.sponsor": { run: guard(() => bridge.openUrl(SPONSOR_URL)) },
     "help.licenses": { run: () => useLicenses.getState().show() },
     "help.updates": { run: () => void checkForUpdatesNow(h) },

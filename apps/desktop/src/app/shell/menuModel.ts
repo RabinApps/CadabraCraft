@@ -324,6 +324,8 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
   ]);
 
   const help = sub(t`Help`, [
+    cmd("help.welcome", t`Welcome to CadabraCraft…`),
+    sep,
     cmd("help.updates", t`Check for Updates…`),
     sep,
     cmd("help.sponsor", t`Sponsor CadabraCraft…`),

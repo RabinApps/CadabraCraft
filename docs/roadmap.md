@@ -97,6 +97,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 ## Done
 
+- First-run welcome screen (2026-11-03): one full-screen view before Home with six feature tiles and a "CadabraCraft is 100% supported by sponsors." strip ending in a Sponsor button that opens the sponsorship page in the author's browser. Shown once (`cadabracraft.onboarding` in the app preferences) and reopened from Help > Welcome to CadabraCraft…; designed in the pen as `Onboarding / size / mode`. See architecture.md, "First-run welcome (onboarding)".
 - Find and replace across editions (2026-10-29): an "All languages" scope next to "All chapters" in the find bar (off by default), per-language counts, one book undo step across every edition's files; see architecture.md, "Find and replace across editions".
 - Shortcut rebinding (Settings > Shortcuts): Change, Reset and Reset all per row, conflicts refused with the owner named, kept in the app preferences; covers the menu keys, the editor's formatting keys, the command palette and outline keys, Find and the book undo/redo keys. See architecture.md, "Shortcut rebinding". Still open: keys for menu items that have none today, and the pen frames for a row being recorded and for a refused key (the pen shows the Change and Reset buttons only).
 - Command palette (Cmd/Ctrl+K) and outline navigator (Cmd/Ctrl+Shift+O), in `app/quicknav` and drawn in the pen (see design.md).

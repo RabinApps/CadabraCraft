@@ -55,10 +55,12 @@ import { useSettings } from "../../state/editorPrefs";
 import { LG_QUERY } from "./breakpoints";
 import { Notice } from "../../ui/Notice";
 import { useViewMode } from "../../state/viewMode";
+import { Onboarding } from "../onboarding/Onboarding";
+import { useOnboarding } from "../../state/onboarding";
 
 /** Full-page views. "book" is the editor (or Home when no project is open). */
 /** `fonts` is Settings scrolled to Fonts (from the "font missing" notice in the export dialog). */
-type View = "book" | "settings" | "fonts" | "templates" | "print";
+type View = "book" | "settings" | "fonts" | "templates" | "print" | "welcome";
 
 /** The app and, above every screen, the command palette and the outline navigator. */
 export function App() {
@@ -92,17 +94,17 @@ function AppScreens() {
   }, [root, title, addRecent]);
   const [drawer, setDrawer] = useState(false);
   const { mode, setMode } = useViewMode();
-  const [view, setView] = useState<View>("book");
-  useWindowTitle(
-    view === "settings" || view === "fonts"
-      ? t`Settings`
-      : view === "templates"
-        ? t`Templates`
-        : view === "print"
-          ? t`Print preview`
-          : undefined,
-    title,
-  );
+  // The welcome screen opens by itself on the first run, before Home; Help > Welcome to CadabraCraft… reopens it.
+  const seenWelcome = useOnboarding((s) => s.seen);
+  const [view, setView] = useState<View>(seenWelcome ? "book" : "welcome");
+  const viewTitle: Partial<Record<View, string>> = {
+    welcome: t`Welcome`,
+    settings: t`Settings`,
+    fonts: t`Settings`,
+    templates: t`Templates`,
+    print: t`Print preview`,
+  };
+  useWindowTitle(viewTitle[view], title);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [refsSheet, setRefsSheet] = useState(false);
@@ -171,11 +173,25 @@ function AppScreens() {
     setMode,
     openExport,
     openDetails: () => setDetailsOpen(true),
+    openWelcome: () => setView("welcome"),
     fail: setError,
   });
   const backToBook = () => setView("book");
   const skeleton = opening && view === "book" ? <OpeningSkeleton name={opening.name} /> : null;
   if (skeleton && manifest) return skeleton;
+  if (view === "welcome") {
+    const done = () => {
+      useOnboarding.getState().markSeen();
+      setView("book");
+    };
+    return (
+      <>
+        <Onboarding onDone={done} />
+        <UpdateDialog />
+        <LicensesDialog />
+      </>
+    );
+  }
   if (view === "settings" || view === "fonts") {
     return (
       <>

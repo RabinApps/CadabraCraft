@@ -841,6 +841,10 @@ msgstr "Istantanee del libro"
 msgid "Bring All to Front"
 msgstr "Porta tutto in primo piano"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Bring what you have"
+msgstr "Porta quello che hai già"
+
 #: src/app/settings/FontsSection.tsx
 msgid "Browse fonts…"
 msgstr "Sfoglia i caratteri…"
@@ -871,6 +875,10 @@ msgstr "cadabra.json è stato modificato fuori dall'app e non è stato letto; il
 #: src/lib/projectError.ts
 msgid "CadabraCraft does not have permission to use {0}. Check the file is not open elsewhere and that your account can change it, then try again."
 msgstr "CadabraCraft non ha il permesso di usare {0}. Controlla che il file non sia aperto altrove e che il tuo account possa modificarlo, poi riprova."
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "CadabraCraft is 100% supported by sponsors."
+msgstr "CadabraCraft è sostenuta al 100% dalle sponsorizzazioni."
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
@@ -1063,6 +1071,10 @@ msgstr "I capitoli partono come copie di {sourceName}, contrassegnati come Non a
 #: src/app/export/AudioExport.tsx
 msgid "Chapters to read"
 msgstr "Capitoli da leggere"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Chapters, front and back matter, footnotes, tables and images in a calm editor."
+msgstr "Capitoli, pagine iniziali e finali, note, tabelle e immagini in un editor tranquillo."
 
 #: src/app/settings/Settings.tsx
 msgid "Check for updates on launch"
@@ -1327,6 +1339,7 @@ msgid "Could not load the earlier versions ({0}). Close this dialog and open His
 msgstr "Impossibile caricare le versioni precedenti ({0}). Chiudi questa finestra e riapri la Cronologia per riprovare."
 
 #: src/app/dialogs/SponsorDialog.tsx
+#: src/app/onboarding/Onboarding.tsx
 msgid "Could not open {SPONSOR_URL}: {why}. Copy the address into your browser instead."
 msgstr "Impossibile aprire {SPONSOR_URL}: {why}. Copia invece l'indirizzo nel browser."
 
@@ -1691,6 +1704,10 @@ msgstr "Disegna i segni di taglio fuori dall’abbondanza e rende la pagina più
 msgid "Drop files here to add them"
 msgstr "Trascina qui i file per aggiungerli"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Each book is a folder you own. No account, no telemetry, no cloud."
+msgstr "Ogni libro è una cartella tua. Nessun account, nessuna telemetria, nessun cloud."
+
 #: src/app/home/Home.tsx
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr "Ogni libro è una normale cartella di tua proprietà. Tienila in Dropbox, Google Drive o iCloud Drive per sincronizzarla tra i dispositivi."
@@ -1739,6 +1756,10 @@ msgstr "Edizione: {0}"
 msgid "Editions"
 msgstr "Edizioni"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Editions keep translations in the same book, exported separately."
+msgstr "Le edizioni tengono le traduzioni nello stesso libro e le esportano separatamente."
+
 #: src/app/settings/Settings.tsx
 msgid "Editor"
 msgstr "Editor"
@@ -1776,6 +1797,10 @@ msgstr "Epigrafe"
 #: src/app/export/ExportDialog.tsx
 msgid "EPUB 3"
 msgstr "EPUB 3"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "EPUB 3 that passes EPUBCheck, and a print-ready PDF at your trim size."
+msgstr "EPUB 3 che supera EPUBCheck e un PDF pronto per la stampa nel tuo formato."
 
 #: src/app/shell/menuModel.ts
 msgid "EPUB…"
@@ -2042,6 +2067,10 @@ msgstr "Gemma"
 msgid "General"
 msgstr "Generali"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Get started"
+msgstr "Inizia"
+
 #: src/lib/useIconChoices.ts
 msgid "Ghost"
 msgstr "Fantasma"
@@ -2235,6 +2264,10 @@ msgstr "Rapporto di importazione"
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import warnings"
 msgstr "Avvisi di importazione"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Import Word, Markdown, HTML or plain text. A report lists anything that could not be kept."
+msgstr "Importa Word, Markdown, HTML o testo semplice. Un report elenca tutto ciò che non è stato possibile mantenere."
 
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
@@ -2521,6 +2554,10 @@ msgstr "Capitoli collegati"
 msgid "List"
 msgstr "Elenca"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Listen, or hand it off"
+msgstr "Ascoltalo, o passalo ad altri"
+
 #: src/editor/ReadingBook.tsx
 msgid "Loading the book"
 msgstr "Caricamento del libro"
@@ -2783,6 +2820,10 @@ msgstr "Pagina successiva: {0}"
 #: src/app/export/TypstSpread.tsx
 msgid "Next pages"
 msgstr "Pagine successive"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "No ads, no account, and the app is never sold."
+msgstr "Niente pubblicità, nessun account e l’app non viene mai venduta."
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
@@ -3314,6 +3355,10 @@ msgstr "Progetto aggiornato dal formato {0}; backup salvato in {backup}"
 msgid "Publication date"
 msgstr "Data di pubblicazione"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Publish EPUB and print PDF"
+msgstr "Pubblica EPUB e PDF per la stampa"
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Publisher"
 msgstr "Editore"
@@ -3501,6 +3546,10 @@ msgstr "Rinomina voce dell'indice"
 #: src/app/toc/TocEditor.tsx
 msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
 msgstr "Le voci rinominate, nascoste, spostate e personalizzate vengono rimosse. La profondità e l'impostazione dei numeri di pagina restano."
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Render an audiobook, or export a Word or Markdown manuscript for an agent or editor."
+msgstr "Genera un audiolibro oppure esporta un manoscritto Word o Markdown per un agente o un editor."
 
 #. placeholder {0}: c.title
 #. placeholder {0}: item.title
@@ -3956,6 +4005,10 @@ msgstr "Dividi di nuovo il capitolo {n} in {merged} capitoli"
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Sponsor"
 msgstr "Sponsor"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Sponsor CadabraCraft"
+msgstr "Sponsorizza CadabraCraft"
 
 #: src/app/shell/menuModel.ts
 msgid "Sponsor CadabraCraft…"
@@ -4532,6 +4585,10 @@ msgstr "I margini superiore, inferiore ed esterno devono essere di almeno {KDP_M
 msgid "Transcript files"
 msgstr "File di trascrizione"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Translate your book"
+msgstr "Traduci il tuo libro"
+
 #: src/app/shell/Sidebar.tsx
 #: src/app/shell/TrashDialog.tsx
 msgid "Trash"
@@ -4764,6 +4821,18 @@ msgstr "Avviso:"
 msgid "WAV"
 msgstr "WAV"
 
+#: src/app/shell/App.tsx
+msgid "Welcome"
+msgstr "Benvenuto"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Welcome to CadabraCraft"
+msgstr "Benvenuto in CadabraCraft"
+
+#: src/app/shell/menuModel.ts
+msgid "Welcome to CadabraCraft…"
+msgstr "Benvenuto in CadabraCraft…"
+
 #: src/editor/Editor.tsx
 msgid "What you pasted"
 msgstr "Ciò che hai incollato"
@@ -4826,9 +4895,17 @@ msgstr "Scrivi"
 msgid "Write or read"
 msgstr "Scrivi o leggi"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Write the whole book"
+msgstr "Scrivi tutto il libro"
+
 #: src/app/home/Home.tsx
 msgid "Write your first book"
 msgstr "Scrivi il tuo primo libro"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Write, format and publish your book — everything stays on your computer."
+msgstr "Scrivi, impagina e pubblica il tuo libro: tutto resta sul tuo computer."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
@@ -4886,6 +4963,10 @@ msgstr "Le ultime modifiche sono state salvate, se possibile. Scegli Ricarica pe
 #: src/app/hooks/useAppMenu.ts
 msgid "Your package manager updates this copy of CadabraCraft."
 msgstr "Il tuo gestore di pacchetti aggiorna questa copia di CadabraCraft."
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Yours, on your computer"
+msgstr "Tuo, sul tuo computer"
 
 #: src/app/shell/menuModel.ts
 msgid "Zoom"

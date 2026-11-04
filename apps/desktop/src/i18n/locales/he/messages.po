@@ -841,6 +841,10 @@ msgstr "תצלומי מצב של הספר"
 msgid "Bring All to Front"
 msgstr "הבא הכול לחזית"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Bring what you have"
+msgstr "הביאו את מה שכבר יש לכם"
+
 #: src/app/settings/FontsSection.tsx
 msgid "Browse fonts…"
 msgstr "עיון בגופנים…"
@@ -871,6 +875,10 @@ msgstr "הקובץ cadabra.json שונה מחוץ לאפליקציה ולא ני
 #: src/lib/projectError.ts
 msgid "CadabraCraft does not have permission to use {0}. Check the file is not open elsewhere and that your account can change it, then try again."
 msgstr "ל-CadabraCraft אין הרשאה להשתמש ב-{0}. בדקו שהקובץ אינו פתוח במקום אחר ושהחשבון שלכם יכול לשנות אותו, ונסו שוב."
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "CadabraCraft is 100% supported by sponsors."
+msgstr "CadabraCraft נתמכת ב-100% על ידי תורמים."
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it."
@@ -1063,6 +1071,10 @@ msgstr "הפרקים מתחילים כעותקים של {sourceName}, מסומנ
 #: src/app/export/AudioExport.tsx
 msgid "Chapters to read"
 msgstr "פרקים להקראה"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Chapters, front and back matter, footnotes, tables and images in a calm editor."
+msgstr "פרקים, דפי פתיחה וסיום, הערות שוליים, טבלאות ותמונות בעורך שקט."
 
 #: src/app/settings/Settings.tsx
 msgid "Check for updates on launch"
@@ -1327,6 +1339,7 @@ msgid "Could not load the earlier versions ({0}). Close this dialog and open His
 msgstr "לא ניתן היה לטעון את הגרסאות הקודמות ({0}). סגור חלון זה ופתח שוב את ההיסטוריה כדי לנסות שוב."
 
 #: src/app/dialogs/SponsorDialog.tsx
+#: src/app/onboarding/Onboarding.tsx
 msgid "Could not open {SPONSOR_URL}: {why}. Copy the address into your browser instead."
 msgstr "לא ניתן היה לפתוח את {SPONSOR_URL}: {why}. העתיקו את הכתובת לדפדפן שלכם במקום זאת."
 
@@ -1691,6 +1704,10 @@ msgstr "מצייר סימני חיתוך מחוץ לשולי החיתוך ומג
 msgid "Drop files here to add them"
 msgstr "שחרר קבצים כאן כדי להוסיף אותם"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Each book is a folder you own. No account, no telemetry, no cloud."
+msgstr "כל ספר הוא תיקייה שלכם. בלי חשבון, בלי טלמטריה, בלי ענן."
+
 #: src/app/home/Home.tsx
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr "כל ספר הוא תיקייה פשוטה שבבעלותך. שמור אותה ב־Dropbox‏, Google Drive או iCloud Drive כדי לסנכרן בין מכשירים."
@@ -1739,6 +1756,10 @@ msgstr "מהדורה: {0}"
 msgid "Editions"
 msgstr "מהדורות"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Editions keep translations in the same book, exported separately."
+msgstr "מהדורות שומרות את התרגומים באותו ספר ומייצאות אותם בנפרד."
+
 #: src/app/settings/Settings.tsx
 msgid "Editor"
 msgstr "עורך"
@@ -1776,6 +1797,10 @@ msgstr "מוטו"
 #: src/app/export/ExportDialog.tsx
 msgid "EPUB 3"
 msgstr "EPUB 3"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "EPUB 3 that passes EPUBCheck, and a print-ready PDF at your trim size."
+msgstr "EPUB 3 שעובר EPUBCheck ו-PDF מוכן לדפוס בגודל שבחרתם."
 
 #: src/app/shell/menuModel.ts
 msgid "EPUB…"
@@ -2042,6 +2067,10 @@ msgstr "אבן חן"
 msgid "General"
 msgstr "כללי"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Get started"
+msgstr "בואו נתחיל"
+
 #: src/lib/useIconChoices.ts
 msgid "Ghost"
 msgstr "רוח רפאים"
@@ -2235,6 +2264,10 @@ msgstr "דוח ייבוא"
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Import warnings"
 msgstr "אזהרות ייבוא"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Import Word, Markdown, HTML or plain text. A report lists anything that could not be kept."
+msgstr "ייבאו Word, Markdown, HTML או טקסט פשוט. דוח מפרט כל מה שלא ניתן היה לשמור."
 
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
@@ -2521,6 +2554,10 @@ msgstr "פרקים מקושרים"
 msgid "List"
 msgstr "רשימה"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Listen, or hand it off"
+msgstr "להאזין, או למסור הלאה"
+
 #: src/editor/ReadingBook.tsx
 msgid "Loading the book"
 msgstr "טוען את הספר"
@@ -2783,6 +2820,10 @@ msgstr "העמוד הבא: {0}"
 #: src/app/export/TypstSpread.tsx
 msgid "Next pages"
 msgstr "העמודים הבאים"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "No ads, no account, and the app is never sold."
+msgstr "בלי פרסומות, בלי חשבון, והאפליקציה לעולם לא נמכרת."
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
@@ -3314,6 +3355,10 @@ msgstr "הפרויקט שודרג מפורמט {0}; גיבוי נשמר ב־{bac
 msgid "Publication date"
 msgstr "תאריך פרסום"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Publish EPUB and print PDF"
+msgstr "לפרסם EPUB ו-PDF לדפוס"
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Publisher"
 msgstr "מוציא לאור"
@@ -3501,6 +3546,10 @@ msgstr "שינוי שם של פריט בתוכן העניינים"
 #: src/app/toc/TocEditor.tsx
 msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
 msgstr "פריטים ששמם שונה, מוסתרים, מועברים ומותאמים אישית יוסרו. העומק והגדרת מספרי העמודים נשארים."
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Render an audiobook, or export a Word or Markdown manuscript for an agent or editor."
+msgstr "להפיק ספר שמע, או לייצא כתב יד ב-Word או ב-Markdown לסוכן או לעורך."
 
 #. placeholder {0}: c.title
 #. placeholder {0}: item.title
@@ -3956,6 +4005,10 @@ msgstr "פיצול פרק {n} חזרה ל־{merged} פרקים"
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Sponsor"
 msgstr "חסות"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Sponsor CadabraCraft"
+msgstr "חסות ל-CadabraCraft"
 
 #: src/app/shell/menuModel.ts
 msgid "Sponsor CadabraCraft…"
@@ -4532,6 +4585,10 @@ msgstr "שולי העליון, התחתון והחיצוני חייבים להי
 msgid "Transcript files"
 msgstr "קובצי תמליל"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Translate your book"
+msgstr "לתרגם את הספר"
+
 #: src/app/shell/Sidebar.tsx
 #: src/app/shell/TrashDialog.tsx
 msgid "Trash"
@@ -4764,6 +4821,18 @@ msgstr "אזהרה:"
 msgid "WAV"
 msgstr "WAV"
 
+#: src/app/shell/App.tsx
+msgid "Welcome"
+msgstr "ברוכים הבאים"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Welcome to CadabraCraft"
+msgstr "ברוכים הבאים ל-CadabraCraft"
+
+#: src/app/shell/menuModel.ts
+msgid "Welcome to CadabraCraft…"
+msgstr "ברוכים הבאים ל-CadabraCraft…"
+
 #: src/editor/Editor.tsx
 msgid "What you pasted"
 msgstr "מה שהדבקת"
@@ -4826,9 +4895,17 @@ msgstr "כתיבה"
 msgid "Write or read"
 msgstr "כתיבה או קריאה"
 
+#: src/app/onboarding/Onboarding.tsx
+msgid "Write the whole book"
+msgstr "לכתוב את הספר כולו"
+
 #: src/app/home/Home.tsx
 msgid "Write your first book"
 msgstr "כתוב את הספר הראשון שלך"
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Write, format and publish your book — everything stays on your computer."
+msgstr "לכתוב, לעצב ולפרסם את הספר — הכול נשאר במחשב שלכם."
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
@@ -4886,6 +4963,10 @@ msgstr "השינויים האחרונים שלכם נשמרו אם היה אפש
 #: src/app/hooks/useAppMenu.ts
 msgid "Your package manager updates this copy of CadabraCraft."
 msgstr "מנהל החבילות שלך מעדכן עותק זה של CadabraCraft."
+
+#: src/app/onboarding/Onboarding.tsx
+msgid "Yours, on your computer"
+msgstr "שלכם, במחשב שלכם"
 
 #: src/app/shell/menuModel.ts
 msgid "Zoom"

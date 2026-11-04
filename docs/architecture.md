@@ -215,6 +215,23 @@ The author can give most actions another key. **One resolver, three consumers.**
 - **New dependency: the opener plugin** (`tauri-plugin-opener` and `@tauri-apps/plugin-opener`, official Tauri plugins), approved by the author. Its capability is scoped to exactly one address (`opener:allow-open-url` with `allow: [{ url: "https://github.com/sponsors/RabinApps" }]` in `capabilities/default.json`), so a compromised page cannot open other sites; the capability must change together with `SPONSOR_URL`. Rejected: `window.open` or an `<a target>` (a webview would navigate itself, and the CSP blocks it), the broader `shell` plugin (can run programs), and only showing the address with a Copy button (no new dependency, but a worse path for the people who do want to sponsor).
 - **Rejected placements:** before an export (it delays the thing the author asked for), at app start (nothing has been earned yet), and after the first export only (the author has not used the app enough to know whether it helped).
 
+## First-run welcome (onboarding)
+
+- **One full-screen view, shown once, before Home.** On a first run (the `cadabracraft.onboarding` app preference is anything but `seen`) `App.tsx` starts on the `welcome` view instead of `book`: a brand header, a hero (h1, one lead sentence and a primary _Get started_), six feature tiles and a sponsor strip at the foot. _Get started_ writes `seen` and shows Home. **Help > Welcome to CadabraCraft…** (`help.welcome`) sets the view back to `welcome`, over an open book too, without touching the preference, so the next start still goes straight to Home.
+- **What it says.** The six tiles are the v1 scope in the author's words (writing the whole book, import, EPUB and print PDF, audiobook or manuscript hand-off, translations, local-first). The strip says _CadabraCraft is 100% supported by sponsors._ and _No ads, no account, and the app is never sold._; its Sponsor button opens `SPONSOR_URL` in the default browser through the same scoped opener as the export dialog (see "Sponsor dialog after an export"), so nothing else can be opened from it. Nothing records whether the screen was shown or clicked.
+- **App preference, never project data.** One localStorage flag (`state/onboarding.ts`, through `readStored`/`writeStored`), so blocked or full storage just shows the screen again; it is never written into the book, so a folder moved to another computer opens without it.
+- **Focus and title.** The h1 takes focus on mount, so a screen reader or a keyboard starts at the title instead of the app chrome, and the view sets the window title to _Welcome_ (as the other full-page views do).
+- **Tests.** `state/__tests__/onboarding.test.ts` for the flag, `e2e/onboarding.spec.ts` for the first run, the reload, the menu item, the sponsor link and a browser that cannot be opened, and a `welcome screen` entry in `e2e/support/a11yScreens.ts`. The fake backend seeds the preference as `seen`, so the rest of the Playwright suite is not covered by it (a spec that wants a first run sets it back).
+- **Rejected:**
+
+| Rejected                                                         | Why not                                                                                                                                                     |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A guided multi-step tour                                         | A first run has no book to click through yet, and it would need its own step state, its own pen frames and a way to leave halfway.                          |
+| Tips anchored to individual controls                             | Needs a frame and a position for every anchor, and breaks whenever a control moves; the pen has none of them.                                               |
+| Showing it as a dialog over Home                                 | It would share the focus trap and the "menu actions are inert while a dialog is open" rule, and it would look like something to dismiss rather than a page. |
+| Remembering it per book, or putting the flag in the project file | It is about this author and this computer, not about the book; a shared folder would also carry someone else's choice.                                      |
+| A "Welcome" row in Settings as well as the Help item             | One way back is enough, and Help is where the rest of the app's own pages live (Updates, Licenses, Sponsor).                                                |
+
 ## Internationalization (UI)
 
 ### Decision: Lingui 6 (ICU MessageFormat, compiled PO catalogs)

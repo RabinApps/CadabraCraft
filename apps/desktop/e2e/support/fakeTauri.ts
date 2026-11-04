@@ -22,6 +22,9 @@ export async function fakeTauri(page: Page) {
     // The sponsor dialog after an export is off unless a test turns it on (it would cover the page in every export test).
     if (!sessionStorage.getItem("sponsorTest"))
       localStorage.setItem("cadabracraft.sponsor", "hidden");
+    // The welcome screen is seen already unless a test removes this (it would cover Home on the first run of every spec).
+    if (!localStorage.getItem("cadabracraft.onboarding"))
+      localStorage.setItem("cadabracraft.onboarding", "seen");
     const disk: Record<string, string | number[]> = JSON.parse(
       sessionStorage.getItem("disk") ?? "{}",
     );
