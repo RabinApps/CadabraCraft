@@ -106,3 +106,25 @@ describe("vertical position of a matter page", () => {
     expect(await cls()).toBe("dedication vcenter");
   });
 });
+
+describe("page start and blank pages", () => {
+  it("saves where a matter page starts, and undoes it", async () => {
+    await a().setStartOnNext(dedicationId(), true);
+    expect(s().manifest!.frontMatter[0]!.startOnNext).toBe(true);
+    expect(await a().undo()).toBe(true);
+    expect(s().manifest!.frontMatter[0]!.startOnNext).toBeUndefined();
+  });
+
+  it("adds a blank page after the open page, then at the end of the chapters with no page open", async () => {
+    const count = () => {
+      const m = s().manifest!;
+      return m.frontMatter.length + m.chapters.length + m.backMatter.length;
+    };
+    const before = count();
+    await a().addBlank();
+    expect(count()).toBe(before + 1);
+    useProject.setState({ currentId: null });
+    await a().addBlank();
+    expect(count()).toBe(before + 2);
+  });
+});

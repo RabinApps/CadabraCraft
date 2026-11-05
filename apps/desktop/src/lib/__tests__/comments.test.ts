@@ -100,3 +100,30 @@ describe("relativeTime", () => {
     expect(relativeTime("not a date", now)).toBe("");
   });
 });
+
+describe("comment anchors in odd documents", () => {
+  const doc = (content: unknown[]) => ({ type: "doc", content }) as unknown as ChapterDoc;
+  it("reads no ids from a missing document, and skips other marks, id-less marks and repeats", () => {
+    expect(commentAnchors(null)).toEqual([]);
+    const text = (marks: unknown[]) => ({ type: "text", text: "x", marks });
+    expect(
+      commentAnchors(
+        doc([
+          {
+            type: "paragraph",
+            content: [
+              text([{ type: "bold" }, { type: "comment" }, { type: "comment", attrs: { id: 3 } }]),
+              text([{ type: "comment", attrs: { id: "c-1" } }]),
+              text([{ type: "comment", attrs: { id: "c-1" } }]),
+              { type: "text", text: "plain" },
+            ],
+          },
+          { type: "horizontalRule" },
+        ]),
+      ),
+    ).toEqual(["c-1"]);
+  });
+  it("quotes nothing from a missing document", () => {
+    expect(commentQuote(null, "c-1")).toBe("");
+  });
+});

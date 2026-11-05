@@ -2,8 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk } from "../../../test/fakeBridge";
 
 let failWrite = false;
+let failRead = false;
 vi.mock("../../../lib/bridge", async () =>
   (await import("../../../test/fakeBridge")).fakeBridge({
+    readFile: async (_r: string, path: string) => {
+      if (failRead && path.startsWith("comments/")) throw new Error("denied");
+      const contents = disk.get(path);
+      return contents === undefined ? null : { contents, hash: `h${contents.length}` };
+    },
     writeFile: async (_r: string, path: string, contents: string) => {
       if (failWrite) throw new Error("disk full");
       disk.set(path, contents);
@@ -21,6 +27,7 @@ const onDisk = (page: string) => JSON.parse(disk.get(`comments/${page}.json`)!);
 beforeEach(async () => {
   disk.clear();
   failWrite = false;
+  failRead = false;
   useProject.setState({ root: null, manifest: null, notice: "", alertNotice: "", comments: [] });
   await a().createProject("/p", "Book", "Me");
 });
@@ -107,5 +114,65 @@ describe("comments", () => {
     expect(s().comments).toEqual([]);
     expect(s().commentsPageId).toBeNull();
     expect(disk.has("comments/c-missing.json")).toBe(false);
+  });
+
+  it("reports a comments file that cannot be read, and shows none", async () => {
+    failRead = true;
+    await a().loadComments(s().currentId);
+    expect(s().comments).toEqual([]);
+    expect(s().alertNotice).toMatch(/could not be read/);
+  });
+
+  it("does nothing with no project open", async () => {
+    useProject.setState({ root: null });
+    await a().loadComments("anything");
+    expect(s().commentsPageId).not.toBe("anything");
+  });
+
+  it("refuses a thread past the page's limit, and a body that is too long", async () => {
+    const threads = Array.from({ length: 500 }, (_, i) => ({
+      id: `t-${i}`,
+      author: "Me",
+      body: "x",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      resolved: false,
+      replies: [],
+    }));
+    useProject.setState({ comments: threads as never, commentsPageId: s().currentId });
+    await a().addComment("c-new", "one more");
+    expect(s().comments).toHaveLength(500);
+    expect(s().alertNotice).toMatch(/at most 500 comments/);
+    useProject.setState({ comments: [] });
+    await a().addComment("c-long", "x".repeat(100000));
+    expect(s().comments).toEqual([]);
+  });
+
+  it("refuses a reply past the thread's limit, and signs as Anonymous for a book with no author", async () => {
+    await a().addComment("c-1", "one");
+    const replies = Array.from({ length: 200 }, (_, i) => ({
+      author: "Me",
+      body: "r",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      id: `r-${i}`,
+    }));
+    useProject.setState({ comments: [{ ...s().comments[0]!, replies } as never] });
+    await a().replyComment("c-1", "too many");
+    expect(s().comments[0]!.replies.length).toBeLessThanOrEqual(200);
+    await a().dismissComments();
+    useProject.setState({
+      manifest: {
+        ...s().manifest!,
+        editions: s().manifest!.editions.map((e) => ({ ...e, author: "  " })),
+      },
+    });
+    await a().loadComments(s().currentId);
+    await a().addComment("c-2", "who");
+    expect(s().comments.find((x) => x.id === "c-2")!.author).toBe("Anonymous");
+  });
+
+  it("ignores a resolve with no page loaded", async () => {
+    await a().dismissComments();
+    await a().resolveComment("c-1", true);
+    expect(s().comments).toEqual([]);
   });
 });
