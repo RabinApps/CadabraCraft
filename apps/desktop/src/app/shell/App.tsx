@@ -46,6 +46,7 @@ import { QuickNav } from "../quicknav/QuickNav";
 import { OpeningSkeleton } from "./OpeningSkeleton";
 import { Templates } from "../export/Templates";
 import { SceneBoard } from "../board/SceneBoard";
+import { Timeline } from "../timeline/Timeline";
 import { useLayout } from "../../state/layout";
 import { useReadingPosition } from "../../state/readingPosition";
 import { useRecents } from "../../state/recents";
@@ -67,7 +68,8 @@ import { useOnboarding } from "../../state/onboarding";
 
 /** Full-page views. "book" is the editor (or Home when no project is open). */
 /** `fonts` is Settings scrolled to Fonts (from the "font missing" notice in the export dialog). */
-type View = "book" | "settings" | "fonts" | "templates" | "print" | "welcome" | "board";
+type View =
+  "book" | "settings" | "fonts" | "templates" | "print" | "welcome" | "board" | "timeline";
 
 /** The app and, above every screen, the command palette and the outline navigator. */
 export function App() {
@@ -112,6 +114,7 @@ function AppScreens() {
     templates: t`Templates`,
     print: t`Print preview`,
     board: t`Scene board`,
+    timeline: t`Timeline`,
   };
   useWindowTitle(viewTitle[view], title);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -219,6 +222,7 @@ function AppScreens() {
   }
   if (manifest && view === "templates") return <Templates onBack={backToBook} />;
   if (manifest && view === "board") return <SceneBoard onBack={backToBook} />;
+  if (manifest && view === "timeline") return <Timeline onBack={backToBook} />;
   if (manifest && view === "print") {
     return (
       <>
@@ -309,6 +313,7 @@ function AppScreens() {
           onComments={() => setCommentsSheet(true)}
           onScenes={() => setScenesSheet(true)}
           onBoard={() => setView("board")}
+          onTimeline={() => setView("timeline")}
           run={run}
         />
       )}

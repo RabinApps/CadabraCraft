@@ -7,6 +7,7 @@ import {
   FileUp,
   Library,
   Layers,
+  CalendarRange,
   LayoutGrid,
   ListTree,
   MessageSquareText,
@@ -49,6 +50,8 @@ interface Props {
   onScenes: () => void;
   /** Opens the scene board, a full-page view of every scene of the book. */
   onBoard: () => void;
+  /** Opens the timeline, a full-page view of the scenes on one axis. */
+  onTimeline: () => void;
   /** Runs an action, clearing the shown error first and showing its failure. */
   run: (f: () => Promise<void>) => () => void;
 }
@@ -66,6 +69,7 @@ export function AppHeader({
   onComments,
   onScenes,
   onBoard,
+  onTimeline,
   run,
 }: Props) {
   const { t } = useLingui();
@@ -95,6 +99,10 @@ export function AppHeader({
   const toBoard = run(async () => {
     await actions.flush();
     onBoard();
+  });
+  const toTimeline = run(async () => {
+    await actions.flush();
+    onTimeline();
   });
   const toRead = run(async () => {
     await actions.flush();
@@ -225,6 +233,14 @@ export function AppHeader({
         )}
         {!reader && (
           <IconButton
+            icon={CalendarRange}
+            label={t`Timeline`}
+            className="max-sm:hidden"
+            onClick={toTimeline}
+          />
+        )}
+        {!reader && (
+          <IconButton
             icon={PanelRight}
             label={t`Details`}
             active={details && !references}
@@ -260,6 +276,7 @@ export function AppHeader({
               : [
                   { label: t`Outline`, icon: ListTree, onSelect: () => showQuickNav("outline") },
                   { label: t`Scene board`, icon: LayoutGrid, onSelect: toBoard },
+                  { label: t`Timeline`, icon: CalendarRange, onSelect: toTimeline },
                   { label: t`Save`, icon: Save, onSelect: save },
                   {
                     label: t`Focus mode`,

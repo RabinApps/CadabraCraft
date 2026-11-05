@@ -362,6 +362,11 @@ msgstr "{bookWords} في الكتاب"
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {استُورد فصل واحد من {fileName}.} two {استُورد فصلان من {fileName}.} few {استُوردت # فصول من {fileName}.} many {استُورد # فصلًا من {fileName}.} other {استُورد # فصل من {fileName}.}}"
 
+#. placeholder {0}: sceneWordsLabel(scene)
+#: src/app/timeline/TimelineRow.tsx
+msgid "{chapterTitle} · {0} words"
+msgstr "{chapterTitle} · {0} كلمة"
+
 #: src/app/export/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {نحو صفحة واحدة} two {نحو صفحتين} few {نحو # صفحات} many {نحو # صفحة} other {نحو # صفحة}}"
@@ -513,6 +518,10 @@ msgstr "{title}: حرف أول عادي"
 msgid "{title}: vertical position follows the template"
 msgstr "{title}: الموضع العمودي يتبع القالب"
 
+#: src/app/timeline/Timeline.tsx
+msgid "{undated} without a story date."
+msgstr "{undated} بلا تاريخ في القصة."
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {فصل واحد بلا عنوان} two {فصلان بلا عنوان} few {# فصول بلا عنوان} many {# فصلًا بلا عنوان} other {# فصل بلا عنوان}}"
@@ -590,6 +599,7 @@ msgid "A sample is already being made"
 msgstr "يجري إنشاء عيّنة بالفعل"
 
 #: src/app/board/SceneBoard.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move."
 msgstr "يوجد مشهد في فصلين، على الأرجح لأن عملية نقل توقفت. يُعرض الأول فقط؛ والتراجع يُكمل النقل."
 
@@ -907,6 +917,7 @@ msgstr "تلقائية"
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 #: src/app/settings/Settings.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "Back"
 msgstr "رجوع"
 
@@ -1032,6 +1043,10 @@ msgstr "تفاصيل الكتاب…"
 #: src/app/shell/Sidebar.tsx
 msgid "Book history"
 msgstr "سجل الكتاب"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Book order"
+msgstr "ترتيب الكتاب"
 
 #: src/editor/ReadingFooter.tsx
 msgid "Book progress"
@@ -1364,6 +1379,10 @@ msgstr "اختيار…"
 msgid "Clarifications"
 msgstr "توضيحات"
 
+#: src/app/timeline/TimelineRow.tsx
+msgid "Clear"
+msgstr "مسح"
+
 #: src/editor/Toolbar.tsx
 #: src/editor/ToolbarDialogs.tsx
 msgid "Clear language"
@@ -1380,6 +1399,10 @@ msgstr "مسح القائمة"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Clear search and filters to reorder"
 msgstr "امسح البحث والمرشحات لإعادة الترتيب"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Clear the story date of {title}"
+msgstr "مسح تاريخ القصة لمشهد {title}"
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/export/AudioFooter.tsx
@@ -2320,6 +2343,10 @@ msgstr "المجلد غير موجود. أزله من القائمة أو أعد
 #: src/app/settings/Settings.tsx
 msgid "Follow the system or pick one."
 msgstr "اتبع النظام أو اختر واحدًا."
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Follows {follows}"
+msgstr "يلي {follows}"
 
 #: src/app/shell/EntryList.tsx
 msgid "Follows the book"
@@ -3277,6 +3304,10 @@ msgstr "لا يوجد cadabra.json في هذا المجلد"
 msgid "No command matches “{q}”."
 msgstr "لا يطابق أي أمر “{q}”."
 
+#: src/app/timeline/TimelineRow.tsx
+msgid "No date"
+msgstr "بلا تاريخ"
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr "لا توجد إصدارات سابقة بعد. يُحفظ واحد في كل مرة تحفظ فيها فوق نص مختلف، مرة كل 10 دقائق على الأكثر."
@@ -3533,6 +3564,7 @@ msgstr "في النص الحالي فقط"
 #: src/app/board/SceneCard.tsx
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Open"
 msgstr "فتح"
 
@@ -3575,6 +3607,7 @@ msgid "Open scene"
 msgstr "فتح المشهد"
 
 #: src/app/board/SceneCard.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Open scene {title} in {chapterTitle}"
 msgstr "فتح المشهد {title} في {chapterTitle}"
 
@@ -3602,6 +3635,10 @@ msgstr "اختياري. يظهر أسفل الصورة."
 #: src/app/hooks/useAudioLabels.ts
 msgid "Opus"
 msgstr "Opus"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Order"
+msgstr "الترتيب"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Other"
@@ -3807,6 +3844,11 @@ msgid "Points to"
 msgstr "يشير إلى"
 
 #. placeholder {0}: scene.pov
+#: src/app/timeline/TimelineRow.tsx
+msgid "POV {0}"
+msgstr "وجهة النظر {0}"
+
+#. placeholder {0}: scene.pov
 #: src/app/scenes/SceneRail.tsx
 msgid "POV {0} · {words}"
 msgstr "وجهة النظر {0} · {words}"
@@ -3952,6 +3994,7 @@ msgstr "جارٍ قراءة فصولك…"
 
 #: src/app/board/SceneBoard.tsx
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "Reading…"
 msgstr "جارٍ القراءة…"
 
@@ -4409,6 +4452,14 @@ msgstr "عنوان المشهد"
 msgid "Scenes"
 msgstr "المشاهد"
 
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes are in book order. Switch to Story date to order them by when they happen."
+msgstr "المشاهد بترتيب الكتاب. انتقل إلى تاريخ القصة لترتيبها بحسب موعد حدوثها."
+
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes are ordered by story date. A scene without a date stays behind the scene before it in the book."
+msgstr "المشاهد مرتبة بحسب تاريخ القصة. يبقى المشهد بلا تاريخ بعد المشهد الذي يسبقه في الكتاب."
+
 #. placeholder {0}: c.title
 #: src/app/board/SceneBoard.tsx
 msgid "Scenes in {0}"
@@ -4417,6 +4468,10 @@ msgstr "مشاهد {0}"
 #: src/app/scenes/SceneList.tsx
 msgid "Scenes in {chapter}"
 msgstr "مشاهد {chapter}"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes on the timeline"
+msgstr "المشاهد على الخط الزمني"
 
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
@@ -4761,9 +4816,30 @@ msgstr "يُخزَّن على هذا الحاسوب. لا حاجة إلى حسا
 msgid "Storm"
 msgstr "عاصفة"
 
+#: src/app/timeline/Timeline.tsx
+msgid "Story date"
+msgstr "تاريخ القصة"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Story date of {title}"
+msgstr "تاريخ القصة لمشهد {title}"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Story date of {title} cleared"
+msgstr "تم مسح تاريخ القصة لمشهد {title}"
+
+#. placeholder {0}: formatStoryDay(date, i18n.locale)
+#: src/app/timeline/Timeline.tsx
+msgid "Story date of {title} set to {0}"
+msgstr "تم ضبط تاريخ القصة لمشهد {title} على {0}"
+
 #: src/app/board/SceneBoard.tsx
 msgid "Story structure"
 msgstr "بنية قصصية"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Story time of {title}"
+msgstr "وقت القصة لمشهد {title}"
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
@@ -5229,6 +5305,10 @@ msgstr "لا فصول في هذا الكتاب بعد."
 msgid "This book has no cover image. KDP takes the cover as a separate file."
 msgstr "لا توجد لهذا الكتاب صورة غلاف. تستقبل KDP الغلاف كملف منفصل."
 
+#: src/app/timeline/Timeline.tsx
+msgid "This book has no scenes yet."
+msgstr "لا يحتوي هذا الكتاب على مشاهد بعد."
+
 #: src/lib/importErrorText.ts
 msgid "This document contains too many parts to import safely. Choose another file, or split it into parts."
 msgstr "يحتوي هذا المستند على أجزاء كثيرة جدًا لاستيراده بأمان. اختر ملفًا آخر أو قسّمه إلى أجزاء."
@@ -5314,6 +5394,13 @@ msgstr "تعذّر فتح هذه الصفحة: {why}. استعد نسخة ساب
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "This version has the same words as the current text."
 msgstr "لهذا الإصدار الكلمات نفسها الموجودة في النص الحالي."
+
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/menuModel.ts
+#: src/app/timeline/Timeline.tsx
+msgid "Timeline"
+msgstr "الخط الزمني"
 
 #: src/app/export/ManuscriptPanel.tsx
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
@@ -5516,6 +5603,8 @@ msgstr "إدخال بلا عنوان"
 #: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
+#: src/app/timeline/Timeline.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Untitled scene"
 msgstr "مشهد بلا عنوان"
 

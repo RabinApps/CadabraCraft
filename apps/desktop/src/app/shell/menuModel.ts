@@ -311,6 +311,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("view.details", t`Details Panel`),
     cmd("view.references", t`References Panel`),
     cmd("view.board", t`Scene Board`),
+    cmd("view.timeline", t`Timeline`),
     sep,
     cmd("view.palette", t`Command Palette…`, "CmdOrCtrl+K"),
     cmd("view.outline", t`Outline…`, "CmdOrCtrl+Shift+O"),

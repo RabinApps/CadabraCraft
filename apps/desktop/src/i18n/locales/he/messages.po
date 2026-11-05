@@ -362,6 +362,11 @@ msgstr "{bookWords} בספר"
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {יובא פרק # מתוך {fileName}.} other {יובאו # פרקים מתוך {fileName}.}}"
 
+#. placeholder {0}: sceneWordsLabel(scene)
+#: src/app/timeline/TimelineRow.tsx
+msgid "{chapterTitle} · {0} words"
+msgstr "{chapterTitle} · {0} מילים"
+
 #: src/app/export/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {כעמוד #} other {כ־# עמודים}}"
@@ -513,6 +518,10 @@ msgstr "{title}: אות ראשונה רגילה"
 msgid "{title}: vertical position follows the template"
 msgstr "{title}: המיקום האנכי נקבע לפי התבנית"
 
+#: src/app/timeline/Timeline.tsx
+msgid "{undated} without a story date."
+msgstr "{undated} ללא תאריך בסיפור."
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {לפרק # אין כותרת} other {ל־# פרקים אין כותרת}}"
@@ -590,6 +599,7 @@ msgid "A sample is already being made"
 msgstr "דוגמה כבר נוצרת"
 
 #: src/app/board/SceneBoard.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move."
 msgstr "סצנה נמצאת בשני פרקים, כנראה כי העברה הופסקה. רק הראשונה מוצגת; ״בטל״ משלים את ההעברה."
 
@@ -907,6 +917,7 @@ msgstr "אוטומטי"
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 #: src/app/settings/Settings.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "Back"
 msgstr "חזרה"
 
@@ -1032,6 +1043,10 @@ msgstr "פרטי הספר…"
 #: src/app/shell/Sidebar.tsx
 msgid "Book history"
 msgstr "היסטוריית הספר"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Book order"
+msgstr "סדר הספר"
 
 #: src/editor/ReadingFooter.tsx
 msgid "Book progress"
@@ -1364,6 +1379,10 @@ msgstr "בחירה…"
 msgid "Clarifications"
 msgstr "הבהרות"
 
+#: src/app/timeline/TimelineRow.tsx
+msgid "Clear"
+msgstr "נקה"
+
 #: src/editor/Toolbar.tsx
 #: src/editor/ToolbarDialogs.tsx
 msgid "Clear language"
@@ -1380,6 +1399,10 @@ msgstr "ניקוי התפריט"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Clear search and filters to reorder"
 msgstr "נקה את החיפוש והמסננים כדי לסדר מחדש"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Clear the story date of {title}"
+msgstr "נקה את תאריך הסיפור של {title}"
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/export/AudioFooter.tsx
@@ -2320,6 +2343,10 @@ msgstr "התיקייה לא נמצאה. הסר אותה מהרשימה או הח
 #: src/app/settings/Settings.tsx
 msgid "Follow the system or pick one."
 msgstr "לפי המערכת, או בחירה ידנית."
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Follows {follows}"
+msgstr "בא אחרי {follows}"
 
 #: src/app/shell/EntryList.tsx
 msgid "Follows the book"
@@ -3277,6 +3304,10 @@ msgstr "אין cadabra.json בתיקייה זו"
 msgid "No command matches “{q}”."
 msgstr "אין פקודה שמתאימה ל־“{q}”."
 
+#: src/app/timeline/TimelineRow.tsx
+msgid "No date"
+msgstr "ללא תאריך"
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr "אין עדיין גרסאות קודמות. אחת נשמרת בכל פעם ששומרים על טקסט שונה, לכל היותר פעם ב־10 דקות."
@@ -3533,6 +3564,7 @@ msgstr "בטקסט הנוכחי בלבד"
 #: src/app/board/SceneCard.tsx
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Open"
 msgstr "פתיחה"
 
@@ -3575,6 +3607,7 @@ msgid "Open scene"
 msgstr "פתיחת הסצנה"
 
 #: src/app/board/SceneCard.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Open scene {title} in {chapterTitle}"
 msgstr "פתיחת הסצנה {title} ב{chapterTitle}"
 
@@ -3602,6 +3635,10 @@ msgstr "אופציונלי. מוצג מתחת לתמונה."
 #: src/app/hooks/useAudioLabels.ts
 msgid "Opus"
 msgstr "Opus"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Order"
+msgstr "סדר"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Other"
@@ -3807,6 +3844,11 @@ msgid "Points to"
 msgstr "מצביע אל"
 
 #. placeholder {0}: scene.pov
+#: src/app/timeline/TimelineRow.tsx
+msgid "POV {0}"
+msgstr "נקודת מבט {0}"
+
+#. placeholder {0}: scene.pov
 #: src/app/scenes/SceneRail.tsx
 msgid "POV {0} · {words}"
 msgstr "נקודת מבט {0} · {words}"
@@ -3952,6 +3994,7 @@ msgstr "קורא את הפרקים שלך…"
 
 #: src/app/board/SceneBoard.tsx
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "Reading…"
 msgstr "קורא…"
 
@@ -4409,6 +4452,14 @@ msgstr "כותרת הסצנה"
 msgid "Scenes"
 msgstr "סצנות"
 
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes are in book order. Switch to Story date to order them by when they happen."
+msgstr "הסצנות לפי סדר הספר. עברו אל תאריך הסיפור כדי לסדר אותן לפי מועד התרחשותן."
+
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes are ordered by story date. A scene without a date stays behind the scene before it in the book."
+msgstr "הסצנות מסודרות לפי תאריך הסיפור. סצנה ללא תאריך נשארת אחרי הסצנה שלפניה בספר."
+
 #. placeholder {0}: c.title
 #: src/app/board/SceneBoard.tsx
 msgid "Scenes in {0}"
@@ -4417,6 +4468,10 @@ msgstr "סצנות ב{0}"
 #: src/app/scenes/SceneList.tsx
 msgid "Scenes in {chapter}"
 msgstr "סצנות ב{chapter}"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes on the timeline"
+msgstr "סצנות על ציר הזמן"
 
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
@@ -4761,9 +4816,30 @@ msgstr "נשמר במחשב זה. אין צורך בחשבון."
 msgid "Storm"
 msgstr "סערה"
 
+#: src/app/timeline/Timeline.tsx
+msgid "Story date"
+msgstr "תאריך הסיפור"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Story date of {title}"
+msgstr "תאריך הסיפור של {title}"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Story date of {title} cleared"
+msgstr "תאריך הסיפור של {title} נוקה"
+
+#. placeholder {0}: formatStoryDay(date, i18n.locale)
+#: src/app/timeline/Timeline.tsx
+msgid "Story date of {title} set to {0}"
+msgstr "תאריך הסיפור של {title} הוגדר ל-{0}"
+
 #: src/app/board/SceneBoard.tsx
 msgid "Story structure"
 msgstr "מבנה סיפור"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Story time of {title}"
+msgstr "שעת הסיפור של {title}"
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
@@ -5229,6 +5305,10 @@ msgstr "אין עדיין פרקים בספר זה."
 msgid "This book has no cover image. KDP takes the cover as a separate file."
 msgstr "אין לספר זה תמונת כריכה. KDP מקבלת את הכריכה כקובץ נפרד."
 
+#: src/app/timeline/Timeline.tsx
+msgid "This book has no scenes yet."
+msgstr "בספר הזה עדיין אין סצנות."
+
 #: src/lib/importErrorText.ts
 msgid "This document contains too many parts to import safely. Choose another file, or split it into parts."
 msgstr "המסמך הזה כולל יותר מדי חלקים לייבוא בטוח. בחרו קובץ אחר או פצלו אותו לחלקים."
@@ -5314,6 +5394,13 @@ msgstr "לא ניתן היה לפתוח את הדף הזה: {why}. שחזרו ג
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "This version has the same words as the current text."
 msgstr "בגרסה זו יש אותן מילים כמו בטקסט הנוכחי."
+
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/menuModel.ts
+#: src/app/timeline/Timeline.tsx
+msgid "Timeline"
+msgstr "ציר זמן"
 
 #: src/app/export/ManuscriptPanel.tsx
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
@@ -5516,6 +5603,8 @@ msgstr "רשומה ללא כותרת"
 #: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
+#: src/app/timeline/Timeline.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Untitled scene"
 msgstr "סצנה ללא כותרת"
 

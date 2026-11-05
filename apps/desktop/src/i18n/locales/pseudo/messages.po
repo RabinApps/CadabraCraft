@@ -360,6 +360,11 @@ msgstr ""
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr ""
 
+#. placeholder {0}: sceneWordsLabel(scene)
+#: src/app/timeline/TimelineRow.tsx
+msgid "{chapterTitle} · {0} words"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr ""
@@ -511,6 +516,10 @@ msgstr ""
 msgid "{title}: vertical position follows the template"
 msgstr ""
 
+#: src/app/timeline/Timeline.tsx
+msgid "{undated} without a story date."
+msgstr ""
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr ""
@@ -588,6 +597,7 @@ msgid "A sample is already being made"
 msgstr ""
 
 #: src/app/board/SceneBoard.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move."
 msgstr ""
 
@@ -905,6 +915,7 @@ msgstr ""
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 #: src/app/settings/Settings.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "Back"
 msgstr ""
 
@@ -1029,6 +1040,10 @@ msgstr ""
 
 #: src/app/shell/Sidebar.tsx
 msgid "Book history"
+msgstr ""
+
+#: src/app/timeline/Timeline.tsx
+msgid "Book order"
 msgstr ""
 
 #: src/editor/ReadingFooter.tsx
@@ -1362,6 +1377,10 @@ msgstr ""
 msgid "Clarifications"
 msgstr ""
 
+#: src/app/timeline/TimelineRow.tsx
+msgid "Clear"
+msgstr ""
+
 #: src/editor/Toolbar.tsx
 #: src/editor/ToolbarDialogs.tsx
 msgid "Clear language"
@@ -1377,6 +1396,10 @@ msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Clear search and filters to reorder"
+msgstr ""
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Clear the story date of {title}"
 msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
@@ -2317,6 +2340,10 @@ msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Follow the system or pick one."
+msgstr ""
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Follows {follows}"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
@@ -3275,6 +3302,10 @@ msgstr ""
 msgid "No command matches “{q}”."
 msgstr ""
 
+#: src/app/timeline/TimelineRow.tsx
+msgid "No date"
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr ""
@@ -3531,6 +3562,7 @@ msgstr ""
 #: src/app/board/SceneCard.tsx
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Open"
 msgstr ""
 
@@ -3573,6 +3605,7 @@ msgid "Open scene"
 msgstr ""
 
 #: src/app/board/SceneCard.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Open scene {title} in {chapterTitle}"
 msgstr ""
 
@@ -3599,6 +3632,10 @@ msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "Opus"
+msgstr ""
+
+#: src/app/timeline/Timeline.tsx
+msgid "Order"
 msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
@@ -3805,6 +3842,11 @@ msgid "Points to"
 msgstr ""
 
 #. placeholder {0}: scene.pov
+#: src/app/timeline/TimelineRow.tsx
+msgid "POV {0}"
+msgstr ""
+
+#. placeholder {0}: scene.pov
 #: src/app/scenes/SceneRail.tsx
 msgid "POV {0} · {words}"
 msgstr ""
@@ -3950,6 +3992,7 @@ msgstr ""
 
 #: src/app/board/SceneBoard.tsx
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "Reading…"
 msgstr ""
 
@@ -4407,6 +4450,14 @@ msgstr ""
 msgid "Scenes"
 msgstr ""
 
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes are in book order. Switch to Story date to order them by when they happen."
+msgstr ""
+
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes are ordered by story date. A scene without a date stays behind the scene before it in the book."
+msgstr ""
+
 #. placeholder {0}: c.title
 #: src/app/board/SceneBoard.tsx
 msgid "Scenes in {0}"
@@ -4414,6 +4465,10 @@ msgstr ""
 
 #: src/app/scenes/SceneList.tsx
 msgid "Scenes in {chapter}"
+msgstr ""
+
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes on the timeline"
 msgstr ""
 
 #: src/lib/useIconChoices.ts
@@ -4759,8 +4814,29 @@ msgstr ""
 msgid "Storm"
 msgstr ""
 
+#: src/app/timeline/Timeline.tsx
+msgid "Story date"
+msgstr ""
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Story date of {title}"
+msgstr ""
+
+#: src/app/timeline/Timeline.tsx
+msgid "Story date of {title} cleared"
+msgstr ""
+
+#. placeholder {0}: formatStoryDay(date, i18n.locale)
+#: src/app/timeline/Timeline.tsx
+msgid "Story date of {title} set to {0}"
+msgstr ""
+
 #: src/app/board/SceneBoard.tsx
 msgid "Story structure"
+msgstr ""
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Story time of {title}"
 msgstr ""
 
 #: src/app/settings/shortcutList.ts
@@ -5225,6 +5301,10 @@ msgstr ""
 msgid "This book has no cover image. KDP takes the cover as a separate file."
 msgstr ""
 
+#: src/app/timeline/Timeline.tsx
+msgid "This book has no scenes yet."
+msgstr ""
+
 #: src/lib/importErrorText.ts
 msgid "This document contains too many parts to import safely. Choose another file, or split it into parts."
 msgstr ""
@@ -5309,6 +5389,13 @@ msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "This version has the same words as the current text."
+msgstr ""
+
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/menuModel.ts
+#: src/app/timeline/Timeline.tsx
+msgid "Timeline"
 msgstr ""
 
 #: src/app/export/ManuscriptPanel.tsx
@@ -5510,6 +5597,8 @@ msgstr ""
 #: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
+#: src/app/timeline/Timeline.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Untitled scene"
 msgstr ""
 

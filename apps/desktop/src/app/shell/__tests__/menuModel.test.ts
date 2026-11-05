@@ -64,6 +64,7 @@ const BOOK: Commands = Object.fromEntries(
     "view.details",
     "view.references",
     "view.board",
+    "view.timeline",
     "editor.bold",
     "editor.sceneBreak",
     "edit.find",
@@ -380,7 +381,7 @@ describe("command palette and outline", () => {
       enabled: true,
     });
     const ids = commandIds(view);
-    expect(ids.indexOf("view.palette")).toBe(ids.indexOf("view.board") + 1);
+    expect(ids.indexOf("view.palette")).toBe(ids.indexOf("view.timeline") + 1);
     expect(ids.indexOf("view.outline")).toBe(ids.indexOf("view.palette") + 1);
   });
 
