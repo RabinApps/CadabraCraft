@@ -96,11 +96,15 @@ test.describe("scenes on a phone", () => {
     const sheet = page.getByRole("dialog", { name: "Scenes" });
     await expect(sheet).toBeVisible();
     await sheet.getByRole("button", { name: "Scene", exact: true }).click();
-    const row = sheet.getByRole("listitem").first();
-    await expect(row).toContainText("Untitled scene");
-    // The rail sits under the list, in the same sheet.
+    // A phone shows one thing at a time: the new scene's notes, with a way back to the list.
+    const back = sheet.getByRole("button", { name: "Back to scenes" });
+    await expect(back).toBeVisible();
+    await expect(sheet.getByRole("list", { name: "Scenes" })).toBeHidden();
     await sheet.getByLabel("Scene title").fill("Storm warning");
     await sheet.getByLabel("Scene title").blur();
+    await back.click();
+    const row = sheet.getByRole("listitem").first();
+    await expect(row).toBeVisible();
     await expect(row).toContainText("Storm warning");
     await sheet.getByRole("button", { name: "Close scenes" }).click();
     await expect(sheet).toHaveCount(0);

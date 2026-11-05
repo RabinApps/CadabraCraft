@@ -784,6 +784,10 @@ msgstr "Pages finales : {0}"
 msgid "Back to options"
 msgstr "Retour aux options"
 
+#: src/app/scenes/ScenesPanel.tsx
+msgid "Back to scenes"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Backups"
 msgstr "Sauvegardes"

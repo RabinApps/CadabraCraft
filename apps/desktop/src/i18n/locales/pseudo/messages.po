@@ -782,6 +782,10 @@ msgstr ""
 msgid "Back to options"
 msgstr ""
 
+#: src/app/scenes/ScenesPanel.tsx
+msgid "Back to scenes"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Backups"
 msgstr ""

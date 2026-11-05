@@ -784,6 +784,10 @@ msgstr "Partes finales: {0}"
 msgid "Back to options"
 msgstr "Volver a las opciones"
 
+#: src/app/scenes/ScenesPanel.tsx
+msgid "Back to scenes"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Backups"
 msgstr "Copias de seguridad"

@@ -784,6 +784,10 @@ msgstr "Nachspann: {0}"
 msgid "Back to options"
 msgstr "Zurück zu den Optionen"
 
+#: src/app/scenes/ScenesPanel.tsx
+msgid "Back to scenes"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Backups"
 msgstr "Sicherungen"
