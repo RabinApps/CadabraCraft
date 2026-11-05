@@ -276,6 +276,11 @@ msgstr "{0} מילים"
 msgid "{0} words sit outside every scene."
 msgstr "{0} מילים נמצאות מחוץ לכל סצנה."
 
+#. placeholder {0}: scene.synopsis
+#: src/app/board/SceneCard.tsx
+msgid "{0}, edit synopsis of {title}"
+msgstr "{0}, עריכת התקציר של {title}"
+
 #. placeholder {0}: nativeName(e.language)
 #. placeholder {1}: e.translated
 #. placeholder {2}: e.total
@@ -589,6 +594,10 @@ msgstr "הוספת {title}"
 msgid "Add a synopsis"
 msgstr "הוספת תקציר"
 
+#: src/app/board/SceneCard.tsx
+msgid "Add a synopsis to {title}"
+msgstr "הוספת תקציר ל{title}"
+
 #: src/app/references/ReferenceDetails.tsx
 msgid "Add a tag"
 msgstr "הוספת תגית"
@@ -822,6 +831,7 @@ msgstr "מחבר"
 msgid "Automatic"
 msgstr "אוטומטי"
 
+#: src/app/board/SceneBoard.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
@@ -843,10 +853,6 @@ msgstr "חלקי סיום"
 #: src/editor/FindResults.tsx
 msgid "Back matter: {0}"
 msgstr "חלקי סיום: {0}"
-
-#: src/app/board/SceneBoard.tsx
-msgid "Back to editor"
-msgstr "חזרה לעורך"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Back to entries"
@@ -1935,10 +1941,6 @@ msgstr "עריכת {title}"
 #: src/app/shell/Details.tsx
 msgid "Edit details"
 msgstr "עריכת פרטים"
-
-#: src/app/board/SceneCard.tsx
-msgid "Edit synopsis of {title}"
-msgstr "עריכת התקציר של {title}"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"

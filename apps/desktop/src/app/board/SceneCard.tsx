@@ -170,7 +170,12 @@ export function SceneCard({
       ) : (
         <button
           type="button"
-          aria-label={t`Edit synopsis of ${title}`}
+          // The name starts with the words on the button (WCAG 2.5.3) and then says whose synopsis it is.
+          aria-label={
+            scene.synopsis
+              ? t`${scene.synopsis}, edit synopsis of ${title}`
+              : t`Add a synopsis to ${title}`
+          }
           onClick={() => setEditing(true)}
           className={cx(
             "rounded-md px-1 py-1 text-start font-book text-sm break-words hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent max-md:min-h-11",

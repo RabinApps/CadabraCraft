@@ -46,8 +46,11 @@ const list = (page: Page, chapter: string) =>
   page.getByRole("list", { name: `Scenes in ${chapter}` });
 const cardTitles = (page: Page, chapter: string) =>
   list(page, chapter).locator("[data-scene-card] h3").allTextContents();
+/** The synopsis button of a card: its name starts with the synopsis (or "Add a synopsis") and ends with the scene's title. */
+const synopsis = (page: Page, title: string) =>
+  page.getByRole("button", { name: new RegExp(`(synopsis of|Add a synopsis to) ${title}$`) });
 const grip = (page: Page, title: string) => page.getByRole("button", { name: `Reorder ${title}` });
-const back = (page: Page) => page.getByRole("button", { name: "Back to editor" }).click();
+const back = (page: Page) => page.getByRole("button", { name: "Back", exact: true }).click();
 const runCommand = (page: Page, id: string) =>
   page.evaluate(
     (c) =>
@@ -110,12 +113,10 @@ test.describe("scene board", () => {
   }) => {
     await book(page);
     await openBoard(page);
-    await page.getByRole("button", { name: "Edit synopsis of Dawn" }).click();
+    await synopsis(page, "Dawn").click();
     await page.getByLabel("Synopsis of Dawn").fill("The harbour wakes to bad news.");
     await page.getByLabel("Synopsis of Dawn").blur();
-    await expect(page.getByRole("button", { name: "Edit synopsis of Dawn" })).toContainText(
-      "bad news",
-    );
+    await expect(synopsis(page, "Dawn")).toContainText("bad news");
     await page.getByLabel("Point of view of Dawn").fill("Mara");
     await page.getByLabel("Point of view of Dawn").blur();
     await page.getByLabel("Status of Dawn").selectOption("draft");
@@ -128,12 +129,10 @@ test.describe("scene board", () => {
         status: "draft",
       });
     // Escape leaves the synopsis as it was.
-    await page.getByRole("button", { name: "Edit synopsis of Dawn" }).click();
+    await synopsis(page, "Dawn").click();
     await page.getByLabel("Synopsis of Dawn").fill("never saved");
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("button", { name: "Edit synopsis of Dawn" })).toContainText(
-      "bad news",
-    );
+    await expect(synopsis(page, "Dawn")).toContainText("bad news");
     await expectWhole(page);
   });
 

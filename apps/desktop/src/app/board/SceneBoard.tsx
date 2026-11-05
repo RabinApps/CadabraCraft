@@ -181,7 +181,7 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-surface px-4 py-2">
-        <IconButton icon={ArrowLeft} label={t`Back to editor`} onClick={onBack} />
+        <IconButton icon={ArrowLeft} label={t`Back`} onClick={onBack} />
         <Layers size={16} aria-hidden className="text-ink-muted" />
         <h1 className="font-book text-base font-semibold">{t`Scene board`}</h1>
         <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted">

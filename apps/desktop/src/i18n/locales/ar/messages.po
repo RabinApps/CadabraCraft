@@ -276,6 +276,11 @@ msgstr "{0} كلمة"
 msgid "{0} words sit outside every scene."
 msgstr "{0} كلمة خارج كل المشاهد."
 
+#. placeholder {0}: scene.synopsis
+#: src/app/board/SceneCard.tsx
+msgid "{0}, edit synopsis of {title}"
+msgstr "{0}، تعديل ملخص {title}"
+
 #. placeholder {0}: nativeName(e.language)
 #. placeholder {1}: e.translated
 #. placeholder {2}: e.total
@@ -589,6 +594,10 @@ msgstr "إضافة {title}"
 msgid "Add a synopsis"
 msgstr "إضافة ملخص"
 
+#: src/app/board/SceneCard.tsx
+msgid "Add a synopsis to {title}"
+msgstr "إضافة ملخص إلى {title}"
+
 #: src/app/references/ReferenceDetails.tsx
 msgid "Add a tag"
 msgstr "إضافة وسم"
@@ -822,6 +831,7 @@ msgstr "المؤلف"
 msgid "Automatic"
 msgstr "تلقائية"
 
+#: src/app/board/SceneBoard.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
@@ -843,10 +853,6 @@ msgstr "الصفحات الختامية"
 #: src/editor/FindResults.tsx
 msgid "Back matter: {0}"
 msgstr "الصفحات الختامية: {0}"
-
-#: src/app/board/SceneBoard.tsx
-msgid "Back to editor"
-msgstr "العودة إلى المحرر"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Back to entries"
@@ -1935,10 +1941,6 @@ msgstr "تعديل {title}"
 #: src/app/shell/Details.tsx
 msgid "Edit details"
 msgstr "تحرير التفاصيل"
-
-#: src/app/board/SceneCard.tsx
-msgid "Edit synopsis of {title}"
-msgstr "تعديل ملخص {title}"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"

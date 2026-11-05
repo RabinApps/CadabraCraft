@@ -274,6 +274,11 @@ msgstr ""
 msgid "{0} words sit outside every scene."
 msgstr ""
 
+#. placeholder {0}: scene.synopsis
+#: src/app/board/SceneCard.tsx
+msgid "{0}, edit synopsis of {title}"
+msgstr ""
+
 #. placeholder {0}: nativeName(e.language)
 #. placeholder {1}: e.translated
 #. placeholder {2}: e.total
@@ -587,6 +592,10 @@ msgstr ""
 msgid "Add a synopsis"
 msgstr ""
 
+#: src/app/board/SceneCard.tsx
+msgid "Add a synopsis to {title}"
+msgstr ""
+
 #: src/app/references/ReferenceDetails.tsx
 msgid "Add a tag"
 msgstr ""
@@ -820,6 +829,7 @@ msgstr ""
 msgid "Automatic"
 msgstr ""
 
+#: src/app/board/SceneBoard.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
@@ -840,10 +850,6 @@ msgstr ""
 #. placeholder {0}: r.title
 #: src/editor/FindResults.tsx
 msgid "Back matter: {0}"
-msgstr ""
-
-#: src/app/board/SceneBoard.tsx
-msgid "Back to editor"
 msgstr ""
 
 #: src/app/codex/CodexDialog.tsx
@@ -1932,10 +1938,6 @@ msgstr ""
 
 #: src/app/shell/Details.tsx
 msgid "Edit details"
-msgstr ""
-
-#: src/app/board/SceneCard.tsx
-msgid "Edit synopsis of {title}"
 msgstr ""
 
 #: src/app/export/TypstSpread.tsx

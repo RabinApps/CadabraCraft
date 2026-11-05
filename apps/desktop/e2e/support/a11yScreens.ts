@@ -68,7 +68,7 @@ const sceneBoard = async (page: Page) => {
   await expect(page.getByRole("status").first()).toContainText("Saved");
   await page.getByRole("button", { name: "Scene board" }).click();
   await shown(page.getByRole("heading", { name: "Scene board", level: 1 }));
-  await shown(page.getByRole("button", { name: "Edit synopsis of Untitled scene" }));
+  await shown(page.getByRole("button", { name: "Add a synopsis to Untitled scene" }));
 };
 
 const contentsRegion = (page: Page) => page.getByRole("region", { name: "Contents", exact: true });
