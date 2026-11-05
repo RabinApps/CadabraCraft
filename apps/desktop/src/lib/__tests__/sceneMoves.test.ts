@@ -225,3 +225,16 @@ describe("moves never lose a block or repeat an id", () => {
     }
   });
 });
+
+describe("scene helpers on odd documents", () => {
+  it("finds no scenes in a missing or empty document, and a scene without an id gets an empty one", () => {
+    expect(sceneIdsOf(null)).toEqual([]);
+    expect(sceneIdsOf({ type: "doc" })).toEqual([]);
+    expect(sceneIdsOf({ type: "doc", content: [{ type: "scene" }] })).toEqual([""]);
+  });
+  it("leaves a paragraph when the last block is taken out, and removes nothing from a missing document", () => {
+    const doc = { type: "doc", content: [{ type: "scene", attrs: { id: "a" } }] };
+    expect(removeScene(doc, "a")!.doc).toEqual({ type: "doc", content: [{ type: "paragraph" }] });
+    expect(reorderScenes(doc, "zz", 0)).toBeNull();
+  });
+});

@@ -295,3 +295,31 @@ describe("addScenesIn", () => {
     expect(ids(1)).toEqual(["d"]);
   });
 });
+
+describe("scene edits in unusual books", () => {
+  it("skips a chapter whose file is missing, and does not move a scene to where it already is", async () => {
+    await twoChapters();
+    disk.delete(file(1));
+    expect(await a().moveScene("a", "ch-2", 0)).toBe(false);
+    expect(await a().patchSceneIn("ch-2", "d", { title: "x" })).toBe(false);
+    expect(await a().moveScene("a", "ch-1", 0)).toBe(false);
+  });
+
+  it("names an untitled scene in the undo label", async () => {
+    await twoChapters();
+    disk.set(
+      file(1),
+      JSON.stringify({
+        type: "doc",
+        content: [
+          heading("Two"),
+          { type: "scene", attrs: { id: "u" }, content: [para("untitled")] },
+        ],
+      }),
+    );
+    expect(await a().patchSceneIn("ch-2", "u", { status: "draft" })).toBe(true);
+    expect(s().history.undo.at(-1)!.label).toMatch(/scene/);
+    expect(await a().moveScene("u", "ch-1", 0)).toBe(true);
+    expect(s().history.undo.at(-1)!.label).toMatch(/scene/);
+  });
+});
