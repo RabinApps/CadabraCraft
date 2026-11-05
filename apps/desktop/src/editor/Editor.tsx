@@ -24,6 +24,7 @@ import { registerHeadingJump } from "./headingJump";
 import { docLeaves, wordOffset, wordsFrom } from "./pagination/exact";
 import { alignWord } from "../lib/pageWords";
 import { takePreviewJump } from "../state/previewJump";
+import { useCommentAnchoring } from "./useCommentAnchoring";
 import { modalOpen, useRegisterCommands } from "../state/commands";
 import { useProject } from "../state/project/index";
 import { Modal } from "../ui/Dialog";
@@ -221,6 +222,8 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
     editor,
     selector: ({ editor: e }) => !!e && !e.state.selection.empty,
   });
+  // The comments rail anchors a new thread by putting a `comment` mark on what is selected here.
+  useCommentAnchoring(editor, hasSelection);
 
   const close = () => {
     askingRef.current = false;

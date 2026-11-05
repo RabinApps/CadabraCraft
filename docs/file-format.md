@@ -10,6 +10,7 @@ MyBook/
 ├── back-matter/          acknowledgments, about the author... (same JSON format, `NN-slug.json`)
 ├── assets/               images, fonts
 ├── references/           research files the author keeps beside the book (see References)
+├── comments/             one JSON file per page with that page's comment threads (see Comments)
 ├── exports/              generated EPUB/PDF (safe to delete)
 └── .cadabra/             local state, cache, backups (exclude from sync)
 ```
@@ -111,6 +112,36 @@ MyBook/
 
 - A chapter, front matter or back matter entry may carry `icon` (a Lucide icon name such as `feather`, lower case letters, digits and `-`, at most 40 characters) and a chapter may carry `dropCap` (`true` or `false`, overriding the book's `dropCap` for that chapter; refused on front and back matter, which never have a big first letter). `icon` is shown in the app's chapter list and is never exported. A name the app does not know is kept and shown as no icon, so a file written by a newer app opens in an older one and the name survives a save. Both were added in formatVersion 8.
 - A front matter or back matter entry may carry `verticalCenter` (`true` or `false`, formatVersion 9): `true` centres the page's content block vertically between the top and bottom margins, `false` keeps it at the top, and absent follows the template (`print.matter.verticalCenter` lists the kinds a template centres; every built-in one centres `title-page`, `dedication` and `epigraph`). It is used by Page view, Read mode, the PDF and the EPUB; Word, RTF and Markdown have no page layout and ignore it. A page that needs more than one page is never centred. It is refused on chapters, on `contents` pages and on `copyright` pages (which have a layout of their own), and any value but `true` or `false` is refused.
+
+## Comments
+
+- A comment thread is anchored by a `comment` mark in the page's own JSON: `{ "type": "comment", "attrs": { "id": "t-1" } }`. The mark is not inclusive (typing after the passage does not join the thread) and it is never exported: every exporter writes the text and drops the mark.
+- The thread's words live beside the book, in `comments/<page-id>.json`, so an editor can read them without the app:
+
+```json
+{
+  "threads": [
+    {
+      "id": "t-1",
+      "author": "Alex",
+      "body": "Is this the right storm?",
+      "created": "2026-11-04T08:00:00.000Z",
+      "resolved": false,
+      "replies": [
+        {
+          "author": "Sam",
+          "body": "Agreed, but move it later.",
+          "created": "2026-11-04T09:00:00.000Z"
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `id` matches the mark in the page and must be unique within the page (a letter, then letters, digits, `_` or `-`, at most 64 characters, the same rule as page ids). `author` is one line of at most 200 characters. `body` is at most 10,000 characters and may hold line breaks and tabs. `created` is a date and time. `resolved` is `true` or `false`. A thread holds at most 200 replies and a page at most 500 threads. An unknown key, a missing field or a value of the wrong type is refused.
+- A thread whose anchored text is deleted is **not** deleted with it: the app keeps the thread and shows it as detached (its id is no longer in the page), because a person's words are never thrown away by an edit. Detached threads are still never exported.
+- `comments/` is part of the book, not of `.cadabra/`, so it belongs in a synced folder: that is how a co-author or an editor sees the notes.
 
 ## Front and back matter
 

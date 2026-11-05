@@ -15,6 +15,7 @@ import {
   errMsg,
   isAssetPath,
   isLangTag,
+  isValidCommentId,
   normalizeLinkUrl,
   safeHref,
   parseTextAlign,
@@ -78,6 +79,24 @@ export const Lang = Mark.create({
     { tag: "span[lang]", getAttrs: (el) => (isLangTag(el.getAttribute("lang")) ? null : false) },
   ],
   renderHTML: ({ HTMLAttributes }) => ["span", HTMLAttributes, 0],
+});
+
+/**
+ * A comment thread's anchor: `attrs.id` names the thread in the page's comments sidecar (`comments/<page-id>.json`). Not
+ * inclusive, so typing after a commented passage does not join the thread. The mark is a writing tool and is never printed:
+ * every exporter writes the text and drops the mark.
+ */
+export const Comment = Mark.create({
+  name: "comment",
+  inclusive: false,
+  addAttributes: () => ({ id: { default: null } }),
+  parseHTML: () => [
+    {
+      tag: "span[data-comment]",
+      getAttrs: (el) => (isValidCommentId(el.getAttribute("data-comment")) ? null : false),
+    },
+  ],
+  renderHTML: ({ HTMLAttributes }) => ["span", { "data-comment": HTMLAttributes.id }, 0],
 });
 
 /** Inline footnote; its text lives in the node content. */
@@ -389,6 +408,7 @@ export const extensions = [
   Superscript,
   Subscript,
   Lang,
+  Comment,
   Footnote,
   BookTable,
   BookTableRow,
@@ -489,6 +509,7 @@ export function chapterDocProblem(doc: unknown): string | null {
   let badChecked = false;
   let badDecorative = false;
   let badLang: unknown = null;
+  let badComment: unknown = null;
   let badAlign: string | null = null;
   const walk = (n: RawNode) => {
     if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
@@ -497,6 +518,8 @@ export function chapterDocProblem(doc: unknown): string | null {
         badHref ??= String(m.attrs?.href ?? "");
     for (const m of n.marks ?? [])
       if (m.type === "lang" && !isLangTag(m.attrs?.lang)) badLang ??= m.attrs?.lang ?? "";
+    for (const m of n.marks ?? [])
+      if (m.type === "comment" && !isValidCommentId(m.attrs?.id)) badComment ??= m.attrs?.id ?? "";
     if (
       n.type === "taskItem" &&
       n.attrs?.checked !== undefined &&
@@ -520,6 +543,8 @@ export function chapterDocProblem(doc: unknown): string | null {
     return `link ${JSON.stringify(badHref)} is not allowed (only http, https and mailto links)`;
   if (badLang !== null)
     return `language ${JSON.stringify(badLang)} is not allowed (a BCP 47 tag of letters, digits and hyphens, at most 35 characters)`;
+  if (badComment !== null)
+    return `comment ${JSON.stringify(badComment)} is not allowed (a thread id of a letter, then letters, digits, _ or -, at most 64 characters)`;
   if (badAlign !== null) return badAlign;
   if (badChecked) return "a task item's checked value must be true or false";
   if (badDecorative) return "an image's decorative value must be true or false";

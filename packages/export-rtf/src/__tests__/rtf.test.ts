@@ -405,6 +405,12 @@ describe("blocks", () => {
   it("writes scene breaks as a centred #", () => {
     expect(one({ type: "sceneBreak" })).toContain("\\fi0\\qc #\\par");
   });
+
+  it("writes page breaks as a \\page", () => {
+    const doc = one(p(t("Before.")), { type: "pageBreak" }, p(t("After.")));
+    expect(doc).toContain("\\page");
+    expect(doc).toContain("After.");
+  });
   it("writes figcaptions", () => {
     const d = one({ type: "figcaption", content: [t("Cap")] });
     expect(d).toContain("\\sl240\\slmult1\\sb120\\sa240\\li0\\ri0\\fi0\\qc\\i Cap\\par");

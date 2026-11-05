@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { IconButton } from "../../ui/Button";
 import { overlayClass, panelClass } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
+import { CommentsPanel } from "../comments/CommentsPanel";
 import { ReferencesPanel } from "../references/ReferencesPanel";
 import { Sidebar } from "./Sidebar";
 
@@ -75,6 +76,35 @@ export function ReferencesSheet({
               onOpenId(id);
             }}
           />
+        </D.Content>
+      </D.Portal>
+    </D.Root>
+  );
+}
+
+/** The comments rail as a sheet (bottom on phones, right on tablets), where the side panel is hidden. */
+export function CommentsSheet({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <D.Root open={open} onOpenChange={onOpenChange}>
+      <D.Portal>
+        <D.Overlay className={cx(overlayClass, "xl:hidden")} />
+        <D.Content
+          aria-describedby={undefined}
+          className={cx(
+            panelClass,
+            "inset-x-0 bottom-0 h-[80dvh] overflow-hidden rounded-t-lg bg-surface xl:hidden",
+            "md:inset-y-0 md:inset-e-0 md:inset-s-auto md:h-auto md:w-100 md:rounded-none md:border-e-0",
+          )}
+        >
+          <D.Title className="sr-only">{t`Comments`}</D.Title>
+          <CommentsPanel onClose={() => onOpenChange(false)} />
         </D.Content>
       </D.Portal>
     </D.Root>

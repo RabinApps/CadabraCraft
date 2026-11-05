@@ -19,6 +19,7 @@ const MARK_TYPES: Mark["type"][] = [
   "subscript",
   "link",
   "lang",
+  "comment",
 ];
 
 /** The paragraph-formatting control words of `o` (every one is written, so nothing depends on inherited state). Consumes a pending page break. */

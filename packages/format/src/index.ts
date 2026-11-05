@@ -12,3 +12,4 @@ export * from "./outline";
 export * from "./toc";
 export * from "./contents";
 export * from "./icons";
+export * from "./comments";

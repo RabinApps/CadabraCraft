@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createAssetActions } from "./assets";
 import { createAudioActions } from "./audio";
+import { createCommentActions } from "./comments";
 import { createContext } from "./context";
 import { createEditionActions } from "./editions";
 import { createExportActions } from "./exports";
@@ -63,6 +64,8 @@ export const useProject = create<ProjectState>((set, get) => {
     trash: [],
     history: NO_HISTORY,
     recovery: [],
+    comments: [],
+    commentsPageId: null,
     referenceNotices: [],
     removedReferences: [],
     referenceImport: null,
@@ -81,6 +84,7 @@ export const useProject = create<ProjectState>((set, get) => {
       ...createAudioActions(ctx),
       ...createVoiceActions(ctx),
       ...createFontActions(ctx),
+      ...createCommentActions(ctx),
     },
   };
 });

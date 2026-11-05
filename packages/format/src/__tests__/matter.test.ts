@@ -267,6 +267,33 @@ describe("a blank page the author adds anywhere", () => {
     expect(sectionOf(end.manifest, end.entry.id)).toBe("chapter");
   });
 
+  it("goes in the back matter when the page it follows is there", () => {
+    const m = addBackMatter(book(), "acknowledgments", "Back page").manifest;
+    const last = m.backMatter[0]!;
+    const r = addBlank(m, last.id, "Blank page");
+    expect(ids(r.manifest.backMatter)).toEqual([last.id, r.entry.id]);
+    expect(sectionOf(r.manifest, r.entry.id)).toBe("back");
+    expect(() => validateManifest(r.manifest)).not.toThrow();
+  });
+
+  it("steps past an id and a file name already taken elsewhere in the book", () => {
+    const m = addChapter(addChapter(book(), "Two").manifest, "Three").manifest;
+    const taken = {
+      ...m,
+      frontMatter: [
+        {
+          id: "ch-4",
+          kind: "custom" as const,
+          titles: { en: "Taken" },
+          files: { en: "manuscript/004-blank-page.json" },
+        },
+      ],
+    };
+    const r = addBlank(taken, undefined, "Blank page");
+    expect(r.entry.id).toBe("ch-5");
+    expect(Object.values(r.entry.files)[0]).toBe("manuscript/005-blank-page.json");
+  });
+
   it("has an empty document, so no edition has to translate it", () => {
     const r = addBlank(book(), undefined, "Blank page");
     expect(isTranslated(r.entry, "fr", r.manifest.editions)).toBe(true);

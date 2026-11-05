@@ -349,3 +349,14 @@ describe("parsePageReport marks", () => {
       expect(parse(bad)).toBeUndefined();
   });
 });
+
+describe("comment marks", () => {
+  it("writes the text and drops the mark", () => {
+    const mark: Mark = { type: "comment", attrs: { id: "t-1" } };
+    const src = buildTypst(book, [
+      chapter({ type: "paragraph", content: [t("the storm", [mark])] }),
+    ]);
+    expect(src).toContain("the storm");
+    expect(src).not.toContain("t-1");
+  });
+});

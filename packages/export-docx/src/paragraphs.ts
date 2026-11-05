@@ -15,6 +15,7 @@ const MARK_TYPES: Mark["type"][] = [
   "subscript",
   "link",
   "lang",
+  "comment",
 ];
 
 export function para(inner: string, o: ParaOpts, ctx: Ctx): string {

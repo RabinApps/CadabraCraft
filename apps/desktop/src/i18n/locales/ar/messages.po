@@ -348,6 +348,10 @@ msgstr "{n, plural, one {حُذفت صفحة واحدة غير مترجمة} two
 msgid "{name} is already in this book. Using the existing file."
 msgstr "{name} موجود بالفعل في هذا الكتاب. سيُستخدم الملف الموجود."
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "{open} open"
+msgstr ""
+
 #: src/app/references/PdfPreview.tsx
 msgid "{page} / {pages}"
 msgstr "{page} / {pages}"
@@ -452,6 +456,10 @@ msgstr "وسم BCP 47 مثل fr أو fr-CA أو zh-Hans. تستخدمه قارئ
 msgid "A change made outside the app could not be read: {why}. The version you have open is kept; saving keeps a copy of the changed file. You can also restore an earlier version from History."
 msgstr "تعذّرت قراءة تغيير أُجري خارج التطبيق: {why}. تبقى النسخة المفتوحة لديك؛ وسيحتفظ الحفظ بنسخة من الملف المتغيّر. يمكنك أيضًا استعادة نسخة سابقة من السجل."
 
+#: src/editor/useCommentAnchoring.ts
+msgid "A comment cannot go here"
+msgstr ""
+
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image. Choose another file."
 msgstr "يجب أن يكون الغلاف صورة PNG أو JPEG أو WebP. اختر ملفًا آخر."
@@ -463,6 +471,10 @@ msgstr "هناك تنزيل قيد التشغيل بالفعل"
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
 msgstr "عُثر في السجل على نسخة من هذه الصفحة أحدث من المحفوظة في كتابك، مثلًا بعدما أعاد مجلد مزامنة ملفًا أقدم. يبقى نصك المحفوظ على أي حال كلقطة."
+
+#: src/state/project/comments.ts
+msgid "A page holds at most {MAX_COMMENT_THREADS} comments."
+msgstr ""
 
 #: src/state/project/exports.ts
 msgid "A PDF export is already running"
@@ -531,6 +543,10 @@ msgstr "إضافة فصل"
 #: src/app/shell/menuModel.ts
 msgid "Add Column After"
 msgstr "إضافة عمود بعده"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Add comment"
+msgstr ""
 
 #: src/state/project/toc.ts
 msgid "Add contents entry"
@@ -797,6 +813,11 @@ msgstr "الحرف الأول الكبير: افتراضي القالب"
 msgid "Bird"
 msgstr "طائر"
 
+#: src/app/shell/menuModel.ts
+#: src/app/shell/useKindLabels.ts
+msgid "Blank page"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Bleed"
 msgstr "حافة القص"
@@ -907,6 +928,7 @@ msgstr "شيفرة CadabraCraft المصدرية متاحة للاطلاع. هن
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft محدّث."
 
+#: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
@@ -1024,8 +1046,8 @@ msgid "Chapter"
 msgstr "الفصل"
 
 #. placeholder {0}: chapters.length + 1
-#. placeholder {0}: manifest!.chapters.length + 1
-#. placeholder {0}: manifest.chapters.length + 1
+#. placeholder {0}: chaptersOf(manifest!).length + 1
+#. placeholder {0}: chaptersOf(manifest).length + 1
 #: src/app/hooks/useAppMenu.ts
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
@@ -1180,6 +1202,10 @@ msgstr "إغلاق"
 msgid "Close chapters"
 msgstr "إغلاق الفصول"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Close comments"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Close Project"
 msgstr "إغلاق المشروع"
@@ -1233,6 +1259,17 @@ msgstr "لوحة الأوامر"
 #: src/app/shell/menuModel.ts
 msgid "Command Palette…"
 msgstr "لوحة الأوامر…"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Comment on the selection"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/Drawers.tsx
+msgid "Comments"
+msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Compared with the current text"
@@ -1434,6 +1471,11 @@ msgstr "تعذّرت استعادة هذه الصفحة ({reason}). لم يتغ�
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
 msgstr "تعذّرت استعادة هذا الإصدار ({0}). لم يتغيّر نصك الحالي. حاول مرة أخرى، أو اختر إصدارًا آخر."
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/comments.ts
+msgid "Could not save the comments: {0}. Try again."
+msgstr ""
 
 #. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
@@ -1941,6 +1983,10 @@ msgstr "التصفية حسب الوسم"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Filter by type"
 msgstr "التصفية حسب النوع"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Filter comments"
+msgstr ""
 
 #: src/editor/FindBar.tsx
 msgid "Find"
@@ -2800,6 +2846,10 @@ msgstr "مجلد الكتاب الجديد"
 msgid "New Chapter"
 msgstr "فصل جديد"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "New comment"
+msgstr ""
+
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
 msgid "New project"
@@ -2898,6 +2948,10 @@ msgstr "بلا مفتاح"
 msgid "No matches"
 msgstr "لا توجد تطابقات"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "No open comments on this page."
+msgstr ""
+
 #: src/app/references/Previews.tsx
 msgid "No preview for this file type"
 msgstr "لا توجد معاينة لهذا النوع من الملفات"
@@ -2913,6 +2967,10 @@ msgstr "لا مشاريع حديثة"
 #: src/app/references/ReferencesPanel.tsx
 msgid "No references match."
 msgstr "لا توجد مراجع مطابقة."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "No resolved comments on this page."
+msgstr ""
 
 #: src/lib/search/findHelpers.ts
 msgid "No results"
@@ -3062,6 +3120,7 @@ msgstr "واحد في كل سطر: رموز BISAC مثل FIC014000، أو كلم
 msgid "Only in the current text"
 msgstr "في النص الحالي فقط"
 
+#: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "Open"
 msgstr "فتح"
@@ -3069,6 +3128,10 @@ msgstr "فتح"
 #: src/app/settings/Settings.tsx
 msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 msgstr "افتح سجل الفصل من قائمته في قائمة الفصول للمقارنة والاستعادة. أبقِ ‎.cadabra خارج المزامنة السحابية: اللقطات تخص هذا الحاسوب."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Open a page to see its comments."
+msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Open book"
@@ -3164,6 +3227,11 @@ msgstr "الصفحة {shown} من ≈ {0}"
 #: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {0}"
 msgstr "الصفحة ≈ {shown} من {0}"
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Page break"
+msgstr ""
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
@@ -3579,6 +3647,10 @@ msgstr "تُزال الإدخالات المعاد تسميتها والمخفي
 msgid "Render an audiobook, or export a Word or Markdown manuscript for an agent or editor."
 msgstr "أنشئ كتابًا صوتيًا، أو صدّر مخطوطة Word أو Markdown لوكيل أو محرر."
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reopen"
+msgstr ""
+
 #. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
@@ -3625,6 +3697,19 @@ msgstr "استُبدل {count} في الكتاب"
 msgid "Replaced {count} in the book, in {languages} languages"
 msgstr "تم استبدال {count} في الكتاب، في {languages} لغات"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply"
+msgstr ""
+
+#. placeholder {0}: thread.author
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply to {0}"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply…"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset"
 msgstr "إعادة تعيين"
@@ -3656,6 +3741,14 @@ msgstr "إعادة التعيين إلى الافتراضي"
 #: src/app/toc/TocEditor.tsx
 msgid "Reset to outline"
 msgstr "إعادة التعيين إلى المخطط"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Resolve"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Resolved"
+msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -3844,6 +3937,10 @@ msgstr "تحديد الكل"
 #: src/editor/Editor.tsx
 msgid "Select text inside one cell or paragraph to convert it"
 msgstr "حدّد نصًا داخل خلية أو فقرة واحدة لتحويله"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Select text to comment on"
+msgstr ""
 
 #: src/editor/useLangDialog.ts
 msgid "Select the text first."
@@ -4287,6 +4384,19 @@ msgstr "يستخدم الكتاب نمط نص لا يستطيع تصدير EPUB 
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "ملف cadabra.json الخاص بالكتاب ليس كائن JSON. استعده من السجل أو من نسخة احتياطية في ‎.cadabra/backups."
 
+#: src/state/project/comments.ts
+msgid "The comments for this page are not valid JSON, so they were not opened. The file was left untouched."
+msgstr ""
+
+#: src/state/project/comments.ts
+msgid "The comments for this page could not be opened: {problem}. The file was left untouched."
+msgstr ""
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/comments.ts
+msgid "The comments for this page could not be read: {0}. The file was left as it is."
+msgstr ""
+
 #: src/state/project/contentsPreview.ts
 msgid "The contents page is not in the typeset book."
 msgstr "صفحة المحتويات غير موجودة في الكتاب المنضّد."
@@ -4409,6 +4519,10 @@ msgstr "تعذّر تطبيق القالب: {why}. حاول مرة أخرى أو
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so the bundled serif is used."
 msgstr "خط الطباعة في القالب غير مثبّت هنا، لذلك يُستخدم الخط ذو الحواف المضمّن."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "The text this was attached to is gone; the comment is kept."
+msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."

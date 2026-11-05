@@ -19,6 +19,7 @@ import { StatusBar } from "./StatusBar";
 import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { Details } from "./Details";
+import { CommentsPanel } from "../comments/CommentsPanel";
 import { ReferencesPanel } from "../references/ReferencesPanel";
 import { ReferenceViewer } from "../references/ReferenceViewer";
 import { BookDetailsDialog } from "../dialogs/BookDetailsDialog";
@@ -37,7 +38,7 @@ import { UpdateDialog } from "../dialogs/UpdateDialog";
 import { RecoverDialog } from "../dialogs/RecoverDialog";
 import { useUpdates } from "../../state/updates";
 import { Sidebar } from "./Sidebar";
-import { ChaptersDrawer, ReferencesSheet } from "./Drawers";
+import { ChaptersDrawer, CommentsSheet, ReferencesSheet } from "./Drawers";
 import { QuickNav } from "../quicknav/QuickNav";
 import { OpeningSkeleton } from "./OpeningSkeleton";
 import { Templates } from "../export/Templates";
@@ -109,13 +110,14 @@ function AppScreens() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [refsSheet, setRefsSheet] = useState(false);
+  const [commentsSheet, setCommentsSheet] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("epub");
   const openExport = (format: ExportFormat) => {
     setExportFormat(format);
     setExportOpen(true);
   };
-  const { focus: focusPref, details, references, set: setLayout } = useLayout();
+  const { focus: focusPref, details, references, comments, set: setLayout } = useLayout();
   const reader = mode === "read";
   const { importingInto, setImportingInto } = useStartDialogs();
   // Focus mode is for writing; reading mode already has its own bare layout.
@@ -142,6 +144,10 @@ function AppScreens() {
     const id = setTimeout(() => setStats(root, stats), 1000);
     return () => clearTimeout(id);
   }, [root, manifest, currentId, bookWords, setStats]);
+  // The rail shows one page's threads; they are read whenever the open page changes.
+  useEffect(() => {
+    if (open) void actions.loadComments(currentId);
+  }, [open, currentId, actions]);
   const sessionWritten = useSessionWords(root, activeLanguage, bookWords);
   const sessionGoal = useSettings((s) => s.sessionGoal);
   useEffect(() => {
@@ -288,6 +294,7 @@ function AppScreens() {
           onSettings={() => setView("settings")}
           onDetails={() => setDetailsOpen(true)}
           onReferences={() => setRefsSheet(true)}
+          onComments={() => setCommentsSheet(true)}
           run={run}
         />
       )}
@@ -352,15 +359,17 @@ function AppScreens() {
             />
           )}
         </main>
-        {!focus && !reader && (details || references) && (
+        {!focus && !reader && (details || references || comments) && (
           <aside
-            aria-label={references ? t`References` : t`Details`}
+            aria-label={comments ? t`Comments` : references ? t`References` : t`Details`}
             className={cx(
               "hidden shrink-0 overflow-y-auto border-s border-border bg-surface xl:block",
-              references ? "w-80" : "w-70",
+              references || comments ? "w-80" : "w-70",
             )}
           >
-            {references ? (
+            {comments ? (
+              <CommentsPanel onClose={() => setLayout({ comments: false })} />
+            ) : references ? (
               <ReferencesPanel openId={viewingId} onOpen={setViewingId} />
             ) : (
               <Details
@@ -392,6 +401,7 @@ function AppScreens() {
         onOpenFonts={() => setView("fonts")}
       />
       <ChaptersDrawer open={drawer} onOpenChange={setDrawer} />
+      <CommentsSheet open={commentsSheet} onOpenChange={setCommentsSheet} />
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
       <ImportDialog
         open={importingInto}

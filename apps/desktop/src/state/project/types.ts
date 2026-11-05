@@ -1,4 +1,12 @@
-import type { Manifest, Outlines, Reference, Tree, TocDepth, TocItem } from "@cadabracraft/format";
+import type {
+  CommentThread,
+  Manifest,
+  Outlines,
+  Reference,
+  Tree,
+  TocDepth,
+  TocItem,
+} from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
@@ -232,6 +240,10 @@ export interface ProjectState {
   referenceImport: ReferenceImport | null;
   /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
   recovery: Recovery[];
+  /** The open page's comment threads, as `comments/<page-id>.json` holds them. */
+  comments: CommentThread[];
+  /** The page `comments` belong to; null when no page is open. */
+  commentsPageId: string | null;
   actions: ProjectActions &
     PageActions &
     HistoryActions &
@@ -245,7 +257,8 @@ export interface ProjectState {
     AudioActions &
     VoiceActions &
     FontActions &
-    EditionActions;
+    EditionActions &
+    CommentActions;
 }
 
 export interface ReferenceActions {
@@ -265,6 +278,19 @@ export interface ReferenceActions {
   /** Takes a reference out of the book and moves its file to the project trash. */
   removeReference: (id: string) => Promise<void>;
   dismissReferenceNotices: () => void;
+}
+
+export interface CommentActions {
+  /** Reads `comments/<page-id>.json` into `comments`: a missing file is an empty list, an unreadable one sets `notice`. */
+  loadComments: (pageId: string | null) => Promise<void>;
+  /** Adds a thread anchored to the text that carries `comment` mark `threadId`, and writes the file. */
+  addComment: (threadId: string, body: string) => Promise<void>;
+  /** Adds a reply to a thread, with the time it was written. */
+  replyComment: (threadId: string, body: string) => Promise<void>;
+  /** Marks a thread dealt with (or reopens it); the words stay either way. */
+  resolveComment: (threadId: string, resolved: boolean) => Promise<void>;
+  /** Forgets the threads in memory (the file is untouched); the next page load reads them again. */
+  dismissComments: () => void;
 }
 
 export interface TocActions {

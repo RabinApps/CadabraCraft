@@ -5,6 +5,7 @@ import {
   CaptionedImage,
   Footnote,
   Lang,
+  PageBreak,
   SceneBreak,
   SmallCaps,
   Subscript,
@@ -21,6 +22,7 @@ const call = (ext: unknown, key: string, ...args: unknown[]) =>
 describe("node and mark specs", () => {
   it.each([
     [SceneBreak, [{ tag: "hr.scene-break" }], ["hr", { class: "scene-break" }]],
+    [PageBreak, [{ tag: "hr.page-break" }], ["hr", { class: "page-break" }]],
     [Footnote, [{ tag: "span.footnote" }], ["span", { class: "footnote" }, 0]],
   ])("%# parse and render", (ext, parse, render) => {
     expect(call(ext, "parseHTML")).toEqual(parse);

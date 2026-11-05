@@ -40,6 +40,8 @@ const MARK_TAGS: Record<Mark["type"], (m: Mark) => [string, string]> = {
   link: (m) => [`<a href="${esc(m.attrs?.href ?? "")}">`, "</a>"],
   // `inline` has already checked the tag, so it is safe to write unescaped.
   lang: (m) => [`<span lang="${m.attrs!.lang}" xml:lang="${m.attrs!.lang}">`, "</span>"],
+  // Comments are a writing tool: the text is written and the mark is dropped.
+  comment: () => ["", ""],
 };
 
 interface Ctx {

@@ -35,8 +35,9 @@ Back to the [project README](../README.md).
 
 ## Planning
 
-| Doc                            | What it covers                                                                |
-| ------------------------------ | ----------------------------------------------------------------------------- |
-| [roadmap.md](roadmap.md)       | Ideas and follow-ups outside the current milestone                            |
-| [m1-ui-plan.md](m1-ui-plan.md) | The M1 UI implementation plan (historical; M1 is done)                        |
-| [seo-plan.md](seo-plan.md)     | SEO plan for cadabracraft.com: keywords, technical work, content, measurement |
+| Doc                                          | What it covers                                                                     |
+| -------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [roadmap.md](roadmap.md)                     | Ideas and follow-ups outside the current milestone                                 |
+| [plan-feature-gaps.md](plan-feature-gaps.md) | Sequenced plan for closing the competitor gaps: phases, sizes, dependencies, gates |
+| [m1-ui-plan.md](m1-ui-plan.md)               | The M1 UI implementation plan (historical; M1 is done)                             |
+| [seo-plan.md](seo-plan.md)                   | SEO plan for cadabracraft.com: keywords, technical work, content, measurement      |

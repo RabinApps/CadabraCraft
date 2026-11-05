@@ -348,6 +348,10 @@ msgstr "{n, plural, one {עמוד # שלא תורגם הושמט} other {# עמ�
 msgid "{name} is already in this book. Using the existing file."
 msgstr "{name} כבר נמצא בספר זה. משתמשים בקובץ הקיים."
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "{open} open"
+msgstr ""
+
 #: src/app/references/PdfPreview.tsx
 msgid "{page} / {pages}"
 msgstr "{page} / {pages}"
@@ -452,6 +456,10 @@ msgstr "תגית BCP 47 כמו fr,‏ fr-CA או zh-Hans. קוראי מסך וה
 msgid "A change made outside the app could not be read: {why}. The version you have open is kept; saving keeps a copy of the changed file. You can also restore an earlier version from History."
 msgstr "לא ניתן היה לקרוא שינוי שנעשה מחוץ לאפליקציה: {why}. הגרסה הפתוחה אצלכם נשמרת; בשמירה יישמר עותק של הקובץ ששונה. אפשר גם לשחזר גרסה קודמת מההיסטוריה."
 
+#: src/editor/useCommentAnchoring.ts
+msgid "A comment cannot go here"
+msgstr ""
+
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image. Choose another file."
 msgstr "הכריכה חייבת להיות תמונת PNG, JPEG או WebP. בחרו קובץ אחר."
@@ -463,6 +471,10 @@ msgstr "הורדה כבר מתבצעת"
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
 msgstr "בהיסטוריה נמצאה גרסה חדשה יותר של עמוד זה מזו ששמורה בספר שלך, למשל אחרי שתיקייה מסונכרנת החזירה קובץ ישן. הטקסט השמור שלך נשמר בכל מקרה כתצלום מצב."
+
+#: src/state/project/comments.ts
+msgid "A page holds at most {MAX_COMMENT_THREADS} comments."
+msgstr ""
 
 #: src/state/project/exports.ts
 msgid "A PDF export is already running"
@@ -531,6 +543,10 @@ msgstr "הוספת פרק"
 #: src/app/shell/menuModel.ts
 msgid "Add Column After"
 msgstr "הוספת עמודה אחריה"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Add comment"
+msgstr ""
 
 #: src/state/project/toc.ts
 msgid "Add contents entry"
@@ -797,6 +813,11 @@ msgstr "אות ראשונה גדולה: ברירת המחדל של התבנית"
 msgid "Bird"
 msgstr "ציפור"
 
+#: src/app/shell/menuModel.ts
+#: src/app/shell/useKindLabels.ts
+msgid "Blank page"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Bleed"
 msgstr "שולי חיתוך"
@@ -907,6 +928,7 @@ msgstr "הקוד של CadabraCraft זמין לעיון. כאן הרישיון ש
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft מעודכנת."
 
+#: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
@@ -1024,8 +1046,8 @@ msgid "Chapter"
 msgstr "פרק"
 
 #. placeholder {0}: chapters.length + 1
-#. placeholder {0}: manifest!.chapters.length + 1
-#. placeholder {0}: manifest.chapters.length + 1
+#. placeholder {0}: chaptersOf(manifest!).length + 1
+#. placeholder {0}: chaptersOf(manifest).length + 1
 #: src/app/hooks/useAppMenu.ts
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
@@ -1180,6 +1202,10 @@ msgstr "סגירה"
 msgid "Close chapters"
 msgstr "סגירת הפרקים"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Close comments"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Close Project"
 msgstr "סגירת הפרויקט"
@@ -1233,6 +1259,17 @@ msgstr "לוח פקודות"
 #: src/app/shell/menuModel.ts
 msgid "Command Palette…"
 msgstr "לוח פקודות…"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Comment on the selection"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/Drawers.tsx
+msgid "Comments"
+msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Compared with the current text"
@@ -1434,6 +1471,11 @@ msgstr "לא ניתן היה לשחזר את העמוד הזה ({reason}). הט�
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
 msgstr "לא ניתן היה לשחזר גרסה זו ({0}). הטקסט הנוכחי שלך לא השתנה. נסה שוב, או בחר גרסה אחרת."
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/comments.ts
+msgid "Could not save the comments: {0}. Try again."
+msgstr ""
 
 #. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
@@ -1941,6 +1983,10 @@ msgstr "סינון לפי תגית"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Filter by type"
 msgstr "סינון לפי סוג"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Filter comments"
+msgstr ""
 
 #: src/editor/FindBar.tsx
 msgid "Find"
@@ -2800,6 +2846,10 @@ msgstr "תיקיית הספר החדש"
 msgid "New Chapter"
 msgstr "פרק חדש"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "New comment"
+msgstr ""
+
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
 msgid "New project"
@@ -2898,6 +2948,10 @@ msgstr "ללא מקש"
 msgid "No matches"
 msgstr "אין התאמות"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "No open comments on this page."
+msgstr ""
+
 #: src/app/references/Previews.tsx
 msgid "No preview for this file type"
 msgstr "אין תצוגה מקדימה לסוג קובץ זה"
@@ -2913,6 +2967,10 @@ msgstr "אין פרויקטים אחרונים"
 #: src/app/references/ReferencesPanel.tsx
 msgid "No references match."
 msgstr "אין הפניות תואמות."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "No resolved comments on this page."
+msgstr ""
 
 #: src/lib/search/findHelpers.ts
 msgid "No results"
@@ -3062,6 +3120,7 @@ msgstr "אחד בכל שורה: קודי BISAC כמו FIC014000, או מילות
 msgid "Only in the current text"
 msgstr "בטקסט הנוכחי בלבד"
 
+#: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "Open"
 msgstr "פתיחה"
@@ -3069,6 +3128,10 @@ msgstr "פתיחה"
 #: src/app/settings/Settings.tsx
 msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 msgstr "פתח את ההיסטוריה של פרק מהתפריט שלו ברשימת הפרקים כדי להשוות ולשחזר. השאר את ‎.cadabra מחוץ לסנכרון בענן: תצלומי המצב שייכים למחשב זה."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Open a page to see its comments."
+msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Open book"
@@ -3164,6 +3227,11 @@ msgstr "עמוד {shown} מתוך ≈ {0}"
 #: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {0}"
 msgstr "עמוד ≈ {shown} מתוך {0}"
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Page break"
+msgstr ""
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
@@ -3579,6 +3647,10 @@ msgstr "פריטים ששמם שונה, מוסתרים, מועברים ומות�
 msgid "Render an audiobook, or export a Word or Markdown manuscript for an agent or editor."
 msgstr "להפיק ספר שמע, או לייצא כתב יד ב-Word או ב-Markdown לסוכן או לעורך."
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reopen"
+msgstr ""
+
 #. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
@@ -3625,6 +3697,19 @@ msgstr "הוחלפו {count} בספר"
 msgid "Replaced {count} in the book, in {languages} languages"
 msgstr "הוחלפו {count} בספר, ב-{languages} שפות"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply"
+msgstr ""
+
+#. placeholder {0}: thread.author
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply to {0}"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply…"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset"
 msgstr "איפוס"
@@ -3656,6 +3741,14 @@ msgstr "איפוס לברירת המחדל"
 #: src/app/toc/TocEditor.tsx
 msgid "Reset to outline"
 msgstr "איפוס למבנה"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Resolve"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Resolved"
+msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -3844,6 +3937,10 @@ msgstr "בחירת הכול"
 #: src/editor/Editor.tsx
 msgid "Select text inside one cell or paragraph to convert it"
 msgstr "בחר טקסט בתוך תא או פסקה אחת כדי להמיר אותו"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Select text to comment on"
+msgstr ""
 
 #: src/editor/useLangDialog.ts
 msgid "Select the text first."
@@ -4287,6 +4384,19 @@ msgstr "הספר משתמש בסגנון טקסט שייצוא ה־EPUB אינו
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "הקובץ cadabra.json של הספר אינו אובייקט JSON. שחזרו אותו מההיסטוריה או מגיבוי בתיקייה ‎.cadabra/backups."
 
+#: src/state/project/comments.ts
+msgid "The comments for this page are not valid JSON, so they were not opened. The file was left untouched."
+msgstr ""
+
+#: src/state/project/comments.ts
+msgid "The comments for this page could not be opened: {problem}. The file was left untouched."
+msgstr ""
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/comments.ts
+msgid "The comments for this page could not be read: {0}. The file was left as it is."
+msgstr ""
+
 #: src/state/project/contentsPreview.ts
 msgid "The contents page is not in the typeset book."
 msgstr "עמוד תוכן העניינים אינו בספר המעוצב."
@@ -4409,6 +4519,10 @@ msgstr "לא ניתן היה להחיל את התבנית: {why}. נסו שוב 
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so the bundled serif is used."
 msgstr "גופן ההדפסה של התבנית אינו מותקן כאן, ולכן נעשה שימוש בגופן הסריפי המצורף."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "The text this was attached to is gone; the comment is kept."
+msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."

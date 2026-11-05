@@ -1884,3 +1884,45 @@ An author sometimes needs a page that is empty on purpose — a breathing space 
 
 - Checked with unit tests: `packages/shared/src/__tests__/pageNumbering.test.ts` (a blank page follows on, prints no number, and is not pushed even after a dedication), `packages/format/src/__tests__/matter.test.ts` (added straight after the open page, an empty document, and always "translated" for exports) and `packages/export-pdf/src/__tests__/matter.test.ts` (the empty page source and no page entry of its own). A blank page between two chapters has its own cases: it is inserted into `manifest.chapters` after the page it follows and is not a chapter for `chaptersOf` (format), it follows the chapter before it with no folio and the next chapter still opens on a right-hand page while the count is not restarted on the blank (shared), and Typst prints it as a blank page with no chapter opening for the chapter after it (export-pdf).
 - A translation edition still gets an (empty) file for the blank page when the edition is added, because every entry does; it is never asked for.
+
+## Spellcheck: the platform dictionary (2026-11-04)
+
+### Decision
+
+Spellcheck uses the dictionary the platform already has, called from Rust. It is not a dictionary the app downloads, and it is not only the webview's own squiggles.
+
+- **macOS:** `NSSpellChecker` (`objc2-app-kit`): misspellings, guesses, the available languages, and a per-document ignore list through `inSpellDocumentWithTag:`.
+- **Linux:** `libhunspell` through explicit paths (`Hunspell_create(aff, dic)`), not `libenchant`. Enchant only accepts a language tag and searches its own directories, which is exactly what a bundled dictionary cannot use (see below).
+- **Linux dictionaries ship in the installer.** The `.aff`/`.dic` pairs are Tauri resources, so they land in `usr/lib/<ProductName>/dicts/` inside the AppImage and are read through `resource_dir()`. The five Latin-script languages the UI ships (en, es, it, fr, de) cost about 9 MB; Hebrew and Arabic are opt-in downloads because they add about 15 MB and the Hebrew dictionary is AGPLv3+, which must not enter the installer. `Hunspell_add_dic` carries the book's names list.
+- **Windows:** `ISpellChecker` (COM, `Win32_Globalization`). Deferred to the launch phase with the Windows build; no Windows code is written before then.
+- **One command, one call:** a Tauri command checks a chapter in a single call (`spell_check(text, language, names)` returning the ranges and their suggestions), debounced on the text and mapped back onto TipTap ranges. Per-word IPC is rejected.
+- **One layer of underlines:** the editor sets `spellcheck="false"` once our own marks are drawn, so the author never sees two squiggle layers.
+- **A book's names never enter the system dictionary.** `learnWord` and `Add` write to the user's global personal dictionary, so "Aelthwyn" would follow them into their email and every other app. The per-book names list lives in the project and is passed as session ignores on every check.
+
+### Why
+
+- No download, so nothing to pin, verify or size-budget; the installer stays small and the rule to ask before downloading stays untouched.
+- The author's machine already knows their language and the words they taught it, so suggestions agree with the rest of their system.
+- macOS and Linux are the first release platforms, so two integrations cover 1.0, and Windows joins when its installer does.
+- The names list is ours in every route, because it has to travel with the book to another machine or a collaborator, so the platform choice never changes that data.
+
+### Rejected alternatives
+
+| `libenchant-2` with bundled dictionaries | Enchant's Hunspell provider takes a language tag and searches `<ENCHANT_CONFIG_DIR>/hunspell` and `$XDG_DATA_DIRS/hunspell`; no API hands it a path. The env-var workaround is process-global and also redirects personal word lists. |
+
+| Rejected                               | Why not                                                                                                                                                                                                                                                                                   |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bundled `nspell` and hunspell data     | One code path everywhere and no OS variance, but a dictionary download per language (a new dependency and a download the owner must approve), size in the installer, and it ignores the words the author already taught their system. Kept as the fallback if Linux coverage disappoints. |
+| The webview's spellcheck alone         | It works today (the squiggles already come from the OS dictionary) but it is a black box: no list of misspellings, no suggestions we can show, and no per-book names.                                                                                                                     |
+| A proofing report with no inline marks | Cheapest, but the author hunts words in a list instead of seeing them in the text.                                                                                                                                                                                                        |
+
+### Follow-ups / caveats
+
+- **Bundling replaces the Linux coverage risk** rather than depending on the host. Hunspell and Enchant are both LGPL (Hunspell is LGPL/GPL/MPL, so elect LGPL) and may be redistributed with notices and the licence texts, which the `licenses/` resources and `Help > Licenses` already do for other components.
+- **The dictionaries are not all permissive.** en_US is SCOWL/Ispell (BSD-like), fr_FR is MPL 2.0, es and ar are GPL/LGPL/MPL tri-licences, de_DE offers LGPL among its terms, **he_IL is AGPLv3+ and must stay out of the installer**, and the Italian dictionary states no licence in the files read, so confirm it before shipping it. Add each elected licence to `binaries/licenses/` and to `licenses:check`.
+- **The `.so` is a build-time dependency.** `libhunspell` is linked normally, so linuxdeploy resolves it when the AppImage is built: the Linux CI job must install `libhunspell-dev`, and a missing library fails the whole bundle rather than the feature. The dictionaries themselves go through `bundle.resources`, which linuxdeploy never scans, so no `ldd` failure there.
+- **A pure-Rust reader is the alternative** (`spellbook`): no `.so` at all and dictionaries as resources only, but it is alpha and its own README warns that complex compounding dictionaries (German) work less well. `zspell` keeps suggestions behind an unstable feature flag. Revisit if bundling the `.so` causes trouble.
+- `Hunspell_spell` expects the dictionary's own encoding, so convert from UTF-8 with `Hunspell_get_dic_encoding` first; Enchant did that for us.
+- `NSSpellChecker` is not documented as thread-safe: run it on the main thread or serialise calls, and prefer the batch API (`checkSpellingOfString:startingAt:…`) over a call per word.
+- Windows needs COM initialisation and the `windows` crate feature before that work starts.
+- Not verified: the suggestion quality and language coverage of each API, and the cost of checking a 20,000-word chapter in one call.

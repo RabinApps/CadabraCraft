@@ -93,6 +93,12 @@ const t = (text: string) => ({ type: "text", text });
 const p = (...c: unknown[]) => ({ type: "paragraph", content: c });
 
 describe("docToText", () => {
+  it("writes a page break as its own line", () => {
+    expect(docToText({ type: "doc", content: [p(t("a")), { type: "pageBreak" }] })).toContain(
+      "[page break]",
+    );
+  });
+
   it("renders lists with their numbering, nested blocks and empty items", () => {
     const doc = {
       type: "doc",

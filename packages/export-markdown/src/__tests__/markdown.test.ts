@@ -716,3 +716,18 @@ describe("a typed tab (the editor's Tab key)", () => {
     expect(chapterToMarkdown(withTab("a\tb"))).toContain("a\tb");
   });
 });
+
+describe("page breaks and comment marks", () => {
+  it("writes a page break as an HTML comment that reads as nothing", () => {
+    expect(chapterToMarkdown(doc(p(t("a")), { type: "pageBreak" }, p(t("b"))))).toContain(
+      "<!-- page break -->",
+    );
+  });
+
+  it("writes a comment's text and drops the mark", () => {
+    const mark: Mark = { type: "comment", attrs: { id: "t-1" } };
+    const out = chapterToMarkdown(doc(p(t("the storm", mark))));
+    expect(out).toContain("the storm");
+    expect(out).not.toContain("t-1");
+  });
+});

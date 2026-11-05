@@ -348,6 +348,10 @@ msgstr "{n, plural, one {# unübersetzte Seite ausgelassen} other {# unübersetz
 msgid "{name} is already in this book. Using the existing file."
 msgstr "{name} ist bereits in diesem Buch. Die vorhandene Datei wird verwendet."
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "{open} open"
+msgstr ""
+
 #: src/app/references/PdfPreview.tsx
 msgid "{page} / {pages}"
 msgstr "{page} / {pages}"
@@ -452,6 +456,10 @@ msgstr "Ein BCP-47-Tag wie fr, fr-CA oder zh-Hans. Screenreader und Exporte nutz
 msgid "A change made outside the app could not be read: {why}. The version you have open is kept; saving keeps a copy of the changed file. You can also restore an earlier version from History."
 msgstr "Eine außerhalb der App vorgenommene Änderung konnte nicht gelesen werden: {why}. Die geöffnete Version bleibt erhalten; beim Speichern wird eine Kopie der geänderten Datei aufbewahrt. Sie können auch eine frühere Version aus dem Verlauf wiederherstellen."
 
+#: src/editor/useCommentAnchoring.ts
+msgid "A comment cannot go here"
+msgstr ""
+
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image. Choose another file."
 msgstr "Ein Cover muss ein PNG-, JPEG- oder WebP-Bild sein. Wählen Sie eine andere Datei."
@@ -463,6 +471,10 @@ msgstr "Ein Download läuft bereits"
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
 msgstr "Im Verlauf wurde eine neuere Version dieser Seite gefunden als die in deinem Buch gespeicherte, zum Beispiel weil ein Sync-Ordner eine ältere Datei zurückgespielt hat. Dein gespeicherter Text bleibt in jedem Fall als Schnappschuss erhalten."
+
+#: src/state/project/comments.ts
+msgid "A page holds at most {MAX_COMMENT_THREADS} comments."
+msgstr ""
 
 #: src/state/project/exports.ts
 msgid "A PDF export is already running"
@@ -531,6 +543,10 @@ msgstr "Kapitel hinzufügen"
 #: src/app/shell/menuModel.ts
 msgid "Add Column After"
 msgstr "Spalte danach hinzufügen"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Add comment"
+msgstr ""
 
 #: src/state/project/toc.ts
 msgid "Add contents entry"
@@ -797,6 +813,11 @@ msgstr "Großer erster Buchstabe: Vorlagenstandard"
 msgid "Bird"
 msgstr "Vogel"
 
+#: src/app/shell/menuModel.ts
+#: src/app/shell/useKindLabels.ts
+msgid "Blank page"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Bleed"
 msgstr "Beschnitt"
@@ -907,6 +928,7 @@ msgstr "CadabraCraft ist quelloffen einsehbar (source-available). Hier stehen di
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft ist auf dem neuesten Stand."
 
+#: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
@@ -1024,8 +1046,8 @@ msgid "Chapter"
 msgstr "Kapitel"
 
 #. placeholder {0}: chapters.length + 1
-#. placeholder {0}: manifest!.chapters.length + 1
-#. placeholder {0}: manifest.chapters.length + 1
+#. placeholder {0}: chaptersOf(manifest!).length + 1
+#. placeholder {0}: chaptersOf(manifest).length + 1
 #: src/app/hooks/useAppMenu.ts
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
@@ -1180,6 +1202,10 @@ msgstr "Schließen"
 msgid "Close chapters"
 msgstr "Kapitel schließen"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Close comments"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Close Project"
 msgstr "Projekt schließen"
@@ -1233,6 +1259,17 @@ msgstr "Befehlspalette"
 #: src/app/shell/menuModel.ts
 msgid "Command Palette…"
 msgstr "Befehlspalette …"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Comment on the selection"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/Drawers.tsx
+msgid "Comments"
+msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Compared with the current text"
@@ -1434,6 +1471,11 @@ msgstr "Diese Seite konnte nicht wiederhergestellt werden ({reason}). Dein aktue
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
 msgstr "Diese Version konnte nicht wiederhergestellt werden ({0}). Dein aktueller Text wurde nicht verändert. Versuche es erneut oder wähle eine andere Version."
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/comments.ts
+msgid "Could not save the comments: {0}. Try again."
+msgstr ""
 
 #. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
@@ -1941,6 +1983,10 @@ msgstr "Nach Schlagwort filtern"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Filter by type"
 msgstr "Nach Typ filtern"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Filter comments"
+msgstr ""
 
 #: src/editor/FindBar.tsx
 msgid "Find"
@@ -2800,6 +2846,10 @@ msgstr "Ordner des neuen Buchs"
 msgid "New Chapter"
 msgstr "Neues Kapitel"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "New comment"
+msgstr ""
+
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
 msgid "New project"
@@ -2898,6 +2948,10 @@ msgstr "Keine Taste"
 msgid "No matches"
 msgstr "Keine Treffer"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "No open comments on this page."
+msgstr ""
+
 #: src/app/references/Previews.tsx
 msgid "No preview for this file type"
 msgstr "Keine Vorschau für diesen Dateityp"
@@ -2913,6 +2967,10 @@ msgstr "Keine letzten Projekte"
 #: src/app/references/ReferencesPanel.tsx
 msgid "No references match."
 msgstr "Keine Referenz passt."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "No resolved comments on this page."
+msgstr ""
 
 #: src/lib/search/findHelpers.ts
 msgid "No results"
@@ -3062,6 +3120,7 @@ msgstr "Eines pro Zeile: BISAC-Codes wie FIC014000 oder Stichwörter."
 msgid "Only in the current text"
 msgstr "Nur im aktuellen Text"
 
+#: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "Open"
 msgstr "Öffnen"
@@ -3069,6 +3128,10 @@ msgstr "Öffnen"
 #: src/app/settings/Settings.tsx
 msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
 msgstr "Öffne den Verlauf eines Kapitels über dessen Menü in der Kapitelliste, um zu vergleichen und wiederherzustellen. Halte .cadabra aus der Cloud-Synchronisierung heraus: Schnappschüsse gehören zu diesem Computer."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Open a page to see its comments."
+msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Open book"
@@ -3164,6 +3227,11 @@ msgstr "Seite {shown} von ≈ {0}"
 #: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {0}"
 msgstr "Seite ≈ {shown} von {0}"
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Page break"
+msgstr ""
 
 #: src/editor/PageFrame.tsx
 msgid "Page breaks are approximate: the PDF is the reference."
@@ -3579,6 +3647,10 @@ msgstr "Umbenannte, ausgeblendete, verschobene und eigene Einträge werden entfe
 msgid "Render an audiobook, or export a Word or Markdown manuscript for an agent or editor."
 msgstr "Ein Hörbuch rendern oder ein Word- oder Markdown-Manuskript für Agentur oder Lektorat exportieren."
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reopen"
+msgstr ""
+
 #. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
@@ -3625,6 +3697,19 @@ msgstr "{count} im Buch ersetzt"
 msgid "Replaced {count} in the book, in {languages} languages"
 msgstr "{count} im Buch ersetzt, in {languages} Sprachen"
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply"
+msgstr ""
+
+#. placeholder {0}: thread.author
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply to {0}"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply…"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset"
 msgstr "Zurücksetzen"
@@ -3656,6 +3741,14 @@ msgstr "Auf Standard zurücksetzen"
 #: src/app/toc/TocEditor.tsx
 msgid "Reset to outline"
 msgstr "Auf Gliederung zurücksetzen"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Resolve"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Resolved"
+msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
 #: src/app/shell/TrashDialog.tsx
@@ -3844,6 +3937,10 @@ msgstr "Alles auswählen"
 #: src/editor/Editor.tsx
 msgid "Select text inside one cell or paragraph to convert it"
 msgstr "Wähle Text innerhalb einer Zelle oder eines Absatzes aus, um ihn umzuwandeln"
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Select text to comment on"
+msgstr ""
 
 #: src/editor/useLangDialog.ts
 msgid "Select the text first."
@@ -4287,6 +4384,19 @@ msgstr "Das Buch verwendet einen Textstil, den der EPUB-Export nicht schreiben k
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "Die cadabra.json des Buchs ist kein JSON-Objekt. Stellen Sie sie aus dem Verlauf oder aus einer Sicherung in .cadabra/backups wieder her."
 
+#: src/state/project/comments.ts
+msgid "The comments for this page are not valid JSON, so they were not opened. The file was left untouched."
+msgstr ""
+
+#: src/state/project/comments.ts
+msgid "The comments for this page could not be opened: {problem}. The file was left untouched."
+msgstr ""
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/comments.ts
+msgid "The comments for this page could not be read: {0}. The file was left as it is."
+msgstr ""
+
 #: src/state/project/contentsPreview.ts
 msgid "The contents page is not in the typeset book."
 msgstr "Das Inhaltsverzeichnis ist nicht im gesetzten Buch enthalten."
@@ -4409,6 +4519,10 @@ msgstr "Die Vorlage konnte nicht angewendet werden: {why}. Versuchen Sie es erne
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so the bundled serif is used."
 msgstr "Die Druckschrift der Vorlage ist hier nicht installiert, daher wird die mitgelieferte Serifenschrift verwendet."
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "The text this was attached to is gone; the comment is kept."
+msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."

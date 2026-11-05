@@ -7,6 +7,7 @@ import {
   FileUp,
   Library,
   ListTree,
+  MessageSquareText,
   LoaderCircle,
   Maximize2,
   Menu,
@@ -40,6 +41,8 @@ interface Props {
   onDetails: () => void;
   /** Opens the References panel as a dialog (below the xl breakpoint, where there is no side panel). */
   onReferences: () => void;
+  /** Opens the comments rail as a dialog (below the xl breakpoint, where there is no side panel). */
+  onComments: () => void;
   /** Runs an action, clearing the shown error first and showing its failure. */
   run: (f: () => Promise<void>) => () => void;
 }
@@ -54,6 +57,7 @@ export function AppHeader({
   onSettings,
   onDetails,
   onReferences,
+  onComments,
   run,
 }: Props) {
   const { t } = useLingui();
@@ -70,7 +74,7 @@ export function AppHeader({
   const isAlert = useProject(noticeIsAlert);
   const audio = useProject((s) => s.audio);
   const actions = useProject((s) => s.actions);
-  const { details, references, set: setLayout } = useLayout();
+  const { details, references, comments, set: setLayout } = useLayout();
   const showQuickNav = useQuickNav((s) => s.show);
   const reader = mode === "read";
   const setImportingInto = useStartDialogs((s) => s.setImportingInto);
@@ -177,6 +181,23 @@ export function AppHeader({
             label={t`References`}
             className="xl:hidden"
             onClick={onReferences}
+          />
+        )}
+        {!reader && (
+          <IconButton
+            icon={MessageSquareText}
+            label={t`Comments`}
+            active={comments}
+            className="max-xl:hidden"
+            onClick={() => setLayout({ comments: !comments, references: false })}
+          />
+        )}
+        {!reader && (
+          <IconButton
+            icon={MessageSquareText}
+            label={t`Comments`}
+            className="xl:hidden"
+            onClick={onComments}
           />
         )}
         {!reader && (

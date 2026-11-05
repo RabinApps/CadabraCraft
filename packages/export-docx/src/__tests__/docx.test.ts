@@ -204,6 +204,13 @@ describe("package structure", () => {
 });
 
 describe("manuscript format", () => {
+  it("writes a page break as a hard page break", () => {
+    const page = parts(
+      buildDocx(book, [chapter("One", p(t("Before.")), { type: "pageBreak" }, p(t("After.")))]),
+    );
+    expect(page["word/document.xml"]).toContain('<w:br w:type="page"/>');
+  });
+
   const files = parts(
     buildDocx(book, [
       chapter("One", p(t("Hello world.")), { type: "sceneBreak" }, p(t("After."))),

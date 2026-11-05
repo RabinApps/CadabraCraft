@@ -346,6 +346,10 @@ msgstr ""
 msgid "{name} is already in this book. Using the existing file."
 msgstr ""
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "{open} open"
+msgstr ""
+
 #: src/app/references/PdfPreview.tsx
 msgid "{page} / {pages}"
 msgstr ""
@@ -450,6 +454,10 @@ msgstr ""
 msgid "A change made outside the app could not be read: {why}. The version you have open is kept; saving keeps a copy of the changed file. You can also restore an earlier version from History."
 msgstr ""
 
+#: src/editor/useCommentAnchoring.ts
+msgid "A comment cannot go here"
+msgstr ""
+
 #: src/state/project/assets.ts
 msgid "A cover must be a PNG, JPEG or WebP image. Choose another file."
 msgstr ""
@@ -460,6 +468,10 @@ msgstr ""
 
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
+msgstr ""
+
+#: src/state/project/comments.ts
+msgid "A page holds at most {MAX_COMMENT_THREADS} comments."
 msgstr ""
 
 #: src/state/project/exports.ts
@@ -528,6 +540,10 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Add Column After"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Add comment"
 msgstr ""
 
 #: src/state/project/toc.ts
@@ -795,6 +811,11 @@ msgstr ""
 msgid "Bird"
 msgstr ""
 
+#: src/app/shell/menuModel.ts
+#: src/app/shell/useKindLabels.ts
+msgid "Blank page"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Bleed"
 msgstr ""
@@ -905,6 +926,7 @@ msgstr ""
 msgid "CadabraCraft is up to date."
 msgstr ""
 
+#: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
@@ -1022,8 +1044,8 @@ msgid "Chapter"
 msgstr ""
 
 #. placeholder {0}: chapters.length + 1
-#. placeholder {0}: manifest!.chapters.length + 1
-#. placeholder {0}: manifest.chapters.length + 1
+#. placeholder {0}: chaptersOf(manifest!).length + 1
+#. placeholder {0}: chaptersOf(manifest).length + 1
 #: src/app/hooks/useAppMenu.ts
 #: src/app/shell/App.tsx
 #: src/app/shell/Sidebar.tsx
@@ -1178,6 +1200,10 @@ msgstr ""
 msgid "Close chapters"
 msgstr ""
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Close comments"
+msgstr ""
+
 #: src/app/shell/menuModel.ts
 msgid "Close Project"
 msgstr ""
@@ -1230,6 +1256,17 @@ msgstr ""
 
 #: src/app/shell/menuModel.ts
 msgid "Command Palette…"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Comment on the selection"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/Drawers.tsx
+msgid "Comments"
 msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
@@ -1431,6 +1468,11 @@ msgstr ""
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
+msgstr ""
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/comments.ts
+msgid "Could not save the comments: {0}. Try again."
 msgstr ""
 
 #. placeholder {0}: whyText(e)
@@ -1938,6 +1980,10 @@ msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Filter by type"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Filter comments"
 msgstr ""
 
 #: src/editor/FindBar.tsx
@@ -2798,6 +2844,10 @@ msgstr ""
 msgid "New Chapter"
 msgstr ""
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "New comment"
+msgstr ""
+
 #: src/app/home/Home.tsx
 #: src/app/shell/menuModel.ts
 msgid "New project"
@@ -2896,6 +2946,10 @@ msgstr ""
 msgid "No matches"
 msgstr ""
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "No open comments on this page."
+msgstr ""
+
 #: src/app/references/Previews.tsx
 msgid "No preview for this file type"
 msgstr ""
@@ -2910,6 +2964,10 @@ msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "No references match."
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "No resolved comments on this page."
 msgstr ""
 
 #: src/lib/search/findHelpers.ts
@@ -3060,12 +3118,17 @@ msgstr ""
 msgid "Only in the current text"
 msgstr ""
 
+#: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "Open"
 msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer."
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Open a page to see its comments."
 msgstr ""
 
 #: src/lib/useIconChoices.ts
@@ -3161,6 +3224,11 @@ msgstr ""
 #. placeholder {0}: layout.physical
 #: src/app/shell/PageEstimate.tsx
 msgid "Page ≈ {shown} of {0}"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+#: src/editor/Toolbar.tsx
+msgid "Page break"
 msgstr ""
 
 #: src/editor/PageFrame.tsx
@@ -3577,6 +3645,10 @@ msgstr ""
 msgid "Render an audiobook, or export a Word or Markdown manuscript for an agent or editor."
 msgstr ""
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reopen"
+msgstr ""
+
 #. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
@@ -3623,6 +3695,19 @@ msgstr ""
 msgid "Replaced {count} in the book, in {languages} languages"
 msgstr ""
 
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply"
+msgstr ""
+
+#. placeholder {0}: thread.author
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply to {0}"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Reply…"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Reset"
 msgstr ""
@@ -3653,6 +3738,14 @@ msgstr ""
 
 #: src/app/toc/TocEditor.tsx
 msgid "Reset to outline"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Resolve"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Resolved"
 msgstr ""
 
 #: src/app/references/RemovedReferencesDialog.tsx
@@ -3841,6 +3934,10 @@ msgstr ""
 
 #: src/editor/Editor.tsx
 msgid "Select text inside one cell or paragraph to convert it"
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "Select text to comment on"
 msgstr ""
 
 #: src/editor/useLangDialog.ts
@@ -4285,6 +4382,19 @@ msgstr ""
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr ""
 
+#: src/state/project/comments.ts
+msgid "The comments for this page are not valid JSON, so they were not opened. The file was left untouched."
+msgstr ""
+
+#: src/state/project/comments.ts
+msgid "The comments for this page could not be opened: {problem}. The file was left untouched."
+msgstr ""
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/comments.ts
+msgid "The comments for this page could not be read: {0}. The file was left as it is."
+msgstr ""
+
 #: src/state/project/contentsPreview.ts
 msgid "The contents page is not in the typeset book."
 msgstr ""
@@ -4406,6 +4516,10 @@ msgstr ""
 
 #: src/editor/PageFrame.tsx
 msgid "The template's print font is not installed here, so the bundled serif is used."
+msgstr ""
+
+#: src/app/comments/CommentsPanel.tsx
+msgid "The text this was attached to is gone; the comment is kept."
 msgstr ""
 
 #: src/editor/Editor.tsx

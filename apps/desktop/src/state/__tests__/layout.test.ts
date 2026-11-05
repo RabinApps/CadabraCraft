@@ -10,7 +10,7 @@ const { useLayout } = await import("../layout");
 describe("useLayout", () => {
   beforeEach(() => {
     store.clear();
-    useLayout.setState({ focus: false, details: true, references: false });
+    useLayout.setState({ focus: false, details: true, references: false, comments: false });
   });
   it("persists focus and details", () => {
     useLayout.getState().set({ focus: true });
@@ -18,12 +18,14 @@ describe("useLayout", () => {
       focus: true,
       details: true,
       references: false,
+      comments: false,
     });
     useLayout.getState().set({ details: false });
     expect(JSON.parse(store.get("cadabracraft.layout")!)).toEqual({
       focus: true,
       details: false,
       references: false,
+      comments: false,
     });
   });
   it("ignores stored values of the wrong shape", async () => {

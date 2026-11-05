@@ -39,6 +39,9 @@ function wrapMark(content: string, m: Mark): string {
       const region = lr.region ? `, region: ${typstString(lr.region)}` : "";
       return `#text(lang: ${typstString(lr.lang)}${region})[${content}]`;
     }
+    case "comment":
+      // Comments are a writing tool, never printed: the text stays and the mark goes.
+      return content;
     default:
       return unsupported(`mark:${String((m as { type: unknown }).type)}`);
   }

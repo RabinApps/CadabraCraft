@@ -360,3 +360,34 @@ describe("a typed tab (the editor's Tab key)", () => {
     ).toContain("a\tb");
   });
 });
+
+describe("a body error that is not an EpubExportError", () => {
+  it("is passed through as it is, with no chapter label added", () => {
+    const bad = {
+      id: "ch-1",
+      title: "One",
+      // A text node with no text: the XHTML walker fails with a plain TypeError, not an EpubExportError.
+      doc: doc(para(), { type: "paragraph", content: [{ type: "text" }] }),
+    };
+    const e = thrown(() => buildEpub(meta, [bad] as never));
+    expect(e).toBeInstanceOf(Error);
+    expect((e as Error).name).not.toBe("EpubExportError");
+  });
+});
+
+describe("page breaks and comment marks", () => {
+  it("writes a page break as its own element", () => {
+    expect(body(para("a"), { type: "pageBreak" }, para("b"))).toContain('<hr class="page-break"/>');
+  });
+
+  it("writes a comment's text and drops the mark", () => {
+    const html = body({
+      type: "paragraph",
+      content: [
+        { type: "text", text: "the storm", marks: [{ type: "comment", attrs: { id: "t-1" } }] },
+      ],
+    });
+    expect(html).toContain("the storm");
+    expect(html).not.toContain("t-1");
+  });
+});
