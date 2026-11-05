@@ -1,10 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { addPage, applyE2eLocale, chapterAction, inLocaleRun, newProject } from "./support/helpers";
-import { fakeImportSources } from "./support/fakeImport";
-import { moreScreens, screens as everyScreen } from "./support/a11yScreens";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import {
+  addPage,
+  applyE2eLocale,
+  chapterAction,
+  inLocaleRun,
+  newProject,
+} from "../support/helpers";
+import { fakeImportSources } from "../support/fakeImport";
+import { moreScreens, screens as everyScreen } from "../support/a11yScreens";
 
 // WCAG 2.0 to 2.2 A and AA (docs/accessibility.md).
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];

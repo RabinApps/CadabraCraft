@@ -1,9 +1,9 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { screens } from "./support/a11yScreens";
-import { clippedText, TAB } from "./support/helpers";
-import { hasEdge, LOOK } from "./support/modes";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { screens } from "../support/a11yScreens";
+import { clippedText, TAB } from "../support/helpers";
+import { hasEdge, LOOK } from "../support/modes";
 
 // Windows High Contrast (forced colors) and "increase contrast" over every screen of a11yScreens.ts (a11y-forced-colors.spec.ts
 // covers a few states in depth): the focus ring is there, a selected or pressed control differs from the others by more than

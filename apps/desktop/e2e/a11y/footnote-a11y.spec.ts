@@ -1,6 +1,6 @@
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { newProject } from "../support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);

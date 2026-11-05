@@ -1,7 +1,7 @@
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { screens } from "./support/a11yScreens";
-import { applyE2eLocale, clippedText, inLocaleRun } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { screens } from "../support/a11yScreens";
+import { applyE2eLocale, clippedText, inLocaleRun } from "../support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);

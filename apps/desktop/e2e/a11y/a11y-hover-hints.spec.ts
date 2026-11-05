@@ -1,7 +1,7 @@
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { screens } from "./support/a11yScreens";
-import { newProject } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { screens } from "../support/a11yScreens";
+import { newProject } from "../support/helpers";
 
 // WCAG 1.4.13 (content on hover or focus): a native `title` tooltip cannot be reached from the keyboard, cannot be
 // hovered or dismissed, and is not shown on touch. Hints go through ui/Tooltip (focus and hover, Esc, hoverable) or

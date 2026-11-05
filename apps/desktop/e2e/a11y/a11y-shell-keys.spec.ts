@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { screens } from "./support/a11yScreens";
-import { SHIFT_TAB, TAB } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { screens } from "../support/a11yScreens";
+import { SHIFT_TAB, TAB } from "../support/helpers";
 
 // Shell key audit: on every screen, Tab, Shift+Tab, the arrow keys and Escape must reach the browser's default action
 // (focus movement, scrolling, caret) unless the focused element sits inside a widget that owns that key. A global

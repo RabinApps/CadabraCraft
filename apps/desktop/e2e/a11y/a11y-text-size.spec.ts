@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { screens } from "./support/a11yScreens";
-import { newProject } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { screens } from "../support/a11yScreens";
+import { newProject } from "../support/helpers";
 
 // WCAG 1.4.4 (resize text) is only as good as the starting size: interface text is never drawn below 12 px.
 // Book content (the manuscript, the page preview, a PDF canvas) follows the author's own size and is not audited.

@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { screens } from "./support/a11yScreens";
-import { applyE2eLocale } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { screens } from "../support/a11yScreens";
+import { applyE2eLocale } from "../support/helpers";
 
 // WCAG 2.5.3 Label in Name: a control with visible text has an accessible name that contains that text, so a
 // Voice Control or Dragon user can say what they see. The name is computed in the page (aria-labelledby, aria-label,

@@ -1,8 +1,8 @@
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { fakeImportSources } from "./support/fakeImport";
-import { addPage, newProject, safariMac, SHIFT_TAB, TAB } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { fakeImportSources } from "../support/fakeImport";
+import { addPage, newProject, safariMac, SHIFT_TAB, TAB } from "../support/helpers";
 
 // Keyboard-only sweep of every dialog the fake backend can open (docs/platform-checks.md, "Accessibility passes"):
 // focus never leaves the dialog while Tab and Shift+Tab cycle, Escape closes it, and focus goes back to where it was.

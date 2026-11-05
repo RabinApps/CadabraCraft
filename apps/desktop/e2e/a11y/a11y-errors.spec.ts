@@ -1,8 +1,8 @@
-import { expect, test, type Locator, type Page } from "./support/coverage";
-import { answer, covBackend, failOn, menu, reopen, stopFailing } from "./support/cov";
-import { fakeImportSources } from "./support/fakeImport";
-import { fakeTauri } from "./support/fakeTauri";
-import { addPage, chapterAction, newProject, seedSnapshot, sidebar } from "./support/helpers";
+import { expect, test, type Locator, type Page } from "../support/coverage";
+import { answer, covBackend, failOn, menu, reopen, stopFailing } from "../support/cov";
+import { fakeImportSources } from "../support/fakeImport";
+import { fakeTauri } from "../support/fakeTauri";
+import { addPage, chapterAction, newProject, seedSnapshot, sidebar } from "../support/helpers";
 
 // WCAG 3.3.1 Error Identification, 3.3.3 Error Suggestion and 4.1.3 Status Messages: when the app refuses input, the
 // error is text (never colour alone), it is announced (role=alert/status), the field at fault is aria-invalid and

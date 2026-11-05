@@ -1,11 +1,11 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import type { Browser, Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { screens } from "./support/a11yScreens";
-import { audit } from "./support/audit";
-import { chapterDoc, focusEnd, newProject, seedChapters, SHIFT_TAB, TAB } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { screens } from "../support/a11yScreens";
+import { audit } from "../support/audit";
+import { chapterDoc, focusEnd, newProject, seedChapters, SHIFT_TAB, TAB } from "../support/helpers";
 
 // WCAG 2.2 criteria that axe cannot judge and that the other a11y specs do not cover: 1.3.3, 1.3.5, 1.4.2, 1.4.4, 1.4.13, 2.1.4,
 // 2.2.2, 2.3.1, 2.4.2, 2.4.11, 2.5.2, 3.2.1 to 3.2.4 and 3.3.7. What each test proves (and what it cannot) is in the conformance report.

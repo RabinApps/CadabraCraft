@@ -1,7 +1,7 @@
-import { expect, test, type Page } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { newProject, TAB } from "./support/helpers";
-import { audit } from "./support/audit";
+import { expect, test, type Page } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { newProject, TAB } from "../support/helpers";
+import { audit } from "../support/audit";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);

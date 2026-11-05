@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { screens } from "./support/a11yScreens";
-import { audit } from "./support/audit";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { screens } from "../support/a11yScreens";
+import { audit } from "../support/audit";
 
 // Gaps left by the other a11y specs, for the settings an operating system hands to the page: forced colors, reduced
 // motion, dark mode followed from the OS (not set by hand) and a 2x display. Windows High Contrast, macOS "Reduce

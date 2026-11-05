@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
-import { virtualScreenReaderScript } from "./support/virtualScreenReader";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { newProject } from "../support/helpers";
+import { virtualScreenReaderScript } from "../support/virtualScreenReader";
 
 /**
  * A virtual screen reader (@guidepup/virtual-screen-reader) walks a container and records what it would announce. It is

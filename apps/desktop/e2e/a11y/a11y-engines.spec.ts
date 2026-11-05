@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { chapterAction, newProject } from "./support/helpers";
-import { screens as allScreens } from "./support/a11yScreens";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { chapterAction, newProject } from "../support/helpers";
+import { screens as allScreens } from "../support/a11yScreens";
 
 /**
  * The same screens as a11y.spec.ts through two engines other than axe-core: IBM Equal Access (WCAG 2.2 A and AA) and

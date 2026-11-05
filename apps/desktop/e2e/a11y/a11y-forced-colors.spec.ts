@@ -1,9 +1,9 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { newProject, SHIFT_TAB, TAB } from "./support/helpers";
-import { hasEdge, LOOK, ratio, type Look } from "./support/modes";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { newProject, SHIFT_TAB, TAB } from "../support/helpers";
+import { hasEdge, LOOK, ratio, type Look } from "../support/modes";
 
 // Windows High Contrast (forced-colors) and "increase contrast" are emulated by Chromium. Computed styles are compared
 // instead of screenshots: a state that depends on a soft fill has to carry a border or outline too, and the states must

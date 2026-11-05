@@ -1,6 +1,6 @@
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { newProject } from "../support/helpers";
 
 // What assistive technology is given: roles, names, states and order, read from the browser's accessibility tree.
 // This is not speech (docs/accessibility.md, "Screen readers"), but a missing name or a lost state shows up here.

@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./support/coverage";
-import { fakeTauri } from "./support/fakeTauri";
-import { fakeImportSources } from "./support/fakeImport";
-import { addPage, newProject, seedChapters } from "./support/helpers";
+import { expect, test } from "../support/coverage";
+import { fakeTauri } from "../support/fakeTauri";
+import { fakeImportSources } from "../support/fakeImport";
+import { addPage, newProject, seedChapters } from "../support/helpers";
 
 // WCAG 2.2 criterion 2.5.7 (Dragging Movements): everything that can be done by dragging can also be done with a
 // single pointer or the keyboard. Each test below never moves the pointer with a button held down.
