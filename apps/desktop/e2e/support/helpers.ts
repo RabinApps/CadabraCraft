@@ -26,7 +26,7 @@ export async function newProject(page: Page) {
 export const titles = (page: Page) =>
   page
     .getByRole("navigation", { name: "Chapters" })
-    .locator("li > button[aria-current='true']")
+    .locator("li > div > button[aria-current='true']")
     .allTextContents();
 
 export async function chapterAction(page: Page, chapter: string, item: string) {

@@ -29,7 +29,12 @@ export async function fakeTauri(page: Page) {
       sessionStorage.getItem("disk") ?? "{}",
     );
     const persist = () => sessionStorage.setItem("disk", JSON.stringify(disk));
-    const h = (s: string) => `${s.length}:${s.slice(0, 50)}`;
+    // Every character counts (FNV-1a), so moving text around changes the hash like it does on a real disk.
+    const h = (s: string) => {
+      let x = 0x811c9dc5;
+      for (let i = 0; i < s.length; i++) x = Math.imul(x ^ s.charCodeAt(i), 0x01000193);
+      return `${s.length}:${(x >>> 0).toString(16)}`;
+    };
     window.__disk = disk;
     // Other books on the computer, by root: a test sets `window.__books = { "/books/a": { "cadabra.json": "..." } }`. They answer
     // reads and cover stamps; the open book at `/proj` keeps the shared `disk` (writes always go there).

@@ -1980,3 +1980,24 @@ A book's people, places, things and lore live in one file beside it, `codex.json
 - **`formatVersion` stays 10.** A new optional sidecar changes no manifest field, and the version describes the project's files as the app opens them. The bump belongs with the reading of `codex.json` in the versioned format; the attempt that raised it to 11 turned the migration suite red without changing behaviour, so it was backed out rather than rushed.
 
 Alternatives rejected: keeping entries in the manifest (rewrites the book's index on every note), one file per entry (a folder to sync and keep consistent for no gain at this size), and a cast that stores names instead of ids (renaming an entry would silently unlink every scene that mentions it).
+
+## Scene board: edits go through project actions, not the editor (2026-11-06)
+
+**Decision:** the scene board (and the timeline after it) change scenes through two project actions in `state/project/scenes.ts`, `patchSceneIn(chapterId, sceneId, patch)` and `moveScene(sceneId, toChapterId, index)`, plus `wrapUnsortedIn(chapterId)` for loose text. Each one flushes typing in the open chapter, reads the chapter file(s) of the open edition, changes the TipTap JSON with the pure helpers in `lib/sceneMoves.ts` (`patchScene`, `removeScene`, `insertScene`, `reorderScenes`, `wrapUnsorted`), writes through `writePages` (backup, temp file and rename, with rollback of the files already written) and records one `docs` entry in the book's undo history, the same shape Replace all uses. If the open chapter was touched it is reloaded from disk afterwards. A cross-chapter move writes the destination first and the source second; if the second write fails and the first cannot be put back, the scene is in both files (a duplicate, never a loss) and Undo finishes the job. The editor's `useSceneEditingBridge` is unchanged and keeps serving the sidebar and the scene rail for the open chapter.
+
+A story date is one more scene attribute, `date` (`YYYY-MM-DD`, optionally `THH:MM`; empty means none). Node attributes never bump `formatVersion`, so there is no migration; a chapter saved before `date` existed opens unchanged. Fantasy calendars are not modelled in v1 (roadmap).
+
+Text outside every scene (a chapter written before scenes, or typed above the first one) shows on the board as an "Unsorted" card per chapter with its word count and a "Wrap into a scene" action. The chapter's leading title heading and empty paragraphs do not count as unsorted.
+
+The pointer drag from `EntryList` moved into `ui/useDragReorder`, which knows nothing about the target's shape (a list index for the chapter list, a chapter and an index for the board). The keyboard alternative stays with each caller: arrow keys on the grip and a "Move earlier / later / to chapter" menu (WCAG 2.5.7).
+
+**Why:** the open chapter lives in the editor, but a board has to edit chapters that are not open and move a scene between two chapters. Going through the files keeps one source of truth (the chapter JSON), reuses the save path (backups, conflict copies) and the undo stack, and keeps the editor unmounted while the board is shown.
+
+| Rejected                                            | Why not                                                                                                                                      |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Opening each chapter in a hidden TipTap editor      | Slow (one editor per chapter), needs the DOM, and a move across two chapters would be two editors that must succeed or fail together.        |
+| A separate scene sidecar file (`scenes.json`)       | Splits the source of truth: the synopsis and order would live apart from the text they describe and drift when the text is edited elsewhere. |
+| A freeform canvas for the board                     | Much larger scope (layout model, zoom, undo) and no keyboard story; already rejected under "References", kept on the roadmap.                |
+| Rewriting `EntryList` drag for the board separately | Two copies of the Escape, cancel and pointer handling to keep in step.                                                                       |
+
+**Follow-ups / caveats:** each edit reads the book's chapters to find a scene, which is fine for a novel and not measured on 120,000 words. A duplicate scene id (left by a failed move) keeps the first card on the board and shows a notice; there is no automatic repair. Not verified against a book edited on two machines at once beyond the existing conflict-copy rule.

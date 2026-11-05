@@ -115,6 +115,20 @@ const lastParagraph = async (page: Page) => {
   await page.locator(".ProseMirror p").last().click();
 };
 
+/** The scene board of a book whose first chapter holds a scene (added from the sidebar, with some text in it). */
+const sceneBoard = async (page: Page) => {
+  await newProject(page);
+  await page
+    .getByRole("list", { name: "Scenes in Chapter One" })
+    .getByRole("button", { name: "Scene", exact: true })
+    .click();
+  await page.keyboard.type("Mara waits on the quay.");
+  await expect(page.getByRole("status").first()).toContainText("Saved");
+  await page.getByRole("button", { name: "Scene board" }).click();
+  await shown(page.getByRole("heading", { name: "Scene board", level: 1 }));
+  await shown(page.getByRole("button", { name: "Add a synopsis to Untitled scene" }));
+};
+
 const contentsRegion = (page: Page) => page.getByRole("region", { name: "Contents", exact: true });
 const preview = (page: Page) => page.getByRole("region", { name: "Preview", exact: true });
 /** Typst's page report puts the contents page on pages 2 and 3 of 6 (the fake PDF has blank pages). Set before the page is added. */
@@ -578,6 +592,20 @@ export const moreScreens: Screen[] = [
       await newProject(p);
       await p.getByRole("button", { name: "Change template" }).click();
       await shown(p.getByRole("radiogroup", { name: "Big first letter" }));
+    },
+  },
+  {
+    name: "Scene board",
+    open: async (p) => {
+      await sceneBoard(p);
+    },
+  },
+  {
+    name: "Scene board, card menu open",
+    open: async (p) => {
+      await sceneBoard(p);
+      await p.getByRole("button", { name: "Actions for Untitled scene" }).click();
+      await shown(p.getByRole("menuitem", { name: "Move later" }));
     },
   },
   {

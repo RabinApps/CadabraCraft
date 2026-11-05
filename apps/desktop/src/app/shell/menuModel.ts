@@ -310,6 +310,7 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("view.typewriter", t`Typewriter Scrolling`, "CmdOrCtrl+Alt+T"),
     cmd("view.details", t`Details Panel`),
     cmd("view.references", t`References Panel`),
+    cmd("view.board", t`Scene Board`),
     sep,
     cmd("view.palette", t`Command Palette…`, "CmdOrCtrl+K"),
     cmd("view.outline", t`Outline…`, "CmdOrCtrl+Shift+O"),

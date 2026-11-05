@@ -525,6 +525,10 @@ test.describe("3.2.4 consistent identification", () => {
       "lucide-x":
         "Close a dialog, Close viewer, Close chapters and Dismiss message all take something away; the name says what",
       "lucide-a-large-small": "Small caps (format) and Reading settings (the Read mode panel)",
+      "lucide-chevron-down":
+        "Hide scenes of a chapter (the row's disclosure) and Next match (the Find bar): a disclosure and a step",
+      "lucide-chevron-right":
+        "Show scenes of a chapter (the row's disclosure) and Next chapter / Next page (the reader's steps)",
     };
     const report = [...byIcon]
       .filter(([icon, names]) => icon && names.size > 1 && !(icon in REVIEWED))
@@ -547,6 +551,8 @@ test.describe("1.3.3 sensory characteristics", () => {
     /on the top, bottom and outside edges/,
     // A kind of page in a printed book (the chapter opener starts on a recto), not a direction to look.
     /^Right-hand page$/,
+    // The same book term in the row menu's Page start choice and its announcement.
+    /^Start on a right-hand page$/,
   ];
   for (const { name, open } of screens) {
     test(`no instruction on ${name} points only by place, colour or shape`, async ({ page }) => {
@@ -693,8 +699,9 @@ test.describe("2.5.2 pointer cancellation", () => {
         ),
       )
       .filter((l) => !/preventDefault\(\)/.test(l));
-    // Reorder grips (TocRow, ReferenceRow, ImportChapterList, EntryList) only pick the row up: the move is committed on release, with Escape to cancel.
+    // Reorder grips (TocRow, ReferenceRow, ImportChapterList, EntryList, SceneCard) only pick the row up: the move is committed on release, with Escape to cancel.
     expect(found.map((l) => l.split(":")[0]).sort()).toEqual([
+      "src/app/board/SceneCard.tsx",
       "src/app/dialogs/ImportChapterList.tsx",
       "src/app/references/ReferenceRow.tsx",
       "src/app/shell/EntryList.tsx",

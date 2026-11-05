@@ -32,25 +32,11 @@ msgstr "“{page}”: {detail}"
 msgid "(estimated)"
 msgstr "(تقديرية)"
 
-#. placeholder {0}: g.books.length
-#. placeholder {0}: recents.length
-#: src/app/library/Library.tsx
-msgid "{0, plural, one {# book} other {# books}}"
-msgstr "{0, plural, zero {لا كتب} one {كتاب واحد} two {كتابان} few {# كتب} many {# كتابًا} other {# كتاب}}"
-
-#. placeholder {0}: info.chapters ?? 0
 #. placeholder {0}: r.stats.chapters
-#. placeholder {1}: info.words
 #. placeholder {1}: r.stats.words
 #: src/app/home/Dashboard.tsx
-#: src/app/library/Library.tsx
 msgid "{0, plural, one {# chapter} other {# chapters}} · {1, plural, one {# word} other {# words}}"
 msgstr "{0, plural, zero {لا فصول} one {فصل واحد} two {فصلان} few {# فصول} many {# فصلًا} other {# فصل}} · {1, plural, zero {لا كلمات} one {كلمة واحدة} two {كلمتان} few {# كلمات} many {# كلمة} other {# كلمة}}"
-
-#. placeholder {0}: found.skipped
-#: src/app/library/Library.tsx
-msgid "{0, plural, one {# folder with a damaged cadabra.json was skipped.} other {# folders with a damaged cadabra.json were skipped.}}"
-msgstr "{0, plural, zero {لم يُتخطَّ أي مجلد.} one {تم تخطي مجلد واحد فيه ملف cadabra.json تالف.} two {تم تخطي مجلدين فيهما ملف cadabra.json تالف.} few {تم تخطي # مجلدات فيها ملف cadabra.json تالف.} many {تم تخطي # مجلدًا فيها ملف cadabra.json تالف.} other {تم تخطي # مجلد فيها ملف cadabra.json تالف.}}"
 
 #. placeholder {0}: r.missing_assets.length
 #: src/state/project/snapshots.ts
@@ -74,8 +60,7 @@ msgstr "{0, plural, zero {لا صفحات خارج اللقطة في سلة ال
 
 #. placeholder {0}: e.pages.length
 #. placeholder {0}: layout.physical
-#: src/app/dialogs/BookSnapshotsPanel.tsx
-#: src/app/shell/PageEstimate.tsx
+#: src/app/dialogs/BookSnapshotsPanel.tsx src/app/shell/PageEstimate.tsx
 msgid "{0, plural, one {# page} other {# pages}}"
 msgstr "{0, plural, zero {لا صفحات} one {صفحة واحدة} two {صفحتان} few {# صفحات} many {# صفحة} other {# صفحة}}"
 
@@ -92,8 +77,7 @@ msgstr "{0, plural, zero {لا نتائج} one {نتيجة واحدة} two {نت
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
-#: src/app/dialogs/HistoryDialog.tsx
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/HistoryDialog.tsx src/app/dialogs/ImportChapterList.tsx
 #: src/app/home/Dashboard.tsx
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, zero {لا كلمات} one {كلمة واحدة} two {كلمتان} few {# كلمات} many {# كلمة} other {# كلمة}}"
@@ -134,10 +118,12 @@ msgstr "تغيّر {0} خارج التطبيق؛ حُفظت النسخة الأ�
 #. placeholder {0}: e.format.toUpperCase()
 #. placeholder {1}: e.detail.trim()
 #: src/lib/audioErrors.ts
-msgid "{0} could not be written:\n"
+msgid ""
+"{0} could not be written:\n"
 "{1}\n"
 "Check the folder can be written to and try again"
-msgstr "تعذّرت كتابة {0}:\n"
+msgstr ""
+"تعذّرت كتابة {0}:\n"
 "{1}\n"
 "تأكد من إمكانية الكتابة في المجلد ثم حاول مرة أخرى."
 
@@ -222,12 +208,6 @@ msgstr "{0} يخرج من مجلد المشروع عبر رابط رمزي. ان
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 msgstr "خُزّن {0} من ملفات الفصول الجديدة و{1} من الصور في مجلد الكتاب، لكن قائمة الفصول لم تتغيّر."
 
-#. placeholder {0}: shown.length
-#. placeholder {1}: recents.length
-#: src/app/library/Library.tsx
-msgid "{0} of {1, plural, one {# book} other {# books}}"
-msgstr "{0} من {1, plural, zero {لا كتب} one {كتاب واحد} two {كتابين} few {# كتب} many {# كتابًا} other {# كتاب}}"
-
 #. placeholder {0}: here.chapterNo
 #. placeholder {1}: here.chapters
 #: src/app/home/Dashboard.tsx
@@ -236,8 +216,7 @@ msgstr "{0} من {1, plural, one {فصل واحد} two {فصلين} few {# فص�
 
 #. placeholder {0}: p.translated
 #. placeholder {1}: p.total
-#: src/app/export/EditionsChecklist.tsx
-#: src/app/shell/EditionSwitcher.tsx
+#: src/app/export/EditionsChecklist.tsx src/app/shell/EditionSwitcher.tsx
 msgid "{0} of {1} chapters"
 msgstr "{0} من {1} فصول"
 
@@ -253,6 +232,12 @@ msgstr "{0} من {1} ميغابايت"
 msgid "{0} of {1} words"
 msgstr "{0} من {1} كلمة"
 
+#. placeholder {0}: c.rows.length
+#. placeholder {1}: boardWords(c).toLocaleString()
+#: src/app/board/SceneBoard.tsx
+msgid "{0} scenes · {1} words"
+msgstr "{0} مشاهد · {1} كلمة"
+
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
 msgid "{0} was not chosen in a file or folder dialog"
@@ -262,8 +247,7 @@ msgstr "لم يُختر {0} في نافذة اختيار ملف أو مجلد"
 #. placeholder {0}: packName(p)
 #. placeholder {1}: describeAudioError(e).message
 #. placeholder {1}: describeFontError(e).message
-#: src/app/settings/AudioSection.tsx
-#: src/app/settings/FontsSection.tsx
+#: src/app/settings/AudioSection.tsx src/app/settings/FontsSection.tsx
 msgid "{0} was not deleted. {1}"
 msgstr "لم يُحذف {0}. {1}"
 
@@ -278,15 +262,21 @@ msgstr "أُزيل {0}، لكن تعذّر نقل ملفه إلى سلة الم�
 msgid "{0} was updated from outside the app"
 msgstr "حُدِّث {0} من خارج التطبيق"
 
-#. placeholder {0}: found.books.length - added
-#: src/app/library/Library.tsx
-msgid "{0} were already in the Library."
-msgstr "{0} كانت موجودة في المكتبة بالفعل."
-
 #. placeholder {0}: scene.words.toLocaleString()
-#: src/app/scenes/SceneRail.tsx
+#. placeholder {0}: sceneWordsLabel(scene)
+#: src/app/board/SceneCard.tsx src/app/scenes/SceneRail.tsx
 msgid "{0} words"
 msgstr "{0} كلمة"
+
+#. placeholder {0}: c.unsortedWords.toLocaleString()
+#: src/app/board/SceneBoard.tsx
+msgid "{0} words sit outside every scene."
+msgstr "{0} كلمة خارج كل المشاهد."
+
+#. placeholder {0}: scene.synopsis
+#: src/app/board/SceneCard.tsx
+msgid "{0}, edit synopsis of {title}"
+msgstr "{0}، تعديل ملخص {title}"
 
 #. placeholder {0}: nativeName(e.language)
 #. placeholder {1}: e.translated
@@ -322,14 +312,9 @@ msgstr "{0}. حاول مرة أخرى وتأكد من أن الملف غير م�
 
 #. placeholder {0}: errText(e)
 #. placeholder {0}: r.message
-#: src/lib/fontErrors.ts
-#: src/lib/pdfErrors.ts
+#: src/lib/fontErrors.ts src/lib/pdfErrors.ts
 msgid "{0}. Try again."
 msgstr "{0}. حاول مرة أخرى."
-
-#: src/app/library/Library.tsx
-msgid "{added, plural, one {Added # new book.} other {Added # new books.}}"
-msgstr "{added, plural, zero {لم تتم إضافة كتب جديدة.} one {تمت إضافة كتاب جديد واحد.} two {تمت إضافة كتابين جديدين.} few {تمت إضافة # كتب جديدة.} many {تمت إضافة # كتابًا جديدًا.} other {تمت إضافة # كتاب جديد.}}"
 
 #: src/app/shell/StatusBar.tsx
 msgid "{bookWords} in the book"
@@ -368,6 +353,14 @@ msgstr "{index} من {total}"
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr "{kept, plural, one {سيُستورد فصل واحد.} two {سيُستورد فصلان.} few {ستُستورد # فصول.} many {سيُستورد # فصلًا.} other {سيُستورد # فصل.}}"
 
+#: src/state/project/scenes.ts
+msgid "{label} stopped: {why}. A scene may now be in two chapters; nothing was lost, and Undo finishes the job."
+msgstr "توقّف {label}: {why}. قد يكون مشهد الآن في فصلين؛ لم يضع شيء، والتراجع يُكمل العملية."
+
+#: src/state/project/scenes.ts
+msgid "{label} stopped: {why}. Nothing was changed."
+msgstr "توقّف {label}: {why}. لم يتغيّر شيء."
+
 #: src/app/shell/Details.tsx
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
 msgstr "{minutes, plural, one {دقيقة واحدة} two {دقيقتان} few {# دقائق} many {# دقيقة} other {# دقيقة}}"
@@ -390,7 +383,7 @@ msgstr "{name} موجود بالفعل في هذا الكتاب. سيُستخد�
 
 #: src/app/comments/CommentsPanel.tsx
 msgid "{open} open"
-msgstr "{open} مفتوح"
+msgstr "{open} مفتوحة"
 
 #: src/app/references/PdfPreview.tsx
 msgid "{page} / {pages}"
@@ -428,9 +421,27 @@ msgstr "{styleCount} نمطًا · {size} ميغابايت"
 msgid "{title} is already first"
 msgstr "{title} هو الأول بالفعل"
 
+#. placeholder {0}: c.title
+#: src/app/board/SceneBoard.tsx
+msgid "{title} is already first in {0}"
+msgstr "{title} هو الأول بالفعل في {0}"
+
+#: src/app/board/SceneBoard.tsx
+msgid "{title} is already in the first chapter"
+msgstr "{title} موجود بالفعل في الفصل الأول"
+
+#: src/app/board/SceneBoard.tsx
+msgid "{title} is already in the last chapter"
+msgstr "{title} موجود بالفعل في الفصل الأخير"
+
 #: src/app/shell/EntryList.tsx
 msgid "{title} is already last"
 msgstr "{title} هو الأخير بالفعل"
+
+#. placeholder {0}: c.title
+#: src/app/board/SceneBoard.tsx
+msgid "{title} is already last in {0}"
+msgstr "{title} هو الأخير بالفعل في {0}"
 
 #: src/app/shell/EntryList.tsx
 msgid "{title}: at the top of the page"
@@ -514,7 +525,7 @@ msgstr "عُثر في السجل على نسخة من هذه الصفحة أحد
 
 #: src/state/project/comments.ts
 msgid "A page holds at most {MAX_COMMENT_THREADS} comments."
-msgstr "تتسع الصفحة لـ {MAX_COMMENT_THREADS} تعليقًا على الأكثر."
+msgstr "تتسع الصفحة لما لا يزيد على {MAX_COMMENT_THREADS} تعليق."
 
 #: src/state/project/exports.ts
 msgid "A PDF export is already running"
@@ -528,6 +539,10 @@ msgstr "يوجد مشروع بالفعل في هذا المجلد"
 msgid "A sample is already being made"
 msgstr "يجري إنشاء عيّنة بالفعل"
 
+#: src/app/board/SceneBoard.tsx
+msgid "A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move."
+msgstr "يوجد مشهد في فصلين، على الأرجح لأن عملية نقل توقفت. يُعرض الأول فقط؛ والتراجع يُكمل النقل."
+
 #: src/app/export/AudioExport.tsx
 msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
 msgstr "ملف نصي للكتاب كاملًا وملف ترجمة WebVTT لكل فصل، من النص نفسه الذي يقرؤه الصوت. أوقات الترجمة تقديرية."
@@ -540,24 +555,25 @@ msgstr "لا يمكن أن يكون العنوان فارغًا، لذلك أُ�
 msgid "About CadabraCraft"
 msgstr "حول CadabraCraft"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "About the author"
 msgstr "عن المؤلف"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Acknowledgments"
 msgstr "شكر وتقدير"
 
 #. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
-#: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
+#: src/app/references/ReferenceRow.tsx src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Actions for {0}"
 msgstr "إجراءات لـ {0}"
+
+#: src/app/board/SceneCard.tsx
+msgid "Actions for {title}"
+msgstr "إجراءات لـ {title}"
 
 #: src/state/project/pages.ts
 msgid "Add {name}"
@@ -567,9 +583,13 @@ msgstr "إضافة {name}"
 msgid "Add {title}"
 msgstr "إضافة {title}"
 
-#: src/app/library/Library.tsx
-msgid "Add a folder of books…"
-msgstr "إضافة مجلد كتب…"
+#: src/app/board/SceneCard.tsx
+msgid "Add a synopsis"
+msgstr "إضافة ملخص"
+
+#: src/app/board/SceneCard.tsx
+msgid "Add a synopsis to {title}"
+msgstr "إضافة ملخص إلى {title}"
 
 #: src/app/references/ReferenceDetails.tsx
 msgid "Add a tag"
@@ -579,8 +599,7 @@ msgstr "إضافة وسم"
 msgid "Add bleed (0.125 in)"
 msgstr "إضافة حافة القص (0.125 بوصة)"
 
-#: src/app/shell/App.tsx
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/App.tsx src/app/shell/Sidebar.tsx
 msgid "Add chapter"
 msgstr "إضافة فصل"
 
@@ -596,8 +615,7 @@ msgstr "إضافة تعليق"
 msgid "Add contents entry"
 msgstr "إضافة إدخال إلى المحتويات"
 
-#: src/app/toc/AddEntryDialog.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/AddEntryDialog.tsx src/app/toc/TocEditor.tsx
 msgid "Add custom entry"
 msgstr "إضافة إدخال مخصّص"
 
@@ -617,8 +635,7 @@ msgstr "إضافة صورة"
 msgid "Add images, videos, PDFs, audio and notes you want to look at while you write. They stay in the book folder."
 msgstr "أضف الصور ومقاطع الفيديو وملفات PDF والصوتيات والملاحظات التي تريد الاطلاع عليها أثناء الكتابة. تبقى في مجلد الكتاب."
 
-#: src/app/dialogs/AddLanguageDialog.tsx
-#: src/app/shell/EditionSwitcher.tsx
+#: src/app/dialogs/AddLanguageDialog.tsx src/app/shell/EditionSwitcher.tsx
 msgid "Add language"
 msgstr "إضافة لغة"
 
@@ -669,16 +686,14 @@ msgstr "يضيف الغلاف كأول صفحة، وخلفه صفحة فارغة
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Aliases (one per line)"
-msgstr "أسماء بديلة (واحد في كل سطر)"
+msgstr "الأسماء البديلة (واحد في كل سطر)"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Align to End"
 msgstr "محاذاة إلى النهاية"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Align to Start"
 msgstr "محاذاة إلى البداية"
@@ -687,13 +702,11 @@ msgstr "محاذاة إلى البداية"
 msgid "Alignment"
 msgstr "محاذاة"
 
-#: src/app/codex/CodexDialog.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/codex/CodexDialog.tsx src/app/references/ReferencesPanel.tsx
 msgid "All"
 msgstr "الكل"
 
-#: src/app/export/AudioExport.tsx
-#: src/editor/FindBar.tsx
+#: src/app/export/AudioExport.tsx src/editor/FindBar.tsx
 msgid "All chapters"
 msgstr "كل الفصول"
 
@@ -716,8 +729,7 @@ msgstr "مستخدم بالفعل في «{owner}». اضغط مفتاحًا آخ
 msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 msgstr "كُتب بالفعل إلى {0}: {1} من ملفات الفصول و{2} من الصور؛ لم تُحفظ قائمة فصول الكتاب."
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Also by"
 msgstr "للمؤلف نفسه"
 
@@ -725,8 +737,7 @@ msgstr "للمؤلف نفسه"
 msgid "An entry of your own, such as “Acknowledgments” or a part title. It takes its page number from the entry it points at."
 msgstr "إدخال خاص بك، مثل “شكر وتقدير” أو عنوان قسم. يأخذ رقم صفحته من الإدخال الذي يشير إليه."
 
-#: src/state/project/audio.ts
-#: src/state/project/exports.ts
+#: src/state/project/audio.ts src/state/project/exports.ts
 msgid "An export is already running"
 msgstr "هناك تصدير قيد التشغيل بالفعل"
 
@@ -770,8 +781,7 @@ msgstr "اسأل كل مرة"
 msgid "at {size}"
 msgstr "عند {size}"
 
-#: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/ReferenceRow.tsx src/app/references/ReferencesPanel.tsx
 #: src/app/settings/Settings.tsx
 msgid "Audio"
 msgstr "الصوت"
@@ -793,11 +803,8 @@ msgstr "تقدّم الكتاب الصوتي"
 msgid "Audiobook…"
 msgstr "كتاب صوتي…"
 
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/home/Home.tsx
-#: src/app/library/Library.tsx
-#: src/app/shell/Details.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Home.tsx src/app/shell/Details.tsx
 msgid "Author"
 msgstr "المؤلف"
 
@@ -805,15 +812,13 @@ msgstr "المؤلف"
 msgid "Automatic"
 msgstr "تلقائية"
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/export/PrintPreview.tsx
-#: src/app/export/Templates.tsx
+#: src/app/board/SceneBoard.tsx src/app/dialogs/ImportDialogs.tsx
+#: src/app/export/PrintPreview.tsx src/app/export/Templates.tsx
 #: src/app/settings/Settings.tsx
 msgid "Back"
 msgstr "رجوع"
 
-#: src/app/shell/Details.tsx
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/Details.tsx src/app/shell/Sidebar.tsx
 #: src/app/shell/StatusBar.tsx
 msgid "Back matter"
 msgstr "الصفحات الختامية"
@@ -829,7 +834,7 @@ msgstr "الصفحات الختامية: {0}"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Back to entries"
-msgstr "العودة إلى المدخلات"
+msgstr "العودة إلى الإدخالات"
 
 #: src/app/export/AudioFooter.tsx
 msgid "Back to options"
@@ -879,8 +884,7 @@ msgstr "الحرف الأول الكبير: افتراضي القالب"
 msgid "Bird"
 msgstr "طائر"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Blank page"
 msgstr "صفحة فارغة"
 
@@ -892,18 +896,15 @@ msgstr "حافة القص"
 msgid "Block quote"
 msgstr "اقتباس"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 msgid "Block Quote"
 msgstr "اقتباس"
 
-#: src/app/export/PdfPanel.tsx
-#: src/app/export/Templates.tsx
+#: src/app/export/PdfPanel.tsx src/app/export/Templates.tsx
 msgid "Body font"
 msgstr "خط المتن"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Bold"
 msgstr "غامق"
@@ -912,13 +913,7 @@ msgstr "غامق"
 msgid "Book"
 msgstr "الكتاب"
 
-#. placeholder {0}: info.seriesNumber
-#: src/app/library/Library.tsx
-msgid "Book {0}"
-msgstr "الكتاب {0}"
-
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/shell/AppHeader.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx src/app/shell/AppHeader.tsx
 msgid "Book details"
 msgstr "تفاصيل الكتاب"
 
@@ -939,14 +934,9 @@ msgstr "سجل الكتاب"
 msgid "Book progress"
 msgstr "تقدّم الكتاب"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
-#: src/app/shell/Sidebar.tsx
+#: src/app/dialogs/BookSnapshotsPanel.tsx src/app/shell/Sidebar.tsx
 msgid "Book snapshots"
 msgstr "لقطات الكتاب"
-
-#: src/app/library/Library.tsx
-msgid "Books without a series"
-msgstr "كتب بلا سلسلة"
 
 #: src/app/shell/menuModel.ts
 msgid "Bring All to Front"
@@ -968,8 +958,7 @@ msgstr "جارٍ إنشاء EPUB…"
 msgid "Bulleted list"
 msgstr "قائمة نقطية"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 msgid "Bulleted List"
 msgstr "قائمة نقطية"
 
@@ -1003,18 +992,12 @@ msgstr "شيفرة CadabraCraft المصدرية متاحة للاطلاع. هن
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft محدّث."
 
-#: src/app/comments/CommentsPanel.tsx
-#: src/app/dialogs/AddLanguageDialog.tsx
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/export/AudioFooter.tsx
-#: src/app/export/ExportDialog.tsx
-#: src/app/home/Home.tsx
-#: src/app/settings/FontsCatalogDialog.tsx
-#: src/app/toc/AddEntryDialog.tsx
-#: src/editor/TableCommands.tsx
-#: src/editor/ToolbarDialogs.tsx
-#: src/ui/Dialog.tsx
+#: src/app/comments/CommentsPanel.tsx src/app/dialogs/AddLanguageDialog.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx src/app/dialogs/ImportDialogs.tsx
+#: src/app/export/AudioFooter.tsx src/app/export/ExportDialog.tsx
+#: src/app/home/Home.tsx src/app/settings/FontsCatalogDialog.tsx
+#: src/app/toc/AddEntryDialog.tsx src/editor/TableCommands.tsx
+#: src/editor/ToolbarDialogs.tsx src/ui/Dialog.tsx
 msgid "Cancel"
 msgstr "إلغاء"
 
@@ -1057,8 +1040,7 @@ msgstr "الشخصيات"
 msgid "Castle"
 msgstr "قلعة"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Centre"
 msgstr "توسيط"
@@ -1067,8 +1049,7 @@ msgstr "توسيط"
 msgid "Centred"
 msgstr "في المنتصف"
 
-#: src/app/export/PdfPanel.tsx
-#: src/app/settings/ShortcutsSection.tsx
+#: src/app/export/PdfPanel.tsx src/app/settings/ShortcutsSection.tsx
 msgid "Change"
 msgstr "تغيير"
 
@@ -1120,16 +1101,14 @@ msgstr "قد لا تُلاحَظ التغييرات التي تُجرى خارج
 msgid "Changes that no longer match"
 msgstr "تغييرات لم تعد مطابقة"
 
-#: src/app/shell/Details.tsx
+#: src/app/board/SceneBoard.tsx src/app/shell/Details.tsx
 msgid "Chapter"
 msgstr "الفصل"
 
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: chaptersOf(manifest!).length + 1
 #. placeholder {0}: chaptersOf(manifest).length + 1
-#: src/app/hooks/useAppMenu.ts
-#: src/app/shell/App.tsx
-#: src/app/shell/Sidebar.tsx
+#: src/app/hooks/useAppMenu.ts src/app/shell/App.tsx src/app/shell/Sidebar.tsx
 msgid "Chapter {0}"
 msgstr "الفصل {0}"
 
@@ -1175,15 +1154,16 @@ msgstr "بداية الفصل"
 msgid "Chapter title"
 msgstr "عنوان الفصل"
 
-#: src/app/dialogs/ImportChapterList.tsx
-#: src/app/export/AudioExport.tsx
-#: src/app/quicknav/OutlineNavigator.tsx
-#: src/app/shell/Details.tsx
-#: src/app/shell/Drawers.tsx
-#: src/app/shell/Sidebar.tsx
+#: src/app/dialogs/ImportChapterList.tsx src/app/export/AudioExport.tsx
+#: src/app/quicknav/OutlineNavigator.tsx src/app/shell/Details.tsx
+#: src/app/shell/Drawers.tsx src/app/shell/Sidebar.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "Chapters"
 msgstr "الفصول"
+
+#: src/app/board/SceneBoard.tsx
+msgid "Chapters and their scenes"
+msgstr "الفصول ومشاهدها"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Chapters start as {sourceName} copies, marked Not translated yet."
@@ -1227,7 +1207,7 @@ msgstr "اختر مظهرًا لكتابك"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Choose an entry, or add one."
-msgstr "اختر مدخلًا أو أضف واحدًا."
+msgstr "اختر إدخالاً أو أضف واحداً."
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
@@ -1237,8 +1217,7 @@ msgstr "اختر تغيير ثم اضغط المفاتيح الجديدة. يل�
 msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
 msgstr "اختر تغيير ثم اضغط المفاتيح الجديدة. يلغي Esc ويزيل Backspace المفتاح. Ctrl هو Control."
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/settings/FontsSection.tsx
+#: src/app/dialogs/ImportDialogs.tsx src/app/settings/FontsSection.tsx
 msgid "Choose file…"
 msgstr "اختيار ملف…"
 
@@ -1251,8 +1230,7 @@ msgstr "اختر كيفية التعامل مع {0} لتصديره."
 msgid "Choose image…"
 msgstr "اختيار صورة…"
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/home/Home.tsx
+#: src/app/dialogs/ImportDialogs.tsx src/app/home/Home.tsx
 msgid "Choose…"
 msgstr "اختيار…"
 
@@ -1260,8 +1238,7 @@ msgstr "اختيار…"
 msgid "Clarifications"
 msgstr "توضيحات"
 
-#: src/editor/Toolbar.tsx
-#: src/editor/ToolbarDialogs.tsx
+#: src/editor/Toolbar.tsx src/editor/ToolbarDialogs.tsx
 msgid "Clear language"
 msgstr "مسح اللغة"
 
@@ -1277,10 +1254,8 @@ msgstr "مسح القائمة"
 msgid "Clear search and filters to reorder"
 msgstr "امسح البحث والمرشحات لإعادة الترتيب"
 
-#: src/app/dialogs/HistoryDialog.tsx
-#: src/app/export/AudioFooter.tsx
-#: src/app/quicknav/QuickPicker.tsx
-#: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/dialogs/HistoryDialog.tsx src/app/export/AudioFooter.tsx
+#: src/app/quicknav/QuickPicker.tsx src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/FindBar.tsx
 msgid "Close"
 msgstr "إغلاق"
@@ -1325,29 +1300,25 @@ msgstr "إغلاق العارض"
 msgid "Close Window"
 msgstr "إغلاق النافذة"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Code"
 msgstr "شيفرة"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Code Block"
 msgstr "كتلة شيفرة"
 
-#: src/app/codex/CodexDialog.tsx
-#: src/app/shell/Sidebar.tsx
+#: src/app/codex/CodexDialog.tsx src/app/shell/Sidebar.tsx
 msgid "Codex"
 msgstr "الموسوعة"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Codex entries"
-msgstr "مدخلات الموسوعة"
+msgstr "إدخالات الموسوعة"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Colophon"
 msgstr "بيانات الطباعة"
 
@@ -1359,8 +1330,7 @@ msgstr "الأعمدة"
 msgid "Columns are equal width. Up to {MAX_TABLE_COLUMNS} columns."
 msgstr "الأعمدة متساوية العرض. حتى {MAX_TABLE_COLUMNS} عمودًا."
 
-#: src/app/quicknav/CommandPalette.tsx
-#: src/app/shell/AppHeader.tsx
+#: src/app/quicknav/CommandPalette.tsx src/app/shell/AppHeader.tsx
 msgid "Command palette"
 msgstr "لوحة الأوامر"
 
@@ -1372,10 +1342,8 @@ msgstr "لوحة الأوامر…"
 msgid "Comment on the selection"
 msgstr "التعليق على التحديد"
 
-#: src/app/comments/CommentsPanel.tsx
-#: src/app/shell/App.tsx
-#: src/app/shell/AppHeader.tsx
-#: src/app/shell/Drawers.tsx
+#: src/app/comments/CommentsPanel.tsx src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx src/app/shell/Drawers.tsx
 msgid "Comments"
 msgstr "التعليقات"
 
@@ -1391,15 +1359,12 @@ msgstr "المقارنة"
 msgid "Compass"
 msgstr "بوصلة"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
-#: src/app/toc/TocEditor.tsx
-#: src/app/toc/useContentsView.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
+#: src/app/toc/TocEditor.tsx src/app/toc/useContentsView.ts
 msgid "Contents"
 msgstr "المحتويات"
 
-#: src/app/toc/TocEditor.tsx
-#: src/editor/ReadingContents.tsx
+#: src/app/toc/TocEditor.tsx src/editor/ReadingContents.tsx
 msgid "Contents entries"
 msgstr "إدخالات المحتويات"
 
@@ -1435,8 +1400,7 @@ msgstr "نسخ"
 msgid "Copy report"
 msgstr "نسخ التقرير"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Copyright page"
 msgstr "صفحة حقوق النشر"
 
@@ -1503,8 +1467,7 @@ msgstr "تعذّر تحميل {name}. تبقى اللغة كما كانت. اخ�
 msgid "Could not load the earlier versions ({0}). Close this dialog and open History again to retry."
 msgstr "تعذّر تحميل الإصدارات السابقة ({0}). أغلق هذه النافذة وافتح السجل مرة أخرى لإعادة المحاولة."
 
-#: src/app/dialogs/SponsorDialog.tsx
-#: src/app/onboarding/Onboarding.tsx
+#: src/app/dialogs/SponsorDialog.tsx src/app/onboarding/Onboarding.tsx
 msgid "Could not open {SPONSOR_URL}: {why}. Copy the address into your browser instead."
 msgstr "تعذّر فتح {SPONSOR_URL}: {why}. انسخ العنوان إلى متصفحك بدلًا من ذلك."
 
@@ -1518,7 +1481,7 @@ msgid "Could not open the chooser ({0}). Try again."
 msgstr "تعذّر فتح نافذة الاختيار ({0}). حاول مرة أخرى."
 
 #. placeholder {0}: whyText(e)
-#: src/app/library/useOpenBook.ts
+#: src/app/home/Home.tsx
 msgid "Could not open this book: {0}. Check the folder is not open elsewhere, or remove it from the list and open it again."
 msgstr "تعذّر فتح هذا الكتاب: {0}. تأكد من أن المجلد غير مفتوح في مكان آخر، أو أزله من القائمة وافتحه من جديد."
 
@@ -1594,8 +1557,7 @@ msgstr "تعذّر حفظ المرجع: {0}. حاول مرة أخرى."
 msgid "Could not save: {why}. Your text is still in the editor and CadabraCraft will try again. Free some space or check the folder if it keeps failing."
 msgstr "تعذّر الحفظ: {why}. نصك لا يزال في المحرر وسيعيد CadabraCraft المحاولة. وفّر مساحة أو افحص المجلد إذا استمر الفشل."
 
-#: src/app/export/TypstSpread.tsx
-#: src/app/toc/TocPreview.tsx
+#: src/app/export/TypstSpread.tsx src/app/toc/TocPreview.tsx
 msgid "Could not show the preview: {error}"
 msgstr "تعذّر عرض المعاينة: {error}"
 
@@ -1625,20 +1587,14 @@ msgstr "تعذّر التراجع: {why}. حاول مرة أخرى أو استع
 msgid "Could not use the newer text ({0}). Your saved text was not changed. Try again, or choose Keep saved text."
 msgstr "تعذّر استخدام النص الأحدث ({0}). لم يتغيّر نصك المحفوظ. حاول مرة أخرى، أو اختر إبقاء النص المحفوظ."
 
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/export/ApproxSpread.tsx
-#: src/app/export/PrintPreview.tsx
-#: src/app/shell/Details.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx src/app/export/ApproxSpread.tsx
+#: src/app/export/PrintPreview.tsx src/app/shell/Details.tsx
 msgid "Cover"
 msgstr "الغلاف"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Cover preview"
 msgstr "معاينة الغلاف"
-
-#: src/app/library/Library.tsx
-msgid "Covers"
-msgstr "الأغلفة"
 
 #: src/app/home/Home.tsx
 msgid "Create book"
@@ -1656,8 +1612,7 @@ msgstr "ينشئ ملف PDF جاهزًا للطباعة في مجلد التصد
 msgid "Creates an EPUB 3 e-book in the exports folder."
 msgstr "ينشئ كتابًا إلكترونيًا بصيغة EPUB 3 في مجلد التصدير."
 
-#: src/app/export/PdfPanel.tsx
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/PdfPanel.tsx src/app/export/PrintPreview.tsx
 msgid "Crop marks"
 msgstr "علامات القص"
 
@@ -1669,8 +1624,7 @@ msgstr "علامات القص تجعل الصفحة أكبر من حجم الص�
 msgid "Crown"
 msgstr "تاج"
 
-#: src/app/export/EditionsChecklist.tsx
-#: src/app/quicknav/OutlineNavigator.tsx
+#: src/app/export/EditionsChecklist.tsx src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
 msgstr "الحالي"
 
@@ -1678,8 +1632,7 @@ msgstr "الحالي"
 msgid "Custom"
 msgstr "مخصّص"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Custom page"
 msgstr "صفحة مخصّصة"
 
@@ -1687,13 +1640,11 @@ msgstr "صفحة مخصّصة"
 msgid "Cut"
 msgstr "قص"
 
-#: src/app/settings/Settings.tsx
-#: src/editor/ReadingSettings.tsx
+#: src/app/settings/Settings.tsx src/editor/ReadingSettings.tsx
 msgid "Dark"
 msgstr "داكن"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Dedication"
 msgstr "الإهداء"
 
@@ -1723,8 +1674,7 @@ msgstr "حذف"
 
 #. placeholder {0}: f.family
 #. placeholder {0}: selected.name
-#: src/app/codex/CodexDialog.tsx
-#: src/app/settings/FontsSection.tsx
+#: src/app/codex/CodexDialog.tsx src/app/settings/FontsSection.tsx
 msgid "Delete {0}"
 msgstr "حذف {0}"
 
@@ -1773,8 +1723,7 @@ msgstr "الوصف"
 msgid "Description (alt text)"
 msgstr "الوصف (النص البديل)"
 
-#: src/app/shell/App.tsx
-#: src/app/shell/AppHeader.tsx
+#: src/app/shell/App.tsx src/app/shell/AppHeader.tsx
 msgid "Details"
 msgstr "التفاصيل"
 
@@ -1790,8 +1739,7 @@ msgstr "تجاهل"
 msgid "Dismiss message"
 msgstr "تجاهل الرسالة"
 
-#: src/app/dialogs/LicensesDialog.tsx
-#: src/app/references/ReferenceRow.tsx
+#: src/app/dialogs/LicensesDialog.tsx src/app/references/ReferenceRow.tsx
 msgid "Document"
 msgstr "مستند"
 
@@ -1803,8 +1751,7 @@ msgstr "المستندات"
 msgid "Don't show again"
 msgstr "عدم الإظهار مرة أخرى"
 
-#: src/app/dialogs/ImportReportDialog.tsx
-#: src/app/export/AudioExport.tsx
+#: src/app/dialogs/ImportReportDialog.tsx src/app/export/AudioExport.tsx
 #: src/app/export/AudioFooter.tsx
 msgid "Done"
 msgstr "تم"
@@ -1822,8 +1769,7 @@ msgstr "تنزيل"
 msgid "Download {0}"
 msgstr "تنزيل {0}"
 
-#: src/app/settings/FontsCatalogDialog.tsx
-#: src/app/settings/FontsSection.tsx
+#: src/app/settings/FontsCatalogDialog.tsx src/app/settings/FontsSection.tsx
 msgid "Download fonts"
 msgstr "تنزيل الخطوط"
 
@@ -1868,6 +1814,10 @@ msgstr "جارٍ التنزيل… {0} ميغابايت من {1} ميغاباي�
 msgid "Draft"
 msgstr "مسودة"
 
+#: src/app/board/SceneBoard.tsx
+msgid "Drag to move, or press the arrow keys: up and down move within the chapter, left and right to the next chapter. Escape cancels a drag."
+msgstr "اسحب للنقل، أو استخدم مفاتيح الأسهم: لأعلى ولأسفل داخل الفصل، ولليسار واليمين إلى الفصل المجاور. يُلغي Escape السحب."
+
 #: src/app/shell/EntryList.tsx
 msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
 msgstr "اسحب للنقل، أو اضغط على سهمي الأعلى والأسفل. يلغي Esc السحب."
@@ -1905,11 +1855,14 @@ msgstr "الإصدارات السابقة"
 msgid "Earlier versions of this page. Pick one to compare it with the current text."
 msgstr "إصدارات سابقة من هذه الصفحة. اختر واحدًا لمقارنته بالنص الحالي."
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/app/toc/TocEditor.tsx
 msgid "Edit"
 msgstr "تحرير"
+
+#: src/state/project/scenes.ts
+msgid "Edit {title}"
+msgstr "تعديل {title}"
 
 #: src/app/shell/Details.tsx
 msgid "Edit details"
@@ -1920,7 +1873,6 @@ msgid "Edit this page"
 msgstr "حرّر هذه الصفحة"
 
 #: src/app/home/Dashboard.tsx
-#: src/app/library/Library.tsx
 msgid "Edited {when}"
 msgstr "حُرّر {when}"
 
@@ -1965,13 +1917,11 @@ msgstr "الدخول إلى وضع ملء الشاشة"
 msgid "Enter the series name first."
 msgstr "أدخل اسم السلسلة أولًا."
 
-#: src/app/toc/AddEntryDialog.tsx
-#: src/app/toc/TocRow.tsx
+#: src/app/toc/AddEntryDialog.tsx src/app/toc/TocRow.tsx
 msgid "Entry title"
 msgstr "عنوان الإدخال"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Epigraph"
 msgstr "الاستهلال"
 
@@ -1987,8 +1937,7 @@ msgstr "EPUB 3 يجتاز EPUBCheck، وملف PDF جاهز للطباعة بم�
 msgid "EPUB…"
 msgstr "EPUB…"
 
-#: src/app/export/CheckList.tsx
-#: src/ui/Notice.tsx
+#: src/app/export/CheckList.tsx src/ui/Notice.tsx
 msgid "Error:"
 msgstr "خطأ:"
 
@@ -2021,8 +1970,7 @@ msgstr "صفحات دقيقة من Typst"
 msgid "Exit focus mode"
 msgstr "الخروج من وضع التركيز"
 
-#: src/app/export/ExportDialog.tsx
-#: src/app/shell/AppHeader.tsx
+#: src/app/export/ExportDialog.tsx src/app/shell/AppHeader.tsx
 #: src/app/shell/menuModel.ts
 msgid "Export"
 msgstr "تصدير"
@@ -2088,16 +2036,14 @@ msgstr "سريع وواضح."
 msgid "Feather"
 msgstr "ريشة"
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/references/ReferenceRow.tsx
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/dialogs/ImportDialogs.tsx src/app/references/ReferenceRow.tsx
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 msgid "File"
 msgstr "ملف"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Filter by kind"
-msgstr "تصفية حسب النوع"
+msgstr "التصفية حسب النوع"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Filter by tag"
@@ -2113,7 +2059,7 @@ msgstr "تصفية التعليقات"
 
 #: src/app/scenes/labels.ts
 msgid "Final"
-msgstr "نهائي"
+msgstr "نهائية"
 
 #: src/editor/FindBar.tsx
 msgid "Find"
@@ -2143,8 +2089,7 @@ msgstr "جارٍ البحث عن الصفحة في فصلك…"
 msgid "First letter"
 msgstr "الحرف الأول"
 
-#: src/app/export/TypstSpread.tsx
-#: src/app/references/ImagePreview.tsx
+#: src/app/export/TypstSpread.tsx src/app/references/ImagePreview.tsx
 msgid "Fit to window"
 msgstr "ملاءمة النافذة"
 
@@ -2176,7 +2121,7 @@ msgstr "وضع التركيز"
 msgid "Folder"
 msgstr "المجلد"
 
-#: src/app/library/useOpenBook.ts
+#: src/app/home/Home.tsx
 msgid "Folder not found. Remove it from the list or move it back."
 msgstr "المجلد غير موجود. أزله من القائمة أو أعده إلى مكانه."
 
@@ -2200,13 +2145,11 @@ msgstr "الخطوط"
 msgid "Fonts are downloaded from Google Fonts only when you click Download. Nothing else is sent."
 msgstr "تُنزَّل الخطوط من Google Fonts فقط عند النقر على تنزيل. لا يُرسل شيء آخر."
 
-#: src/app/shell/menuModel.ts
-#: src/editor/Toolbar.tsx
+#: src/app/shell/menuModel.ts src/editor/Toolbar.tsx
 msgid "Footnote"
 msgstr "حاشية سفلية"
 
-#: src/editor/Editor.tsx
-#: src/editor/ReadingSection.tsx
+#: src/editor/Editor.tsx src/editor/ReadingSection.tsx
 msgid "Footnote {n}"
 msgstr "الحاشية {n}"
 
@@ -2222,13 +2165,11 @@ msgstr "مثال: © 2026 أ. كاتب. جميع الحقوق محفوظة."
 msgid "Forest"
 msgstr "غابة"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Foreword"
 msgstr "تقديم"
 
-#: src/app/export/ExportDialog.tsx
-#: src/app/settings/shortcutList.ts
+#: src/app/export/ExportDialog.tsx src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "Format"
 msgstr "التنسيق"
@@ -2241,8 +2182,7 @@ msgstr "الصيغ"
 msgid "Formatting"
 msgstr "تنسيق النص"
 
-#: src/app/shell/Details.tsx
-#: src/app/shell/Sidebar.tsx
+#: src/app/shell/Details.tsx src/app/shell/Sidebar.tsx
 #: src/app/shell/StatusBar.tsx
 msgid "Front matter"
 msgstr "الصفحات التمهيدية"
@@ -2280,30 +2220,20 @@ msgstr "أعطِ الكتاب عنوانًا."
 msgid "Give the book an author."
 msgstr "أعطِ الكتاب مؤلفًا."
 
-#: src/app/library/Library.tsx
-msgid "Group by series"
-msgstr "تجميع حسب السلسلة"
-
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/quicknav/QuickPicker.tsx
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/dialogs/ImportDialogs.tsx src/app/quicknav/QuickPicker.tsx
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 1"
 msgstr "عنوان 1"
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/quicknav/QuickPicker.tsx
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/dialogs/ImportDialogs.tsx src/app/quicknav/QuickPicker.tsx
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 2"
 msgstr "عنوان 2"
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/quicknav/QuickPicker.tsx
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/dialogs/ImportDialogs.tsx src/app/quicknav/QuickPicker.tsx
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Heading 3"
 msgstr "عنوان 3"
@@ -2324,8 +2254,7 @@ msgstr "الاستماع إلى عيّنة"
 msgid "Heart"
 msgstr "قلب"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 msgid "Help"
 msgstr "مساعدة"
 
@@ -2379,10 +2308,6 @@ msgstr "أبقِ ⌘ أو ⌥ مضغوطًا مع المفتاح."
 msgid "Hold Ctrl or Alt together with the key."
 msgstr "أبقِ Ctrl أو Alt مضغوطًا مع المفتاح."
 
-#: src/app/library/Library.tsx
-msgid "Home"
-msgstr "الرئيسية"
-
 #. placeholder {0}: page?.title ?? ""
 #: src/app/dialogs/IconDialog.tsx
 msgid "Icon for “{0}”"
@@ -2400,8 +2325,7 @@ msgstr "تمت إزالة أيقونة «{title}»"
 msgid "Identifier"
 msgstr "المعرّف"
 
-#: src/app/references/ReferenceRow.tsx
-#: src/editor/Toolbar.tsx
+#: src/app/references/ReferenceRow.tsx src/editor/Toolbar.tsx
 msgid "Image"
 msgstr "صورة"
 
@@ -2420,8 +2344,7 @@ msgstr "تعذّر حفظ الصورة {0}: {1}. أضف الصورة إلى ال
 msgid "Image checks"
 msgstr "فحوصات الصور"
 
-#: src/editor/Toolbar.tsx
-#: src/editor/ToolbarDialogs.tsx
+#: src/editor/Toolbar.tsx src/editor/ToolbarDialogs.tsx
 msgid "Image details"
 msgstr "تفاصيل الصورة"
 
@@ -2458,8 +2381,7 @@ msgstr "استيراد ملف خط"
 msgid "Import a manuscript"
 msgstr "استيراد مخطوطة"
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/shell/AppHeader.tsx
+#: src/app/dialogs/ImportDialogs.tsx src/app/shell/AppHeader.tsx
 msgid "Import into this book"
 msgstr "استيراد إلى هذا الكتاب"
 
@@ -2479,8 +2401,7 @@ msgstr "تحذيرات الاستيراد"
 msgid "Import Word, Markdown, HTML or plain text. A report lists anything that could not be kept."
 msgstr "استورد Word أو Markdown أو HTML أو نصًا عاديًا. يوضح تقرير كل ما تعذّر حفظه."
 
-#: src/app/home/Home.tsx
-#: src/app/shell/menuModel.ts
+#: src/app/home/Home.tsx src/app/shell/menuModel.ts
 msgid "Import…"
 msgstr "استيراد…"
 
@@ -2526,10 +2447,8 @@ msgstr "تضمين الغلاف"
 msgid "Indent list item"
 msgstr "زيادة إزاحة عنصر القائمة"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
-#: src/editor/TableCommands.tsx
-#: src/editor/ToolbarDialogs.tsx
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
+#: src/editor/TableCommands.tsx src/editor/ToolbarDialogs.tsx
 msgid "Insert"
 msgstr "إدراج"
 
@@ -2549,8 +2468,7 @@ msgstr "الهامش الداخلي {inside} بوصة أقل من حد KDP ال�
 msgid "Install now"
 msgstr "التثبيت الآن"
 
-#: src/app/settings/FontsCatalogDialog.tsx
-#: src/app/settings/FontsSection.tsx
+#: src/app/settings/FontsCatalogDialog.tsx src/app/settings/FontsSection.tsx
 msgid "Installed"
 msgstr "مثبّت"
 
@@ -2571,8 +2489,7 @@ msgstr "لغة الواجهة"
 msgid "Invalid pattern"
 msgstr "نمط غير صالح"
 
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/shell/Details.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx src/app/shell/Details.tsx
 msgid "ISBN"
 msgstr "ISBN"
 
@@ -2588,8 +2505,7 @@ msgstr "يُخزَّن مع كتابك. افتحه في تطبيق آخر لقر
 msgid "It moves to the project trash inside your book folder. Nothing is permanently deleted."
 msgstr "ينتقل إلى سلة مهملات المشروع داخل مجلد كتابك. لا يُحذف شيء نهائيًا."
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Italic"
 msgstr "مائل"
@@ -2610,8 +2526,7 @@ msgstr "مكتبات JavaScript"
 msgid "Keep"
 msgstr "إبقاء"
 
-#: src/app/settings/Settings.tsx
-#: src/editor/Editor.tsx
+#: src/app/settings/Settings.tsx src/editor/Editor.tsx
 msgid "Keep as text"
 msgstr "إبقاء كنص"
 
@@ -2643,8 +2558,7 @@ msgstr "أبقِ أبحاثك قريبة منك"
 msgid "Key"
 msgstr "مفتاح"
 
-#: src/app/codex/CodexDialog.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/codex/CodexDialog.tsx src/app/references/ReferencesPanel.tsx
 msgid "Kind"
 msgstr "النوع"
 
@@ -2656,19 +2570,16 @@ msgstr "Kokoro · Heart (أفضل جودة)"
 msgid "Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices are about 10 times faster."
 msgstr "يبدو Kokoro أكثر طبيعية لكنه أبطأ: نحو 20 دقيقة عمل لكل ساعة صوت. أصوات Piper أسرع بنحو 10 مرات."
 
-#: src/app/export/AudioExport.tsx
-#: src/app/settings/AudioSection.tsx
+#: src/app/export/AudioExport.tsx src/app/settings/AudioSection.tsx
 msgid "Kokoro: Heart"
 msgstr "Kokoro: Heart"
 
 #: src/app/scenes/SceneRail.tsx
 msgid "Label"
-msgstr "تسمية"
+msgstr "التسمية"
 
-#: src/app/dialogs/AddLanguageDialog.tsx
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/shell/Details.tsx
-#: src/editor/ToolbarDialogs.tsx
+#: src/app/dialogs/AddLanguageDialog.tsx src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/shell/Details.tsx src/editor/ToolbarDialogs.tsx
 msgid "Language"
 msgstr "اللغة"
 
@@ -2696,17 +2607,9 @@ msgstr "وسم اللغة"
 msgid "Larger text"
 msgstr "نص أكبر"
 
-#: src/app/library/Library.tsx
-msgid "Last edited"
-msgstr "آخر تعديل"
-
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Later"
 msgstr "لاحقًا"
-
-#: src/app/library/Library.tsx
-msgid "Layout"
-msgstr "التخطيط"
 
 #: src/lib/useIconChoices.ts
 msgid "Leaf"
@@ -2724,14 +2627,6 @@ msgstr "يستبعدها من هذا الكتاب الصوتي؛ تذكرها ا
 msgid "Leaves them out of this export; the list above says which."
 msgstr "يتركها خارج هذا التصدير؛ والقائمة أعلاه توضح أيها."
 
-#: src/app/library/Library.tsx
-msgid "Library"
-msgstr "المكتبة"
-
-#: src/app/shell/menuModel.ts
-msgid "Library…"
-msgstr "المكتبة…"
-
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "License"
 msgstr "الترخيص"
@@ -2744,8 +2639,7 @@ msgstr "التراخيص"
 msgid "Licenses…"
 msgstr "التراخيص…"
 
-#: src/app/settings/Settings.tsx
-#: src/editor/ReadingSettings.tsx
+#: src/app/settings/Settings.tsx src/editor/ReadingSettings.tsx
 msgid "Light"
 msgstr "فاتح"
 
@@ -2787,9 +2681,8 @@ msgstr "الفصول المرتبطة"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Links (one per line)"
-msgstr "روابط (واحد في كل سطر)"
+msgstr "الروابط (واحد في كل سطر)"
 
-#: src/app/library/Library.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "List"
 msgstr "قائمة"
@@ -2802,8 +2695,7 @@ msgstr "استمع إليه، أو سلّمه لغيرك"
 msgid "Loading the book"
 msgstr "جارٍ تحميل الكتاب"
 
-#: src/app/dialogs/LicensesDialog.tsx
-#: src/app/references/Previews.tsx
+#: src/app/dialogs/LicensesDialog.tsx src/app/references/Previews.tsx
 msgid "Loading…"
 msgstr "جارٍ التحميل…"
 
@@ -2811,17 +2703,13 @@ msgstr "جارٍ التحميل…"
 msgid "Location"
 msgstr "الموقع"
 
-#: src/app/library/Library.tsx
-msgid "Looking for books…"
-msgstr "جارٍ البحث عن كتب…"
-
 #: src/app/settings/Settings.tsx
 msgid "Looks for a new version when the app starts. Nothing else is sent."
 msgstr "يبحث عن إصدار جديد عند بدء التطبيق. لا يُرسل شيء آخر."
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Lore"
-msgstr "الخلفية"
+msgstr "خلفية القصة"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "Lossless and large: about 1.7 GB per 10 hours."
@@ -2834,6 +2722,10 @@ msgstr "بلا فقد، نحو 60% من حجم WAV."
 #: src/app/hooks/useAudioLabels.ts
 msgid "M4B audiobook"
 msgstr "كتاب صوتي M4B"
+
+#: src/app/board/SceneBoard.tsx
+msgid "Made {n} scenes from the loose text in {chapterTitle}"
+msgstr "تم إنشاء {n} مشاهد من النص السائب في {chapterTitle}"
 
 #: src/lib/useIconChoices.ts
 msgid "Magic wand"
@@ -2939,10 +2831,6 @@ msgstr "مزيد من التنسيق"
 msgid "Most natural, slower."
 msgstr "الأكثر طبيعية، وأبطأ."
 
-#: src/app/library/Library.tsx
-msgid "Most words"
-msgstr "الأكثر كلمات"
-
 #: src/lib/useIconChoices.ts
 msgid "Mountain"
 msgstr "جبل"
@@ -2952,8 +2840,9 @@ msgstr "جبل"
 msgid "Move “{0}” to trash?"
 msgstr "نقل “{0}” إلى سلة المهملات؟"
 
+#. placeholder {0}: row.title || t`scene`
 #. placeholder {0}: sourceTitleById(m, id)
-#: src/state/project/pages.ts
+#: src/state/project/pages.ts src/state/project/scenes.ts
 msgid "Move {0}"
 msgstr "نقل {0}"
 
@@ -2974,19 +2863,28 @@ msgstr "نقل الفصل {n} لأعلى"
 msgid "Move contents entry"
 msgstr "نقل إدخال المحتويات"
 
-#: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
+#: src/app/references/ReferenceRow.tsx src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Move down"
 msgstr "نقل لأسفل"
 
-#: src/app/shell/EntryList.tsx
-#: src/app/shell/Sidebar.tsx
+#: src/app/board/SceneCard.tsx
+msgid "Move earlier"
+msgstr "نقل إلى الأمام"
+
+#: src/app/board/SceneCard.tsx
+msgid "Move later"
+msgstr "نقل إلى الخلف"
+
+#: src/app/board/SceneCard.tsx
+msgid "Move to chapter"
+msgstr "نقل إلى الفصل"
+
+#: src/app/shell/EntryList.tsx src/app/shell/Sidebar.tsx
 msgid "Move to trash"
 msgstr "نقل إلى سلة المهملات"
 
-#: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
+#: src/app/references/ReferenceRow.tsx src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Move up"
 msgstr "نقل لأعلى"
@@ -3002,6 +2900,10 @@ msgstr "نُقل {0} إلى الموضع {1} من {2}"
 #: src/app/shell/EntryList.tsx
 msgid "Moved {title} down to position {place} of {0}"
 msgstr "تم نقل {title} لأسفل إلى الموضع {place} من {0}"
+
+#: src/app/board/SceneBoard.tsx
+msgid "Moved {title} to position {place} of {count} in {chapterTitle}"
+msgstr "نُقل {title} إلى الموضع {place} من {count} في {chapterTitle}"
 
 #. placeholder {0}: entries.length
 #: src/app/shell/EntryList.tsx
@@ -3038,10 +2940,9 @@ msgstr "تعليق جديد"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "New entry"
-msgstr "مدخل جديد"
+msgstr "إدخال جديد"
 
-#: src/app/home/Home.tsx
-#: src/app/shell/menuModel.ts
+#: src/app/home/Home.tsx src/app/shell/menuModel.ts
 msgid "New project"
 msgstr "مشروع جديد"
 
@@ -3062,13 +2963,11 @@ msgstr "الفصل التالي"
 msgid "Next chapter: {0}"
 msgstr "الفصل التالي: {0}"
 
-#: src/app/references/PdfSearch.tsx
-#: src/editor/FindBar.tsx
+#: src/app/references/PdfSearch.tsx src/editor/FindBar.tsx
 msgid "Next match"
 msgstr "التطابق التالي"
 
-#: src/app/references/PdfPreview.tsx
-#: src/editor/ReadingFooter.tsx
+#: src/app/references/PdfPreview.tsx src/editor/ReadingFooter.tsx
 msgid "Next page"
 msgstr "الصفحة التالية"
 
@@ -3089,18 +2988,9 @@ msgstr "الصفحات التالية"
 msgid "No ads, no account, and the app is never sold."
 msgstr "بلا إعلانات، بلا حساب، والتطبيق لا يُباع أبدًا."
 
-#. placeholder {0}: query.trim()
-#: src/app/library/Library.tsx
-msgid "No book matches “{0}”."
-msgstr "لا يوجد كتاب يطابق «{0}»."
-
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
 msgstr "لا توجد لقطات للكتاب بعد. تحفظ اللقطة كل فصل وقائمة الفصول وقائمة الصور، فيمكنك العودة إلى الكتاب كما هو الآن."
-
-#: src/app/library/Library.tsx
-msgid "No books yet. Add a folder of books, or start a new one from Home."
-msgstr "لا توجد كتب بعد. أضف مجلد كتب، أو ابدأ كتابًا جديدًا من الصفحة الرئيسية."
 
 #: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
@@ -3122,8 +3012,7 @@ msgstr "لم يُختر ملف"
 msgid "No file is chosen. Choose the file to import."
 msgstr "لم يُختر ملف. اختر الملف المراد استيراده."
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/home/Home.tsx
+#: src/app/dialogs/ImportDialogs.tsx src/app/home/Home.tsx
 msgid "No folder chosen"
 msgstr "لم يُختر مجلد"
 
@@ -3183,6 +3072,10 @@ msgstr "لا نتائج"
 msgid "No scene names it yet."
 msgstr "لا يذكره أي مشهد بعد."
 
+#: src/app/board/SceneBoard.tsx
+msgid "No scenes yet."
+msgstr "لا توجد مشاهد بعد."
+
 #. placeholder {0}: query.trim()
 #: src/app/settings/ShortcutsSection.tsx
 msgid "No shortcut matches “{0}”."
@@ -3201,8 +3094,7 @@ msgstr "لا نص بعد"
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr "لا يوجد صوت على هذا الحاسوب يقرأ {0} حتى الآن. الأصوات التي يستطيع CadabraCraft تنزيلها تقرأ الإنجليزية فقط."
 
-#: src/app/dialogs/IconDialog.tsx
-#: src/app/export/PrintPreview.tsx
+#: src/app/dialogs/IconDialog.tsx src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 msgid "None"
 msgstr "بلا"
@@ -3230,17 +3122,9 @@ msgstr "ليس ملف مرجع: {0}"
 msgid "Not an image in the assets folder: {0}"
 msgstr "ليست صورة في مجلد الأصول: {0}"
 
-#: src/app/library/Library.tsx
-msgid "Not in a series"
-msgstr "خارج سلسلة"
-
 #: src/app/settings/AudioSection.tsx
 msgid "Not installed. Download it from the Audiobook export."
 msgstr "غير مثبّت. نزّله من تصدير الكتاب الصوتي."
-
-#: src/app/library/Library.tsx
-msgid "Not opened yet"
-msgstr "لم يُفتح بعد"
 
 #: src/app/shell/EntryList.tsx
 msgid "Not translated yet"
@@ -3250,8 +3134,7 @@ msgstr "لم يُترجم بعد"
 #. placeholder {0}: nativeName(edition.language)
 #. placeholder {1}: edition.untranslated.join(", ")
 #. placeholder {1}: missing .map( (m) => m.titles[e.language] ?? m.titles[manifest.editions[0]!.language] ?? m.id, ) .join(", ")
-#: src/app/export/AudioExport.tsx
-#: src/app/export/EditionsChecklist.tsx
+#: src/app/export/AudioExport.tsx src/app/export/EditionsChecklist.tsx
 msgid "Not translated yet in {0}: {1}"
 msgstr "لم يُترجم بعد في {0}: {1}"
 
@@ -3260,8 +3143,7 @@ msgid "Not translated yet in {language}: {names}. Translate them or skip them."
 msgstr "لم تُترجم بعد إلى {language}: {names}. ترجمها أو تخطَّها."
 
 #: src/app/dialogs/ImportReportDialog.tsx
-#: src/app/references/ReferenceDetails.tsx
-#: src/editor/Toolbar.tsx
+#: src/app/references/ReferenceDetails.tsx src/editor/Toolbar.tsx
 msgid "Note"
 msgstr "ملاحظة"
 
@@ -3293,8 +3175,11 @@ msgstr "لم يُزَل شيء"
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "لا شيء لإدراجه بعد. أضف فصلًا وسيظهر هنا."
 
-#: src/app/dialogs/ImportParts.tsx
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/board/SceneBoard.tsx
+msgid "Nothing to wrap"
+msgstr "لا شيء لتجميعه"
+
+#: src/app/dialogs/ImportParts.tsx src/app/dialogs/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
 msgstr "لم يضع شيء ولم يتغيّر شيء."
 
@@ -3314,8 +3199,7 @@ msgstr "الرقم في السلسلة"
 msgid "Numbered list"
 msgstr "قائمة مرقّمة"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 msgid "Numbered List"
 msgstr "قائمة مرقّمة"
 
@@ -3347,7 +3231,7 @@ msgstr "واحد في كل سطر: رموز BISAC مثل FIC014000، أو كلم
 msgid "Only in the current text"
 msgstr "في النص الحالي فقط"
 
-#: src/app/comments/CommentsPanel.tsx
+#: src/app/board/SceneCard.tsx src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "Open"
 msgstr "فتح"
@@ -3364,8 +3248,7 @@ msgstr "افتح صفحة لعرض تعليقاتها."
 msgid "Open book"
 msgstr "كتاب مفتوح"
 
-#: src/app/home/Home.tsx
-#: src/app/shell/menuModel.ts
+#: src/app/home/Home.tsx src/app/shell/menuModel.ts
 msgid "Open folder"
 msgstr "فتح مجلد"
 
@@ -3385,12 +3268,15 @@ msgstr "افتح الصفحة {page} في المحرر"
 msgid "Open Recent"
 msgstr "فتح حديث"
 
-#: src/app/scenes/SceneRail.tsx
+#: src/app/board/SceneCard.tsx src/app/scenes/SceneRail.tsx
 msgid "Open scene"
 msgstr "فتح المشهد"
 
+#: src/app/board/SceneCard.tsx
+msgid "Open scene {title} in {chapterTitle}"
+msgstr "فتح المشهد {title} في {chapterTitle}"
+
 #: src/app/home/Dashboard.tsx
-#: src/app/library/Library.tsx
 msgid "Opened {when}"
 msgstr "فُتح {when}"
 
@@ -3418,8 +3304,7 @@ msgstr "أخرى (استخدم حقل وسم اللغة)"
 msgid "Outdent list item"
 msgstr "تقليل إزاحة عنصر القائمة"
 
-#: src/app/quicknav/OutlineNavigator.tsx
-#: src/app/scenes/labels.ts
+#: src/app/quicknav/OutlineNavigator.tsx src/app/scenes/labels.ts
 #: src/app/shell/AppHeader.tsx
 msgid "Outline"
 msgstr "المخطط"
@@ -3441,8 +3326,7 @@ msgstr "الصفحة {0} من {total}"
 msgid "Page {first} of {total}"
 msgstr "الصفحة {first} من {total}"
 
-#: src/app/export/TypstSpread.tsx
-#: src/editor/ReadingFooter.tsx
+#: src/app/export/TypstSpread.tsx src/editor/ReadingFooter.tsx
 msgid "Page {page}"
 msgstr "الصفحة {page}"
 
@@ -3461,8 +3345,7 @@ msgstr "الصفحة {shown} من ≈ {0}"
 msgid "Page ≈ {shown} of {0}"
 msgstr "الصفحة ≈ {shown} من {0}"
 
-#: src/app/shell/menuModel.ts
-#: src/editor/Toolbar.tsx
+#: src/app/shell/menuModel.ts src/editor/Toolbar.tsx
 msgid "Page break"
 msgstr "فاصل صفحة"
 
@@ -3502,8 +3385,7 @@ msgstr "عرض الصفحة"
 msgid "Page zoom"
 msgstr "تكبير الصفحة"
 
-#: src/app/export/PrintPreview.tsx
-#: src/app/toc/TocPreview.tsx
+#: src/app/export/PrintPreview.tsx src/app/toc/TocPreview.tsx
 #: src/editor/ReadingBook.tsx
 msgid "Pages"
 msgstr "الصفحات"
@@ -3536,8 +3418,7 @@ msgstr "هل تلصق كنص منسّق؟"
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr "تُركت الصور الملصوقة. استخدم إدراج ثم صورة لإضافة صورة إلى الكتاب."
 
-#: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/ReferenceRow.tsx src/app/references/ReferencesPanel.tsx
 msgid "PDF"
 msgstr "PDF"
 
@@ -3573,8 +3454,7 @@ msgstr "Piper · Amy (سريع)"
 msgid "Piper · LibriTTS (fast)"
 msgstr "Piper · LibriTTS (سريع)"
 
-#: src/app/export/AudioExport.tsx
-#: src/app/settings/AudioSection.tsx
+#: src/app/export/AudioExport.tsx src/app/settings/AudioSection.tsx
 msgid "Piper voices: Amy and LibriTTS"
 msgstr "أصوات Piper: ‏Amy وLibriTTS"
 
@@ -3594,9 +3474,13 @@ msgstr "الموضع في الكتاب"
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 msgstr "PNG أو JPEG أو WebP، حتى 25 ميغابايت. تُحفظ نسخة في مجلد أصول الكتاب. الأنسب الوضع الرأسي، نحو 1600 × 2400 بكسل."
 
-#: src/app/scenes/SceneRail.tsx
+#: src/app/board/SceneCard.tsx src/app/scenes/SceneRail.tsx
 msgid "Point of view"
 msgstr "وجهة النظر"
+
+#: src/app/board/SceneCard.tsx
+msgid "Point of view of {title}"
+msgstr "وجهة نظر {title}"
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Points to"
@@ -3607,8 +3491,7 @@ msgstr "يشير إلى"
 msgid "POV {0} · {words}"
 msgstr "وجهة النظر {0} · {words}"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Preface"
 msgstr "تمهيد"
 
@@ -3620,8 +3503,7 @@ msgstr "اضغط المفاتيح الجديدة لـ{action}. يلغي Esc ال
 msgid "Press the new keys…"
 msgstr "اضغط المفاتيح الجديدة…"
 
-#: src/app/toc/TocEditor.tsx
-#: src/app/toc/TocPreview.tsx
+#: src/app/toc/TocEditor.tsx src/app/toc/TocPreview.tsx
 msgid "Preview"
 msgstr "معاينة"
 
@@ -3634,13 +3516,11 @@ msgstr "الفصل السابق"
 msgid "Previous chapter: {0}"
 msgstr "الفصل السابق: {0}"
 
-#: src/app/references/PdfSearch.tsx
-#: src/editor/FindBar.tsx
+#: src/app/references/PdfSearch.tsx src/editor/FindBar.tsx
 msgid "Previous match"
 msgstr "التطابق السابق"
 
-#: src/app/references/PdfPreview.tsx
-#: src/editor/ReadingFooter.tsx
+#: src/app/references/PdfPreview.tsx src/editor/ReadingFooter.tsx
 msgid "Previous page"
 msgstr "الصفحة السابقة"
 
@@ -3669,8 +3549,7 @@ msgstr "PDF للطباعة"
 msgid "Print PDF…"
 msgstr "PDF للطباعة…"
 
-#: src/app/export/ExportDialog.tsx
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/ExportDialog.tsx src/app/export/PrintPreview.tsx
 #: src/app/shell/App.tsx
 msgid "Print preview"
 msgstr "معاينة الطباعة"
@@ -3679,8 +3558,7 @@ msgstr "معاينة الطباعة"
 msgid "Print Preview…"
 msgstr "معاينة الطباعة…"
 
-#: src/app/toc/ContentsSheets.tsx
-#: src/app/toc/TocPreview.tsx
+#: src/app/toc/ContentsSheets.tsx src/app/toc/TocPreview.tsx
 msgid "Printed entries"
 msgstr "الإدخالات المطبوعة"
 
@@ -3721,8 +3599,7 @@ msgstr "إنهاء CadabraCraft"
 msgid "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text."
 msgstr "وسوم HTML الخام في النص الملصوق: اسأل كل مرة، أو حوّلها إلى تنسيق، أو أبقها كنص."
 
-#: src/app/shell/AppHeader.tsx
-#: src/app/shell/menuModel.ts
+#: src/app/shell/AppHeader.tsx src/app/shell/menuModel.ts
 msgid "Read"
 msgstr "قراءة"
 
@@ -3742,7 +3619,7 @@ msgstr "زمن القراءة"
 msgid "Reading your chapters…"
 msgstr "جارٍ قراءة فصولك…"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/board/SceneBoard.tsx src/app/dialogs/ImportDialogs.tsx
 msgid "Reading…"
 msgstr "جارٍ القراءة…"
 
@@ -3764,8 +3641,7 @@ msgstr "هل تستعيد النص الأحدث لـ “{0}”؟"
 msgid "Redid: {0}"
 msgstr "أُعيد: {0}"
 
-#: src/app/shell/menuModel.ts
-#: src/editor/Toolbar.tsx
+#: src/app/shell/menuModel.ts src/editor/Toolbar.tsx
 msgid "Redo"
 msgstr "إعادة"
 
@@ -3774,8 +3650,7 @@ msgstr "إعادة"
 msgid "Redo {0}"
 msgstr "إعادة {0}"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/settings/shortcutList.ts src/app/shell/Sidebar.tsx
 msgid "Redo book change"
 msgstr "إعادة تغيير الكتاب"
 
@@ -3793,10 +3668,8 @@ msgid "Reference details"
 msgstr "تفاصيل المرجع"
 
 #: src/app/references/ChapterReferences.tsx
-#: src/app/references/ReferencesPanel.tsx
-#: src/app/shell/App.tsx
-#: src/app/shell/AppHeader.tsx
-#: src/app/shell/Drawers.tsx
+#: src/app/references/ReferencesPanel.tsx src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx src/app/shell/Drawers.tsx
 msgid "References"
 msgstr "المراجع"
 
@@ -3839,10 +3712,6 @@ msgstr "إزالة {0} من المشاريع الحديثة"
 msgid "Remove {0} from the cast"
 msgstr "إزالة {0} من الشخصيات"
 
-#: src/app/library/Library.tsx
-msgid "Remove {title} from the Library"
-msgstr "إزالة {title} من المكتبة"
-
 #: src/app/toc/TocEditor.tsx
 msgid "Remove change for {label}"
 msgstr "إزالة التغيير الخاص بـ{label}"
@@ -3859,8 +3728,7 @@ msgstr "إزالة الغلاف"
 msgid "Remove entry"
 msgstr "إزالة الإدخال"
 
-#: src/app/references/ReferenceDetails.tsx
-#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferenceDetails.tsx src/app/references/ReferenceRow.tsx
 msgid "Remove from book"
 msgstr "إزالة من الكتاب"
 
@@ -3880,8 +3748,7 @@ msgstr "المراجع المُزالة"
 msgid "Removed references ({removedCount})"
 msgstr "المراجع المُزالة ({removedCount})"
 
-#: src/app/shell/EntryList.tsx
-#: src/app/toc/TocRow.tsx
+#: src/app/shell/EntryList.tsx src/app/toc/TocRow.tsx
 msgid "Rename"
 msgstr "إعادة تسمية"
 
@@ -3909,11 +3776,14 @@ msgstr "إعادة فتح"
 #. placeholder {0}: c.title
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
-#: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
+#: src/app/references/ReferenceRow.tsx src/app/shell/EntryList.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr "إعادة ترتيب {0}"
+
+#: src/app/board/SceneCard.tsx
+msgid "Reorder {title}"
+msgstr "إعادة ترتيب {title}"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Reorder chapter {n}"
@@ -3999,22 +3869,20 @@ msgstr "إعادة التعيين إلى المخطط"
 
 #: src/app/comments/CommentsPanel.tsx
 msgid "Resolve"
-msgstr "حل"
+msgstr "تحديد كمحلول"
 
 #: src/app/comments/CommentsPanel.tsx
 msgid "Resolved"
 msgstr "تم الحل"
 
-#: src/app/references/RemovedReferencesDialog.tsx
-#: src/app/shell/TrashDialog.tsx
+#: src/app/references/RemovedReferencesDialog.tsx src/app/shell/TrashDialog.tsx
 msgid "Restore"
 msgstr "استعادة"
 
 #. placeholder {0}: sourceTitle(entry, manifest.editions)
 #. placeholder {0}: titleFromFile(name)
 #. placeholder {0}: x.title
-#: src/app/references/RemovedReferencesDialog.tsx
-#: src/app/shell/TrashDialog.tsx
+#: src/app/references/RemovedReferencesDialog.tsx src/app/shell/TrashDialog.tsx
 #: src/state/project/trash.ts
 msgid "Restore {0}"
 msgstr "استعادة {0}"
@@ -4075,7 +3943,7 @@ msgstr "إعادة المحاولة"
 
 #: src/app/scenes/labels.ts
 msgid "Revised"
-msgstr "منقّح"
+msgstr "منقّحة"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Rich Text (.rtf)"
@@ -4109,8 +3977,7 @@ msgstr "مثل المتن"
 msgid "same as now"
 msgstr "مثل الآن"
 
-#: src/app/shell/AppHeader.tsx
-#: src/app/shell/menuModel.ts
+#: src/app/shell/AppHeader.tsx src/app/shell/menuModel.ts
 #: src/editor/ToolbarDialogs.tsx
 msgid "Save"
 msgstr "حفظ"
@@ -4123,8 +3990,7 @@ msgstr "حفظ نسخة نصية"
 msgid "Save details"
 msgstr "حفظ التفاصيل"
 
-#: src/app/shell/AppHeader.tsx
-#: src/state/project/pages.ts
+#: src/app/shell/AppHeader.tsx src/state/project/pages.ts
 msgid "Saved"
 msgstr "تم الحفظ"
 
@@ -4148,14 +4014,25 @@ msgstr "جارٍ حفظ {dir}/manuscript.docx…"
 msgid "Saving {dir}/manuscript.rtf…"
 msgstr "جارٍ حفظ {dir}/manuscript.rtf…"
 
-#: src/app/scenes/SceneList.tsx
-#: src/app/scenes/SceneRail.tsx
+#: src/state/project/scenes.ts
+msgid "scene"
+msgstr "مشهد"
+
+#: src/app/scenes/SceneList.tsx src/app/scenes/SceneRail.tsx
 #: src/app/shell/App.tsx
 msgid "Scene"
 msgstr "مشهد"
 
-#: src/app/export/Templates.tsx
-#: src/editor/Toolbar.tsx
+#: src/app/board/SceneBoard.tsx src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Scene board"
+msgstr "لوحة المشاهد"
+
+#: src/app/shell/menuModel.ts
+msgid "Scene Board"
+msgstr "لوحة المشاهد"
+
+#: src/app/export/Templates.tsx src/editor/Toolbar.tsx
 msgid "Scene break"
 msgstr "فاصل مشهد"
 
@@ -4171,12 +4048,15 @@ msgstr "حالة المشهد"
 msgid "Scene title"
 msgstr "عنوان المشهد"
 
-#: src/app/scenes/SceneList.tsx
-#: src/app/scenes/ScenesPanel.tsx
-#: src/app/shell/AppHeader.tsx
-#: src/app/shell/Drawers.tsx
+#: src/app/scenes/SceneList.tsx src/app/scenes/ScenesPanel.tsx
+#: src/app/shell/AppHeader.tsx src/app/shell/Drawers.tsx
 msgid "Scenes"
 msgstr "المشاهد"
+
+#. placeholder {0}: c.title
+#: src/app/board/SceneBoard.tsx
+msgid "Scenes in {0}"
+msgstr "مشاهد {0}"
 
 #: src/app/scenes/SceneList.tsx
 msgid "Scenes in {chapter}"
@@ -4185,10 +4065,6 @@ msgstr "مشاهد {chapter}"
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
 msgstr "مخطوطة"
-
-#: src/app/library/Library.tsx
-msgid "Search books"
-msgstr "البحث في الكتب"
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search by action or key"
@@ -4214,10 +4090,6 @@ msgstr "البحث في الاختصارات"
 msgid "Search text"
 msgstr "البحث في النص"
 
-#: src/app/library/Library.tsx
-msgid "Search title, author or series"
-msgstr "ابحث في العنوان أو المؤلف أو السلسلة"
-
 #: src/app/shell/Details.tsx
 msgid "Section"
 msgstr "قسم"
@@ -4232,7 +4104,7 @@ msgstr "حدّد نصًا داخل خلية أو فقرة واحدة لتحوي�
 
 #: src/app/comments/CommentsPanel.tsx
 msgid "Select text to comment on"
-msgstr "حدد نصًا للتعليق عليه"
+msgstr "حدّد نصاً للتعليق عليه"
 
 #: src/editor/useLangDialog.ts
 msgid "Select the text first."
@@ -4249,10 +4121,6 @@ msgstr "الفصول المحددة"
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Series"
 msgstr "السلسلة"
-
-#: src/app/library/Library.tsx
-msgid "Series order"
-msgstr "ترتيب السلسلة"
 
 #: src/app/shell/menuModel.ts
 msgid "Services"
@@ -4274,9 +4142,7 @@ msgstr "يُحدَّد في تفاصيل الكتاب"
 msgid "Sets the page size for the print layout. You can change it later in Book details."
 msgstr "يحدد حجم الصفحة لتخطيط الطباعة. يمكنك تغييره لاحقًا في تفاصيل الكتاب."
 
-#: src/app/home/Home.tsx
-#: src/app/settings/Settings.tsx
-#: src/app/shell/App.tsx
+#: src/app/home/Home.tsx src/app/settings/Settings.tsx src/app/shell/App.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Settings"
 msgstr "الإعدادات"
@@ -4340,7 +4206,7 @@ msgstr "إظهار الهوامش"
 #. placeholder {0}: c.title
 #: src/app/shell/EntryList.tsx
 msgid "Show scenes of {0}"
-msgstr "إظهار مشاهد {0}"
+msgstr "عرض مشاهد {0}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Showing an approximate layout, because the real one could not be typeset:"
@@ -4358,8 +4224,7 @@ msgstr "ترخيص SIL Open Font 1.1"
 msgid "Skip to main content"
 msgstr "انتقل إلى المحتوى الرئيسي"
 
-#: src/app/export/AudioExport.tsx
-#: src/app/export/EditionsChecklist.tsx
+#: src/app/export/AudioExport.tsx src/app/export/EditionsChecklist.tsx
 msgid "Skip untranslated chapters"
 msgstr "تخطي الفصول غير المترجمة"
 
@@ -4415,10 +4280,6 @@ msgstr "حدث خطأ ما"
 #: src/state/attempt.ts
 msgid "Something went wrong: {why}. Try again, or restart CadabraCraft if it keeps happening."
 msgstr "حدث خطأ ما: {why}. حاول مرة أخرى أو أعد تشغيل CadabraCraft إذا استمر ذلك."
-
-#: src/app/library/Library.tsx
-msgid "Sort by"
-msgstr "ترتيب حسب"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Sort references"
@@ -4488,6 +4349,14 @@ msgstr "البدء في الصفحة التالية"
 msgid "Start the new edition"
 msgstr "بدء الطبعة الجديدة"
 
+#: src/app/board/SceneCard.tsx
+msgid "Status"
+msgstr "الحالة"
+
+#: src/app/board/SceneCard.tsx
+msgid "Status of {title}"
+msgstr "حالة {title}"
+
 #: src/app/export/AudioFooter.tsx
 msgid "Stop sample"
 msgstr "إيقاف العيّنة"
@@ -4500,8 +4369,7 @@ msgstr "متوقف"
 msgid "Stopped. What was downloaded is kept, so the next download carries on from there."
 msgstr "توقف. يُحتفظ بما نُزّل، فيستأنف التنزيل التالي من حيث توقف."
 
-#: src/app/export/AudioExport.tsx
-#: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/export/AudioExport.tsx src/app/settings/FontsCatalogDialog.tsx
 msgid "Stopping…"
 msgstr "جارٍ الإيقاف…"
 
@@ -4517,8 +4385,7 @@ msgstr "يُخزَّن على هذا الحاسوب. لا حاجة إلى حسا
 msgid "Storm"
 msgstr "عاصفة"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Strikethrough"
 msgstr "يتوسطه خط"
@@ -4527,21 +4394,19 @@ msgstr "يتوسطه خط"
 msgid "Subjects"
 msgstr "المواضيع"
 
-#: src/app/shell/menuModel.ts
-#: src/editor/Toolbar.tsx
+#: src/app/shell/menuModel.ts src/editor/Toolbar.tsx
 msgid "Subscript"
 msgstr "منخفض"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Summary"
-msgstr "ملخص"
+msgstr "الملخص"
 
 #: src/lib/useIconChoices.ts
 msgid "Sun"
 msgstr "شمس"
 
-#: src/app/shell/menuModel.ts
-#: src/editor/Toolbar.tsx
+#: src/app/shell/menuModel.ts src/editor/Toolbar.tsx
 msgid "Superscript"
 msgstr "مرتفع"
 
@@ -4555,10 +4420,13 @@ msgstr "سيوف"
 
 #: src/app/scenes/SceneRail.tsx
 msgid "Synopsis"
-msgstr "نبذة"
+msgstr "الملخص"
 
-#: src/app/settings/Settings.tsx
-#: src/editor/ReadingSettings.tsx
+#: src/app/board/SceneCard.tsx
+msgid "Synopsis of {title}"
+msgstr "ملخص {title}"
+
+#: src/app/settings/Settings.tsx src/editor/ReadingSettings.tsx
 msgid "System"
 msgstr "النظام"
 
@@ -4594,13 +4462,11 @@ msgstr "قائمة مهام"
 msgid "Task List"
 msgstr "قائمة مهام"
 
-#: src/app/export/PdfPanel.tsx
-#: src/app/shell/Details.tsx
+#: src/app/export/PdfPanel.tsx src/app/shell/Details.tsx
 msgid "Template"
 msgstr "القالب"
 
-#: src/app/shell/menuModel.ts
-#: src/editor/Toolbar.tsx
+#: src/app/shell/menuModel.ts src/editor/Toolbar.tsx
 msgid "Template Default"
 msgstr "الافتراضي في القالب"
 
@@ -4616,8 +4482,7 @@ msgstr "افتراضي القالب (إيقاف)"
 msgid "Template default (on)"
 msgstr "افتراضي القالب (تشغيل)"
 
-#: src/app/export/Templates.tsx
-#: src/app/shell/App.tsx
+#: src/app/export/Templates.tsx src/app/shell/App.tsx
 msgid "Templates"
 msgstr "القوالب"
 
@@ -4701,13 +4566,17 @@ msgstr "يستخدم الكتاب نمط نص لا يستطيع تصدير EPUB 
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "ملف cadabra.json الخاص بالكتاب ليس كائن JSON. استعده من السجل أو من نسخة احتياطية في ‎.cadabra/backups."
 
+#: src/state/project/scenes.ts
+msgid "The chapter you dropped it in already holds a scene with the same id."
+msgstr "الفصل الذي أفلتّها فيه يحتوي بالفعل على مشهد بالمعرّف نفسه."
+
 #: src/state/codex.ts
 msgid "The codex could not be opened: it is not the shape a codex has. The file was left untouched."
-msgstr "تعذّر فتح الموسوعة: ليست لها بنية موسوعة. لم يُمَسّ الملف."
+msgstr "تعذّر فتح الموسوعة: ليس لها شكل الموسوعة. لم يُمسّ الملف."
 
 #: src/state/codex.ts
 msgid "The codex could not be read, so it was not opened. The file was left as it is."
-msgstr "تعذّرت قراءة الموسوعة فلم تُفتح. تُرك الملف كما هو."
+msgstr "تعذّرت قراءة الموسوعة فلم تُفتح. بقي الملف كما هو."
 
 #: src/state/codex.ts
 msgid "The codex could not be saved. Try again."
@@ -4715,20 +4584,20 @@ msgstr "تعذّر حفظ الموسوعة. حاول مرة أخرى."
 
 #: src/state/codex.ts
 msgid "The codex is not valid JSON, so it was not opened. The file was left untouched."
-msgstr "الموسوعة ليست JSON صالحًا فلم تُفتح. لم يُمَسّ الملف."
+msgstr "الموسوعة ليست JSON صالحاً فلم تُفتح. لم يُمسّ الملف."
 
 #: src/state/project/comments.ts
 msgid "The comments for this page are not valid JSON, so they were not opened. The file was left untouched."
-msgstr "تعليقات هذه الصفحة ليست JSON صالحًا فلم تُفتح. لم يُمَسّ الملف."
+msgstr "تعليقات هذه الصفحة ليست JSON صالحاً فلم تُفتح. لم يُمسّ الملف."
 
 #: src/state/project/comments.ts
 msgid "The comments for this page could not be opened: {problem}. The file was left untouched."
-msgstr "تعذّر فتح تعليقات هذه الصفحة: {problem}. لم يُمَسّ الملف."
+msgstr "تعذّر فتح تعليقات هذه الصفحة: {problem}. لم يُمسّ الملف."
 
 #. placeholder {0}: whyText(e)
 #: src/state/project/comments.ts
 msgid "The comments for this page could not be read: {0}. The file was left as it is."
-msgstr "تعذّرت قراءة تعليقات هذه الصفحة: {0}. تُرك الملف كما هو."
+msgstr "تعذّرت قراءة تعليقات هذه الصفحة: {0}. بقي الملف كما هو."
 
 #: src/state/project/contentsPreview.ts
 msgid "The contents page is not in the typeset book."
@@ -4783,10 +4652,6 @@ msgstr "ليس للإدخال عنوان."
 #: src/editor/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr "الصف الأول رأس. حتى {MAX_TABLE_ROWS} صفًا."
-
-#: src/app/library/Library.tsx
-msgid "The folder holds more books than a scan lists; pick a smaller folder."
-msgstr "يحتوي المجلد على كتب أكثر مما يعرضه البحث؛ اختر مجلدًا أصغر."
 
 #: src/lib/pdfErrors.ts
 msgid "The font “{only}” is not on this computer. Download it in Settings, Fonts, or pick another font."
@@ -4859,7 +4724,7 @@ msgstr "خط الطباعة في القالب غير مثبّت هنا، لذل�
 
 #: src/app/comments/CommentsPanel.tsx
 msgid "The text this was attached to is gone; the comment is kept."
-msgstr "النص الذي كان مرتبطًا به لم يعد موجودًا؛ التعليق محفوظ."
+msgstr "النص الذي كان مرتبطاً به اختفى؛ التعليق محفوظ."
 
 #: src/editor/Editor.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
@@ -4876,10 +4741,12 @@ msgstr "الصوت «{0}» غير مثبّت. نزّله من الإعدادات
 
 #. placeholder {0}: e.detail.trim()
 #: src/lib/audioErrors.ts
-msgid "the voice engine stopped:\n"
+msgid ""
+"the voice engine stopped:\n"
 "{0}\n"
 "Try again, or choose another voice"
-msgstr "توقف محرك الصوت:\n"
+msgstr ""
+"توقف محرك الصوت:\n"
 "{0}\n"
 "حاول مرة أخرى أو اختر صوتًا آخر"
 
@@ -4900,8 +4767,7 @@ msgstr "الصوت الذي يبدأ به تصدير الكتاب الصوتي. 
 msgid "The voices' licences are listed in Settings, Audio."
 msgstr "تراخيص الأصوات مذكورة في الإعدادات، الصوت."
 
-#: src/app/settings/Settings.tsx
-#: src/editor/ReadingSettings.tsx
+#: src/app/settings/Settings.tsx src/editor/ReadingSettings.tsx
 msgid "Theme"
 msgstr "السمة"
 
@@ -4946,13 +4812,11 @@ msgstr "تأتي هذه الخطوط من Google Fonts وهي حرة الاست�
 msgid "This .docx file has no document body. It may be damaged or not a Word document. Choose another file."
 msgstr "لا يحتوي ملف ‎.docx هذا على متن مستند. قد يكون تالفًا أو ليس مستند Word. اختر ملفًا آخر."
 
-#: src/state/project/audio.ts
-#: src/state/project/editions.ts
+#: src/state/project/audio.ts src/state/project/editions.ts
 msgid "This book has no {language} edition."
 msgstr "لا توجد لهذا الكتاب طبعة بلغة {language}."
 
-#: src/app/shell/App.tsx
-#: src/lib/exportChecks.ts
+#: src/app/board/SceneBoard.tsx src/app/shell/App.tsx src/lib/exportChecks.ts
 msgid "This book has no chapters yet."
 msgstr "لا فصول في هذا الكتاب بعد."
 
@@ -5013,8 +4877,7 @@ msgstr "هذه الصورة زخرفية"
 msgid "This image path is not allowed: {0}"
 msgstr "مسار الصورة هذا غير مسموح: {0}"
 
-#: src/app/dialogs/HistoryDialog.tsx
-#: src/app/shell/Details.tsx
+#: src/app/dialogs/HistoryDialog.tsx src/app/shell/Details.tsx
 msgid "This page"
 msgstr "هذه الصفحة"
 
@@ -5030,11 +4893,8 @@ msgstr "لهذا الإصدار الكلمات نفسها الموجودة في 
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
 msgstr "تطلب معظم الوكالات والمحررين خط Times New Roman بحجم 12 نقطة. أما Courier New فهو مظهر الآلة الكاتبة الذي لا يزال بعضهم يفضّله. يحتاج حاسوب القارئ إلى أي خط آخر لرؤيته."
 
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/home/Home.tsx
-#: src/app/library/Library.tsx
-#: src/app/references/ReferenceDetails.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx src/app/dialogs/ImportDialogs.tsx
+#: src/app/home/Home.tsx src/app/references/ReferenceDetails.tsx
 #: src/app/shell/Details.tsx
 msgid "Title"
 msgstr "العنوان"
@@ -5048,8 +4908,7 @@ msgstr "العنوان من أ إلى ي"
 msgid "Title of chapter {0}"
 msgstr "عنوان الفصل {0}"
 
-#: src/app/shell/menuModel.ts
-#: src/app/shell/useKindLabels.ts
+#: src/app/shell/menuModel.ts src/app/shell/useKindLabels.ts
 msgid "Title page"
 msgstr "صفحة العنوان"
 
@@ -5077,23 +4936,18 @@ msgstr "ملفات النسخة النصية"
 msgid "Translate your book"
 msgstr "ترجم كتابك"
 
-#: src/app/shell/Sidebar.tsx
-#: src/app/shell/TrashDialog.tsx
+#: src/app/shell/Sidebar.tsx src/app/shell/TrashDialog.tsx
 msgid "Trash"
 msgstr "سلة المهملات"
 
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/export/PdfPanel.tsx
-#: src/app/export/PrintPreview.tsx
-#: src/app/export/Templates.tsx
+#: src/app/dialogs/BookDetailsDialog.tsx src/app/export/PdfPanel.tsx
+#: src/app/export/PrintPreview.tsx src/app/export/Templates.tsx
 #: src/app/home/Home.tsx
 msgid "Trim size"
 msgstr "حجم الصفحة"
 
-#: src/app/dialogs/LicensesDialog.tsx
-#: src/app/dialogs/UpdateDialog.tsx
-#: src/app/export/AudioFooter.tsx
-#: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/dialogs/LicensesDialog.tsx src/app/dialogs/UpdateDialog.tsx
+#: src/app/export/AudioFooter.tsx src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again"
 msgstr "إعادة المحاولة"
 
@@ -5128,10 +4982,12 @@ msgstr "التمرير بنمط الآلة الكاتبة"
 
 #. placeholder {0}: e.stderr.trim()
 #: src/lib/pdfErrors.ts
-msgid "Typst could not build the PDF:\n"
+msgid ""
+"Typst could not build the PDF:\n"
 "{0}\n"
 "Check the text for unusual characters, then try again."
-msgstr "تعذّر على Typst إنشاء ملف PDF:\n"
+msgstr ""
+"تعذّر على Typst إنشاء ملف PDF:\n"
 "{0}\n"
 "افحص النص بحثًا عن أحرف غير معتادة ثم حاول مرة أخرى."
 
@@ -5144,8 +5000,7 @@ msgstr "Typst غير مثبّت على هذا الحاسوب، لذلك هذا �
 msgid "Typst took longer than {0} seconds and was stopped. Try again, or export fewer chapters."
 msgstr "استغرق Typst أكثر من {0} ثانية وتوقّف. حاول مرة أخرى، أو صدّر عددًا أقل من الفصول."
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Underline"
 msgstr "تسطير"
@@ -5155,8 +5010,7 @@ msgstr "تسطير"
 msgid "Undid: {0}"
 msgstr "تم التراجع: {0}"
 
-#: src/app/shell/menuModel.ts
-#: src/editor/Toolbar.tsx
+#: src/app/shell/menuModel.ts src/editor/Toolbar.tsx
 msgid "Undo"
 msgstr "تراجع"
 
@@ -5165,8 +5019,7 @@ msgstr "تراجع"
 msgid "Undo {0}"
 msgstr "تراجع عن {0}"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/Sidebar.tsx
+#: src/app/settings/shortcutList.ts src/app/shell/Sidebar.tsx
 msgid "Undo book change"
 msgstr "تراجع عن تغيير الكتاب"
 
@@ -5183,8 +5036,7 @@ msgstr "تراجع: {0}"
 msgid "Unique id stored in the EPUB. Change it only if a store or library asked you to."
 msgstr "معرّف فريد يُخزَّن في EPUB. لا تغيّره إلا إذا طلب منك ذلك متجر أو مكتبة."
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/home/Home.tsx
+#: src/app/dialogs/ImportDialogs.tsx src/app/home/Home.tsx
 msgid "Unknown"
 msgstr "غير معروف"
 
@@ -5202,23 +5054,25 @@ msgstr "مسار مشروع غير آمن: {0}"
 msgid "Unsaved"
 msgstr "غير محفوظ"
 
+#: src/app/board/SceneBoard.tsx
+msgid "Unsorted"
+msgstr "غير مصنّف"
+
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
 msgid "Unsupported image type: {0}"
 msgstr "نوع صورة غير مدعوم: {0}"
 
 #: src/app/home/Dashboard.tsx
-#: src/app/library/BookCover.tsx
-#: src/app/library/Library.tsx
 msgid "Untitled"
 msgstr "بلا عنوان"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Untitled entry"
-msgstr "مدخل بلا عنوان"
+msgstr "إدخال بلا عنوان"
 
-#: src/app/codex/CodexDialog.tsx
-#: src/app/scenes/SceneList.tsx
+#: src/app/board/SceneBoard.tsx src/app/board/SceneCard.tsx
+#: src/app/codex/CodexDialog.tsx src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Untitled scene"
 msgstr "مشهد بلا عنوان"
@@ -5278,20 +5132,13 @@ msgstr "الإصدار {0} متاح"
 msgid "Vertical position"
 msgstr "الموضع العمودي"
 
-#: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/ReferenceRow.tsx src/app/references/ReferencesPanel.tsx
 msgid "Video"
 msgstr "فيديو"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 msgid "View"
 msgstr "عرض"
-
-#. placeholder {0}: recents.length
-#: src/app/home/Home.tsx
-msgid "View all books ({0})"
-msgstr "عرض كل الكتب ({0})"
 
 #: src/app/export/AudioExport.tsx
 msgid "Voice"
@@ -5317,8 +5164,7 @@ msgstr "في الانتظار"
 msgid "Warning"
 msgstr "تحذير"
 
-#: src/app/export/CheckList.tsx
-#: src/ui/Notice.tsx
+#: src/app/export/CheckList.tsx src/ui/Notice.tsx
 msgid "Warning:"
 msgstr "تحذير:"
 
@@ -5366,8 +5212,7 @@ msgstr "الكلمة كاملة"
 msgid "Wide page"
 msgstr "صفحة عريضة"
 
-#: src/app/settings/shortcutList.ts
-#: src/app/shell/menuModel.ts
+#: src/app/settings/shortcutList.ts src/app/shell/menuModel.ts
 msgid "Window"
 msgstr "نافذة"
 
@@ -5391,8 +5236,15 @@ msgstr "الكلمات"
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr "كلمات تكتبها في كل مرة تفتح فيها كتابًا. 0 يعطّل ذلك."
 
-#: src/app/shell/AppHeader.tsx
-#: src/app/shell/menuModel.ts
+#: src/app/board/SceneBoard.tsx
+msgid "Wrap into a scene"
+msgstr "تغليف في مشهد"
+
+#: src/state/project/scenes.ts
+msgid "Wrap text into a scene"
+msgstr "تغليف النص في مشهد"
+
+#: src/app/shell/AppHeader.tsx src/app/shell/menuModel.ts
 msgid "Write"
 msgstr "كتابة"
 
@@ -5477,14 +5329,133 @@ msgstr "ملكك، على حاسوبك"
 msgid "Zoom"
 msgstr "التكبير"
 
-#: src/app/export/TypstSpread.tsx
-#: src/app/references/ImagePreview.tsx
+#: src/app/export/TypstSpread.tsx src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom in"
 msgstr "تكبير"
 
-#: src/app/export/TypstSpread.tsx
-#: src/app/references/ImagePreview.tsx
+#: src/app/export/TypstSpread.tsx src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom out"
 msgstr "تصغير"
+
+#. placeholder {0}: g.books.length
+#. placeholder {0}: recents.length
+#: src/app/library/Library.tsx
+msgid "{0, plural, one {# book} other {# books}}"
+msgstr "{0, plural, zero {لا كتب} one {كتاب واحد} two {كتابان} few {# كتب} many {# كتابًا} other {# كتاب}}"
+
+#. placeholder {0}: found.skipped
+#: src/app/library/Library.tsx
+msgid "{0, plural, one {# folder with a damaged cadabra.json was skipped.} other {# folders with a damaged cadabra.json were skipped.}}"
+msgstr "{0, plural, zero {لم يُتخطَّ أي مجلد.} one {تم تخطي مجلد واحد فيه ملف cadabra.json تالف.} two {تم تخطي مجلدين فيهما ملف cadabra.json تالف.} few {تم تخطي # مجلدات فيها ملف cadabra.json تالف.} many {تم تخطي # مجلدًا فيها ملف cadabra.json تالف.} other {تم تخطي # مجلد فيها ملف cadabra.json تالف.}}"
+
+#. placeholder {0}: shown.length
+#. placeholder {1}: recents.length
+#: src/app/library/Library.tsx
+msgid "{0} of {1, plural, one {# book} other {# books}}"
+msgstr "{0} من {1, plural, zero {لا كتب} one {كتاب واحد} two {كتابين} few {# كتب} many {# كتابًا} other {# كتاب}}"
+
+#. placeholder {0}: found.books.length - added
+#: src/app/library/Library.tsx
+msgid "{0} were already in the Library."
+msgstr "{0} كانت موجودة في المكتبة بالفعل."
+
+#: src/app/library/Library.tsx
+msgid "{added, plural, one {Added # new book.} other {Added # new books.}}"
+msgstr "{added, plural, zero {لم تتم إضافة كتب جديدة.} one {تمت إضافة كتاب جديد واحد.} two {تمت إضافة كتابين جديدين.} few {تمت إضافة # كتب جديدة.} many {تمت إضافة # كتابًا جديدًا.} other {تمت إضافة # كتاب جديد.}}"
+
+#: src/app/library/Library.tsx
+msgid "Add a folder of books…"
+msgstr "إضافة مجلد كتب…"
+
+#. placeholder {0}: info.seriesNumber
+#: src/app/library/Library.tsx
+msgid "Book {0}"
+msgstr "الكتاب {0}"
+
+#: src/app/library/Library.tsx
+msgid "Books without a series"
+msgstr "كتب بلا سلسلة"
+
+#: src/app/library/Library.tsx
+msgid "Covers"
+msgstr "الأغلفة"
+
+#: src/app/library/Library.tsx
+msgid "Group by series"
+msgstr "تجميع حسب السلسلة"
+
+#: src/app/library/Library.tsx
+msgid "Home"
+msgstr "الرئيسية"
+
+#: src/app/library/Library.tsx
+msgid "Last edited"
+msgstr "آخر تعديل"
+
+#: src/app/library/Library.tsx
+msgid "Layout"
+msgstr "التخطيط"
+
+#: src/app/library/Library.tsx
+msgid "Library"
+msgstr "المكتبة"
+
+#: src/app/shell/menuModel.ts
+msgid "Library…"
+msgstr "المكتبة…"
+
+#: src/app/library/Library.tsx
+msgid "Looking for books…"
+msgstr "جارٍ البحث عن كتب…"
+
+#: src/app/library/Library.tsx
+msgid "Most words"
+msgstr "الأكثر كلمات"
+
+#. placeholder {0}: query.trim()
+#: src/app/library/Library.tsx
+msgid "No book matches “{0}”."
+msgstr "لا يوجد كتاب يطابق «{0}»."
+
+#: src/app/library/Library.tsx
+msgid "No books yet. Add a folder of books, or start a new one from Home."
+msgstr "لا توجد كتب بعد. أضف مجلد كتب، أو ابدأ كتابًا جديدًا من الصفحة الرئيسية."
+
+#: src/app/library/Library.tsx
+msgid "Not in a series"
+msgstr "خارج سلسلة"
+
+#: src/app/library/Library.tsx
+msgid "Not opened yet"
+msgstr "لم يُفتح بعد"
+
+#: src/app/library/Library.tsx
+msgid "Remove {title} from the Library"
+msgstr "إزالة {title} من المكتبة"
+
+#: src/app/library/Library.tsx
+msgid "Search books"
+msgstr "البحث في الكتب"
+
+#: src/app/library/Library.tsx
+msgid "Search title, author or series"
+msgstr "ابحث في العنوان أو المؤلف أو السلسلة"
+
+#: src/app/library/Library.tsx
+msgid "Series order"
+msgstr "ترتيب السلسلة"
+
+#: src/app/library/Library.tsx
+msgid "Sort by"
+msgstr "ترتيب حسب"
+
+#: src/app/library/Library.tsx
+msgid "The folder holds more books than a scan lists; pick a smaller folder."
+msgstr "يحتوي المجلد على كتب أكثر مما يعرضه البحث؛ اختر مجلدًا أصغر."
+
+#. placeholder {0}: recents.length
+#: src/app/home/Home.tsx
+msgid "View all books ({0})"
+msgstr "عرض كل الكتب ({0})"

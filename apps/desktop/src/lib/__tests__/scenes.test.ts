@@ -26,6 +26,13 @@ describe("sceneRows", () => {
     expect(rows[0]).toMatchObject({ status: "draft", pov: "Mara", label: "Act I", target: 1000 });
   });
 
+  it("keeps only the text entries of a cast and reads a cast that is not a list as empty", () => {
+    const rows = sceneRows(
+      doc(scene({ cast: ["mara", 7, null, "quay"] }), scene({ id: "sc-2", cast: "mara" })),
+    );
+    expect(rows.map((r) => r.cast)).toEqual([["mara", "quay"], []]);
+  });
+
   it("has no rows for a page that holds no scenes", () => {
     expect(sceneRows(doc({ type: "paragraph" }))).toEqual([]);
     expect(sceneRows(null)).toEqual([]);
@@ -51,6 +58,7 @@ describe("sceneRows", () => {
       label: "",
       synopsis: "",
       target: null,
+      date: "",
       cast: [],
       words: 0,
     });

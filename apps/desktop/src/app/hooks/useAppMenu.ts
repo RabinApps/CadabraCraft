@@ -27,7 +27,7 @@ import { isMac } from "../../lib/platform";
 import type { ExportFormat } from "../export/exportFormat";
 import { useProject } from "../../state/project/index";
 
-type View = "book" | "settings" | "fonts" | "templates" | "print" | "welcome";
+type View = "book" | "settings" | "fonts" | "templates" | "print" | "welcome" | "board";
 
 export interface AppMenuHooks {
   view: View;
@@ -222,6 +222,12 @@ export function useAppMenu(h: AppMenuHooks): void {
         run: () => setLayout({ references: !references }),
         checked: references,
         enabled: h.mode === "write",
+      },
+      "view.board": {
+        run: guard(async () => {
+          await actions.flush();
+          h.setView("board");
+        }),
       },
       "go.previous": {
         run: guard(async () => {

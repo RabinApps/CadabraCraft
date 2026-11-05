@@ -50,13 +50,15 @@ export const MAX_SCENE_TITLE = 200;
 export const MAX_SCENE_SYNOPSIS = 2000;
 export const MAX_SCENE_POV = 120;
 export const MAX_SCENE_LABEL = 60;
+/** The longest story date: `YYYY-MM-DDTHH:MM`. */
+export const MAX_SCENE_DATE = 16;
 export const MAX_SCENE_TARGET = 1_000_000;
 /** The most codex entries one scene may name in its cast. */
 export const MAX_SCENE_CAST = 20;
 
 /**
  * A scene: the blocks the author writes as one unit, with the planning notes the sidebar shows (`title`, `synopsis`, `pov`,
- * `status`, `label`, `target` in words, and `cast`: the ids of the codex entries in the scene). It is structure only: no
+ * `status`, `label`, `target` in words, `date` (when it happens in the story: `YYYY-MM-DD`, optionally with `THH:MM`) and `cast`: the ids of the codex entries in the scene). It is structure only: no
  * exporter prints a scene's notes, and every exporter writes the children exactly as if the wrapper were not there. Adding it
  * does not bump `formatVersion` (chapter nodes never do).
  */
@@ -73,6 +75,7 @@ export const Scene = Node.create({
     status: { default: "" },
     label: { default: "" },
     target: { default: null },
+    date: { default: "" },
     cast: { default: [] },
   }),
   parseHTML: () => [{ tag: "section[data-scene]" }],
@@ -593,6 +596,21 @@ export function chapterDocProblem(doc: unknown): string | null {
   return tableBad;
 }
 
+/** True for a real calendar day `YYYY-MM-DD`, optionally with a 24-hour time `THH:MM`. Fantasy calendars are not modelled. */
+export function isStoryDate(value: unknown): value is string {
+  if (typeof value !== "string" || value.length > MAX_SCENE_DATE) return false;
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/.exec(value);
+  if (!m) return false;
+  const [year, month, day] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const probe = new Date(Date.UTC(2000, month - 1, day));
+  probe.setUTCFullYear(year);
+  const real =
+    probe.getUTCFullYear() === year &&
+    probe.getUTCMonth() === month - 1 &&
+    probe.getUTCDate() === day;
+  return real && (m[4] === undefined || (Number(m[4]) < 24 && Number(m[5]) < 60));
+}
+
 /** A scene's id names it, and its notes are short strings so a chapter file stays readable. */
 function sceneProblem(scene: RawNode): string | null {
   const a = scene.attrs ?? {};
@@ -625,6 +643,8 @@ function sceneProblem(scene: RawNode): string | null {
       a.target > MAX_SCENE_TARGET)
   )
     return `a scene's target must be a whole number of words from 0 to ${MAX_SCENE_TARGET}, or null`;
+  if (a.date !== undefined && a.date !== "" && !isStoryDate(a.date))
+    return `a scene's date must be YYYY-MM-DD with an optional THH:MM, or empty (got ${JSON.stringify(a.date)})`;
   if (a.cast !== undefined) {
     if (!Array.isArray(a.cast)) return "a scene's cast must be a list of codex entry ids";
     if (a.cast.length > MAX_SCENE_CAST)

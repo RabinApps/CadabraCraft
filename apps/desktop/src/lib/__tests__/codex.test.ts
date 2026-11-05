@@ -23,6 +23,7 @@ const scene = (over: Partial<SceneRow> = {}): SceneRow => ({
   label: "",
   synopsis: "",
   target: null,
+  date: "",
   cast: [],
   words: 0,
   ...over,

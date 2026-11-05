@@ -7,6 +7,7 @@ import {
   FileUp,
   Library,
   Layers,
+  LayoutGrid,
   ListTree,
   MessageSquareText,
   LoaderCircle,
@@ -46,6 +47,8 @@ interface Props {
   onComments: () => void;
   /** Opens the scenes panel as a dialog (below the lg breakpoint, where there is no sidebar). */
   onScenes: () => void;
+  /** Opens the scene board, a full-page view of every scene of the book. */
+  onBoard: () => void;
   /** Runs an action, clearing the shown error first and showing its failure. */
   run: (f: () => Promise<void>) => () => void;
 }
@@ -62,6 +65,7 @@ export function AppHeader({
   onReferences,
   onComments,
   onScenes,
+  onBoard,
   run,
 }: Props) {
   const { t } = useLingui();
@@ -87,6 +91,10 @@ export function AppHeader({
   const exportBook = run(async () => {
     await actions.flush();
     onExport();
+  });
+  const toBoard = run(async () => {
+    await actions.flush();
+    onBoard();
   });
   const toRead = run(async () => {
     await actions.flush();
@@ -209,6 +217,14 @@ export function AppHeader({
         )}
         {!reader && (
           <IconButton
+            icon={LayoutGrid}
+            label={t`Scene board`}
+            className="max-sm:hidden"
+            onClick={toBoard}
+          />
+        )}
+        {!reader && (
+          <IconButton
             icon={PanelRight}
             label={t`Details`}
             active={details && !references}
@@ -243,6 +259,7 @@ export function AppHeader({
               ? []
               : [
                   { label: t`Outline`, icon: ListTree, onSelect: () => showQuickNav("outline") },
+                  { label: t`Scene board`, icon: LayoutGrid, onSelect: toBoard },
                   { label: t`Save`, icon: Save, onSelect: save },
                   {
                     label: t`Focus mode`,

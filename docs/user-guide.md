@@ -176,6 +176,21 @@ In a printed book a sheet of paper has two sides, so blank pages come in pairs: 
 
 Chapter openings follow the template's own setting instead (the Templates page says whether chapters open on a right-hand page); a chapter always starts exactly where its page cards say it does.
 
+## Planning on the scene board
+
+A **scene** is a stretch of a chapter with its own notes: a title, a synopsis, a point of view (POV), a status and a target length. Add one with **+ Scene** under a chapter in the chapter list; the scene's notes open beside the text. Scene titles and notes are for you: they never print.
+
+Open the **scene board** from the grid button in the top bar, **View**, **Scene Board** (or the command palette). Every chapter is a column of cards, in book order. Each card shows the scene's title, its synopsis, its POV, its status and its words against the target.
+
+- **Edit in place.** Click a synopsis to edit it; the change is saved when you click away, and **Escape** cancels. POV suggests the characters in your codex, and accepts any other name. Status is one of Outline, Draft, Revised and Final. The chapter does not need to be open: the board changes the chapter's own file.
+- **Move a scene.** Drag the grip at the left of a card to another place in its chapter or into another chapter; a line shows where it will land. Without a mouse, focus the grip and press the up and down arrows to move within the chapter and the left and right arrows to move into the next or previous chapter, or open the card's **...** menu and choose **Move earlier**, **Move later** or **Move to chapter**. The move is announced to screen readers. Everything in the scene moves with it, and each move is one step of **Edit**, **Undo** (undoing a move between chapters puts both chapters back at once).
+- **Unsorted.** Text that sits outside every scene (a chapter written before you used scenes, or typed above the first scene) appears as a dashed **Unsorted** card at the bottom of its chapter, with its word count. **Wrap into a scene** wraps it, so it can be moved like any other scene.
+- **Open scene** closes the board and shows the scene in the editor.
+
+On a tablet the columns scroll sideways. On a phone the board shows one chapter at a time; choose the chapter from the list at the top.
+
+Scene dates are the real calendar (`YYYY-MM-DD`); invented calendars are not supported.
+
 ## Keeping a codex
 
 Open **Codex**, under **Book snapshots** in the chapter list. An entry is a person, a place, an object or a piece of lore: a name, a kind, a one-line summary, optional aliases and links, and as many notes as you like.
