@@ -50,6 +50,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const showScene = useSceneView((s) => s.show);
   // The open chapter starts expanded; any other chapter shows its scenes once it is expanded, read from its own file.
   const [openChapters, setOpenChapters] = useState<Set<string>>(new Set());
+  const [collapsedParts, setCollapsedParts] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (!currentId) return;
     setOpenChapters((prev) => (prev.has(currentId) ? prev : new Set(prev).add(currentId)));
@@ -62,6 +63,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const rowsFor = (id: string) => (id === currentId ? scenes : (otherScenes[id] ?? []));
   const toggleRow = (id: string) =>
     setOpenChapters((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const togglePart = (id: string) =>
+    setCollapsedParts((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -81,6 +89,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const [bookHistory, setBookHistory] = useState(false);
   const kinds = useKindLabels();
   if (!manifest) return null;
+  const deletingPart =
+    deleting !== null && manifest.chapters.some((e) => e.id === deleting.id && e.kind === "part");
   const shared = {
     currentId,
     editing,
@@ -111,6 +121,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             entries={entryRowsIn(manifest.frontMatter, manifest.editions, language)}
             heading={t`Front matter`}
             titleLabel={t`Page title`}
+            collapsible
           />
         )}
         <EntryList
@@ -121,6 +132,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           titleLabel={t`Chapter title`}
           openRows={openChapters}
           onToggleRow={toggleRow}
+          collapsedParts={collapsedParts}
+          onTogglePart={togglePart}
           underRow={(chapterId) => (
             <SceneList
               rows={rowsFor(chapterId)}
@@ -149,6 +162,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             entries={entryRowsIn(manifest.backMatter, manifest.editions, language)}
             heading={t`Back matter`}
             titleLabel={t`Page title`}
+            collapsible
           />
         )}
       </div>
@@ -253,13 +267,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         onOpenChange={(o) => {
           if (!o) setDeleting(null);
         }}
-        title={t`Move “${deleting?.title ?? ""}” to trash?`}
+        title={
+          deletingPart
+            ? t`Remove ${deleting?.title ?? ""}`
+            : t`Move “${deleting?.title ?? ""}” to trash?`
+        }
         description={
-          deleting !== null && manifest.chapters.find((e) => e.id === deleting.id)?.kind === "part"
+          deletingPart
             ? t`The part page moves to the project trash. Its chapters stay in the book, under the part before it. Nothing is permanently deleted.`
             : t`It moves to the project trash inside your book folder. Nothing is permanently deleted.`
         }
-        confirmLabel={t`Move to trash`}
+        confirmLabel={deletingPart ? t`Remove part` : t`Move to trash`}
         onConfirm={() => {
           if (deleting) attempt(actions.remove(deleting.id));
         }}

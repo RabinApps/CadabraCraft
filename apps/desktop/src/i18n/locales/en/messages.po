@@ -1494,6 +1494,10 @@ msgstr "Codex"
 msgid "Codex entries"
 msgstr "Codex entries"
 
+#: src/app/shell/EntryList.tsx
+msgid "Collapse {heading}"
+msgstr "Collapse {heading}"
+
 #: src/app/shell/menuModel.ts
 #: src/app/shell/useKindLabels.ts
 msgid "Colophon"
@@ -2194,6 +2198,10 @@ msgstr "Exact pages from Typst"
 msgid "Exit focus mode"
 msgstr "Exit focus mode"
 
+#: src/app/shell/EntryList.tsx
+msgid "Expand {heading}"
+msgstr "Expand {heading}"
+
 #: src/app/export/ExportDialog.tsx
 #: src/app/shell/AppHeader.tsx
 #: src/app/shell/menuModel.ts
@@ -2521,6 +2529,11 @@ msgstr "Hidden"
 #: src/app/shell/menuModel.ts
 msgid "Hide CadabraCraft"
 msgstr "Hide CadabraCraft"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "Hide chapters of {0}"
+msgstr "Hide chapters of {0}"
 
 #: src/state/project/toc.ts
 msgid "Hide contents entry"
@@ -4130,7 +4143,9 @@ msgstr "Remember my choice"
 msgid "Remove"
 msgstr "Remove"
 
+#. placeholder {0}: deleting?.title ?? ""
 #. placeholder {0}: ref.title
+#: src/app/shell/Sidebar.tsx
 #: src/state/project/references.ts
 msgid "Remove {0}"
 msgstr "Remove {0}"
@@ -4169,6 +4184,11 @@ msgstr "Remove entry"
 #: src/app/references/ReferenceRow.tsx
 msgid "Remove from book"
 msgstr "Remove from book"
+
+#: src/app/shell/EntryList.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Remove part"
+msgstr "Remove part"
 
 #: src/app/references/ReferenceDetails.tsx
 msgid "Remove tag {name}"
@@ -4669,6 +4689,11 @@ msgstr "Show as list"
 #: src/app/shell/AppHeader.tsx
 msgid "Show chapters"
 msgstr "Show chapters"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "Show chapters of {0}"
+msgstr "Show chapters of {0}"
 
 #: src/state/project/toc.ts
 msgid "Show contents entry"

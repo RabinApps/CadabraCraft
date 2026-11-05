@@ -42,6 +42,31 @@ test("add front and back matter pages with generated content, and they open in t
   await expect(page.getByText("Front matter", { exact: true }).last()).toBeVisible();
 });
 
+test("front and back matter sections collapse and expand", async ({ page }) => {
+  await newProject(page);
+  await addPage(page, "Title page");
+  await addPage(page, "About the author");
+  const titlePage = sidebar(page).getByRole("button", { name: "Title Page", exact: true });
+  const about = sidebar(page).getByRole("button", { name: "About the Author", exact: true });
+
+  const collapseFront = sidebar(page).getByRole("button", { name: "Collapse Front matter" });
+  await expect(collapseFront).toHaveAttribute("aria-expanded", "true");
+  await collapseFront.click();
+  await expect(titlePage).toBeHidden();
+  await expect(sidebar(page).getByRole("heading", { name: "Front matter" })).toBeVisible();
+  const expandFront = sidebar(page).getByRole("button", { name: "Expand Front matter" });
+  await expect(expandFront).toHaveAttribute("aria-expanded", "false");
+  await expandFront.click();
+  await expect(titlePage).toBeVisible();
+
+  const collapseBack = sidebar(page).getByRole("button", { name: "Collapse Back matter" });
+  await collapseBack.click();
+  await expect(about).toBeHidden();
+  const expandBack = sidebar(page).getByRole("button", { name: "Expand Back matter" });
+  await expandBack.click();
+  await expect(about).toBeVisible();
+});
+
 test("title page and copyright page can only be added once", async ({ page }) => {
   await newProject(page);
   await addPage(page, "Title page");

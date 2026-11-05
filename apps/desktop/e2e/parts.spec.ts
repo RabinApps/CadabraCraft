@@ -31,6 +31,23 @@ test("a part groups the chapters after it and opens its own page", async ({ page
   await expect(page.locator(".ProseMirror h1")).toHaveText("Part 1");
 });
 
+test("a part's arrow hides and shows its chapters", async ({ page }) => {
+  await withPart(page);
+  const chapter = sidebar(page).getByRole("button", { name: "Chapter 2", exact: true });
+  await expect(chapter).toBeVisible();
+
+  const hide = sidebar(page).getByRole("button", { name: "Hide chapters of Part 1" });
+  await expect(hide).toHaveAttribute("aria-expanded", "true");
+  await hide.click();
+  await expect(chapter).toHaveCount(0);
+  await expect(sidebar(page).getByRole("button", { name: /^Part 1/ })).toBeVisible();
+
+  const show = sidebar(page).getByRole("button", { name: "Show chapters of Part 1" });
+  await expect(show).toHaveAttribute("aria-expanded", "false");
+  await show.click();
+  await expect(chapter).toBeVisible();
+});
+
 test("Start part here begins a part at that chapter", async ({ page }) => {
   await newProject(page);
   await page.getByRole("button", { name: "Add chapter", exact: true }).click();
@@ -77,7 +94,7 @@ test("undoing Start part here removes the new part page and restores the groupin
   await expect(sidebar(page).getByRole("button", { name: /^Part 2/ })).toHaveCount(0);
 });
 
-test("renaming and moving a part keeps its chapters together, and trashing it keeps them in the book", async ({
+test("renaming and moving a part keeps its chapters together, and removing it keeps them in the book", async ({
   page,
 }) => {
   await withPart(page);
@@ -108,8 +125,9 @@ test("renaming and moving a part keeps its chapters together, and trashing it ke
     "part:Part 2",
   ]);
 
-  await chapterAction(page, "Part One", "Move to trash");
-  await page.getByRole("dialog").getByRole("button", { name: "Move to trash" }).click();
+  await chapterAction(page, "Part One", "Remove part");
+  await expect(page.getByRole("dialog")).toContainText("Remove Part One");
+  await page.getByRole("dialog").getByRole("button", { name: "Remove part" }).click();
   expect(await partTitles(page)).toEqual(["Chapter One", "Chapter 2", "part:Part 2"]);
   const trashed = await page.evaluate(() =>
     Object.keys(window.__disk).filter(

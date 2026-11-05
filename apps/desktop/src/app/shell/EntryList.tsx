@@ -52,6 +52,12 @@ interface ListProps {
   openRows?: Set<string>;
   /** Present on chapters: the chevron that opens and closes a row's scenes. */
   onToggleRow?: (id: string) => void;
+  /** Parts whose chapters are hidden; parts otherwise start open. */
+  collapsedParts?: Set<string>;
+  /** Present on chapters: the chevron that hides and shows a part's chapters. */
+  onTogglePart?: (id: string) => void;
+  /** Present on front and back matter: the section heading opens and closes the whole list. */
+  collapsible?: boolean;
 }
 
 /** One section of the book (front matter, chapters or back matter): the same row, rename, reorder and trash actions in each. */
@@ -70,9 +76,13 @@ export function EntryList({
   underRow,
   openRows,
   onToggleRow,
+  collapsedParts,
+  onTogglePart,
+  collapsible,
 }: ListProps) {
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
+  const [headingOpen, setHeadingOpen] = useState(true);
   const last = entries.length - 1;
   // A part divider is a row of the chapters list: the entries after it belong to it until the next divider. Parts are not dragged
   // (that would move the divider alone and regroup its chapters): their menu moves the whole group with `actions.movePart`.
@@ -94,6 +104,13 @@ export function EntryList({
       return 0;
     }
     return grouped ? 1 : 0;
+  });
+  // A collapsed part hides every row after it until the next divider, without changing the manifest order.
+  const hidden = new Set<string>();
+  let hiddenPart = false;
+  entries.forEach((e) => {
+    if (e.kind === "part") hiddenPart = collapsedParts?.has(e.id) ?? false;
+    else if (hiddenPart) hidden.add(e.id);
   });
   /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
   const afterClose = useRef<(() => void) | null>(null);
@@ -117,6 +134,7 @@ export function EntryList({
   /** A moved page is announced (the grip keeps focus and its name does not change, so nothing else would say it moved). */
   const [said, setSaid] = useState("");
   const gripHelp = useId();
+  const listId = useId();
   useEffect(() => {
     if (!said) return;
     const timer = setTimeout(() => setSaid(""), 4000);
@@ -156,11 +174,41 @@ export function EntryList({
   };
   return (
     <section aria-label={heading} className="flex flex-col gap-0.5">
-      <SectionHeading className="px-2.5 pt-1">{heading}</SectionHeading>
-      <ul ref={list} className="m-0 flex list-none flex-col gap-0.5 p-0">
+      {collapsible ? (
+        <div className="flex items-center gap-1 ps-1">
+          <button
+            type="button"
+            aria-expanded={headingOpen}
+            aria-controls={listId}
+            aria-label={headingOpen ? t`Collapse ${heading}` : t`Expand ${heading}`}
+            onClick={() => setHeadingOpen((open) => !open)}
+            className="flex size-5 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent max-md:size-11"
+          >
+            {headingOpen ? (
+              <ChevronDown size={14} aria-hidden />
+            ) : (
+              <ChevronRight size={14} aria-hidden />
+            )}
+          </button>
+          <SectionHeading className="py-1">{heading}</SectionHeading>
+        </div>
+      ) : (
+        <SectionHeading className="px-2.5 pt-1">{heading}</SectionHeading>
+      )}
+      <ul
+        id={listId}
+        ref={list}
+        className="m-0 flex list-none flex-col gap-0.5 p-0"
+        style={collapsible && !headingOpen ? { display: "none" } : undefined}
+      >
         {entries.map((c, i) => {
+          if (hidden.has(c.id)) return null;
           const current = c.id === currentId;
           const Icon = iconComponent(c.icon);
+          const open =
+            c.kind === "part"
+              ? !(collapsedParts?.has(c.id) ?? false)
+              : (openRows?.has(c.id) ?? false);
           return (
             <li
               key={c.id}
@@ -177,19 +225,23 @@ export function EntryList({
                 className="flex items-center gap-1 ps-1"
                 style={depth[i] ? { paddingInlineStart: "1.25rem" } : undefined}
               >
-                {onToggleRow && (
+                {((c.kind === "part" && onTogglePart) || (c.kind !== "part" && onToggleRow)) && (
                   <button
                     type="button"
-                    aria-expanded={openRows?.has(c.id) ?? false}
+                    aria-expanded={open}
                     aria-label={
-                      openRows?.has(c.id)
-                        ? t`Hide scenes of ${c.title}`
-                        : t`Show scenes of ${c.title}`
+                      c.kind === "part"
+                        ? open
+                          ? t`Hide chapters of ${c.title}`
+                          : t`Show chapters of ${c.title}`
+                        : open
+                          ? t`Hide scenes of ${c.title}`
+                          : t`Show scenes of ${c.title}`
                     }
-                    onClick={() => onToggleRow(c.id)}
+                    onClick={() => (c.kind === "part" ? onTogglePart?.(c.id) : onToggleRow?.(c.id))}
                     className="flex size-5 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent max-md:size-11"
                   >
-                    {openRows?.has(c.id) ? (
+                    {open ? (
                       <ChevronDown size={14} aria-hidden />
                     ) : (
                       <ChevronRight size={14} aria-hidden />
@@ -525,7 +577,7 @@ export function EntryList({
                         onSelect={moveFocus(() => setDeleting({ id: c.id, title: c.title }))}
                       >
                         <Trash2 size={14} aria-hidden />
-                        {t`Move to trash`}
+                        {c.kind === "part" ? t`Remove part` : t`Move to trash`}
                       </M.Item>
                     </M.Content>
                   </M.Portal>
