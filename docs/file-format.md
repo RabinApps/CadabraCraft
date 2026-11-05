@@ -11,6 +11,7 @@ MyBook/
 ├── assets/               images, fonts
 ├── references/           research files the author keeps beside the book (see References)
 ├── comments/             one JSON file per page with that page's comment threads (see Comments)
+├── codex.json            the book's people, places, things and lore (see Codex)
 ├── exports/              generated EPUB/PDF (safe to delete)
 └── .cadabra/             local state, cache, backups (exclude from sync)
 ```
@@ -223,3 +224,13 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 - Version 1 -> 2: front and back matter entries may carry `kind`. The migration changes nothing else; older entries keep no kind.
 
 Any change to this layout bumps `formatVersion`, adds a migration in `packages/format`, and adds a test that opens a file from the previous version.
+
+## Codex
+
+`codex.json` holds the book's people, places, things and lore. Each entry has an `id` (a letter, then letters, digits, `_` or
+`-`), a `kind` (`character`, `place`, `item` or `lore`), a `name`, `aliases` (other names it goes by), a one-line `summary`, a
+long `body`, an optional `image` in the project's `assets/`, and `links` (http, https or mailto). Ids and names are unique, so
+a cast picker and "appears in" are unambiguous.
+
+The codex is a writing tool. No exporter prints it, nothing in it reaches an EPUB or a PDF, and a book without one simply has
+no `codex.json`. It is not part of `.cadabra/`, so it syncs with the book like `references/` and `comments/` do.

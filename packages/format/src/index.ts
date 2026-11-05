@@ -13,3 +13,4 @@ export * from "./toc";
 export * from "./contents";
 export * from "./icons";
 export * from "./comments";
+export * from "./codex";
