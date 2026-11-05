@@ -14,7 +14,7 @@ import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import type { PublishingForm } from "../../lib/publishingForm";
 import type { ImportChoices, ImportReport } from "../../lib/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
-import type { ScenePatch } from "../../lib/sceneMoves";
+import type { SceneNodeJson, ScenePatch } from "../../lib/sceneMoves";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import type { AudioUiError } from "../../lib/audioErrors";
 import type { FontUiError } from "../../lib/fontErrors";
@@ -433,6 +433,11 @@ export interface SceneActions {
   moveScene: (sceneId: string, toChapterId: string, index: number) => Promise<boolean>;
   /** Wraps the text that sits outside every scene of a chapter into scenes with empty notes; returns their ids (none when there was nothing to wrap). */
   wrapUnsortedIn: (chapterId: string) => Promise<string[]>;
+  /**
+   * Adds new scenes after everything in a chapter of the open edition, open or not, and returns their ids (none when the chapter is
+   * not there or `scenes` is empty). Only adds: no existing block or scene changes. One book undo step. The story-structure templates use it.
+   */
+  addScenesIn: (chapterId: string, scenes: SceneNodeJson[]) => Promise<string[]>;
 }
 
 export interface ReplaceActions {

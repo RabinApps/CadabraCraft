@@ -85,6 +85,9 @@ importers:
       '@cadabracraft/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@cadabracraft/story-structures':
+        specifier: workspace:*
+        version: link:../../packages/story-structures
       '@cadabracraft/templates':
         specifier: workspace:*
         version: link:../../packages/templates
@@ -520,6 +523,15 @@ importers:
         version: link:../shared
 
   packages/shared: {}
+
+  packages/story-structures:
+    devDependencies:
+      '@cadabracraft/editor-schema':
+        specifier: workspace:*
+        version: link:../editor-schema
+      '@cadabracraft/shared':
+        specifier: workspace:*
+        version: link:../shared
 
   packages/templates:
     dependencies:

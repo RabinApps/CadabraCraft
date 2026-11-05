@@ -5,6 +5,7 @@ import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { newSceneId, sceneRows } from "../../lib/scenes";
 import {
+  appendScenes,
   insertScene,
   patchScene,
   removeScene,
@@ -153,6 +154,16 @@ export const createSceneActions = (ctx: Ctx): SceneActions => {
         if (!wrapped.ids.length) return [];
         await commit(t`Wrap text into a scene`, [{ before: chapter, doc: wrapped.doc }]);
         return wrapped.ids;
+      }),
+
+    addScenesIn: (chapterId, scenes) =>
+      exclusive(async () => {
+        if (!scenes.length) return [];
+        const [chapter] = await readChapters(chapterId);
+        if (!chapter) return [];
+        const doc = appendScenes(chapter.doc, scenes);
+        await commit(t`Add story structure`, [{ before: chapter, doc }]);
+        return scenes.map((s) => String(s.attrs.id));
       }),
   };
 };

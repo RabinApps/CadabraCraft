@@ -120,6 +120,14 @@ export function insertScene<T>(doc: T, scene: SceneNodeJson, index: number): T {
   return withBlocks(doc, [...blocks.slice(0, at), scene, ...blocks.slice(at)]);
 }
 
+/**
+ * The doc with new scenes added after everything the chapter holds, in the order given. Nothing already there is changed, moved
+ * or dropped. Throws when a new scene's id is already in the chapter (or twice in `scenes`), like `insertScene`.
+ */
+export function appendScenes<T>(doc: T, scenes: SceneNodeJson[]): T {
+  return scenes.reduce((d, scene) => insertScene(d, scene, Number.MAX_SAFE_INTEGER), doc);
+}
+
 /** Moves a scene inside its chapter to `to` (its place among the scenes once it is lifted out). Null when there is no such scene. */
 export function reorderScenes<T>(doc: T, id: string, to: number): T | null {
   const taken = removeScene(doc, id);

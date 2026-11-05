@@ -262,3 +262,36 @@ describe("wrapUnsortedIn", () => {
     expect(ids(1)).toEqual(["d"]);
   });
 });
+
+describe("addScenesIn", () => {
+  const fresh = (id: string) => ({
+    type: "scene" as const,
+    attrs: { id, title: id, synopsis: "s", status: "outline" },
+    content: [{ type: "paragraph" }],
+  });
+
+  it("adds scenes at the end of a chapter that is not open, in one undo step, keeping what was there", async () => {
+    await twoChapters();
+    const before = disk.get(file(1))!;
+    expect(await a().addScenesIn("ch-2", [fresh("x1"), fresh("x2")])).toEqual(["x1", "x2"]);
+    expect(ids(1)).toEqual(["d", "x1", "x2"]);
+    expect(await a().undo()).toBe(true);
+    expect(JSON.parse(disk.get(file(1))!)).toEqual(JSON.parse(before));
+  });
+
+  it("adds nothing for no scenes or an unknown chapter, and refuses an id the chapter already has", async () => {
+    await twoChapters();
+    expect(await a().addScenesIn("ch-2", [])).toEqual([]);
+    expect(await a().addScenesIn("ch-9", [fresh("x1")])).toEqual([]);
+    await expect(a().addScenesIn("ch-2", [fresh("d")])).rejects.toThrow(/already has a scene d/);
+    expect(ids(1)).toEqual(["d"]);
+  });
+
+  it("reports a failed write and changes nothing", async () => {
+    await twoChapters();
+    writes = 0;
+    failAt = { n: 1, sticky: false };
+    await expect(a().addScenesIn("ch-2", [fresh("x1")])).rejects.toThrow(/Nothing was changed/);
+    expect(ids(1)).toEqual(["d"]);
+  });
+});

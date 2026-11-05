@@ -88,7 +88,7 @@ These ratchets are intentionally below the project goal until the remaining func
 
 ### Scope and exclusions
 
-- `packages/*`: all source under `src/**`, excluding tests and declaration files. Thirteen packages currently enforce 100% for lines, statements, functions and branches through the shared strict coverage config.
+- `packages/*`: all source under `src/**`, excluding tests and declaration files. Fourteen packages currently enforce 100% for lines, statements, functions and branches through the shared strict coverage config.
 - Desktop pure TypeScript in `src/state` and `src/lib` plus other explicitly unit-tested logic is measured with Vitest. React components, DOM-dependent hooks and the entry UI are measured with Playwright's V8 coverage. File-to-run ownership is defined in `apps/desktop/coverageScopes.ts`.
 - Tauri builder wiring in Rust `src/lib.rs`, the binary entry point `src/main.rs` and `src/platform/native_dialog.rs` (the three calls that open the OS file dialogs, which need a real window and a person) are excluded. The recording and checking of picked paths (`commands/picked.rs`) is tested. The `#[tauri::command]` generated wrapper line `src/commands/project.rs:58` is the only line-level source exclusion; the underlying behavior remains tested at the logic/IPC layer.
 - `apps/desktop/src/lib/coverThumbsBrowser.ts` (the IndexedDB store and the canvas downscale behind the Library's cover thumbnails) is excluded from the unit run because Vitest has neither; Playwright runs it (`e2e/library.spec.ts`, the cover test), and the cache logic that decides when to render is unit-tested in `coverThumbs.ts`.
