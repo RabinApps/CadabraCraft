@@ -89,6 +89,11 @@ msgstr "{0, plural, zero {لا مراجع} one {مرجع واحد} two {مرجع
 msgid "{0, plural, one {# result} other {# results}}"
 msgstr "{0, plural, zero {لا نتائج} one {نتيجة واحدة} two {نتيجتان} few {# نتائج} many {# نتيجة} other {# نتيجة}}"
 
+#. placeholder {0}: scenesOf(item, result)
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "{0, plural, one {# scene} other {# scenes}}"
+msgstr "{0, plural, zero {لا مشاهد} one {مشهد واحد} two {مشهدان} few {# مشاهد} many {# مشهدًا} other {# مشهد}}"
+
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
@@ -385,6 +390,10 @@ msgstr "{index} من {total}"
 #: src/app/dialogs/ImportParts.tsx
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr "{kept, plural, one {سيُستورد فصل واحد.} two {سيُستورد فصلان.} few {ستُستورد # فصول.} many {سيُستورد # فصلًا.} other {سيُستورد # فصل.}}"
+
+#: src/app/dialogs/ImportParts.tsx
+msgid "{kept, plural, one {# chapter} other {# chapters}} and {scenes, plural, one {# scene} other {# scenes}} will be imported."
+msgstr "سيتم استيراد {kept, plural, zero {لا فصول} one {فصل واحد} two {فصلان} few {# فصول} many {# فصلًا} other {# فصل}} و{scenes, plural, zero {لا مشاهد} one {مشهد واحد} two {مشهدان} few {# مشاهد} many {# مشهدًا} other {# مشهد}}."
 
 #: src/state/project/scenes.ts
 msgid "{label} stopped: {why}. A scene may now be in two chapters; nothing was lost, and Undo finishes the job."
@@ -1284,8 +1293,8 @@ msgid "Checks"
 msgstr "الفحوصات"
 
 #: src/lib/importBook.ts
-msgid "Choose a .docx, .md, .markdown or .html file."
-msgstr "اختر ملف ‎.docx أو ‎.md أو ‎.markdown أو ‎.html."
+msgid "Choose a .docx, .md, .markdown, .html, .opml or .csv file."
+msgstr "اختر ملف ‎.docx أو ‎.md أو ‎.markdown أو ‎.html أو ‎.opml أو ‎.csv."
 
 #: src/app/shell/App.tsx
 msgid "Choose a chapter to start."
@@ -1596,6 +1605,11 @@ msgstr "تعذّر فتح هذا الكتاب: {0}. تأكد من أن المج�
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
 msgstr "تعذّرت قراءة لقطات الكتاب ({0}). أغلق هذه النافذة وافتح السجل مرة أخرى لإعادة المحاولة."
+
+#. placeholder {0}: causeText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not read the file that way ({0}). Pick the other choice, or go back and choose a different file."
+msgstr "تعذّرت قراءة الملف بهذه الطريقة ({0}). اختر الخيار الآخر، أو ارجع واختر ملفًا آخر."
 
 #. placeholder {0}: causeText(e)
 #: src/app/shell/TrashDialog.tsx
@@ -2953,6 +2967,10 @@ msgstr "جارٍ إنشاء المعاينة…"
 msgid "Manual order"
 msgstr "ترتيب يدوي"
 
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Manuscript"
+msgstr "مخطوطة"
+
 #: src/lib/useIconChoices.ts
 msgid "Map"
 msgstr "خريطة"
@@ -3560,6 +3578,7 @@ msgstr "أخرى (استخدم حقل وسم اللغة)"
 msgid "Outdent list item"
 msgstr "تقليل إزاحة عنصر القائمة"
 
+#: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/ExportDialog.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/scenes/labels.ts
@@ -3877,6 +3896,10 @@ msgstr "قراءة"
 #: src/editor/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "تقرؤها قارئات الشاشة بصوت عالٍ. صف ما تُظهره الصورة."
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Read this file as"
+msgstr "قراءة هذا الملف على أنه"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Reading settings"
@@ -4980,6 +5003,10 @@ msgstr "ليس للإدخال عنوان."
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr "الصف الأول رأس. حتى {MAX_TABLE_ROWS} صفًا."
 
+#: src/lib/importErrorText.ts
+msgid "The first row of this spreadsheet has no column named chapter, title or scene. Add a header row with those names and try again."
+msgstr "الصف الأول في جدول البيانات هذا لا يحتوي على عمود باسم chapter أو title أو scene. أضف صف عناوين بهذه الأسماء وحاول مرة أخرى."
+
 #: src/app/library/Library.tsx
 msgid "The folder holds more books than a scan lists; pick a smaller folder."
 msgstr "يحتوي المجلد على كتب أكثر مما يعرضه البحث؛ اختر مجلدًا أصغر."
@@ -5189,6 +5216,14 @@ msgstr "لا توجد في هذه الطبعة صفحة محتويات لرسم�
 msgid "This file does not look like text. It may be damaged or saved in another format."
 msgstr "لا يبدو هذا الملف نصًا. قد يكون تالفًا أو محفوظًا بصيغة أخرى."
 
+#: src/lib/importErrorText.ts
+msgid "This file has no chapters or scenes to import. Choose another file, or in a Markdown file start each chapter with # and each scene with ##."
+msgstr "لا يحتوي هذا الملف على فصول أو مشاهد للاستيراد. اختر ملفًا آخر، أو في ملف Markdown ابدأ كل فصل بـ # وكل مشهد بـ ##."
+
+#: src/lib/importErrorText.ts
+msgid "This file is not an OPML outline. Export the outline as OPML from your outliner, then try again."
+msgstr "هذا الملف ليس مخططًا بصيغة OPML. صدّر المخطط بصيغة OPML من برنامج المخططات لديك ثم حاول مرة أخرى."
+
 #: src/lib/importBook.ts
 msgid "This file is too large or too deeply nested to import."
 msgstr "هذا الملف كبير جدًا أو متداخل بعمق شديد لاستيراده."
@@ -5209,6 +5244,18 @@ msgstr "هذه الصورة زخرفية"
 #: src/lib/projectError.ts
 msgid "This image path is not allowed: {0}"
 msgstr "مسار الصورة هذا غير مسموح: {0}"
+
+#: src/lib/importErrorText.ts
+msgid "This outline file is damaged or not written correctly, so it could not be read. Open it in the program that made it, save a copy and try again."
+msgstr "ملف المخطط هذا تالف أو غير مكتوب بشكل صحيح، لذلك تعذّرت قراءته. افتحه في البرنامج الذي أنشأه، واحفظ نسخة وحاول مرة أخرى."
+
+#: src/lib/importErrorText.ts
+msgid "This outline file is too large to import. Choose a smaller file, or split it into parts."
+msgstr "ملف المخطط هذا كبير جدًا للاستيراد. اختر ملفًا أصغر أو قسّمه إلى أجزاء."
+
+#: src/lib/importErrorText.ts
+msgid "This outline has too many chapters or scenes to import safely. Split it into smaller files."
+msgstr "يحتوي هذا المخطط على فصول أو مشاهد أكثر من أن تُستورد بأمان. قسّمه إلى ملفات أصغر."
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/shell/Details.tsx
@@ -5411,6 +5458,7 @@ msgstr "نوع صورة غير مدعوم: {0}"
 #: src/app/home/Dashboard.tsx
 #: src/app/library/BookCover.tsx
 #: src/app/library/Library.tsx
+#: src/lib/importBook.ts
 msgid "Untitled"
 msgstr "بلا عنوان"
 

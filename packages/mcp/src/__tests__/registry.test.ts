@@ -16,6 +16,7 @@ const EXPECTED = [
   "cadabra_chapter_write_markdown",
   "cadabra_chapter_write_json",
   "cadabra_import_file",
+  "cadabra_import_outline",
   "cadabra_reference_list",
   "cadabra_reference_add",
   "cadabra_reference_update",

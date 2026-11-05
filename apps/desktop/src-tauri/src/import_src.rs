@@ -8,8 +8,8 @@ use std::path::{Component, Path, PathBuf};
 
 type Result<T> = std::result::Result<T, ProjectError>;
 
-/// Document types the importer understands.
-pub const IMPORT_EXTENSIONS: [&str; 6] = ["docx", "md", "markdown", "html", "htm", "txt"];
+/// Document types the importer understands: manuscripts and, for the outline import (parsed in the webview, so only read here), `opml` and `csv`.
+pub const IMPORT_EXTENSIONS: [&str; 8] = ["docx", "md", "markdown", "html", "htm", "txt", "opml", "csv"];
 /// Largest source document accepted, in bytes.
 pub const MAX_IMPORT_BYTES: u64 = 200 * 1024 * 1024;
 
@@ -74,11 +74,11 @@ mod tests {
     #[test]
     fn reads_allowed_sources_and_leaves_them_untouched() {
         let d = tempfile::tempdir().unwrap();
-        for n in ["a.docx", "b.MD", "c.markdown", "d.txt", "e.html", "f.HTM"] {
+        for n in ["a.docx", "b.MD", "c.markdown", "d.txt", "e.html", "f.HTM", "g.opml", "h.CSV"] {
             fs::write(d.path().join(n), b"x").unwrap();
             assert_eq!(read_source(&d.path().join(n)).unwrap(), b"x", "{n}");
         }
-        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 6, "no files were added");
+        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 8, "no files were added");
     }
 
     #[test]
@@ -151,7 +151,7 @@ mod tests {
             fs::write(d.path().join(n), b"x").unwrap();
             assert!(read_source(&d.path().join(n)).is_ok(), "{n} should be allowed");
         }
-        for n in ["a.html.exe", ".html", ".md", "noext", "a.", "a.md.", "a.md ", "a. md", "a.html~", "a.docx.zip"] {
+        for n in ["a.html.exe", ".html", ".md", "noext", "a.", "a.md.", "a.md ", "a. md", "a.html~", "a.docx.zip", "a.csv.exe", "a.opml.bak", "a.csv "] {
             fs::write(d.path().join(n), b"x").unwrap();
             assert_eq!(read_source(&d.path().join(n)).unwrap_err(), ProjectError::UnsupportedDocument { name: n.into() }, "{n}");
         }

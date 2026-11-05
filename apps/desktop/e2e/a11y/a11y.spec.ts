@@ -114,6 +114,20 @@ for (const theme of ["light", "dark"] as const) {
       await scan(page, "import chapter list");
     });
 
+    test("import outline preview", async ({ page }) => {
+      await fakeImportSources(page, "outlineMd");
+      await page.goto("/");
+      await page.getByRole("button", { name: "Import…" }).click();
+      const dialog = page.getByRole("dialog", { name: "Import a manuscript" });
+      await dialog.getByRole("button", { name: "Choose file…" }).click();
+      await dialog.getByRole("button", { name: "Choose…" }).click();
+      await dialog.getByRole("button", { name: "Next" }).click();
+      await scan(page, "import preview of a Markdown file (Read this file as)");
+      await dialog.getByRole("radio", { name: "Outline" }).click();
+      await expect(dialog.getByText("2 chapters and 3 scenes will be imported.")).toBeVisible();
+      await scan(page, "import outline preview");
+    });
+
     test("editor", async ({ page }) => {
       await newProject(page);
       await scan(page, "editor");

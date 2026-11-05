@@ -158630,7 +158630,7 @@
       "x": 0,
       "y": 51791,
       "name": "Section / Import",
-      "width": 5300,
+      "width": 6460,
       "height": 1660,
       "fill": "#00000000",
       "layout": "none",
@@ -166369,6 +166369,2696 @@
                     },
                     {
                       "id": "K2Qm8z",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Create book",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "file-up"
+                        },
+                        "gNKXH": {
+                          "content": "Import"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "h3l9Yv",
+          "x": 5380,
+          "y": 160,
+          "name": "Import outline / preview / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 640,
+          "height": 720,
+          "fill": "$sidebar",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "h0pZZ",
+              "name": "Dialog",
+              "width": 460,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000033",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 32
+              },
+              "layout": "vertical",
+              "gap": 18,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "I83W0g",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "content": "Import into this book",
+                  "fontFamily": "$font-book",
+                  "fontSize": "$type-title",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "s6Z2G",
+                  "name": "Description",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-small",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "uOta0",
+                  "name": "Split level",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "z3zvw",
+                      "name": "Label",
+                      "fill": "$ink-muted",
+                      "content": "Read this file as",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "z5P2Hp",
+                      "name": "Segmented",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 2,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "L7TvPO",
+                          "name": "Heading 1",
+                          "fill": "#00000000",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Mwo1O",
+                              "name": "Heading 1 label",
+                              "fill": "$ink-muted",
+                              "content": "Manuscript",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "RV8ir",
+                          "name": "Heading 2",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "vSW6p",
+                              "name": "Heading 2 label",
+                              "fill": "$accent",
+                              "content": "Outline",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "y3eTXc",
+                  "name": "Chapters",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "b14FI",
+                      "name": "Chapter 1: The Orchard",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "m9K8N",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "n2OMz",
+                              "name": "Include",
+                              "width": 18,
+                              "height": 18,
+                              "icon": "square-check",
+                              "library": "lucide",
+                              "fill": "$accent"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "trbDV",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "yImCs",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Chapter 1: The Orchard",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "k27H0q",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "padding": [
+                            0,
+                            0,
+                            0,
+                            28
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "qRXid",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "TV4J9",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "xxBJa",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "V7wtA",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "opacity": 0.4,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "JP95d",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "u2Picu",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "opacity": 0.4,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "MAic1",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "4 scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PwhF7",
+                      "name": "Chapter 2: Salt Wind",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ZDeqI",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "lpaan",
+                              "name": "Include",
+                              "width": 18,
+                              "height": 18,
+                              "icon": "square-check",
+                              "library": "lucide",
+                              "fill": "$accent"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "dl5u2",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "PyChM",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Chapter 2: Salt Wind",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "V2iZU",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "padding": [
+                            0,
+                            0,
+                            0,
+                            28
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "egtn3",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "wlmhQ",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "R29BI",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "xcocc",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "z1AEl0",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "Bbhp5",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "r2KuU",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "3 scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "K9oCpd",
+                      "name": "Notes (skip)",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "VI00X",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "VbbSB",
+                              "name": "Include",
+                              "width": 18,
+                              "height": 18,
+                              "icon": "square",
+                              "library": "lucide",
+                              "fill": "$ink-muted"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "GJXA5",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Y59Jno",
+                                  "name": "Title",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes (skip)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "xYF67",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "padding": [
+                            0,
+                            0,
+                            0,
+                            28
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "sUBGn",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "k5KsPv",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "tHs7A",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "dJg47",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "OIeXo",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "opacity": 0.4,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "Azxxf",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "opacity": 0.4,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "R8ROSE",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "1 scene",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "cyZQz",
+                  "name": "Summary",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "2 chapters and 7 scenes will be imported. Some content could not be kept: outline-cast-skipped. A full report follows the import.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "XKt18",
+                  "name": "Actions",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "id": "QlDGh",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Back",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "arrow-left"
+                        },
+                        "l83V3": {
+                          "content": "Back"
+                        }
+                      }
+                    },
+                    {
+                      "id": "eWy8m",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Primary",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "file-up"
+                        },
+                        "gNKXH": {
+                          "content": "Add to book"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "eUhXl",
+          "x": 5380,
+          "y": 880,
+          "name": "Import outline / preview / dark",
+          "theme": {
+            "mode": "dark"
+          },
+          "clip": true,
+          "width": 640,
+          "height": 720,
+          "fill": "$sidebar",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "eUuvx",
+              "name": "Dialog",
+              "width": 460,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000033",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 32
+              },
+              "layout": "vertical",
+              "gap": 18,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "D7fJ1",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "content": "Import into this book",
+                  "fontFamily": "$font-book",
+                  "fontSize": "$type-title",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "w3BIkC",
+                  "name": "Description",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-small",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "FKppA",
+                  "name": "Split level",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "GGVls",
+                      "name": "Label",
+                      "fill": "$ink-muted",
+                      "content": "Read this file as",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kopQU",
+                      "name": "Segmented",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 2,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "H3eB3",
+                          "name": "Heading 1",
+                          "fill": "#00000000",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "uBiDA",
+                              "name": "Heading 1 label",
+                              "fill": "$ink-muted",
+                              "content": "Manuscript",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "CeVwB",
+                          "name": "Heading 2",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "eYBlF",
+                              "name": "Heading 2 label",
+                              "fill": "$accent",
+                              "content": "Outline",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rcgnn",
+                  "name": "Chapters",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "kun8E",
+                      "name": "Chapter 1: The Orchard",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "VNKSN",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "pspGv",
+                              "name": "Include",
+                              "width": 18,
+                              "height": 18,
+                              "icon": "square-check",
+                              "library": "lucide",
+                              "fill": "$accent"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "myEuJ",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sbEEq",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Chapter 1: The Orchard",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "VjVF5",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "padding": [
+                            0,
+                            0,
+                            0,
+                            28
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "dvXTu",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "X5THW",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "C51CG1",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "jHmLm",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "opacity": 0.4,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "pHsFN",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "JSUil",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "opacity": 0.4,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "zPCDp",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "4 scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "F4wha",
+                      "name": "Chapter 2: Salt Wind",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Orq7P",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "w5vLS",
+                              "name": "Include",
+                              "width": 18,
+                              "height": 18,
+                              "icon": "square-check",
+                              "library": "lucide",
+                              "fill": "$accent"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "v481uc",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "o9SFBy",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Chapter 2: Salt Wind",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "abWMb",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "padding": [
+                            0,
+                            0,
+                            0,
+                            28
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "QDa2X",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "F6VrQD",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "t94ME",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "okBtc",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "XVxX5",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "v1VF9T",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "Ik9eR",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "3 scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "P4eDU0",
+                      "name": "Notes (skip)",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "q9PTWp",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "SMfH0",
+                              "name": "Include",
+                              "width": 18,
+                              "height": 18,
+                              "icon": "square",
+                              "library": "lucide",
+                              "fill": "$ink-muted"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "N0xIWz",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "eizkJ",
+                                  "name": "Title",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes (skip)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Q5AfM",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "padding": [
+                            0,
+                            0,
+                            0,
+                            28
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "VL5fr",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "a50US",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "BPysM",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "OcWc8",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "HOJks",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "opacity": 0.4,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "rVTR2",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "opacity": 0.4,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "ZrgyE",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "1 scene",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "lAiAv",
+                  "name": "Summary",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "2 chapters and 7 scenes will be imported. Some content could not be kept: outline-cast-skipped. A full report follows the import.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "hNRNB",
+                  "name": "Actions",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "id": "q629DE",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Back",
+                      "descendants": {
+                        "I6qeCj": {
+                          "icon": "arrow-left"
+                        },
+                        "l83V3": {
+                          "content": "Back"
+                        }
+                      }
+                    },
+                    {
+                      "id": "R3KTR",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Primary",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "file-up"
+                        },
+                        "gNKXH": {
+                          "content": "Add to book"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "S7aO1Y",
+          "x": 6060,
+          "y": 160,
+          "name": "Import outline / preview / mobile 360 / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 360,
+          "height": 780,
+          "fill": "$sidebar",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "rj6OK",
+              "name": "Dialog",
+              "width": 331,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000033",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 32
+              },
+              "layout": "vertical",
+              "gap": 18,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "PfzyY",
+                  "name": "New book",
+                  "fill": "$ink",
+                  "content": "Choose chapters",
+                  "fontFamily": "$font-book",
+                  "fontSize": "$type-title",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "UAYxk",
+                  "name": "Split level",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qynNu",
+                      "name": "Label",
+                      "fill": "$ink-muted",
+                      "content": "Read this file as",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Tmdbn",
+                      "name": "Segmented",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 2,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "q9EjJM",
+                          "name": "Heading 1",
+                          "fill": "#00000000",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "AE9qh",
+                              "name": "Heading 1 label",
+                              "fill": "$ink-muted",
+                              "content": "Manuscript",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "dYNh8",
+                          "name": "Heading 2",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "A1dXF",
+                              "name": "Heading 2 label",
+                              "fill": "$accent",
+                              "content": "Outline",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ETdoA",
+                  "name": "Chapters",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "yZsfb",
+                      "name": "Chapter 1: The Orchard",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "oIniF",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 2,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "klzXG",
+                              "name": "Include hit area",
+                              "width": 44,
+                              "height": 44,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "F0NapP",
+                                  "name": "Include",
+                                  "width": 18,
+                                  "height": 18,
+                                  "icon": "square-check",
+                                  "library": "lucide",
+                                  "fill": "$accent"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "dWfPA",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "height": 44,
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "v9tn1J",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Chapter 1: The Orchard",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "WMHHZ",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Yukht",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "p9QloB",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "D3qzl",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "lluds",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "opacity": 0.4,
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "kn1KZ",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "gGOfD",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "opacity": 0.4,
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "ROPox",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "4 scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "OWNdP",
+                      "name": "Chapter 2: Salt Wind",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "BxAIu",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 2,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "xYtGf",
+                              "name": "Include hit area",
+                              "width": 44,
+                              "height": 44,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "x7q4BH",
+                                  "name": "Include",
+                                  "width": 18,
+                                  "height": 18,
+                                  "icon": "square-check",
+                                  "library": "lucide",
+                                  "fill": "$accent"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Yj3he",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "height": 44,
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "FiKHA",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Chapter 2: Salt Wind",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "vSjIP",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "MTpN6",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "rMY5V",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "eG5gD",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "Nb5U8",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "YbAMg",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "FbEvo",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "Kq4ZA",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "3 scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "POpXr",
+                      "name": "Notes (skip)",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "q6u6G",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 2,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "i0lV7",
+                              "name": "Include hit area",
+                              "width": 44,
+                              "height": 44,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "E5lSr",
+                                  "name": "Include",
+                                  "width": 18,
+                                  "height": 18,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$ink-muted"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zEXKd",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "height": 44,
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "SX4UF",
+                                  "name": "Title",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes (skip)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "F5Nkh",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Ql6cv",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "BRXV5",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "w5NZEs",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "YQr7C",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "v1xaCX",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "opacity": 0.4,
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "HrB2s",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "opacity": 0.4,
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "b6OOE3",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "1 scene",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "iP0e4",
+                  "name": "Summary",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "2 chapters and 7 scenes will be imported. Some content could not be kept: outline-cast-skipped. A full report follows the import.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "r4VDrV",
+                  "name": "Actions",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "id": "JaxO6",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": true,
+                          "icon": "arrow-left"
+                        },
+                        "l83V3": {
+                          "content": "Back"
+                        }
+                      }
+                    },
+                    {
+                      "id": "ZPWQ4",
+                      "type": "ref",
+                      "ref": "RHvJO",
+                      "name": "Create book",
+                      "descendants": {
+                        "FuxJL": {
+                          "icon": "file-up"
+                        },
+                        "gNKXH": {
+                          "content": "Import"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "e679IR",
+          "x": 6060,
+          "y": 880,
+          "name": "Import outline / preview / mobile 360 / dark",
+          "theme": {
+            "mode": "dark"
+          },
+          "clip": true,
+          "width": 360,
+          "height": 780,
+          "fill": "$sidebar",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "QIjzC",
+              "name": "Dialog",
+              "width": 331,
+              "fill": "$raised",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000033",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 32
+              },
+              "layout": "vertical",
+              "gap": 18,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "B72rFe",
+                  "name": "New book",
+                  "fill": "$ink",
+                  "content": "Choose chapters",
+                  "fontFamily": "$font-book",
+                  "fontSize": "$type-title",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "f2trXX",
+                  "name": "Split level",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "dueMU",
+                      "name": "Label",
+                      "fill": "$ink-muted",
+                      "content": "Read this file as",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ojXrI",
+                      "name": "Segmented",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 2,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "MwISn",
+                          "name": "Heading 1",
+                          "fill": "#00000000",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "QWT2j",
+                              "name": "Heading 1 label",
+                              "fill": "$ink-muted",
+                              "content": "Manuscript",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "RbLgE",
+                          "name": "Heading 2",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "AerGn",
+                              "name": "Heading 2 label",
+                              "fill": "$accent",
+                              "content": "Outline",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Ub6sf",
+                  "name": "Chapters",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "aUKDq",
+                      "name": "Chapter 1: The Orchard",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Y8QyIT",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 2,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "LETZs",
+                              "name": "Include hit area",
+                              "width": 44,
+                              "height": 44,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "pX0UD",
+                                  "name": "Include",
+                                  "width": 18,
+                                  "height": 18,
+                                  "icon": "square-check",
+                                  "library": "lucide",
+                                  "fill": "$accent"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Ik07B",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "height": 44,
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "hNkVE",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Chapter 1: The Orchard",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "QJ0gi",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "NcXxE",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "ra9Nb",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "qKwWM",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "u629G",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "opacity": 0.4,
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "JrDA9",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "qUH0U",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "opacity": 0.4,
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "MHEzu",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "4 scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yLs0P",
+                      "name": "Chapter 2: Salt Wind",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "wEURS",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 2,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "XCWvG",
+                              "name": "Include hit area",
+                              "width": 44,
+                              "height": 44,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "zptKE",
+                                  "name": "Include",
+                                  "width": 18,
+                                  "height": 18,
+                                  "icon": "square-check",
+                                  "library": "lucide",
+                                  "fill": "$accent"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "SnDQV",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "height": 44,
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "aUswY",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Chapter 2: Salt Wind",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "lQ0RS",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "yJClG",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "efUed",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "NdW6Q",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "h2CKw",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "lTsZQ",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "R84EJD",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "hLePW",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "3 scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "GWm9A",
+                      "name": "Notes (skip)",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "A89vE8",
+                          "name": "Title line",
+                          "width": "fill_container",
+                          "gap": 2,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Ou0vK",
+                              "name": "Include hit area",
+                              "width": 44,
+                              "height": 44,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "ISE7S",
+                                  "name": "Include",
+                                  "width": 18,
+                                  "height": 18,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$ink-muted"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "fV2Cp",
+                              "name": "Title field",
+                              "width": "fill_container",
+                              "height": 44,
+                              "fill": "$bg",
+                              "cornerRadius": "$radius-sm",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                7,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "D8teRf",
+                                  "name": "Title",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes (skip)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "WZ9PG",
+                          "name": "Action line",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "lmp9H",
+                              "name": "Buttons",
+                              "gap": 4,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "dK4nd",
+                                  "name": "Reorder grip",
+                                  "width": 44,
+                                  "height": 44,
+                                  "cornerRadius": "$radius-sm",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "ODvBs",
+                                      "name": "grip-vertical",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "grip-vertical",
+                                      "library": "lucide",
+                                      "fill": "$ink-muted"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "qQq2y",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move up",
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-up"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "wy2JF",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Move down",
+                                  "opacity": 0.4,
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "arrow-down"
+                                    }
+                                  }
+                                },
+                                {
+                                  "id": "m02zk",
+                                  "type": "ref",
+                                  "ref": "ML1v1",
+                                  "name": "Merge into previous",
+                                  "opacity": 0.4,
+                                  "width": 44,
+                                  "height": 44,
+                                  "descendants": {
+                                    "ygSVs": {
+                                      "icon": "merge"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "sAT5B",
+                              "name": "Words",
+                              "fill": "$ink-muted",
+                              "content": "1 scene",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "V0tKgy",
+                  "name": "Summary",
+                  "fill": "$ink-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "2 chapters and 7 scenes will be imported. Some content could not be kept: outline-cast-skipped. A full report follows the import.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-caption",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "ORhen",
+                  "name": "Actions",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "id": "osf8U",
+                      "type": "ref",
+                      "ref": "aWqMK",
+                      "name": "Cancel",
+                      "descendants": {
+                        "I6qeCj": {
+                          "enabled": true,
+                          "icon": "arrow-left"
+                        },
+                        "l83V3": {
+                          "content": "Back"
+                        }
+                      }
+                    },
+                    {
+                      "id": "ZYyGA",
                       "type": "ref",
                       "ref": "RHvJO",
                       "name": "Create book",

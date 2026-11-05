@@ -89,6 +89,11 @@ msgstr "{0, plural, one {# référence} other {# références}}"
 msgid "{0, plural, one {# result} other {# results}}"
 msgstr "{0, plural, one {# résultat} other {# résultats}}"
 
+#. placeholder {0}: scenesOf(item, result)
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "{0, plural, one {# scene} other {# scenes}}"
+msgstr "{0, plural, one {# scène} other {# scènes}}"
+
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
@@ -385,6 +390,10 @@ msgstr "{index} sur {total}"
 #: src/app/dialogs/ImportParts.tsx
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr "{kept, plural, one {# chapitre sera importé.} other {# chapitres seront importés.}}"
+
+#: src/app/dialogs/ImportParts.tsx
+msgid "{kept, plural, one {# chapter} other {# chapters}} and {scenes, plural, one {# scene} other {# scenes}} will be imported."
+msgstr "{kept, plural, one {# chapitre} other {# chapitres}} et {scenes, plural, one {# scène} other {# scènes}} seront importés."
 
 #: src/state/project/scenes.ts
 msgid "{label} stopped: {why}. A scene may now be in two chapters; nothing was lost, and Undo finishes the job."
@@ -1284,8 +1293,8 @@ msgid "Checks"
 msgstr "Vérifications"
 
 #: src/lib/importBook.ts
-msgid "Choose a .docx, .md, .markdown or .html file."
-msgstr "Choisissez un fichier .docx, .md, .markdown ou .html."
+msgid "Choose a .docx, .md, .markdown, .html, .opml or .csv file."
+msgstr "Choisissez un fichier .docx, .md, .markdown, .html, .opml ou .csv."
 
 #: src/app/shell/App.tsx
 msgid "Choose a chapter to start."
@@ -1596,6 +1605,11 @@ msgstr "Impossible d’ouvrir ce livre : {0}. Vérifiez que le dossier n’est p
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
 msgstr "Impossible de lire les instantanés du livre ({0}). Fermez cette boîte de dialogue et rouvrez l’Historique pour réessayer."
+
+#. placeholder {0}: causeText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not read the file that way ({0}). Pick the other choice, or go back and choose a different file."
+msgstr "Impossible de lire le fichier de cette façon ({0}). Choisissez l’autre option, ou revenez en arrière et choisissez un autre fichier."
 
 #. placeholder {0}: causeText(e)
 #: src/app/shell/TrashDialog.tsx
@@ -2953,6 +2967,10 @@ msgstr "Création de l’aperçu…"
 msgid "Manual order"
 msgstr "Ordre manuel"
 
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Manuscript"
+msgstr "Manuscrit"
+
 #: src/lib/useIconChoices.ts
 msgid "Map"
 msgstr "Carte"
@@ -3560,6 +3578,7 @@ msgstr "Autre (utilisez le champ Balise de langue)"
 msgid "Outdent list item"
 msgstr "Diminuer le retrait de l’élément de liste"
 
+#: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/ExportDialog.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/scenes/labels.ts
@@ -3877,6 +3896,10 @@ msgstr "Lire"
 #: src/editor/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "Lue à voix haute par les lecteurs d’écran. Décrivez ce que montre l’image."
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Read this file as"
+msgstr "Lire ce fichier comme"
 
 #: src/editor/ReadingSettings.tsx
 msgid "Reading settings"
@@ -4980,6 +5003,10 @@ msgstr "L’entrée n’a pas de titre."
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr "La première ligne est un en-tête. Jusqu’à {MAX_TABLE_ROWS} lignes."
 
+#: src/lib/importErrorText.ts
+msgid "The first row of this spreadsheet has no column named chapter, title or scene. Add a header row with those names and try again."
+msgstr "La première ligne de ce tableur n’a aucune colonne nommée chapter, title ou scene. Ajoutez une ligne d’en-tête avec ces noms et réessayez."
+
 #: src/app/library/Library.tsx
 msgid "The folder holds more books than a scan lists; pick a smaller folder."
 msgstr "Le dossier contient plus de livres que la recherche n’en liste ; choisissez un dossier plus petit."
@@ -5189,6 +5216,14 @@ msgstr "Cette édition n’a pas de table des matières à afficher."
 msgid "This file does not look like text. It may be damaged or saved in another format."
 msgstr "Ce fichier ne ressemble pas à du texte. Il est peut-être endommagé ou enregistré dans un autre format."
 
+#: src/lib/importErrorText.ts
+msgid "This file has no chapters or scenes to import. Choose another file, or in a Markdown file start each chapter with # and each scene with ##."
+msgstr "Ce fichier ne contient aucun chapitre ni aucune scène à importer. Choisissez un autre fichier ou, dans un fichier Markdown, commencez chaque chapitre par # et chaque scène par ##."
+
+#: src/lib/importErrorText.ts
+msgid "This file is not an OPML outline. Export the outline as OPML from your outliner, then try again."
+msgstr "Ce fichier n’est pas un plan OPML. Exportez le plan au format OPML depuis votre outil de plan, puis réessayez."
+
 #: src/lib/importBook.ts
 msgid "This file is too large or too deeply nested to import."
 msgstr "Ce fichier est trop volumineux ou trop imbriqué pour être importé."
@@ -5209,6 +5244,18 @@ msgstr "Cette image est décorative"
 #: src/lib/projectError.ts
 msgid "This image path is not allowed: {0}"
 msgstr "Ce chemin d’image n’est pas autorisé : {0}"
+
+#: src/lib/importErrorText.ts
+msgid "This outline file is damaged or not written correctly, so it could not be read. Open it in the program that made it, save a copy and try again."
+msgstr "Ce fichier de plan est endommagé ou mal écrit, il n’a donc pas pu être lu. Ouvrez-le dans le programme qui l’a créé, enregistrez une copie et réessayez."
+
+#: src/lib/importErrorText.ts
+msgid "This outline file is too large to import. Choose a smaller file, or split it into parts."
+msgstr "Ce fichier de plan est trop volumineux pour être importé. Choisissez un fichier plus petit ou divisez-le en plusieurs parties."
+
+#: src/lib/importErrorText.ts
+msgid "This outline has too many chapters or scenes to import safely. Split it into smaller files."
+msgstr "Ce plan contient trop de chapitres ou de scènes pour être importé en toute sécurité. Divisez-le en fichiers plus petits."
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/shell/Details.tsx
@@ -5411,6 +5458,7 @@ msgstr "Type d’image non pris en charge : {0}"
 #: src/app/home/Dashboard.tsx
 #: src/app/library/BookCover.tsx
 #: src/app/library/Library.tsx
+#: src/lib/importBook.ts
 msgid "Untitled"
 msgstr "Sans titre"
 

@@ -204,6 +204,25 @@ The project then opens and an **Import report** dialog shows chapter and image c
 
 Not yet: importing from inside an open project (there is no project menu yet), and a re-import/merge into an existing book.
 
+## Outlines (OPML, CSV, Markdown)
+
+`packages/outline` (`@cadabracraft/outline`) reads an outline of chapters and scenes. Pure functions: no disk, no network, the source is only ever read.
+
+```ts
+parseOutline(text: string, format: "opml" | "markdown" | "csv"): ParsedOutline   // throws OutlineError
+outlineToPages(parsed, newId: () => string, untitled?): { pages: { title, doc: ChapterDoc, sceneCount }[], warnings }
+outlineFormatOfFile(name: string): "opml" | "markdown" | "csv" | null
+fromOpml / fromMarkdown / fromCsv(text): ParsedOutline                            // the parsers
+```
+
+- **Mapping.** A chapter becomes a page: a level 1 heading with the chapter title (the `untitled` text when it has none) and one `scene` node per scene with `title`, `synopsis`, `pov`, `status`, `label`, `target` and `date`, each holding an empty paragraph (a scene needs a block). Nothing else is written: no text is invented. The chapter documents are valid in `@cadabracraft/editor-schema` (tests run `chapterDocProblem`).
+- **Scene ids are always new** (`newId`: `sc-` and eight hex digits in the app and the MCP server). A file's own ids (OPML `cc:id`, Markdown `id:`, CSV `scene_id`) are read and validated but not kept, so importing into a book that already has these scenes cannot make two with the same id.
+- **Cast is not kept** (an OPML `cc:cast` holds codex ids, Markdown and CSV hold names, and the book's codex may not know them): one `cast-skipped` warning says how many scenes named a cast.
+- **OPML:** top-level `outline` elements are chapters, their children scenes (`text` is the title, `_note` the synopsis, the `cc:` attributes the rest); deeper rows are counted and left out (`ignored`). **Markdown:** `#` chapter, `##` scene, the text below it the synopsis, a last line `> key: value; ...` the fields; deeper headings and text outside a chapter are left out (`ignored`). **CSV** (RFC 4180, a BOM, comma, semicolon or tab, `'` before `=`, `+`, `-`, `@` removed): columns found by header name (`CSV_COLUMNS` and a few common synonyms), one row a scene, consecutive rows with the same chapter name and number one chapter.
+- **Typed errors** (`OutlineError.code`): `too-large` (over `MAX_OUTLINE_BYTES`, 5 MB), `too-many` (over `MAX_OUTLINE_CHAPTERS`, 1,000, or `MAX_OUTLINE_SCENES`, 20,000), `malformed` (not well-formed XML, a DOCTYPE or entity declaration, an unclosed CSV quote), `not-opml`, `not-csv` (no `chapter`, `title` or `scene` column in the first row) and `empty` (no chapters). Bad values are cleaned instead, each with a warning: `clamped` (cut to the schema's length), `bad-status`, `bad-target`, `bad-date`, `ignored`, `cast-skipped` (ids are `bad-id` and `duplicate-id` inside the parsers and are dropped by `outlineToPages`).
+- **In the app** the wizard reads the file through the same read-only `read_import_source` command (the extension list now also holds `opml` and `csv`) and parses it in the webview (`parseOutlineSource` in `apps/desktop/src/lib/importBook.ts`; Rust only reads the bytes). `.opml` and `.csv` are always outlines; for a Markdown file the preview step has a **Read this file as** choice, Manuscript (the default) or Outline, because a Markdown file can be either. An outline preview shows scenes instead of words and no heading-level control; the warnings appear in the Import report with their code prefixed `outline-`. Writing is the manuscript path unchanged (new chapter files, the manifest last, existing chapters never touched), so it works for **Import…** (a new book) and **Import into this book**.
+- **In MCP:** `cadabra_import_outline` (`path`, `source`, `format?`) adds the chapters to an existing book; see [mcp.md](mcp.md).
+
 ## Limits
 
 DOCX archives: declared uncompressed size summed over all entries must stay under `maxDecompressedBytes` (200 MB), entries under `maxEntries`. Only the parts we read are inflated. A forged smaller declared size is not trusted: fflate truncates to the declared size, and the actual size is re-checked (the Rust reader refuses the archive instead, and also checks CRCs). XML nesting beyond the parser limit (101 open elements in both importers) gives `invalid-xml`; the TypeScript parser bounds entity expansion and the Rust one never expands a DOCTYPE entity.

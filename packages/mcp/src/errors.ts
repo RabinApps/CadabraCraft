@@ -8,6 +8,7 @@ import {
   TypstTimeoutError,
 } from "@cadabracraft/export-pdf";
 import { ImportError } from "@cadabracraft/import-docx";
+import { OutlineError } from "@cadabracraft/outline";
 import { ProjectFsError } from "@cadabracraft/project-fs";
 import { TemplateError } from "@cadabracraft/templates";
 import { errMsg } from "@cadabracraft/shared";
@@ -100,6 +101,8 @@ export function toToolError(e: unknown): ToolError {
   if (e instanceof FormatError) return new ToolError("invalid_manifest", e.message);
   if (e instanceof ImportError)
     return new ToolError("import_failed", e.message, { importCode: e.code });
+  if (e instanceof OutlineError)
+    return new ToolError("import_failed", `${e.message} (${e.code})`, { importCode: e.code });
   if (e instanceof TemplateError) return new ToolError("template_unknown", e.message);
   // Subclasses before the PdfExportError base.
   if (e instanceof FontNotAvailableError)

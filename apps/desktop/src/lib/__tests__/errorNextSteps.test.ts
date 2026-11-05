@@ -13,7 +13,7 @@ import { MissingAssetError, TypstCompileError, TypstTimeoutError } from "@cadabr
 import type { ImportErrorCode } from "@cadabracraft/import-docx";
 import { describeAudioError } from "../audioErrors";
 import { describeFontError } from "../fontErrors";
-import { describeImportCode } from "../importErrorText";
+import { describeImportCode, describeOutlineCode } from "../importErrorText";
 import { describePdfError } from "../pdfErrors";
 import { errText, projectErrorMessage, type ProjectError } from "../projectError";
 
@@ -53,6 +53,12 @@ describe("every message says what to do next", () => {
   ])("import code %s", (code) => {
     expect(describeImportCode(code)).toMatch(NEXT_STEP);
   });
+  it.each(["too-large", "malformed", "not-opml", "not-csv", "too-many", "empty"] as const)(
+    "outline code %s",
+    (code) => {
+      expect(describeOutlineCode(code)).toMatch(NEXT_STEP);
+    },
+  );
   it.each<[string, unknown]>([
     ["compile", new TypstCompileError("bad")],
     ["timeout", new TypstTimeoutError(5)],

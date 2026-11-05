@@ -14,6 +14,15 @@ export {
 export { OPML_NAMESPACE, fromOpml, toOpml } from "./opml";
 export { fromMarkdown, toMarkdown } from "./markdown";
 export { CSV_COLUMNS, toCsv } from "./csv";
+export { fromCsv } from "./csvParse";
+export {
+  outlineFormatOfFile,
+  outlineToPages,
+  parseOutline,
+  type OutlineImportFormat,
+  type OutlinePage,
+  type OutlinePages,
+} from "./importOutline";
 export {
   MAX_OUTLINE_BYTES,
   MAX_OUTLINE_CHAPTERS,

@@ -2024,4 +2024,39 @@ The book's structure (chapters, their scenes, the scene fields, the cast as name
 
 ### Follow-ups / caveats
 
-- Import (S06b) is not built: the parsers exist and are tested, no UI or action reads them.
+- Import is built (S06b, below).
+
+## Outline import (2026-11-05)
+
+### Decision
+
+An outline file (OPML, a CSV, or Markdown with `#` chapters and `##` scenes) is read into new chapters with scenes: `packages/outline` gains `fromCsv`, `parseOutline` (format in, `ParsedOutline` out, `OutlineError` for anything it cannot read) and `outlineToPages` (the parsed outline as chapter documents: a level 1 heading and one `scene` node per scene with title, synopsis, POV, status, label, target and story date, each holding an empty paragraph). The app reads it through the existing import wizard and the existing read-only `read_import_source` command, whose allowlist now also holds `opml` and `csv`; the parse runs in the webview (`parseOutlineSource`), and writing is the manuscript path unchanged (new chapter files, the manifest last, existing chapters never touched), for **Import…** (a new book) and **Import into this book**. The MCP server has `cadabra_import_outline` (adds to an existing book; `readSource(path, true)` in `project-fs` allows only the outline extensions). No Rust command was added and no network or binary is involved.
+
+- **Scene ids are always new.** The file's own ids are read and validated by the parsers but dropped by `outlineToPages`: importing an outline into a book that already holds those scenes (or twice) must not create two scenes with one id, and the importer has no cheap way to know the book's ids (the wizard does not read the chapters). A re-import therefore adds a second copy instead of merging.
+- **A Markdown file is ambiguous**, so the preview step has a **Read this file as** choice (Manuscript, the default and the old behaviour, or Outline). `.opml` and `.csv` are always outlines. The choice is made after the file is read, so it can be flipped without choosing the file again.
+- **The cast is not imported.** OPML carries codex ids and Markdown and CSV carry names; the book's codex may not know either, and a wrong id would be a dangling reference. One `cast-skipped` warning says how many scenes named a cast.
+- **Warnings reuse the Import report**: the outline warning codes become `outline-<code>` import warnings (severity warning), so the report, its copy button and the summary line need no new code. Errors are typed (`OutlineError.code`) and each has its own sentence in the app (`describeOutlineCode`) and a `details.importCode` in MCP.
+- **A generic CSV reader**: RFC 4180 with a BOM, comma, semicolon or tab (picked from the header line), columns found by header name in any order with common synonyms, the apostrophe the writer adds before `=`, `+`, `-`, `@` taken off again, an unclosed quote refused (`malformed`) and a first row with no `chapter`, `title` or `scene` column refused (`not-csv`).
+- **Limits** are the ones the parsers already had: 5 MB, 1,000 chapters, 20,000 scenes, no DOCTYPE or entities in OPML (so no entity expansion), each text cut to the schema's length with a warning.
+
+### Why
+
+- Reusing the wizard gives rename, skip, reorder and merge, the report, undo-safe appending and the same hardening for free, with one new control.
+- Parsing in the webview keeps one parser (shared with MCP and tested at 100%) instead of a Rust copy, and the file is at most 5 MB of text, unlike a `.docx`.
+
+### Rejected alternatives
+
+| Alternative                                                   | Why not                                                                                                                                 |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| A separate Import outline dialog                              | A second copy of the pick, preview, plan, report and error handling; the wizard already has all of it.                                  |
+| Keeping the file's scene ids when they are free               | The wizard does not know the book's scene ids, and a clash (two scenes with one id) is a worse failure than a copy.                     |
+| Mapping cast names to the codex on import                     | Needs the codex read and a matching rule (case, aliases, duplicates); a wrong or missing match would be silent. Left for later.         |
+| Deciding Markdown by sniffing (`##` headings and a `> ` line) | A manuscript with `##` headings is not an outline; a wrong guess would turn a book into empty scenes. The author chooses.               |
+| A new Rust command for the parse                              | The input is small text and the parser already exists and is tested in TypeScript; Rust would only add a second parser to keep in step. |
+| Accepting `.csv` in `cadabra_import_file`                     | That tool makes a new book from a manuscript and would read a spreadsheet as Markdown. The outline has its own tool.                    |
+
+### Follow-ups / caveats
+
+- Cast is dropped; a later change can map names to codex entries.
+- Not verified in the packaged app (`pnpm tauri dev` or `/drive-app` did not run): the native picker's filter now lists `.opml` and `.csv`, and the Rust test only proves the extension allowlist.
+- Plottr's CSV and Word templates and OmniOutliner's own `.ooutline` are not read; export OPML instead.

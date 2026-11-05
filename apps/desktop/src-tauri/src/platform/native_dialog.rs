@@ -26,7 +26,7 @@ pub fn ask<R: Runtime>(app: &AppHandle<R>, what: Ask) -> Vec<PathBuf> {
     let chosen = match what {
         Ask::Folder | Ask::Library => dialog.blocking_pick_folder().into_iter().collect::<Vec<_>>(),
         Ask::Image => dialog.add_filter("Images", &crate::project::IMAGE_EXTENSIONS).blocking_pick_file().into_iter().collect(),
-        Ask::ImportSource => dialog.add_filter("Documents", &["docx", "md", "markdown", "html", "htm"]).blocking_pick_file().into_iter().collect(),
+        Ask::ImportSource => dialog.add_filter("Documents and outlines", &["docx", "md", "markdown", "html", "htm", "opml", "csv"]).blocking_pick_file().into_iter().collect(),
         Ask::References => dialog.blocking_pick_files().unwrap_or_default(),
         Ask::Font => dialog.add_filter("Fonts", &["ttf", "otf"]).blocking_pick_file().into_iter().collect(),
     };

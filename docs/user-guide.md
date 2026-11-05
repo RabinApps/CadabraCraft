@@ -241,12 +241,25 @@ File > Import… (Cmd/Ctrl+Shift+I) or **Import…** on the start screen creates
 - a Word file (`.docx`)
 - a Markdown file (`.md`)
 - an HTML file (`.html` or `.htm`)
+- an outline (`.opml`, `.csv` or a Markdown outline), see [Importing an outline](#importing-an-outline)
 
 Choose the file, a title, an author and an empty folder for the new book. The next step shows the chapters the app found. You can choose which heading level starts a new chapter (Heading 1, 2 or 3), rename chapters and leave some out. Your original file is never changed.
 
 After the import an **Import report** lists anything that could not be kept exactly, grouped by kind with a few examples, for instance unsupported Word features or an image that could not be read. "Warning" means something was lost or changed and is worth a look; "Note" means a routine adjustment. Use **Copy report** if you want to keep it or send it with a bug report. "Nothing was lost or changed" means just that. The full list of mappings and warnings is in [import.md](import.md).
 
 You cannot import into a book that is already open; import into a new book, then copy over what you need.
+
+## Importing an outline
+
+An outline is the structure of a book without its text: chapters, each with its scenes. The same **Import…** wizard (File > Import… for a new book, File > **Import into This Book…** to add to the open one) reads three kinds of outline file:
+
+- **OPML (`.opml`)**, which most outliners can export (OmniOutliner, Bike, Workflowy, Dynalist and others). The top-level rows become chapters and their children scenes; a row's note becomes the scene's synopsis. An OPML file written by CadabraCraft also carries point of view, status, label, target and story date, and these are kept. Rows nested deeper than a scene are left out, and the report says how many.
+- **CSV (`.csv`)** from a spreadsheet. The first row names the columns: `chapter` and `title` (or `scene`) are the ones that matter, and `synopsis` (or `summary`), `pov`, `status`, `label`, `target_words`, `date` and `cast` are used when present, in any order, with commas, semicolons or tabs between cells. Rows with the same chapter name in a row form one chapter. A row that names a chapter and no scene adds a chapter with no scenes. Without a `chapter` column the scenes go into one chapter called Untitled.
+- **Markdown (`.md`)**: a `#` heading starts a chapter, a `##` heading a scene, and the text below it is the synopsis. A Markdown file is read as a manuscript unless you choose **Outline** under **Read this file as** in the preview step.
+
+The preview shows each chapter with its number of scenes. As for a manuscript you can rename, skip, reorder and merge chapters before anything is written. Each chapter is added with its scenes (title, synopsis and, where the file has them, point of view, status, label, target and story date), each with an empty paragraph to write in. A status that is not Outline, Draft, Revised or Final, a date that is not `YYYY-MM-DD`, or a text that is too long is cleaned and listed in the **Import report**. The cast is not imported (add characters to the codex and choose them in the scene), and the report says so.
+
+Nothing in the book is overwritten: chapters are added after the last one, every scene gets a new id (so importing the same file twice adds a second copy instead of replacing the first), and your original file is never changed. A file that is damaged, not an outline, empty, too large (5 MB) or with more than 1,000 chapters or 20,000 scenes is refused with a message and nothing is written.
 
 ## Exporting
 
@@ -284,7 +297,7 @@ Writes the structure of the book without its text: each chapter with its scenes,
 - **Markdown (.md)** has a heading for each chapter and scene with the synopsis below it, and a line of fields.
 - **CSV (.csv)** has one row per scene (and one row for a chapter without scenes), for a spreadsheet. A cell that starts with `=`, `+`, `-` or `@` gets a leading apostrophe so a spreadsheet cannot run it as a formula. It is a generic spreadsheet shape, not a format of any particular planning app.
 
-The file is `outline.opml`, `outline.md` or `outline.csv` in `exports/<language>/`. Front and back matter are left out. Reading an outline back into the book is not available yet.
+The file is `outline.opml`, `outline.md` or `outline.csv` in `exports/<language>/`. Front and back matter are left out. To read an outline back in, see [Importing an outline](#importing-an-outline).
 
 After an export finishes the app may offer a sponsor dialog; you can say "Maybe later" or "Don't show again".
 
