@@ -354,7 +354,9 @@ describe("Markdown", () => {
 
 describe("CSV", () => {
   it("writes one row per scene and one per empty chapter", () => {
-    const rows = toCsv(outline()).replace(/^\uFEFF/, "").split("\r\n");
+    const rows = toCsv(outline())
+      .replace(/^\uFEFF/, "")
+      .split("\r\n");
     expect(rows[0]).toBe(CSV_COLUMNS.join(","));
     expect(rows).toHaveLength(5);
     expect(rows[1]).toContain(

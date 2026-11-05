@@ -24,6 +24,7 @@ const PATH_TOOLS: [string, Record<string, unknown>][] = [
   ["cadabra_export_epub", {}],
   ["cadabra_export_pdf", {}],
   ["cadabra_export_markdown", {}],
+  ["cadabra_export_outline", { format: "opml" }],
   ["cadabra_export_docx", {}],
   ["cadabra_export_rtf", {}],
   ["cadabra_inspect_pdf", {}],

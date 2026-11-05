@@ -504,3 +504,104 @@ describe("export_docx / export_rtf", () => {
     expect(existsSync(join(s.root, "e/exports/en/manuscript.rtf"))).toBe(false);
   });
 });
+
+describe("export_outline", () => {
+  const scene = {
+    type: "scene",
+    attrs: {
+      id: "sc-1",
+      title: "Storm",
+      synopsis: "Ana <runs> & hides.",
+      pov: "Ana",
+      status: "draft",
+      label: "",
+      target: 100,
+      cast: ["ana"],
+    },
+    content: [{ type: "paragraph", content: [{ type: "text", text: "one two three" }] }],
+  };
+  const seed = async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "p", title: "Book", author: "Me" });
+    const a = await s.ok("cadabra_chapter_add", { path: "p", title: "One" });
+    await s.ok("cadabra_chapter_write_json", {
+      path: "p",
+      chapterId: a.chapter.id,
+      doc: { type: "doc", content: [scene] },
+    });
+  };
+
+  it("writes OPML, Markdown and CSV under exports/ without the manuscript text", async () => {
+    await seed();
+    writeFileSync(
+      join(s.root, "p", "codex.json"),
+      JSON.stringify({
+        entries: [
+          {
+            id: "ana",
+            kind: "character",
+            name: "Ana Quill",
+            aliases: [],
+            summary: "",
+            body: "",
+            image: null,
+            links: [],
+          },
+        ],
+      }),
+    );
+    for (const [format, file] of [
+      ["opml", "outline.opml"],
+      ["markdown", "outline.md"],
+      ["csv", "outline.csv"],
+    ] as const) {
+      const r = await s.ok("cadabra_export_outline", { path: "p", format });
+      expect(r.file).toMatch(new RegExp(`^exports/[^/]+/${file}$`));
+      expect(r.chapterCount).toBe(1);
+      const text = readFileSync(join(s.root, "p", r.file), "utf8");
+      expect(text).toContain("Storm");
+      expect(text).not.toContain("one two three");
+    }
+    const opml = readFileSync(join(s.root, "p", "exports/en/outline.opml"), "utf8");
+    expect(opml).toContain("Ana Quill");
+    expect(opml).not.toContain("<runs>");
+  });
+
+  it("keeps the ids with no codex or a codex of the wrong shape, and leaves matter pages out", async () => {
+    await seed();
+    await s.ok("cadabra_chapter_add", { path: "p", title: "Thanks" });
+    const mf = join(s.root, "p", "cadabra.json");
+    const manifest = JSON.parse(readFileSync(mf, "utf8"));
+    manifest.backMatter.push({ ...manifest.chapters.pop(), kind: "acknowledgments" });
+    writeFileSync(mf, JSON.stringify(manifest));
+    const none = await s.ok("cadabra_export_outline", { path: "p", format: "markdown" });
+    expect(none.chapterCount).toBe(1);
+    expect(readFileSync(join(s.root, "p", none.file), "utf8")).not.toContain("Thanks");
+    writeFileSync(join(s.root, "p", "codex.json"), JSON.stringify({ entries: 3 }));
+    const wrong = await s.ok("cadabra_export_outline", { path: "p", format: "csv" });
+    expect(readFileSync(join(s.root, "p", wrong.file), "utf8")).toContain("ana");
+  });
+
+  it("fails on a book that has only matter pages", async () => {
+    await seed();
+    const mf = join(s.root, "p", "cadabra.json");
+    const manifest = JSON.parse(readFileSync(mf, "utf8"));
+    manifest.backMatter.push({ ...manifest.chapters.pop(), kind: "acknowledgments" });
+    writeFileSync(mf, JSON.stringify(manifest));
+    const e = await s.call("cadabra_export_outline", { path: "p", format: "opml" });
+    expect(e.data.error.code).toBe("empty_book");
+  });
+
+  it("falls back to ids when codex.json is unreadable, and fails on an empty book", async () => {
+    await seed();
+    writeFileSync(join(s.root, "p", "codex.json"), "{broken");
+    const r = await s.ok("cadabra_export_outline", { path: "p", format: "csv" });
+    expect(readFileSync(join(s.root, "p", r.file), "utf8")).toContain("ana");
+    await s.close();
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "q", title: "B", author: "M" });
+    const e = await s.call("cadabra_export_outline", { path: "q", format: "csv" });
+    expect(e.isError).toBe(true);
+    expect(e.data.error.code).toBe("empty_book");
+  });
+});
