@@ -630,6 +630,10 @@ msgstr "Añade los capítulos de un archivo de Word (.docx), Markdown o HTML des
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "Añade la portada como primera página, con una página en blanco detrás. Desactívalo para un interior listo para imprimir; las imprentas suelen querer la portada como archivo aparte."
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Aliases (one per line)"
+msgstr ""
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -646,6 +650,7 @@ msgstr "Alinear al inicio"
 msgid "Alignment"
 msgstr "Alineación"
 
+#: src/app/codex/CodexDialog.tsx
 #: src/app/references/ReferencesPanel.tsx
 msgid "All"
 msgstr "Todos"
@@ -703,6 +708,10 @@ msgstr "Cualquier página"
 #: src/app/settings/Settings.tsx
 msgid "Appearance"
 msgstr "Apariencia"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Appears in"
+msgstr ""
 
 #: src/app/export/Templates.tsx
 msgid "Applies to every chapter that has no choice of its own. Set one chapter from its menu in the chapter list."
@@ -779,6 +788,10 @@ msgstr "Partes finales"
 #: src/editor/FindResults.tsx
 msgid "Back matter: {0}"
 msgstr "Partes finales: {0}"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Back to entries"
+msgstr ""
 
 #: src/app/export/AudioFooter.tsx
 msgid "Back to options"
@@ -1133,6 +1146,10 @@ msgstr "Capítulos para leer"
 msgid "Chapters, front and back matter, footnotes, tables and images in a calm editor."
 msgstr "Capítulos, páginas iniciales y finales, notas al pie, tablas e imágenes en un editor tranquilo."
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Character"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Check for updates on launch"
 msgstr "Buscar actualizaciones al iniciar"
@@ -1156,6 +1173,10 @@ msgstr "Elige un capítulo para empezar."
 #: src/app/export/Templates.tsx
 msgid "Choose a look for your book"
 msgstr "Elige un aspecto para tu libro"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Choose an entry, or add one."
+msgstr ""
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
@@ -1217,6 +1238,10 @@ msgstr "Cerrar"
 msgid "Close chapters"
 msgstr "Cerrar capítulos"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Close codex"
+msgstr ""
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Close comments"
 msgstr ""
@@ -1260,6 +1285,15 @@ msgstr "Código"
 #: src/editor/Toolbar.tsx
 msgid "Code Block"
 msgstr "Bloque de código"
+
+#: src/app/codex/CodexDialog.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Codex"
+msgstr ""
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Codex entries"
+msgstr ""
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -1633,6 +1667,8 @@ msgid "Delete"
 msgstr "Eliminar"
 
 #. placeholder {0}: f.family
+#. placeholder {0}: selected.name
+#: src/app/codex/CodexDialog.tsx
 #: src/app/settings/FontsSection.tsx
 msgid "Delete {0}"
 msgstr "Eliminar {0}"
@@ -2002,6 +2038,10 @@ msgstr "Pluma"
 #: src/app/shell/menuModel.ts
 msgid "File"
 msgstr "Archivo"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Filter by kind"
+msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Filter by tag"
@@ -2490,6 +2530,10 @@ msgstr "Se mueve a la papelera del proyecto dentro de la carpeta de tu libro. No
 msgid "Italic"
 msgstr "Cursiva"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Item"
+msgstr ""
+
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Its page number is shown. Choose “Nothing” for an entry without a number."
 msgstr "Se muestra su número de página. Elige “Nada” para una entrada sin número."
@@ -2535,6 +2579,7 @@ msgstr "Ten tu investigación a mano"
 msgid "Key"
 msgstr "Llave"
 
+#: src/app/codex/CodexDialog.tsx
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
 msgstr "Tipo"
@@ -2660,6 +2705,10 @@ msgstr "Enlace…"
 msgid "Linked chapters"
 msgstr "Capítulos vinculados"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Links (one per line)"
+msgstr ""
+
 #: src/app/toc/TocEditor.tsx
 msgid "List"
 msgstr "Incluir"
@@ -2684,6 +2733,10 @@ msgstr "Ubicación"
 #: src/app/settings/Settings.tsx
 msgid "Looks for a new version when the app starts. Nothing else is sent."
 msgstr "Busca una versión nueva al iniciar la aplicación. No se envía nada más."
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Lore"
+msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "Lossless and large: about 1.7 GB per 10 hours."
@@ -2870,6 +2923,10 @@ msgstr "{title} movido hacia arriba a la posición {place} de {0}"
 msgid "Music"
 msgstr "Música"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Name"
+msgstr ""
+
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
 msgstr "Página estrecha"
@@ -2888,6 +2945,10 @@ msgstr "Capítulo nuevo"
 
 #: src/app/comments/CommentsPanel.tsx
 msgid "New comment"
+msgstr ""
+
+#: src/app/codex/CodexDialog.tsx
+msgid "New entry"
 msgstr ""
 
 #: src/app/home/Home.tsx
@@ -3016,6 +3077,10 @@ msgstr ""
 msgid "No results"
 msgstr "Sin resultados"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "No scene names it yet."
+msgstr ""
+
 #. placeholder {0}: query.trim()
 #: src/app/settings/ShortcutsSection.tsx
 msgid "No shortcut matches “{0}”."
@@ -3094,9 +3159,17 @@ msgstr "Nota"
 msgid "Note:"
 msgstr "Nota:"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Notes"
+msgstr ""
+
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Nothing"
 msgstr "Nada"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Nothing here yet."
+msgstr ""
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
@@ -3393,6 +3466,10 @@ msgstr "Piper · LibriTTS (rápida)"
 #: src/app/settings/AudioSection.tsx
 msgid "Piper voices: Amy and LibriTTS"
 msgstr "Voces de Piper: Amy y LibriTTS"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Place"
+msgstr ""
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Place after"
@@ -4319,6 +4396,10 @@ msgstr "Temas"
 msgid "Subscript"
 msgstr "Subíndice"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Summary"
+msgstr ""
+
 #: src/lib/useIconChoices.ts
 msgid "Sun"
 msgstr "Sol"
@@ -4483,6 +4564,22 @@ msgstr "El libro usa un estilo de texto que la exportación a EPUB no puede escr
 #: src/lib/projectError.ts
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "El cadabra.json del libro no es un objeto JSON. Restáuralo desde el Historial o desde una copia en .cadabra/backups."
+
+#: src/state/codex.ts
+msgid "The codex could not be opened: it is not the shape a codex has. The file was left untouched."
+msgstr ""
+
+#: src/state/codex.ts
+msgid "The codex could not be read, so it was not opened. The file was left as it is."
+msgstr ""
+
+#: src/state/codex.ts
+msgid "The codex could not be saved. Try again."
+msgstr ""
+
+#: src/state/codex.ts
+msgid "The codex is not valid JSON, so it was not opened. The file was left untouched."
+msgstr ""
 
 #: src/state/project/comments.ts
 msgid "The comments for this page are not valid JSON, so they were not opened. The file was left untouched."
@@ -4973,6 +5070,11 @@ msgstr "Tipo de imagen no admitido: {0}"
 msgid "Untitled"
 msgstr "Sin título"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Untitled entry"
+msgstr ""
+
+#: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Untitled scene"

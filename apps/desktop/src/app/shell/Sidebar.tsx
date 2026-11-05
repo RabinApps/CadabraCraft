@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { Camera, FilePlus, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
+import { BookMarked, Camera, FilePlus, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
 import { canAddMatter, chaptersOf, entryRowsIn, sourceTitleById } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
 import { Confirm } from "../../ui/Dialog";
@@ -18,6 +18,7 @@ import { sceneRows } from "../../lib/scenes";
 import { useSceneEditing } from "../../lib/sceneEditing";
 import { useSceneView } from "../../state/sceneView";
 import { TrashDialog } from "./TrashDialog";
+import { CodexDialog } from "../codex/CodexDialog";
 import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
 
 const FRONT_PRESETS: MatterKind[] = [
@@ -74,6 +75,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const [editing, setEditing] = useState<Editing>(null);
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
+  const [codexOpen, setCodexOpen] = useState(false);
   const [versionsOf, setVersionsOf] = useState<HistoryPage | null>(null);
   const [iconOf, setIconOf] = useState<IconPage | null>(null);
   const [bookHistory, setBookHistory] = useState(false);
@@ -194,6 +196,12 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         className="justify-start"
         onClick={() => setBookHistory(true)}
       >{t`Book snapshots`}</Button>
+      <Button
+        variant="ghost"
+        icon={BookMarked}
+        className="justify-start"
+        onClick={() => setCodexOpen(true)}
+      >{t`Codex`}</Button>
       <div role="group" aria-label={t`Book history`} className="flex items-center gap-1">
         <IconButton
           icon={Undo2}
@@ -225,6 +233,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       />
       <IconDialog page={iconOf} onClose={() => setIconOf(null)} />
       <TrashDialog open={trashOpen} onOpenChange={setTrashOpen} onNavigate={onNavigate} />
+      <CodexDialog open={codexOpen} onOpenChange={setCodexOpen} />
       <Confirm
         open={deleting !== null}
         onOpenChange={(o) => {

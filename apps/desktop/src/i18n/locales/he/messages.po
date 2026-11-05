@@ -630,6 +630,10 @@ msgstr "מוסיף את הפרקים של קובץ Word (‎.docx), Markdown א�
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "מוסיף את הכריכה כעמוד הראשון, עם עמוד ריק מאחוריה. כבה זאת עבור קובץ פנים מוכן להדפסה; בדרך כלל בדפוס רוצים את הכריכה כקובץ נפרד."
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Aliases (one per line)"
+msgstr ""
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
@@ -646,6 +650,7 @@ msgstr "יישור להתחלה"
 msgid "Alignment"
 msgstr "יישור"
 
+#: src/app/codex/CodexDialog.tsx
 #: src/app/references/ReferencesPanel.tsx
 msgid "All"
 msgstr "הכול"
@@ -703,6 +708,10 @@ msgstr "כל עמוד"
 #: src/app/settings/Settings.tsx
 msgid "Appearance"
 msgstr "מראה"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Appears in"
+msgstr ""
 
 #: src/app/export/Templates.tsx
 msgid "Applies to every chapter that has no choice of its own. Set one chapter from its menu in the chapter list."
@@ -779,6 +788,10 @@ msgstr "חלקי סיום"
 #: src/editor/FindResults.tsx
 msgid "Back matter: {0}"
 msgstr "חלקי סיום: {0}"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Back to entries"
+msgstr ""
 
 #: src/app/export/AudioFooter.tsx
 msgid "Back to options"
@@ -1133,6 +1146,10 @@ msgstr "פרקים להקראה"
 msgid "Chapters, front and back matter, footnotes, tables and images in a calm editor."
 msgstr "פרקים, דפי פתיחה וסיום, הערות שוליים, טבלאות ותמונות בעורך שקט."
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Character"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 msgid "Check for updates on launch"
 msgstr "בדיקת עדכונים בעת הפתיחה"
@@ -1156,6 +1173,10 @@ msgstr "בחר פרק כדי להתחיל."
 #: src/app/export/Templates.tsx
 msgid "Choose a look for your book"
 msgstr "בחר מראה לספר שלך"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Choose an entry, or add one."
+msgstr ""
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option."
@@ -1217,6 +1238,10 @@ msgstr "סגירה"
 msgid "Close chapters"
 msgstr "סגירת הפרקים"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Close codex"
+msgstr ""
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Close comments"
 msgstr ""
@@ -1260,6 +1285,15 @@ msgstr "קוד"
 #: src/editor/Toolbar.tsx
 msgid "Code Block"
 msgstr "בלוק קוד"
+
+#: src/app/codex/CodexDialog.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Codex"
+msgstr ""
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Codex entries"
+msgstr ""
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -1633,6 +1667,8 @@ msgid "Delete"
 msgstr "מחיקה"
 
 #. placeholder {0}: f.family
+#. placeholder {0}: selected.name
+#: src/app/codex/CodexDialog.tsx
 #: src/app/settings/FontsSection.tsx
 msgid "Delete {0}"
 msgstr "מחיקת {0}"
@@ -2002,6 +2038,10 @@ msgstr "נוצה"
 #: src/app/shell/menuModel.ts
 msgid "File"
 msgstr "קובץ"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Filter by kind"
+msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Filter by tag"
@@ -2490,6 +2530,10 @@ msgstr "הוא עובר לאשפת הפרויקט שבתוך תיקיית הספ
 msgid "Italic"
 msgstr "נטוי"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Item"
+msgstr ""
+
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Its page number is shown. Choose “Nothing” for an entry without a number."
 msgstr "מספר העמוד שלו מוצג. בחר “ללא” לפריט בלי מספר."
@@ -2535,6 +2579,7 @@ msgstr "שמור את המחקר שלך קרוב"
 msgid "Key"
 msgstr "מפתח"
 
+#: src/app/codex/CodexDialog.tsx
 #: src/app/references/ReferencesPanel.tsx
 msgid "Kind"
 msgstr "סוג"
@@ -2660,6 +2705,10 @@ msgstr "קישור…"
 msgid "Linked chapters"
 msgstr "פרקים מקושרים"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Links (one per line)"
+msgstr ""
+
 #: src/app/toc/TocEditor.tsx
 msgid "List"
 msgstr "רשימה"
@@ -2684,6 +2733,10 @@ msgstr "מיקום"
 #: src/app/settings/Settings.tsx
 msgid "Looks for a new version when the app starts. Nothing else is sent."
 msgstr "בודק אם יש גרסה חדשה כשהאפליקציה נפתחת. שום דבר אחר לא נשלח."
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Lore"
+msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "Lossless and large: about 1.7 GB per 10 hours."
@@ -2870,6 +2923,10 @@ msgstr "{title} הוזז למעלה למקום {place} מתוך {0}"
 msgid "Music"
 msgstr "מוזיקה"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Name"
+msgstr ""
+
 #: src/editor/ReadingSettings.tsx
 msgid "Narrow page"
 msgstr "עמוד צר"
@@ -2888,6 +2945,10 @@ msgstr "פרק חדש"
 
 #: src/app/comments/CommentsPanel.tsx
 msgid "New comment"
+msgstr ""
+
+#: src/app/codex/CodexDialog.tsx
+msgid "New entry"
 msgstr ""
 
 #: src/app/home/Home.tsx
@@ -3016,6 +3077,10 @@ msgstr ""
 msgid "No results"
 msgstr "אין תוצאות"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "No scene names it yet."
+msgstr ""
+
 #. placeholder {0}: query.trim()
 #: src/app/settings/ShortcutsSection.tsx
 msgid "No shortcut matches “{0}”."
@@ -3094,9 +3159,17 @@ msgstr "הערה"
 msgid "Note:"
 msgstr "הערה:"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Notes"
+msgstr ""
+
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Nothing"
 msgstr "ללא"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Nothing here yet."
+msgstr ""
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Nothing is sent anywhere unless you press Sponsor, which opens GitHub in your browser."
@@ -3393,6 +3466,10 @@ msgstr "Piper · LibriTTS (מהיר)"
 #: src/app/settings/AudioSection.tsx
 msgid "Piper voices: Amy and LibriTTS"
 msgstr "קולות Piper: ‏Amy ו־LibriTTS"
+
+#: src/app/codex/CodexDialog.tsx
+msgid "Place"
+msgstr ""
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Place after"
@@ -4319,6 +4396,10 @@ msgstr "נושאים"
 msgid "Subscript"
 msgstr "כתב תחתי"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Summary"
+msgstr ""
+
 #: src/lib/useIconChoices.ts
 msgid "Sun"
 msgstr "שמש"
@@ -4483,6 +4564,22 @@ msgstr "הספר משתמש בסגנון טקסט שייצוא ה־EPUB אינו
 #: src/lib/projectError.ts
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "הקובץ cadabra.json של הספר אינו אובייקט JSON. שחזרו אותו מההיסטוריה או מגיבוי בתיקייה ‎.cadabra/backups."
+
+#: src/state/codex.ts
+msgid "The codex could not be opened: it is not the shape a codex has. The file was left untouched."
+msgstr ""
+
+#: src/state/codex.ts
+msgid "The codex could not be read, so it was not opened. The file was left as it is."
+msgstr ""
+
+#: src/state/codex.ts
+msgid "The codex could not be saved. Try again."
+msgstr ""
+
+#: src/state/codex.ts
+msgid "The codex is not valid JSON, so it was not opened. The file was left untouched."
+msgstr ""
 
 #: src/state/project/comments.ts
 msgid "The comments for this page are not valid JSON, so they were not opened. The file was left untouched."
@@ -4973,6 +5070,11 @@ msgstr "סוג תמונה לא נתמך: {0}"
 msgid "Untitled"
 msgstr "ללא כותרת"
 
+#: src/app/codex/CodexDialog.tsx
+msgid "Untitled entry"
+msgstr ""
+
+#: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Untitled scene"
