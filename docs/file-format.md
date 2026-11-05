@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 9)
+# CadabraCraft project file format (formatVersion 10)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -20,7 +20,7 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 9,
+  "formatVersion": 10,
   "template": "novel",
   "trimSize": "5.5x8.5",
   "dropCap": true,
@@ -224,6 +224,34 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 - Version 1 -> 2: front and back matter entries may carry `kind`. The migration changes nothing else; older entries keep no kind.
 
 Any change to this layout bumps `formatVersion`, adds a migration in `packages/format`, and adds a test that opens a file from the previous version.
+
+## Scenes
+
+A scene is a `scene` block node inside a chapter file: it wraps the blocks the author writes as one unit and carries the
+planning notes as attributes. It is structure only. No exporter prints a note, and every exporter writes the children as if the
+wrapper were not there. A scene never holds another scene. Blocks outside any scene are allowed (a chapter written before scenes,
+or text typed above the first one); the scene board shows them as an "Unsorted" card that can be wrapped into a scene.
+
+| Attribute  | Type                   | Limit and meaning                                                                                                  |
+| ---------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `id`       | string                 | Required. A letter, then letters, digits, `_` or `-`, at most 64 characters. Unique in the book (see below).      |
+| `title`    | string                 | At most 200 characters. A working name, never printed as a heading.                                               |
+| `synopsis` | string                 | At most 2000 characters.                                                                                           |
+| `pov`      | string                 | At most 120 characters. Free text: the codex is optional, so this is not an id.                                    |
+| `status`   | string                 | `outline`, `draft`, `revised` or `final`; empty means nobody has triaged the scene.                                |
+| `label`    | string                 | At most 60 characters. A free tag (a story-structure beat id uses it).                                             |
+| `target`   | integer or `null`      | Words the author aims for, 0 to 1,000,000.                                                                         |
+| `date`     | string                 | When the scene happens in the story: `YYYY-MM-DD` (a real calendar day) with an optional `THH:MM` (24 hours), or empty. At most 16 characters. Fantasy calendars are not modelled. |
+| `cast`     | list of codex entry ids | At most 20 distinct ids (see Codex).                                                                              |
+
+A note that is absent means its default (`""`, `null` or `[]`), so a chapter written before `date` existed opens unchanged and
+keeps every other attribute. Adding `date` did not bump `formatVersion`: node attributes never do (see architecture.md,
+"Scenes"). An older app drops a `date` it does not know when it saves the chapter, so keep story dates in a book that is only
+opened by a current app.
+
+Scene ids are unique across the book. Moving a scene to another chapter writes the destination chapter first and the source
+second, so a failure between the two leaves the scene in both files, never in neither. When a book is read and one id appears
+twice, the first (in reading order) is used and the app tells the author about the copy.
 
 ## Codex
 

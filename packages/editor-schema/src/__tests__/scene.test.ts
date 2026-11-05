@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ChapterDoc, DocNode } from "@cadabracraft/shared";
-import { MAX_SCENE_CAST, Scene, chapterDocProblem } from "../index";
+import { MAX_SCENE_CAST, Scene, chapterDocProblem, isStoryDate } from "../index";
 
 const p = (text: string): DocNode => ({ type: "paragraph", content: [{ type: "text", text }] });
 const bare = (attrs: Record<string, unknown>): DocNode =>
@@ -70,6 +70,44 @@ describe("scene nodes", () => {
         scene({ id: "sc-1", cast: Array.from({ length: MAX_SCENE_CAST + 1 }, (_, i) => `e${i}`) }),
       ),
     ).toMatch(/the most is/);
+  });
+
+  it("accepts a story date as a real day with an optional time, and refuses anything else", () => {
+    for (const date of ["", "2031-04-09", "2031-04-09T07:30", "2032-02-29", "0001-01-01"])
+      expect(chapterDocProblem(scene({ id: "sc-1", date }))).toBeNull();
+    for (const date of [
+      "2031-4-9",
+      "2031-02-30",
+      "2031-13-01",
+      "2031-04-09T24:00",
+      "2031-04-09T07:60",
+      "2031-04-09T07:30:00",
+      "2031-04-09 07:30",
+      "in spring",
+      "2031-04-09T07:30Z",
+    ])
+      expect(chapterDocProblem(scene({ id: "sc-1", date }))).toMatch(/date/);
+    expect(chapterDocProblem(scene({ id: "sc-1", date: 20310409 }))).toMatch(/date/);
+    expect(chapterDocProblem(scene({ id: "sc-1", date: "2031-04-09".padEnd(17, "0") }))).toMatch(
+      /date/,
+    );
+    expect(isStoryDate("2031-02-29")).toBe(false);
+  });
+
+  it("opens a chapter saved before the date existed, and keeps every attribute it had", () => {
+    const before = scene({
+      id: "sc-1",
+      title: "Opening",
+      synopsis: "s",
+      pov: "Mara",
+      status: "draft",
+      label: "Act I",
+      target: 800,
+      cast: ["mara"],
+    });
+    expect(chapterDocProblem(before)).toBeNull();
+    const kept = JSON.parse(JSON.stringify(before)) as ChapterDoc;
+    expect(kept).toEqual(before);
   });
 
   it("refuses a scene with no notes object at all, and names the missing id", () => {

@@ -11,6 +11,8 @@ export interface SceneRow {
   label: string;
   synopsis: string;
   target: number | null;
+  /** When the scene happens in the story (`YYYY-MM-DD`, optionally `THH:MM`), or empty. */
+  date: string;
   /** The codex entries the scene names (their ids); the POV is kept as text, since a book may have no codex. */
   cast: string[];
   words: number;
@@ -38,6 +40,7 @@ export function sceneRows(doc: unknown): SceneRow[] {
         label: str(node.attrs?.label),
         synopsis: str(node.attrs?.synopsis),
         target: typeof node.attrs?.target === "number" ? node.attrs.target : null,
+        date: str(node.attrs?.date),
         cast: Array.isArray(node.attrs?.cast)
           ? node.attrs.cast.filter((x): x is string => typeof x === "string")
           : [],
