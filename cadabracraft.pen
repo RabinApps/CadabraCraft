@@ -279425,7 +279425,8 @@
                               "fill": "$ink",
                               "content": "Mara",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-caption"
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -279452,7 +279453,8 @@
                               "fill": "$ink-muted",
                               "content": "Add to cast",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -280211,7 +280213,8 @@
                                   "fill": "$ink",
                                   "content": "Mara",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-caption"
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -280238,7 +280241,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Add to cast",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -281907,6 +281911,812 @@
                           "fontWeight": "600"
                         }
                       ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Vo19J",
+          "name": "Scenes / mobile / detail / light",
+          "theme": {
+            "mode": "light"
+          },
+          "width": 390,
+          "height": 844,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "oElTS",
+              "name": "Top bar",
+              "width": "fill_container",
+              "height": 56,
+              "fill": "$surface",
+              "gap": 12,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sMCUU",
+                  "name": "Book title",
+                  "fill": "$ink",
+                  "content": "The Salt Orchard",
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-body",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "BDt6Q",
+                  "name": "Spacer",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "frame",
+                  "id": "nGYrt",
+                  "name": "Scenes button",
+                  "fill": "$accent-soft",
+                  "cornerRadius": "$radius",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "nwfa6",
+                      "name": "Comments label",
+                      "fill": "$accent",
+                      "content": "Scenes",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dlHAR",
+                  "name": "Saved badge",
+                  "fill": "$bg",
+                  "cornerRadius": "$radius-full",
+                  "padding": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Z7lLi",
+                      "name": "Saved label",
+                      "fill": "$ink-muted",
+                      "content": "Saved",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Y5MA9",
+              "name": "Mobile body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$bg",
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "y4G1Rl",
+                  "name": "Page",
+                  "width": 358,
+                  "fill": "$paper",
+                  "cornerRadius": "$radius-sm",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 48,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "RyCME",
+                      "name": "Chapter label",
+                      "fill": "$ink-muted",
+                      "content": "CHAPTER 7",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NSjxV",
+                      "name": "Chapter title",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The Orchard Wall",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-heading",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "oSeSv",
+                      "name": "Paragraph 1",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The salt wind came off the water all morning and by noon it had taken the last of the blossom with it. Mara stood at the wall and watched the petals go down the lane in drifts, the way they always did in the third week of the month her mother called the long tide.",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-manuscript",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SkXjc",
+                      "name": "Anchored paragraph",
+                      "width": "fill_container",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius-xs",
+                      "padding": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "U7ST5l",
+                          "name": "Anchored sentence",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The storm broke over the harbour before dawn.",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-manuscript",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "V0p9C",
+                      "name": "Paragraph 2",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "She had meant to say something to the boy about the wall, about who had raised it, but the words had gone the way of the blossom and he was already at the gate with the cart.",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-manuscript",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Q03ALP",
+              "name": "Scene sheet",
+              "width": 390,
+              "height": 500,
+              "fill": "$surface",
+              "cornerRadius": "$radius-lg",
+              "layout": "vertical",
+              "gap": 12,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "a5wZO5",
+                  "name": "Sheet grip row",
+                  "width": "fill_container",
+                  "height": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Z6cBG",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "q59MI",
+                      "name": "Sheet grip",
+                      "width": 36,
+                      "height": 4,
+                      "fill": "$border",
+                      "cornerRadius": "$radius-full"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Yu0yT",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "M0vhf",
+                  "name": "Back",
+                  "fill": "$accent",
+                  "content": "‹ Back to scenes",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-small",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "iOXnE",
+                  "name": "Scene title",
+                  "fill": "$ink",
+                  "content": "The quay at dusk",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-lead",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "GgBDm",
+                  "name": "Scene status",
+                  "width": 78,
+                  "height": 24,
+                  "fill": "$warn-soft",
+                  "cornerRadius": "$radius-full",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "yisBU",
+                      "name": "Scene status label",
+                      "fill": "$warn",
+                      "content": "Draft",
+                      "fontFamily": "Inter",
+                      "fontSize": "$type-micro",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "EgF6f",
+                  "name": "Scene meta",
+                  "fill": "$ink-muted",
+                  "content": "POV Mara · 820 of 1,000 words",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-caption"
+                },
+                {
+                  "type": "frame",
+                  "id": "feyI5",
+                  "name": "Target track",
+                  "width": 358,
+                  "height": 6,
+                  "fill": "$border",
+                  "cornerRadius": "$radius-full",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "yP23v",
+                      "name": "Target fill",
+                      "width": 287,
+                      "height": 6,
+                      "fill": "$accent",
+                      "cornerRadius": "$radius-full"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "L4yal",
+                  "name": "Cast label",
+                  "fill": "$ink-muted",
+                  "content": "Cast",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-micro",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "uBZ2W",
+                  "name": "Cast chip",
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-full",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    2,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "h5WvG7",
+                      "name": "Cast chip name",
+                      "fill": "$ink",
+                      "content": "Mara",
+                      "fontFamily": "Inter",
+                      "fontSize": "$type-caption"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dfxud",
+                  "name": "Add to cast",
+                  "width": 358,
+                  "height": 32,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border-strong",
+                  "strokeWidth": 1,
+                  "padding": [
+                    6,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QJRM4",
+                      "name": "Add to cast label",
+                      "fill": "$ink-muted",
+                      "content": "Add to cast",
+                      "fontFamily": "Inter",
+                      "fontSize": "$type-small"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "w70th",
+                  "name": "Synopsis label",
+                  "fill": "$ink-muted",
+                  "content": "Synopsis",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-micro",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "vCPIu",
+                  "name": "Synopsis",
+                  "fill": "$ink",
+                  "content": "Mara waits on the quay while the lamp swings.",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-small"
+                },
+                {
+                  "type": "frame",
+                  "id": "Js1Q4",
+                  "name": "Open scene",
+                  "width": 358,
+                  "height": 40,
+                  "fill": "$accent",
+                  "cornerRadius": "$radius",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kBLQT",
+                      "name": "Open scene label",
+                      "fill": "#FFFFFF",
+                      "content": "Open scene",
+                      "fontFamily": "Inter",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "WzqKe",
+          "name": "Scenes / mobile / detail / dark",
+          "theme": {
+            "mode": "dark"
+          },
+          "width": 390,
+          "height": 844,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "goCbn",
+              "name": "Top bar",
+              "width": "fill_container",
+              "height": 56,
+              "fill": "$surface",
+              "gap": 12,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "CVA0q",
+                  "name": "Book title",
+                  "fill": "$ink",
+                  "content": "The Salt Orchard",
+                  "fontFamily": "$font-ui",
+                  "fontSize": "$type-body",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "cFG3L",
+                  "name": "Spacer",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "frame",
+                  "id": "iWhD6",
+                  "name": "Scenes button",
+                  "fill": "$accent-soft",
+                  "cornerRadius": "$radius",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "U0lOO",
+                      "name": "Comments label",
+                      "fill": "$accent",
+                      "content": "Scenes",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "HbzJq",
+                  "name": "Saved badge",
+                  "fill": "$bg",
+                  "cornerRadius": "$radius-full",
+                  "padding": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "w6T0yF",
+                      "name": "Saved label",
+                      "fill": "$ink-muted",
+                      "content": "Saved",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "LXTqU",
+              "name": "Mobile body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$bg",
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "vFmoz",
+                  "name": "Page",
+                  "width": 358,
+                  "fill": "$paper",
+                  "cornerRadius": "$radius-sm",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 48,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lIFr7",
+                      "name": "Chapter label",
+                      "fill": "$ink-muted",
+                      "content": "CHAPTER 7",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "xitba",
+                      "name": "Chapter title",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The Orchard Wall",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-heading",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "k070EU",
+                      "name": "Paragraph 1",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The salt wind came off the water all morning and by noon it had taken the last of the blossom with it. Mara stood at the wall and watched the petals go down the lane in drifts, the way they always did in the third week of the month her mother called the long tide.",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-manuscript",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SuiKY",
+                      "name": "Anchored paragraph",
+                      "width": "fill_container",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius-xs",
+                      "padding": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WXvu1",
+                          "name": "Anchored sentence",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The storm broke over the harbour before dawn.",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-manuscript",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZLOgI",
+                      "name": "Paragraph 2",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "She had meant to say something to the boy about the wall, about who had raised it, but the words had gone the way of the blossom and he was already at the gate with the cart.",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-manuscript",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "uPfqp",
+              "name": "Scene sheet",
+              "width": 390,
+              "height": 500,
+              "fill": "$surface",
+              "cornerRadius": "$radius-lg",
+              "layout": "vertical",
+              "gap": 12,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "xWiRh",
+                  "name": "Sheet grip row",
+                  "width": "fill_container",
+                  "height": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mE1QJ",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "inbOB",
+                      "name": "Sheet grip",
+                      "width": 36,
+                      "height": 4,
+                      "fill": "$border",
+                      "cornerRadius": "$radius-full"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RbyCN",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "eYLAV",
+                  "name": "Back",
+                  "fill": "$accent",
+                  "content": "‹ Back to scenes",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-small",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "hQutp",
+                  "name": "Scene title",
+                  "fill": "$ink",
+                  "content": "The quay at dusk",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-lead",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "KQH01",
+                  "name": "Scene status",
+                  "width": 78,
+                  "height": 24,
+                  "fill": "$warn-soft",
+                  "cornerRadius": "$radius-full",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ZnEQK",
+                      "name": "Scene status label",
+                      "fill": "$warn",
+                      "content": "Draft",
+                      "fontFamily": "Inter",
+                      "fontSize": "$type-micro",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "UAvOa",
+                  "name": "Scene meta",
+                  "fill": "$ink-muted",
+                  "content": "POV Mara · 820 of 1,000 words",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-caption"
+                },
+                {
+                  "type": "frame",
+                  "id": "qTl1J",
+                  "name": "Target track",
+                  "width": 358,
+                  "height": 6,
+                  "fill": "$border",
+                  "cornerRadius": "$radius-full",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Fdgid",
+                      "name": "Target fill",
+                      "width": 287,
+                      "height": 6,
+                      "fill": "$accent",
+                      "cornerRadius": "$radius-full"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "M6DNZt",
+                  "name": "Cast label",
+                  "fill": "$ink-muted",
+                  "content": "Cast",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-micro",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "dLdNb",
+                  "name": "Cast chip",
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-full",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    2,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "pSbGJ",
+                      "name": "Cast chip name",
+                      "fill": "$ink",
+                      "content": "Mara",
+                      "fontFamily": "Inter",
+                      "fontSize": "$type-caption"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Eg9Sr",
+                  "name": "Add to cast",
+                  "width": 358,
+                  "height": 32,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius",
+                  "stroke": "$border-strong",
+                  "strokeWidth": 1,
+                  "padding": [
+                    6,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Pw4bR",
+                      "name": "Add to cast label",
+                      "fill": "$ink-muted",
+                      "content": "Add to cast",
+                      "fontFamily": "Inter",
+                      "fontSize": "$type-small"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "kwxuU",
+                  "name": "Synopsis label",
+                  "fill": "$ink-muted",
+                  "content": "Synopsis",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-micro",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "vEtLB",
+                  "name": "Synopsis",
+                  "fill": "$ink",
+                  "content": "Mara waits on the quay while the lamp swings.",
+                  "fontFamily": "Inter",
+                  "fontSize": "$type-small"
+                },
+                {
+                  "type": "frame",
+                  "id": "N7QVh",
+                  "name": "Open scene",
+                  "width": 358,
+                  "height": 40,
+                  "fill": "$accent",
+                  "cornerRadius": "$radius",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LUXQQ",
+                      "name": "Open scene label",
+                      "fill": "#FFFFFF",
+                      "content": "Open scene",
+                      "fontFamily": "Inter",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
                     }
                   ]
                 }
