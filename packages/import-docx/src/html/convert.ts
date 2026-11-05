@@ -8,7 +8,6 @@ import {
   listNodes,
   cleanText,
   alignFrom,
-  paragraphOf,
   safeHref,
   tableOf,
   textNode,
@@ -37,6 +36,7 @@ import {
   type PNode,
 } from "./dom";
 import { flush, newFlow, trimRun, type Flow } from "./run";
+import { checkboxOf, tooDeep } from "./leaf";
 
 // The helpers below moved to ./dom; they are re-exported so importers of this module are unaffected.
 export {
@@ -221,16 +221,6 @@ function element(
   flow(el.childNodes, ctx, marks, f, depth, dom);
 }
 
-function tooDeep(el: PElement, ctx: HtmlCtx, f: Flow): void {
-  ctx.warn.at(
-    "nesting-too-deep",
-    "warning",
-    `Nesting deeper than ${ctx.maxDepth} levels was flattened to text.`,
-  );
-  const t = textNode(textOf(el));
-  if (t) f.out.push(paragraphOf([t]));
-}
-
 function heading(
   el: PElement,
   ctx: HtmlCtx,
@@ -258,23 +248,6 @@ function heading(
   for (const i of items) if (isSep(i) && i.sep === "block") f.out.push(i.node);
   f.out.push(...inner.out);
   alignFrom(f.out, from, alignOf(el));
-}
-
-/** The checkbox that makes a list item a task item: an `<input type=checkbox>` first in the item, alone or inside a `<label>`. */
-function checkboxOf(li: PElement): boolean | null {
-  for (const c of li.childNodes) {
-    if (isText(c) && c.value.trim() === "") continue;
-    if (!isElement(c)) return null;
-    const input =
-      c.tagName === "input"
-        ? c
-        : c.tagName === "label"
-          ? c.childNodes.find((k): k is PElement => isElement(k) && k.tagName === "input")
-          : undefined;
-    if (!input || attr(input, "type")?.toLowerCase() !== "checkbox") return null;
-    return attr(input, "checked") !== undefined || attr(li, "data-checked") === "true";
-  }
-  return null;
 }
 
 function list(
