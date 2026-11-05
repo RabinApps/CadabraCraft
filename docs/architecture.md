@@ -1885,6 +1885,23 @@ An author sometimes needs a page that is empty on purpose — a breathing space 
 - Checked with unit tests: `packages/shared/src/__tests__/pageNumbering.test.ts` (a blank page follows on, prints no number, and is not pushed even after a dedication), `packages/format/src/__tests__/matter.test.ts` (added straight after the open page, an empty document, and always "translated" for exports) and `packages/export-pdf/src/__tests__/matter.test.ts` (the empty page source and no page entry of its own). A blank page between two chapters has its own cases: it is inserted into `manifest.chapters` after the page it follows and is not a chapter for `chaptersOf` (format), it follows the chapter before it with no folio and the next chapter still opens on a right-hand page while the count is not restarted on the blank (shared), and Typst prints it as a blank page with no chapter opening for the chapter after it (export-pdf).
 - A translation edition still gets an (empty) file for the blank page when the edition is added, because every entry does; it is never asked for.
 
+## Scenes: a node inside the chapter (2026-11-05)
+
+A scene is a `scene` block node that wraps the blocks the author writes as one unit, carrying its planning notes as
+attributes (`id`, `title`, `synopsis`, `pov`, `status`, a free `label` and a `target` in words). Chosen over a file per
+scene: page breaks, snapshots, the Page view measure and the format's per-chapter history stay exactly as they are, and a
+scene can be split or merged without touching the file tree. The cost is that the history point is still the chapter,
+which is what it is today anyway.
+
+Nothing about a scene prints. Every exporter passes the node's children through unchanged (Word, RTF, Markdown, EPUB, PDF,
+and the audiobook's text), and a scene's `title` is a working name, never a heading. The node's `status` is one of
+`outline`, `draft`, `revised` or `final`, or empty for a scene nobody has triaged yet; an empty note means the default
+(`""` or `null`), so a file written before a note existed still opens.
+
+Adding the node does **not** bump `formatVersion`: chapter nodes never do (see "Chapter files" in
+[file-format.md](file-format.md)). An older app refuses a chapter that holds a scene, which is the same rule every other
+node addition followed; there is no migration because there is nothing to migrate.
+
 ## Spellcheck: the platform dictionary (2026-11-04)
 
 ### Decision

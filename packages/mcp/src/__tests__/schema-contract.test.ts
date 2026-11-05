@@ -43,6 +43,11 @@ const NODE_SAMPLES: Record<string, ChapterDoc> = {
   hardBreak: doc(p(t("one"), { type: "hardBreak" }, t("two"))),
   image: doc({ type: "image", attrs: { src: "assets/a.png", alt: "alt", title: "Caption" } }),
   sceneBreak: doc({ type: "sceneBreak" }),
+  scene: doc({
+    type: "scene",
+    attrs: { id: "sc-1", title: "Opening", pov: "Mara", status: "draft", target: 800 },
+    content: [p(t("In the scene."))],
+  }),
   pageBreak: doc({ type: "pageBreak" }),
   footnote: doc(p(t("claim"), { type: "footnote", content: [t("the note")] })),
   table: doc({

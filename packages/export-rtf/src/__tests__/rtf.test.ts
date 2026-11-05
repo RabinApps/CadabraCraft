@@ -827,3 +827,23 @@ describe("paragraph helpers", () => {
     expect(new RtfExportError("plain").message).toBe("plain");
   });
 });
+
+describe("scenes", () => {
+  it("prints a scene's blocks and none of its notes", () => {
+    const out = buildRtf(book, [
+      chapter("One", {
+        type: "scene",
+        attrs: {
+          id: "sc-1",
+          title: "Secret title",
+          synopsis: "Plans",
+          status: "draft",
+          target: 800,
+        },
+        content: [p(t("In the scene."))],
+      }),
+    ]);
+    expect(out).toContain("In the scene.");
+    expect(out).not.toContain("Secret title");
+  });
+});

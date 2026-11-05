@@ -48,6 +48,9 @@ export function blockRtf(n: DocNode, ctx: Ctx): string[] {
     }
     case "blockquote":
       return kids.flatMap((c) => blockRtf(c, { ...ctx, quote: ctx.quote + 1 }));
+    // A scene is structure inside the app: its notes never print, and its blocks print as they are.
+    case "scene":
+      return kids.flatMap((c) => blockRtf(c, ctx));
     case "bulletList":
     case "orderedList":
       return listRtf(n, ctx, blockRtf);

@@ -16,6 +16,7 @@ import {
   isAssetPath,
   isLangTag,
   isValidCommentId,
+  isValidSceneId,
   normalizeLinkUrl,
   safeHref,
   parseTextAlign,
@@ -40,6 +41,38 @@ export const PageBreak = Node.create({
   group: "block",
   parseHTML: () => [{ tag: "hr.page-break" }],
   renderHTML: () => ["hr", { class: "page-break" }],
+});
+
+/** The states a scene can be in; an empty string means it has no state yet. */
+export const SCENE_STATUSES = ["outline", "draft", "revised", "final"] as const;
+export const MAX_SCENE_TITLE = 200;
+export const MAX_SCENE_SYNOPSIS = 2000;
+export const MAX_SCENE_POV = 120;
+export const MAX_SCENE_LABEL = 60;
+export const MAX_SCENE_TARGET = 1_000_000;
+
+/**
+ * A scene: the blocks the author writes as one unit, with the planning notes the sidebar shows (`title`, `synopsis`, `pov`,
+ * `status`, `label`, `target` in words). It is structure only: no exporter prints a scene's notes, and every exporter writes
+ * the children exactly as if the wrapper were not there. Adding it does not bump `formatVersion` (chapter nodes never do).
+ */
+export const Scene = Node.create({
+  name: "scene",
+  group: "block",
+  content: "block+",
+  defining: true,
+  addAttributes: () => ({
+    id: { default: null },
+    title: { default: "" },
+    synopsis: { default: "" },
+    pov: { default: "" },
+    status: { default: "" },
+    label: { default: "" },
+    target: { default: null },
+  }),
+  parseHTML: () => [{ tag: "section[data-scene]" }],
+  // Only the marker is written: the notes are not HTML attributes, and a pasted scene keeps the children.
+  renderHTML: () => ["section", { "data-scene": "" }, 0],
 });
 
 export const SmallCaps = Mark.create({
@@ -404,6 +437,7 @@ export const extensions = [
   CaptionedImage,
   SceneBreak,
   PageBreak,
+  Scene,
   SmallCaps,
   Superscript,
   Subscript,
@@ -510,6 +544,7 @@ export function chapterDocProblem(doc: unknown): string | null {
   let badDecorative = false;
   let badLang: unknown = null;
   let badComment: unknown = null;
+  let badScene: string | null = null;
   let badAlign: string | null = null;
   const walk = (n: RawNode) => {
     if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
@@ -534,6 +569,7 @@ export function chapterDocProblem(doc: unknown): string | null {
       badDecorative = true;
     if (n.type === "paragraph" || n.type === "heading")
       badAlign ??= textAlignProblem(n.attrs?.textAlign);
+    if (n.type === "scene") badScene ??= sceneProblem(n);
     if (n.type === "table") tableBad ??= tableProblem(n);
     for (const c of n.content ?? []) walk(c);
   };
@@ -545,10 +581,46 @@ export function chapterDocProblem(doc: unknown): string | null {
     return `language ${JSON.stringify(badLang)} is not allowed (a BCP 47 tag of letters, digits and hyphens, at most 35 characters)`;
   if (badComment !== null)
     return `comment ${JSON.stringify(badComment)} is not allowed (a thread id of a letter, then letters, digits, _ or -, at most 64 characters)`;
+  if (badScene !== null) return badScene;
   if (badAlign !== null) return badAlign;
   if (badChecked) return "a task item's checked value must be true or false";
   if (badDecorative) return "an image's decorative value must be true or false";
   return tableBad;
+}
+
+/** A scene's id names it, and its notes are short strings so a chapter file stays readable. */
+function sceneProblem(scene: RawNode): string | null {
+  const a = scene.attrs ?? {};
+  if (!isValidSceneId(a.id))
+    return `scene id ${JSON.stringify(a.id ?? "")} is not allowed (a letter, then letters, digits, _ or -, at most 64 characters)`;
+  const limits: [string, number][] = [
+    ["title", MAX_SCENE_TITLE],
+    ["synopsis", MAX_SCENE_SYNOPSIS],
+    ["pov", MAX_SCENE_POV],
+    ["label", MAX_SCENE_LABEL],
+  ];
+  // A note that is not there is the schema's default (""), so only a note that is present is checked.
+  for (const [key, max] of limits) {
+    const v = a[key];
+    if (v !== undefined && (typeof v !== "string" || v.length > max))
+      return `a scene's ${key} must be text of at most ${max} characters`;
+  }
+  if (
+    a.status !== undefined &&
+    a.status !== "" &&
+    !SCENE_STATUSES.includes(a.status as (typeof SCENE_STATUSES)[number])
+  )
+    return `scene status ${JSON.stringify(a.status)} is not allowed (outline, draft, revised, final, or empty)`;
+  if (
+    a.target !== undefined &&
+    a.target !== null &&
+    (typeof a.target !== "number" ||
+      !Number.isInteger(a.target) ||
+      a.target < 0 ||
+      a.target > MAX_SCENE_TARGET)
+  )
+    return `a scene's target must be a whole number of words from 0 to ${MAX_SCENE_TARGET}, or null`;
+  return null;
 }
 
 /** Tables must be rectangular and unmerged: every row has the same number of cells, each with colspan and rowspan 1. */

@@ -40,6 +40,9 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
     }
     case "blockquote":
       return kids.flatMap((c) => blockXml(c, { ...ctx, quote: ctx.quote + 1 }));
+    // A scene is structure inside the app: its notes never print, and its blocks print as they are.
+    case "scene":
+      return kids.flatMap((c) => blockXml(c, ctx));
     case "bulletList":
     case "orderedList":
       return listXml(n, ctx, blockXml);

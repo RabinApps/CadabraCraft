@@ -12,3 +12,6 @@ export const isValidEntryId = (id: string): boolean => ENTRY_ID.test(id);
  */
 export const isValidCommentId = (id: unknown): boolean =>
   typeof id === "string" && ENTRY_ID.test(id);
+
+/** A scene's id names it in its chapter's `scene` node, so it follows the same rule as page ids. */
+export const isValidSceneId = (id: unknown): boolean => typeof id === "string" && ENTRY_ID.test(id);

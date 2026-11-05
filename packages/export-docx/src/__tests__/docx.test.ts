@@ -546,3 +546,25 @@ describe("round trip through the CadabraCraft DOCX importer", () => {
     expect(r.chapters.length).toBeGreaterThan(0);
   });
 });
+
+describe("scenes", () => {
+  it("prints a scene's blocks and none of its notes", () => {
+    const xml = documentXml(
+      buildDocx(book, [
+        chapter("One", {
+          type: "scene",
+          attrs: {
+            id: "sc-1",
+            title: "Secret title",
+            synopsis: "Plans",
+            status: "draft",
+            target: 800,
+          },
+          content: [p(t("In the scene."))],
+        }),
+      ]),
+    );
+    expect(xml).toContain("In the scene.");
+    expect(xml).not.toContain("Secret title");
+  });
+});

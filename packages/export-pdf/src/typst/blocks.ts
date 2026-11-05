@@ -201,6 +201,9 @@ function block(n: DocNode, ctx: Ctx): string {
       return heading(n, ctx);
     case "blockquote":
       return `#quote(block: true)[\n${blocks(kids, ctx)}\n]`;
+    // A scene is structure inside the app: its notes never print, and its blocks print as they are.
+    case "scene":
+      return blocks(kids, ctx);
     case "bulletList":
       return `#list(\n${listItems(kids, ctx)},\n)`;
     case "orderedList": {

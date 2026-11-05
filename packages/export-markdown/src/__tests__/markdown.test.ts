@@ -731,3 +731,17 @@ describe("page breaks and comment marks", () => {
     expect(out).not.toContain("t-1");
   });
 });
+
+describe("scenes", () => {
+  it("writes a scene's blocks and none of its notes", () => {
+    const md = chapterToMarkdown(
+      doc({
+        type: "scene",
+        attrs: { id: "sc-1", title: "Secret title", synopsis: "Plans", target: 800 },
+        content: [p(t("In the scene."))],
+      }),
+    );
+    expect(md).toContain("In the scene.");
+    expect(md).not.toContain("Secret title");
+  });
+});

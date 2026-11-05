@@ -391,3 +391,20 @@ describe("page breaks and comment marks", () => {
     expect(html).not.toContain("t-1");
   });
 });
+
+describe("scenes", () => {
+  it("writes a scene's blocks and none of its notes", () => {
+    const html = chapterToXhtmlBody({
+      type: "doc",
+      content: [
+        {
+          type: "scene",
+          attrs: { id: "sc-1", title: "Secret title", synopsis: "Plans", target: 800 },
+          content: [{ type: "paragraph", content: [{ type: "text", text: "In the scene." }] }],
+        },
+      ],
+    } as ChapterDoc);
+    expect(html).toContain("In the scene.");
+    expect(html).not.toContain("Secret title");
+  });
+});

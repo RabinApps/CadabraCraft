@@ -44,6 +44,7 @@ export type DocNode =
         | "hardBreak"
         | "sceneBreak"
         | "pageBreak"
+        | "scene"
         | "image"
         | "figcaption"
         | "footnote"

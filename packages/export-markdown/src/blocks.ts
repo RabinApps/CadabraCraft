@@ -227,6 +227,9 @@ function block(n: DocNode, ctx: Ctx, alt: boolean, top: boolean): string {
       return codeBlock(n);
     case "table":
       return table(n, ctx);
+    // A scene is structure inside the app: its notes never print, and its blocks print as they are.
+    case "scene":
+      return blockList(kids, ctx).join("\n\n");
     case "sceneBreak":
       return "* * *";
     case "pageBreak":

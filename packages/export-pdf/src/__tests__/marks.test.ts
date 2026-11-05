@@ -360,3 +360,17 @@ describe("comment marks", () => {
     expect(src).not.toContain("t-1");
   });
 });
+
+describe("scenes", () => {
+  it("prints a scene's blocks and none of its notes", () => {
+    const source = buildTypst(book, [
+      chapter({
+        type: "scene",
+        attrs: { id: "sc-1", title: "Secret title", synopsis: "Plans", target: 800 },
+        content: [p(t("In the scene."))],
+      }),
+    ]);
+    expect(source).toContain("In the scene.");
+    expect(source).not.toContain("Secret title");
+  });
+});
