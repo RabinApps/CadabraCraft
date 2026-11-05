@@ -225,6 +225,12 @@ msgstr ""
 msgid "{0} of {1} MB"
 msgstr ""
 
+#. placeholder {0}: scene.words.toLocaleString()
+#. placeholder {1}: scene.target.toLocaleString()
+#: src/app/scenes/SceneRail.tsx
+msgid "{0} of {1} words"
+msgstr ""
+
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
 msgid "{0} was not chosen in a file or folder dialog"
@@ -250,7 +256,7 @@ msgstr ""
 msgid "{0} was updated from outside the app"
 msgstr ""
 
-#. placeholder {0}: sceneWordsLabel(scene)
+#. placeholder {0}: scene.words.toLocaleString()
 #: src/app/scenes/SceneRail.tsx
 msgid "{0} words"
 msgstr ""
@@ -3394,9 +3400,8 @@ msgid "Points to"
 msgstr ""
 
 #. placeholder {0}: scene.pov
-#. placeholder {1}: sceneWordsLabel(scene)
 #: src/app/scenes/SceneRail.tsx
-msgid "POV {0} · {1} words"
+msgid "POV {0} · {words}"
 msgstr ""
 
 #: src/app/shell/menuModel.ts

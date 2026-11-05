@@ -8,7 +8,7 @@ import {
   MAX_SCENE_TITLE,
   SCENE_STATUSES,
 } from "@cadabracraft/editor-schema";
-import { sceneProgress, sceneRow, sceneWordsLabel, type SceneStatus } from "../../lib/scenes";
+import { sceneProgress, sceneRow, type SceneStatus } from "../../lib/scenes";
 import { useSceneEditing } from "../../lib/sceneEditing";
 import { useProject } from "../../state/project/index";
 import { useSceneView } from "../../state/sceneView";
@@ -39,6 +39,9 @@ export function SceneRail({ onClose }: { onClose?: () => void }) {
   if (!scene) return null;
   const save = (attrs: Record<string, unknown>) => update?.(scene.id, attrs);
   const progress = sceneProgress(scene);
+  const words = scene.target
+    ? t`${scene.words.toLocaleString()} of ${scene.target.toLocaleString()} words`
+    : t`${scene.words.toLocaleString()} words`;
   const statuses: SceneStatus[] = ["", ...SCENE_STATUSES];
   return (
     <section aria-label={t`Scene`} className="flex h-full min-h-0 flex-col gap-4 p-4">
@@ -60,9 +63,7 @@ export function SceneRail({ onClose }: { onClose?: () => void }) {
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-caption text-ink-muted">
-          {scene.pov
-            ? t`POV ${scene.pov} · ${sceneWordsLabel(scene)} words`
-            : t`${sceneWordsLabel(scene)} words`}
+          {scene.pov ? t`POV ${scene.pov} · ${words}` : words}
         </p>
         <div aria-hidden className="h-1.5 w-full rounded-full bg-border">
           <div

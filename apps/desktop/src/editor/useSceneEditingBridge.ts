@@ -50,13 +50,14 @@ export function useSceneEditingBridge(editor: Editor | null) {
       if (editor.isDestroyed) return false;
       const pos = scenePos(editor.state.doc, id);
       if (pos < 0) return false;
+      // The chain's scrollIntoView moves the caret into view inside the page; scrolling the scene's own element instead moves the
+      // page surface off its text (the scene is a wrapper, not a box in the layout).
       editor
         .chain()
         .focus()
         .setTextSelection(pos + 1)
         .scrollIntoView()
         .run();
-      (editor.view.nodeDOM(pos) as HTMLElement | null)?.scrollIntoView({ block: "start" });
       return true;
     };
     const update = (id: string, attrs: Record<string, unknown>): boolean => {

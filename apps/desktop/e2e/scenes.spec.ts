@@ -40,6 +40,13 @@ test.describe("scenes", () => {
     const doc = await chapterDoc(page);
     const scene = doc.content.find((n: { type: string }) => n.type === "scene");
     expect(scene.content[0].content[0].text).toBe("The salt wind came off the water.");
+
+    // Going to a scene leaves the chapter on its page, with the text still there.
+    await sceneList(page)
+      .getByRole("button", { name: /Untitled scene/ })
+      .click();
+    await expect(page.locator(".ProseMirror h1")).toBeVisible();
+    await expect(page.locator(".ProseMirror")).toContainText("The salt wind came off the water.");
   });
 
   test("keeps a scene's notes in the chapter and closes the rail", async ({ page }) => {
@@ -61,7 +68,7 @@ test.describe("scenes", () => {
     await expect(page.getByRole("status")).toContainText("Saved");
 
     await expect(sceneList(page).getByRole("listitem").first()).toContainText("5 / 1,000");
-    await expect(rail(page)).toContainText("POV Mara · 5 / 1,000 words");
+    await expect(rail(page)).toContainText("POV Mara · 5 of 1,000 words");
 
     const scene = (await chapterDoc(page)).content.find(
       (n: { type: string }) => n.type === "scene",
