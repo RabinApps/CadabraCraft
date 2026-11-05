@@ -13,6 +13,7 @@ import {
   type Commands,
 } from "../../state/commands";
 import { useLayout } from "../../state/layout";
+import { useLibraryOpen } from "../../state/library";
 import { useQuickNav } from "../../state/quickNav";
 import { useSettings } from "../../state/editorPrefs";
 import { buildMenuModel } from "../shell/menuModel";
@@ -81,6 +82,7 @@ export function useAppMenu(h: AppMenuHooks): void {
   const setCreating = useStartDialogs((s) => s.setCreating);
   const setImporting = useStartDialogs((s) => s.setImporting);
   const setImportingInto = useStartDialogs((s) => s.setImportingInto);
+  const setLibraryOpen = useLibraryOpen((s) => s.setOpen);
 
   const open = manifest !== null;
   const inBook = open && h.view === "book";
@@ -122,6 +124,12 @@ export function useAppMenu(h: AppMenuHooks): void {
       run: guard(async () => {
         await leave();
         setImporting(true);
+      }),
+    },
+    "file.library": {
+      run: guard(async () => {
+        await leave();
+        setLibraryOpen(true);
       }),
     },
     "file.openRecent": {

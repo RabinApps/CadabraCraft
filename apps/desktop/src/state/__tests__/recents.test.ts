@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   addRecent,
+  addScanned,
+  MAX_KNOWN,
+  MAX_RECENTS,
+  newest,
   parseRecents,
   removeRecent,
   updateStats,
@@ -128,5 +132,102 @@ describe("useRecents store", () => {
     expect(JSON.parse(data.get("cadabracraft.recents")!)[0].stats).toEqual(stats(100));
     useRecents.getState().setStats("/a", stats(100));
     expect(useRecents.getState().recents).toBe(first);
+  });
+});
+
+describe("the known-books list", () => {
+  it("is not capped at the recent few; Home takes the newest of it", () => {
+    const many = Array.from({ length: 25 }, (_, i) => r(`/b${i}`, i));
+    const list = many.reduce((l, e) => addRecent(l, e), [] as Recent[]);
+    expect(list).toHaveLength(25);
+    expect(newest(list)).toHaveLength(MAX_RECENTS);
+    expect(newest(list)[0]?.root).toBe("/b24");
+    expect(newest(list, 2).map((x) => x.root)).toEqual(["/b24", "/b23"]);
+  });
+  it("is only bounded against a runaway list", () => {
+    const raw = JSON.stringify(Array.from({ length: MAX_KNOWN + 5 }, (_, i) => r(`/b${i}`)));
+    expect(parseRecents(raw)).toHaveLength(MAX_KNOWN);
+    expect(parseRecents(raw, 3)).toHaveLength(3);
+  });
+  it("caches the cover and series with the stats, and a change of either is a change", () => {
+    const extra = { cover: "assets/c.png", series: "Tides", seriesNumber: "2" };
+    const base = updateStats([r("/a")], "/a", stats(100), 9);
+    const next = updateStats(base, "/a", stats(100, extra), 20);
+    expect(next).not.toBe(base);
+    expect(next[0]?.stats).toMatchObject(extra);
+    expect(next[0]?.editedAt).toBeUndefined();
+    expect(updateStats(next, "/a", stats(100, extra), 30)).toBe(next);
+    const gone = updateStats(next, "/a", stats(100), 40);
+    expect(gone[0]?.stats).toEqual(stats(100));
+  });
+  it("parses the cached fields and drops empty or mistyped ones", () => {
+    const withExtra = {
+      ...r("/a"),
+      stats: stats(1, { cover: "assets/c.png", series: "S", seriesNumber: "1.5" }),
+    };
+    const odd = { ...r("/b"), stats: { ...stats(1), cover: 3, series: "", seriesNumber: null } };
+    const [a, b] = parseRecents(JSON.stringify([withExtra, odd]));
+    expect(a?.stats).toEqual(withExtra.stats);
+    expect(b?.stats).toEqual(stats(1));
+  });
+});
+
+describe("books found by a folder scan", () => {
+  const found = (root: string, over = {}) => ({ root, title: root, author: "Mara", ...over });
+  it("are added after the opened books, never opened, and known ones are left alone", () => {
+    const list = updateStats([r("/a", 5)], "/a", stats(100), 9);
+    const next = addScanned(list, [
+      found("/a", { author: "Other" }),
+      found("/b", { series: "S", seriesNumber: "1" }),
+      found("/b"),
+      found("/c"),
+    ]);
+    expect(next.map((x) => x.root)).toEqual(["/a", "/b", "/c"]);
+    expect(next[0]).toBe(list[0]);
+    expect(next[1]).toEqual({
+      root: "/b",
+      title: "/b",
+      openedAt: 0,
+      scanned: { author: "Mara", series: "S", seriesNumber: "1" },
+    });
+  });
+  it("return the same list when nothing is new", () => {
+    const list = [r("/a")];
+    expect(addScanned(list, [found("/a")])).toBe(list);
+    expect(addScanned(list, [])).toBe(list);
+  });
+  it("respect the cap", () => {
+    expect(addScanned([r("/a")], [found("/b"), found("/c")], 2).map((x) => x.root)).toEqual([
+      "/a",
+      "/b",
+    ]);
+  });
+  it("are stored, parsed tolerantly, and keep their info when the book is opened", () => {
+    const raw = JSON.stringify([
+      {
+        root: "/b",
+        title: "B",
+        openedAt: 0,
+        scanned: { author: "M", cover: "assets/c.png", series: 4 },
+      },
+      { root: "/c", title: "C", openedAt: 0, scanned: { author: 3 } },
+    ]);
+    const [b, c] = parseRecents(raw);
+    expect(b?.scanned).toEqual({ author: "M", cover: "assets/c.png" });
+    expect(c?.scanned).toBeUndefined();
+    expect(addRecent([b!], r("/b", 7))[0]).toMatchObject({ openedAt: 7, scanned: { author: "M" } });
+  });
+  it("go through the store", async () => {
+    const data = new Map<string, string>();
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => data.get(k) ?? null,
+      setItem: (k: string, v: string) => void data.set(k, v),
+    });
+    vi.resetModules();
+    const { useRecents } = await import("../recents");
+    expect(useRecents.getState().addScanned([found("/x"), found("/y")])).toBe(2);
+    expect(useRecents.getState().addScanned([found("/x")])).toBe(0);
+    expect(JSON.parse(data.get("cadabracraft.recents")!)).toHaveLength(2);
+    vi.unstubAllGlobals();
   });
 });

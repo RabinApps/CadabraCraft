@@ -48,6 +48,7 @@ import { Templates } from "../export/Templates";
 import { useLayout } from "../../state/layout";
 import { useReadingPosition } from "../../state/readingPosition";
 import { useRecents } from "../../state/recents";
+import { libraryFields } from "../library/libraryModel";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import { useAppMenu } from "../hooks/useAppMenu";
@@ -145,6 +146,7 @@ function AppScreens() {
       words: bookWords,
       chapterNo: at + 1,
       chapterTitle: rows[at]?.title ?? "",
+      ...libraryFields(source),
     };
     const id = setTimeout(() => setStats(root, stats), 1000);
     return () => clearTimeout(id);
