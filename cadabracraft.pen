@@ -279395,6 +279395,68 @@
                           "fontWeight": "normal"
                         },
                         {
+                          "type": "text",
+                          "id": "LEmM2",
+                          "name": "Cast label",
+                          "fill": "$ink-muted",
+                          "content": "Cast",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "p68OKG",
+                          "name": "Cast chip",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            2,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Mcl8m",
+                              "name": "Cast chip name",
+                              "fill": "$ink",
+                              "content": "Mara",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-caption"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "v8LkI",
+                          "name": "Add to cast",
+                          "width": 287,
+                          "height": 30,
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border-strong",
+                          "strokeWidth": 1,
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "g7PU58",
+                              "name": "Add to cast label",
+                              "fill": "$ink-muted",
+                              "content": "Add to cast",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            }
+                          ]
+                        },
+                        {
                           "type": "frame",
                           "id": "EbYI8",
                           "name": "Rail spacer",
@@ -280117,6 +280179,68 @@
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-small",
                               "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "QhcJ5",
+                              "name": "Cast label",
+                              "fill": "$ink-muted",
+                              "content": "Cast",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "rjTkF",
+                              "name": "Cast chip",
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                2,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "cBqeo",
+                                  "name": "Cast chip name",
+                                  "fill": "$ink",
+                                  "content": "Mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-caption"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "xEfUL",
+                              "name": "Add to cast",
+                              "width": 287,
+                              "height": 30,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius",
+                              "stroke": "$border-strong",
+                              "strokeWidth": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "nLrEK",
+                                  "name": "Add to cast label",
+                                  "fill": "$ink-muted",
+                                  "content": "Add to cast",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
                             },
                             {
                               "type": "frame",
@@ -281888,7 +282012,8 @@
                           "fill": "$ink-muted",
                           "content": "✕",
                           "fontFamily": "Inter",
-                          "fontSize": "$type-lead"
+                          "fontSize": "$type-lead",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -282083,7 +282208,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Character · A smuggler who does not lie",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -282117,7 +282243,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Place · Where the salt wind comes from",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -282151,7 +282278,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Item · It opens the light",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -282352,7 +282480,8 @@
                                   "fill": "$ink",
                                   "content": "A smuggler who does not lie, exactly.",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -282381,7 +282510,8 @@
                                   "fill": "$ink",
                                   "content": "Mara Vane",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -282410,7 +282540,8 @@
                                   "fill": "$ink",
                                   "content": "https://example.com/mara",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -282453,7 +282584,8 @@
                                       "fill": "$ink",
                                       "content": "She keeps the brass key.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
@@ -282462,7 +282594,8 @@
                                       "fill": "$ink",
                                       "content": "Her brother does not know.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -282485,7 +282618,8 @@
                               "fill": "$ink",
                               "content": "The Harbour · The quay at dusk",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -282494,7 +282628,8 @@
                               "fill": "$ink",
                               "content": "The Light · Night on the wall",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -282581,7 +282716,8 @@
                           "fill": "$ink-muted",
                           "content": "✕",
                           "fontFamily": "Inter",
-                          "fontSize": "$type-lead"
+                          "fontSize": "$type-lead",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -282776,7 +282912,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Character · A smuggler who does not lie",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -282810,7 +282947,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Place · Where the salt wind comes from",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -282844,7 +282982,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Item · It opens the light",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283045,7 +283184,8 @@
                                   "fill": "$ink",
                                   "content": "A smuggler who does not lie, exactly.",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283074,7 +283214,8 @@
                                   "fill": "$ink",
                                   "content": "Mara Vane",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283103,7 +283244,8 @@
                                   "fill": "$ink",
                                   "content": "https://example.com/mara",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283146,7 +283288,8 @@
                                       "fill": "$ink",
                                       "content": "She keeps the brass key.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
@@ -283155,7 +283298,8 @@
                                       "fill": "$ink",
                                       "content": "Her brother does not know.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -283178,7 +283322,8 @@
                               "fill": "$ink",
                               "content": "The Harbour · The quay at dusk",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -283187,7 +283332,8 @@
                               "fill": "$ink",
                               "content": "The Light · Night on the wall",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -283274,7 +283420,8 @@
                           "fill": "$ink-muted",
                           "content": "✕",
                           "fontFamily": "Inter",
-                          "fontSize": "$type-lead"
+                          "fontSize": "$type-lead",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -283469,7 +283616,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Character · A smuggler who does not lie",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283503,7 +283651,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Place · Where the salt wind comes from",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283537,7 +283686,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Item · It opens the light",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283738,7 +283888,8 @@
                                   "fill": "$ink",
                                   "content": "A smuggler who does not lie, exactly.",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283767,7 +283918,8 @@
                                   "fill": "$ink",
                                   "content": "Mara Vane",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283796,7 +283948,8 @@
                                   "fill": "$ink",
                                   "content": "https://example.com/mara",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -283839,7 +283992,8 @@
                                       "fill": "$ink",
                                       "content": "She keeps the brass key.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
@@ -283848,7 +284002,8 @@
                                       "fill": "$ink",
                                       "content": "Her brother does not know.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -283871,7 +284026,8 @@
                               "fill": "$ink",
                               "content": "The Harbour · The quay at dusk",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -283880,7 +284036,8 @@
                               "fill": "$ink",
                               "content": "The Light · Night on the wall",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -283967,7 +284124,8 @@
                           "fill": "$ink-muted",
                           "content": "✕",
                           "fontFamily": "Inter",
-                          "fontSize": "$type-lead"
+                          "fontSize": "$type-lead",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -284162,7 +284320,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Character · A smuggler who does not lie",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -284196,7 +284355,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Place · Where the salt wind comes from",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -284230,7 +284390,8 @@
                                   "fill": "$ink-muted",
                                   "content": "Item · It opens the light",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-micro"
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -284431,7 +284592,8 @@
                                   "fill": "$ink",
                                   "content": "A smuggler who does not lie, exactly.",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -284460,7 +284622,8 @@
                                   "fill": "$ink",
                                   "content": "Mara Vane",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -284489,7 +284652,8 @@
                                   "fill": "$ink",
                                   "content": "https://example.com/mara",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -284532,7 +284696,8 @@
                                       "fill": "$ink",
                                       "content": "She keeps the brass key.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
@@ -284541,7 +284706,8 @@
                                       "fill": "$ink",
                                       "content": "Her brother does not know.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -284564,7 +284730,8 @@
                               "fill": "$ink",
                               "content": "The Harbour · The quay at dusk",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -284573,7 +284740,8 @@
                               "fill": "$ink",
                               "content": "The Light · Night on the wall",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -284660,7 +284828,8 @@
                           "fill": "$ink-muted",
                           "content": "✕",
                           "fontFamily": "Inter",
-                          "fontSize": "$type-lead"
+                          "fontSize": "$type-lead",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -284986,7 +285155,8 @@
                                   "fill": "$ink",
                                   "content": "A smuggler who does not lie, exactly.",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -285015,7 +285185,8 @@
                                   "fill": "$ink",
                                   "content": "Mara Vane",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -285044,7 +285215,8 @@
                                   "fill": "$ink",
                                   "content": "https://example.com/mara",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -285087,7 +285259,8 @@
                                       "fill": "$ink",
                                       "content": "She keeps the brass key.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
@@ -285096,7 +285269,8 @@
                                       "fill": "$ink",
                                       "content": "Her brother does not know.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -285119,7 +285293,8 @@
                               "fill": "$ink",
                               "content": "The Harbour · The quay at dusk",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -285128,7 +285303,8 @@
                               "fill": "$ink",
                               "content": "The Light · Night on the wall",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -285215,7 +285391,8 @@
                           "fill": "$ink-muted",
                           "content": "✕",
                           "fontFamily": "Inter",
-                          "fontSize": "$type-lead"
+                          "fontSize": "$type-lead",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -285541,7 +285718,8 @@
                                   "fill": "$ink",
                                   "content": "A smuggler who does not lie, exactly.",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -285570,7 +285748,8 @@
                                   "fill": "$ink",
                                   "content": "Mara Vane",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -285599,7 +285778,8 @@
                                   "fill": "$ink",
                                   "content": "https://example.com/mara",
                                   "fontFamily": "Inter",
-                                  "fontSize": "$type-small"
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -285642,7 +285822,8 @@
                                       "fill": "$ink",
                                       "content": "She keeps the brass key.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
@@ -285651,7 +285832,8 @@
                                       "fill": "$ink",
                                       "content": "Her brother does not know.",
                                       "fontFamily": "Inter",
-                                      "fontSize": "$type-small"
+                                      "fontSize": "$type-small",
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -285674,7 +285856,8 @@
                               "fill": "$ink",
                               "content": "The Harbour · The quay at dusk",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -285683,7 +285866,8 @@
                               "fill": "$ink",
                               "content": "The Light · Night on the wall",
                               "fontFamily": "Inter",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         }
