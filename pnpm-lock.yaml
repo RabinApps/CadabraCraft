@@ -492,6 +492,18 @@ importers:
         specifier: ^0.28.2
         version: 0.28.2
 
+  packages/outline:
+    dependencies:
+      '@cadabracraft/editor-schema':
+        specifier: workspace:*
+        version: link:../editor-schema
+      '@cadabracraft/shared':
+        specifier: workspace:*
+        version: link:../shared
+      fast-xml-parser:
+        specifier: ^5.11.2
+        version: 5.11.2
+
   packages/project-fs:
     dependencies:
       '@cadabracraft/format':
