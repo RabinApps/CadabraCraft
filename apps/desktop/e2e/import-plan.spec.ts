@@ -19,7 +19,7 @@ async function startImport(page: Page) {
 
 /** The chapter buttons of the sidebar (not their action menus), top to bottom. */
 const chapterNames = (page: Page) =>
-  sidebar(page).locator("li > button:not([aria-label^='Actions']):not([data-grip])");
+  sidebar(page).locator("li > div > button:not([aria-label^='Actions']):not([data-grip]):not([aria-expanded])");
 
 /** The chapter titles in the preview, top to bottom. */
 const previewTitles = (dialog: Locator) =>
