@@ -281791,6 +281791,3911 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "S14ZDk",
+      "x": 0,
+      "y": 103100,
+      "name": "Section / Codex",
+      "width": 6600,
+      "layout": "vertical",
+      "gap": 150,
+      "padding": 120,
+      "children": [
+        {
+          "type": "text",
+          "id": "BhOtt",
+          "name": "Section title",
+          "fill": "$ink",
+          "content": "Codex",
+          "fontFamily": "Inter",
+          "fontSize": "$type-title",
+          "fontWeight": "600"
+        },
+        {
+          "type": "frame",
+          "id": "b7LYQ",
+          "name": "Codex / desktop / light row",
+          "width": 6600,
+          "height": 720,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "EQ5b1",
+              "x": 0,
+              "y": 0,
+              "name": "Codex / desktop / light",
+              "theme": {
+                "mode": "light"
+              },
+              "clip": true,
+              "width": 960,
+              "height": 720,
+              "fill": "$bg",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "qgDLe",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Overlay",
+                  "width": 960,
+                  "height": 720,
+                  "fill": "#0B0B0F66"
+                },
+                {
+                  "type": "frame",
+                  "id": "xQjva",
+                  "x": 50,
+                  "y": 50,
+                  "name": "Dialog",
+                  "clip": true,
+                  "width": 860,
+                  "height": 620,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "cxVy7",
+                      "name": "Header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "an70p",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Codex",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-title",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "HDaPT",
+                          "name": "Close",
+                          "fill": "$ink-muted",
+                          "content": "✕",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-lead"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "EBMQl",
+                      "name": "Filters",
+                      "width": "fill_container",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "yTVVJ",
+                          "name": "Chip / All",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "zwJ9Z",
+                              "name": "Chip label",
+                              "fill": "$accent",
+                              "content": "All",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "b4WQDh",
+                          "name": "Chip / Character",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "yJm4m",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Character",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "E9pFl",
+                          "name": "Chip / Place",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ubrNi",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Place",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "fFeSh",
+                          "name": "Chip / Item",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "E7MYR",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Item",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "maAGy",
+                          "name": "Chip / Lore",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Au0Iu",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Lore",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "irBc0",
+                      "name": "Body",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "c1WCn",
+                          "name": "Entries",
+                          "width": 280,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "L7uBC",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "fill": "$raised",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "DYLOi",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "Mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "P6ZSUS",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Character · A smuggler who does not lie",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ZoMQg",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "e62Tr",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "The Quay",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "iQHmh",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Place · Where the salt wind comes from",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "GgaLX",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "GQGVs",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "The brass key",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "S3m70h",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Item · It opens the light",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mzI8W",
+                              "name": "New entry",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "gap": 4,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "r4Tdu",
+                                  "name": "Plus",
+                                  "fill": "$accent",
+                                  "content": "+",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "aIAFa",
+                                  "name": "Label",
+                                  "fill": "$accent",
+                                  "content": "New entry",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "jFNlW",
+                          "name": "Entry",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 10,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "fecCB",
+                              "name": "Entry name",
+                              "fill": "$ink",
+                              "content": "Mara",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-lead",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "piAmr",
+                              "name": "Kind chips",
+                              "width": "fill_container",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "RRTzg",
+                                  "name": "Chip / Character",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "d1Vci",
+                                      "name": "Chip label",
+                                      "fill": "$accent",
+                                      "content": "Character",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "F7dBK",
+                                  "name": "Chip / Place",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "dTjHE",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Place",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "qn2rr",
+                                  "name": "Chip / Item",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Mdmws",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Item",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "OmRHh",
+                                  "name": "Chip / Lore",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "b8QwpL",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Lore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "W9fkv",
+                              "name": "Field / Summary",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Z3kPbu",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Summary",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "AYH0l",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "A smuggler who does not lie, exactly.",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "L2aKa",
+                              "name": "Field / Aliases (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "QeChY",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Aliases (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "A6L2Nl",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "Mara Vane",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Xu0WL",
+                              "name": "Field / Links (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "I4wZNm",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Links (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "M93bCo",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "https://example.com/mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "J2EWb",
+                              "name": "Field / Notes",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "gl5fM",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "o8fXTm",
+                                  "name": "Notes box",
+                                  "width": "fill_container",
+                                  "height": 76,
+                                  "fill": "$bg",
+                                  "cornerRadius": "$radius",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "padding": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "DO2wE",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "She keeps the brass key.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "lrK8m",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "Her brother does not know.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "u8bIDM",
+                              "name": "Appears in",
+                              "fill": "$ink-muted",
+                              "content": "Appears in",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Og0LF",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Harbour · The quay at dusk",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Li2i3",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Light · Night on the wall",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "p6PlM",
+          "name": "Codex / desktop / dark row",
+          "width": 6600,
+          "height": 720,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "HmSpy",
+              "x": 0,
+              "y": 0,
+              "name": "Codex / desktop / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "clip": true,
+              "width": 960,
+              "height": 720,
+              "fill": "$bg",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "l3bG8",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Overlay",
+                  "width": 960,
+                  "height": 720,
+                  "fill": "#0B0B0F66"
+                },
+                {
+                  "type": "frame",
+                  "id": "DTb46",
+                  "x": 50,
+                  "y": 50,
+                  "name": "Dialog",
+                  "clip": true,
+                  "width": 860,
+                  "height": 620,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Z0c6Z",
+                      "name": "Header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qXl5h",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Codex",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-title",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mYlD7",
+                          "name": "Close",
+                          "fill": "$ink-muted",
+                          "content": "✕",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-lead"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wQ00J",
+                      "name": "Filters",
+                      "width": "fill_container",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "DsgH2",
+                          "name": "Chip / All",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "drRgL",
+                              "name": "Chip label",
+                              "fill": "$accent",
+                              "content": "All",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "z9cu9m",
+                          "name": "Chip / Character",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "luSBF",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Character",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Y7gsM",
+                          "name": "Chip / Place",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "xt8mR",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Place",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "PgK7v",
+                          "name": "Chip / Item",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "TTNO8",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Item",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "iv7z7",
+                          "name": "Chip / Lore",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "DzeqC",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Lore",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RxeZL",
+                      "name": "Body",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "wHqqH",
+                          "name": "Entries",
+                          "width": 280,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "JuC3X",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "fill": "$raised",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "MQUWG",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "Mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "JhvMN",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Character · A smuggler who does not lie",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "oNUR5",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "zUaO5",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "The Quay",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "f2CA08",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Place · Where the salt wind comes from",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "nvAUF",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "blp6Z",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "The brass key",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "K2i1x5",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Item · It opens the light",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "AonVa",
+                              "name": "New entry",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "gap": 4,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "kFsoM",
+                                  "name": "Plus",
+                                  "fill": "$accent",
+                                  "content": "+",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Vih2i",
+                                  "name": "Label",
+                                  "fill": "$accent",
+                                  "content": "New entry",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "d37iI",
+                          "name": "Entry",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 10,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "V7flgo",
+                              "name": "Entry name",
+                              "fill": "$ink",
+                              "content": "Mara",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-lead",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Nx2s2",
+                              "name": "Kind chips",
+                              "width": "fill_container",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "k4PuB",
+                                  "name": "Chip / Character",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "svSBJ",
+                                      "name": "Chip label",
+                                      "fill": "$accent",
+                                      "content": "Character",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "wz09e",
+                                  "name": "Chip / Place",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "DqYna",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Place",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "h5BBU",
+                                  "name": "Chip / Item",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "yuqNT",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Item",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "aI5CW",
+                                  "name": "Chip / Lore",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "qvaGg",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Lore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "P1XPd",
+                              "name": "Field / Summary",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "qYwUH",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Summary",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "yNuI1",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "A smuggler who does not lie, exactly.",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mFIzw",
+                              "name": "Field / Aliases (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "hV1N3",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Aliases (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "qLn6i",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "Mara Vane",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "p0xbFr",
+                              "name": "Field / Links (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "s8dBh",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Links (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "q7DIKE",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "https://example.com/mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ZEqMt",
+                              "name": "Field / Notes",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "xZIWJ",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "ITcVF",
+                                  "name": "Notes box",
+                                  "width": "fill_container",
+                                  "height": 76,
+                                  "fill": "$bg",
+                                  "cornerRadius": "$radius",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "padding": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "McEPg",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "She keeps the brass key.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "J2k34",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "Her brother does not know.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "nyW8d",
+                              "name": "Appears in",
+                              "fill": "$ink-muted",
+                              "content": "Appears in",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "xXrYe",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Harbour · The quay at dusk",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            },
+                            {
+                              "type": "text",
+                              "id": "o3PLV",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Light · Night on the wall",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "PDgGG",
+          "name": "Codex / tablet / light row",
+          "width": 6600,
+          "height": 1180,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "aJwdd",
+              "x": 0,
+              "y": 0,
+              "name": "Codex / tablet / light",
+              "theme": {
+                "mode": "light"
+              },
+              "clip": true,
+              "width": 820,
+              "height": 1180,
+              "fill": "$bg",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "nZFu8",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Overlay",
+                  "width": 820,
+                  "height": 1180,
+                  "fill": "#0B0B0F66"
+                },
+                {
+                  "type": "frame",
+                  "id": "TLred",
+                  "x": 20,
+                  "y": 280,
+                  "name": "Dialog",
+                  "clip": true,
+                  "width": 780,
+                  "height": 620,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "b5Qpy",
+                      "name": "Header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xHR45",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Codex",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-title",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "FC0Q4",
+                          "name": "Close",
+                          "fill": "$ink-muted",
+                          "content": "✕",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-lead"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "T5yMS5",
+                      "name": "Filters",
+                      "width": "fill_container",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "b3PIGg",
+                          "name": "Chip / All",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "zeD4a",
+                              "name": "Chip label",
+                              "fill": "$accent",
+                              "content": "All",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zVPzT",
+                          "name": "Chip / Character",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "d9FaS",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Character",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "x7DVbU",
+                          "name": "Chip / Place",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dirBR",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Place",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "XvLRY",
+                          "name": "Chip / Item",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "q33OL",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Item",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "CP2s8",
+                          "name": "Chip / Lore",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "G2MDF",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Lore",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "k1MFwg",
+                      "name": "Body",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "W07haL",
+                          "name": "Entries",
+                          "width": 280,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "cu8XF",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "fill": "$raised",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "vdXTn",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "Mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "dSukq",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Character · A smuggler who does not lie",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "TEX1l",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "z5R3N",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "The Quay",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "tJZh3",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Place · Where the salt wind comes from",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Jx5Cl",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "ZLgcG",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "The brass key",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "y13Sog",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Item · It opens the light",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "SjClV",
+                              "name": "New entry",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "gap": 4,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "CtPVe",
+                                  "name": "Plus",
+                                  "fill": "$accent",
+                                  "content": "+",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "l6LeiO",
+                                  "name": "Label",
+                                  "fill": "$accent",
+                                  "content": "New entry",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "QwLY2",
+                          "name": "Entry",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 10,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qyD3G",
+                              "name": "Entry name",
+                              "fill": "$ink",
+                              "content": "Mara",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-lead",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "dcCtd",
+                              "name": "Kind chips",
+                              "width": "fill_container",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "ICUuf",
+                                  "name": "Chip / Character",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "JpPgx",
+                                      "name": "Chip label",
+                                      "fill": "$accent",
+                                      "content": "Character",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "V825S",
+                                  "name": "Chip / Place",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "YoX5A",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Place",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "qOINU",
+                                  "name": "Chip / Item",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "j0mFVD",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Item",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "tg4Rz",
+                                  "name": "Chip / Lore",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "UCERK",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Lore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "oxIBE",
+                              "name": "Field / Summary",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "YbLkO",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Summary",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "QI4XG",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "A smuggler who does not lie, exactly.",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "GKqkq",
+                              "name": "Field / Aliases (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "MPHZ7",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Aliases (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "USCWF",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "Mara Vane",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "AsFYJ",
+                              "name": "Field / Links (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "dKzLZ",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Links (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "iThFz",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "https://example.com/mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "lQjss",
+                              "name": "Field / Notes",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Wi8AM",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "yY7kc",
+                                  "name": "Notes box",
+                                  "width": "fill_container",
+                                  "height": 76,
+                                  "fill": "$bg",
+                                  "cornerRadius": "$radius",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "padding": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "LDVZv",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "She keeps the brass key.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "OvfPG",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "Her brother does not know.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "iwHeG",
+                              "name": "Appears in",
+                              "fill": "$ink-muted",
+                              "content": "Appears in",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "qvx32",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Harbour · The quay at dusk",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            },
+                            {
+                              "type": "text",
+                              "id": "yxOaE",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Light · Night on the wall",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Zi4Ed",
+          "name": "Codex / tablet / dark row",
+          "width": 6600,
+          "height": 1180,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "K2SNt",
+              "x": 0,
+              "y": 0,
+              "name": "Codex / tablet / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "clip": true,
+              "width": 820,
+              "height": 1180,
+              "fill": "$bg",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "QBAKk",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Overlay",
+                  "width": 820,
+                  "height": 1180,
+                  "fill": "#0B0B0F66"
+                },
+                {
+                  "type": "frame",
+                  "id": "I3pEDf",
+                  "x": 20,
+                  "y": 280,
+                  "name": "Dialog",
+                  "clip": true,
+                  "width": 780,
+                  "height": 620,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "e2Cin",
+                      "name": "Header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "PdXDV",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Codex",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-title",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "g1PRK1",
+                          "name": "Close",
+                          "fill": "$ink-muted",
+                          "content": "✕",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-lead"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nHvNI",
+                      "name": "Filters",
+                      "width": "fill_container",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "beI2P",
+                          "name": "Chip / All",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Y8AG8x",
+                              "name": "Chip label",
+                              "fill": "$accent",
+                              "content": "All",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "p39kzd",
+                          "name": "Chip / Character",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "zVHeF",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Character",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "DozUa",
+                          "name": "Chip / Place",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "V1frY0",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Place",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "PopNV",
+                          "name": "Chip / Item",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "QjmJy",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Item",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ZdL6s",
+                          "name": "Chip / Lore",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sbHhL",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Lore",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "N9CXz",
+                      "name": "Body",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "TTRhy",
+                          "name": "Entries",
+                          "width": 280,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "eGmAS",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "fill": "$raised",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "fw8Hx",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "Mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "z9QCK7",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Character · A smuggler who does not lie",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "vYxE5",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "IY47D",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "The Quay",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "IQHqb",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Place · Where the salt wind comes from",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "RoEnW",
+                              "name": "Entry row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "layout": "vertical",
+                              "gap": 1,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "UZgKO",
+                                  "name": "Name",
+                                  "fill": "$ink",
+                                  "content": "The brass key",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "YL6zB",
+                                  "name": "Kind",
+                                  "fill": "$ink-muted",
+                                  "content": "Item · It opens the light",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "c40itT",
+                              "name": "New entry",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius",
+                              "gap": 4,
+                              "padding": [
+                                6,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "u5pTQ",
+                                  "name": "Plus",
+                                  "fill": "$accent",
+                                  "content": "+",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "T3cHI",
+                                  "name": "Label",
+                                  "fill": "$accent",
+                                  "content": "New entry",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "JUlOj",
+                          "name": "Entry",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 10,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "bhqcL",
+                              "name": "Entry name",
+                              "fill": "$ink",
+                              "content": "Mara",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-lead",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "rRBWQ",
+                              "name": "Kind chips",
+                              "width": "fill_container",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "j33Yn",
+                                  "name": "Chip / Character",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "bb3pi",
+                                      "name": "Chip label",
+                                      "fill": "$accent",
+                                      "content": "Character",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "RzQGp",
+                                  "name": "Chip / Place",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "RGrqy",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Place",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "ecgbh",
+                                  "name": "Chip / Item",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "FxibJ",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Item",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "cOtgT",
+                                  "name": "Chip / Lore",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "eXEqc",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Lore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "C9GfI",
+                              "name": "Field / Summary",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "uLz0q",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Summary",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "FkDc7",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "A smuggler who does not lie, exactly.",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ISvxC",
+                              "name": "Field / Aliases (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "dpSVp",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Aliases (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "p2fhB",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "Mara Vane",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "OlHI2",
+                              "name": "Field / Links (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "EER9H",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Links (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "xt999",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "https://example.com/mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "g1pEHc",
+                              "name": "Field / Notes",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "KoaIh",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "QzKAC",
+                                  "name": "Notes box",
+                                  "width": "fill_container",
+                                  "height": 76,
+                                  "fill": "$bg",
+                                  "cornerRadius": "$radius",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "padding": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "iBxWa",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "She keeps the brass key.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "y9gYRT",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "Her brother does not know.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "U9xl3x",
+                              "name": "Appears in",
+                              "fill": "$ink-muted",
+                              "content": "Appears in",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "VzWbA",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Harbour · The quay at dusk",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mKOBf",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Light · Night on the wall",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "qZlRg",
+          "name": "Codex / mobile / light row",
+          "width": 6600,
+          "height": 844,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "PTgPR",
+              "x": 0,
+              "y": 0,
+              "name": "Codex / mobile / light",
+              "theme": {
+                "mode": "light"
+              },
+              "clip": true,
+              "width": 390,
+              "height": 844,
+              "fill": "$bg",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "VKtfQ",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Overlay",
+                  "width": 390,
+                  "height": 844,
+                  "fill": "#0B0B0F66"
+                },
+                {
+                  "type": "frame",
+                  "id": "h8kTt",
+                  "x": 12,
+                  "y": 127,
+                  "name": "Dialog",
+                  "clip": true,
+                  "width": 366,
+                  "height": 717,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "BqyWe",
+                      "name": "Header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "sZjgT",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Codex",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-title",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "i9brD7",
+                          "name": "Close",
+                          "fill": "$ink-muted",
+                          "content": "✕",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-lead"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AFeHX",
+                      "name": "Filters",
+                      "width": "fill_container",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ozhaF",
+                          "name": "Chip / All",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "h504N",
+                              "name": "Chip label",
+                              "fill": "$accent",
+                              "content": "All",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "fHbgX",
+                          "name": "Chip / Character",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "t1QTy",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Character",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "g46wPq",
+                          "name": "Chip / Place",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "r3jW5",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Place",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "CrHOk",
+                          "name": "Chip / Item",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "hMDos",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Item",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ZB6fN",
+                          "name": "Chip / Lore",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "oRNOk",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Lore",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fVtCe",
+                      "name": "Body",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "CHe9j",
+                          "name": "Entry",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 10,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "d85gt6",
+                              "name": "Back",
+                              "fill": "$accent",
+                              "content": "‹ Back to entries",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "qGBte",
+                              "name": "Entry name",
+                              "fill": "$ink",
+                              "content": "Mara",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-lead",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Sa8QX",
+                              "name": "Kind chips",
+                              "width": "fill_container",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "FTVMl",
+                                  "name": "Chip / Character",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "m4ouks",
+                                      "name": "Chip label",
+                                      "fill": "$accent",
+                                      "content": "Character",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "MtMwV",
+                                  "name": "Chip / Place",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "DFPSF",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Place",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "zStrV",
+                                  "name": "Chip / Item",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "oPf6Q",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Item",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "nolpS",
+                                  "name": "Chip / Lore",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "kJzJm",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Lore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "kYmGn",
+                              "name": "Field / Summary",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "iFOr0",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Summary",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "f2TidK",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "A smuggler who does not lie, exactly.",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "fYQl7",
+                              "name": "Field / Aliases (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "BIHGM",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Aliases (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "SoAnN",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "Mara Vane",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "cFNVR",
+                              "name": "Field / Links (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "rfEp8",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Links (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "kbX6r",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "https://example.com/mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zqURG",
+                              "name": "Field / Notes",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "C7QFug",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "F2gvo",
+                                  "name": "Notes box",
+                                  "width": "fill_container",
+                                  "height": 76,
+                                  "fill": "$bg",
+                                  "cornerRadius": "$radius",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "padding": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "UIEgh",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "She keeps the brass key.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "UREYL",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "Her brother does not know.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "UlECQ",
+                              "name": "Appears in",
+                              "fill": "$ink-muted",
+                              "content": "Appears in",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "WOHED",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Harbour · The quay at dusk",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Yxbes",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Light · Night on the wall",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Y1OCHX",
+          "name": "Codex / mobile / dark row",
+          "width": 6600,
+          "height": 844,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "nAyiY",
+              "x": 0,
+              "y": 0,
+              "name": "Codex / mobile / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "clip": true,
+              "width": 390,
+              "height": 844,
+              "fill": "$bg",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "d1gNM",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Overlay",
+                  "width": 390,
+                  "height": 844,
+                  "fill": "#0B0B0F66"
+                },
+                {
+                  "type": "frame",
+                  "id": "kfGKx",
+                  "x": 12,
+                  "y": 127,
+                  "name": "Dialog",
+                  "clip": true,
+                  "width": 366,
+                  "height": 717,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "s7e4Zg",
+                      "name": "Header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "d8m0Pb",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Codex",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-title",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "M6S15T",
+                          "name": "Close",
+                          "fill": "$ink-muted",
+                          "content": "✕",
+                          "fontFamily": "Inter",
+                          "fontSize": "$type-lead"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "u61X88",
+                      "name": "Filters",
+                      "width": "fill_container",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "icL9J",
+                          "name": "Chip / All",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "PXQzk",
+                              "name": "Chip label",
+                              "fill": "$accent",
+                              "content": "All",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "TSY76",
+                          "name": "Chip / Character",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VCXJG",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Character",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "aCPaX",
+                          "name": "Chip / Place",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "bjRi8",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Place",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Csiql",
+                          "name": "Chip / Item",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "TWUIT",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Item",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "K7Zra8",
+                          "name": "Chip / Lore",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius-full",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "n9LYq",
+                              "name": "Chip label",
+                              "fill": "$ink-muted",
+                              "content": "Lore",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "j1uzlI",
+                      "name": "Body",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "G3AwJt",
+                          "name": "Entry",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 10,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "EhoLe",
+                              "name": "Back",
+                              "fill": "$accent",
+                              "content": "‹ Back to entries",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "u8WA0",
+                              "name": "Entry name",
+                              "fill": "$ink",
+                              "content": "Mara",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-lead",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "p9Gou",
+                              "name": "Kind chips",
+                              "width": "fill_container",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "q3BVt",
+                                  "name": "Chip / Character",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "kjb3O",
+                                      "name": "Chip label",
+                                      "fill": "$accent",
+                                      "content": "Character",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "pmJlO",
+                                  "name": "Chip / Place",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "FLZ4f",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Place",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "E9hL7g",
+                                  "name": "Chip / Item",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "JrSAt",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Item",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "Ca6MO",
+                                  "name": "Chip / Lore",
+                                  "fill": "$surface",
+                                  "cornerRadius": "$radius-full",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "wZW7b",
+                                      "name": "Chip label",
+                                      "fill": "$ink-muted",
+                                      "content": "Lore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "PG7Yn",
+                              "name": "Field / Summary",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "x6Sgu1",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Summary",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "FaPIE",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "A smuggler who does not lie, exactly.",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "h1QgU",
+                              "name": "Field / Aliases (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "va626",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Aliases (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "xb9eq",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "Mara Vane",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Xwbos",
+                              "name": "Field / Links (one per line)",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "BfTOn",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Links (one per line)",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "l46hI",
+                                  "name": "Value",
+                                  "fill": "$ink",
+                                  "content": "https://example.com/mara",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-small"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "nxqpn",
+                              "name": "Field / Notes",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "J3gpnX",
+                                  "name": "Label",
+                                  "fill": "$ink-muted",
+                                  "content": "Notes",
+                                  "fontFamily": "Inter",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "nHL9m",
+                                  "name": "Notes box",
+                                  "width": "fill_container",
+                                  "height": 76,
+                                  "fill": "$bg",
+                                  "cornerRadius": "$radius",
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "padding": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "S8wXL",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "She keeps the brass key.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "WpZI8",
+                                      "name": "Note line",
+                                      "fill": "$ink",
+                                      "content": "Her brother does not know.",
+                                      "fontFamily": "Inter",
+                                      "fontSize": "$type-small"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "sipbi",
+                              "name": "Appears in",
+                              "fill": "$ink-muted",
+                              "content": "Appears in",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wdnPK",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Harbour · The quay at dusk",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            },
+                            {
+                              "type": "text",
+                              "id": "KEUzk",
+                              "name": "Appearance",
+                              "fill": "$ink",
+                              "content": "The Light · Night on the wall",
+                              "fontFamily": "Inter",
+                              "fontSize": "$type-small"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "themes": {
