@@ -24,6 +24,8 @@ pub enum PickKind {
     Reference,
     /// A `.ttf` or `.otf` font to install.
     Font,
+    /// A folder of books to scan for `cadabra.json` files (`scan_library`).
+    Library,
 }
 
 /// Most picks remembered per kind; the oldest is forgotten first. An author makes a few picks per session, so this only
@@ -151,6 +153,12 @@ pub async fn pick_reference_files<R: Runtime>(app: AppHandle<R>, picked: State<'
 #[tauri::command]
 pub async fn pick_font_file<R: Runtime>(app: AppHandle<R>, picked: State<'_, PickedPaths>) -> Result<Option<String>, ProjectError> {
     record_pick(&picked, PickKind::Font, answer(app, Ask::Font).await?.into_iter().next())
+}
+
+/// Native folder picker for a folder of books; remembered for `scan_library`.
+#[tauri::command]
+pub async fn pick_library_folder<R: Runtime>(app: AppHandle<R>, picked: State<'_, PickedPaths>) -> Result<Option<String>, ProjectError> {
+    record_pick(&picked, PickKind::Library, answer(app, Ask::Library).await?.into_iter().next())
 }
 
 /// Records several answers of one dialog (a cancel is an empty list); returns the paths as the author picked them.

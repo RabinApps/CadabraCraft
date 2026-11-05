@@ -83,7 +83,7 @@ fn the_native_pickers_answer_through_the_ipc_and_what_they_pick_is_remembered() 
     let (notes, font) = (dir.path().join("notes.txt"), dir.path().join("a.ttf"));
     std::fs::write(&notes, "x").unwrap();
     std::fs::write(&font, "x").unwrap();
-    ANSWERS.lock().unwrap().extend([Some(folder.clone()), None, Some(image.clone()), Some(doc.clone()), None, Some(font.clone()), None]);
+    ANSWERS.lock().unwrap().extend([Some(folder.clone()), None, Some(image.clone()), Some(doc.clone()), None, Some(font.clone()), None, Some(dir.path().to_path_buf())]);
     ANSWERS_MANY.lock().unwrap().extend([vec![notes.clone(), doc.clone()], vec![]]);
     let shown = |p: &std::path::Path| json!(p.to_string_lossy());
     assert_eq!(json_of(call(&w, "pick_folder", json!({}))), shown(&folder));
@@ -95,7 +95,13 @@ fn the_native_pickers_answer_through_the_ipc_and_what_they_pick_is_remembered() 
     assert_eq!(json_of(call(&w, "pick_reference_files", json!({}))), json!([]), "a cancel");
     assert_eq!(json_of(call(&w, "pick_font_file", json!({}))), shown(&font));
     assert_eq!(json_of(call(&w, "pick_font_file", json!({}))), Value::Null);
-    assert_eq!(*ASKED.lock().unwrap(), ["Folder", "Folder", "Image", "ImportSource", "ImportSource", "References", "References", "Font", "Font"]);
+    std::fs::write(folder.join("cadabra.json"), r#"{"editions":[{"title":"T","author":"A"}]}"#).unwrap();
+    assert_eq!(kind_of(call(&w, "scan_library", json!({ "root": folder.to_string_lossy() }))), "not_picked", "a folder nobody picked as a library");
+    assert_eq!(json_of(call(&w, "pick_library_folder", json!({}))), shown(dir.path()));
+    let scanned = json_of(call(&w, "scan_library", json!({ "root": dir.path().to_string_lossy() })));
+    assert_eq!(scanned["books"][0]["title"], "T");
+    assert_eq!(scanned["skipped"], 0);
+    assert_eq!(*ASKED.lock().unwrap(), ["Folder", "Folder", "Image", "ImportSource", "ImportSource", "References", "References", "Font", "Font", "Library"]);
     let picked = app.state::<commands::PickedPaths>();
     assert!(picked.require(commands::PickKind::Folder, &folder).is_ok());
     assert!(picked.require(commands::PickKind::Image, &image).is_ok());
@@ -387,6 +393,9 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("pick_import_source", json!({})),
         ("pick_reference_files", json!({})),
         ("pick_font_file", json!({})),
+        ("pick_library_folder", json!({})),
+        ("scan_library", json!({ "root": "/r" })),
+        ("stat_asset", json!({ "root": "/r", "path": "assets/a.png" })),
         ("create_project", json!({ "root": "/r", "manifestJson": "{}" })),
         ("read_project_file", json!({ "root": "/r", "path": "p" })),
         ("write_project_file", json!({ "root": "/r", "path": "p", "contents": "c" })),
@@ -478,6 +487,8 @@ fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
                 | "pick_import_source"
                 | "pick_reference_files"
                 | "pick_font_file"
+                | "pick_library_folder"
+                | "scan_library"
                 | "create_project"
                 | "import_asset"
                 | "import_reference"
