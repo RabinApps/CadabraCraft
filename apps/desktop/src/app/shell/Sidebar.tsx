@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import { Camera, FilePlus, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
-import { canAddMatter, chaptersOf, entryRowsIn } from "@cadabracraft/format";
+import { canAddMatter, chaptersOf, entryRowsIn, sourceTitleById } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
 import { Confirm } from "../../ui/Dialog";
 import { Button, IconButton } from "../../ui/Button";
@@ -13,6 +13,7 @@ import { IconDialog, type IconPage } from "../dialogs/IconDialog";
 import { useKindLabels } from "./useKindLabels";
 import { EntryList, type Editing } from "./EntryList";
 import { SceneList } from "../scenes/SceneList";
+import { useChapterScenes } from "../scenes/useChapterScenes";
 import { sceneRows } from "../../lib/scenes";
 import { useSceneEditing } from "../../lib/sceneEditing";
 import { useSceneView } from "../../state/sceneView";
@@ -46,6 +47,25 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const scenes = useMemo(() => sceneRows(currentDoc), [currentDoc]);
   const activeScene = useSceneView((s) => s.active);
   const showScene = useSceneView((s) => s.show);
+  // The open chapter starts expanded; any other chapter shows its scenes once it is expanded, read from its own file.
+  const [openChapters, setOpenChapters] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!currentId) return;
+    setOpenChapters((prev) => (prev.has(currentId) ? prev : new Set(prev).add(currentId)));
+  }, [currentId]);
+  const otherIds = useMemo(
+    () => [...openChapters].filter((id) => id !== currentId),
+    [openChapters, currentId],
+  );
+  const otherScenes = useChapterScenes(otherIds);
+  const rowsFor = (id: string) => (id === currentId ? scenes : (otherScenes[id] ?? []));
+  const toggleRow = (id: string) =>
+    setOpenChapters((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   const history = useProject((s) => s.history);
   const actions = useProject((s) => s.actions);
   const lastUndo = history.undo.at(-1);
@@ -97,21 +117,29 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           heading={t`Chapters`}
           chapters
           titleLabel={t`Chapter title`}
-          underCurrent={
+          openRows={openChapters}
+          onToggleRow={toggleRow}
+          underRow={(chapterId) => (
             <SceneList
-              rows={scenes}
+              rows={rowsFor(chapterId)}
+              chapter={sourceTitleById(manifest, chapterId) ?? undefined}
               active={activeScene}
-              onOpen={(id) => {
-                useSceneEditing.getState().open?.(id);
-                showScene(id);
+              onOpen={(sceneId) => {
+                if (chapterId === currentId) useSceneEditing.getState().open?.(sceneId);
+                else attempt(actions.selectChapter(chapterId).then(() => showScene(sceneId)));
+                showScene(sceneId);
                 onNavigate?.();
               }}
-              onAdd={() => {
-                const id = useSceneEditing.getState().add?.();
-                if (id) showScene(id);
-              }}
+              onAdd={
+                chapterId === currentId
+                  ? () => {
+                      const id = useSceneEditing.getState().add?.();
+                      if (id) showScene(id);
+                    }
+                  : undefined
+              }
             />
-          }
+          )}
         />
         {manifest.backMatter.length > 0 && (
           <EntryList

@@ -2249,6 +2249,11 @@ msgstr "Im Inhaltsverzeichnis ausblenden"
 msgid "Hide Others"
 msgstr "Andere ausblenden"
 
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "Hide scenes of {0}"
+msgstr ""
+
 #: src/app/shell/EntryList.tsx
 msgid "History"
 msgstr "Verlauf"
@@ -3976,6 +3981,10 @@ msgstr ""
 msgid "Scenes"
 msgstr ""
 
+#: src/app/scenes/SceneList.tsx
+msgid "Scenes in {chapter}"
+msgstr ""
+
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
 msgstr "Schriftrolle"
@@ -4118,6 +4127,11 @@ msgstr "Im Inhaltsverzeichnis anzeigen"
 #: src/app/export/PrintPreview.tsx
 msgid "Show margins"
 msgstr "Ränder anzeigen"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "Show scenes of {0}"
+msgstr ""
 
 #: src/app/export/PrintPreview.tsx
 msgid "Showing an approximate layout, because the real one could not be typeset:"

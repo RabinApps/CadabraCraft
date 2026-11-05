@@ -6,7 +6,8 @@ test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
 });
 
-const sceneList = (page: Page) => page.getByRole("list", { name: "Scenes" });
+const sceneList = (page: Page, chapter = "Chapter One") =>
+  page.getByRole("list", { name: `Scenes in ${chapter}` });
 const rail = (page: Page) => page.getByRole("region", { name: "Scene" });
 const addScene = (page: Page) =>
   sceneList(page).getByRole("button", { name: "Scene", exact: true });
@@ -84,6 +85,33 @@ test.describe("scenes", () => {
 
     await rail(page).getByRole("button", { name: "Close scene" }).click();
     await expect(rail(page)).toHaveCount(0);
+  });
+});
+
+test.describe("scenes of other chapters", () => {
+  test("expands a chapter that is not open and lists its scenes", async ({ page }) => {
+    await newProject(page);
+    await addScene(page).click();
+    await page.keyboard.type("A quay at dusk.");
+    await expect(page.getByRole("status")).toContainText("Saved");
+
+    await page.getByRole("button", { name: "Add chapter" }).click();
+    await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+    await sceneList(page, "Chapter 2").getByRole("button", { name: "Scene", exact: true }).click();
+    await page.keyboard.type("A storm warning.");
+    await expect(page.getByRole("status")).toContainText("Saved");
+
+    await page.getByRole("button", { name: "Chapter One", exact: true }).click();
+    await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+    // Chapter 2 was expanded when it was open, so it still shows its scenes; the chevron closes and opens them.
+    await expect(sceneList(page, "Chapter 2")).toContainText("Untitled scene");
+    await expect(sceneList(page, "Chapter 2")).toContainText("3");
+    // Its own + Scene is not offered: a scene goes into the chapter being written.
+    await expect(
+      sceneList(page, "Chapter 2").getByRole("button", { name: "Scene", exact: true }),
+    ).toHaveCount(0);
+    await page.getByRole("button", { name: "Hide scenes of Chapter 2" }).click();
+    await expect(sceneList(page, "Chapter 2")).toHaveCount(0);
   });
 });
 

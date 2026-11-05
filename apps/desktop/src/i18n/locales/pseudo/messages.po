@@ -2247,6 +2247,11 @@ msgstr ""
 msgid "Hide Others"
 msgstr ""
 
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "Hide scenes of {0}"
+msgstr ""
+
 #: src/app/shell/EntryList.tsx
 msgid "History"
 msgstr ""
@@ -3974,6 +3979,10 @@ msgstr ""
 msgid "Scenes"
 msgstr ""
 
+#: src/app/scenes/SceneList.tsx
+msgid "Scenes in {chapter}"
+msgstr ""
+
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
 msgstr ""
@@ -4115,6 +4124,11 @@ msgstr ""
 
 #: src/app/export/PrintPreview.tsx
 msgid "Show margins"
+msgstr ""
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "Show scenes of {0}"
 msgstr ""
 
 #: src/app/export/PrintPreview.tsx

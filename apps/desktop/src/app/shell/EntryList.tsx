@@ -13,6 +13,8 @@ import {
   ArrowDown,
   ArrowUp,
   Check,
+  ChevronDown,
+  ChevronRight,
   Ellipsis,
   GripVertical,
   History,
@@ -49,8 +51,12 @@ interface ListProps {
   setHistory: (p: HistoryPage) => void;
   setIcon: (p: IconPage) => void;
   onNavigate?: () => void;
-  /** What sits indented under the open row (the chapter's scenes); nothing shows under the other rows. */
-  underCurrent?: ReactNode;
+  /** What sits indented under a row (a chapter's scenes); it shows for the rows in `openRows`. */
+  underRow?: (id: string) => ReactNode;
+  /** The rows that are showing what sits under them (chapters start closed unless they are the open page). */
+  openRows?: Set<string>;
+  /** Present on chapters: the chevron that opens and closes a row's scenes. */
+  onToggleRow?: (id: string) => void;
 }
 
 /** One section of the book (front matter, chapters or back matter): the same row, rename, reorder and trash actions in each. */
@@ -66,7 +72,9 @@ export function EntryList({
   setHistory,
   setIcon,
   onNavigate,
-  underCurrent,
+  underRow,
+  openRows,
+  onToggleRow,
 }: ListProps) {
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
@@ -158,8 +166,27 @@ export function EntryList({
               )}
             >
               {drag && drag.at === i && <DropLine />}
-              {drag && drag.at === entries.length && i === last && <DropLine below />}
+              {drag && drag.at === entries.length && i === last && <DropLine below />}{" "}
               <div className="flex items-center gap-1 ps-1">
+                {onToggleRow && (
+                  <button
+                    type="button"
+                    aria-expanded={openRows?.has(c.id) ?? false}
+                    aria-label={
+                      openRows?.has(c.id)
+                        ? t`Hide scenes of ${c.title}`
+                        : t`Show scenes of ${c.title}`
+                    }
+                    onClick={() => onToggleRow(c.id)}
+                    className="flex size-5 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent max-md:size-11"
+                  >
+                    {openRows?.has(c.id) ? (
+                      <ChevronDown size={14} aria-hidden />
+                    ) : (
+                      <ChevronRight size={14} aria-hidden />
+                    )}
+                  </button>
+                )}
                 <button
                   type="button"
                   data-grip
@@ -463,7 +490,7 @@ export function EntryList({
                   </M.Portal>
                 </M.Root>
               </div>
-              {current && underCurrent}
+              {underRow && openRows?.has(c.id) && underRow(c.id)}
             </li>
           );
         })}

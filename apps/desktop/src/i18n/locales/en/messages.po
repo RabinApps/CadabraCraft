@@ -2249,6 +2249,11 @@ msgstr "Hide from contents"
 msgid "Hide Others"
 msgstr "Hide Others"
 
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "Hide scenes of {0}"
+msgstr "Hide scenes of {0}"
+
 #: src/app/shell/EntryList.tsx
 msgid "History"
 msgstr "History"
@@ -3976,6 +3981,10 @@ msgstr "Scene title"
 msgid "Scenes"
 msgstr "Scenes"
 
+#: src/app/scenes/SceneList.tsx
+msgid "Scenes in {chapter}"
+msgstr "Scenes in {chapter}"
+
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
 msgstr "Scroll"
@@ -4118,6 +4127,11 @@ msgstr "Show in contents"
 #: src/app/export/PrintPreview.tsx
 msgid "Show margins"
 msgstr "Show margins"
+
+#. placeholder {0}: c.title
+#: src/app/shell/EntryList.tsx
+msgid "Show scenes of {0}"
+msgstr "Show scenes of {0}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Showing an approximate layout, because the real one could not be typeset:"
