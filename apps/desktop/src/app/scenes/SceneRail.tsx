@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useEffect, useId } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { X } from "lucide-react";
 import {
@@ -9,9 +9,11 @@ import {
   MAX_SCENE_TITLE,
   SCENE_STATUSES,
 } from "@cadabracraft/editor-schema";
-import { sceneProgress, sceneRow, type SceneStatus } from "../../lib/scenes";
+import type { CodexEntry } from "@cadabracraft/format";
+import { sceneProgress, sceneRow, type SceneRow, type SceneStatus } from "../../lib/scenes";
 import { useSceneEditing } from "../../lib/sceneEditing";
 import { useProject } from "../../state/project/index";
+import { useCodex } from "../../state/codex";
 import { useSceneView } from "../../state/sceneView";
 import { Button, IconButton } from "../../ui/Button";
 import { Chip } from "../../ui/Chip";
@@ -24,6 +26,71 @@ const pillTone = {
   success: "bg-success-soft text-success",
   none: "bg-raised text-ink-muted",
 };
+
+const castButtonClass =
+  "inline-flex items-center gap-1 rounded-full border border-border-strong bg-surface px-2.5 py-1 text-caption text-ink hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent";
+
+/**
+ * The codex entries a scene names. Chips come off with a click, and the menu adds any entry the scene does not have yet; a book
+ * with no codex shows nothing rather than an empty picker.
+ */
+function CastField({
+  scene,
+  entries,
+  onChange,
+}: {
+  scene: SceneRow;
+  entries: CodexEntry[];
+  onChange: (cast: string[]) => void;
+}) {
+  const { t } = useLingui();
+  const cast = scene.cast
+    .map((id) => ({ id, entry: entries.find((e) => e.id === id) }))
+    .filter((x): x is { id: string; entry: CodexEntry } => x.entry !== undefined);
+  const available = entries.filter((e) => !scene.cast.includes(e.id));
+  if (entries.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-xs font-semibold text-ink-muted">{t`Cast`}</span>
+      {cast.length === 0 ? (
+        <p className="text-caption text-ink-muted">{t`No one from the codex yet.`}</p>
+      ) : (
+        <ul aria-label={t`Cast`} className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+          {cast.map(({ id, entry }) => (
+            <li key={id}>
+              <button
+                type="button"
+                aria-label={t`Remove ${entry.name} from the cast`}
+                className={castButtonClass}
+                onClick={() => onChange(scene.cast.filter((x) => x !== id))}
+              >
+                {entry.name}
+                <span aria-hidden>×</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {available.length > 0 && (
+        <select
+          aria-label={t`Add to cast`}
+          value=""
+          onChange={(e) => {
+            if (e.target.value) onChange([...scene.cast, e.target.value]);
+          }}
+          className="w-full rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          <option value="">{t`Add to cast`}</option>
+          {available.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.name}
+            </option>
+          ))}
+        </select>
+      )}
+    </div>
+  );
+}
 
 /**
  * The scene rail: the notes of the scene the sidebar is pointing at — its state, who it follows, how far the target is, the
@@ -38,6 +105,11 @@ export function SceneRail({ onClose }: { onClose?: () => void }) {
   const show = useSceneView((s) => s.show);
   const update = useSceneEditing((s) => s.update);
   const open = useSceneEditing((s) => s.open);
+  const root = useProject((s) => s.root);
+  const entries = useCodex((s) => s.entries);
+  useEffect(() => {
+    if (root) void useCodex.getState().load(root);
+  }, [root]);
   const scene = sceneRow(doc, active);
   if (!scene) return null;
   const save = (attrs: Record<string, unknown>) => update?.(scene.id, attrs);
@@ -107,6 +179,7 @@ export function SceneRail({ onClose }: { onClose?: () => void }) {
           onBlur={(e) => save({ label: e.target.value.trim() })}
         />
       </div>
+      <CastField scene={scene} entries={entries} onChange={(cast) => save({ cast })} />
       <Field
         key={`target-${scene.id}`}
         label={t`Target words`}

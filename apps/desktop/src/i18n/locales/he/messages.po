@@ -605,6 +605,10 @@ msgstr "הוספת שורה מתחת"
 msgid "Add to book"
 msgstr "הוספה לספר"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Add to cast"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
 msgstr "נוסף כעמוד הראשון, עם עמוד ריק מאחוריו, אלא אם תכבה זאת בחלון הייצוא. מספר העמודים למעלה אינו כולל אותם."
@@ -1001,6 +1005,10 @@ msgstr "לא ניתן לעקוב אחר שינויים ב-{0} שנעשים מח�
 #: src/editor/ToolbarDialogs.tsx
 msgid "Caption"
 msgstr "כיתוב"
+
+#: src/app/scenes/SceneRail.tsx
+msgid "Cast"
+msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Castle"
@@ -3049,6 +3057,10 @@ msgstr "ללא מקש"
 msgid "No matches"
 msgstr "אין התאמות"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "No one from the codex yet."
+msgstr ""
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "No open comments on this page."
 msgstr ""
@@ -3722,6 +3734,11 @@ msgstr "הסרת {0}"
 #: src/app/home/Dashboard.tsx
 msgid "Remove {0} from recent projects"
 msgstr "הסרת {0} מהפרויקטים האחרונים"
+
+#. placeholder {0}: entry.name
+#: src/app/scenes/SceneRail.tsx
+msgid "Remove {0} from the cast"
+msgstr ""
 
 #: src/app/toc/TocEditor.tsx
 msgid "Remove change for {label}"

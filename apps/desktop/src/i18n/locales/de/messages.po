@@ -605,6 +605,10 @@ msgstr "Zeile darunter hinzufügen"
 msgid "Add to book"
 msgstr "Zum Buch hinzufügen"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Add to cast"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
 msgstr "Wird als erste Seite hinzugefügt, mit einer leeren Seite dahinter, sofern du das im Exportdialog nicht ausschaltest. Die Seitenzahl oben enthält sie nicht."
@@ -1001,6 +1005,10 @@ msgstr "Änderungen an {0} außerhalb der App können nicht überwacht werden. D
 #: src/editor/ToolbarDialogs.tsx
 msgid "Caption"
 msgstr "Bildunterschrift"
+
+#: src/app/scenes/SceneRail.tsx
+msgid "Cast"
+msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Castle"
@@ -3049,6 +3057,10 @@ msgstr "Keine Taste"
 msgid "No matches"
 msgstr "Keine Treffer"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "No one from the codex yet."
+msgstr ""
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "No open comments on this page."
 msgstr ""
@@ -3722,6 +3734,11 @@ msgstr "{0} entfernen"
 #: src/app/home/Dashboard.tsx
 msgid "Remove {0} from recent projects"
 msgstr "{0} aus den letzten Projekten entfernen"
+
+#. placeholder {0}: entry.name
+#: src/app/scenes/SceneRail.tsx
+msgid "Remove {0} from the cast"
+msgstr ""
 
 #: src/app/toc/TocEditor.tsx
 msgid "Remove change for {label}"
