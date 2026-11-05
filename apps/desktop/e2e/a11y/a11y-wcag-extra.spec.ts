@@ -501,7 +501,11 @@ test.describe("3.2.4 consistent identification", () => {
           const name = (el.getAttribute("aria-label") ?? "").replace(/\s+/g, " ").trim();
           out.push([
             icon,
-            name.replace(/^(Actions for|Reorder|Undo:|Redo:)\s.*$/, "$1").trim() || name,
+            // A row's own number or title is not a different function ("Move chapter 1 up", "Move chapter 2 up").
+            name
+              .replace(/^(Actions for|Reorder|Undo:|Redo:)\s.*$/, "$1")
+              .replace(/\bchapter \d+\b/gi, "chapter")
+              .trim() || name,
           ]);
         }
         return out;
