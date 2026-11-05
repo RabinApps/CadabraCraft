@@ -106,10 +106,12 @@ test("keyboard: the Add page menu opens and selects with the keyboard", async ({
   await page.keyboard.press("Enter");
   await expect(page.getByRole("menu")).toBeVisible();
   await expect(page.getByRole("menuitem").first()).toBeFocused();
+  // The menu opens on Blank page, so two ArrowDowns pass Title page and land on Copyright.
   await page.keyboard.press("ArrowDown");
-  await expect(page.getByRole("menuitem").nth(1)).toBeFocused(); // Enter before focus moves would pick the first item
+  await expect(page.getByRole("menuitem").nth(1)).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("menuitem").nth(2)).toBeFocused(); // Enter before focus moves would pick the first item
   await page.keyboard.press("Enter");
-  // The menu opens on Title page, so one ArrowDown lands on Copyright.
   await expect(sidebar(page).getByRole("button", { name: "Copyright", exact: true })).toBeVisible();
   expect((await manifestOf(page)).frontMatter.map((e: { kind: string }) => e.kind)).toEqual([
     "copyright",

@@ -655,11 +655,23 @@ test("Read mode: the entries are links that scroll the reader to the chapter and
       const top = node.getBoundingClientRect().top;
       return top >= sc.top - 1 && top < sc.top + sc.height / 2;
     });
+  // A chapter's link scrolls to its opening page; the title sits lower on that page (the opener's drop), so measure the page
+  // the title starts on: the last page card that begins at or above it.
+  const pageOf = (el: ReturnType<Page["locator"]>) =>
+    el.evaluate((node) => {
+      const sc = document.querySelector('[data-testid="reading-scroll"]')!.getBoundingClientRect();
+      const y = node.getBoundingClientRect().top;
+      const tops = [...document.querySelectorAll('[data-testid="reading-scroll"] .page-card')]
+        .map((c) => c.getBoundingClientRect().top)
+        .filter((t) => t <= y + 1);
+      const top = Math.max(...tops);
+      return top >= sc.top - 1 && top < sc.top + sc.height / 2;
+    });
   const h = (tag: string, text: string) => page.locator(`.ProseMirror ${tag}`, { hasText: text });
   const toContents = () =>
     sidebar(page).getByRole("button", { name: "Contents", exact: true }).click();
   await readContents(page).getByRole("link", { name: "Calm", exact: true }).first().click();
-  await expect.poll(() => nearTop(h("h1", "Calm"))).toBe(true);
+  await expect.poll(() => pageOf(h("h1", "Calm"))).toBe(true);
   // The contents page again, then an entry for a heading: the reader lands on that heading, not the top of its chapter.
   await toContents();
   await expect(readContents(page)).toBeVisible();
@@ -671,7 +683,7 @@ test("Read mode: the entries are links that scroll the reader to the chapter and
   const storm = readContents(page).getByRole("link", { name: "Storm", exact: true }).first();
   await storm.focus();
   await page.keyboard.press("Enter");
-  await expect.poll(() => nearTop(h("h1", "Storm"))).toBe(true);
+  await expect.poll(() => pageOf(h("h1", "Storm"))).toBe(true);
 });
 
 test("Read mode mirrors the Contents page in a right-to-left book", async ({ page }) => {

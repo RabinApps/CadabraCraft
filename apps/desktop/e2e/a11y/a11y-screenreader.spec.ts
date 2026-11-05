@@ -60,7 +60,7 @@ test("the Export dialog is read as a dialog, with named controls", async ({ page
   await expect(page.getByRole("dialog", { name: "Export book" })).toBeVisible();
   const log = await spoken(page, "[role=dialog]", /^end of dialog/);
   expect(log.join("\n")).toContain("heading, Export book, level 2");
-  expect(log).toContain("radio, Print PDF, not checked, position 2, set size 6");
+  expect(log).toContain("radio, Print PDF, not checked, position 2, set size 7");
   expect(log).toContain("button, Export");
   expect(unnamed(log)).toEqual([]);
 });

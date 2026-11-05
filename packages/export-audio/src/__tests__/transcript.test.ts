@@ -35,6 +35,18 @@ describe("plainTranscript", () => {
   });
 });
 
+describe("plainTranscript, a chapter that ends mid-paragraph", () => {
+  it("keeps the last words when no paragraph pause follows them", () => {
+    const tail = [
+      { text: "One.", pauseAfterMs: 600 },
+      { text: "Trailing words.", pauseAfterMs: 250 },
+    ];
+    expect(plainTranscript("B", [{ title: "X", chunks: tail, durationSec: 1 }])).toBe(
+      "B\n\n\nOne.\n\nTrailing words.\n",
+    );
+  });
+});
+
 describe("WebVTT", () => {
   it("formats timestamps with hours and milliseconds", () => {
     expect(vttTime(0)).toBe("00:00:00.000");

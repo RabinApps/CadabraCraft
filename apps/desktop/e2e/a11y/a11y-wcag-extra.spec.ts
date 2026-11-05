@@ -553,6 +553,8 @@ test.describe("1.3.3 sensory characteristics", () => {
     /^Right-hand page$/,
     // The same book term in the row menu's Page start choice and its announcement.
     /^Start on a right-hand page$/,
+    // The Outline format's hint describes the layout of the exported file (a synopsis under its heading), not where to look in the app.
+    /^A heading for each chapter and scene, the synopsis below it\.$/,
   ];
   for (const { name, open } of screens) {
     test(`no instruction on ${name} points only by place, colour or shape`, async ({ page }) => {
