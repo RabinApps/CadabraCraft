@@ -17,6 +17,8 @@ export interface MarkdownContentsItem {
   entryId?: string;
   /** 0 for a page, 1-3 for a heading; sets the nesting. */
   level: number;
+  /** Display depth under a part divider; absent means `level` sets the nesting. */
+  indent?: number;
   title: string;
   /** Headings: position among the page's headings (`OutlineItem.index` of `extractOutline`). */
   index?: number;

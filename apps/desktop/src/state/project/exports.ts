@@ -232,7 +232,7 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         await flush();
         const { root } = need();
         const { edition, pages, dir, skipped } = await loadExportPages(scope);
-        const chapters = pages.filter((p) => p.section === "chapter");
+        const chapters = pages.filter((p) => p.section === "chapter" && p.kind !== "part");
         // An empty book would write an empty file and still report success.
         if (!chapters.length)
           throw new Error(t`The book has no chapters to export yet. Add a chapter first.`);

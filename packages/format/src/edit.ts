@@ -6,10 +6,10 @@ import {
   isFrontMatterKind,
   type MatterKind,
 } from "@cadabracraft/shared";
-import { chapterFileName, matterFileName } from "./names";
+import { chapterFileName, matterFileName, partFileName } from "./names";
 import { sourceEdition } from "./editions";
 import { unlinkEntry } from "./references";
-import type { Manifest, EditionEntry } from "./manifest";
+import { chaptersOf, type Manifest, type EditionEntry } from "./manifest";
 
 /**
  * Pure manifest edits for the chapter tree. They return a new manifest and never touch disk.
@@ -32,12 +32,12 @@ const usedFiles = (m: Manifest): Set<string> =>
 
 function uniqueId(m: Manifest): string {
   const used = new Set(allEntries(m).map((e) => e.id));
-  for (let i = m.chapters.length + 1; ; i++) if (!used.has(`ch-${i}`)) return `ch-${i}`;
+  for (let i = chaptersOf(m).length + 1; ; i++) if (!used.has(`ch-${i}`)) return `ch-${i}`;
 }
 
 function freeFile(m: Manifest, title: string): string {
   const used = usedFiles(m);
-  for (let pos = m.chapters.length + 1; ; pos++) {
+  for (let pos = chaptersOf(m).length + 1; ; pos++) {
     const f = `manuscript/${chapterFileName(pos, title)}`;
     if (!used.has(f)) return f;
   }
@@ -54,6 +54,125 @@ export function addChapter(
     files: { [lang]: freeFile(m, title) },
   };
   return { manifest: { ...m, chapters: [...m.chapters, entry] }, entry };
+}
+
+function partEntry(m: Manifest, title: string): EditionEntry {
+  const lang = sourceOf(m);
+  const used = allEntries(m);
+  const files = usedFiles(m);
+  let n = 1;
+  while (used.some((e) => e.id === `pt-${n}`)) n++;
+  let pos = m.chapters.filter((e) => e.kind === "part").length + 1;
+  while (files.has(`manuscript/${partFileName(pos, title)}`)) pos++;
+  const entry: EditionEntry = {
+    id: `pt-${n}`,
+    kind: "part",
+    titles: { [lang]: title },
+    files: { [lang]: `manuscript/${partFileName(pos, title)}` },
+  };
+  return entry;
+}
+
+/**
+ * Adds a part divider page to the chapters list (formatVersion 11). It goes after `afterId` when that page is in the chapters list
+ * (or after its whole group when `afterId` is itself a part), otherwise at the end. The entries after it join the new part until the
+ * next part divider: membership is positional, so no chapter carries a part id.
+ */
+export function addPart(
+  m: Manifest,
+  title: string,
+  afterId?: string,
+): { manifest: Manifest; entry: EditionEntry } {
+  const entry = partEntry(m, title);
+  const list = [...m.chapters];
+  const at = afterId === undefined ? -1 : list.findIndex((e) => e.id === afterId);
+  let insert = at < 0 ? list.length : at + 1;
+  // A part opened from the list adds the next part after its own group, not between it and its first chapter.
+  if (at >= 0 && list[at]?.kind === "part")
+    while (insert < list.length && list[insert]?.kind !== "part") insert++;
+  list.splice(insert, 0, entry);
+  return { manifest: { ...m, chapters: list }, entry };
+}
+
+/** Adds a part divider before `beforeId`, so that page and the entries after it join the new part. Missing: at the end. */
+export function addPartBefore(
+  m: Manifest,
+  title: string,
+  beforeId?: string,
+): { manifest: Manifest; entry: EditionEntry } {
+  const entry = partEntry(m, title);
+  const list = [...m.chapters];
+  const at = beforeId === undefined ? -1 : list.findIndex((e) => e.id === beforeId);
+  list.splice(at < 0 ? list.length : at, 0, entry);
+  return { manifest: { ...m, chapters: list }, entry };
+}
+
+/** A part and the entries that belong to it: everything up to the next part divider. `part` is absent for chapters before the first part. */
+export interface PartGroup {
+  part?: EditionEntry;
+  entries: EditionEntry[];
+}
+
+/** The chapters list as the sidebar shows it: ungrouped entries first, then one group per part. Empty ungrouped groups are left out. */
+export function partGroups(chapters: readonly EditionEntry[]): PartGroup[] {
+  const groups: PartGroup[] = [{ entries: [] }];
+  for (const entry of chapters) {
+    if (entry.kind === "part") groups.push({ part: entry, entries: [] });
+    else groups[groups.length - 1]!.entries.push(entry);
+  }
+  return groups.filter((g) => g.part !== undefined || g.entries.length > 0);
+}
+
+/** The start and end (exclusive) of a part's block in the chapters list, or null when `id` is not a part. */
+function partBlock(m: Manifest, id: string): { start: number; end: number } | null {
+  const start = m.chapters.findIndex((e) => e.id === id);
+  if (start < 0 || m.chapters[start]!.kind !== "part") return null;
+  let end = start + 1;
+  while (end < m.chapters.length && m.chapters[end]!.kind !== "part") end++;
+  return { start, end };
+}
+
+/**
+ * Moves a part and its chapters past the previous (`delta < 0`) or next part, clamped to the first and last part. Moving a part past
+ * the chapters before the first part would put them inside it, so that move is a no-op.
+ */
+export function movePart(m: Manifest, id: string, delta: number): Manifest {
+  const block = partBlock(m, id);
+  if (!block || delta === 0) return m;
+  const list = [...m.chapters];
+  if (delta < 0) {
+    const prev = list
+      .slice(0, block.start)
+      .map((e) => e.kind === "part")
+      .lastIndexOf(true);
+    if (prev < 0) return m;
+    const before = list.slice(0, prev);
+    const current = list.slice(block.start, block.end);
+    const previous = list.slice(prev, block.start);
+    return { ...m, chapters: [...before, ...current, ...previous, ...list.slice(block.end)] };
+  }
+  if (block.end >= list.length) return m;
+  let nextEnd = block.end + 1;
+  while (nextEnd < list.length && list[nextEnd]!.kind !== "part") nextEnd++;
+  return {
+    ...m,
+    chapters: [
+      ...list.slice(0, block.start),
+      ...list.slice(block.end, nextEnd),
+      ...list.slice(block.start, block.end),
+      ...list.slice(nextEnd),
+    ],
+  };
+}
+
+/** Removes only the part divider; its chapters stay in the book, joining the previous part or becoming ungrouped. */
+export function removePart(m: Manifest, id: string): { manifest: Manifest; removed: EditionEntry } {
+  const removed = m.chapters.find((c) => c.id === id && c.kind === "part");
+  if (!removed) throw new Error(`no part ${id}`);
+  return {
+    manifest: unlinkEntry({ ...m, chapters: m.chapters.filter((c) => c.id !== id) }, id),
+    removed,
+  };
 }
 
 /** Renaming changes the source title only; the file keeps its name so sync never sees a rename. */
@@ -87,7 +206,8 @@ export function setEntryIcon(m: Manifest, id: string, icon: string | null): Mani
 
 /** Sets or clears (`null` follows the book) a chapter's own big-first-letter choice. */
 export function setChapterDropCap(m: Manifest, id: string, dropCap: boolean | null): Manifest {
-  if (!m.chapters.some((c) => c.id === id)) throw new Error(`no chapter ${id}`);
+  const entry = m.chapters.find((c) => c.id === id);
+  if (!entry || entry.kind === "part") throw new Error(`no chapter ${id}`);
   return {
     ...m,
     chapters: m.chapters.map((c) => {
@@ -217,7 +337,11 @@ function addMatter(
     after >= 0
       ? after + 1
       : front
-        ? list.findIndex((e) => order.indexOf(e.kind ?? "custom") > order.indexOf(kind))
+        ? list.findIndex(
+            (e) =>
+              order.indexOf(e.kind === "part" ? "custom" : (e.kind ?? "custom")) >
+              order.indexOf(kind),
+          )
         : -1;
   list.splice(at < 0 ? list.length : at, 0, entry);
   return { manifest: { ...m, [section]: list }, entry };
@@ -313,6 +437,10 @@ function sectionOfFile(file: string): MatterSection | "chapters" | null {
         : null;
 }
 
+/** A part page file, in the source folder or a language folder: chapter file names always start with a number. */
+const isPartFile = (file: string): boolean =>
+  /^manuscript\/(?:[^/]+\/)?part-[^/]+\.json$/.test(file);
+
 /**
  * Puts a restored source file back in the manifest: at the end of the section its folder says (chapters, front matter or
  * back matter), under a fresh id. Matter pages come back as "custom" because the kind is not stored in the file.
@@ -341,7 +469,11 @@ export function restoreEntry(
       ...Object.fromEntries(translations.map((x) => [x.language, x.title])),
     },
     files: { [lang]: file, ...Object.fromEntries(translations.map((x) => [x.language, x.file])) },
-    ...(section === "chapters" ? {} : { kind: "custom" as MatterKind }),
+    ...(section === "chapters"
+      ? isPartFile(file)
+        ? { kind: "part" as const }
+        : {}
+      : { kind: "custom" as MatterKind }),
   };
   const marked = translations.filter((x) => x.untranslated).map((x) => x.language);
   if (marked.length) entry.untranslated = marked;

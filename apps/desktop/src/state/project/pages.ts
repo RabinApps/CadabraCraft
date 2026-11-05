@@ -3,11 +3,15 @@ import {
   addBackMatter,
   addChapter,
   addFrontMatter,
+  addPart as insertPart,
+  addPartBefore as insertPartBefore,
   addBlank as insertBlank,
   moveChapter,
+  movePart as movePartIn,
   moveMatter,
   readingOrder,
   removeChapter,
+  removePart as removePartIn,
   removeMatter,
   renameChapter,
   renameMatter,
@@ -132,6 +136,28 @@ export const createPageActions = (ctx: Ctx): PageActions => {
       );
       await load(entry.id);
     },
+    async addPart(title) {
+      await flush();
+      const { root, manifest } = need();
+      const { manifest: next, entry } = insertPart(manifest, title, get().currentId ?? undefined);
+      const file = sourceFile(entry, manifest.editions);
+      const w = await bridge.writeFile(root, file, JSON.stringify(emptyDoc(title), null, 2), null);
+      set({ hashes: { ...get().hashes, [file]: w.hash } });
+      await saveManifest(next);
+      record({ label: t`Add ${title}`, file: { path: file, added: true } }, manifest, next);
+      await load(entry.id);
+    },
+    async startPart(id, title) {
+      await flush();
+      const { root, manifest } = need();
+      const { manifest: next, entry } = insertPartBefore(manifest, title, id);
+      const file = sourceFile(entry, manifest.editions);
+      const w = await bridge.writeFile(root, file, JSON.stringify(emptyDoc(title), null, 2), null);
+      set({ hashes: { ...get().hashes, [file]: w.hash } });
+      await saveManifest(next);
+      record({ label: t`Add ${title}`, file: { path: file, added: true } }, manifest, next);
+      await load(entry.id);
+    },
     async addMatter(section, kind, title) {
       await flush();
       const { root, manifest } = need();
@@ -197,8 +223,23 @@ export const createPageActions = (ctx: Ctx): PageActions => {
     },
     async move(id, delta) {
       const m = need().manifest;
+      const entry = m.chapters.find((e) => e.id === id);
+      if (entry?.kind === "part") {
+        const nextPart = movePartIn(m, id, delta);
+        if (nextPart === m) return;
+        await saveManifest(nextPart);
+        record({ label: t`Move ${sourceTitleById(m, id)!}` }, m, nextPart);
+        return;
+      }
       const next =
         sectionOf(m, id) === "chapter" ? moveChapter(m, id, delta) : moveMatter(m, id, delta);
+      await saveManifest(next);
+      record({ label: t`Move ${sourceTitleById(m, id)!}` }, m, next);
+    },
+    async movePart(id, delta) {
+      const m = need().manifest;
+      const next = movePartIn(m, id, delta);
+      if (next === m) return;
       await saveManifest(next);
       record({ label: t`Move ${sourceTitleById(m, id)!}` }, m, next);
     },
@@ -230,9 +271,12 @@ export const createPageActions = (ctx: Ctx): PageActions => {
       await flush(); // typing in the page being removed would otherwise be written back after it went to trash
       const { root, manifest } = need();
       const currentId = get().currentId;
+      const part = manifest.chapters.find((e) => e.id === id)?.kind === "part";
       const { manifest: next, removed } =
         sectionOf(manifest, id) === "chapter"
-          ? removeChapter(manifest, id)
+          ? part
+            ? removePartIn(manifest, id)
+            : removeChapter(manifest, id)
           : removeMatter(manifest, id);
       const links = linksOf(manifest, id);
       await saveManifest(next);

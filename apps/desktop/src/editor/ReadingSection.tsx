@@ -172,10 +172,10 @@ function ReadingChapter({
         editor={editor}
         look={look}
         zoom={zoom}
-        section={page.kind === "blank" ? "front" : page.section}
+        section={page.kind === "blank" || page.kind === "part" ? "front" : page.section}
         chapterTitle={page.title}
         chapterNumber={chapterNumber}
-        dropCap={page.dropCap}
+        dropCap={page.kind === "part" ? false : page.dropCap}
         verticalCenter={centred}
         bare={pageIsBare(centred, page.section, page.kind)}
         kind={page.kind}

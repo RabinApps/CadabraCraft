@@ -12,7 +12,7 @@ import {
 } from "@cadabracraft/format";
 import { ProjectFsError, imageExt, looksLike, readAsset } from "@cadabracraft/project-fs";
 import { DEFAULT_TEMPLATE_ID, hasTemplate } from "@cadabracraft/templates";
-import { isAssetPath, type ChapterDoc, type MatterKind, type Section } from "@cadabracraft/shared";
+import { isAssetPath, type ChapterDoc, type EntryKind, type Section } from "@cadabracraft/shared";
 import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { imageSources, schemaProblem } from "./doc";
 import { ToolError } from "./errors";
@@ -36,7 +36,7 @@ export interface Book {
     dropCap?: boolean;
     /** Where the page sits and what it is (matter pages only), so the exporters lay front and back matter out as such. */
     section?: Section;
-    kind?: MatterKind;
+    kind?: EntryKind;
     /** The page's own vertical position choice (matter pages only); absent follows the template's kinds. */
     verticalCenter?: boolean;
   }[];

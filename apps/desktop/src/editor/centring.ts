@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import { resolveVerticalCenter, type Template } from "@cadabracraft/templates";
-import type { MatterKind } from "@cadabracraft/shared";
+import type { EntryKind } from "@cadabracraft/shared";
 import { centreOffsetPx } from "../lib/pageLayout";
 
 /**
@@ -10,15 +10,17 @@ import { centreOffsetPx } from "../lib/pageLayout";
 export function pageIsCentred(
   look: { print: Template["print"] },
   section: "front" | "chapter" | "back",
-  kind: MatterKind | undefined,
+  kind: EntryKind | undefined,
   choice: { verticalCenter?: boolean | undefined },
 ): boolean {
+  // A part divider is centred between the margins and has no chapter opening, whatever the template says.
+  if (kind === "part") return true;
   const own = choice.verticalCenter === undefined ? {} : { verticalCenter: choice.verticalCenter };
   return resolveVerticalCenter(look, section === "chapter" ? undefined : (kind ?? "custom"), own);
 }
 
 /** Kinds the PDF sets with a page layout of their own (no chapter opening: no sink, ornament or label above the heading). */
-const OWN_LAYOUT_KINDS: readonly (MatterKind | undefined)[] = [
+const OWN_LAYOUT_KINDS: readonly (EntryKind | undefined)[] = [
   "title-page",
   "dedication",
   "epigraph",
@@ -29,7 +31,7 @@ const OWN_LAYOUT_KINDS: readonly (MatterKind | undefined)[] = [
  * Whether a page has no chapter opening above its first heading: the title page, dedication and epigraph (the PDF's own matter
  * layouts) and any page the author centres (the PDF sets it as a centred page too).
  */
-export const pageIsBare = (centred: boolean, section: string, kind: MatterKind | undefined) =>
+export const pageIsBare = (centred: boolean, section: string, kind: EntryKind | undefined) =>
   centred || (section !== "chapter" && OWN_LAYOUT_KINDS.includes(kind));
 
 /**
@@ -37,22 +39,23 @@ export const pageIsBare = (centred: boolean, section: string, kind: MatterKind |
  * It follows the page's choice, not the page count, so a page that outgrows one page keeps the block and loses only the vertical
  * centring, as in the PDF. A title page is a layout of its own (full width) and is never this block.
  */
-export const pageIsNarrow = (centred: boolean, section: string, kind: MatterKind | undefined) =>
-  centred && section !== "chapter" && kind !== "title-page";
+export const pageIsNarrow = (centred: boolean, section: string, kind: EntryKind | undefined) =>
+  centred && (section !== "chapter" || kind === "part") && kind !== "title-page";
 
 /**
  * Whether the page is drawn as the PDF's copyright page: the printer's imprint at the foot of the text box, in 0.85 em with 0.7 em
  * between paragraphs (`copyright-page`). No other kind has that layout, and a chapter never does.
  */
-export const pageIsCopyright = (section: string, kind: MatterKind | undefined) =>
+export const pageIsCopyright = (section: string, kind: EntryKind | undefined) =>
   section !== "chapter" && kind === "copyright";
 
 /** Pages the PDF lays out without a running head at all: the title page (and its copyright page), the contents and any centred page. */
-const HEADLESS_KINDS: readonly (MatterKind | undefined)[] = [
+const HEADLESS_KINDS: readonly (EntryKind | undefined)[] = [
   "title-page",
   "copyright",
   "contents",
   "blank",
+  "part",
 ];
 
 /**
@@ -62,7 +65,7 @@ const HEADLESS_KINDS: readonly (MatterKind | undefined)[] = [
  * skips the header on the page where `chapter-start` sits, and `PageStack` asks for a head only on the cards after the entry's first
  * one. A chapter heads its pages whatever these rules say.
  */
-export const matterHeadsOn = (centred: boolean, section: string, kind: MatterKind | undefined) =>
+export const matterHeadsOn = (centred: boolean, section: string, kind: EntryKind | undefined) =>
   section !== "chapter" && !centred && !HEADLESS_KINDS.includes(kind);
 
 /**

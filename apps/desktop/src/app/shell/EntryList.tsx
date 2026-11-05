@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
+import { plural } from "@lingui/core/macro";
 import {
   ArrowDown,
   ArrowUp,
@@ -10,6 +11,7 @@ import {
   Ellipsis,
   GripVertical,
   History,
+  Layers,
   Pencil,
   Shapes,
   Trash2,
@@ -72,6 +74,27 @@ export function EntryList({
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
   const last = entries.length - 1;
+  // A part divider is a row of the chapters list: the entries after it belong to it until the next divider. Parts are not dragged
+  // (that would move the divider alone and regroup its chapters): their menu moves the whole group with `actions.movePart`.
+  const partIndexes = entries.flatMap((e, i) => (e.kind === "part" ? [i] : []));
+  const counts = new Map<string, number>();
+  let group: string | undefined;
+  entries.forEach((e) => {
+    if (e.kind === "part") {
+      group = e.id;
+      counts.set(e.id, 0);
+    } else if (group !== undefined && e.kind !== "blank") {
+      counts.set(group, (counts.get(group) ?? 0) + 1);
+    }
+  });
+  let grouped = false;
+  const depth = entries.map((e) => {
+    if (e.kind === "part") {
+      grouped = true;
+      return 0;
+    }
+    return grouped ? 1 : 0;
+  });
   /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
   const afterClose = useRef<(() => void) | null>(null);
   const moveFocus = (f: () => void) => () => void (afterClose.current = f);
@@ -102,6 +125,19 @@ export function EntryList({
   /** Moves a page one place and says where it went, or that it cannot go further. */
   const step = (i: number, delta: -1 | 1) => {
     const title = entries[i]!.title;
+    if (entries[i]!.kind === "part") {
+      const pi = partIndexes.indexOf(i);
+      if (pi + delta < 0) return setSaid(t`${title} is already the first part`);
+      if (pi + delta > partIndexes.length - 1) return setSaid(t`${title} is already the last part`);
+      attempt(actions.movePart(entries[i]!.id, delta));
+      const partNo = delta < 0 ? pi : pi + 2;
+      setSaid(
+        delta < 0
+          ? t`Moved ${title} up to part ${partNo} of ${partIndexes.length}`
+          : t`Moved ${title} down to part ${partNo} of ${partIndexes.length}`,
+      );
+      return;
+    }
     if (i + delta < 0) return setSaid(t`${title} is already first`);
     if (i + delta > last) return setSaid(t`${title} is already last`);
     attempt(actions.move(entries[i]!.id, delta));
@@ -132,11 +168,15 @@ export function EntryList({
                 "group relative flex flex-col rounded-md",
                 current && "bg-accent-soft",
                 drag?.id === c.id && "opacity-40",
+                c.kind === "part" && "mt-2 border-t border-border pt-1",
               )}
             >
               {drag && drag.at === i && <DropLine />}
               {drag && drag.at === entries.length && i === last && <DropLine below />}{" "}
-              <div className="flex items-center gap-1 ps-1">
+              <div
+                className="flex items-center gap-1 ps-1"
+                style={depth[i] ? { paddingInlineStart: "1.25rem" } : undefined}
+              >
                 {onToggleRow && (
                   <button
                     type="button"
@@ -156,18 +196,27 @@ export function EntryList({
                     )}
                   </button>
                 )}
-                <button
-                  type="button"
-                  data-grip
-                  aria-label={t`Reorder ${c.title}`}
-                  aria-keyshortcuts="ArrowUp ArrowDown"
-                  aria-describedby={gripHelp}
-                  onPointerDown={grab(c.id, i)}
-                  onKeyDown={gripKeys(i)}
-                  className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
-                >
-                  <GripVertical size={16} aria-hidden />
-                </button>
+                {c.kind === "part" ? (
+                  <span
+                    aria-hidden
+                    className="flex size-6 shrink-0 items-center justify-center text-ink-muted"
+                  >
+                    <Layers size={15} />
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    data-grip
+                    aria-label={t`Reorder ${c.title}`}
+                    aria-keyshortcuts="ArrowUp ArrowDown"
+                    aria-describedby={gripHelp}
+                    onPointerDown={grab(c.id, i)}
+                    onKeyDown={gripKeys(i)}
+                    className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
+                  >
+                    <GripVertical size={16} aria-hidden />
+                  </button>
+                )}
                 {editing?.id === c.id ? (
                   <input
                     autoFocus
@@ -205,7 +254,7 @@ export function EntryList({
                     aria-current={current ? "true" : undefined}
                     className={cx(
                       "min-w-0 flex-1 truncate rounded-md px-2 py-2.5 text-start text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent md:py-2",
-                      current && "font-semibold",
+                      (current || c.kind === "part") && "font-semibold",
                     )}
                     onClick={() => {
                       attempt(actions.selectChapter(c.id));
@@ -216,6 +265,14 @@ export function EntryList({
                       <Icon size={14} aria-hidden className="me-2 inline shrink-0 align-[-2px]" />
                     )}
                     {c.title}
+                    {c.kind === "part" && (counts.get(c.id) ?? 0) > 0 && (
+                      <span className="ms-2 text-xs font-normal text-ink-muted">
+                        {plural(counts.get(c.id) ?? 0, {
+                          one: "# chapter",
+                          other: "# chapters",
+                        })}
+                      </span>
+                    )}
                   </button>
                 )}
                 {!c.translated && <Badge tone="warn">{t`Not translated yet`}</Badge>}
@@ -265,23 +322,38 @@ export function EntryList({
                           </M.Item>
                         </>
                       )}
+                      {chapters && c.kind !== "part" && c.kind !== "blank" && (
+                        <M.Item
+                          className={menuItemClass()}
+                          onSelect={() =>
+                            attempt(actions.startPart(c.id, t`Part ${partIndexes.length + 1}`))
+                          }
+                        >
+                          <Layers size={14} aria-hidden />
+                          {t`Start part here`}
+                        </M.Item>
+                      )}
                       <M.Item
                         className={menuItemClass()}
-                        disabled={i === 0}
+                        disabled={c.kind === "part" ? partIndexes.indexOf(i) <= 0 : i === 0}
                         onSelect={() => step(i, -1)}
                       >
                         <ArrowUp size={14} aria-hidden />
-                        {t`Move up`}
+                        {c.kind === "part" ? t`Move part up` : t`Move up`}
                       </M.Item>
                       <M.Item
                         className={menuItemClass()}
-                        disabled={i === last}
+                        disabled={
+                          c.kind === "part"
+                            ? partIndexes.indexOf(i) === partIndexes.length - 1
+                            : i === last
+                        }
                         onSelect={() => step(i, 1)}
                       >
                         <ArrowDown size={14} aria-hidden />
-                        {t`Move down`}
+                        {c.kind === "part" ? t`Move part down` : t`Move down`}
                       </M.Item>
-                      {chapters && (
+                      {chapters && c.kind !== "part" && (
                         <>
                           <M.Separator className="my-1 h-px bg-border" />
                           <>
@@ -459,7 +531,10 @@ export function EntryList({
                   </M.Portal>
                 </M.Root>
               </div>
-              {underRow && openRows?.has(c.id) && underRow(c.id)}
+              {c.kind === "part" && counts.get(c.id) === 0 && (
+                <p className="m-0 px-2 pb-1.5 ps-9 text-xs text-ink-muted">{t`No chapters yet`}</p>
+              )}
+              {c.kind !== "part" && underRow && openRows?.has(c.id) && underRow(c.id)}
             </li>
           );
         })}

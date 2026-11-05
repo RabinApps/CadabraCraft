@@ -70,6 +70,16 @@ const spine = (f: ReturnType<typeof files>) =>
 const chapters0 = [page("ch-1", "One"), page("ch-2", "Two"), page("bm-1", "Thanks")];
 
 describe("EPUB contents page", () => {
+  it("writes a part divider as an epub:type part page and keeps it in the spine and nav", () => {
+    const withPart: EpubChapter[] = [
+      { id: "pt-1", title: "Part One", kind: "part", doc: doc(h(1, "Part One")) },
+      ...book(),
+    ];
+    const f = files(withPart, [page("pt-1", "Part One"), ...chapters0]);
+    expect(text(f, "OEBPS/pt-1.xhtml")).toContain('epub:type="bodymatter part" class="part-page"');
+    expect(spine(f)).toContain("pt-1");
+    expect(navList(f)).toContain('<a href="pt-1.xhtml">Part One</a>');
+  });
   it("writes a linked list on the contents page, at its place in the reading order", () => {
     const f = files(book(), chapters0);
     expect(spine(f)).toEqual(["fm-1", "toc", "ch-1", "ch-2", "bm-1", "nav"]);
@@ -110,6 +120,26 @@ describe("EPUB contents page", () => {
     // The anchors exist in the chapter files, counting the empty heading in chapter two.
     expect(text(f, "OEBPS/ch-1.xhtml")).toContain('<h2 id="h-3">Calm</h2>');
     expect(text(f, "OEBPS/ch-2.xhtml")).toContain('<h2 id="h-1"></h2>\n<h2 id="h-2">Storm</h2>');
+  });
+
+  it("nests a part's chapters and their headings by indent", () => {
+    const chapters: EpubChapter[] = [
+      { id: "pt-1", title: "Part One", kind: "part", doc: doc(h(1, "Part One")) },
+      ...book(),
+    ];
+    const items: ContentsItem[] = [
+      page("pt-1", "Part One"),
+      { ...page("ch-1", "One"), indent: 1 },
+      { ...heading("ch-1", 1, "One", 0), indent: 2 },
+      { ...heading("ch-1", 2, "Storm", 1), indent: 3 },
+    ];
+    const f = files(chapters, items);
+    expect(text(f, "OEBPS/toc.xhtml")).toContain(
+      '<ol role="list"><li><a href="pt-1.xhtml">Part One</a><ol role="list"><li><a href="ch-1.xhtml">One</a><ol role="list"><li><a href="ch-1.xhtml#h-0">One</a><ol role="list"><li><a href="ch-1.xhtml#h-1">Storm</a></li></ol></li></ol></li></ol></li></ol>',
+    );
+    expect(navList(f)).toContain(
+      '<a href="pt-1.xhtml">Part One</a><ol><li><a href="ch-1.xhtml">One</a>',
+    );
   });
 
   it("does not add heading ids when no contents are given", () => {
@@ -239,7 +269,7 @@ describe("EPUB contents page", () => {
   it("works with a book that has a contents page and the unlisted kinds, for the same kinds the resolver leaves out", () => {
     const f = files(matterBook(), [page("ch-1", "Chapter One")]);
     for (const c of matterBook())
-      if (c.kind && TOC_UNLISTED_KINDS.includes(c.kind))
+      if (c.kind && c.kind !== "part" && TOC_UNLISTED_KINDS.includes(c.kind))
         expect(navList(f)).not.toContain(`${c.id}.xhtml`);
   });
 

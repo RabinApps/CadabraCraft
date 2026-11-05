@@ -62,7 +62,11 @@ export function useToc(entry: EditionEntry, measure = true) {
   const stale = useMemo(() => {
     if (wanted && outlines === null) return [];
     const all = resolveToc(manifest, { ...entry, toc: { ...settings, depth: 3 } }, language, known);
-    return staleOverrides(entry, all);
+    // Parts left out by the switch are not stale: the author did not delete them.
+    const hiddenParts = settings.parts
+      ? []
+      : manifest.chapters.filter((e) => e.kind === "part").map((e) => e.id);
+    return staleOverrides(entry, all, hiddenParts);
   }, [manifest, entry, settings, language, outlines, known, wanted]);
   const rows = useMemo(() => {
     const dangling = new Set(stale.filter((s) => s.kind === "custom").map((s) => s.key));

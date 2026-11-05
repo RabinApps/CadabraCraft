@@ -11,6 +11,7 @@ import {
   resetToc as resetIn,
   setTocDepth as setDepthIn,
   setTocPageNumbers as setPageNumbersIn,
+  setTocParts as setPartsIn,
   showTocItem as showIn,
   TOC_UNLISTED_KINDS,
   type Manifest,
@@ -54,6 +55,7 @@ export const createTocActions = (ctx: Ctx): TocActions => {
       const outlines: Record<string, OutlineItem[]> = {};
       for (const entry of readingOrder(manifest)) {
         if (entry.kind === "contents") continue;
+        if (entry.kind === "part") continue;
         if (entry.kind !== undefined && TOC_UNLISTED_KINDS.includes(entry.kind)) continue;
         const file = entryFile(entry, language);
         const r = file ? await bridge.readFile(root, file) : null;
@@ -71,6 +73,9 @@ export const createTocActions = (ctx: Ctx): TocActions => {
     },
     setTocPageNumbers: async (id, on) => {
       await edit(t`Change contents page numbers`, couldNot, (m) => setPageNumbersIn(m, id, on));
+    },
+    setTocParts: async (id, on) => {
+      await edit(t`Change contents parts`, couldNot, (m) => setPartsIn(m, id, on));
     },
     renameTocItem: async (id, key, title) => {
       await edit(t`Rename contents entry`, couldNot, (m) => renameIn(m, id, key, langOf(m), title));

@@ -106,7 +106,9 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
   };
 
   const pages = readingOrder(chapters);
-  const countable = pages.filter((c) => (c.section ?? "chapter") === "chapter");
+  const countable = pages.filter(
+    (c) => (c.section ?? "chapter") === "chapter" && c.kind !== "part",
+  );
   const words = approximateWords(
     (countable.length ? countable : pages).reduce((sum, c) => sum + countWords(c.doc), 0),
   );
@@ -174,9 +176,8 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
     if (c.kind === "contents" && options.contents !== undefined) {
       for (const { item, title } of contentsLines(options.contents)) {
         const line = checkText(title, ctx, "A contents entry");
-        body.push(
-          para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * item.level }, ctx),
-        );
+        const indent = item.indent ?? item.level;
+        body.push(para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * indent }, ctx));
       }
     }
     // A page with no content still starts on its own page.

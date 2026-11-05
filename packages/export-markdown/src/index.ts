@@ -2,7 +2,7 @@ import {
   dropLeadingPageBreak,
   type ChapterDoc,
   type DocNode,
-  type MatterKind,
+  type EntryKind,
   type Section,
 } from "@cadabracraft/shared";
 import { renderChapter, type MarkdownOptions } from "./markdown";
@@ -30,7 +30,7 @@ export interface MarkdownChapter {
   doc: ChapterDoc;
   /** Front matter, chapter (default) or back matter. Used only to put the pages in reading order. */
   section?: Section;
-  kind?: MatterKind;
+  kind?: EntryKind;
 }
 
 /** One chapter document as Markdown (inverse of `importMarkdown` in `@cadabracraft/import-docx`). Throws `MarkdownExportError` on anything it cannot write. */

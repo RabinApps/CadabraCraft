@@ -1,4 +1,4 @@
-import type { MatterKind } from "@cadabracraft/shared";
+import type { EntryKind } from "@cadabracraft/shared";
 import { sourceFile, sourceTitle } from "./editions";
 import { isTranslated } from "./translations";
 import { readingOrder, type Edition, type EditionEntry, type Manifest } from "./manifest";
@@ -29,7 +29,7 @@ export interface EntryRow {
   /** The page's own big-first-letter choice, when it has one (chapters only). */
   dropCap?: boolean;
   /** What a front or back matter page is (absent for chapters and for old pages with no kind). */
-  kind?: MatterKind;
+  kind?: EntryKind;
   /** The page's own vertical position choice, when it has one (front and back matter only). */
   verticalCenter?: boolean;
   /** The page starts on the next page, blank left-hand page or not (front and back matter only). */

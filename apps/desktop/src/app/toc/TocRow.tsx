@@ -48,6 +48,7 @@ export function TocRow({
   const { item } = row;
   const grip = useGripHint();
   const custom = item.kind === "custom";
+  const indent = item.indent ?? item.level;
   /** The rename field opens once the menu has closed, so it can take focus. */
   const afterClose = useRef<(() => void) | null>(null);
   const actions = useRef<HTMLButtonElement>(null);
@@ -82,7 +83,7 @@ export function TocRow({
       {grip.hint}
       <div
         className="flex min-w-0 flex-1 items-center gap-2"
-        style={{ paddingInlineStart: item.level * 16 }}
+        style={{ paddingInlineStart: indent * 16 }}
       >
         {editing ? (
           <input

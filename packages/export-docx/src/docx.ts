@@ -142,7 +142,9 @@ export function buildDocx(
   const pages = readingOrder(chapters);
   // The generated manuscript title page replaces a "title-page" matter page (which only holds the title and author).
   const body: string[] = [];
-  const countable = pages.filter((c) => (c.section ?? "chapter") === "chapter");
+  const countable = pages.filter(
+    (c) => (c.section ?? "chapter") === "chapter" && c.kind !== "part",
+  );
   const words = approximateWords(
     (countable.length ? countable : pages).reduce((sum, c) => sum + countWords(c.doc), 0),
   );
@@ -208,9 +210,8 @@ export function buildDocx(
     if (c.kind === "contents" && options.contents !== undefined) {
       for (const { item, title } of contentsLines(options.contents)) {
         const line = checkText(title, ctx, "A contents entry");
-        body.push(
-          para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * item.level }, ctx),
-        );
+        const indent = item.indent ?? item.level;
+        body.push(para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * indent }, ctx));
       }
     }
     // A page with no content still starts on its own page.

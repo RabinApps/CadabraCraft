@@ -99,6 +99,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
       (p) =>
         p.section === "chapter" &&
         p.kind !== "blank" &&
+        p.kind !== "part" &&
         !left.has(p.id) &&
         (!o.chapterIds || o.chapterIds.includes(p.id)),
     );

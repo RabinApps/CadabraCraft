@@ -11,7 +11,7 @@ import {
 import { useLingui } from "@lingui/react/macro";
 import type { Editor as TipTapEditor } from "@tiptap/react";
 import { readingOrder, sectionOf, sourceTitle } from "@cadabracraft/format";
-import type { MatterKind } from "@cadabracraft/shared";
+import type { EntryKind } from "@cadabracraft/shared";
 import { usePageView } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useTypewriterSlack } from "./typewriter";
@@ -91,7 +91,7 @@ interface StackProps {
   /** No chapter opening above the first heading (see `pageIsBare`). */
   bare?: boolean | undefined;
   /** The page's matter kind: the copyright page and a centred page have layouts of their own (see `pageIsCopyright`, `pageIsNarrow`). */
-  kind?: MatterKind | undefined;
+  kind?: EntryKind | undefined;
   /** Physical page of the first card (the book layout's `cardStart`), a blank verso included. */
   firstPage: number;
   /** The book layout says a blank verso comes first (`blankBefore`): the first card is that blank page. */
@@ -271,6 +271,7 @@ export function PageStack({
             bare && "page-bare",
             narrow && "page-narrow",
             copyright && "page-copyright",
+            kind === "part" && "page-part",
           )}
         >
           {children}
@@ -353,7 +354,8 @@ export function PageFrame({ editor, children }: Props) {
   useEffect(() => () => setPageCount(0), []);
 
   // A blank page between two chapters is not a chapter opening: it is laid out, and prints, like a page of the matter.
-  const pageSection = entry?.kind === "blank" ? "front" : section;
+  // A blank page or a part divider is drawn as its own page, not as a chapter opening: no sink, ornament, running head or drop cap.
+  const pageSection = entry?.kind === "blank" || entry?.kind === "part" ? "front" : section;
   const centredNow = pageIsCentred(look, pageSection, entry?.kind, entry ?? {});
   const size = trimLabel(trim);
   const exactBreaks = usePageCount((s) => s.exact);
@@ -392,7 +394,7 @@ export function PageFrame({ editor, children }: Props) {
           section={pageSection}
           chapterTitle={chapterTitle}
           chapterNumber={chapterNumber}
-          dropCap={entry?.dropCap ?? manifest.dropCap}
+          dropCap={entry?.kind === "part" ? false : (entry?.dropCap ?? manifest.dropCap)}
           verticalCenter={centredNow}
           bare={pageIsBare(centredNow, pageSection, entry?.kind)}
           kind={entry?.kind}

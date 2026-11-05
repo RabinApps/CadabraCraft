@@ -25,7 +25,7 @@ const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf
 describe("manifest", () => {
   it("creates a book at the current format version with one source edition and no references", () => {
     const m = createManifest({ title: "T", author: "A", language: "fr", identifier: "urn:uuid:x" });
-    expect(m.formatVersion).toBe(10);
+    expect(m.formatVersion).toBe(11);
     expect(m.references).toEqual([]);
     expect(m.editions).toEqual([
       {
@@ -141,10 +141,10 @@ describe("migration v1 -> v4 (front/back matter kinds, cover, editions)", () => 
     const v1 = JSON.parse(v1Json);
     expect(v1.formatVersion).toBe(1);
     const r = parseManifest(v1Json);
-    expect(CURRENT_FORMAT_VERSION).toBe(10);
+    expect(CURRENT_FORMAT_VERSION).toBe(11);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(1);
-    expect(r.manifest.formatVersion).toBe(10);
+    expect(r.manifest.formatVersion).toBe(11);
     expect(r.manifest.editions[0]).toMatchObject({ language: v1.language, title: v1.title });
     expect(readingOrder(r.manifest).map((e) => e.id)).toEqual([
       "title-page",
@@ -156,7 +156,7 @@ describe("migration v1 -> v4 (front/back matter kinds, cover, editions)", () => 
   it("serializes as v8 and reopens without migrating again", () => {
     const again = parseManifest(serializeManifest(parseManifest(v1Json).manifest));
     expect(again.migrated).toBe(false);
-    expect(again.manifest.formatVersion).toBe(10);
+    expect(again.manifest.formatVersion).toBe(11);
   });
   it("validates kinds: unknown kinds, wrong section and kinds on chapters are rejected", () => {
     const m = base();
@@ -189,7 +189,7 @@ describe("migration v2 -> v4 (cover, then editions)", () => {
     const r = parseManifest(v2Json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(2);
-    expect(r.manifest.formatVersion).toBe(10);
+    expect(r.manifest.formatVersion).toBe(11);
     expect(r.manifest.editions).toEqual([
       {
         language: v2.language,
@@ -223,7 +223,7 @@ describe("migration v3 -> v4 (real v3 project file)", () => {
     const r = parseManifest(v3Json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(3);
-    expect(r.manifest.formatVersion).toBe(10);
+    expect(r.manifest.formatVersion).toBe(11);
     expect(r.manifest.editions).toHaveLength(1);
     expect(r.manifest.editions[0]).toEqual({
       language: "en",
@@ -288,7 +288,7 @@ describe("shared contract fixtures (also read by Rust)", () => {
     expect(r.manifest.editions.every((e) => e.publishing === undefined)).toBe(true);
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
       ...JSON.parse(json),
-      formatVersion: 10,
+      formatVersion: 11,
     });
   });
   it("migrates the v6 manifest with publishing details and changes only the version", () => {
@@ -305,7 +305,7 @@ describe("shared contract fixtures (also read by Rust)", () => {
     expect(r.manifest.editions[1]!.publishing).toBeUndefined();
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
       ...JSON.parse(json),
-      formatVersion: 10,
+      formatVersion: 11,
     });
   });
 
@@ -319,9 +319,11 @@ describe("shared contract fixtures (also read by Rust)", () => {
     expect(r.manifest.chapters.every((c) => c.dropCap === undefined && c.icon === undefined)).toBe(
       true,
     );
+    const expected = JSON.parse(json);
+    for (const e of expected.frontMatter) if (e.toc) e.toc.parts = true;
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
-      ...JSON.parse(json),
-      formatVersion: 10,
+      ...expected,
+      formatVersion: 11,
     });
   });
 });

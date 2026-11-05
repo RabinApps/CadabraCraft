@@ -180,6 +180,16 @@ const contentsMenu = async (page: Page) => {
 /** Every screen, dialog and panel the fake backend can reach. */
 const baseScreens: Screen[] = [
   { name: "home", open: home },
+  {
+    name: "part page with its chapter group in the sidebar",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("button", { name: "Add part" }).click();
+      await shown(
+        p.getByRole("navigation", { name: "Chapters" }).getByRole("button", { name: /^Part 1/ }),
+      );
+    },
+  },
   { name: "library", open: library },
   { name: "library, list layout with a missing folder", open: libraryList },
   { name: "editor", open: newProject },

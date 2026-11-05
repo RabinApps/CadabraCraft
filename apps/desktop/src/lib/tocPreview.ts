@@ -26,6 +26,8 @@ export interface PreviewLine {
   title: string;
   /** 0 for a chapter, 1 to 3 for a heading. */
   level: number;
+  /** Display depth under a part divider; absent means `level` is the depth. */
+  indent?: number;
   /** Chapter entries are set in bold, headings in regular type. */
   bold: boolean;
   /** The number at the right edge, "≈" first when it is an estimate; null when the page has no numbers. */
@@ -49,12 +51,13 @@ export function previewLines(rows: readonly TocRow[], numbers: boolean): Preview
   return contentsLines(
     rows.map((r) => r.item),
     numbers ? (item) => numberText(byKey.get(item.key)!) : undefined,
-  ).map(({ item, title, level, bold, number }) => {
+  ).map(({ item, title, level, indent, bold, number }) => {
     const heading = item.kind === "heading" ? item.index : item.targetIndex;
     return {
       key: item.key,
       title,
       level,
+      indent,
       bold,
       number,
       ...(item.entryId !== undefined && { entryId: item.entryId }),

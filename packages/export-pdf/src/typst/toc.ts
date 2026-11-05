@@ -1,4 +1,4 @@
-import { contentsLines, CONTENTS_MAX_LEVEL } from "@cadabracraft/format";
+import { contentsLines, CONTENTS_MAX_INDENT, CONTENTS_MAX_LEVEL } from "@cadabracraft/format";
 import { typstString } from "../escape";
 import { PdfExportError } from "../errors";
 import type { PdfTocItem } from "../types";
@@ -27,8 +27,11 @@ export function tocEntries(items: readonly PdfTocItem[]): string {
   const rows = contentsLines(items).map(({ item: i, title }) => {
     if (!Number.isInteger(i.level) || i.level < 0 || i.level > CONTENTS_MAX_LEVEL)
       throw new PdfExportError(`Contents entry "${i.key}": level ${i.level} is not 0 to 3`);
+    const indent = i.indent ?? i.level;
+    if (!Number.isInteger(indent) || indent < 0 || indent > CONTENTS_MAX_INDENT)
+      throw new PdfExportError(`Contents entry "${i.key}": indent ${indent} is not 0 to 4`);
     const target = i.kind === "custom" ? i.target : i.key;
-    return `  (key: ${typstString(i.key)}, level: ${i.level}, title: ${typstString(title)}, target: ${target === undefined ? "none" : typstString(target)}),`;
+    return `  (key: ${typstString(i.key)}, level: ${indent}, title: ${typstString(title)}, target: ${target === undefined ? "none" : typstString(target)}),`;
   });
   return rows.length === 0 ? "()" : `(\n${rows.join("\n")}\n)`;
 }

@@ -8,6 +8,8 @@ import {
   staleKeys,
   staleLabel,
   tocRows,
+  tocMovePlace,
+  tocMoveTarget,
   type TocNumber,
 } from "../tocView";
 
@@ -208,6 +210,56 @@ describe("tocRows page-number precedence", () => {
       outlines: {},
     });
     expect(rows.map((x) => x.text)).toEqual([null, null]);
+  });
+});
+
+describe("tocMoveTarget", () => {
+  const item = (key: string, part?: string): TocItem => ({
+    ...page(key),
+    ...(part ? { part } : {}),
+  });
+  const items = [
+    item("c1"),
+    item("p1", "p1"),
+    item("c2", "p1"),
+    item("p2", "p2"),
+    item("c3", "p2"),
+  ];
+  it("moves a part row by a whole block", () => {
+    expect(tocMoveTarget(items, 1, 1)).toBe(3);
+    expect(tocMoveTarget(items, 1, -1)).toBe(0);
+    expect(tocMoveTarget(items, 3, -1)).toBe(2);
+  });
+  it("moves any other row by one place", () => {
+    expect(tocMoveTarget(items, 0, 1)).toBe(1);
+    expect(tocMoveTarget(items, 2, -1)).toBe(1);
+  });
+});
+
+describe("tocMovePlace", () => {
+  const item = (key: string, part?: string): TocItem => ({
+    ...page(key),
+    ...(part ? { part } : {}),
+  });
+  const items = [
+    item("c1"),
+    item("p1", "p1"),
+    item("c2", "p1"),
+    item("p2", "p2"),
+    item("c3", "p2"),
+  ];
+  it("reports where a part block and a snapped top-level row really land", () => {
+    expect(tocMovePlace(items, 1, 3)).toBe(3);
+    expect(tocMovePlace(items, 1, 0)).toBe(0);
+    expect(tocMovePlace(items, 0, 1)).toBe(2);
+  });
+  it("reports a clamped child and a part that cannot move", () => {
+    expect(tocMovePlace(items, 2, 0)).toBe(2);
+    expect(tocMovePlace(items, 2, 99)).toBe(2);
+    expect(tocMovePlace(items, 3, 4)).toBe(3);
+  });
+  it("reports an ordinary row move", () => {
+    expect(tocMovePlace([item("a"), item("b"), item("c")], 0, 1)).toBe(1);
   });
 });
 

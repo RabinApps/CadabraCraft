@@ -70,8 +70,11 @@ export function usePageLook(): PageLook {
 /** The 1-based position of `id` among the chapters, for the "CHAPTER n" label; undefined for front and back matter. */
 export function chapterNumberOf(manifest: Manifest, id: string | null): number | undefined {
   if (!id || sectionOf(manifest, id) !== "chapter") return undefined;
+  if (readingOrder(manifest).find((e) => e.id === id)?.kind === "part") return undefined;
   const n = readingOrder(manifest)
-    .filter((e) => sectionOf(manifest, e.id) === "chapter" && e.kind !== "blank")
+    .filter(
+      (e) => sectionOf(manifest, e.id) === "chapter" && e.kind !== "blank" && e.kind !== "part",
+    )
     .findIndex((e) => e.id === id);
   return n >= 0 ? n + 1 : undefined;
 }

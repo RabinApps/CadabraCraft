@@ -23,6 +23,14 @@ export function chapterFileName(position: number, title: string): string {
   return `${String(position).padStart(3, "0")}-${slugify(title)}.json`;
 }
 
+/**
+ * "part-001-part-one.json" style file name for a part divider page. The `part-` prefix tells a restored trash file that the page is
+ * a part and not a chapter; chapter names always start with their position number.
+ */
+export function partFileName(position: number, title: string): string {
+  return `part-${String(position).padStart(3, "0")}-${slugify(title)}.json`;
+}
+
 /** "01-dedication.json" style file name (no folder) for a front or back matter page at a 1-based position. */
 export function matterFileName(position: number, title: string): string {
   return `${String(position).padStart(2, "0")}-${slugify(title)}.json`;

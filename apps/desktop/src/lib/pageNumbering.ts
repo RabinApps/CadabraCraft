@@ -2,7 +2,7 @@ import { TRIM_SIZES, type PageReport, type TrimSize } from "@cadabracraft/export
 import {
   layoutBook,
   type BookPages,
-  type MatterKind,
+  type EntryKind,
   type PageEntryInput,
   type Section,
 } from "@cadabracraft/shared";
@@ -41,7 +41,7 @@ export const chapterPageCount = (words: number, perPage: number): number =>
 export interface EntryWords {
   id: string;
   section: Section;
-  kind?: MatterKind | undefined;
+  kind?: EntryKind | undefined;
   /** The author's own vertical position choice for a matter page. */
   verticalCenter?: boolean | undefined;
   /** The author's start for a matter page: the next page, left-hand page or not (no blank page before it), or a right-hand page (a blank page before it when needed). */
@@ -93,8 +93,9 @@ export function bookLayout(
       pages,
       exact: fresh !== undefined || own !== undefined,
       centred:
-        e.section !== "chapter" &&
-        resolveVerticalCenter({ print }, e.kind, { verticalCenter: e.verticalCenter }),
+        e.kind === "part" ||
+        (e.section !== "chapter" &&
+          resolveVerticalCenter({ print }, e.kind, { verticalCenter: e.verticalCenter })),
       ...(e.startOnNext === undefined ? {} : { startOnNext: e.startOnNext }),
       ...(current && s ? { start: s.page } : {}),
     };

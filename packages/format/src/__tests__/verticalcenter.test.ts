@@ -70,7 +70,7 @@ describe("verticalCenter in the manifest", () => {
     const back = reopen(JSON.parse(serializeManifest(m)));
     expect(back.frontMatter.find((e) => e.kind === "dedication")!.verticalCenter).toBe(false);
     expect(back.backMatter[0]!.verticalCenter).toBe(true);
-    expect(back.formatVersion).toBe(10);
+    expect(back.formatVersion).toBe(11);
   });
 
   it("refuses a value that is not true or false", () => {
@@ -121,9 +121,11 @@ describe("migration v8 -> current", () => {
     expect(r.manifest.dropCap).toBe(true);
     expect(r.manifest.chapters[0]).toMatchObject({ dropCap: false, icon: "feather" });
     expect(r.manifest.frontMatter.some((e) => e.verticalCenter !== undefined)).toBe(false);
+    const expected = JSON.parse(json);
+    for (const e of expected.frontMatter) if (e.toc) e.toc.parts = true;
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
-      ...JSON.parse(json),
-      formatVersion: 10,
+      ...expected,
+      formatVersion: 11,
     });
   });
 });

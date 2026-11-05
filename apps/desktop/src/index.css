@@ -481,6 +481,10 @@ body {
 .prose-page.page-narrow .ProseMirror p {
   text-align: center;
 }
+/* A part divider's title is centred like the PDF's part page (the heading keeps the template's heading font and size). */
+.prose-page.page-part .ProseMirror h1 {
+  text-align: center;
+}
 /*
  * The copyright page is the PDF's `copyright-page`: its printer's imprint at the foot of the text box, in 0.85 em with 0.7 em between
  * paragraphs, flush (no first-line indent, ragged). The bottom alignment waits for the measuring pass (.pv-natural), which must see the

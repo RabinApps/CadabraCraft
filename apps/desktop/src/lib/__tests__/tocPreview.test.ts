@@ -56,6 +56,21 @@ describe("previewLines", () => {
   it("sets chapters in bold and headings in regular type", () => {
     expect(previewLines(rows, true).map((l) => l.bold)).toEqual([true, true, false, true]);
   });
+  it("carries the part indent into the printed lines, apart from the heading level", () => {
+    const lines = previewLines(
+      [
+        row("pt", "Part One", 0, "1"),
+        row("ch", "One", 0, "2", { indent: 1 }),
+        row("ch#1:x:0", "Scene", 1, "3", { indent: 2 }),
+      ],
+      true,
+    );
+    expect(lines.map((l) => [l.title, l.level, l.indent])).toEqual([
+      ["Part One", 0, 0],
+      ["One", 0, 1],
+      ["Scene", 1, 2],
+    ]);
+  });
   it("has no numbers when the page numbers are off", () => {
     expect(previewLines(rows, false).every((l) => l.number === null)).toBe(true);
   });

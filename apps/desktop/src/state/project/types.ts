@@ -10,7 +10,7 @@ import type {
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { OutlineFormat } from "@cadabracraft/outline";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
-import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
+import type { ChapterDoc, EntryKind, MatterKind } from "@cadabracraft/shared";
 import type { PublishingForm } from "../../lib/publishingForm";
 import type { ImportChoices, ImportReport } from "../../lib/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
@@ -182,7 +182,7 @@ export interface BookPage {
   title: string;
   doc: ChapterDoc;
   section: "front" | "chapter" | "back";
-  kind?: MatterKind;
+  kind?: EntryKind;
   /** Chapters only: the author's big-first-letter choice (the chapter's own, else the book's). Absent follows the template. */
   dropCap?: boolean;
   /** Front and back matter only: the author's own vertical position choice, centred (true) or at the top (false). Absent follows the template's kinds (`resolveVerticalCenter`). */
@@ -194,7 +194,7 @@ export interface BookPage {
 export interface EntryWords {
   id: string;
   section: "front" | "chapter" | "back";
-  kind?: MatterKind | undefined;
+  kind?: EntryKind | undefined;
   /** The author's own vertical position choice for a matter page (see `BookPage.verticalCenter`). */
   verticalCenter?: boolean | undefined;
   /** The author's start for a matter page (see `BookPage.startOnNext`). */
@@ -302,6 +302,8 @@ export interface TocActions {
   /** How many heading levels the contents page lists below each page (0 lists pages only). Failures set `notice`. */
   setTocDepth: (contentsId: string, depth: TocDepth) => Promise<void>;
   setTocPageNumbers: (contentsId: string, on: boolean) => Promise<void>;
+  /** Whether the contents page lists the book's parts (default true) or leaves them out. */
+  setTocParts: (contentsId: string, on: boolean) => Promise<void>;
   /** Renames an item in the shown language; an empty text goes back to the generated one. */
   renameTocItem: (contentsId: string, key: string, title: string) => Promise<void>;
   hideTocItem: (contentsId: string, key: string) => Promise<void>;
@@ -368,6 +370,10 @@ export interface PageActions {
   setDraft: (doc: ChapterDoc) => void;
   saveCurrent: (doc: ChapterDoc) => Promise<void>;
   add: (title: string) => Promise<void>;
+  /** Adds a part divider after the open page (or at the end of the chapters) and opens its page. */
+  addPart: (title: string) => Promise<void>;
+  /** Adds a part divider before chapter `id` and opens its page, so that chapter starts the new part. */
+  startPart: (id: string, title: string) => Promise<void>;
   /** Adds a front or back matter page of `kind` with generated starter content and opens it. Throws when a limited kind (title page, copyright) already exists. */
   addMatter: (section: "front" | "back", kind: MatterKind, title?: string) => Promise<void>;
   /** Adds a blank page right after the open page, in whatever part of the book it is in. */
@@ -375,6 +381,8 @@ export interface PageActions {
   /** Rename, move and remove work on chapters, front matter and back matter alike (`id` decides). */
   rename: (id: string, title: string) => Promise<void>;
   move: (id: string, delta: number) => Promise<void>;
+  /** Moves a part with its chapters past the previous or next part; clamped at the first and last part. */
+  movePart: (id: string, delta: number) => Promise<void>;
   /** Sets the sidebar icon of a page (a name from the format package's `ENTRY_ICONS`), or removes it with null. Not exported; undoable. */
   setIcon: (id: string, icon: string | null) => Promise<void>;
   /** Sets a chapter's own big first letter: true, false, or null to follow the book. Undoable. */

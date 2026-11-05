@@ -100,6 +100,21 @@ describe("Markdown contents page", () => {
     );
   });
 
+  it("nests a part's chapters and their headings by indent", () => {
+    const chapters: MarkdownChapter[] = [
+      { id: "pt-1", title: "Part One", doc: doc(h(1, "Part One")) },
+      ...pages(),
+    ];
+    const items: MarkdownContentsItem[] = [
+      page("pt-1", "Part One"),
+      { ...page("ch-1", "One"), indent: 1 },
+      { ...head("ch-1", 1, "One", 0), indent: 2 },
+    ];
+    expect(tocOf(chaptersToMarkdown(book, chapters, {}, { items }))).toBe(
+      "# Contents\n\n- [Part One](#part-one)\n  - [One](#one)\n    - [One](#one)\n",
+    );
+  });
+
   it("applies hidden, renamed, reordered and custom entries as given, stale ones ignored", () => {
     const items: MarkdownContentsItem[] = [
       { ...page("ch-2", "Zwei"), hidden: true },

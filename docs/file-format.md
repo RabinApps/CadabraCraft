@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 10)
+# CadabraCraft project file format (formatVersion 11)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -20,7 +20,7 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 10,
+  "formatVersion": 11,
   "template": "novel",
   "trimSize": "5.5x8.5",
   "dropCap": true,
@@ -69,6 +69,12 @@ MyBook/
     }
   ],
   "chapters": [
+    {
+      "id": "pt-1",
+      "kind": "part",
+      "titles": { "en": "Part One" },
+      "files": { "en": "manuscript/part-001-part-one.json" }
+    },
     {
       "id": "ch-1",
       "titles": { "en": "Chapter One" },
@@ -146,12 +152,13 @@ MyBook/
 
 ## Front and back matter
 
-- Entries in `frontMatter` and `backMatter` have the same shape as chapters plus an optional `kind` (added in formatVersion 2). Chapters never have a `kind`.
+- Entries in `frontMatter` and `backMatter` have the same shape as chapters plus an optional `kind` (added in formatVersion 2). A chapter has no `kind` unless it is a part divider (`kind: "part"`, formatVersion 11; see [Parts](#parts-formatversion-11)).
 - Front kinds: `title-page`, `copyright`, `dedication`, `epigraph`, `contents`, `foreword`, `preface`, `custom`. Back kinds: `acknowledgments`, `about-the-author`, `also-by`, `colophon`, `custom`. An entry without a `kind` (every entry migrated from version 1) is treated as `custom`.
 - A book has at most one `title-page`, one `copyright` and one `contents` page. The app enforces this when adding pages; a hand-edited manifest with more is still opened and exported.
-- **Contents page** (`kind: "contents"`, front matter only, added in formatVersion 7). Its file is an ordinary chapter file that holds only a heading; the list itself is never stored. It is generated from the book's outline at preview and export time: every chapter and listed matter page in reading order (the title page, copyright, dedication, epigraph, colophon and contents pages are left out), plus the headings of each chapter down to `toc.depth`. The entry may carry `toc`, the author's changes on top of that live list; absent means the defaults (`depth` 0, `pageNumbers` true, no overrides). A key that is not listed below, a wrong type, or `toc` on any other kind of entry is refused.
+- **Contents page** (`kind: "contents"`, front matter only, added in formatVersion 7). Its file is an ordinary chapter file that holds only a heading; the list itself is never stored. It is generated from the book's outline at preview and export time: every chapter, part divider (unless `toc.parts` is false) and listed matter page in reading order (the title page, copyright, dedication, epigraph, colophon and contents pages are left out), plus the headings of each chapter down to `toc.depth`. The entry may carry `toc`, the author's changes on top of that live list; absent means the defaults (`depth` 0, `pageNumbers` true, `parts` true, no overrides). A key that is not listed below, a wrong type, or `toc` on any other kind of entry is refused.
   - `depth`: 0 lists pages only; 1, 2 or 3 add headings up to that level.
   - `pageNumbers`: whether the printed page numbers are shown (PDF; formats without pages ignore it).
+  - `parts` (added in formatVersion 11): whether the book's part dividers are listed. `true` by default; `false` leaves them out and keeps their overrides dormant rather than stale, so switching back restores every rename and hiding choice.
   - `hidden`: item keys left out of the list (unique, non-empty strings).
   - `titles`: item key to language to replacement text (non-empty strings). A language with no replacement uses the page's own title in that language, then the source-language replacement, then the source title; a blank (empty or whitespace-only) title counts as missing at every step, and when all are blank the entry id is listed so a row is never empty.
   - `order` (optional): item keys in the order the author arranged them. Items it does not list (new chapters or headings) are placed after the item that precedes them in reading order; keys that match nothing are ignored. Absent means reading order.
@@ -160,6 +167,26 @@ MyBook/
 - Files are `front-matter/NN-slug.json` and `back-matter/NN-slug.json` (`NN` is a position counter that never reuses a name). Ids are `fm-N` and `bm-N`. Renaming changes the title only; reordering changes the array order only.
 - New pages start from generated content (title page: title and author; copyright: © year author, "All rights reserved." and the ISBN when the manifest has one; dedication, acknowledgments, about the author...) written in the book's language, using only the v1 schema nodes. After creation they are ordinary chapter files.
 - Exports: EPUB marks each page with `epub:type` (`titlepage`, `copyright-page`, `dedication`, `epigraph`, `foreword`, `preface`, `acknowledgments`, `colophon`, `frontmatter`, `bodymatter`, `backmatter`); its contents list leaves out the title page, copyright, dedication, epigraph and colophon. PDF: title and copyright pages carry no header or number, front matter is numbered i, ii, iii..., arabic numbering restarts at 1 on a right-hand page at the first chapter, and back matter continues it.
+
+## Parts (formatVersion 11)
+
+A part is a real divider page inside the chapters list, not a folder and not a nesting level. Its entry is a chapter entry with `kind: "part"`:
+
+```json
+{
+  "id": "pt-1",
+  "kind": "part",
+  "titles": { "en": "Part One" },
+  "files": { "en": "manuscript/part-001-part-one.json" }
+}
+```
+
+- **Membership is positional.** A part owns every entry after it, up to the next part divider or the end of `chapters`. Entries before the first part belong to no part. Moving a divider moves its whole block; a part cannot be dragged past the first ungrouped chapter, because that would silently put those chapters inside it.
+- Ids are `pt-N` and files are `manuscript/part-NNN-slug.json`; the `part-` prefix lets the trash restore know the entry was a part. A part file is an ordinary chapter file holding its title as a Heading 1. The sidebar title (`titles`) is a label and can differ from the heading on the page.
+- A part has no `dropCap` or `icon`, and it never counts as a chapter for numbering or word counts. `chaptersOf` skips it, so the first chapter after a part is still Chapter 1 unless the author renames it.
+- A part page always starts on a right-hand page, carries no running head or page number, and centres its text between the top and bottom margins. In the PDF, EPUB, Word, RTF and Markdown exports it prints as its own page, with no chapter counter increment; the audiobook, outline export and scene extraction skip it. EPUB uses `epub:type="part"` and the `part-page` class.
+- The contents page lists part rows at the top, with the part's chapters nested one step under them and their headings below the chapter. This nesting is layout only: `level` stays 0 for a page and 1-3 for a heading, item keys do not change, and nothing new is stored in the manifest. Moving a part row on the Contents page moves its nested rows as one block; the stored order stays a flat list of keys. `toc.parts` turns part rows and their nesting on or off; with it off, or when that part is hidden by an override, the chapters sit flat at the top. Part pages never add their own heading-level row.
+- Removing a part trashes only the divider. Its chapters stay in the book under the part before it.
 
 ## Chapter files
 
@@ -214,6 +241,7 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 
 ## Versioning
 
+- Version 10 -> 11: a chapter entry may carry `kind: "part"` (see [Parts](#parts-formatversion-11)), and a contents page's `toc` may carry `parts` (default `true`). The migration changes nothing: no book has a part until the author adds one, no file moves, and existing contents pages list no parts because none exist. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 10 app refuses a version 11 project rather than dropping the divider on its next save. Contract fixture: `fixtures/contract/manifest-v10.json`.
 - Version 8 -> 9: front and back matter entries may carry `verticalCenter` (see above). The migration changes nothing: no page has it until the author sets it, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 8 app refuses a version 9 project instead of dropping the per-page choice on its next save, which is why this bumps the version. Contract fixture: `fixtures/contract/manifest-v8.json`.
 - Version 7 -> 8: the manifest may carry `dropCap` and an entry may carry `icon` and (chapters only) `dropCap` (see above). The migration changes nothing: no book has them until the author sets them, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 7 app refuses a version 8 project instead of dropping the per-chapter settings and icons on its next save, which is why this bumps the version (`trimSize` and `fonts` did not: they are book-wide and cosmetic).
 - Version 6 -> 7: adds the `contents` front matter kind and the optional `toc` on a contents entry (see above). The migration changes nothing: no book has a contents page until the author adds one, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 6 app refuses a version 7 project instead of failing on the unknown kind.

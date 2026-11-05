@@ -416,3 +416,26 @@ describe("layoutBook: a blank page between two chapters", () => {
     expect(b.arabicFrom).toBe(3);
   });
 });
+
+describe("layoutBook: a part divider", () => {
+  const part = (id: string): PageEntryInput => ({
+    id,
+    section: "chapter",
+    kind: "part",
+    pages: 1,
+    exact: true,
+  });
+
+  it("opens on a right-hand page and prints no number, while the chapters after it keep the count", () => {
+    const b = layoutBook([front("t", "title-page"), part("p"), ch("a", 2)], {
+      startsOn: "recto",
+    });
+    expect(startOf(b, "p")).toMatchObject({
+      start: 3,
+      blankBefore: true,
+      number: null,
+      folio: "",
+    });
+    expect(startOf(b, "a")).toMatchObject({ start: 5, blankBefore: true, number: 3 });
+  });
+});

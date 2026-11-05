@@ -10,7 +10,8 @@
  *   normalizedText = NFC, whitespace collapsed, trimmed, lower-cased.
  *
  * Types
- *   TocItem { key; kind: "page"|"heading"|"custom"; entryId?; level (0 page, 1-3 heading); title; renamed; hidden;
+ *   TocItem { key; kind: "page"|"heading"|"custom"; entryId?; level (0 page, 1-3 heading); indent? (display depth under a part);
+ *             part? (the part divider it moves with); title; renamed; hidden;
  *             index? (heading: position in the chapter's outline, for editor jumps); page? (printed number text);
  *             stale? (custom entry whose `after` or `target` no longer resolves; an `after` that is the entry itself, part of a loop of
  *                     custom entries or a chain ending at a missing key counts as unresolved: the entry goes last);
@@ -71,6 +72,13 @@ export interface TocItem {
   entryId?: string;
   /** 0 for a page, 1 to 3 for a heading; a custom entry takes the level of the item it follows. */
   level: number;
+  /**
+   * Display depth when the item sits under a part divider: a chapter in a part is 1, its headings follow one deeper (H1 is 2, H3 is
+   * 4). Absent means `level` is the display depth. Layout only: keys, depth and the manifest do not change.
+   */
+  indent?: number;
+  /** The part divider this row is grouped under, so moving a part carries it. Absent at the top level; layout only. */
+  part?: string;
   title: string;
   /** True when the author's text replaces the generated one (custom entries are never "renamed"). */
   renamed: boolean;
@@ -103,6 +111,7 @@ export interface TocPageStart {
 export const DEFAULT_TOC: TocSettings = {
   depth: 0,
   pageNumbers: true,
+  parts: true,
   hidden: [],
   titles: {},
   custom: [],
@@ -181,10 +190,31 @@ function autoItems(
 ): TocItem[] {
   const settings = tocSettingsOf(contents);
   const source = sourceEdition(manifest.editions).language;
+  // A chapter belongs to the part before it. Only chapters carry parts; front and back matter are never indented.
+  const partOf = new Map<string, string>();
+  let part: string | undefined;
+  for (const entry of manifest.chapters) {
+    // A hidden part has no row to nest under, so its chapters stay at the top level in the editor and in exports.
+    if (entry.kind === "part") part = settings.hidden.includes(entry.id) ? undefined : entry.id;
+    else if (part !== undefined && entry.kind !== "blank") partOf.set(entry.id, part);
+  }
   const items: TocItem[] = [];
   for (const entry of readingOrder(manifest)) {
     if (entry.kind === "contents") continue;
-    if (entry.kind !== undefined && TOC_UNLISTED_KINDS.includes(entry.kind)) continue;
+    if (
+      entry.kind !== undefined &&
+      entry.kind !== "part" &&
+      TOC_UNLISTED_KINDS.includes(entry.kind)
+    )
+      continue;
+    // A part divider is listed only when the contents page asks for parts (the default); its own heading is its title, so it never
+    // adds a second, heading-level row.
+    if (entry.kind === "part" && !settings.parts) continue;
+    // With parts off there is no parent row, so the chapters stay at the top level.
+    const inPart = settings.parts ? partOf.get(entry.id) : undefined;
+    // A part row itself is grouped under its own id; a hidden part has no row to group under, like its chapters.
+    const itemPart =
+      entry.kind === "part" ? (settings.hidden.includes(entry.id) ? undefined : entry.id) : inPart;
     const page = pickTitle(
       settings,
       entry.id,
@@ -199,9 +229,12 @@ function autoItems(
       kind: "page",
       entryId: entry.id,
       level: 0,
+      ...(inPart === undefined ? {} : { indent: 1 }),
+      ...(itemPart === undefined ? {} : { part: itemPart }),
       ...page,
       hidden: settings.hidden.includes(entry.id),
     });
+    if (entry.kind === "part") continue;
     if (settings.depth === 0) continue;
     // Own properties only: an entry id such as "constructor" must not find a member of Object.prototype.
     const outline = Object.hasOwn(outlines, entry.id) ? outlines[entry.id]! : [];
@@ -214,6 +247,8 @@ function autoItems(
         kind: "heading",
         entryId: entry.id,
         level: h.level,
+        ...(inPart === undefined ? {} : { indent: 1 + h.level }),
+        ...(itemPart === undefined ? {} : { part: itemPart }),
         ...pickTitle(settings, key, language, h.text, h.text, source, entry.id),
         hidden: settings.hidden.includes(key),
         index: h.index,
@@ -253,7 +288,7 @@ function insertCustom(
   const keys = new Set(auto.map((i) => i.key));
   const dangling = danglingAfter(settings.custom, keys);
   for (const c of settings.custom) keys.add(customKey(c.id));
-  const build = (c: TocCustom, level: number): TocItem => {
+  const build = (c: TocCustom, level: number, indent?: number, part?: string): TocItem => {
     const target = c.target;
     const targetItem = target === undefined ? undefined : auto.find((i) => i.key === target);
     return {
@@ -263,6 +298,8 @@ function insertCustom(
       ...(target === undefined ? {} : { target }),
       ...(targetItem?.kind === "heading" ? { targetIndex: targetItem.index! } : {}),
       level,
+      ...(indent === undefined ? {} : { indent }),
+      ...(part === undefined ? {} : { part }),
       title: c.titles[language] ?? c.titles[source] ?? Object.values(c.titles)[0]!,
       renamed: false,
       hidden: settings.hidden.includes(customKey(c.id)),
@@ -281,7 +318,8 @@ function insertCustom(
       }
       let end = at + 1;
       while (result[end]?.kind === "custom") end++;
-      result.splice(end, 0, build(c, result[at]!.level));
+      const anchor = result[at]!;
+      result.splice(end, 0, build(c, anchor.level, anchor.indent, anchor.part));
       progress = true;
     }
     pending = next;
@@ -358,18 +396,26 @@ export function attachPages(
  * edited), and a custom entry whose `after` or `target` is missing. Pass the `resolveToc` result. They stay on disk so the author
  * decides; `removeTocOverride` clears one.
  */
-export function staleOverrides(entry: EditionEntry, items: readonly TocItem[]): StaleOverride[] {
+export function staleOverrides(
+  entry: EditionEntry,
+  items: readonly TocItem[],
+  /** Page keys that are deliberately not in the list (parts this contents page leaves out): their overrides are dormant, not stale. */
+  ignored: readonly string[] = [],
+): StaleOverride[] {
   const settings = tocSettingsOf(entry);
   const keys = new Set(items.map((i) => i.key));
+  const skipped = new Set(ignored);
   const dangling = danglingAfter(
     settings.custom,
     new Set(items.filter((i) => i.kind !== "custom").map((i) => i.key)),
   );
   const out: StaleOverride[] = [];
-  for (const key of settings.hidden) if (!keys.has(key)) out.push({ kind: "hidden", key });
+  for (const key of settings.hidden)
+    if (!keys.has(key) && !skipped.has(key)) out.push({ kind: "hidden", key });
   for (const key of Object.keys(settings.titles))
-    if (!keys.has(key)) out.push({ kind: "title", key });
-  for (const key of settings.order ?? []) if (!keys.has(key)) out.push({ kind: "order", key });
+    if (!keys.has(key) && !skipped.has(key)) out.push({ kind: "title", key });
+  for (const key of settings.order ?? [])
+    if (!keys.has(key) && !skipped.has(key)) out.push({ kind: "order", key });
   for (const c of settings.custom) {
     const key = customKey(c.id);
     if (dangling.has(key)) out.push({ kind: "custom", key, field: "after" });
@@ -405,6 +451,10 @@ export const setTocPageNumbers = (
   contentsId: string,
   pageNumbers: boolean,
 ): Manifest => update(m, contentsId, (t) => ({ ...t, pageNumbers }));
+
+/** Whether this contents page lists the book's part dividers (the default) or leaves them out. */
+export const setTocParts = (m: Manifest, contentsId: string, parts: boolean): Manifest =>
+  update(m, contentsId, (t) => ({ ...t, parts }));
 
 /** Sets the text of an item in one language. For a page or heading an empty text removes the rename; a custom entry needs text. */
 export function renameTocItem(
@@ -444,7 +494,33 @@ export const hideTocItem = (m: Manifest, contentsId: string, key: string): Manif
 export const showTocItem = (m: Manifest, contentsId: string, key: string): Manifest =>
   update(m, contentsId, (t) => ({ ...t, hidden: without(t.hidden, key) }));
 
-/** Moves `key` to position `to` of the displayed list (clamped) and stores the whole order. Returns `m` itself when nothing moves. */
+interface TocBlock {
+  start: number;
+  end: number;
+  part?: string;
+}
+
+/** Runs of rows that move together: a part row and the continuous rows carrying its id, or a single top-level row. */
+function blocksOf(items: readonly TocItem[]): TocBlock[] {
+  const blocks: TocBlock[] = [];
+  for (let start = 0; start < items.length;) {
+    const part = items[start]!.part;
+    let end = start + 1;
+    if (part !== undefined) while (end < items.length && items[end]!.part === part) end++;
+    blocks.push({ start, end, part });
+    start = end;
+  }
+  return blocks;
+}
+
+const blockAt = (blocks: readonly TocBlock[], index: number): TocBlock =>
+  blocks.find((b) => index >= b.start && index < b.end)!;
+
+/**
+ * Moves `key` to position `to` of the displayed list (clamped) and stores the whole order. A part row moves its whole block;
+ * a row inside a part stays inside it; a top-level row is placed before or after a part block, never inside it. Returns `m` itself
+ * when nothing moves.
+ */
 export function moveTocItem(
   m: Manifest,
   contentsId: string,
@@ -457,8 +533,30 @@ export function moveTocItem(
   if (from < 0) throw new Error(`no contents item ${key}`);
   const target = Math.min(keys.length - 1, Math.max(0, to));
   if (target === from) return m;
-  keys.splice(from, 1);
-  keys.splice(target, 0, key);
+  const item = items[from]!;
+  const blocks = blocksOf(items);
+  const source = blockAt(blocks, from);
+  const isPart = item.part !== undefined && item.key === item.part;
+  if (item.part !== undefined && !isPart) {
+    // A chapter, heading or custom entry inside a part can move within its block, never out of it.
+    const min = source.start + (items[source.start]!.key === item.part ? 1 : 0);
+    const at = Math.min(source.end - 1, Math.max(min, target));
+    if (at === from) return m;
+    keys.splice(from, 1);
+    keys.splice(at, 0, key);
+  } else {
+    const destination = blockAt(blocks, target);
+    // Dropping a part or top-level row into its own block changes nothing.
+    if (destination === source) return m;
+    const block = keys.slice(source.start, source.end);
+    // Down goes after the destination block, up before it. The source is already out of the list when the block is inserted.
+    const at = target > from ? destination.end - block.length : destination.start;
+    const next = keys.filter((_, i) => i < source.start || i >= source.end);
+    next.splice(at, 0, ...block);
+    if (next.every((k, i) => k === keys[i])) return m;
+    keys.length = 0;
+    keys.push(...next);
+  }
   return update(m, contentsId, (t) => ({ ...t, order: keys }));
 }
 
@@ -525,6 +623,7 @@ export const resetToc = (m: Manifest, contentsId: string): Manifest =>
   update(m, contentsId, (t) => ({
     depth: t.depth,
     pageNumbers: t.pageNumbers,
+    parts: t.parts,
     hidden: [],
     titles: {},
     custom: [],

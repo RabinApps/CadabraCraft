@@ -275,6 +275,22 @@ describe("buildTypst content", () => {
     expect(out).toContain('#chapter-start("Afterword", 4,');
     expect(out).toContain('lang: "en", region: "GB"');
   });
+  it("draws a part divider with part-page and does not count it as a chapter", () => {
+    const out = buildTypst(book, [
+      {
+        id: "pt",
+        title: "Part One",
+        kind: "part",
+        doc: {
+          type: "doc",
+          content: [{ type: "heading", attrs: { level: 1 }, content: [text("Part One")] }],
+        },
+      },
+      { id: "c", title: "One", doc: { type: "doc", content: [para(text("Body."))] } },
+    ]);
+    expect(out).toContain('#part-page("pt", "part")');
+    expect(out).toContain('#chapter-start("One", 1,');
+  });
   it("makes only http(s) and mailto links; others keep their text", () => {
     const out = buildTypst(
       book,

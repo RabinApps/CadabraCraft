@@ -23,6 +23,15 @@ export type FrontMatterKind = (typeof FRONT_MATTER_KINDS)[number];
 export type BackMatterKind = (typeof BACK_MATTER_KINDS)[number];
 export type MatterKind = FrontMatterKind | BackMatterKind;
 
+/**
+ * Every kind a chapter-list entry can carry: a front or back matter kind, or `part`. A part is a divider page inside the
+ * chapters list (formatVersion 11), not front or back matter.
+ */
+export type EntryKind = MatterKind | "part";
+
+/** True for the `part` divider kind (a chapter-list page, never front or back matter). */
+export const isPartKind = (v: unknown): v is "part" => v === "part";
+
 /** Where a page sits in the book. Chapters have no kind. */
 export type Section = "front" | "chapter" | "back";
 

@@ -32,6 +32,9 @@ export const MIGRATIONS: Migration[] = [
   { from: 8, up: (raw) => ({ ...raw }) },
   // v9 -> v10: front and back matter entries may carry `startOnNext`. Nothing changes and no file moves.
   { from: 9, up: (raw) => ({ ...raw }) },
+  // v10 -> v11: chapters may carry `kind: "part"` (a divider page) and a contents page may leave parts out. Existing books have
+  // neither, so nothing changes and no file moves.
+  { from: 10, up: (raw) => ({ ...raw }) },
 ];
 
 export interface MigrationResult {

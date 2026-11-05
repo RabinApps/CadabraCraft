@@ -26,7 +26,7 @@ export function AddEntryDialog({ open, onOpenChange, items, onAdd }: Props) {
   const [target, setTarget] = useState("");
   const [error, setError] = useState<string | null>(null);
   const last = items.at(-1)?.key ?? "";
-  const label = (i: TocItem) => `${"  ".repeat(i.level)}${i.title}`;
+  const label = (i: TocItem) => `${"  ".repeat(i.indent ?? i.level)}${i.title}`;
   /** Closing by any route (Cancel, Escape, a new entry) clears the form, so the next time starts empty. */
   const close = (next: boolean) => {
     onOpenChange(next);

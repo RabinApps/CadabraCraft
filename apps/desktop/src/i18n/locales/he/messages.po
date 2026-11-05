@@ -38,6 +38,11 @@ msgstr "(משוער)"
 msgid "{0, plural, one {# book} other {# books}}"
 msgstr "{0, plural, one {ספר #} other {# ספרים}}"
 
+#. placeholder {0}: counts.get(c.id) ?? 0
+#: src/app/shell/EntryList.tsx
+msgid "{0, plural, one {# chapter} other {# chapters}}"
+msgstr "{0, plural, one {פרק #} other {# פרקים}}"
+
 #. placeholder {0}: info.chapters ?? 0
 #. placeholder {0}: r.stats.chapters
 #. placeholder {1}: info.words
@@ -495,6 +500,14 @@ msgid "{title} is already last in {0}"
 msgstr "{title} כבר אחרונה ב{0}"
 
 #: src/app/shell/EntryList.tsx
+msgid "{title} is already the first part"
+msgstr "{title} הוא כבר החלק הראשון"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already the last part"
+msgstr "{title} הוא כבר החלק האחרון"
+
+#: src/app/shell/EntryList.tsx
 msgid "{title}: at the top of the page"
 msgstr "{title}: בראש העמוד"
 
@@ -724,6 +737,10 @@ msgstr "הוספת קישור"
 #: src/app/shell/Sidebar.tsx
 msgid "Add page"
 msgstr "הוספת עמוד"
+
+#: src/app/shell/Sidebar.tsx
+msgid "Add part"
+msgstr "הוספת חלק"
 
 #: src/app/shell/menuModel.ts
 msgid "Add Row Below"
@@ -1193,6 +1210,10 @@ msgstr "שינוי עומק תוכן העניינים"
 #: src/state/project/toc.ts
 msgid "Change contents page numbers"
 msgstr "שינוי מספרי העמודים בתוכן העניינים"
+
+#: src/state/project/toc.ts
+msgid "Change contents parts"
+msgstr "שינוי חלקים בתוכן העניינים"
 
 #. placeholder {0}: sourceTitleById(m, id)
 #: src/state/project/pages.ts
@@ -2682,6 +2703,10 @@ msgstr "בשימוש"
 msgid "Include chapter {0}"
 msgstr "לכלול את פרק {0}"
 
+#: src/app/toc/TocEditor.tsx
+msgid "Include parts"
+msgstr "כלול חלקים"
+
 #: src/app/export/PdfPanel.tsx
 msgid "Include the cover"
 msgstr "לכלול את הכריכה"
@@ -3166,6 +3191,14 @@ msgstr "העברה מוקדם יותר"
 msgid "Move later"
 msgstr "העברה מאוחר יותר"
 
+#: src/app/shell/EntryList.tsx
+msgid "Move part down"
+msgstr "הזזת חלק למטה"
+
+#: src/app/shell/EntryList.tsx
+msgid "Move part up"
+msgstr "הזזת חלק למעלה"
+
 #: src/app/board/SceneCard.tsx
 msgid "Move to chapter"
 msgstr "העברה לפרק"
@@ -3182,11 +3215,16 @@ msgid "Move up"
 msgstr "הזזה למעלה"
 
 #. placeholder {0}: item.title
-#. placeholder {1}: i + delta + 1
+#. placeholder {1}: tocMovePlace(items, i, to) + 1
 #. placeholder {2}: rows.length
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
 msgstr "{0} הועבר למיקום {1} מתוך {2}"
+
+#. placeholder {0}: partIndexes.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} down to part {partNo} of {0}"
+msgstr "{title} הוזז למטה לחלק {partNo} מתוך {0}"
 
 #. placeholder {0}: entries.length
 #: src/app/shell/EntryList.tsx
@@ -3196,6 +3234,11 @@ msgstr "{title} הוזז למטה למקום {place} מתוך {0}"
 #: src/app/board/SceneBoard.tsx
 msgid "Moved {title} to position {place} of {count} in {chapterTitle}"
 msgstr "{title} הועברה למקום {place} מתוך {count} ב{chapterTitle}"
+
+#. placeholder {0}: partIndexes.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} up to part {partNo} of {0}"
+msgstr "{title} הוזז למעלה לחלק {partNo} מתוך {0}"
 
 #. placeholder {0}: entries.length
 #: src/app/shell/EntryList.tsx
@@ -3299,6 +3342,10 @@ msgstr "עדיין אין ספרים. הוסיפו תיקיית ספרים או 
 #: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
 msgstr "אין cadabra.json בתיקייה זו"
+
+#: src/app/shell/EntryList.tsx
+msgid "No chapters yet"
+msgstr "אין פרקים עדיין"
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "No command matches “{q}”."
@@ -3759,6 +3806,13 @@ msgstr "עמודים שהעברת לאשפה. שחזור מחזיר עמוד ל�
 #: src/app/settings/shortcutList.ts
 msgid "Paragraph"
 msgstr "פסקה"
+
+#. placeholder {0}: manifest.chapters.filter((e) => e.kind === "part").length + 1
+#. placeholder {0}: partIndexes.length + 1
+#: src/app/shell/EntryList.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Part {0}"
+msgstr "חלק {0}"
 
 #: src/app/shell/menuModel.ts
 msgid "Paste"
@@ -4775,6 +4829,10 @@ msgstr "להתחיל בעמוד ימני"
 msgid "Start on the next page"
 msgstr "להתחיל בעמוד הבא"
 
+#: src/app/shell/EntryList.tsx
+msgid "Start part here"
+msgstr "להתחיל חלק כאן"
+
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start the new edition"
 msgstr "התחלת המהדורה החדשה"
@@ -5176,6 +5234,10 @@ msgstr "העמוד כבר אינו באשפה"
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
 msgstr "גודל העמוד של ה־PDF להדפסה. שינויו מסדר מחדש את הספר ומשנה את מספר העמודים; הטקסט שלך אינו משתנה."
+
+#: src/app/shell/Sidebar.tsx
+msgid "The part page moves to the project trash. Its chapters stay in the book, under the part before it. Nothing is permanently deleted."
+msgstr "עמוד החלק מועבר לסל האשפה של הפרויקט. הפרקים שלו נשארים בספר, תחת החלק שלפניו. שום דבר לא נמחק לצמיתות."
 
 #: src/app/export/PrintPreview.tsx
 msgid "The PDF gets the same bleed and crop marks. Set them here or in the export dialog."

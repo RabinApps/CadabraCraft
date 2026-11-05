@@ -38,6 +38,18 @@ describe("contentsLines", () => {
     const lines = contentsLines(items, (i) => (i.level === 0 ? `p${i.title}` : null));
     expect(lines.map((l) => l.number)).toEqual(["pOne", null, "p"]);
   });
+  it("uses indent as the printed depth when a part nests its chapters", () => {
+    const lines = contentsLines([
+      item(0, "Part One"),
+      item(0, "Chapter One", { indent: 1 }),
+      item(1, "A scene", { indent: 2 }),
+    ]);
+    expect(lines.map((l) => [l.title, l.level, l.indent, l.bold])).toEqual([
+      ["Part One", 0, 0, true],
+      ["Chapter One", 0, 1, true],
+      ["A scene", 1, 2, false],
+    ]);
+  });
   it("has a deepest level", () => expect(CONTENTS_MAX_LEVEL).toBe(3));
 });
 
@@ -56,5 +68,16 @@ describe("nestContents", () => {
   it("starts a list at any level and is empty for nothing", () => {
     expect(nestContents([item(2, "x"), item(1, "y")]).map((n) => n.item.title)).toEqual(["x", "y"]);
     expect(nestContents([])).toEqual([]);
+  });
+  it("nests chapters under a part by indent, then their headings below them", () => {
+    const part = item(0, "Part One");
+    const chapter = item(0, "Chapter One", { indent: 1 });
+    const h1 = item(1, "A scene", { indent: 2 });
+    const h2 = item(2, "Deeper", { indent: 3 });
+    const tree = nestContents([part, chapter, h1, h2]);
+    expect(tree.map((n) => n.item)).toEqual([part]);
+    expect(tree[0]!.kids.map((n) => n.item)).toEqual([chapter]);
+    expect(tree[0]!.kids[0]!.kids.map((n) => n.item)).toEqual([h1]);
+    expect(tree[0]!.kids[0]!.kids[0]!.kids.map((n) => n.item)).toEqual([h2]);
   });
 });

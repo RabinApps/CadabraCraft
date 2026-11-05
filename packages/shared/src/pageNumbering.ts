@@ -17,7 +17,7 @@
  *   page would be a left-hand one (`false`). A page that also restarts the arabic count keeps `true` and the count starts at 1
  *   there, even when that puts the first numbered page on a left-hand page.
  */
-import type { MatterKind, Section } from "./matter";
+import type { EntryKind, Section } from "./matter";
 
 export type FolioStyle = "roman" | "arabic";
 
@@ -25,7 +25,7 @@ export interface PageEntryInput {
   id: string;
   section: Section;
   /** Matter kind; chapters have none. */
-  kind?: MatterKind | undefined;
+  kind?: EntryKind | undefined;
   /** Pages the entry fills, not counting the blank page before it. At least 1 is assumed. */
   pages: number;
   /** `pages` is Typst's count (or the editor's measured one), not an estimate from words. */
@@ -45,7 +45,7 @@ export interface PageEntryInput {
 export interface PlacedEntry {
   id: string;
   section: Section;
-  kind: MatterKind | undefined;
+  kind: EntryKind | undefined;
   /** Physical page the entry's first page is on, 1-based (the cover is not counted). */
   start: number;
   /** A blank left-hand page, `start - 1`, comes first: the page stack draws it, the entry does not start there. */
@@ -85,26 +85,29 @@ export interface BookPages {
   numbered: boolean;
 }
 
-const ALWAYS_RECTO: readonly (MatterKind | undefined)[] = [
+const ALWAYS_RECTO: readonly (EntryKind | undefined)[] = [
   "title-page",
   "contents",
   "dedication",
   "epigraph",
+  "part",
 ];
-const BLANK_VERSO_AFTER: readonly (MatterKind | undefined)[] = ["dedication", "epigraph"];
-const OWN_OPENING: readonly (MatterKind | undefined)[] = [
+const BLANK_VERSO_AFTER: readonly (EntryKind | undefined)[] = ["dedication", "epigraph"];
+const OWN_OPENING: readonly (EntryKind | undefined)[] = [
   "title-page",
   "copyright",
   "contents",
   "dedication",
   "epigraph",
   "blank",
+  "part",
 ];
-const NO_FOLIO: readonly (MatterKind | undefined)[] = [
+const NO_FOLIO: readonly (EntryKind | undefined)[] = [
   "title-page",
   "copyright",
   "contents",
   "blank",
+  "part",
 ];
 
 /** Whether the entry opens with the template's chapter opening (a chapter, or matter that is not laid out in the middle of the page). */
@@ -124,7 +127,7 @@ export function layoutBook(
   const hasFront = entries.some((e) => e.section === "front");
   const placed: PlacedEntry[] = [];
   let next = 1;
-  let previous: MatterKind | undefined;
+  let previous: EntryKind | undefined;
   let arabicFrom: number | null = hasFront ? null : 1;
   // Every count up to the entry being placed is Typst's or an editor's, so where it starts is the real page it starts on.
   let countsExact = true;

@@ -4,7 +4,14 @@ import { Plus, RotateCcw, X } from "lucide-react";
 import type { EditionEntry, TocDepth } from "@cadabracraft/format";
 import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
-import { dropPosition, insertionIndex, staleKeys, staleLabel } from "../../lib/tocView";
+import {
+  dropPosition,
+  insertionIndex,
+  staleKeys,
+  staleLabel,
+  tocMovePlace,
+  tocMoveTarget,
+} from "../../lib/tocView";
 import { useTocPane, type TocPane } from "../../state/tocPane";
 import { Button } from "../../ui/Button";
 import { Confirm } from "../../ui/Dialog";
@@ -101,8 +108,9 @@ export function TocEditor({ entry }: { entry: EditionEntry }) {
   }, [pane]);
   const move = (i: number, delta: number) => {
     const { item } = rows[i]!;
-    attempt(actions.moveTocItem(id, items, item.key, i + delta));
-    setSaid(t`Moved ${item.title} to position ${i + delta + 1} of ${rows.length}`);
+    const to = tocMoveTarget(items, i, delta);
+    attempt(actions.moveTocItem(id, items, item.key, to));
+    setSaid(t`Moved ${item.title} to position ${tocMovePlace(items, i, to) + 1} of ${rows.length}`);
   };
   /** Removes an override and puts focus on a row that is still there, so it does not fall to the page. */
   const remove = (key: string, to: string | null) => {
@@ -183,6 +191,16 @@ export function TocEditor({ entry }: { entry: EditionEntry }) {
                 />
                 <span aria-hidden className="text-sm text-ink">
                   {t`Page numbers`}
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Switch
+                  label={t`Include parts`}
+                  checked={settings.parts}
+                  onChange={(on) => attempt(actions.setTocParts(id, on))}
+                />
+                <span aria-hidden className="text-sm text-ink">
+                  {t`Include parts`}
                 </span>
               </div>
             </div>

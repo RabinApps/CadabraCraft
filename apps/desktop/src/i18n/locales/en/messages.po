@@ -38,6 +38,11 @@ msgstr "(estimated)"
 msgid "{0, plural, one {# book} other {# books}}"
 msgstr "{0, plural, one {# book} other {# books}}"
 
+#. placeholder {0}: counts.get(c.id) ?? 0
+#: src/app/shell/EntryList.tsx
+msgid "{0, plural, one {# chapter} other {# chapters}}"
+msgstr "{0, plural, one {# chapter} other {# chapters}}"
+
 #. placeholder {0}: info.chapters ?? 0
 #. placeholder {0}: r.stats.chapters
 #. placeholder {1}: info.words
@@ -495,6 +500,14 @@ msgid "{title} is already last in {0}"
 msgstr "{title} is already last in {0}"
 
 #: src/app/shell/EntryList.tsx
+msgid "{title} is already the first part"
+msgstr "{title} is already the first part"
+
+#: src/app/shell/EntryList.tsx
+msgid "{title} is already the last part"
+msgstr "{title} is already the last part"
+
+#: src/app/shell/EntryList.tsx
 msgid "{title}: at the top of the page"
 msgstr "{title}: at the top of the page"
 
@@ -724,6 +737,10 @@ msgstr "Add link"
 #: src/app/shell/Sidebar.tsx
 msgid "Add page"
 msgstr "Add page"
+
+#: src/app/shell/Sidebar.tsx
+msgid "Add part"
+msgstr "Add part"
 
 #: src/app/shell/menuModel.ts
 msgid "Add Row Below"
@@ -1193,6 +1210,10 @@ msgstr "Change contents depth"
 #: src/state/project/toc.ts
 msgid "Change contents page numbers"
 msgstr "Change contents page numbers"
+
+#: src/state/project/toc.ts
+msgid "Change contents parts"
+msgstr "Change contents parts"
 
 #. placeholder {0}: sourceTitleById(m, id)
 #: src/state/project/pages.ts
@@ -2682,6 +2703,10 @@ msgstr "In use"
 msgid "Include chapter {0}"
 msgstr "Include chapter {0}"
 
+#: src/app/toc/TocEditor.tsx
+msgid "Include parts"
+msgstr "Include parts"
+
 #: src/app/export/PdfPanel.tsx
 msgid "Include the cover"
 msgstr "Include the cover"
@@ -3166,6 +3191,14 @@ msgstr "Move earlier"
 msgid "Move later"
 msgstr "Move later"
 
+#: src/app/shell/EntryList.tsx
+msgid "Move part down"
+msgstr "Move part down"
+
+#: src/app/shell/EntryList.tsx
+msgid "Move part up"
+msgstr "Move part up"
+
 #: src/app/board/SceneCard.tsx
 msgid "Move to chapter"
 msgstr "Move to chapter"
@@ -3182,11 +3215,16 @@ msgid "Move up"
 msgstr "Move up"
 
 #. placeholder {0}: item.title
-#. placeholder {1}: i + delta + 1
+#. placeholder {1}: tocMovePlace(items, i, to) + 1
 #. placeholder {2}: rows.length
 #: src/app/toc/TocEditor.tsx
 msgid "Moved {0} to position {1} of {2}"
 msgstr "Moved {0} to position {1} of {2}"
+
+#. placeholder {0}: partIndexes.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} down to part {partNo} of {0}"
+msgstr "Moved {title} down to part {partNo} of {0}"
 
 #. placeholder {0}: entries.length
 #: src/app/shell/EntryList.tsx
@@ -3196,6 +3234,11 @@ msgstr "Moved {title} down to position {place} of {0}"
 #: src/app/board/SceneBoard.tsx
 msgid "Moved {title} to position {place} of {count} in {chapterTitle}"
 msgstr "Moved {title} to position {place} of {count} in {chapterTitle}"
+
+#. placeholder {0}: partIndexes.length
+#: src/app/shell/EntryList.tsx
+msgid "Moved {title} up to part {partNo} of {0}"
+msgstr "Moved {title} up to part {partNo} of {0}"
 
 #. placeholder {0}: entries.length
 #: src/app/shell/EntryList.tsx
@@ -3299,6 +3342,10 @@ msgstr "No books yet. Add a folder of books, or start a new one from Home."
 #: src/lib/projectError.ts
 msgid "No cadabra.json in that folder"
 msgstr "No cadabra.json in that folder"
+
+#: src/app/shell/EntryList.tsx
+msgid "No chapters yet"
+msgstr "No chapters yet"
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "No command matches “{q}”."
@@ -3759,6 +3806,13 @@ msgstr "Pages you moved to the trash. Restoring puts a page back at the end of i
 #: src/app/settings/shortcutList.ts
 msgid "Paragraph"
 msgstr "Paragraph"
+
+#. placeholder {0}: manifest.chapters.filter((e) => e.kind === "part").length + 1
+#. placeholder {0}: partIndexes.length + 1
+#: src/app/shell/EntryList.tsx
+#: src/app/shell/Sidebar.tsx
+msgid "Part {0}"
+msgstr "Part {0}"
 
 #: src/app/shell/menuModel.ts
 msgid "Paste"
@@ -4775,6 +4829,10 @@ msgstr "Start on a right-hand page"
 msgid "Start on the next page"
 msgstr "Start on the next page"
 
+#: src/app/shell/EntryList.tsx
+msgid "Start part here"
+msgstr "Start part here"
+
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start the new edition"
 msgstr "Start the new edition"
@@ -5176,6 +5234,10 @@ msgstr "the page is no longer in the trash"
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
 msgstr "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
+
+#: src/app/shell/Sidebar.tsx
+msgid "The part page moves to the project trash. Its chapters stay in the book, under the part before it. Nothing is permanently deleted."
+msgstr "The part page moves to the project trash. Its chapters stay in the book, under the part before it. Nothing is permanently deleted."
 
 #: src/app/export/PrintPreview.tsx
 msgid "The PDF gets the same bleed and crop marks. Set them here or in the export dialog."

@@ -1,4 +1,4 @@
-import type { BookMetadata, ChapterDoc, MatterKind, Section } from "@cadabracraft/shared";
+import type { BookMetadata, ChapterDoc, EntryKind, Section } from "@cadabracraft/shared";
 import type { Template, TrimSizeId } from "@cadabracraft/templates";
 
 export type TrimSize = TrimSizeId;
@@ -23,7 +23,7 @@ export interface PdfChapter {
   /** Where the page sits in the book; default "chapter". Pass pages in reading order: front matter, chapters, back matter. */
   section?: Section;
   /** Front/back matter pages only. */
-  kind?: MatterKind;
+  kind?: EntryKind;
   /** Chapters only: a big first letter on this chapter's opening paragraph (true) or none (false), the author's choice. Absent follows the template. */
   dropCap?: boolean;
   /** Front/back matter pages only: the author's choice to centre the page's content between the margins (true) or keep it at the top (false). Absent follows the template's kinds. */
@@ -106,6 +106,8 @@ export interface PdfTocItem {
   kind: "page" | "heading" | "custom";
   /** 0 for a page, 1 to 3 for a heading. */
   level: number;
+  /** Display depth under a part divider (a chapter in a part is 1); absent means `level`. */
+  indent?: number;
   title: string;
   /** Headings: the entry the heading is in. */
   entryId?: string;

@@ -9,6 +9,7 @@ import {
   normalizeIsbn,
   textDirection,
   type BookMetadata,
+  type EntryKind,
   type Publishing,
   type ChapterDoc,
   type MatterKind,
@@ -66,7 +67,7 @@ export interface EpubChapter {
   /** Where the page sits in the book; default "chapter". Pass pages in reading order: front matter, chapters, back matter. */
   section?: Section;
   /** Front/back matter pages only. */
-  kind?: MatterKind;
+  kind?: EntryKind;
   /** Chapters only: a big first letter on this chapter's opening paragraph, the author's choice. Absent follows `BuildOptions.dropCap`. */
   dropCap?: boolean;
   /** Front and back matter pages only: the author's choice to sit the page's content in the vertical middle (true) or at the top (false). Absent follows `BuildOptions.centerKinds`. */
@@ -126,7 +127,7 @@ function checkSvg(src: string, bytes: Uint8Array, where: EpubExportError["where"
 function checkSection(c: EpubChapter): Section {
   const section = c.section ?? "chapter";
   const ok =
-    c.kind === undefined
+    c.kind === undefined || c.kind === "part"
       ? true
       : section === "front"
         ? isFrontMatterKind(c.kind)
@@ -143,6 +144,7 @@ function checkSection(c: EpubChapter): Section {
 /** `epub:type` for the page body and the class stylesheets can use. */
 function semantics(c: EpubChapter): { type: string; cls: string } {
   const section = checkSection(c);
+  if (c.kind === "part") return { type: "bodymatter part", cls: "part-page" };
   if (section === "chapter") return { type: "bodymatter chapter", cls: "chapter" };
   const kind = c.kind ?? "custom";
   const map = section === "front" ? FRONT_TYPES : BACK_TYPES;
@@ -153,7 +155,8 @@ function semantics(c: EpubChapter): { type: string; cls: string } {
   };
 }
 
-const listedInToc = (c: EpubChapter): boolean => c.kind === undefined || !UNLISTED.includes(c.kind);
+const listedInToc = (c: EpubChapter): boolean =>
+  c.kind === undefined || c.kind === "part" || !UNLISTED.includes(c.kind);
 
 /**
  * OPF metadata for the retail details: `dc:publisher`, `dc:description`, one `dc:subject` each, `dc:rights`, `dc:date`
@@ -270,7 +273,9 @@ export function buildEpub(
     // a break at the top of the page.
     const { doc } = dropLeadingPageBreak(c.doc);
     const centred =
-      c.kind !== undefined && (c.verticalCenter ?? options.centerKinds?.includes(c.kind) ?? false);
+      c.kind !== undefined &&
+      c.kind !== "part" &&
+      (c.verticalCenter ?? options.centerKinds?.includes(c.kind) ?? false);
     const cls =
       base === "chapter" && (c.dropCap ?? options.dropCap ?? false)
         ? "chapter dropcap"

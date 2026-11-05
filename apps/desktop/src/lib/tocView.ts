@@ -161,6 +161,56 @@ export function staleKeys(stale: readonly StaleOverride[]): string[] {
 /** Insertion point under a pointer (see `insertionIndex` in `referenceKinds`): kept here for the contents list, which drops onto item positions. */
 export { insertionIndex, dropPosition } from "./referenceKinds";
 
+/**
+ * Where a row's Move up/down action aims: a part row moves by a whole block, everything else by one row. The formatter clamps and
+ * keeps part blocks whole; this is only the requested target.
+ */
+export function tocMoveTarget(items: readonly TocItem[], i: number, delta: number): number {
+  const item = items[i];
+  if (!item || item.part === undefined || item.key !== item.part) return i + delta;
+  let start = i;
+  while (start > 0 && items[start - 1]!.part === item.part) start--;
+  let end = i + 1;
+  while (end < items.length && items[end]!.part === item.part) end++;
+  return delta < 0 ? Math.max(0, start - 1) : Math.min(items.length - 1, end);
+}
+
+interface TocMoveBlock {
+  start: number;
+  end: number;
+  part?: string;
+}
+
+const moveBlocks = (items: readonly TocItem[]): TocMoveBlock[] => {
+  const blocks: TocMoveBlock[] = [];
+  for (let start = 0; start < items.length;) {
+    const part = items[start]!.part;
+    let end = start + 1;
+    if (part !== undefined) while (end < items.length && items[end]!.part === part) end++;
+    blocks.push({ start, end, part });
+    start = end;
+  }
+  return blocks;
+};
+
+/** The 0-based position `key` ends up at after the same block-aware move `moveTocItem` performs. */
+export function tocMovePlace(items: readonly TocItem[], i: number, to: number): number {
+  const item = items[i];
+  if (!item) return i;
+  const target = Math.min(items.length - 1, Math.max(0, to));
+  if (target === i) return i;
+  const blocks = moveBlocks(items);
+  const source = blocks.find((b) => i >= b.start && i < b.end)!;
+  if (item.part !== undefined && item.key !== item.part) {
+    const min = source.start + (items[source.start]!.key === item.part ? 1 : 0);
+    return Math.min(source.end - 1, Math.max(min, target));
+  }
+  const destination = blocks.find((b) => target >= b.start && target < b.end)!;
+  if (destination === source) return i;
+  const at = target > i ? destination.end - (source.end - source.start) : destination.start;
+  return at + (i - source.start);
+}
+
 /** True when the list or an override mentions a heading, so the pages' headings must be read (a list of pages alone needs no file). */
 export function needsOutlines(settings: TocSettings): boolean {
   const heading = (key: string) => key.includes("#");

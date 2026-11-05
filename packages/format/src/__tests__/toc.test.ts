@@ -75,6 +75,7 @@ describe("manifest toc validation", () => {
   const good = (): TocSettings => ({
     depth: 2,
     pageNumbers: false,
+    parts: true,
     hidden: ["ch-1"],
     titles: { "ch-1": { en: "Prologue" } },
     order: ["ch-2", "ch-1"],
@@ -99,7 +100,7 @@ describe("manifest toc validation", () => {
   });
   it("accepts the minimum (no order, no target) and a contents page without toc", () => {
     const min = { depth: 0, pageNumbers: true, hidden: [], titles: {}, custom: [] };
-    expect(validateToc(min)).toEqual(min);
+    expect(validateToc(min)).toEqual({ ...min, parts: true });
     expect(() => validateManifest(withToc(undefined))).not.toThrow();
     expect(validateManifest(withToc(undefined)).frontMatter[1]!.toc).toBeUndefined();
   });
@@ -173,7 +174,7 @@ describe("migration v6 -> v7", () => {
     return { ...JSON.parse(JSON.stringify(m)), formatVersion: 6 };
   };
   it("is registered after v5 -> v6 and the current version is 9", () => {
-    expect(CURRENT_FORMAT_VERSION).toBe(10);
+    expect(CURRENT_FORMAT_VERSION).toBe(11);
     expect(MIGRATIONS.find((x) => x.from === 6)?.up).toBe(migrateV6ToV7);
   });
   it("copies the manifest without changing any key", () => {
@@ -189,7 +190,7 @@ describe("migration v6 -> v7", () => {
     const r = parseManifest(JSON.stringify(raw));
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(6);
-    expect(JSON.parse(serializeManifest(r.manifest))).toEqual({ ...raw, formatVersion: 10 });
+    expect(JSON.parse(serializeManifest(r.manifest))).toEqual({ ...raw, formatVersion: 11 });
     expect(entryOf(r.manifest, "fm-2").toc).toBeUndefined();
   });
   it("refuses a manifest from a newer version", () => {
@@ -830,6 +831,7 @@ describe("edit helpers", () => {
     expect(settings(resetToc(n, toc), toc)).toEqual({
       depth: 2,
       pageNumbers: false,
+      parts: true,
       hidden: [],
       titles: {},
       custom: [],

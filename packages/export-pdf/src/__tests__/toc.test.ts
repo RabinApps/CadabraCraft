@@ -77,6 +77,16 @@ describe("Contents page source", () => {
     expect(s).toContain('(key: "custom:a", level: 0, title: "Map", target: "ch-2"),');
     expect(s).toContain('(key: "custom:b", level: 1, title: "Plain", target: none),');
   });
+  it("indents a chapter and its headings under a part with `indent`, keeping their levels", () => {
+    const s = tocEntries([
+      { key: "pt-1", kind: "page", level: 0, title: "Part One" },
+      { key: "ch-1", kind: "page", level: 0, indent: 1, title: "One" },
+      { key: "ch-1#1:one:0", kind: "heading", level: 1, indent: 2, title: "One" },
+    ]);
+    expect(s).toContain('(key: "pt-1", level: 0, title: "Part One", target: "pt-1"),');
+    expect(s).toContain('(key: "ch-1", level: 1, title: "One", target: "ch-1"),');
+    expect(s).toContain('(key: "ch-1#1:one:0", level: 2, title: "One", target: "ch-1#1:one:0"),');
+  });
   it("leaves numbers and leaders out when switched off, in the toc or in the document", () => {
     expect(build({ items, pageNumbers: false } as never)).toContain("#let toc-numbers = false");
     expect(buildTypst(book, pages, { toc: { items }, pageNumbers: false })).toContain(
@@ -168,6 +178,12 @@ describe("Contents page escaping", () => {
   it("rejects levels outside 0 to 3", () => {
     for (const level of [4, -1, 1.5, NaN])
       expect(() => tocEntries([{ key: "a", kind: "page", level, title: "t" }])).toThrow(
+        PdfExportError,
+      );
+  });
+  it("rejects an indent outside 0 to 4", () => {
+    for (const indent of [5, -1, 1.5, NaN])
+      expect(() => tocEntries([{ key: "a", kind: "page", level: 0, indent, title: "t" }])).toThrow(
         PdfExportError,
       );
   });

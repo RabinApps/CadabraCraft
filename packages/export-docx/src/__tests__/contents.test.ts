@@ -95,6 +95,19 @@ describe("DOCX contents page", () => {
     expect(t.indexOf("Contents")).toBeLessThan(t.indexOf("One"));
   });
 
+  it("uses indent for a part's chapters and their headings", () => {
+    const d = xml(pages(), [
+      item(0, "Part One"),
+      { level: 0, title: "One", indent: 1 },
+      { level: 1, title: "Storm", indent: 2 },
+    ]);
+    expect(after(d, "Contents").slice(0, 3)).toEqual([
+      { text: "Part One", left: 0 },
+      { text: "One", left: 720 },
+      { text: "Storm", left: 1440 },
+    ]);
+  });
+
   it("skips hidden entries, writes an empty list as nothing, and handles duplicate titles", () => {
     const d = xml(pages(), [
       item(0, "One", true),

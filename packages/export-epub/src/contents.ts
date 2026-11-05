@@ -17,6 +17,8 @@ export interface ContentsItem {
   entryId?: string;
   /** 0 for a page, 1-3 for a heading; sets the nesting. A custom entry has the level of the item it follows. */
   level: number;
+  /** Display depth under a part divider; absent means `level` sets the nesting. */
+  indent?: number;
   title: string;
   /** Headings: position among the page's headings (`OutlineItem.index`), the target of the link. */
   index?: number;

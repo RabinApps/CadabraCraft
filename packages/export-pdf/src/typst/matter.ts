@@ -4,7 +4,7 @@ import {
   isFrontMatterKind,
   type ChapterDoc,
   type DocNode,
-  type MatterKind,
+  type EntryKind,
   type Section,
 } from "@cadabracraft/shared";
 import { resolveVerticalCenter, type Template } from "@cadabracraft/templates";
@@ -20,7 +20,7 @@ function sectionOf(c: PdfChapter): Section {
   const section = c.section ?? "chapter";
   // A blank page may sit anywhere in the book, the chapters included.
   const ok =
-    c.kind === undefined || c.kind === "blank"
+    c.kind === undefined || c.kind === "blank" || c.kind === "part"
       ? true
       : section === "front"
         ? isFrontMatterKind(c.kind)
@@ -46,13 +46,14 @@ function opensWithTitle(doc: ChapterDoc): boolean {
  * start wins either way: `startOnNext: true` exempts the page (it follows the one before it, left-hand page or not) and
  * `startOnNext: false` puts it on a right-hand page even where the template starts chapters on any page.
  */
-const ALWAYS_RECTO: readonly (MatterKind | undefined)[] = [
+const ALWAYS_RECTO: readonly (EntryKind | undefined)[] = [
   "title-page",
   "contents",
   "dedication",
   "epigraph",
+  "part",
 ];
-const BLANK_VERSO_AFTER: readonly (MatterKind | undefined)[] = ["dedication", "epigraph"];
+const BLANK_VERSO_AFTER: readonly (EntryKind | undefined)[] = ["dedication", "epigraph"];
 
 /**
  * The pages in order. Front matter is numbered in lowercase roman (title and copyright pages show no number), arabic numbering
@@ -127,7 +128,7 @@ export function bodyOf(
   let chapterNo = 0;
   let sawFront = false;
   let restarted = false;
-  let prev: MatterKind | undefined;
+  let prev: EntryKind | undefined;
   for (const [index, page] of pages.entries()) {
     const section = sectionOf(page);
     // A blank page keeps its kind wherever it is: a chapter's pages have none, but a blank page between two chapters is not a chapter.
@@ -174,7 +175,7 @@ export function bodyOf(
     const id = typstString(page.id);
     const info = `${id}, ${typstString(kind ?? "chapter")}`;
     // A page that is not centred has its content at the top of the text box; the author can centre a kind that is not by default.
-    const centred = resolveVerticalCenter(template, kind, page);
+    const centred = kind === "part" ? true : resolveVerticalCenter(template, kind, page);
     const top = centred ? "" : ", centre: false";
     // A page the author let follow on opens on the next page, left-hand or not: `chapter-start` must not push it to a right-hand one
     // (a page the author put on a right-hand page is pushed by the break above, and `chapter-start`'s own is then a no-op).
@@ -182,6 +183,10 @@ export function bodyOf(
       page.startOnNext === true ? ", odd: false" : ""
     }`;
     switch (kind) {
+      case "part":
+        // A part divider is centred, unnumbered and has no running head (the template's `part-page` helper draws it).
+        out.push(`#part-page(${info})[\n${content}\n]\n`);
+        break;
       case "title-page":
         out.push(`#title-page(${info}${top})[\n${content}\n]\n`);
         break;

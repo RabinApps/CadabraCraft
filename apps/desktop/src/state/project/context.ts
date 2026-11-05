@@ -293,7 +293,10 @@ export function createContext(set: Set, get: Get) {
   };
   /** Words in the book's chapters. */
   const countBook = async () =>
-    (await countEntries()).reduce((a, e) => (e.section === "chapter" ? a + e.words : a), 0);
+    (await countEntries()).reduce(
+      (a, e) => (e.section === "chapter" && e.kind !== "part" ? a + e.words : a),
+      0,
+    );
   /** Bytes of every image the chapters use. */
   const loadAssets = async (chapters: { doc: ChapterDoc }[]) => {
     const { root } = need();

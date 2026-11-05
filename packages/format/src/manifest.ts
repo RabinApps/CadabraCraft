@@ -3,7 +3,7 @@ import {
   isFrontMatterKind,
   isTrimSize,
   isValidEntryId,
-  type MatterKind,
+  type EntryKind,
   type TrimSize,
 } from "@cadabracraft/shared";
 import { FormatError } from "./errors";
@@ -13,7 +13,7 @@ import { validatePublishing, type Publishing } from "./publishing";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 10;
+export const CURRENT_FORMAT_VERSION = 11;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -49,6 +49,8 @@ export interface TocCustom {
 export interface TocSettings {
   depth: TocDepth;
   pageNumbers: boolean;
+  /** List the book's parts (formatVersion 11). Default true; false leaves the part pages out of this contents list. */
+  parts: boolean;
   /** Item keys left out of the list. */
   hidden: string[];
   /** Item key to language to replacement text. */
@@ -62,7 +64,7 @@ export interface TocSettings {
 export interface EditionEntry {
   id: string;
   /** Front and back matter pages only: what the page is, for starter content and export semantics. */
-  kind?: MatterKind;
+  kind?: EntryKind;
   /** Language to chapter title. Has the source language. */
   titles: Record<string, string>;
   /** Language to relative project path, using "/". Has the source language. */
@@ -158,7 +160,7 @@ export function readingOrder(m: Manifest): EditionEntry[] {
  * a "Chapter 3" title numbers. A blank page in the chapters list is a page of the book, not a chapter.
  */
 export function chaptersOf(m: Manifest): EditionEntry[] {
-  return m.chapters.filter((e) => e.kind !== "blank");
+  return m.chapters.filter((e) => e.kind !== "blank" && e.kind !== "part");
 }
 
 const ICON_NAME = /^[a-z][a-z0-9-]{0,39}$/;
@@ -248,11 +250,13 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
           ? isFrontMatterKind(o.kind)
           : section === "back"
             ? isBackMatterKind(o.kind)
-            : o.kind === "blank";
+            : o.kind === "blank" || o.kind === "part";
       if (!ok)
         throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
-      entry.kind = o.kind as MatterKind;
+      entry.kind = o.kind as EntryKind;
     }
+    if (entry.kind === "part" && entry.dropCap !== undefined)
+      throw new FormatError(`manifest: "${name}[${i}].dropCap" belongs on a chapter only`);
     if (o.verticalCenter !== undefined) {
       if (section === "chapter" || entry.kind === "contents" || entry.kind === "copyright")
         throw new FormatError(
@@ -280,7 +284,7 @@ function entries(v: unknown, name: string, section: "front" | "chapter" | "back"
   });
 }
 
-const TOC_KEYS = ["depth", "pageNumbers", "hidden", "titles", "order", "custom"] as const;
+const TOC_KEYS = ["depth", "pageNumbers", "parts", "hidden", "titles", "order", "custom"] as const;
 const TOC_CUSTOM_KEYS = ["id", "titles", "after", "target"] as const;
 
 const keyList = (v: unknown, name: string): string[] => {
@@ -309,6 +313,8 @@ export function validateToc(v: unknown, name = "toc"): TocSettings {
     throw new FormatError(`manifest: "${name}.depth" must be 0, 1, 2 or 3`);
   if (typeof o.pageNumbers !== "boolean")
     throw new FormatError(`manifest: "${name}.pageNumbers" must be true or false`);
+  if (o.parts !== undefined && typeof o.parts !== "boolean")
+    throw new FormatError(`manifest: "${name}.parts" must be true or false`);
   const titlesIn = plainObject(o.titles, `${name}.titles`);
   const titles = Object.fromEntries(
     Object.entries(titlesIn).map(([key, byLang]) => [
@@ -343,6 +349,7 @@ export function validateToc(v: unknown, name = "toc"): TocSettings {
   return {
     depth: o.depth,
     pageNumbers: o.pageNumbers,
+    parts: o.parts !== false,
     hidden: keyList(o.hidden, `${name}.hidden`),
     titles,
     ...(o.order === undefined ? {} : { order: keyList(o.order, `${name}.order`) }),

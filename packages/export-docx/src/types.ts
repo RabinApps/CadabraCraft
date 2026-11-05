@@ -1,4 +1,4 @@
-import type { ChapterDoc, MatterKind, Section } from "@cadabracraft/shared";
+import type { ChapterDoc, EntryKind, Section } from "@cadabracraft/shared";
 import type { ManuscriptFont, Rel } from "./parts";
 
 export interface DocxBook {
@@ -14,7 +14,7 @@ export interface DocxChapter {
   doc: ChapterDoc;
   /** Front matter, chapter (default) or back matter. Pages are written in reading order: front, chapters, back. */
   section?: Section;
-  kind?: MatterKind;
+  kind?: EntryKind;
 }
 
 /**
@@ -24,6 +24,8 @@ export interface DocxChapter {
 export interface DocxContentsItem {
   /** 0 for a page, 1-3 for a heading; each level indents the line by half an inch. */
   level: number;
+  /** Display depth under a part divider; absent means `level`. Each depth indents the line by half an inch. */
+  indent?: number;
   title: string;
   /** The page the item is on; a blank title is written as this id. */
   entryId?: string;

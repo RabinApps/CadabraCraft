@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { BookMarked, Camera, FilePlus, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
+import { BookMarked, Camera, FilePlus, Layers, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
 import { canAddMatter, chaptersOf, entryRowsIn, sourceTitleById } from "@cadabracraft/format";
 import type { MatterKind } from "@cadabracraft/shared";
 import { Confirm } from "../../ui/Dialog";
@@ -152,12 +152,26 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           />
         )}
       </div>
-      <Button
-        variant="ghost"
-        icon={Plus}
-        className="justify-start"
-        onClick={() => attempt(actions.add(t`Chapter ${chaptersOf(manifest).length + 1}`))}
-      >{t`Add chapter`}</Button>
+      <div className="flex flex-col gap-1">
+        <Button
+          variant="ghost"
+          icon={Plus}
+          className="justify-start"
+          onClick={() => attempt(actions.add(t`Chapter ${chaptersOf(manifest).length + 1}`))}
+        >{t`Add chapter`}</Button>
+        <Button
+          variant="ghost"
+          icon={Layers}
+          className="justify-start"
+          onClick={() =>
+            attempt(
+              actions.addPart(
+                t`Part ${manifest.chapters.filter((e) => e.kind === "part").length + 1}`,
+              ),
+            )
+          }
+        >{t`Add part`}</Button>
+      </div>
       <M.Root>
         <M.Trigger asChild>
           <Button variant="ghost" icon={FilePlus} className="justify-start">{t`Add page`}</Button>
@@ -240,7 +254,11 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           if (!o) setDeleting(null);
         }}
         title={t`Move “${deleting?.title ?? ""}” to trash?`}
-        description={t`It moves to the project trash inside your book folder. Nothing is permanently deleted.`}
+        description={
+          deleting !== null && manifest.chapters.find((e) => e.id === deleting.id)?.kind === "part"
+            ? t`The part page moves to the project trash. Its chapters stay in the book, under the part before it. Nothing is permanently deleted.`
+            : t`It moves to the project trash inside your book folder. Nothing is permanently deleted.`
+        }
         confirmLabel={t`Move to trash`}
         onConfirm={() => {
           if (deleting) attempt(actions.remove(deleting.id));

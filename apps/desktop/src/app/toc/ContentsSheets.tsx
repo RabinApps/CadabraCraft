@@ -38,9 +38,9 @@ export function ContentsEntries({ lines, entryPx, onOpen }: ListProps) {
           data-preview-line={line.key}
           className={cx("flex items-baseline", line.bold ? "font-bold" : "font-normal")}
           style={{
-            paddingInlineStart: line.level * 16,
+            paddingInlineStart: (line.indent ?? line.level) * 16,
             minHeight: entryPx,
-            fontSize: line.level > 0 ? "0.92em" : undefined,
+            fontSize: (line.indent ?? line.level) > 0 ? "0.92em" : undefined,
           }}
         >
           {onOpen && line.entryId !== undefined ? (

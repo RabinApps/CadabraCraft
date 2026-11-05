@@ -127,6 +127,15 @@
     body
   })))
 }
+#let part-page(id, kind, body) = {
+  pagebreak(weak: true)
+  align(center + horizon, block(width: 78%, matter-marks(id, kind, "folio-off-start", "folio-off-end", {
+    show heading: it => block(width: 100%, below: 1em, text(font: "Libertinus Serif", size: if it.level == 1 { 2.1em } else { 1.1em }, weight: "bold", it.body))
+    set par(first-line-indent: 0pt, justify: false)
+    set text(size: 1.35em)
+    body
+  })))
+}
 
 #import "typst-droplet/lib.typ": dropcap
 #chapter-start("Chapter One", 1, id: "ch1", kind: "chapter")
