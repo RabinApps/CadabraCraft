@@ -122,9 +122,6 @@ export default tseslint.config(
     // Temporary baseline: files still over the cap, being split (Phase 2 of the structure plan).
     // Remove each entry as its file drops under 400 lines; never add one.
     files: [
-      "apps/desktop/src/app/shell/App.tsx",
-      "apps/desktop/src/app/shell/EntryList.tsx",
-      "apps/desktop/src/editor/Toolbar.tsx",
       "packages/editor-schema/src/index.ts",
       "packages/format/src/edit.ts",
       "packages/format/src/toc.ts",

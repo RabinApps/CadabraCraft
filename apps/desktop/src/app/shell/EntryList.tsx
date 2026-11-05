@@ -1,28 +1,12 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
-import {
-  ArrowDown,
-  ArrowUp,
-  Check,
-  ChevronDown,
-  ChevronRight,
-  Ellipsis,
-  GripVertical,
-  History,
-  Layers,
-  Pencil,
-  Shapes,
-  Trash2,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, GripVertical, Layers } from "lucide-react";
 import type { LanguageRow } from "@cadabracraft/format";
 import { Badge } from "../../ui/Badge";
-import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { DropLine } from "../../ui/DropLine";
 import { useDragReorder } from "../../ui/useDragReorder";
-import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
 import { SectionHeading } from "../../ui/SectionHeading";
 import { dropPosition, insertionIndex } from "../../lib/referenceKinds";
 import { useProject } from "../../state/project/index";
@@ -30,6 +14,8 @@ import { attempt } from "../../state/attempt";
 import type { HistoryPage } from "../dialogs/HistoryDialog";
 import type { IconPage } from "../dialogs/IconDialog";
 import { iconComponent } from "../../lib/chapterIcons";
+import { RenameField } from "./entries/RenameField";
+import { RowMenu } from "./entries/RowMenu";
 
 export type Editing = { id: string } | null;
 
@@ -114,7 +100,6 @@ export function EntryList({
   });
   /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
   const afterClose = useRef<(() => void) | null>(null);
-  const moveFocus = (f: () => void) => () => void (afterClose.current = f);
   const list = useRef<HTMLUListElement>(null);
   const { drag, grab } = useDragReorder<number>({
     locate: (_x, y) =>
@@ -270,36 +255,7 @@ export function EntryList({
                   </button>
                 )}
                 {editing?.id === c.id ? (
-                  <input
-                    autoFocus
-                    aria-label={titleLabel}
-                    defaultValue={c.title}
-                    className="min-w-0 flex-1 rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
-                    onBlur={(e) => {
-                      setEditing(null);
-                      // Escape cancels: closing the field can still blur it, which must not save.
-                      if (e.target.dataset.cancelled) return;
-                      if (!e.target.value.trim())
-                        useProject.setState({
-                          notice: t`A title cannot be empty, so the old title was kept.`,
-                        });
-                      else if (e.target.value !== c.title)
-                        attempt(actions.rename(c.id, e.target.value.trim()));
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key !== "Enter" && e.key !== "Escape") return;
-                      // The field goes away either way; the row's menu button takes the focus so it is not dropped on the page.
-                      const menuButton = e.currentTarget
-                        .closest("li")
-                        ?.querySelector<HTMLElement>("[aria-haspopup=menu]");
-                      if (e.key === "Enter") e.currentTarget.blur();
-                      else {
-                        e.currentTarget.dataset.cancelled = "true";
-                        setEditing(null);
-                      }
-                      menuButton?.focus();
-                    }}
-                  />
+                  <RenameField row={c} titleLabel={titleLabel} setEditing={setEditing} />
                 ) : (
                   <button
                     type="button"
@@ -328,260 +284,20 @@ export function EntryList({
                   </button>
                 )}
                 {!c.translated && <Badge tone="warn">{t`Not translated yet`}</Badge>}
-                <M.Root>
-                  <M.Trigger asChild>
-                    <IconButton
-                      icon={Ellipsis}
-                      label={t`Actions for ${c.title}`}
-                      className="shrink-0 md:size-7"
-                    />
-                  </M.Trigger>
-                  <M.Portal>
-                    <M.Content
-                      align="end"
-                      onCloseAutoFocus={(e) => {
-                        const next = afterClose.current;
-                        afterClose.current = null;
-                        if (next) {
-                          e.preventDefault();
-                          // The dialog that `next` opens remembers where focus is, to give it back when it closes.
-                          const trigger = (e.target as HTMLElement).getAttribute("aria-labelledby");
-                          document.getElementById(trigger ?? "")?.focus();
-                        }
-                        next?.();
-                      }}
-                      className={menuContentClass("min-w-44")}
-                    >
-                      {/* A blank page holds no text: there is no title to change, no text to give an icon to, no headings to list, and
-                        no position or page start to choose (it is already the blank page, and it follows the page before it). */}
-                      {c.kind !== "blank" && (
-                        <>
-                          <M.Item
-                            className={menuItemClass()}
-                            onSelect={moveFocus(() => setEditing({ id: c.id }))}
-                          >
-                            <Pencil size={14} aria-hidden />
-                            {t`Rename`}
-                          </M.Item>
-                          <M.Item
-                            className={menuItemClass()}
-                            onSelect={moveFocus(() =>
-                              setIcon({ id: c.id, title: c.title, icon: c.icon }),
-                            )}
-                          >
-                            <Shapes size={14} aria-hidden />
-                            {t`Change icon…`}
-                          </M.Item>
-                        </>
-                      )}
-                      {chapters && c.kind !== "part" && c.kind !== "blank" && (
-                        <M.Item
-                          className={menuItemClass()}
-                          onSelect={() =>
-                            attempt(actions.startPart(c.id, t`Part ${partIndexes.length + 1}`))
-                          }
-                        >
-                          <Layers size={14} aria-hidden />
-                          {t`Start part here`}
-                        </M.Item>
-                      )}
-                      <M.Item
-                        className={menuItemClass()}
-                        disabled={c.kind === "part" ? partIndexes.indexOf(i) <= 0 : i === 0}
-                        onSelect={() => step(i, -1)}
-                      >
-                        <ArrowUp size={14} aria-hidden />
-                        {c.kind === "part" ? t`Move part up` : t`Move up`}
-                      </M.Item>
-                      <M.Item
-                        className={menuItemClass()}
-                        disabled={
-                          c.kind === "part"
-                            ? partIndexes.indexOf(i) === partIndexes.length - 1
-                            : i === last
-                        }
-                        onSelect={() => step(i, 1)}
-                      >
-                        <ArrowDown size={14} aria-hidden />
-                        {c.kind === "part" ? t`Move part down` : t`Move down`}
-                      </M.Item>
-                      {chapters && c.kind !== "part" && (
-                        <>
-                          <M.Separator className="my-1 h-px bg-border" />
-                          <>
-                            <M.Label className={menuLabelClass} aria-hidden>
-                              {t`First letter`}
-                            </M.Label>
-                            <M.RadioGroup
-                              aria-label={t`First letter`}
-                              value={
-                                c.dropCap === undefined ? "default" : c.dropCap ? "big" : "normal"
-                              }
-                              onValueChange={(v) => {
-                                attempt(
-                                  actions.setChapterDropCap(
-                                    c.id,
-                                    v === "default" ? null : v === "big",
-                                  ),
-                                );
-                                const title = c.title;
-                                setSaid(
-                                  v === "default"
-                                    ? t`${title}: first letter follows the book`
-                                    : v === "big"
-                                      ? t`${title}: big first letter`
-                                      : t`${title}: normal first letter`,
-                                );
-                              }}
-                            >
-                              {(
-                                [
-                                  ["default", t`Default`],
-                                  ["big", t`Big`],
-                                  ["normal", t`Normal`],
-                                ] as const
-                              ).map(([value, text]) => (
-                                <M.RadioItem key={value} value={value} className={menuItemClass()}>
-                                  <span className="flex size-3.5 items-center justify-center text-accent">
-                                    <M.ItemIndicator>
-                                      <Check size={14} aria-hidden />
-                                    </M.ItemIndicator>
-                                  </span>
-                                  {text}
-                                </M.RadioItem>
-                              ))}
-                            </M.RadioGroup>
-                          </>
-                          <M.Separator className="my-1 h-px bg-border" />
-                        </>
-                      )}
-                      {!chapters &&
-                        c.kind !== "contents" &&
-                        c.kind !== "copyright" &&
-                        c.kind !== "blank" && (
-                          <>
-                            <M.Separator className="my-1 h-px bg-border" />
-                            <M.Label className={menuLabelClass} aria-hidden>
-                              {t`Vertical position`}
-                            </M.Label>
-                            <M.RadioGroup
-                              aria-label={t`Vertical position`}
-                              value={
-                                c.verticalCenter === undefined
-                                  ? "default"
-                                  : c.verticalCenter
-                                    ? "centred"
-                                    : "top"
-                              }
-                              onValueChange={(v) => {
-                                attempt(
-                                  actions.setVerticalCenter(
-                                    c.id,
-                                    v === "default" ? null : v === "centred",
-                                  ),
-                                );
-                                const title = c.title;
-                                setSaid(
-                                  v === "default"
-                                    ? t`${title}: vertical position follows the template`
-                                    : v === "centred"
-                                      ? t`${title}: centred on the page`
-                                      : t`${title}: at the top of the page`,
-                                );
-                              }}
-                            >
-                              {(
-                                [
-                                  ["default", t`Default`],
-                                  ["centred", t`Centred`],
-                                  ["top", t`Top`],
-                                ] as const
-                              ).map(([value, text]) => (
-                                <M.RadioItem key={value} value={value} className={menuItemClass()}>
-                                  <span className="flex size-3.5 items-center justify-center text-accent">
-                                    <M.ItemIndicator>
-                                      <Check size={14} aria-hidden />
-                                    </M.ItemIndicator>
-                                  </span>
-                                  {text}
-                                </M.RadioItem>
-                              ))}
-                            </M.RadioGroup>
-                          </>
-                        )}
-                      {/* Where the page numbering puts a matter page: the book's rules (a dedication, epigraph or title page opens on a
-                        right-hand page, with a blank left-hand page before it when that is what it takes), the next page whatever the
-                        rules say (no blank page before it), or a right-hand page (a blank page inserted when the rules leave it on a
-                        verso). All three are always offered: a page can be taken off a blank it no longer wants, or given one. */}
-                      {!chapters && c.kind !== "blank" && (
-                        <>
-                          <M.Separator className="my-1 h-px bg-border" />
-                          <M.Label className={menuLabelClass} aria-hidden>
-                            {t`Page start`}
-                          </M.Label>
-                          <M.RadioGroup
-                            aria-label={t`Page start`}
-                            value={
-                              c.startOnNext === undefined
-                                ? "book"
-                                : c.startOnNext
-                                  ? "next"
-                                  : "recto"
-                            }
-                            onValueChange={(v) => {
-                              attempt(
-                                actions.setStartOnNext(c.id, v === "book" ? null : v === "next"),
-                              );
-                              setSaid(
-                                v === "book"
-                                  ? t`${c.title}: page start follows the book`
-                                  : v === "next"
-                                    ? t`${c.title}: starts on the next page`
-                                    : t`${c.title}: starts on a right-hand page`,
-                              );
-                            }}
-                          >
-                            {(
-                              [
-                                ["book", t`Follows the book`],
-                                ["next", t`Start on the next page`],
-                                ["recto", t`Start on a right-hand page`],
-                              ] as const
-                            ).map(([value, text]) => (
-                              <M.RadioItem key={value} value={value} className={menuItemClass()}>
-                                <span className="flex size-3.5 items-center justify-center text-accent">
-                                  <M.ItemIndicator>
-                                    <Check size={14} aria-hidden />
-                                  </M.ItemIndicator>
-                                </span>
-                                {text}
-                              </M.RadioItem>
-                            ))}
-                          </M.RadioGroup>
-                          <M.Separator className="my-1 h-px bg-border" />
-                        </>
-                      )}
-                      {c.kind !== "blank" && (
-                        <M.Item
-                          className={menuItemClass()}
-                          onSelect={moveFocus(() =>
-                            setHistory({ id: c.id, title: c.title, file: c.file }),
-                          )}
-                        >
-                          <History size={14} aria-hidden />
-                          {t`History`}
-                        </M.Item>
-                      )}
-                      <M.Item
-                        className={menuItemClass("text-danger")}
-                        onSelect={moveFocus(() => setDeleting({ id: c.id, title: c.title }))}
-                      >
-                        <Trash2 size={14} aria-hidden />
-                        {c.kind === "part" ? t`Remove part` : t`Move to trash`}
-                      </M.Item>
-                    </M.Content>
-                  </M.Portal>
-                </M.Root>
+                <RowMenu
+                  row={c}
+                  index={i}
+                  last={last}
+                  chapters={chapters}
+                  partIndexes={partIndexes}
+                  afterClose={afterClose}
+                  step={step}
+                  say={setSaid}
+                  setEditing={setEditing}
+                  setDeleting={setDeleting}
+                  setHistory={setHistory}
+                  setIcon={setIcon}
+                />
               </div>
               {c.kind === "part" && counts.get(c.id) === 0 && (
                 <p className="m-0 px-2 pb-1.5 ps-9 text-xs text-ink-muted">{t`No chapters yet`}</p>

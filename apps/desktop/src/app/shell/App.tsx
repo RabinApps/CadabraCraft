@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import {
   readingOrder,
   sectionOf,
   sourceEdition,
-  entryRows,
   entryRowsIn,
   chaptersOf,
 } from "@cadabracraft/format";
@@ -13,17 +12,15 @@ import { Editor } from "../../editor/Editor";
 import { TocEditor } from "../toc/TocEditor";
 import { ReadingBook } from "../../editor/ReadingBook";
 import { ReadingFooter } from "../../editor/ReadingFooter";
+import { SidePanel } from "./screens/SidePanel";
+import { useBookEffects } from "./screens/useBookEffects";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import { StatusBar } from "./StatusBar";
 import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
-import { Details } from "./Details";
-import { CommentsPanel } from "../comments/CommentsPanel";
-import { SceneRail } from "../scenes/SceneRail";
 import { sceneRow } from "../../lib/scenes";
 import { useSceneView } from "../../state/sceneView";
-import { ReferencesPanel } from "../references/ReferencesPanel";
 import { ReferenceViewer } from "../references/ReferenceViewer";
 import { BookDetailsDialog } from "../dialogs/BookDetailsDialog";
 import { ExportDialog } from "../export/ExportDialog";
@@ -39,7 +36,6 @@ import { SponsorDialog } from "../dialogs/SponsorDialog";
 import { LicensesDialog } from "../dialogs/LicensesDialog";
 import { UpdateDialog } from "../dialogs/UpdateDialog";
 import { RecoverDialog } from "../dialogs/RecoverDialog";
-import { useUpdates } from "../../state/updates";
 import { Sidebar } from "./Sidebar";
 import { SidebarResizeHandle } from "./SidebarResizeHandle";
 import { ChaptersDrawer, CommentsSheet, ReferencesSheet, ScenesSheet } from "./Drawers";
@@ -50,8 +46,6 @@ import { SceneBoard } from "../board/SceneBoard";
 import { Timeline } from "../timeline/Timeline";
 import { SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH, useLayout } from "../../state/layout";
 import { useReadingPosition } from "../../state/readingPosition";
-import { useRecents } from "../../state/recents";
-import { libraryFields } from "../library/libraryModel";
 import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import { useAppMenu } from "../hooks/useAppMenu";
@@ -61,7 +55,6 @@ import { useWordCount } from "../hooks/useWordCount";
 import { useBookWordCount } from "../hooks/useBookWordCount";
 import { useSessionWords } from "../hooks/useSessionWords";
 import { useSettings } from "../../state/editorPrefs";
-import { LG_QUERY } from "./breakpoints";
 import { Notice } from "../../ui/Notice";
 import { useViewMode } from "../../state/viewMode";
 import { Onboarding } from "../onboarding/Onboarding";
@@ -98,11 +91,6 @@ function AppScreens() {
   const open = manifest !== null;
   const root = useProject((s) => s.root);
   const title = manifest ? sourceEdition(manifest.editions).title : undefined;
-  const addRecent = useRecents((s) => s.add);
-  // Any successful open, create or import lands here.
-  useEffect(() => {
-    if (root && title !== undefined) addRecent(root, title);
-  }, [root, title, addRecent]);
   const [drawer, setDrawer] = useState(false);
   const { mode, setMode } = useViewMode();
   // The welcome screen opens by itself on the first run, before Home; Help > Welcome to CadabraCraft… reopens it.
@@ -146,48 +134,9 @@ function AppScreens() {
   useSaveOnClose();
   const words = useWordCount();
   const bookWords = useBookWordCount();
-  const setStats = useRecents((s) => s.setStats);
-  // What the Home dashboard shows about this book, refreshed shortly after typing pauses.
-  useEffect(() => {
-    if (!root || !manifest || bookWords === null) return;
-    const source = sourceEdition(manifest.editions);
-    const rows = entryRows(chaptersOf(manifest), manifest.editions);
-    const at = rows.findIndex((r) => r.id === currentId);
-    const stats = {
-      author: source.author,
-      chapters: rows.length,
-      words: bookWords,
-      chapterNo: at + 1,
-      chapterTitle: rows[at]?.title ?? "",
-      ...libraryFields(source),
-    };
-    const id = setTimeout(() => setStats(root, stats), 1000);
-    return () => clearTimeout(id);
-  }, [root, manifest, currentId, bookWords, setStats]);
-  // The rail shows one page's threads; they are read whenever the open page changes.
-  useEffect(() => {
-    if (open) void actions.loadComments(currentId);
-  }, [open, currentId, actions]);
+  useBookEffects(bookWords, setDrawer);
   const sessionWritten = useSessionWords(root, activeLanguage, bookWords);
   const sessionGoal = useSettings((s) => s.sessionGoal);
-  useEffect(() => {
-    if (!open) return;
-    const un = bridge.onProjectChanged((p) => attempt(actions.externalChange(p)));
-    const failed = bridge.onProjectWatchError(() => actions.watchFailed());
-    return () => {
-      void un.then((f) => f());
-      void failed.then((f) => f());
-    };
-  }, [open, actions]);
-  useEffect(() => {
-    if (import.meta.env.PROD) void useUpdates.getState().check(false);
-  }, []);
-  useEffect(() => {
-    const mq = window.matchMedia(LG_QUERY);
-    const close = () => mq.matches && setDrawer(false);
-    mq.addEventListener("change", close);
-    return () => mq.removeEventListener("change", close);
-  }, []);
   const [error, setError] = useState("");
   const run = (f: () => Promise<void>) => () => {
     setError("");
@@ -401,33 +350,17 @@ function AppScreens() {
           )}
         </main>
         {!focus && !reader && (scene || details || references || comments) && (
-          <aside
-            aria-label={
-              scene ? t`Scene` : comments ? t`Comments` : references ? t`References` : t`Details`
-            }
-            className={cx(
-              "hidden shrink-0 overflow-y-auto border-s border-border bg-surface xl:block",
-              scene || references || comments ? "w-80" : "w-70",
-            )}
-          >
-            {scene ? (
-              <SceneRail />
-            ) : comments ? (
-              <CommentsPanel onClose={() => setLayout({ comments: false })} />
-            ) : references ? (
-              <ReferencesPanel openId={viewingId} onOpen={setViewingId} />
-            ) : (
-              <Details
-                manifest={manifest}
-                pageTitle={pages[index]?.title ?? null}
-                section={section}
-                words={words}
-                onChangeTemplate={() => setView("templates")}
-                onEditDetails={() => setDetailsOpen(true)}
-                onOpenReference={setViewingId}
-              />
-            )}
-          </aside>
+          <SidePanel
+            scene={scene !== null}
+            manifest={manifest}
+            pageTitle={pages[index]?.title ?? null}
+            section={section}
+            words={words}
+            viewingId={viewingId}
+            setViewingId={setViewingId}
+            onChangeTemplate={() => setView("templates")}
+            onEditDetails={() => setDetailsOpen(true)}
+          />
         )}
       </div>
       <ExportDialog
