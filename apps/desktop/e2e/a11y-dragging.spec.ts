@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { fakeImportSources } from "./support/fakeImport";
-import { addPage, newProject } from "./support/helpers";
+import { addPage, newProject, seedChapters } from "./support/helpers";
 
 // WCAG 2.2 criterion 2.5.7 (Dragging Movements): everything that can be done by dragging can also be done with a
 // single pointer or the keyboard. Each test below never moves the pointer with a button held down.
@@ -13,6 +13,7 @@ import { addPage, newProject } from "./support/helpers";
 //   2. Import preview chapter reorder (grip)                -> "Move chapter N up/down" buttons, grip arrow keys
 //   2b. Contents entry reorder (grip, TocRow)              -> row menu "Move up" / "Move down", grip arrow keys
 //   2c. Sidebar chapter reorder (grip, EntryList)          -> row menu "Move up" / "Move down", grip arrow keys
+//   2d. Scene board card reorder (grip, SceneCard)         -> card menu "Move earlier" / "Move later" / "Move to chapter", grip arrow keys
 //   3. Dropping files on the window to add references       -> "Add files" button (file picker)
 //   4. Native textarea resize handle (`resize-y`)           -> user-agent control, exempt from 2.5.7; no test
 
@@ -234,4 +235,45 @@ test("2.5.2 sidebar: Escape cancels a drag and nothing moves", async ({ page }) 
   await expect(page.locator("[data-drop-line]")).toHaveCount(0);
   await page.mouse.up();
   expect(await names()).toEqual(["Chapter One", "Chapter 2"]);
+});
+
+test("2.5.7 scene board: the card menu and the grip arrow keys move scenes without dragging", async ({
+  page,
+}) => {
+  await newProject(page);
+  const scene = (id: string, title: string) => ({
+    type: "scene",
+    attrs: { id, title },
+    content: [{ type: "paragraph", content: [{ type: "text", text: `${title} words` }] }],
+  });
+  const heading = (text: string) => ({
+    type: "heading",
+    attrs: { level: 1 },
+    content: [{ type: "text", text }],
+  });
+  await seedChapters(page, [
+    { type: "doc", content: [heading("Chapter One"), scene("a", "Alpha"), scene("b", "Bravo")] },
+    { type: "doc", content: [heading("Chapter Two")] },
+  ] as never);
+  await page.getByRole("button", { name: "Scene board" }).click();
+  const titles = (chapter: string) =>
+    page
+      .getByRole("list", { name: `Scenes in ${chapter}` })
+      .locator("[data-scene-card] h3")
+      .allTextContents();
+  await expect.poll(() => titles("Chapter One")).toEqual(["Alpha", "Bravo"]);
+  const grip = page.getByRole("button", { name: "Reorder Alpha" });
+  await expect(grip).toHaveAccessibleDescription(/Escape cancels a drag/);
+  await grip.focus();
+  await page.keyboard.press("ArrowDown");
+  await expect.poll(() => titles("Chapter One")).toEqual(["Bravo", "Alpha"]);
+  await expect(page.locator("[aria-live=polite]")).toContainText(
+    "Moved Alpha to position 2 of 2 in Chapter One",
+  );
+  await expect(grip).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await expect.poll(() => titles("Chapter Two")).toEqual(["Alpha"]);
+  await page.getByRole("button", { name: "Actions for Alpha" }).click();
+  await page.getByRole("menuitem", { name: "Chapter One" }).click();
+  await expect.poll(() => titles("Chapter One")).toEqual(["Bravo", "Alpha"]);
 });
