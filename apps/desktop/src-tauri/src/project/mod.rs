@@ -17,6 +17,8 @@ mod trash;
 mod contract_tests;
 #[cfg(test)]
 mod edge_tests;
+#[cfg(test)]
+mod edge_tests_io;
 
 pub use assets::{import_image, read_asset, store_image, IMAGE_EXTENSIONS, MAX_IMAGE_BYTES};
 #[cfg(test)]
