@@ -609,6 +609,14 @@ export const moreScreens: Screen[] = [
     },
   },
   {
+    name: "Story structure dialog",
+    open: async (p) => {
+      await sceneBoard(p);
+      await p.getByRole("button", { name: "Story structure" }).click();
+      await shown(dialogOf(p, "Add a story structure"));
+    },
+  },
+  {
     name: "Licenses dialog",
     open: async (p) => {
       await home(p);

@@ -63,6 +63,7 @@ export default tseslint.config(
     files: [
       // Label text sits in child spans the rule cannot see.
       "apps/desktop/src/app/dialogs/AddLanguageDialog.tsx",
+      "apps/desktop/src/app/board/StructureDialog.tsx",
       // Radio children carry the roving tabindex.
       "apps/desktop/src/app/export/Templates.tsx",
       // Combobox pattern: the input keeps focus and points at the option with aria-activedescendant.

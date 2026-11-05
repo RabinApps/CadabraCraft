@@ -283842,6 +283842,31 @@
                         },
                         {
                           "type": "frame",
+                          "id": "D7Ljs",
+                          "name": "Story structure button",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "kj9re",
+                              "name": "Back to editor",
+                              "fill": "$ink",
+                              "content": "Story structure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
                           "id": "IBXNz",
                           "name": "Back to editor",
                           "fill": "$surface",
@@ -285329,6 +285354,31 @@
                         },
                         {
                           "type": "frame",
+                          "id": "KNCo4",
+                          "name": "Story structure button",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "JC4Jg",
+                              "name": "Back to editor",
+                              "fill": "$ink",
+                              "content": "Story structure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
                           "id": "eqJVT",
                           "name": "Back to editor",
                           "fill": "$surface",
@@ -286796,6 +286846,31 @@
                         },
                         {
                           "type": "frame",
+                          "id": "o3qH9",
+                          "name": "Story structure button",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sXBCp",
+                              "name": "Back",
+                              "fill": "$ink",
+                              "content": "Story structure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
                           "id": "dF3KD",
                           "name": "Back to editor",
                           "fill": "$surface",
@@ -287598,6 +287673,31 @@
                           "name": "Spacer",
                           "width": "fill_container",
                           "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "XpHop",
+                          "name": "Story structure button",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Hw2TP",
+                              "name": "Back to editor",
+                              "fill": "$ink",
+                              "content": "Story structure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
                         },
                         {
                           "type": "frame",
@@ -289091,6 +289191,31 @@
                         },
                         {
                           "type": "frame",
+                          "id": "bbZhM",
+                          "name": "Story structure button",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "vtNs2",
+                              "name": "Back to editor",
+                              "fill": "$ink",
+                              "content": "Story structure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
                           "id": "rL9Ji",
                           "name": "Back to editor",
                           "fill": "$surface",
@@ -290561,6 +290686,31 @@
                         },
                         {
                           "type": "frame",
+                          "id": "Kxq2r",
+                          "name": "Story structure button",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "o2qPE",
+                              "name": "Back",
+                              "fill": "$ink",
+                              "content": "Story structure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
                           "id": "HgFIe",
                           "name": "Back to editor",
                           "fill": "$surface",
@@ -291228,6 +291378,3618 @@
                               ]
                             }
                           ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "EzCOo",
+          "name": "Story structure desktop row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "aqdlu",
+              "name": "Story structure dialog / desktop / light",
+              "theme": {
+                "mode": "light"
+              },
+              "clip": true,
+              "width": 1280,
+              "height": 914,
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "uIUMT",
+                  "name": "Dialog",
+                  "width": 560,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "V0Xpdb",
+                      "name": "Heading",
+                      "fill": "$ink",
+                      "content": "Add a story structure",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "i9V5oz",
+                      "name": "Description",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JB0As",
+                      "name": "Structure options",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "T1q9ky",
+                          "name": "Structure label",
+                          "fill": "$ink-muted",
+                          "content": "Structure",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "QrL9n",
+                          "name": "Option Three-act structure",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "sqa2J",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "VRnud",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Mx39I",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Three-act structure",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "cvAzj",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. Setup, confrontation and resolution.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Oa7Z3",
+                          "name": "Option Hero's Journey",
+                          "width": "fill_container",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius",
+                          "stroke": "$accent",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "AdVG3",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$accent",
+                              "strokeWidth": 2,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "M6TSjK",
+                                  "name": "Dot",
+                                  "width": 8,
+                                  "height": 8,
+                                  "fill": "$accent",
+                                  "cornerRadius": "$radius-full"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "wnThb",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "qpbm5",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Hero's Journey",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "yHLU9",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. Leaving home, being tested, coming back changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "iQ81I",
+                          "name": "Option Save the Cat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "p7ctkB",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zJPVh",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "LKPdx",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Save the Cat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Z2v3mD",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "15 scenes. Fifteen beats, popular for genre novels.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "D8B4B",
+                          "name": "Option Romancing the Beat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "MRCzE",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "hdAiu",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "ZJ7J9",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Romancing the Beat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "UfRQ7",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. A love story from meeting to the happy ending.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ZZPrG",
+                          "name": "Option Story Circle",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "qxvdO",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "BW4KM",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "FejgJ",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Story Circle",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "lGr0A",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. A character leaves comfort and returns changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "qBznO",
+                      "name": "Chapter field",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "CpEgK",
+                          "name": "Chapter label",
+                          "fill": "$ink-muted",
+                          "content": "Add to chapter",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "Hxfq3",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Chapter select",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "The Harbour"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PFor2",
+                      "name": "Preview",
+                      "width": "fill_container",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "NqhQB",
+                          "name": "Preview label",
+                          "fill": "$ink-muted",
+                          "content": "What will be added",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "qp2FX",
+                          "name": "Stage Departure",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "eJpxM",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Departure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "vGwgW",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Ordinary world, Call to adventure, Refusal of the call, Meeting the mentor, Crossing the threshold",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zExvh",
+                          "name": "Stage Initiation",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "L3yaA",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Initiation",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "I8D6ve",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Tests, allies and enemies, Approach to the inmost cave, The ordeal, Reward",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "oS86G",
+                          "name": "Stage Return",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "h9LG8",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Return",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "X5HJFB",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The road back, Resurrection, Return with the elixir",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ARAul",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "NLVYW",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "AobLW",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Add scenes",
+                          "descendants": {
+                            "gNKXH": {
+                              "content": "Add 12 scenes"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "H5j6mj",
+              "name": "Story structure dialog / desktop / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "clip": true,
+              "width": 1280,
+              "height": 914,
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tRx0h",
+                  "name": "Dialog",
+                  "width": 560,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gh7Ok",
+                      "name": "Heading",
+                      "fill": "$ink",
+                      "content": "Add a story structure",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "MRZjc",
+                      "name": "Description",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "D26ZWy",
+                      "name": "Structure options",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "A0UKzO",
+                          "name": "Structure label",
+                          "fill": "$ink-muted",
+                          "content": "Structure",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ZcVDA",
+                          "name": "Option Three-act structure",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "SQcg5",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "diBd3",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "GvmlX",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Three-act structure",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "A3FUM",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. Setup, confrontation and resolution.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mA79O",
+                          "name": "Option Hero's Journey",
+                          "width": "fill_container",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius",
+                          "stroke": "$accent",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "d0a7H",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$accent",
+                              "strokeWidth": 2,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "jz6ML",
+                                  "name": "Dot",
+                                  "width": 8,
+                                  "height": 8,
+                                  "fill": "$accent",
+                                  "cornerRadius": "$radius-full"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "BzW2z",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Crvbv",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Hero's Journey",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "RPFc5",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. Leaving home, being tested, coming back changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "XHEi5",
+                          "name": "Option Save the Cat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "qUyjQ",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "xlVs2",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "xiKbp",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Save the Cat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "CqHZf",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "15 scenes. Fifteen beats, popular for genre novels.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "D1O15n",
+                          "name": "Option Romancing the Beat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "SG2ow",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "fJOPU",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "tObos",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Romancing the Beat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "W562w",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. A love story from meeting to the happy ending.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ZpIvw",
+                          "name": "Option Story Circle",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "CddMX",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Ypnkh",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "UIIPr",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Story Circle",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "WWYMZ",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. A character leaves comfort and returns changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "f9w77",
+                      "name": "Chapter field",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "EDiJ7",
+                          "name": "Chapter label",
+                          "fill": "$ink-muted",
+                          "content": "Add to chapter",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "P22ojl",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Chapter select",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "The Harbour"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "a8FjDU",
+                      "name": "Preview",
+                      "width": "fill_container",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "eZ8Wj",
+                          "name": "Preview label",
+                          "fill": "$ink-muted",
+                          "content": "What will be added",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "vxIyk",
+                          "name": "Stage Departure",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "PFbYw",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Departure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "C2jlm",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Ordinary world, Call to adventure, Refusal of the call, Meeting the mentor, Crossing the threshold",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "So9rO",
+                          "name": "Stage Initiation",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Lm6VP",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Initiation",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Pqpai",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Tests, allies and enemies, Approach to the inmost cave, The ordeal, Reward",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sX2Ap",
+                          "name": "Stage Return",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "WDQpf",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Return",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "iXgOA",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The road back, Resurrection, Return with the elixir",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "pEk17",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "zYfdw",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "dOowm",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Add scenes",
+                          "descendants": {
+                            "gNKXH": {
+                              "content": "Add 12 scenes"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "FsRYj",
+          "name": "Story structure tablet row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "rwNek",
+              "name": "Story structure dialog / tablet / light",
+              "theme": {
+                "mode": "light"
+              },
+              "clip": true,
+              "width": 820,
+              "height": 1180,
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "IH0H3",
+                  "name": "Dialog",
+                  "width": 560,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MyQwH",
+                      "name": "Heading",
+                      "fill": "$ink",
+                      "content": "Add a story structure",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "qvSeA",
+                      "name": "Description",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hY9IX",
+                      "name": "Structure options",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "VKEIo",
+                          "name": "Structure label",
+                          "fill": "$ink-muted",
+                          "content": "Structure",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "c1b8p1",
+                          "name": "Option Three-act structure",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Q0SiA",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "KD9rV",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "YUs5T",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Three-act structure",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "FlI1u",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. Setup, confrontation and resolution.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "C2oxU",
+                          "name": "Option Hero's Journey",
+                          "width": "fill_container",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius",
+                          "stroke": "$accent",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "grZLz",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$accent",
+                              "strokeWidth": 2,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "opAAW",
+                                  "name": "Dot",
+                                  "width": 8,
+                                  "height": 8,
+                                  "fill": "$accent",
+                                  "cornerRadius": "$radius-full"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "OtSvG",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "DjsFW",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Hero's Journey",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "b8wYH",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. Leaving home, being tested, coming back changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "En1rR",
+                          "name": "Option Save the Cat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "MnO5l",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "BHeZT",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Y3bpFM",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Save the Cat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "rZsyl",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "15 scenes. Fifteen beats, popular for genre novels.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "h3H87m",
+                          "name": "Option Romancing the Beat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "pLNEJ",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "c2Bsvz",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "t1CzQQ",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Romancing the Beat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "HkGee",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. A love story from meeting to the happy ending.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "aO8Wa",
+                          "name": "Option Story Circle",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "l0zGo",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "O18eAe",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "TBnL2",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Story Circle",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Ojdb1",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. A character leaves comfort and returns changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "i8KZX",
+                      "name": "Chapter field",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "gJ9Xj",
+                          "name": "Chapter label",
+                          "fill": "$ink-muted",
+                          "content": "Add to chapter",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "qjHo6",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Chapter select",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "The Harbour"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "v3puv7",
+                      "name": "Preview",
+                      "width": "fill_container",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yOBdN",
+                          "name": "Preview label",
+                          "fill": "$ink-muted",
+                          "content": "What will be added",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "tv28M",
+                          "name": "Stage Departure",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sViAP",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Departure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "MSX89",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Ordinary world, Call to adventure, Refusal of the call, Meeting the mentor, Crossing the threshold",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "d1zDV",
+                          "name": "Stage Initiation",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Pbggx",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Initiation",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "p8xCB",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Tests, allies and enemies, Approach to the inmost cave, The ordeal, Reward",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "h98OOc",
+                          "name": "Stage Return",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "rPmJs",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Return",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "FkchP",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The road back, Resurrection, Return with the elixir",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Rh7GC",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "E9kYS",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "oK6D5",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Add scenes",
+                          "descendants": {
+                            "gNKXH": {
+                              "content": "Add 12 scenes"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ofNRg",
+              "name": "Story structure dialog / tablet / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "clip": true,
+              "width": 820,
+              "height": 1180,
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "svyZ8",
+                  "name": "Dialog",
+                  "width": 560,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Y6HfG",
+                      "name": "Heading",
+                      "fill": "$ink",
+                      "content": "Add a story structure",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "CJG53",
+                      "name": "Description",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cWF88",
+                      "name": "Structure options",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MSUXa",
+                          "name": "Structure label",
+                          "fill": "$ink-muted",
+                          "content": "Structure",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "F6oEEE",
+                          "name": "Option Three-act structure",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "C92yHU",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "nq13u",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "F4AUQ5",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Three-act structure",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "t5Ma7",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. Setup, confrontation and resolution.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "gUaHb",
+                          "name": "Option Hero's Journey",
+                          "width": "fill_container",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius",
+                          "stroke": "$accent",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "xRzEv",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$accent",
+                              "strokeWidth": 2,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "u34ab",
+                                  "name": "Dot",
+                                  "width": 8,
+                                  "height": 8,
+                                  "fill": "$accent",
+                                  "cornerRadius": "$radius-full"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "jUBy1",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "o2PcB0",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Hero's Journey",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "BedZb",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. Leaving home, being tested, coming back changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "g9sGIm",
+                          "name": "Option Save the Cat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "DSYFn",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ZR2lo",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "i546f",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Save the Cat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "T0dtY",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "15 scenes. Fifteen beats, popular for genre novels.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "tIGkJ",
+                          "name": "Option Romancing the Beat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "s8o3a",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ueVqi",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "w4kWGx",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Romancing the Beat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "nKyuq",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. A love story from meeting to the happy ending.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "B7huE",
+                          "name": "Option Story Circle",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "tL0w4",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "YyVLz",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "oJvjO",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Story Circle",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "O5R2P",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. A character leaves comfort and returns changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "f1ygUy",
+                      "name": "Chapter field",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WtKXL",
+                          "name": "Chapter label",
+                          "fill": "$ink-muted",
+                          "content": "Add to chapter",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "LK8gJ",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Chapter select",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "The Harbour"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lB0cP",
+                      "name": "Preview",
+                      "width": "fill_container",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "u9Ug6",
+                          "name": "Preview label",
+                          "fill": "$ink-muted",
+                          "content": "What will be added",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "E5Eq8",
+                          "name": "Stage Departure",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "unzB8",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Departure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "pBiC2",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Ordinary world, Call to adventure, Refusal of the call, Meeting the mentor, Crossing the threshold",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "A9uzZ",
+                          "name": "Stage Initiation",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "U8ShH",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Initiation",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "j8EOx",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Tests, allies and enemies, Approach to the inmost cave, The ordeal, Reward",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "D58Qaf",
+                          "name": "Stage Return",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ltoZD",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Return",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "U06Gl",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The road back, Resurrection, Return with the elixir",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "GG5O1",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "Jo6nq",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "lrkY9",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Add scenes",
+                          "descendants": {
+                            "gNKXH": {
+                              "content": "Add 12 scenes"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "C968rx",
+          "name": "Story structure mobile row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "tvStr",
+              "name": "Story structure dialog / mobile / light",
+              "theme": {
+                "mode": "light"
+              },
+              "clip": true,
+              "width": 390,
+              "height": 1037,
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "SMbb8",
+                  "name": "Dialog",
+                  "width": 358,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fR2cw",
+                      "name": "Heading",
+                      "fill": "$ink",
+                      "content": "Add a story structure",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "EHUh1",
+                      "name": "Description",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sTPo4",
+                      "name": "Structure options",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "V1N8I6",
+                          "name": "Structure label",
+                          "fill": "$ink-muted",
+                          "content": "Structure",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "oeXfd",
+                          "name": "Option Three-act structure",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "wMBY2",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "e0hFL",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "n6sfK",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Three-act structure",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "bD10d",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. Setup, confrontation and resolution.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "uaM09",
+                          "name": "Option Hero's Journey",
+                          "width": "fill_container",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius",
+                          "stroke": "$accent",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Nq1bd",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$accent",
+                              "strokeWidth": 2,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "lAdIe",
+                                  "name": "Dot",
+                                  "width": 8,
+                                  "height": 8,
+                                  "fill": "$accent",
+                                  "cornerRadius": "$radius-full"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "W9ARx",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "v1bUqU",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Hero's Journey",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "nD6xj",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. Leaving home, being tested, coming back changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "k0pzPO",
+                          "name": "Option Save the Cat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "mwv9z",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "M8xrNh",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "rYPhN",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Save the Cat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "QzLu5",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "15 scenes. Fifteen beats, popular for genre novels.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "jDfHZ",
+                          "name": "Option Romancing the Beat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "LYuOW",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "OnkAZ",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jxjHY",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Romancing the Beat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "ZPN20",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. A love story from meeting to the happy ending.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sTB4y",
+                          "name": "Option Story Circle",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "KAMLz",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ktT2I",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "iGFT0",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Story Circle",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "FRf5Q",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. A character leaves comfort and returns changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hzuGg",
+                      "name": "Chapter field",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "O5YXzZ",
+                          "name": "Chapter label",
+                          "fill": "$ink-muted",
+                          "content": "Add to chapter",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "qYRA2",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Chapter select",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "The Harbour"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uB17K",
+                      "name": "Preview",
+                      "width": "fill_container",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Ro5n5",
+                          "name": "Preview label",
+                          "fill": "$ink-muted",
+                          "content": "What will be added",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "bEIjb",
+                          "name": "Stage Departure",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "yQgek",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Departure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Onw2t",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Ordinary world, Call to adventure, Refusal of the call, Meeting the mentor, Crossing the threshold",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "MbR9f",
+                          "name": "Stage Initiation",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "CHGUW",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Initiation",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Wvw4n",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Tests, allies and enemies, Approach to the inmost cave, The ordeal, Reward",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "yLBgU",
+                          "name": "Stage Return",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "jMXLx",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Return",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "xOMG3",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The road back, Resurrection, Return with the elixir",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "tMOSz",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "Z83Hb",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "DUHIc",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Add scenes",
+                          "descendants": {
+                            "gNKXH": {
+                              "content": "Add 12 scenes"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dsPtN",
+              "name": "Story structure dialog / mobile / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "clip": true,
+              "width": 390,
+              "height": 1037,
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "qD3Hc",
+                  "name": "Dialog",
+                  "width": 358,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "E6Ca2",
+                      "name": "Heading",
+                      "fill": "$ink",
+                      "content": "Add a story structure",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "iTU2R",
+                      "name": "Description",
+                      "fill": "$ink-muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "FECgX",
+                      "name": "Structure options",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ILkzp",
+                          "name": "Structure label",
+                          "fill": "$ink-muted",
+                          "content": "Structure",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "v2bTl",
+                          "name": "Option Three-act structure",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "rtj2q",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "T5WG6",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "aIiwb",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Three-act structure",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "c7bet",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. Setup, confrontation and resolution.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zCUzT",
+                          "name": "Option Hero's Journey",
+                          "width": "fill_container",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius",
+                          "stroke": "$accent",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "RQHxY",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$accent",
+                              "strokeWidth": 2,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "Kt6Ku",
+                                  "name": "Dot",
+                                  "width": 8,
+                                  "height": 8,
+                                  "fill": "$accent",
+                                  "cornerRadius": "$radius-full"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "tbHQ3",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "iak52",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Hero's Journey",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "wT9SY",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. Leaving home, being tested, coming back changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "o94k2E",
+                          "name": "Option Save the Cat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "DrIVb",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "s2sBm",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "VU2x6",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Save the Cat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "ZvMHr",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "15 scenes. Fifteen beats, popular for genre novels.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "afWJq",
+                          "name": "Option Romancing the Beat",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "VBQ7i",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "p6L5A4",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "CNYYp",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Romancing the Beat",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "dLN9s",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "12 scenes. A love story from meeting to the happy ending.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "UMCdA",
+                          "name": "Option Story Circle",
+                          "width": "fill_container",
+                          "fill": "$surface",
+                          "cornerRadius": "$radius",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "pdk6H",
+                              "name": "Radio",
+                              "width": 18,
+                              "height": 18,
+                              "fill": "$surface",
+                              "cornerRadius": "$radius-full",
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "UqExx",
+                              "name": "Option text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jk4wD",
+                                  "name": "Option name",
+                                  "fill": "$ink",
+                                  "content": "Story Circle",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "NPMRY",
+                                  "name": "Option summary",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "8 scenes. A character leaves comfort and returns changed.",
+                                  "lineHeight": 1.4,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nHtgf",
+                      "name": "Chapter field",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "jp8TR",
+                          "name": "Chapter label",
+                          "fill": "$ink-muted",
+                          "content": "Add to chapter",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "s8bq8A",
+                          "type": "ref",
+                          "ref": "PE4pF",
+                          "name": "Chapter select",
+                          "width": "fill_container",
+                          "descendants": {
+                            "oNv10": {
+                              "content": "The Harbour"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "L9U0k",
+                      "name": "Preview",
+                      "width": "fill_container",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "PMkph",
+                          "name": "Preview label",
+                          "fill": "$ink-muted",
+                          "content": "What will be added",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sVgtb",
+                          "name": "Stage Departure",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "hCDNs",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Departure",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "FAQq0",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Ordinary world, Call to adventure, Refusal of the call, Meeting the mentor, Crossing the threshold",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "j4CUM",
+                          "name": "Stage Initiation",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VdTaA",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Initiation",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "jqFM5",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Tests, allies and enemies, Approach to the inmost cave, The ordeal, Reward",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "VLDk9",
+                          "name": "Stage Return",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ZWeld",
+                              "name": "Stage name",
+                              "fill": "$ink",
+                              "content": "Return",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "KHNoI",
+                              "name": "Stage beats",
+                              "fill": "$ink-muted",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The road back, Resurrection, Return with the elixir",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "qAWs8",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "VJmph",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "t3QAzk",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Add scenes",
+                          "descendants": {
+                            "gNKXH": {
+                              "content": "Add 12 scenes"
+                            }
+                          }
                         }
                       ]
                     }

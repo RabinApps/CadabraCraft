@@ -69,6 +69,7 @@ packages/
   editor-schema/    TipTap schema for the v1 node set
   format/           Manifest validation, migrations, chapter-tree edits, file naming
   templates/        Novel, nonfiction and modern templates as data
+  story-structures/ Story structures (Hero's Journey, Save the Cat, ...) as data, and scene placeholders made from them
   export-epub/      Chapter JSON to EPUB 3
   export-pdf/       Print PDF via Typst
   export-markdown/  Chapter JSON to Markdown (inverse of the importer)

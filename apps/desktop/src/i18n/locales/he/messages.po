@@ -410,6 +410,10 @@ msgstr "{n, plural, one {התאמה #} other {# התאמות}}"
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {עמוד # שלא תורגם הושמט} other {# עמודים שלא תורגמו הושמטו}}"
 
+#: src/app/board/StructureDialog.tsx
+msgid "{n} scenes"
+msgstr "{n} סצנות"
+
 #: src/state/project/references.ts
 msgid "{name} is already in this book. Using the existing file."
 msgstr "{name} כבר נמצא בספר זה. משתמשים בקובץ הקיים."
@@ -615,6 +619,10 @@ msgstr "פעולות עבור {0}"
 msgid "Actions for {title}"
 msgstr "פעולות עבור {title}"
 
+#: src/app/board/StructureDialog.tsx
+msgid "Add {count} scenes"
+msgstr "הוספת {count} סצנות"
+
 #: src/state/project/pages.ts
 msgid "Add {name}"
 msgstr "הוספת {name}"
@@ -626,6 +634,10 @@ msgstr "הוספת {title}"
 #: src/app/library/Library.tsx
 msgid "Add a folder of books…"
 msgstr "הוספת תיקיית ספרים…"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Add a story structure"
+msgstr "הוספת מבנה סיפור"
 
 #: src/app/board/SceneCard.tsx
 msgid "Add a synopsis"
@@ -698,6 +710,10 @@ msgstr "הוספת עמוד"
 msgid "Add Row Below"
 msgstr "הוספת שורה מתחת"
 
+#: src/state/project/scenes.ts
+msgid "Add story structure"
+msgstr "הוספת מבנה סיפור"
+
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Add to book"
 msgstr "הוספה לספר"
@@ -705,6 +721,14 @@ msgstr "הוספה לספר"
 #: src/app/scenes/SceneRail.tsx
 msgid "Add to cast"
 msgstr "הוספה לצוות הדמויות"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Add to chapter"
+msgstr "הוספה לפרק"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Added {n} scenes from {name} to {title}"
+msgstr "נוספו {n} סצנות מתוך {name} אל {title}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
@@ -1068,6 +1092,7 @@ msgstr "הקוד של CadabraCraft זמין לעיון. כאן הרישיון ש
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft מעודכנת."
 
+#: src/app/board/StructureDialog.tsx
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -1527,6 +1552,10 @@ msgstr "לא ניתן היה להוסיף את התמונה: {why}. בחרו ת�
 msgid "Could not add the language: {why}. Choose another language, or try again."
 msgstr "לא ניתן היה להוסיף את השפה: {why}. בחרו שפה אחרת או נסו שוב."
 
+#: src/app/board/StructureDialog.tsx
+msgid "Could not add the scenes: {why}. Nothing was changed."
+msgstr "לא ניתן להוסיף את הסצנות: {why}. דבר לא שונה."
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not be read"
 msgstr "לא ניתן היה לקרוא"
@@ -1961,6 +1990,10 @@ msgstr "מצייר סימני חיתוך מחוץ לשולי החיתוך ומג
 #: src/app/references/ReferencesPanel.tsx
 msgid "Drop files here to add them"
 msgstr "שחרר קבצים כאן כדי להוסיף אותם"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed."
+msgstr "כל שלב הופך לסצנה עם כותרת ותקציר, מוכנה לכתיבה. סצנות נוספות רק אחרי מה שכבר קיים בפרק; דבר אינו משתנה או נמחק."
 
 #: src/app/onboarding/Onboarding.tsx
 msgid "Each book is a folder you own. No account, no telemetry, no cloud."
@@ -3417,6 +3450,10 @@ msgstr "אין עדיין מה להציג. הוסף פרק והוא יופיע �
 msgid "Nothing to wrap"
 msgstr "אין מה לעטוף"
 
+#: src/app/board/StructureDialog.tsx
+msgid "Nothing was added: {title} could not be read"
+msgstr "דבר לא נוסף: לא ניתן היה לקרוא את {title}"
+
 #: src/app/dialogs/ImportParts.tsx
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
@@ -4701,11 +4738,19 @@ msgstr "נשמר במחשב זה. אין צורך בחשבון."
 msgid "Storm"
 msgstr "סערה"
 
+#: src/app/board/SceneBoard.tsx
+msgid "Story structure"
+msgstr "מבנה סיפור"
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Strikethrough"
 msgstr "קו חוצה"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Structure"
+msgstr "מבנה"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Subjects"
@@ -5540,6 +5585,10 @@ msgstr "ברוכים הבאים ל-CadabraCraft"
 #: src/app/shell/menuModel.ts
 msgid "Welcome to CadabraCraft…"
 msgstr "ברוכים הבאים ל-CadabraCraft…"
+
+#: src/app/board/StructureDialog.tsx
+msgid "What will be added"
+msgstr "מה יתווסף"
 
 #: src/editor/Editor.tsx
 msgid "What you pasted"

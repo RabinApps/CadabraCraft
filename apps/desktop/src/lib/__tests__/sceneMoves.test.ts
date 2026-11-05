@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  appendScenes,
   insertScene,
   patchScene,
   reorderScenes,
@@ -99,6 +100,25 @@ describe("insertScene", () => {
 
   it("refuses a second scene with the same id", () => {
     expect(() => insertScene(d, scene("a") as SceneNodeJson, 0)).toThrow(/already has a scene a/);
+  });
+});
+
+describe("appendScenes", () => {
+  const d = doc(title, scene("a"), para("loose"));
+  const n1 = scene("n1") as SceneNodeJson;
+  const n2 = scene("n2") as SceneNodeJson;
+
+  it("adds the scenes after everything, in order, and leaves what was there alone", () => {
+    const out = appendScenes(d, [n1, n2]);
+    expect(out.content.slice(0, 3)).toEqual(d.content);
+    expect(out.content.slice(3)).toEqual([n1, n2]);
+    expect(d.content).toHaveLength(3);
+  });
+
+  it("changes nothing for an empty list, and refuses an id that is already there or repeated", () => {
+    expect(appendScenes(d, [])).toEqual(d);
+    expect(() => appendScenes(d, [scene("a") as SceneNodeJson])).toThrow(/already has a scene a/);
+    expect(() => appendScenes(d, [n1, n1])).toThrow(/already has a scene n1/);
   });
 });
 

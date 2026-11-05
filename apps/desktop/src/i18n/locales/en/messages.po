@@ -410,6 +410,10 @@ msgstr "{n, plural, one {# match} other {# matches}}"
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 
+#: src/app/board/StructureDialog.tsx
+msgid "{n} scenes"
+msgstr "{n} scenes"
+
 #: src/state/project/references.ts
 msgid "{name} is already in this book. Using the existing file."
 msgstr "{name} is already in this book. Using the existing file."
@@ -615,6 +619,10 @@ msgstr "Actions for {0}"
 msgid "Actions for {title}"
 msgstr "Actions for {title}"
 
+#: src/app/board/StructureDialog.tsx
+msgid "Add {count} scenes"
+msgstr "Add {count} scenes"
+
 #: src/state/project/pages.ts
 msgid "Add {name}"
 msgstr "Add {name}"
@@ -626,6 +634,10 @@ msgstr "Add {title}"
 #: src/app/library/Library.tsx
 msgid "Add a folder of books…"
 msgstr "Add a folder of books…"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Add a story structure"
+msgstr "Add a story structure"
 
 #: src/app/board/SceneCard.tsx
 msgid "Add a synopsis"
@@ -698,6 +710,10 @@ msgstr "Add page"
 msgid "Add Row Below"
 msgstr "Add Row Below"
 
+#: src/state/project/scenes.ts
+msgid "Add story structure"
+msgstr "Add story structure"
+
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Add to book"
 msgstr "Add to book"
@@ -705,6 +721,14 @@ msgstr "Add to book"
 #: src/app/scenes/SceneRail.tsx
 msgid "Add to cast"
 msgstr "Add to cast"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Add to chapter"
+msgstr "Add to chapter"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Added {n} scenes from {name} to {title}"
+msgstr "Added {n} scenes from {name} to {title}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
@@ -1068,6 +1092,7 @@ msgstr "CadabraCraft is source-available. These are its license and the licenses
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft is up to date."
 
+#: src/app/board/StructureDialog.tsx
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -1527,6 +1552,10 @@ msgstr "Could not add the image: {why}. Choose another image and try again."
 msgid "Could not add the language: {why}. Choose another language, or try again."
 msgstr "Could not add the language: {why}. Choose another language, or try again."
 
+#: src/app/board/StructureDialog.tsx
+msgid "Could not add the scenes: {why}. Nothing was changed."
+msgstr "Could not add the scenes: {why}. Nothing was changed."
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not be read"
 msgstr "Could not be read"
@@ -1961,6 +1990,10 @@ msgstr "Draws trim marks outside the bleed and makes the page larger on every si
 #: src/app/references/ReferencesPanel.tsx
 msgid "Drop files here to add them"
 msgstr "Drop files here to add them"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed."
+msgstr "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed."
 
 #: src/app/onboarding/Onboarding.tsx
 msgid "Each book is a folder you own. No account, no telemetry, no cloud."
@@ -3417,6 +3450,10 @@ msgstr "Nothing to list yet. Add a chapter and it appears here."
 msgid "Nothing to wrap"
 msgstr "Nothing to wrap"
 
+#: src/app/board/StructureDialog.tsx
+msgid "Nothing was added: {title} could not be read"
+msgstr "Nothing was added: {title} could not be read"
+
 #: src/app/dialogs/ImportParts.tsx
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
@@ -4701,11 +4738,19 @@ msgstr "Stored on this computer. No account needed."
 msgid "Storm"
 msgstr "Storm"
 
+#: src/app/board/SceneBoard.tsx
+msgid "Story structure"
+msgstr "Story structure"
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Strikethrough"
 msgstr "Strikethrough"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Structure"
+msgstr "Structure"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Subjects"
@@ -5540,6 +5585,10 @@ msgstr "Welcome to CadabraCraft"
 #: src/app/shell/menuModel.ts
 msgid "Welcome to CadabraCraft…"
 msgstr "Welcome to CadabraCraft…"
+
+#: src/app/board/StructureDialog.tsx
+msgid "What will be added"
+msgstr "What will be added"
 
 #: src/editor/Editor.tsx
 msgid "What you pasted"

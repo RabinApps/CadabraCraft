@@ -35,6 +35,7 @@
     "@cadabracraft/format": "workspace:*",
     "@cadabracraft/import-docx": "workspace:*",
     "@cadabracraft/shared": "workspace:*",
+    "@cadabracraft/story-structures": "workspace:*",
     "@cadabracraft/templates": "workspace:*",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/newsreader": "^5.3.0",

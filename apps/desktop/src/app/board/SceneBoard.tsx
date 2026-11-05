@@ -15,6 +15,7 @@ import { useCodex } from "../../state/codex";
 import { useSceneView } from "../../state/sceneView";
 import { attempt } from "../../state/attempt";
 import { SceneCard } from "./SceneCard";
+import { StructureDialog } from "./StructureDialog";
 import { useBoardData, type BoardChapter } from "./useBoardData";
 
 /** Every word of the chapter on the board: its scenes and the text outside them. */
@@ -59,6 +60,7 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
   );
   const { chapters, duplicates } = useBoardData(ready);
   const [said, setSaid] = useState("");
+  const [structureOpen, setStructureOpen] = useState(false);
   const gripHelp = useId();
   useEffect(() => {
     if (!said) return;
@@ -195,6 +197,11 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
             {isAlert ? notice : ""}
           </span>
         </div>
+        {chapters.length > 0 && (
+          <Button size="sm" onClick={() => setStructureOpen(true)}>
+            {t`Story structure`}
+          </Button>
+        )}
         <div className="md:hidden w-full">
           {shown && (
             <Select label={t`Chapter`} value={shown.id} onChange={(e) => setPicked(e.target.value)}>
@@ -297,6 +304,13 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
             ))}
           </div>
         )}
+        <StructureDialog
+          open={structureOpen}
+          onOpenChange={setStructureOpen}
+          chapters={chapters.map((c) => ({ id: c.id, title: c.title }))}
+          defaultChapterId={shown?.id ?? ""}
+          onAdded={setSaid}
+        />
         <p id={gripHelp} className="sr-only">
           {t`Drag to move, or press the arrow keys: up and down move within the chapter, left and right to the next chapter. Escape cancels a drag.`}
         </p>

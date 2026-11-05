@@ -410,6 +410,10 @@ msgstr "{n, plural, one {تطابق واحد} two {تطابقان} few {# تطا
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {حُذفت صفحة واحدة غير مترجمة} two {حُذفت صفحتان غير مترجمتين} few {حُذفت # صفحات غير مترجمة} many {حُذفت # صفحة غير مترجمة} other {حُذفت # صفحة غير مترجمة}}"
 
+#: src/app/board/StructureDialog.tsx
+msgid "{n} scenes"
+msgstr "{n} مشاهد"
+
 #: src/state/project/references.ts
 msgid "{name} is already in this book. Using the existing file."
 msgstr "{name} موجود بالفعل في هذا الكتاب. سيُستخدم الملف الموجود."
@@ -615,6 +619,10 @@ msgstr "إجراءات لـ {0}"
 msgid "Actions for {title}"
 msgstr "إجراءات لـ {title}"
 
+#: src/app/board/StructureDialog.tsx
+msgid "Add {count} scenes"
+msgstr "إضافة {count} مشاهد"
+
 #: src/state/project/pages.ts
 msgid "Add {name}"
 msgstr "إضافة {name}"
@@ -626,6 +634,10 @@ msgstr "إضافة {title}"
 #: src/app/library/Library.tsx
 msgid "Add a folder of books…"
 msgstr "إضافة مجلد كتب…"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Add a story structure"
+msgstr "إضافة بنية قصصية"
 
 #: src/app/board/SceneCard.tsx
 msgid "Add a synopsis"
@@ -698,6 +710,10 @@ msgstr "إضافة صفحة"
 msgid "Add Row Below"
 msgstr "إضافة صف أسفله"
 
+#: src/state/project/scenes.ts
+msgid "Add story structure"
+msgstr "إضافة بنية قصصية"
+
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Add to book"
 msgstr "إضافة إلى الكتاب"
@@ -705,6 +721,14 @@ msgstr "إضافة إلى الكتاب"
 #: src/app/scenes/SceneRail.tsx
 msgid "Add to cast"
 msgstr "إضافة إلى الشخصيات"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Add to chapter"
+msgstr "إضافة إلى الفصل"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Added {n} scenes from {name} to {title}"
+msgstr "تمت إضافة {n} مشاهد من {name} إلى {title}"
 
 #: src/app/export/PrintPreview.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
@@ -1068,6 +1092,7 @@ msgstr "شيفرة CadabraCraft المصدرية متاحة للاطلاع. هن
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft محدّث."
 
+#: src/app/board/StructureDialog.tsx
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
@@ -1527,6 +1552,10 @@ msgstr "تعذّرت إضافة الصورة: {why}. اختر صورة أخرى 
 msgid "Could not add the language: {why}. Choose another language, or try again."
 msgstr "تعذّرت إضافة اللغة: {why}. اختر لغة أخرى أو حاول مرة أخرى."
 
+#: src/app/board/StructureDialog.tsx
+msgid "Could not add the scenes: {why}. Nothing was changed."
+msgstr "تعذّرت إضافة المشاهد: {why}. لم يتغير شيء."
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not be read"
 msgstr "تعذّرت قراءته"
@@ -1961,6 +1990,10 @@ msgstr "ترسم علامات القص خارج حافة القص وتجعل ا�
 #: src/app/references/ReferencesPanel.tsx
 msgid "Drop files here to add them"
 msgstr "أفلت الملفات هنا لإضافتها"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed."
+msgstr "تتحول كل محطة إلى مشهد له عنوان وملخص، جاهز للكتابة. تُضاف المشاهد فقط بعد ما يحتويه الفصل أصلًا؛ ولا يتغير شيء أو يُحذف."
 
 #: src/app/onboarding/Onboarding.tsx
 msgid "Each book is a folder you own. No account, no telemetry, no cloud."
@@ -3417,6 +3450,10 @@ msgstr "لا شيء لإدراجه بعد. أضف فصلًا وسيظهر هنا
 msgid "Nothing to wrap"
 msgstr "لا شيء لتجميعه"
 
+#: src/app/board/StructureDialog.tsx
+msgid "Nothing was added: {title} could not be read"
+msgstr "لم تتم إضافة شيء: تعذّرت قراءة {title}"
+
 #: src/app/dialogs/ImportParts.tsx
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
@@ -4701,11 +4738,19 @@ msgstr "يُخزَّن على هذا الحاسوب. لا حاجة إلى حسا
 msgid "Storm"
 msgstr "عاصفة"
 
+#: src/app/board/SceneBoard.tsx
+msgid "Story structure"
+msgstr "بنية قصصية"
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 #: src/editor/Toolbar.tsx
 msgid "Strikethrough"
 msgstr "يتوسطه خط"
+
+#: src/app/board/StructureDialog.tsx
+msgid "Structure"
+msgstr "البنية"
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Subjects"
@@ -5540,6 +5585,10 @@ msgstr "أهلًا بك في CadabraCraft"
 #: src/app/shell/menuModel.ts
 msgid "Welcome to CadabraCraft…"
 msgstr "أهلًا بك في CadabraCraft…"
+
+#: src/app/board/StructureDialog.tsx
+msgid "What will be added"
+msgstr "ما سيُضاف"
 
 #: src/editor/Editor.tsx
 msgid "What you pasted"
