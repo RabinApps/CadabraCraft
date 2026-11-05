@@ -129,6 +129,26 @@ const sceneBoard = async (page: Page) => {
   await shown(page.getByRole("button", { name: "Add a synopsis to Untitled scene" }));
 };
 
+/** The timeline of a book whose first chapter holds a dated scene and an undated one. */
+const timeline = async (page: Page) => {
+  await newProject(page);
+  const add = () =>
+    page
+      .getByRole("list", { name: "Scenes in Chapter One" })
+      .getByRole("button", { name: "Scene", exact: true })
+      .click();
+  await add();
+  await page.keyboard.type("Mara waits on the quay.");
+  await expect(page.getByRole("status").first()).toContainText("Saved");
+  await page.getByRole("button", { name: "Timeline" }).click();
+  await shown(page.getByRole("heading", { name: "Timeline", level: 1 }));
+  const day = page.getByLabel("Story date of Untitled scene", { exact: true });
+  await shown(day);
+  await day.fill("1893-09-03");
+  await day.blur();
+  await shown(page.getByRole("button", { name: "Clear the story date of Untitled scene" }));
+};
+
 const contentsRegion = (page: Page) => page.getByRole("region", { name: "Contents", exact: true });
 const preview = (page: Page) => page.getByRole("region", { name: "Preview", exact: true });
 /** Typst's page report puts the contents page on pages 2 and 3 of 6 (the fake PDF has blank pages). Set before the page is added. */
@@ -606,6 +626,20 @@ export const moreScreens: Screen[] = [
       await sceneBoard(p);
       await p.getByRole("button", { name: "Actions for Untitled scene" }).click();
       await shown(p.getByRole("menuitem", { name: "Move later" }));
+    },
+  },
+  {
+    name: "Timeline",
+    open: async (p) => {
+      await timeline(p);
+    },
+  },
+  {
+    name: "Timeline, story date order",
+    open: async (p) => {
+      await timeline(p);
+      await p.getByRole("radio", { name: "Story date" }).click();
+      await shown(p.getByText("Scenes are ordered by story date."));
     },
   },
   {
