@@ -18,6 +18,7 @@
     "@cadabracraft/export-docx": "workspace:*",
     "@cadabracraft/export-epub": "workspace:*",
     "@cadabracraft/export-markdown": "workspace:*",
+    "@cadabracraft/outline": "workspace:*",
     "@cadabracraft/export-pdf": "workspace:*",
     "@cadabracraft/export-rtf": "workspace:*",
     "@cadabracraft/format": "workspace:*",

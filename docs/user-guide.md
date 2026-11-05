@@ -46,7 +46,7 @@ MyBook/
   front-matter/    title page, copyright page, dedication...
   back-matter/     acknowledgments, about the author...
   assets/          your images and cover
-  exports/         the EPUB, PDF and Markdown files you make
+  exports/         the EPUB, PDF, Markdown and outline files you make
   .cadabra/        the app's own safety copies and trash
 ```
 
@@ -275,6 +275,16 @@ The PDF is built by Typst. Installers are meant to ship with it (see Troubleshoo
 ### Markdown
 
 Writes the whole book as one Markdown file in reading order. A contents page becomes a nested list of links to the chapters and headings. Underline, small caps, superscript and subscript have no Markdown form, so by default the export stops and names the chapter; tick **Keep underline and small caps** to write them as HTML tags instead.
+
+### Outline
+
+Writes the structure of the book without its text: each chapter with its scenes, and for every scene the title, synopsis, point of view, status, label, target, word count, story date and the names of the cast (from the codex). Pick **Outline** in the Export dialog, then a file type:
+
+- **OPML (.opml)** opens in outliners such as OmniOutliner or Bike. The synopsis is the note of each row, and the other fields travel as extra attributes that a plain outliner ignores.
+- **Markdown (.md)** has a heading for each chapter and scene with the synopsis below it, and a line of fields.
+- **CSV (.csv)** has one row per scene (and one row for a chapter without scenes), for a spreadsheet. A cell that starts with `=`, `+`, `-` or `@` gets a leading apostrophe so a spreadsheet cannot run it as a formula. It is a generic spreadsheet shape, not a format of any particular planning app.
+
+The file is `outline.opml`, `outline.md` or `outline.csv` in `exports/<language>/`. Front and back matter are left out. Reading an outline back into the book is not available yet.
 
 After an export finishes the app may offer a sponsor dialog; you can say "Maybe later" or "Don't show again".
 

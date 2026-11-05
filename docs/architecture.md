@@ -2001,3 +2001,27 @@ The pointer drag from `EntryList` moved into `ui/useDragReorder`, which knows no
 | Rewriting `EntryList` drag for the board separately | Two copies of the Escape, cancel and pointer handling to keep in step.                                                                       |
 
 **Follow-ups / caveats:** each edit reads the book's chapters to find a scene, which is fine for a novel and not measured on 120,000 words. A duplicate scene id (left by a failed move) keeps the first card on the board and shows a notice; there is no automatic repair. Not verified against a book edited on two machines at once beyond the existing conflict-copy rule.
+
+## Outline export (2026-11-04)
+
+### Decision
+
+The book's structure (chapters, their scenes, the scene fields, the cast as names) can be written as `outline.opml`, `outline.md` or `outline.csv` under `exports/<language>/`, by the new `packages/outline` (pure: `buildOutline` reads the chapter JSON, `toOpml`, `toMarkdown` and `toCsv` write, `fromOpml` and `fromMarkdown` parse for the import still to come). No chapter text is ever written. The app action is `exportOutline` (Export dialog, Outline format) and the MCP tool is `cadabra_export_outline`; both read `codex.json` only to turn cast ids into names, and fall back to the ids when it is missing or invalid.
+
+### Why
+
+- **OPML 2.0** is what outliners read, with the synopsis in the standard `_note` attribute and the scene fields in a namespaced `cc:` set a plain outliner ignores, so a round trip keeps them.
+- **Plottr has no CSV import** (checked against its current help center: it imports Word, Scrivener and Snowflake Pro files). The plan's "CSV that Plottr can read" is therefore dropped; the CSV is a documented generic spreadsheet shape with fixed columns (`CSV_COLUMNS`).
+- **CSV cells that start with `=`, `+`, `-`, `@`, tab or CR get a leading apostrophe**, so a synopsis cannot run as a spreadsheet formula. RFC 4180 quoting, CRLF and a BOM so Excel reads accents.
+- **Parsers refuse hostile input**: a DOCTYPE, malformed XML, and files over `MAX_OUTLINE_BYTES`, `MAX_OUTLINE_CHAPTERS` or `MAX_OUTLINE_SCENES` raise `OutlineError`; bad values are cleaned with warnings.
+- **Exporting needs no new binary or network call**; `fast-xml-parser` was already a dependency elsewhere.
+
+### Rejected alternatives
+
+- **A Plottr-specific CSV or a Word template**: no documented CSV import, and the Word import needs Plottr's own template; not worth guessing a format.
+- **Writing OPML by string only without a parser**: the import needs one, and a shared test round-trips both.
+- **Putting the outline in the manuscript Markdown export**: that export is the text; the outline is a different artifact for different tools.
+
+### Follow-ups / caveats
+
+- Import (S06b) is not built: the parsers exist and are tested, no UI or action reads them.

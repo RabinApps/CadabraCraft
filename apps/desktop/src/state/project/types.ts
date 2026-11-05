@@ -8,6 +8,7 @@ import type {
   TocItem,
 } from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
+import type { OutlineFormat } from "@cadabracraft/outline";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import type { PublishingForm } from "../../lib/publishingForm";
@@ -465,6 +466,8 @@ export interface ExportActions {
   exportEpub: (scope?: ExportScope) => Promise<void>;
   /** Writes the whole book as exports/<language>/book.md. With `htmlMarks` false it throws `MarkdownExportError` (naming the chapter) at the first underline, small caps, superscript or subscript. */
   exportMarkdown: (options: { htmlMarks: boolean } & ExportScope) => Promise<void>;
+  /** Writes the book's chapters and scenes (titles, synopses and the scene fields, never the text) as exports/<language>/outline.opml, outline.md or outline.csv. The codex names the scene cast. Throws when the book has no chapters. */
+  exportOutline: (options: { format: OutlineFormat } & ExportScope) => Promise<void>;
   /** Writes the whole book as exports/<language>/manuscript.docx in standard manuscript format. Throws a `DocxExportError` message that names the page (and node) it cannot write. */
   exportDocx: (options: { font: ManuscriptFont } & ExportScope) => Promise<void>;
   /** Writes the whole book as exports/<language>/manuscript.rtf in the same manuscript format. Throws an `RtfExportError` message that names the page (and node) it cannot write, for example a GIF, WebP or SVG image. */

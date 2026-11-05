@@ -25,7 +25,7 @@ export interface ServerOptions {
 
 const INSTRUCTIONS = `Tools to create, edit, import and export CadabraCraft books (a project is a folder with cadabra.json and chapter JSON files) without the app.
 All paths are relative to the workspace root (or absolute inside it); anything outside is refused.
-Typical flow: cadabra_project_create or cadabra_import_file, then cadabra_chapter_add / cadabra_chapter_write_markdown, cadabra_project_validate, cadabra_export_epub / cadabra_export_pdf / cadabra_export_markdown / cadabra_export_docx / cadabra_export_rtf.
+Typical flow: cadabra_project_create or cadabra_import_file, then cadabra_chapter_add / cadabra_chapter_write_markdown, cadabra_project_validate, cadabra_export_epub / cadabra_export_pdf / cadabra_export_markdown / cadabra_export_outline / cadabra_export_docx / cadabra_export_rtf.
 Editions: cadabra_edition_add adds a translation (copy or empty); write it with the chapter write tools and their language argument.
 Reference files (research kept in references/, never exported): cadabra_reference_list, cadabra_reference_add (copies a workspace file in), cadabra_reference_update.
 Contents page (generated list of chapters and headings, with overrides): cadabra_toc_get, cadabra_toc_update (add_page, set_depth, rename, hide, move, ...).

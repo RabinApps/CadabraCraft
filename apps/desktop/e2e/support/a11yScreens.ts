@@ -645,6 +645,7 @@ export const moreScreens: Screen[] = [
     },
   },
   { name: "export dialog, Markdown panel", open: exportPanel("Markdown") },
+  { name: "export dialog, Outline panel", open: exportPanel("Outline") },
   { name: "export dialog, Word panel", open: exportPanel("Word (.docx)") },
   { name: "export dialog, Rich Text panel", open: exportPanel("Rich Text (.rtf)") },
   {

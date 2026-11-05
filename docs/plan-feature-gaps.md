@@ -47,7 +47,7 @@ Depends on G03, and on G04 where noted.
 | S03 | **Story-structure templates as data** (Hero's Journey, Save the Cat, Romancing the Beat, 3-Act, Story Circle), applied as scene placeholders.                                                                                              | M    | S01                               |
 | S04 | **Library screen (built 2026-11-05: `app/library`, `scan_library`, `Library / size / mode` frames).** Covers, sort, search and series grouping. Home keeps its newest books and links to the Library, which lists every known book.        | M    | pen frames                        |
 | S05 | **Series layer.** Series id and reading order in the manifest, a codex shared across the books of a series, and a library-wide search.                                                                                                     | L    | ⚑ where a shared bible lives; G04 |
-| S06 | **Outline export and import** (OPML and Markdown; a CSV shape that Plottr can read).                                                                                                                                                       | M    | G03                               |
+| S06 | **Outline export and import** (OPML and Markdown; a generic CSV: Plottr has no CSV import). **Export done**; import (S06b) is open.                                                                                                        | M    | G03                               |
 
 ## Phase 3 - Writing quality
 

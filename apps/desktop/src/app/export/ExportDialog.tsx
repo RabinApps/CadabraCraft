@@ -19,6 +19,8 @@ import { nativeName } from "../shell/EditionSwitcher";
 import { EpubPanel } from "./EpubPanel";
 import { ManuscriptPanel } from "./ManuscriptPanel";
 import { MarkdownPanel } from "./MarkdownPanel";
+import { OutlinePanel } from "./OutlinePanel";
+import { OUTLINE_FORMATS, type OutlineFormat } from "@cadabracraft/outline";
 import { PdfPanel, usePdfOptions } from "./PdfPanel";
 import { useAudioExport } from "./useAudioExport";
 import type { ExportFormat } from "./exportFormat";
@@ -56,6 +58,8 @@ export function ExportDialog({
   const exportRtf = useProject((s) => s.actions.exportRtf);
   const exportPdf = useProject((s) => s.actions.exportPdf);
   const activeLanguage = useProject((s) => s.activeLanguage);
+  const exportOutline = useProject((s) => s.actions.exportOutline);
+  const [outlineFormat, setOutlineFormat] = useState<OutlineFormat>("opml");
   const [htmlMarks, setHtmlMarks] = useState(false);
   const [font, setFont] = useState<ManuscriptFont>("times");
   const [error, setError] = useState<PdfUiError | null>(null);
@@ -77,6 +81,7 @@ export function ExportDialog({
   const scopeOf = (l: string) => ({ language: l, skipUntranslated: skipped.includes(l) });
   const scope = scopeOf(language);
   const dir = exportDir(exporting ?? language);
+  const outlineFile = OUTLINE_FORMATS[outlineFormat].file;
   const blocked = manifest
     ? picked.find((l) => untranslatedIn(manifest, l).length > 0 && !skipped.includes(l))
     : undefined;
@@ -109,11 +114,17 @@ export function ExportDialog({
                 rendering: t`Writing the Rich Text file…`,
                 saving: t`Saving ${dir}/manuscript.rtf…`,
               }
-            : {
-                preparing: t`Reading your chapters…`,
-                rendering: t`Typesetting the book with Typst…`,
-                saving: t`Saving ${dir}/book.pdf…`,
-              };
+            : format === "outline"
+              ? {
+                  preparing: t`Reading your chapters…`,
+                  rendering: t`Writing the outline…`,
+                  saving: t`Saving ${dir}/${outlineFile}…`,
+                }
+              : {
+                  preparing: t`Reading your chapters…`,
+                  rendering: t`Typesetting the book with Typst…`,
+                  saving: t`Saving ${dir}/book.pdf…`,
+                };
 
   const change = (o: boolean) => {
     if (running) return; // an export cannot be cancelled; keep the dialog until it ends
@@ -137,6 +148,7 @@ export function ExportDialog({
         else if (format === "markdown") await exportMarkdown({ htmlMarks, ...s });
         else if (format === "docx") await exportDocx({ font, ...s });
         else if (format === "rtf") await exportRtf({ font, ...s });
+        else if (format === "outline") await exportOutline({ format: outlineFormat, ...s });
         else
           await exportPdf({
             trimSize: pdf.trimSize,
@@ -162,7 +174,9 @@ export function ExportDialog({
                 ? `${last}/manuscript.docx`
                 : format === "rtf"
                   ? `${last}/manuscript.rtf`
-                  : `${last}/book.pdf`,
+                  : format === "outline"
+                    ? `${last}/${outlineFile}`
+                    : `${last}/book.pdf`,
         );
     } catch (e) {
       setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
@@ -187,7 +201,9 @@ export function ExportDialog({
                 ? t`Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer.`
                 : format === "rtf"
                   ? t`Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer.`
-                  : t`Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app.`
+                  : format === "outline"
+                    ? t`Writes the structure of the book (chapters and scenes with their notes) as an outline file in the exports folder. No chapter text is written. Nothing else is needed on this computer.`
+                    : t`Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app.`
       }
     >
       <form
@@ -211,6 +227,7 @@ export function ExportDialog({
             { value: "docx", label: t`Word (.docx)` },
             { value: "rtf", label: t`Rich Text (.rtf)` },
             { value: "audiobook", label: t`Audiobook` },
+            { value: "outline", label: t`Outline` },
           ]}
         />
         {format !== "audiobook" && many && manifest && (
@@ -232,6 +249,8 @@ export function ExportDialog({
           <ManuscriptPanel font={font} onFont={setFont} disabled={running} />
         ) : format === "markdown" ? (
           <MarkdownPanel htmlMarks={htmlMarks} onHtmlMarks={setHtmlMarks} disabled={running} />
+        ) : format === "outline" ? (
+          <OutlinePanel value={outlineFormat} onChange={setOutlineFormat} disabled={running} />
         ) : (
           <PdfPanel
             options={pdf}
@@ -274,7 +293,11 @@ export function ExportDialog({
           />
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-2.5">
-            {onPreview && format !== "markdown" && format !== "docx" && format !== "rtf" ? (
+            {onPreview &&
+            format !== "markdown" &&
+            format !== "docx" &&
+            format !== "rtf" &&
+            format !== "outline" ? (
               <Button
                 disabled={running}
                 onClick={onPreview}

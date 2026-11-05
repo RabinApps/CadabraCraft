@@ -72,6 +72,7 @@ packages/
   export-epub/      Chapter JSON to EPUB 3
   export-pdf/       Print PDF via Typst
   export-markdown/  Chapter JSON to Markdown (inverse of the importer)
+  outline/          Scene outline writers (OPML, Markdown, CSV) and parsers
   export-docx/      Chapter JSON to a manuscript-format .docx (hand-written OOXML)
   export-rtf/       Chapter JSON to a manuscript-format .rtf (hand-written RTF)
   import-docx/      Markdown, HTML and DOCX import with warnings (the app imports .docx through the Rust port in src-tauri; see docs/import.md)
