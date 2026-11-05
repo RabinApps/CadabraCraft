@@ -42,6 +42,41 @@ test("Start part here begins a part at that chapter", async ({ page }) => {
   await expect(sidebar(page).getByText("2 chapters")).toBeVisible();
 });
 
+test("undoing Start part here removes the new part page and restores the grouping", async ({
+  page,
+}) => {
+  await withPart(page);
+  await page.getByRole("button", { name: "Add chapter", exact: true }).click();
+  expect(await partTitles(page)).toEqual(["Chapter One", "part:Part 1", "Chapter 2", "Chapter 3"]);
+
+  await chapterAction(page, "Chapter 2", "Start part here");
+  expect(await partTitles(page)).toEqual([
+    "Chapter One",
+    "part:Part 1",
+    "part:Part 2",
+    "Chapter 2",
+    "Chapter 3",
+  ]);
+  const added = (await manifestOf(page)).chapters.find(
+    (c: { kind?: string; titles: { en: string } }) => c.kind === "part" && c.titles.en === "Part 2",
+  );
+  const file = added!.files.en as string;
+  expect(await page.evaluate((path) => window.__disk[path], file)).toBeTruthy();
+
+  const undo = sidebar(page).getByRole("button", { name: /^Undo/ });
+  await expect(undo).toHaveAccessibleName("Undo: Add Part 2");
+  await undo.click();
+  expect(await partTitles(page)).toEqual(["Chapter One", "part:Part 1", "Chapter 2", "Chapter 3"]);
+  expect(await page.evaluate((path) => window.__disk[path], file)).toBeUndefined();
+  expect(
+    await page.evaluate(
+      () => Object.keys(window.__disk).filter((key) => key.startsWith(".cadabra/trash/")).length,
+    ),
+  ).toBe(1);
+  await expect(sidebar(page).getByText("2 chapters")).toBeVisible();
+  await expect(sidebar(page).getByRole("button", { name: /^Part 2/ })).toHaveCount(0);
+});
+
 test("renaming and moving a part keeps its chapters together, and trashing it keeps them in the book", async ({
   page,
 }) => {
