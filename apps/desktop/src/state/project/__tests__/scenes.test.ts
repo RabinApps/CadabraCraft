@@ -111,7 +111,7 @@ describe("patchSceneIn", () => {
         scene("b", "bravo two"),
         scene("c", "charlie"),
       ],
-    });
+    } as never);
     await a().patchSceneIn("ch-1", "b", { status: "draft" });
     const saved = read(0);
     expect(JSON.stringify(saved)).toContain("typed");
@@ -138,6 +138,17 @@ describe("patchSceneIn", () => {
     );
     expect(disk.get(file(1))).toBe(before);
     expect(s().history.undo.some((e) => e.docs)).toBe(false);
+  });
+
+  it("runs the next edit even when the one before it failed", async () => {
+    await twoChapters();
+    writes = 0;
+    failAt = { n: 1, sticky: false };
+    const first = a().patchSceneIn("ch-2", "d", { title: "x" });
+    const second = a().patchSceneIn("ch-2", "d", { synopsis: "kept" });
+    await expect(first).rejects.toThrow(/Nothing was changed/);
+    await expect(second).resolves.toBe(true);
+    expect(read(1).content[1]!.attrs).toMatchObject({ synopsis: "kept" });
   });
 });
 
