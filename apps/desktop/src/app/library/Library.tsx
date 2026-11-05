@@ -9,7 +9,7 @@ import { Notice } from "../../ui/Notice";
 import { Segmented } from "../../ui/Segmented";
 import { Select } from "../../ui/Select";
 import { bridge } from "../../lib/bridge";
-import { coverThumbs } from "../../lib/coverThumbs";
+import { coverThumbs } from "../../lib/coverThumbsBrowser";
 import { errText } from "../../lib/projectError";
 import { relativeTime } from "../../lib/relativeTime";
 import { useLibraryPrefs } from "../../state/library";

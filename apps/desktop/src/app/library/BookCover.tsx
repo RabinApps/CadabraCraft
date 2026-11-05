@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { cx } from "../../ui/cx";
-import { coverThumbs } from "../../lib/coverThumbs";
+import { coverThumbs } from "../../lib/coverThumbsBrowser";
 import type { Recent } from "../../state/recents";
 import { infoOf } from "./libraryModel";
 

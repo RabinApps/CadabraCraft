@@ -17,6 +17,7 @@ export default defineConfig({
         "**/*.tsx",
         "**/use[A-Z]*.ts",
         "src/editor/findHooks.ts",
+        "src/lib/coverThumbsBrowser.ts",
         "src/editor/pagination/dom.ts",
         "src/editor/pagination/plugin.ts",
         "src/editor/pagination/rows.ts",
