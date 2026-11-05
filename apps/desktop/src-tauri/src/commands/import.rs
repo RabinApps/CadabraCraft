@@ -40,7 +40,7 @@ fn docx_picked(picked: &PickedPaths, path: &str, split_heading_level: u8) -> Res
     frame::encode(&result).map_err(|e| ProjectError::Io { message: e.to_string() })
 }
 
-/// Bytes of a document the user picked for import (`pick_import_source`; .docx/.md/.markdown/.html/.htm/.txt, at most 200 MB). Read-only.
+/// Bytes of a document the user picked for import (`pick_import_source`; .docx/.md/.markdown/.html/.htm/.txt, or an outline: .opml/.csv, at most 200 MB). Read-only; the webview parses it.
 #[tauri::command]
 pub async fn read_import_source(picked: State<'_, PickedPaths>, path: String) -> Result<Response, ProjectError> {
     blocking({ let picked = picked.inner().clone(); move || source_picked(&picked, &path) }).await.map(Response::new)

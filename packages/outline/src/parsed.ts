@@ -32,7 +32,14 @@ export interface ParsedChapter {
 }
 
 export type OutlineWarningCode =
-  "clamped" | "bad-status" | "bad-target" | "bad-date" | "bad-id" | "duplicate-id" | "ignored";
+  | "clamped"
+  | "bad-status"
+  | "bad-target"
+  | "bad-date"
+  | "bad-id"
+  | "duplicate-id"
+  | "ignored"
+  | "cast-skipped";
 
 /** Something the file held that could not be kept as written. */
 export interface OutlineWarning {
@@ -46,7 +53,8 @@ export interface ParsedOutline {
 }
 
 /** Why a file could not be read as an outline at all. */
-export type OutlineErrorCode = "too-large" | "malformed" | "not-opml" | "too-many";
+export type OutlineErrorCode =
+  "too-large" | "malformed" | "not-opml" | "not-csv" | "too-many" | "empty";
 
 export class OutlineError extends Error {
   readonly code: OutlineErrorCode;

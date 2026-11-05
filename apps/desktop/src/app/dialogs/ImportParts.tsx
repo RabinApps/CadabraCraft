@@ -6,13 +6,27 @@ import type { ImportResult } from "@cadabracraft/import-docx";
 import { Button } from "../../ui/Button";
 import { groupWarnings } from "../../lib/importBook";
 
-export function Summary({ result, kept }: { result: ImportResult; kept: number }) {
+export function Summary({
+  result,
+  kept,
+  scenes,
+}: {
+  result: ImportResult;
+  kept: number;
+  /** For an outline: the scenes in the chapters that will be imported. */
+  scenes?: number;
+}) {
   const { t } = useLingui();
   const groups = groupWarnings(result.warnings);
   const lost = groups.filter((g) => g.severity === "warning");
   return (
     <p className="text-sm text-ink-muted" role="status">
-      {plural(kept, { one: "# chapter will be imported.", other: "# chapters will be imported." })}{" "}
+      {scenes === undefined
+        ? plural(kept, {
+            one: "# chapter will be imported.",
+            other: "# chapters will be imported.",
+          })
+        : t`${plural(kept, { one: "# chapter", other: "# chapters" })} and ${plural(scenes, { one: "# scene", other: "# scenes" })} will be imported.`}{" "}
       {lost.length > 0
         ? t`Some content could not be kept: ${lost.map((g) => g.code).join(", ")}. A full report follows the import.`
         : t`Nothing was lost or changed.`}

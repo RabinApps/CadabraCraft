@@ -8,6 +8,7 @@ import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { useGripHint } from "../../ui/GripHint";
 import { dropPosition, insertionIndex } from "../../lib/referenceKinds";
+import { sceneCountOf } from "../../lib/importBook";
 import {
   canMergeUp,
   canSplit,
@@ -22,18 +23,22 @@ interface Props {
   result: ImportResult;
   plan: ImportPlan;
   onChange: (plan: ImportPlan) => void;
+  /** The file is an outline: each chapter shows its number of scenes instead of its words. */
+  outline?: boolean;
 }
 
 const keyOf = (item: PlanItem) => item.sources.join("-");
 const wordsOf = (item: PlanItem, result: ImportResult) =>
   item.sources.reduce((n, s) => n + countWords(result.chapters[s]!.doc), 0);
+const scenesOf = (item: PlanItem, result: ImportResult) =>
+  item.sources.reduce((n, s) => n + sceneCountOf(result.chapters[s]!.doc), 0);
 
 /**
  * The chapters of the import preview: include, rename, reorder (drag the grip, or focus it and press the arrow keys,
  * or use Move up and Move down), merge into the previous chapter and split a merged chapter again. Pure view over the
  * plan: every change goes through `onChange` with a new plan from `lib/importPlan`.
  */
-export function ImportChapterList({ result, plan, onChange }: Props) {
+export function ImportChapterList({ result, plan, onChange, outline = false }: Props) {
   const { t } = useLingui();
   const grip = useGripHint();
   const list = useRef<HTMLUListElement>(null);
@@ -179,7 +184,9 @@ export function ImportChapterList({ result, plan, onChange }: Props) {
                   />
                 )}
                 <span className="ms-auto shrink-0 text-xs text-ink-muted">
-                  {plural(wordsOf(item, result), { one: "# word", other: "# words" })}
+                  {outline
+                    ? plural(scenesOf(item, result), { one: "# scene", other: "# scenes" })
+                    : plural(wordsOf(item, result), { one: "# word", other: "# words" })}
                 </span>
               </div>
             </li>

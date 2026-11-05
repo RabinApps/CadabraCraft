@@ -151,6 +151,7 @@ describe("images and sources", () => {
   });
   it.skipIf(!posix)("names the whole path when a source has no file name", () => {
     expect(code(() => readSource("/"))).toBe("unsupported_source");
+    expect(code(() => readSource("/", true))).toBe("unsupported_source");
     expect(code(() => readSource(""))).toBe("unsafe_path");
   });
   it("refuses a Markdown file whose folder is missing", () => {

@@ -11,6 +11,8 @@ import { fileBaseName, fileExtension, isInside } from "./paths";
 
 /** Document types the importer understands. */
 export const IMPORT_EXTENSIONS = ["docx", "md", "markdown", "html", "htm", "txt"] as const;
+/** Outline file types (a Markdown outline is a `.md`), read with `readSource(path, true)`; the manuscript importer does not take them. */
+export const OUTLINE_EXTENSIONS = ["opml", "csv", "md", "markdown"] as const;
 /** Largest source document accepted, in bytes. */
 export const MAX_IMPORT_BYTES = 200 * 1024 * 1024;
 const MAX_IMPORT_MB = MAX_IMPORT_BYTES / 1024 / 1024;
@@ -26,14 +28,17 @@ function requireAbsolute(path: string): void {
  * extension only: `a.html.exe`, `.html`, `a.` and `a.md ` are refused), regular files, capped size. A link the user
  * picked is followed, but it must lead to a regular file; folders, fifos and devices are never opened.
  */
-export function readSource(path: string): Uint8Array {
+export function readSource(path: string, outline = false): Uint8Array {
   requireAbsolute(path);
   const name = fileBaseName(path);
   const ext = fileExtension(path) ?? "";
-  if (!name || !(IMPORT_EXTENSIONS as readonly string[]).includes(ext)) {
+  const allowed: readonly string[] = outline ? OUTLINE_EXTENSIONS : IMPORT_EXTENSIONS;
+  if (!name || !allowed.includes(ext)) {
     throw new ProjectFsError(
       "unsupported_source",
-      `${name || path} is not a .docx, .md, .markdown, .html, .htm or .txt file`,
+      outline
+        ? `${name || path} is not an .opml, .csv, .md or .markdown file`
+        : `${name || path} is not a .docx, .md, .markdown, .html, .htm or .txt file`,
     );
   }
   return readRegular(

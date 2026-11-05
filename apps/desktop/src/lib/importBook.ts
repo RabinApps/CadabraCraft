@@ -15,11 +15,19 @@ import {
   type ImportResult,
   type ImportWarning,
 } from "@cadabracraft/import-docx";
+import {
+  OutlineError,
+  outlineFormatOfFile,
+  outlineToPages,
+  parseOutline,
+  type OutlineImportFormat,
+} from "@cadabracraft/outline";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "./bridge";
 import { baseName, stem } from "./paths";
 import { decodeDocxImport } from "./docxFrame";
-import { describeImportCode } from "./importErrorText";
+import { describeImportCode, describeOutlineCode } from "./importErrorText";
+import { newSceneId } from "./scenes";
 import { errText, isProjectError, whyText } from "./projectError";
 import { applyPlan, type ImportPlan } from "./importPlan";
 
@@ -128,6 +136,8 @@ export interface ChapterEdit {
 /** What the wizard preview step chose. */
 export interface ImportChoices {
   splitHeadingLevel?: 1 | 2 | 3;
+  /** Read the file as an outline of chapters and scenes (always for `.opml` and `.csv`; the author's choice for Markdown). */
+  outline?: boolean;
   edits?: ChapterEdit[];
   /** Reorder, merge, rename and skip decisions; takes precedence over `edits`. */
   plan?: ImportPlan;
@@ -136,8 +146,8 @@ export interface ImportChoices {
 /** Reads the source (read-only). Nothing is parsed yet; a `.docx` is not even read here (Rust unzips and parses it in `parseImport`). */
 export async function loadImport(sourcePath: string): Promise<LoadedSource> {
   const ext = /\.([^.]+)$/.exec(baseName(sourcePath))?.[1]?.toLowerCase() ?? "";
-  if (!["docx", "md", "markdown", "html", "htm", "txt"].includes(ext))
-    throw new Error(t`Choose a .docx, .md, .markdown or .html file.`);
+  if (!["docx", "md", "markdown", "html", "htm", "txt", "opml", "csv"].includes(ext))
+    throw new Error(t`Choose a .docx, .md, .markdown, .html, .opml or .csv file.`);
   if (ext === "docx") return { ext, bytes: new Uint8Array(), path: sourcePath };
   return { ext, bytes: await bridge.readImportSource(sourcePath) };
 }
@@ -207,15 +217,54 @@ export function parseText(src: LoadedSource, splitHeadingLevel: 1 | 2 | 3 = 1): 
   return result;
 }
 
+/** An outline file is always an outline; a Markdown file is one only when the author says so; anything else is a manuscript. */
+export function outlineFormatFor(
+  src: LoadedSource,
+  asOutline: boolean,
+): OutlineImportFormat | null {
+  const format = outlineFormatOfFile(`x.${src.ext}`);
+  return format === "markdown" && !asOutline ? null : format;
+}
+
+/** The number of scenes in a chapter document (the scene wrappers directly under the document). */
+export const sceneCountOf = (doc: ChapterDoc): number =>
+  doc.content.filter((n) => n.type === "scene").length;
+
 /**
- * Parses a loaded source; the wizard re-runs it when the split level changes. A `.docx` is parsed in Rust (the
- * `import_docx_source` command: unzip with limits, XML, mapping to chapters, all on the blocking pool), everything else
- * in the webview. Both give the same `ImportResult`.
+ * Reads an outline file as chapters with scenes (OPML, CSV or Markdown), in the webview: pure and read-only. Every scene
+ * gets a new id, so importing it twice into one book never makes two scenes with the same id. What the file could not
+ * keep (a bad status, a cast) comes back as warnings the import report lists.
+ */
+export function parseOutlineSource(src: LoadedSource, format: OutlineImportFormat): ImportResult {
+  try {
+    const parsed = parseOutline(decodeText(src.bytes), format);
+    const { pages, warnings } = outlineToPages(parsed, newSceneId, t`Untitled`);
+    return {
+      chapters: pages.map(({ title, doc }) => ({ title, doc })),
+      warnings: warnings.map((w) => ({
+        code: `outline-${w.code}`,
+        severity: "warning" as const,
+        message: w.message,
+      })),
+      assets: [],
+    };
+  } catch (e) {
+    throw e instanceof OutlineError ? new Error(describeOutlineCode(e.code), { cause: e }) : e;
+  }
+}
+
+/**
+ * Parses a loaded source; the wizard re-runs it when the split level or the way of reading it changes. A `.docx` is
+ * parsed in Rust (the `import_docx_source` command: unzip with limits, XML, mapping to chapters, all on the blocking
+ * pool), everything else in the webview. All give the same `ImportResult`.
  */
 export async function parseImport(
   src: LoadedSource,
   splitHeadingLevel: 1 | 2 | 3 = 1,
+  outline = false,
 ): Promise<ImportResult> {
+  const format = outlineFormatFor(src, outline);
+  if (format) return parseOutlineSource(src, format);
   if (src.ext !== "docx") return parseText(src, splitHeadingLevel);
   let result: ImportResult;
   try {
@@ -249,7 +298,11 @@ export function chosenChapters(result: ImportResult, opts: ImportChoices): Impor
 export async function runImport(
   opts: { sourcePath: string; root: string; title: string; author: string } & ImportChoices,
 ): Promise<ImportReport> {
-  const result = await parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
+  const result = await parseImport(
+    await loadImport(opts.sourcePath),
+    opts.splitHeadingLevel,
+    opts.outline,
+  );
   return writeImport({ ...opts, result: chosenChapters(result, opts) });
 }
 
@@ -383,7 +436,11 @@ export async function runImportInto(
     saveManifest: (m: Manifest) => Promise<void>;
   } & ImportChoices,
 ): Promise<{ report: ImportReport; firstId: string }> {
-  const loaded = await parseImport(await loadImport(opts.sourcePath), opts.splitHeadingLevel);
+  const loaded = await parseImport(
+    await loadImport(opts.sourcePath),
+    opts.splitHeadingLevel,
+    opts.outline,
+  );
   const result = chosenChapters(loaded, opts);
   const warnings = [...result.warnings];
   const images = await readImages(opts.sourcePath, result, warnings);

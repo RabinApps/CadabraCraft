@@ -8,7 +8,9 @@ import { Modal } from "../../ui/Dialog";
 import { Field, focusField } from "../../ui/Input";
 import {
   loadImport,
+  outlineFormatFor,
   parseImport,
+  sceneCountOf,
   titleFromFile,
   type ImportChoices,
   type LoadedSource,
@@ -47,9 +49,21 @@ const ERROR_ID = "import-error";
 interface Preview {
   loaded: LoadedSource;
   level: Level;
+  /** The file is read as an outline (chapters with scenes) rather than as a manuscript. */
+  outline: boolean;
   result: ImportResult;
   plan: ImportPlan;
 }
+
+/** The scenes in the chapters the plan keeps (merged chapters count all their sources). */
+const keptScenes = (p: Preview): number =>
+  p.plan
+    .filter((item) => item.include)
+    .reduce(
+      (n, item) =>
+        n + item.sources.reduce((m, s) => m + sceneCountOf(p.result.chapters[s]!.doc), 0),
+      0,
+    );
 
 /** Two steps: pick a source and destination, then preview how it splits into chapters. Only the last button writes; the source is only read. */
 export function ImportDialog({
@@ -107,9 +121,15 @@ export function ImportDialog({
           fail(t`Could not open the chooser (${causeText(e)}). Try again.`, field);
       });
   };
-  const parse = async (loaded: LoadedSource, level: Level) => {
-    const result = await parseImport(loaded, level);
-    setPreview({ loaded, level, result, plan: initialPlan(result) });
+  const parse = async (loaded: LoadedSource, level: Level, asOutline: boolean) => {
+    const result = await parseImport(loaded, level, asOutline);
+    setPreview({
+      loaded,
+      level,
+      outline: outlineFormatFor(loaded, asOutline) !== null,
+      result,
+      plan: initialPlan(result),
+    });
   };
   const next = () => {
     if (busy) return;
@@ -122,7 +142,7 @@ export function ImportDialog({
     setError("");
     setAbout(null);
     loadImport(source)
-      .then((l) => parse(l, 1))
+      .then((l) => parse(l, 1, false))
       .catch((e) =>
         fail(
           t`Could not read this file (${causeText(e)}). Choose a different file (Word .docx, Markdown or HTML) and try again.`,
@@ -136,10 +156,23 @@ export function ImportDialog({
     if (!preview || busy) return;
     setBusy(true);
     setError("");
-    parse(preview.loaded, level)
+    parse(preview.loaded, level, false)
       .catch((e) =>
         fail(
           t`Could not split the file at that heading level (${causeText(e)}). Pick another heading level, or go back and choose a different file.`,
+        ),
+      )
+      .finally(() => setBusy(false));
+  };
+  // Only a Markdown file can be either; an .opml or .csv file is always an outline.
+  const setOutline = (outline: boolean) => {
+    if (!preview || busy || outline === preview.outline) return;
+    setBusy(true);
+    setError("");
+    parse(preview.loaded, preview.level, outline)
+      .catch((e) =>
+        fail(
+          t`Could not read the file that way (${causeText(e)}). Pick the other choice, or go back and choose a different file.`,
         ),
       )
       .finally(() => setBusy(false));
@@ -149,7 +182,9 @@ export function ImportDialog({
     if (!source || busy || (!append && !root)) return;
     setBusy(true);
     setError("");
-    const choices = preview ? { splitHeadingLevel: preview.level, plan: preview.plan } : undefined;
+    const choices = preview
+      ? { splitHeadingLevel: preview.level, plan: preview.plan, outline: preview.outline }
+      : undefined;
     (onImportInto
       ? onImportInto(source, choices)
       : onImport(source, root!, title.trim(), author.trim() || t`Unknown`, choices)
@@ -252,21 +287,46 @@ export function ImportDialog({
             if (kept > 0) submit();
           }}
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-semibold text-ink-muted">{t`Start a new chapter at`}</span>
-            <Segmented
-              label={t`Start a new chapter at`}
-              value={String(preview.level) as "1" | "2" | "3"}
-              onChange={(v) => setLevel(Number(v) as Level)}
-              items={[
-                { value: "1", label: t`Heading 1` },
-                { value: "2", label: t`Heading 2` },
-                { value: "3", label: t`Heading 3` },
-              ]}
-            />
-          </div>
-          <ImportChapterList result={preview.result} plan={preview.plan} onChange={setPlan} />
-          <Summary result={preview.result} kept={kept} />
+          {outlineFormatFor(preview.loaded, true) === "markdown" && (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-ink-muted">{t`Read this file as`}</span>
+              <Segmented
+                label={t`Read this file as`}
+                value={preview.outline ? "outline" : "manuscript"}
+                onChange={(v) => setOutline(v === "outline")}
+                items={[
+                  { value: "manuscript", label: t`Manuscript` },
+                  { value: "outline", label: t`Outline` },
+                ]}
+              />
+            </div>
+          )}
+          {!preview.outline && (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-ink-muted">{t`Start a new chapter at`}</span>
+              <Segmented
+                label={t`Start a new chapter at`}
+                value={String(preview.level) as "1" | "2" | "3"}
+                onChange={(v) => setLevel(Number(v) as Level)}
+                items={[
+                  { value: "1", label: t`Heading 1` },
+                  { value: "2", label: t`Heading 2` },
+                  { value: "3", label: t`Heading 3` },
+                ]}
+              />
+            </div>
+          )}
+          <ImportChapterList
+            result={preview.result}
+            plan={preview.plan}
+            onChange={setPlan}
+            outline={preview.outline}
+          />
+          <Summary
+            result={preview.result}
+            kept={kept}
+            scenes={preview.outline ? keptScenes(preview) : undefined}
+          />
           {errorBox}
           <div className="flex justify-end gap-2.5">
             <Button

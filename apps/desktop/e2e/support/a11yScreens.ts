@@ -188,6 +188,19 @@ const baseScreens: Screen[] = [
       await shown(dialogOf(p, "Import into this book"));
     },
   },
+  {
+    name: "Import outline preview dialog",
+    open: async (p) => {
+      await fakeImportSources(p, "outlineMd", false);
+      await newProject(p);
+      await menu(p, "file.importInto");
+      const dialog = dialogOf(p, "Import into this book");
+      await dialog.getByRole("button", { name: "Choose file…" }).click();
+      await dialog.getByRole("button", { name: "Next" }).click();
+      await dialog.getByRole("radio", { name: "Outline" }).click();
+      await shown(dialog.getByText("2 chapters and 3 scenes will be imported."));
+    },
+  },
   { name: "settings", open: settings },
   {
     name: "settings, Shortcuts section filtered",

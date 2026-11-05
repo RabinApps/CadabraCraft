@@ -89,6 +89,11 @@ msgstr ""
 msgid "{0, plural, one {# result} other {# results}}"
 msgstr ""
 
+#. placeholder {0}: scenesOf(item, result)
+#: src/app/dialogs/ImportChapterList.tsx
+msgid "{0, plural, one {# scene} other {# scenes}}"
+msgstr ""
+
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
@@ -382,6 +387,10 @@ msgstr ""
 
 #: src/app/dialogs/ImportParts.tsx
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
+msgstr ""
+
+#: src/app/dialogs/ImportParts.tsx
+msgid "{kept, plural, one {# chapter} other {# chapters}} and {scenes, plural, one {# scene} other {# scenes}} will be imported."
 msgstr ""
 
 #: src/state/project/scenes.ts
@@ -1282,7 +1291,7 @@ msgid "Checks"
 msgstr ""
 
 #: src/lib/importBook.ts
-msgid "Choose a .docx, .md, .markdown or .html file."
+msgid "Choose a .docx, .md, .markdown, .html, .opml or .csv file."
 msgstr ""
 
 #: src/app/shell/App.tsx
@@ -1593,6 +1602,11 @@ msgstr ""
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
+msgstr ""
+
+#. placeholder {0}: causeText(e)
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Could not read the file that way ({0}). Pick the other choice, or go back and choose a different file."
 msgstr ""
 
 #. placeholder {0}: causeText(e)
@@ -2951,6 +2965,10 @@ msgstr ""
 msgid "Manual order"
 msgstr ""
 
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Manuscript"
+msgstr ""
+
 #: src/lib/useIconChoices.ts
 msgid "Map"
 msgstr ""
@@ -3558,6 +3576,7 @@ msgstr ""
 msgid "Outdent list item"
 msgstr ""
 
+#: src/app/dialogs/ImportDialogs.tsx
 #: src/app/export/ExportDialog.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/scenes/labels.ts
@@ -3874,6 +3893,10 @@ msgstr ""
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
+msgstr ""
+
+#: src/app/dialogs/ImportDialogs.tsx
+msgid "Read this file as"
 msgstr ""
 
 #: src/editor/ReadingSettings.tsx
@@ -4978,6 +5001,10 @@ msgstr ""
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr ""
 
+#: src/lib/importErrorText.ts
+msgid "The first row of this spreadsheet has no column named chapter, title or scene. Add a header row with those names and try again."
+msgstr ""
+
 #: src/app/library/Library.tsx
 msgid "The folder holds more books than a scan lists; pick a smaller folder."
 msgstr ""
@@ -5185,6 +5212,14 @@ msgstr ""
 msgid "This file does not look like text. It may be damaged or saved in another format."
 msgstr ""
 
+#: src/lib/importErrorText.ts
+msgid "This file has no chapters or scenes to import. Choose another file, or in a Markdown file start each chapter with # and each scene with ##."
+msgstr ""
+
+#: src/lib/importErrorText.ts
+msgid "This file is not an OPML outline. Export the outline as OPML from your outliner, then try again."
+msgstr ""
+
 #: src/lib/importBook.ts
 msgid "This file is too large or too deeply nested to import."
 msgstr ""
@@ -5204,6 +5239,18 @@ msgstr ""
 #. placeholder {0}: e.reference
 #: src/lib/projectError.ts
 msgid "This image path is not allowed: {0}"
+msgstr ""
+
+#: src/lib/importErrorText.ts
+msgid "This outline file is damaged or not written correctly, so it could not be read. Open it in the program that made it, save a copy and try again."
+msgstr ""
+
+#: src/lib/importErrorText.ts
+msgid "This outline file is too large to import. Choose a smaller file, or split it into parts."
+msgstr ""
+
+#: src/lib/importErrorText.ts
+msgid "This outline has too many chapters or scenes to import safely. Split it into smaller files."
 msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
@@ -5405,6 +5452,7 @@ msgstr ""
 #: src/app/home/Dashboard.tsx
 #: src/app/library/BookCover.tsx
 #: src/app/library/Library.tsx
+#: src/lib/importBook.ts
 msgid "Untitled"
 msgstr ""
 
