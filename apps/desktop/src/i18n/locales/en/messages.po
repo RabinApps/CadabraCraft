@@ -233,6 +233,12 @@ msgstr "{0} of {1} MB"
 msgid "{0} of {1} words"
 msgstr "{0} of {1} words"
 
+#. placeholder {0}: c.rows.length
+#. placeholder {1}: boardWords(c).toLocaleString()
+#: src/app/board/SceneBoard.tsx
+msgid "{0} scenes · {1} words"
+msgstr "{0} scenes · {1} words"
+
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
 msgid "{0} was not chosen in a file or folder dialog"
@@ -259,9 +265,16 @@ msgid "{0} was updated from outside the app"
 msgstr "{0} was updated from outside the app"
 
 #. placeholder {0}: scene.words.toLocaleString()
+#. placeholder {0}: sceneWordsLabel(scene)
+#: src/app/board/SceneCard.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "{0} words"
 msgstr "{0} words"
+
+#. placeholder {0}: c.unsortedWords.toLocaleString()
+#: src/app/board/SceneBoard.tsx
+msgid "{0} words sit outside every scene."
+msgstr "{0} words sit outside every scene."
 
 #. placeholder {0}: nativeName(e.language)
 #. placeholder {1}: e.translated
@@ -339,6 +352,14 @@ msgstr "{index} of {total}"
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 
+#: src/state/project/scenes.ts
+msgid "{label} stopped: {why}. A scene may now be in two chapters; nothing was lost, and Undo finishes the job."
+msgstr "{label} stopped: {why}. A scene may now be in two chapters; nothing was lost, and Undo finishes the job."
+
+#: src/state/project/scenes.ts
+msgid "{label} stopped: {why}. Nothing was changed."
+msgstr "{label} stopped: {why}. Nothing was changed."
+
 #: src/app/shell/Details.tsx
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
 msgstr "{minutes, plural, one {# minute} other {# minutes}}"
@@ -399,9 +420,27 @@ msgstr "{styleCount} styles · {size} MB"
 msgid "{title} is already first"
 msgstr "{title} is already first"
 
+#. placeholder {0}: c.title
+#: src/app/board/SceneBoard.tsx
+msgid "{title} is already first in {0}"
+msgstr "{title} is already first in {0}"
+
+#: src/app/board/SceneBoard.tsx
+msgid "{title} is already in the first chapter"
+msgstr "{title} is already in the first chapter"
+
+#: src/app/board/SceneBoard.tsx
+msgid "{title} is already in the last chapter"
+msgstr "{title} is already in the last chapter"
+
 #: src/app/shell/EntryList.tsx
 msgid "{title} is already last"
 msgstr "{title} is already last"
+
+#. placeholder {0}: c.title
+#: src/app/board/SceneBoard.tsx
+msgid "{title} is already last in {0}"
+msgstr "{title} is already last in {0}"
 
 #: src/app/shell/EntryList.tsx
 msgid "{title}: at the top of the page"
@@ -499,6 +538,10 @@ msgstr "A project already exists in this folder"
 msgid "A sample is already being made"
 msgstr "A sample is already being made"
 
+#: src/app/board/SceneBoard.tsx
+msgid "A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move."
+msgstr "A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move."
+
 #: src/app/export/AudioExport.tsx
 msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
 msgstr "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
@@ -530,6 +573,10 @@ msgstr "Acknowledgments"
 msgid "Actions for {0}"
 msgstr "Actions for {0}"
 
+#: src/app/board/SceneCard.tsx
+msgid "Actions for {title}"
+msgstr "Actions for {title}"
+
 #: src/state/project/pages.ts
 msgid "Add {name}"
 msgstr "Add {name}"
@@ -537,6 +584,10 @@ msgstr "Add {name}"
 #: src/state/project/pages.ts
 msgid "Add {title}"
 msgstr "Add {title}"
+
+#: src/app/board/SceneCard.tsx
+msgid "Add a synopsis"
+msgstr "Add a synopsis"
 
 #: src/app/references/ReferenceDetails.tsx
 msgid "Add a tag"
@@ -792,6 +843,10 @@ msgstr "Back Matter"
 #: src/editor/FindResults.tsx
 msgid "Back matter: {0}"
 msgstr "Back matter: {0}"
+
+#: src/app/board/SceneBoard.tsx
+msgid "Back to editor"
+msgstr "Back to editor"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Back to entries"
@@ -1077,6 +1132,7 @@ msgstr "Changes made outside the app may not be noticed. Saving still works."
 msgid "Changes that no longer match"
 msgstr "Changes that no longer match"
 
+#: src/app/board/SceneBoard.tsx
 #: src/app/shell/Details.tsx
 msgid "Chapter"
 msgstr "Chapter"
@@ -1141,6 +1197,10 @@ msgstr "Chapter title"
 #: src/app/toc/TocEditor.tsx
 msgid "Chapters"
 msgstr "Chapters"
+
+#: src/app/board/SceneBoard.tsx
+msgid "Chapters and their scenes"
+msgstr "Chapters and their scenes"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Chapters start as {sourceName} copies, marked Not translated yet."
@@ -1821,6 +1881,10 @@ msgstr "Downloading… {0} MB of {1} MB"
 msgid "Draft"
 msgstr "Draft"
 
+#: src/app/board/SceneBoard.tsx
+msgid "Drag to move, or press the arrow keys: up and down move within the chapter, left and right to the next chapter. Escape cancels a drag."
+msgstr "Drag to move, or press the arrow keys: up and down move within the chapter, left and right to the next chapter. Escape cancels a drag."
+
 #: src/app/shell/EntryList.tsx
 msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
 msgstr "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
@@ -1864,9 +1928,17 @@ msgstr "Earlier versions of this page. Pick one to compare it with the current t
 msgid "Edit"
 msgstr "Edit"
 
+#: src/state/project/scenes.ts
+msgid "Edit {title}"
+msgstr "Edit {title}"
+
 #: src/app/shell/Details.tsx
 msgid "Edit details"
 msgstr "Edit details"
+
+#: src/app/board/SceneCard.tsx
+msgid "Edit synopsis of {title}"
+msgstr "Edit synopsis of {title}"
 
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"
@@ -2758,6 +2830,10 @@ msgstr "Lossless, about 60% of the size of WAV."
 msgid "M4B audiobook"
 msgstr "M4B audiobook"
 
+#: src/app/board/SceneBoard.tsx
+msgid "Made {n} scenes from the loose text in {chapterTitle}"
+msgstr "Made {n} scenes from the loose text in {chapterTitle}"
+
 #: src/lib/useIconChoices.ts
 msgid "Magic wand"
 msgstr "Magic wand"
@@ -2871,8 +2947,10 @@ msgstr "Mountain"
 msgid "Move “{0}” to trash?"
 msgstr "Move “{0}” to trash?"
 
+#. placeholder {0}: row.title || t`scene`
 #. placeholder {0}: sourceTitleById(m, id)
 #: src/state/project/pages.ts
+#: src/state/project/scenes.ts
 msgid "Move {0}"
 msgstr "Move {0}"
 
@@ -2899,6 +2977,18 @@ msgstr "Move contents entry"
 msgid "Move down"
 msgstr "Move down"
 
+#: src/app/board/SceneCard.tsx
+msgid "Move earlier"
+msgstr "Move earlier"
+
+#: src/app/board/SceneCard.tsx
+msgid "Move later"
+msgstr "Move later"
+
+#: src/app/board/SceneCard.tsx
+msgid "Move to chapter"
+msgstr "Move to chapter"
+
 #: src/app/shell/EntryList.tsx
 #: src/app/shell/Sidebar.tsx
 msgid "Move to trash"
@@ -2921,6 +3011,10 @@ msgstr "Moved {0} to position {1} of {2}"
 #: src/app/shell/EntryList.tsx
 msgid "Moved {title} down to position {place} of {0}"
 msgstr "Moved {title} down to position {place} of {0}"
+
+#: src/app/board/SceneBoard.tsx
+msgid "Moved {title} to position {place} of {count} in {chapterTitle}"
+msgstr "Moved {title} to position {place} of {count} in {chapterTitle}"
 
 #. placeholder {0}: entries.length
 #: src/app/shell/EntryList.tsx
@@ -3093,6 +3187,10 @@ msgstr "No results"
 msgid "No scene names it yet."
 msgstr "No scene names it yet."
 
+#: src/app/board/SceneBoard.tsx
+msgid "No scenes yet."
+msgstr "No scenes yet."
+
 #. placeholder {0}: query.trim()
 #: src/app/settings/ShortcutsSection.tsx
 msgid "No shortcut matches “{0}”."
@@ -3195,6 +3293,10 @@ msgstr "Nothing removed"
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "Nothing to list yet. Add a chapter and it appears here."
 
+#: src/app/board/SceneBoard.tsx
+msgid "Nothing to wrap"
+msgstr "Nothing to wrap"
+
 #: src/app/dialogs/ImportParts.tsx
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
@@ -3249,6 +3351,7 @@ msgstr "One per line: BISAC codes such as FIC014000, or keywords."
 msgid "Only in the current text"
 msgstr "Only in the current text"
 
+#: src/app/board/SceneCard.tsx
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "Open"
@@ -3287,9 +3390,14 @@ msgstr "Open page {page} in the editor"
 msgid "Open Recent"
 msgstr "Open Recent"
 
+#: src/app/board/SceneCard.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Open scene"
 msgstr "Open scene"
+
+#: src/app/board/SceneCard.tsx
+msgid "Open scene {title} in {chapterTitle}"
+msgstr "Open scene {title} in {chapterTitle}"
 
 #: src/app/home/Dashboard.tsx
 msgid "Opened {when}"
@@ -3495,9 +3603,14 @@ msgstr "Place in the book"
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 msgstr "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 
+#: src/app/board/SceneCard.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Point of view"
 msgstr "Point of view"
+
+#: src/app/board/SceneCard.tsx
+msgid "Point of view of {title}"
+msgstr "Point of view of {title}"
 
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Points to"
@@ -3643,6 +3756,7 @@ msgstr "Reading time"
 msgid "Reading your chapters…"
 msgstr "Reading your chapters…"
 
+#: src/app/board/SceneBoard.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Reading…"
 msgstr "Reading…"
@@ -3811,6 +3925,10 @@ msgstr "Reopen"
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr "Reorder {0}"
+
+#: src/app/board/SceneCard.tsx
+msgid "Reorder {title}"
+msgstr "Reorder {title}"
 
 #: src/app/dialogs/ImportChapterList.tsx
 msgid "Reorder chapter {n}"
@@ -4045,11 +4163,25 @@ msgstr "Saving {dir}/manuscript.docx…"
 msgid "Saving {dir}/manuscript.rtf…"
 msgstr "Saving {dir}/manuscript.rtf…"
 
+#: src/state/project/scenes.ts
+msgid "scene"
+msgstr "scene"
+
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
 #: src/app/shell/App.tsx
 msgid "Scene"
 msgstr "Scene"
+
+#: src/app/board/SceneBoard.tsx
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+msgid "Scene board"
+msgstr "Scene board"
+
+#: src/app/shell/menuModel.ts
+msgid "Scene Board"
+msgstr "Scene Board"
 
 #: src/app/export/Templates.tsx
 #: src/editor/Toolbar.tsx
@@ -4074,6 +4206,11 @@ msgstr "Scene title"
 #: src/app/shell/Drawers.tsx
 msgid "Scenes"
 msgstr "Scenes"
+
+#. placeholder {0}: c.title
+#: src/app/board/SceneBoard.tsx
+msgid "Scenes in {0}"
+msgstr "Scenes in {0}"
 
 #: src/app/scenes/SceneList.tsx
 msgid "Scenes in {chapter}"
@@ -4369,6 +4506,14 @@ msgstr "Start on the next page"
 msgid "Start the new edition"
 msgstr "Start the new edition"
 
+#: src/app/board/SceneCard.tsx
+msgid "Status"
+msgstr "Status"
+
+#: src/app/board/SceneCard.tsx
+msgid "Status of {title}"
+msgstr "Status of {title}"
+
 #: src/app/export/AudioFooter.tsx
 msgid "Stop sample"
 msgstr "Stop sample"
@@ -4437,6 +4582,10 @@ msgstr "Swords"
 #: src/app/scenes/SceneRail.tsx
 msgid "Synopsis"
 msgstr "Synopsis"
+
+#: src/app/board/SceneCard.tsx
+msgid "Synopsis of {title}"
+msgstr "Synopsis of {title}"
 
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
@@ -4581,6 +4730,10 @@ msgstr "The book uses a text style the EPUB export cannot write: {kind} (at {pla
 #: src/lib/projectError.ts
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
+
+#: src/state/project/scenes.ts
+msgid "The chapter you dropped it in already holds a scene with the same id."
+msgstr "The chapter you dropped it in already holds a scene with the same id."
 
 #: src/state/codex.ts
 msgid "The codex could not be opened: it is not the shape a codex has. The file was left untouched."
@@ -4828,6 +4981,7 @@ msgstr "This .docx file has no document body. It may be damaged or not a Word do
 msgid "This book has no {language} edition."
 msgstr "This book has no {language} edition."
 
+#: src/app/board/SceneBoard.tsx
 #: src/app/shell/App.tsx
 #: src/lib/exportChecks.ts
 msgid "This book has no chapters yet."
@@ -5078,6 +5232,10 @@ msgstr "Unsafe project path: {0}"
 msgid "Unsaved"
 msgstr "Unsaved"
 
+#: src/app/board/SceneBoard.tsx
+msgid "Unsorted"
+msgstr "Unsorted"
+
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
 msgid "Unsupported image type: {0}"
@@ -5091,6 +5249,8 @@ msgstr "Untitled"
 msgid "Untitled entry"
 msgstr "Untitled entry"
 
+#: src/app/board/SceneBoard.tsx
+#: src/app/board/SceneCard.tsx
 #: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
@@ -5259,6 +5419,14 @@ msgstr "Words"
 #: src/app/settings/Settings.tsx
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr "Words to write each time you open a book. 0 turns it off."
+
+#: src/app/board/SceneBoard.tsx
+msgid "Wrap into a scene"
+msgstr "Wrap into a scene"
+
+#: src/state/project/scenes.ts
+msgid "Wrap text into a scene"
+msgstr "Wrap text into a scene"
 
 #: src/app/shell/AppHeader.tsx
 #: src/app/shell/menuModel.ts
