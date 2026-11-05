@@ -11,3 +11,4 @@ tools
 .claude
 **/vendor
 coverage
+.cloud-attachments

@@ -34,8 +34,15 @@ export default tseslint.config(
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
-      // Guardrail against files regrowing into grab-bags.
-      "max-lines": ["warn", { max: 400, skipBlankLines: true, skipComments: true }],
+      // Structure guardrails (CLAUDE.md, "Code organization"). scripts/check-size.mjs covers Rust, CSS and folder size.
+      "max-lines": ["error", { max: 400, skipBlankLines: true, skipComments: true }],
+      "max-lines-per-function": [
+        "warn",
+        { max: 120, skipBlankLines: true, skipComments: true, IIFEs: true },
+      ],
+      complexity: ["warn", 20],
+      "max-depth": ["warn", 4],
+      "max-params": ["warn", 5],
     },
   },
   {
@@ -112,8 +119,38 @@ export default tseslint.config(
     },
   },
   {
-    // Tests are allowed to be long.
+    // Temporary baseline: files still over the cap, being split (Phase 2 of the structure plan).
+    // Remove each entry as its file drops under 400 lines; never add one.
+    files: [
+      "apps/desktop/src/app/shell/App.tsx",
+      "apps/desktop/src/app/shell/EntryList.tsx",
+      "apps/desktop/src/editor/Toolbar.tsx",
+      "packages/editor-schema/src/index.ts",
+      "packages/format/src/edit.ts",
+      "packages/format/src/toc.ts",
+      "packages/import-docx/src/html/convert.ts",
+      "packages/story-structures/src/structures.ts",
+    ],
+    rules: { "max-lines": "off" },
+  },
+  {
+    // Tests may be longer, but not unbounded (scripts/check-size.mjs also enforces 800).
     files: ["**/__tests__/**", "**/*.test.ts", "**/*.spec.ts", "**/e2e/**"],
+    rules: {
+      "max-lines": ["error", { max: 800, skipBlankLines: true, skipComments: true }],
+      "max-lines-per-function": "off",
+      complexity: "off",
+    },
+  },
+  {
+    // Temporary baseline for tests over 800 lines, being split (Phase 5). Remove entries as they shrink; never add one.
+    files: [
+      "apps/desktop/e2e/a11y/a11y-errors.spec.ts",
+      "apps/desktop/e2e/a11y/a11y-wcag-extra.spec.ts",
+      "apps/desktop/e2e/support/a11yScreens.ts",
+      "packages/export-rtf/src/__tests__/rtf.test.ts",
+      "packages/format/src/__tests__/toc.test.ts",
+    ],
     rules: { "max-lines": "off" },
   },
   prettier,

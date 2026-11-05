@@ -73,6 +73,8 @@ jobs:
           } >> "$GITHUB_ENV"
       - run: pnpm typecheck
       - run: pnpm lint
+      - run: pnpm check:size
+      - run: pnpm test:scripts
       - run: pnpm format:check
       - run: pnpm test
       - name: Coverage (Linux)

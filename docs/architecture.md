@@ -2109,3 +2109,17 @@ An outline file (OPML, a CSV, or Markdown with `#` chapters and `##` scenes) is 
 | Translating the beat text through Lingui now   | About 120 strings times seven locales for text the author edits at once. The dialog chrome is translated; the beat text is written into the book, in English.   |
 
 **Follow-ups / caveats:** the beat titles and summaries are English only, in every interface language (see roadmap). Adding to a chapter that has a translated edition adds the scenes to the open edition's file only, like every other scene edit. Not run on the native app (`/drive-app`).
+
+## Code organization: size limits enforced by tooling (2026-11-05)
+
+**Decision:** a source file is at most 400 non-blank lines, a test file at most 800, and a folder holds at most 20 source files. ESLint enforces file length for TypeScript (`max-lines` as an error, plus warnings for `max-lines-per-function`, `complexity`, `max-depth` and `max-params`); `scripts/check-size.mjs` (`pnpm check:size`) enforces Rust, CSS, test and folder limits. Both run in CI, in the `.githooks/pre-commit` hook (installed by the `prepare` script) and in `/quality-gates`. Files that already break a limit are grandfathered in `scripts/size-baseline.json` and in two temporary lists in `eslint.config.mjs`; entries may only shrink and a stale entry fails the check, so the lists drain to empty as files are split.
+
+**Why:** `max-lines` was only a warning and skipped Rust, CSS and tests, so files grew past 1,000 lines and folders such as `src/lib` reached 63 files without any check failing. A hard gate with a shrink-only baseline lets the cleanup land in steps without letting new offenders in.
+
+| Rejected                           | Why not                                                                                                              |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Keeping `max-lines` as a warning   | Warnings were ignored for months; 8 TypeScript files sat over the cap.                                               |
+| One cap for tests and source       | Test files group many cases per subject; 800 with a baseline is strict enough without splitting every spec for show. |
+| Failing the build on today's state | Would block all work until about 50 files are split; the baseline makes the rule apply to new code immediately.      |
+
+**Follow-ups / caveats:** the 25 baselined entries (Rust files, `index.css`, six crowded folders, tests over 800) and the 8 flagged TypeScript files are split in later steps. A Rust `clippy::too_many_lines` lint is deferred until the Rust files are split, since `-D warnings` would fail CI today.
