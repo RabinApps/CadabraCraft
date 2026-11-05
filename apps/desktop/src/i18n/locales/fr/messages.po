@@ -4327,6 +4327,10 @@ msgstr "Rétablir les valeurs par défaut"
 msgid "Reset to outline"
 msgstr "Rétablir selon le plan"
 
+#: src/app/shell/SidebarResizeHandle.tsx
+msgid "Resize chapter list"
+msgstr "Redimensionner la liste des chapitres"
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Resolve"
 msgstr "Résoudre"

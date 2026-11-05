@@ -4327,6 +4327,10 @@ msgstr "איפוס לברירת המחדל"
 msgid "Reset to outline"
 msgstr "איפוס למבנה"
 
+#: src/app/shell/SidebarResizeHandle.tsx
+msgid "Resize chapter list"
+msgstr "שינוי רוחב רשימת הפרקים"
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Resolve"
 msgstr "סימון כנפתר"

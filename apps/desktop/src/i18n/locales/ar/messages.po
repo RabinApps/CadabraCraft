@@ -4327,6 +4327,10 @@ msgstr "إعادة التعيين إلى الافتراضي"
 msgid "Reset to outline"
 msgstr "إعادة التعيين إلى المخطط"
 
+#: src/app/shell/SidebarResizeHandle.tsx
+msgid "Resize chapter list"
+msgstr "تغيير عرض قائمة الفصول"
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Resolve"
 msgstr "تحديد كمحلول"

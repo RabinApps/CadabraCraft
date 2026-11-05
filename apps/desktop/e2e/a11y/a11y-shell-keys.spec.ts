@@ -68,6 +68,10 @@ const OWNERS: Record<"Tab" | "Arrow" | "Escape", { selector: string; why: string
       selector: "[data-testid=toc-preview-page], [role=region][aria-label=Preview]",
       why: "the spread preview pages with the arrow keys",
     },
+    {
+      selector: "[role=separator]",
+      why: "the sidebar divider changes its width with the arrow keys",
+    },
   ],
   Escape: [
     { selector: "[role=dialog]", why: "closes the dialog" },

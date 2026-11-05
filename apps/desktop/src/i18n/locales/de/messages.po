@@ -4327,6 +4327,10 @@ msgstr "Auf Standard zurücksetzen"
 msgid "Reset to outline"
 msgstr "Auf Gliederung zurücksetzen"
 
+#: src/app/shell/SidebarResizeHandle.tsx
+msgid "Resize chapter list"
+msgstr "Breite der Kapitelliste ändern"
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Resolve"
 msgstr "Erledigen"

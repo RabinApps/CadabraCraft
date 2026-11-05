@@ -41,13 +41,14 @@ import { UpdateDialog } from "../dialogs/UpdateDialog";
 import { RecoverDialog } from "../dialogs/RecoverDialog";
 import { useUpdates } from "../../state/updates";
 import { Sidebar } from "./Sidebar";
+import { SidebarResizeHandle } from "./SidebarResizeHandle";
 import { ChaptersDrawer, CommentsSheet, ReferencesSheet, ScenesSheet } from "./Drawers";
 import { QuickNav } from "../quicknav/QuickNav";
 import { OpeningSkeleton } from "./OpeningSkeleton";
 import { Templates } from "../export/Templates";
 import { SceneBoard } from "../board/SceneBoard";
 import { Timeline } from "../timeline/Timeline";
-import { useLayout } from "../../state/layout";
+import { SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH, useLayout } from "../../state/layout";
 import { useReadingPosition } from "../../state/readingPosition";
 import { useRecents } from "../../state/recents";
 import { libraryFields } from "../library/libraryModel";
@@ -128,7 +129,14 @@ function AppScreens() {
     setExportFormat(format);
     setExportOpen(true);
   };
-  const { focus: focusPref, details, references, comments, set: setLayout } = useLayout();
+  const {
+    focus: focusPref,
+    details,
+    references,
+    comments,
+    sidebarWidth,
+    set: setLayout,
+  } = useLayout();
   const reader = mode === "read";
   const { importingInto, setImportingInto } = useStartDialogs();
   // Focus mode is for writing; reading mode already has its own bare layout.
@@ -291,7 +299,7 @@ function AppScreens() {
   const readIndex = pages.findIndex((c) => c.id === readPosition.id);
   const readPage = readIndex < 0 ? null : readPosition.page;
   return (
-    <div className="flex h-dvh flex-col bg-bg text-ink">
+    <div className="flex h-dvh flex-col overflow-hidden bg-bg text-ink">
       {focus && (
         <IconButton
           icon={Minimize2}
@@ -320,9 +328,23 @@ function AppScreens() {
       <div className="flex min-h-0 flex-1">
         {/* A div: the Sidebar's own nav is the landmark, an aside around it would be a second, unnamed one. */}
         <div
-          className={cx("hidden w-66 shrink-0 overflow-y-auto bg-sidebar", focus ? "" : "lg:block")}
+          id="chapters-sidebar"
+          className={cx("relative hidden min-h-0 shrink-0 bg-sidebar", focus ? "" : "lg:block")}
+          style={{
+            width: sidebarWidth,
+            minWidth: SIDEBAR_MIN_WIDTH,
+            maxWidth: SIDEBAR_MAX_WIDTH,
+          }}
         >
-          <Sidebar />
+          <div className="absolute inset-0">
+            <Sidebar />
+          </div>
+          {!focus && (
+            <SidebarResizeHandle
+              width={sidebarWidth}
+              onChange={(width) => setLayout({ sidebarWidth: width })}
+            />
+          )}
         </div>
         <main id="main" tabIndex={-1} className="outline-none flex min-h-0 min-w-0 flex-1 flex-col">
           {error && (

@@ -7,8 +7,7 @@ import { addPage, newProject, seedChapters } from "../support/helpers";
 // WCAG 2.2 criterion 2.5.7 (Dragging Movements): everything that can be done by dragging can also be done with a
 // single pointer or the keyboard. Each test below never moves the pointer with a button held down.
 //
-// Drag interactions in the app (grep of apps/desktop/src: no dnd-kit, no draggable attribute, no sliders, no
-// pointer-capture handles):
+// Drag interactions in the app (grep of apps/desktop/src: no dnd-kit, no draggable attribute, no sliders):
 //   1. Reference list reorder (grip, ReferenceRow)          -> row menu "Move up" / "Move down", grip arrow keys
 //   2. Import preview chapter reorder (grip)                -> "Move chapter N up/down" buttons, grip arrow keys
 //   2b. Contents entry reorder (grip, TocRow)              -> row menu "Move up" / "Move down", grip arrow keys
@@ -16,6 +15,7 @@ import { addPage, newProject, seedChapters } from "../support/helpers";
 //   2d. Scene board card reorder (grip, SceneCard)         -> card menu "Move earlier" / "Move later" / "Move to chapter", grip arrow keys
 //   3. Dropping files on the window to add references       -> "Add files" button (file picker)
 //   4. Native textarea resize handle (`resize-y`)           -> user-agent control, exempt from 2.5.7; no test
+//   5. Sidebar width (separator, SidebarResizeHandle)       -> arrow keys, Home and End on the separator
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -195,6 +195,19 @@ test("2.5.7 sidebar: the row menu and the grip arrow keys reorder chapters witho
   await page.getByRole("button", { name: "Reorder Chapter 2" }).focus();
   await page.keyboard.press("ArrowDown");
   await expect.poll(names).toEqual(["Chapter One", "Chapter 2"]);
+});
+
+test("2.5.7 sidebar: the divider changes the width without dragging", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await newProject(page);
+  const divider = page.getByRole("separator", { name: "Resize chapter list" });
+  await divider.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(divider).toHaveAttribute("aria-valuenow", "280");
+  await page.keyboard.press("End");
+  await expect(divider).toHaveAttribute("aria-valuenow", "480");
+  await page.keyboard.press("ArrowLeft");
+  await expect(divider).toHaveAttribute("aria-valuenow", "464");
 });
 
 test("2.5.7 and 4.1.3 sidebar: the grip says where a page went, and why it did not move", async ({

@@ -114,7 +114,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   );
   return (
     <nav aria-label={t`Chapters`} className="flex h-full flex-col gap-2 p-3">
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+      <div
+        data-sidebar-entries
+        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-y-contain"
+      >
         {manifest.frontMatter.length > 0 && (
           <EntryList
             {...shared}

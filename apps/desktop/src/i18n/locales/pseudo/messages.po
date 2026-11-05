@@ -4325,6 +4325,10 @@ msgstr ""
 msgid "Reset to outline"
 msgstr ""
 
+#: src/app/shell/SidebarResizeHandle.tsx
+msgid "Resize chapter list"
+msgstr ""
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Resolve"
 msgstr ""

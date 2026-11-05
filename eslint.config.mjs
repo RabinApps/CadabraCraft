@@ -60,6 +60,14 @@ export default tseslint.config(
     rules: { "jsx-a11y/no-noninteractive-tabindex": "off" },
   },
   {
+    // The sidebar divider follows the ARIA window splitter pattern: a focusable separator, resized with the arrow keys.
+    files: ["apps/desktop/src/app/shell/SidebarResizeHandle.tsx"],
+    rules: {
+      "jsx-a11y/no-noninteractive-element-interactions": "off",
+      "jsx-a11y/no-noninteractive-tabindex": "off",
+    },
+  },
+  {
     files: [
       // Label text sits in child spans the rule cannot see.
       "apps/desktop/src/app/dialogs/AddLanguageDialog.tsx",
