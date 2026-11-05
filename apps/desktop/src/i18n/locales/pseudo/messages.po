@@ -32,10 +32,24 @@ msgstr ""
 msgid "(estimated)"
 msgstr ""
 
+#. placeholder {0}: g.books.length
+#. placeholder {0}: recents.length
+#: src/app/library/Library.tsx
+msgid "{0, plural, one {# book} other {# books}}"
+msgstr ""
+
+#. placeholder {0}: info.chapters ?? 0
 #. placeholder {0}: r.stats.chapters
+#. placeholder {1}: info.words
 #. placeholder {1}: r.stats.words
 #: src/app/home/Dashboard.tsx
+#: src/app/library/Library.tsx
 msgid "{0, plural, one {# chapter} other {# chapters}} · {1, plural, one {# word} other {# words}}"
+msgstr ""
+
+#. placeholder {0}: found.skipped
+#: src/app/library/Library.tsx
+msgid "{0, plural, one {# folder with a damaged cadabra.json was skipped.} other {# folders with a damaged cadabra.json were skipped.}}"
 msgstr ""
 
 #. placeholder {0}: r.missing_assets.length
@@ -206,6 +220,12 @@ msgstr ""
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 msgstr ""
 
+#. placeholder {0}: shown.length
+#. placeholder {1}: recents.length
+#: src/app/library/Library.tsx
+msgid "{0} of {1, plural, one {# book} other {# books}}"
+msgstr ""
+
 #. placeholder {0}: here.chapterNo
 #. placeholder {1}: here.chapters
 #: src/app/home/Dashboard.tsx
@@ -256,6 +276,11 @@ msgstr ""
 msgid "{0} was updated from outside the app"
 msgstr ""
 
+#. placeholder {0}: found.books.length - added
+#: src/app/library/Library.tsx
+msgid "{0} were already in the Library."
+msgstr ""
+
 #. placeholder {0}: scene.words.toLocaleString()
 #: src/app/scenes/SceneRail.tsx
 msgid "{0} words"
@@ -298,6 +323,10 @@ msgstr ""
 #: src/lib/fontErrors.ts
 #: src/lib/pdfErrors.ts
 msgid "{0}. Try again."
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "{added, plural, one {Added # new book.} other {Added # new books.}}"
 msgstr ""
 
 #: src/app/shell/StatusBar.tsx
@@ -536,6 +565,10 @@ msgstr ""
 msgid "Add {title}"
 msgstr ""
 
+#: src/app/library/Library.tsx
+msgid "Add a folder of books…"
+msgstr ""
+
 #: src/app/references/ReferenceDetails.tsx
 msgid "Add a tag"
 msgstr ""
@@ -761,6 +794,7 @@ msgstr ""
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/home/Home.tsx
+#: src/app/library/Library.tsx
 #: src/app/shell/Details.tsx
 msgid "Author"
 msgstr ""
@@ -876,6 +910,11 @@ msgstr ""
 msgid "Book"
 msgstr ""
 
+#. placeholder {0}: info.seriesNumber
+#: src/app/library/Library.tsx
+msgid "Book {0}"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/AppHeader.tsx
 msgid "Book details"
@@ -901,6 +940,10 @@ msgstr ""
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 #: src/app/shell/Sidebar.tsx
 msgid "Book snapshots"
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Books without a series"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -1473,7 +1516,7 @@ msgid "Could not open the chooser ({0}). Try again."
 msgstr ""
 
 #. placeholder {0}: whyText(e)
-#: src/app/home/Home.tsx
+#: src/app/library/useOpenBook.ts
 msgid "Could not open this book: {0}. Check the folder is not open elsewhere, or remove it from the list and open it again."
 msgstr ""
 
@@ -1589,6 +1632,10 @@ msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Cover preview"
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Covers"
 msgstr ""
 
 #: src/app/home/Home.tsx
@@ -1871,6 +1918,7 @@ msgid "Edit this page"
 msgstr ""
 
 #: src/app/home/Dashboard.tsx
+#: src/app/library/Library.tsx
 msgid "Edited {when}"
 msgstr ""
 
@@ -2126,7 +2174,7 @@ msgstr ""
 msgid "Folder"
 msgstr ""
 
-#: src/app/home/Home.tsx
+#: src/app/library/useOpenBook.ts
 msgid "Folder not found. Remove it from the list or move it back."
 msgstr ""
 
@@ -2230,6 +2278,10 @@ msgstr ""
 msgid "Give the book an author."
 msgstr ""
 
+#: src/app/library/Library.tsx
+msgid "Group by series"
+msgstr ""
+
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
@@ -2323,6 +2375,10 @@ msgstr ""
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Hold Ctrl or Alt together with the key."
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Home"
 msgstr ""
 
 #. placeholder {0}: page?.title ?? ""
@@ -2638,8 +2694,16 @@ msgstr ""
 msgid "Larger text"
 msgstr ""
 
+#: src/app/library/Library.tsx
+msgid "Last edited"
+msgstr ""
+
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Later"
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Layout"
 msgstr ""
 
 #: src/lib/useIconChoices.ts
@@ -2656,6 +2720,14 @@ msgstr ""
 
 #: src/app/export/EditionsChecklist.tsx
 msgid "Leaves them out of this export; the list above says which."
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Library"
+msgstr ""
+
+#: src/app/shell/menuModel.ts
+msgid "Library…"
 msgstr ""
 
 #: src/app/dialogs/LicensesDialog.tsx
@@ -2715,6 +2787,7 @@ msgstr ""
 msgid "Links (one per line)"
 msgstr ""
 
+#: src/app/library/Library.tsx
 #: src/app/toc/TocEditor.tsx
 msgid "List"
 msgstr ""
@@ -2734,6 +2807,10 @@ msgstr ""
 
 #: src/app/home/Home.tsx
 msgid "Location"
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Looking for books…"
 msgstr ""
 
 #: src/app/settings/Settings.tsx
@@ -2858,6 +2935,10 @@ msgstr ""
 
 #: src/app/export/AudioExport.tsx
 msgid "Most natural, slower."
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Most words"
 msgstr ""
 
 #: src/lib/useIconChoices.ts
@@ -3006,8 +3087,17 @@ msgstr ""
 msgid "No ads, no account, and the app is never sold."
 msgstr ""
 
+#. placeholder {0}: query.trim()
+#: src/app/library/Library.tsx
+msgid "No book matches “{0}”."
+msgstr ""
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "No books yet. Add a folder of books, or start a new one from Home."
 msgstr ""
 
 #: src/lib/projectError.ts
@@ -3138,8 +3228,16 @@ msgstr ""
 msgid "Not an image in the assets folder: {0}"
 msgstr ""
 
+#: src/app/library/Library.tsx
+msgid "Not in a series"
+msgstr ""
+
 #: src/app/settings/AudioSection.tsx
 msgid "Not installed. Download it from the Audiobook export."
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Not opened yet"
 msgstr ""
 
 #: src/app/shell/EntryList.tsx
@@ -3290,6 +3388,7 @@ msgid "Open scene"
 msgstr ""
 
 #: src/app/home/Dashboard.tsx
+#: src/app/library/Library.tsx
 msgid "Opened {when}"
 msgstr ""
 
@@ -3738,6 +3837,10 @@ msgstr ""
 msgid "Remove {0} from the cast"
 msgstr ""
 
+#: src/app/library/Library.tsx
+msgid "Remove {title} from the Library"
+msgstr ""
+
 #: src/app/toc/TocEditor.tsx
 msgid "Remove change for {label}"
 msgstr ""
@@ -4081,6 +4184,10 @@ msgstr ""
 msgid "Scroll"
 msgstr ""
 
+#: src/app/library/Library.tsx
+msgid "Search books"
+msgstr ""
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search by action or key"
 msgstr ""
@@ -4103,6 +4210,10 @@ msgstr ""
 
 #: src/app/references/PdfSearch.tsx
 msgid "Search text"
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Search title, author or series"
 msgstr ""
 
 #: src/app/shell/Details.tsx
@@ -4135,6 +4246,10 @@ msgstr ""
 
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "Series"
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Series order"
 msgstr ""
 
 #: src/app/shell/menuModel.ts
@@ -4297,6 +4412,10 @@ msgstr ""
 
 #: src/state/attempt.ts
 msgid "Something went wrong: {why}. Try again, or restart CadabraCraft if it keeps happening."
+msgstr ""
+
+#: src/app/library/Library.tsx
+msgid "Sort by"
 msgstr ""
 
 #: src/app/references/ReferencesPanel.tsx
@@ -4663,6 +4782,10 @@ msgstr ""
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
 msgstr ""
 
+#: src/app/library/Library.tsx
+msgid "The folder holds more books than a scan lists; pick a smaller folder."
+msgstr ""
+
 #: src/lib/pdfErrors.ts
 msgid "The font “{only}” is not on this computer. Download it in Settings, Fonts, or pick another font."
 msgstr ""
@@ -4906,6 +5029,7 @@ msgstr ""
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/home/Home.tsx
+#: src/app/library/Library.tsx
 #: src/app/references/ReferenceDetails.tsx
 #: src/app/shell/Details.tsx
 msgid "Title"
@@ -5078,6 +5202,8 @@ msgid "Unsupported image type: {0}"
 msgstr ""
 
 #: src/app/home/Dashboard.tsx
+#: src/app/library/BookCover.tsx
+#: src/app/library/Library.tsx
 msgid "Untitled"
 msgstr ""
 
@@ -5154,6 +5280,11 @@ msgstr ""
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "View"
+msgstr ""
+
+#. placeholder {0}: recents.length
+#: src/app/home/Home.tsx
+msgid "View all books ({0})"
 msgstr ""
 
 #: src/app/export/AudioExport.tsx

@@ -968,12 +968,36 @@ The predefined native Quit item ends the process without a window close request,
 
 **Rejected:**
 
-| Option                                          | Why not                                                                                                                  |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Read each recent book's files when Home opens   | Slow on sync drives, fails for missing folders, and needs a Rust command that reads outside the open project.            |
-| Store the stats in the project (`cadabra.json`) | A word count would change the file on every edit and sync as a conflict; the format would need a change for a UI detail. |
-| Thumbnails or cover images on the cards         | Needs image decoding and size limits in localStorage; typographic covers match the pen and cost nothing.                 |
-| A "Last edited" sort control                    | The list is already newest first, so the control would do nothing until there is a second order to offer.                |
+| Option                                          | Why not                                                                                                                                                                              |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Read each recent book's files when Home opens   | Slow on sync drives, fails for missing folders, and needs a Rust command that reads outside the open project.                                                                        |
+| Store the stats in the project (`cadabra.json`) | A word count would change the file on every edit and sync as a conflict; the format would need a change for a UI detail.                                                             |
+| Thumbnails or cover images on the cards         | Needs image decoding and size limits in localStorage; typographic covers match the pen and cost nothing. (Later built for the Library with IndexedDB thumbnails: see "The Library".) |
+| A "Last edited" sort control                    | The list is already newest first, so the control would do nothing until there is a second order to offer. (The Library now offers five orders and Home links to it.)                 |
+
+## The Library (2026-11-05)
+
+**Decision:** the Library is a screen of its own (`app/library`), reached from Home ("View all books (N)"), File > Library… and the command palette (both built from the menu model). It lists every entry of the known-books list, which is the same `cadabracraft.recents` store as before with two changes: the cap is now a runaway guard (`MAX_KNOWN` 2000) instead of eight, and Home takes the newest eight (`newest()`). An entry carries, besides the Home stats, `cover`, `series` and `seriesNumber`, copied from the source edition each time a book is open (`libraryFields`), and `scanned` for a book found by a folder scan and never opened. Nothing about the Library is written to a book's files and no absolute path goes into a project (the roots stay in the app preferences, as before).
+
+- **Finding books.** "Add a folder of books…" uses a native picker under `PickKind::Library` (a root the app can then scan: `scan_library` refuses any other folder with `not_picked`, like the other `pick_*` commands). The Rust scan (`project/library.rs`) reads `cadabra.json` and nothing else, down to three folders below the picked one, does not follow links, skips hidden folders, does not look inside a book, never reads a manifest over `MAX_MANIFEST_BYTES`, and stops at 1000 books or 20,000 folders and says so (`truncated`). A manifest that cannot be read as a book is counted in `skipped`, not an error.
+- **Order, search, groups** are pure functions in `libraryModel.ts`: `sortBooks` (last edited, title, author, words, series order; locale-aware, numeric-aware collation; ties fall back to the title so the order is stable), `searchBooks` (the command palette's `fuzzyMatch` over title, author and series) and `groupBySeries` (groups ordered where their first book appears, books inside by number, standalone books last). The choices are app preferences (`cadabracraft.library`).
+- **Covers.** `lib/coverThumbs.ts` downsizes the cover once (240 px on the long side, JPEG) into IndexedDB, keyed by book and cover path, with the file's size and modification time (`stat_asset`) as the stamp: the cover file is read again only when that changes. Failures fall back to the typographic cover and are not cached. Removing a book deletes its thumbnail.
+- **Opening** a book is the Home flow (`useOpenBook`): a failure keeps the entry and shows "Folder not found" or the real reason until the author removes it.
+
+**Why:** a library of dozens of books cannot be a row of eight cards, and reading each book's chapters at launch would touch many folders (some on slow sync drives). Facts recorded while a book is open, plus a manifest-only scan for books never opened here, give the screen its data with no work at launch.
+
+**Rejected:**
+
+| Option                                                       | Why not                                                                                                                                                                                  |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Read every known book's manifest when the Library opens      | Slow on sync drives, fails for missing folders, and needs read access outside the open book for roots that were never picked in this session.                                            |
+| A library index file (SQLite or JSON) in the app data folder | A second source of truth that goes stale when a folder is moved; the preferences list already has the roots and a few facts, and the scan can refill it.                                 |
+| Storing the series or the list in each book's project        | A library fact would change book files on every reorder and sync as conflicts; the format would need a bump for a view concern. Series text is already in the manifest and is only read. |
+| Watching folders for new books                               | A background file watcher for a rare action; a button that scans when asked is enough and works the same on every platform.                                                              |
+| Thumbnails in `localStorage`                                 | Strings of image data fill its 5 MB quickly and block the page; IndexedDB stores the blobs.                                                                                              |
+| Showing the full cover image on each card                    | Decoding a hundred full-size images costs memory and time; a 240 px thumbnail is sharp at the card size.                                                                                 |
+| A sort menu button like the References panel                 | A native select needs no custom menu code, is keyboard and screen-reader complete, and five fixed options fit it.                                                                        |
+| Reveal in file manager on each card                          | Needs a new Rust command and an opener-plugin scope for arbitrary roots; left on the roadmap rather than widening the plugin permissions.                                                |
 
 ## EPUB retail metadata (2026-10-28)
 

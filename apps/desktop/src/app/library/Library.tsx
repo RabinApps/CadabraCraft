@@ -128,7 +128,11 @@ export function Library({ onBack, onOpenRecent }: Props) {
           </Button>
         </div>
         {error && <Notice role="alert">{error}</Notice>}
-        {message && <Notice role="status">{message}</Notice>}
+        {message && (
+          <Notice tone="accent" role="status">
+            {message}
+          </Notice>
+        )}
         <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end">
           <div className="relative md:w-80">
             <Field
@@ -258,7 +262,6 @@ function LibraryBook({ recent, layout, problem, onOpen, onRemove }: BookProps) {
       <button
         type="button"
         onClick={onOpen}
-        aria-label={t`Open ${title}`}
         className={
           grid
             ? "flex flex-col text-start hover:bg-accent-soft/40 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"

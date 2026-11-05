@@ -35,6 +35,64 @@ const home = async (page: Page) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 };
+/** Five known books (one series of two, one whose folder is gone), then the Library open. */
+const shelf = (page: Page) =>
+  page.addInitScript(() => {
+    const at = Date.now();
+    localStorage.setItem(
+      "cadabracraft.recents",
+      JSON.stringify([
+        {
+          root: "/b/salt",
+          title: "The Salt Orchard",
+          openedAt: at,
+          editedAt: at,
+          stats: {
+            author: "Mara Quill",
+            chapters: 12,
+            words: 48210,
+            chapterNo: 1,
+            chapterTitle: "One",
+            series: "The Orchard Cycle",
+            seriesNumber: "1",
+          },
+        },
+        {
+          root: "/b/glass",
+          title: "The Glass Orchard",
+          openedAt: at - 1000,
+          stats: {
+            author: "Mara Quill",
+            chapters: 9,
+            words: 31480,
+            chapterNo: 1,
+            chapterTitle: "One",
+            series: "The Orchard Cycle",
+            seriesNumber: "2",
+          },
+        },
+        { root: "/gone", title: "Moved Book", openedAt: at - 2000 },
+        {
+          root: "/b/new",
+          title: "Found In A Scan",
+          openedAt: 0,
+          scanned: { author: "Pat Writer" },
+        },
+      ]),
+    );
+  });
+const library = async (page: Page) => {
+  await shelf(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: /^View all books/ }).click();
+  await shown(page.getByRole("heading", { name: "Library", level: 1 }));
+};
+const libraryList = async (page: Page) => {
+  await library(page);
+  await page.getByRole("radio", { name: "List" }).click();
+  await page.getByRole("button", { name: /^Moved Book/ }).click();
+  await shown(page.getByText("Folder not found."));
+};
 const settings = async (page: Page) => {
   await home(page);
   await page.getByRole("button", { name: "Settings" }).click();
@@ -88,6 +146,8 @@ const contentsMenu = async (page: Page) => {
 /** Every screen, dialog and panel the fake backend can reach. */
 const baseScreens: Screen[] = [
   { name: "home", open: home },
+  { name: "library", open: library },
+  { name: "library, list layout with a missing folder", open: libraryList },
   { name: "editor", open: newProject },
   {
     name: "New book dialog",

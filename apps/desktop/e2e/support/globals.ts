@@ -121,6 +121,26 @@ declare global {
       unregisterListener: (event: string, eventId: number) => void;
     };
     __opened?: string[];
+    /** Other books on the computer by root, each a map of project path to contents (text or bytes). */
+    __books?: Record<string, Record<string, string | number[]>>;
+    /** What the Library folder picker returns (null: cancelled). Default `/books`. */
+    __libraryPick?: string | null;
+    /** What a Library folder scan returns. */
+    __scanResult?: {
+      books: {
+        root: string;
+        title: string;
+        author: string;
+        language: string;
+        cover: string | null;
+        series: string | null;
+        seriesNumber: string | null;
+      }[];
+      skipped: number;
+      truncated: boolean;
+    };
+    /** Modification time `stat_asset` reports per book root (default 1): change it to make a cover look replaced. */
+    __stampOf?: Record<string, number>;
     /** Reference files: what the picker returns, the bytes behind each source path, and per-name import failures. */
     __pickedRefs?: string[];
     __refFiles?: Record<string, number[]>;

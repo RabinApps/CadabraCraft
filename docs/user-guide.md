@@ -22,6 +22,19 @@ On the start screen choose:
 
 Books you opened before appear under **Recent projects**. File > Open Recent lists them too.
 
+### The Library
+
+**View all books** on Home (or File > Library…, or the command palette) opens the Library: every book the app knows about, not only the newest eight.
+
+- **Covers or List.** Books show their cover picture, or the title on a colour when there is none. Pick the layout with the Covers and List buttons.
+- **Sort by** last edited, title, author, most words or series order. Books with no author go last under Author; books you have not opened yet have no word count and go last under Most words.
+- **Search** matches the letters you type in order against the title, the author and the series, so `tso` finds "The Salt Orchard". The count under the title reads "3 of 12 books" while you search.
+- **Group by series.** Books whose Book details name a series sit together under its name, in reading order by their number, with a "Book 2" tag on each. Books with no series follow under "Not in a series". Switch grouping off to see one list.
+- **Add a folder of books…** looks in a folder you choose (and up to three folders inside it) for books and lists what it finds. It reads only each book's `cadabra.json`, so a book found this way shows no word count until you open it. A folder whose `cadabra.json` is damaged is skipped and counted in the message.
+- **Remove** (the x on a book) takes it off the list. It never touches the book's folder. If a book's folder was moved or deleted, opening it says "Folder not found"; remove it or move the folder back.
+
+Your choices (sort, layout, grouping) are remembered. The list of known books and the cover thumbnails live in this app on this computer, not in your book folders.
+
 ### Your book is a folder
 
 A book is an ordinary folder. Inside it:

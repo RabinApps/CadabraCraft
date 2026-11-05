@@ -31,6 +31,10 @@ export async function fakeTauri(page: Page) {
     const persist = () => sessionStorage.setItem("disk", JSON.stringify(disk));
     const h = (s: string) => `${s.length}:${s.slice(0, 50)}`;
     window.__disk = disk;
+    // Other books on the computer, by root: a test sets `window.__books = { "/books/a": { "cadabra.json": "..." } }`. They answer
+    // reads and cover stamps; the open book at `/proj` keeps the shared `disk` (writes always go there).
+    const diskOf = (root: string | undefined) =>
+      (root && window.__books?.[root]) || (root === "/gone" ? null : disk);
     const callbacks = new Map<number, (e: unknown) => void>();
     const listeners: { event: string; handler: number }[] = [];
     window.__emit = (event, payload) => {
@@ -145,10 +149,12 @@ export async function fakeTauri(page: Page) {
           case "read_project_file":
             // A test can hold the manifest read (to look at the loading skeleton) with `__manifestGate`.
             if (a.path === "cadabra.json" && window.__manifestGate) await window.__manifestGate;
-            if (a.root === "/gone") return null;
-            return typeof disk[a.path] === "string"
-              ? { contents: disk[a.path], hash: h(disk[a.path] as string) }
-              : null;
+            {
+              const d = diskOf(a.root);
+              return d && typeof d[a.path] === "string"
+                ? { contents: d[a.path], hash: h(d[a.path] as string) }
+                : null;
+            }
           case "write_project_file":
             // A test can make chosen chapter writes fail (disk full) with `__failWrite = (path) => boolean`.
             if (a.path !== "cadabra.json" && window.__failWrite?.(a.path))
@@ -167,9 +173,22 @@ export async function fakeTauri(page: Page) {
             disk["assets/pic.png"] = Array.from(atob(PIXEL), (c) => c.charCodeAt(0));
             persist();
             return "assets/pic.png";
-          case "read_asset":
-            if (!Array.isArray(disk[a.path])) throw `missing ${a.path}`;
-            return disk[a.path];
+          case "read_asset": {
+            const d = diskOf(a.root);
+            if (!d || !Array.isArray(d[a.path])) throw `missing ${a.path}`;
+            return d[a.path];
+          }
+          // The Library: the folder picker and scan are scripted by the test (`__libraryPick`, `__scanResult`).
+          case "pick_library_folder":
+            return window.__libraryPick === undefined ? "/books" : window.__libraryPick;
+          case "scan_library":
+            return window.__scanResult ?? { books: [], skipped: 0, truncated: false };
+          case "stat_asset": {
+            const d = diskOf(a.root);
+            const bytes = d?.[a.path];
+            if (!Array.isArray(bytes)) throw { kind: "io", message: `missing ${a.path}` };
+            return { size: bytes.length, modified: window.__stampOf?.[a.root] ?? 1 };
+          }
           case "import_reference": {
             const name = (a.source as string).split("/").pop()!;
             if (window.__refErrors?.[name]) throw window.__refErrors[name];
