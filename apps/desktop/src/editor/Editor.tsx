@@ -25,6 +25,7 @@ import { docLeaves, wordOffset, wordsFrom } from "./pagination/exact";
 import { alignWord } from "../lib/pageWords";
 import { takePreviewJump } from "../state/previewJump";
 import { useCommentAnchoring } from "./useCommentAnchoring";
+import { useSceneEditingBridge } from "./useSceneEditingBridge";
 import { modalOpen, useRegisterCommands } from "../state/commands";
 import { useProject } from "../state/project/index";
 import { Modal } from "../ui/Dialog";
@@ -327,6 +328,7 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
       return true;
     });
   }, [editor]);
+  useSceneEditingBridge(editor);
   // The print preview opened this chapter at a page: put the caret on the text that starts it.
   const currentId = useProject((s) => s.currentId);
   useEffect(() => {

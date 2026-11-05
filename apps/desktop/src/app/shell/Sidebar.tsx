@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import { Camera, FilePlus, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
@@ -12,6 +12,10 @@ import { HistoryDialog, type HistoryPage } from "../dialogs/HistoryDialog";
 import { IconDialog, type IconPage } from "../dialogs/IconDialog";
 import { useKindLabels } from "./useKindLabels";
 import { EntryList, type Editing } from "./EntryList";
+import { SceneList } from "../scenes/SceneList";
+import { sceneRows } from "../../lib/scenes";
+import { useSceneEditing } from "../../lib/sceneEditing";
+import { useSceneView } from "../../state/sceneView";
 import { TrashDialog } from "./TrashDialog";
 import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
 
@@ -38,6 +42,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const manifest = useProject((s) => s.manifest);
   const language = useProject((s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "");
   const currentId = useProject((s) => s.currentId);
+  const currentDoc = useProject((s) => s.currentDoc);
+  const scenes = useMemo(() => sceneRows(currentDoc), [currentDoc]);
+  const activeScene = useSceneView((s) => s.active);
+  const showScene = useSceneView((s) => s.show);
   const history = useProject((s) => s.history);
   const actions = useProject((s) => s.actions);
   const lastUndo = history.undo.at(-1);
@@ -89,6 +97,21 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           heading={t`Chapters`}
           chapters
           titleLabel={t`Chapter title`}
+          underCurrent={
+            <SceneList
+              rows={scenes}
+              active={activeScene}
+              onOpen={(id) => {
+                useSceneEditing.getState().open?.(id);
+                showScene(id);
+                onNavigate?.();
+              }}
+              onAdd={() => {
+                const id = useSceneEditing.getState().add?.();
+                if (id) showScene(id);
+              }}
+            />
+          }
         />
         {manifest.backMatter.length > 0 && (
           <EntryList

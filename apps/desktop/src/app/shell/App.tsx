@@ -20,6 +20,9 @@ import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { Details } from "./Details";
 import { CommentsPanel } from "../comments/CommentsPanel";
+import { SceneRail } from "../scenes/SceneRail";
+import { sceneRow } from "../../lib/scenes";
+import { useSceneView } from "../../state/sceneView";
 import { ReferencesPanel } from "../references/ReferencesPanel";
 import { ReferenceViewer } from "../references/ReferenceViewer";
 import { BookDetailsDialog } from "../dialogs/BookDetailsDialog";
@@ -82,6 +85,7 @@ function AppScreens() {
   );
   const currentId = useProject((s) => s.currentId);
   const currentDoc = useProject((s) => s.currentDoc);
+  const activeScene = useSceneView((s) => s.active);
   const readPosition = useReadingPosition();
   const reloadCount = useProject((s) => s.reloadCount);
   const actions = useProject((s) => s.actions);
@@ -270,6 +274,8 @@ function AppScreens() {
   // A blank page holds no text either: Page view draws its page, and the editor is read-only, so nothing can be typed into it and
   // then left out of the PDF.
   const blank = readingOrder(manifest).find((e) => e.id === currentId)?.kind === "blank";
+  // A scene the sidebar is pointing at takes the rail: its notes are what the author is working on.
+  const scene = sceneRow(currentDoc, activeScene);
   const chapterNo = chapters.findIndex((c) => c.id === currentId) + 1;
   // In Read mode the footer follows the scroll position, not the open chapter (which catches up a moment later).
   const readIndex = pages.findIndex((c) => c.id === readPosition.id);
@@ -359,15 +365,19 @@ function AppScreens() {
             />
           )}
         </main>
-        {!focus && !reader && (details || references || comments) && (
+        {!focus && !reader && (scene || details || references || comments) && (
           <aside
-            aria-label={comments ? t`Comments` : references ? t`References` : t`Details`}
+            aria-label={
+              scene ? t`Scene` : comments ? t`Comments` : references ? t`References` : t`Details`
+            }
             className={cx(
               "hidden shrink-0 overflow-y-auto border-s border-border bg-surface xl:block",
-              references || comments ? "w-80" : "w-70",
+              scene || references || comments ? "w-80" : "w-70",
             )}
           >
-            {comments ? (
+            {scene ? (
+              <SceneRail />
+            ) : comments ? (
               <CommentsPanel onClose={() => setLayout({ comments: false })} />
             ) : references ? (
               <ReferencesPanel openId={viewingId} onOpen={setViewingId} />

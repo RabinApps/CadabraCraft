@@ -252,6 +252,11 @@ msgstr "{0} was removed, but its file could not be moved to the trash: {1}. You 
 msgid "{0} was updated from outside the app"
 msgstr "{0} was updated from outside the app"
 
+#. placeholder {0}: sceneWordsLabel(scene)
+#: src/app/scenes/SceneRail.tsx
+msgid "{0} words"
+msgstr "{0} words"
+
 #. placeholder {0}: nativeName(e.language)
 #. placeholder {1}: e.translated
 #. placeholder {2}: e.total
@@ -1214,6 +1219,10 @@ msgstr "Close Project"
 msgid "Close references"
 msgstr "Close references"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Close scene"
+msgstr "Close scene"
+
 #: src/app/references/PdfSearch.tsx
 msgid "Close search"
 msgstr "Close search"
@@ -1750,6 +1759,10 @@ msgstr "Downloading…"
 msgid "Downloading… {0} MB of {1} MB"
 msgstr "Downloading… {0} MB of {1} MB"
 
+#: src/app/scenes/labels.ts
+msgid "Draft"
+msgstr "Draft"
+
 #: src/app/shell/EntryList.tsx
 msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
 msgstr "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
@@ -1987,6 +2000,10 @@ msgstr "Filter by type"
 #: src/app/comments/CommentsPanel.tsx
 msgid "Filter comments"
 msgstr "Filter comments"
+
+#: src/app/scenes/labels.ts
+msgid "Final"
+msgstr "Final"
 
 #: src/editor/FindBar.tsx
 msgid "Find"
@@ -2516,6 +2533,10 @@ msgstr "Kokoro sounds the most natural but is slower: roughly 20 minutes of work
 msgid "Kokoro: Heart"
 msgstr "Kokoro: Heart"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Label"
+msgstr "Label"
+
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/Details.tsx
@@ -2981,6 +3002,10 @@ msgstr "No results"
 msgid "No shortcut matches “{0}”."
 msgstr "No shortcut matches “{0}”."
 
+#: src/app/scenes/labels.ts
+msgid "No status"
+msgstr "No status"
+
 #: src/app/export/PrintPreview.tsx
 msgid "No text yet"
 msgstr "No text yet"
@@ -3158,6 +3183,10 @@ msgstr "Open page {page} in the editor"
 msgid "Open Recent"
 msgstr "Open Recent"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Open scene"
+msgstr "Open scene"
+
 #: src/app/home/Dashboard.tsx
 msgid "Opened {when}"
 msgstr "Opened {when}"
@@ -3187,6 +3216,7 @@ msgid "Outdent list item"
 msgstr "Outdent list item"
 
 #: src/app/quicknav/OutlineNavigator.tsx
+#: src/app/scenes/labels.ts
 #: src/app/shell/AppHeader.tsx
 msgid "Outline"
 msgstr "Outline"
@@ -3357,9 +3387,19 @@ msgstr "Place in the book"
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 msgstr "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Point of view"
+msgstr "Point of view"
+
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Points to"
 msgstr "Points to"
+
+#. placeholder {0}: scene.pov
+#. placeholder {1}: sceneWordsLabel(scene)
+#: src/app/scenes/SceneRail.tsx
+msgid "POV {0} · {1} words"
+msgstr "POV {0} · {1} words"
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -3818,6 +3858,10 @@ msgstr "Results by page"
 msgid "Retry"
 msgstr "Retry"
 
+#: src/app/scenes/labels.ts
+msgid "Revised"
+msgstr "Revised"
+
 #: src/app/export/ExportDialog.tsx
 msgid "Rich Text (.rtf)"
 msgstr "Rich Text (.rtf)"
@@ -3889,6 +3933,12 @@ msgstr "Saving {dir}/manuscript.docx…"
 msgid "Saving {dir}/manuscript.rtf…"
 msgstr "Saving {dir}/manuscript.rtf…"
 
+#: src/app/scenes/SceneList.tsx
+#: src/app/scenes/SceneRail.tsx
+#: src/app/shell/App.tsx
+msgid "Scene"
+msgstr "Scene"
+
 #: src/app/export/Templates.tsx
 #: src/editor/Toolbar.tsx
 msgid "Scene break"
@@ -3897,6 +3947,18 @@ msgstr "Scene break"
 #: src/app/shell/menuModel.ts
 msgid "Scene Break"
 msgstr "Scene Break"
+
+#: src/app/scenes/SceneRail.tsx
+msgid "Scene status"
+msgstr "Scene status"
+
+#: src/app/scenes/SceneRail.tsx
+msgid "Scene title"
+msgstr "Scene title"
+
+#: src/app/scenes/SceneList.tsx
+msgid "Scenes"
+msgstr "Scenes"
 
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
@@ -4244,6 +4306,10 @@ msgstr "Switch to Manual order to reorder"
 msgid "Swords"
 msgstr "Swords"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Synopsis"
+msgstr "Synopsis"
+
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
 msgid "System"
@@ -4268,6 +4334,10 @@ msgstr "Tags headings, lists, tables and images so screen readers can read the f
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Take snapshot"
 msgstr "Take snapshot"
+
+#: src/app/scenes/SceneRail.tsx
+msgid "Target words"
+msgstr "Target words"
 
 #: src/editor/Toolbar.tsx
 msgid "Task list"
@@ -4872,6 +4942,11 @@ msgstr "Unsupported image type: {0}"
 #: src/app/home/Dashboard.tsx
 msgid "Untitled"
 msgstr "Untitled"
+
+#: src/app/scenes/SceneList.tsx
+#: src/app/scenes/SceneRail.tsx
+msgid "Untitled scene"
+msgstr "Untitled scene"
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Update available"

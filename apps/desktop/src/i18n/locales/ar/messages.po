@@ -252,6 +252,11 @@ msgstr "أُزيل {0}، لكن تعذّر نقل ملفه إلى سلة الم�
 msgid "{0} was updated from outside the app"
 msgstr "حُدِّث {0} من خارج التطبيق"
 
+#. placeholder {0}: sceneWordsLabel(scene)
+#: src/app/scenes/SceneRail.tsx
+msgid "{0} words"
+msgstr ""
+
 #. placeholder {0}: nativeName(e.language)
 #. placeholder {1}: e.translated
 #. placeholder {2}: e.total
@@ -1214,6 +1219,10 @@ msgstr "إغلاق المشروع"
 msgid "Close references"
 msgstr "إغلاق المراجع"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Close scene"
+msgstr ""
+
 #: src/app/references/PdfSearch.tsx
 msgid "Close search"
 msgstr "إغلاق البحث"
@@ -1750,6 +1759,10 @@ msgstr "جارٍ التنزيل…"
 msgid "Downloading… {0} MB of {1} MB"
 msgstr "جارٍ التنزيل… {0} ميغابايت من {1} ميغابايت"
 
+#: src/app/scenes/labels.ts
+msgid "Draft"
+msgstr ""
+
 #: src/app/shell/EntryList.tsx
 msgid "Drag to move, or press the up and down arrow keys. Escape cancels a drag."
 msgstr "اسحب للنقل، أو اضغط على سهمي الأعلى والأسفل. يلغي Esc السحب."
@@ -1986,6 +1999,10 @@ msgstr "التصفية حسب النوع"
 
 #: src/app/comments/CommentsPanel.tsx
 msgid "Filter comments"
+msgstr ""
+
+#: src/app/scenes/labels.ts
+msgid "Final"
 msgstr ""
 
 #: src/editor/FindBar.tsx
@@ -2516,6 +2533,10 @@ msgstr "يبدو Kokoro أكثر طبيعية لكنه أبطأ: نحو 20 دق�
 msgid "Kokoro: Heart"
 msgstr "Kokoro: Heart"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Label"
+msgstr ""
+
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/shell/Details.tsx
@@ -2981,6 +3002,10 @@ msgstr "لا نتائج"
 msgid "No shortcut matches “{0}”."
 msgstr "لا يوجد اختصار يطابق “{0}”."
 
+#: src/app/scenes/labels.ts
+msgid "No status"
+msgstr ""
+
 #: src/app/export/PrintPreview.tsx
 msgid "No text yet"
 msgstr "لا نص بعد"
@@ -3158,6 +3183,10 @@ msgstr "افتح الصفحة {page} في المحرر"
 msgid "Open Recent"
 msgstr "فتح حديث"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Open scene"
+msgstr ""
+
 #: src/app/home/Dashboard.tsx
 msgid "Opened {when}"
 msgstr "فُتح {when}"
@@ -3187,6 +3216,7 @@ msgid "Outdent list item"
 msgstr "تقليل إزاحة عنصر القائمة"
 
 #: src/app/quicknav/OutlineNavigator.tsx
+#: src/app/scenes/labels.ts
 #: src/app/shell/AppHeader.tsx
 msgid "Outline"
 msgstr "المخطط"
@@ -3357,9 +3387,19 @@ msgstr "الموضع في الكتاب"
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 msgstr "PNG أو JPEG أو WebP، حتى 25 ميغابايت. تُحفظ نسخة في مجلد أصول الكتاب. الأنسب الوضع الرأسي، نحو 1600 × 2400 بكسل."
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Point of view"
+msgstr ""
+
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Points to"
 msgstr "يشير إلى"
+
+#. placeholder {0}: scene.pov
+#. placeholder {1}: sceneWordsLabel(scene)
+#: src/app/scenes/SceneRail.tsx
+msgid "POV {0} · {1} words"
+msgstr ""
 
 #: src/app/shell/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -3818,6 +3858,10 @@ msgstr "النتائج حسب الصفحة"
 msgid "Retry"
 msgstr "إعادة المحاولة"
 
+#: src/app/scenes/labels.ts
+msgid "Revised"
+msgstr ""
+
 #: src/app/export/ExportDialog.tsx
 msgid "Rich Text (.rtf)"
 msgstr "نص منسّق (‎.rtf)"
@@ -3889,6 +3933,12 @@ msgstr "جارٍ حفظ {dir}/manuscript.docx…"
 msgid "Saving {dir}/manuscript.rtf…"
 msgstr "جارٍ حفظ {dir}/manuscript.rtf…"
 
+#: src/app/scenes/SceneList.tsx
+#: src/app/scenes/SceneRail.tsx
+#: src/app/shell/App.tsx
+msgid "Scene"
+msgstr ""
+
 #: src/app/export/Templates.tsx
 #: src/editor/Toolbar.tsx
 msgid "Scene break"
@@ -3897,6 +3947,18 @@ msgstr "فاصل مشهد"
 #: src/app/shell/menuModel.ts
 msgid "Scene Break"
 msgstr "فاصل مشهد"
+
+#: src/app/scenes/SceneRail.tsx
+msgid "Scene status"
+msgstr ""
+
+#: src/app/scenes/SceneRail.tsx
+msgid "Scene title"
+msgstr ""
+
+#: src/app/scenes/SceneList.tsx
+msgid "Scenes"
+msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
@@ -4244,6 +4306,10 @@ msgstr "انتقل إلى الترتيب اليدوي لإعادة الترتي�
 msgid "Swords"
 msgstr "سيوف"
 
+#: src/app/scenes/SceneRail.tsx
+msgid "Synopsis"
+msgstr ""
+
 #: src/app/settings/Settings.tsx
 #: src/editor/ReadingSettings.tsx
 msgid "System"
@@ -4268,6 +4334,10 @@ msgstr "يوسم العناوين والقوائم والجداول والصور
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Take snapshot"
 msgstr "التقاط لقطة"
+
+#: src/app/scenes/SceneRail.tsx
+msgid "Target words"
+msgstr ""
 
 #: src/editor/Toolbar.tsx
 msgid "Task list"
@@ -4872,6 +4942,11 @@ msgstr "نوع صورة غير مدعوم: {0}"
 #: src/app/home/Dashboard.tsx
 msgid "Untitled"
 msgstr "بلا عنوان"
+
+#: src/app/scenes/SceneList.tsx
+#: src/app/scenes/SceneRail.tsx
+msgid "Untitled scene"
+msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Update available"
