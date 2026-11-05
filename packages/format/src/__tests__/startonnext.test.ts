@@ -57,7 +57,11 @@ describe("setMatterStartOnNext", () => {
 describe("startOnNext in the manifest", () => {
   it("survives a save and a load", () => {
     const m0 = book();
-    const m = setMatterStartOnNext(setMatterStartOnNext(m0, ids(m0).epigraph, true), ids(m0).colophon, true);
+    const m = setMatterStartOnNext(
+      setMatterStartOnNext(m0, ids(m0).epigraph, true),
+      ids(m0).colophon,
+      true,
+    );
     const back = reopen(JSON.parse(serializeManifest(m)));
     expect(back.frontMatter.find((e) => e.kind === "epigraph")!.startOnNext).toBe(true);
     expect(back.backMatter[0]!.startOnNext).toBe(true);

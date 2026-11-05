@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { dropLeadingPageBreak, type ChapterDoc, type DocNode } from "../index";
 
 const doc = (...content: DocNode[]): ChapterDoc => ({ type: "doc", content });
-const paragraph = (text: string): DocNode => ({ type: "paragraph", content: [{ type: "text", text }] });
+const paragraph = (text: string): DocNode => ({
+  type: "paragraph",
+  content: [{ type: "text", text }],
+});
 const pageBreak: DocNode = { type: "pageBreak" };
 
 describe("dropLeadingPageBreak", () => {
