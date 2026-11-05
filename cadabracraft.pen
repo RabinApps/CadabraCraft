@@ -274628,7 +274628,8 @@
                               "fill": "$ink-muted",
                               "content": "Prologue: The Harbour",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -274650,7 +274651,8 @@
                               "fill": "$ink-muted",
                               "content": "The Salt Road",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -274672,7 +274674,8 @@
                               "fill": "$ink-muted",
                               "content": "A Room of Her Own",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -274717,7 +274720,8 @@
                               "fill": "$ink-muted",
                               "content": "What the Tide Left",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -274739,7 +274743,8 @@
                               "fill": "$ink-muted",
                               "content": "Epilogue: The Gate",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -275524,7 +275529,8 @@
                               "fill": "$ink-muted",
                               "content": "Prologue: The Harbour",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -275546,7 +275552,8 @@
                               "fill": "$ink-muted",
                               "content": "The Salt Road",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -275568,7 +275575,8 @@
                               "fill": "$ink-muted",
                               "content": "A Room of Her Own",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -275613,7 +275621,8 @@
                               "fill": "$ink-muted",
                               "content": "What the Tide Left",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -275635,7 +275644,8 @@
                               "fill": "$ink-muted",
                               "content": "Epilogue: The Gate",
                               "fontFamily": "$font-ui",
-                              "fontSize": "$type-small"
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -278672,6 +278682,3136 @@
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-small",
                           "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Wu6ye",
+      "x": 0,
+      "y": 94516,
+      "name": "Section / Scenes",
+      "width": 9720,
+      "layout": "vertical",
+      "gap": 120,
+      "padding": 120,
+      "children": [
+        {
+          "type": "text",
+          "id": "WgGny",
+          "name": "Section title",
+          "fill": "$ink",
+          "content": "Scenes",
+          "fontFamily": "$font-ui",
+          "fontSize": "$type-heading",
+          "fontWeight": "600"
+        },
+        {
+          "type": "frame",
+          "id": "VIkCu",
+          "name": "Scenes desktop row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "uAnxn",
+              "name": "Scenes / desktop / light",
+              "theme": {
+                "mode": "light"
+              },
+              "width": 1280,
+              "height": 800,
+              "fill": "$bg",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "CNloj",
+                  "name": "Top bar",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "$surface",
+                  "gap": 12,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "hknr9",
+                      "name": "Book title",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "f5bPS",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "KQvYm",
+                      "name": "Scenes button",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "gap": 6,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "X6FpM5",
+                          "name": "Comments label",
+                          "fill": "$accent",
+                          "content": "Scenes",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Lq5L7",
+                      "name": "Saved badge",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius-full",
+                      "padding": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Bj79o",
+                          "name": "Saved label",
+                          "fill": "$ink-muted",
+                          "content": "Saved",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Dx7Mr",
+                  "name": "Desktop body",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "cxn5e",
+                      "name": "Chapters sidebar",
+                      "width": 264,
+                      "height": "fill_container",
+                      "fill": "$sidebar",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "JUSJL",
+                          "name": "Sidebar header",
+                          "width": "fill_container",
+                          "padding": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "tHjlK",
+                              "name": "Sidebar title",
+                              "fill": "$ink-muted",
+                              "content": "Chapters",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zHmM2",
+                          "name": "Chapter row Harbour",
+                          "width": "fill_container",
+                          "height": 32,
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ewD3X",
+                              "name": "Chapter row Harbour chevron",
+                              "fill": "$accent",
+                              "content": "▾",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "r9Fldi",
+                              "name": "Chapter row Harbour title",
+                              "fill": "$ink",
+                              "content": "The Harbour",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "rxSya",
+                              "name": "Chapter row Harbour count",
+                              "fill": "$ink-muted",
+                              "content": "3,410",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "RhyNz",
+                          "name": "Scene row 1",
+                          "width": "fill_container",
+                          "height": 28,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "L8eV89",
+                              "name": "Scene row 1 indent",
+                              "width": 14,
+                              "height": 14
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ct2DE",
+                              "name": "Scene row 1 dot",
+                              "width": 6,
+                              "height": 6,
+                              "fill": "$warn",
+                              "cornerRadius": 3
+                            },
+                            {
+                              "type": "text",
+                              "id": "hWw78",
+                              "name": "Scene row 1 title",
+                              "fill": "$ink",
+                              "content": "The quay at dusk",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "MCyeP",
+                              "name": "Scene row 1 words",
+                              "fill": "$ink-muted",
+                              "content": "820 / 1,000",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "uyeMY",
+                          "name": "Scene row 2",
+                          "width": "fill_container",
+                          "height": 28,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "cXRMo",
+                              "name": "Scene row 2 indent",
+                              "width": 14,
+                              "height": 14
+                            },
+                            {
+                              "type": "frame",
+                              "id": "n25PK",
+                              "name": "Scene row 2 dot",
+                              "width": 6,
+                              "height": 6,
+                              "fill": "$success",
+                              "cornerRadius": 3
+                            },
+                            {
+                              "type": "text",
+                              "id": "rQU4H",
+                              "name": "Scene row 2 title",
+                              "fill": "$ink",
+                              "content": "A letter from Ada",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "K9fMJ7",
+                              "name": "Scene row 2 words",
+                              "fill": "$ink-muted",
+                              "content": "1,204",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "M0rEt",
+                          "name": "Scene row 3",
+                          "width": "fill_container",
+                          "height": 28,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "VFgE2",
+                              "name": "Scene row 3 indent",
+                              "width": 14,
+                              "height": 14
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ZLT9S",
+                              "name": "Scene row 3 dot",
+                              "width": 6,
+                              "height": 6,
+                              "fill": "$ink-muted",
+                              "cornerRadius": 3
+                            },
+                            {
+                              "type": "text",
+                              "id": "GrM90",
+                              "name": "Scene row 3 title",
+                              "fill": "$ink",
+                              "content": "Storm warning",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "d8EZDq",
+                              "name": "Scene row 3 words",
+                              "fill": "$ink-muted",
+                              "content": "1,386",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "L7pDR",
+                          "name": "Add scene row",
+                          "width": "fill_container",
+                          "height": 28,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "q9NAvS",
+                              "name": "Add scene indent",
+                              "width": 14,
+                              "height": 14
+                            },
+                            {
+                              "type": "text",
+                              "id": "oaiLu",
+                              "name": "Add scene label",
+                              "fill": "$accent",
+                              "content": "+ Scene",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "N1Q0dP",
+                          "name": "Chapter row Light",
+                          "width": "fill_container",
+                          "height": 32,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "XIcqp",
+                              "name": "Chapter row Light chevron",
+                              "fill": "$ink-muted",
+                              "content": "▸",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "KfNJP",
+                              "name": "Chapter row Light title",
+                              "fill": "$ink",
+                              "content": "The Light",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "r1Gag",
+                              "name": "Chapter row Light count",
+                              "fill": "$ink-muted",
+                              "content": "2,980",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "FdQ9h",
+                          "name": "Chapter row After",
+                          "width": "fill_container",
+                          "height": 32,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "X2HkGI",
+                              "name": "Chapter row After chevron",
+                              "fill": "$ink-muted",
+                              "content": "▸",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "q5t8Gq",
+                              "name": "Chapter row After title",
+                              "fill": "$ink",
+                              "content": "After the Storm",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "afM84",
+                              "name": "Chapter row After count",
+                              "fill": "$ink-muted",
+                              "content": "3,120",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "cAMaA",
+                          "name": "Spacer",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "text",
+                          "id": "eP1um",
+                          "name": "Words",
+                          "fill": "$ink-muted",
+                          "content": "12,480 words",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Cfshy",
+                      "name": "Manuscript",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "fill": "$bg",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 32,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "CjDU4",
+                          "name": "Page",
+                          "width": 560,
+                          "fill": "$paper",
+                          "cornerRadius": "$radius-sm",
+                          "layout": "vertical",
+                          "gap": 16,
+                          "padding": 48,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "IuaAn",
+                              "name": "Chapter label",
+                              "fill": "$ink-muted",
+                              "content": "CHAPTER 7",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "DTtnP",
+                              "name": "Chapter title",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The Orchard Wall",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-heading",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "b2uTOT",
+                              "name": "Paragraph 1",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The salt wind came off the water all morning and by noon it had taken the last of the blossom with it. Mara stood at the wall and watched the petals go down the lane in drifts, the way they always did in the third week of the month her mother called the long tide.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "YeEtc",
+                              "name": "Anchored paragraph",
+                              "width": "fill_container",
+                              "fill": "$accent-soft",
+                              "cornerRadius": "$radius-xs",
+                              "padding": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "UtWG2",
+                                  "name": "Anchored sentence",
+                                  "fill": "$ink",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "The storm broke over the harbour before dawn.",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-manuscript",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "khAsj",
+                              "name": "Paragraph 2",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "She had meant to say something to the boy about the wall, about who had raised it, but the words had gone the way of the blossom and he was already at the gate with the cart.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "L49Zx",
+                      "name": "Comments rail",
+                      "width": 320,
+                      "height": "fill_container",
+                      "fill": "$surface",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "qbQcX",
+                          "name": "Rail divider",
+                          "width": 1,
+                          "height": "fill_container",
+                          "fill": "$border"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "a0bsTB",
+                          "name": "Rail content",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "padding": 16,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "WT8AD",
+                              "name": "Scene header",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "w9tnw",
+                                  "name": "Scene title",
+                                  "fill": "$ink",
+                                  "content": "The quay at dusk",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-lead",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "XI9ZW",
+                                  "name": "Scene status",
+                                  "fill": "$warn-soft",
+                                  "cornerRadius": "$radius-full",
+                                  "padding": 4,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "R7X5W",
+                                      "name": "Scene status label",
+                                      "fill": "$warn",
+                                      "content": "Draft",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "dY9RW",
+                              "name": "Scene meta",
+                              "fill": "$ink-muted",
+                              "content": "POV Mara · 820 of 1,000 words",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "v79Uj",
+                              "name": "Target track",
+                              "width": "fill_container",
+                              "height": 6,
+                              "fill": "$border",
+                              "cornerRadius": 3,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "e2CBP",
+                                  "name": "Target fill",
+                                  "width": 235,
+                                  "height": 6,
+                                  "fill": "$accent",
+                                  "cornerRadius": 3
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "w9B3R8",
+                              "name": "Synopsis label",
+                              "fill": "$ink-muted",
+                              "content": "SYNOPSIS",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "VogEx",
+                              "name": "Synopsis",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": 287,
+                              "content": "Mara waits on the quay while the lamp swings. She has not decided what to tell him.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "fyFuD",
+                              "name": "Label label",
+                              "fill": "$ink-muted",
+                              "content": "LABEL",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "ylIE6",
+                              "name": "Label value",
+                              "fill": "$ink",
+                              "content": "Act I",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "DkYIv",
+                              "name": "Rail spacer",
+                              "width": 1,
+                              "height": "fill_container"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "wKWCN",
+                              "name": "Open scene",
+                              "width": "fill_container",
+                              "height": 32,
+                              "fill": "$accent",
+                              "cornerRadius": "$radius",
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "i8rS13",
+                                  "name": "Open scene label",
+                                  "fill": "$accent-ink",
+                                  "content": "Open scene",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "r2uszy",
+      "x": 0,
+      "y": 95865,
+      "name": "Section / Scenes",
+      "width": 9720,
+      "layout": "vertical",
+      "gap": 120,
+      "padding": 120,
+      "children": [
+        {
+          "type": "text",
+          "id": "ED51T",
+          "name": "Section title",
+          "fill": "$ink",
+          "content": "Scenes",
+          "fontFamily": "$font-ui",
+          "fontSize": "$type-heading",
+          "fontWeight": "600"
+        },
+        {
+          "type": "frame",
+          "id": "W7gWpo",
+          "name": "Scenes desktop row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "IqGW0",
+              "name": "Scenes / desktop / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "width": 1280,
+              "height": 800,
+              "fill": "$bg",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "WvNK5",
+                  "name": "Top bar",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "$surface",
+                  "gap": 12,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KiGc6",
+                      "name": "Book title",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sAxfR",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RpCKK",
+                      "name": "Scenes button",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "gap": 6,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "gfP8G",
+                          "name": "Comments label",
+                          "fill": "$accent",
+                          "content": "Scenes",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "NfpVv",
+                      "name": "Saved badge",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius-full",
+                      "padding": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wyGAd",
+                          "name": "Saved label",
+                          "fill": "$ink-muted",
+                          "content": "Saved",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "FHfOd",
+                  "name": "Desktop body",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Ttzys",
+                      "name": "Chapters sidebar",
+                      "width": 264,
+                      "height": "fill_container",
+                      "fill": "$sidebar",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Wf6jZ",
+                          "name": "Sidebar header",
+                          "width": "fill_container",
+                          "padding": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "loZNn",
+                              "name": "Sidebar title",
+                              "fill": "$ink-muted",
+                              "content": "Chapters",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "b9p24",
+                          "name": "Chapter row Harbour",
+                          "width": "fill_container",
+                          "height": 32,
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dBdoA",
+                              "name": "Chapter row Harbour chevron",
+                              "fill": "$accent",
+                              "content": "▾",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "GRgN8",
+                              "name": "Chapter row Harbour title",
+                              "fill": "$ink",
+                              "content": "The Harbour",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "v6S3Q",
+                              "name": "Chapter row Harbour count",
+                              "fill": "$ink-muted",
+                              "content": "3,410",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "bzGbN",
+                          "name": "Scene row 1",
+                          "width": "fill_container",
+                          "height": 28,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "LDNZH",
+                              "name": "Scene row 1 indent",
+                              "width": 14,
+                              "height": 14
+                            },
+                            {
+                              "type": "frame",
+                              "id": "hzxt0",
+                              "name": "Scene row 1 dot",
+                              "width": 6,
+                              "height": 6,
+                              "fill": "$warn",
+                              "cornerRadius": 3
+                            },
+                            {
+                              "type": "text",
+                              "id": "AwwMV",
+                              "name": "Scene row 1 title",
+                              "fill": "$ink",
+                              "content": "The quay at dusk",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "TmiTK",
+                              "name": "Scene row 1 words",
+                              "fill": "$ink-muted",
+                              "content": "820 / 1,000",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "r8MGmY",
+                          "name": "Scene row 2",
+                          "width": "fill_container",
+                          "height": 28,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "wSSjc",
+                              "name": "Scene row 2 indent",
+                              "width": 14,
+                              "height": 14
+                            },
+                            {
+                              "type": "frame",
+                              "id": "tlRRj",
+                              "name": "Scene row 2 dot",
+                              "width": 6,
+                              "height": 6,
+                              "fill": "$success",
+                              "cornerRadius": 3
+                            },
+                            {
+                              "type": "text",
+                              "id": "YxM3h",
+                              "name": "Scene row 2 title",
+                              "fill": "$ink",
+                              "content": "A letter from Ada",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "N698N",
+                              "name": "Scene row 2 words",
+                              "fill": "$ink-muted",
+                              "content": "1,204",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "E0Mvl",
+                          "name": "Scene row 3",
+                          "width": "fill_container",
+                          "height": 28,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "rWJPE",
+                              "name": "Scene row 3 indent",
+                              "width": 14,
+                              "height": 14
+                            },
+                            {
+                              "type": "frame",
+                              "id": "GWMWc",
+                              "name": "Scene row 3 dot",
+                              "width": 6,
+                              "height": 6,
+                              "fill": "$ink-muted",
+                              "cornerRadius": 3
+                            },
+                            {
+                              "type": "text",
+                              "id": "O2ul1",
+                              "name": "Scene row 3 title",
+                              "fill": "$ink",
+                              "content": "Storm warning",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "cJjiw",
+                              "name": "Scene row 3 words",
+                              "fill": "$ink-muted",
+                              "content": "1,386",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "akRuo",
+                          "name": "Add scene row",
+                          "width": "fill_container",
+                          "height": 28,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "VC9Hr",
+                              "name": "Add scene indent",
+                              "width": 14,
+                              "height": 14
+                            },
+                            {
+                              "type": "text",
+                              "id": "v7aKn5",
+                              "name": "Add scene label",
+                              "fill": "$accent",
+                              "content": "+ Scene",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "V5MpB7",
+                          "name": "Chapter row Light",
+                          "width": "fill_container",
+                          "height": 32,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "KIrII",
+                              "name": "Chapter row Light chevron",
+                              "fill": "$ink-muted",
+                              "content": "▸",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "fBh07",
+                              "name": "Chapter row Light title",
+                              "fill": "$ink",
+                              "content": "The Light",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "DTDtG",
+                              "name": "Chapter row Light count",
+                              "fill": "$ink-muted",
+                              "content": "2,980",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "hEj5N",
+                          "name": "Chapter row After",
+                          "width": "fill_container",
+                          "height": 32,
+                          "cornerRadius": "$radius-sm",
+                          "gap": 8,
+                          "padding": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ncPT1",
+                              "name": "Chapter row After chevron",
+                              "fill": "$ink-muted",
+                              "content": "▸",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "sDhqS",
+                              "name": "Chapter row After title",
+                              "fill": "$ink",
+                              "content": "After the Storm",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Psz8B",
+                              "name": "Chapter row After count",
+                              "fill": "$ink-muted",
+                              "content": "3,120",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "A711H",
+                          "name": "Spacer",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "text",
+                          "id": "dl7Kz",
+                          "name": "Words",
+                          "fill": "$ink-muted",
+                          "content": "12,480 words",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "y0wVN",
+                      "name": "Manuscript",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "fill": "$bg",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 32,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mc9Ao",
+                          "name": "Page",
+                          "width": 560,
+                          "fill": "$paper",
+                          "cornerRadius": "$radius-sm",
+                          "layout": "vertical",
+                          "gap": 16,
+                          "padding": 48,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "xlBk0",
+                              "name": "Chapter label",
+                              "fill": "$ink-muted",
+                              "content": "CHAPTER 7",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "rWGAE",
+                              "name": "Chapter title",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The Orchard Wall",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-heading",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "c8VCn",
+                              "name": "Paragraph 1",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The salt wind came off the water all morning and by noon it had taken the last of the blossom with it. Mara stood at the wall and watched the petals go down the lane in drifts, the way they always did in the third week of the month her mother called the long tide.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "PgHVT",
+                              "name": "Anchored paragraph",
+                              "width": "fill_container",
+                              "fill": "$accent-soft",
+                              "cornerRadius": "$radius-xs",
+                              "padding": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "W84r0L",
+                                  "name": "Anchored sentence",
+                                  "fill": "$ink",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "The storm broke over the harbour before dawn.",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-manuscript",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "AAAnH",
+                              "name": "Paragraph 2",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "She had meant to say something to the boy about the wall, about who had raised it, but the words had gone the way of the blossom and he was already at the gate with the cart.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "KPMRs",
+                      "name": "Comments rail",
+                      "width": 320,
+                      "height": "fill_container",
+                      "fill": "$surface",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "n4YnkI",
+                          "name": "Rail divider",
+                          "width": 1,
+                          "height": "fill_container",
+                          "fill": "$border"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "tZVZ9",
+                          "name": "Rail content",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "padding": 16,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "L2gHN",
+                              "name": "Scene header",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jkzhl",
+                                  "name": "Scene title",
+                                  "fill": "$ink",
+                                  "content": "The quay at dusk",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-lead",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "KpRfj",
+                                  "name": "Scene status",
+                                  "fill": "$warn-soft",
+                                  "cornerRadius": "$radius-full",
+                                  "padding": 4,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "tJrgi",
+                                      "name": "Scene status label",
+                                      "fill": "$warn",
+                                      "content": "Draft",
+                                      "fontFamily": "$font-ui",
+                                      "fontSize": "$type-micro",
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "niqah",
+                              "name": "Scene meta",
+                              "fill": "$ink-muted",
+                              "content": "POV Mara · 820 of 1,000 words",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Yfdb2",
+                              "name": "Target track",
+                              "width": "fill_container",
+                              "height": 6,
+                              "fill": "$border",
+                              "cornerRadius": 3,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "w0f03j",
+                                  "name": "Target fill",
+                                  "width": 235,
+                                  "height": 6,
+                                  "fill": "$accent",
+                                  "cornerRadius": 3
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "fEBrz",
+                              "name": "Synopsis label",
+                              "fill": "$ink-muted",
+                              "content": "SYNOPSIS",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "I3jIBW",
+                              "name": "Synopsis",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": 287,
+                              "content": "Mara waits on the quay while the lamp swings. She has not decided what to tell him.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "xovfD",
+                              "name": "Label label",
+                              "fill": "$ink-muted",
+                              "content": "LABEL",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-micro",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "vgqtR",
+                              "name": "Label value",
+                              "fill": "$ink",
+                              "content": "Act I",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-small",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ltcvV",
+                              "name": "Rail spacer",
+                              "width": 1,
+                              "height": "fill_container"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "T3C0Vh",
+                              "name": "Open scene",
+                              "width": "fill_container",
+                              "height": 32,
+                              "fill": "$accent",
+                              "cornerRadius": "$radius",
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "a55s3f",
+                                  "name": "Open scene label",
+                                  "fill": "$accent-ink",
+                                  "content": "Open scene",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "fccqg",
+          "name": "Scenes tablet row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "pVeTS",
+              "name": "Scenes / tablet / light",
+              "theme": {
+                "mode": "light"
+              },
+              "width": 820,
+              "height": 1180,
+              "fill": "$bg",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "cFh9v",
+                  "name": "Top bar",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "$surface",
+                  "gap": 12,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "O4EHe",
+                      "name": "Book title",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aH6Rh",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YYGDr",
+                      "name": "Scenes button",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "gap": 6,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "lVXUD",
+                          "name": "Comments label",
+                          "fill": "$accent",
+                          "content": "Scenes",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "HOHls",
+                      "name": "Saved badge",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius-full",
+                      "padding": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "DzQck",
+                          "name": "Saved label",
+                          "fill": "$ink-muted",
+                          "content": "Saved",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "RAeuV",
+                  "name": "Tablet body",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "M1KEYU",
+                      "name": "Manuscript",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "fill": "$bg",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dhUCn",
+                          "name": "Page",
+                          "width": 480,
+                          "fill": "$paper",
+                          "cornerRadius": "$radius-sm",
+                          "layout": "vertical",
+                          "gap": 16,
+                          "padding": 48,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "e7aWCw",
+                              "name": "Chapter label",
+                              "fill": "$ink-muted",
+                              "content": "CHAPTER 7",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "gNuml",
+                              "name": "Chapter title",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The Orchard Wall",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-heading",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "z5kWm",
+                              "name": "Paragraph 1",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The salt wind came off the water all morning and by noon it had taken the last of the blossom with it. Mara stood at the wall and watched the petals go down the lane in drifts, the way they always did in the third week of the month her mother called the long tide.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "m4P2b",
+                              "name": "Anchored paragraph",
+                              "width": "fill_container",
+                              "fill": "$accent-soft",
+                              "cornerRadius": "$radius-xs",
+                              "padding": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "T7Zhuo",
+                                  "name": "Anchored sentence",
+                                  "fill": "$ink",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "The storm broke over the harbour before dawn.",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-manuscript",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "uLyAP",
+                              "name": "Paragraph 2",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "She had meant to say something to the boy about the wall, about who had raised it, but the words had gone the way of the blossom and he was already at the gate with the cart.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Rb7hl",
+                      "name": "Comments rail",
+                      "width": 320,
+                      "height": "fill_container",
+                      "fill": "$surface",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Bzjyf",
+                          "name": "Rail divider",
+                          "width": 1,
+                          "height": "fill_container",
+                          "fill": "$border"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "AUkNu",
+                          "name": "Rail content",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "padding": 16,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "noAI0",
+                              "name": "Scene list title",
+                              "fill": "$ink",
+                              "content": "Scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-lead",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "qLaKU",
+                              "name": "Scene list chapter",
+                              "fill": "$ink-muted",
+                              "content": "The Harbour · 3,410 words",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "rDrmC",
+                              "name": "Scene row 1",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius-sm",
+                              "gap": 8,
+                              "padding": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "rKC9A",
+                                  "name": "Scene row 1 dot",
+                                  "width": 6,
+                                  "height": 6,
+                                  "fill": "$warn",
+                                  "cornerRadius": 3
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "yT8iY",
+                                  "name": "Scene row 1 title",
+                                  "fill": "$ink",
+                                  "content": "The quay at dusk",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "a1uHBR",
+                                  "name": "Scene row 1 words",
+                                  "fill": "$ink-muted",
+                                  "content": "820 / 1,000",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "P3qjG0",
+                              "name": "Scene row 2",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius-sm",
+                              "gap": 8,
+                              "padding": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "AZDzP",
+                                  "name": "Scene row 2 dot",
+                                  "width": 6,
+                                  "height": 6,
+                                  "fill": "$success",
+                                  "cornerRadius": 3
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sHsmj",
+                                  "name": "Scene row 2 title",
+                                  "fill": "$ink",
+                                  "content": "A letter from Ada",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "U7uGA",
+                                  "name": "Scene row 2 words",
+                                  "fill": "$ink-muted",
+                                  "content": "1,204",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "O0fysU",
+                              "name": "Scene row 3",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius-sm",
+                              "gap": 8,
+                              "padding": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "KTwed",
+                                  "name": "Scene row 3 dot",
+                                  "width": 6,
+                                  "height": 6,
+                                  "fill": "$ink-muted",
+                                  "cornerRadius": 3
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "LHVCl",
+                                  "name": "Scene row 3 title",
+                                  "fill": "$ink",
+                                  "content": "Storm warning",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "pEEyo",
+                                  "name": "Scene row 3 words",
+                                  "fill": "$ink-muted",
+                                  "content": "1,386",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "m7B6jO",
+                              "name": "Add scene row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius-sm",
+                              "gap": 8,
+                              "padding": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "CbMUj",
+                                  "name": "Add scene label",
+                                  "fill": "$accent",
+                                  "content": "+ Scene",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ca98N",
+                              "name": "Rail spacer",
+                              "width": 1,
+                              "height": "fill_container"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "D4qjN",
+          "name": "Scenes tablet row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "OQJmF",
+              "name": "Scenes / tablet / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "width": 820,
+              "height": 1180,
+              "fill": "$bg",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "m2cGxg",
+                  "name": "Top bar",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "$surface",
+                  "gap": 12,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "yDwTW",
+                      "name": "Book title",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "h9THKO",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "EQKp2",
+                      "name": "Scenes button",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "gap": 6,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "v6aLz",
+                          "name": "Comments label",
+                          "fill": "$accent",
+                          "content": "Scenes",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kgR3Q",
+                      "name": "Saved badge",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius-full",
+                      "padding": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "S4czUa",
+                          "name": "Saved label",
+                          "fill": "$ink-muted",
+                          "content": "Saved",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "nXXP4",
+                  "name": "Tablet body",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "QSPe7",
+                      "name": "Manuscript",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "fill": "$bg",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "cWAqR",
+                          "name": "Page",
+                          "width": 480,
+                          "fill": "$paper",
+                          "cornerRadius": "$radius-sm",
+                          "layout": "vertical",
+                          "gap": 16,
+                          "padding": 48,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Cx2JM",
+                              "name": "Chapter label",
+                              "fill": "$ink-muted",
+                              "content": "CHAPTER 7",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "DHnxY",
+                              "name": "Chapter title",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The Orchard Wall",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-heading",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "y4xvE",
+                              "name": "Paragraph 1",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The salt wind came off the water all morning and by noon it had taken the last of the blossom with it. Mara stood at the wall and watched the petals go down the lane in drifts, the way they always did in the third week of the month her mother called the long tide.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "gpwoj",
+                              "name": "Anchored paragraph",
+                              "width": "fill_container",
+                              "fill": "$accent-soft",
+                              "cornerRadius": "$radius-xs",
+                              "padding": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "s5dEz",
+                                  "name": "Anchored sentence",
+                                  "fill": "$ink",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "The storm broke over the harbour before dawn.",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-manuscript",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "h2HMl",
+                              "name": "Paragraph 2",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "She had meant to say something to the boy about the wall, about who had raised it, but the words had gone the way of the blossom and he was already at the gate with the cart.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZFlXI",
+                      "name": "Comments rail",
+                      "width": 320,
+                      "height": "fill_container",
+                      "fill": "$surface",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mElNK",
+                          "name": "Rail divider",
+                          "width": 1,
+                          "height": "fill_container",
+                          "fill": "$border"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "z7I5VT",
+                          "name": "Rail content",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "padding": 16,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wNP6M",
+                              "name": "Scene list title",
+                              "fill": "$ink",
+                              "content": "Scenes",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-lead",
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "RiMta",
+                              "name": "Scene list chapter",
+                              "fill": "$ink-muted",
+                              "content": "The Harbour · 3,410 words",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-caption",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "M5JdAt",
+                              "name": "Scene row 1",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius-sm",
+                              "gap": 8,
+                              "padding": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "A0IW2a",
+                                  "name": "Scene row 1 dot",
+                                  "width": 6,
+                                  "height": 6,
+                                  "fill": "$warn",
+                                  "cornerRadius": 3
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sNc31",
+                                  "name": "Scene row 1 title",
+                                  "fill": "$ink",
+                                  "content": "The quay at dusk",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "jmOve",
+                                  "name": "Scene row 1 words",
+                                  "fill": "$ink-muted",
+                                  "content": "820 / 1,000",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "hbtW5",
+                              "name": "Scene row 2",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius-sm",
+                              "gap": 8,
+                              "padding": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "s5uvk",
+                                  "name": "Scene row 2 dot",
+                                  "width": 6,
+                                  "height": 6,
+                                  "fill": "$success",
+                                  "cornerRadius": 3
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "BnjPc",
+                                  "name": "Scene row 2 title",
+                                  "fill": "$ink",
+                                  "content": "A letter from Ada",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "h7fQ2u",
+                                  "name": "Scene row 2 words",
+                                  "fill": "$ink-muted",
+                                  "content": "1,204",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "H3Ok1",
+                              "name": "Scene row 3",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius-sm",
+                              "gap": 8,
+                              "padding": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "gf2yK",
+                                  "name": "Scene row 3 dot",
+                                  "width": 6,
+                                  "height": 6,
+                                  "fill": "$ink-muted",
+                                  "cornerRadius": 3
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "E82MG",
+                                  "name": "Scene row 3 title",
+                                  "fill": "$ink",
+                                  "content": "Storm warning",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "ZIYtK",
+                                  "name": "Scene row 3 words",
+                                  "fill": "$ink-muted",
+                                  "content": "1,386",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-micro",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "EwGCF",
+                              "name": "Add scene row",
+                              "width": "fill_container",
+                              "cornerRadius": "$radius-sm",
+                              "gap": 8,
+                              "padding": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "p9BJfv",
+                                  "name": "Add scene label",
+                                  "fill": "$accent",
+                                  "content": "+ Scene",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "L3kIs",
+                              "name": "Rail spacer",
+                              "width": 1,
+                              "height": "fill_container"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "RXYch",
+          "name": "Scenes mobile row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "YiwLD",
+              "name": "Scenes / mobile / light",
+              "theme": {
+                "mode": "light"
+              },
+              "width": 390,
+              "height": 844,
+              "fill": "$bg",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "vNTGb",
+                  "name": "Top bar",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "$surface",
+                  "gap": 12,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Jh9zR",
+                      "name": "Book title",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "o45gfY",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "EPDJv",
+                      "name": "Scenes button",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "gap": 6,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "apEjD",
+                          "name": "Comments label",
+                          "fill": "$accent",
+                          "content": "Scenes",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "oSRYl",
+                      "name": "Saved badge",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius-full",
+                      "padding": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "vmMeH",
+                          "name": "Saved label",
+                          "fill": "$ink-muted",
+                          "content": "Saved",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "V1eJg",
+                  "name": "Mobile body",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "$bg",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "tMimv",
+                      "name": "Page",
+                      "width": 358,
+                      "fill": "$paper",
+                      "cornerRadius": "$radius-sm",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 48,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "D7Cn1W",
+                          "name": "Chapter label",
+                          "fill": "$ink-muted",
+                          "content": "CHAPTER 7",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ABmCP",
+                          "name": "Chapter title",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The Orchard Wall",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-heading",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Dy2pU",
+                          "name": "Paragraph 1",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The salt wind came off the water all morning and by noon it had taken the last of the blossom with it. Mara stood at the wall and watched the petals go down the lane in drifts, the way they always did in the third week of the month her mother called the long tide.",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-manuscript",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "B7gYu",
+                          "name": "Anchored paragraph",
+                          "width": "fill_container",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-xs",
+                          "padding": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "euAZz",
+                              "name": "Anchored sentence",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The storm broke over the harbour before dawn.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "K2tjAZ",
+                          "name": "Paragraph 2",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "She had meant to say something to the boy about the wall, about who had raised it, but the words had gone the way of the blossom and he was already at the gate with the cart.",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-manuscript",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ct3T8",
+                  "name": "Comments sheet",
+                  "width": 390,
+                  "height": 500,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-lg",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "z2W9T",
+                      "name": "Sheet grip row",
+                      "width": "fill_container",
+                      "height": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "JfT6b",
+                          "name": "Spacer",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "cjR20",
+                          "name": "Sheet grip",
+                          "width": 36,
+                          "height": 4,
+                          "fill": "$border",
+                          "cornerRadius": "$radius-full"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "j1aQ0",
+                          "name": "Spacer",
+                          "width": "fill_container",
+                          "height": 1
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Co8Q0",
+                      "name": "Sheet header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "nZbRC",
+                          "name": "Sheet title",
+                          "fill": "$ink",
+                          "content": "The Harbour",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-lead",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "B4gKHS",
+                          "name": "Sheet count",
+                          "fill": "$ink-muted",
+                          "content": "Scenes · 3,410 words",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bDsAG",
+                      "name": "Scene row 1",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius-sm",
+                      "gap": 8,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "W4TH1f",
+                          "name": "Scene row 1 dot",
+                          "width": 6,
+                          "height": 6,
+                          "fill": "$warn",
+                          "cornerRadius": 3
+                        },
+                        {
+                          "type": "text",
+                          "id": "SnQ6L",
+                          "name": "Scene row 1 title",
+                          "fill": "$ink",
+                          "content": "The quay at dusk",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "j8EbE5",
+                          "name": "Scene row 1 words",
+                          "fill": "$ink-muted",
+                          "content": "820 / 1,000",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "s0wziB",
+                      "name": "Scene row 2",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius-sm",
+                      "gap": 8,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "TONLY",
+                          "name": "Scene row 2 dot",
+                          "width": 6,
+                          "height": 6,
+                          "fill": "$success",
+                          "cornerRadius": 3
+                        },
+                        {
+                          "type": "text",
+                          "id": "wVUCJ",
+                          "name": "Scene row 2 title",
+                          "fill": "$ink",
+                          "content": "A letter from Ada",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ztrau",
+                          "name": "Scene row 2 words",
+                          "fill": "$ink-muted",
+                          "content": "1,204",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "R54QT",
+                      "name": "Scene row 3",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius-sm",
+                      "gap": 8,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "rcJdh",
+                          "name": "Scene row 3 dot",
+                          "width": 6,
+                          "height": 6,
+                          "fill": "$ink-muted",
+                          "cornerRadius": 3
+                        },
+                        {
+                          "type": "text",
+                          "id": "nGcIw",
+                          "name": "Scene row 3 title",
+                          "fill": "$ink",
+                          "content": "Storm warning",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "LIWET",
+                          "name": "Scene row 3 words",
+                          "fill": "$ink-muted",
+                          "content": "1,386",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jk9FI",
+                      "name": "Sheet spacer",
+                      "width": 1,
+                      "height": "fill_container"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ccYWe",
+                      "name": "Add scene row",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius-sm",
+                      "gap": 8,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "c9LR9M",
+                          "name": "Add scene label",
+                          "fill": "$accent",
+                          "content": "+ Scene",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "KJNzA",
+          "name": "Scenes mobile row",
+          "gap": 120,
+          "children": [
+            {
+              "type": "frame",
+              "id": "SHV6z",
+              "name": "Scenes / mobile / dark",
+              "theme": {
+                "mode": "dark"
+              },
+              "width": 390,
+              "height": 844,
+              "fill": "$bg",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "lDP3k",
+                  "name": "Top bar",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "$surface",
+                  "gap": 12,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "p54Dpd",
+                      "name": "Book title",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-ui",
+                      "fontSize": "$type-body",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jmpWT",
+                      "name": "Spacer",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "MlasU",
+                      "name": "Scenes button",
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "gap": 6,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "r9J7XM",
+                          "name": "Comments label",
+                          "fill": "$accent",
+                          "content": "Scenes",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xtrUh",
+                      "name": "Saved badge",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius-full",
+                      "padding": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "muHcl",
+                          "name": "Saved label",
+                          "fill": "$ink-muted",
+                          "content": "Saved",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Ef3OR",
+                  "name": "Mobile body",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "$bg",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "r4ftN9",
+                      "name": "Page",
+                      "width": 358,
+                      "fill": "$paper",
+                      "cornerRadius": "$radius-sm",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 48,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ctjmM",
+                          "name": "Chapter label",
+                          "fill": "$ink-muted",
+                          "content": "CHAPTER 7",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "WnXSD",
+                          "name": "Chapter title",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The Orchard Wall",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-heading",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "WwrBI",
+                          "name": "Paragraph 1",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "The salt wind came off the water all morning and by noon it had taken the last of the blossom with it. Mara stood at the wall and watched the petals go down the lane in drifts, the way they always did in the third week of the month her mother called the long tide.",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-manuscript",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "AKdTJ",
+                          "name": "Anchored paragraph",
+                          "width": "fill_container",
+                          "fill": "$accent-soft",
+                          "cornerRadius": "$radius-xs",
+                          "padding": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "cOCKv",
+                              "name": "Anchored sentence",
+                              "fill": "$ink",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "The storm broke over the harbour before dawn.",
+                              "fontFamily": "$font-book",
+                              "fontSize": "$type-manuscript",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "oS2mz",
+                          "name": "Paragraph 2",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "She had meant to say something to the boy about the wall, about who had raised it, but the words had gone the way of the blossom and he was already at the gate with the cart.",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-manuscript",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "CvfyV",
+                  "name": "Comments sheet",
+                  "width": 390,
+                  "height": 500,
+                  "fill": "$surface",
+                  "cornerRadius": "$radius-lg",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "j8vK3",
+                      "name": "Sheet grip row",
+                      "width": "fill_container",
+                      "height": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "H9uPuF",
+                          "name": "Spacer",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "k0E97",
+                          "name": "Sheet grip",
+                          "width": 36,
+                          "height": 4,
+                          "fill": "$border",
+                          "cornerRadius": "$radius-full"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "G1mlF",
+                          "name": "Spacer",
+                          "width": "fill_container",
+                          "height": 1
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wdz5F",
+                      "name": "Sheet header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Paos4",
+                          "name": "Sheet title",
+                          "fill": "$ink",
+                          "content": "The Harbour",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-lead",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "TLlU6",
+                          "name": "Sheet count",
+                          "fill": "$ink-muted",
+                          "content": "Scenes · 3,410 words",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RuKFZ",
+                      "name": "Scene row 1",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius-sm",
+                      "gap": 8,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "j0IiuE",
+                          "name": "Scene row 1 dot",
+                          "width": 6,
+                          "height": 6,
+                          "fill": "$warn",
+                          "cornerRadius": 3
+                        },
+                        {
+                          "type": "text",
+                          "id": "wU5rV",
+                          "name": "Scene row 1 title",
+                          "fill": "$ink",
+                          "content": "The quay at dusk",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "z831lL",
+                          "name": "Scene row 1 words",
+                          "fill": "$ink-muted",
+                          "content": "820 / 1,000",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mb5Ao",
+                      "name": "Scene row 2",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius-sm",
+                      "gap": 8,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "lHLPB",
+                          "name": "Scene row 2 dot",
+                          "width": 6,
+                          "height": 6,
+                          "fill": "$success",
+                          "cornerRadius": 3
+                        },
+                        {
+                          "type": "text",
+                          "id": "FWaV3",
+                          "name": "Scene row 2 title",
+                          "fill": "$ink",
+                          "content": "A letter from Ada",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "CO7Z5",
+                          "name": "Scene row 2 words",
+                          "fill": "$ink-muted",
+                          "content": "1,204",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dRnXi",
+                      "name": "Scene row 3",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius-sm",
+                      "gap": 8,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "XQMkt",
+                          "name": "Scene row 3 dot",
+                          "width": 6,
+                          "height": 6,
+                          "fill": "$ink-muted",
+                          "cornerRadius": 3
+                        },
+                        {
+                          "type": "text",
+                          "id": "jwBuC",
+                          "name": "Scene row 3 title",
+                          "fill": "$ink",
+                          "content": "Storm warning",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "W97D4",
+                          "name": "Scene row 3 words",
+                          "fill": "$ink-muted",
+                          "content": "1,386",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-micro",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Waj8d",
+                      "name": "Sheet spacer",
+                      "width": 1,
+                      "height": "fill_container"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cfkHb",
+                      "name": "Add scene row",
+                      "width": "fill_container",
+                      "cornerRadius": "$radius-sm",
+                      "gap": 8,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Hok0t",
+                          "name": "Add scene label",
+                          "fill": "$accent",
+                          "content": "+ Scene",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-small",
+                          "fontWeight": "600"
                         }
                       ]
                     }
