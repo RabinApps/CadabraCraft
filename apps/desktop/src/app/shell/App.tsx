@@ -41,7 +41,7 @@ import { UpdateDialog } from "../dialogs/UpdateDialog";
 import { RecoverDialog } from "../dialogs/RecoverDialog";
 import { useUpdates } from "../../state/updates";
 import { Sidebar } from "./Sidebar";
-import { ChaptersDrawer, CommentsSheet, ReferencesSheet } from "./Drawers";
+import { ChaptersDrawer, CommentsSheet, ReferencesSheet, ScenesSheet } from "./Drawers";
 import { QuickNav } from "../quicknav/QuickNav";
 import { OpeningSkeleton } from "./OpeningSkeleton";
 import { Templates } from "../export/Templates";
@@ -115,6 +115,7 @@ function AppScreens() {
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [refsSheet, setRefsSheet] = useState(false);
   const [commentsSheet, setCommentsSheet] = useState(false);
+  const [scenesSheet, setScenesSheet] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("epub");
   const openExport = (format: ExportFormat) => {
@@ -301,6 +302,7 @@ function AppScreens() {
           onDetails={() => setDetailsOpen(true)}
           onReferences={() => setRefsSheet(true)}
           onComments={() => setCommentsSheet(true)}
+          onScenes={() => setScenesSheet(true)}
           run={run}
         />
       )}
@@ -412,6 +414,7 @@ function AppScreens() {
       />
       <ChaptersDrawer open={drawer} onOpenChange={setDrawer} />
       <CommentsSheet open={commentsSheet} onOpenChange={setCommentsSheet} />
+      <ScenesSheet open={scenesSheet} onOpenChange={setScenesSheet} />
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
       <ImportDialog
         open={importingInto}

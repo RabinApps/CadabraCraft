@@ -86,3 +86,23 @@ test.describe("scenes", () => {
     await expect(rail(page)).toHaveCount(0);
   });
 });
+
+test.describe("scenes on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("opens the scenes sheet from the top bar and adds a scene there", async ({ page }) => {
+    await newProject(page);
+    await page.getByRole("button", { name: "Scenes", exact: true }).click();
+    const sheet = page.getByRole("dialog", { name: "Scenes" });
+    await expect(sheet).toBeVisible();
+    await sheet.getByRole("button", { name: "Scene", exact: true }).click();
+    const row = sheet.getByRole("listitem").first();
+    await expect(row).toContainText("Untitled scene");
+    // The rail sits under the list, in the same sheet.
+    await sheet.getByLabel("Scene title").fill("Storm warning");
+    await sheet.getByLabel("Scene title").blur();
+    await expect(row).toContainText("Storm warning");
+    await sheet.getByRole("button", { name: "Close scenes" }).click();
+    await expect(sheet).toHaveCount(0);
+  });
+});

@@ -6,6 +6,7 @@ import { overlayClass, panelClass } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
 import { CommentsPanel } from "../comments/CommentsPanel";
 import { ReferencesPanel } from "../references/ReferencesPanel";
+import { ScenesPanel } from "../scenes/ScenesPanel";
 import { Sidebar } from "./Sidebar";
 
 /** The chapter list as a sheet (bottom on phones, left on tablets), for widths where the sidebar is hidden. */
@@ -76,6 +77,35 @@ export function ReferencesSheet({
               onOpenId(id);
             }}
           />
+        </D.Content>
+      </D.Portal>
+    </D.Root>
+  );
+}
+
+/** The scenes panel as a sheet (bottom on phones, right on tablets), where the sidebar and side panel are hidden. */
+export function ScenesSheet({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <D.Root open={open} onOpenChange={onOpenChange}>
+      <D.Portal>
+        <D.Overlay className={cx(overlayClass, "xl:hidden")} />
+        <D.Content
+          aria-describedby={undefined}
+          className={cx(
+            panelClass,
+            "inset-x-0 bottom-0 h-[80dvh] overflow-hidden rounded-t-lg bg-surface xl:hidden",
+            "md:inset-y-0 md:inset-e-0 md:inset-s-auto md:h-auto md:w-80 md:rounded-none md:border-e-0",
+          )}
+        >
+          <D.Title className="sr-only">{t`Scenes`}</D.Title>
+          <ScenesPanel onClose={() => onOpenChange(false)} />
         </D.Content>
       </D.Portal>
     </D.Root>

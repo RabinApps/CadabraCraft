@@ -10,13 +10,18 @@ interface Props {
   active: string | null;
   onOpen: (id: string) => void;
   onAdd: () => void;
+  /** Indented under its chapter row; a panel with no chapter row to sit under starts at the margin. */
+  indent?: boolean;
 }
 
 /** The open chapter's scenes, indented under its row: a status dot, the title and the words written against the target. */
-export function SceneList({ rows, active, onOpen, onAdd }: Props) {
+export function SceneList({ rows, active, onOpen, onAdd, indent = true }: Props) {
   const { t } = useLingui();
   return (
-    <ul aria-label={t`Scenes`} className="m-0 flex list-none flex-col gap-0.5 pb-1 ps-8 pe-1">
+    <ul
+      aria-label={t`Scenes`}
+      className={cx("m-0 flex list-none flex-col gap-0.5 pb-1 pe-1", indent ? "ps-8" : "ps-1")}
+    >
       {rows.map((s) => (
         <li key={s.id}>
           <button

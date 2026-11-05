@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { X } from "lucide-react";
 import {
@@ -31,6 +32,8 @@ const pillTone = {
 export function SceneRail({ onClose }: { onClose?: () => void }) {
   const { t } = useLingui();
   const doc = useProject((s) => s.currentDoc);
+  // The rail can exist twice at once (the side panel, hidden by CSS, when the sheet is open): the ids must not collide.
+  const synopsisId = useId();
   const active = useSceneView((s) => s.active);
   const show = useSceneView((s) => s.show);
   const update = useSceneEditing((s) => s.update);
@@ -44,7 +47,9 @@ export function SceneRail({ onClose }: { onClose?: () => void }) {
     : t`${scene.words.toLocaleString()} words`;
   const statuses: SceneStatus[] = ["", ...SCENE_STATUSES];
   return (
-    <section aria-label={t`Scene`} className="flex h-full min-h-0 flex-col gap-4 p-4">
+    // `min-h-full`, not `h-full`: in a short sheet (a phone) the rail must be able to outgrow its box and scroll, rather than
+    // squeezing the synopsis to nothing.
+    <section aria-label={t`Scene`} className="flex min-h-full flex-col gap-4 p-4">
       <div className="flex items-start justify-between gap-2">
         <h2 className="min-w-0 text-lead font-semibold break-words">
           {scene.title || t`Untitled scene`}
@@ -117,11 +122,11 @@ export function SceneRail({ onClose }: { onClose?: () => void }) {
         }}
       />
       <div className="flex min-h-0 flex-col gap-1.5">
-        <label htmlFor="scene-synopsis" className="text-xs font-semibold text-ink-muted">
+        <label htmlFor={synopsisId} className="text-xs font-semibold text-ink-muted">
           {t`Synopsis`}
         </label>
         <textarea
-          id="scene-synopsis"
+          id={synopsisId}
           key={`synopsis-${scene.id}`}
           defaultValue={scene.synopsis}
           maxLength={MAX_SCENE_SYNOPSIS}

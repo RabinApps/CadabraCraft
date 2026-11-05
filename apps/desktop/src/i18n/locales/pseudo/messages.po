@@ -1227,6 +1227,10 @@ msgstr ""
 msgid "Close scene"
 msgstr ""
 
+#: src/app/scenes/ScenesPanel.tsx
+msgid "Close scenes"
+msgstr ""
+
 #: src/app/references/PdfSearch.tsx
 msgid "Close search"
 msgstr ""
@@ -3960,6 +3964,9 @@ msgid "Scene title"
 msgstr ""
 
 #: src/app/scenes/SceneList.tsx
+#: src/app/scenes/ScenesPanel.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/Drawers.tsx
 msgid "Scenes"
 msgstr ""
 

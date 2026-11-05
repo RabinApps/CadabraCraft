@@ -6,6 +6,7 @@ import {
   Download,
   FileUp,
   Library,
+  Layers,
   ListTree,
   MessageSquareText,
   LoaderCircle,
@@ -43,6 +44,8 @@ interface Props {
   onReferences: () => void;
   /** Opens the comments rail as a dialog (below the xl breakpoint, where there is no side panel). */
   onComments: () => void;
+  /** Opens the scenes panel as a dialog (below the lg breakpoint, where there is no sidebar). */
+  onScenes: () => void;
   /** Runs an action, clearing the shown error first and showing its failure. */
   run: (f: () => Promise<void>) => () => void;
 }
@@ -58,6 +61,7 @@ export function AppHeader({
   onDetails,
   onReferences,
   onComments,
+  onScenes,
   run,
 }: Props) {
   const { t } = useLingui();
@@ -199,6 +203,9 @@ export function AppHeader({
             className="xl:hidden"
             onClick={onComments}
           />
+        )}
+        {!reader && (
+          <IconButton icon={Layers} label={t`Scenes`} className="lg:hidden" onClick={onScenes} />
         )}
         {!reader && (
           <IconButton
