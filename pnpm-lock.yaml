@@ -79,6 +79,9 @@ importers:
       '@cadabracraft/import-docx':
         specifier: workspace:*
         version: link:../../packages/import-docx
+      '@cadabracraft/outline':
+        specifier: workspace:*
+        version: link:../../packages/outline
       '@cadabracraft/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -460,6 +463,9 @@ importers:
       '@cadabracraft/import-docx':
         specifier: workspace:*
         version: link:../import-docx
+      '@cadabracraft/outline':
+        specifier: workspace:*
+        version: link:../outline
       '@cadabracraft/project-fs':
         specifier: workspace:*
         version: link:../project-fs

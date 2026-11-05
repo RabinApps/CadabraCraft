@@ -1,4 +1,4 @@
-import { sourceFileById } from "@cadabracraft/format";
+import { isCodexFile, sourceFileById } from "@cadabracraft/format";
 import { plural, t } from "@lingui/core/macro";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { buildDocx } from "@cadabracraft/export-docx";
@@ -10,6 +10,7 @@ import {
 } from "@cadabracraft/export-markdown";
 import { measurePages, renderPdf, type PageReport } from "@cadabracraft/export-pdf";
 import { contentHash } from "@cadabracraft/export-audio";
+import { OUTLINE_FORMATS, buildOutline, serializeOutline } from "@cadabracraft/outline";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
@@ -220,6 +221,38 @@ export const createExportActions = (ctx: Ctx): ExportActions => {
         set({ exportStage: "saving" });
         await bridge.writeBytes(root, `${dir}/book.md`, new TextEncoder().encode(markdown));
         set({ notice: t`Exported ${dir}/book.md` + left(skipped.length) });
+      } finally {
+        set({ exportStage: null });
+      }
+    },
+    async exportOutline({ format, ...scope }) {
+      if (get().exportStage) throw new Error(t`An export is already running`);
+      set({ exportStage: "preparing" });
+      try {
+        await flush();
+        const { root } = need();
+        const { edition, pages, dir, skipped } = await loadExportPages(scope);
+        const chapters = pages.filter((p) => p.section === "chapter");
+        // An empty book would write an empty file and still report success.
+        if (!chapters.length)
+          throw new Error(t`The book has no chapters to export yet. Add a chapter first.`);
+        // The codex only names the cast; a missing or unreadable one leaves the ids in place.
+        const codex = await bridge
+          .readFile(root, "codex.json")
+          .then((r) => {
+            const parsed: unknown = r ? JSON.parse(r.contents) : null;
+            return isCodexFile(parsed) ? parsed.entries : [];
+          })
+          .catch(() => []);
+        set({ exportStage: "rendering" });
+        const text = serializeOutline(
+          buildOutline({ title: edition.title, author: edition.author }, chapters, codex),
+          format,
+        );
+        const file = `${dir}/${OUTLINE_FORMATS[format].file}`;
+        set({ exportStage: "saving" });
+        await bridge.writeBytes(root, file, new TextEncoder().encode(text));
+        set({ notice: t`Exported ${file}` + left(skipped.length) });
       } finally {
         set({ exportStage: null });
       }

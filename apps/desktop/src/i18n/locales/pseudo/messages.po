@@ -477,6 +477,10 @@ msgstr ""
 msgid "A download is already running"
 msgstr ""
 
+#: src/app/export/OutlinePanel.tsx
+msgid "A heading for each chapter and scene, the synopsis below it."
+msgstr ""
+
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
 msgstr ""
@@ -1620,6 +1624,10 @@ msgstr ""
 msgid "Crown"
 msgstr ""
 
+#: src/app/export/OutlinePanel.tsx
+msgid "CSV (.csv)"
+msgstr ""
+
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
@@ -2018,6 +2026,10 @@ msgstr ""
 msgid "Exported {dir}/manuscript.rtf"
 msgstr ""
 
+#: src/state/project/exports.ts
+msgid "Exported {file}"
+msgstr ""
+
 #: src/state/project/audio.ts
 msgid "Exported the audiobook to {dir}"
 msgstr ""
@@ -2043,6 +2055,10 @@ msgstr ""
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
 msgid "File"
+msgstr ""
+
+#: src/app/export/OutlinePanel.tsx
+msgid "File type"
 msgstr ""
 
 #: src/app/codex/CodexDialog.tsx
@@ -2792,6 +2808,10 @@ msgstr ""
 msgid "Markdown"
 msgstr ""
 
+#: src/app/export/OutlinePanel.tsx
+msgid "Markdown (.md)"
+msgstr ""
+
 #: src/app/export/MarkdownPanel.tsx
 msgid "Markdown has no syntax for them, so they are written as HTML tags. Leave this off and the export stops at the first one, naming the chapter."
 msgstr ""
@@ -3243,6 +3263,10 @@ msgstr ""
 msgid "One per line: BISAC codes such as FIC014000, or keywords."
 msgstr ""
 
+#: src/app/export/OutlinePanel.tsx
+msgid "One row per scene, for a spreadsheet."
+msgstr ""
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Only in the current text"
 msgstr ""
@@ -3297,6 +3321,14 @@ msgstr ""
 msgid "Opening {name}"
 msgstr ""
 
+#: src/app/export/OutlinePanel.tsx
+msgid "Opens in outliners such as OmniOutliner or Bike, with every scene note kept."
+msgstr ""
+
+#: src/app/export/OutlinePanel.tsx
+msgid "OPML (.opml)"
+msgstr ""
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Optional. Shown below the image."
 msgstr ""
@@ -3317,6 +3349,7 @@ msgstr ""
 msgid "Outdent list item"
 msgstr ""
 
+#: src/app/export/ExportDialog.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/scenes/labels.ts
 #: src/app/shell/AppHeader.tsx
@@ -4024,6 +4057,10 @@ msgid "Saved"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/{outlineFile}…"
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
 msgid "Saving {dir}/book.epub…"
 msgstr ""
 
@@ -4554,6 +4591,10 @@ msgstr ""
 
 #: src/lib/epubErrors.ts
 msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
+msgstr ""
+
+#: src/state/project/exports.ts
+msgid "The book has no chapters to export yet. Add a chapter first."
 msgstr ""
 
 #: src/state/project/audio.ts
@@ -5276,6 +5317,10 @@ msgid "Write, format and publish your book — everything stays on your computer
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx
+msgid "Writes the structure of the book (chapters and scenes with their notes) as an outline file in the exports folder. No chapter text is written. Nothing else is needed on this computer."
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
 msgstr ""
 
@@ -5289,6 +5334,10 @@ msgstr ""
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing Markdown…"
+msgstr ""
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writing the outline…"
 msgstr ""
 
 #: src/app/export/ExportDialog.tsx

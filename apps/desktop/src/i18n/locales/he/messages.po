@@ -479,6 +479,10 @@ msgstr "הכריכה חייבת להיות תמונת PNG, JPEG או WebP. בח�
 msgid "A download is already running"
 msgstr "הורדה כבר מתבצעת"
 
+#: src/app/export/OutlinePanel.tsx
+msgid "A heading for each chapter and scene, the synopsis below it."
+msgstr "כותרת לכל פרק ולכל סצנה, והתקציר מתחתיה."
+
 #: src/app/dialogs/RecoverDialog.tsx
 msgid "A newer version of this page was found in History than the one saved in your book, for example after a sync folder put an older file back. Your saved text is kept as a snapshot either way."
 msgstr "בהיסטוריה נמצאה גרסה חדשה יותר של עמוד זה מזו ששמורה בספר שלך, למשל אחרי שתיקייה מסונכרנת החזירה קובץ ישן. הטקסט השמור שלך נשמר בכל מקרה כתצלום מצב."
@@ -1622,6 +1626,10 @@ msgstr "סימני חיתוך מגדילים את העמוד מעבר לגודל
 msgid "Crown"
 msgstr "כתר"
 
+#: src/app/export/OutlinePanel.tsx
+msgid "CSV (.csv)"
+msgstr "CSV (.csv)"
+
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "Current"
@@ -2020,6 +2028,10 @@ msgstr "{dir}/manuscript.docx יוצא"
 msgid "Exported {dir}/manuscript.rtf"
 msgstr "יוצא {dir}/manuscript.rtf"
 
+#: src/state/project/exports.ts
+msgid "Exported {file}"
+msgstr "{file} יוצא"
+
 #: src/state/project/audio.ts
 msgid "Exported the audiobook to {dir}"
 msgstr "ספר השמע יוצא אל {dir}"
@@ -2046,6 +2058,10 @@ msgstr "נוצה"
 #: src/app/shell/menuModel.ts
 msgid "File"
 msgstr "קובץ"
+
+#: src/app/export/OutlinePanel.tsx
+msgid "File type"
+msgstr "סוג קובץ"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Filter by kind"
@@ -2794,6 +2810,10 @@ msgstr "שוליים (פנים/חוץ)"
 msgid "Markdown"
 msgstr "Markdown"
 
+#: src/app/export/OutlinePanel.tsx
+msgid "Markdown (.md)"
+msgstr "Markdown (.md)"
+
 #: src/app/export/MarkdownPanel.tsx
 msgid "Markdown has no syntax for them, so they are written as HTML tags. Leave this off and the export stops at the first one, naming the chapter."
 msgstr "ל־Markdown אין תחביר עבורם, ולכן הם נכתבים כתגי HTML. אם תשאיר זאת כבוי, הייצוא ייעצר בראשון ויציין את הפרק."
@@ -3245,6 +3265,10 @@ msgstr "קובץ אחד לכל הספר עם פרקים והכריכה שלך, �
 msgid "One per line: BISAC codes such as FIC014000, or keywords."
 msgstr "אחד בכל שורה: קודי BISAC כמו FIC014000, או מילות מפתח."
 
+#: src/app/export/OutlinePanel.tsx
+msgid "One row per scene, for a spreadsheet."
+msgstr "שורה אחת לכל סצנה, לגיליון אלקטרוני."
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Only in the current text"
 msgstr "בטקסט הנוכחי בלבד"
@@ -3299,6 +3323,14 @@ msgstr "נפתח {when}"
 msgid "Opening {name}"
 msgstr "פותח את {name}"
 
+#: src/app/export/OutlinePanel.tsx
+msgid "Opens in outliners such as OmniOutliner or Bike, with every scene note kept."
+msgstr "נפתח בתוכנות מתאר כמו OmniOutliner או Bike, עם כל הערות הסצנות."
+
+#: src/app/export/OutlinePanel.tsx
+msgid "OPML (.opml)"
+msgstr "OPML (.opml)"
+
 #: src/editor/ToolbarDialogs.tsx
 msgid "Optional. Shown below the image."
 msgstr "אופציונלי. מוצג מתחת לתמונה."
@@ -3319,6 +3351,7 @@ msgstr "אחר (השתמש בשדה תגית שפה)"
 msgid "Outdent list item"
 msgstr "הוצאת פריט ברשימה מהזחה"
 
+#: src/app/export/ExportDialog.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/scenes/labels.ts
 #: src/app/shell/AppHeader.tsx
@@ -4026,6 +4059,10 @@ msgid "Saved"
 msgstr "נשמר"
 
 #: src/app/export/ExportDialog.tsx
+msgid "Saving {dir}/{outlineFile}…"
+msgstr "שומר את {dir}/{outlineFile}…"
+
+#: src/app/export/ExportDialog.tsx
 msgid "Saving {dir}/book.epub…"
 msgstr "שומר את {dir}/book.epub…"
 
@@ -4557,6 +4594,10 @@ msgstr "תקציר הספר שמוצג בחנויות. טקסט פשוט."
 #: src/lib/epubErrors.ts
 msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
 msgstr "בספר יש “{kind}” שייצוא ה־EPUB אינו יכול לכתוב (ב־{place}). הייצוא נעצר כדי שלא יאבד דבר."
+
+#: src/state/project/exports.ts
+msgid "The book has no chapters to export yet. Add a chapter first."
+msgstr "בספר עדיין אין פרקים לייצוא. הוסיפו קודם פרק."
 
 #: src/state/project/audio.ts
 msgid "The book has no chapters to read aloud yet. Add a chapter first."
@@ -5282,6 +5323,10 @@ msgid "Write, format and publish your book — everything stays on your computer
 msgstr "לכתוב, לעצב ולפרסם את הספר — הכול נשאר במחשב שלכם."
 
 #: src/app/export/ExportDialog.tsx
+msgid "Writes the structure of the book (chapters and scenes with their notes) as an outline file in the exports folder. No chapter text is written. Nothing else is needed on this computer."
+msgstr "כותב את מבנה הספר (פרקים וסצנות עם ההערות שלהם) כקובץ מתאר בתיקיית הייצוא. לא נכתב טקסט של פרקים. אין צורך בשום דבר נוסף במחשב הזה."
+
+#: src/app/export/ExportDialog.tsx
 msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
 msgstr "כותב את הספר כולו כקובץ Rich Text בפורמט כתב יד סטנדרטי, בתיקיית הייצואים, עבור מעבדי תמלילים ומערכות הגשה שמבקשים RTF: ריווח כפול, 12 נק׳, שוליים של אינץ׳ אחד, עמוד שער וכותרת עליונה עם שם המשפחה שלך. התמונות חייבות להיות PNG או JPEG. אין צורך בשום דבר אחר במחשב זה."
 
@@ -5296,6 +5341,10 @@ msgstr "כותב את כל הספר כקובץ Markdown אחד בתיקיית ה
 #: src/app/export/ExportDialog.tsx
 msgid "Writing Markdown…"
 msgstr "כותב Markdown…"
+
+#: src/app/export/ExportDialog.tsx
+msgid "Writing the outline…"
+msgstr "כותב את המתאר…"
 
 #: src/app/export/ExportDialog.tsx
 msgid "Writing the Rich Text file…"
