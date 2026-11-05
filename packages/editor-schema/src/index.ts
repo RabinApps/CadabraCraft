@@ -605,7 +605,9 @@ export function isStoryDate(value: unknown): value is string {
   const probe = new Date(Date.UTC(2000, month - 1, day));
   probe.setUTCFullYear(year);
   const real =
-    probe.getUTCFullYear() === year && probe.getUTCMonth() === month - 1 && probe.getUTCDate() === day;
+    probe.getUTCFullYear() === year &&
+    probe.getUTCMonth() === month - 1 &&
+    probe.getUTCDate() === day;
   return real && (m[4] === undefined || (Number(m[4]) < 24 && Number(m[5]) < 60));
 }
 

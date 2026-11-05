@@ -232,17 +232,17 @@ planning notes as attributes. It is structure only. No exporter prints a note, a
 wrapper were not there. A scene never holds another scene. Blocks outside any scene are allowed (a chapter written before scenes,
 or text typed above the first one); the scene board shows them as an "Unsorted" card that can be wrapped into a scene.
 
-| Attribute  | Type                   | Limit and meaning                                                                                                  |
-| ---------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `id`       | string                 | Required. A letter, then letters, digits, `_` or `-`, at most 64 characters. Unique in the book (see below).      |
-| `title`    | string                 | At most 200 characters. A working name, never printed as a heading.                                               |
-| `synopsis` | string                 | At most 2000 characters.                                                                                           |
-| `pov`      | string                 | At most 120 characters. Free text: the codex is optional, so this is not an id.                                    |
-| `status`   | string                 | `outline`, `draft`, `revised` or `final`; empty means nobody has triaged the scene.                                |
-| `label`    | string                 | At most 60 characters. A free tag (a story-structure beat id uses it).                                             |
-| `target`   | integer or `null`      | Words the author aims for, 0 to 1,000,000.                                                                         |
-| `date`     | string                 | When the scene happens in the story: `YYYY-MM-DD` (a real calendar day) with an optional `THH:MM` (24 hours), or empty. At most 16 characters. Fantasy calendars are not modelled. |
-| `cast`     | list of codex entry ids | At most 20 distinct ids (see Codex).                                                                              |
+| Attribute  | Type                    | Limit and meaning                                                                                                                                                                  |
+| ---------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`       | string                  | Required. A letter, then letters, digits, `_` or `-`, at most 64 characters. Unique in the book (see below).                                                                       |
+| `title`    | string                  | At most 200 characters. A working name, never printed as a heading.                                                                                                                |
+| `synopsis` | string                  | At most 2000 characters.                                                                                                                                                           |
+| `pov`      | string                  | At most 120 characters. Free text: the codex is optional, so this is not an id.                                                                                                    |
+| `status`   | string                  | `outline`, `draft`, `revised` or `final`; empty means nobody has triaged the scene.                                                                                                |
+| `label`    | string                  | At most 60 characters. A free tag (a story-structure beat id uses it).                                                                                                             |
+| `target`   | integer or `null`       | Words the author aims for, 0 to 1,000,000.                                                                                                                                         |
+| `date`     | string                  | When the scene happens in the story: `YYYY-MM-DD` (a real calendar day) with an optional `THH:MM` (24 hours), or empty. At most 16 characters. Fantasy calendars are not modelled. |
+| `cast`     | list of codex entry ids | At most 20 distinct ids (see Codex).                                                                                                                                               |
 
 A note that is absent means its default (`""`, `null` or `[]`), so a chapter written before `date` existed opens unchanged and
 keeps every other attribute. Adding `date` did not bump `formatVersion`: node attributes never do (see architecture.md,

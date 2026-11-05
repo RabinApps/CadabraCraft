@@ -1969,11 +1969,11 @@ The pointer drag from `EntryList` moved into `ui/useDragReorder`, which knows no
 
 **Why:** the open chapter lives in the editor, but a board has to edit chapters that are not open and move a scene between two chapters. Going through the files keeps one source of truth (the chapter JSON), reuses the save path (backups, conflict copies) and the undo stack, and keeps the editor unmounted while the board is shown.
 
-| Rejected                                              | Why not                                                                                                                                     |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Opening each chapter in a hidden TipTap editor        | Slow (one editor per chapter), needs the DOM, and a move across two chapters would be two editors that must succeed or fail together.        |
-| A separate scene sidecar file (`scenes.json`)         | Splits the source of truth: the synopsis and order would live apart from the text they describe and drift when the text is edited elsewhere. |
-| A freeform canvas for the board                       | Much larger scope (layout model, zoom, undo) and no keyboard story; already rejected under "References", kept on the roadmap.                |
-| Rewriting `EntryList` drag for the board separately   | Two copies of the Escape, cancel and pointer handling to keep in step.                                                                       |
+| Rejected                                            | Why not                                                                                                                                      |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Opening each chapter in a hidden TipTap editor      | Slow (one editor per chapter), needs the DOM, and a move across two chapters would be two editors that must succeed or fail together.        |
+| A separate scene sidecar file (`scenes.json`)       | Splits the source of truth: the synopsis and order would live apart from the text they describe and drift when the text is edited elsewhere. |
+| A freeform canvas for the board                     | Much larger scope (layout model, zoom, undo) and no keyboard story; already rejected under "References", kept on the roadmap.                |
+| Rewriting `EntryList` drag for the board separately | Two copies of the Escape, cancel and pointer handling to keep in step.                                                                       |
 
 **Follow-ups / caveats:** each edit reads the book's chapters to find a scene, which is fine for a novel and not measured on 120,000 words. A duplicate scene id (left by a failed move) keeps the first card on the board and shows a notice; there is no automatic repair. Not verified against a book edited on two machines at once beyond the existing conflict-copy rule.
