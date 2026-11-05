@@ -189,7 +189,17 @@ Open the **scene board** from the grid button in the top bar, **View**, **Scene 
 
 On a tablet the columns scroll sideways. On a phone the board shows one chapter at a time; choose the chapter from the list at the top.
 
-Scene dates are the real calendar (`YYYY-MM-DD`); invented calendars are not supported.
+Scene dates are the real calendar (`YYYY-MM-DD`); invented calendars are not supported. Set them on the timeline, below.
+
+## Seeing scenes on a timeline
+
+Open the **timeline** from the calendar button in the top bar, **View**, **Timeline** (or the command palette). It lists every scene of the book on one vertical line, with the chapter, the words, the synopsis, the POV and the status of each.
+
+- **Book order or Story date.** **Book order** is the order the book reads in. **Story date** puts scenes in the order they happen: each scene with a date goes by its date, and a scene without a date stays behind the scene before it in the book, so a few dates do not scramble the rest. The choice is for looking only; it changes nothing in the book and is not remembered.
+- **Set a date.** Each scene has a date field and a time field. Dates are the real calendar (`YYYY-MM-DD`); the time is optional and needs a date. The change is saved when you leave the field or press **Enter**, in the chapter's own file (the chapter does not need to be open), and is one step of **Edit**, **Undo**. **Clear** removes the date and the time.
+- **Move scenes** on the scene board; the timeline does not change the book's order. **Open** closes the timeline and shows the scene in the editor.
+
+On a phone the date sits above each card instead of beside the line.
 
 ## Keeping a codex
 

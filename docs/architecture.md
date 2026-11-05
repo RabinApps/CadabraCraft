@@ -2002,6 +2002,25 @@ The pointer drag from `EntryList` moved into `ui/useDragReorder`, which knows no
 
 **Follow-ups / caveats:** each edit reads the book's chapters to find a scene, which is fine for a novel and not measured on 120,000 words. A duplicate scene id (left by a failed move) keeps the first card on the board and shows a notice; there is no automatic repair. Not verified against a book edited on two machines at once beyond the existing conflict-copy rule.
 
+## Timeline: a view over the scenes, story order computed, date edits through the scene actions (2026-11-05)
+
+**Decision:** the timeline (`app/timeline`) is a full-page view like the scene board and reads the same data (`useBoardData`, so the same chapter-file reader and re-read on every new file hash). The axis is computed by the pure `buildTimeline(board, order)` in `lib/timelineData.ts`. Book order is the board's chapters flattened. Story order sorts by each scene's `date` (`YYYY-MM-DD`, optionally `THH:MM`): the strings compare correctly as text, and a day without a time sorts before the same day with one. A scene with no date takes the key of the scene before it in the book, so it stays behind that scene and giving a few scenes dates never scatters the others; undated scenes at the start of the book sort before every dated one; ties keep book order (a stable sort on the book index). Nothing is stored for the order: the choice (Book order or Story date) is local to the view and resets when it closes. A date is edited on the row with a native date field and a native time field and saved through the existing `patchSceneIn(chapterId, sceneId, { date })`, on blur or Enter (a date typed digit by digit passes through other valid dates, so saving on every change would write many times); the value is checked with `isStoryDate` from `editor-schema` before it is written, clearing the day clears the time, and every change is one book undo step. After a change the new reading puts the focus back on the field that was edited, because the row may move. Scenes are not moved or reordered here (that is the board's job); no new file format, schema or project action was added.
+
+**Why:** the board already solved reading chapters that are not open, writing through the save path and undo; a second reader or a second write path would have meant two sources of truth. Carrying the previous date forward is the smallest rule that is predictable and explainable in one sentence on the page, and needs no extra data. Native date and time inputs are real calendar controls with the platform's keyboard and screen reader support, and match the real-calendar rule in `docs/file-format.md`.
+
+**Rejected:**
+
+| Alternative                                            | Why not                                                                                                                        |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| Undated scenes in a separate "No date" lane at the end | Loses where the scene belongs in the book, and a long book with few dates would be mostly one lane                             |
+| Undated scenes sort first, or last                     | A scene sits far from its neighbours the moment one scene gets a date                                                          |
+| Dragging scenes along the axis to set or change a date | Needs a date scale (zoom, gaps, ties) and a second drag model; dates are typed or picked                                       |
+| A horizontal, zoomable axis with scaled spacing        | Fantasy calendars and big gaps in time make the scale arbitrary; a vertical list works at every width and with a screen reader |
+| Saving the date on every change event                  | A year typed digit by digit writes the chapter file several times                                                              |
+| Keeping the chosen order in the project file           | It is a way of looking, not part of the book; no format change                                                                 |
+
+**Follow-ups / caveats:** an invented calendar is still not modelled (see roadmap). The order is not remembered between visits. Not built: grouping by day with a heading, a scale with real spacing between dates, filtering by POV or status, one lane per POV.
+
 ## Outline export (2026-11-04)
 
 ### Decision
