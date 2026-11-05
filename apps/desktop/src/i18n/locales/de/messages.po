@@ -357,6 +357,11 @@ msgstr "{bookWords} im Buch"
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {# Kapitel aus {fileName} importiert.} other {# Kapitel aus {fileName} importiert.}}"
 
+#. placeholder {0}: sceneWordsLabel(scene)
+#: src/app/timeline/TimelineRow.tsx
+msgid "{chapterTitle} · {0} words"
+msgstr "{chapterTitle} · {0} Wörter"
+
 #: src/app/export/PrintPreview.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {Etwa # Seite} other {Etwa # Seiten}}"
@@ -500,6 +505,10 @@ msgstr "{title}: normaler erster Buchstabe"
 msgid "{title}: vertical position follows the template"
 msgstr "{title}: vertikale Position folgt der Vorlage"
 
+#: src/app/timeline/Timeline.tsx
+msgid "{undated} without a story date."
+msgstr "{undated} ohne Datum in der Geschichte."
+
 #: src/lib/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {# Kapitel hat keinen Titel} other {# Kapitel haben keinen Titel}}"
@@ -577,6 +586,7 @@ msgid "A sample is already being made"
 msgstr "Eine Hörprobe wird bereits erstellt"
 
 #: src/app/board/SceneBoard.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move."
 msgstr "Eine Szene steht in zwei Kapiteln, wahrscheinlich weil ein Verschieben unterbrochen wurde. Nur die erste wird angezeigt; „Rückgängig“ schließt das Verschieben ab."
 
@@ -874,6 +884,7 @@ msgstr "Automatisch"
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 #: src/app/settings/Settings.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "Back"
 msgstr "Zurück"
 
@@ -999,6 +1010,10 @@ msgstr "Buchdetails…"
 #: src/app/shell/Sidebar.tsx
 msgid "Book history"
 msgstr "Buchverlauf"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Book order"
+msgstr "Buchreihenfolge"
 
 #: src/editor/ReadingFooter.tsx
 msgid "Book progress"
@@ -1330,6 +1345,10 @@ msgstr "Wählen…"
 msgid "Clarifications"
 msgstr "Klarstellungen"
 
+#: src/app/timeline/TimelineRow.tsx
+msgid "Clear"
+msgstr "Löschen"
+
 #: src/editor/Toolbar.tsx
 #: src/editor/ToolbarDialogs.tsx
 msgid "Clear language"
@@ -1346,6 +1365,10 @@ msgstr "Menü leeren"
 #: src/app/references/ReferencesPanel.tsx
 msgid "Clear search and filters to reorder"
 msgstr "Suche und Filter löschen, um umzusortieren"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Clear the story date of {title}"
+msgstr "Datum in der Geschichte von {title} löschen"
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/export/AudioFooter.tsx
@@ -2273,6 +2296,10 @@ msgstr "Ordner nicht gefunden. Entferne ihn aus der Liste oder lege ihn zurück.
 #: src/app/settings/Settings.tsx
 msgid "Follow the system or pick one."
 msgstr "Dem System folgen oder eines wählen."
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Follows {follows}"
+msgstr "Folgt auf {follows}"
 
 #: src/app/shell/EntryList.tsx
 msgid "Follows the book"
@@ -3226,6 +3253,10 @@ msgstr "Keine cadabra.json in diesem Ordner"
 msgid "No command matches “{q}”."
 msgstr "Kein Befehl passt zu „{q}“."
 
+#: src/app/timeline/TimelineRow.tsx
+msgid "No date"
+msgstr "Kein Datum"
+
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr "Noch keine früheren Versionen. Bei jedem Speichern über anderen Text wird eine behalten, höchstens alle 10 Minuten."
@@ -3478,6 +3509,7 @@ msgstr "Nur im aktuellen Text"
 #: src/app/board/SceneCard.tsx
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/references/ReferenceRow.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Open"
 msgstr "Öffnen"
 
@@ -3520,6 +3552,7 @@ msgid "Open scene"
 msgstr "Szene öffnen"
 
 #: src/app/board/SceneCard.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Open scene {title} in {chapterTitle}"
 msgstr "Szene {title} in {chapterTitle} öffnen"
 
@@ -3547,6 +3580,10 @@ msgstr "Optional. Wird unter dem Bild angezeigt."
 #: src/app/hooks/useAudioLabels.ts
 msgid "Opus"
 msgstr "Opus"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Order"
+msgstr "Reihenfolge"
 
 #: src/app/references/ReferencesPanel.tsx
 msgid "Other"
@@ -3751,6 +3788,11 @@ msgid "Points to"
 msgstr "Verweist auf"
 
 #. placeholder {0}: scene.pov
+#: src/app/timeline/TimelineRow.tsx
+msgid "POV {0}"
+msgstr "Perspektive {0}"
+
+#. placeholder {0}: scene.pov
 #: src/app/scenes/SceneRail.tsx
 msgid "POV {0} · {words}"
 msgstr "Perspektive {0} · {words}"
@@ -3892,6 +3934,7 @@ msgstr "Deine Kapitel werden gelesen…"
 
 #: src/app/board/SceneBoard.tsx
 #: src/app/dialogs/ImportDialogs.tsx
+#: src/app/timeline/Timeline.tsx
 msgid "Reading…"
 msgstr "Wird gelesen…"
 
@@ -4349,6 +4392,14 @@ msgstr "Szenentitel"
 msgid "Scenes"
 msgstr "Szenen"
 
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes are in book order. Switch to Story date to order them by when they happen."
+msgstr "Die Szenen stehen in der Reihenfolge des Buchs. Wechsle zu Datum in der Geschichte, um sie danach zu ordnen, wann sie geschehen."
+
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes are ordered by story date. A scene without a date stays behind the scene before it in the book."
+msgstr "Die Szenen sind nach dem Datum in der Geschichte geordnet. Eine Szene ohne Datum bleibt hinter der Szene, die im Buch vor ihr steht."
+
 #. placeholder {0}: c.title
 #: src/app/board/SceneBoard.tsx
 msgid "Scenes in {0}"
@@ -4357,6 +4408,10 @@ msgstr "Szenen in {0}"
 #: src/app/scenes/SceneList.tsx
 msgid "Scenes in {chapter}"
 msgstr "Szenen in {chapter}"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Scenes on the timeline"
+msgstr "Szenen auf der Zeitleiste"
 
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
@@ -4700,6 +4755,27 @@ msgstr "Auf diesem Computer gespeichert. Kein Konto nötig."
 #: src/lib/useIconChoices.ts
 msgid "Storm"
 msgstr "Sturm"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Story date"
+msgstr "Datum in der Geschichte"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Story date of {title}"
+msgstr "Datum in der Geschichte von {title}"
+
+#: src/app/timeline/Timeline.tsx
+msgid "Story date of {title} cleared"
+msgstr "Datum in der Geschichte von {title} gelöscht"
+
+#. placeholder {0}: formatStoryDay(date, i18n.locale)
+#: src/app/timeline/Timeline.tsx
+msgid "Story date of {title} set to {0}"
+msgstr "Datum in der Geschichte von {title} auf {0} gesetzt"
+
+#: src/app/timeline/TimelineRow.tsx
+msgid "Story time of {title}"
+msgstr "Uhrzeit in der Geschichte von {title}"
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/menuModel.ts
@@ -5157,6 +5233,10 @@ msgstr "Dieses Buch hat noch keine Kapitel."
 msgid "This book has no cover image. KDP takes the cover as a separate file."
 msgstr "Dieses Buch hat kein Coverbild. KDP nimmt das Cover als eigene Datei."
 
+#: src/app/timeline/Timeline.tsx
+msgid "This book has no scenes yet."
+msgstr "Dieses Buch hat noch keine Szenen."
+
 #: src/lib/importErrorText.ts
 msgid "This document contains too many parts to import safely. Choose another file, or split it into parts."
 msgstr "Dieses Dokument enthält zu viele Teile für einen sicheren Import. Wählen Sie eine andere Datei oder teilen Sie es auf."
@@ -5222,6 +5302,13 @@ msgstr "Diese Seite konnte nicht geöffnet werden: {why}. Stellen Sie eine früh
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "This version has the same words as the current text."
 msgstr "Diese Version hat dieselben Wörter wie der aktuelle Text."
+
+#: src/app/shell/App.tsx
+#: src/app/shell/AppHeader.tsx
+#: src/app/shell/menuModel.ts
+#: src/app/timeline/Timeline.tsx
+msgid "Timeline"
+msgstr "Zeitleiste"
 
 #: src/app/export/ManuscriptPanel.tsx
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
@@ -5423,6 +5510,8 @@ msgstr "Eintrag ohne Titel"
 #: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
+#: src/app/timeline/Timeline.tsx
+#: src/app/timeline/TimelineRow.tsx
 msgid "Untitled scene"
 msgstr "Szene ohne Titel"
 
