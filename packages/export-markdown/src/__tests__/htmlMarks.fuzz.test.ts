@@ -113,7 +113,8 @@ describe("htmlMarks export then import (property test)", () => {
         `seed ${seed}\n${md}`,
       ).toEqual([]);
     }
-  });
+    // 800 seeded documents take about 5 s alone, so the default 5 s timeout fails whenever the package runs beside others.
+  }, 30_000);
 
   it("round-trips a French passage through <span lang> back to the lang mark", () => {
     const d: ChapterDoc = {
