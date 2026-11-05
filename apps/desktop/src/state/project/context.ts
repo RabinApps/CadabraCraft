@@ -66,6 +66,18 @@ export function createContext(set: Set, get: Get) {
       },
     });
   };
+  /** Remembers a text edit across pages as one undo step: each page's file text before and after (the chapter tree is unchanged). */
+  const recordDocs = (label: string, docs: NonNullable<HistoryEntry["docs"]>) => {
+    const tree = treeOf(need().manifest);
+    set({
+      history: {
+        undo: [...get().history.undo, { label, before: tree, after: tree, docs }].slice(
+          -HISTORY_LIMIT,
+        ),
+        redo: [],
+      },
+    });
+  };
   /** Writes a page's file text through the normal save path (backup, temp file and rename in the Rust layer). */
   const writePage = async (file: string, contents: string) => {
     const { root } = need();
@@ -329,6 +341,7 @@ export function createContext(set: Set, get: Get) {
     titleIn,
     saveManifest,
     record,
+    recordDocs,
     writePage,
     writePages,
     reloadCurrent,

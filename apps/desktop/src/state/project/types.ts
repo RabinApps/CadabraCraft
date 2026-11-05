@@ -13,6 +13,7 @@ import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
 import type { PublishingForm } from "../../lib/publishingForm";
 import type { ImportChoices, ImportReport } from "../../lib/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
+import type { ScenePatch } from "../../lib/sceneMoves";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import type { AudioUiError } from "../../lib/audioErrors";
 import type { FontUiError } from "../../lib/fontErrors";
@@ -250,6 +251,7 @@ export interface ProjectState {
     TrashActions &
     SnapshotActions &
     ReplaceActions &
+    SceneActions &
     AssetActions &
     ReferenceActions &
     TocActions &
@@ -414,6 +416,22 @@ export interface SnapshotActions {
   restoreBook: (snapshot: string) => Promise<void>;
   /** Stops offering a page for recovery until the book is opened again. */
   dismissRecovery: (id: string) => void;
+}
+
+export interface SceneActions {
+  /**
+   * Changes a scene's notes in any chapter of the open edition, open or not, and returns false when the chapter or the scene is
+   * not there. Writes the chapter file (backup, temp file and rename) and records one book undo step. The scene's `id` never changes.
+   */
+  patchSceneIn: (chapterId: string, sceneId: string, patch: ScenePatch) => Promise<boolean>;
+  /**
+   * Moves a scene, with everything in it, to `index` among the scenes of chapter `toChapterId` (its place once the scene is lifted
+   * out when the chapter is its own). Returns false when nothing moved. Across chapters the destination is written first, then the
+   * source, so a failure never loses the scene; one book undo step covers both files.
+   */
+  moveScene: (sceneId: string, toChapterId: string, index: number) => Promise<boolean>;
+  /** Wraps the text that sits outside every scene of a chapter into scenes with empty notes; returns their ids (none when there was nothing to wrap). */
+  wrapUnsortedIn: (chapterId: string) => Promise<string[]>;
 }
 
 export interface ReplaceActions {

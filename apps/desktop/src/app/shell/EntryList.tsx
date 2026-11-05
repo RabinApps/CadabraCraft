@@ -1,12 +1,4 @@
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type PointerEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import {
@@ -27,6 +19,7 @@ import { Badge } from "../../ui/Badge";
 import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { DropLine } from "../../ui/DropLine";
+import { useDragReorder } from "../../ui/useDragReorder";
 import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
 import { SectionHeading } from "../../ui/SectionHeading";
 import { dropPosition, insertionIndex } from "../../lib/referenceKinds";
@@ -83,8 +76,21 @@ export function EntryList({
   const afterClose = useRef<(() => void) | null>(null);
   const moveFocus = (f: () => void) => () => void (afterClose.current = f);
   const list = useRef<HTMLUListElement>(null);
-  const [drag, setDrag] = useState<{ id: string; at: number } | null>(null);
-  const at = useRef(0);
+  const { drag, grab } = useDragReorder<number>({
+    locate: (_x, y) =>
+      insertionIndex(
+        [...list.current!.children].map((li) => {
+          const r = li.getBoundingClientRect();
+          return r.top + r.height / 2;
+        }),
+        y,
+      ),
+    onDrop: (id, at) => {
+      const from = entries.findIndex((c) => c.id === id);
+      const to = dropPosition(from, at);
+      if (to !== from) attempt(actions.move(id, to - from));
+    },
+  });
   /** A moved page is announced (the grip keeps focus and its name does not change, so nothing else would say it moved). */
   const [said, setSaid] = useState("");
   const gripHelp = useId();
@@ -106,48 +112,11 @@ export function EntryList({
         : t`Moved ${title} down to position ${place} of ${entries.length}`,
     );
   };
-  const dragId = drag?.id;
-  useEffect(() => {
-    if (!dragId) return;
-    const move = (e: globalThis.PointerEvent) => {
-      const boxes = [...list.current!.children].map((li) => li.getBoundingClientRect());
-      at.current = insertionIndex(
-        boxes.map((r) => r.top + r.height / 2),
-        e.clientY,
-      );
-      setDrag({ id: dragId, at: at.current });
-    };
-    const cancel = () => setDrag(null);
-    const escape = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") cancel();
-    };
-    const drop = () => {
-      const from = entries.findIndex((c) => c.id === dragId);
-      setDrag(null);
-      const to = dropPosition(from, at.current);
-      if (to !== from) attempt(actions.move(dragId, to - from));
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", drop);
-    window.addEventListener("pointercancel", cancel);
-    window.addEventListener("keydown", escape);
-    return () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", drop);
-      window.removeEventListener("pointercancel", cancel);
-      window.removeEventListener("keydown", escape);
-    };
-  }, [dragId, entries, actions]);
   // The grip is the keyboard alternative to dragging (WCAG 2.5.7): the arrow keys move the page one place.
   const gripKeys = (i: number) => (e: KeyboardEvent) => {
     if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
     e.preventDefault();
     step(i, e.key === "ArrowUp" ? -1 : 1);
-  };
-  const grab = (id: string, index: number) => (e: PointerEvent<HTMLElement>) => {
-    e.preventDefault();
-    at.current = index;
-    setDrag({ id, at: index });
   };
   return (
     <section aria-label={heading} className="flex flex-col gap-0.5">

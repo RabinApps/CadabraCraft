@@ -1,15 +1,26 @@
 import { plural, t } from "@lingui/core/macro";
-import { treeOf, entryFile } from "@cadabracraft/format";
+import { entryFile } from "@cadabracraft/format";
 import { mergeAdjacentText } from "../../lib/search/findHelpers";
 import { replaceInDoc } from "../../lib/search/bookSearch";
 import { errText } from "../../lib/projectError";
-import { PartialWrite, HISTORY_LIMIT } from "./util";
+import { PartialWrite } from "./util";
 import type { HistoryEntry, ReplaceActions } from "./types";
 import type { Ctx } from "./context";
 
 /** Replace all across the whole book, as one book undo step. */
 export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
-  const { set, get, need, writePages, reloadCurrent, flush, loadChaptersIn, entryOf, langOf } = ctx;
+  const {
+    set,
+    get,
+    need,
+    writePages,
+    recordDocs,
+    reloadCurrent,
+    flush,
+    loadChaptersIn,
+    entryOf,
+    langOf,
+  } = ctx;
   /** A book-wide replace is running: a second one is ignored instead of racing it. */
   let replacing = false;
   return {
@@ -48,17 +59,7 @@ export const createReplaceActions = (ctx: Ctx): ReplaceActions => {
             });
           }
         if (!docs.length) return 0;
-        const tree = treeOf(manifest);
-        const record = (list: typeof docs) =>
-          set({
-            history: {
-              undo: [
-                ...get().history.undo,
-                { label: t`Replace all “${opts.query}”`, before: tree, after: tree, docs: list },
-              ].slice(-HISTORY_LIMIT),
-              redo: [],
-            },
-          });
+        const record = (list: typeof docs) => recordDocs(t`Replace all “${opts.query}”`, list);
         let conflicts: string[];
         try {
           conflicts = await writePages(
