@@ -51,6 +51,7 @@ describe("sceneRows", () => {
       label: "",
       synopsis: "",
       target: null,
+      cast: [],
       words: 0,
     });
   });

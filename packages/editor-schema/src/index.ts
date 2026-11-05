@@ -16,6 +16,7 @@ import {
   isAssetPath,
   isLangTag,
   isValidCommentId,
+  isValidEntryId,
   isValidSceneId,
   normalizeLinkUrl,
   safeHref,
@@ -50,11 +51,14 @@ export const MAX_SCENE_SYNOPSIS = 2000;
 export const MAX_SCENE_POV = 120;
 export const MAX_SCENE_LABEL = 60;
 export const MAX_SCENE_TARGET = 1_000_000;
+/** The most codex entries one scene may name in its cast. */
+export const MAX_SCENE_CAST = 20;
 
 /**
  * A scene: the blocks the author writes as one unit, with the planning notes the sidebar shows (`title`, `synopsis`, `pov`,
- * `status`, `label`, `target` in words). It is structure only: no exporter prints a scene's notes, and every exporter writes
- * the children exactly as if the wrapper were not there. Adding it does not bump `formatVersion` (chapter nodes never do).
+ * `status`, `label`, `target` in words, and `cast`: the ids of the codex entries in the scene). It is structure only: no
+ * exporter prints a scene's notes, and every exporter writes the children exactly as if the wrapper were not there. Adding it
+ * does not bump `formatVersion` (chapter nodes never do).
  */
 export const Scene = Node.create({
   name: "scene",
@@ -69,6 +73,7 @@ export const Scene = Node.create({
     status: { default: "" },
     label: { default: "" },
     target: { default: null },
+    cast: { default: [] },
   }),
   parseHTML: () => [{ tag: "section[data-scene]" }],
   // Only the marker is written: the notes are not HTML attributes, and a pasted scene keeps the children.
@@ -620,6 +625,18 @@ function sceneProblem(scene: RawNode): string | null {
       a.target > MAX_SCENE_TARGET)
   )
     return `a scene's target must be a whole number of words from 0 to ${MAX_SCENE_TARGET}, or null`;
+  if (a.cast !== undefined) {
+    if (!Array.isArray(a.cast)) return "a scene's cast must be a list of codex entry ids";
+    if (a.cast.length > MAX_SCENE_CAST)
+      return `a scene's cast holds ${a.cast.length} ids; the most is ${MAX_SCENE_CAST}`;
+    const seen = new Set<string>();
+    for (const id of a.cast) {
+      if (!isValidEntryId(String(id)))
+        return `scene cast ${JSON.stringify(id)} is not allowed (a letter, then letters, digits, _ or -, at most 64 characters)`;
+      if (seen.has(String(id))) return `scene cast repeats ${JSON.stringify(id)}`;
+      seen.add(String(id));
+    }
+  }
   return null;
 }
 

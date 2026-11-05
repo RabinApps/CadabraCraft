@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ChapterDoc, DocNode } from "@cadabracraft/shared";
-import { Scene, chapterDocProblem } from "../index";
+import { MAX_SCENE_CAST, Scene, chapterDocProblem } from "../index";
 
 const p = (text: string): DocNode => ({ type: "paragraph", content: [{ type: "text", text }] });
 const bare = (attrs: Record<string, unknown>): DocNode =>
@@ -57,6 +57,19 @@ describe("scene nodes", () => {
     expect(chapterDocProblem(scene({ id: "sc-1", target: "800" }))).toMatch(/target/);
     expect(chapterDocProblem(scene({ id: "sc-1", target: 0 }))).toBeNull();
     expect(chapterDocProblem(scene({ id: "sc-1", target: null }))).toBeNull();
+  });
+
+  it("accepts a cast of codex ids, and refuses a cast that is not a list of them", () => {
+    expect(chapterDocProblem(scene({ id: "sc-1", cast: ["mara", "quay"] }))).toBeNull();
+    expect(chapterDocProblem(scene({ id: "sc-1", cast: [] }))).toBeNull();
+    expect(chapterDocProblem(scene({ id: "sc-1", cast: "mara" }))).toMatch(/cast/);
+    expect(chapterDocProblem(scene({ id: "sc-1", cast: ["1 bad"] }))).toMatch(/cast/);
+    expect(chapterDocProblem(scene({ id: "sc-1", cast: ["mara", "mara"] }))).toMatch(/repeats/);
+    expect(
+      chapterDocProblem(
+        scene({ id: "sc-1", cast: Array.from({ length: MAX_SCENE_CAST + 1 }, (_, i) => `e${i}`) }),
+      ),
+    ).toMatch(/the most is/);
   });
 
   it("refuses a scene with no notes object at all, and names the missing id", () => {
