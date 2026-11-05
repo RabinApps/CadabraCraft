@@ -19,3 +19,6 @@ playwright-report/
 .claude/worktrees/
 coverage/
 apps/desktop/test-results-*/
+
+# Scratch screenshots taken while checking the UI by eye
+apps/desktop/shots/
