@@ -1943,3 +1943,16 @@ Spellcheck uses the dictionary the platform already has, called from Rust. It is
 - `NSSpellChecker` is not documented as thread-safe: run it on the main thread or serialise calls, and prefer the batch API (`checkSpellingOfString:startingAt:…`) over a call per word.
 - Windows needs COM initialisation and the `windows` crate feature before that work starts.
 - Not verified: the suggestion quality and language coverage of each API, and the cost of checking a 20,000-word chapter in one call.
+
+## The codex (2026-11-05)
+
+A book's people, places, things and lore live in one file beside it, `codex.json`, not in the manifest and not in `.cadabra/`. The author opens it from **Codex** under **Book snapshots** in the chapter sidebar: a list filtered by kind, an editor for the selected entry, and the scenes that name the entry.
+
+- **One file, not many.** A sidecar like `comments/`, so a copy, a sync client and a diff all see plain JSON. Nothing is exported: no exporter reads it, so adding it cannot change a made page.
+- **Scenes point at entries by id, and the POV stays text.** A scene's `cast` holds codex ids; its `pov` stays free text, because a book written before it had a codex already has a POV, and a POV may be a phrase no entry carries. `appearsIn` counts a cast hit by id and a POV that is the entry's id, name or alias in any case, so old notes link up without a migration and without rewriting prose.
+- **Ids and names are unique.** Two entries called "Mara" would make the cast picker and **Appears in** ambiguous; the file refuses a repeat, the way comments refuse an unknown key.
+- **The whole file is written on every change.** The codex is small. A write that fails puts the previous list back and says so, and a file that is not a codex is refused rather than overwritten.
+- **No `cast` picker yet.** The format and `appearsIn` take a scene's cast, and the panel reads it, but no scene UI writes one; today a scene's POV is what links it to an entry. The picker is drawn and built with the codex's pen frames.
+- **`formatVersion` stays 10.** A new optional sidecar changes no manifest field, and the version describes the project's files as the app opens them. The bump belongs with the reading of `codex.json` in the versioned format; the attempt that raised it to 11 turned the migration suite red without changing behaviour, so it was backed out rather than rushed.
+
+Alternatives rejected: keeping entries in the manifest (rewrites the book's index on every note), one file per entry (a folder to sync and keep consistent for no gain at this size), and a cast that stores names instead of ids (renaming an entry would silently unlink every scene that mentions it).

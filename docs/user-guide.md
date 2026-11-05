@@ -163,6 +163,16 @@ In a printed book a sheet of paper has two sides, so blank pages come in pairs: 
 
 Chapter openings follow the template's own setting instead (the Templates page says whether chapters open on a right-hand page); a chapter always starts exactly where its page cards say it does.
 
+## Keeping a codex
+
+Open **Codex**, under **Book snapshots** in the chapter list. An entry is a person, a place, an object or a piece of lore: a name, a kind, a one-line summary, optional aliases and links, and as many notes as you like.
+
+- **Aliases** are the other names your manuscript uses ("Mara Vane" for Mara), one per line. A scene's point of view counts as naming the entry when it is the entry's name, its id or one of its aliases, in any case, so a chapter written before you kept a codex still appears.
+- **Links** are web addresses, one per line.
+- **New entry** adds one and selects it; the **Delete** button beside the name removes it. There is no undo inside the panel: the file is rewritten at once, so a deletion is final.
+
+The codex is `codex.json` in your book's folder, beside the book, so it travels with the folder and a sync client copies it with everything else. Entries are notes for you, not manuscript: no export prints them, and nothing in the panel reaches the page.
+
 ## History, backups and keeping your work safe
 
 ### Snapshots and the History dialog
