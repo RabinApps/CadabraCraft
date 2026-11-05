@@ -1628,7 +1628,7 @@ msgstr "تاج"
 
 #: src/app/export/OutlinePanel.tsx
 msgid "CSV (.csv)"
-msgstr "CSV (.csv)"
+msgstr "CSV (‎.csv)"
 
 #: src/app/export/EditionsChecklist.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
@@ -2812,7 +2812,7 @@ msgstr "Markdown"
 
 #: src/app/export/OutlinePanel.tsx
 msgid "Markdown (.md)"
-msgstr "Markdown (.md)"
+msgstr "Markdown (‎.md)"
 
 #: src/app/export/MarkdownPanel.tsx
 msgid "Markdown has no syntax for them, so they are written as HTML tags. Leave this off and the export stops at the first one, naming the chapter."
@@ -3329,7 +3329,7 @@ msgstr "يُفتح في برامج المخططات مثل OmniOutliner أو Bik
 
 #: src/app/export/OutlinePanel.tsx
 msgid "OPML (.opml)"
-msgstr "OPML (.opml)"
+msgstr "OPML (‎.opml)"
 
 #: src/editor/ToolbarDialogs.tsx
 msgid "Optional. Shown below the image."
