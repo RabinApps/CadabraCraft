@@ -1,4 +1,4 @@
-import { RE2JS } from "re2js";
+import type { RE2JS } from "re2js";
 
 export interface TextRange {
   /** Offsets in UTF-16 code units, `to` exclusive. */
@@ -96,15 +96,22 @@ export function findInText(
 export const MAX_MATCHES = 10000;
 
 let cached: { key: string; re: RE2JS | null } | null = null;
+/** The RE2 engine, loaded the first time Regex is switched on (about 100 KB the app does not need before that). */
+let engine: typeof RE2JS | null = null;
+
+/** Loads the regex engine. Switch `regex` on only after this resolves: compiling before it is loaded finds nothing. */
+export async function loadRegexEngine(): Promise<void> {
+  engine ??= (await import("re2js")).RE2JS;
+}
 
 /** The compiled search regex, or null when the pattern is empty or not valid RE2 syntax (never throws). */
 export function compileRegex(query: string, matchCase: boolean): RE2JS | null {
-  if (!query) return null;
+  if (!query || !engine) return null;
   const key = `${matchCase ? 1 : 0}${query}`;
   if (cached?.key === key) return cached.re;
   let re: RE2JS | null;
   try {
-    re = RE2JS.compile(query, matchCase ? 0 : RE2JS.CASE_INSENSITIVE);
+    re = engine.compile(query, matchCase ? 0 : engine.CASE_INSENSITIVE);
   } catch {
     re = null;
   }
@@ -147,7 +154,7 @@ function findRegexInText(
 
 /** Whether a regex-mode query is unusable (invalid or refused). An empty query is not "invalid". */
 export const isInvalidRegex = (query: string, matchCase: boolean): boolean =>
-  query !== "" && compileRegex(query, matchCase) === null;
+  engine !== null && query !== "" && compileRegex(query, matchCase) === null;
 
 /**
  * The replacement text for one match. Regex mode expands `$1`..`$9` (the capture, "" if it did not take part; a

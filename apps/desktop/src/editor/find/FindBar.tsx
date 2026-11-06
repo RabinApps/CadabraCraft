@@ -9,7 +9,7 @@ import { readingOrder, entryRows } from "@cadabracraft/format";
 import { useProject } from "../../state/project/index";
 import { bookPosition, countLabel, isComposing, resultRows } from "../../lib/search/findHelpers";
 import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind, type FindState } from "./findStore";
-import { isInvalidRegex } from "../../lib/search/match";
+import { isInvalidRegex, loadRegexEngine } from "../../lib/search/match";
 import { useBookCounts, useLanguageCounts, useSearchInfo } from "./findHooks";
 import { useFindActions, type FindToggle } from "./findActions";
 import { nativeName } from "../../app/shell/header/EditionSwitcher";
@@ -143,7 +143,14 @@ function FindOptions(props: {
           pressed={f.allChapters}
           onClick={() => toggle({ allChapters: !f.allChapters })}
         >{t`All chapters`}</Chip>
-        <Chip pressed={f.regex} onClick={() => toggle({ regex: !f.regex })}>{t`Regex`}</Chip>
+        <Chip
+          pressed={f.regex}
+          onClick={() => {
+            // The engine loads on first use; Regex turns on once it is there so no search runs without it.
+            if (f.regex) toggle({ regex: false });
+            else void loadRegexEngine().then(() => toggle({ regex: true }));
+          }}
+        >{t`Regex`}</Chip>
       </div>
       {f.allChapters && props.multiLanguage && (
         <div className="flex items-center gap-1.5">
