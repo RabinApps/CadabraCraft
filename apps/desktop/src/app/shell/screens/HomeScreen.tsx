@@ -3,7 +3,7 @@ import { bridge } from "../../../lib/bridge";
 import { errText } from "../../../lib/projectError";
 import { useProject } from "../../../state/project/index";
 import { Home } from "../../home/Home";
-import { ImportReportDialog } from "../../dialogs/ImportDialogs";
+import { ImportReportDialog } from "../../dialogs/LazyImportDialogs";
 import { SponsorDialog } from "../../dialogs/SponsorDialog";
 import { UpdateDialog } from "../../dialogs/UpdateDialog";
 import { LicensesDialog } from "../../dialogs/LicensesDialog";

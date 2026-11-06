@@ -4,7 +4,6 @@ import { createManifest, serializeManifest } from "@cadabracraft/format";
 import { bridge } from "../../../lib/bridge";
 import { forgetProjectAssets } from "../../../lib/assets";
 import { forgetProjectReferences } from "../../../lib/references/references";
-import { runImport, runImportInto } from "../../../lib/import/importBook";
 import { bestEffort, NO_HISTORY } from "../util";
 import type { ProjectActions } from "../types";
 import type { Ctx } from "../context";
@@ -77,6 +76,7 @@ export const createOpenActions = (
       importing = true;
       try {
         await flush();
+        const { runImport } = await import("../../../lib/import/importBook");
         const report = await runImport({ sourcePath, root, title, author, ...opts });
         await join(root, false);
         set({ importReport: report });
@@ -90,6 +90,7 @@ export const createOpenActions = (
       try {
         await flush();
         const { root, manifest } = need();
+        const { runImportInto } = await import("../../../lib/import/importBook");
         const { report, firstId } = await runImportInto({
           sourcePath,
           root,
