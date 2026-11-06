@@ -2158,3 +2158,18 @@ An outline file (OPML, a CSV, or Markdown with `#` chapters and `##` scenes) is 
 | `dragDropEnabled: false` so every drop arrives as a DOM event | The DOM drop of a file has no absolute path, which `import_reference` needs.                                              |
 
 **Not verified.** Whether addresses and text dragged in from another application reach the panel as DOM drag events on every platform while the window's drag-drop handler is on (macOS, Windows and Linux differ): drags from inside the app (selected text or a link in the editor) and the Add menu always work, and a platform that hands such drags to the window only drops files. Check in a release build on each system (see roadmap).
+
+## Typing in one 20,000-word paragraph in Page view: measured (2026-11-06)
+
+The edge-case audit guessed about 400 ms a key because pagination "re-measures every block on an edit". Measured on the current code (Playwright Chromium, Vite dev server, Apple M1 Max, a chapter of a heading and one 20,000-word paragraph, 30 keys 500 ms apart; latency is keydown to the second animation frame; pagination task is the long task after a pause):
+
+| Chapter                    | View                                | Key latency median / worst | Pagination task                |
+| -------------------------- | ----------------------------------- | -------------------------- | ------------------------------ |
+| One 20,000-word paragraph  | Pages (1400 px wide)                | 117 ms / 126 ms            | about 180 ms once per pause    |
+| One 20,000-word paragraph  | Reflow (390 px wide, no pagination) | 117 ms / 132 ms            | none                           |
+| 500 paragraphs of 40 words | Pages                               | 33 ms / 52 ms              | below the 50 ms long-task mark |
+| 500 paragraphs of 40 words | Reflow                              | 31 ms / 53 ms              | none                           |
+
+An earlier run on an older checkout gave 105 to 115 ms a key and 170 to 190 ms a pagination task, so nothing regressed and the 400 ms figure was wrong. The per-key cost is the same with pagination off: it is the browser laying out and painting the one huge paragraph that the edit changed (ProseMirror's DOM update plus the text layout), not our code. The pagination task is two forced layouts of that paragraph (the `pv-natural` class toggle and reading the page tops), run once per typing pause.
+
+**Decision:** change nothing. **Rejected:** a per-block height cache. The block style cache (`pagination/cache.ts`) already skips every unchanged block, which is why the many-block chapter is cheap, and in the slow case there is only one block, and it is the one that changed, so a height cache would always miss. Making it faster would need splitting a paragraph's measurement (measuring only its changed lines), which would risk page breaks that differ from the browser's and is not worth ~180 ms once per pause on a book-sized paragraph nobody writes.
