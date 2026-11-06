@@ -51,6 +51,8 @@ test.describe("sponsor dialog after an export", () => {
   test("closing it with Escape asks again after the next export", async ({ page }) => {
     await newProject(page);
     await exportEpub(page);
+    // The export finishes asynchronously (the exporter loads on first use): wait for the dialog before closing it.
+    await expect(sponsor(page)).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(sponsor(page)).toHaveCount(0);
     await exportEpub(page);

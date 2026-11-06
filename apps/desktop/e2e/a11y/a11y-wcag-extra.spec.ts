@@ -169,8 +169,8 @@ test.describe("1.4.2 audio control", () => {
     const players = files
       .filter(({ text }) => /new Audio\(|AudioContext/.test(text))
       .map((f) => f.file);
-    expect(players).toEqual(["src/app/export/useAudioExport.ts"]);
-    const hook = files.find((f) => f.file.endsWith("useAudioExport.ts"))!.text;
+    expect(players).toEqual(["src/app/export/parts/useAudioSample.ts"]);
+    const hook = files.find((f) => f.file.endsWith("useAudioSample.ts"))!.text;
     expect(hook).toMatch(/if \(sample === "playing"\) return stopSample\(\)/);
   });
 

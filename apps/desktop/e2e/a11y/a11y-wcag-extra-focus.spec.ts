@@ -19,9 +19,9 @@ test.describe("1.4.13 content on hover or focus", () => {
       .filter(
         ({ file, text }) =>
           // TypstSpread is the print preview's hint (tested below); Toolbar's onFocus only tracks which button the arrow keys start from.
-          // ui/Dialog.tsx's onFocus scrolls the focused control into view. ui/Tooltip.tsx is the one tooltip (Radix: hover and focus,
+          // ui/Dialog.tsx's onFocus scrolls the focused control into view. ui/feedback/Tooltip.tsx is the one tooltip (Radix: hover and focus,
           // Esc, hoverable; tested in a11y-hover-hints.spec.ts) and ui/Button.tsx is its only user.
-          !/TypstSpread|editor\/Toolbar\.tsx$|ui\/Dialog\.tsx$|ui\/Tooltip\.tsx$|ui\/Button\.tsx$/.test(
+          !/TypstSpread|editor\/toolbar\/Toolbar\.tsx$|ui\/Dialog\.tsx$|ui\/feedback\/Tooltip\.tsx$|ui\/Button\.tsx$/.test(
             file,
           ) &&
           /group-hover:(?:block|visible|opacity-100|flex)|group-focus[\w-]*:(?:block|visible|opacity-100|flex)|peer-hover|role="tooltip"|<Tooltip|<Popover|HoverCard|onMouseEnter|onPointerEnter|onMouseOver|onFocus=\{/.test(
