@@ -57,3 +57,27 @@ export function useTypewriterSlack(ref: RefObject<HTMLElement | null>): number {
   }, [on, ref]);
   return slack;
 }
+
+/**
+ * Puts the caret's line back in the middle when the pages change height under it (Typst's exact page breaks arriving, a zoom or a
+ * font change): without it the line the author is writing on drifts away until the next key. Only while the editor has focus, so a
+ * layout that settles while the author reads elsewhere moves nothing.
+ */
+export function useTypewriterRefollow(
+  ref: RefObject<HTMLElement | null>,
+  editor: TipTapEditor | null,
+): void {
+  const on = useSettings((s) => s.typewriterScroll);
+  useLayoutEffect(() => {
+    const content = ref.current?.firstElementChild;
+    if (!on || !editor || !content) return;
+    let first = true;
+    const ro = new ResizeObserver(() => {
+      // The observer reports once when it starts; that is not a change.
+      if (first) return void (first = false);
+      if (!editor.isDestroyed && editor.isFocused) followCaret(editor);
+    });
+    ro.observe(content);
+    return () => ro.disconnect();
+  }, [on, editor, ref]);
+}

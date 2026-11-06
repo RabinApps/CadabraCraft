@@ -703,6 +703,13 @@ test("Read mode mirrors the Contents page in a right-to-left book", async ({ pag
   });
   await page.reload();
   await page.getByRole("button", { name: "Open folder" }).click();
+  // The book reopens on its first chapter and Read mode scrolls to the open page, which would leave the Contents page (and its
+  // lines, once they are out of the preload range) off screen: open the Contents page first.
+  await page
+    .getByRole("navigation", { name: "Chapters" })
+    .getByText("Contents", { exact: true })
+    .click();
+  await expect(contents(page)).toBeVisible();
   await readMode(page);
   const nav = readContents(page);
   await expect(nav).toHaveAttribute("dir", "rtl");

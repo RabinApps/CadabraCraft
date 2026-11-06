@@ -13,7 +13,7 @@ import { readingOrder, sectionOf, sourceTitle, type Manifest } from "@cadabracra
 import type { EntryKind } from "@cadabracraft/shared";
 import { usePageView } from "../../app/hooks/usePageView";
 import { usePaneWidth } from "../../app/hooks/usePaneWidth";
-import { useTypewriterSlack } from "../typewriter";
+import { useTypewriterRefollow, useTypewriterSlack } from "../typewriter";
 import { useSectionScroll } from "../useSectionScroll";
 import { dirFor } from "../../i18n/locales";
 import { usePageCount } from "../../state/pages/pageCount";
@@ -374,6 +374,7 @@ export function PageFrame({ editor, children }: Props) {
   const paneW = usePaneWidth(scroller);
   const zoom = zoomPref === "fit" ? fitZoom(g, paneW || g.page.w + 48) : zoomPref;
   const slack = useTypewriterSlack(scroller);
+  useTypewriterRefollow(scroller, editor);
   // Scrolling on past the last page opens the next section; above the first page, the previous one.
   const { onWheel } = useSectionScroll(scroller);
 
@@ -386,7 +387,7 @@ export function PageFrame({ editor, children }: Props) {
   const centredNow = pageIsCentred(look, pageSection, entry?.kind, entry ?? {});
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col bg-bg">
+    <div className="relative flex min-h-48 flex-1 flex-col bg-bg">
       <PageChip trim={trim} family={family} />
       <div
         ref={scroller}

@@ -30,7 +30,7 @@ vi.mock("../../state/view/editorPrefs", () => ({
     select({ typewriterScroll: h.on }),
 }));
 
-import { followCaret, useTypewriterSlack } from "../typewriter";
+import { followCaret, useTypewriterRefollow, useTypewriterSlack } from "../typewriter";
 import { typewriterSlack, typewriterTarget } from "../../lib/reading/typewriterScroll";
 
 interface Span {
@@ -244,5 +244,82 @@ describe("useTypewriterSlack", () => {
     render(ref);
     expect(observer.disconnect).toHaveBeenCalled();
     expect(h.state[0]).toBe(0);
+  });
+});
+
+describe("useTypewriterRefollow", () => {
+  class FakeResizeObserver {
+    static last: FakeResizeObserver | null = null;
+    observe = vi.fn();
+    disconnect = vi.fn();
+    constructor(readonly cb: () => void) {
+      FakeResizeObserver.last = this;
+    }
+  }
+
+  const content = {};
+  const pane = { firstElementChild: content } as unknown as HTMLElement;
+
+  beforeEach(() => {
+    h.on = true;
+    h.effect = null;
+    h.queued = null;
+    FakeResizeObserver.last = null;
+    vi.stubGlobal("ResizeObserver", FakeResizeObserver);
+  });
+
+  function mount(editor: unknown, ref: { current: HTMLElement | null } = { current: pane }) {
+    h.slot = 0;
+    useTypewriterRefollow(ref, editor as never);
+    const { fn } = h.queued!;
+    h.queued = null;
+    return fn();
+  }
+
+  const editorWith = (scroller: unknown, focused: boolean, destroyed = false) => ({
+    ...editorOf(scroller),
+    isFocused: focused,
+    isDestroyed: destroyed,
+  });
+
+  it("scrolls the caret back to the middle when the pages change height under a focused editor", () => {
+    const scroller = scrollerOf();
+    mount(editorWith(scroller, true));
+    const observer = FakeResizeObserver.last!;
+    expect(observer.observe).toHaveBeenCalledWith(content);
+    observer.cb(); // the report that comes when observing starts
+    expect(frames).toHaveLength(0);
+    observer.cb();
+    nextTick();
+    expect(scroller.scrollTo).toHaveBeenCalledWith({ top: 210, behavior: "instant" });
+  });
+
+  it("leaves the page alone when the editor has no focus or is gone", () => {
+    const scroller = scrollerOf();
+    mount(editorWith(scroller, false));
+    FakeResizeObserver.last!.cb();
+    FakeResizeObserver.last!.cb();
+    expect(frames).toHaveLength(0);
+    mount(editorWith(scroller, true, true));
+    FakeResizeObserver.last!.cb();
+    FakeResizeObserver.last!.cb();
+    expect(frames).toHaveLength(0);
+  });
+
+  it("watches nothing while typewriter scrolling is off, or before the pane or editor exist", () => {
+    h.on = false;
+    mount(editorWith(scrollerOf(), true));
+    expect(FakeResizeObserver.last).toBeNull();
+    h.on = true;
+    mount(editorWith(scrollerOf(), true), { current: null });
+    mount(null);
+    expect(FakeResizeObserver.last).toBeNull();
+  });
+
+  it("stops watching when it is unmounted", () => {
+    const stop = mount(editorWith(scrollerOf(), true)) as () => void;
+    const observer = FakeResizeObserver.last!;
+    stop();
+    expect(observer.disconnect).toHaveBeenCalled();
   });
 });

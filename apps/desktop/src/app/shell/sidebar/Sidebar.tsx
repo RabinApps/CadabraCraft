@@ -269,10 +269,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     onNavigate,
   };
   return (
-    <nav aria-label={t`Chapters`} className="flex h-full flex-col gap-2 p-3">
+    <nav aria-label={t`Chapters`} className="flex h-full flex-col gap-2 overflow-y-auto p-3">
       <div
         data-sidebar-entries
-        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-y-contain"
+        className="flex min-h-32 flex-1 flex-col gap-3 overflow-y-auto overscroll-y-contain"
       >
         {manifest.frontMatter.length > 0 && (
           <EntryList
@@ -311,27 +311,30 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           />
         )}
       </div>
-      <AddButtons />
-      <AddPageMenu onNavigate={onNavigate} />
-      <Button
-        variant="ghost"
-        icon={Trash2}
-        className="justify-start"
-        onClick={() => setTrashOpen(true)}
-      >{t`Trash`}</Button>
-      <Button
-        variant="ghost"
-        icon={Camera}
-        className="justify-start"
-        onClick={() => setBookHistory(true)}
-      >{t`Book snapshots`}</Button>
-      <Button
-        variant="ghost"
-        icon={BookMarked}
-        className="justify-start"
-        onClick={() => setCodexOpen(true)}
-      >{t`Codex`}</Button>
-      <BookHistoryButtons />
+      {/* The controls keep their size; when large text makes them taller than the pane, the whole sidebar scrolls. */}
+      <div className="flex shrink-0 flex-col gap-2">
+        <AddButtons />
+        <AddPageMenu onNavigate={onNavigate} />
+        <Button
+          variant="ghost"
+          icon={Trash2}
+          className="justify-start"
+          onClick={() => setTrashOpen(true)}
+        >{t`Trash`}</Button>
+        <Button
+          variant="ghost"
+          icon={Camera}
+          className="justify-start"
+          onClick={() => setBookHistory(true)}
+        >{t`Book snapshots`}</Button>
+        <Button
+          variant="ghost"
+          icon={BookMarked}
+          className="justify-start"
+          onClick={() => setCodexOpen(true)}
+        >{t`Codex`}</Button>
+        <BookHistoryButtons />
+      </div>
       <HistoryDialog
         page={versionsOf}
         open={versionsOf !== null || bookHistory}
