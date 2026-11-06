@@ -28,11 +28,9 @@ function pickTitle(
   settings: TocSettings,
   key: string,
   language: string,
-  own: string | undefined,
-  fallback: string,
-  source: string,
-  id: string,
+  candidates: { own: string | undefined; fallback: string; source: string; id: string },
 ): { title: string; renamed: boolean } {
+  const { own, fallback, source, id } = candidates;
   const byLang = settings.titles[key];
   const over = byLang?.[language];
   if (!isBlank(over)) return { title: over, renamed: true };
@@ -40,6 +38,28 @@ function pickTitle(
   const src = byLang?.[source];
   if (!isBlank(src)) return { title: src, renamed: true };
   return { title: isBlank(fallback) ? id : fallback, renamed: false };
+}
+
+/** A chapter belongs to the part before it. Only chapters carry parts; front and back matter are never indented. */
+function partsByChapter(manifest: Manifest, settings: TocSettings): Map<string, string> {
+  const partOf = new Map<string, string>();
+  let part: string | undefined;
+  for (const entry of manifest.chapters) {
+    // A hidden part has no row to nest under, so its chapters stay at the top level in the editor and in exports.
+    if (entry.kind === "part") part = settings.hidden.includes(entry.id) ? undefined : entry.id;
+    else if (part !== undefined && entry.kind !== "blank") partOf.set(entry.id, part);
+  }
+  return partOf;
+}
+
+/** Whether the contents page lists `entry` at all. */
+function isListed(entry: EditionEntry, settings: TocSettings): boolean {
+  if (entry.kind === "contents") return false;
+  if (entry.kind !== undefined && entry.kind !== "part" && TOC_UNLISTED_KINDS.includes(entry.kind))
+    return false;
+  // A part divider is listed only when the contents page asks for parts (the default); its own heading is its title, so it never
+  // adds a second, heading-level row.
+  return !(entry.kind === "part" && !settings.parts);
 }
 
 function autoItems(
@@ -50,40 +70,21 @@ function autoItems(
 ): TocItem[] {
   const settings = tocSettingsOf(contents);
   const source = sourceEdition(manifest.editions).language;
-  // A chapter belongs to the part before it. Only chapters carry parts; front and back matter are never indented.
-  const partOf = new Map<string, string>();
-  let part: string | undefined;
-  for (const entry of manifest.chapters) {
-    // A hidden part has no row to nest under, so its chapters stay at the top level in the editor and in exports.
-    if (entry.kind === "part") part = settings.hidden.includes(entry.id) ? undefined : entry.id;
-    else if (part !== undefined && entry.kind !== "blank") partOf.set(entry.id, part);
-  }
+  const partOf = partsByChapter(manifest, settings);
   const items: TocItem[] = [];
   for (const entry of readingOrder(manifest)) {
-    if (entry.kind === "contents") continue;
-    if (
-      entry.kind !== undefined &&
-      entry.kind !== "part" &&
-      TOC_UNLISTED_KINDS.includes(entry.kind)
-    )
-      continue;
-    // A part divider is listed only when the contents page asks for parts (the default); its own heading is its title, so it never
-    // adds a second, heading-level row.
-    if (entry.kind === "part" && !settings.parts) continue;
+    if (!isListed(entry, settings)) continue;
     // With parts off there is no parent row, so the chapters stay at the top level.
     const inPart = settings.parts ? partOf.get(entry.id) : undefined;
     // A part row itself is grouped under its own id; a hidden part has no row to group under, like its chapters.
     const itemPart =
       entry.kind === "part" ? (settings.hidden.includes(entry.id) ? undefined : entry.id) : inPart;
-    const page = pickTitle(
-      settings,
-      entry.id,
-      language,
-      entry.titles[language],
-      entry.titles[source]!,
+    const page = pickTitle(settings, entry.id, language, {
+      own: entry.titles[language],
+      fallback: entry.titles[source]!,
       source,
-      entry.id,
-    );
+      id: entry.id,
+    });
     items.push({
       key: entry.id,
       kind: "page",
@@ -94,8 +95,7 @@ function autoItems(
       ...page,
       hidden: settings.hidden.includes(entry.id),
     });
-    if (entry.kind === "part") continue;
-    if (settings.depth === 0) continue;
+    if (entry.kind === "part" || settings.depth === 0) continue;
     // Own properties only: an entry id such as "constructor" must not find a member of Object.prototype.
     const outline = Object.hasOwn(outlines, entry.id) ? outlines[entry.id]! : [];
     const keys = outlineKeys(entry.id, outline);
@@ -109,7 +109,12 @@ function autoItems(
         level: h.level,
         ...(inPart === undefined ? {} : { indent: 1 + h.level }),
         ...(itemPart === undefined ? {} : { part: itemPart }),
-        ...pickTitle(settings, key, language, h.text, h.text, source, entry.id),
+        ...pickTitle(settings, key, language, {
+          own: h.text,
+          fallback: h.text,
+          source,
+          id: entry.id,
+        }),
         hidden: settings.hidden.includes(key),
         index: h.index,
       });

@@ -24,16 +24,13 @@ const WANT = {
 };
 
 /** Book details, "Publishing details": fill, save, check cadabra.json (formatVersion 8), export EPUB, check the OPF and EPUBCheck. */
-export async function publishingDetailsSteps({
-  app,
-  book,
-  repo,
-  dlg,
-  exportVia,
-  status,
-  shot,
-  step,
-}: Context) {
+export async function publishingDetailsSteps(ctx: Context) {
+  await publishingDetailsPart1(ctx);
+  await publishingDetailsPart2(ctx);
+}
+
+async function publishingDetailsPart1(ctx: Context) {
+  const { app, book, dlg, shot, step } = ctx;
   const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
   const setField = (label: string, value: string) =>
     dlg(`const l = [...d.querySelectorAll("label")].find((l) => l.textContent.trim().startsWith(${JSON.stringify(label)}));
@@ -119,7 +116,10 @@ export async function publishingDetailsSteps({
       return "formatVersion 8, editions[0].publishing has the 7 trimmed values";
     },
   );
+}
 
+async function publishingDetailsPart2(ctx: Context) {
+  const { app, book, repo, exportVia, status, step } = ctx;
   await step(
     "EPUB export carries the publishing details in the OPF and passes EPUBCheck",
     async () => {

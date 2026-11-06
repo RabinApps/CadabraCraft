@@ -86,12 +86,71 @@ export interface RawScene {
   castNames?: string[] | undefined;
 }
 
+type Warn = (code: OutlineWarningCode, message: string) => void;
+
+function cleanId(raw: RawScene, where: string, seen: Set<string>, warn: Warn): string {
+  let id = raw.id?.trim() ?? "";
+  if (id && !isValidSceneId(id)) {
+    warn("bad-id", `${where}: the id ${JSON.stringify(id)} is not allowed and was dropped`);
+    id = "";
+  }
+  if (id && seen.has(id)) {
+    warn("duplicate-id", `${where}: the id ${id} is used twice and was dropped here`);
+    id = "";
+  }
+  if (id) seen.add(id);
+  return id;
+}
+
+function cleanStatus(raw: RawScene, where: string, warn: Warn): string {
+  const status = raw.status?.trim().toLowerCase() ?? "";
+  if (status && !SCENE_STATUSES.includes(status as (typeof SCENE_STATUSES)[number])) {
+    warn(
+      "bad-status",
+      `${where}: the status ${JSON.stringify(status)} is not one of ours and was dropped`,
+    );
+    return "";
+  }
+  return status;
+}
+
+function cleanTarget(raw: RawScene, where: string, warn: Warn): number | null {
+  const t = raw.target?.trim() ?? "";
+  if (!t) return null;
+  const n = /^\d+$/.test(t) ? Number(t) : NaN;
+  if (n <= MAX_SCENE_TARGET) return n;
+  warn(
+    "bad-target",
+    `${where}: the target ${JSON.stringify(t)} is not a whole number of words and was dropped`,
+  );
+  return null;
+}
+
+function cleanDate(raw: RawScene, where: string, warn: Warn): string {
+  const date = raw.date?.trim() ?? "";
+  if (date && !DATE.test(date)) {
+    warn(
+      "bad-date",
+      `${where}: the date ${JSON.stringify(date)} is not YYYY-MM-DD and was dropped`,
+    );
+    return "";
+  }
+  return date;
+}
+
+function cleanCast(list: string[] | undefined, where: string, warn: Warn): string[] {
+  const kept = [...new Set((list ?? []).map((s) => s.trim()).filter(Boolean))];
+  if (kept.length > MAX_SCENE_CAST)
+    warn("clamped", `${where}: the cast is longer than ${MAX_SCENE_CAST} and was cut`);
+  return kept.slice(0, MAX_SCENE_CAST);
+}
+
 /** Collects warnings and keeps scene ids unique across the file. */
 export function createCleaner() {
   const warnings: OutlineWarning[] = [];
   const seen = new Set<string>();
   let scenes = 0;
-  const warn = (code: OutlineWarningCode, message: string) => warnings.push({ code, message });
+  const warn: Warn = (code, message) => warnings.push({ code, message });
   const text = (value: string | undefined, max: number, field: string, where: string) => {
     const v = value ?? "";
     if (v.length <= max) return v;
@@ -103,60 +162,17 @@ export function createCleaner() {
       throw new OutlineError("too-many", `The file has more than ${MAX_OUTLINE_SCENES} scenes`);
     const title = text(raw.title?.trim(), MAX_SCENE_TITLE, "title", raw.title?.trim() || "a scene");
     const where = title || "a scene";
-    let id = raw.id?.trim() ?? "";
-    if (id && !isValidSceneId(id)) {
-      warn("bad-id", `${where}: the id ${JSON.stringify(id)} is not allowed and was dropped`);
-      id = "";
-    }
-    if (id && seen.has(id)) {
-      warn("duplicate-id", `${where}: the id ${id} is used twice and was dropped here`);
-      id = "";
-    }
-    if (id) seen.add(id);
-    let status = raw.status?.trim().toLowerCase() ?? "";
-    if (status && !SCENE_STATUSES.includes(status as (typeof SCENE_STATUSES)[number])) {
-      warn(
-        "bad-status",
-        `${where}: the status ${JSON.stringify(status)} is not one of ours and was dropped`,
-      );
-      status = "";
-    }
-    let target: number | null = null;
-    const t = raw.target?.trim() ?? "";
-    if (t) {
-      const n = /^\d+$/.test(t) ? Number(t) : NaN;
-      if (n <= MAX_SCENE_TARGET) target = n;
-      else
-        warn(
-          "bad-target",
-          `${where}: the target ${JSON.stringify(t)} is not a whole number of words and was dropped`,
-        );
-    }
-    let date = raw.date?.trim() ?? "";
-    if (date && !DATE.test(date)) {
-      warn(
-        "bad-date",
-        `${where}: the date ${JSON.stringify(date)} is not YYYY-MM-DD and was dropped`,
-      );
-      date = "";
-    }
-    const cast = (list: string[] | undefined) => {
-      const kept = [...new Set((list ?? []).map((s) => s.trim()).filter(Boolean))];
-      if (kept.length > MAX_SCENE_CAST)
-        warn("clamped", `${where}: the cast is longer than ${MAX_SCENE_CAST} and was cut`);
-      return kept.slice(0, MAX_SCENE_CAST);
-    };
     return {
-      id,
+      id: cleanId(raw, where, seen, warn),
       title,
       synopsis: text(raw.synopsis?.trim(), MAX_SCENE_SYNOPSIS, "synopsis", where),
       pov: text(raw.pov?.trim(), MAX_SCENE_POV, "point of view", where),
-      status,
+      status: cleanStatus(raw, where, warn),
       label: text(raw.label?.trim(), MAX_SCENE_LABEL, "label", where),
-      target,
-      date,
-      castIds: cast(raw.castIds),
-      castNames: cast(raw.castNames),
+      target: cleanTarget(raw, where, warn),
+      date: cleanDate(raw, where, warn),
+      castIds: cleanCast(raw.castIds, where, warn),
+      castNames: cleanCast(raw.castNames, where, warn),
     };
   };
   return { warn, scene, warnings };

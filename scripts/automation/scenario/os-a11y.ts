@@ -63,7 +63,8 @@ function switchBack(): { ok: true; how: string } | { ok: false; why: string } {
   }
 }
 
-export async function osA11ySteps({ app, book, step: hardStep, runMenu }: Context) {
+/** The checks of this module record a failure and carry on, so one finding does not hide the rest. */
+function osHelpers({ app, step: hardStep }: Context) {
   // A failing check here is a finding, not a reason to skip the rest of the scenario: it is recorded and the run goes on.
   const step = async (name: string, fn: () => Promise<string | void>) => {
     try {
@@ -85,7 +86,21 @@ export async function osA11ySteps({ app, book, step: hardStep, runMenu }: Contex
       )
       .then((s) => JSON.parse(s) as Where);
   const titles: Record<string, string> = {};
+  return { step, windowTitle, where, titles };
+}
+type Helpers = ReturnType<typeof osHelpers>;
 
+export async function osA11ySteps(ctx: Context) {
+  const helpers = osHelpers(ctx);
+  await windowTitleSteps(ctx, helpers);
+  await focusSteps(ctx, helpers);
+  await dialogRouteSteps(ctx, helpers);
+}
+
+async function windowTitleSteps(
+  { app, book, runMenu }: Context,
+  { step, windowTitle, titles }: Helpers,
+) {
   await step("window title: the home screen has a title that is not empty", async () => {
     await runMenu("file.close").catch(() => {});
     await app.js("location.reload()").catch(() => {});
@@ -118,7 +133,9 @@ export async function osA11ySteps({ app, book, step: hardStep, runMenu }: Contex
     assert(titles.book !== titles.home, "the book and home share a title");
     return `book: "${titles.book}"`;
   });
+}
 
+async function focusSteps({ app }: Context, { step, where }: Helpers) {
   await step(
     "focus: web content has focus after launch (a control or the page, not nothing)",
     async () => {
@@ -153,7 +170,9 @@ export async function osA11ySteps({ app, book, step: hardStep, runMenu }: Contex
       return `${away.how}; hasFocus while away ${away1.hasFocus}; back via ${back.how}; focus kept on ${after.tag}`;
     },
   );
+}
 
+async function dialogRouteSteps({ app, book, runMenu }: Context, { step }: Helpers) {
   // Dialog routes. The bridge cannot send key events, so reach is checked from the DOM: focus is inside the dialog, its
   // controls are in the Tab order, and Escape (the key the app handles on the document) closes it.
   const dialogReach = (id: string, arg?: string) => async () => {

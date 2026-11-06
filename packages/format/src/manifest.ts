@@ -208,78 +208,125 @@ const stringMap = (v: unknown, name: string): Record<string, string> => {
   return Object.fromEntries(Object.entries(v).map(([k, s]) => [k, str(s, `${name}.${k}`)]));
 };
 
+type EntryField = (
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: "front" | "chapter" | "back",
+) => void;
+
+const fail = (message: string): never => {
+  throw new FormatError(`manifest: ${message}`);
+};
+
+function untranslatedField(o: Record<string, unknown>, entry: EditionEntry, at: string): void {
+  if (o.untranslated === undefined) return;
+  if (!Array.isArray(o.untranslated) || !o.untranslated.every((l) => typeof l === "string" && l))
+    fail(`"${at}.untranslated" must be a list of languages`);
+  entry.untranslated = o.untranslated as string[];
+}
+
+function iconField(o: Record<string, unknown>, entry: EditionEntry, at: string): void {
+  if (o.icon === undefined) return;
+  // Names this app does not know are kept (a newer app wrote them) and shown as no icon.
+  if (typeof o.icon !== "string" || !ICON_NAME.test(o.icon))
+    fail(`"${at}.icon" must be an icon name`);
+  entry.icon = o.icon as string;
+}
+
+function dropCapField(
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: string,
+): void {
+  if (o.dropCap === undefined) return;
+  if (section !== "chapter") fail(`"${at}.dropCap" belongs on a chapter only`);
+  if (typeof o.dropCap !== "boolean") fail(`"${at}.dropCap" must be true or false`);
+  entry.dropCap = o.dropCap as boolean;
+}
+
+function kindField(
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: string,
+): void {
+  if (o.kind !== undefined) {
+    // Chapters have no kind, except a blank page the author put between two of them: it is a page of the book, not a chapter.
+    const ok =
+      section === "front"
+        ? isFrontMatterKind(o.kind)
+        : section === "back"
+          ? isBackMatterKind(o.kind)
+          : o.kind === "blank" || o.kind === "part";
+    if (!ok) fail(`invalid kind ${JSON.stringify(o.kind)} in ${at}`);
+    entry.kind = o.kind as EntryKind;
+  }
+  if (entry.kind === "part" && entry.dropCap !== undefined)
+    fail(`"${at}.dropCap" belongs on a chapter only`);
+}
+
+function verticalCenterField(
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: string,
+): void {
+  if (o.verticalCenter === undefined) return;
+  if (section === "chapter" || entry.kind === "contents" || entry.kind === "copyright")
+    fail(
+      `"${at}.verticalCenter" belongs on a front or back matter page other than contents and copyright`,
+    );
+  if (typeof o.verticalCenter !== "boolean") fail(`"${at}.verticalCenter" must be true or false`);
+  entry.verticalCenter = o.verticalCenter as boolean;
+}
+
+function startOnNextField(
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: string,
+): void {
+  if (o.startOnNext === undefined) return;
+  if (section === "chapter") fail(`"${at}.startOnNext" belongs on a front or back matter page`);
+  if (typeof o.startOnNext !== "boolean") fail(`"${at}.startOnNext" must be true or false`);
+  entry.startOnNext = o.startOnNext as boolean;
+}
+
+function tocField(o: Record<string, unknown>, entry: EditionEntry, at: string): void {
+  if (o.toc === undefined) return;
+  if (entry.kind !== "contents") fail(`"${at}.toc" belongs on a contents page only`);
+  entry.toc = validateToc(o.toc, `${at}.toc`);
+}
+
+/** The optional entry fields, checked in this order (the first problem found is the one reported). */
+const ENTRY_FIELDS: EntryField[] = [
+  untranslatedField,
+  iconField,
+  dropCapField,
+  kindField,
+  verticalCenterField,
+  startOnNextField,
+  tocField,
+];
+
 function entries(v: unknown, name: string, section: "front" | "chapter" | "back"): EditionEntry[] {
   if (!Array.isArray(v)) throw new FormatError(`manifest: "${name}" must be an array`);
   return v.map((e, i) => {
     const o = (e ?? {}) as Record<string, unknown>;
-    const id = str(o.id, `${name}[${i}].id`);
+    const at = `${name}[${i}]`;
+    const id = str(o.id, `${at}.id`);
     if (!isValidEntryId(id))
       throw new FormatError(
-        `manifest: "${name}[${i}].id" must start with a letter and use only letters, digits, "-" and "_" (got ${JSON.stringify(id)})`,
+        `manifest: "${at}.id" must start with a letter and use only letters, digits, "-" and "_" (got ${JSON.stringify(id)})`,
       );
     const entry: EditionEntry = {
       id,
-      titles: stringMap(o.titles, `${name}[${i}].titles`),
-      files: stringMap(o.files, `${name}[${i}].files`),
+      titles: stringMap(o.titles, `${at}.titles`),
+      files: stringMap(o.files, `${at}.files`),
     };
-    if (o.untranslated !== undefined) {
-      if (
-        !Array.isArray(o.untranslated) ||
-        !o.untranslated.every((l) => typeof l === "string" && l)
-      )
-        throw new FormatError(`manifest: "${name}[${i}].untranslated" must be a list of languages`);
-      entry.untranslated = o.untranslated as string[];
-    }
-    if (o.icon !== undefined) {
-      // Names this app does not know are kept (a newer app wrote them) and shown as no icon.
-      if (typeof o.icon !== "string" || !ICON_NAME.test(o.icon))
-        throw new FormatError(`manifest: "${name}[${i}].icon" must be an icon name`);
-      entry.icon = o.icon;
-    }
-    if (o.dropCap !== undefined) {
-      if (section !== "chapter")
-        throw new FormatError(`manifest: "${name}[${i}].dropCap" belongs on a chapter only`);
-      if (typeof o.dropCap !== "boolean")
-        throw new FormatError(`manifest: "${name}[${i}].dropCap" must be true or false`);
-      entry.dropCap = o.dropCap;
-    }
-    if (o.kind !== undefined) {
-      // Chapters have no kind, except a blank page the author put between two of them: it is a page of the book, not a chapter.
-      const ok =
-        section === "front"
-          ? isFrontMatterKind(o.kind)
-          : section === "back"
-            ? isBackMatterKind(o.kind)
-            : o.kind === "blank" || o.kind === "part";
-      if (!ok)
-        throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
-      entry.kind = o.kind as EntryKind;
-    }
-    if (entry.kind === "part" && entry.dropCap !== undefined)
-      throw new FormatError(`manifest: "${name}[${i}].dropCap" belongs on a chapter only`);
-    if (o.verticalCenter !== undefined) {
-      if (section === "chapter" || entry.kind === "contents" || entry.kind === "copyright")
-        throw new FormatError(
-          `manifest: "${name}[${i}].verticalCenter" belongs on a front or back matter page other than contents and copyright`,
-        );
-      if (typeof o.verticalCenter !== "boolean")
-        throw new FormatError(`manifest: "${name}[${i}].verticalCenter" must be true or false`);
-      entry.verticalCenter = o.verticalCenter;
-    }
-    if (o.startOnNext !== undefined) {
-      if (section === "chapter")
-        throw new FormatError(
-          `manifest: "${name}[${i}].startOnNext" belongs on a front or back matter page`,
-        );
-      if (typeof o.startOnNext !== "boolean")
-        throw new FormatError(`manifest: "${name}[${i}].startOnNext" must be true or false`);
-      entry.startOnNext = o.startOnNext;
-    }
-    if (o.toc !== undefined) {
-      if (entry.kind !== "contents")
-        throw new FormatError(`manifest: "${name}[${i}].toc" belongs on a contents page only`);
-      entry.toc = validateToc(o.toc, `${name}[${i}].toc`);
-    }
+    for (const apply of ENTRY_FIELDS) apply(o, entry, at, section);
     return entry;
   });
 }

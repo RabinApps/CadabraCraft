@@ -38,56 +38,75 @@ export function chapterDocProblem(doc: unknown): string | null {
     return errMsg(e);
   }
   // The schema's heading `levels` option only limits the editor's commands; the node spec itself accepts any level.
-  let bad: unknown = null;
-  let tableBad: string | null = null;
-  let badHref: string | null = null;
-  let badChecked = false;
-  let badDecorative = false;
-  let badLang: unknown = null;
-  let badComment: unknown = null;
-  let badScene: string | null = null;
-  let badAlign: string | null = null;
+  const found: (string | null)[] = NODE_CHECKS.map(() => null);
   const walk = (n: RawNode) => {
-    if (n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))) bad ??= n.attrs?.level;
-    for (const m of n.marks ?? [])
-      if (m.type === "link" && safeHref(String(m.attrs?.href ?? "")) === null)
-        badHref ??= String(m.attrs?.href ?? "");
-    for (const m of n.marks ?? [])
-      if (m.type === "lang" && !isLangTag(m.attrs?.lang)) badLang ??= m.attrs?.lang ?? "";
-    for (const m of n.marks ?? [])
-      if (m.type === "comment" && !isValidCommentId(m.attrs?.id)) badComment ??= m.attrs?.id ?? "";
-    if (
-      n.type === "taskItem" &&
-      n.attrs?.checked !== undefined &&
-      typeof n.attrs.checked !== "boolean"
-    )
-      badChecked = true;
-    if (
-      n.type === "image" &&
-      n.attrs?.decorative !== undefined &&
-      typeof n.attrs.decorative !== "boolean"
-    )
-      badDecorative = true;
-    if (n.type === "paragraph" || n.type === "heading")
-      badAlign ??= textAlignProblem(n.attrs?.textAlign);
-    if (n.type === "scene") badScene ??= sceneProblem(n);
-    if (n.type === "table") tableBad ??= tableProblem(n);
+    NODE_CHECKS.forEach((check, i) => {
+      found[i] ??= check(n);
+    });
     for (const c of n.content ?? []) walk(c);
   };
   walk(doc as RawNode);
-  if (bad !== null) return `heading level ${String(bad)} is not allowed (levels 1-3 only)`;
-  if (badHref !== null)
-    return `link ${JSON.stringify(badHref)} is not allowed (only http, https and mailto links)`;
-  if (badLang !== null)
-    return `language ${JSON.stringify(badLang)} is not allowed (a BCP 47 tag of letters, digits and hyphens, at most 35 characters)`;
-  if (badComment !== null)
-    return `comment ${JSON.stringify(badComment)} is not allowed (a thread id of a letter, then letters, digits, _ or -, at most 64 characters)`;
-  if (badScene !== null) return badScene;
-  if (badAlign !== null) return badAlign;
-  if (badChecked) return "a task item's checked value must be true or false";
-  if (badDecorative) return "an image's decorative value must be true or false";
-  return tableBad;
+  return found.find((f) => f !== null) ?? null;
 }
+
+type RawMark = NonNullable<RawNode["marks"]>[number];
+
+/** The first mark of `type` on `n` that `isBad` rejects, mapped to a message. */
+function markProblem(
+  n: RawNode,
+  type: string,
+  isBad: (m: RawMark) => boolean,
+  message: (m: RawMark) => string,
+): string | null {
+  const m = (n.marks ?? []).find((x) => x.type === type && isBad(x));
+  return m ? message(m) : null;
+}
+
+/** One check per kind of problem, in the order a problem is reported (the first node in document order wins within a kind). */
+const NODE_CHECKS: ((n: RawNode) => string | null)[] = [
+  (n) =>
+    n.type === "heading" && ![1, 2, 3].includes(Number(n.attrs?.level))
+      ? `heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`
+      : null,
+  (n) =>
+    markProblem(
+      n,
+      "link",
+      (m) => safeHref(String(m.attrs?.href ?? "")) === null,
+      (m) =>
+        `link ${JSON.stringify(String(m.attrs?.href ?? ""))} is not allowed (only http, https and mailto links)`,
+    ),
+  (n) =>
+    markProblem(
+      n,
+      "lang",
+      (m) => !isLangTag(m.attrs?.lang),
+      (m) =>
+        `language ${JSON.stringify(m.attrs?.lang ?? "")} is not allowed (a BCP 47 tag of letters, digits and hyphens, at most 35 characters)`,
+    ),
+  (n) =>
+    markProblem(
+      n,
+      "comment",
+      (m) => !isValidCommentId(m.attrs?.id),
+      (m) =>
+        `comment ${JSON.stringify(m.attrs?.id ?? "")} is not allowed (a thread id of a letter, then letters, digits, _ or -, at most 64 characters)`,
+    ),
+  (n) => (n.type === "scene" ? sceneProblem(n) : null),
+  (n) =>
+    n.type === "paragraph" || n.type === "heading" ? textAlignProblem(n.attrs?.textAlign) : null,
+  (n) =>
+    n.type === "taskItem" && n.attrs?.checked !== undefined && typeof n.attrs.checked !== "boolean"
+      ? "a task item's checked value must be true or false"
+      : null,
+  (n) =>
+    n.type === "image" &&
+    n.attrs?.decorative !== undefined &&
+    typeof n.attrs.decorative !== "boolean"
+      ? "an image's decorative value must be true or false"
+      : null,
+  (n) => (n.type === "table" ? tableProblem(n) : null),
+];
 
 /** True for a real calendar day `YYYY-MM-DD`, optionally with a 24-hour time `THH:MM`. Fantasy calendars are not modelled. */
 export function isStoryDate(value: unknown): value is string {
@@ -121,12 +140,24 @@ function sceneProblem(scene: RawNode): string | null {
     if (v !== undefined && (typeof v !== "string" || v.length > max))
       return `a scene's ${key} must be text of at most ${max} characters`;
   }
+  return (
+    sceneStatusProblem(a) ?? sceneTargetProblem(a) ?? sceneDateProblem(a) ?? sceneCastProblem(a)
+  );
+}
+
+type Attrs = Record<string, unknown>;
+
+function sceneStatusProblem(a: Attrs): string | null {
   if (
     a.status !== undefined &&
     a.status !== "" &&
     !SCENE_STATUSES.includes(a.status as (typeof SCENE_STATUSES)[number])
   )
     return `scene status ${JSON.stringify(a.status)} is not allowed (outline, draft, revised, final, or empty)`;
+  return null;
+}
+
+function sceneTargetProblem(a: Attrs): string | null {
   if (
     a.target !== undefined &&
     a.target !== null &&
@@ -136,19 +167,26 @@ function sceneProblem(scene: RawNode): string | null {
       a.target > MAX_SCENE_TARGET)
   )
     return `a scene's target must be a whole number of words from 0 to ${MAX_SCENE_TARGET}, or null`;
+  return null;
+}
+
+function sceneDateProblem(a: Attrs): string | null {
   if (a.date !== undefined && a.date !== "" && !isStoryDate(a.date))
     return `a scene's date must be YYYY-MM-DD with an optional THH:MM, or empty (got ${JSON.stringify(a.date)})`;
-  if (a.cast !== undefined) {
-    if (!Array.isArray(a.cast)) return "a scene's cast must be a list of codex entry ids";
-    if (a.cast.length > MAX_SCENE_CAST)
-      return `a scene's cast holds ${a.cast.length} ids; the most is ${MAX_SCENE_CAST}`;
-    const seen = new Set<string>();
-    for (const id of a.cast) {
-      if (!isValidEntryId(String(id)))
-        return `scene cast ${JSON.stringify(id)} is not allowed (a letter, then letters, digits, _ or -, at most 64 characters)`;
-      if (seen.has(String(id))) return `scene cast repeats ${JSON.stringify(id)}`;
-      seen.add(String(id));
-    }
+  return null;
+}
+
+function sceneCastProblem(a: Attrs): string | null {
+  if (a.cast === undefined) return null;
+  if (!Array.isArray(a.cast)) return "a scene's cast must be a list of codex entry ids";
+  if (a.cast.length > MAX_SCENE_CAST)
+    return `a scene's cast holds ${a.cast.length} ids; the most is ${MAX_SCENE_CAST}`;
+  const seen = new Set<string>();
+  for (const id of a.cast) {
+    if (!isValidEntryId(String(id)))
+      return `scene cast ${JSON.stringify(id)} is not allowed (a letter, then letters, digits, _ or -, at most 64 characters)`;
+    if (seen.has(String(id))) return `scene cast repeats ${JSON.stringify(id)}`;
+    seen.add(String(id));
   }
   return null;
 }

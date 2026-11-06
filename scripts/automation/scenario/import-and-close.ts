@@ -2,19 +2,13 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
-export async function importAndCloseSteps({
-  app,
-  imported,
-  src,
-  importedDocx,
-  importedHtml,
-  docxBefore,
-  mdBefore,
-  shot,
-  dlg,
-  exportVia,
-  step,
-}: Context) {
+export async function importAndCloseSteps(ctx: Context) {
+  await importAndClosePart1(ctx);
+  await importAndClosePart2(ctx);
+}
+
+async function importAndClosePart1(ctx: Context) {
+  const { app, imported, src, importedDocx, docxBefore, mdBefore, shot, dlg, step } = ctx;
   await step(
     "import Markdown into a new project; source untouched; warnings reported",
     async () => {
@@ -102,7 +96,10 @@ export async function importAndCloseSteps({
       await shot("06-import-docx-report");
     },
   );
+}
 
+async function importAndClosePart2(ctx: Context) {
+  const { app, imported, src, importedHtml, shot, exportVia, step } = ctx;
   await step(
     "import a real .html file through the wizard; scripts never reach the chapter",
     async () => {

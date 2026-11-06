@@ -115,6 +115,33 @@ const usesChapterOpening = (e: PageEntryInput): boolean =>
   e.section === "chapter" || (!OWN_OPENING.includes(e.kind) && e.centred !== true);
 
 /**
+ * Whether the entry must open on a right-hand page. The author's "right-hand page" wins over every rule and adds the blank page
+ * where the rules would have left it on a verso. A blank page the author added is already that blank page: it follows the page
+ * before it, prints nothing and never gets a blank page of its own.
+ */
+function isRecto(
+  e: PageEntryInput,
+  previous: EntryKind | undefined,
+  restart: boolean,
+  startsOn: "recto" | "any",
+): boolean {
+  if (e.kind === "blank") return false;
+  return (
+    e.startOnNext === false ||
+    restart ||
+    ALWAYS_RECTO.includes(e.kind) ||
+    BLANK_VERSO_AFTER.includes(previous) ||
+    (startsOn === "recto" && usesChapterOpening(e))
+  );
+}
+
+/** The physical page the entry starts on: the author's, else the next free page (the one after, for a recto that would be a verso). */
+function startPage(e: PageEntryInput, next: number, recto: boolean): number {
+  if (e.start !== undefined) return Math.max(e.start, 1);
+  return recto && e.startOnNext !== true && next % 2 === 0 ? next + 1 : next;
+}
+
+/**
  * Places every entry of the book, in reading order. `numbered` false is a book printed without page numbers. `total` is the page
  * count the whole book really has (Typst's, when its report is current): it wins over what the entries add up to, which can be
  * short when blank pages follow the last entry.
@@ -134,19 +161,7 @@ export function layoutBook(
   for (const e of entries) {
     // A blank page never restarts the arabic count: the first page after the front matter that has text does.
     const restart = hasFront && arabicFrom === null && e.section !== "front" && e.kind !== "blank";
-    // The author's "right-hand page" wins over every rule and adds the blank page where the rules would have left it on a verso.
-    // A blank page the author added is already that blank page: it follows the page before it, prints nothing and never gets a
-    // blank page of its own.
-    const recto =
-      e.kind !== "blank" &&
-      (e.startOnNext === false ||
-        restart ||
-        ALWAYS_RECTO.includes(e.kind) ||
-        BLANK_VERSO_AFTER.includes(previous) ||
-        (opts.startsOn === "recto" && usesChapterOpening(e)));
-    let start = next;
-    if (e.start !== undefined) start = Math.max(e.start, 1);
-    else if (recto && e.startOnNext !== true && start % 2 === 0) start += 1;
+    const start = startPage(e, next, isRecto(e, previous, restart, opts.startsOn));
     if (restart) arabicFrom = start;
     const pages = Math.max(1, e.pages);
     placed.push({

@@ -3,7 +3,13 @@ import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
 /** Language editions: add French, write in it, switch back and forth, and pick up an outside edit of a translation file. */
-export async function editionsSteps({ app, book, shot, dlg, step, status, runMenu }: Context) {
+export async function editionsSteps(ctx: Context) {
+  await editionsPart1(ctx);
+  await editionsPart2(ctx);
+}
+
+/** The page-level helpers both edition parts use. */
+function editionHelpers({ app, book }: Context) {
   const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
   const switcher = `[...document.querySelectorAll("button")].find((b) => (b.getAttribute("aria-label") ?? "").startsWith("Edition:"))`;
   const openSwitcher = () =>
@@ -18,7 +24,12 @@ export async function editionsSteps({ app, book, shot, dlg, step, status, runMen
   const label = () => app.js<string>(`${switcher}?.getAttribute("aria-label") ?? ""`);
   const editorText = () =>
     app.js<string>(`document.querySelector(".ProseMirror")?.textContent ?? ""`);
+  return { manifest, switcher, openSwitcher, pick, label, editorText };
+}
 
+async function editionsPart1(ctx: Context) {
+  const { app, book, shot, dlg, step } = ctx;
+  const { manifest, openSwitcher, pick, label } = editionHelpers(ctx);
   await step(
     "add a French edition: the switcher shows it, its files are written under manuscript/fr, and typing goes to the French file only",
     async () => {
@@ -70,7 +81,11 @@ export async function editionsSteps({ app, book, shot, dlg, step, status, runMen
       return chapter.files.fr;
     },
   );
+}
 
+async function editionsPart2(ctx: Context) {
+  const { app, book, step, status, runMenu } = ctx;
+  const { manifest, openSwitcher, pick, label, editorText } = editionHelpers(ctx);
   await step(
     "switching back shows the source text; an outside edit of the open French file reloads it",
     async () => {
