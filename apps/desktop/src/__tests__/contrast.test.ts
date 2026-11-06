@@ -84,7 +84,7 @@ describe.each([
 // "Increase contrast" (prefers-contrast: more) restates two tokens in index.css: the hairline --border becomes --border-strong
 // and --ink-muted becomes --ink. The pairs are checked after that override, read from the style sheet so a change there
 // is caught (a11y-forced-colors.spec.ts measures the same in a browser).
-const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+const indexCss = readFileSync(new URL("../styles/contrast.css", import.meta.url), "utf8");
 const moreBlock = indexCss.slice(indexCss.indexOf("@media (prefers-contrast: more)"));
 const overrides = Object.fromEntries(
   [...moreBlock.slice(0, moreBlock.indexOf("}")).matchAll(/--([\w-]+):\s*var\(--([\w-]+)\)/g)].map(

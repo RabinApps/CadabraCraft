@@ -8,9 +8,17 @@ import { describe, expect, it } from "vitest";
  * (also listed in docs/architecture.md, "Right-to-left layout").
  */
 const ALLOWED: Record<string, { max: number; why: string }> = {
-  "index.css": {
+  "styles/blocks.css": {
     max: 10,
     why: "Page view sheet, page card and drop cap geometry is physical (left/right pages)",
+  },
+  "styles/pages.css": {
+    max: 10,
+    why: "Page view sheet, page card and drop cap geometry is physical (left/right pages)",
+  },
+  "styles/theme.css": {
+    max: 10,
+    why: "The --z-float stacking token is not a direction (the word float matches)",
   },
   "editor/PageFrame.tsx": {
     max: 2,
