@@ -183,128 +183,75 @@ impl BodyBuilder {
         (num_id, ilvl)
     }
 
-    pub fn paragraph(&mut self, ctx: &mut DCtx, p: &XNode) {
-        let ppr = child(p, "pPr");
-        let mut st = PState::new(false);
-        paragraph_children(ctx, &mut st, kids(p), None);
+    /// Notes the section and page breaks of a paragraph's properties (both are ignored on import).
+    fn warn_breaks(ctx: &mut DCtx, ppr: Option<&XNode>) {
+        let Some(ppr) = ppr else { return };
+        if child(ppr, "sectPr").is_some() {
+            ctx.warn.tally("section-break", Severity::Info, "Section breaks are ignored; use scene breaks for separations.", None);
+        }
+        if on(child(ppr, "pageBreakBefore")) {
+            ctx.warn.tally("page-break", Severity::Info, "Page and column breaks are ignored; use scene breaks for separations.", None);
+        }
+    }
 
-        if let Some(ppr) = ppr {
-            if child(ppr, "sectPr").is_some() {
-                ctx.warn.tally("section-break", Severity::Info, "Section breaks are ignored; use scene breaks for separations.", None);
-            }
-            if on(child(ppr, "pageBreakBefore")) {
-                ctx.warn.tally("page-break", Severity::Info, "Page and column breaks are ignored; use scene breaks for separations.", None);
-            }
-        }
-        let style_id = ppr.and_then(|p| child_val(p, "pStyle"));
-        let mut cls = classify(style_id, &ctx.styles);
-        if let Cls::Normal { fallback: Some(name) } = &cls {
-            ctx.warn.tally("style-fallback", Severity::Info, "Custom paragraph styles were imported as normal paragraphs.", Some(name));
-        }
-
-        // Code paragraphs hold plain text only; one with a footnote or an image is kept as a normal paragraph instead of losing them.
-        let has_rich = st.items.iter().any(|i| match i {
-            Item::Block(_) => true,
-            Item::Break => false,
-            Item::Node(n) => n.is("footnote"),
-        });
-        if cls == Cls::Code && has_rich {
-            cls = Cls::Normal { fallback: None };
-        }
-        if !matches!(cls, Cls::DefTerm | Cls::DefDesc) {
-            self.flush_defs();
-        }
-        if cls == Cls::Code {
-            self.flush_list();
-            self.flush_quote();
-            let mut line = String::new();
-            for i in &st.items {
-                match i {
-                    Item::Node(n) => line.push_str(&plain_text(std::slice::from_ref(n))),
-                    Item::Break | Item::Block(_) => self.code.push(std::mem::take(&mut line)),
-                }
-            }
-            self.code.push(line);
-            return;
-        }
-        self.flush_code();
-
-        // list membership via numPr (paragraph first, then style)
-        if matches!(cls, Cls::Normal { .. } | Cls::List { .. }) {
-            let (num_id, ilvl) = Self::numbering_of(ctx, ppr, style_id);
-            if let Some(num_id) = num_id {
-                if let Some(ordered) = ctx.numbering.ordered(&num_id, ilvl) {
-                    cls = Cls::List { ordered, level: js_min(js_max(ilvl, 0.0), self.max_level), checked: None };
-                }
+    /// Adds a code paragraph's lines: a line break ends a line, a lifted block does too.
+    fn push_code(&mut self, items: &[Item]) {
+        self.flush_list();
+        self.flush_quote();
+        let mut line = String::new();
+        for i in items {
+            match i {
+                Item::Node(n) => line.push_str(&plain_text(std::slice::from_ref(n))),
+                Item::Break | Item::Block(_) => self.code.push(std::mem::take(&mut line)),
             }
         }
+        self.code.push(line);
+    }
 
-        // A paragraph that begins with a Word checkbox control is a task item (nested by its list level or its indent).
-        if let (Some(checked), true) = (st.checkbox, matches!(cls, Cls::Normal { .. } | Cls::List { .. })) {
-            let level = match &cls {
-                Cls::List { level, .. } => *level,
-                _ => {
-                    let left = ppr.and_then(|p| child(p, "ind")).map_or(0.0, |ind| attr(ind, "left").or_else(|| attr(ind, "start")).map_or(0.0, js_number));
-                    js_min(js_max(js_round(left / 720.0) - 1.0, 0.0), self.max_level)
-                }
-            };
-            cls = Cls::List { ordered: false, level, checked: Some(checked) };
-            if let Some(Item::Node(first)) = st.items.first_mut() {
-                if first.is("text") {
-                    first.text = first.text.take().map(|t| t.trim_start_matches(is_js_space).to_string());
-                }
+    /// A paragraph that begins with a Word checkbox control is a task item (nested by its list level or its indent).
+    fn task_class(&self, cls: Cls, checked: bool, ppr: Option<&XNode>, st: &mut PState) -> Cls {
+        let level = match &cls {
+            Cls::List { level, .. } => *level,
+            _ => {
+                let left = ppr.and_then(|p| child(p, "ind")).map_or(0.0, |ind| attr(ind, "left").or_else(|| attr(ind, "start")).map_or(0.0, js_number));
+                js_min(js_max(js_round(left / 720.0) - 1.0, 0.0), self.max_level)
             }
-        }
-
-        let inline: Vec<Node> = st.items.iter().filter_map(|i| if let Item::Node(n) = i { Some(n.clone()) } else { None }).collect();
-        let text = plain_text(&inline);
-        let jc = ppr.and_then(|p| child_val(p, "jc"));
-        // Only a paragraph's own centre or right is the author's choice. Left (start, justified) is what the style says, which
-        // generators write on every paragraph, so reading it would make a whole book ragged.
-        let align = match jc {
-            Some("center") => Some("center"),
-            Some("right" | "end") => Some("end"),
-            _ => None,
         };
-        let has_blocks = st.items.iter().any(|i| matches!(i, Item::Block(_)));
-
-        if matches!(cls, Cls::Normal { .. }) && jc == Some("center") && !has_blocks && is_scene_break_text(js_trim(&text)) {
-            self.flush();
-            self.out.push(Node::new("sceneBreak"));
-            return;
-        }
-
-        if let Cls::Heading(h) = cls {
-            self.flush();
-            let mut level = h;
-            if level > 3 {
-                ctx.warn.tally("heading-clamped", Severity::Warning, "Headings deeper than level 3 were changed to level 3.", Some(&format!("Heading {level}: {text}")));
-                level = 3;
+        if let Some(Item::Node(first)) = st.items.first_mut() {
+            if first.is("text") {
+                first.text = first.text.take().map(|t| t.trim_start_matches(is_js_space).to_string());
             }
-            let flat = flatten_items(&st.items);
-            if !js_trim(&plain_text(&flat)).is_empty() || flat.iter().any(|n| n.is("footnote")) {
-                self.out.push(Node::with_attrs("heading", Attrs::Heading { level, align }, flat));
-            }
-            for i in st.items {
-                if let Item::Block(n) = i {
-                    self.out.push(n);
-                }
-            }
-            return;
         }
+        Cls::List { ordered: false, level, checked: Some(checked) }
+    }
 
-        let (blocks, broke_lines) = split_items(&st.items);
-        let blocks: Vec<Node> = blocks.into_iter().map(|b| b.aligned(align)).collect();
-        if broke_lines {
-            ctx.warn.tally("line-break", Severity::Info, "Manual line breaks split the paragraph into separate paragraphs.", None);
+    /// A heading: deeper than level 3 is clamped (with a warning); lifted blocks follow it.
+    fn push_heading(&mut self, ctx: &mut DCtx, h: u8, text: &str, align: Option<&'static str>, items: Vec<Item>) {
+        self.flush();
+        let mut level = h;
+        if level > 3 {
+            ctx.warn.tally("heading-clamped", Severity::Warning, "Headings deeper than level 3 were changed to level 3.", Some(&format!("Heading {level}: {text}")));
+            level = 3;
         }
+        let flat = flatten_items(&items);
+        if !js_trim(&plain_text(&flat)).is_empty() || flat.iter().any(|n| n.is("footnote")) {
+            self.out.push(Node::with_attrs("heading", Attrs::Heading { level, align }, flat));
+        }
+        for i in items {
+            if let Item::Block(n) = i {
+                self.out.push(n);
+            }
+        }
+    }
 
+    /// Files the paragraph's blocks under its class: a definition, a list item, a quote or the body.
+    fn push_classified(&mut self, cls: Cls, blocks: Vec<Node>, items: Vec<Item>) {
         match cls {
             Cls::DefTerm => {
                 self.flush_list();
                 self.flush_quote();
-                self.defs.push(DefinitionEntry::Term(flatten_items(&st.items)));
-                let lifted: Vec<Node> = st.items.into_iter().filter_map(|i| if let Item::Block(n) = i { Some(n) } else { None }).collect();
+                self.defs.push(DefinitionEntry::Term(flatten_items(&items)));
+                let lifted: Vec<Node> = items.into_iter().filter_map(|i| if let Item::Block(n) = i { Some(n) } else { None }).collect();
                 if !lifted.is_empty() {
                     self.defs.push(DefinitionEntry::Desc(lifted));
                 }
@@ -336,6 +283,80 @@ impl BodyBuilder {
                 self.out.extend(blocks);
             }
         }
+    }
+
+    pub fn paragraph(&mut self, ctx: &mut DCtx, p: &XNode) {
+        let ppr = child(p, "pPr");
+        let mut st = PState::new(false);
+        paragraph_children(ctx, &mut st, kids(p), None);
+        Self::warn_breaks(ctx, ppr);
+        let style_id = ppr.and_then(|p| child_val(p, "pStyle"));
+        let mut cls = classify(style_id, &ctx.styles);
+        if let Cls::Normal { fallback: Some(name) } = &cls {
+            ctx.warn.tally("style-fallback", Severity::Info, "Custom paragraph styles were imported as normal paragraphs.", Some(name));
+        }
+
+        // Code paragraphs hold plain text only; one with a footnote or an image is kept as a normal paragraph instead of losing them.
+        let has_rich = st.items.iter().any(|i| match i {
+            Item::Block(_) => true,
+            Item::Break => false,
+            Item::Node(n) => n.is("footnote"),
+        });
+        if cls == Cls::Code && has_rich {
+            cls = Cls::Normal { fallback: None };
+        }
+        if !matches!(cls, Cls::DefTerm | Cls::DefDesc) {
+            self.flush_defs();
+        }
+        if cls == Cls::Code {
+            self.push_code(&st.items);
+            return;
+        }
+        self.flush_code();
+
+        // list membership via numPr (paragraph first, then style)
+        if matches!(cls, Cls::Normal { .. } | Cls::List { .. }) {
+            let (num_id, ilvl) = Self::numbering_of(ctx, ppr, style_id);
+            if let Some(num_id) = num_id {
+                if let Some(ordered) = ctx.numbering.ordered(&num_id, ilvl) {
+                    cls = Cls::List { ordered, level: js_min(js_max(ilvl, 0.0), self.max_level), checked: None };
+                }
+            }
+        }
+
+        if let (Some(checked), true) = (st.checkbox, matches!(cls, Cls::Normal { .. } | Cls::List { .. })) {
+            cls = self.task_class(cls, checked, ppr, &mut st);
+        }
+
+        let inline: Vec<Node> = st.items.iter().filter_map(|i| if let Item::Node(n) = i { Some(n.clone()) } else { None }).collect();
+        let text = plain_text(&inline);
+        let jc = ppr.and_then(|p| child_val(p, "jc"));
+        // Only a paragraph's own centre or right is the author's choice. Left (start, justified) is what the style says, which
+        // generators write on every paragraph, so reading it would make a whole book ragged.
+        let align = match jc {
+            Some("center") => Some("center"),
+            Some("right" | "end") => Some("end"),
+            _ => None,
+        };
+        let has_blocks = st.items.iter().any(|i| matches!(i, Item::Block(_)));
+
+        if matches!(cls, Cls::Normal { .. }) && jc == Some("center") && !has_blocks && is_scene_break_text(js_trim(&text)) {
+            self.flush();
+            self.out.push(Node::new("sceneBreak"));
+            return;
+        }
+
+        if let Cls::Heading(h) = cls {
+            self.push_heading(ctx, h, &text, align, st.items);
+            return;
+        }
+
+        let (blocks, broke_lines) = split_items(&st.items);
+        let blocks: Vec<Node> = blocks.into_iter().map(|b| b.aligned(align)).collect();
+        if broke_lines {
+            ctx.warn.tally("line-break", Severity::Info, "Manual line breaks split the paragraph into separate paragraphs.", None);
+        }
+        self.push_classified(cls, blocks, st.items);
     }
 
     fn table(&mut self, ctx: &mut DCtx, t: &XNode) {

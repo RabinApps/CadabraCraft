@@ -18,6 +18,43 @@ import type { Ctx } from "./context";
 /** Where one page's threads live: beside the book (`comments/<page-id>.json`), synced and readable without the app. */
 export const commentsFile = (pageId: string): string => `comments/${pageId}.json`;
 
+/** The store patch for one page's sidecar: its threads, or an empty list plus an alert when the file cannot be opened (the file is left as it is). */
+const readThreads = async (root: string, pageId: string) => {
+  const none = { comments: [] as CommentThread[], commentsPageId: pageId };
+  let read: Awaited<ReturnType<typeof bridge.readFile>>;
+  try {
+    read = await bridge.readFile(root, commentsFile(pageId));
+  } catch (e) {
+    return {
+      ...alertOf(
+        t`The comments for this page could not be read: ${whyText(e)}. The file was left as it is.`,
+      ),
+      ...none,
+    };
+  }
+  if (!read) return none;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(read.contents);
+  } catch {
+    return {
+      ...alertOf(
+        t`The comments for this page are not valid JSON, so they were not opened. The file was left untouched.`,
+      ),
+      ...none,
+    };
+  }
+  const problem = commentsProblem(parsed);
+  if (problem)
+    return {
+      ...alertOf(
+        t`The comments for this page could not be opened: ${problem}. The file was left untouched.`,
+      ),
+      ...none,
+    };
+  return { ...none, comments: (parsed as CommentsFile).threads };
+};
+
 /** Comments for the open page: read the sidecar, add a thread, reply, resolve. Every change is written at once. */
 export const createCommentActions = (ctx: Ctx): CommentActions => {
   const { set, get, need, writePage } = ctx;
@@ -63,49 +100,7 @@ export const createCommentActions = (ctx: Ctx): CommentActions => {
         set({ comments: [], commentsPageId: null });
         return;
       }
-      const { root } = need();
-      let read: Awaited<ReturnType<typeof bridge.readFile>>;
-      try {
-        read = await bridge.readFile(root, commentsFile(pageId));
-      } catch (e) {
-        set({
-          ...alertOf(
-            t`The comments for this page could not be read: ${whyText(e)}. The file was left as it is.`,
-          ),
-          comments: [],
-          commentsPageId: pageId,
-        });
-        return;
-      }
-      if (!read) {
-        set({ comments: [], commentsPageId: pageId });
-        return;
-      }
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(read.contents);
-      } catch {
-        set({
-          ...alertOf(
-            t`The comments for this page are not valid JSON, so they were not opened. The file was left untouched.`,
-          ),
-          comments: [],
-          commentsPageId: pageId,
-        });
-        return;
-      }
-      const problem = commentsProblem(parsed);
-      if (problem) {
-        set({
-          ...alertOf(
-            t`The comments for this page could not be opened: ${problem}. The file was left untouched.`,
-          ),
-          comments: [],
-          commentsPageId: pageId,
-        });
-        return;
-      }
-      set({ comments: (parsed as CommentsFile).threads, commentsPageId: pageId });
+      set(await readThreads(need().root, pageId));
     },
     async addComment(threadId, body) {
       const pageId = get().commentsPageId ?? get().currentId;
