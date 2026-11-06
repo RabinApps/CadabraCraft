@@ -26,8 +26,8 @@ import {
   tagOf,
   type XNode,
 } from "./xml";
-import { classify } from "./styles";
-import { numberingFor } from "./numbering";
+import { classify, type Cls } from "./styles";
+import { alignOf, warnBreaks, withListMembership, withTaskItem } from "./paragraph";
 import { paragraphChildren } from "./runs";
 import type { DCtx, PState } from "./types";
 
@@ -102,6 +102,19 @@ function splitItems(items: Item[]): { blocks: DocNode[]; brokeLines: boolean } {
   return { blocks, brokeLines };
 }
 
+/** Body children that carry nothing to import. */
+const IGNORED_BODY_TAGS = new Set<string | undefined>([
+  "sectPr",
+  "bookmarkStart",
+  "bookmarkEnd",
+  "proofErr",
+  "commentRangeStart",
+  "commentRangeEnd",
+  "permStart",
+  "permEnd",
+  "#text",
+]);
+
 export class BodyBuilder {
   out: DocNode[] = [];
   private list: ListEntry[] = [];
@@ -147,20 +160,7 @@ export class BodyBuilder {
     const st: PState = { ctx, items: [], fields: [], inNote: false };
     paragraphChildren(kids(p), undefined, st);
 
-    if (pPr) {
-      if (child(pPr, "sectPr"))
-        ctx.warn.tally(
-          "section-break",
-          "info",
-          "Section breaks are ignored; use scene breaks for separations.",
-        );
-      if (on(child(pPr, "pageBreakBefore")))
-        ctx.warn.tally(
-          "page-break",
-          "info",
-          "Page and column breaks are ignored; use scene breaks for separations.",
-        );
-    }
+    warnBreaks(pPr, ctx);
     const styleId = pPr ? attr(child(pPr, "pStyle") ?? {}, "val") : undefined;
     let cls = classify(styleId, ctx);
     if (cls.kind === "normal" && cls.fallback) {
@@ -180,66 +180,18 @@ export class BodyBuilder {
       cls = { kind: "normal" };
     if (cls.kind !== "defTerm" && cls.kind !== "defDesc") this.flushDefs();
     if (cls.kind === "code") {
-      this.flushList();
-      this.flushQuote();
-      let line = "";
-      for (const i of st.items) {
-        if (!isSep(i)) line += plainText([i]);
-        else {
-          this.code.push(line);
-          line = "";
-        }
-      }
-      this.code.push(line);
+      this.codeParagraph(st);
       return;
     }
     this.flushCode();
 
     // list membership via numPr (paragraph first, then style)
-    if (cls.kind === "normal" || cls.kind === "list") {
-      const numPr = pPr ? child(pPr, "numPr") : undefined;
-      let numId = numPr ? attr(child(numPr, "numId") ?? {}, "val") : undefined;
-      let ilvl = numPr ? Number(attr(child(numPr, "ilvl") ?? {}, "val") ?? 0) : 0;
-      if (numId === undefined && styleId) {
-        let sid: string | undefined = styleId;
-        for (let i = 0; i < 12 && sid && numId === undefined; i++) {
-          const s = ctx.styles.get(sid);
-          if (s?.numId !== undefined) {
-            numId = s.numId;
-            // A style that has a numId always has an ilvl too (both come from the same numPr), so the fallback is unreachable.
-            /* v8 ignore next -- @preserve */
-            ilvl = s.ilvl ?? 0;
-          }
-          sid = s?.basedOn;
-        }
-      }
-      if (numId !== undefined) {
-        const ordered = numberingFor(numId, ilvl, ctx);
-        if (ordered !== null)
-          cls = { kind: "list", ordered, level: Math.min(Math.max(ilvl, 0), this.maxLevel) };
-      }
-    }
-
-    // A paragraph that begins with a Word checkbox control is a task item (nested by its list level or its indent).
-    if ((cls.kind === "normal" || cls.kind === "list") && st.checkbox !== undefined) {
-      const ind = pPr ? child(pPr, "ind") : undefined;
-      const left = Number(ind ? (attr(ind, "left") ?? attr(ind, "start") ?? 0) : 0);
-      const level =
-        cls.kind === "list"
-          ? cls.level
-          : Math.min(Math.max(Math.round(left / 720) - 1, 0), this.maxLevel);
-      cls = { kind: "list", ordered: false, level, checked: st.checkbox };
-      const first = st.items[0];
-      if (first && !isSep(first) && first.type === "text")
-        st.items[0] = { ...first, text: first.text.replace(/^\s+/, "") };
-    }
+    cls = withListMembership(cls, pPr, styleId, ctx, this.maxLevel);
+    cls = withTaskItem(cls, pPr, st, this.maxLevel);
 
     const text = plainText(st.items.filter((i): i is DocNode => !isSep(i)));
     const jc = pPr ? attr(child(pPr, "jc") ?? {}, "val") : undefined;
-    // Only a paragraph's own centre or right is the author's choice. Left (and start, and justified) is what the style says, which
-    // generators write on every paragraph, so reading it would make a whole book ragged.
-    const align: TextAlign | null =
-      jc === "center" ? "center" : jc === "right" || jc === "end" ? "end" : null;
+    const align = alignOf(jc);
     const hasBlocks = st.items.some((i) => isSep(i) && i.sep === "block");
 
     if (
@@ -254,32 +206,59 @@ export class BodyBuilder {
     }
 
     if (cls.kind === "heading") {
-      this.flush();
-      let level = cls.level;
-      if (level > 3) {
-        ctx.warn.tally(
-          "heading-clamped",
-          "warning",
-          "Headings deeper than level 3 were changed to level 3.",
-          `Heading ${level}: ${text}`,
-        );
-        level = 3;
-      }
-      const flat = flattenItems(st.items);
-      if (plainText(flat).trim() !== "" || flat.some((n) => n.type === "footnote"))
-        this.out.push({
-          type: "heading",
-          attrs: { level, ...(align ? { textAlign: align } : {}) },
-          content: flat,
-        });
-      for (const i of st.items) if (isSep(i) && i.sep === "block") this.out.push(i.node);
+      this.headingParagraph(cls.level, st, align, text);
       return;
     }
+    this.placeParagraph(cls, st, align);
+  }
 
+  private codeParagraph(st: PState): void {
+    this.flushList();
+    this.flushQuote();
+    let line = "";
+    for (const i of st.items) {
+      if (!isSep(i)) line += plainText([i]);
+      else {
+        this.code.push(line);
+        line = "";
+      }
+    }
+    this.code.push(line);
+  }
+
+  private headingParagraph(
+    headingLevel: number,
+    st: PState,
+    align: TextAlign | null,
+    text: string,
+  ): void {
+    this.flush();
+    let level = headingLevel;
+    if (level > 3) {
+      this.ctx.warn.tally(
+        "heading-clamped",
+        "warning",
+        "Headings deeper than level 3 were changed to level 3.",
+        `Heading ${level}: ${text}`,
+      );
+      level = 3;
+    }
+    const flat = flattenItems(st.items);
+    if (plainText(flat).trim() !== "" || flat.some((n) => n.type === "footnote"))
+      this.out.push({
+        type: "heading",
+        attrs: { level, ...(align ? { textAlign: align } : {}) },
+        content: flat,
+      });
+    for (const i of st.items) if (isSep(i) && i.sep === "block") this.out.push(i.node);
+  }
+
+  /** Files the paragraph's blocks where its kind says: in a list, a quote, a definition, or the body. */
+  private placeParagraph(cls: Cls, st: PState, align: TextAlign | null): void {
     const { blocks: plain, brokeLines } = splitItems(st.items);
     const blocks = align ? plain.map((b) => withAlign(b, align)) : plain;
     if (brokeLines)
-      ctx.warn.tally(
+      this.ctx.warn.tally(
         "line-break",
         "info",
         "Manual line breaks split the paragraph into separate paragraphs.",
@@ -370,50 +349,26 @@ export class BodyBuilder {
   walk(list: XNode[], depth = 0): void {
     if (depth > MAX_XML_DEPTH) return;
     for (const n of list) {
-      switch (tagOf(n)) {
-        case "p":
-          this.paragraph(n);
-          break;
-        case "tbl":
-          this.table(n);
-          break;
-        case "sdt":
-          this.walk(kids(child(n, "sdtContent") ?? {}), depth + 1);
-          break;
-        case "sdtContent":
-        case "customXml":
-          this.walk(kids(n), depth + 1);
-          break;
-        case "ins":
-          this.walk(kids(n), depth + 1);
-          break;
-        case "del":
-        case "moveFrom":
-          this.ctx.warn.tally(
-            "tracked-changes",
-            "warning",
-            "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
-            rawText(n),
-          );
-          break;
-        case "sectPr":
-        case "bookmarkStart":
-        case "bookmarkEnd":
-        case "proofErr":
-        case "commentRangeStart":
-        case "commentRangeEnd":
-        case "permStart":
-        case "permEnd":
-        case "#text":
-          break;
-        default:
-          this.ctx.warn.tally(
-            "unsupported-element",
-            "warning",
-            "Unrecognised document elements were skipped.",
-            tagOf(n),
-          );
-      }
+      const tag = tagOf(n);
+      if (tag === "p") this.paragraph(n);
+      else if (tag === "tbl") this.table(n);
+      else if (tag === "sdt") this.walk(kids(child(n, "sdtContent") ?? {}), depth + 1);
+      else if (tag === "sdtContent" || tag === "customXml" || tag === "ins")
+        this.walk(kids(n), depth + 1);
+      else if (tag === "del" || tag === "moveFrom")
+        this.ctx.warn.tally(
+          "tracked-changes",
+          "warning",
+          "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
+          rawText(n),
+        );
+      else if (!IGNORED_BODY_TAGS.has(tag))
+        this.ctx.warn.tally(
+          "unsupported-element",
+          "warning",
+          "Unrecognised document elements were skipped.",
+          tag,
+        );
     }
   }
 }

@@ -194,29 +194,36 @@ function aligned(n: DocNode, md: string, ctx: Ctx, top: boolean): string {
   return `<div align="${ALIGN_ATTR[align]}">\n\n${md}\n\n</div>`;
 }
 
+function heading(n: DocNode, kids: DocNode[] | undefined, ctx: Ctx, top: boolean): string {
+  const attrs = attrsOf(n);
+  const level = Number(attrs.level ?? 1);
+  if (![1, 2, 3].includes(level))
+    throw new MarkdownExportError(
+      `Heading level ${String(attrs.level)} is not allowed (levels 1-3 only)`,
+    );
+  const text = inline(kids, ctx, { heading: true }).replace(/(\s)(#+)$/, "$1\\$2");
+  return aligned(n, `${"#".repeat(level)}${text ? ` ${text}` : ""}`, ctx, top);
+}
+
+function blockquote(kids: DocNode[] | undefined, ctx: Ctx): string {
+  const inner = blockList(kids, ctx).join("\n\n");
+  return inner === ""
+    ? ">"
+    : inner
+        .split("\n")
+        .map((l) => (l === "" ? ">" : `> ${l}`))
+        .join("\n");
+}
+
 function block(n: DocNode, ctx: Ctx, alt: boolean, top: boolean): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
     case "paragraph":
       return aligned(n, inline(kids, ctx), ctx, top);
-    case "heading": {
-      const level = Number(n.attrs?.level ?? 1);
-      if (![1, 2, 3].includes(level))
-        throw new MarkdownExportError(
-          `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
-        );
-      const text = inline(kids, ctx, { heading: true }).replace(/(\s)(#+)$/, "$1\\$2");
-      return aligned(n, `${"#".repeat(level)}${text ? ` ${text}` : ""}`, ctx, top);
-    }
-    case "blockquote": {
-      const inner = blockList(kids, ctx).join("\n\n");
-      return inner === ""
-        ? ">"
-        : inner
-            .split("\n")
-            .map((l) => (l === "" ? ">" : `> ${l}`))
-            .join("\n");
-    }
+    case "heading":
+      return heading(n, kids, ctx, top);
+    case "blockquote":
+      return blockquote(kids, ctx);
     case "bulletList":
     case "orderedList":
     case "taskList":

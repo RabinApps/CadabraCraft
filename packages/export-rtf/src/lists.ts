@@ -120,6 +120,23 @@ export function taskListRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer): stri
   return out;
 }
 
+/** One description of a definition list, indented one step. */
+function descriptionRtf(k: DocNode, ctx: Ctx, base: number, blockRtf: BlockRenderer): string[] {
+  const out: string[] = [];
+  const inner: Ctx = { ...ctx, quote: ctx.quote + 1 };
+  const [head, ...rest] = kidsOf(k);
+  if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
+  const opts = { left: base + INDENT, firstLine: 0 };
+  out.push(para(inline(kidsOf(head!), ctx), { ...opts, jc: jcOf(head!, ctx) }, ctx));
+  for (const c of rest) {
+    if (c.type === "paragraph") {
+      const runs = inline(kidsOf(c), ctx);
+      if (runs !== "") out.push(para(runs, { ...opts, jc: jcOf(c, ctx) }, ctx));
+    } else out.push(...blockRtf(c, inner));
+  }
+  return out;
+}
+
 /** Definition lists: each term as a bold paragraph that stays with its description, descriptions indented one step. */
 export function definitionListRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer): string[] {
   const out: string[] = [];
@@ -130,17 +147,7 @@ export function definitionListRtf(n: DocNode, ctx: Ctx, blockRtf: BlockRenderer)
         para(inline(kidsOf(k), ctx), { bold: true, keepNext: true, firstLine: 0, left: base }, ctx),
       );
     } else if (k.type === "definitionDescription") {
-      const inner: Ctx = { ...ctx, quote: ctx.quote + 1 };
-      const [head, ...rest] = kidsOf(k);
-      if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
-      const opts = { left: base + INDENT, firstLine: 0 };
-      out.push(para(inline(kidsOf(head!), ctx), { ...opts, jc: jcOf(head!, ctx) }, ctx));
-      for (const c of rest) {
-        if (c.type === "paragraph") {
-          const runs = inline(kidsOf(c), ctx);
-          if (runs !== "") out.push(para(runs, { ...opts, jc: jcOf(c, ctx) }, ctx));
-        } else out.push(...blockRtf(c, inner));
-      }
+      out.push(...descriptionRtf(k, ctx, base, blockRtf));
     } else fail(ctx, `The node "${k.type}" cannot be written in a definition list`, k.type);
   }
   return out;

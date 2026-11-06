@@ -278,24 +278,70 @@ function definitionList(n: DocNode, ctx: Ctx): string {
   return `<dl>${parts.join("")}</dl>`;
 }
 
+type ElementNode = Exclude<DocNode, { type: "text" }>;
+
+function headingXhtml(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  const level = Number(n.attrs?.level ?? 1);
+  if (![1, 2, 3].includes(level))
+    throw fail(
+      ctx,
+      "invalid-heading",
+      `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
+      "heading",
+    );
+  const id = ctx.headingIds ? ` id="${headingAnchor(ctx.headings)}"` : "";
+  ctx.headings += 1;
+  return `<h${level}${id}${alignAttr(n, ctx)}>${inline(kids, ctx)}</h${level}>`;
+}
+
+function orderedListXhtml(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  const start = n.attrs?.start;
+  const attr =
+    typeof start === "number" && Number.isInteger(start) && start !== 1 ? ` start="${start}"` : "";
+  return `<ol${attr}>${blocks(kids, ctx)}</ol>`;
+}
+
+function codeBlockXhtml(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  const lang =
+    typeof n.attrs?.language === "string" && n.attrs.language
+      ? ` class="language-${esc(n.attrs.language)}"`
+      : "";
+  const text = (kids ?? [])
+    .map((k, i) =>
+      at(ctx, k, i, () => {
+        if (k.type !== "text")
+          throw fail(
+            ctx,
+            "unsupported-node",
+            `Unsupported node type in code block: ${k.type}`,
+            k.type,
+          );
+        return k.text;
+      }),
+    )
+    .join("");
+  return `<pre><code${lang}>${esc(text)}</code></pre>`;
+}
+
+function imageXhtml(n: ElementNode): string {
+  const a = n.attrs ?? {};
+  // A decorative image keeps an empty alt on purpose and is hidden from assistive technology.
+  const src = esc(String(a.src ?? ""));
+  const img = a.decorative
+    ? `<img src="${src}" alt="" role="presentation"/>`
+    : `<img src="${src}" alt="${esc(String(a.alt ?? ""))}"/>`;
+  return `<figure>${img}${
+    a.title ? `<figcaption>${esc(String(a.title))}</figcaption>` : ""
+  }</figure>`;
+}
+
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
     case "paragraph":
       return `<p${alignAttr(n, ctx)}>${inline(kids, ctx)}</p>`;
-    case "heading": {
-      const level = Number(n.attrs?.level ?? 1);
-      if (![1, 2, 3].includes(level))
-        throw fail(
-          ctx,
-          "invalid-heading",
-          `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
-          "heading",
-        );
-      const id = ctx.headingIds ? ` id="${headingAnchor(ctx.headings)}"` : "";
-      ctx.headings += 1;
-      return `<h${level}${id}${alignAttr(n, ctx)}>${inline(kids, ctx)}</h${level}>`;
-    }
+    case "heading":
+      return headingXhtml(n, kids, ctx);
     case "blockquote":
       return `<blockquote>${blocks(kids, ctx)}</blockquote>`;
     // A scene is structure inside the app: its notes never print, and its blocks print as they are.
@@ -303,58 +349,24 @@ function block(n: DocNode, ctx: Ctx): string {
       return blocks(kids, ctx);
     case "bulletList":
       return `<ul>${blocks(kids, ctx)}</ul>`;
-    case "orderedList": {
-      const start = n.attrs?.start;
-      const attr =
-        typeof start === "number" && Number.isInteger(start) && start !== 1
-          ? ` start="${start}"`
-          : "";
-      return `<ol${attr}>${blocks(kids, ctx)}</ol>`;
-    }
+    case "orderedList":
+      return orderedListXhtml(n, kids, ctx);
     case "listItem":
       return `<li>${blocks(kids, ctx)}</li>`;
     case "taskList":
       return taskList(n, ctx);
     case "definitionList":
       return definitionList(n, ctx);
-    case "codeBlock": {
-      const lang =
-        typeof n.attrs?.language === "string" && n.attrs.language
-          ? ` class="language-${esc(n.attrs.language)}"`
-          : "";
-      const text = (kids ?? [])
-        .map((k, i) =>
-          at(ctx, k, i, () => {
-            if (k.type !== "text")
-              throw fail(
-                ctx,
-                "unsupported-node",
-                `Unsupported node type in code block: ${k.type}`,
-                k.type,
-              );
-            return k.text;
-          }),
-        )
-        .join("");
-      return `<pre><code${lang}>${esc(text)}</code></pre>`;
-    }
+    case "codeBlock":
+      return codeBlockXhtml(n, kids, ctx);
     case "table":
       return table(n, ctx);
     case "sceneBreak":
       return `<hr class="scene-break"/>`;
     case "pageBreak":
       return `<hr class="page-break"/>`;
-    case "image": {
-      const a = n.attrs ?? {};
-      // A decorative image keeps an empty alt on purpose and is hidden from assistive technology.
-      const src = esc(String(a.src ?? ""));
-      const img = a.decorative
-        ? `<img src="${src}" alt="" role="presentation"/>`
-        : `<img src="${src}" alt="${esc(String(a.alt ?? ""))}"/>`;
-      return `<figure>${img}${
-        a.title ? `<figcaption>${esc(String(a.title))}</figcaption>` : ""
-      }</figure>`;
-    }
+    case "image":
+      return imageXhtml(n);
     default:
       throw fail(ctx, "unsupported-node", `Unsupported node type in chapter: ${n.type}`, n.type);
   }

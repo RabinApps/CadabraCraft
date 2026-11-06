@@ -86,98 +86,82 @@ function processRun(r: XNode, link: Mark | undefined, st: PState): void {
   runChildren(kids(r), marks, link, st);
 }
 
+type RunHandler = (c: XNode, marks: Mark[], link: Mark | undefined, st: PState) => void;
+
+const textOf = (c: XNode): string =>
+  kids(c)
+    .map((x) => String(x["#text"] ?? ""))
+    .join("");
+
+function lineBreak(c: XNode, st: PState): void {
+  const ty = attr(c, "type");
+  if (ty === "page" || ty === "column")
+    st.ctx.warn.tally(
+      "page-break",
+      "info",
+      "Page and column breaks are ignored; use scene breaks for separations.",
+    );
+  else st.items.push({ sep: "break" });
+}
+
+/** The end of a field's instruction: a HYPERLINK becomes the link of the field's result, any other field is reported. */
+function separateField(st: PState): void {
+  const f = st.fields[st.fields.length - 1];
+  if (!f) return;
+  f.phase = "result";
+  const m = /^\s*HYPERLINK\s+"([^"]+)"/i.exec(f.instr);
+  if (m) f.link = linkMark(m[1], st, "field");
+  else if (!/^\s*HYPERLINK/i.test(f.instr))
+    st.ctx.warn.tally(
+      "field",
+      "info",
+      "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+      f.instr.trim().split(/\s+/)[0],
+    );
+}
+
+function fieldChar(c: XNode, st: PState): void {
+  const ty = attr(c, "fldCharType");
+  if (ty === "begin") st.fields.push({ instr: "", phase: "instr" });
+  else if (ty === "separate") separateField(st);
+  else if (ty === "end") st.fields.pop();
+}
+
+function instruction(c: XNode, st: PState): void {
+  const f = st.fields[st.fields.length - 1];
+  if (f && f.phase === "instr") f.instr += textOf(c);
+}
+
+const RUN_HANDLERS = new Map<string | undefined, RunHandler>(
+  Object.entries<RunHandler>({
+    t: (c, marks, link, st) => pushText(st, textOf(c), marks, link),
+    tab: (_c, marks, link, st) => pushText(st, " ", marks, link),
+    noBreakHyphen: (_c, marks, link, st) => pushText(st, "-", marks, link),
+    br: (c, _m, _l, st) => lineBreak(c, st),
+    cr: (_c, _m, _l, st) => void st.items.push({ sep: "break" }),
+    fldChar: (c, _m, _l, st) => fieldChar(c, st),
+    instrText: (c, _m, _l, st) => instruction(c, st),
+    footnoteReference: (c, _m, _l, st) => noteRef(c, "footnote", st),
+    endnoteReference: (c, _m, _l, st) => noteRef(c, "endnote", st),
+    drawing: (c, _m, _l, st) => drawing(c, st),
+    pict: (c, _m, _l, st) => pict(c, st),
+    object: (_c, _m, _l, st) =>
+      st.ctx.warn.tally(
+        "embedded-object",
+        "warning",
+        "Embedded objects (OLE, charts, equations editors) were skipped.",
+      ),
+    AlternateContent: (c, marks, link, st) => {
+      const choice = child(c, "Choice") ?? child(c, "Fallback");
+      if (choice) runChildren(kids(choice), marks, link, st);
+    },
+    commentReference: (_c, _m, _l, st) => void st.ctx.commentRefs++,
+    // rPr, delText, lastRenderedPageBreak, footnoteRef, separators and sym have no handler: they carry no text.
+  }),
+);
+
 function runChildren(list: XNode[], marks: Mark[], link: Mark | undefined, st: PState): void {
-  const ctx = st.ctx;
-  for (const c of list) {
-    const t = tagOf(c);
-    switch (t) {
-      case "t":
-        pushText(
-          st,
-          kids(c)
-            .map((x) => String(x["#text"] ?? ""))
-            .join(""),
-          marks,
-          link,
-        );
-        break;
-      case "tab":
-        pushText(st, " ", marks, link);
-        break;
-      case "noBreakHyphen":
-        pushText(st, "-", marks, link);
-        break;
-      case "br": {
-        const ty = attr(c, "type");
-        if (ty === "page" || ty === "column")
-          ctx.warn.tally(
-            "page-break",
-            "info",
-            "Page and column breaks are ignored; use scene breaks for separations.",
-          );
-        else st.items.push({ sep: "break" });
-        break;
-      }
-      case "cr":
-        st.items.push({ sep: "break" });
-        break;
-      case "fldChar": {
-        const ty = attr(c, "fldCharType");
-        if (ty === "begin") st.fields.push({ instr: "", phase: "instr" });
-        else if (ty === "separate") {
-          const f = st.fields[st.fields.length - 1];
-          if (f) {
-            f.phase = "result";
-            const m = /^\s*HYPERLINK\s+"([^"]+)"/i.exec(f.instr);
-            if (m) f.link = linkMark(m[1], st, "field");
-            else if (!/^\s*HYPERLINK/i.test(f.instr))
-              ctx.warn.tally(
-                "field",
-                "info",
-                "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
-                f.instr.trim().split(/\s+/)[0],
-              );
-          }
-        } else if (ty === "end") st.fields.pop();
-        break;
-      }
-      case "instrText": {
-        const f = st.fields[st.fields.length - 1];
-        if (f && f.phase === "instr")
-          f.instr += kids(c)
-            .map((x) => String(x["#text"] ?? ""))
-            .join("");
-        break;
-      }
-      case "footnoteReference":
-      case "endnoteReference":
-        noteRef(c, t === "footnoteReference" ? "footnote" : "endnote", st);
-        break;
-      case "drawing":
-        drawing(c, st);
-        break;
-      case "pict":
-        pict(c, st);
-        break;
-      case "object":
-        ctx.warn.tally(
-          "embedded-object",
-          "warning",
-          "Embedded objects (OLE, charts, equations editors) were skipped.",
-        );
-        break;
-      case "AlternateContent": {
-        const choice = child(c, "Choice") ?? child(c, "Fallback");
-        if (choice) runChildren(kids(choice), marks, link, st);
-        break;
-      }
-      case "commentReference":
-        ctx.commentRefs++;
-        break;
-      default:
-        break; // rPr, delText, lastRenderedPageBreak, footnoteRef, separators, sym
-    }
-  }
+  for (const c of list) RUN_HANDLERS.get(tagOf(c))?.(c, marks, link, st);
 }
 
 function noteRef(c: XNode, kind: "footnote" | "endnote", st: PState): void {
@@ -227,102 +211,99 @@ function noteNode(el: XNode, ctx: DCtx): DocNode {
   return content.length ? { type: "footnote", content } : { type: "footnote" };
 }
 
-export function paragraphChildren(list: XNode[], link: Mark | undefined, st: PState): void {
+type ParaHandler = (c: XNode, link: Mark | undefined, st: PState) => void;
+
+const TRACKED_CHANGES =
+  "The file has tracked changes: insertions were accepted (kept), deletions were dropped.";
+
+function hyperlink(c: XNode, link: Mark | undefined, st: PState): void {
   const ctx = st.ctx;
-  for (const c of list) {
-    const t = tagOf(c);
-    switch (t) {
-      case "r":
-        processRun(c, link, st);
-        break;
-      case "hyperlink": {
-        const rid = attr(c, "id");
-        const rel = rid ? ctx.rels.get(rid) : undefined;
-        let m: Mark | undefined;
-        if (rel?.external) m = linkMark(rel.target, st, "hyperlink");
-        else if (attr(c, "anchor") !== undefined)
-          ctx.warn.tally(
-            "internal-link",
-            "info",
-            "Links to bookmarks inside the document were kept as plain text.",
-            attr(c, "anchor"),
-          );
-        paragraphChildren(kids(c), m ?? link, st);
-        break;
-      }
-      case "fldSimple": {
-        const instr = attr(c, "instr") ?? "";
-        const h = /^\s*HYPERLINK\s+"([^"]+)"/i.exec(instr);
-        let m: Mark | undefined;
-        if (h) m = linkMark(h[1], st, "field");
-        else
-          ctx.warn.tally(
-            "field",
-            "info",
-            "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
-            instr.trim().split(/\s+/)[0],
-          );
-        paragraphChildren(kids(c), m ?? link, st);
-        break;
-      }
-      case "ins":
-      case "moveTo":
-        ctx.warn.tally(
-          "tracked-changes",
-          "warning",
-          "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
-          rawText(c),
-        );
-        paragraphChildren(kids(c), link, st);
-        break;
-      case "del":
-      case "moveFrom":
-        ctx.warn.tally(
-          "tracked-changes",
-          "warning",
-          "The file has tracked changes: insertions were accepted (kept), deletions were dropped.",
-          rawText(c),
-        );
-        break;
-      case "sdt": {
-        // A checkbox control at the start of a paragraph makes it a task item; its glyph is not text.
-        const box = child(child(c, "sdtPr") ?? {}, "checkbox");
-        if (box && st.checkbox === undefined && st.items.length === 0 && !st.inNote) {
-          const v = attr(child(box, "checked") ?? {}, "val");
-          st.checkbox = v === "1" || v === "true" || v === "on";
-          break;
-        }
-        paragraphChildren(kids(child(c, "sdtContent") ?? {}), link, st);
-        break;
-      }
-      case "sdtContent":
-      case "smartTag":
-      case "customXml":
-      case "dir":
-      case "bdo":
-        paragraphChildren(kids(c), link, st);
-        break;
-      case "oMath":
-      case "oMathPara": {
-        const txt = descendants(c, "t")
-          .map((x) => rawText(x))
-          .join("");
-        ctx.warn.tally(
-          "equation",
-          "warning",
-          "Equations are not supported; their text was kept without layout.",
-          txt,
-        );
-        pushText(st, txt, [], link);
-        break;
-      }
-      case "AlternateContent": {
-        const choice = child(c, "Choice") ?? child(c, "Fallback");
-        if (choice) paragraphChildren(kids(choice), link, st);
-        break;
-      }
-      default:
-        break; // pPr, bookmarks, proofErr, comment ranges
-    }
+  const rid = attr(c, "id");
+  const rel = rid ? ctx.rels.get(rid) : undefined;
+  let m: Mark | undefined;
+  if (rel?.external) m = linkMark(rel.target, st, "hyperlink");
+  else if (attr(c, "anchor") !== undefined)
+    ctx.warn.tally(
+      "internal-link",
+      "info",
+      "Links to bookmarks inside the document were kept as plain text.",
+      attr(c, "anchor"),
+    );
+  paragraphChildren(kids(c), m ?? link, st);
+}
+
+function simpleField(c: XNode, link: Mark | undefined, st: PState): void {
+  const instr = attr(c, "instr") ?? "";
+  const h = /^\s*HYPERLINK\s+"([^"]+)"/i.exec(instr);
+  let m: Mark | undefined;
+  if (h) m = linkMark(h[1], st, "field");
+  else
+    st.ctx.warn.tally(
+      "field",
+      "info",
+      "Word fields (page numbers, tables of contents, cross-references) were replaced by their current text.",
+      instr.trim().split(/\s+/)[0],
+    );
+  paragraphChildren(kids(c), m ?? link, st);
+}
+
+function structuredTag(c: XNode, link: Mark | undefined, st: PState): void {
+  // A checkbox control at the start of a paragraph makes it a task item; its glyph is not text.
+  const box = child(child(c, "sdtPr") ?? {}, "checkbox");
+  if (box && st.checkbox === undefined && st.items.length === 0 && !st.inNote) {
+    const v = attr(child(box, "checked") ?? {}, "val");
+    st.checkbox = v === "1" || v === "true" || v === "on";
+    return;
   }
+  paragraphChildren(kids(child(c, "sdtContent") ?? {}), link, st);
+}
+
+function equation(c: XNode, link: Mark | undefined, st: PState): void {
+  const txt = descendants(c, "t")
+    .map((x) => rawText(x))
+    .join("");
+  st.ctx.warn.tally(
+    "equation",
+    "warning",
+    "Equations are not supported; their text was kept without layout.",
+    txt,
+  );
+  pushText(st, txt, [], link);
+}
+
+const insertion: ParaHandler = (c, link, st) => {
+  st.ctx.warn.tally("tracked-changes", "warning", TRACKED_CHANGES, rawText(c));
+  paragraphChildren(kids(c), link, st);
+};
+const deletion: ParaHandler = (c, _link, st) =>
+  st.ctx.warn.tally("tracked-changes", "warning", TRACKED_CHANGES, rawText(c));
+const transparent: ParaHandler = (c, link, st) => paragraphChildren(kids(c), link, st);
+
+const PARA_HANDLERS = new Map<string | undefined, ParaHandler>(
+  Object.entries<ParaHandler>({
+    r: (c, link, st) => processRun(c, link, st),
+    hyperlink,
+    fldSimple: simpleField,
+    ins: insertion,
+    moveTo: insertion,
+    del: deletion,
+    moveFrom: deletion,
+    sdt: structuredTag,
+    sdtContent: transparent,
+    smartTag: transparent,
+    customXml: transparent,
+    dir: transparent,
+    bdo: transparent,
+    oMath: equation,
+    oMathPara: equation,
+    AlternateContent: (c, link, st) => {
+      const choice = child(c, "Choice") ?? child(c, "Fallback");
+      if (choice) paragraphChildren(kids(choice), link, st);
+    },
+    // pPr, bookmarks, proofErr and comment ranges have no handler: they carry no text.
+  }),
+);
+
+export function paragraphChildren(list: XNode[], link: Mark | undefined, st: PState): void {
+  for (const c of list) PARA_HANDLERS.get(tagOf(c))?.(c, link, st);
 }

@@ -86,14 +86,11 @@ describe("options edge cases", () => {
     const fonts = { body: "B", heading: "H" };
     const margins = { top: 1, bottom: 1, inside: 1, outside: 1 };
     expect(() =>
-      preamble(
-        book,
-        getTemplate("novel"),
-        { trimSize: "bogus" } as unknown as PdfOptions,
+      preamble(book, getTemplate("novel"), { trimSize: "bogus" } as unknown as PdfOptions, {
         fonts,
         margins,
-        false,
-      ),
+        hasFront: false,
+      }),
     ).toThrow(/Unknown trim size "bogus"/);
   });
   it("omits lang for a missing or unparseable language", () => {

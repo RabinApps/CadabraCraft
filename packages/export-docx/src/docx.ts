@@ -91,6 +91,99 @@ const startsWithTitle = (doc: ChapterDoc): boolean => {
   return first?.type === "heading" && first.attrs?.level === 1;
 };
 
+const bookText = (text: string, what: string): string => {
+  const bad = illegalXmlChar(text);
+  if (bad)
+    throw new DocxExportError(
+      `The ${what} contains the character ${bad}, which a Word file cannot hold`,
+    );
+  return text;
+};
+
+/** The three blocks that open the file: the word count, the title and the author (which ends the first section). */
+function titleBlocks(
+  title: string,
+  author: string,
+  words: number,
+  s: Shared,
+  emptyHdr: string,
+): string[] {
+  const tctx: Ctx = { s, chapter: "", quote: 0, list: 0, inNote: false, runProps: {} };
+  return [
+    para(
+      `<w:r><w:t>${esc(`About ${words.toLocaleString("en-US")} ${words === 1 ? "word" : "words"}`)}</w:t></w:r>`,
+      { style: "TitlePageInfo" },
+      tctx,
+    ),
+    para(title === "" ? "" : textRuns(title, ""), { style: "Title", spaceBefore: 4320 }, tctx),
+    para(
+      author === "" ? "" : textRuns(`by ${author}`, ""),
+      { style: "TitlePageAuthor", sect: sectPr(emptyHdr, { restart: false }) },
+      tctx,
+    ),
+  ];
+}
+
+/** The blocks of one page (chapter or matter page); `startsOnNewPage` is false only for the first one. */
+function pageBlocks(
+  c: DocxChapter,
+  s: Shared,
+  startsOnNewPage: boolean,
+  options: DocxOptions,
+  language: string,
+): string[] {
+  const body: string[] = [];
+  const section = c.section ?? "chapter";
+  const label = c.title.trim() || c.id || "(untitled page)";
+  const ctx: Ctx = { s, chapter: label, quote: 0, list: 0, inNote: false, runProps: {} };
+  if (!c.doc || c.doc.type !== "doc" || !Array.isArray(c.doc.content))
+    fail(ctx, 'A chapter document must be an object with type "doc"');
+  s.pendingBreak = startsOnNewPage;
+  // A break as the page's first block asks for nothing (the page already starts on a new one); kept, Word would print a blank page
+  // before the chapter.
+  const { doc } = dropLeadingPageBreak(c.doc);
+  const titled = startsWithTitle(doc);
+  const nodes = doc.content;
+  if (!titled && section === "chapter" && c.title.trim() !== "") {
+    body.push(
+      para(
+        textRuns(checkText(c.title.trim(), ctx, "The chapter title"), ""),
+        { style: "Heading1", spaceBefore: 2880 },
+        ctx,
+      ),
+    );
+  }
+  if (
+    c.kind === "contents" &&
+    options.contents !== undefined &&
+    !nodes.some((n) => n.type === "heading")
+  ) {
+    const heading = checkText(
+      c.title.trim() || starterTitle("contents", language),
+      ctx,
+      "The contents title",
+    );
+    body.push(para(textRuns(heading, ""), { style: "Heading1", spaceBefore: 2880 }, ctx));
+  }
+  nodes.forEach((n, i) => {
+    if (i === 0 && titled) {
+      const runs = inline(kidsOf(n), ctx);
+      if (runs !== "") body.push(para(runs, { style: "Heading1", spaceBefore: 2880 }, ctx));
+    } else body.push(...blockXml(n, ctx));
+  });
+  if (c.kind === "contents" && options.contents !== undefined) {
+    for (const { item, title } of contentsLines(options.contents)) {
+      const line = checkText(title, ctx, "A contents entry");
+      const indent = item.indent ?? item.level;
+      body.push(para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * indent }, ctx));
+    }
+  }
+  // A page with no content still starts on its own page.
+  if (s.pendingBreak) body.push(para("", {}, ctx));
+  s.pendingBreak = false;
+  return body;
+}
+
 /**
  * Builds a `.docx` in standard manuscript format as bytes: US Letter, 1 inch margins, 12 pt Times New Roman (or Courier New),
  * double spaced, 0.5 inch first-line indent, left aligned, a running header "Surname / TITLE / page", a title page with the
@@ -104,16 +197,8 @@ export function buildDocx(
 ): Uint8Array {
   const language = book.language ?? "en";
   if (textDirection(language) === "rtl") throw new DocxExportError(RIGHT_TO_LEFT_HINT);
-  const bookCtxCheck = (text: string, what: string) => {
-    const bad = illegalXmlChar(text);
-    if (bad)
-      throw new DocxExportError(
-        `The ${what} contains the character ${bad}, which a Word file cannot hold`,
-      );
-    return text;
-  };
-  const title = bookCtxCheck(book.title.trim(), "book title");
-  const author = bookCtxCheck(book.author.trim(), "author name");
+  const title = bookText(book.title.trim(), "book title");
+  const author = bookText(book.author.trim(), "author name");
   const fontName = manuscriptFontName(options.font);
   const s: Shared = {
     assets: options.assets ?? new Map(),
@@ -149,74 +234,14 @@ export function buildDocx(
     (countable.length ? countable : pages).reduce((sum, c) => sum + countWords(c.doc), 0),
   );
 
-  const tctx: Ctx = { s, chapter: "", quote: 0, list: 0, inNote: false, runProps: {} };
-  body.push(
-    para(
-      `<w:r><w:t>${esc(`About ${words.toLocaleString("en-US")} ${words === 1 ? "word" : "words"}`)}</w:t></w:r>`,
-      { style: "TitlePageInfo" },
-      tctx,
-    ),
-    para(title === "" ? "" : textRuns(title, ""), { style: "Title", spaceBefore: 4320 }, tctx),
-    para(
-      author === "" ? "" : textRuns(`by ${author}`, ""),
-      { style: "TitlePageAuthor", sect: sectPr(emptyHdr, { restart: false }) },
-      tctx,
-    ),
-  );
+  body.push(...titleBlocks(title, author, words, s, emptyHdr));
 
   let first = true;
   for (const c of pages) {
-    const section = c.section ?? "chapter";
     // A blank page has no text; Word paginates itself, so it is left out (as in the RTF and Markdown exports).
     if (c.kind === "title-page" || c.kind === "blank") continue;
-    const label = c.title.trim() || c.id || "(untitled page)";
-    const ctx: Ctx = { s, chapter: label, quote: 0, list: 0, inNote: false, runProps: {} };
-    if (!c.doc || c.doc.type !== "doc" || !Array.isArray(c.doc.content))
-      fail(ctx, 'A chapter document must be an object with type "doc"');
-    s.pendingBreak = !first;
+    body.push(...pageBlocks(c, s, !first, options, language));
     first = false;
-    // A break as the page's first block asks for nothing (the page already starts on a new one); kept, Word would print a blank page
-    // before the chapter.
-    const { doc } = dropLeadingPageBreak(c.doc);
-    const titled = startsWithTitle(doc);
-    const nodes = doc.content;
-    if (!titled && section === "chapter" && c.title.trim() !== "") {
-      body.push(
-        para(
-          textRuns(checkText(c.title.trim(), ctx, "The chapter title"), ""),
-          { style: "Heading1", spaceBefore: 2880 },
-          ctx,
-        ),
-      );
-    }
-    if (
-      c.kind === "contents" &&
-      options.contents !== undefined &&
-      !nodes.some((n) => n.type === "heading")
-    ) {
-      const heading = checkText(
-        c.title.trim() || starterTitle("contents", language),
-        ctx,
-        "The contents title",
-      );
-      body.push(para(textRuns(heading, ""), { style: "Heading1", spaceBefore: 2880 }, ctx));
-    }
-    nodes.forEach((n, i) => {
-      if (i === 0 && titled) {
-        const runs = inline(kidsOf(n), ctx);
-        if (runs !== "") body.push(para(runs, { style: "Heading1", spaceBefore: 2880 }, ctx));
-      } else body.push(...blockXml(n, ctx));
-    });
-    if (c.kind === "contents" && options.contents !== undefined) {
-      for (const { item, title } of contentsLines(options.contents)) {
-        const line = checkText(title, ctx, "A contents entry");
-        const indent = item.indent ?? item.level;
-        body.push(para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * indent }, ctx));
-      }
-    }
-    // A page with no content still starts on its own page.
-    if (s.pendingBreak) body.push(para("", {}, ctx));
-    s.pendingBreak = false;
   }
   const settled = settleTables(body);
   const document = `${XML_HEAD}<w:document xmlns:w="${NS_W}" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="w14" xmlns:r="${NS_R}" xmlns:wp="${NS_WP}" xmlns:a="${NS_A}" xmlns:pic="${NS_PIC}"><w:body>${settled.join("")}${sectPr(runHdr, { restart: true, type: true })}</w:body></w:document>`;

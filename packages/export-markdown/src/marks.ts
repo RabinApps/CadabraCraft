@@ -64,6 +64,44 @@ function wrap(inner: string, open: string, close: string): string {
   return m[2] === "" ? inner : `${m[1]}${open}${m[2]}${close}${m[3]}`;
 }
 
+type TextRun = Extract<Item, { kind: "text" }>[];
+
+/** One run of text that shares its outermost mark, appended to `out`. */
+function renderRun(
+  out: string,
+  run: TextRun,
+  next: Item | undefined,
+  ctx: Ctx,
+  where: Where,
+): string {
+  const mark = run[0]!.marks[0]!;
+  if (mark.type === "code") return out + codeSpan(run.map((r) => r.text).join(""), where);
+  const inner = renderItems(
+    run.map((r) => ({ ...r, marks: r.marks.slice(1) })),
+    ctx,
+    where,
+    false,
+  );
+  if (mark.type === "link") {
+    // "!" right before "[" would turn the link into an image.
+    const head = out.endsWith("!") ? `${out.slice(0, -1)}\\!` : out;
+    return `${head}[${inner}](${linkDestination(mark.attrs!.href!)})`;
+  }
+  if (mark.type === "bold") return out + wrap(inner, "**", "**");
+  if (mark.type === "strike") return out + wrap(inner, "~~", "~~");
+  if (mark.type === "italic") {
+    // `**a***b*` is ambiguous, so italic next to a bold or italic neighbour uses underscores.
+    const nm = next?.kind === "text" ? next.marks[0]?.type : undefined;
+    const d = out.endsWith("*") || nm === "bold" || nm === "italic" ? "_" : "*";
+    return out + wrap(inner, d, d);
+  }
+  const [open, close] =
+    mark.type === "lang"
+      ? [`<span lang="${mark.attrs!.lang}">`, "</span>"]
+      : HTML_MARKS[mark.type]!;
+  return out + wrap(inner, open, close);
+}
+
 function renderItems(items: Item[], ctx: Ctx, where: Where, atStart: boolean): string {
   let out = "";
   let i = 0;
@@ -93,34 +131,7 @@ function renderItems(items: Item[], ctx: Ctx, where: Where, atStart: boolean): s
     }
     const run = items.slice(i, j) as Extract<Item, { kind: "text" }>[];
     const next = items[j];
-    if (mark.type === "code") {
-      out += codeSpan(run.map((r) => r.text).join(""), where);
-    } else {
-      const inner = renderItems(
-        run.map((r) => ({ ...r, marks: r.marks.slice(1) })),
-        ctx,
-        where,
-        false,
-      );
-      if (mark.type === "link") {
-        // "!" right before "[" would turn the link into an image.
-        if (out.endsWith("!")) out = `${out.slice(0, -1)}\\!`;
-        out += `[${inner}](${linkDestination(mark.attrs!.href!)})`;
-      } else if (mark.type === "bold") out += wrap(inner, "**", "**");
-      else if (mark.type === "strike") out += wrap(inner, "~~", "~~");
-      else if (mark.type === "italic") {
-        // `**a***b*` is ambiguous, so italic next to a bold or italic neighbour uses underscores.
-        const nm = next?.kind === "text" ? next.marks[0]?.type : undefined;
-        const d = out.endsWith("*") || nm === "bold" || nm === "italic" ? "_" : "*";
-        out += wrap(inner, d, d);
-      } else {
-        const [open, close] =
-          mark.type === "lang"
-            ? [`<span lang="${mark.attrs!.lang}">`, "</span>"]
-            : HTML_MARKS[mark.type]!;
-        out += wrap(inner, open, close);
-      }
-    }
+    out = renderRun(out, run, next, ctx, where);
     i = j;
   }
   return out;
